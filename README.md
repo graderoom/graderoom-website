@@ -3,6 +3,10 @@ install python 3
 pip3 install -r requirements.txt
 
 
-### running flask app
-see https://flask.palletsprojects.com/en/1.1.x/quickstart/
+### flask app
+note: flask app acts as an api, not a renderer
+todo: what do to for frontend
+
+### powerschool scraper
+
 
