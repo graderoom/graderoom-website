@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup as BS
-import getpass
 
 class PowerschoolScraper:
 	def __init__(self, email, password):
@@ -86,36 +85,21 @@ class PowerschoolScraper:
 		}
 		
 		url = "https://powerschool.bcp.org/guardian/home.html" # get a cookie and intial saml request token
-		r = self.sesh.get(url, headers = headers_1)
-		soup = BS(r.text, "html.parser")
-		# print(r.text)
-		#todo remove all print /pause statements
-		print(self.sesh.cookies)
-		print('1st request result: should have cookie: JSESSION.')
-
-		input("any key to continue")
-
+		resp_1 = self.sesh.get(url, headers = headers_1)
+		soup = BS(resp_1.text, "html.parser")
 		samlr = soup.find("input", {'name': 'SAMLRequest'}).get('value')
-		print("First samlr:" + samlr ) #todo remove
 
-		url_3 = "https://federation.bcp.org/idp/SSO.saml2"
+		url_2 = "https://federation.bcp.org/idp/SSO.saml2"
 		data = {
 			'RelayState':"/guardian/home.html",
 			'SAMLRequest': samlr,
 		}
+		resp_2 = self.sesh.post(url_2, data = data, headers = headers_2)
 
-		res = self.sesh.post(url_3, data = data, headers = headers_2)
+		soup2 = BS(resp_2.text, "html.parser")
+		dynamic_url_half  = soup2.find("form", id = 'ping-login-form').get('action')
 
-		#todo remove
-		print(self.sesh.cookies)
-		print("^ should now have PF cookie")
-
-
-		soup2 = BS(res.text, "html.parser")
-		url_4  = soup2.find("form", id = 'ping-login-form').get('action')
-
-		url_5 = "https://federation.bcp.org" + url_4
-		print("post url:"+ url_5)
+		url_3 = "https://federation.bcp.org" + dynamic_url_half
 
 		dat2 = {
 			'pf.ok': '',
@@ -123,42 +107,40 @@ class PowerschoolScraper:
 			'pf.username': self.email,
 			'pf.pass': self.password,
 		}
+		resp_3 = self.sesh.post(url_3, data= dat2, headers = sso_ping_no_two_headers)
 
-		resp3 = self.sesh.post(url_5, data= dat2, headers = sso_ping_no_two_headers)
+		url_4 = 'https://powerschool.bcp.org:443/saml/SSO/alias/pslive'
+		soup_3 = BS(resp_3.text, "html.parser")
 
-		#todo remove
-		print(resp3.status_code)
-		#print(resp3.text)
-		input("above should say: ince your browser does not support JavaScript, you must press the Resume button once t")
+		#if this is not found, authentication failed (incorrect login)
+		samlr_ref = soup_3.find("input", {'name': 'SAMLResponse'})
+		if samlr_ref == None:
+			#failed login
+			return 
 
-		url_10 = 'https://powerschool.bcp.org:443/saml/SSO/alias/pslive'
-
-		soup_3 = BS(resp3.text, "html.parser")
-
-		#todo if this is not found, authentication failed (incorrect login)
-		samlr = soup_3.find("input", {'name': 'SAMLResponse'}).get('value')
-		print("BIG SAMLResponse:" + samlr)
-
+		samlr = samlr_ref.get('value')
+		
 		data = {
 			'SAMLResponse': samlr,
 			'RelayState':"/guardian/home.html",
 		}
 
-		headers_3['Referer'] = url_5
+		headers_3['Referer'] = url_3
 		#manully add cookie
 
 		jsesh = self.sesh.cookies.get_dict()['JSESSIONID']
-
 		headers_3['Cookie'] = "JSESSIONID=" + jsesh #todo figure out best way to store this for later use
 
-		res_6 = self.sesh.post(url_10, data = data, headers = headers_3)
-
+		resp_4 = self.sesh.post(url_4, data = data, headers = headers_3)
+		#powerschool home page ^!
+		
+		
 		#todo remove
-		print(res_6.headers)
-		print(res_6.status_code)
-		print(res_6.text)
-		print(res_6.url) #todo if login fails; url = https://powerschool.bcp.org/samlsp/authenticationexception.action?error_type=AUTHENTICATION_EXCEPTION
-		print(self.sesh.cookies)
+		# print(res_6.headers)
+		# print(res_6.status_code)
+		# print(res_6.text)
+		# print(res_6.url) #todo if login fails; url = https://powerschool.bcp.org/samlsp/authenticationexception.action?error_type=AUTHENTICATION_EXCEPTION
+		# print(self.sesh.cookies)
 
 		
 if __name__ == "__main__":
