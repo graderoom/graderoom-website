@@ -1,6 +1,46 @@
 import requests
 from bs4 import BeautifulSoup as BS
 
+class ClassGrade:
+	def __init__(self, class_name, teacher_name, overall_percent, overall_letter):
+		self.class_name = class_name
+		self.teacher_name = teacher_name
+		self.overall_letter = overall_letter
+		self.overall_percent = overall_percent
+		self.grades = []
+		self.weights = {}
+
+	def set_weights(self, weights):
+		self.weights = 	weights
+
+	def add_grade(self, assignment_name, grade_percent, points_gotten, points_possible, category):
+		
+		# todo add a case for no grade yet?
+
+		new_grade = {
+			'assignment_name': assignment_name, #string
+			'category': category, #string
+			'grade_percent': grade_percent, #double
+			'points_gotten': points_gotten, #double
+			'points_possible': points_possible #double
+		}
+		
+		self.grades.append(new_grade)
+
+	def __str__(self):
+		ret = "--------------------" + "\nGrade Object:\n" + "Course Name: " + self.class_name + "\nTeacher: " + self.teacher_name + "\nOverall Grade: " + self.overall_letter + " " + str(self.overall_percent) + "\nAssignments:"
+		return ret #TODO add assignments nicely
+
+	def as_dict(self): #TODO this might just be the same as attrs 
+		return {
+			'class_name': self.class_name,
+			'teacher_name': self.teacher_name,
+			'overall_percent': self.overall_percent,
+			'overall_letter': self.overall_letter,
+			'weights': self.weights,
+			'grades': self.grades
+		}	
+
 class PowerschoolScraper:
 	def __init__(self, email, password):
 		self.email = email
@@ -116,6 +156,7 @@ class PowerschoolScraper:
 		samlr_ref = soup_3.find("input", {'name': 'SAMLResponse'})
 		if samlr_ref == None:
 			#failed login
+			print("Incorrect login details.")
 			return 
 
 		samlr = samlr_ref.get('value')
@@ -134,6 +175,106 @@ class PowerschoolScraper:
 		resp_4 = self.sesh.post(url_4, data = data, headers = headers_3)
 		#powerschool home page ^!
 		
+		soup_test = BS(resp_4.text, "html.parser")
+		table = soup_test.find("table", {'class': 'linkDescList grid'})
+
+		#TODO move below out of login meethod
+
+		tr_s = table.findChildren("tr", recursive=False)
+		rows = []
+		for maybe_row in tr_s:
+			# print(maybe_row.attrs)
+			if maybe_row.has_attr('class') and maybe_row['class'] == ['center']:
+				# print("yk!")
+				rows.append(maybe_row)
+
+		final_all_classes = []
+
+		for actual_row in rows:
+
+			local_class = None
+
+			link_to_assignments = None
+			class_name = None
+			teacher_name = None
+			overall_percent = None
+			overall_letter = None
+
+
+			#find overall grade + link to full assignments page
+			aas = actual_row.findChildren("a", recursive=True)
+			for link in aas:
+				if link.has_attr('class') and link['class'] == ['bold'] and link['href'][:5] == 'score':
+					 #todo this is hacky . fix ^ (the last check)
+					# print(link)
+					letter_percent_combined = link.text
+
+					split_point = None
+					for indx, charac in enumerate(letter_percent_combined):
+						if str.isdigit(charac):
+							split_point = indx
+							break
+
+					overall_letter = letter_percent_combined[:split_point]
+					# print(overall_letter)	
+					overall_percent = float(letter_percent_combined[split_point:])		
+					# print(overall_percent)			
+					link_to_assignments = link['href']
+					# print(link_to_assignments)
+
+			#find class name + teacher name
+			tds = actual_row.findChildren("td", recursive=False)
+			for td in tds:
+				if td.has_attr('align') and td['align'] == 'left':
+					text_2 = td.text.replace('\xa0', '') #wacky html character
+					split_text = text_2.split('Details about ')
+					teacher_name = split_text[0] # will break with classes named Details about :[
+					class_name = (split_text[1]).split('Email')[0] #will break with teachers named Email :[
+					# print(teacher_name)
+					print(class_name)
+
+			# dont add stuff (yet) unless all elements are present
+			if class_name and teacher_name and overall_percent and overall_letter:
+				local_class = ClassGrade(class_name, teacher_name, overall_percent, overall_letter)
+
+			#add grades
+			if link_to_assignments == None:
+				break #homeroom triggerd this 
+			grades_resp = self.sesh.get('https://powerschool.bcp.org/guardian/' +  link_to_assignments)
+			#TODO GET grade weights!
+
+			grades_soup = BS(grades_resp.text, 'html.parser')
+			g_table = grades_soup.find('table', {'border': '0'}, class_=lambda x: x != 'linkDescList')
+			# print(g_table)
+			# for g_row in g
+
+			tr_gs = g_table.findChildren('tr')
+			print(tr_gs)
+
+			for tr in tr_gs:
+				print("TR")
+				print(tr)
+				print('--')
+				td_gs = tr.findChildren('td')
+				if td_gs == []: #table header
+					break #TODO ensure this breaks inner for loop
+				print(td_gs)
+				# for g in td_gs:
+				#todo maybe dont make this hard coded?
+				cat = td_gs[1].text
+				a_n = td_gs[2].text
+				temp = td_gs[8].text
+				pp = float(temp.split('/')[1])
+				pg = float(temp.split('/')[0])
+				gp = td_gs[9].text
+				local_class.add_grade(a_n, gp, pg, pp, cat)
+
+			#todo check if local_class is good /complete enough
+			final_all_classes.append(local_class)
+			
+		
+		for cla in final_all_classes:
+			print(cla)
 		
 		#todo remove
 		# print(res_6.headers)
@@ -142,6 +283,8 @@ class PowerschoolScraper:
 		# print(res_6.url) #todo if login fails; url = https://powerschool.bcp.org/samlsp/authenticationexception.action?error_type=AUTHENTICATION_EXCEPTION
 		# print(self.sesh.cookies)
 
+	# def get_teachers_and_classes(self):
+		
 		
 if __name__ == "__main__":
 	ps = PowerschoolScraper('user', 'pass')
