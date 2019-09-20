@@ -2,3 +2,5 @@ bin/
 include/
 lib/
 pyvenv.cfg
+.DS_Store
+.vscode/
