@@ -171,14 +171,14 @@ class PowerschoolScraper:
 
 		jsesh = self.sesh.cookies.get_dict()['JSESSIONID']
 		headers_3['Cookie'] = "JSESSIONID=" + jsesh #todo figure out best way to store this for later use
-
-		resp_4 = self.sesh.post(url_4, data = data, headers = headers_3)
+		self.resp_4 = self.sesh.post(url_4, data = data, headers = headers_3)
+		print("Added resp_4 to class data.")
 		#powerschool home page ^!
 		
-		soup_test = BS(resp_4.text, "html.parser")
+	def get_all_class_grades(self):
+		soup_test = BS(self.resp_4.text, "html.parser")
 		table = soup_test.find("table", {'class': 'linkDescList grid'})
 
-		#TODO move below out of login meethod
 
 		tr_s = table.findChildren("tr", recursive=False)
 		rows = []
@@ -205,7 +205,7 @@ class PowerschoolScraper:
 			aas = actual_row.findChildren("a", recursive=True)
 			for link in aas:
 				if link.has_attr('class') and link['class'] == ['bold'] and link['href'][:5] == 'score':
-					 #todo this is hacky . fix ^ (the last check)
+						#todo this is hacky . fix ^ (the last check)
 					# print(link)
 					letter_percent_combined = link.text
 
@@ -272,20 +272,14 @@ class PowerschoolScraper:
 			#todo check if local_class is good /complete enough
 			final_all_classes.append(local_class)
 			
-		
+		print("Found classes for " + self.email + "!")
 		for cla in final_all_classes:
 			print(cla)
-		
-		#todo remove
-		# print(res_6.headers)
-		# print(res_6.status_code)
-		# print(res_6.text)
-		# print(res_6.url) #todo if login fails; url = https://powerschool.bcp.org/samlsp/authenticationexception.action?error_type=AUTHENTICATION_EXCEPTION
-		# print(self.sesh.cookies)
+		print('--------------------')
+		return final_all_classes
+		#TODO add more login checks		
 
-	# def get_teachers_and_classes(self):
-		
-		
 if __name__ == "__main__":
 	ps = PowerschoolScraper('user', 'pass')
 	ps.login()
+	ps.get_all_class_grades()
