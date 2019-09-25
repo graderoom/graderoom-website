@@ -5,3 +5,6 @@ pyvenv.cfg
 .DS_Store
 .vscode/
 __pycache__
+grades_db.json
+users_db.json
+node_modules/

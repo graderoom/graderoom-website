@@ -175,7 +175,7 @@ class PowerschoolScraper:
 		print("Added resp_4 to class data.")
 		#powerschool home page ^!
 		
-	def get_all_class_grades(self):
+	def get_all_class_grades(self): #returns as list of dicts
 		soup_test = BS(self.resp_4.text, "html.parser")
 		table = soup_test.find("table", {'class': 'linkDescList grid'})
 
@@ -228,10 +228,10 @@ class PowerschoolScraper:
 				if td.has_attr('align') and td['align'] == 'left':
 					text_2 = td.text.replace('\xa0', '') #wacky html character
 					split_text = text_2.split('Details about ')
-					teacher_name = split_text[0] # will break with classes named Details about :[
-					class_name = (split_text[1]).split('Email')[0] #will break with teachers named Email :[
+					class_name = split_text[0] # will break with classes named Details about :[
+					teacher_name = (split_text[1]).split('Email')[0] #will break with teachers named Email :[
 					# print(teacher_name)
-					print(class_name)
+					# print(class_name)
 
 			# dont add stuff (yet) unless all elements are present
 			if class_name and teacher_name and overall_percent and overall_letter:
@@ -249,28 +249,33 @@ class PowerschoolScraper:
 			# for g_row in g
 
 			tr_gs = g_table.findChildren('tr')
-			print(tr_gs)
+			# print(tr_gs)
 
 			for tr in tr_gs:
-				print("TR")
-				print(tr)
-				print('--')
 				td_gs = tr.findChildren('td')
+				# print(td_gs)
 				if td_gs == []: #table header
-					break #TODO ensure this breaks inner for loop
-				print(td_gs)
+					continue #TODO ensure this cont inner for loop
+
+		
+				# print(td_gs)
 				# for g in td_gs:
-				#todo maybe dont make this hard coded?
+				#todo maybe dont make this hard coded
+				date = td_gs[0].text #TODO parse date?
 				cat = td_gs[1].text
 				a_n = td_gs[2].text
 				temp = td_gs[8].text
-				pp = float(temp.split('/')[1])
-				pg = float(temp.split('/')[0])
+				try:
+					pp = float(temp.split('/')[1])
+					pg = float(temp.split('/')[0])
+				except:
+					print('Found empty/non graded assignment. Skipping')	
+					continue
 				gp = td_gs[9].text
 				local_class.add_grade(a_n, gp, pg, pp, cat)
 
 			#todo check if local_class is good /complete enough
-			final_all_classes.append(local_class)
+			final_all_classes.append(local_class.as_dict())
 			
 		print("Found classes for " + self.email + "!")
 		for cla in final_all_classes:
