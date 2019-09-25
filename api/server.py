@@ -1,9 +1,8 @@
 from flask import Flask
 from flask import request   
-from pymongo import MongoClient
+from tinydb import TinyDB, Query
 from scrape import PowerschoolScraper
 import string
-from bson.json_util import loads, dumps
 import random
 
 def randomString(stringLength=10):
@@ -14,49 +13,41 @@ def randomString(stringLength=10):
 class DBHandler:
 
     def __init__(self):
-            client = MongoClient() #defaults
-            big_db = client["graderoom-backend"]
-            self.db = big_db['users'] # only user collection for now
+            actual = TinyDB('./grades_db.json')
+            self.db = actual.table('users')
 
-    def get_user(self, user_id, asString = False):
-        usr = self.db.find_one({"id": user_id})
-        print(usr['school_email'])    
-        if asString:
-            return dumps(usr)
+    def get_user(self, user_id):
+        q = Query()
+        usr = self.db.search(q.id == user_id)[0] #this should not return more than 1 element bc of unique ids
         return usr
-        
+
     def add_user(self, username, password, school_email, school_password): #todo do we want to handle user auth here?
         # print(username + " | " + password + " | " + school_email + " | " + school_password)
         user = {
-            'id': randomString(), #todo randomly generate a number/string or increment? or use mongo's built in
+            'id': randomString(), #todo randomly generate a number/string or increment? 
+            #TODO check if id already exists? / switch to username system??
             'school_email': school_email,
             'school_password': school_password,
-            'classes': []
         }
-        print("inserting!")
-        x = self.db.insert_one(user)
-        print(x)
+        self.db.insert(user) #error handling?
         #todo json response
-        print("Done!")
+        return 'success'
 
     def update_grades_classes(self, user_id):
         #expects a list of 'class_grade' objects see below
         #TODO limit this to once a couple mins
         #TODO multithread?
         user = self.get_user(user_id)
-        ps = PowerschoolScraper(user.school_email, user.school_password)
+        print(user)
+        ps = PowerschoolScraper(user['school_email'], user['school_password'])
         ps.login()
         new_clsss = ps.get_all_class_grades()
-        self.db.update_one({
-        'id': user_id
-        },{
-        '$set': {
-            'classes': new_clsss,
-        }
-        }, upsert=False)
+        q = Query()
+        self.db.update({'grades': new_clsss}, q.id == user_id)
+        return 'status'
 
     def get_all_users(self):
-        all = list(self.db.find({}))
+        all = self.db
         ret_str = ''
         for user in all:
             ret_str += str(user) + '</br>'
@@ -83,9 +74,8 @@ def api_add_user():
 
 @app.route('/api/<user_id>')
 def get_user_from_id(user_id):
-    print("hello")
-    x =  db.get_user(user_id, asString=True)
-    return x
+    usr = db.get_user(user_id)
+    return str(usr)
 
 @app.route('/api/get_all_users')
 def get_all_users():
@@ -95,6 +85,7 @@ def get_all_users():
 def update_grades(user_id):
     return db.update_grades_classes(user_id)
 
+# app.route('/alpha/<user_id>/graph')
 
 
 if __name__ == "__main__":
