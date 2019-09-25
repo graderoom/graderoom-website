@@ -8,3 +8,4 @@ __pycache__
 grades_db.json
 users_db.json
 node_modules/
+.idea/
