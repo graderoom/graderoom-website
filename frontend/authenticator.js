@@ -37,5 +37,11 @@ module.exports = {
     removeUser: function(username, password) {
         db.get('users').find({username: username}).remove().write();
         return {success: true, message: "Account Deleted"};      
-    }   
+    },
+    userExists: function(username) {
+        user = db.get('users').find({username: username});
+        if (user)
+            return true
+        return false
+    }
 }
