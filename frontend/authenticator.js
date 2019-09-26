@@ -1,13 +1,12 @@
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
-const adapter = new FileSync('db.json');
+const adapter = new FileSync('user_db.json');
 const db = low(adapter);
 
 db.defaults({users: []}).write();
 
 module.exports = {
     //Need to add Try Catches to error check when updating db values
-
     addNewUser: function(username, password, schoolUsername, schoolPassword) {
         db.get('users').push({username: username, 
                               password: password, 
@@ -39,9 +38,25 @@ module.exports = {
         return {success: true, message: "Account Deleted"};      
     },
     userExists: function(username) {
-        user = db.get('users').find({username: username});
-        if (user)
-            return true
-        return false
-    }
+        user = db.get('users').find({username: username}).value();
+        if (user) {
+            return true;
+        }
+        return false;
+    },
+
+    getUser: function(username) {
+        user = db.get('users').find({username: username}).value();
+        return user
+    },
+
+    // testPassword: function(username, password) {
+    //     user = db.get('users').find({username: username});
+    //     if (user) {
+    //         //todo add hash
+    //         return password == user.password;
+    //     }
+    //     return false;
+    // }
+
 }

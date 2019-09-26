@@ -8,10 +8,11 @@ var morgan       = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser   = require('body-parser');
 var session      = require('express-session');
+var passport = require('passport');
 
 let dbConn = require('./authenticator.js')
 
-require('./config/passport')(passport); // pass passport for configuration
+require('./passport')(passport); // pass passport for configuration
 
 // set up our express application
 app.use(morgan('dev')); // log every request to the console
@@ -19,7 +20,7 @@ app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser.json()); // get information from html forms
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// app.set('view engine', 'ejs'); // set up ejs for templating #todo do we want this
+app.set('view engine', 'ejs'); // set up ejs for templating #todo do we want this
 
 /**
  * FIRSt TIME sETUP: add admin user
@@ -28,10 +29,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
  */
 
 const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'a';
+const ADMIN_PASSWORD = 'password';
 
 if (!dbConn.userExists(ADMIN_USERNAME)) {
-    dbConn.createNewUser(ADMIN_USERNAME, ADMIN_PASSWORD)
+    console.log("Creating admin account.")
+    console.log(dbConn.addNewUser(ADMIN_USERNAME, ADMIN_PASSWORD));
 }
 
 // required for passport
