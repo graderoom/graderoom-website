@@ -6,7 +6,7 @@ pyvenv.cfg
 .vscode/
 __pycache__
 grades_db.json
-users_db.json
+user_db.json
 node_modules/
 .idea/
 venv
