@@ -1,5 +1,6 @@
 from flask import Flask
 from flask import request
+from flask import jsonify
 from tinydb import TinyDB, Query
 from scrape import PowerschoolScraper
 import string
@@ -10,6 +11,13 @@ def random_string(string_length=10):
     """Generate a random string of fixed length """
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for i in range(string_length))
+
+def get_json_resp(successTorF, otherDictData):
+    resp = {
+        'success': 'true' if successTorF else 'false'
+    }
+    resp.update(otherDictData)
+    return jsonify(resp)
 
 
 class DBHandler:
@@ -23,17 +31,18 @@ class DBHandler:
         usr = self.db.search(q.id == user_id)[0]  # this should not return more than 1 element bc of unique ids
         return usr
 
-    def add_user(self, username, password, school_email, school_password):  # todo do we want to handle user auth here?
+    def add_user(self, school_email, school_password):  # todo do we want to handle user auth here?
         # print(username + " | " + password + " | " + school_email + " | " + school_password)
+        randstr = random_string()
         user = {
-            'id': random_string(),  # todo randomly generate a number/string or increment?
+            'id': randstr,  # todo randomly generate a number/string or increment?
             # TODO check if id already exists? / switch to username system??
             'school_email': school_email,
             'school_password': school_password,
         }
         self.db.insert(user)  # error handling?
         # todo json response
-        return 'success'
+        return get_json_resp(True, {'id': randstr})
 
     def update_grades_classes(self, user_id):
         # expects a list of 'class_grade' objects see below
@@ -61,9 +70,6 @@ db = DBHandler()
 app = Flask(__name__)
 
 
-@app.route('/api/')
-def api_blank():
-    return '?'
 
 
 @app.route('/api/get_grades/<user_id>')
@@ -71,12 +77,15 @@ def get_grades(user_id):
     return user_id
 
 
-@app.route('/api/create_user/', methods=['POST'])
+@app.route('/api/create_user', methods=['POST'])
 def api_add_user():
-    data = request.form
-    # todo checks / error handling here
-    db.add_user(data['un'], data['ps'], data['se'], data['sp'])
-    return '.'
+    try:
+        data = request.json
+        # todo checks / error handling here
+        resp = db.add_user(data['school_email'], data['school_password'])
+        return resp
+    except:
+        return '{success:false,error:"Error."}'    
 
 
 @app.route('/api/<user_id>')
@@ -94,8 +103,14 @@ def get_all_users():
 def update_grades(user_id):
     return db.update_grades_classes(user_id)
 
+@app.route('/')
+def every():
+    return '' 
 
-# app.route('/alpha/<user_id>/graph')
+     
+@app.route('/api/')
+def api_blank():
+    return ''   
 
 
 if __name__ == "__main__":
