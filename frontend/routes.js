@@ -1,5 +1,6 @@
 var server = require('./frontend_server.js');
 let authenticator = require('./authenticator.js');
+let api_client = require('./api_client.js');
 
 module.exports = function(app, passport) {
 
@@ -66,8 +67,11 @@ app.post('/signup', function(req, res, next) {
 
         console.log("Trying to create user: " + username);
 
-        resp = authenticator.addNewUser(username, password, s_email, s_password);
+        //check if can create here (i.e. username not in use)
 
+        resp = authenticator.addNewUser(username, password, s_email, s_password);
+        resp_api = api_client.createAPIuser(s_email, s_password) //todo parse json
+        console.log(resp_api)
         passport.authenticate('local-login', {
             successRedirect : '/', // redirect to the secure profile section
             failureRedirect : '/signup', // redirect back to the signup page if there is an error
