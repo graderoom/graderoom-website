@@ -300,6 +300,6 @@ class PowerschoolScraper:
 if __name__ == "__main__":
     user = input('Enter your username: ')
     password = getpass('Enter your password: ')
-    ps = PowerschoolScraper('', 'pass')
+    ps = PowerschoolScraper(user, password)
     ps.login()
     ps.get_all_class_grades()
