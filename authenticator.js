@@ -16,7 +16,7 @@ module.exports = {
     },
     login: function(username, password) {
         user = db.get('users').find({username: username}).value();
-        if (user.password = password) {
+        if (user.password === password) {
             return {success: true, message: "Login Successful"};
         }
         return {success: false, message: "Login Failed"};
