@@ -20,7 +20,6 @@ module.exports = {
                 // console.error("ERROR:"  + err);
                 return {success: false, message: "Error getting grades."}
             }
-``
             return {success: true, new_grades: results}
             // console.log(results);
         })

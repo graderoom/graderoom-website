@@ -9,13 +9,14 @@ db.defaults({users: []}).write();
 
 module.exports = {
     //Need to add Try Catches to error check when updating db values
-    addNewUser: function(username, password, schoolUsername, schoolPassword) {
+    addNewUser: function(username, password, schoolUsername, schoolPassword, isAdmin) {
         db.get('users').push(
             {
                 username: username,
                 password: password,
                 schoolUsername: schoolUsername,
                 schoolPassword: schoolPassword,
+                isAdmin: isAdmin,
                 grades: [],
             }).write();
         return {success: true, message: "User Created"};
@@ -71,6 +72,10 @@ module.exports = {
         return {success: true, message: "Updated grades!"};
 
     },
+
+    getAllUsers: function() {
+        return db.get('users').value();
+    }
 
 
     // testPassword: function(username, password) {
