@@ -12,6 +12,9 @@ var passport = require('passport');
 
 let dbConn = require('./authenticator.js');
 
+app.use('/public/resources/', express.static('./public/resources'));
+
+
 require('./passport')(passport); // pass passport for configuration
 
 // set up our express application

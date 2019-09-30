@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Graderoom</title>
+    <link rel="icon" href="../public/resources/icon.png">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
@@ -12,6 +13,13 @@
     </style>
 </head>
 <body>
+<% if (updateGradesMessageSuccess.length > 0) { %>
+    <div class="alert alert-danger"><%= updateGradesMessageSuccess %></div>
+<% } %>
+
+<% if (updateGradesMessageFail.length > 0) { %>
+    <div class="alert alert-success"><%= updateGradesMessageFail %></div>
+<% } %>
 <div class="container">
 
     <div class="jumbotron text-center" style="background-color: #222222; color: white;">
