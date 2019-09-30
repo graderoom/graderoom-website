@@ -8,6 +8,9 @@ db.defaults({users: []}).write();
 module.exports = {
     //Need to add Try Catches to error check when updating db values
     addNewUser: function(username, password, schoolUsername, schoolPassword) {
+        if (this.userExists(username))
+        return {success: false, message: "User Already Exists"};
+
         db.get('users').push({username: username, 
                               password: password, 
                               schoolUsername: schoolUsername, 
