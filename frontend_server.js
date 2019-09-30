@@ -10,8 +10,7 @@ var bodyParser   = require('body-parser');
 var session      = require('express-session');
 var passport = require('passport');
 
-let dbConn = require('./authenticator.js')
-let sr = require('./scrape');
+let dbConn = require('./authenticator.js');
 
 require('./passport')(passport); // pass passport for configuration
 
@@ -28,14 +27,12 @@ app.set('view engine', 'ejs'); // set up ejs for templating #todo do we want thi
  * she can be deleted and recreated with a new password, this is just the default
  * also TODO dont hard code this
  */
-sr.loginAndScrapeGrades('', '');
 
-return
 const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'password';
 
 if (!dbConn.userExists(ADMIN_USERNAME)) {
-    console.log("Creating admin account.")
+    console.log("Creating admin account.");
     console.log(dbConn.addNewUser(ADMIN_USERNAME, ADMIN_PASSWORD));
 }
 
