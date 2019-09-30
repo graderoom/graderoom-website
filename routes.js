@@ -19,11 +19,61 @@ app.get('/', function(req, res) {
 
 
 app.post('/deleteUser', isAdmin, function (req, res) {
-    //TODO
+
+    let username = req.body.deleteUser;
+    console.log("Got request to delete: " + username);
+
+    User.findOne({username: username}, function(err, user) {
+
+        console.log("searching for user: " + username);
+        if (err) {
+            console.error("error finding user: " + err);
+            res.redirect('/admin');
+            return;
+        }
+        // console.log(user);
+        if (!user) {
+            console.log("User does not exist.")
+            res.redirect('/admin');
+            return;
+        }
+
+        if (user) {
+            if (user.isAdmin) {
+
+                if (!req.user.canDeleteOtherAdmins) {
+                    console.log("cannot delete admins");
+                    res.redirect('/admin');
+                    return;
+                }
+
+
+            }
+            User.deleteOne({username: username}, function(err) {
+                if (err) {
+                    console.error("ERROR DELETEING USER:" + err);
+                }
+                console.log("deleted user: " + username);
+                req.flash('deleteMsg', 'deleted user')
+            });
+            res.redirect('/admin');
+
+        }
+
+    });
+
+
 });
 
+
 app.get('/admin', isAdmin, function (req, res) {
-    // admin panel TODO    
+    // admin panel TODO
+    let allUsers = authenticator.getAllUsers();
+    res.render('admin.ejs', {
+        userList: allUsers,
+        adminSuccessMessage: req.flash('adminSuccessMessage'),
+        adminFailMessage: req.flash('adminFailMessage')
+    });
 });
 
 app.get('/update',isLoggedIn, function(req, res) {
@@ -70,7 +120,7 @@ app.post('/signup', function(req, res, next) {
 
         //check if can create here (i.e. username not in use)
 
-        let resp = authenticator.addNewUser(username, password, s_email, s_password);
+        let resp = authenticator.addNewUser(username, password, s_email, s_password, false);
         console.log(resp);
 
 
