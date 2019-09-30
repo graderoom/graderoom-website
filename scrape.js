@@ -17,12 +17,12 @@ module.exports = {
         PythonShell.run('./scrape.py', options, (err, results) => {
 
             if (err) {
-                console.error("ERROR:"  + err);
-                return
+                // console.error("ERROR:"  + err);
+                return {success: false, message: "Error getting grades."}
             }
-
-            console.log(results);
-
+``
+            return {success: true, new_grades: results}
+            // console.log(results);
         })
 
     },

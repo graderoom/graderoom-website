@@ -1,6 +1,5 @@
-var server = require('./frontend_server.js');
+let server = require('./graderoom.js');
 let authenticator = require('./authenticator.js');
-let api_client = require('./api_client.js');
 
 module.exports = function(app, passport) {
 
@@ -10,7 +9,9 @@ module.exports = function(app, passport) {
 app.get('/', function(req, res) {
 
     if (req.isAuthenticated()) {
-        res.render('authorized_index.ejs', {user: req.user}); // todo render something else for authenticators
+        res.render('authorized_index.ejs', {user: req.user,
+            updateGradesMessageSuccess: req.flash('updateGradesMessageSuccess'),
+            updateGradesMessageFail: req.flash('updateGradesMessageFail')});
         return;
     }
     res.render('index.ejs');
@@ -69,14 +70,29 @@ app.post('/signup', function(req, res, next) {
 
         //check if can create here (i.e. username not in use)
 
-        resp = authenticator.addNewUser(username, password, s_email, s_password);
-        resp_api = api_client.createAPIuser(s_email, s_password) //todo parse json
-        console.log(resp_api)
+        let resp = authenticator.addNewUser(username, password, s_email, s_password);
+        console.log(resp);
+
+
         passport.authenticate('local-login', {
             successRedirect : '/', // redirect to the secure profile section
             failureRedirect : '/signup', // redirect back to the signup page if there is an error
             failureFlash : true // allow flash messages
         })(req, res, next); // this was hard :(       
+});
+
+app.post('/updategrades', isLoggedIn, function(req,res) {
+
+    let user = req.user.username;
+    let resp = authenticator.updateGrades(user);
+    if (resp.success) {
+        req.flash('updateGradesMessageSuccess', resp.message);
+    } else {
+        req.flash('updateGradesMessageFail', resp.message);
+    }
+
+    res.redirect('/');
+
 });
 
 /**

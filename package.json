@@ -2,7 +2,7 @@
   "name": "graderoom",
   "version": "1.0.0",
   "description": "Grade Visualization",
-  "main": "frontend_server.js",
+  "main": "graderoom.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
