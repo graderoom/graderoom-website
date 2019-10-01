@@ -10,7 +10,7 @@ app.get('/', function(req, res) {
 
     if (req.isAuthenticated()) {
 
-        let gradeDat = authenticator.getUser(req.user.username).grades;
+        let gradeDat = JSON.stringify(authenticator.getUser(req.user.username).grades);
 
         res.render('authorized_index.ejs', {
             user: req.user,
