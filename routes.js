@@ -23,45 +23,15 @@ app.post('/deleteUser', isAdmin, function (req, res) {
     let username = req.body.deleteUser;
     console.log("Got request to delete: " + username);
 
-    User.findOne({username: username}, function(err, user) {
+    let resp = authenticator.deleteUser(username);
+    console.log(resp);
+    if (resp.success) {
+        req.flash('adminSuccessMessage', resp.message);
+    } else {
+        req.flash('adminFailMessage', resp.message);
+    }
 
-        console.log("searching for user: " + username);
-        if (err) {
-            console.error("error finding user: " + err);
-            res.redirect('/admin');
-            return;
-        }
-        // console.log(user);
-        if (!user) {
-            console.log("User does not exist.")
-            res.redirect('/admin');
-            return;
-        }
-
-        if (user) {
-            if (user.isAdmin) {
-
-                if (!req.user.canDeleteOtherAdmins) {
-                    console.log("cannot delete admins");
-                    res.redirect('/admin');
-                    return;
-                }
-
-
-            }
-            User.deleteOne({username: username}, function(err) {
-                if (err) {
-                    console.error("ERROR DELETEING USER:" + err);
-                }
-                console.log("deleted user: " + username);
-                req.flash('deleteMsg', 'deleted user')
-            });
-            res.redirect('/admin');
-
-        }
-
-    });
-
+    res.redirect('/admin')
 
 });
 
@@ -131,10 +101,12 @@ app.post('/signup', function(req, res, next) {
         })(req, res, next); // this was hard :(       
 });
 
-app.post('/updategrades', isLoggedIn, function(req,res) {
+app.post('/update', isLoggedIn, function(req,res) {
 
     let user = req.user.username;
     let resp = authenticator.updateGrades(user);
+    console.log("aa");
+    console.log(resp);
     if (resp.success) {
         req.flash('updateGradesMessageSuccess', resp.message);
     } else {

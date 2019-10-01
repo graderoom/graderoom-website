@@ -57,17 +57,17 @@ module.exports = {
         return user
     },
 
-    updateGrades: function(username) {
+    updateGrades: async function(username) {
         let userRef = db.get('users').find({username: username});
         let user = userRef.value();
-        let grade_update_status = scraper.loginAndScrapeGrades(user.schoolUsername, user.schoolPassword);
-
+        let grade_update_status = await scraper.loginAndScrapeGrades(user.schoolUsername, user.schoolPassword);
+        console.log(grade_update_status);
         if (!grade_update_status.success) {
             //error updating grades
             return grade_update_status;
         }
 
-        userRef.assign({grades: grade_update_status.new_grades});
+        userRef.assign({grades: grade_update_status.new_grades}).write();
 
         return {success: true, message: "Updated grades!"};
 
@@ -75,6 +75,15 @@ module.exports = {
 
     getAllUsers: function() {
         return db.get('users').value();
+    },
+
+    deleteUser: function(userToRemove) {
+
+        if (this.userExists(userToRemove)) {
+            db.get('users').remove({username: userToRemove}).write();
+            return {success: true, message: "Deleted user."}
+        }
+        return {success: false, message: "User does not exist."}
     }
 
 

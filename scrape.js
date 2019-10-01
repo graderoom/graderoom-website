@@ -2,7 +2,7 @@ let {PythonShell} = require('python-shell');
 
 module.exports = {
 
-    loginAndScrapeGrades: async function(email, password) {
+    loginAndScrapeGrades: function(email, password) {
         //TODO return {success: true, message: "Done!"} etc
 
         let options = {
@@ -14,15 +14,33 @@ module.exports = {
             args: [email, password]
         };
 
-        PythonShell.run('./scrape.py', options, (err, results) => {
+        new Promise(function(resolve, reject) {
 
-            if (err) {
-                // console.error("ERROR:"  + err);
-                return {success: false, message: "Error getting grades."}
-            }
-            return {success: true, new_grades: results}
-            // console.log(results);
-        })
+            PythonShell.run('./scrape.py', options, (err, results) => {
+
+                console.log("results");
+                console.log(results);
+
+                if (err) {
+                    // console.error("ERROR:"  + err);
+                    resolve({success: false, message: "Error getting grades."});
+                    return
+                }
+
+                if (results.success === true) {
+                    resolve({success: true, new_grades: results.grades})
+
+                }
+
+                console.log("aaaaa");
+                return resolve({success: false, message: results.message})
+
+                // console.log(results);
+            })
+
+        }).then(r => {
+            return r;
+        });
 
     },
 
