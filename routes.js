@@ -101,12 +101,10 @@ app.post('/signup', function(req, res, next) {
         })(req, res, next); // this was hard :(       
 });
 
-app.post('/update', isLoggedIn, function(req,res) {
+app.post('/update', isLoggedIn, async function(req,res) {
 
     let user = req.user.username;
-    let resp = authenticator.updateGrades(user);
-    console.log("aa");
-    console.log(resp);
+    let resp = await authenticator.updateGrades(user);
     if (resp.success) {
         req.flash('updateGradesMessageSuccess', resp.message);
     } else {
