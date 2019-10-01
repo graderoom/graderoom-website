@@ -35,18 +35,20 @@
         <div id="chart"></div>
         
         <script>
-            let data = <%- gradeData %>
+            let data = <%- gradeData %>;
+            let assignmentGrades = data[1].grades.map(x => x.grade_percent)
+            let assignmentNames = data[1].grades.map(x => x.assignment_name)
             console.log(data)
             var options = {
                 chart: {
                     type: 'line'
                 },
                 series: [{
-                    name: data[0].class_name,
-                    data: [10,20,30,40,50,60,70,80,90,100]
+                    name: data[1].class_name,
+                    data: assignmentGrades //[10,20,30,40,50,60,70,80,90,100]
                 }],
                 xaxis: {
-                    categories: [1991,1992,1993,1994,1995,1996,1997, 1998,1999]
+                    categories: assignmentNames //[1991,1992,1993,1994,1995,1996,1997, 1998,1999]
                 }
             }
 
