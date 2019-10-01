@@ -10,7 +10,10 @@ var bodyParser   = require('body-parser');
 var session      = require('express-session');
 var passport = require('passport');
 
-let dbConn = require('./authenticator.js')
+let dbConn = require('./authenticator.js');
+
+app.use('/public/resources/', express.static('./public/resources'));
+
 
 require('./passport')(passport); // pass passport for configuration
 
@@ -30,10 +33,12 @@ app.set('view engine', 'ejs'); // set up ejs for templating #todo do we want thi
 
 const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'password';
+const ADMIN_SCHOOL_USERNAME = '';
+const ADMIN_SCHOOL_PASSWORD = '';
 
 if (!dbConn.userExists(ADMIN_USERNAME)) {
-    console.log("Creating admin account.")
-    console.log(dbConn.addNewUser(ADMIN_USERNAME, ADMIN_PASSWORD));
+    console.log("Creating admin account.");
+    console.log(dbConn.addNewUser(ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_SCHOOL_USERNAME, ADMIN_SCHOOL_PASSWORD, true));
 }
 
 // required for passport

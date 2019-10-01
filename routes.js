@@ -1,4 +1,4 @@
-var server = require('./frontend_server.js');
+let server = require('./graderoom.js');
 let authenticator = require('./authenticator.js');
 
 module.exports = function(app, passport) {
@@ -9,7 +9,9 @@ module.exports = function(app, passport) {
 app.get('/', function(req, res) {
 
     if (req.isAuthenticated()) {
-        res.render('authorized_index.ejs', {user: req.user}); // todo render something else for authenticators
+        res.render('authorized_index.ejs', {user: req.user,
+            updateGradesMessageSuccess: req.flash('updateGradesMessageSuccess'),
+            updateGradesMessageFail: req.flash('updateGradesMessageFail')});
         return;
     }
     res.render('index.ejs');
@@ -17,11 +19,31 @@ app.get('/', function(req, res) {
 
 
 app.post('/deleteUser', isAdmin, function (req, res) {
-    //TODO
+
+    let username = req.body.deleteUser;
+    console.log("Got request to delete: " + username);
+
+    let resp = authenticator.deleteUser(username);
+    console.log(resp);
+    if (resp.success) {
+        req.flash('adminSuccessMessage', resp.message);
+    } else {
+        req.flash('adminFailMessage', resp.message);
+    }
+
+    res.redirect('/admin')
+
 });
 
+
 app.get('/admin', isAdmin, function (req, res) {
-    // admin panel TODO    
+    // admin panel TODO
+    let allUsers = authenticator.getAllUsers();
+    res.render('admin.ejs', {
+        userList: allUsers,
+        adminSuccessMessage: req.flash('adminSuccessMessage'),
+        adminFailMessage: req.flash('adminFailMessage')
+    });
 });
 
 app.get('/update',isLoggedIn, function(req, res) {
@@ -66,13 +88,31 @@ app.post('/signup', function(req, res, next) {
 
         console.log("Trying to create user: " + username);
 
-        resp = authenticator.addNewUser(username, password, s_email, s_password);
+        //check if can create here (i.e. username not in use)
+
+        let resp = authenticator.addNewUser(username, password, s_email, s_password, false);
+        console.log(resp);
+
 
         passport.authenticate('local-login', {
             successRedirect : '/', // redirect to the secure profile section
             failureRedirect : '/signup', // redirect back to the signup page if there is an error
             failureFlash : true // allow flash messages
         })(req, res, next); // this was hard :(       
+});
+
+app.post('/update', isLoggedIn, async function(req,res) {
+
+    let user = req.user.username;
+    let resp = await authenticator.updateGrades(user);
+    if (resp.success) {
+        req.flash('updateGradesMessageSuccess', resp.message);
+    } else {
+        req.flash('updateGradesMessageFail', resp.message);
+    }
+
+    res.redirect('/');
+
 });
 
 /**
