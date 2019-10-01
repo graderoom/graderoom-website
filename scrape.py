@@ -1,6 +1,16 @@
 import requests
 from bs4 import BeautifulSoup as BS
 from getpass import getpass
+import sys
+import json
+
+def json_format(success, message_or_grades):
+
+    if success:
+        return json.dumps({'success': True, 'grades': message_or_grades})
+
+    return json.dumps({'success': False, 'message': message_or_grades})
+
 
 
 class ClassGrade:
@@ -51,7 +61,7 @@ class PowerschoolScraper:
         self.password = password
         self.sesh = requests.Session()
 
-    def login(self):
+    def login_and_get_all_class_grades_and_print_resp(self):
 
         # Authenticates via SAML; see https://developers.onelogin.com/saml
 
@@ -160,7 +170,7 @@ class PowerschoolScraper:
         samlr_ref = soup_3.find("input", {'name': 'SAMLResponse'})
         if samlr_ref is None:
             # failed login
-            print("Incorrect login details.")
+            print(json_format(False, "Incorrect login details."))
             return
 
         samlr = samlr_ref.get('value')
@@ -176,12 +186,10 @@ class PowerschoolScraper:
         jsesh = self.sesh.cookies.get_dict()['JSESSIONID']
         headers_3['Cookie'] = "JSESSIONID=" + jsesh  # todo figure out best way to store this for later use
         self.resp_4 = self.sesh.post(url_4, data=data, headers=headers_3)
-        print("Added resp_4 to class data.")
+#         print("Added resp_4 to class data.")
 
-    # print(self.resp_4.text)
-    # powerschool home page ^!
-
-    def get_all_class_grades(self):  # returns as list of dicts
+        # print(self.resp_4.text)
+        # powerschool home page ^!
         soup_test = BS(self.resp_4.text, "html.parser")
         table = soup_test.find("table", {'class': 'linkDescList grid'})
 
@@ -281,7 +289,7 @@ class PowerschoolScraper:
                     pp = float(temp.split('/')[1])
                     pg = float(temp.split('/')[0])
                 except:
-                    print('Found empty/non graded assignment. Skipping')
+#                     print('Found empty/non graded assignment. Skipping')
                     continue
                 gp = td_gs[9].text
                 local_class.add_grade(a_n, gp, pg, pp, cat)
@@ -289,17 +297,20 @@ class PowerschoolScraper:
             # todo check if local_class is good /complete enough
             final_all_classes.append(local_class.as_dict())
 
-        print("Found classes for " + self.email + "!")
-        for cla in final_all_classes:
-            print(cla)
-        print('--------------------')
-        return final_all_classes
+#         print("Found classes for " + self.email + "!")
+#         for cla in final_all_classes:
+#             print(cla)
+#         print('--------------------')
+        print(json_format(True, final_all_classes)) # list to send
     # TODO add more login checks
 
 
 if __name__ == "__main__":
-    user = input('Enter your username: ')
-    password = getpass('Enter your password: ')
-    ps = PowerschoolScraper(user, password)
-    ps.login()
-    ps.get_all_class_grades()
+
+      user = sys.argv[1]
+      password = sys.argv[2]
+#     user = input('Enter your username: ')
+#     password = getpass('Enter your password: ')
+      ps = PowerschoolScraper(user, password)
+      ps.login_and_get_all_class_grades_and_print_resp()
+

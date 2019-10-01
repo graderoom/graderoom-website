@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+    <title>Graderoom</title>
+    <link rel="icon" href="../public/resources/icon.png">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        .spec_table td {
+            margin-left: -20px;
+            font-size: .9em;
+            line-height: 1.1em;
+            border-top: none !important;
+        }
+    </style>
+<body style="background-color:#222222;color:white;">
+
+<a href="/" class="btn btn-success btn-sm">Back to Home</a>
+<a href="/logout" class="btn btn-warning btn-sm">Logout</a>
+
+<% if (adminSuccessMessage.length > 0) { %>
+    <div class="alert alert-danger"><%= adminSuccessMessage %></div>
+<% } %>
+
+<% if (adminFailMessage.length > 0) { %>
+    <div class="alert alert-success"><%= adminFailMessage %></div>
+<% } %>
+
+
+<div class="page-header text-center">
+    <h1><span class="fa fa-fighter-jet"></span> Admin Panel</h1>
+</div>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th style="width:25%;">User</th>
+        <th style="width:25%;">Is Admin?</th>
+        <th style="width:25%;">Delete</th>
+        <th style="width:25%;">Make Admin</th>
+    </tr>
+    </thead>
+
+    <% for (let user of userList) { %>
+        <tr>
+            <td><%= user.username%> </td>
+            <td><%= user.isAdmin%> </td>
+            <td>
+                <form action="/deleteuser" method="post">
+                    <button type="submit" name="deleteUser" class="btn btn-danger btn-sm" value="<%=user.username%>">Delete User</button>
+                </form>
+            </td>
+
+            <td>
+                <form action="/makeadmin" method="post">
+                    <button type="submit" name="newAdminUser" class="btn btn-danger btn-sm" value="<%=user.username%>">Make User Admin</button>
+                </form>
+            </td>
+        </tr>
+    <% } %>
+</table>
+
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+<style>
+    body         { padding-top:10px; word-wrap:break-word; padding-left: 10px; padding-right: 10px;}
+</style>
+
+</body>
+</html>
