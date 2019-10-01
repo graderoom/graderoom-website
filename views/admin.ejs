@@ -15,7 +15,17 @@
     </style>
 <body style="background-color:#222222;color:white;">
 
-<a href="/search" class="btn btn-success btn-sm">Back to Home</a>
+<a href="/" class="btn btn-success btn-sm">Back to Home</a>
+<a href="/logout" class="btn btn-warning btn-sm">Logout</a>
+
+<% if (adminSuccessMessage.length > 0) { %>
+    <div class="alert alert-danger"><%= adminSuccessMessage %></div>
+<% } %>
+
+<% if (adminFailMessage.length > 0) { %>
+    <div class="alert alert-success"><%= adminFailMessage %></div>
+<% } %>
+
 
 <div class="page-header text-center">
     <h1><span class="fa fa-fighter-jet"></span> Admin Panel</h1>
@@ -50,12 +60,6 @@
     <% } %>
 </table>
 
-
-<div class="text-center">
-    <a href="/adduser">
-        <button class="btn btn-warning btn-lg">Add User</button>
-    </a>
-</div>
 <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
 <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
 <style>

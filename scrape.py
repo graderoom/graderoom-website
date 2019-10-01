@@ -4,6 +4,14 @@ from getpass import getpass
 import sys
 import json
 
+def json_format(success, message_or_grades):
+
+    if success:
+        return json.dumps({'success': True, 'grades': message_or_grades})
+
+    return json.dumps({'success': False, 'message': message_or_grades})
+
+
 
 class ClassGrade:
     def __init__(self, class_name, teacher_name, overall_percent, overall_letter):
@@ -53,7 +61,7 @@ class PowerschoolScraper:
         self.password = password
         self.sesh = requests.Session()
 
-    def login_and_get_all_class_grades(self):
+    def login_and_get_all_class_grades_and_print_resp(self):
 
         # Authenticates via SAML; see https://developers.onelogin.com/saml
 
@@ -162,7 +170,7 @@ class PowerschoolScraper:
         samlr_ref = soup_3.find("input", {'name': 'SAMLResponse'})
         if samlr_ref is None:
             # failed login
-            print("Incorrect login details.")
+            print(json_format(False, "Incorrect login details."))
             return
 
         samlr = samlr_ref.get('value')
@@ -293,7 +301,7 @@ class PowerschoolScraper:
 #         for cla in final_all_classes:
 #             print(cla)
 #         print('--------------------')
-        return final_all_classes # list to send
+        print(json_format(True, final_all_classes)) # list to send
     # TODO add more login checks
 
 
@@ -304,6 +312,5 @@ if __name__ == "__main__":
 #     user = input('Enter your username: ')
 #     password = getpass('Enter your password: ')
       ps = PowerschoolScraper(user, password)
-      grades = ps.login_and_get_all_class_grades()
-      print(json.dumps(grades)) # sent back to js pipe
+      ps.login_and_get_all_class_grades_and_print_resp()
 
