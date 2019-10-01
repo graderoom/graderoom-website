@@ -17,6 +17,11 @@ app.get('/', function(req, res) {
     res.render('index.ejs');
 });
 
+app.get('/logout', function(req, res) {
+    req.logout();
+    res.redirect('/');
+});
+
 
 app.post('/deleteUser', isAdmin, function (req, res) {
 
