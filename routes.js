@@ -9,7 +9,12 @@ module.exports = function(app, passport) {
 app.get('/', function(req, res) {
 
     if (req.isAuthenticated()) {
-        res.render('authorized_index.ejs', {user: req.user,
+
+        let gradeDat = authenticator.getUser(req.user.username).grades;
+
+        res.render('authorized_index.ejs', {
+            user: req.user,
+            gradeData: gradeDat,
             updateGradesMessageSuccess: req.flash('updateGradesMessageSuccess'),
             updateGradesMessageFail: req.flash('updateGradesMessageFail')});
         return;
