@@ -1,12 +1,14 @@
-### setup
+# Graderoom
+Grade visualization with automatic web scraping from Powerschool for students.
+
+## setup  
 install python 3  
-pip3 install -r requirements.txt
+pip3 install requests  
+pip3 install bs4  
+pip3 install getpass //todo remove
 
-
-### flask app
-note: flask app acts as an api, not a renderer  
-todo: what do to for frontend
-
-### powerschool scraper
+install node.js  
+in root directory: npm install  
+to start server: node graderoom.js
 
 
