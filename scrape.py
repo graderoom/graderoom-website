@@ -255,8 +255,10 @@ class PowerschoolScraper:
                 # print(class_name)
 
             # dont add stuff (yet) unless all elements are present
-            if class_name and teacher_name and overall_percent and overall_letter:
+            if class_name and teacher_name and overall_percent and not (overall_letter is '-'):
                 local_class = ClassGrade(class_name, teacher_name, overall_percent, overall_letter)
+            else:
+                continue
 
             # add grades
             if link_to_assignments is None:
