@@ -71,23 +71,30 @@
                 document.getElementById("Chart" + id).style.display = "block";
                 if (id>=0)
                 {
-                    
-                    // console.log (data.length)    
-                    let assignmentGrades = data[id].grades.map(x => x.grade_percent)
-                    let assignmentNames = data[id].grades.map(x => x.assignment_name)
+                    let ass_grades = data[id].grades.map(x => x.grade_percent)
+                    // let assignmentNames = data[id].grades.map(x => x.assignment_name)
+                    let ass_timestamps = data[id].grades.map(x => new Date(x.date).getTime())
                     var options = {
                         chart: {
                             type: 'line'
                         },
                         series: [{
                             name: data[id].class_name,
-                            data: assignmentGrades
+                            data: ass_grades
                         }],
                         xaxis: {
-                            categories: assignmentNames,
+                            // categories: assignmentNames,
+                            type: 'datetime',
+                            categories: ass_timestamps,    
                             labels: {
                                 rotate: -45,
                                 rotateAlways: true,
+                                datetimeFormatter: {
+                                    year: 'yyyy',
+                                    month: 'MMM \'yy',
+                                    day: 'dd MMM',
+                                    hour: 'HH:mm'
+                                },
                                 style: {
                                     colors: '#FFFFFF',
                                 },
