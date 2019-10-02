@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+    <title>Graderoom</title>
+    <link rel="icon" href="../public/resources/icon.png">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+    <style>
+        body         { padding:10px; }
+    </style>
+</head>
+<body style="background-color:#222222; color:#FFFFFF">
+<a href="/" class="btn btn-success btn-sm">Back to Home</a>
+
+<br>
+<br>
+<br>
+<div class="container">
+    <div class="col-sm-6 col-sm-offset-3">
+
+        <h1><span class="fa fa-cog"></span> Settings</h1>
+
+        <% if (settingsChangeMessageSuccess.length > 0) { %>
+            <div class="alert alert-danger"><%= settingsChangeMessageSuccess %></div>
+        <% } %>
+        <% if (settingsChangeMessageFail.length > 0) { %>
+            <div class="alert alert-danger"><%= settingsChangeMessageFail %></div>
+        <% } %>
+
+        <!-- LOGIN FORM -->
+        <form action="/changepassword" method="post">
+            <div class="form-group">
+                <label>Change Password</label>
+                <input type="password" class="form-control" name="password">
+                <button type="submit" class="btn btn-default btn-sm">Change Password</button>
+            </div>
+        </form>
+        <form action="/changeschoolusername" method="post">
+            <div class="form-group">
+                <label>Change School Username</label>
+                <input type="text" class="form-control" name="school_username">
+                <button type="submit" class="btn btn-default btn-sm">Change School Username</button>
+            </div>
+        </form>
+        <form action="/changeschoolpassword", method="post">
+            <div class="text-center">
+                <label>Change School Password</label>
+                <input type="password" class="form-control" name="school_password">
+                <button type="submit" class="btn btn-default btn-sm">Change School Password</button>
+            </div>
+        </form>
+
+        <hr>
+
+    </div>
+</div>
+</body>
+</html>
