@@ -25,11 +25,12 @@ class ClassGrade:
     def set_weights(self, weights):
         self.weights = weights
 
-    def add_grade(self, assignment_name, grade_percent, points_gotten, points_possible, category):
+    def add_grade(self, assignment_name, date, grade_percent, points_gotten, points_possible, category,):
         # todo add a case for no grade yet?
 
         new_grade = {
             'assignment_name': assignment_name,  # string
+            'date': date, #string
             'category': category,  # string
             'grade_percent': grade_percent,  # double
             'points_gotten': points_gotten,  # double
@@ -294,7 +295,7 @@ class PowerschoolScraper:
 #                     print('Found empty/non graded assignment. Skipping')
                     continue
                 gp = td_gs[9].text
-                local_class.add_grade(a_n, gp, pg, pp, cat)
+                local_class.add_grade(a_n, date, gp, pg, pp, cat)
 
             # todo check if local_class is good /complete enough
             final_all_classes.append(local_class.as_dict())
