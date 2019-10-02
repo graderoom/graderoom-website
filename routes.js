@@ -64,6 +64,52 @@ app.get('/update',isLoggedIn, function(req, res) {
     res.redirect('/');
 });
 
+app.post('/changepassword', isLoggedIn, (req, res) => {
+
+    let new_pass = req.body.password;
+    let resp = authenticator.changePassword(req.user.username, new_pass);
+    if (resp.success) {
+        req.flash('settingsChangeMessageSuccess', resp.message);
+    } else {
+        req.flash('settingsChangeMessageFail', resp.message);
+    }
+    res.redirect('/settings')
+
+});
+
+app.post('/changeschoolusername', isLoggedIn, (req, res) => {
+
+    let su = req.body.school_username;
+    let resp = authenticator.changeSchoolUsername(req.user.username, su);
+    if (resp.success) {
+        req.flash('settingsChangeMessageSuccess', resp.message);
+    } else {
+        req.flash('settingsChangeMessageFail', resp.message);
+    }
+    res.redirect('/settings')
+
+});
+
+app.post('/changeschoolpassword', isLoggedIn, (req, res) => {
+
+    let sp = req.body.school_password;
+    let resp = authenticator.changeSchoolPassword(req.user.username, sp);
+    if (resp.success) {
+        req.flash('settingsChangeMessageSuccess', resp.message);
+    } else {
+        req.flash('settingsChangeMessageFail', resp.message);
+    }
+    res.redirect('/settings')
+
+});
+
+app.get('/settings', isLoggedIn, (req, res) => {
+    res.render('settings.ejs', {
+        settingsChangeMessageSuccess: req.flash('settingsChangeMessageSuccess'),
+        settingsChangeMessageFail: req.flash('settingsChangeMessageFail'),
+    });
+});
+
 
 // process the login form
 app.post('/login', passport.authenticate('local-login', {
