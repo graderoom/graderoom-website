@@ -2,6 +2,7 @@ const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 const adapter = new FileSync('user_db.json');
 const db = low(adapter);
+const bcrypt = require('bcryptjs');
 let scraper = require('./scrape');
 
 
