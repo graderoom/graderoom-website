@@ -135,7 +135,7 @@ app.get('/signup', function(req, res) {
 //     failureFlash : true // allow flash messages
 // }));
 
-app.post('/signup', function(req, res, next) {
+app.post('/signup', async function(req, res, next) {
 
         let username = req.body.username;
         let password = req.body.password;
@@ -146,7 +146,7 @@ app.post('/signup', function(req, res, next) {
 
         //check if can create here (i.e. username not in use)
 
-        let resp = authenticator.addNewUser(username, password, s_email, s_password, false);
+        let resp = await authenticator.addNewUser(username, password, s_email, s_password, false);
         console.log(resp);
 
 
