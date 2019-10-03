@@ -1,16 +1,14 @@
-var express  = require('express');
-var app      = express();
-var port     = process.env.PORT || 8080;
-
-var flash    = require('connect-flash');
-
-var morgan       = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser   = require('body-parser');
-var session      = require('express-session');
-var passport = require('passport');
-
-let dbConn = require('./authenticator.js');
+const express  = require('express');
+const app = express();
+const port = process.env.PORT || 8080;
+const flash    = require('connect-flash');
+const morgan       = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser   = require('body-parser');
+const session      = require('express-session');
+const passport = require('passport');
+const dbConn = require('./authenticator.js');
+const bcrypt = require('bcrypt');
 
 app.use('/public/resources/', express.static('./public/resources'));
 
@@ -32,7 +30,10 @@ app.set('view engine', 'ejs'); // set up ejs for templating #todo do we want thi
  */
 
 const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'password';
+let ADMIN_PASSWORD = '';
+bcrypt.hash('password',10,function(err, hash) {
+    ADMIN_PASSWORD = hash;
+});
 const ADMIN_SCHOOL_USERNAME = '';
 const ADMIN_SCHOOL_PASSWORD = '';
 

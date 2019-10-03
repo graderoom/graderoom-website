@@ -1,6 +1,7 @@
 // load all the things we need
-var LocalStrategy = require('passport-local').Strategy;
-let authent = require('./authenticator.js');
+const LocalStrategy = require('passport-local').Strategy;
+const authent = require('./authenticator.js');
+const bcrypt = require('bcrypt');
 module.exports = function(passport) {
 
     // =========================================================================
@@ -36,17 +37,19 @@ module.exports = function(passport) {
         // asynchronous
         process.nextTick(function() {
 
-            user = authent.getUser(username)
+            let user = authent.getUser(username);
                 // if no user is found, return the message
             if (!user) {
                 return done(null, false, req.flash('loginMessage', 'No user found.'));
             }
 
-            if (user.password != password) {
-                return done(null, false, req.flash('loginMessage', 'Wrong pass.'));
-            }
-            // all is well, return user
-            return done(null, user);
+            bcrypt.compare(password, user.password, function (err, res) {
+                if (res) {
+                    return done(null, user);
+                } else {
+                    return done(null, false, req.flash('loginMessage', 'Wrong pass.'));
+                }
+            });
             
         });
     }));
