@@ -8,7 +8,6 @@ const bodyParser   = require('body-parser');
 const session      = require('express-session');
 const passport = require('passport');
 const dbConn = require('./authenticator.js');
-const bcrypt = require('bcrypt');
 
 app.use('/public/resources/', express.static('./public/resources'));
 
