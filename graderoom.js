@@ -30,16 +30,15 @@ app.set('view engine', 'ejs'); // set up ejs for templating #todo do we want thi
  */
 
 const ADMIN_USERNAME = 'admin';
-let ADMIN_PASSWORD = '';
-bcrypt.hash('password',10,function(err, hash) {
-    ADMIN_PASSWORD = hash;
-});
+const ADMIN_PASSWORD = 'password';
 const ADMIN_SCHOOL_USERNAME = '';
 const ADMIN_SCHOOL_PASSWORD = '';
 
 if (!dbConn.userExists(ADMIN_USERNAME)) {
     console.log("Creating admin account.");
-    console.log(dbConn.addNewUser(ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_SCHOOL_USERNAME, ADMIN_SCHOOL_PASSWORD, true));
+    dbConn.addNewUser(ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_SCHOOL_USERNAME, ADMIN_SCHOOL_PASSWORD, true).then(r => {
+        console.log(r);
+    })
 }
 
 // required for passport

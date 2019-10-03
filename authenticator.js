@@ -16,19 +16,22 @@ module.exports = {
         }
 
         const roundsToGenerateSalt = 10;
-        bcrypt.hash(password,roundsToGenerateSalt,function(err, hash) {
-            db.get('users').push(
-                {
-                    username: username,
-                    password: hash,
-                    schoolUsername: schoolUsername,
-                    schoolPassword: schoolPassword,
-                    isAdmin: isAdmin,
-                    grades: [],
-                }).write();
+        return new Promise((resolve, reject) => {
+            bcrypt.hash(password,roundsToGenerateSalt,function(err, hash) {
+                db.get('users').push(
+                    {
+                        username: username,
+                        password: hash,
+                        schoolUsername: schoolUsername,
+                        schoolPassword: schoolPassword,
+                        isAdmin: isAdmin,
+                        grades: [],
+                    }).write();
 
-            return {success: true, message: "User Created"};
-        });
+                return resolve({success: true, message: "User Created"});
+            });
+        })
+
     },
     login: function(username, password) {
         let user = db.get('users').find({username: username}).value();
