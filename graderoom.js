@@ -1,11 +1,11 @@
-const express  = require('express');
+const express = require('express');
 const app = express();
 const port = process.env.PORT || 8080;
-const flash    = require('connect-flash');
-const morgan       = require('morgan');
+const flash = require('connect-flash');
+const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
-const bodyParser   = require('body-parser');
-const session      = require('express-session');
+const bodyParser = require('body-parser');
+const session = require('express-session');
 const passport = require('passport');
 const dbConn = require('./authenticator.js');
 
