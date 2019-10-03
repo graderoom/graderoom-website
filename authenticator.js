@@ -14,6 +14,11 @@ module.exports = {
             return {success: false, message: "User Already Exists"};
         }
 
+        const roundsToGenerateSalt = 10;
+        bcrypt.hash(password,roundsToGenerateSalt,function(err, hash) {
+            password = hash;
+        });
+
         db.get('users').push(
             {
                 username: username,
@@ -28,10 +33,13 @@ module.exports = {
     },
     login: function(username, password) {
         let user = db.get('users').find({username: username}).value();
-        if (user.password === password) {
-            return {success: true, message: "Login Successful"};
-        }
-        return {success: false, message: "Login Failed"};
+        bcrypt.compare(password, user.password, function (err, res) {
+            if (res) {
+                return {success: true, message: "Login Successful"};
+            } else {
+                return {success: false, message: "Login Failed"};
+            }
+        });
     },
     changePassword: function(username, password) {
         db.get('users').find({username: username}).assign({password: password}).write();
