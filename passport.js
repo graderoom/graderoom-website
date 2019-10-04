@@ -40,14 +40,14 @@ module.exports = function(passport) {
             let user = authent.getUser(username);
                 // if no user is found, return the message
             if (!user) {
-                return done(null, false, req.flash('loginMessage', 'No user found.'));
+                return done(null, false, req.flash('loginMessage', 'User Not Found.'));
             }
 
             bcrypt.compare(password, user.password, function (err, res) {
                 if (res) {
                     return done(null, user);
                 } else {
-                    return done(null, false, req.flash('loginMessage', 'Wrong pass.'));
+                    return done(null, false, req.flash('loginMessage', 'Incorrect Password.'));
                 }
             });
             
