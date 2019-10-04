@@ -3,40 +3,58 @@
 <head>
     <title>Graderoom</title>
     <link rel="icon" href="../public/resources/icon.png">
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
     <style>
-        body         { padding-top:80px; }
+        /* body         { padding-top:80px; } */
+        .card {
+            background: #333333;
+        }
+        .card-signin {
+            border: 0;
+            border-radius: 1rem;
+            box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .card-signin .card-body {
+            padding: 2rem;
+        }
+
+        .form-signin .btn {
+            background: #555555;
+            border-color: #999999;
+            color: white;
+            font-weight: bold;
+            padding: 0.5rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
     </style>
 </head>
 <body style="background-color:#222222; color:#FFFFFF">
-<div class="container">
-<div class="col-sm-6 col-sm-offset-3">
+    <div class="container h-100 d-flex justify-content-center ">
+        <div class="col-sm-9 col-md-7 col-lg-5">
+            <div class="card card-signin my-5">
+                <div class="card-body">
+                    <h1 class="text-center">Graderoom</h1>
 
-    <h1><span class="fa fa-sign-in"></span> Login</h1>
-
-    <% if (message.length > 0) { %>
-        <div class="alert alert-danger"><%= message %></div>
-    <% } %>
-
-    <!-- LOGIN FORM -->
-    <form action="/login" method="post">
-        <div class="form-group">
-            <label>Username</label>
-            <input type="text" class="form-control" name="username">
+                    <form class="form-signin" action="/login" method="post">
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" class="form-control" name="username" autofocus>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" class="form-control" name="password">
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-default btn-lg">Login</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" class="form-control" name="password">
-        </div>
-        <div class="text-center">
-            <button type="submit" class="btn btn-default btn-lg">Login</button>
-        </div>
-    </form>
 
-    <hr>
-
-</div>
-</div>
+    </div>
 </body>
 </html>
