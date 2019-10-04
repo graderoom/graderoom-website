@@ -21,14 +21,43 @@
         }
 
         .form-signin .btn {
-            background: #555555;
+            background: #BBBBBB;
             border-color: #999999;
-            color: white;
+            color: #333333;
             font-weight: bold;
-            padding: 0.5rem;
-            padding-left: 1rem;
-            padding-right: 1rem;
+            padding: 0.25rem;
+            width: 90%;
         }
+
+        .form-group input {
+            border-top: none;
+            border-right: none;
+            border-left: none;
+            color: white;
+        }
+        
+        .user-icon {
+            background: url(../public/resources/user.png) no-repeat left/23px 27px;
+            padding-left: 35px;
+        }
+        .user-icon:focus {
+            background: url(../public/resources/user.png) no-repeat left/23px 27px;
+        }
+
+        .password-icon {
+            background: url(../public/resources/lock.png) no-repeat left/22px 27px;
+            padding-left: 35px;
+        }
+        .password-icon:focus {
+            background: url(../public/resources/lock.png) no-repeat left/22px 27px;
+        }
+
+        .form-group input:focus {
+            color: white;
+            border-bottom-color: #555555;
+            box-shadow: none;
+        }
+
     </style>
 </head>
 <body style="background-color:#222222; color:#FFFFFF">
@@ -37,21 +66,25 @@
             <div class="card card-signin my-5">
                 <div class="card-body">
                     <h1 class="text-center">Graderoom</h1>
-
                     <form class="form-signin" action="/login" method="post">
                         <div class="form-group">
                             <label>Username</label>
-                            <input type="text" class="form-control" name="username" autofocus>
+                            <input type="text" class="form-control user-icon" name="username" autofocus>
                         </div>
                         <div class="form-group">
                             <label>Password</label>
-                            <input type="password" class="form-control" name="password">
+                            <input type="password" class="form-control password-icon" name="password">
                         </div>
+                        <br>
                         <div class="text-center">
                             <button type="submit" class="btn btn-default btn-lg">Login</button>
                         </div>
                     </form>
                 </div>
+                <div class="card-footer text-center">
+                    <a href="/signup" style="color:#BBBBBB">Create Account</a>
+                </div>
+
             </div>
         </div>
 
