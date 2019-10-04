@@ -309,11 +309,13 @@ class PowerschoolScraper:
 
 
 if __name__ == "__main__":
-
-      user = sys.argv[1]
-      password = sys.argv[2]
-#     user = input('Enter your username: ')
-#     password = getpass('Enter your password: ')
-      ps = PowerschoolScraper(user, password)
-      ps.login_and_get_all_class_grades_and_print_resp()
+    try:
+        user = sys.argv[1]
+        password = sys.argv[2]
+        #     user = input('Enter your username: ')
+        #     password = getpass('Enter your password: ')
+        ps = PowerschoolScraper(user, password)
+        ps.login_and_get_all_class_grades_and_print_resp()
+    except Exception:
+        print(json_format(False, "Error scraping grades."))
 
