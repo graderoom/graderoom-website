@@ -25,26 +25,40 @@ body {
 }
 
 .form-group input {
+    background: none;
+    border-radius: 0;
     border-top: none;
     border-right: none;
     border-left: none;
     color: white;
 }
 
-.user-icon {
-    background: url(../public/resources/user.png) no-repeat left/23px 27px;
-    padding-left: 35px;
-}
-.user-icon:focus {
-    background: url(../public/resources/user.png) no-repeat left/23px 27px;
+.form-group input:focus {
+    background: none;
 }
 
-.password-icon {
-    background: url(../public/resources/lock.png) no-repeat left/22px 27px;
+.form-group .user-bg {
+    background: url(/public/resources/user.png) no-repeat left/23px 27px;
     padding-left: 35px;
 }
-.password-icon:focus {
-    background: url(../public/resources/lock.png) no-repeat left/22px 27px;
+.form-group .user-bg:focus {
+    background: url(/public/resources/user.png) no-repeat left/23px 27px;
+}
+
+.form-group .lock-bg {
+    background: url(/public/resources/lock.png) no-repeat left/22px 27px;
+    padding-left: 35px;
+}
+.form-group .lock-bg:focus {
+    background: url(/public/resources/lock.png) no-repeat left/22px 27px;
+}
+
+.form-group .email-bg {
+    background: url(/public/resources/email.png) no-repeat left/27px 20px;
+    padding-left: 35px;
+}
+.form-group .email-bg:focus {
+    background: url(/public/resources/email.png) no-repeat left/27px 20px;
 }
 
 .form-group input:focus {
