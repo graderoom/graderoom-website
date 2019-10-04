@@ -66,6 +66,10 @@
             <div class="card card-signin my-5">
                 <div class="card-body">
                     <h1 class="text-center">Graderoom</h1>
+
+                    <% if (message.length > 0) { %>
+                        <div class="alert alert-danger"><%= message %></div>
+                    <% } %>
                     <form class="form-signin" action="/login" method="post">
                         <div class="form-group">
                             <label>Username</label>

@@ -19,7 +19,7 @@ app.get('/', function(req, res) {
             updateGradesMessageFail: req.flash('updateGradesMessageFail')});
         return;
     }
-    res.render('index.ejs');
+    res.render('index.ejs', { message: req.flash('loginMessage') });
 });
 
 app.get('/logout', function(req, res) {
@@ -117,10 +117,6 @@ app.post('/login', passport.authenticate('local-login', {
     failureRedirect : '/', // redirect back to the signup page if there is an error
     failureFlash : true // allow flash messages
 }));
-
-app.get('/login', function(req, res) {
-    res.render('login.ejs', { message: req.flash('loginMessage') });
-});
 
 // SIGNUP =================================
 // show the signup form
