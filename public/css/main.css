@@ -1,0 +1,54 @@
+body {
+    background:#222222; 
+    color:#FFFFFF
+}
+
+.card {
+    background: #333333;
+}
+.card-signin {
+    border: 0;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.1);
+}
+
+.card-signin .card-body {
+    padding: 2rem;
+}
+
+.form-signin .btn {
+    background: #BBBBBB;
+    color: #333333;
+    font-weight: bold;
+    padding: 0.25rem;
+    width: 90%;
+}
+
+.form-group input {
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    color: white;
+}
+
+.user-icon {
+    background: url(../public/resources/user.png) no-repeat left/23px 27px;
+    padding-left: 35px;
+}
+.user-icon:focus {
+    background: url(../public/resources/user.png) no-repeat left/23px 27px;
+}
+
+.password-icon {
+    background: url(../public/resources/lock.png) no-repeat left/22px 27px;
+    padding-left: 35px;
+}
+.password-icon:focus {
+    background: url(../public/resources/lock.png) no-repeat left/22px 27px;
+}
+
+.form-group input:focus {
+    color: white;
+    border-bottom-color: #555555;
+    box-shadow: none;
+}

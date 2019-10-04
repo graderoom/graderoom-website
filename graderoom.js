@@ -9,9 +9,7 @@ const session = require('express-session');
 const passport = require('passport');
 const dbConn = require('./authenticator.js');
 
-app.use('/public/resources/', express.static('./public/resources'));
-
-
+app.use('/public/', express.static('./public'));
 require('./passport')(passport); // pass passport for configuration
 
 // set up our express application
