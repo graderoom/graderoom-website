@@ -6,6 +6,14 @@ body {
 .card {
     background: #333333;
 }
+
+.card h1 {
+    font-family: 'Montserrat'
+}
+
+.card label{
+    font-family: 'Montserrat'
+}
 .card-signin {
     border: 0;
     border-radius: 1rem;
