@@ -3,8 +3,21 @@ body {
     color:#FFFFFF
 }
 
+/* Form Input Card Styling */
 .card {
     background: #333333;
+}
+
+.card a {
+    color: #BBBBBB;
+}
+
+.card h1 {
+    font-family: 'Montserrat'
+}
+
+.card label{
+    font-family: 'Montserrat'
 }
 .card-signin {
     border: 0;
@@ -37,6 +50,13 @@ body {
     background: none;
 }
 
+.form-group input:focus {
+    color: white;
+    border-bottom-color: #555555;
+    box-shadow: none;
+}
+
+/* Input Form Background Images */
 .form-group .user-bg {
     background: url(/public/resources/user.png) no-repeat left/23px 27px;
     padding-left: 35px;
@@ -61,8 +81,10 @@ body {
     background: url(/public/resources/email.png) no-repeat left/27px 20px;
 }
 
-.form-group input:focus {
-    color: white;
-    border-bottom-color: #555555;
-    box-shadow: none;
+.form-group .password-bg {
+    background: url(/public/resources/password.png) no-repeat left/26px 22px;
+    padding-left: 35px;
+}
+.form-group .password-bg:focus {
+    background: url(/public/resources/password.png) no-repeat left/26px 22px;
 }
