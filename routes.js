@@ -91,19 +91,6 @@ app.post('/changeschoolusername', isLoggedIn, (req, res) => {
 
 });
 
-app.post('/changeschoolpassword', isLoggedIn, (req, res) => {
-
-    let sp = req.body.school_password;
-    let resp = authenticator.changeSchoolPassword(req.user.username, sp);
-    if (resp.success) {
-        req.flash('settingsChangeMessageSuccess', resp.message);
-    } else {
-        req.flash('settingsChangeMessageFail', resp.message);
-    }
-    res.redirect('/settings')
-
-});
-
 app.get('/settings', isLoggedIn, (req, res) => {
     res.render('settings.ejs', {
         settingsChangeMessageSuccess: req.flash('settingsChangeMessageSuccess'),
@@ -137,13 +124,12 @@ app.post('/signup', async function(req, res, next) {
         let username = req.body.username;
         let password = req.body.password;
         let s_email = req.body.school_email;
-        let s_password = req.body.school_password;
 
         console.log("Trying to create user: " + username);
 
         //check if can create here (i.e. username not in use)
 
-        let resp = await authenticator.addNewUser(username, password, s_email, s_password, false);
+        let resp = await authenticator.addNewUser(username, password, s_email, false);
         console.log(resp);
 
 
