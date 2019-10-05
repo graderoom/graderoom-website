@@ -5,24 +5,107 @@
     <link rel="icon" href="../public/resources/icon.png">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="public/css/main.css">
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <style>
-        body {
-            padding: 10px;
-            background-color: #222222;
-        }
-        .nav-item {
-            padding-left: 0.5em;
-            padding-right: 0.5em;
-        }
-        .nav-link {
-            background-color: #333333;
-            color: white;
-        }   
+        /*!* body         { padding-top:80px; } *!*/
+        /*.card {*/
+        /*    background: #333333;*/
+        /*}*/
+        /*.card-signin {*/
+        /*    border: 0;*/
+        /*    border-radius: 1rem;*/
+        /*    box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.1);*/
+        /*}*/
+
+        /*.card-signin .card-title {*/
+        /*    margin-bottom: 2rem;*/
+        /*    font-weight: 300;*/
+        /*    font-size: 1.5rem;*/
+        /*}*/
+
+        /*.card-signin .card-body {*/
+        /*    padding: 2rem;*/
+        /*}*/
+
+        /*.form-signin {*/
+        /*    width: 100%*/
+        /*}*/
+
+        /*.form-signin .btn {*/
+        /*    font-size: 80%;*/
+        /*    border-radius: 5rem;*/
+        /*    letter-spacing: .1rem;*/
+        /*    font-weight: bold;*/
+        /*    padding: 1rem;*/
+        /*    transition: all 0.2s;*/
+        /*}*/
+
+        /*.form-label-group {*/
+        /*    position: relative;*/
+        /*    margin-bottom: 1rem;*/
+        /*}*/
+
+        /*.form-label-group input {*/
+        /*    height: auto;*/
+        /*    border-radius: 2rem;*/
+        /*}*/
+
+        /*.form-label-group>input,*/
+        /*.form-label-group>label {*/
+        /*    padding: 1.5rem .75rem;*/
+        /*}*/
+
+        /*.form-label-group>label {*/
+        /*    position: absolute;*/
+        /*    top: 0;*/
+        /*    left: 0;*/
+        /*    display: block;*/
+        /*    width: 100%;*/
+        /*    margin-bottom: 0;*/
+        /*    !* Override default `<label>` margin *!*/
+        /*    line-height: 1.5;*/
+        /*    color: #495057;*/
+        /*    border: 1px solid transparent;*/
+        /*    border-radius: .25rem;*/
+        /*    transition: all .1s ease-in-out;*/
+        /*}*/
 
     </style>
 </head>
 <body>
+
+    <div class="container">
+
+        <script type="text/javascript">
+            function showDiv(id) {document.getElementById(id).style.display = "block";}
+            function hideDiv(id) {document.getElementById(id).style.display = "none"}
+        </script>
+
+        <div class="blurred-login" id="toggle" style="position:fixed; display:none; height: 100%; width: 100%; top: 0; left: 0; z-index: 10">
+            <div class="blurred-background" style="filter: blur(3px)"></div>
+            <div class="col-sm-7 col-md-7 col-lg-7 mx-auto" style="top: 20%; left: 50%; z-index: 10; transform: translate(-50%,-50%)">
+                <div class="card card-signin my-5">
+                    <div class="card-body">
+                        <h1 class="card-title text-center">Enter the password for</h1>
+                        <h5 class="text-center"><%=schoolUsername%></h5>
+                        <br>
+                        <form class="form-signin" action="/update" method="post">
+
+                            <div class="form-group">
+                                <input name="school_password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                            </div>
+                            <br>
+                            <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit" style="margin: auto">Sign In</button>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
     <a href="/logout" class="btn btn-warning btn-sm">Logout</a>
     <a href="/settings" class="btn btn-info btn-sm">Settings</a>
     <br>
@@ -33,13 +116,12 @@
     <% if (updateGradesMessageFail.length > 0) { %>
         <div class="alert alert-danger"><%= updateGradesMessageFail %></div>
     <% } %>
+
     <div class="container">
 
         <div class="jumbotron text-center" style="background-color: #222222; color: white;">
             <h1><span class="fa fa-graduation-cap"></span> Graderoom: <%=user.username%></h1>
-            <form action="/update" method="post">
-                <button type="submit" class="btn btn-info btn-lg">Update Grades</button>
-            </form>
+            <button type="submit" class="btn btn-info btn-lg" onclick="showDiv('toggle')">Update Grades</button>
         </div>
 
         <ul class="nav nav-pills nav-justified">

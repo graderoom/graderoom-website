@@ -14,6 +14,7 @@ app.get('/', function(req, res) {
 
         res.render('authorized_index.ejs', {
             user: req.user,
+            schoolUsername: req.user.schoolUsername,
             gradeData: gradeDat,
             updateGradesMessageSuccess: req.flash('updateGradesMessageSuccess'),
             updateGradesMessageFail: req.flash('updateGradesMessageFail')});
@@ -155,8 +156,9 @@ app.post('/signup', async function(req, res, next) {
 
 app.post('/update', isLoggedIn, async function(req,res) {
 
-    let user = req.user.username;
-    let resp = await authenticator.updateGrades(user);
+    let user = req.user.displayName;
+    let pass = req.body.school_password;
+    let resp = await authenticator.updateGrades(user,pass);
     if (resp.success) {
         req.flash('updateGradesMessageSuccess', resp.message);
     } else {
