@@ -23,7 +23,6 @@ module.exports = {
                         username: username,
                         password: hash,
                         schoolUsername: schoolUsername,
-                        schoolPassword: schoolPassword,
                         isAdmin: isAdmin,
                         grades: [],
                     }).write();
@@ -53,10 +52,6 @@ module.exports = {
     changeSchoolUsername: function(username, schoolUsername) {
         db.get('users').find({username: username}).assign({schoolUsername: schoolUsername}).write();
         return {success: true, message: "School Username Updated"};       
-    },
-    changeSchoolPassword: function(username, schoolPassword) {
-        db.get('users').find({username: username}).assign({schoolPassword: schoolPassword}).write();
-        return {success: true, message: "School Password Updated"};       
     },
     removeUser: function(username, password) {
         db.get('users').find({username: username}).remove().write();

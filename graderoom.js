@@ -29,11 +29,10 @@ app.set('view engine', 'ejs'); // set up ejs for templating #todo do we want thi
 const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'password';
 const ADMIN_SCHOOL_USERNAME = '';
-const ADMIN_SCHOOL_PASSWORD = '';
 
 if (!dbConn.userExists(ADMIN_USERNAME)) {
     console.log("Creating admin account.");
-    dbConn.addNewUser(ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_SCHOOL_USERNAME, ADMIN_SCHOOL_PASSWORD, true).then(r => {
+    dbConn.addNewUser(ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_SCHOOL_USERNAME, true).then(r => {
         console.log(r);
     })
 }
