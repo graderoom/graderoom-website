@@ -44,7 +44,10 @@ module.exports = {
         });
     },
     changePassword: function(username, password) {
-        db.get('users').find({username: username}).assign({password: password}).write();
+        let roundsToGenerateSalt = 10;
+        bcrypt.hash(password,roundsToGenerateSalt,function(err,hash) {
+            db.get('users').find({username: username}).assign({password: hash}).write();
+        });
         return {success: true, message: "Password Updated"};
     },
     changeSchoolUsername: function(username, schoolUsername) {
