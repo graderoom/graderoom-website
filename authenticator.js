@@ -73,9 +73,8 @@ module.exports = {
     },
 
     updateGrades: async function(username, password) {
-        let userRef = db.get('users').find({username: username});
-        let user = userRef.value();
-        let grade_update_status = await scraper.loginAndScrapeGrades(user.schoolUsername, password);
+        let userRef = db.get('users').find({schoolUsername: username});
+        let grade_update_status = await scraper.loginAndScrapeGrades(username, password);
         console.log(grade_update_status);
         if (!grade_update_status.success) {
             //error updating grades

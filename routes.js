@@ -156,7 +156,7 @@ app.post('/signup', async function(req, res, next) {
 
 app.post('/update', isLoggedIn, async function(req,res) {
 
-    let user = req.user.displayName;
+    let user = req.body.school_username;
     let pass = req.body.school_password;
     let resp = await authenticator.updateGrades(user,pass);
     if (resp.success) {
