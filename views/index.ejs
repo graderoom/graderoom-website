@@ -5,6 +5,7 @@
     <link rel="icon" href="/public/resources/icon.png">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
     <link rel="stylesheet" type="text/css" href="/public/css/main.css">
 </head>
 
@@ -13,8 +14,11 @@
         <div class="col-sm-9 col-md-7 col-lg-5">
             <div class="card card-signin my-5">
                 <div class="card-body">
-                    <h1 class="text-center">Graderoom</h1>
-
+                    <h1 class="text-center">
+                        <img src="public/resources/logo.png" width="60rem">
+                        Graderoom
+                    </h1>
+                    <br>
                     <% if (message.length > 0) { %>
                         <div class="alert alert-danger"><%= message %></div>
                     <% } %>
@@ -28,15 +32,17 @@
                             <input type="password" class="form-control lock-bg" name="password">
                         </div>
                         <br>
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-default btn-lg">Login</button>
+                        <div class="text-center">  
+                            <button type="submit" class="btn btn-default btn-lg">
+                                <i class="fa fa-sign-in" aria-hidden="true"></i> 
+                                Login
+                            </button>
                         </div>
                     </form>
                 </div>
                 <div class="card-footer text-center">
-                    <a href="/signup" style="color:#BBBBBB">Create Account</a>
-                </div>
-
+                    <a href="/signup">Create Account</a>
+                </div>  
             </div>
         </div>
     </div>
