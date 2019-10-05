@@ -3,8 +3,13 @@ body {
     color:#FFFFFF
 }
 
+/* Form Input Card Styling */
 .card {
     background: #333333;
+}
+
+.card a {
+    color: #BBBBBB;
 }
 
 .card h1 {
