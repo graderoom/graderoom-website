@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
     <link rel="stylesheet" href="public/css/main.css">
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
 <body>
 
@@ -20,7 +19,7 @@
     <div class="container">
         <div class="blurred-login" id="toggle" style="position:fixed; display:none; height: 100%; width: 100%; top: 0; left: 0; z-index: 1">
             <div class="blurred-background" style="position: fixed; background-image: url(/public/resources/blur.png); width: 100%; height: 100%; filter: opacity(0.9);"></div>
-            <div class="col-sm-7 col-md-7 col-lg-7 mx-auto" style="top: 50%; left: 50%; transform: translate(-50%,-50%)">
+            <div class="col-sm-7 col-md-7 col-lg-7 mx-auto">
                 <div class="card card-signin my-5">
                     <div class="card-body">
                         <h1 class="card-title text-center">Enter the password for</h1>
@@ -41,23 +40,21 @@
         </div>
     </div>
     
-    <!-- Nav Bar -->
-    <nav class="navbar navbar-dark navbar-expand-lg">
-        <a class="navbar-brand" href="#">
-            <h1>
-                <img src="/public/resources/logo.png" style="width: 3rem" class="d-inline-block align-top" alt="">
-                Graderoom
-            </h1>
+    <!-- Nav Bar -->    
+    <nav class="navbar navbar-dark navbar-expand-lg justify-content-center">
+        <a href="/" class="navbar-brand d-flex w-50 mr-auto">            
+            <h1> <img src="/public/resources/logo.png" style="width: 3rem" class="d-inline-block align-top" alt=""> Graderoom </h1>
         </a>
-        <span class="navbar-text">
-            <h5><%=user.username%></h5>
-        </span>
-
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNav" aria-controls="collapsingNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mr-auto">
+        <div class="navbar-collapse collapse w-100" id="collapsingNav">
+            <ul class="navbar-nav w-100 justify-content-center">
+                <li class="nav-item">
+                    <h5 class=""><%=user.username%></h5>
+                </li>
+            </ul>
+            <ul class="navbar-nav w-100 justify-content-end">
                 <li class="nav-item">
                     <button type="submit" class="btn btn-med" onclick="showDiv('toggle')">
                         <i class="fa fa-refresh" aria-hidden="true"></i>
@@ -76,7 +73,7 @@
                         Logout
                     </a>
                 </li>
-            </ul> 
+            </ul>
         </div>
     </nav>
     <br>
@@ -111,7 +108,16 @@
             <div id="Chart<%=i%>" style="width: 50%; margin: auto; color: black;"></div>
         <% } %>
         
+        <!-- JavaScript Imports -->
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+            crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
 
+        <!-- Custom JavaScript -->
         <script>
             let data = <%- gradeData %>;
             function renderChart(id)

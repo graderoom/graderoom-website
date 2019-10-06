@@ -1,9 +1,10 @@
 body {
-    background:#222222; 
-    color:#FFFFFF
+    background: #222222;
+    color: #FFFFFF
 }
 
 /* Nav Bar Styling */
+
 nav {
     background: #333333;
 }
@@ -16,26 +17,21 @@ nav h1 {
 nav h5 {
     font-family: 'Montserrat';
     margin-bottom: 0;
-    color: #BBBBBB;
+    color: #CCCCCC;
 }
 
 nav .btn {
-    color: #BBBBBB;
+    color: white;
     background-color: transparent;
-    border-color: #BBBBBB;
 }
 
 nav .btn:hover {
     color: #333333;
     background-color: #BBBBBB;
-    border-color: #BBBBBB;
-}
-
-nav .btn:focus {
-    box-shadow: 0 0 0 .2rem rgba(0, 123, 255, .5)
 }
 
 /* Form Input Card Styling */
+
 .card {
     background: #333333;
 }
@@ -48,9 +44,10 @@ nav .btn:focus {
     font-family: 'Montserrat'
 }
 
-.card label{
+.card label {
     font-family: 'Montserrat'
 }
+
 .card-signin {
     border: 0;
     border-radius: 1rem;
@@ -95,10 +92,12 @@ nav .btn:focus {
 }
 
 /* Input Form Background Images */
+
 .form-group .user-bg {
     background: url(/public/resources/user.png) no-repeat left/23px 27px;
     padding-left: 35px;
 }
+
 .form-group .user-bg:focus {
     background: url(/public/resources/user.png) no-repeat left/23px 27px;
 }
@@ -107,6 +106,7 @@ nav .btn:focus {
     background: url(/public/resources/lock.png) no-repeat left/22px 27px;
     padding-left: 35px;
 }
+
 .form-group .lock-bg:focus {
     background: url(/public/resources/lock.png) no-repeat left/22px 27px;
 }
@@ -115,6 +115,7 @@ nav .btn:focus {
     background: url(/public/resources/email.png) no-repeat left/27px 20px;
     padding-left: 35px;
 }
+
 .form-group .email-bg:focus {
     background: url(/public/resources/email.png) no-repeat left/27px 20px;
 }
@@ -123,6 +124,7 @@ nav .btn:focus {
     background: url(/public/resources/password.png) no-repeat left/26px 22px;
     padding-left: 35px;
 }
+
 .form-group .password-bg:focus {
     background: url(/public/resources/password.png) no-repeat left/26px 22px;
 }
