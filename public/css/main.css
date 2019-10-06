@@ -30,6 +30,10 @@ nav .btn:hover {
     background-color: #BBBBBB;
 }
 
+nav .navbar-toggler:focus {
+    outline: none;
+}
+
 /* Form Input Card Styling */
 
 .card {
