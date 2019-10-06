@@ -42,9 +42,11 @@
     
     <!-- Nav Bar -->    
     <nav class="navbar navbar-dark navbar-expand-lg justify-content-center">
-        <a href="/" class="navbar-brand d-flex w-50 mr-auto">            
-            <h1> <img src="/public/resources/logo.png" style="width: 3rem" class="d-inline-block align-top" alt=""> Graderoom </h1>
-        </a>
+        <span class="d-flex w-50 mr-auto">
+            <a href="/" class="navbar-brand" >            
+                <h1> <img src="/public/resources/logo.png" style="width: 3rem" class="d-inline-block align-top" alt=""> Graderoom </h1>
+            </a>
+        </span>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNav" aria-controls="collapsingNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -76,8 +78,8 @@
             </ul>
         </div>
     </nav>
-    <br>
-    <br>
+
+    <br><br>
     <!-- Messages-->
     <% if (updateGradesMessageSuccess.length > 0) { %>
         <div class="alert alert-danger"><%= updateGradesMessageSuccess %></div>
@@ -118,7 +120,21 @@
             crossorigin="anonymous"></script>
 
         <!-- Custom JavaScript -->
-        <script>
+        <script>         
+            // Collapse navbar when click outside
+            $(document).click(function (e) {
+                console.log("touch");
+                if (!$(e.target).closest('#collapsingNav').length && !$(e.target).is('#collapsingNav')){
+                    $('.navbar-collapse').collapse('hide');
+                }
+            });
+            // Collapse navbar when press escape
+            $(document).keyup(function (e) {
+                if (e.key === "Escape") { // escape key maps to keycode `27`
+                    $('.navbar-collapse').collapse('hide');
+                }
+            });
+
             let data = <%- gradeData %>;
             function renderChart(id)
             {
