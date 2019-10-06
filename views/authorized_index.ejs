@@ -90,9 +90,17 @@
                 document.getElementById("Chart" + id).style.display = "block";
                 if (id>=0)
                 {
-                    let ass_grades = data[id].grades.map(x => x.grade_percent)
-                    // let assignmentNames = data[id].grades.map(x => x.assignment_name)
-                    let ass_timestamps = data[id].grades.map(x => new Date(x.date).getTime())
+                    let ass_grades = [];
+                    let ass_timestamps = [];
+
+                    // ignore any assignments that have the exclude flag
+                    for (let grade of data[id].grades) {
+                        if (grade.exclude === false) {
+                            ass_grades.push(grade.grade_percent);
+                            ass_timestamps.push(new Date(grade.date).getTime())
+                        }
+                    }
+                    
                     var options = {
                         chart: {
                             type: 'line'
