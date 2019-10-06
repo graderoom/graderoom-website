@@ -11,16 +11,17 @@ db.defaults({users: []}).write();
 module.exports = {
     //Need to add Try Catches to error check when updating db values
     addNewUser: function(username, password, schoolUsername, isAdmin) {
-        if (this.userExists(username)) {
+
+        let lc_username = username.toLowerCase();
+        if (this.userExists(lc_username)) {
             return {success: false, message: "User Already Exists"};
         }
-
         const roundsToGenerateSalt = 10;
         return new Promise((resolve, reject) => {
             bcrypt.hash(password,roundsToGenerateSalt,function(err, hash) {
                 db.get('users').push(
                     {
-                        username: username,
+                        username: lc_username,
                         password: hash,
                         schoolUsername: schoolUsername,
                         isAdmin: isAdmin,
@@ -33,7 +34,8 @@ module.exports = {
 
     },
     login: function(username, password) {
-        let user = db.get('users').find({username: username}).value();
+        let lc_username = username.toLowerCase();
+        let user = db.get('users').find({username: lc_username}).value();
         bcrypt.compare(password, user.password, function (err, res) {
             if (res) {
                 return {success: true, message: "Login Successful"};
@@ -43,22 +45,26 @@ module.exports = {
         });
     },
     changePassword: function(username, password) {
+        let lc_username = username.toLowerCase();
         let roundsToGenerateSalt = 10;
         bcrypt.hash(password,roundsToGenerateSalt,function(err,hash) {
-            db.get('users').find({username: username}).assign({password: hash}).write();
+            db.get('users').find({username: lc_username}).assign({password: hash}).write();
         });
         return {success: true, message: "Password Updated"};
     },
     changeSchoolUsername: function(username, schoolUsername) {
-        db.get('users').find({username: username}).assign({schoolUsername: schoolUsername}).write();
+        let lc_username = username.toLowerCase();
+        db.get('users').find({username: lc_username}).assign({schoolUsername: schoolUsername}).write();
         return {success: true, message: "School Username Updated"};       
     },
     removeUser: function(username, password) {
-        db.get('users').find({username: username}).remove().write();
+        let lc_username = username.toLowerCase();
+        db.get('users').find({username: lc_username}).remove().write();
         return {success: true, message: "Account deleted."};
     },
     userExists: function(username) {
-        let user = db.get('users').find({username: username}).value();
+        let lc_username = username.toLowerCase();
+        let user = db.get('users').find({username: lc_username}).value();
         if (user) {
             return true;
         }
@@ -66,46 +72,34 @@ module.exports = {
     },
 
     getUser: function(username) {
-        let user = db.get('users').find({username: username}).value();
+        let lc_username = username.toLowerCase();
+        let user = db.get('users').find({username: lc_username}).value();
         return user
     },
 
-    updateGrades: async function(username, password) {
-        let userRef = db.get('users').find({schoolUsername: username});
-        let grade_update_status = await scraper.loginAndScrapeGrades(username, password);
-        console.log(grade_update_status);
+    updateGrades: async function(acc_username, school_password) {
+        let lc_username = acc_username.toLowerCase();
+        let userRef = db.get('users').find({username: acc_username});
+        let grade_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password);
+        // console.log(grade_update_status);
         if (!grade_update_status.success) {
             //error updating grades
             return grade_update_status;
         }
-
         userRef.assign({grades: grade_update_status.new_grades}).write();
-
         return {success: true, message: "Updated grades!"};
-
     },
 
     getAllUsers: function() {
         return db.get('users').value();
     },
 
-    deleteUser: function(userToRemove) {
-
-        if (this.userExists(userToRemove)) {
-            db.get('users').remove({username: userToRemove}).write();
+    deleteUser: function(username) {
+        let lc_username = username.toLowerCase();
+        if (this.userExists(lc_username)) {
+            db.get('users').remove({username: lc_username}).write();
             return {success: true, message: "Deleted user."}
         }
         return {success: false, message: "User does not exist."}
     }
-
-
-    // testPassword: function(username, password) {
-    //     user = db.get('users').find({username: username});
-    //     if (user) {
-    //         //todo add hash
-    //         return password == user.password;
-    //     }
-    //     return false;
-    // }
-
 };
