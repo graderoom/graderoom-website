@@ -19,6 +19,22 @@ nav h5 {
     color: #BBBBBB;
 }
 
+nav .btn {
+    color: #BBBBBB;
+    background-color: transparent;
+    border-color: #BBBBBB;
+}
+
+nav .btn:hover {
+    color: #333333;
+    background-color: #BBBBBB;
+    border-color: #BBBBBB;
+}
+
+nav .btn:focus {
+    box-shadow: 0 0 0 .2rem rgba(0, 123, 255, .5)
+}
+
 /* Form Input Card Styling */
 .card {
     background: #333333;

@@ -42,17 +42,42 @@
     </div>
     
     <!-- Nav Bar -->
-    <nav class="navbar navbar-dark">
+    <nav class="navbar navbar-dark navbar-expand-lg">
         <a class="navbar-brand" href="#">
             <h1>
                 <img src="/public/resources/logo.png" style="width: 3rem" class="d-inline-block align-top" alt="">
                 Graderoom
             </h1>
         </a>
-        <h5><%=user.username%></h5>
-        <a href="/logout" class="btn btn-sm">Logout</a>
-        <a href="/settings" class="btn btn-sm">Settings</a>
-        <button type="submit" class="btn btn-med" onclick="showDiv('toggle')">Update Grades</button>
+        <span class="navbar-text">
+            <h5><%=user.username%></h5>
+        </span>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <button type="submit" class="btn btn-med" onclick="showDiv('toggle')">
+                        <i class="fa fa-refresh" aria-hidden="true"></i>
+                        Update Grades
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <a href="/settings" class="btn btn-med">
+                        <i class="fa fa-cog fa-lg" aria-hidden="true"></i>
+                        Settings
+                    </a>
+                </li>
+                <li class="nav-item active">
+                    <a href="/logout" class="btn btn-med">
+                        <i class="fa fa-sign-out" aria-hidden="true"></i>
+                        Logout
+                    </a>
+                </li>
+            </ul> 
+        </div>
     </nav>
     <br>
     <br>
@@ -83,7 +108,7 @@
 
         <div id="Chart-1" style="width: 50%; margin: auto"></div>
         <% for (let i = 0; i<JSON.parse(gradeData).length; i++) { %>
-            <div id="Chart<%=i%>" style="width: 50%; margin: auto;"></div>
+            <div id="Chart<%=i%>" style="width: 50%; margin: auto; color: black;"></div>
         <% } %>
         
 
@@ -96,7 +121,10 @@
                 let ass_timestamps = data[id].grades.map(x => new Date(x.date).getTime())
                 var options = {
                     chart: {
-                        type: 'line'
+                        type: 'line',
+                        toolbar: {
+                            show: false
+                        }
                     },
                     series: [{
                         name: data[id].class_name,
@@ -107,14 +135,7 @@
                         type: 'datetime',
                         categories: ass_timestamps,    
                         labels: {
-                            rotate: -45,
-                            rotateAlways: true,
-                            datetimeFormatter: {
-                                year: 'yyyy',
-                                month: 'MMM \'yy',
-                                day: 'dd MMM',
-                                hour: 'HH:mm'
-                            },
+                            format: 'MMM dd',
                             style: {
                                 colors: '#FFFFFF',
                             },
@@ -137,11 +158,17 @@
             }
             function showPage(id)
             {   
-                for (let i = -1; i<data.length; i++)
+                if (id===-1)
                 {
-                    document.getElementById("Chart" + i).style.display = "none";
-                }
-                document.getElementById("Chart" + id).style.display = "block";
+                    for (let i = -1; i < data.length; i++) {
+                        document.getElementById("Chart" + i).style.display = "block";
+                    }
+                } else {
+                    for (let i = -1; i < data.length; i++) {
+                        document.getElementById("Chart" + i).style.display = "none";
+                    }
+                    document.getElementById("Chart" + id).style.display = "block";
+                } 
             }
         </script>
 
