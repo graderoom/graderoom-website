@@ -132,12 +132,16 @@ app.post('/signup', async function(req, res, next) {
         let resp = await authenticator.addNewUser(username, password, s_email, false);
         console.log(resp);
 
-
-        passport.authenticate('local-login', {
-            successRedirect : '/', // redirect to the secure profile section
-            failureRedirect : '/signup', // redirect back to the signup page if there is an error
-            failureFlash : true // allow flash messages
-        })(req, res, next); // this was hard :(       
+        if (!resp.success) {
+            req.flash('signupMessage', resp.message);
+            res.redirect('/signup')
+        } else {
+            passport.authenticate('local-login', {
+                successRedirect : '/', // redirect to the secure profile section
+                failureRedirect : '/signup', // redirect back to the signup page if there is an error
+                failureFlash : false // Don't want to flash messages to login page when using signup page
+            })(req, res, next); // this was hard :(   
+        }   
 });
 
 app.post('/update', isLoggedIn, async function(req,res) {
