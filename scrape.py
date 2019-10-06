@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup as BS
-from getpass import getpass
 import sys
 import json
 
@@ -25,7 +24,7 @@ class ClassGrade:
     def set_weights(self, weights):
         self.weights = weights
 
-    def add_grade(self, assignment_name, date, grade_percent, points_gotten, points_possible, category,):
+    def add_grade(self, assignment_name, date, grade_percent, points_gotten, points_possible, category, exclude):
         # todo add a case for no grade yet?
 
         new_grade = {
@@ -34,7 +33,8 @@ class ClassGrade:
             'category': category,  # string
             'grade_percent': grade_percent,  # double
             'points_gotten': points_gotten,  # double
-            'points_possible': points_possible  # double
+            'points_possible': points_possible,  # double
+            'exclude': exclude  # boolean
         }
 
         self.grades.append(new_grade)
@@ -287,6 +287,12 @@ class PowerschoolScraper:
                 date = td_gs[0].text  # TODO parse date?
                 cat = td_gs[1].text
                 a_n = td_gs[2].text
+                exclude = False
+
+                # Check if either exclude flag exists
+                if len(td_gs[6]) == 1 or len(td_gs[7]) == 1:
+                    exclude = True
+
                 temp = td_gs[8].text
                 try:
                     pp = float(temp.split('/')[1])
@@ -295,7 +301,7 @@ class PowerschoolScraper:
 #                     print('Found empty/non graded assignment. Skipping')
                     continue
                 gp = td_gs[9].text
-                local_class.add_grade(a_n, date, gp, pg, pp, cat)
+                local_class.add_grade(a_n, date, gp, pg, pp, cat, exclude)
 
             # todo check if local_class is good /complete enough
             final_all_classes.append(local_class.as_dict())
@@ -312,8 +318,8 @@ if __name__ == "__main__":
     try:
         user = sys.argv[1]
         password = sys.argv[2]
-        #     user = input('Enter your username: ')
-        #     password = getpass('Enter your password: ')
+        #user = ""
+        #password = ""
         ps = PowerschoolScraper(user, password)
         ps.login_and_get_all_class_grades_and_print_resp()
     except Exception:
