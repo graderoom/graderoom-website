@@ -3,6 +3,22 @@ body {
     color:#FFFFFF
 }
 
+/* Nav Bar Styling */
+nav {
+    background: #333333;
+}
+
+nav h1 {
+    font-family: 'Montserrat';
+    margin-bottom: 0;
+}
+
+nav h5 {
+    font-family: 'Montserrat';
+    margin-bottom: 0;
+    color: #BBBBBB;
+}
+
 /* Form Input Card Styling */
 .card {
     background: #333333;
@@ -35,6 +51,12 @@ body {
     font-weight: bold;
     padding: 0.25rem;
     width: 90%;
+}
+
+.form-signin .btn:hover {
+    background: none;
+    border-color: #BBBBBB;
+    color: #BBBBBB;
 }
 
 .form-group input {

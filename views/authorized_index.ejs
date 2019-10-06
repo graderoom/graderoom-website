@@ -16,8 +16,8 @@
         function hideDiv(id) {document.getElementById(id).style.display = "none"}
     </script>
 
+    <!-- Update Grade Card -->
     <div class="container">
-
         <div class="blurred-login" id="toggle" style="position:fixed; display:none; height: 100%; width: 100%; top: 0; left: 0; z-index: 1">
             <div class="blurred-background" style="position: fixed; background-image: url(/public/resources/blur.png); width: 100%; height: 100%; filter: opacity(0.9);"></div>
             <div class="col-sm-7 col-md-7 col-lg-7 mx-auto" style="top: 50%; left: 50%; transform: translate(-50%,-50%)">
@@ -39,12 +39,24 @@
                 </div>
             </div>
         </div>
-
     </div>
-
-    <a href="/logout" class="btn btn-warning btn-sm">Logout</a>
-    <a href="/settings" class="btn btn-info btn-sm">Settings</a>
+    
+    <!-- Nav Bar -->
+    <nav class="navbar navbar-dark">
+        <a class="navbar-brand" href="#">
+            <h1>
+                <img src="/public/resources/logo.png" style="width: 3rem" class="d-inline-block align-top" alt="">
+                Graderoom
+            </h1>
+        </a>
+        <h5><%=user.username%></h5>
+        <a href="/logout" class="btn btn-sm">Logout</a>
+        <a href="/settings" class="btn btn-sm">Settings</a>
+        <button type="submit" class="btn btn-med" onclick="showDiv('toggle')">Update Grades</button>
+    </nav>
     <br>
+    <br>
+    <!-- Messages-->
     <% if (updateGradesMessageSuccess.length > 0) { %>
         <div class="alert alert-danger"><%= updateGradesMessageSuccess %></div>
     <% } %>
@@ -53,12 +65,8 @@
         <div class="alert alert-danger"><%= updateGradesMessageFail %></div>
     <% } %>
 
+    <!-- Main Screen -->
     <div class="container">
-
-        <div class="jumbotron text-center" style="background-color: #222222; color: white;">
-            <h1><span class="fa fa-graduation-cap"></span> Graderoom: <%=user.username%></h1>
-            <button type="submit" class="btn btn-info btn-lg" onclick="showDiv('toggle')">Update Grades</button>
-        </div>
 
         <ul class="nav nav-pills nav-justified">
             <li class="nav-item">
@@ -80,56 +88,60 @@
         
 
         <script>
+            let data = <%- gradeData %>;
+            function renderChart(id)
+            {
+                let ass_grades = data[id].grades.map(x => x.grade_percent)
+                // let assignmentNames = data[id].grades.map(x => x.assignment_name)
+                let ass_timestamps = data[id].grades.map(x => new Date(x.date).getTime())
+                var options = {
+                    chart: {
+                        type: 'line'
+                    },
+                    series: [{
+                        name: data[id].class_name,
+                        data: ass_grades
+                    }],
+                    xaxis: {
+                        // categories: assignmentNames,
+                        type: 'datetime',
+                        categories: ass_timestamps,    
+                        labels: {
+                            rotate: -45,
+                            rotateAlways: true,
+                            datetimeFormatter: {
+                                year: 'yyyy',
+                                month: 'MMM \'yy',
+                                day: 'dd MMM',
+                                hour: 'HH:mm'
+                            },
+                            style: {
+                                colors: '#FFFFFF',
+                            },
+                        }
+                    },
+                    yaxis: {
+                        labels: {
+                            style: {
+                                color: '#FFFFFF',
+                            },
+                        }
+                    }
+                }
+                var chart = new ApexCharts(document.querySelector("#Chart"+id), options);
+                chart.render();
+            }
+            for (let i = 0; i<data.length; i++)
+            {
+                renderChart(i)
+            }
             function showPage(id)
             {   
-                let data = <%- gradeData %>;
                 for (let i = -1; i<data.length; i++)
                 {
                     document.getElementById("Chart" + i).style.display = "none";
                 }
                 document.getElementById("Chart" + id).style.display = "block";
-                if (id>=0)
-                {
-                    let ass_grades = data[id].grades.map(x => x.grade_percent)
-                    // let assignmentNames = data[id].grades.map(x => x.assignment_name)
-                    let ass_timestamps = data[id].grades.map(x => new Date(x.date).getTime())
-                    var options = {
-                        chart: {
-                            type: 'line'
-                        },
-                        series: [{
-                            name: data[id].class_name,
-                            data: ass_grades
-                        }],
-                        xaxis: {
-                            // categories: assignmentNames,
-                            type: 'datetime',
-                            categories: ass_timestamps,    
-                            labels: {
-                                rotate: -45,
-                                rotateAlways: true,
-                                datetimeFormatter: {
-                                    year: 'yyyy',
-                                    month: 'MMM \'yy',
-                                    day: 'dd MMM',
-                                    hour: 'HH:mm'
-                                },
-                                style: {
-                                    colors: '#FFFFFF',
-                                },
-                            }
-                        },
-                        yaxis: {
-                            labels: {
-                                style: {
-                                    color: '#FFFFFF',
-                                },
-                            }
-                        }
-                    }
-                    var chart = new ApexCharts(document.querySelector("#Chart"+id), options);
-                    chart.render();
-                }
             }
         </script>
 
