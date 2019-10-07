@@ -14,10 +14,17 @@ nav h1 {
     margin-bottom: 0;
 }
 
+@media only screen and (max-width: 768px) {
+    nav h1 {
+      font-size: 2rem;
+    }
+}
+
 nav h5 {
     font-family: 'Montserrat';
     margin-bottom: 0;
     color: #CCCCCC;
+    padding: .375rem .75rem
 }
 
 nav .btn {
@@ -32,6 +39,35 @@ nav .btn:hover {
 
 nav .navbar-toggler:focus {
     outline: none;
+}
+
+nav .navbar-toggler:hover {
+    background: #444444;
+}
+
+nav .navbar-toggler:not(.collapsed) {
+    background: #555555;
+}
+
+/* Collapse menu following a not collapsed toggle button*/
+/* nav .navbar-toggler:not(.collapsed)~.navbar-collapse {
+    border-top: 1px solid #FFFFFF;
+} */
+
+/* Elements in collapse menu following a not collapsed toggle button*/
+nav .navbar-toggler:not(.collapsed)~.navbar-collapse button, 
+nav .navbar-toggler:not(.collapsed)~.navbar-collapse h5, 
+nav .navbar-toggler:not(.collapsed)~.navbar-collapse a {
+    width: 100%;
+    text-align: center;
+}
+
+/* Elements in collapse menu currently collapsing */
+nav .navbar-collapse.collapsing button,
+nav .navbar-collapse.collapsing h5, 
+nav .navbar-collapse.collapsing a {
+    width: 100%;
+    text-align: center;
 }
 
 /* Form Input Card Styling */
@@ -77,16 +113,12 @@ nav .navbar-toggler:focus {
 }
 
 .form-group input {
-    background: none;
+    background: none !important;
     border-radius: 0;
     border-top: none;
     border-right: none;
     border-left: none;
     color: white;
-}
-
-.form-group input:focus {
-    background: none;
 }
 
 .form-group input:focus {
@@ -98,37 +130,21 @@ nav .navbar-toggler:focus {
 /* Input Form Background Images */
 
 .form-group .user-bg {
-    background: url(/public/resources/user.png) no-repeat left/23px 27px;
+    background: url(/public/resources/user.png) no-repeat left/23px 27px !important;
     padding-left: 35px;
-}
-
-.form-group .user-bg:focus {
-    background: url(/public/resources/user.png) no-repeat left/23px 27px;
 }
 
 .form-group .lock-bg {
-    background: url(/public/resources/lock.png) no-repeat left/22px 27px;
+    background: url(/public/resources/lock.png) no-repeat left/22px 27px !important;
     padding-left: 35px;
-}
-
-.form-group .lock-bg:focus {
-    background: url(/public/resources/lock.png) no-repeat left/22px 27px;
 }
 
 .form-group .email-bg {
-    background: url(/public/resources/email.png) no-repeat left/27px 20px;
+    background: url(/public/resources/email.png) no-repeat left/27px 20px !important;
     padding-left: 35px;
-}
-
-.form-group .email-bg:focus {
-    background: url(/public/resources/email.png) no-repeat left/27px 20px;
 }
 
 .form-group .password-bg {
-    background: url(/public/resources/password.png) no-repeat left/26px 22px;
+    background: url(/public/resources/password.png) no-repeat left/26px 22px !important;
     padding-left: 35px;
-}
-
-.form-group .password-bg:focus {
-    background: url(/public/resources/password.png) no-repeat left/26px 22px;
 }
