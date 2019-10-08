@@ -14,14 +14,14 @@
         <div class="col-sm-9 col-md-8 col-lg-5">
             <div class="card card-signin my-5">
                 <div class="card-body">
-                    <h1 class="text-center">
+                    <h1 class="text-center card-title">
                         <img src="public/resources/logo.png" width="60rem">
                         Graderoom
                     </h1>
-                    <br>
                     <% if (message.length > 0) { %>
                         <div class="alert alert-danger"><%= message %></div>
                     <% } %>
+                    <br>
                     <form class="form-signin" action="/login" method="post">
                         <div class="form-group">
                             <label>Username</label>

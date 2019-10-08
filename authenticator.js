@@ -55,7 +55,7 @@ module.exports = {
     changeSchoolUsername: function(username, schoolUsername) {
         let lc_username = username.toLowerCase();
         db.get('users').find({username: lc_username}).assign({schoolUsername: schoolUsername}).write();
-        return {success: true, message: "School Username Updated"};       
+        return {success: true, message: "School Email Updated"};       
     },
     removeUser: function(username, password) {
         let lc_username = username.toLowerCase();
