@@ -3,6 +3,8 @@ body {
     color: #FFFFFF
 }
 
+/* Settings Styling */
+
 /* Nav Bar Styling */
 
 nav {
@@ -71,9 +73,12 @@ nav .navbar-collapse.collapsing a {
 }
 
 /* Form Input Card Styling */
-
 .card {
     background: #333333;
+}
+
+.card-no-bg {
+    background: none !important;
 }
 
 .card a {
