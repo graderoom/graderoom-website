@@ -101,5 +101,27 @@ module.exports = {
             return {success: true, message: "Deleted user."}
         }
         return {success: false, message: "User does not exist."}
+    },
+
+    updateWeightsForClass: function(username, className, weights) {
+        let lc_username = username.toLowerCase();
+        let userRef = db.get('users').find({username: lc_username});
+        console.log(weights);
+        if (!userRef.value()) {
+            return {success: false, message: "User does not exist."}
+        }
+
+        let clsRef = userRef.get('grades').find({class_name: className});
+
+        if (!clsRef.value()) {
+            return {success: false, message: "Class does not exist."}
+        }
+
+        clsRef.assign({weights: weights}).write();
+
+        return {success: true, message: "Updated weights for " + className + "!"};
+
     }
+
+
 };

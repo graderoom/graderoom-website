@@ -158,6 +158,30 @@ app.post('/update', isLoggedIn, async function(req,res) {
 
 });
 
+//must be called via client side ajax+js
+app.post('/updateweights', isLoggedIn, async function(req,res) {
+
+    let className = req.body.className;
+    let newWeights = JSON.parse(req.body.newWeights);
+
+    let resp = authenticator.updateWeightsForClass(req.user.username, className, newWeights);
+    if (resp.success) {
+        req.flash('updateWeightMessageSuccess', resp.message);
+
+    } else {
+        req.flash('updateWeightMessageFail', resp.message);
+    }
+    res.redirect('/testupdateweights');
+});
+
+app.get('/testupdateweights', isAdmin, (req, res) => {
+
+    res.render('updateweights.ejs', {
+        updateWeightMessageSuccess: req.flash('updateWeightMessageSuccess'),
+        updateWeightMessageFail: req.flash('updateWeightMessageFail'),
+    });
+});
+
 /**
  * END GENERAL USER MANAGEMENT
  */
