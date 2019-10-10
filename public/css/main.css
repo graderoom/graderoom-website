@@ -3,6 +3,19 @@ body {
     color: #FFFFFF
 }
 
+.btn {
+    background: #BBBBBB;
+    color: #333333;
+    font-weight: bold;
+    margin: 1em;
+}
+
+.btn:hover {
+    background: none;
+    border-color: #BBBBBB;
+    color: #BBBBBB;
+}
+
 /* Settings Styling */
 
 /* Nav Bar Styling */
@@ -79,6 +92,7 @@ nav .navbar-collapse.collapsing a {
 
 .card-no-bg {
     background: none !important;
+    box-shadow: none !important;
 }
 
 .card a {
