@@ -142,7 +142,49 @@
             let data = <%- gradeData %>;
             function renderChart(id)
             {
-                let ass_grades = data[id].grades.map(x => x.grade_percent)
+                /**
+                 * TODO  - this should be calculated once onload
+                 * not every time we want to render a charts
+                 */
+
+
+                let overallGradeSteps = [];
+                let totalPossiblesAndGottens = {}; //by category
+                let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
+
+                for (let grade of data[id].grades) {
+
+                        try {
+
+                            if (typeof totalPossiblesAndGottens[grade.category] === 'undefined') {
+                                totalPossiblesAndGottens[grade.category] = {
+                                    totalPossible: 0,
+                                    totalGotten: 0,
+                                    weight: data[id].weights[grade.category]
+                                }
+                                totalWeightValue += data[id].weights[grade.category];
+                            }
+
+                            totalPossiblesAndGottens[grade.category].totalPossible = totalPossiblesAndGottens[grade.category].totalPossible + grade.points_possible;
+                            totalPossiblesAndGottens[grade.category].totalGotten = totalPossiblesAndGottens[grade.category].totalGotten + grade.points_gotten;
+
+                            let overallPercent = 0;
+                            for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
+                                overallPercent = overallPercent + (value.weight * (value.totalGotten / value.totalPossible));
+                            }
+                            let total = +((overallPercent/totalWeightValue).toFixed(3) * 100);
+                            //rounds to 3 decimal places (the plus sign drops any trailing zeros)
+
+                            overallGradeSteps.push(total);
+                        } catch(err) {
+                            console.log(err);
+                            console.log("bad weight input");
+                        }
+
+                }
+
+
+
                 // let assignmentNames = data[id].grades.map(x => x.assignment_name)
                 let ass_timestamps = data[id].grades.map(x => new Date(x.date).getTime())
                 var options = {
@@ -154,7 +196,7 @@
                     },
                     series: [{
                         name: data[id].class_name,
-                        data: ass_grades
+                        data: overallGradeSteps,
                     }],
                     xaxis: {
                         // categories: assignmentNames,
