@@ -110,10 +110,12 @@
         
         <br> <br>
 
-        <div id="Chart-1" width="100" height="500"></div>
+        <div id="chart-container-1" class="chart-container" style="display: none; position: relative; height:40vh; width:50vw">
+            <canvas id="chart-1" class="chart" style="width:50%; margin: auto;"></canvas>
+        </div>
         <% for (let i = 0; i<JSON.parse(gradeData).length; i++) { %>
-            <div class="chart-container" style="position: relative; height:40vh; width:50vw">
-                <canvas id="Chart<%=i%>" class="chart" style="width:50%; margin: auto;"></canvas>
+            <div id="chart-container<%=i%>" class="chart-container" style="position: relative; height:40vh; width:50vw">
+                <canvas id="chart<%=i%>" class="chart" style="width:50%; margin: auto;"></canvas>
             </div>
         <% } %>
         
@@ -211,25 +213,21 @@
                 });
                 console.log(mixedData);
 
-        function newDate(days) {
-			return moment().add(days, 'd').toDate();
-		}
-
-		function newDateString(days) {
-			return moment().add(days, 'd').format();
-		}
-                var ctx = document.getElementById('Chart'+id);
+                var ctx = document.getElementById('chart'+id);
                 var myChart = new Chart(ctx, {
                     type: 'line',
                     data: {
                         datasets: [
-                            {label: 'Dataset with string point data',
-                            backgroundColor: 'rgba(256,256,256,0.05)',
-                            pointBackgroundColor: 'white',
-                            pointBorderColor: 'white',
-                            borderColor: '#BBBBBB',
-                            fill: 'start',
-                            data: mixedData,
+                            {
+                                label: 'Dataset with string point data',
+                                backgroundColor: 'rgba(256,256,256,0.05)',
+                                pointBackgroundColor: 'white',
+                                pointBorderColor: 'white',
+                                borderColor: '#BBBBBB',
+                                fill: 'start',
+                                data: mixedData,
+                                cubicInterpolationMode: 'monotone',
+                                spanGaps: false
 				            }
                         ]
                     },
@@ -239,6 +237,25 @@
                                 type: 'time',
                                 time: {
                                     unit: 'month'
+                                },
+                                ticks: {
+                                    fontColor: 'white',
+                                    fontFamily: 'Verdana',
+                                    fontSize: '13'
+                                },
+                                gridLines: {
+                                    color: '#555555',
+                                }
+                            }],
+                            yAxes: [{
+                                ticks: {
+                                    fontColor: 'white',
+                                    fontFamily: 'Verdana',
+                                    fontSize: '12'
+                                },
+                                gridLines: {
+                                    color: '#555555',
+                                    drawBorder: false
                                 }
                             }]
                         },
@@ -268,13 +285,13 @@
                 if (id===-1)
                 {
                     for (let i = -1; i < data.length; i++) {
-                        document.getElementById("Chart" + i).style.display = "block";
+                        document.getElementById("chart-container" + i).style.display = "block";
                     }
                 } else {
                     for (let i = -1; i < data.length; i++) {
-                        document.getElementById("Chart" + i).style.display = "none";
+                        document.getElementById("chart-container" + i).style.display = "none";
                     }
-                    document.getElementById("Chart" + id).style.display = "block";
+                    document.getElementById("chart-container" + id).style.display = "block";
                 } 
             }
         </script>
