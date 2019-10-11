@@ -14,8 +14,25 @@ module.exports = {
 
         let lc_username = username.toLowerCase();
         if (this.userExists(lc_username)) {
-            return {success: false, message: "User Already Exists"};
+            return {success: false, message: "Username already in use."};
         }
+
+        if (!isAlphaNumberic(username) || username.length > 16) {
+            return {success: false, message: "Invalid username."};
+        }
+
+        if (password.length < 6) {
+            return {success: false, message: "Password too short."};
+        }
+
+        if (password.length > 64) {
+            return {success: false, message: "Password too long."};
+        }
+
+        if (!validateEmail(schoolUsername)) {
+            return {success: false, message: "Invalid email."};
+        }
+
         const roundsToGenerateSalt = 10;
         return new Promise((resolve, reject) => {
             bcrypt.hash(password,roundsToGenerateSalt,function(err, hash) {
@@ -125,3 +142,23 @@ module.exports = {
 
 
 };
+
+function isAlphaNumberic(str) {
+    let code, i, len;
+
+    for (i = 0, len = str.length; i < len; i++) {
+        code = str.charCodeAt(i);
+        if (!(code > 47 && code < 58) && // numeric (0-9)
+            !(code > 64 && code < 91) && // upper alpha (A-Z)
+            !(code > 96 && code < 123)) { // lower alpha (a-z)
+            return false;
+        }
+    }
+    return true;
+}
+
+function validateEmail(email)
+{
+    let re = /\S+@\S+\.\S+/;
+    return re.test(email);
+}
