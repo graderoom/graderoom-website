@@ -155,40 +155,55 @@
                 let totalPossiblesAndGottens = {}; //by category
                 let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
 
+                let doesntHaveWeights = Object.entries(data[id].weights).length === 0 && data[id].weights.constructor === Object
+
                 for (let grade of data[id].grades) {
 
-                        try {
+                    let category = grade.category;
+                    if (doesntHaveWeights) {
+                        category = 'default';
+                    }
 
-                            if (typeof totalPossiblesAndGottens[grade.category] === 'undefined') {
-                                totalPossiblesAndGottens[grade.category] = {
-                                    totalPossible: 0,
-                                    totalGotten: 0,
-                                    weight: data[id].weights[grade.category]
-                                }
-                                totalWeightValue += data[id].weights[grade.category];
+                    try {
+
+                        if (typeof totalPossiblesAndGottens[category] === 'undefined') {
+
+                            let weightVal = data[id].weights[category];
+                            if (doesntHaveWeights) {
+                                weightVal = 100;
                             }
 
-                            totalPossiblesAndGottens[grade.category].totalPossible = totalPossiblesAndGottens[grade.category].totalPossible + grade.points_possible;
-                            totalPossiblesAndGottens[grade.category].totalGotten = totalPossiblesAndGottens[grade.category].totalGotten + grade.points_gotten;
 
-                            let overallPercent = 0;
-                            for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
-                                overallPercent = overallPercent + (value.weight * (value.totalGotten / value.totalPossible));
+                            totalPossiblesAndGottens[category] = {
+                                totalPossible: 0,
+                                totalGotten: 0,
+                                weight: weightVal,
                             }
-                            let total = +((overallPercent/totalWeightValue).toFixed(3) * 100);
-                            //rounds to 3 decimal places (the plus sign drops any trailing zeros)
-
-                            overallGradeSteps.push(total);
-                        } catch(err) {
-                            console.log(err);
-                            console.log("bad weight input");
+                            totalWeightValue += weightVal;
                         }
+
+                        totalPossiblesAndGottens[category].totalPossible = totalPossiblesAndGottens[category].totalPossible + grade.points_possible;
+                        totalPossiblesAndGottens[category].totalGotten = totalPossiblesAndGottens[category].totalGotten + grade.points_gotten;
+
+                        let overallPercent = 0;
+                        for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
+                            overallPercent = overallPercent + (value.weight * (value.totalGotten / value.totalPossible));
+                        }
+                        let total = +((overallPercent/totalWeightValue).toFixed(3) * 100);
+                        //rounds to 3 decimal places (the plus sign drops any trailing zeros)
+
+                        overallGradeSteps.push(total);
+                    } catch(err) {
+                        console.log(err);
+                        console.log("bad weight input");
+                    }
 
                 }
 
+                // console.log(overallGradeSteps);
+
                 // let assignmentNames = data[id].grades.map(x => x.assignment_name)
                 let ass_timestamps = data[id].grades.map(x => new Date(x.date))
-                let ass_grades = data[id].grades.map(x => x.grade_percent)
 
                 let mixedData = overallGradeSteps.map(function (grade, i) { 
                     return {x:ass_timestamps[i], y:grade}
