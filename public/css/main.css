@@ -3,10 +3,6 @@ body {
     color: #FFFFFF
 }
 
-.ct-chart .ct-label {
-    color: white !important;
-}
-
 .btn {
     background: #BBBBBB;
     color: #333333;
@@ -19,6 +15,8 @@ body {
     border-color: #BBBBBB;
     color: #BBBBBB;
 }
+
+
 
 /* Settings Styling */
 
