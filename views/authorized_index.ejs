@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
     <link rel="stylesheet" href="public/css/main.css">
 </head>
 <body>
@@ -111,7 +112,7 @@
 
         <div id="Chart-1" style="width: 50%; margin: auto"></div>
         <% for (let i = 0; i<JSON.parse(gradeData).length; i++) { %>
-            <div id="Chart<%=i%>" style="width: 50%; margin: auto; color: black;"></div>
+            <div id="Chart<%=i%>" class="ct-chart ct-perfect-fourth" style="width: 50%; margin: auto;"></div>
         <% } %>
         
         <!-- JavaScript Imports -->
@@ -122,6 +123,8 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
             integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
             crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
 
         <!-- Custom JavaScript -->
         <script>         
@@ -183,42 +186,28 @@
 
                 }
 
-
-
                 // let assignmentNames = data[id].grades.map(x => x.assignment_name)
-                let ass_timestamps = data[id].grades.map(x => new Date(x.date).getTime())
-                var options = {
-                    chart: {
-                        type: 'line',
-                        toolbar: {
-                            show: false
-                        }
-                    },
+                let ass_timestamps = data[id].grades.map(x => new Date(x.date))
+                let ass_grades = data[id].grades.map(x => x.grade_percent)
+
+                let mixedData = overallGradeSteps.map(function (grade, i) { 
+                    return {x:ass_timestamps[i], y:ass_grades[i]}
+                });
+                var vals = {
                     series: [{
-                        name: data[id].class_name,
-                        data: overallGradeSteps,
-                    }],
-                    xaxis: {
-                        // categories: assignmentNames,
-                        type: 'datetime',
-                        categories: ass_timestamps,    
-                        labels: {
-                            format: 'MMM dd',
-                            style: {
-                                colors: '#FFFFFF',
-                            },
-                        }
-                    },
-                    yaxis: {
-                        labels: {
-                            style: {
-                                color: '#FFFFFF',
-                            },
+                        data: mixedData
+                    }]
+                };
+                var options = {
+                    axisX: {
+                        type: Chartist.FixedScaleAxis,
+                        divisor: 5,
+                        labelInterpolationFnc: function(value) {
+                        return moment(value).format('MMM D');
                         }
                     }
-                }
-                var chart = new ApexCharts(document.querySelector("#Chart"+id), options);
-                chart.render();
+                };
+                var chart = new Chartist.Line("#Chart"+id, vals, options);
             }
             for (let i = 0; i<data.length; i++)
             {

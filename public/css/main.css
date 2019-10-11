@@ -3,6 +3,10 @@ body {
     color: #FFFFFF
 }
 
+.ct-chart .ct-label {
+    color: white !important;
+}
+
 .btn {
     background: #BBBBBB;
     color: #333333;
