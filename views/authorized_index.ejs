@@ -191,7 +191,7 @@
                 let ass_grades = data[id].grades.map(x => x.grade_percent)
 
                 let mixedData = overallGradeSteps.map(function (grade, i) { 
-                    return {x:ass_timestamps[i], y:ass_grades[i]}
+                    return {x:ass_timestamps[i], y:grade}
                 });
                 var vals = {
                     series: [{
@@ -205,7 +205,11 @@
                         labelInterpolationFnc: function(value) {
                         return moment(value).format('MMM D');
                         }
-                    }
+                    },
+                    axisY: {
+                        onlyInteger: true
+                    },
+                    showArea: true
                 };
                 var chart = new Chartist.Line("#Chart"+id, vals, options);
             }
