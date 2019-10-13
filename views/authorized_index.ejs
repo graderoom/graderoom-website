@@ -12,18 +12,18 @@
     <!-- Navbar -->
     <% include partials/navbar.ejs %>
 
-    <!-- Messages-->
-    <% if (updateGradesMessageSuccess.length > 0) { %>
-        <div class="alert alert-success"><%= updateGradesMessageSuccess %></div>
-    <% } %>
-
-    <% if (updateGradesMessageFail.length > 0) { %>
-        <div class="alert alert-danger"><%= updateGradesMessageFail %></div>
-    <% } %>
-    <br>
-
     <!-- Main Screen -->
     <div class="container">
+        <!-- Messages-->
+        <% if (updateGradesMessageSuccess.length > 0) { %>
+            <br>
+            <div class="alert alert-success"><%= updateGradesMessageSuccess %></div>
+        <% } else if (updateGradesMessageFail.length > 0) { %>
+            <br>
+            <div class="alert alert-danger"><%= updateGradesMessageFail %></div>
+        <% } else { %>
+            <br>
+        <% } %>
 
         <ul class="nav nav-pills nav-justified">
             <li class="nav-item">
