@@ -45,57 +45,22 @@
         </div>
     </div>
     
-    <!-- Nav Bar -->    
-    <nav class="navbar navbar-dark navbar-expand-lg justify-content-center">
-        <span class="d-flex w-50 mr-auto">
-            <a href="/" class="navbar-brand" >            
-                <h1> <img src="/public/resources/logo.png" style="width: 3rem" class="d-inline-block" alt=""> Graderoom </h1>
-            </a>
-        </span>
-        <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#collapsingNav" aria-controls="collapsingNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="navbar-collapse collapse w-100" id="collapsingNav">
-            <ul class="navbar-nav w-100 justify-content-center">
-                <li class="nav-item">
-                    <h5 class=""><%=user.username%></h5>
-                </li>
-            </ul>
-            <ul class="navbar-nav w-100 justify-content-end">
-                <li class="nav-item">
-                    <button type="submit" class="btn btn-med" onclick="showDiv('toggle')">
-                        <i class="fa fa-refresh" aria-hidden="true"></i>
-                        Update Grades
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <a href="/settings" class="btn btn-med">
-                        <i class="fa fa-cog fa-lg" aria-hidden="true"></i>
-                        Settings
-                    </a>
-                </li>
-                <li class="nav-item active">
-                    <a href="/logout" class="btn btn-med">
-                        <i class="fa fa-sign-out" aria-hidden="true"></i>
-                        Logout
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-
-    <!-- Messages-->
-    <% if (updateGradesMessageSuccess.length > 0) { %>
-        <div class="alert alert-success"><%= updateGradesMessageSuccess %></div>
-    <% } %>
-
-    <% if (updateGradesMessageFail.length > 0) { %>
-        <div class="alert alert-danger"><%= updateGradesMessageFail %></div>
-    <% } %>
-    <br>
+    <!-- Navbar -->
+    <% include partials/navbar.ejs %>
 
     <!-- Main Screen -->
     <div class="container">
+        <!-- Messages-->
+        <% if (updateGradesMessageSuccess.length > 0) { %>
+            <br>
+            <div class="alert alert-success"><%= updateGradesMessageSuccess %></div>
+        <% } else if (updateGradesMessageFail.length > 0) { %>
+            <br>
+            <div class="alert alert-danger"><%= updateGradesMessageFail %></div>
+        <% } else { %>
+            <br>
+        <% } %>
+
         <ul class="nav nav-pills nav-justified">
             <li class="nav-item">
                 <a class="nav-link" onclick="showPage(-1)">Overview</a>
@@ -155,7 +120,7 @@
 
 
         <!-- Custom JavaScript -->
-        <script>         
+        <script>    
             // Collapse navbar when click outside
             $(document).click(function (e) {
                 if (!$(e.target).closest('#collapsingNav').length && !$(e.target).is('#collapsingNav')){

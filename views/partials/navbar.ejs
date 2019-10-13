@@ -1,0 +1,40 @@
+<!-- Nav Bar -->    
+<nav class="navbar navbar-dark navbar-expand-lg justify-content-center">
+    <span class="d-flex w-50 mr-auto">
+        <a href="/" class="navbar-brand" >            
+            <h1> <img src="/public/resources/logo.png" style="width: 3rem" class="d-inline-block" alt=""> Graderoom </h1>
+        </a>
+    </span>
+    <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#collapsingNav" aria-controls="collapsingNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="navbar-collapse collapse w-100" id="collapsingNav">
+        <% if (user.username.length > 0) { %>
+            <ul class="navbar-nav w-100 justify-content-center">
+                <li class="nav-item">
+                    <h5 class=""><%=user.username%></h5>
+                </li>
+            </ul>
+        <% } %>
+        <ul class="navbar-nav w-100 justify-content-end">
+            <li class="nav-item">
+                <btn class="btn btn-med" onclick="showDiv('toggle')">
+                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                    Update Grades
+                </btn>
+            </li>
+            <li class="nav-item">
+                <a href="/settings" class="btn btn-med">
+                    <i class="fa fa-cog fa-lg" aria-hidden="true"></i>
+                    Settings
+                </a>
+            </li>
+            <li class="nav-item active">
+                <a href="/logout" class="btn btn-med">
+                    <i class="fa fa-sign-out" aria-hidden="true"></i>
+                    Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
