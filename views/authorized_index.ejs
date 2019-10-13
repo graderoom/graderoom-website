@@ -96,7 +96,6 @@
 
     <!-- Main Screen -->
     <div class="container">
-
         <ul class="nav nav-pills nav-justified">
             <li class="nav-item">
                 <a class="nav-link" onclick="showPage(-1)">Overview</a>
@@ -159,7 +158,6 @@
         <script>         
             // Collapse navbar when click outside
             $(document).click(function (e) {
-                console.log("touch");
                 if (!$(e.target).closest('#collapsingNav').length && !$(e.target).is('#collapsingNav')){
                     $('.navbar-collapse').collapse('hide');
                 }
@@ -228,9 +226,7 @@
 
                 }
 
-                // console.log(overallGradeSteps);
-
-                // let assignmentNames = data[id].grades.map(x => x.assignment_name)
+                let assignmentNames = data[id].grades.map(x => x.assignment_name)
                 let ass_timestamps = data[id].grades.map(x => new Date(x.date))
 
                 let mixedData = overallGradeSteps.map(function (grade, i) { 
@@ -244,7 +240,7 @@
                     data: {
                         datasets: [
                             {
-                                label: 'Dataset with string point data',
+                                label: 'Overall Grade',
                                 backgroundColor: 'rgba(256,256,256,0.05)',
                                 pointBackgroundColor: 'white',
                                 pointBorderColor: 'white',
@@ -293,7 +289,23 @@
                         tooltips: {
                             enabled: true,
                             position: 'nearest',
-                            intersect: false
+                            intersect: false,
+                            callbacks: {
+                                title: function(tooltipItems, data) {
+                                    var title = moment(tooltipItems[0].xLabel).format("MM/DD/YY");
+                                    return title;
+                                },
+                                label: function(tooltipItem, data) {
+                                    var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += Math.round(tooltipItem.yLabel * 100) / 100;
+                                    return label;
+                                },
+                                // console.log(tooltipItem.index)
+                            }
                         },
                         responsive: true,
                         maintainAspectRatio: false,
