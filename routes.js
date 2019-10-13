@@ -58,11 +58,12 @@ app.get('/admin', isAdmin, function (req, res) {
 });
 
 app.get('/update',isLoggedIn, function(req, res) {
-
     //todo rate limits
     //todo use axios to contact python api and update data.
-
-    res.redirect('/');
+    res.render('update_grades.ejs', {
+        user: req.user,
+        schoolUsername: req.user.schoolUsername,
+    });
 });
 
 app.post('/changepassword', isLoggedIn, (req, res) => {
