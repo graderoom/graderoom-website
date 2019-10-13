@@ -227,12 +227,11 @@
                 }
 
                 let assignmentNames = data[id].grades.map(x => x.assignment_name)
-                let ass_timestamps = data[id].grades.map(x => new Date(x.date))
+                let assignmentTimestamps = data[id].grades.map(x => new Date(x.date))
 
                 let mixedData = overallGradeSteps.map(function (grade, i) { 
-                    return {x:ass_timestamps[i], y:grade}
+                    return {x:assignmentTimestamps[i], y:grade}
                 });
-                console.log(mixedData);
 
                 var ctx = document.getElementById('chart'+id);
                 var myChart = new Chart(ctx, {
@@ -290,21 +289,19 @@
                             enabled: true,
                             position: 'nearest',
                             intersect: false,
+                            displayColors: false,
                             callbacks: {
                                 title: function(tooltipItems, data) {
-                                    var title = moment(tooltipItems[0].xLabel).format("MM/DD/YY");
-                                    return title;
+                                    console.log(tooltipItems[0])
+                                    return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
                                 },
                                 label: function(tooltipItem, data) {
-                                    var label = data.datasets[tooltipItem.datasetIndex].label || '';
-
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    label += Math.round(tooltipItem.yLabel * 100) / 100;
+                                    var label = []
+                                    label[0] = assignmentNames[tooltipItem.index];
+                                    // label[1] = "Assignment Score";
+                                    // label[2] = "Category";
                                     return label;
                                 },
-                                // console.log(tooltipItem.index)
                             }
                         },
                         responsive: true,
