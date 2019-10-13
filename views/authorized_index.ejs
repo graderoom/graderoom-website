@@ -226,8 +226,10 @@
 
                 }
 
-                let assignmentNames = data[id].grades.map(x => x.assignment_name)
-                let assignmentTimestamps = data[id].grades.map(x => new Date(x.date))
+                let assignmentNames = data[id].grades.map(x => x.assignment_name);
+                let assignmentTimestamps = data[id].grades.map(x => new Date(x.date));
+                let assignmentPercents = data[id].grades.map(x => x.grade_percent);
+                let assignmentScoresParsed = data[id].grades.map(x => x.points_gotten+"/"+x.points_possible);
 
                 let mixedData = overallGradeSteps.map(function (grade, i) { 
                     return {x:assignmentTimestamps[i], y:grade}
@@ -296,11 +298,9 @@
                                     return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
                                 },
                                 label: function(tooltipItem, data) {
-                                    var label = []
-                                    label[0] = assignmentNames[tooltipItem.index];
-                                    // label[1] = "Assignment Score";
-                                    // label[2] = "Category";
-                                    return label;
+                                    return assignmentNames[tooltipItem.index]
+                                            + " - " + assignmentPercents[tooltipItem.index] + "%"
+                                            + " (" + assignmentScoresParsed[tooltipItem.index] + ")"; 
                                 },
                             }
                         },
