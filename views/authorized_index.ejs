@@ -109,9 +109,9 @@
         </ul>
         
         <br> <br>
-        
+
         <% for (let i = 0; i<JSON.parse(gradeData).length; i++) { %>
-            <div id="chart-container<%=i%>" class="chart-container" style="position: relative; height:40vh; width:50vw">
+            <div id="chart-container<%=i%>" class="chart-container" style="position: relative; height:40vh; width:50vw;margin: 0 auto;">
                 <canvas id="chart<%=i%>" class="chart" style="width:50%; margin: auto;"></canvas>
             </div>
         <% } %>
