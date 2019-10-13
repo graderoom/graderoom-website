@@ -121,12 +121,11 @@
             <table class="table" id="table<%=i%>">
                 <thead>
                 <tr>
-                    <th style="width:20%;">Assignment Name</th>
-                    <th style="width:20%;">Date</th>
-                    <th style="width:20%;">Category</th>
-                    <th style="width:20%;">Assignment Percent</th>
-                    <th style="width:20%;">Points Earned</th>
-                    <th style="width:20%;">Points Possible</th>
+                    <th style="width:25%;">Assignment Name</th>
+                    <th style="width:25%;">Date</th>
+                    <th style="width:25%;">Category</th>
+                    <th style="width:25%;">Assignment Percent</th>
+                    <th style="width:25%;">Score</th>
                 </tr>
                 </thead>
 
@@ -136,8 +135,7 @@
                         <td><%= grade.date%> </td>
                         <td><%= grade.category%> </td>
                         <td><%= grade.grade_percent%> </td>
-                        <td><%= grade.points_gotten%> </td>
-                        <td><%= grade.points_possible%> </td>
+                        <td><%= grade.points_gotten%>/<%= grade.points_possible%></td>
                     </tr>
                 <% } %>
             </table>
