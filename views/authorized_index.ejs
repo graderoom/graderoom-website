@@ -118,7 +118,37 @@
                 <canvas id="chart<%=i%>" class="chart" style="width:50%; margin: auto;"></canvas>
             </div>
         <% } %>
-        
+
+        <% for (let i = 0; i<JSON.parse(gradeData).length; i++) { %>
+        <hr>
+            <table class="table" id="table<%=i%>">
+                <thead>
+                <tr>
+                    <th style="width:20%;">Assignment Name</th>
+                    <th style="width:20%;">Date</th>
+                    <th style="width:20%;">Category</th>
+                    <th style="width:20%;">Assignment Percent</th>
+                    <th style="width:20%;">Points Earned</th>
+                    <th style="width:20%;">Points Possible</th>
+                </tr>
+                </thead>
+
+                <% for (let grade of JSON.parse(gradeData)[i].grades) { %>
+                    <tr>
+                        <td><%= grade.assignment_name%> </td>
+                        <td><%= grade.date%> </td>
+                        <td><%= grade.category%> </td>
+                        <td><%= grade.grade_percent%> </td>
+                        <td><%= grade.points_gotten%> </td>
+                        <td><%= grade.points_gotten%> </td>
+                    </tr>
+                <% } %>
+            </table>
+        <hr>
+
+        <% } %>
+
+
         <!-- JavaScript Imports -->
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
             integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
@@ -280,19 +310,26 @@
             {
                 renderChart(i)
             }
-            function showPage(id)
-            {   
+            function showPage(id) {
+                console.log(document.getElementById('table0').style);
+
                 if (id===-1)
                 {
-                    for (let i = -1; i < data.length; i++) {
+                    for (let i = 0; i < data.length; i++) {
+
                         document.getElementById("chart-container" + i).style.display = "block";
+                        document.getElementById("table" + i).style.display = "table";
                     }
                 } else {
-                    for (let i = -1; i < data.length; i++) {
+                    for (let i = 0; i < data.length; i++) {
                         document.getElementById("chart-container" + i).style.display = "none";
+                        document.getElementById("table" + i).style.display = "none";
                     }
+
                     document.getElementById("chart-container" + id).style.display = "block";
-                } 
+                    document.getElementById("table" + id).style.display = "table";
+                }
+
             }
         </script>
 
