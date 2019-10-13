@@ -116,8 +116,9 @@
         <% } %>
 
         <% for (let i = 0; i<JSON.parse(gradeData).length; i++) { %>
-        <hr>
-            <table class="table" id="table<%=i%>">
+        <span id="table-container<%=i%>">
+            <hr>
+            <table class="table">
                 <thead>
                 <tr>
                     <th style="width:25%;">Assignment Name</th>
@@ -138,8 +139,7 @@
                     </tr>
                 <% } %>
             </table>
-        <hr>
-
+        </span>
         <% } %>
 
 
@@ -322,16 +322,16 @@
                     for (let i = 0; i < data.length; i++) {
 
                         document.getElementById("chart-container" + i).style.display = "block";
-                        document.getElementById("table" + i).style.display = "table";
+                        document.getElementById("table-container" + i).style.display = "block";
                     }
                 } else {
                     for (let i = 0; i < data.length; i++) {
                         document.getElementById("chart-container" + i).style.display = "none";
-                        document.getElementById("table" + i).style.display = "none";
+                        document.getElementById("table-container" + i).style.display = "none";
                     }
 
                     document.getElementById("chart-container" + id).style.display = "block";
-                    document.getElementById("table" + id).style.display = "table";
+                    document.getElementById("table-container" + id).style.display = "block";
                 }
 
             }
