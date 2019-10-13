@@ -93,6 +93,7 @@ app.post('/changeschoolusername', isLoggedIn, (req, res) => {
 
 app.get('/settings', isLoggedIn, (req, res) => {
     res.render('settings.ejs', {
+        user: req.user,
         settingsChangeMessageSuccess: req.flash('settingsChangeMessageSuccess'),
         settingsChangeMessageFail: req.flash('settingsChangeMessageFail'),
     });
