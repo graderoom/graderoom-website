@@ -16,6 +16,11 @@ body {
     color: #BBBBBB;
 }
 
+.nav .active {
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
 /* Nav Bar Styling */
 
 nav {
