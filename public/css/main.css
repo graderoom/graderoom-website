@@ -16,10 +16,6 @@ body {
     color: #BBBBBB;
 }
 
-
-
-/* Settings Styling */
-
 /* Nav Bar Styling */
 
 nav {
@@ -62,30 +58,20 @@ nav .navbar-toggler:hover {
     background: #444444;
 }
 
-nav .navbar-toggler:not(.collapsed) {
-    background: #555555;
-}
-
-/* Collapse menu following a not collapsed toggle button*/
-/* nav .navbar-toggler:not(.collapsed)~.navbar-collapse {
-    border-top: 1px solid #FFFFFF;
-} */
-
 /* Elements in collapse menu following a not collapsed toggle button*/
-nav .navbar-toggler:not(.collapsed)~.navbar-collapse button, 
-nav .navbar-toggler:not(.collapsed)~.navbar-collapse h5, 
-nav .navbar-toggler:not(.collapsed)~.navbar-collapse a {
+nav .navbar-toggler:not(.collapsed)~.navbar-collapse li,
+nav .navbar-toggler:not(.collapsed)~.navbar-collapse .btn{
     width: 100%;
     text-align: center;
 }
 
 /* Elements in collapse menu currently collapsing */
-nav .navbar-collapse.collapsing button,
-nav .navbar-collapse.collapsing h5, 
-nav .navbar-collapse.collapsing a {
+nav .navbar-collapse.collapsing li,
+nav .navbar-collapse.collapsing .btn{
     width: 100%;
     text-align: center;
 }
+
 
 /* Form Input Card Styling */
 .card {
