@@ -48,6 +48,18 @@
     <!-- Navbar -->
     <% include partials/navbar.ejs %>
 
+    <ul class="mx-5 my-3 nav nav-justified" style="border-bottom: 2px solid #999999; color: #BBBBBB;" >
+        <li class="nav-item active" id="link-1">
+            <a class="nav-link" onclick="showPage(-1)">Overview</a>
+        </li>
+        <% for (let i = 0; i<JSON.parse(gradeData).length; i++) { %>
+            <li class="nav-item" id="link<%=i%>">
+                <a class="nav-link" onclick="showPage(<%=i%>)"><%=(JSON.parse(gradeData)[i].class_name)%></a>
+            </li>
+        <% } %>
+    </ul>
+
+
     <!-- Main Screen -->
     <div class="container">
         <!-- Messages-->
@@ -60,19 +72,6 @@
         <% } else { %>
             <br>
         <% } %>
-
-        <ul class="nav nav-pills nav-justified">
-            <li class="nav-item">
-                <a class="nav-link" onclick="showPage(-1)">Overview</a>
-            </li>
-            <% for (let i = 0; i<JSON.parse(gradeData).length; i++) { %>
-                <li class="nav-item">
-                    <a class="nav-link" onclick="showPage(<%=i%>)"><%=(JSON.parse(gradeData)[i].class_name)%></a>
-                </li>
-            <% } %>
-        </ul>
-        
-        <br> <br>
 
         <% for (let i = 0; i<JSON.parse(gradeData).length; i++) { %>
             <div id="chart-container<%=i%>" class="chart-container" style="position: relative; height:40vh; width:50vw;margin: 0 auto;">
@@ -285,10 +284,13 @@
                 renderChart(i)
             }
             function showPage(id) {
+                for (let i = -1; i < data.length; i++) {
+                    document.getElementById("link" + i).classList.remove("active");
+                }
+                document.getElementById("link" + id).classList.add("active");
                 if (id===-1)
                 {
                     for (let i = 0; i < data.length; i++) {
-
                         document.getElementById("chart-container" + i).style.display = "block";
                         document.getElementById("table-container" + i).style.display = "block";
                     }
