@@ -152,22 +152,23 @@
                 let totalPossiblesAndGottens = {}; //by category
                 let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
 
-                let doesntHaveAllCategories = false;
+                let doesntHaveWeights = (Object.entries(weights).length === 1 && weights.constructor === Object) || weights.hasWeights === false;
+                //.length === 1 because of the hasWeights attribute
                 let className = data[id].class_name;
                 let grades = data[id].grades;
 
-
-                for (let grade of grades) {
+                if (!doesntHaveWeights) {
+                    for (let grade of grades) {
                         if (!(grade.category in weights[className])) {
                             console.log("Not enough weights defined!");
-                            doesntHaveAllCategories = true;
+                            //todo add flag saying weights have not been inputed
+                            //this is where you would add the message
+                            doesntHaveWeights = true;
                             break;
                         }
+                    }
                 }
 
-
-                let doesntHaveWeights = (Object.entries(weights).length === 0 && weights.constructor === Object) || doesntHaveAllCategories;
-                //todo add flag saying weights have not been inputed
 
 
                 //todo for now: if not enough weights have been inputted, then they will all be under a 100% category
