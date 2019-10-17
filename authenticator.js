@@ -13,28 +13,29 @@ module.exports = {
     addNewUser: function(username, password, schoolUsername, isAdmin) {
 
         let lc_username = username.toLowerCase();
-        if (this.userExists(lc_username)) {
-            return {success: false, message: "Username already in use."};
-        }
+        return new Promise((resolve, reject) => {
 
-        if (!isAlphaNumberic(username) || username.length > 16) {
-            return {success: false, message: "Invalid username."};
-        }
+            if (this.userExists(lc_username)) {
+                return resolve({success: false, message: "Username already in use."});
+            }
 
-        if (password.length < 6) {
-            return {success: false, message: "Password too short."};
-        }
+            if (!isAlphaNumberic(username) || username.length > 16) {
+                return resolve({success: false, message: "Invalid username."});
+            }
 
-        if (password.length > 64) {
-            return {success: false, message: "Password too long."};
-        }
+            if (password.length < 6) {
+                return resolve({success: false, message: "Password too short."});
+            }
 
-        if (!validateEmail(schoolUsername)) {
-            return {success: false, message: "Invalid email."};
-        }
+            if (password.length > 64) {
+                return resolve({success: false, message: "Password too long."});
+            }
+
+            if (!validateEmail(schoolUsername)) {
+                return resolve({success: false, message: "Invalid email."});
+            }
 
         const roundsToGenerateSalt = 10;
-        return new Promise((resolve, reject) => {
             bcrypt.hash(password,roundsToGenerateSalt,function(err, hash) {
                 db.get('users').push(
                     {
