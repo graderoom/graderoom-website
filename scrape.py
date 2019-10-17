@@ -19,10 +19,7 @@ class ClassGrade:
         self.overall_letter = overall_letter
         self.overall_percent = overall_percent
         self.grades = []
-        self.weights = {}
 
-    def set_weights(self, weights):
-        self.weights = weights
 
     def add_grade(self, assignment_name, date, grade_percent, points_gotten, points_possible, category, exclude):
         # todo add a case for no grade yet?
@@ -51,7 +48,6 @@ class ClassGrade:
             'teacher_name': self.teacher_name,
             'overall_percent': self.overall_percent,
             'overall_letter': self.overall_letter,
-            'weights': self.weights,
             'grades': self.grades
         }
 

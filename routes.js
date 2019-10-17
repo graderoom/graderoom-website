@@ -10,12 +10,15 @@ app.get('/', function(req, res) {
 
     if (req.isAuthenticated()) {
 
-        let gradeDat = JSON.stringify(authenticator.getUser(req.user.username).grades);
+        let user = authenticator.getUser(req.user.username);
+        let gradeDat = JSON.stringify(user.grades);
+        let weightData = JSON.stringify(user.weights);
 
         res.render('authorized_index.ejs', {
             user: req.user,
             schoolUsername: req.user.schoolUsername,
             gradeData: gradeDat,
+            weightData: weightData,
             updateGradesMessageSuccess: req.flash('updateGradesMessageSuccess'),
             updateGradesMessageFail: req.flash('updateGradesMessageFail')});
         return;
@@ -165,7 +168,7 @@ app.post('/updateweights', isLoggedIn, async function(req,res) {
     let className = req.body.className;
     let newWeights = JSON.parse(req.body.newWeights);
 
-    let resp = authenticator.updateWeightsForClass(req.user.username, className, newWeights);
+    let resp = authenticator.updateWeightsForClass(req.user.username, className, newWeights, true);
     if (resp.success) {
         req.flash('updateWeightMessageSuccess', resp.message);
 
