@@ -310,7 +310,10 @@ class PowerschoolScraper:
 #         for cla in final_all_classes:
 #             print(cla)
 #         print('--------------------')
-        print(json_format(True, final_all_classes)) # list to send
+        if final_all_classes == []:
+            print(json_format(False, "No class data."))
+        else:
+            print(json_format(True, final_all_classes)) # list to send
     # TODO add more login checks
 
 
