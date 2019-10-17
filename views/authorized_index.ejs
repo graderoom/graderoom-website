@@ -141,6 +141,7 @@
             });
 
             let data = <%- gradeData %>;
+            let weights = <%- weightData %>;
             function renderChart(id)
             {
                 /**
@@ -151,9 +152,27 @@
                 let totalPossiblesAndGottens = {}; //by category
                 let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
 
-                let doesntHaveWeights = Object.entries(data[id].weights).length === 0 && data[id].weights.constructor === Object
+                let doesntHaveAllCategories = false;
+                let className = data[id].class_name;
+                let grades = data[id].grades;
 
-                for (let grade of data[id].grades) {
+
+                for (let grade of grades) {
+                        if (!(grade.category in weights[className])) {
+                            console.log("Not enough weights defined!");
+                            doesntHaveAllCategories = true;
+                            break;
+                        }
+                }
+
+
+                let doesntHaveWeights = (Object.entries(weights).length === 0 && weights.constructor === Object) || doesntHaveAllCategories;
+                //todo add flag saying weights have not been inputed
+
+
+                //todo for now: if not enough weights have been inputted, then they will all be under a 100% category
+
+                for (let grade of grades) {
 
                     let category = grade.category;
                     if (doesntHaveWeights) {
@@ -164,7 +183,7 @@
 
                         if (typeof totalPossiblesAndGottens[category] === 'undefined') {
 
-                            let weightVal = data[id].weights[category];
+                            let weightVal = weights[className][category];
                             if (doesntHaveWeights) {
                                 weightVal = 100;
                             }
