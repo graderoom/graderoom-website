@@ -1,0 +1,46 @@
+<!-- Settings Card -->
+<div class="container">
+    <div class="blurred-login" id="settingsCard" style="position:fixed; display:none; height: 100%; width: 100%; top: 0; left: 0; z-index: 1">
+        <div class="blurred-background" style="position: fixed; background-image: url(/public/resources/blur.png); width: 100%; height: 100%; filter: opacity(0.9);"></div>
+        <div class="col-sm-10 col-md-8 col-lg-6 col-xl-5 mx-auto">
+            <div id="settingsCard" class="card card-signin my-5">
+                <btn class="btn btn-md" onclick="hideDiv('settingsCard')" style="width: fit-content; margin-bottom:0">
+                    <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                    Return
+                </btn>
+                <div class="card-body">
+                    <h1 class="card-title text-center"><span class="fa fa-cog"></span> Settings</h1>
+                    <% if (settingsChangeMessageSuccess.length > 0) { %>
+                        <div class="alert alert-success"><%= settingsChangeMessageSuccess %></div>
+                    <% } %>
+                    <% if (settingsChangeMessageFail.length > 0) { %>
+                        <div class="alert alert-danger"><%= settingsChangeMessageFail %></div>
+                    <% } %>
+                    <br>
+                    <form class="form-signin" action="/changepassword" method="post">
+                        <div class="form-group">
+                            <label>Change Password</label>
+                            <input type="password" class="form-control" name="password" autofocus>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-default btn-lg">
+                                Change Password
+                            </button>
+                        </div>
+                    </form>
+                    <form class="form-signin" style="margin-top: 1em" action="/changeschoolusername" method="post">
+                        <div class="form-group">
+                            <label>Change School Email</label>
+                            <input type="text" class="form-control" name="school_username" autofocus>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-default btn-lg">
+                                Change School Email
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

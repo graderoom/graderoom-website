@@ -20,19 +20,15 @@ module.exports = {
             }
 
             if (!isAlphaNumberic(username) || username.length > 16) {
-                return resolve({success: false, message: "Invalid username."});
+                return resolve({success: false, message: "u"});
             }
 
-            if (password.length < 6) {
-                return resolve({success: false, message: "Password too short."});
-            }
-
-            if (password.length > 64) {
-                return resolve({success: false, message: "Password too long."});
+            if (password.length < 6 || password.length > 64) {
+                return resolve({success: false, message: "Password must be 6 - 64 characters in length"})
             }
 
             if (!validateEmail(schoolUsername)) {
-                return resolve({success: false, message: "Invalid email."});
+                return resolve({success: false, message: "This must be your .bcp email."});
             }
 
         const roundsToGenerateSalt = 10;
@@ -158,8 +154,7 @@ function isAlphaNumberic(str) {
     return true;
 }
 
-function validateEmail(email)
-{
-    let re = /\S+@\S+\.\S+/;
+function validateEmail(email) {
+    let re = /\S+@bcp+\.org+/;
     return re.test(email);
 }
