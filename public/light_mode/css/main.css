@@ -166,5 +166,9 @@ nav .navbar-collapse.collapsing .btn{
 }
 
 .logo {
-    content: url(/public/light_mode/resources/logo.png) no-repeat left/60rem !important;
+    content: url(/public/light_mode/resources/logo.png) !important;
+}
+
+.blurred-background {
+    background-image: url(/public/light_mode/resources/blur.png) !important;
 }
