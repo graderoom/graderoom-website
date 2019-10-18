@@ -23,7 +23,10 @@ app.get('/', function(req, res) {
         });
         return;
     }
-    res.render('index.ejs', { message: req.flash('loginMessage') });
+    res.render('index.ejs', {
+        darkMode: false,
+        message: req.flash('loginMessage')
+    });
 });
 
 app.get('/logout', function(req, res) {

@@ -10,7 +10,7 @@ db.defaults({users: []}).write();
 
 module.exports = {
     //Need to add Try Catches to error check when updating db values
-    addNewUser: function(username, password, schoolUsername, isAdmin) {
+    addNewUser: function(username, password, schoolUsername, isAdmin, darkMode) {
 
         let lc_username = username.toLowerCase();
         return new Promise((resolve, reject) => {
@@ -39,6 +39,7 @@ module.exports = {
                         password: hash,
                         schoolUsername: schoolUsername,
                         isAdmin: isAdmin,
+                        darkMode: darkMode,
                         grades: [],
                     }).write();
 
