@@ -1,0 +1,166 @@
+body {
+    background: #222222;
+    color: #FFFFFF
+}
+
+.btn {
+    background: #BBBBBB;
+    color: #333333;
+    font-weight: bold;
+    margin: 1em;
+}
+
+.btn:hover {
+    background: none;
+    border-color: #BBBBBB;
+    color: #BBBBBB;
+}
+
+.nav .active {
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+/* Nav Bar Styling */
+
+nav {
+    background: #333333;
+}
+
+nav h1 {
+    font-family: 'Montserrat';
+    margin-bottom: 0;
+}
+
+@media only screen and (max-width: 768px) {
+    nav h1 {
+      font-size: 2rem;
+    }
+}
+
+nav h5 {
+    font-family: 'Montserrat';
+    margin-bottom: 0;
+    color: #CCCCCC;
+    padding: .375rem .75rem
+}
+
+nav .btn {
+    color: white;
+    background-color: transparent;
+}
+
+nav .btn:hover {
+    color: #333333;
+    background-color: #BBBBBB;
+}
+
+nav .navbar-toggler:focus {
+    outline: none;
+}
+
+nav .navbar-toggler:hover {
+    background: #444444;
+}
+
+/* Elements in collapse menu following a not collapsed toggle button*/
+nav .navbar-toggler:not(.collapsed)~.navbar-collapse li,
+nav .navbar-toggler:not(.collapsed)~.navbar-collapse .btn{
+    width: 100%;
+    text-align: center;
+}
+
+/* Elements in collapse menu currently collapsing */
+nav .navbar-collapse.collapsing li,
+nav .navbar-collapse.collapsing .btn{
+    width: 100%;
+    text-align: center;
+}
+
+
+/* Form Input Card Styling */
+.card {
+    background: #333333;
+}
+
+.card-no-bg {
+    background: none !important;
+    box-shadow: none !important;
+}
+
+.card a {
+    color: #BBBBBB;
+}
+
+.card h1 {
+    font-family: 'Montserrat'
+}
+
+.card label {
+    font-family: 'Montserrat'
+}
+
+.card-signin {
+    border: 0;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.1);
+}
+
+.card-signin .card-body {
+    padding: 2rem;
+}
+
+.form-signin .btn {
+    background: #BBBBBB;
+    color: #333333;
+    font-weight: bold;
+    padding: 0.25rem;
+    width: 90%;
+}
+
+.form-signin .btn:hover {
+    background: none;
+    border-color: #BBBBBB;
+    color: #BBBBBB;
+}
+
+.form-group input {
+    background: none !important;
+    border-radius: 0;
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    color: white;
+}
+
+.form-group input:focus {
+    color: white;
+    border-bottom-color: #555555;
+    box-shadow: none;
+}
+
+/* Input Form Background Images */
+
+.form-group .user-bg {
+    background: url(/public/dark_mode/resources/user.png) no-repeat left/23px 27px !important;
+    padding-left: 35px;
+}
+
+.form-group .lock-bg {
+    background: url(/public/dark_mode/resources/lock.png) no-repeat left/22px 27px !important;
+    padding-left: 35px;
+}
+
+.form-group .email-bg {
+    background: url(/public/dark_mode/resources/email.png) no-repeat left/27px 20px !important;
+    padding-left: 35px;
+}
+
+.form-group .password-bg {
+    background: url(/public/dark_mode/resources/password.png) no-repeat left/26px 22px !important;
+    padding-left: 35px;
+}
+
+.school-username {
+    color: #BBBBBB
+}
