@@ -1,6 +1,9 @@
 let server = require('./graderoom.js');
 let authenticator = require('./authenticator.js');
 
+//Defaults to light mode before login TODO: this is temporary, should remember past mode
+let defaultMode = false;
+
 module.exports = function(app, passport) {
 
 // normal routes ===============================================================
@@ -24,7 +27,7 @@ app.get('/', function(req, res) {
         return;
     }
     res.render('index.ejs', {
-        darkMode: false,
+        darkMode: defaultMode,
         message: req.flash('loginMessage')
     });
 });
@@ -57,6 +60,7 @@ app.get('/admin', isAdmin, function (req, res) {
     // admin panel TODO
     let allUsers = authenticator.getAllUsers();
     res.render('admin.ejs', {
+        darkMode: defaultMode,
         userList: allUsers,
         adminSuccessMessage: req.flash('adminSuccessMessage'),
         adminFailMessage: req.flash('adminFailMessage')
@@ -105,7 +109,10 @@ app.post('/login', passport.authenticate('local-login', {
 // SIGNUP =================================
 // show the signup form
 app.get('/signup', function(req, res) {
-    res.render('signup.ejs', { message: req.flash('signupMessage') });
+    res.render('signup.ejs', {
+        darkMode: defaultMode,
+        message: req.flash('signupMessage')
+    });
 });
 
 
@@ -173,6 +180,7 @@ app.post('/updateweights', isLoggedIn, async function(req,res) {
 app.get('/testupdateweights', isAdmin, (req, res) => {
 
     res.render('updateweights.ejs', {
+        darkMode: defaultMode,
         updateWeightMessageSuccess: req.flash('updateWeightMessageSuccess'),
         updateWeightMessageFail: req.flash('updateWeightMessageFail'),
     });

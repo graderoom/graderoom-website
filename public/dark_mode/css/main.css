@@ -168,3 +168,7 @@ nav .navbar-collapse.collapsing .btn{
 .logo {
     content: url(/public/dark_mode/resources/logo.png) !important;
 }
+
+.blurred-background {
+    content: url(/public/dark_mode/resources/blur.png) !important;
+}
