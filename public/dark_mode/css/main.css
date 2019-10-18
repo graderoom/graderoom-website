@@ -164,3 +164,7 @@ nav .navbar-collapse.collapsing .btn{
 .school-username {
     color: #BBBBBB
 }
+
+.logo {
+    content: url(/public/dark_mode/resources/logo.png) !important;
+}
