@@ -1,30 +1,30 @@
 body {
-    background: #222222;
-    color: #FFFFFF
+    background: #EEEEEE;
+    color: #333333
 }
 
 .btn {
-    background: #BBBBBB;
-    color: #333333;
+    background: #444444;
+    color: #CCCCCC;
     font-weight: bold;
     margin: 1em;
 }
 
 .btn:hover {
     background: none;
-    border-color: #BBBBBB;
-    color: #BBBBBB;
+    border-color: #444444;
+    color: #444444;
 }
 
 .nav .active {
-    color: #FFFFFF;
+    color: #000000;
     font-weight: bold;
 }
 
 /* Nav Bar Styling */
 
 nav {
-    background: #333333;
+    background: #CCCCCC;
 }
 
 nav h1 {
@@ -41,18 +41,18 @@ nav h1 {
 nav h5 {
     font-family: 'Montserrat';
     margin-bottom: 0;
-    color: #CCCCCC;
+    color: #333333;
     padding: .375rem .75rem
 }
 
 nav .btn {
-    color: white;
+    color: black;
     background-color: transparent;
 }
 
 nav .btn:hover {
-    color: #333333;
-    background-color: #BBBBBB;
+    color: #CCCCCC;
+    background-color: #444444;
 }
 
 nav .navbar-toggler:focus {
@@ -60,7 +60,7 @@ nav .navbar-toggler:focus {
 }
 
 nav .navbar-toggler:hover {
-    background: #444444;
+    background: #BBBBBB;
 }
 
 /* Elements in collapse menu following a not collapsed toggle button*/
@@ -80,7 +80,7 @@ nav .navbar-collapse.collapsing .btn{
 
 /* Form Input Card Styling */
 .card {
-    background: #333333;
+    background: #FFFFFF;
 }
 
 .card-no-bg {
@@ -89,7 +89,7 @@ nav .navbar-collapse.collapsing .btn{
 }
 
 .card a {
-    color: #BBBBBB;
+    color: #444444;
 }
 
 .card h1 {
@@ -111,8 +111,8 @@ nav .navbar-collapse.collapsing .btn{
 }
 
 .form-signin .btn {
-    background: #BBBBBB;
-    color: #333333;
+    background: #444444;
+    color: #EEEEEE;
     font-weight: bold;
     padding: 0.25rem;
     width: 90%;
@@ -130,37 +130,37 @@ nav .navbar-collapse.collapsing .btn{
     border-top: none;
     border-right: none;
     border-left: none;
-    color: white;
+    color: black;
 }
 
 .form-group input:focus {
-    color: white;
-    border-bottom-color: #555555;
+    color: black;
+    border-bottom-color: #999999;
     box-shadow: none;
 }
 
 /* Input Form Background Images */
 
 .form-group .user-bg {
-    background: url(/public/resources/user.png) no-repeat left/23px 27px !important;
+    background: url(/public/light_mode/resources/user.png) no-repeat left/23px 27px !important;
     padding-left: 35px;
 }
 
 .form-group .lock-bg {
-    background: url(/public/resources/lock.png) no-repeat left/22px 27px !important;
+    background: url(/public/light_mode/resources/lock.png) no-repeat left/22px 27px !important;
     padding-left: 35px;
 }
 
 .form-group .email-bg {
-    background: url(/public/resources/email.png) no-repeat left/27px 20px !important;
+    background: url(/public/light_mode/resources/email.png) no-repeat left/27px 20px !important;
     padding-left: 35px;
 }
 
 .form-group .password-bg {
-    background: url(/public/resources/password.png) no-repeat left/26px 22px !important;
+    background: url(/public/light_mode/resources/password.png) no-repeat left/26px 22px !important;
     padding-left: 35px;
 }
 
 .school-username {
-    color: #BBBBBB
+    color: #444444
 }
