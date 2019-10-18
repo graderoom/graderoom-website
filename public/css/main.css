@@ -160,3 +160,7 @@ nav .navbar-collapse.collapsing .btn{
     background: url(/public/resources/password.png) no-repeat left/26px 22px !important;
     padding-left: 35px;
 }
+
+.school-username {
+    color: #BBBBBB
+}

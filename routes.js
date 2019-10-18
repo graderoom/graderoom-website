@@ -5,19 +5,22 @@ module.exports = function(app, passport) {
 
 // normal routes ===============================================================
 
-    // show the home page (will also have our login links)
+// show the home page (will also have our login links)
 app.get('/', function(req, res) {
 
     if (req.isAuthenticated()) {
 
-        let gradeDat = JSON.stringify(authenticator.getUser(req.user.username).grades);
+        let gradeData = JSON.stringify(authenticator.getUser(req.user.username).grades);
 
         res.render('authorized_index.ejs', {
             user: req.user,
             schoolUsername: req.user.schoolUsername,
-            gradeData: gradeDat,
+            gradeData: gradeData,
             updateGradesMessageSuccess: req.flash('updateGradesMessageSuccess'),
-            updateGradesMessageFail: req.flash('updateGradesMessageFail')});
+            updateGradesMessageFail: req.flash('updateGradesMessageFail'),
+            settingsChangeMessageSuccess: req.flash('settingsChangeMessageSuccess'),
+            settingsChangeMessageFail: req.flash('settingsChangeMessageFail'),
+        });
         return;
     }
     res.render('index.ejs', { message: req.flash('loginMessage') });
@@ -74,8 +77,7 @@ app.post('/changepassword', isLoggedIn, (req, res) => {
     } else {
         req.flash('settingsChangeMessageFail', resp.message);
     }
-    res.redirect('/settings')
-
+    res.redirect('/');
 });
 
 app.post('/changeschoolusername', isLoggedIn, (req, res) => {
@@ -87,18 +89,8 @@ app.post('/changeschoolusername', isLoggedIn, (req, res) => {
     } else {
         req.flash('settingsChangeMessageFail', resp.message);
     }
-    res.redirect('/settings')
-
+    res.redirect('/');
 });
-
-app.get('/settings', isLoggedIn, (req, res) => {
-    res.render('settings.ejs', {
-        user: req.user,
-        settingsChangeMessageSuccess: req.flash('settingsChangeMessageSuccess'),
-        settingsChangeMessageFail: req.flash('settingsChangeMessageFail'),
-    });
-});
-
 
 // process the login form
 app.post('/login', passport.authenticate('local-login', {
