@@ -1,10 +1,10 @@
 body {
-    background: #EEEEEE;
-    color: #333333
+    background: #FFFFFF;
+    color: #333333;
 }
 
 .btn {
-    background: #444444;
+    background: #333333;
     color: #CCCCCC;
     font-weight: bold;
     margin: 1em;
@@ -24,7 +24,7 @@ body {
 /* Nav Bar Styling */
 
 nav {
-    background: #CCCCCC;
+    background: #AAAAAA;
 }
 
 nav h1 {
@@ -80,7 +80,7 @@ nav .navbar-collapse.collapsing .btn{
 
 /* Form Input Card Styling */
 .card {
-    background: #FFFFFF;
+    background: #E5E5E5;
 }
 
 .card-no-bg {
@@ -89,7 +89,7 @@ nav .navbar-collapse.collapsing .btn{
 }
 
 .card a {
-    color: #444444;
+    color: #000000;
 }
 
 .card h1 {
@@ -112,7 +112,7 @@ nav .navbar-collapse.collapsing .btn{
 
 .form-signin .btn {
     background: #444444;
-    color: #EEEEEE;
+    color: #FFFFFF;
     font-weight: bold;
     padding: 0.25rem;
     width: 90%;
@@ -120,7 +120,7 @@ nav .navbar-collapse.collapsing .btn{
 
 .form-signin .btn:hover {
     background: none;
-    border-color: #BBBBBB;
+    border-color: #444444;
     color: #BBBBBB;
 }
 
@@ -135,7 +135,7 @@ nav .navbar-collapse.collapsing .btn{
 
 .form-group input:focus {
     color: black;
-    border-bottom-color: #999999;
+    border-bottom-color: #000000;
     box-shadow: none;
 }
 

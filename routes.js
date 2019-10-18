@@ -37,6 +37,13 @@ app.get('/logout', function(req, res) {
     res.redirect('/');
 });
 
+app.get('/switchMode', function(req, res) {
+    defaultMode = !defaultMode;
+    try {
+        req.user.darkMode = !req.user.darkMode;
+    } catch (Error) { }
+    res.redirect('/');
+});
 
 app.post('/deleteUser', isAdmin, function (req, res) {
 
