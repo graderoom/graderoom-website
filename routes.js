@@ -39,9 +39,9 @@ app.get('/logout', function(req, res) {
 
 app.get('/switchMode', function(req, res) {
     defaultMode = !defaultMode;
-    try {
+    if (req.user != null) {
         req.user.darkMode = !req.user.darkMode;
-    } catch (Error) { }
+    }
     res.redirect('/');
 });
 
