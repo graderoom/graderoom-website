@@ -2,10 +2,15 @@
 <html>
 <head>
     <title>Graderoom</title>
-    <link rel="icon" href="../public/resources/icon.png">
+    <link rel="icon" href="../public/dark_mode/resources/icon.png">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
+    <% if (darkMode) { %>
+        <link rel="stylesheet" type="text/css" href="public/dark_mode/css/main.css">
+    <% } else { %>
+        <link rel="stylesheet" type="text/css" href="public/light_mode/css/main.css">
+    <% } %>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         .spec_table td {
@@ -36,27 +41,41 @@
 <table class="table">
     <thead>
     <tr>
-        <th style="width:25%;">User</th>
+        <th style="width:25%;">Username</th>
         <th style="width:25%;">Is Admin?</th>
-        <th style="width:25%;">Delete</th>
-        <th style="width:25%;">Make Admin</th>
+        <th style="width:25%;">Delete User</th>
+        <th style="width:25%;">Change Admin Privileges</th>
     </tr>
     </thead>
 
-    <% for (let user of userList) { %>
+    <% for (let u of userList) { %>
         <tr>
-            <td><%= user.username%> </td>
-            <td><%= user.isAdmin%> </td>
+            <td><%= u.username%> </td>
+            <td><%= u.isAdmin%> </td>
             <td>
-                <form action="/deleteuser" method="post">
-                    <button type="submit" name="deleteUser" class="btn btn-danger btn-sm" value="<%=user.username%>">Delete User</button>
-                </form>
+                <% if (!u.isAdmin) { %>
+                    <form action="/deleteuser" method="post">
+                        <button type="submit" name="deleteUser" class="btn btn-danger btn-sm" value="<%=u.username%>">Delete User</button>
+                    </form>
+                <% } else { %>
+                    Cannot Delete Admin
+                <% } %>
             </td>
 
             <td>
-                <form action="/makeadmin" method="post">
-                    <button type="submit" name="newAdminUser" class="btn btn-danger btn-sm" value="<%=user.username%>">Make User Admin</button>
-                </form>
+                <% if (u != user) { %>
+                    <% if (u.isAdmin) { %>
+                        <form action="/removeadmin" method="post">
+                            <button type="submit" name="removeAdminUser" class="btn btn-danger btm-sm" value="<%=u.username%>">Remove Admin Privileges</button>
+                        </form>
+                    <% } else { %>
+                        <form action="/makeadmin" method="post">
+                            <button type="submit" name="newAdminUser" class="btn btn-danger btn-sm" value="<%=u.username%>">Make User Admin</button>
+                        </form>
+                    <% } %>
+                <% } else { %>
+                    Cannot Remove Admin Privileges
+                <% } %>
             </td>
         </tr>
     <% } %>

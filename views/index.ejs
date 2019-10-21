@@ -2,11 +2,15 @@
 <html>
 <head>
     <title>Graderoom</title>
-    <link rel="icon" href="/public/resources/icon.png">
+    <link rel="icon" href="/public/dark_mode/resources/icon.png">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
-    <link rel="stylesheet" type="text/css" href="/public/css/main.css">
+    <% if (darkMode) { %>
+        <link rel="stylesheet" type="text/css" href="public/dark_mode/css/main.css">
+    <% } else { %>
+        <link rel="stylesheet" type="text/css" href="public/light_mode/css/main.css">
+    <% } %>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
@@ -16,7 +20,7 @@
             <div class="card card-signin my-5">
                 <div class="card-body">
                     <h1 class="text-center card-title">
-                        <img src="public/resources/logo.png" width="60rem">
+                        <img src="/public/light_mode/resources/logo.png" class="logo" width=60rem>
                         Graderoom
                     </h1>
                     <% if (message.length > 0) { %>

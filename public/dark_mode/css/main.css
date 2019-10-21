@@ -142,25 +142,33 @@ nav .navbar-collapse.collapsing .btn{
 /* Input Form Background Images */
 
 .form-group .user-bg {
-    background: url(/public/resources/user.png) no-repeat left/23px 27px !important;
+    background: url(/public/dark_mode/resources/user.png) no-repeat left/23px 27px !important;
     padding-left: 35px;
 }
 
 .form-group .lock-bg {
-    background: url(/public/resources/lock.png) no-repeat left/22px 27px !important;
+    background: url(/public/dark_mode/resources/lock.png) no-repeat left/22px 27px !important;
     padding-left: 35px;
 }
 
 .form-group .email-bg {
-    background: url(/public/resources/email.png) no-repeat left/27px 20px !important;
+    background: url(/public/dark_mode/resources/email.png) no-repeat left/27px 20px !important;
     padding-left: 35px;
 }
 
 .form-group .password-bg {
-    background: url(/public/resources/password.png) no-repeat left/26px 22px !important;
+    background: url(/public/dark_mode/resources/password.png) no-repeat left/26px 22px !important;
     padding-left: 35px;
 }
 
 .school-username {
     color: #BBBBBB
+}
+
+.logo {
+    content: url(/public/dark_mode/resources/logo.png) !important;
+}
+
+.blurred-background {
+    content: url(/public/dark_mode/resources/blur.png) !important;
 }

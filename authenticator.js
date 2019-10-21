@@ -10,7 +10,7 @@ db.defaults({users: []}).write();
 
 module.exports = {
     //Need to add Try Catches to error check when updating db values
-    addNewUser: function(username, password, schoolUsername, isAdmin) {
+    addNewUser: function(username, password, schoolUsername, isAdmin, darkMode) {
 
         let lc_username = username.toLowerCase();
         return new Promise((resolve, reject) => {
@@ -39,6 +39,7 @@ module.exports = {
                         password: hash,
                         schoolUsername: schoolUsername,
                         isAdmin: isAdmin,
+                        darkMode: darkMode,
                         grades: [],
                     }).write();
 
@@ -113,6 +114,24 @@ module.exports = {
         if (this.userExists(lc_username)) {
             db.get('users').remove({username: lc_username}).write();
             return {success: true, message: "Deleted user."}
+        }
+        return {success: false, message: "User does not exist."}
+    },
+
+    makeAdmin: function(username) {
+        let lc_username = username.toLowerCase();
+        if (this.userExists(lc_username)) {
+            db.get('users').find({username: lc_username}).assign({isAdmin: true}).write();
+            return {success: true, message: "Made user admin."}
+        }
+        return {success: false, message: "User does not exist."}
+    },
+
+    removeAdmin: function(username) {
+        let lc_username = username.toLowerCase();
+        if (this.userExists(lc_username)) {
+            db.get('users').find({username: lc_username}).assign({isAdmin: false}).write();
+            return {success: true, message: "Removed admin privileges."}
         }
         return {success: false, message: "User does not exist."}
     },

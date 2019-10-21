@@ -1,6 +1,9 @@
 let server = require('./graderoom.js');
 let authenticator = require('./authenticator.js');
 
+//Defaults to light mode before login TODO: this is temporary, should remember past mode
+let defaultMode = false;
+
 module.exports = function(app, passport) {
 
 // normal routes ===============================================================
@@ -23,7 +26,10 @@ app.get('/', function(req, res) {
         });
         return;
     }
-    res.render('index.ejs', { message: req.flash('loginMessage') });
+    res.render('index.ejs', {
+        darkMode: defaultMode,
+        message: req.flash('loginMessage')
+    });
 });
 
 app.get('/logout', function(req, res) {
@@ -31,9 +37,19 @@ app.get('/logout', function(req, res) {
     res.redirect('/');
 });
 
+app.get('/s', function(req, res) {
+    res.redirect('/switch-mode');
+});
+
+app.get('/switch-mode', function(req, res) {
+    defaultMode = !defaultMode;
+    if (req.user != null) {
+        req.user.darkMode = !req.user.darkMode;
+    }
+    res.redirect('/');
+});
 
 app.post('/deleteUser', isAdmin, function (req, res) {
-
     let username = req.body.deleteUser;
     console.log("Got request to delete: " + username);
 
@@ -46,14 +62,44 @@ app.post('/deleteUser', isAdmin, function (req, res) {
     }
 
     res.redirect('/admin')
-
 });
 
+app.post('/makeadmin', isAdmin, function (req, res) {
+    let username = req.body.newAdminUser;
+    console.log("Got request to make admin: " + username);
+
+    let resp = authenticator.makeAdmin(username);
+    console.log(resp);
+    if (resp.success) {
+        req.flash('adminSuccessMessage', resp.message);
+    } else {
+        req.flash('adminFailMessage', resp.message);
+    }
+
+    res.redirect('/admin');
+});
+
+app.post('/removeadmin', isAdmin, function (req, res) {
+    let username = req.body.removeAdminUser;
+    console.log("Got request to remove admin: " + username);
+
+    let resp = authenticator.removeAdmin(username);
+    console.log(resp);
+    if (resp.success) {
+        req.flash('adminSuccessMessage', resp.message);
+    } else {
+        req.flash('adminFailMessage', resp.message);
+    }
+
+    res.redirect('/admin');
+});
 
 app.get('/admin', isAdmin, function (req, res) {
     // admin panel TODO
     let allUsers = authenticator.getAllUsers();
     res.render('admin.ejs', {
+        user: req.user,
+        darkMode: defaultMode,
         userList: allUsers,
         adminSuccessMessage: req.flash('adminSuccessMessage'),
         adminFailMessage: req.flash('adminFailMessage')
@@ -102,7 +148,10 @@ app.post('/login', passport.authenticate('local-login', {
 // SIGNUP =================================
 // show the signup form
 app.get('/signup', function(req, res) {
-    res.render('signup.ejs', { message: req.flash('signupMessage') });
+    res.render('signup.ejs', {
+        darkMode: defaultMode,
+        message: req.flash('signupMessage')
+    });
 });
 
 
@@ -170,6 +219,7 @@ app.post('/updateweights', isLoggedIn, async function(req,res) {
 app.get('/testupdateweights', isAdmin, (req, res) => {
 
     res.render('updateweights.ejs', {
+        darkMode: defaultMode,
         updateWeightMessageSuccess: req.flash('updateWeightMessageSuccess'),
         updateWeightMessageFail: req.flash('updateWeightMessageFail'),
     });
