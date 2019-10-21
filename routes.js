@@ -50,7 +50,6 @@ app.get('/switch-mode', function(req, res) {
 });
 
 app.post('/deleteUser', isAdmin, function (req, res) {
-
     let username = req.body.deleteUser;
     console.log("Got request to delete: " + username);
 
@@ -63,14 +62,43 @@ app.post('/deleteUser', isAdmin, function (req, res) {
     }
 
     res.redirect('/admin')
-
 });
 
+app.post('/makeadmin', isAdmin, function (req, res) {
+    let username = req.body.newAdminUser;
+    console.log("Got request to make admin: " + username);
+
+    let resp = authenticator.makeAdmin(username);
+    console.log(resp);
+    if (resp.success) {
+        req.flash('adminSuccessMessage', resp.message);
+    } else {
+        req.flash('adminFailMessage', resp.message);
+    }
+
+    res.redirect('/admin');
+});
+
+app.post('/removeadmin', isAdmin, function (req, res) {
+    let username = req.body.removeAdminUser;
+    console.log("Got request to remove admin: " + username);
+
+    let resp = authenticator.removeAdmin(username);
+    console.log(resp);
+    if (resp.success) {
+        req.flash('adminSuccessMessage', resp.message);
+    } else {
+        req.flash('adminFailMessage', resp.message);
+    }
+
+    res.redirect('/admin');
+});
 
 app.get('/admin', isAdmin, function (req, res) {
     // admin panel TODO
     let allUsers = authenticator.getAllUsers();
     res.render('admin.ejs', {
+        user: req.user,
         darkMode: defaultMode,
         userList: allUsers,
         adminSuccessMessage: req.flash('adminSuccessMessage'),
