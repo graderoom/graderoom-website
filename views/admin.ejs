@@ -7,9 +7,9 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
     <% if (darkMode) { %>
-        <link rel="stylesheet" type="text/css" href="public/dark_mode/css/main.css">
+        <link rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else { %>
-        <link rel="stylesheet" type="text/css" href="public/light_mode/css/main.css">
+        <link rel="stylesheet" type="text/css" href="public/css/light_mode.css">
     <% } %>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
@@ -22,8 +22,8 @@
     </style>
 <body style="background-color:#222222;color:white;">
 
-<a href="/" class="btn btn-success btn-sm">Back to Home</a>
-<a href="/logout" class="btn btn-warning btn-sm">Logout</a>
+<!-- Navbar -->
+<% include partials/navbar.ejs%>
 
 <% if (adminSuccessMessage.length > 0) { %>
     <div class="alert alert-danger"><%= adminSuccessMessage %></div>
