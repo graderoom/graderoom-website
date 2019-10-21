@@ -2,20 +2,19 @@
 <html>
 <head>
     <title>Graderoom</title>
-    <link rel="icon" href="../public/resources/icon.png">
+    <link rel="icon" href="../public/dark_mode/resources/icon.png">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.css">
-    <link rel="stylesheet" href="public/css/main.css">
+    <% if (user.darkMode) { %>
+        <link rel="stylesheet" type="text/css" href="public/dark_mode/css/main.css">
+    <% } else { %>
+        <link rel="stylesheet" type="text/css" href="public/light_mode/css/main.css">
+    <% } %>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-
-    <script type="text/javascript">
-        function showDiv(id) {document.getElementById(id).style.display = "block";}
-        function hideDiv(id) {document.getElementById(id).style.display = "none";}
-    </script>
     
     <!-- Navbar -->
     <% include partials/navbar.ejs %>
