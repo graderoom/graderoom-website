@@ -97,15 +97,24 @@
                 }
                 if (!$(e.target).closest('#updateGradesCard').length && !$(e.target).is('#updateGradesCard')){
                     if (!$(e.target).closest('#updateGrades').length && !$(e.target).is('#updateGrades')){
-                        hideDiv('updateGradesCard');
+                        hideDiv('updateGradesDisplay');
+                    }
+                }
+                if (!$(e.target).closest('#settingsCard').length && !$(e.target).is('#settingsCard')){
+                    if (!$(e.target).closest('#settings').length && !$(e.target).is('#settings')){
+                        hideDiv('settingsCardDisplay');
                     }
                 }
             });
             // Collapse navbar when press escape
             $(document).keyup(function (e) {
                 if (e.key === "Escape") { // escape key maps to keycode `27`
-                    $('.navbar-collapse').collapse('hide');
-                    hideDiv('toggle');
+                    try {
+                        $('.navbar-collapse').collapse('hide');
+                        hideDiv('toggle');
+                    } catch(e) {}
+                    hideDiv('updateGradesDisplay');
+                    hideDiv('settingsCardDisplay');
                 }
             });
 
