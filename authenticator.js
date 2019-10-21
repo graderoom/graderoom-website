@@ -118,6 +118,24 @@ module.exports = {
         return {success: false, message: "User does not exist."}
     },
 
+    makeAdmin: function(username) {
+        let lc_username = username.toLowerCase();
+        if (this.userExists(lc_username)) {
+            db.get('users').find({username: lc_username}).assign({isAdmin: true}).write();
+            return {success: true, message: "Made user admin."}
+        }
+        return {success: false, message: "User does not exist."}
+    },
+
+    removeAdmin: function(username) {
+        let lc_username = username.toLowerCase();
+        if (this.userExists(lc_username)) {
+            db.get('users').find({username: lc_username}).assign({isAdmin: false}).write();
+            return {success: true, message: "Removed admin privileges."}
+        }
+        return {success: false, message: "User does not exist."}
+    },
+
     updateWeightsForClass: function(username, className, weights) {
         let lc_username = username.toLowerCase();
         let userRef = db.get('users').find({username: lc_username});
