@@ -44,9 +44,7 @@ module.exports = {
                         schoolUsername: schoolUsername,
                         isAdmin: isAdmin,
                         grades: [],
-                        weights: {
-                            hasWeights: true
-                        },
+                        weights: {},
                     }).write();
 
                 return resolve({success: true, message: "User Created"});
