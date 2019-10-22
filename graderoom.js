@@ -59,5 +59,5 @@ let ipv4 = networkInterfaces[Object.keys(networkInterfaces)[0]][1]["address"];
 
 // launch ======================================================================
 app.listen(port);
-console.log('Listening on ' + ipv4 + ':' + port + ' (localhost)');
+console.log('Listening on ' + ipv4 + ':' + port + ' (localhost:' + port + ')');
 console.log('Use http://localhost:' + port + ' or http://' + ipv4 + ':' + port);
