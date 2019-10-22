@@ -55,7 +55,7 @@ require('./routes.js')(app, passport); // load our routes and pass in our app an
 // get ipv4 address ============================================================
 // Connecting through another device requires disabling windows firewall
 let networkInterfaces = os.networkInterfaces();
-let ipv4 = networkInterfaces[Object.keys(networkInterfaces)[0]][1]["address"];
+let ipv4 = networkInterfaces[Object.keys(networkInterfaces)[1]][1]["address"];
 
 // launch ======================================================================
 app.listen(port);
