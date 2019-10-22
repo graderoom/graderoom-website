@@ -151,10 +151,13 @@
                 let overallGradeSteps = [];
                 let totalPossiblesAndGottens = {}; //by category
                 let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
-
-                let doesntHaveWeights = (Object.entries(weights).length === 1 && weights.constructor === Object) || weights.hasWeights === false;
-                //.length === 1 because of the hasWeights attribute
                 let className = data[id].class_name;
+
+                console.log( (!(className in weights)))
+                console.log( weights[className])
+                console.log(className)
+                let doesntHaveWeights = (!(className in weights)) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object) || weights[className].hasWeights === false;
+                console.log(doesntHaveWeights ? "Not using weights!" : "Using Weights!");
                 let grades = data[id].grades;
 
                 if (!doesntHaveWeights) {
@@ -168,9 +171,7 @@
                         }
                     }
                 }
-
-
-
+                
                 //todo for now: if not enough weights have been inputted, then they will all be under a 100% category
 
                 for (let grade of grades) {
