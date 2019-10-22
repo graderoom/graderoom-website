@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const http = require('http');
 const port = process.env.PORT || 8080;
 const flash = require('connect-flash');
 const morgan = require('morgan');
@@ -8,6 +9,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const passport = require('passport');
 const dbConn = require('./authenticator.js');
+const os = require('os');
 
 app.use('/public/', express.static('./public'));
 require('./passport')(passport); // pass passport for configuration
@@ -50,6 +52,10 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 // routes ======================================================================
 require('./routes.js')(app, passport); // load our routes and pass in our app and fully configured passport
 
+// get ipv4 address ============================================================
+let networkInterfaces = os.networkInterfaces();
+let ipv4 = networkInterfaces[Object.keys(networkInterfaces)[0]][1]["address"];
+
 // launch ======================================================================
 app.listen(port);
-console.log('Listening on ' + port);
+console.log('Listening on ' + ipv4 + ':' + port + ' (localhost)');
