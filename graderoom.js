@@ -53,17 +53,6 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 require('./routes.js')(app, passport); // load our routes and pass in our app and fully configured passport
 
 // get ipv4 address ============================================================
-function checkAddress(str) {
-    let numDots = 0;
-    for (let i = 0; i < str.length; i++) {
-        if (str[i] === ".") {
-            numDots++;
-        }
-    }
-    return numDots === 3 && str !== "127.0.0.1";
-
-}
-
 // Connecting through another device requires disabling windows firewall
 let networkInterfaces = Object.values(os.networkInterfaces());
 let ips = [];
@@ -76,7 +65,7 @@ for (let i = 0; i < networkInterfaces.length; i++) {
 }
 let ipv4 = "";
 for (let i = 0; i < ips.length; i++) {
-    if (checkAddress(ips[i]["address"])) {
+    if (ips[i]["address"].indexOf(".") !== -1 && !ips[i]["internal"]) {
         ipv4 = ips[i]["address"];
     }
 }
