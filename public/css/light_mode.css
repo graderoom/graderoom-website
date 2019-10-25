@@ -176,3 +176,16 @@ nav .navbar-collapse.collapsing .btn{
 .blurred-background {
     background-image: url(/public/resources/light_mode/blur.png) !important;
 }
+
+html {
+    overflow: scroll;
+    overflow-x: hidden;
+}
+::-webkit-scrollbar {
+    width: 0;  /* Remove scrollbar space */
+    background: transparent;  /* Optional: just make scrollbar invisible */
+}
+
+.nav-item {
+    width: inherit;
+}

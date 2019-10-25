@@ -32,7 +32,7 @@
 
     <!-- Main Screen -->
     <div class="container">
-        <!-- Messages-->
+        <!-- Messages -->
         <% if (updateGradesMessageSuccess.length > 0) { %>
             <br>
             <div class="alert alert-success"><%= updateGradesMessageSuccess %></div>
@@ -78,46 +78,11 @@
 
 
         <!-- JavaScript Imports -->
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-            crossorigin="anonymous"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-            crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/moment@2.24.0/moment.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
 
-
         <!-- Custom JavaScript -->
-        <script>    
-            // Collapse navbar when click outside
-            $(document).click(function (e) {
-                if (!$(e.target).closest('#collapsingNav').length && !$(e.target).is('#collapsingNav')){
-                    $('.navbar-collapse').collapse('hide');
-                }
-                if (!$(e.target).closest('#updateGradesCard').length && !$(e.target).is('#updateGradesCard')){
-                    if (!$(e.target).closest('#updateGrades').length && !$(e.target).is('#updateGrades')){
-                        hideDiv('updateGradesDisplay');
-                    }
-                }
-                if (!$(e.target).closest('#settingsCard').length && !$(e.target).is('#settingsCard')){
-                    if (!$(e.target).closest('#settings').length && !$(e.target).is('#settings')){
-                        hideDiv('settingsCardDisplay');
-                    }
-                }
-            });
-            // Collapse navbar when press escape
-            $(document).keyup(function (e) {
-                if (e.key === "Escape") { // escape key maps to keycode `27`
-                    try {
-                        $('.navbar-collapse').collapse('hide');
-                        hideDiv('toggle');
-                    } catch(e) {}
-                    hideDiv('updateGradesDisplay');
-                    hideDiv('settingsCardDisplay');
-                }
-            });
-
+        <script>
             let data = <%- gradeData %>;
             function renderChart(id)
             {

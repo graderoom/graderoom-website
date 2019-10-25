@@ -156,7 +156,6 @@ module.exports = {
 
     }
 
-
 };
 
 function isAlphaNumberic(str) {
