@@ -6,83 +6,76 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
-    <% if (darkMode) { %>
+    <% if (user.darkMode) { %>
         <link rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else { %>
         <link rel="stylesheet" type="text/css" href="public/css/light_mode.css">
     <% } %>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        .spec_table td {
-            margin-left: -20px;
-            font-size: .9em;
-            line-height: 1.1em;
-            border-top: none !important;
-        }
-    </style>
-<body style="background-color:#222222;color:white;">
+</head>
+<body>
 
-<% if (adminSuccessMessage.length > 0) { %>
-    <div class="alert alert-danger"><%= adminSuccessMessage %></div>
-<% } %>
+    <!-- Admin Navbar -->
+    <% include partials/admin/admin_navbar.ejs %>
 
-<% if (adminFailMessage.length > 0) { %>
-    <div class="alert alert-success"><%= adminFailMessage %></div>
-<% } %>
+    <!-- Main Screen -->
+    <div class="container">
+        <!-- Messages -->
+        <% if (adminSuccessMessage.length > 0) { %>
+            <br>
+            <div class="alert alert-danger"><%= adminSuccessMessage %></div>
+        <% } else if (adminFailMessage.length > 0) { %>
+            <br>
+            <div class="alert alert-success"><%= adminFailMessage %></div>
+        <% } else { %>
+            <br>
+        <% } %>
 
+        <span id="table-container">
+            <hr>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th style="width:25%;">Username</th>
+                    <th style="width:25%;">Is Admin?</th>
+                    <th style="width:25%;">Delete User</th>
+                    <th style="width:25%;">Change Admin Privileges</th>
+                </tr>
+                </thead>
 
-<div class="page-header text-center">
-    <h1><span class="fa fa-fighter-jet"></span> Admin Panel</h1>
-</div>
+                <% for (let u of userList) { %>
+                    <tr>
+                        <td><%= u.username%> </td>
+                        <td><%= u.isAdmin%> </td>
+                        <td>
+                            <% if (!u.isAdmin) { %>
+                                <form action="/deleteuser" method="post">
+                                    <button type="submit" name="deleteUser" class="btn btn-sm" value="<%=u.username%>">Delete User</button>
+                                </form>
+                            <% } else { %>
+                                Cannot Delete Admin
+                            <% } %>
+                        </td>
 
-<table class="table">
-    <thead>
-    <tr>
-        <th style="width:25%;">Username</th>
-        <th style="width:25%;">Is Admin?</th>
-        <th style="width:25%;">Delete User</th>
-        <th style="width:25%;">Change Admin Privileges</th>
-    </tr>
-    </thead>
-
-    <% for (let u of userList) { %>
-        <tr>
-            <td><%= u.username%> </td>
-            <td><%= u.isAdmin%> </td>
-            <td>
-                <% if (!u.isAdmin) { %>
-                    <form action="/deleteuser" method="post">
-                        <button type="submit" name="deleteUser" class="btn btn-danger btn-sm" value="<%=u.username%>">Delete User</button>
-                    </form>
-                <% } else { %>
-                    Cannot Delete Admin
+                        <td>
+                            <% if (u != user) { %>
+                                <% if (u.isAdmin) { %>
+                                    <form action="/removeadmin" method="post">
+                                        <button type="submit" name="removeAdminUser" class="btn btm-sm" value="<%=u.username%>">Remove Admin Privileges</button>
+                                    </form>
+                                <% } else { %>
+                                    <form action="/makeadmin" method="post">
+                                        <button type="submit" name="newAdminUser" class="btn btn-sm" value="<%=u.username%>">Make User Admin</button>
+                                    </form>
+                                <% } %>
+                            <% } else { %>
+                                Cannot Remove Admin Privileges
+                            <% } %>
+                        </td>
+                    </tr>
                 <% } %>
-            </td>
-
-            <td>
-                <% if (u != user) { %>
-                    <% if (u.isAdmin) { %>
-                        <form action="/removeadmin" method="post">
-                            <button type="submit" name="removeAdminUser" class="btn btn-danger btm-sm" value="<%=u.username%>">Remove Admin Privileges</button>
-                        </form>
-                    <% } else { %>
-                        <form action="/makeadmin" method="post">
-                            <button type="submit" name="newAdminUser" class="btn btn-danger btn-sm" value="<%=u.username%>">Make User Admin</button>
-                        </form>
-                    <% } %>
-                <% } else { %>
-                    Cannot Remove Admin Privileges
-                <% } %>
-            </td>
-        </tr>
-    <% } %>
-</table>
-
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
-<style>
-    body         { padding-top:10px; word-wrap:break-word; padding-left: 10px; padding-right: 10px;}
-</style>
-
+            </table>
+        </span>
+    </div>
 </body>
 </html>

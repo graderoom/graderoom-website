@@ -2,7 +2,7 @@ let server = require('./graderoom.js');
 let authenticator = require('./authenticator.js');
 
 //Defaults to light mode before login TODO: this is temporary, should remember past mode
-let defaultMode = false;
+let defaultMode = true;
 
 module.exports = function(app, passport) {
 
@@ -99,7 +99,6 @@ app.get('/admin', isAdmin, function (req, res) {
     let allUsers = authenticator.getAllUsers();
     res.render('admin.ejs', {
         user: req.user,
-        darkMode: defaultMode,
         userList: allUsers,
         adminSuccessMessage: req.flash('adminSuccessMessage'),
         adminFailMessage: req.flash('adminFailMessage')

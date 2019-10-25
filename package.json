@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^3.0.6",
+    "body-parser": "latest",
     "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.4",
     "ejs": "^2.7.1",
@@ -19,7 +20,6 @@
     "morgan": "^1.9.1",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
-    "python-shell": "^1.0.8",
-    "body-parser": "latest"
+    "python-shell": "^1.0.8"
   }
 }

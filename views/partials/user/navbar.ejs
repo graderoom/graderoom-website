@@ -13,7 +13,7 @@
     <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#collapsingNav" aria-controls="collapsingNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="navbar-collapse collapse w-100" id="collapsingNav">
+    <div class="navbar-collapse collapse w-75" id="collapsingNav">
         <% if (user.username.length > 0) { %>
             <ul class="navbar-nav w-100 justify-content-center">
                 <li class="nav-item">
@@ -21,9 +21,9 @@
                 </li>
             </ul>
         <% } %>
-        <ul class="navbar-nav w-50 justify-content-end">
+        <ul class="navbar-nav w-100 justify-content-left">
             <% if (user.isAdmin) { %>
-                <li id="admin" class="nav-item">
+                <li id="toggleAdmin" class="nav-item toggle-admin">
                     <a class="btn btn-med" href="/admin">
                         <i class="fa fa-fighter-jet" aria-hidden="true"></i>
                         Admin
@@ -55,3 +55,42 @@
 <!-- Cards -->
 <% include settings_card.ejs %>
 <% include update_grades_card.ejs %>
+
+<!-- JavaScript Imports -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+
+<!-- Custom JavaScript -->
+<script>
+    // Collapse navbar when click outside
+    $(document).click(function (e) {
+        if (!$(e.target).closest('#collapsingNav').length && !$(e.target).is('#collapsingNav')){
+            $('.navbar-collapse').collapse('hide');
+        }
+        if (!$(e.target).closest('#updateGradesCard').length && !$(e.target).is('#updateGradesCard')){
+            if (!$(e.target).closest('#updateGrades').length && !$(e.target).is('#updateGrades')){
+                hideDiv('updateGradesDisplay');
+            }
+        }
+        if (!$(e.target).closest('#settingsCard').length && !$(e.target).is('#settingsCard')){
+            if (!$(e.target).closest('#settings').length && !$(e.target).is('#settings')){
+                hideDiv('settingsCardDisplay');
+            }
+        }
+    });
+    // Collapse navbar when press escape
+    $(document).keyup(function (e) {
+        if (e.key === "Escape") { // escape key maps to keycode `27`
+            try {
+                $('.navbar-collapse').collapse('hide');
+                hideDiv('toggle');
+            } catch(e) {}
+            hideDiv('updateGradesDisplay');
+            hideDiv('settingsCardDisplay');
+        }
+    });
+</script>
