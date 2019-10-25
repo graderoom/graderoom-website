@@ -1,6 +1,24 @@
 <script type="text/javascript">
-    function showDiv(id) {document.getElementById(id).style.display = "block";}
-    function hideDiv(id) {document.getElementById(id).style.display = "none";}
+    function showDiv(id) {
+        document.getElementById(id).style.display = "block";
+        localStorage.setItem(id, "true");
+    }
+    function hideDiv(id) {
+        document.getElementById(id).style.display = "none";
+        localStorage.setItem(id, "false");
+    }
+    window.onload = function () {
+        if (localStorage.getItem("settingsCardDisplay") === "true") {
+            document.getElementById("settingsCardDisplay").style.display = "block";
+        } else {
+            document.getElementById("settingsCardDisplay").style.display = "none";
+        }
+        if (localStorage.getItem("updateGradesDisplay") === "true") {
+            document.getElementById("updateGradesDisplay").style.display = "block";
+        } else {
+            document.getElementById("updateGradesDisplay").style.display = "none";
+        }
+    }
 </script>
 
 <!-- Nav Bar -->
