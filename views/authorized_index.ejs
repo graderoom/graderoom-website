@@ -76,7 +76,6 @@
         </span>
         <% } %>
 
-
         <!-- JavaScript Imports -->
         <script src="https://cdn.jsdelivr.net/npm/moment@2.24.0/moment.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
@@ -93,15 +92,13 @@
 
             findMissingWeights();
             parseData();
-            for (let i = 0; i<data.length; i++)
-            {
+            for (let i = 0; i<data.length; i++){
                 renderChart(i)
             }
 
             function findMissingWeights()
             {
-                for (let classData of data)
-                {
+                for (let classData of data){
                     let tempMissingWeights = [];
                     for (grade of classData.grades){
                        if (!(classData.weights.hasOwnProperty(grade.category)||tempMissingWeights.includes(grade.category))){
@@ -118,8 +115,7 @@
             {
                 //Add array to each object in parsedData: one for weights (not needed?), one for missing weights
                 //Get data for one class
-                for (let classData of data) 
-                {
+                for (let classData of data) {
                     // Parse Overall Grade Steps
                     let overallGradeSteps = [];
                     let totalPossiblesAndGottens = {}; //by category

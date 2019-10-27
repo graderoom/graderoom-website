@@ -9,14 +9,14 @@
     }
     window.onload = function () {
         if (localStorage.getItem("settingsCardDisplay") === "true") {
-            document.getElementById("settingsCardDisplay").style.display = "block";
+            showDiv("settingsCardDisplay");
         } else {
-            document.getElementById("settingsCardDisplay").style.display = "none";
+            hideDiv("settingsCardDisplay");
         }
         if (localStorage.getItem("updateGradesDisplay") === "true") {
-            document.getElementById("updateGradesDisplay").style.display = "block";
+            showDiv("updateGradesDisplay");
         } else {
-            document.getElementById("updateGradesDisplay").style.display = "none";
+            hideDiv("settingsCardDisplay");
         }
     }
 </script>
@@ -86,18 +86,14 @@
 <script>
     // Collapse navbar when click outside
     $(document).click(function (e) {
+        //Auto hide for any card with blurred-login 
+        if ($(e.target).closest('.blurred-login').length){ 
+            if (!$(e.target).closest('.card').length){
+                hideDiv($(e.target).closest('.blurred-login')[0].id);
+            }       
+        }
         if (!$(e.target).closest('#collapsingNav').length && !$(e.target).is('#collapsingNav')){
             $('.navbar-collapse').collapse('hide');
-        }
-        if (!$(e.target).closest('#updateGradesCard').length && !$(e.target).is('#updateGradesCard')){
-            if (!$(e.target).closest('#updateGrades').length && !$(e.target).is('#updateGrades')){
-                hideDiv('updateGradesDisplay');
-            }
-        }
-        if (!$(e.target).closest('#settingsCard').length && !$(e.target).is('#settingsCard')){
-            if (!$(e.target).closest('#settings').length && !$(e.target).is('#settings')){
-                hideDiv('settingsCardDisplay');
-            }
         }
     });
     // Collapse navbar when press escape
