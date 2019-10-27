@@ -84,15 +84,39 @@
         <!-- Custom JavaScript -->
         <script>
             let data = <%- gradeData %>;
-
             //Array of objects for each class. 
             //Each object has individual arrays for different data (overallgrades, timestamps,...)
             let parsedData = [];
 
+            //Array of arrays with names of categories without weights
+            let missingWeights = [];
+
+            findMissingWeights();
             parseData();
+            for (let i = 0; i<data.length; i++)
+            {
+                renderChart(i)
+            }
+
+            function findMissingWeights()
+            {
+                for (let classData of data)
+                {
+                    let tempMissingWeights = [];
+                    for (grade of classData.grades){
+                       if (!(classData.weights.hasOwnProperty(grade.category)||tempMissingWeights.includes(grade.category))){
+                            tempMissingWeights.push(grade.category);
+                       }
+                    }
+                    missingWeights.push(tempMissingWeights);
+                    
+                }
+                console.log(missingWeights);
+            }
 
             function parseData()
             {
+                //Add array to each object in parsedData: one for weights (not needed?), one for missing weights
                 //Get data for one class
                 for (let classData of data) 
                 {
@@ -140,6 +164,7 @@
 
                     //Parse Other Data
                     //TODO: COMBINE THESE CALCULATIONS INTO UPDATE WEIGHTS FOR LOOP FOR EFFICIENCY
+                    //RUN PERFORMANCE TEST TO COMPARE MAP TO ONE FOR LOOP?
                     let assignmentNames = classData.grades.map(x => x.assignment_name);
                     let assignmentTimestamps = classData.grades.map(x => new Date(x.date));
                     let assignmentPercents = classData.grades.map(x => x.grade_percent);
@@ -158,7 +183,6 @@
                         mixedData: mixedData,
                     });
                 }
-                console.log(parsedData);
             }
             function renderChart(id)
             {
@@ -235,10 +259,6 @@
                     }
                 });
 
-            }
-            for (let i = 0; i<data.length; i++)
-            {
-                renderChart(i)
             }
             function showPage(id) {
                 for (let i = -1; i < data.length; i++) {
