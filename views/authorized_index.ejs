@@ -84,71 +84,84 @@
         <!-- Custom JavaScript -->
         <script>
             let data = <%- gradeData %>;
+
+            //Array of objects for each class. 
+            //Each object has individual arrays for different data (overallgrades, timestamps,...)
+            let parsedData = [];
+
+            parseData();
+
+            function parseData()
+            {
+                //Get data for one class
+                for (let classData of data) 
+                {
+                    // Parse Overall Grade Steps
+                    let overallGradeSteps = [];
+                    let totalPossiblesAndGottens = {}; //by category
+                    let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
+                    let doesntHaveWeights = Object.entries(classData.weights).length === 0 && classData.weights.constructor === Object
+                    for (let grade of classData.grades) {
+                        let category = grade.category;
+                        if (doesntHaveWeights) {
+                            category = 'default';
+                        }
+                        try {
+                            if (typeof totalPossiblesAndGottens[category] === 'undefined') {
+                                let weightVal = classData.weights[category];
+                                if (doesntHaveWeights) {
+                                    weightVal = 100;
+                                }
+                                totalPossiblesAndGottens[category] = {
+                                    totalPossible: 0,
+                                    totalGotten: 0,
+                                    weight: weightVal,
+                                }
+                                totalWeightValue += weightVal;
+                            }
+
+                            totalPossiblesAndGottens[category].totalPossible += grade.points_possible;
+                            totalPossiblesAndGottens[category].totalGotten += grade.points_gotten;
+
+                            let overallPercent = 0;
+                            for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
+                                overallPercent = overallPercent + (value.weight * (value.totalGotten / value.totalPossible));
+                            }
+                            let total = ((overallPercent/totalWeightValue) * 100).toFixed(3);
+                            total = +total;
+                            //rounds to 3 decimal places (the plus sign drops any trailing zeros)
+
+                            overallGradeSteps.push(total);
+                        } catch(err) {
+                            console.log(err);
+                            console.log("bad weight input");
+                        }
+                    }
+
+                    //Parse Other Data
+                    //TODO: COMBINE THESE CALCULATIONS INTO UPDATE WEIGHTS FOR LOOP FOR EFFICIENCY
+                    let assignmentNames = classData.grades.map(x => x.assignment_name);
+                    let assignmentTimestamps = classData.grades.map(x => new Date(x.date));
+                    let assignmentPercents = classData.grades.map(x => x.grade_percent);
+                    let assignmentScoresParsed = classData.grades.map(x => x.points_gotten+"/"+x.points_possible);
+                    
+                    let mixedData = overallGradeSteps.map(function (grade, i) { 
+                        return {x:assignmentTimestamps[i], y:grade}
+                    });
+
+                    //Push Data to Array
+                    parsedData.push({
+                        assignmentNames: assignmentNames,
+                        assignmentTimestamps: assignmentTimestamps,
+                        assignmentPercents: assignmentPercents,
+                        assignmentScoresParsed: assignmentScoresParsed,
+                        mixedData: mixedData,
+                    });
+                }
+                console.log(parsedData);
+            }
             function renderChart(id)
             {
-                /**
-                 * TODO  - this should be calculated once onload
-                 * not every time we want to render a charts
-                 */
-                let overallGradeSteps = [];
-                let totalPossiblesAndGottens = {}; //by category
-                let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
-
-                let doesntHaveWeights = Object.entries(data[id].weights).length === 0 && data[id].weights.constructor === Object
-
-                for (let grade of data[id].grades) {
-
-                    let category = grade.category;
-                    if (doesntHaveWeights) {
-                        category = 'default';
-                    }
-
-                    try {
-
-                        if (typeof totalPossiblesAndGottens[category] === 'undefined') {
-
-                            let weightVal = data[id].weights[category];
-                            if (doesntHaveWeights) {
-                                weightVal = 100;
-                            }
-
-
-                            totalPossiblesAndGottens[category] = {
-                                totalPossible: 0,
-                                totalGotten: 0,
-                                weight: weightVal,
-                            }
-                            totalWeightValue += weightVal;
-                        }
-
-                        totalPossiblesAndGottens[category].totalPossible = totalPossiblesAndGottens[category].totalPossible + grade.points_possible;
-                        totalPossiblesAndGottens[category].totalGotten = totalPossiblesAndGottens[category].totalGotten + grade.points_gotten;
-
-                        let overallPercent = 0;
-                        for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
-                            overallPercent = overallPercent + (value.weight * (value.totalGotten / value.totalPossible));
-                        }
-                        let total = ((overallPercent/totalWeightValue) * 100).toFixed(3);
-                        total = +total;
-                        //rounds to 3 decimal places (the plus sign drops any trailing zeros)
-
-                        overallGradeSteps.push(total);
-                    } catch(err) {
-                        console.log(err);
-                        console.log("bad weight input");
-                    }
-
-                }
-
-                let assignmentNames = data[id].grades.map(x => x.assignment_name);
-                let assignmentTimestamps = data[id].grades.map(x => new Date(x.date));
-                let assignmentPercents = data[id].grades.map(x => x.grade_percent);
-                let assignmentScoresParsed = data[id].grades.map(x => x.points_gotten+"/"+x.points_possible);
-
-                let mixedData = overallGradeSteps.map(function (grade, i) { 
-                    return {x:assignmentTimestamps[i], y:grade}
-                });
-
                 var ctx = document.getElementById('chart'+id);
                 var myChart = new Chart(ctx, {
                     type: 'line',
@@ -161,7 +174,7 @@
                                 pointBorderColor: 'white',
                                 borderColor: '#BBBBBB',
                                 fill: 'start',
-                                data: mixedData,
+                                data: parsedData[id].mixedData,
                                 cubicInterpolationMode: 'monotone',
                                 spanGaps: false
 				            }
@@ -211,9 +224,9 @@
                                     return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
                                 },
                                 label: function(tooltipItem, data) {
-                                    return assignmentNames[tooltipItem.index]
-                                            + " - " + assignmentPercents[tooltipItem.index] + "%"
-                                            + " (" + assignmentScoresParsed[tooltipItem.index] + ")"; 
+                                    return parsedData[id].assignmentNames[tooltipItem.index]
+                                            + " - " + parsedData[id].assignmentPercents[tooltipItem.index] + "%"
+                                            + " (" + parsedData[id].assignmentScoresParsed[tooltipItem.index] + ")"; 
                                 },
                             }
                         },
