@@ -44,7 +44,7 @@ app.get('/s', function(req, res) {
 app.get('/switch-mode', function(req, res) {
     defaultMode = !defaultMode;
     if (req.user != null) {
-        req.user.darkMode = !req.user.darkMode;
+        authenticator.switchMode(req.user.username);
     }
     res.redirect('/');
 });
