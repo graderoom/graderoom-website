@@ -16,7 +16,7 @@
         if (localStorage.getItem("updateGradesDisplay") === "true") {
             showDiv("updateGradesDisplay");
         } else {
-            showDiv("updateGradesDisplay");
+            hideDiv("updateGradesDisplay");
         }
     }
 </script>
@@ -73,7 +73,6 @@
 <!-- Cards -->
 <% include settings_card.ejs %>
 <% include update_grades_card.ejs %>
-<% include update_weights_card.ejs %>
 
 <!-- JavaScript Imports -->
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
