@@ -97,15 +97,14 @@
             function parseWeights()
             {
                 for (let classData of data){
+                    let className = classData.class_name;
                     let tempUseWeights = !((!(className in weights)) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object) || weights[className].hasWeights === false);
-                    if (tempUseWeights === false){
-                        useWeights.push(useWeights);
-                        break;
-                    }
-                    for (grade of classData.grades){
-                        if (!(grade.category in weights[className])) {
-                            tempUseWeights = false;
-                            break;
+                    if (tempUseWeights === true) {
+                        for (grade of classData.grades){
+                            if (!(grade.category in weights[className])) {
+                                tempUseWeights = false;
+                                break;
+                            }
                         }
                     }
                     useWeights.push(tempUseWeights);
@@ -122,9 +121,8 @@
                     let totalPossiblesAndGottens = {}; //by category
                     let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
                     // VERY JANK CHANGE LATER
-                    let doesntHaveWeights = useWeights[0];
-                    useWeights.shift();
-                    
+                    let doesntHaveWeights = !useWeights[0];
+                    useWeights.shift();              
                     for (let grade of classData.grades) {
                         let category = grade.category;
                         if (doesntHaveWeights) {
