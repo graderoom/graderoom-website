@@ -80,16 +80,17 @@ module.exports = {
     userExists: function(username) {
         let lc_username = username.toLowerCase();
         let user = db.get('users').find({username: lc_username}).value();
-        if (user) {
-            return true;
-        }
-        return false;
-    },
+        return !!user;
 
+    },
+    switchMode: function(username) {
+        let lc_username = username.toLowerCase();
+        let user = db.get('users').find({username: lc_username});
+        user.assign({darkMode: !user.value().darkMode}).write();
+    },
     getUser: function(username) {
         let lc_username = username.toLowerCase();
-        let user = db.get('users').find({username: lc_username}).value();
-        return user
+        return db.get('users').find({username: lc_username}).value()
     },
 
     updateGrades: async function(acc_username, school_password) {
