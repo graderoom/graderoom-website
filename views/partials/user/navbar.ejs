@@ -1,0 +1,110 @@
+<script type="text/javascript">
+    function showDiv(id) {
+        document.getElementById(id).style.display = "block";
+        localStorage.setItem(id, "true");
+    }
+    function hideDiv(id) {
+        document.getElementById(id).style.display = "none";
+        localStorage.setItem(id, "false");
+    }
+    window.onload = function () {
+        if (localStorage.getItem("settingsCardDisplay") === "true") {
+            showDiv("settingsCardDisplay");
+        } else {
+            hideDiv("settingsCardDisplay");
+        }
+        if (localStorage.getItem("updateGradesDisplay") === "true") {
+            showDiv("updateGradesDisplay");
+        } else {
+            hideDiv("settingsCardDisplay");
+        }
+    }
+</script>
+
+<!-- Nav Bar -->
+<nav class="navbar navbar-dark navbar-expand-lg justify-content-center">
+    <span class="d-flex w-50 mr-auto">
+        <a href="/" class="navbar-brand" >            
+            <h1> <img src="/public/resources/dark_mode/logo.png" style="width: 3rem" class="d-inline-block logo" alt=""> Graderoom </h1>
+        </a>
+    </span>
+    <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#collapsingNav" aria-controls="collapsingNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="navbar-collapse collapse w-75" id="collapsingNav">
+        <% if (user.username.length > 0) { %>
+            <ul class="navbar-nav w-100 justify-content-center">
+                <li class="nav-item">
+                    <h5 class=""><%=user.username%></h5>
+                </li>
+            </ul>
+        <% } %>
+        <ul class="navbar-nav w-100 justify-content-left">
+            <% if (user.isAdmin) { %>
+                <li id="toggleAdmin" class="nav-item toggle-admin">
+                    <a class="btn btn-med" href="/admin">
+                        <i class="fa fa-fighter-jet" aria-hidden="true"></i>
+                        Admin
+                    </a>
+                </li>
+            <% } %>
+            <li id="updateGrades" class="nav-item">
+                <btn class="btn btn-med" onclick="showDiv('updateGradesDisplay')">
+                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                    Update Grades
+                </btn>
+            </li>
+            <li id="settings" class="nav-item">
+                <btn class="btn btn-med" onclick="showDiv('settingsCardDisplay')">
+                    <i class="fa fa-cog" aria-hidden="true"></i>
+                    Settings
+                </btn>
+            </li>
+            <li class="nav-item active">
+                <a href="/logout" class="btn btn-med">
+                    <i class="fa fa-sign-out" aria-hidden="true"></i>
+                    Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Cards -->
+<% include settings_card.ejs %>
+<% include update_grades_card.ejs %>
+
+<!-- JavaScript Imports -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+
+<!-- Custom JavaScript -->
+<script>
+    // Collapse navbar when click outside
+    $(document).click(function (e) {
+        //Auto hide for any card with blurred-login 
+        if ($(e.target).closest('.blurred-login').length){ 
+            if (!$(e.target).closest('.card').length){
+                hideDiv($(e.target).closest('.blurred-login')[0].id);
+            }       
+        }
+        if (!$(e.target).closest('#collapsingNav').length && !$(e.target).is('#collapsingNav')){
+            $('.navbar-collapse').collapse('hide');
+        }
+    });
+    // Collapse navbar when press escape
+    $(document).keyup(function (e) {
+        if (e.key === "Escape") { // escape key maps to keycode `27`
+            try {
+                $('.navbar-collapse').collapse('hide');
+                hideDiv('toggle');
+            } catch(e) {}
+            hideDiv('updateGradesDisplay');
+            hideDiv('settingsCardDisplay');
+        }
+    });
+</script>

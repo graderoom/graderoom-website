@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const http = require('http');
 const port = process.env.PORT || 8080;
 const flash = require('connect-flash');
 const morgan = require('morgan');
@@ -8,6 +9,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const passport = require('passport');
 const dbConn = require('./authenticator.js');
+const os = require('os');
 
 app.use('/public/', express.static('./public'));
 require('./passport')(passport); // pass passport for configuration
@@ -28,11 +30,11 @@ app.set('view engine', 'ejs'); // set up ejs for templating #todo do we want thi
 
 const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'password';
-const ADMIN_SCHOOL_USERNAME = 'admin@email.com';
+const ADMIN_SCHOOL_USERNAME = 'admin@bcp.org';
 
 if (!dbConn.userExists(ADMIN_USERNAME)) {
     console.log("Creating admin account.");
-    dbConn.addNewUser(ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_SCHOOL_USERNAME, true).then(r => {
+    dbConn.addNewUser(ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_SCHOOL_USERNAME, true, false).then(r => {
         console.log(r);
     })
 }
@@ -50,6 +52,25 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 // routes ======================================================================
 require('./routes.js')(app, passport); // load our routes and pass in our app and fully configured passport
 
+// get ipv4 address ============================================================
+// Connecting through another device requires disabling windows firewall
+let networkInterfaces = Object.values(os.networkInterfaces());
+let ips = [];
+for (let i = 0; i < networkInterfaces.length; i++) {
+    if (i === 0) {
+        ips = Object.values(networkInterfaces[0]);
+    } else {
+        ips = ips.concat(Object.values(networkInterfaces[i]))
+    }
+}
+let ipv4 = "";
+for (let i = 0; i < ips.length; i++) {
+    if (ips[i]["address"].indexOf(".") !== -1 && !ips[i]["internal"]) {
+        ipv4 = ips[i]["address"];
+    }
+}
+
 // launch ======================================================================
 app.listen(port);
-console.log('Listening on ' + port);
+console.log('Listening on ' + ipv4 + ':' + port + ' (localhost:' + port + ')');
+console.log('Use http://localhost:' + port + ' or http://' + ipv4 + ':' + port);
