@@ -10,7 +10,7 @@ db.defaults({users: []}).write();
 
 module.exports = {
     //Need to add Try Catches to error check when updating db values
-    addNewUser: function(username, password, schoolUsername, isAdmin) {
+    addNewUser: function(username, password, schoolUsername, isAdmin, darkMode) {
 
         let lc_username = username.toLowerCase();
         return new Promise((resolve, reject) => {
@@ -20,19 +20,15 @@ module.exports = {
             }
 
             if (!isAlphaNumberic(username) || username.length > 16) {
-                return resolve({success: false, message: "Invalid username."});
+                return resolve({success: false, message: "u"});
             }
 
-            if (password.length < 6) {
-                return resolve({success: false, message: "Password too short."});
-            }
-
-            if (password.length > 64) {
-                return resolve({success: false, message: "Password too long."});
+            if (password.length < 6 || password.length > 64) {
+                return resolve({success: false, message: "Password must be 6 - 64 characters in length"})
             }
 
             if (!validateEmail(schoolUsername)) {
-                return resolve({success: false, message: "Invalid email."});
+                return resolve({success: false, message: "This must be your .bcp email."});
             }
 
         const roundsToGenerateSalt = 10;
@@ -43,6 +39,7 @@ module.exports = {
                         password: hash,
                         schoolUsername: schoolUsername,
                         isAdmin: isAdmin,
+                        darkMode: darkMode,
                         grades: [],
                         weights: {},
                     }).write();
@@ -84,16 +81,17 @@ module.exports = {
     userExists: function(username) {
         let lc_username = username.toLowerCase();
         let user = db.get('users').find({username: lc_username}).value();
-        if (user) {
-            return true;
-        }
-        return false;
-    },
+        return !!user;
 
+    },
+    switchMode: function(username) {
+        let lc_username = username.toLowerCase();
+        let user = db.get('users').find({username: lc_username});
+        user.assign({darkMode: !user.value().darkMode}).write();
+    },
     getUser: function(username) {
         let lc_username = username.toLowerCase();
-        let user = db.get('users').find({username: lc_username}).value();
-        return user
+        return db.get('users').find({username: lc_username}).value()
     },
 
     updateGrades: async function(acc_username, school_password) {
@@ -118,6 +116,24 @@ module.exports = {
         if (this.userExists(lc_username)) {
             db.get('users').remove({username: lc_username}).write();
             return {success: true, message: "Deleted user."}
+        }
+        return {success: false, message: "User does not exist."}
+    },
+
+    makeAdmin: function(username) {
+        let lc_username = username.toLowerCase();
+        if (this.userExists(lc_username)) {
+            db.get('users').find({username: lc_username}).assign({isAdmin: true}).write();
+            return {success: true, message: "Made user admin."}
+        }
+        return {success: false, message: "User does not exist."}
+    },
+
+    removeAdmin: function(username) {
+        let lc_username = username.toLowerCase();
+        if (this.userExists(lc_username)) {
+            db.get('users').find({username: lc_username}).assign({isAdmin: false}).write();
+            return {success: true, message: "Removed admin privileges."}
         }
         return {success: false, message: "User does not exist."}
     },
@@ -166,9 +182,8 @@ function isAlphaNumberic(str) {
     return true;
 }
 
-function validateEmail(email)
-{
-    let re = /\S+@\S+\.\S+/;
+function validateEmail(email) {
+    let re = /\S+@bcp+\.org+/;
     return re.test(email);
 }
 

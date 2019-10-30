@@ -1,0 +1,191 @@
+body {
+    background: #E5E5E5;
+    color: #333333;
+}
+
+.btn {
+    background: #BBBBBB;
+    color: black;
+    font-weight: bold;
+    margin: 1em;
+}
+
+.btn:hover {
+    background: none;
+    border-color: black;
+    color: black;
+}
+
+.nav .active {
+    color: #000000;
+    font-weight: bold;
+}
+
+/* Nav Bar Styling */
+
+nav {
+    background: white;
+    box-shadow: 0 1px 3px;
+}
+
+nav h1 {
+    color: #333333;
+    font-family: 'Montserrat';
+    margin-bottom: 0;
+}
+
+@media only screen and (max-width: 768px) {
+    nav h1 {
+      font-size: 2rem;
+    }
+}
+
+nav h5 {
+    font-family: 'Montserrat';
+    margin-bottom: 0;
+    color: #333333;
+    padding: .375rem .75rem
+}
+
+nav .btn {
+    color: black;
+    background-color: transparent;
+}
+
+nav .btn:hover {
+    /* color: #CCCCCC; */
+    color: black;
+    background-color: #e5e5e5;
+    border-color: transparent;
+}
+
+nav .navbar-toggler:focus {
+    outline: none;
+}
+
+nav .navbar-toggler:hover {
+    background: #BBBBBB;
+}
+
+/* Elements in collapse menu following a not collapsed toggle button*/
+nav .navbar-toggler:not(.collapsed)~.navbar-collapse li,
+nav .navbar-toggler:not(.collapsed)~.navbar-collapse .btn{
+    width: 100%;
+    text-align: center;
+}
+
+/* Elements in collapse menu currently collapsing */
+nav .navbar-collapse.collapsing li,
+nav .navbar-collapse.collapsing .btn{
+    width: 100%;
+    text-align: center;
+}
+
+
+/* Form Input Card Styling */
+.card {
+    background: #EEEEEE;
+}
+
+.card-no-bg {
+    background: none !important;
+    box-shadow: none !important;
+}
+
+.card a {
+    color: #000000;
+}
+
+.card h1 {
+    font-family: 'Montserrat'
+}
+
+.card label {
+    font-family: 'Montserrat'
+}
+
+.card-signin {
+    border: 0;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.1);
+}
+
+.card-signin .card-body {
+    padding: 2rem;
+}
+
+.form-signin .btn {
+    background: #BBBBBB;
+    color: #000000;
+    font-weight: bold;
+    padding: 0.25rem;
+    width: 90%;
+}
+
+.form-signin .btn:hover {
+    background: none;
+    border-color: #444444;
+}
+
+.form-group input {
+    background: none !important;
+    border-radius: 0;
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    border-bottom-color: #333333;
+    color: black;
+}
+
+.form-group input:focus {
+    color: black;
+    border-bottom-color: #BBBBBB;
+    box-shadow: none;
+}
+
+/* Input Form Background Images */
+
+.form-group .user-bg {
+    background: url(/public/resources/light_mode/user.png) no-repeat left/23px 27px !important;
+    padding-left: 35px;
+}
+
+.form-group .lock-bg {
+    background: url(/public/resources/light_mode/lock.png) no-repeat left/22px 27px !important;
+    padding-left: 35px;
+}
+
+.form-group .email-bg {
+    background: url(/public/resources/light_mode/email.png) no-repeat left/27px 20px !important;
+    padding-left: 35px;
+}
+
+.form-group .password-bg {
+    background: url(/public/resources/light_mode/password.png) no-repeat left/26px 22px !important;
+    padding-left: 35px;
+}
+
+.school-username {
+    color: #444444
+}
+
+.logo {
+    content: url(/public/resources/light_mode/logo.png) !important;
+}
+
+.blurred-background {
+    background-image: url(/public/resources/light_mode/blur.png) !important;
+}
+
+html {
+    overflow: scroll;
+    overflow-x: hidden;
+}
+::-webkit-scrollbar {
+    width: 0;  /* Remove scrollbar space */
+    background: transparent;  /* Optional: just make scrollbar invisible */
+}
+
+.nav-item {
+    width: inherit;
+}
