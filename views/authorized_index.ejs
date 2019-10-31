@@ -83,44 +83,46 @@
         <!-- Custom JavaScript -->
         <script>
             let data = <%- gradeData %>;
-            //Array of objects for each class. 
-            //Each object has individual arrays for different data (overallgrades, timestamps,...)
+            let weights = <%- weightData %>;
+                
             let parsedData = [];
+            let useWeights = [];
 
-            //Array of arrays with names of categories without weights
-            let missingWeights = [];
-
-            findMissingWeights();
-            parseData();
+            parseWeights();
+            parseGrades();
             for (let i = 0; i<data.length; i++){
                 renderChart(i)
             }
 
-            function findMissingWeights()
+            function parseWeights()
             {
                 for (let classData of data){
-                    let tempMissingWeights = [];
-                    for (grade of classData.grades){
-                       if (!(classData.weights.hasOwnProperty(grade.category)||tempMissingWeights.includes(grade.category))){
-                            tempMissingWeights.push(grade.category);
-                       }
+                    let className = classData.class_name;
+                    let tempUseWeights = !((!(className in weights)) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object) || weights[className].hasWeights === false);
+                    if (tempUseWeights === true) {
+                        for (grade of classData.grades){
+                            if (!(grade.category in weights[className])) {
+                                tempUseWeights = false;
+                                break;
+                            }
+                        }
                     }
-                    missingWeights.push(tempMissingWeights);
-                    
+                    useWeights.push(tempUseWeights);
                 }
-                console.log(missingWeights);
             }
 
-            function parseData()
+            function parseGrades()
             {
                 //Add array to each object in parsedData: one for weights (not needed?), one for missing weights
                 //Get data for one class
                 for (let classData of data) {
-                    // Parse Overall Grade Steps
+                    let className = classData.class_name;
                     let overallGradeSteps = [];
                     let totalPossiblesAndGottens = {}; //by category
                     let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
-                    let doesntHaveWeights = Object.entries(classData.weights).length === 0 && classData.weights.constructor === Object
+                    // VERY JANK CHANGE LATER
+                    let doesntHaveWeights = !useWeights[0];
+                    useWeights.shift();              
                     for (let grade of classData.grades) {
                         let category = grade.category;
                         if (doesntHaveWeights) {
@@ -128,9 +130,9 @@
                         }
                         try {
                             if (typeof totalPossiblesAndGottens[category] === 'undefined') {
-                                let weightVal = classData.weights[category];
-                                if (doesntHaveWeights) {
-                                    weightVal = 100;
+                                let weightVal = 100;
+                                if (!doesntHaveWeights) {
+                                    weightVal = weights[className][category];  
                                 }
                                 totalPossiblesAndGottens[category] = {
                                     totalPossible: 0,
@@ -158,19 +160,14 @@
                         }
                     }
 
-                    //Parse Other Data
-                    //TODO: COMBINE THESE CALCULATIONS INTO UPDATE WEIGHTS FOR LOOP FOR EFFICIENCY
-                    //RUN PERFORMANCE TEST TO COMPARE MAP TO ONE FOR LOOP?
                     let assignmentNames = classData.grades.map(x => x.assignment_name);
                     let assignmentTimestamps = classData.grades.map(x => new Date(x.date));
                     let assignmentPercents = classData.grades.map(x => x.grade_percent);
                     let assignmentScoresParsed = classData.grades.map(x => x.points_gotten+"/"+x.points_possible);
-                    
                     let mixedData = overallGradeSteps.map(function (grade, i) { 
                         return {x:assignmentTimestamps[i], y:grade}
                     });
 
-                    //Push Data to Array
                     parsedData.push({
                         assignmentNames: assignmentNames,
                         assignmentTimestamps: assignmentTimestamps,
