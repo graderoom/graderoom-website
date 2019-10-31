@@ -41,6 +41,7 @@ module.exports = {
                         isAdmin: isAdmin,
                         darkMode: darkMode,
                         grades: [],
+                        weights: {},
                     }).write();
 
                 return resolve({success: true, message: "User Created"});
@@ -137,7 +138,8 @@ module.exports = {
         return {success: false, message: "User does not exist."}
     },
 
-    updateWeightsForClass: function(username, className, weights) {
+    updateWeightsForClass: function(username, className, weights, update=true) {
+        //default update, not override
         let lc_username = username.toLowerCase();
         let userRef = db.get('users').find({username: lc_username});
         console.log(weights);
@@ -151,12 +153,19 @@ module.exports = {
             return {success: false, message: "Class does not exist."}
         }
 
-        clsRef.assign({weights: weights}).write();
+        let weightsRef = userRef.get('weights');
 
+        if (update) {
+            let currentWeights = weightsRef.get(className).value();
+            let newWeights = Object.assign({}, currentWeights, weights);
+            weightsRef.set(className, newWeights).write();
+            console.log(weightsRef.value());
+        } else {
+            weightsRef.set(className, weights).write();
+            console.log(weightsRef.value());
+        }
         return {success: true, message: "Updated weights for " + className + "!"};
-
     }
-
 };
 
 function isAlphaNumberic(str) {
@@ -177,3 +186,17 @@ function validateEmail(email) {
     let re = /\S+@bcp+\.org+/;
     return re.test(email);
 }
+
+/*
+
+example of weights object
+
+{
+    "Biology H":
+    {
+        "Test": 50,
+        "Final": 25,
+        "Quiz": 25,
+    }
+}
+ */
