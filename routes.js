@@ -1,8 +1,8 @@
 let server = require('./graderoom.js');
 let authenticator = require('./authenticator.js');
 
-//Defaults to light mode before login TODO: this is temporary, should remember past mode
-let defaultMode = true;
+//Defaults to dark mode before login and new accounts TODO: this is temporary, should remember past mode
+let defaultMode = false;
 
 module.exports = function(app, passport) {
 
