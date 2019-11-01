@@ -170,7 +170,7 @@ nav .navbar-collapse li, nav .navbar-collapse .btn{
 }
 
 .blurred-background {
-    content: url(/public/resources/dark_mode/blur.png) !important;
+    background-image: url(/public/resources/dark_mode/blur.png) !important;
 }
 
 html {
