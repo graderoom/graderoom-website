@@ -28,18 +28,18 @@
             <h1> <img src="/public/resources/dark_mode/logo.png" style="width: 3rem" class="d-inline-block logo" alt=""> Graderoom </h1>
         </a>
     </span>
-    <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#collapsingNav" aria-controls="collapsingNav" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNav" aria-controls="collapsingNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="navbar-collapse collapse w-75" id="collapsingNav">
+    <div class="navbar-collapse collapse w-100" id="collapsingNav">
         <% if (user.username.length > 0) { %>
             <ul class="navbar-nav w-100 justify-content-center">
                 <li class="nav-item">
-                    <h5 class=""><%=user.username%></h5>
+                    <h5><%=user.username%></h5>
                 </li>
             </ul>
         <% } %>
-        <ul class="navbar-nav w-100 justify-content-left">
+        <ul class="navbar-nav w-100 justify-content-end align-items-end ml-auto">
             <% if (user.isAdmin) { %>
                 <li id="toggleAdmin" class="nav-item toggle-admin">
                     <a class="btn btn-med" href="/admin">
