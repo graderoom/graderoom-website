@@ -124,7 +124,7 @@ nav .navbar-collapse.collapsing .btn{
     color: #BBBBBB;
 }
 
-.form-group input, .input-group input, .input-group .input-group-text {
+.form-group input{
     background: none !important;
     border-radius: 0;
     border-top: none;
@@ -133,14 +133,14 @@ nav .navbar-collapse.collapsing .btn{
     color: white;
 }
 
-.form-group input:focus, .input-group input:focus {
+.form-group input:focus {
     border-bottom-color: #555555;
     color: white;
     box-shadow: none;
 }
 
-.input-group:focus-within .input-group-text {
-    border-bottom-color: #555555;
+.form-group:focus-within label {
+    color: #BBBBBB !important;
 }
 
 /* Input Form Background Images */
