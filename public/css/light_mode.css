@@ -180,6 +180,8 @@ nav .navbar-collapse.collapsing .btn{
 html {
     overflow: scroll;
     overflow-x: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 ::-webkit-scrollbar {
     width: 0;  /* Remove scrollbar space */

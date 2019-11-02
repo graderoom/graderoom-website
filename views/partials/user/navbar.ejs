@@ -1,26 +1,3 @@
-<script type="text/javascript">
-    function showDiv(id) {
-        document.getElementById(id).style.display = "block";
-        localStorage.setItem(id, "true");
-    }
-    function hideDiv(id) {
-        document.getElementById(id).style.display = "none";
-        localStorage.setItem(id, "false");
-    }
-    window.onload = function () {
-        if (localStorage.getItem("settingsCardDisplay") === "true") {
-            showDiv("settingsCardDisplay");
-        } else {
-            hideDiv("settingsCardDisplay");
-        }
-        if (localStorage.getItem("updateGradesDisplay") === "true") {
-            showDiv("updateGradesDisplay");
-        } else {
-            hideDiv("updateGradesDisplay");
-        }
-    }
-</script>
-
 <!-- Nav Bar -->
 <nav class="navbar navbar-dark navbar-expand-lg justify-content-center">
     <span class="d-flex w-50 mr-auto">
@@ -28,18 +5,18 @@
             <h1> <img src="/public/resources/dark_mode/logo.png" style="width: 3rem" class="d-inline-block logo" alt=""> Graderoom </h1>
         </a>
     </span>
-    <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#collapsingNav" aria-controls="collapsingNav" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNav" aria-controls="collapsingNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="navbar-collapse collapse w-75" id="collapsingNav">
+    <div class="navbar-collapse collapse w-100" id="collapsingNav">
         <% if (user.username.length > 0) { %>
             <ul class="navbar-nav w-100 justify-content-center">
                 <li class="nav-item">
-                    <h5 class=""><%=user.username%></h5>
+                    <h5><%=user.username%></h5>
                 </li>
             </ul>
         <% } %>
-        <ul class="navbar-nav w-100 justify-content-left">
+        <ul class="navbar-nav w-100 justify-content-end align-items-end ml-auto">
             <% if (user.isAdmin) { %>
                 <li id="toggleAdmin" class="nav-item toggle-admin">
                     <a class="btn btn-med" href="/admin">
@@ -84,7 +61,28 @@
 
 <!-- Custom JavaScript -->
 <script>
-    // Collapse navbar when click outside
+    function showDiv(id) {
+        document.getElementById(id).style.display = "block";
+        localStorage.setItem(id, "true");
+    }
+    function hideDiv(id) {
+        document.getElementById(id).style.display = "none";
+        localStorage.setItem(id, "false");
+    }
+    window.onload = function () {
+        if (localStorage.getItem("settingsCardDisplay") === "true") {
+            showDiv("settingsCardDisplay");
+        } else {
+            hideDiv("settingsCardDisplay");
+        }
+        if (localStorage.getItem("updateGradesDisplay") === "true") {
+            showDiv("updateGradesDisplay");
+        } else {
+            hideDiv("updateGradesDisplay");
+        }
+    }
+
+    // Collapse navbar or card when click outside
     $(document).click(function (e) {
         //Auto hide for any card with blurred-login 
         if ($(e.target).closest('.blurred-login').length){ 
@@ -96,7 +94,7 @@
             $('.navbar-collapse').collapse('hide');
         }
     });
-    // Collapse navbar when press escape
+    // Collapse navbar or card when press escape
     $(document).keyup(function (e) {
         if (e.key === "Escape") { // escape key maps to keycode `27`
             try {

@@ -40,8 +40,8 @@ module.exports = {
                         schoolUsername: schoolUsername,
                         isAdmin: isAdmin,
                         darkMode: darkMode,
-                        grades: [],
                         weights: {},
+                        grades: [],
                     }).write();
 
                 return resolve({success: true, message: "User Created"});

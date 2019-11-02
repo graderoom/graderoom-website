@@ -11,10 +11,16 @@
                 <div class="card-body">
                     <h1 class="card-title text-center"><span class="fa fa-cog"></span> Settings</h1>
                     <% if (settingsChangeMessageSuccess.length > 0) { %>
-                        <div class="alert alert-success"><%= settingsChangeMessageSuccess %></div>
+                        <div class="alert alert-success alert-dismissible">
+                            <a class="close" data-dismiss="alert" aria-label="close">X</a>
+                            <%= settingsChangeMessageSuccess %>
+                        </div>
                     <% } %>
                     <% if (settingsChangeMessageFail.length > 0) { %>
-                        <div class="alert alert-danger"><%= settingsChangeMessageFail %></div>
+                        <div class="alert alert-danger alert-dismissible">
+                            <a class="close" data-dismiss="alert" aria-label="close">X</a>
+                            <%= settingsChangeMessageFail %>
+                        </div>
                     <% } %>
                     <br>
                     <form class="form-signin" action="/changepassword" method="post">
