@@ -182,15 +182,16 @@
                 var ctx = document.getElementById('chart-1');
                 var id = 0;
                 var dataset = []
+                var colors = ["#FFB048","#E8425F","#AF70FF","#6BD3E8","#A7FFA5","#FF80F6","#FFF87E","#FFFFFF"];
                 for (let i = 0; i<data.length; i++)
                 {
                     dataset.push({
                         label: data[i].class_name,
-                        backgroundColor: 'rgba(256,256,256,0.05)',
-                        pointBackgroundColor: 'white',
-                        pointBorderColor: 'white',
-                        borderColor: '#BBBBBB',
-                        fill: 'start',
+                        backgroundColor:'transparent',
+                        pointBackgroundColor: colors[i%colors.length],
+                        pointBorderColor: colors[i%colors.length],
+                        borderColor: colors[i%colors.length],
+                        // fill: 'start',
                         data: parsedData[i].mixedData,
                         cubicInterpolationMode: 'monotone',
                         spanGaps: false
@@ -233,7 +234,13 @@
                             easing: 'easeOutCubic'
                         },
                         legend: {
-                            display: false,
+                            display: true,
+                            labels: {
+                                fontColor: 'white',
+                                fontFamily: 'Verdana',
+                                boxWidth: 20,
+                                fontSize: 13,
+                            }
                         },
                         tooltips: {
                             enabled: true,
@@ -338,17 +345,11 @@
                     document.getElementById("link" + i).classList.remove("active");
                 }
                 document.getElementById("link" + id).classList.add("active");
-                // if (id===-1){
-                //     for (let i = 0; i < data.length; i++) {
-                //         document.getElementById("section" + i).style.display = "block";
-                //     }
-                // } else {
-                    for (let i = -1; i < data.length; i++) {
-                        document.getElementById("section" + i).style.display = "none";
-                    }
-                    document.getElementById("section" + id).style.display = "block";
-                // }
 
+                for (let i = -1; i < data.length; i++) {
+                    document.getElementById("section" + i).style.display = "none";
+                }
+                document.getElementById("section" + id).style.display = "block";
             }
         </script>
 
