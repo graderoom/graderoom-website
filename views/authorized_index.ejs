@@ -22,7 +22,8 @@
 
     <a onclick="showDiv('updateWeightsDisplay')">Update Weights</a>
 
-    <ul class="mx-5 my-3 nav nav-justified" style="border-bottom: 2px solid #999999; color: #BBBBBB;" >
+    <!-- Class Links -->
+    <ul class="mx-5 my-3 nav nav-fill" style="border-bottom: 2px solid #999999; color: #BBBBBB;" >
         <li class="nav-item active" id="link-1">
             <a class="nav-link" onclick="showPage(-1)">Overview</a>
         </li>
@@ -38,33 +39,55 @@
         <!-- Messages -->
         <% if (updateGradesMessageSuccess.length > 0) { %>
             <br>
-            <div class="alert alert-success"><%= updateGradesMessageSuccess %></div>
+            <div class="alert alert-success alert-dismissible">
+                <a class="close" data-dismiss="alert" aria-label="close">X</a>
+                <%= updateGradesMessageSuccess %>
+            </div>
         <% } else if (updateGradesMessageFail.length > 0) { %>
             <br>
-            <div class="alert alert-danger"><%= updateGradesMessageFail %></div>
+            <div class="alert alert-danger alert-dismissible">
+                <a class="close" data-dismiss="alert" aria-label="close">X</a>
+                <%= updateGradesMessageFail %>
+            </div>
         <% } else { %>
             <br>
         <% } %>
 
+        <!-- <div class="alert alert-danger alert-dismissible" id="weightmsg" style="display:none">
+            <a class="close" data-dismiss="alert" aria-label="close">X</a>
+            <span id="weightmsg_text">asdf</span>
+        </div> -->
+
+        <!-- Overview Section -->
+        <span id="section-1">
+            <div class="alert alert-danger alert-dismissible" id="weightmsg-1" style="display:none">
+                <a class="close" data-dismiss="alert" aria-label="close">X</a>
+                <span id="weightmsg_text-1"></span>
+            </div>
+            <div id="chart-container-1" class="chart-container" style="position: relative; height:60vh; width:75vw;margin: 0 auto;">
+                <canvas id="chart-1" class="chart" style="width:50%; margin: auto;"></canvas>
+            </div>
+        </span>
+
+        <!-- Class Sections -->
         <% for (let i = 0; i<JSON.parse(gradeData).length; i++) { %>
+        <span id="section<%=i%>" style="display: none;">
+            <div class="alert alert-danger alert-dismissible" id="weightmsg<%=i%>" style="display:none">
+                <a class="close" data-dismiss="alert" aria-label="close">X</a>
+                <span id="weightmsg_text<%=i%>"></span>
+            </div>
             <div id="chart-container<%=i%>" class="chart-container" style="position: relative; height:40vh; width:50vw;margin: 0 auto;">
                 <canvas id="chart<%=i%>" class="chart" style="width:50%; margin: auto;"></canvas>
             </div>
-        <% } %>
-
-        <% for (let i = 0; i<JSON.parse(gradeData).length; i++) { %>
-        <span id="table-container<%=i%>">
             <hr>
-            <table class="table">
-                <thead>
-                <tr>
+            <table class="table" id="table<%=i%>">
+                <thead><tr>
                     <th style="width:25%;">Assignment Name</th>
                     <th style="width:25%;">Date</th>
                     <th style="width:25%;">Category</th>
                     <th style="width:25%;">Assignment Percent</th>
                     <th style="width:25%;">Score</th>
-                </tr>
-                </thead>
+                </tr></thead>
 
                 <% for (let grade of JSON.parse(gradeData)[i].grades) { %>
                     <tr>
@@ -78,6 +101,7 @@
             </table>
         </span>
         <% } %>
+    </div>
 
         <!-- JavaScript Imports -->
         <script src="https://cdn.jsdelivr.net/npm/moment@2.24.0/moment.min.js"></script>
@@ -85,47 +109,105 @@
 
         <!-- Custom JavaScript -->
         <script>
+
             let data = <%- gradeData %>;
             let weights = <%- weightData %>;
                 
             let parsedData = [];
-            let useWeights = [];
+            let unobtainedWeights = {};
 
-            parseWeights();
-            parseGrades();
+            // parseWeights();
+            parseData();
+            renderOverviewChart();
+            showOverallMissings(); //this needs to be manually rendered..
+            updateWeightMessages();
+
             for (let i = 0; i<data.length; i++){
                 renderChart(i)
             }
 
-            function parseWeights()
-            {
-                for (let classData of data){
-                    let className = classData.class_name;
-                    let tempUseWeights = !((!(className in weights)) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object) || weights[className].hasWeights === false);
-                    if (tempUseWeights === true) {
-                        for (grade of classData.grades){
-                            if (!(grade.category in weights[className])) {
-                                tempUseWeights = false;
-                                break;
-                            }
-                        }
-                    }
-                    useWeights.push(tempUseWeights);
-                }
+            function showWeightMessage(msg,id) {
+                let wmRef = document.getElementById("weightmsg"+id);
+                let wmTextRef = document.getElementById("weightmsg_text"+id);
+                wmRef.style.display = "block";
+                wmTextRef.innerText = msg;
             }
 
-            function parseGrades()
-            {
+            function hideWeightMessage(id) {
+                let wmRef = document.getElementById("weightmsg"+id);
+                let wmTextRef = document.getElementById("weightmsg_text"+id);
+                wmRef.style.display = "none";
+                wmTextRef.innerText = "";
+            }
+
+            function updateWeightMessages() {
+                if (unobtainedWeights.length > 0) {
+                    hideWeightMessage(-1)
+                } else {
+                    showWeightMessage("Missing Weights: " + Object.keys(unobtainedWeights).join(", "),-1);
+                }
+                for (var id = 0; id<data.length; id++){
+                    if (data[id].class_name in unobtainedWeights) { //TODO idk if this index get is safe
+                        showWeightMessage("Missing Weights: " + unobtainedWeights[data[id].class_name].join(", "),id)
+                    } else {
+                        hideWeightMessage(id)
+                    }
+                }   
+            }
+
+            function showOverallMissings() {
+
+            }
+
+            function parseData() {
+
+                /*
+                WEIGHTS first
+                 */
+
+                for (let classData of data){
+                    let className = classData.class_name;
+                    let noWeights = !(className in weights) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object)
+                    let localMissingCategories = []
+                    /* || weights[className].hasWeights === false; */ // <- dont show a message if they opt out of weights
+
+                    for (let grade of classData.grades){
+                        // console.log(grade.category)
+
+                        if (!(className in weights) || !(grade.category in weights[className])) {
+                            if (!localMissingCategories.includes(grade.category)) {
+                                localMissingCategories.push(grade.category);
+                            }
+                            noWeights = true;
+                        }
+                    }
+                    // console.log("LMC")
+                    // console.log(localMissingCategories)
+
+                    if (!(className in unobtainedWeights) && noWeights) {
+                        unobtainedWeights[className] = localMissingCategories; //todo here add specific weights (i.e. You don't have the Test category...)
+                    }
+                }
+
+                // console.log(unobtainedWeights)
+
+                /**
+                 * now grades!
+                 */
+
                 //Add array to each object in parsedData: one for weights (not needed?), one for missing weights
                 //Get data for one class
+
                 for (let classData of data) {
+
                     let className = classData.class_name;
                     let overallGradeSteps = [];
                     let totalPossiblesAndGottens = {}; //by category
                     let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
                     // VERY JANK CHANGE LATER
-                    let doesntHaveWeights = !useWeights[0];
-                    useWeights.shift();              
+                    let doesntHaveWeights = className in unobtainedWeights || weights[className].hasWeights === false;
+                    // console.log(className + " DHW? : " + doesntHaveWeights);
+
                     for (let grade of classData.grades) {
                         let category = grade.category;
                         if (doesntHaveWeights) {
@@ -135,7 +217,7 @@
                             if (typeof totalPossiblesAndGottens[category] === 'undefined') {
                                 let weightVal = 100;
                                 if (!doesntHaveWeights) {
-                                    weightVal = weights[className][category];  
+                                    weightVal = weights[className][category];
                                 }
                                 totalPossiblesAndGottens[category] = {
                                     totalPossible: 0,
@@ -179,15 +261,109 @@
                     });
                 }
             }
-            function renderChart(id)
-            {
+
+            function renderOverviewChart() {
+                var ctx = document.getElementById('chart-1');
+                var id = 0;
+                var dataset = []
+                var colors = ["#FFB048","#E8425F","#AF70FF","#6BD3E8","#A7FFA5","#FF80F6","#FFF87E","#FFFFFF"];
+                for (let i = 0; i<data.length; i++)
+                {
+                    dataset.push({
+                        label: data[i].class_name,
+                        backgroundColor:'transparent',
+                        pointBackgroundColor: colors[i%colors.length],
+                        pointBorderColor: colors[i%colors.length],
+                        borderColor: colors[i%colors.length],
+                        // fill: 'start',
+                        data: parsedData[i].mixedData,
+                        cubicInterpolationMode: 'monotone',
+                        spanGaps: false,
+                        pointHoverRadius: 7,
+                        pointHitRadius: 30
+                    });
+                }
+                var myChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        datasets: dataset
+                    },
+                    options: {
+                        hover: {
+                            mode: 'nearest',
+                            intersect: false
+                        },
+                        scales: {
+                            xAxes: [{
+                                type: 'time',
+                                time: {
+                                    unit: 'month'
+                                },
+                                ticks: {
+                                    fontColor: 'white',
+                                    fontFamily: 'Verdana',
+                                    fontSize: '13'
+                                },
+                                gridLines: {
+                                    color: '#555555',
+                                }
+                            }],
+                            yAxes: [{
+                                ticks: {
+                                    fontColor: 'white',
+                                    fontFamily: 'Verdana',
+                                    fontSize: '12'
+                                },
+                                gridLines: {
+                                    color: '#555555',
+                                    drawBorder: false
+                                }
+                            }]
+                        },
+                        animation: {
+                            easing: 'easeOutCubic'
+                        },
+                        legend: {
+                            display: true,
+                            labels: {
+                                fontColor: 'white',
+                                fontFamily: 'Verdana',
+                                boxWidth: 20,
+                                fontSize: 13,
+                            }
+                        },
+                        tooltips: {
+                            enabled: true,
+                            position: 'nearest',
+                            intersect: false,
+                            displayColors: false,
+                            callbacks: {
+                                title: function(tooltipItems, data) {
+                                    return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
+                                },
+                                label: function(tooltipItem, data) {
+                                    // console.log(tooltipItem);
+                                    // console.log(data);
+                                    return parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index]
+                                            + " - " + parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "%"
+                                            + " (" + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")";
+                                },
+                            }
+                        },
+                        responsive: true,
+                        maintainAspectRatio: false,
+                    }
+                });
+            }
+
+            function renderChart(id) {
                 var ctx = document.getElementById('chart'+id);
                 var myChart = new Chart(ctx, {
                     type: 'line',
                     data: {
                         datasets: [
                             {
-                                label: 'Overall Grade',
+                                label: 'parsedData[id]',
                                 backgroundColor: 'rgba(256,256,256,0.05)',
                                 pointBackgroundColor: 'white',
                                 pointBorderColor: 'white',
@@ -195,11 +371,17 @@
                                 fill: 'start',
                                 data: parsedData[id].mixedData,
                                 cubicInterpolationMode: 'monotone',
-                                spanGaps: false
+                                spanGaps: false,
+                                pointHoverRadius: 7,
+                                pointHitRadius: 21,
 				            }
                         ]
                     },
                     options: {
+                        hover: {
+                            mode: 'nearest',
+                            intersect: false
+                        },
                         scales: {
                             xAxes: [{
                                 type: 'time',
@@ -253,32 +435,20 @@
                         maintainAspectRatio: false,
                     }
                 });
-
             }
+
             function showPage(id) {
                 for (let i = -1; i < data.length; i++) {
                     document.getElementById("link" + i).classList.remove("active");
                 }
                 document.getElementById("link" + id).classList.add("active");
-                if (id===-1)
-                {
-                    for (let i = 0; i < data.length; i++) {
-                        document.getElementById("chart-container" + i).style.display = "block";
-                        document.getElementById("table-container" + i).style.display = "block";
-                    }
-                } else {
-                    for (let i = 0; i < data.length; i++) {
-                        document.getElementById("chart-container" + i).style.display = "none";
-                        document.getElementById("table-container" + i).style.display = "none";
-                    }
 
-                    document.getElementById("chart-container" + id).style.display = "block";
-                    document.getElementById("table-container" + id).style.display = "block";
+                for (let i = -1; i < data.length; i++) {
+                    document.getElementById("section" + i).style.display = "none";
                 }
-
+                document.getElementById("section" + id).style.display = "block";
             }
-        </script>
 
-    </div>
+        </script>
 </body>
 </html>

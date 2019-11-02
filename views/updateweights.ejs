@@ -22,10 +22,16 @@
                     Sign Up
                 </h1>
                 <% if (updateWeightMessageFail.length > 0) { %>
-                    <div class="alert alert-danger"><%= updateWeightMessageFail %></div>
+                    <div class="alert alert-danger alert-dismissible">
+                        <a class="close" data-dismiss="alert" aria-label="close">X</a>
+                        <%= updateWeightMessageFail %>
+                    </div>
                 <% } %>
                 <% if (updateWeightMessageSuccess.length > 0) { %>
-                    <div class="alert alert-danger"><%= updateWeightMessageSuccess %></div>
+                    <div class="alert alert-danger alert-dismissible">
+                        <a class="close" data-dismiss="alert" aria-label="close">X</a>
+                        <%= updateWeightMessageSuccess %>
+                    </div>
                 <% } %>
 
                 <form class="form-signin" action="/updateweights" method="post">

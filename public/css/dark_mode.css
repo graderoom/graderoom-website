@@ -21,6 +21,12 @@ body {
     font-weight: bold;
 }
 
+.alert .close{
+    line-height: 1.5;
+    font-size: 1rem;
+    color: inherit !important;
+}
+
 /* Nav Bar Styling */
 
 nav {
@@ -48,6 +54,7 @@ nav h5 {
 nav .btn {
     color: white;
     background-color: transparent;
+    margin: .5rem;
 }
 
 nav .btn:hover {
@@ -63,20 +70,19 @@ nav .navbar-toggler:hover {
     background: #444444;
 }
 
-/* Elements in collapse menu following a not collapsed toggle button*/
-nav .navbar-toggler:not(.collapsed)~.navbar-collapse li,
-nav .navbar-toggler:not(.collapsed)~.navbar-collapse .btn{
+nav .navbar-collapse li, nav .navbar-collapse .btn{
     width: 100%;
     text-align: center;
 }
 
-/* Elements in collapse menu currently collapsing */
-nav .navbar-collapse.collapsing li,
-nav .navbar-collapse.collapsing .btn{
-    width: 100%;
-    text-align: center;
+@media (max-width: 991px) { 
+    nav .navbar-collapse li, nav .navbar-collapse .btn{
+        margin-left: 0;
+        margin-right: 0;
+        margin-top: 0.1rem;
+        margin-bottom: 0.1rem;
+    }
 }
-
 
 /* Form Input Card Styling */
 .card {
@@ -174,7 +180,7 @@ nav .navbar-collapse.collapsing .btn{
 }
 
 .blurred-background {
-    content: url(/public/resources/dark_mode/blur.png) !important;
+    background-image: url(/public/resources/dark_mode/blur.png) !important;
 }
 
 .nav-item {
@@ -184,6 +190,8 @@ nav .navbar-collapse.collapsing .btn{
 html {
     overflow: scroll;
     overflow-x: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
 ::-webkit-scrollbar {
