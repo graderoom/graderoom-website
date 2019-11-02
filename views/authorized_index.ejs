@@ -42,11 +42,16 @@
         <% } else { %>
             <br>
         <% } %>
+
+        <div class="alert alert-danger" id="weightmsg" style="display:none"></div>
+
         <span id="section-1">
             <div id="chart-container-1" class="chart-container" style="position: relative; height:60vh; width:75vw;margin: 0 auto;">
                 <canvas id="chart-1" class="chart" style="width:50%; margin: auto;"></canvas>
             </div>
         </span>
+
+
         <% for (let i = 0; i<JSON.parse(gradeData).length; i++) { %>
         <span id="section<%=i%>" style="display: none;">
             <div id="chart-container<%=i%>" class="chart-container" style="position: relative; height:40vh; width:50vw;margin: 0 auto;">
@@ -81,48 +86,83 @@
 
         <!-- Custom JavaScript -->
         <script>
+
             let data = <%- gradeData %>;
             let weights = <%- weightData %>;
                 
             let parsedData = [];
-            let useWeights = [];
+            let unobtainedWeights = {};
 
-            parseWeights();
-            parseGrades();
+            // parseWeights();
+            parseData();
             renderOverviewChart();
+            showOverallMissings() //this needs to be manually rendered..
+
+
             for (let i = 0; i<data.length; i++){
-                renderChart(i);
+                renderChart(i)
             }
 
-            function parseWeights()
-            {
+            function showWeightMessage(msg) {
+                let wmRef = document.getElementById("weightmsg");
+                wmRef.innerText = msg
+                wmRef.style.display = 'block';
+            }
+            function hideWeightMessage() {
+                let wmRef = document.getElementById("weightmsg");
+                wmRef.innerText = '';
+                wmRef.style.display = 'none';
+            }
+
+            function parseData() {
+
+                /*
+                WEIGHTS first
+                 */
+
                 for (let classData of data){
                     let className = classData.class_name;
-                    let tempUseWeights = !((!(className in weights)) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object) || weights[className].hasWeights === false);
-                    if (tempUseWeights === true) {
-                        for (grade of classData.grades){
-                            if (!(grade.category in weights[className])) {
-                                tempUseWeights = false;
-                                break;
+                    let noWeights = !(className in weights) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object)
+                    let localMissingCategories = []
+                    /* || weights[className].hasWeights === false; */ // <- dont show a message if they opt out of weights
+
+                    for (let grade of classData.grades){
+                        // console.log(grade.category)
+
+                        if (!(className in weights) || !(grade.category in weights[className])) {
+                            if (!localMissingCategories.includes(grade.category)) {
+                                localMissingCategories.push(grade.category);
                             }
+                            noWeights = true;
                         }
                     }
-                    useWeights.push(tempUseWeights);
-                }
-            }
+                    // console.log("LMC")
+                    // console.log(localMissingCategories)
 
-            function parseGrades()
-            {
+                    if (!(className in unobtainedWeights) && noWeights) {
+                        unobtainedWeights[className] = localMissingCategories; //todo here add specific weights (i.e. You don't have the Test category...)
+                    }
+                }
+
+                // console.log(unobtainedWeights)
+
+                /**
+                 * now grades!
+                 */
+
                 //Add array to each object in parsedData: one for weights (not needed?), one for missing weights
                 //Get data for one class
+
                 for (let classData of data) {
+
                     let className = classData.class_name;
                     let overallGradeSteps = [];
                     let totalPossiblesAndGottens = {}; //by category
                     let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
                     // VERY JANK CHANGE LATER
-                    let doesntHaveWeights = !useWeights[0];
-                    useWeights.shift();              
+                    let doesntHaveWeights = className in unobtainedWeights || weights[className].hasWeights === false;
+                    // console.log(className + " DHW? : " + doesntHaveWeights);
+
                     for (let grade of classData.grades) {
                         let category = grade.category;
                         if (doesntHaveWeights) {
@@ -132,7 +172,7 @@
                             if (typeof totalPossiblesAndGottens[category] === 'undefined') {
                                 let weightVal = 100;
                                 if (!doesntHaveWeights) {
-                                    weightVal = weights[className][category];  
+                                    weightVal = weights[className][category];
                                 }
                                 totalPossiblesAndGottens[category] = {
                                     totalPossible: 0,
@@ -177,8 +217,9 @@
                     });
                 }
             }
-            function renderOverviewChart()
-            {
+
+
+            function renderOverviewChart() {
                 var ctx = document.getElementById('chart-1');
                 var id = 0;
                 var dataset = []
@@ -256,7 +297,7 @@
                                     // console.log(data);
                                     return parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index]
                                             + " - " + parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "%"
-                                            + " (" + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")"; 
+                                            + " (" + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")";
                                 },
                             }
                         },
@@ -265,8 +306,18 @@
                     }
                 });
             }
-            function renderChart(id)
-            {
+
+            function showOverallMissings() {
+                if (unobtainedWeights.length > 0) {
+                    hideWeightMessage()
+
+                } else {
+                    showWeightMessage("Missing Weights: " + Object.keys(unobtainedWeights).join(", "));
+
+                }
+            }
+
+            function renderChart(id) {
                 var ctx = document.getElementById('chart'+id);
                 var myChart = new Chart(ctx, {
                     type: 'line',
@@ -340,17 +391,29 @@
                     }
                 });
             }
+
             function showPage(id) {
                 for (let i = -1; i < data.length; i++) {
                     document.getElementById("link" + i).classList.remove("active");
                 }
                 document.getElementById("link" + id).classList.add("active");
 
+                if (id === -1) {
+                    showOverallMissings();
+                } else {
+                    if (data[id].class_name in unobtainedWeights) { //TODO idk if this index get is safe
+                        showWeightMessage("Missing Weights: " + unobtainedWeights[data[id].class_name].join(", "))
+                    } else {
+                        hideWeightMessage()
+                    }
+                }
+
                 for (let i = -1; i < data.length; i++) {
                     document.getElementById("section" + i).style.display = "none";
                 }
                 document.getElementById("section" + id).style.display = "block";
             }
+
         </script>
 
     </div>
