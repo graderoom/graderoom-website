@@ -1,39 +1,39 @@
 <!-- Settings Card -->
 <div class="container">
-    <div class="blurred-login" id="updateWeightsDisplay" style="position:fixed; display:none; height: 100vh; width: 100%; top: 0; left: 0; z-index: 1">
+    <div class="blurred-login" id="updateWeightsDisplay" style="position:fixed; display:block; height: 100vh; width: 100%; top: 0; left: 0; z-index: 1">
         <div class="blurred-background" style="position: fixed; width: 100%; height: 100%; filter: opacity(0.9);"></div>
-        <div class="col-sm-10 col-md-8 col-lg-6 col-xl-5 mx-auto" style="height: 100%;">
-            <div id="weightsCard" class="card card-signin my-5" style="max-height:90%; overflow:scroll;">
-                <btn class="btn btn-md" onclick="hideDiv('updateWeightsDisplay')" style="width: fit-content; margin-bottom:0">
-                    <i class="fa fa-arrow-left" aria-hidden="true"></i>
-                    Return
-                </btn>
-                <div class="card-body">  
-                    <h1 class="card-title text-center"><span class="fa fa-pencil"></span>Update Weights</h1>
-                    <form class="form-signin"  action="" method="">
-                        <% for (let grade of JSON.parse(gradeData)) { %>
-                            <label style="font-weight: bold;"><%=grade.class_name%></label>
-                            <span style="display: flex; flex-flow: row wrap;"> 
-                            <%  let weights = [];
-                                for (let assignment of grade.grades) { 
-                                    if (!(weights.includes(assignment.category))) {
-                                        weights.push(assignment.category); %>
-                                        <div class="form-group" style="display: flex; align-items: flex-end;">
-                                            <label style="font-size: 0.9rem; color: #DDDDDD; white-space: nowrap; margin-bottom: 0;"><%=assignment.category%>:&nbsp</label>
-                                            <input style="font-size: 0.9rem; padding: .1rem .1rem; width: 3rem; text-align: center; margin-right: 1rem;" type="text" class="form-control" name="?"> 
-                                        </div>
-                                    <% } %>
+        <div id="weightsCard" class="card card-signin my-5 mx-auto" style="width: fit-content; max-height:90%; overflow:scroll;">
+            <btn class="btn btn-md" onclick="hideDiv('updateWeightsDisplay')" style="width: fit-content; margin-bottom:0">
+                <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                Return
+            </btn>
+            <!-- <script>console.log()</script> -->
+            <div class="card-body" style="padding-top: 1em; padding-bottom: 1em;">  
+                <h1 class="card-title text-center"><span class="fa fa-pencil"></span>Update Weights</h1>
+                <form class="form-signin"  action="" method="">
+                    <% for (let grade of JSON.parse(gradeData)) { %>
+                        <label style="font-weight: bold;"><%=grade.class_name%></label>
+                        <span style="display: flex; flex-flow: row wrap;"> 
+                        <%  let weights = [];
+                            for (let assignment of grade.grades) { 
+                                if (!(weights.includes(assignment.category))) {
+                                    weights.push(assignment.category); %>
+                                    <div class="form-group" style="display: flex; align-items: flex-end;">
+                                        <label style="font-size: 0.9rem; color: #DDDDDD; white-space: nowrap; margin-bottom: 0;"><%=assignment.category%>:&nbsp</label>
+                                        <% let value = ""; try {value = JSON.parse(weightData)[grade.class_name][assignment.category]} catch {}%>
+                                        <input value='<%=value%>' style="font-size: 0.9rem; padding: .1rem .1rem; width: 3rem; text-align: center; margin-right: 1rem;" type="text" class="form-control" name="?"> 
+                                    </div>
                                 <% } %>
-                            </span>
-                        <% } %>
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-default btn-lg">
-                                Update Weights
-                            </button>
-                        </div>
-                    </form>
+                            <% } %>
+                        </span>
+                    <% } %>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-default btn-lg">
+                            Update Weights
+                        </button>
+                    </div>
+                </form>
 
-                </div>
             </div>
         </div>
     </div>
