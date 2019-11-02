@@ -177,15 +177,36 @@ nav .navbar-collapse.collapsing .btn{
     content: url(/public/resources/dark_mode/blur.png) !important;
 }
 
+.nav-item {
+    width: inherit;
+}
+
 html {
     overflow: scroll;
     overflow-x: hidden;
 }
+
 ::-webkit-scrollbar {
-    width: 0;  /* Remove scrollbar space */
-    background: transparent;  /* Optional: just make scrollbar invisible */
+    display: none;  
 }
 
-.nav-item {
-    width: inherit;
+.card::-webkit-scrollbar {
+    display:initial;
+    width: 24px;
+}
+.card::-webkit-scrollbar-button, .card::-webkit-scrollbar-corner{
+    display:none;
+}
+.card::-webkit-scrollbar-thumb {
+    border: 8px solid transparent;
+    border-top: 15px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 15px solid rgba(0, 0, 0, 0.1);
+    background-clip: padding-box;
+    background-color: #555;
+    /* box-shadow: inset -1px -1px 0px rgba(0, 0, 0, 0.05), inset 1px 1px 0px rgba(0, 0, 0, 0.05); */
+}
+
+/* Handle on hover */
+.card::-webkit-scrollbar-thumb:hover {
+    background-color: #777;
 }
