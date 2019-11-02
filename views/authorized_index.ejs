@@ -19,6 +19,7 @@
     <!-- Navbar -->
     <% include partials/user/navbar.ejs %>
 
+    <!-- Class Links -->
     <ul class="mx-5 my-3 nav nav-justified" style="border-bottom: 2px solid #999999; color: #BBBBBB;" >
         <li class="nav-item active" id="link-1">
             <a class="nav-link" onclick="showPage(-1)">Overview</a>
@@ -35,23 +36,33 @@
         <!-- Messages -->
         <% if (updateGradesMessageSuccess.length > 0) { %>
             <br>
-            <div class="alert alert-success"><%= updateGradesMessageSuccess %></div>
+            <div class="alert alert-success alert-dismissible">
+                <a class="close" data-dismiss="alert" aria-label="close">X</a>
+                <%= updateGradesMessageSuccess %>
+            </div>
         <% } else if (updateGradesMessageFail.length > 0) { %>
             <br>
-            <div class="alert alert-danger"><%= updateGradesMessageFail %></div>
+            <div class="alert alert-danger alert-dismissible">
+                <a class="close" data-dismiss="alert" aria-label="close">X</a>
+                <%= updateGradesMessageFail %>
+            </div>
         <% } else { %>
             <br>
         <% } %>
 
-        <div class="alert alert-danger" id="weightmsg" style="display:none"></div>
+        <div class="alert alert-danger alert-dismissible" id="weightmsg" style="display:none">
+            <a class="close" data-dismiss="alert" aria-label="close">X</a>
+            <span id="weightmsg_text">asdf</span>
+        </div>
 
+        <!-- Overview Section -->
         <span id="section-1">
             <div id="chart-container-1" class="chart-container" style="position: relative; height:60vh; width:75vw;margin: 0 auto;">
                 <canvas id="chart-1" class="chart" style="width:50%; margin: auto;"></canvas>
             </div>
         </span>
 
-
+        <!-- Class Sections -->
         <% for (let i = 0; i<JSON.parse(gradeData).length; i++) { %>
         <span id="section<%=i%>" style="display: none;">
             <div id="chart-container<%=i%>" class="chart-container" style="position: relative; height:40vh; width:50vw;margin: 0 auto;">
@@ -79,6 +90,7 @@
             </table>
         </span>
         <% } %>
+    </div>
 
         <!-- JavaScript Imports -->
         <script src="https://cdn.jsdelivr.net/npm/moment@2.24.0/moment.min.js"></script>
@@ -98,19 +110,20 @@
             renderOverviewChart();
             showOverallMissings() //this needs to be manually rendered..
 
-
             for (let i = 0; i<data.length; i++){
                 renderChart(i)
             }
 
             function showWeightMessage(msg) {
                 let wmRef = document.getElementById("weightmsg");
-                wmRef.innerText = msg
+                let wmTextRef = document.getElementById("weightmsg_text");
+                wmTextRef.innerText = msg;
                 wmRef.style.display = 'block';
             }
             function hideWeightMessage() {
                 let wmRef = document.getElementById("weightmsg");
-                wmRef.innerText = '';
+                let wmTextRef = document.getElementById("weightmsg_text");
+                wmTextRef.innerText = '';
                 wmRef.style.display = 'none';
             }
 
@@ -217,7 +230,6 @@
                     });
                 }
             }
-
 
             function renderOverviewChart() {
                 var ctx = document.getElementById('chart-1');
@@ -415,7 +427,5 @@
             }
 
         </script>
-
-    </div>
 </body>
 </html>

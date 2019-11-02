@@ -23,7 +23,10 @@
                         Sign Up
                     </h1>
                     <% if (message.length > 0) { %>
-                        <div class="alert alert-danger"><%= message %></div>
+                        <div class="alert alert-danger alert-dismissible">
+                            <a class="close" data-dismiss="alert" aria-label="close">X</a>
+                            <%= message %>
+                        </div>
                     <% } %>
                     <form class="form-signin" action="/signup" method="post">
                         <div class="form-group">
@@ -51,5 +54,12 @@
             </div>
         </div>
     </div>
+    <!-- JavaScript Imports -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
 </body>
 </html>
