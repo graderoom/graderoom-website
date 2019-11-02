@@ -9,7 +9,7 @@
             </btn>
             <!-- <script>console.log()</script> -->
             <div class="card-body" style="padding-top: 1em; padding-bottom: 1em;">  
-                <h1 class="card-title text-center"><span class="fa fa-pencil"></span>Update Weights</h1>
+                <h1 class="card-title text-center"><span class="fa fa-pencil"></span> Update Weights</h1>
                 <form class="form-signin"  action="" method="">
                     <% for (let grade of JSON.parse(gradeData)) { %>
                         <label style="font-weight: bold;"><%=grade.class_name%></label>
@@ -21,7 +21,7 @@
                                     <div class="form-group" style="display: flex; align-items: flex-end;">
                                         <label style="font-size: 0.9rem; color: #DDDDDD; white-space: nowrap; margin-bottom: 0;"><%=assignment.category%>:&nbsp</label>
                                         <% let value = ""; try {value = JSON.parse(weightData)[grade.class_name][assignment.category]} catch {}%>
-                                        <input value='<%=value%>' style="font-size: 0.9rem; padding: .1rem .1rem; width: 3rem; text-align: center; margin-right: 1rem;" type="text" class="form-control" name="?"> 
+                                        <input value='<%=value%>' style="font-size: 0.9rem; padding: .1rem .1rem; width: 3rem; text-align: center; margin-right: 1rem;" type="number" min="0" class="form-control" name="?"> 
                                     </div>
                                 <% } %>
                             <% } %>
