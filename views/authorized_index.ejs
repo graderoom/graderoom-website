@@ -50,13 +50,17 @@
             <br>
         <% } %>
 
-        <div class="alert alert-danger alert-dismissible" id="weightmsg" style="display:none">
+        <!-- <div class="alert alert-danger alert-dismissible" id="weightmsg" style="display:none">
             <a class="close" data-dismiss="alert" aria-label="close">X</a>
             <span id="weightmsg_text">asdf</span>
-        </div>
+        </div> -->
 
         <!-- Overview Section -->
         <span id="section-1">
+            <div class="alert alert-danger alert-dismissible" id="weightmsg-1" style="display:none">
+                <a class="close" data-dismiss="alert" aria-label="close">X</a>
+                <span id="weightmsg_text-1"></span>
+            </div>
             <div id="chart-container-1" class="chart-container" style="position: relative; height:60vh; width:75vw;margin: 0 auto;">
                 <canvas id="chart-1" class="chart" style="width:50%; margin: auto;"></canvas>
             </div>
@@ -65,6 +69,10 @@
         <!-- Class Sections -->
         <% for (let i = 0; i<JSON.parse(gradeData).length; i++) { %>
         <span id="section<%=i%>" style="display: none;">
+            <div class="alert alert-danger alert-dismissible" id="weightmsg<%=i%>" style="display:none">
+                <a class="close" data-dismiss="alert" aria-label="close">X</a>
+                <span id="weightmsg_text<%=i%>"></span>
+            </div>
             <div id="chart-container<%=i%>" class="chart-container" style="position: relative; height:40vh; width:50vw;margin: 0 auto;">
                 <canvas id="chart<%=i%>" class="chart" style="width:50%; margin: auto;"></canvas>
             </div>
@@ -108,23 +116,44 @@
             // parseWeights();
             parseData();
             renderOverviewChart();
-            showOverallMissings() //this needs to be manually rendered..
+            showOverallMissings(); //this needs to be manually rendered..
+            updateWeightMessages();
 
             for (let i = 0; i<data.length; i++){
                 renderChart(i)
             }
 
-            function showWeightMessage(msg) {
-                let wmRef = document.getElementById("weightmsg");
-                let wmTextRef = document.getElementById("weightmsg_text");
+            function showWeightMessage(msg,id) {
+                let wmRef = document.getElementById("weightmsg"+id);
+                let wmTextRef = document.getElementById("weightmsg_text"+id);
+                wmRef.style.display = "block";
                 wmTextRef.innerText = msg;
-                wmRef.style.display = 'block';
             }
-            function hideWeightMessage() {
-                let wmRef = document.getElementById("weightmsg");
-                let wmTextRef = document.getElementById("weightmsg_text");
-                wmTextRef.innerText = '';
-                wmRef.style.display = 'none';
+
+            function hideWeightMessage(id) {
+                let wmRef = document.getElementById("weightmsg"+id);
+                let wmTextRef = document.getElementById("weightmsg_text"+id);
+                wmRef.style.display = "none";
+                wmTextRef.innerText = "";
+            }
+
+            function updateWeightMessages() {
+                if (unobtainedWeights.length > 0) {
+                    hideWeightMessage(-1)
+                } else {
+                    showWeightMessage("Missing Weights: " + Object.keys(unobtainedWeights).join(", "),-1);
+                }
+                for (var id = 0; id<data.length; id++){
+                    if (data[id].class_name in unobtainedWeights) { //TODO idk if this index get is safe
+                        showWeightMessage("Missing Weights: " + unobtainedWeights[data[id].class_name].join(", "),id)
+                    } else {
+                        hideWeightMessage(id)
+                    }
+                }   
+            }
+
+            function showOverallMissings() {
+                
             }
 
             function parseData() {
@@ -319,16 +348,6 @@
                 });
             }
 
-            function showOverallMissings() {
-                if (unobtainedWeights.length > 0) {
-                    hideWeightMessage()
-
-                } else {
-                    showWeightMessage("Missing Weights: " + Object.keys(unobtainedWeights).join(", "));
-
-                }
-            }
-
             function renderChart(id) {
                 var ctx = document.getElementById('chart'+id);
                 var myChart = new Chart(ctx, {
@@ -409,16 +428,6 @@
                     document.getElementById("link" + i).classList.remove("active");
                 }
                 document.getElementById("link" + id).classList.add("active");
-
-                if (id === -1) {
-                    showOverallMissings();
-                } else {
-                    if (data[id].class_name in unobtainedWeights) { //TODO idk if this index get is safe
-                        showWeightMessage("Missing Weights: " + unobtainedWeights[data[id].class_name].join(", "))
-                    } else {
-                        hideWeightMessage()
-                    }
-                }
 
                 for (let i = -1; i < data.length; i++) {
                     document.getElementById("section" + i).style.display = "none";
