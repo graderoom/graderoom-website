@@ -247,7 +247,9 @@
                         // fill: 'start',
                         data: parsedData[i].mixedData,
                         cubicInterpolationMode: 'monotone',
-                        spanGaps: false
+                        spanGaps: false,
+                        pointHoverRadius: 7,
+                        pointHitRadius: 30
                     });
                 }
                 var myChart = new Chart(ctx, {
@@ -256,6 +258,10 @@
                         datasets: dataset
                     },
                     options: {
+                        hover: {
+                            mode: 'nearest',
+                            intersect: false
+                        },
                         scales: {
                             xAxes: [{
                                 type: 'time',
@@ -344,11 +350,17 @@
                                 fill: 'start',
                                 data: parsedData[id].mixedData,
                                 cubicInterpolationMode: 'monotone',
-                                spanGaps: false
+                                spanGaps: false,
+                                pointHoverRadius: 7,
+                                pointHitRadius: 21,
 				            }
                         ]
                     },
                     options: {
+                        hover: {
+                            mode: 'nearest',
+                            intersect: false
+                        },
                         scales: {
                             xAxes: [{
                                 type: 'time',
