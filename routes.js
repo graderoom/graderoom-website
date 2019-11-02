@@ -2,7 +2,7 @@ let server = require('./graderoom.js');
 let authenticator = require('./authenticator.js');
 
 //Defaults to dark mode before login and new accounts TODO: this is temporary, should remember past mode
-let defaultMode = false;
+let defaultMode = true;
 
 module.exports = function(app, passport) {
 
@@ -45,7 +45,6 @@ app.get('/s', function(req, res) {
 });
 
 app.get('/switch-mode', function(req, res) {
-    defaultMode = !defaultMode;
     if (req.user != null) {
         authenticator.switchMode(req.user.username);
     }
@@ -173,7 +172,7 @@ app.post('/signup', async function(req, res, next) {
 
         //check if can create here (i.e. username not in use)
 
-        let resp = await authenticator.addNewUser(username, password, s_email, false);
+        let resp = await authenticator.addNewUser(username, password, s_email, false, defaultMode);
         console.log(resp);
 
         if (!resp.success) {
