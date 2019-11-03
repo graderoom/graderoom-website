@@ -9,13 +9,14 @@
             </btn>
             <div class="card-body" style="padding-top: 1em; padding-bottom: 1em;">  
                 <h1 class="card-title text-center"><span class="fa fa-pencil"></span> Update Weights</h1>
-                <form class="form-signin accordion" id="accordionForm" action="" method="">
-                    <% for (let grade of JSON.parse(gradeData)) { %>
+                <span class="accordion" id="accordionForms"> 
+                <% for (let grade of JSON.parse(gradeData)) { %>
+                    <form class="form-signin" action="" method="">
                         <h5 class="collapsed" data-toggle="collapse" href="#collapse<%=grade.class_name%>">
                             <%=grade.class_name%>&nbsp;
                             <i class="fa" aria-hidden="true"></i>
                         </h5>
-                        <span class="collapse" id="collapse<%=grade.class_name%>" data-parent="#accordionForm"> 
+                        <span class="collapse" id="collapse<%=grade.class_name%>" data-parent="#accordionForms"> 
                         <%  let weights = [];
                             for (let assignment of grade.grades) { 
                                 if (!(weights.includes(assignment.category))) {
@@ -27,15 +28,16 @@
                                     </div>
                                 <% } %>
                             <% } %>
+                            <div style="width: 100%">
+                                <button type="submit" class="btn btn-default btn-med">
+                                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                                    Update
+                                </button>
+                            </div>
                         </span>
-                        <hr>
+                    </form>
                     <% } %>
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-default btn-lg">
-                            Update Weights
-                        </button>
-                    </div>
-                </form>
+                </span>   
 
             </div>
         </div>
