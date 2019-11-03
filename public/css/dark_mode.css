@@ -116,6 +116,29 @@ nav .navbar-collapse li, nav .navbar-collapse .btn{
     padding: 2rem;
 }
 
+#weightsCard .collapse.show,#weightsCard .collapsing  {
+    display: flex; 
+    flex-flow: row wrap;
+}
+#weightsCard h5 {
+    font-family: 'Montserrat';
+    font-size: 1.1rem;
+    font-weight: 400;
+}
+
+#weightsCard h5 i::after{
+    content: '\f107';
+}
+
+#weightsCard h5.collapsed i::after{
+    content: '\f105';
+}
+
+#weightsCard hr {
+    margin: 0.5rem 0;
+    border-color: #555;
+}
+
 .form-signin .btn {
     background: #BBBBBB;
     color: #333333;
