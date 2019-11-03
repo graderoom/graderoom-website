@@ -16,11 +16,6 @@ body {
     color: #BBBBBB;
 }
 
-.nav .active {
-    color: #FFFFFF;
-    font-weight: bold;
-}
-
 .alert .close{
     line-height: 1.5;
     font-size: 1rem;
@@ -84,7 +79,12 @@ nav .navbar-collapse li, nav .navbar-collapse .btn{
     }
 }
 
-/* Form Input Card Styling */
+.nav .active {
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+/* Card Styling */
 .card {
     background: #333333;
 }
@@ -116,9 +116,10 @@ nav .navbar-collapse li, nav .navbar-collapse .btn{
     padding: 2rem;
 }
 
-#weightsCard .collapse.show,#weightsCard .collapsing  {
-    display: flex; 
-    flex-flow: row wrap;
+/* Weights Card Styling */
+
+#weightsCard {
+    width: 50%!important;
 }
 #weightsCard h5 {
     font-family: 'Montserrat';
@@ -127,17 +128,45 @@ nav .navbar-collapse li, nav .navbar-collapse .btn{
 }
 
 #weightsCard h5 i::after{
-    content: '\f107';
+    content: '\f107'; /*Arrow Icon Toggling*/
 }
 
 #weightsCard h5.collapsed i::after{
-    content: '\f105';
+    content: '\f105'; /*Arrow Icon Toggling*/
 }
 
-#weightsCard hr {
-    margin: 0.5rem 0;
-    border-color: #555;
+#weightsCard h5.collapsed {
+    border-top: none;
 }
+#weightsCard h5.collapsed + span {
+    border-bottom: none;
+}
+#weightsCard h5 {
+    border-top: 1px solid #999;
+    padding-top: 0.5rem;
+}
+#weightsCard h5 + span {
+    border-bottom: 1px solid #999;
+}
+
+#weightsCard .collapse.show,#weightsCard .collapsing  {
+    display: flex; 
+    flex-flow: row wrap;
+}
+
+#weightsCard .form-signin .btn {
+    width: auto;
+    padding: .375rem .75rem;
+    margin: 0;
+    margin-bottom: 1rem;
+    background: #999;
+}
+
+#weightsCard .form-signin .btn:hover {
+    background: none;
+}
+
+/* Input Form Styling */
 
 .form-signin .btn {
     background: #BBBBBB;
