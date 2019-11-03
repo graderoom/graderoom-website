@@ -6,7 +6,7 @@
             <div id="updateGradesCard" class="card card-signin my-5">
                 <btn class="btn btn-md" onclick="hideDiv('updateGradesDisplay')" style="width: fit-content; margin-bottom:0">
                     <i class="fa fa-arrow-left" aria-hidden="true"></i>
-                    Return
+                    Cancel
                 </btn>
                 <div class="card-body">
                     <h1 class="card-title text-center">School Login</h1>
@@ -15,7 +15,7 @@
                     <br>
                     <form class="form-signin" action="/update" method="post">
                         <div class="form-group">
-                            <input name="school_password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                            <input name="school_password" type="password" id="inputPassword" class="form-control" placeholder="Password" required autofocus>
                         </div>
                         <div class="text-center">
                             <button class="btn btn-lg btn-default" type="submit" onclick="hideDiv('updateGradesDisplay')">Sign In</button>
