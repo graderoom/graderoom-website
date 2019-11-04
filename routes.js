@@ -40,17 +40,6 @@ app.get('/logout', function(req, res) {
     res.redirect('/');
 });
 
-app.get('/s', function(req, res) {
-    res.redirect('/switch-mode');
-});
-
-app.get('/switch-mode', function(req, res) {
-    if (req.user != null) {
-        authenticator.switchMode(req.user.username);
-    }
-    res.redirect('/');
-});
-
 app.post('/deleteUser', isAdmin, function (req, res) {
     let username = req.body.deleteUser;
     console.log("Got request to delete: " + username);
@@ -115,28 +104,36 @@ app.get('/update',isLoggedIn, function(req, res) {
     res.redirect('/');
 });
 
+app.post('/updateappearance', isLoggedIn, (req, res) => {
+
+    let darkMode;
+    try {
+        darkMode = req.body.darkMode;
+        req.user.darkMode = darkMode;
+        res.redirect('/');
+    } catch {}
+});
+
 app.post('/changepassword', isLoggedIn, (req, res) => {
 
     let new_pass = req.body.password;
     let resp = authenticator.changePassword(req.user.username, new_pass);
     if (resp.success) {
-        req.flash('settingsChangeMessageSuccess', resp.message);
+        res.status(200).send(resp.message);
     } else {
-        req.flash('settingsChangeMessageFail', resp.message);
+        res.status(400).send(resp.message);
     }
-    res.redirect('/');
 });
 
-app.post('/changeschoolusername', isLoggedIn, (req, res) => {
+app.post('/changeschoolemail', isLoggedIn, (req, res) => {
 
-    let su = req.body.school_username;
-    let resp = authenticator.changeSchoolUsername(req.user.username, su);
+    let new_school_email = req.body.school_email;
+    let resp = authenticator.changeSchoolEmail(req.user.username, new_school_email);
     if (resp.success) {
-        req.flash('settingsChangeMessageSuccess', resp.message);
+        res.status(200).send(resp.message);
     } else {
-        req.flash('settingsChangeMessageFail', resp.message);
+        res.status(400).send(resp.message);
     }
-    res.redirect('/');
 });
 
 // process the login form
