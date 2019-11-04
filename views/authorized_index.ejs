@@ -237,7 +237,7 @@
 
                         let overallPercent = 0;
                         for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
-                            overallPercent = overallPercent + (value.weight * (value.totalGotten / value.totalPossible));
+                            overallPercent = overallPercent + (value.weight * (value.totalPossible !== 0 ? (value.totalGotten / value.totalPossible) : value.totalGotten));
                         }
                         let total = ((overallPercent/totalWeightValue) * 100).toFixed(3);
                         total = +total;
@@ -269,10 +269,10 @@
         }
 
         function renderOverviewChart() {
-            var ctx = document.getElementById('chart-1');
-            var id = 0;
-            var dataset = []
-            var colors = ["#FFB048","#E8425F","#AF70FF","#6BD3E8","#A7FFA5","#FF80F6","#FFF87E","#FFFFFF"];
+            let ctx = document.getElementById('chart-1');
+            let id = 0;
+            let dataset = []
+            let colors = ["#FFB048","#E8425F","#AF70FF","#6BD3E8","#A7FFA5","#FF80F6","#FFF87E","#FFFFFF"];
             for (let i = 0; i<data.length; i++)
             {
                 dataset.push({
@@ -351,7 +351,7 @@
                                 // console.log(tooltipItem);
                                 // console.log(data);
                                 return parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index]
-                                        + " - " + parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "%"
+                                        + " - " + (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== -1 ? parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "%" : "")
                                         + " (" + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")";
                             },
                         }
