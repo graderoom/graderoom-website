@@ -91,8 +91,16 @@
                         <td><%= grade.assignment_name%> </td>
                         <td><%= grade.date%> </td>
                         <td><%= grade.category%> </td>
-                        <td><%= grade.grade_percent%> </td>
-                        <td><%= grade.points_gotten%>/<%= grade.points_possible%></td>
+                        <% if (grade.grade_percent == -1) { %>
+                        <td></td>
+                        <% } else { %>
+                        <td><%= grade.grade_percent %></td>
+                        <% } %>
+                        <% if (grade.points_possible != 0) { %>
+                        <td><%= grade.points_gotten %>/<%= grade.points_possible %></td>
+                        <% } else { %>
+                        <td><%= grade.points_gotten %></td>
+                        <% } %>
                     </tr>
                 <% } %>
             </table>
@@ -100,353 +108,353 @@
         <% } %>
     </div>
 
-        <!-- JavaScript Imports -->
-        <script src="https://cdn.jsdelivr.net/npm/moment@2.24.0/moment.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
+    <!-- JavaScript Imports -->
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.24.0/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
 
-        <!-- Custom JavaScript -->
-        <script>
+    <!-- Custom JavaScript -->
+    <script>
 
-            let data = <%- gradeData %>;
-            let weights = <%- weightData %>;
-                
-            let parsedData = [];
-            let unobtainedWeights = {};
+        let data = <%- gradeData %>;
+        let weights = <%- weightData %>;
 
-            // parseWeights();
-            parseData();
-            renderOverviewChart();
-            showOverallMissings(); //this needs to be manually rendered..
-            updateWeightMessages();
+        let parsedData = [];
+        let unobtainedWeights = {};
 
-            for (let i = 0; i<data.length; i++){
-                renderChart(i)
+        // parseWeights();
+        parseData();
+        renderOverviewChart();
+        showOverallMissings(); //this needs to be manually rendered..
+        updateWeightMessages();
+
+        for (let i = 0; i<data.length; i++){
+            renderChart(i)
+        }
+
+        function showWeightMessage(msg,id) {
+            let wmRef = document.getElementById("weightmsg"+id);
+            let wmTextRef = document.getElementById("weightmsg_text"+id);
+            wmRef.style.display = "block";
+            wmTextRef.innerText = msg;
+        }
+
+        function hideWeightMessage(id) {
+            let wmRef = document.getElementById("weightmsg"+id);
+            let wmTextRef = document.getElementById("weightmsg_text"+id);
+            wmRef.style.display = "none";
+            wmTextRef.innerText = "";
+        }
+
+        function updateWeightMessages() {
+            if (unobtainedWeights.length > 0) {
+                hideWeightMessage(-1)
+            } else {
+                showWeightMessage("Missing Weights: " + Object.keys(unobtainedWeights).join(", "),-1);
             }
-
-            function showWeightMessage(msg,id) {
-                let wmRef = document.getElementById("weightmsg"+id);
-                let wmTextRef = document.getElementById("weightmsg_text"+id);
-                wmRef.style.display = "block";
-                wmTextRef.innerText = msg;
-            }
-
-            function hideWeightMessage(id) {
-                let wmRef = document.getElementById("weightmsg"+id);
-                let wmTextRef = document.getElementById("weightmsg_text"+id);
-                wmRef.style.display = "none";
-                wmTextRef.innerText = "";
-            }
-
-            function updateWeightMessages() {
-                if (unobtainedWeights.length > 0) {
-                    hideWeightMessage(-1)
+            for (var id = 0; id<data.length; id++){
+                if (data[id].class_name in unobtainedWeights) { //TODO idk if this index get is safe
+                    showWeightMessage("Missing Weights: " + unobtainedWeights[data[id].class_name].join(", "),id)
                 } else {
-                    showWeightMessage("Missing Weights: " + Object.keys(unobtainedWeights).join(", "),-1);
+                    hideWeightMessage(id)
                 }
-                for (var id = 0; id<data.length; id++){
-                    if (data[id].class_name in unobtainedWeights) { //TODO idk if this index get is safe
-                        showWeightMessage("Missing Weights: " + unobtainedWeights[data[id].class_name].join(", "),id)
-                    } else {
-                        hideWeightMessage(id)
-                    }
-                }   
             }
+        }
 
-            function showOverallMissings() {
+        function showOverallMissings() {
 
-            }
+        }
 
-            function parseData() {
+        function parseData() {
 
-                /*
-                WEIGHTS first
-                 */
+            /*
+            WEIGHTS first
+             */
 
-                for (let classData of data){
-                    let className = classData.class_name;
-                    let noWeights = !(className in weights) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object)
-                    let localMissingCategories = []
-                    /* || weights[className].hasWeights === false; */ // <- dont show a message if they opt out of weights
+            for (let classData of data){
+                let className = classData.class_name;
+                let noWeights = !(className in weights) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object)
+                let localMissingCategories = []
+                /* || weights[className].hasWeights === false; */ // <- dont show a message if they opt out of weights
 
-                    for (let grade of classData.grades){
-                        // console.log(grade.category)
+                for (let grade of classData.grades){
+                    // console.log(grade.category)
 
-                        if (!(className in weights) || !(grade.category in weights[className])) {
-                            if (!localMissingCategories.includes(grade.category)) {
-                                localMissingCategories.push(grade.category);
-                            }
-                            noWeights = true;
+                    if (!(className in weights) || !(grade.category in weights[className])) {
+                        if (!localMissingCategories.includes(grade.category)) {
+                            localMissingCategories.push(grade.category);
                         }
-                    }
-                    // console.log("LMC")
-                    // console.log(localMissingCategories)
-
-                    if (!(className in unobtainedWeights) && noWeights) {
-                        unobtainedWeights[className] = localMissingCategories; //todo here add specific weights (i.e. You don't have the Test category...)
+                        noWeights = true;
                     }
                 }
+                // console.log("LMC")
+                // console.log(localMissingCategories)
 
-                // console.log(unobtainedWeights)
-
-                /**
-                 * now grades!
-                 */
-
-                //Add array to each object in parsedData: one for weights (not needed?), one for missing weights
-                //Get data for one class
-
-                for (let classData of data) {
-
-                    let className = classData.class_name;
-                    let overallGradeSteps = [];
-                    let totalPossiblesAndGottens = {}; //by category
-                    let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
-                    // VERY JANK CHANGE LATER
-                    let doesntHaveWeights = className in unobtainedWeights || weights[className].hasWeights === false;
-                    // console.log(className + " DHW? : " + doesntHaveWeights);
-
-                    for (let grade of classData.grades) {
-                        let category = grade.category;
-                        if (doesntHaveWeights) {
-                            category = 'default';
-                        }
-                        try {
-                            if (typeof totalPossiblesAndGottens[category] === 'undefined') {
-                                let weightVal = 100;
-                                if (!doesntHaveWeights) {
-                                    weightVal = weights[className][category];
-                                }
-                                totalPossiblesAndGottens[category] = {
-                                    totalPossible: 0,
-                                    totalGotten: 0,
-                                    weight: weightVal,
-                                }
-                                totalWeightValue += weightVal;
-                            }
-
-                            totalPossiblesAndGottens[category].totalPossible += grade.points_possible;
-                            totalPossiblesAndGottens[category].totalGotten += grade.points_gotten;
-
-                            let overallPercent = 0;
-                            for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
-                                overallPercent = overallPercent + (value.weight * (value.totalGotten / value.totalPossible));
-                            }
-                            let total = ((overallPercent/totalWeightValue) * 100).toFixed(3);
-                            total = +total;
-                            //rounds to 3 decimal places (the plus sign drops any trailing zeros)
-
-                            overallGradeSteps.push(total);
-                        } catch(err) {
-                            console.log(err);
-                            console.log("bad weight input");
-                        }
-                    }
-
-                    let assignmentNames = classData.grades.map(x => x.assignment_name);
-                    let assignmentTimestamps = classData.grades.map(x => new Date(x.date));
-                    let assignmentPercents = classData.grades.map(x => x.grade_percent);
-                    let assignmentScoresParsed = classData.grades.map(x => x.points_gotten+"/"+x.points_possible);
-                    let mixedData = overallGradeSteps.map(function (grade, i) { 
-                        return {x:assignmentTimestamps[i], y:grade}
-                    });
-
-                    parsedData.push({
-                        assignmentNames: assignmentNames,
-                        assignmentTimestamps: assignmentTimestamps,
-                        assignmentPercents: assignmentPercents,
-                        assignmentScoresParsed: assignmentScoresParsed,
-                        mixedData: mixedData,
-                    });
+                if (!(className in unobtainedWeights) && noWeights) {
+                    unobtainedWeights[className] = localMissingCategories; //todo here add specific weights (i.e. You don't have the Test category...)
                 }
             }
 
-            function renderOverviewChart() {
-                var ctx = document.getElementById('chart-1');
-                var id = 0;
-                var dataset = []
-                var colors = ["#FFB048","#E8425F","#AF70FF","#6BD3E8","#A7FFA5","#FF80F6","#FFF87E","#FFFFFF"];
-                for (let i = 0; i<data.length; i++)
-                {
-                    dataset.push({
-                        label: data[i].class_name,
-                        backgroundColor:'transparent',
-                        pointBackgroundColor: colors[i%colors.length],
-                        pointBorderColor: colors[i%colors.length],
-                        borderColor: colors[i%colors.length],
-                        // fill: 'start',
-                        data: parsedData[i].mixedData,
-                        cubicInterpolationMode: 'monotone',
-                        spanGaps: false,
-                        pointHoverRadius: 7,
-                        pointHitRadius: 30
-                    });
+            // console.log(unobtainedWeights)
+
+            /**
+             * now grades!
+             */
+
+            //Add array to each object in parsedData: one for weights (not needed?), one for missing weights
+            //Get data for one class
+
+            for (let classData of data) {
+
+                let className = classData.class_name;
+                let overallGradeSteps = [];
+                let totalPossiblesAndGottens = {}; //by category
+                let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
+                // VERY JANK CHANGE LATER
+                let doesntHaveWeights = className in unobtainedWeights || weights[className].hasWeights === false;
+                // console.log(className + " DHW? : " + doesntHaveWeights);
+
+                for (let grade of classData.grades) {
+                    let category = grade.category;
+                    if (doesntHaveWeights) {
+                        category = 'default';
+                    }
+                    try {
+                        if (typeof totalPossiblesAndGottens[category] === 'undefined') {
+                            let weightVal = 100;
+                            if (!doesntHaveWeights) {
+                                weightVal = weights[className][category];
+                            }
+                            totalPossiblesAndGottens[category] = {
+                                totalPossible: 0,
+                                totalGotten: 0,
+                                weight: weightVal,
+                            }
+                            totalWeightValue += weightVal;
+                        }
+
+                        totalPossiblesAndGottens[category].totalPossible += grade.points_possible;
+                        totalPossiblesAndGottens[category].totalGotten += grade.points_gotten;
+
+                        let overallPercent = 0;
+                        for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
+                            overallPercent = overallPercent + (value.weight * (value.totalGotten / value.totalPossible));
+                        }
+                        let total = ((overallPercent/totalWeightValue) * 100).toFixed(3);
+                        total = +total;
+                        //rounds to 3 decimal places (the plus sign drops any trailing zeros)
+
+                        overallGradeSteps.push(total);
+                    } catch(err) {
+                        console.log(err);
+                        console.log("bad weight input");
+                    }
                 }
-                var myChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        datasets: dataset
+
+                let assignmentNames = classData.grades.map(x => x.assignment_name);
+                let assignmentTimestamps = classData.grades.map(x => new Date(x.date));
+                let assignmentPercents = classData.grades.map(x => x.grade_percent);
+                let assignmentScoresParsed = classData.grades.map(x => x.points_gotten+"/"+x.points_possible);
+                let mixedData = overallGradeSteps.map(function (grade, i) {
+                    return {x:assignmentTimestamps[i], y:grade}
+                });
+
+                parsedData.push({
+                    assignmentNames: assignmentNames,
+                    assignmentTimestamps: assignmentTimestamps,
+                    assignmentPercents: assignmentPercents,
+                    assignmentScoresParsed: assignmentScoresParsed,
+                    mixedData: mixedData,
+                });
+            }
+        }
+
+        function renderOverviewChart() {
+            var ctx = document.getElementById('chart-1');
+            var id = 0;
+            var dataset = []
+            var colors = ["#FFB048","#E8425F","#AF70FF","#6BD3E8","#A7FFA5","#FF80F6","#FFF87E","#FFFFFF"];
+            for (let i = 0; i<data.length; i++)
+            {
+                dataset.push({
+                    label: data[i].class_name,
+                    backgroundColor:'transparent',
+                    pointBackgroundColor: colors[i%colors.length],
+                    pointBorderColor: colors[i%colors.length],
+                    borderColor: colors[i%colors.length],
+                    // fill: 'start',
+                    data: parsedData[i].mixedData,
+                    cubicInterpolationMode: 'monotone',
+                    spanGaps: false,
+                    pointHoverRadius: 7,
+                    pointHitRadius: 30
+                });
+            }
+            var myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: dataset
+                },
+                options: {
+                    hover: {
+                        mode: 'nearest',
+                        intersect: false
                     },
-                    options: {
-                        hover: {
-                            mode: 'nearest',
-                            intersect: false
-                        },
-                        scales: {
-                            xAxes: [{
-                                type: 'time',
-                                time: {
-                                    unit: 'month'
-                                },
-                                ticks: {
-                                    fontColor: 'white',
-                                    fontFamily: 'Verdana',
-                                    fontSize: '13'
-                                },
-                                gridLines: {
-                                    color: '#555555',
-                                }
-                            }],
-                            yAxes: [{
-                                ticks: {
-                                    fontColor: 'white',
-                                    fontFamily: 'Verdana',
-                                    fontSize: '12'
-                                },
-                                gridLines: {
-                                    color: '#555555',
-                                    drawBorder: false
-                                }
-                            }]
-                        },
-                        animation: {
-                            easing: 'easeOutCubic'
-                        },
-                        legend: {
-                            display: true,
-                            labels: {
+                    scales: {
+                        xAxes: [{
+                            type: 'time',
+                            time: {
+                                unit: 'month'
+                            },
+                            ticks: {
                                 fontColor: 'white',
                                 fontFamily: 'Verdana',
-                                boxWidth: 20,
-                                fontSize: 13,
+                                fontSize: '13'
+                            },
+                            gridLines: {
+                                color: '#555555',
                             }
-                        },
-                        tooltips: {
-                            enabled: true,
-                            position: 'nearest',
-                            intersect: false,
-                            displayColors: false,
-                            callbacks: {
-                                title: function(tooltipItems, data) {
-                                    return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
-                                },
-                                label: function(tooltipItem, data) {
-                                    // console.log(tooltipItem);
-                                    // console.log(data);
-                                    return parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index]
-                                            + " - " + parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "%"
-                                            + " (" + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")";
-                                },
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                fontColor: 'white',
+                                fontFamily: 'Verdana',
+                                fontSize: '12'
+                            },
+                            gridLines: {
+                                color: '#555555',
+                                drawBorder: false
                             }
-                        },
-                        responsive: true,
-                        maintainAspectRatio: false,
-                    }
-                });
-            }
-
-            function renderChart(id) {
-                var ctx = document.getElementById('chart'+id);
-                var myChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        datasets: [
-                            {
-                                label: 'parsedData[id]',
-                                backgroundColor: 'rgba(256,256,256,0.05)',
-                                pointBackgroundColor: 'white',
-                                pointBorderColor: 'white',
-                                borderColor: '#BBBBBB',
-                                fill: 'start',
-                                data: parsedData[id].mixedData,
-                                cubicInterpolationMode: 'monotone',
-                                spanGaps: false,
-                                pointHoverRadius: 7,
-                                pointHitRadius: 21,
-				            }
-                        ]
+                        }]
                     },
-                    options: {
-                        hover: {
-                            mode: 'nearest',
-                            intersect: false
-                        },
-                        scales: {
-                            xAxes: [{
-                                type: 'time',
-                                time: {
-                                    unit: 'month'
-                                },
-                                ticks: {
-                                    fontColor: 'white',
-                                    fontFamily: 'Verdana',
-                                    fontSize: '13'
-                                },
-                                gridLines: {
-                                    color: '#555555',
-                                }
-                            }],
-                            yAxes: [{
-                                ticks: {
-                                    fontColor: 'white',
-                                    fontFamily: 'Verdana',
-                                    fontSize: '12'
-                                },
-                                gridLines: {
-                                    color: '#555555',
-                                    drawBorder: false
-                                }
-                            }]
-                        },
-                        animation: {
-                            easing: 'easeOutCubic'
-                        },
-                        legend: {
-                            display: false,
-                        },
-                        tooltips: {
-                            enabled: true,
-                            position: 'nearest',
-                            intersect: false,
-                            displayColors: false,
-                            callbacks: {
-                                title: function(tooltipItems, data) {
-                                    return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
-                                },
-                                label: function(tooltipItem, data) {
-                                    return parsedData[id].assignmentNames[tooltipItem.index]
-                                            + " - " + parsedData[id].assignmentPercents[tooltipItem.index] + "%"
-                                            + " (" + parsedData[id].assignmentScoresParsed[tooltipItem.index] + ")"; 
-                                },
+                    animation: {
+                        easing: 'easeOutCubic'
+                    },
+                    legend: {
+                        display: true,
+                        labels: {
+                            fontColor: 'white',
+                            fontFamily: 'Verdana',
+                            boxWidth: 20,
+                            fontSize: 13,
+                        }
+                    },
+                    tooltips: {
+                        enabled: true,
+                        position: 'nearest',
+                        intersect: false,
+                        displayColors: false,
+                        callbacks: {
+                            title: function(tooltipItems, data) {
+                                return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
+                            },
+                            label: function(tooltipItem, data) {
+                                // console.log(tooltipItem);
+                                // console.log(data);
+                                return parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index]
+                                        + " - " + parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "%"
+                                        + " (" + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")";
+                            },
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                }
+            });
+        }
+
+        function renderChart(id) {
+            var ctx = document.getElementById('chart'+id);
+            var myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: 'parsedData[id]',
+                            backgroundColor: 'rgba(256,256,256,0.05)',
+                            pointBackgroundColor: 'white',
+                            pointBorderColor: 'white',
+                            borderColor: '#BBBBBB',
+                            fill: 'start',
+                            data: parsedData[id].mixedData,
+                            cubicInterpolationMode: 'monotone',
+                            spanGaps: false,
+                            pointHoverRadius: 7,
+                            pointHitRadius: 21,
+                        }
+                    ]
+                },
+                options: {
+                    hover: {
+                        mode: 'nearest',
+                        intersect: false
+                    },
+                    scales: {
+                        xAxes: [{
+                            type: 'time',
+                            time: {
+                                unit: 'month'
+                            },
+                            ticks: {
+                                fontColor: 'white',
+                                fontFamily: 'Verdana',
+                                fontSize: '13'
+                            },
+                            gridLines: {
+                                color: '#555555',
                             }
-                        },
-                        responsive: true,
-                        maintainAspectRatio: false,
-                    }
-                });
-            }
-
-            function showPage(id) {
-                for (let i = -1; i < data.length; i++) {
-                    document.getElementById("link" + i).classList.remove("active");
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                fontColor: 'white',
+                                fontFamily: 'Verdana',
+                                fontSize: '12'
+                            },
+                            gridLines: {
+                                color: '#555555',
+                                drawBorder: false
+                            }
+                        }]
+                    },
+                    animation: {
+                        easing: 'easeOutCubic'
+                    },
+                    legend: {
+                        display: false,
+                    },
+                    tooltips: {
+                        enabled: true,
+                        position: 'nearest',
+                        intersect: false,
+                        displayColors: false,
+                        callbacks: {
+                            title: function(tooltipItems, data) {
+                                return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
+                            },
+                            label: function(tooltipItem, data) {
+                                return parsedData[id].assignmentNames[tooltipItem.index]
+                                        + " - " + parsedData[id].assignmentPercents[tooltipItem.index] + "%"
+                                        + " (" + parsedData[id].assignmentScoresParsed[tooltipItem.index] + ")";
+                            },
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false,
                 }
-                document.getElementById("link" + id).classList.add("active");
+            });
+        }
 
-                for (let i = -1; i < data.length; i++) {
-                    document.getElementById("section" + i).style.display = "none";
-                }
-                document.getElementById("section" + id).style.display = "block";
+        function showPage(id) {
+            for (let i = -1; i < data.length; i++) {
+                document.getElementById("link" + i).classList.remove("active");
             }
+            document.getElementById("link" + id).classList.add("active");
 
-        </script>
+            for (let i = -1; i < data.length; i++) {
+                document.getElementById("section" + i).style.display = "none";
+            }
+            document.getElementById("section" + id).style.display = "block";
+        }
+
+    </script>
 </body>
 </html>
