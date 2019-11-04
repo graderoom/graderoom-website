@@ -10,7 +10,7 @@ db.defaults({users: []}).write();
 
 module.exports = {
     //Need to add Try Catches to error check when updating db values
-    addNewUser: function(username, password, schoolUsername, isAdmin, darkMode) {
+    addNewUser: function(username, password, schoolUsername, isAdmin) {
 
         let lc_username = username.toLowerCase();
         return new Promise((resolve, reject) => {
@@ -39,7 +39,8 @@ module.exports = {
                         password: hash,
                         schoolUsername: schoolUsername,
                         isAdmin: isAdmin,
-                        darkMode: darkMode,
+                        darkMode: true,
+                        accentColor: null,
                         weights: {},
                         grades: [],
                     }).write();
@@ -68,10 +69,10 @@ module.exports = {
         });
         return {success: true, message: "Password Updated"};
     },
-    changeSchoolUsername: function(username, schoolUsername) {
+    changeSchoolEmail: function(username, schoolUsername) {
         let lc_username = username.toLowerCase();
         db.get('users').find({username: lc_username}).assign({schoolUsername: schoolUsername}).write();
-        return {success: true, message: "School Email Updated"};       
+        return {success: true, message: "School Email Updated"};
     },
     removeUser: function(username, password) {
         let lc_username = username.toLowerCase();
@@ -96,8 +97,8 @@ module.exports = {
 
     updateGrades: async function(acc_username, school_password) {
         let lc_username = acc_username.toLowerCase();
-        let userRef = db.get('users').find({username: acc_username});
-        let grade_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password);
+        let userRef = db.get('users').find({username: lc_username});
+        let grade_update_status = await scrapnodeer.loginAndScrapeGrades(userRef.value().schoolUsername, school_password);
         // console.log(grade_update_status);
         if (!grade_update_status.success) {
             //error updating grades

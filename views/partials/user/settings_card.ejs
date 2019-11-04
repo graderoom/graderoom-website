@@ -3,50 +3,202 @@
     <div class="blurred-login" id="settingsCardDisplay" style="position:fixed; display:none; height: 100%; width: 100%; top: 0; left: 0; z-index: 1">
         <div class="blurred-background" style="position: fixed; width: 100%; height: 100%; filter: opacity(0.9);"></div>
         <div class="col-sm-10 col-md-8 col-lg-6 col-xl-5 mx-auto">
-            <div id="settingsCard" class="card card-signin my-5">
-                <btn class="btn btn-md" onclick="hideDiv('settingsCardDisplay')" style="width: fit-content; margin-bottom:0">
+            <div id="settingsCard" class="settings card card-signin my-5">
+                <btn class="btn btn-md" onclick="hideDiv('settingsCardDisplay'); closeMessage()" style="width: fit-content; margin-bottom:0">
                     <i class="fa fa-arrow-left" aria-hidden="true"></i>
                     Return
                 </btn>
                 <div class="card-body">
                     <h1 class="card-title text-center"><span class="fa fa-cog"></span> Settings</h1>
-                    <% if (settingsChangeMessageSuccess.length > 0) { %>
-                        <div class="alert alert-success alert-dismissible">
-                            <a class="close" data-dismiss="alert" aria-label="close">X</a>
-                            <%= settingsChangeMessageSuccess %>
-                        </div>
-                    <% } %>
-                    <% if (settingsChangeMessageFail.length > 0) { %>
-                        <div class="alert alert-danger alert-dismissible">
-                            <a class="close" data-dismiss="alert" aria-label="close">X</a>
-                            <%= settingsChangeMessageFail %>
-                        </div>
-                    <% } %>
-                    <br>
-                    <form class="form-signin" action="/changepassword" method="post">
-                        <div class="form-group">
-                            <label>Change Password</label>
-                            <input type="password" class="form-control" name="password" autofocus>
-                        </div>
-                        <div class="text-center">
+                </div>
+                <div class="tab">
+                    <btn id="btnAppearance" class="tablinks active" onclick="openTab('Appearance')">Appearance</btn>
+                    <btn id="btnAccount" class="tablinks" onclick="openTab('Account')">Account</btn>
+                    </div>
+                <div id="Appearance" class="tabcontent" style="display:block">
+                    <div class="card-body">
+                        <form id="updateAppearance" class="form-signin" action="/updateappearance" method="post">
+                            <input type="checkbox" name="darkMode" <% if (user.darkMode) { %> checked <% } %>> Dark Mode
                             <button type="submit" class="btn btn-default btn-lg">
-                                Change Password
+                                Apply
                             </button>
+                        </form>
+                    </div>
+                </div>
+                <div id="Account" class="tabcontent">
+                    <div class="card-body">
+                        <div id="messages" class="alert alert-success alert-dismissible" style="display:none">
+                            <div id="message"></div>
+                            <a class="close" onClick="closeMessage()" aria-label="close">X</a>
                         </div>
-                    </form>
-                    <form class="form-signin" style="margin-top: 1em" action="/changeschoolusername" method="post">
-                        <div class="form-group">
-                            <label>Change School Email</label>
-                            <input type="text" class="form-control" name="school_username" autofocus>
-                        </div>
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-default btn-lg">
-                                Change School Email
-                            </button>
-                        </div>
-                    </form>
+                        <form id="changePassword" class="form-signin" action="/changepassword" method="post">
+                            <div class="form-group">
+                                <label>Change Password</label>
+                                <input id="password" type="password" class="form-control" name="password">
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-default btn-lg">
+                                    Change Password
+                                </button>
+                            </div>
+                        </form>
+                        <form id="changeSchoolEmail" class="form-signin" style="margin-top: 1em" action="/changeschoolemail" method="post">
+                            <div class="form-group">
+                                <label>Change School Email</label>
+                                <input id="school_email" type="text" class="form-control" name="school_email">
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-default btn-lg">
+                                    Change School Email
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Custom JavaScript -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script type="text/javascript">
+
+    $(function() {
+        // Get the form.
+        let form = $('#changePassword');
+
+        $(form).submit(function(event) {
+            // Stop the browser from submitting the form.
+            event.preventDefault();
+
+            // Serialize the form data.
+            let formData = $(form).serialize();
+
+            // Get the messages.
+            let formMessagesDiv = $('#messages');
+            let message = $('#message');
+
+            // Submit the form using AJAX.
+            $.ajax({
+                type: 'POST',
+                url: $(form).attr('action'),
+                data: formData
+            })
+
+            .done(function(response) {
+                // Make sure that the formMessages div has the alert-success class.
+                $(formMessagesDiv).removeClass('alert-danger');
+                $(formMessagesDiv).addClass('alert-success');
+
+                // Set the message text.
+                $(message).text(response);
+
+                // Show the div.
+                $(formMessagesDiv).css('display','block');
+
+                // Clear the password field.
+                $('#password').val('');
+            })
+
+            .fail(function(data) {
+                //Make sure that the formMessages div has the alert-danger class
+                $(formMessagesDiv).removeClass('alert-success');
+                $(formMessagesDiv).addClass('alert-danger');
+
+                // Set the message text.
+                if (data.responseText !== '') {
+                    $(message).text(data.responseText);
+                } else {
+                    $(message).text('Oops! An error occurred and your message could not be sent.');
+                }
+
+                // Show the div.
+                $(formMessagesDiv).css('display','block');
+            })
+        })
+    })
+
+    $(function() {
+        // Get the form.
+        let form = $('#changeSchoolEmail');
+
+        $(form).submit(function(event) {
+            // Stop the browser from submitting the form.
+            event.preventDefault();
+
+            // Serialize the form data.
+            let formData = $(form).serializeArray();
+
+            // Get the messages.
+            let formMessagesDiv = $('#messages');
+            let message = $('#message');
+
+            // Submit the form using AJAX.
+            $.ajax({
+                type: 'POST',
+                url: $(form).attr('action'),
+                data: formData
+            })
+
+            .done(function(response) {
+                // Make sure that the formMessages div has the alert-success class.
+                $(formMessagesDiv).removeClass('alert-danger');
+                $(formMessagesDiv).addClass('alert-success');
+
+                // Set the message text.
+                $(message).text(response);
+
+                // Show the div.
+                $(formMessagesDiv).css('display','block');
+
+                // Clear the username field.
+                $('#school_email').val('');
+
+                // Update the html in updateGradesCard
+                document.getElementById('schoolUsernameDisplay').textContent = formData[0]['value'];
+            })
+
+            .fail(function(data) {
+                //Make sure that the formMessages div has the alert-danger class
+                $(formMessagesDiv).removeClass('alert-success');
+                $(formMessagesDiv).addClass('alert-danger');
+
+                // Set the message text.
+                if (data.responseText !== '') {
+                    $(message).text(data.responseText);
+                } else {
+                    $(message).text('Oops! An error occurred and your message could not be sent.');
+                }
+
+                // Show the div.
+                $(formMessagesDiv).css('display','block');
+            })
+        })
+    })
+
+    function openTab(tabName) {
+        // Declare all variables
+        let i, tabcontent, tablinks;
+
+        // Get all elements with class="tabcontent" and hide them
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+
+        // Get all elements with class="tablinks" and remove the class "active"
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].classList.remove('active');
+        }
+
+        // Show the current tab, and add an "active" class to the button that opened the tab
+        document.getElementById(tabName).style.display = "block";
+        document.getElementById('btn' + tabName).classList.add('active');
+    }
+
+    function closeMessage() {
+        document.getElementById('messages').style.display = 'none';
+    }
+</script>
