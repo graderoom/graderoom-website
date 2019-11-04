@@ -98,7 +98,7 @@ module.exports = {
     updateGrades: async function(acc_username, school_password) {
         let lc_username = acc_username.toLowerCase();
         let userRef = db.get('users').find({username: lc_username});
-        let grade_update_status = await scrapnodeer.loginAndScrapeGrades(userRef.value().schoolUsername, school_password);
+        let grade_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password);
         // console.log(grade_update_status);
         if (!grade_update_status.success) {
             //error updating grades
