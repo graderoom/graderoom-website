@@ -106,8 +106,7 @@ app.get('/update',isLoggedIn, function(req, res) {
 
 app.post('/updateappearance', isLoggedIn, (req, res) => {
 
-    let darkMode = req.body.darkMode;
-    req.user.darkMode = darkMode;
+    req.user.darkMode = req.body.darkMode;
     res.redirect('/');
 });
 
