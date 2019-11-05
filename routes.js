@@ -196,7 +196,7 @@ app.post('/update', isLoggedIn, async function(req,res) {
 
 //must be called via client side ajax+js
 app.post('/updateweights', isLoggedIn, async function(req,res) {
-
+    console.log(req.body);
     let className = req.body.className;
     let newWeights = JSON.parse(req.body.newWeights);
 
