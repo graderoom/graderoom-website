@@ -125,9 +125,12 @@
         let unobtainedWeights = {};
 
         parseData();
-        showUpdateWeights();
+        if (Object.keys(unobtainedWeights).length){ //If not empty
+            showUpdateWeights();
+        }
         updateWeightMessages();
         renderAllCharts();
+
         function showWeightMessage(msg,id) {
             let wmRef = document.getElementById("weightmsg"+id);
             let wmTextRef = document.getElementById("weightmsg_text"+id);
@@ -165,29 +168,32 @@
 
             for (let classData of data){
                 let className = classData.class_name;
-                let noWeights = !(className in weights) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object)
-                let localMissingCategories = []
-                /* || weights[className].hasWeights === false; */ // <- dont show a message if they opt out of weights
+                let needWeights = !(className in weights) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object)
+                let localMissingCategories = [];
 
-                for (let grade of classData.grades){
-                    // console.log(grade.category)
+                if ((className in weights) && (!weights[className].hasWeight))
+                    needWeights = false;
+                else {
+                    for (let grade of classData.grades){
+                        // console.log(grade.category)
 
-                    if (!(className in weights) || !(grade.category in weights[className])) {
-                        if (!localMissingCategories.includes(grade.category)) {
-                            localMissingCategories.push(grade.category);
+                        if (!(className in weights) || !(grade.category in weights[className])) {
+                            if (!localMissingCategories.includes(grade.category)) {
+                                localMissingCategories.push(grade.category);
+                            }
+                            needWeights = true;
                         }
-                        noWeights = true;
                     }
-                }
-                // console.log("LMC")
-                // console.log(localMissingCategories)
+                    // console.log("LMC")
+                    // console.log(localMissingCategories)
 
-                if (!(className in unobtainedWeights) && noWeights) {
-                    unobtainedWeights[className] = localMissingCategories; //todo here add specific weights (i.e. You don't have the Test category...)
+                    if (!(className in unobtainedWeights) && needWeights) {
+                        unobtainedWeights[className] = localMissingCategories; //todo here add specific weights (i.e. You don't have the Test category...)
+                    }
                 }
             }
 
-            // console.log(unobtainedWeights)
+            console.log(unobtainedWeights)
 
             /**
              * now grades!
@@ -203,8 +209,8 @@
                 let totalPossiblesAndGottens = {}; //by category
                 let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
                 // VERY JANK CHANGE LATER
-                let doesntHaveWeights = className in unobtainedWeights || weights[className].hasWeights === false;
-                // console.log(className + " DHW? : " + doesntHaveWeights);
+                let doesntHaveWeights = className in unobtainedWeights; //Already checked for above: || weights[className].hasWeights === false;
+                console.log(className + " DHW? : " + doesntHaveWeights);
 
                 for (let grade of classData.grades) {
                     let category = grade.category;
@@ -260,7 +266,7 @@
                 });
             }
         }
-        
+
         function renderAllCharts() {
             renderOverviewChart();
             for (let i = 0; i<data.length; i++){
