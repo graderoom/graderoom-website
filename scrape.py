@@ -291,12 +291,20 @@ class PowerschoolScraper:
 
                 temp = td_gs[8].text
                 try:
-                    pp = float(temp.split('/')[1])
-                    pg = float(temp.split('/')[0])
+                    if ('/' not in temp and temp != '--'):
+                        pp = 0
+                        pg = float(temp)
+                    else:
+                        pp = float(temp.split('/')[1])
+                        pg = float(temp.split('/')[0])
                 except:
-#                     print('Found empty/non graded assignment. Skipping')
+#                    print(temp)
+#                    print('Found empty/non graded assignment. Skipping')
                     continue
-                gp = td_gs[9].text
+                if (pp != 0):
+                    gp = td_gs[9].text
+                else:
+                    gp = -1
                 local_class.add_grade(a_n, date, gp, pg, pp, cat, exclude)
 
             # todo check if local_class is good /complete enough
