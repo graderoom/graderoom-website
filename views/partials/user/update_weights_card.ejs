@@ -12,8 +12,8 @@
                 <span class="accordion" id="accordionForms">
                 <% for (var i = 0; i<JSON.parse(gradeData).length; i++) {
                     let grade = JSON.parse(gradeData)[i]; %>
-                    <form class="form-signin" action="" method="">
-                        <h5 class="collapsed" data-toggle="collapse" href="#collapse<%=i%>">
+                    <form id="weights<%=i%>" class="form-ajax form-weights form-signin" action="/updateweights">
+                        <h5 id="<%=grade.class_name%>" class="collapsed" data-toggle="collapse" href="#collapse<%=i%>">
                             <%=grade.class_name%>&nbsp;
                             <i class="fa" aria-hidden="true"></i>
                         </h5>
@@ -25,7 +25,7 @@
                                     <div class="form-group" style="display: flex; align-items: flex-end;">
                                         <label style="font-size: 0.9rem; color: #DDDDDD; white-space: nowrap; margin-bottom: 0;"><%=assignment.category%>:&nbsp</label>
                                         <% let value = ""; try {value = JSON.parse(weightData)[grade.class_name][assignment.category]} catch {}%>
-                                        <input value='<%=value%>' style="font-size: 0.9rem; padding: .1rem .1rem; width: 3rem; text-align: center; margin-right: 1rem;" type="number" min="0" class="form-control" name="?"> 
+                                        <input value='<%=value%>' style="font-size: 0.9rem; padding: .1rem .1rem; width: 3rem; text-align: center; margin-right: 1rem;" type="number" min="0" class="form-control" name="<%=assignment.category%>" required> 
                                     </div>
                                 <% } %>
                             <% } %>
@@ -52,4 +52,30 @@
         showDiv('updateWeightsDisplay');
         $('#collapse'+defaultId).collapse('show');    
     } 
+
+    $(function initAjaxFormPosts() {
+        if ($("form.form-weights").length > 0) {
+            $("form.form-weights").each(function () {
+                var form = $(this);
+                $(form).submit(function(event) {
+                    event.preventDefault();
+                    console.log($(form).serialize())
+                    let weightData = ($(form).serializeArray());
+                    let weightJson = {};
+                    jQuery.map(weightData, function (n, i) {
+                        weightJson[n.name] = parseInt(n.value);
+                    });
+                    let className = $(form).find('h5').attr('id');
+                    console.log(className);
+                    formData = "className="+className+"&newWeights="+JSON.stringify(weightJson);
+                    console.log(formData);
+                    $.ajax({
+                        type: 'POST',
+                        url: $(form).attr('action'),
+                        data: formData
+                    })
+                })
+            });
+        }
+    })
 </script>
