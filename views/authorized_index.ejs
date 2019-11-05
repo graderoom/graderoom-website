@@ -232,12 +232,15 @@
                             totalWeightValue += weightVal;
                         }
 
-                        totalPossiblesAndGottens[category].totalPossible += grade.points_possible;
-                        totalPossiblesAndGottens[category].totalGotten += grade.points_gotten;
+                        if (!grade.exclude) {
+                            totalPossiblesAndGottens[category].totalPossible += grade.points_possible;
+                            totalPossiblesAndGottens[category].totalGotten += grade.points_gotten;
+                        }
 
                         let overallPercent = 0;
                         for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
-                            overallPercent = overallPercent + (value.weight * (value.totalPossible !== 0 ? (value.totalGotten / value.totalPossible) : value.totalGotten));
+                            overallPercent = overallPercent + (value.weight * (value.totalPossible !== 0 ?
+                                (value.totalGotten / value.totalPossible) : value.totalGotten));
                         }
                         let total = ((overallPercent/totalWeightValue) * 100).toFixed(3);
                         total = +total;
