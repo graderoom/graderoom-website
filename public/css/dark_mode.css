@@ -16,6 +16,10 @@ body {
     color: #BBBBBB;
 }
 
+.btn:focus {
+    box-shadow: none;
+}
+
 .nav .active {
     color: #FFFFFF;
     font-weight: bold;
@@ -140,14 +144,14 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
 #weightsCard h5.collapsed {
     border-top: none;
 }
-#weightsCard h5.collapsed + span {
+#weightsCard h5.collapsed ~ span {
     border-bottom: none;
 }
 #weightsCard h5 {
     border-top: 1px solid #999;
     padding-top: 0.5rem;
 }
-#weightsCard h5 + span {
+#weightsCard h5 ~ span {
     border-bottom: 1px solid #999;
 }
 
@@ -166,6 +170,15 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
 
 #weightsCard .form-signin .btn:hover {
     background: none;
+}
+
+#weightsCard input[type="number"]::-webkit-outer-spin-button,
+#weightsCard input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+#weightsCard input[type="number"] {
+    -moz-appearance: textfield;
 }
 
 /* Input Form Styling */
