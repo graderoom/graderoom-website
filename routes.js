@@ -202,12 +202,10 @@ app.post('/updateweights', isLoggedIn, async function(req,res) {
 
     let resp = authenticator.updateWeightsForClass(req.user.username, className, newWeights, true);
     if (resp.success) {
-        req.flash('updateWeightMessageSuccess', resp.message);
-
+        res.status(200).send(resp.message);
     } else {
-        req.flash('updateWeightMessageFail', resp.message);
+        res.status(400).send(resp.message);
     }
-    res.redirect('/testupdateweights');
 });
 
 app.get('/testupdateweights', isAdmin, (req, res) => {

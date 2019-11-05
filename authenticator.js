@@ -159,7 +159,7 @@ module.exports = {
         if (update) {
             let currentWeights = weightsRef.get(className).value();
             let newWeights = Object.assign({}, currentWeights, weights);
-            weightsRef.set("A\\/.B", newWeights).write();
+            weightsRef.set(className, newWeights).write();
             console.log(weightsRef.value());
         } else {
             weightsRef.set(className, weights).write();
