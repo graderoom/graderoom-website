@@ -21,6 +21,12 @@ body {
     font-weight: bold;
 }
 
+.alert .close {
+    line-height: 1.5;
+    font-size: 1rem;
+    color: inherit !important;
+}
+
 /* Nav Bar Styling */
 
 nav {
@@ -68,17 +74,15 @@ nav .navbar-toggler:hover {
 }
 
 /* Elements in collapse menu following a not collapsed toggle button*/
-nav .navbar-toggler:not(.collapsed)~.navbar-collapse li,
-nav .navbar-toggler:not(.collapsed)~.navbar-collapse .btn{
+nav .navbar-collapse li, nav .navbar-collapse .btn {
     width: 100%;
     text-align: center;
 }
 
-/* Elements in collapse menu currently collapsing */
-nav .navbar-collapse.collapsing li,
-nav .navbar-collapse.collapsing .btn{
-    width: 100%;
-    text-align: center;
+@media (max-width: 991px) {
+    nav .navbar-collapse li, nav .navbar-collapse .btn {
+        margin: 0.1rem 0;
+    }
 }
 
 
@@ -190,4 +194,59 @@ html {
 
 .nav-item {
     width: inherit;
+}
+
+/* Style the tab */
+.tab {
+    vertical-align: top;
+    align-self: center;
+    z-index: 2;
+    overflow: hidden;
+    border-top: solid #DDDDDD;
+    border-bottom: solid #DDDDDD;
+    padding: 0.25rem;
+    background-color: #EEEEEE;
+    cursor: context-menu;
+}
+
+.tablinks {
+    cursor: pointer;
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab btn {
+    background: none;
+    color: #BBBBBB;
+    float: left;
+    border: none;
+    outline: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 0.5rem;
+    transition: 0.3s;
+}
+
+/* Change background color of buttons on hover */
+.tab btn:hover {
+    color: #BBBBBB;
+}
+
+/* Create an active/current tablink class */
+.tab btn.active {
+    background-color: #FFFFFF;
+    color: #BBBBBB;
+    font-weight: bold;
+}
+
+.btn:hover {
+    background: none;
+    border-color: #BBBBBB;
+    color: #BBBBBB;
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border-top: none;
 }

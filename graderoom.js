@@ -34,7 +34,7 @@ const ADMIN_SCHOOL_USERNAME = 'admin@bcp.org';
 
 if (!dbConn.userExists(ADMIN_USERNAME)) {
     console.log("Creating admin account.");
-    dbConn.addNewUser(ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_SCHOOL_USERNAME, true, false).then(r => {
+    dbConn.addNewUser(ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_SCHOOL_USERNAME, true).then(r => {
         console.log(r);
     })
 }
