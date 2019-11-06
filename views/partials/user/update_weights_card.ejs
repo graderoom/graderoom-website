@@ -19,9 +19,9 @@
                         </h5>
                         <span class="collapse" id="collapse<%=i%>" data-parent="#accordionForms"> 
                             <div style="width: 100%">
-                                <div id="messages" class="alert alert-success alert-dismissible" style="width: fit-content; display:none;">
-                                    <div id="message"></div>
-                                    <a class="close" onClick="closeMessage()" aria-label="close">X</a>
+                                <div id="weightMessage<%=i%>" class="form-message alert alert-success alert-dismissible" style="width: fit-content; display:none;">
+                                    <div class="messageTxt"></div>
+                                    <a class="close" onClick="closeMessage('weightMessage<%=i%>')" aria-label="close">X</a>
                                 </div>
                             </div>
                         <%  let weights = []; 
@@ -74,8 +74,8 @@
                     let className = encodeURI($(form).find('h5').attr('id'));
                     formData = "className="+className+"&newWeights="+weightURI;
 
-                    let formMessagesDiv = $(this).find('#messages');
-                    let message = $(this).find('#message');
+                    let formMessagesDiv = $(this).find('.form-message');
+                    let message = $(this).find('.messageTxt');
 
                     $.ajax({
                         type: 'POST',
