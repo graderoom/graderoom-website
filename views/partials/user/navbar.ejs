@@ -61,22 +61,27 @@
         document.getElementById(id).style.display = "block";
         localStorage.setItem(id, "true");
     }
-    function hideDiv(id) {
-        document.getElementById(id).style.display = "none";
+    function closeForm(id) {
+        let form = document.getElementById(id);
+        form.style.display = "none";
+        let inputFields = form.getElementsByClassName('form-control');
+        for (let i = 0; i < inputFields.length; i++) {
+            inputFields[i].value = "";
+        }
         localStorage.setItem(id, "false");
     }
     window.onload = function () {
         if (localStorage.getItem("settingsCardDisplay") === "true") {
             showDiv("settingsCardDisplay");
         } else {
-            hideDiv("settingsCardDisplay");
+            closeForm("settingsCardDisplay");
         }
         if (localStorage.getItem("updateGradesDisplay") === "true") {
             showDiv("updateGradesDisplay");
         } else {
-            hideDiv("updateGradesDisplay");
+            closeForm("updateGradesDisplay");
         }
-    }
+    };
 
     // Collapse navbar or card when click outside
     $(document).click(function (e) {
