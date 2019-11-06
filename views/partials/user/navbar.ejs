@@ -88,7 +88,7 @@
         //Auto hide for any card with blurred-login 
         if ($(e.target).closest('.blurred-login').length){ 
             if (!$(e.target).closest('.card').length){
-                hideDiv($(e.target).closest('.blurred-login')[0].id);
+                closeForm($(e.target).closest('.blurred-login')[0].id);
             }       
         }
         if (!$(e.target).closest('#collapsingNav').length && !$(e.target).is('#collapsingNav')){
@@ -100,10 +100,10 @@
         if (e.key === "Escape") { // escape key maps to keycode `27`
             try {
                 $('.navbar-collapse').collapse('hide');
-                hideDiv('toggle');
+                closeForm('toggle');
             } catch(e) {}
-            hideDiv('updateGradesDisplay');
-            hideDiv('settingsCardDisplay');
+            closeForm('updateGradesDisplay');
+            closeForm('settingsCardDisplay');
         }
     });
 </script>
