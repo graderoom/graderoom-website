@@ -20,11 +20,11 @@ module.exports = {
             }
 
             if (!isAlphaNumberic(username) || username.length > 16) {
-                return resolve({success: false, message: "u"});
+                return resolve({success: false, message: "Username must contain only letters and numbers."});
             }
 
             if (password.length < 6 || password.length > 64) {
-                return resolve({success: false, message: "Password must be 6 - 64 characters in length"})
+                return resolve({success: false, message: "Password must be 6 - 64 characters in length."})
             }
 
             if (!validateEmail(schoolUsername)) {
@@ -63,6 +63,9 @@ module.exports = {
     },
     changePassword: function(username, password) {
         let lc_username = username.toLowerCase();
+        if (password.length < 6 || password.length > 64) {
+            return {success: false, message: "Password must be 6 - 64 characters in length."};
+        }
         let roundsToGenerateSalt = 10;
         bcrypt.hash(password,roundsToGenerateSalt,function(err,hash) {
             db.get('users').find({username: lc_username}).assign({password: hash}).write();
@@ -71,6 +74,9 @@ module.exports = {
     },
     changeSchoolEmail: function(username, schoolUsername) {
         let lc_username = username.toLowerCase();
+        if (!validateEmail(schoolUsername)) {
+            return {success: false, message: "This must be your .bcp email."};
+        }
         db.get('users').find({username: lc_username}).assign({schoolUsername: schoolUsername}).write();
         return {success: true, message: "School Email Updated"};
     },
