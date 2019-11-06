@@ -134,8 +134,10 @@
         function showWeightMessage(msg,id) {
             let wmRef = document.getElementById("weightmsg"+id);
             let wmTextRef = document.getElementById("weightmsg_text"+id);
-            wmRef.style.display = "block";
-            wmTextRef.innerText = msg;
+            if (msg !== 'Missing Weights: ') {
+                wmRef.style.display = "block";
+                wmTextRef.innerText = msg;
+            }
         }
 
         function hideWeightMessage(id) {
