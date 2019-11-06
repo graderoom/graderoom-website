@@ -92,7 +92,10 @@ module.exports = {
     },
     getUser: function(username) {
         let lc_username = username.toLowerCase();
-        return db.get('users').find({username: lc_username}).value()
+        let user = db.get('users').find({username: lc_username}).value()
+        //Parse weights with unicode to dots
+        user.weights = JSON.parse(JSON.stringify(user.weights).replace(/\\\\u002e/g,"."));
+        return user;
     },
 
     updateGrades: async function(acc_username, school_password) {
@@ -156,13 +159,16 @@ module.exports = {
 
         let weightsRef = userRef.get('weights');
 
+        //Replace dots(.) with unicode escape sequence
+        let modClassName = className.replace(/\./g,"\\u002e");
+
         if (update) {
-            let currentWeights = weightsRef.get(className).value();
+            let currentWeights = weightsRef.get(modClassName).value();
             let newWeights = Object.assign({}, currentWeights, weights);
-            weightsRef.set(className, newWeights).write();
+            weightsRef.set(modClassName, newWeights).write();
             console.log(weightsRef.value());
         } else {
-            weightsRef.set(className, weights).write();
+            weightsRef.set(modClassName, weights).write();
             console.log(weightsRef.value());
         }
         return {success: true, message: "Updated weights for " + className + "!"};
