@@ -41,6 +41,7 @@ module.exports = {
                         isAdmin: isAdmin,
                         darkMode: true,
                         accentColor: null,
+                        classColors: {},
                         weights: {},
                         grades: [],
                     }).write();
