@@ -1,4 +1,5 @@
 <!-- Settings Card -->
+<input type="text" id="getUser" style="display:none" value="<%= user.darkMode %>">
 <div class="container">
     <div class="blurred-login" id="settingsCardDisplay" style="position:fixed; display:none; height: 100%; width: 100%; top: 0; left: 0; z-index: 1">
         <div class="blurred-background" style="position: fixed; width: 100%; height: 100%; filter: opacity(0.9);"></div>
@@ -18,7 +19,7 @@
                 <div id="Appearance" class="tabcontent" style="display:block">
                     <div class="card-body">
                         <form id="updateAppearance" class="form-signin" action="/updateappearance" method="post">
-                            <input type="checkbox" name="darkMode" <% if (user.darkMode) { %> checked <% } %>> Dark Mode
+                            <input id="darkModeToggle" type="checkbox" name="darkMode" <% if (user.darkMode) { %> checked <% } %>>Dark Mode
                             <button type="submit" class="btn btn-default btn-lg">
                                 Apply
                             </button>
