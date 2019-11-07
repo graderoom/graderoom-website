@@ -59,7 +59,6 @@
 <script>
     function showDiv(id) {
         document.getElementById(id).style.display = "block";
-        localStorage.setItem(id, "true");
     }
     function closeForm(id) {
         let form = document.getElementById(id);
@@ -68,20 +67,7 @@
         for (let i = 0; i < inputFields.length; i++) {
             inputFields[i].value = "";
         }
-        localStorage.setItem(id, "false");
     }
-    window.onload = function () {
-        if (localStorage.getItem("settingsCardDisplay") === "true") {
-            showDiv("settingsCardDisplay");
-        } else {
-            closeForm("settingsCardDisplay");
-        }
-        if (localStorage.getItem("updateGradesDisplay") === "true") {
-            showDiv("updateGradesDisplay");
-        } else {
-            closeForm("updateGradesDisplay");
-        }
-    };
 
     // Collapse navbar or card when click outside
     $(document).click(function (e) {
