@@ -92,10 +92,10 @@ module.exports = {
         return !!user;
 
     },
-    switchMode: function(username) {
+    setMode: function(username, darkMode) {
         let lc_username = username.toLowerCase();
         let user = db.get('users').find({username: lc_username});
-        user.assign({darkMode: !user.value().darkMode}).write();
+        user.assign({darkMode: darkMode}).write();
     },
     getUser: function(username) {
         let lc_username = username.toLowerCase();
