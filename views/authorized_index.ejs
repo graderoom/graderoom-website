@@ -134,8 +134,10 @@
         function showWeightMessage(msg,id) {
             let wmRef = document.getElementById("weightmsg"+id);
             let wmTextRef = document.getElementById("weightmsg_text"+id);
-            wmRef.style.display = "block";
-            wmTextRef.innerText = msg;
+            if (msg !== 'Missing Weights: ') {
+                wmRef.style.display = "block";
+                wmTextRef.innerText = msg;
+            }
         }
 
         function hideWeightMessage(id) {
@@ -231,12 +233,15 @@
                             totalWeightValue += weightVal;
                         }
 
-                        totalPossiblesAndGottens[category].totalPossible += grade.points_possible;
-                        totalPossiblesAndGottens[category].totalGotten += grade.points_gotten;
+                        if (!grade.exclude) {
+                            totalPossiblesAndGottens[category].totalPossible += grade.points_possible;
+                            totalPossiblesAndGottens[category].totalGotten += grade.points_gotten;
+                        }
 
                         let overallPercent = 0;
                         for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
-                            overallPercent = overallPercent + (value.weight * (value.totalPossible !== 0 ? (value.totalGotten / value.totalPossible) : value.totalGotten));
+                            overallPercent = overallPercent + (value.weight * (value.totalPossible !== 0 ?
+                                (value.totalGotten / value.totalPossible) : value.totalGotten));
                         }
                         let total = ((overallPercent/totalWeightValue) * 100).toFixed(3);
                         total = +total;
@@ -356,9 +361,16 @@
                             label: function(tooltipItem, data) {
                                 // console.log(tooltipItem);
                                 // console.log(data);
-                                return parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index]
-                                        + " - " + (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== -1 ? parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "%" : "")
-                                        + " (" + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")";
+                                return parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + " - "
+                                    + (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== -1 ?
+                                        (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "%") :
+                                        (""))
+                                    + ((parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index]
+                                        .substring(parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2))
+                                    !== '/0' ?
+                                        (" (" + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")") :
+                                        (parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0,
+                                            parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)));
                             },
                         }
                     },
@@ -437,9 +449,16 @@
                                 return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
                             },
                             label: function(tooltipItem, data) {
-                                return parsedData[id].assignmentNames[tooltipItem.index]
-                                        + " - " + parsedData[id].assignmentPercents[tooltipItem.index] + "%"
-                                        + " (" + parsedData[id].assignmentScoresParsed[tooltipItem.index] + ")";
+                                return parsedData[id].assignmentNames[tooltipItem.index] + " - "
+                                        + (parsedData[id].assignmentPercents[tooltipItem.index] !== -1 ?
+                                        (parsedData[id].assignmentPercents[tooltipItem.index] + "%") :
+                                        (""))
+                                        + ((parsedData[id].assignmentScoresParsed[tooltipItem.index]
+                                        .substring(parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2))
+                                        !== '/0' ?
+                                        (" (" + parsedData[id].assignmentScoresParsed[tooltipItem.index] + ")") :
+                                        (parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(0,
+                                        parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)));
                             },
                         }
                     },

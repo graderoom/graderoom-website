@@ -59,23 +59,23 @@
 <script>
     function showDiv(id) {
         document.getElementById(id).style.display = "block";
-        localStorage.setItem(id, "true");
     }
-    function hideDiv(id) {
-        document.getElementById(id).style.display = "none";
-        localStorage.setItem(id, "false");
-    }
-    window.onload = function () {
-        if (localStorage.getItem("settingsCardDisplay") === "true") {
-            showDiv("settingsCardDisplay");
-        } else {
-            hideDiv("settingsCardDisplay");
+    function closeForm(id) {
+        let form = document.getElementById(id);
+        form.style.display = "none";
+        let inputFields = form.getElementsByClassName('form-control');
+        for (let i = 0; i < inputFields.length; i++) {
+            inputFields[i].value = "";
         }
-        if (localStorage.getItem("updateGradesDisplay") === "true") {
-            showDiv("updateGradesDisplay");
-        } else {
-            hideDiv("updateGradesDisplay");
-        }
+        // Manage darkMode checkbox, if it exists
+        try {
+            let darkModeCheckbox = document.getElementById('darkModeToggle');
+            if (document.getElementById('getUser').value && !darkModeCheckbox.checked) {
+                darkModeCheckbox.checked = true;
+            } else if (!document.getElementById('getUser').value && darkModeCheckbox.checked) {
+                darkModeCheckbox.checked = false;
+            }
+        } catch {}
     }
 
     // Collapse navbar or card when click outside
@@ -83,7 +83,7 @@
         //Auto hide for any card with blurred-login 
         if ($(e.target).closest('.blurred-login').length){ 
             if (!$(e.target).closest('.card').length){
-                hideDiv($(e.target).closest('.blurred-login')[0].id);
+                closeForm($(e.target).closest('.blurred-login')[0].id);
             }       
         }
         if (!$(e.target).closest('#collapsingNav').length && !$(e.target).is('#collapsingNav')){
@@ -95,10 +95,10 @@
         if (e.key === "Escape") { // escape key maps to keycode `27`
             try {
                 $('.navbar-collapse').collapse('hide');
-                hideDiv('toggle');
+                closeForm('toggle');
             } catch(e) {}
-            hideDiv('updateGradesDisplay');
-            hideDiv('settingsCardDisplay');
+            closeForm('updateGradesDisplay');
+            closeForm('settingsCardDisplay');
             hideDiv('updateWeightsDisplay');
         }
     });
