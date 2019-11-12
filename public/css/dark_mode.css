@@ -124,9 +124,6 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
 
 /* Weights Card Styling */
 
-#weightsCard {
-    width: 50%!important;
-}
 #weightsCard h5 {
     font-family: 'Montserrat';
     font-size: 1.1rem;
@@ -144,14 +141,14 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
 #weightsCard h5.collapsed {
     border-top: none;
 }
-#weightsCard h5.collapsed ~ span {
+#weightsCard h5.collapsed ~ span.collase-undeline {
     border-bottom: none;
 }
 #weightsCard h5 {
-    border-top: 1px solid #999;
+    /* border-top: 1px solid #999; */
     padding-top: 0.5rem;
 }
-#weightsCard h5 ~ span {
+#weightsCard h5 ~ span.collapse-underline{
     border-bottom: 1px solid #999;
 }
 
@@ -179,6 +176,37 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
 }
 #weightsCard input[type="number"] {
     -moz-appearance: textfield;
+}
+
+#weightsCard input {
+    font-size: 0.9rem; 
+    padding: .1rem .1rem; 
+    width: 3rem; 
+    text-align: center; 
+    margin-right: 1rem;
+    border-color: lightcoral;
+}
+
+#weightsCard input:focus {
+    border-color: red;
+}
+
+#weightsCard input.text-view {
+    border-color: white;
+    border:none;
+    padding:0;
+}
+
+#weightsCard input.text-view:hover, #weightsCard input.text-view:focus  {
+    border-bottom: 1px solid #ced4da;
+    padding: .1rem .1rem;
+}
+
+#weightsCard .success {
+    color: lightgreen;
+}
+#weightsCard .fail {
+    color: lightcoral;
 }
 
 /* Input Form Styling */
