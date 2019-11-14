@@ -286,23 +286,39 @@
                     pointBackgroundColor: colors[i%colors.length],
                     pointBorderColor: colors[i%colors.length],
                     borderColor: colors[i%colors.length],
-                    // fill: 'start',
                     data: parsedData[i].mixedData,
                     cubicInterpolationMode: 'monotone',
                     spanGaps: false,
-                    pointHoverRadius: 7,
-                    pointHitRadius: 30
+                    pointRadius: 3,
+                    borderWidth: 2,
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: darken(colors[i%colors.length], 20),
+                    pointHoverBorderColor: '#000'
                 });
             }
-            var myChart = new Chart(ctx, {
+            let myChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    datasets: dataset
+                    datasets: dataset,
                 },
                 options: {
                     hover: {
                         mode: 'nearest',
                         intersect: false
+                    },
+                    onHover: function onHover (evt, activeElements) {
+                        if (!activeElements || !activeElements.length) return;
+                        let datasetIndex = activeElements[0]._datasetIndex;
+                        let activeDataset = this.data.datasets[datasetIndex];
+                        for (let i = 0; i < this.data.datasets.length; i++) {
+                            let inactiveDataset = this.data.datasets[i];
+                            inactiveDataset.borderWidth = 2;
+                            inactiveDataset.pointRadius = 3;
+                        }
+                        activeDataset.borderWidth = 4;
+                        activeDataset.pointRadius = 4;
+                        console.log('hover');
+                        this.update(200);
                     },
                     scales: {
                         xAxes: [{
@@ -374,6 +390,15 @@
             });
         }
 
+        function darken(color, amount) {
+            let num = parseInt(color, 16);
+            let r = (num >> 16) + amount;
+            let b = ((num >> 8) % 0x00FF) + amount;
+            let g = (num & 0x0000FF) + amount;
+            let darkColor = g | (b << 8) | (r << 16);
+            return darkColor.toString(16);
+        }
+
         function renderChart(id) {
             var ctx = document.getElementById('chart'+id);
             var myChart = new Chart(ctx, {
@@ -390,8 +415,9 @@
                             data: parsedData[id].mixedData,
                             cubicInterpolationMode: 'monotone',
                             spanGaps: false,
-                            pointHoverRadius: 7,
-                            pointHitRadius: 21,
+                            pointRadius: 4,
+                            borderWidth: 2,
+                            pointHoverRadius: 7
                         }
                     ]
                 },
