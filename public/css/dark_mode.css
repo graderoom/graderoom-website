@@ -16,6 +16,10 @@ body {
     color: #BBBBBB;
 }
 
+.btn:focus {
+    box-shadow: none;
+}
+
 .nav .active {
     color: #FFFFFF;
     font-weight: bold;
@@ -81,7 +85,12 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
     }
 }
 
-/* Form Input Card Styling */
+.nav .active {
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+/* Card Styling */
 .card {
     background: #333333;
 }
@@ -113,6 +122,95 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
     padding: 2rem;
 }
 
+/* Weights Card Styling */
+
+#weightsCard h5 {
+    font-family: 'Montserrat';
+    font-size: 1.1rem;
+    font-weight: 400;
+}
+
+#weightsCard h5 i::after{
+    content: '\f107'; /*Arrow Icon Toggling*/
+}
+
+#weightsCard h5.collapsed i::after{
+    content: '\f105'; /*Arrow Icon Toggling*/
+}
+
+#weightsCard h5.collapsed {
+    border-top: none;
+}
+#weightsCard h5.collapsed ~ span.collase-undeline {
+    border-bottom: none;
+}
+#weightsCard h5 {
+    /* border-top: 1px solid #999; */
+    padding-top: 0.5rem;
+}
+#weightsCard h5 ~ span.collapse-underline{
+    border-bottom: 1px solid #999;
+}
+
+#weightsCard .collapse.show,#weightsCard .collapsing  {
+    display: flex; 
+    flex-flow: row wrap;
+}
+
+#weightsCard .form-signin .btn {
+    width: auto;
+    padding: .375rem .75rem;
+    margin: 0;
+    margin-bottom: 1rem;
+    background: #999;
+}
+
+#weightsCard .form-signin .btn:hover {
+    background: none;
+}
+
+#weightsCard input[type="number"]::-webkit-outer-spin-button,
+#weightsCard input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+#weightsCard input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+#weightsCard input {
+    font-size: 0.9rem; 
+    padding: .1rem .1rem; 
+    width: 3rem; 
+    text-align: center; 
+    margin-right: 1rem;
+    border-color: lightcoral;
+}
+
+#weightsCard input:focus {
+    border-color: red;
+}
+
+#weightsCard input.text-view {
+    border-color: white;
+    border:none;
+    padding:0;
+}
+
+#weightsCard input.text-view:hover, #weightsCard input.text-view:focus  {
+    border-bottom: 1px solid #ced4da;
+    padding: .1rem .1rem;
+}
+
+#weightsCard .success {
+    color: lightgreen;
+}
+#weightsCard .fail {
+    color: lightcoral;
+}
+
+/* Input Form Styling */
+
 .form-signin .btn {
     background: #BBBBBB;
     color: #333333;
@@ -127,7 +225,7 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
     color: #BBBBBB;
 }
 
-.form-group input {
+.form-group input{
     background: none !important;
     border-radius: 0;
     border-top: none;
@@ -137,9 +235,13 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
 }
 
 .form-group input:focus {
-    color: white;
     border-bottom-color: #555555;
+    color: white;
     box-shadow: none;
+}
+
+.form-group:focus-within label {
+    color: #BBBBBB !important;
 }
 
 /* Input Form Background Images */
@@ -176,17 +278,41 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
     background-image: url(/public/resources/dark_mode/blur.png) !important;
 }
 
+.nav-item {
+    width: inherit;
+}
+
 html {
     overflow: scroll;
     overflow-x: hidden;
     scrollbar-width: none;
     -ms-overflow-style: none;
 }
+
 ::-webkit-scrollbar {
-    width: 0;  /* Remove scrollbar space */
-    background: transparent;  /* Optional: just make scrollbar invisible */
+    display: none;  
 }
 
+.card::-webkit-scrollbar {
+    display:initial;
+    width: 24px;
+}
+.card::-webkit-scrollbar-button, .card::-webkit-scrollbar-corner{
+    display:none;
+}
+.card::-webkit-scrollbar-thumb {
+    border: 8px solid transparent;
+    border-top: 15px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 15px solid rgba(0, 0, 0, 0.1);
+    background-clip: padding-box;
+    background-color: #555;
+    /* box-shadow: inset -1px -1px 0px rgba(0, 0, 0, 0.05), inset 1px 1px 0px rgba(0, 0, 0, 0.05); */
+}
+
+/* Handle on hover */
+.card::-webkit-scrollbar-thumb:hover {
+    background-color: #777;
+}
 .nav-item {
     cursor: pointer;
     width: inherit;
