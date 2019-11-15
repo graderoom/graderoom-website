@@ -19,6 +19,7 @@ app.get('/', function(req, res) {
         
         res.render('authorized_index.ejs', {
             user: req.user,
+            userRef: JSON.stringify(user),
             schoolUsername: req.user.schoolUsername,
             gradeData: gradeDat,
             weightData: weightData,
