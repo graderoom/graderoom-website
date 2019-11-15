@@ -18,6 +18,7 @@
     
     <!-- Navbar -->
     <% include partials/user/navbar.ejs %>
+    <% include partials/user/update_weights_card.ejs %>
 
     <!-- Class Links -->
     <ul class="mx-5 my-3 nav nav-fill" style="border-bottom: 2px solid #999999; color: #BBBBBB;" >
@@ -61,6 +62,7 @@
                 <a class="close" data-dismiss="alert" aria-label="close">X</a>
                 <span id="weightmsg_text-1"></span>
             </div>
+            <a onclick="showUpdateWeights()">Update Weights</a>
             <div id="chart-container-1" class="chart-container" style="position: relative; height:60vh; width:75vw;margin: 0 auto;">
                 <canvas id="chart-1" class="chart" style="width:50%; margin: auto;"></canvas>
             </div>
@@ -73,6 +75,7 @@
                 <a class="close" data-dismiss="alert" aria-label="close">X</a>
                 <span id="weightmsg_text<%=i%>"></span>
             </div>
+            <a onclick="showUpdateWeights(<%=i%>)">Update Weights</a>
             <div id="chart-container<%=i%>" class="chart-container" style="position: relative; height:40vh; width:50vw;margin: 0 auto;">
                 <canvas id="chart<%=i%>" class="chart" style="width:50%; margin: auto;"></canvas>
             </div>
@@ -107,7 +110,7 @@
         </span>
         <% } %>
     </div>
-
+        
     <!-- JavaScript Imports -->
     <script src="https://cdn.jsdelivr.net/npm/moment@2.24.0/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
@@ -117,19 +120,16 @@
 
         let data = <%- gradeData %>;
         let weights = <%- weightData %>;
-
+            
         let parsedData = [];
         let unobtainedWeights = {};
 
-        // parseWeights();
         parseData();
-        renderOverviewChart();
-        showOverallMissings(); //this needs to be manually rendered..
-        updateWeightMessages();
-
-        for (let i = 0; i<data.length; i++){
-            renderChart(i)
+        if (Object.keys(unobtainedWeights).length){ //If not empty
+            showUpdateWeights();
         }
+        updateWeightMessages();
+        renderAllCharts();
 
         function showWeightMessage(msg,id) {
             let wmRef = document.getElementById("weightmsg"+id);
@@ -162,10 +162,6 @@
             }
         }
 
-        function showOverallMissings() {
-
-        }
-
         function parseData() {
 
             /*
@@ -174,29 +170,32 @@
 
             for (let classData of data){
                 let className = classData.class_name;
-                let noWeights = !(className in weights) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object)
-                let localMissingCategories = []
-                /* || weights[className].hasWeights === false; */ // <- dont show a message if they opt out of weights
+                let needWeights = !(className in weights) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object)
+                let localMissingCategories = [];
 
-                for (let grade of classData.grades){
-                    // console.log(grade.category)
+                if ((className in weights) && (!weights[className].hasWeight))
+                    needWeights = false;
+                else {
+                    for (let grade of classData.grades){
+                        // console.log(grade.category)
 
-                    if (!(className in weights) || !(grade.category in weights[className])) {
-                        if (!localMissingCategories.includes(grade.category)) {
-                            localMissingCategories.push(grade.category);
+                        if (!(className in weights) || !(grade.category in weights[className])) {
+                            if (!localMissingCategories.includes(grade.category)) {
+                                localMissingCategories.push(grade.category);
+                            }
+                            needWeights = true;
                         }
-                        noWeights = true;
                     }
-                }
-                // console.log("LMC")
-                // console.log(localMissingCategories)
+                    // console.log("LMC")
+                    // console.log(localMissingCategories)
 
-                if (!(className in unobtainedWeights) && noWeights) {
-                    unobtainedWeights[className] = localMissingCategories; //todo here add specific weights (i.e. You don't have the Test category...)
+                    if (!(className in unobtainedWeights) && needWeights) {
+                        unobtainedWeights[className] = localMissingCategories; //todo here add specific weights (i.e. You don't have the Test category...)
+                    }
                 }
             }
 
-            // console.log(unobtainedWeights)
+            console.log(unobtainedWeights)
 
             /**
              * now grades!
@@ -212,7 +211,7 @@
                 let totalPossiblesAndGottens = {}; //by category
                 let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
                 // VERY JANK CHANGE LATER
-                let doesntHaveWeights = className in unobtainedWeights || weights[className].hasWeights === false;
+                let doesntHaveWeights = className in unobtainedWeights; //Already checked for above: || weights[className].hasWeights === false;
                 // console.log(className + " DHW? : " + doesntHaveWeights);
 
                 for (let grade of classData.grades) {
@@ -273,6 +272,12 @@
             }
         }
 
+        function renderAllCharts() {
+            renderOverviewChart();
+            for (let i = 0; i<data.length; i++){
+                renderChart(i)
+            }
+        }
         function renderOverviewChart() {
             let ctx = document.getElementById('chart-1');
             let id = 0;
@@ -305,6 +310,7 @@
                     hover: {
                         mode: 'nearest',
                         intersect: false
+
                     },
                     onHover: function onHover (evt, activeElements) {
                         if (!activeElements || !activeElements.length) return;

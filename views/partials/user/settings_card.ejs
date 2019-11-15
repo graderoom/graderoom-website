@@ -7,7 +7,7 @@
             <div id="settingsCard" class="settings card card-signin my-5">
                 <btn class="btn btn-md" onclick="closeForm('settingsCardDisplay'); closeMessage()" style="width: fit-content; margin-bottom:0">
                     <i class="fa fa-arrow-left" aria-hidden="true"></i>
-                    Return
+                    Cancel
                 </btn>
                 <div class="card-body">
                     <h1 class="card-title text-center"><span class="fa fa-cog"></span> Settings</h1>
@@ -30,9 +30,9 @@
                 </div>
                 <div id="Account" class="tabcontent">
                     <div class="card-body">
-                        <div id="messages" class="alert alert-success alert-dismissible" style="display:none">
-                            <div id="message"></div>
-                            <a class="close" onClick="closeMessage()" aria-label="close">X</a>
+                        <div id="settingsMessage" class="alert alert-success alert-dismissible" style="display:none">
+                            <div class="messageTxt"></div>
+                            <a class="close" onClick="closeMessage('settingsMessage')" aria-label="close">X</a>
                         </div>
                         <form id="changePassword" class="form-signin" action="/changepassword" method="post">
                             <div class="form-group">
@@ -79,8 +79,8 @@
             let formData = $(form).serialize();
 
             // Get the messages.
-            let formMessagesDiv = $('#messages');
-            let message = $('#message');
+            let formMessagesDiv = $('#settingsMessage');
+            let message = $(formMessagesDiv).find('.messageTxt');
 
             // Submit the form using AJAX.
             $.ajax({
@@ -134,8 +134,8 @@
             let formData = $(form).serializeArray();
 
             // Get the messages.
-            let formMessagesDiv = $('#messages');
-            let message = $('#message');
+            let formMessagesDiv = $('#settingsMessage');
+            let message = $(formMessagesDiv).find('.messageTxt');
 
             // Submit the form using AJAX.
             $.ajax({
@@ -201,7 +201,7 @@
         document.getElementById('btn' + tabName).classList.add('active');
     }
 
-    function closeMessage() {
-        document.getElementById('messages').style.display = 'none';
+    function closeMessage(id) {
+        document.getElementById(id).style.display = 'none';
     }
 </script>
