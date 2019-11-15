@@ -118,6 +118,7 @@
     <!-- Custom JavaScript -->
     <script>
 
+        let user = <%- userRef %>;
         let data = <%- gradeData %>;
         let weights = <%- weightData %>;
             
@@ -282,7 +283,7 @@
             let ctx = document.getElementById('chart-1');
             let id = 0;
             let dataset = []
-            let colors = ["#FFB048","#E8425F","#AF70FF","#6BD3E8","#A7FFA5","#FF80F6","#FFF87E","#FFFFFF"];
+            let colors = user.classColors;
             for (let i = 0; i<data.length; i++)
             {
                 dataset.push({
@@ -294,11 +295,11 @@
                     data: parsedData[i].mixedData,
                     cubicInterpolationMode: 'monotone',
                     spanGaps: false,
-                    pointRadius: 3,
+                    pointRadius: 2,
                     borderWidth: 2,
-                    pointHoverRadius: 8,
-                    pointHoverBackgroundColor: darken(colors[i%colors.length], 20),
-                    pointHoverBorderColor: '#000'
+                    pointHoverRadius: 7,
+                    pointHoverBackgroundColor: brighten(colors[i%colors.length], -15),
+                    pointHoverBorderColor: brighten(colors[i%colors.length], -50)
                 });
             }
             let myChart = new Chart(ctx, {
@@ -310,7 +311,6 @@
                     hover: {
                         mode: 'nearest',
                         intersect: false
-
                     },
                     onHover: function onHover (evt, activeElements) {
                         if (!activeElements || !activeElements.length) return;
@@ -319,11 +319,10 @@
                         for (let i = 0; i < this.data.datasets.length; i++) {
                             let inactiveDataset = this.data.datasets[i];
                             inactiveDataset.borderWidth = 2;
-                            inactiveDataset.pointRadius = 3;
+                            inactiveDataset.pointRadius = 2;
                         }
                         activeDataset.borderWidth = 4;
-                        activeDataset.pointRadius = 4;
-                        console.log('hover');
+                        activeDataset.pointRadius = 3;
                         this.update(200);
                     },
                     scales: {
@@ -396,18 +395,33 @@
             });
         }
 
-        function darken(color, amount) {
-            let num = parseInt(color, 16);
-            let r = (num >> 16) + amount;
-            let b = ((num >> 8) % 0x00FF) + amount;
-            let g = (num & 0x0000FF) + amount;
-            let darkColor = g | (b << 8) | (r << 16);
-            return darkColor.toString(16);
+        function brighten(color, amount) {
+            let hex = color.substring(1);
+            let origR = parseInt(hex.substring(0,2),16);
+            let origG = parseInt(hex.substring(2,4),16);
+            let origB = parseInt(hex.substring(4),16);
+            let minAmtR = -100;
+            let maxAmtR = Math.round((255 - origR) / 255 * 100);
+            let minAmtG = -100;
+            let maxAmtG = Math.round((255 - origG) / 255 * 100);
+            let minAmtB = -100;
+            let maxAmtB = Math.round((255 - origB) / 255 * 100);
+            let commonMin = Math.max(minAmtR, minAmtG, minAmtB);
+            let commonMax = Math.min(maxAmtR, maxAmtG, maxAmtB);
+            amount < commonMin ? amount = commonMin : amount;
+            amount > commonMax ? amount = commonMax : amount;
+            let newR = Math.round(origR * (100 + amount) / 100);
+            let newG = Math.round(origG * (100 + amount) / 100);
+            let newB = Math.round(origB * (100 + amount) / 100);
+            newR > 255 ? newR = 255 : newR < 0 ? newR = 0 : newR;
+            newG > 255 ? newG = 255 : newG < 0 ? newG = 0 : newG;
+            newB > 255 ? newB = 255 : newB < 0 ? newB = 0 : newB;
+            return ('#' + newR.toString(16) + newG.toString(16) + newB.toString(16)).toUpperCase();
         }
 
         function renderChart(id) {
-            var ctx = document.getElementById('chart'+id);
-            var myChart = new Chart(ctx, {
+            let ctx = document.getElementById('chart'+id);
+            let myChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     datasets: [
