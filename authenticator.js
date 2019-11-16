@@ -101,7 +101,9 @@ module.exports = {
         let lc_username = username.toLowerCase();
         let user = db.get('users').find({username: lc_username}).value();
         //Parse weights with unicode to dots
-        user.weights = JSON.parse(JSON.stringify(user.weights).replace(/\\\\u002e/g,"."));
+        if (user) {
+            user.weights = JSON.parse(JSON.stringify(user.weights).replace(/\\\\u002e/g, "."));
+        }
         return user;
     },
 
