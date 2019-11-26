@@ -46,6 +46,7 @@ module.exports = {
                             classColors: [],
                         },
                         alerts: {
+                            lastUpdated: 'never',
                             updateGradesReminder: 'daily',
                         },
                         weights: {},
@@ -134,6 +135,7 @@ module.exports = {
         userRef.assign({grades: grade_update_status.new_grades}).write();
         console.log('Got grades');
         this.setRandomDefaultColors(userRef, grade_update_status.new_grades);
+        userRef.get('alerts').set('lastUpdated',Date.now()).write();
         return {success: true, message: "Updated grades!"};
     },
 
@@ -143,7 +145,8 @@ module.exports = {
         for (let i = 0; i < numClasses; i++) {
             classColors[i] = randomColor(0.75,0.95).hexString();
         }
-        userRef.assign({classColors: classColors}).write();
+
+        userRef.get('appearance').set('classColors',classColors).write();
     },
 
     getAllUsers: function() {
