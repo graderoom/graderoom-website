@@ -15,7 +15,7 @@
                         let grade = JSON.parse(gradeData)[i]; %>
                         <form id="weights<%=i%>" class="form-ajax form-weights form-signin" action="/updateweights">
                             <className style="display:none"><%=grade.class_name%></className>
-                            <h5 id="<%=grade.class_name%>" class="collapsed" data-toggle="collapse" href="#collapse<%=i%>" style="display: inline-block;">
+                            <h5 id="<%=grade.class_name%>" class="collapsed" data-toggle="collapse" href="#collapse<%=i%>" style="display: inline-block; cursor: pointer">
                                 <%=grade.class_name%>&nbsp;
                                 <i class="fa" aria-hidden="true"></i>
                             </h5>
@@ -29,7 +29,7 @@
                                     if (!(weights.includes(assignment.category))) {
                                         weights.push(assignment.category); %>
                                         <div class="form-group" style="display: flex; align-items: flex-end;">
-                                            <% let value = ""; try {value = JSON.parse(weightData)[grade.class_name][assignment.category]} catch {}%>
+                                            <% let value = ""; try {value = JSON.parse(weightData)[grade.class_name][assignment.category]} catch {}; %>
                                             <label style="font-size: 0.9rem; color: #DDDDDD; <%if(!value){%> color: lightcoral!important; <%}%> white-space: nowrap; margin-bottom: 0;"><%=assignment.category%>:&nbsp</label>
                                             <input  value='<%=value%>' 
                                                     type="number" 

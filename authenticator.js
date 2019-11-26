@@ -4,6 +4,7 @@ const adapter = new FileSync('user_db.json');
 const db = low(adapter);
 const bcrypt = require('bcrypt');
 const scraper = require('./scrape');
+const randomColor = require('random-color');
 
 
 db.defaults({users: []}).write();
@@ -19,7 +20,7 @@ module.exports = {
                 return resolve({success: false, message: "Username already in use."});
             }
 
-            if (!isAlphaNumberic(username) || username.length > 16) {
+            if (!isAlphaNumeric(username) || username.length > 16) {
                 return resolve({success: false, message: "Username must contain only letters and numbers."});
             }
 
@@ -39,9 +40,14 @@ module.exports = {
                         password: hash,
                         schoolUsername: schoolUsername,
                         isAdmin: isAdmin,
-                        darkMode: true,
+                        appearance: {
+                            darkMode: true,
+                        },
+                        alerts: {
+                            updateGradesReminder: 'daily',
+                        },
                         accentColor: null,
-                        classColors: ["#FFB048","#E8425F","#AF70FF","#6BD3E8","#A7FFA5","#FF80F6","#FFF87E","#FFFFFF"],
+                        classColors: [],
                         weights: {},
                         grades: [],
                     }).write();
@@ -94,8 +100,17 @@ module.exports = {
     },
     setMode: function(username, darkMode) {
         let lc_username = username.toLowerCase();
-        let user = db.get('users').find({username: lc_username});
-        user.assign({darkMode: darkMode}).write();
+        let user = db.get('users').find({username: lc_username}).value();
+        user.appearance.darkMode = darkMode;
+    },
+    setUpdateGradesReminder: function(username, updateGradesReminder) {
+        let lc_username = username.toLowerCase();
+        let user = db.get('users').find({username: lc_username}).value();
+        user.alerts.updateGradesReminder = updateGradesReminder;
+        if (updateGradesReminder == 'Never') {
+            return {success: true, message: "Grade update alerts disabled."}
+        }
+        return {success: true, message: updateGradesReminder + " grade update alerts enabled!"}
     },
     getUser: function(username) {
         let lc_username = username.toLowerCase();
@@ -117,7 +132,18 @@ module.exports = {
             return grade_update_status;
         }
         userRef.assign({grades: grade_update_status.new_grades}).write();
+        console.log('Got grades');
+        this.setRandomDefaultColors(userRef, grade_update_status.new_grades);
         return {success: true, message: "Updated grades!"};
+    },
+
+    setRandomDefaultColors: function(userRef) {
+        let numClasses = Object.keys(userRef.grades).length;
+        let classColors = [];
+        for (let i = 0; i < numClasses; i++) {
+            classColors[i] = randomColor(0.75,0.95).hexString();
+        }
+        userRef.assign({classColors: classColors}).write();
     },
 
     getAllUsers: function() {
@@ -184,7 +210,7 @@ module.exports = {
     }
 };
 
-function isAlphaNumberic(str) {
+function isAlphaNumeric(str) {
     let code, i, len;
 
     for (i = 0, len = str.length; i < len; i++) {
