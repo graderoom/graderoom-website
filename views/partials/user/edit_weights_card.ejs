@@ -15,7 +15,7 @@
                         let grade = JSON.parse(gradeData)[i]; %>
                         <form id="weights<%=i%>" class="form-ajax form-weights form-signin" action="/updateweights">
                             <className style="display:none"><%=grade.class_name%></className>
-                            <h5 id="<%=grade.class_name%>" class="collapsed" data-toggle="collapse" href="#collapse<%=i%>" style="display: inline-block; cursor: pointer">
+                            <h5 style="color:<%=user.appearance.classColors[i]%>; cursor: pointer" id="<%=grade.class_name%>" class="collapsed" data-toggle="collapse" href="#collapse<%=i%>" style="display: inline-block; cursor: pointer">
                                 <%=grade.class_name%>&nbsp;
                                 <i class="fa" aria-hidden="true"></i>
                             </h5>
@@ -23,14 +23,14 @@
                                 <span class="messageTxt">Missing weights</span>&nbsp;
                                 <i onClick="closeMessage('weightMessage<%=i%>')" class="fa fa-times-circle" aria-hidden="true"></i> 
                             </span>
-                            <span class="collapse collapse-underline" id="collapse<%=i%>" data-parent="#accordionForms">
+                            <span style="border-radius: 0.25em" class="collapse collapse-underline" id="collapse<%=i%>" data-parent="#accordionForms">
                             <%  let weights = []; 
                                 for (let assignment of grade.grades) { 
                                     if (!(weights.includes(assignment.category))) {
                                         weights.push(assignment.category); %>
                                         <div class="form-group" style="display: flex; align-items: flex-end;">
                                             <% let value = ""; try {value = JSON.parse(weightData)[grade.class_name][assignment.category]} catch {}; %>
-                                            <label style="font-size: 0.9rem; color: #DDDDDD; <%if(!value){%> color: lightcoral!important; <%}%> white-space: nowrap; margin-bottom: 0;"><%=assignment.category%>:&nbsp</label>
+                                            <label style="font-size: 0.9rem; <%if(value == ""){%> color: lightcoral!important; <%}%> white-space: nowrap; margin-bottom: 0;"><%=assignment.category%>:&nbsp</label>
                                             <input  value='<%=value%>' 
                                                     type="number" 
                                                     min="0" 

@@ -27,7 +27,7 @@
         </li>
         <% for (let i = 0; i<JSON.parse(gradeData).length; i++) { %>
             <li class="nav-item" id="link<%=i%>">
-                <a style="color: <%=user.classColors[i]%>" class="nav-link" onclick="showPage(<%=i%>)"><%=(JSON.parse(gradeData)[i].class_name)%></a>
+                <a style="color: <%=user.appearance.classColors[i]%>" class="nav-link" onclick="showPage(<%=i%>)"><%=(JSON.parse(gradeData)[i].class_name)%></a>
             </li>
         <% } %>
     </ul>
@@ -286,7 +286,7 @@
             let ctx = document.getElementById('chart-1');
             let id = 0;
             let dataset = []
-            let colors = user.classColors;
+            let colors = user.appearance.classColors;
             for (let i = 0; i<data.length; i++)
             {
                 dataset.push({
@@ -440,7 +440,7 @@
 
         function renderChart(id) {
             let ctx = document.getElementById('chart'+id);
-            let colors = user.classColors;
+            let colors = user.appearance.classColors;
             let myChart = new Chart(ctx, {
                 type: 'line',
                 data: {

@@ -42,12 +42,12 @@ module.exports = {
                         isAdmin: isAdmin,
                         appearance: {
                             darkMode: true,
+                            accentColor: null,
+                            classColors: [],
                         },
                         alerts: {
                             updateGradesReminder: 'daily',
                         },
-                        accentColor: null,
-                        classColors: [],
                         weights: {},
                         grades: [],
                     }).write();
