@@ -1,11 +1,10 @@
 <!-- Settings Card -->
-<input type="text" id="getUser" style="display:none" value="<%= user.darkMode %>">
 <div class="container">
     <div class="blurred-login" id="settingsCardDisplay" style="position:fixed; display:none; height: 100%; width: 100%; top: 0; left: 0; z-index: 1">
         <div class="blurred-background" style="position: fixed; width: 100%; height: 100%; filter: opacity(0.7);"></div>
         <div class="col-sm-10 col-md-8 col-lg-6 col-xl-5 mx-auto">
             <div id="settingsCard" class="settings card card-signin my-5">
-                <btn class="btn btn-md" onclick="closeForm('settingsCardDisplay'); closeMessage()" style="width: fit-content; margin-bottom:0">
+                <btn class="btn btn-md" onclick="closeForm('settingsCardDisplay'); closeMessage('accountSettingsMessage'); closeMessage('alertSettingsMessage')" style="width: fit-content; margin-bottom:0">
                     <i class="fa fa-arrow-left" aria-hidden="true"></i>
                     Back
                 </btn>
@@ -15,12 +14,13 @@
                 <div class="tab">
                     <btn id="btnAppearance" class="tablinks active" onclick="openTab('Appearance')">Appearance</btn>
                     <btn id="btnAccount" class="tablinks" onclick="openTab('Account')">Account</btn>
-                    </div>
+                    <btn id="btnAlerts" class="tablinks" onclick="openTab('Alerts')">Alerts</btn>
+                </div>
                 <div id="Appearance" class="tabcontent" style="display:block">
                     <div class="card-body">
                         <form id="updateAppearance" class="form-signin" action="/updateappearance" method="post">
                             <label style="cursor: pointer">
-                                <input id="darkModeToggle" type="checkbox" name="darkMode" <% if (user.darkMode) { %> checked <% } %>>Dark Mode
+                                <input id="darkModeToggle" type="checkbox" name="darkMode" <% if (user.appearance.darkMode) { %> checked <% } %>>Dark Mode
                             </label>
                             <button type="submit" class="btn btn-default btn-lg">
                                 Apply
@@ -30,9 +30,9 @@
                 </div>
                 <div id="Account" class="tabcontent">
                     <div class="card-body">
-                        <div id="settingsMessage" class="alert alert-success alert-dismissible" style="display:none">
+                        <div id="accountSettingsMessage" class="alert alert-success alert-dismissible" style="display:none">
                             <div class="messageTxt"></div>
-                            <a class="close" onClick="closeMessage('settingsMessage')" aria-label="close">X</a>
+                            <a class="close" onclick="closeMessage('accountSettingsMessage')" aria-label="close">X</a>
                         </div>
                         <form id="changePassword" class="form-signin" action="/changepassword" method="post">
                             <div class="form-group">
@@ -40,7 +40,7 @@
                                 <input id="password" type="password" class="form-control" name="password">
                             </div>
                             <div class="text-center">
-                                <button type="submit" class="btn btn-default btn-lg">
+                                <button type="submit" onclick="ajaxPostForm('#changePassword',['#password'])" class="btn btn-default btn-lg">
                                     Change Password
                                 </button>
                             </div>
@@ -51,8 +51,31 @@
                                 <input id="school_email" type="text" class="form-control" name="school_email">
                             </div>
                             <div class="text-center">
-                                <button type="submit" class="btn btn-default btn-lg">
+                                <button type="submit" onclick="ajaxPostForm('#changeSchoolEmail',['#school_email'],'#accountSettingsMessage'); updateSchoolUsernameDisplay()" class="btn btn-default btn-lg">
                                     Change School Email
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div id="Alerts" class="tabcontent">
+                    <div class="card-body">
+                        <div id="alertSettingsMessage" class="alert alert alert-success alert-dismissible" style="display:none">
+                            <div class="messageTxt"></div>
+                            <a class="close" onclick="closeMessage('alertSettingsMessage')" aria-label="close">X</a>
+                        </div>
+                        <form id="changeAlertSettings" class="form-signin" action="/changealertsettings" method="post">
+                            <div class="form-group">
+                                <label>Grade Update Reminder:</label>
+                                <select class="dropdown" name="updateGradesReminder">
+                                    <option value="Daily" <% if (user.alerts.updateGradesReminder == 'Daily') { %> selected <% } %>>Daily</option>
+                                    <option value="Weekly" <% if (user.alerts.updateGradesReminder == 'Weekly') { %> selected <% } %>>Weekly</option>
+                                    <option value="Never" <% if (user.alerts.updateGradesReminder == 'Never') { %> selected <% } %>>Never</option>
+                                </select>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" onclick="ajaxPostForm('#changeAlertSettings',[],'#alertSettingsMessage'); updateSchoolUsernameDisplay()" class="btn btn-default btn-lg">
+                                    Save
                                 </button>
                             </div>
                         </form>
@@ -67,9 +90,13 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script type="text/javascript">
 
-    $(function() {
+    function updateSchoolUsernameDisplay() {
+        document.getElementById('schoolUsernameDisplay').textContent = document.getElementById('school_email').value;
+    }
+
+    function ajaxPostForm(formID, fieldIDsToClear, messagesDivID) {
         // Get the form.
-        let form = $('#changePassword');
+        let form = $(formID);
 
         $(form).submit(function(event) {
             // Stop the browser from submitting the form.
@@ -79,7 +106,7 @@
             let formData = $(form).serialize();
 
             // Get the messages.
-            let formMessagesDiv = $('#settingsMessage');
+            let formMessagesDiv = $(messagesDivID);
             let message = $(formMessagesDiv).find('.messageTxt');
 
             // Submit the form using AJAX.
@@ -100,12 +127,14 @@
                 // Show the div.
                 $(formMessagesDiv).css('display','block');
 
-                // Clear the password field.
-                $('#password').val('');
+                // Clear fields to clear
+                for (let i = 0; i < fieldIDsToClear.length; i++) {
+                    $(fieldIDsToClear[i]).val('');
+                }
             })
 
             .fail(function(data) {
-                //Make sure that the formMessages div has the alert-danger class
+                // Make sure that the formMessages div has the alert-danger class
                 $(formMessagesDiv).removeClass('alert-success');
                 $(formMessagesDiv).addClass('alert-danger');
 
@@ -120,65 +149,7 @@
                 $(formMessagesDiv).css('display','block');
             })
         })
-    })
-
-    $(function() {
-        // Get the form.
-        let form = $('#changeSchoolEmail');
-
-        $(form).submit(function(event) {
-            // Stop the browser from submitting the form.
-            event.preventDefault();
-
-            // Serialize the form data.
-            let formData = $(form).serializeArray();
-
-            // Get the messages.
-            let formMessagesDiv = $('#settingsMessage');
-            let message = $(formMessagesDiv).find('.messageTxt');
-
-            // Submit the form using AJAX.
-            $.ajax({
-                type: 'POST',
-                url: $(form).attr('action'),
-                data: formData
-            })
-
-            .done(function(response) {
-                // Make sure that the formMessages div has the alert-success class.
-                $(formMessagesDiv).removeClass('alert-danger');
-                $(formMessagesDiv).addClass('alert-success');
-
-                // Set the message text.
-                $(message).text(response);
-
-                // Show the div.
-                $(formMessagesDiv).css('display','block');
-
-                // Clear the username field.
-                $('#school_email').val('');
-
-                // Update the html in updateGradesCard
-                document.getElementById('schoolUsernameDisplay').textContent = formData[0]['value'];
-            })
-
-            .fail(function(data) {
-                //Make sure that the formMessages div has the alert-danger class
-                $(formMessagesDiv).removeClass('alert-success');
-                $(formMessagesDiv).addClass('alert-danger');
-
-                // Set the message text.
-                if (data.responseText !== '') {
-                    $(message).text(data.responseText);
-                } else {
-                    $(message).text('Oops! An error occurred and your message could not be sent.');
-                }
-
-                // Show the div.
-                $(formMessagesDiv).css('display','block');
-            })
-        })
-    })
+    }
 
     function openTab(tabName) {
         // Declare all variables

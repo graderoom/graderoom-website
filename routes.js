@@ -1,9 +1,6 @@
 let server = require('./graderoom.js');
 let authenticator = require('./authenticator.js');
 
-//Defaults to dark mode before login and new accounts TODO: this is temporary, should remember past mode
-let defaultMode = true;
-
 module.exports = function(app, passport) {
 
 // normal routes ===============================================================
@@ -31,7 +28,6 @@ app.get('/', function(req, res) {
         return;
     }
     res.render('index.ejs', {
-        darkMode: defaultMode,
         message: req.flash('loginMessage')
     });
 });
@@ -145,7 +141,6 @@ app.post('/login', passport.authenticate('local-login', {
 // show the signup form
 app.get('/signup', function(req, res) {
     res.render('signup.ejs', {
-        darkMode: defaultMode,
         message: req.flash('signupMessage')
     });
 });
@@ -167,7 +162,7 @@ app.post('/signup', async function(req, res, next) {
 
         //check if can create here (i.e. username not in use)
 
-        let resp = await authenticator.addNewUser(username, password, s_email, false, defaultMode);
+        let resp = await authenticator.addNewUser(username, password, s_email, false);
         console.log(resp);
 
         if (!resp.success) {
@@ -210,13 +205,13 @@ app.post('/updateweights', isLoggedIn, async function(req,res) {
     }
 });
 
-app.get('/testupdateweights', isAdmin, (req, res) => {
-
-    res.render('updateweights.ejs', {
-        darkMode: defaultMode,
-        updateWeightMessageSuccess: req.flash('updateWeightMessageSuccess'),
-        updateWeightMessageFail: req.flash('updateWeightMessageFail'),
-    });
+app.post('/changealertsettings', isLoggedIn, (req, res) => {
+    let resp = authenticator.setUpdateGradesReminder(req.user.username, req.body.updateGradesReminder);
+    if (resp.success) {
+        res.status(200).send(resp.message);
+    } else {
+        res.status(400).send(resp.message);
+    }
 });
 
 /**
