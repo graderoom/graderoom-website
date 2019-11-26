@@ -137,8 +137,8 @@ module.exports = {
         return {success: true, message: "Updated grades!"};
     },
 
-    setRandomDefaultColors: function(userRef) {
-        let numClasses = Object.keys(userRef.grades).length;
+    setRandomDefaultColors: function(userRef, grades) {
+        let numClasses = Object.keys(grades).length;
         let classColors = [];
         for (let i = 0; i < numClasses; i++) {
             classColors[i] = randomColor(0.75,0.95).hexString();
