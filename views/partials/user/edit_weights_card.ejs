@@ -15,14 +15,16 @@
                         let grade = JSON.parse(gradeData)[i]; %>
                         <form id="weights<%=i%>" class="form-ajax form-weights form-signin" action="/updateweights">
                             <className style="display:none"><%=grade.class_name%></className>
+                            <label style="display: flex; margin: 0px">
                             <h5 style="color:<%=user.appearance.classColors[i]%>; cursor: pointer" id="<%=grade.class_name%>" class="collapsed" data-toggle="collapse" href="#collapse<%=i%>" style="display: inline-block; cursor: pointer">
                                 <%=grade.class_name%>&nbsp;
                                 <i class="fa" aria-hidden="true"></i>
                             </h5>
-                            <span id="weightMessage<%=i%>" class="alert-custom fail" style="width: fit-content; display:none;">
-                                <span class="messageTxt">Missing weights</span>&nbsp;
-                                <i onClick="closeMessage('weightMessage<%=i%>')" class="fa fa-times-circle" aria-hidden="true"></i> 
+                            <span id="weightMessage<%=i%>" class="alert-custom fail" style="float: right; width: fit-content; display:none; margin-bottom: 8px; padding: 8px 0px 0px 8px">
+                                    <span class="messageTxt">Missing weights</span>
+                                    <i onClick="closeMessage('weightMessage<%=i%>')" class="fa fa-times-circle" aria-hidden="true"></i>
                             </span>
+                            </label>
                             <span style="border-radius: 0.25em" class="collapse collapse-underline" id="collapse<%=i%>" data-parent="#accordionForms">
                             <%  let weights = []; 
                                 for (let assignment of grade.grades) { 

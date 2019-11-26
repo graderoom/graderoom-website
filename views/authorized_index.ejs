@@ -35,6 +35,28 @@
     <!-- Main Screen -->
     <div class="container">
         <!-- Messages -->
+        <% var daysSinceUpdated = 0; %>
+        <% if (user.alerts.lastUpdated == 'never') { %>
+            <br>
+            <div class="alert alert-success">
+                <u style="cursor: pointer" onclick="showDiv('updateGradesDisplay')">Sync your grades</u> now!
+            </div>
+        <% } else { %>
+            <% if (!(user.alerts.updateGradesReminder == 'never')) { daysSinceUpdated = Math.floor((Date.now() - user.alerts.lastUpdated) / (1000 * 3600 * 24)) } %>
+            <% if (user.alerts.updateGradesReminder == 'daily' && (daysSinceUpdated >= 1)) { %>
+                <br>
+                <div class="alert alert-danger alert-dismissible">
+                    <a class="close" data-dismiss="alert" aria-label="close">X</a>
+                    It's been <%=daysSinceUpdated%> <% if (daysSinceUpdated == 1) { %> day <% } else { %> days <% } %>since you last synced your grades! <u style="float: right; cursor: pointer" onclick="showDiv('updateGradesDisplay')">Sync Grades</u>
+                </div>
+            <% } else if (user.alerts.updateGradesReminder == 'weekly' && (daysSinceUpdated >= 7)) { %>
+                <br>
+                <div class="alert alert-danger alert-dismissible">
+                    <a class="close" data-dismiss="alert" aria-label="close">X</a>
+                    It's been <%=daysSinceUpdated%> <% if (daysSinceUpdated == 1) { %> day <% } else { %> days <% } %>since you last synced your grades! <u style="float: right; cursor: pointer" onclick="showDiv('updateGradesDisplay')">Sync Grades</u>
+                </div>
+            <% } %>
+        <% } %>
         <% if (updateGradesMessageSuccess.length > 0) { %>
             <br>
             <div class="alert alert-success alert-dismissible">
@@ -57,16 +79,18 @@
         </div> -->
 
         <!-- Overview Section -->
-        <span id="section-1">
-            <div class="alert alert-danger alert-dismissible" id="weightmsg-1" style="display:none">
-                <a class="close" data-dismiss="alert" aria-label="close">X</a>
-                <span id="weightmsg_text-1"></span> | <u style="cursor: pointer" onclick="showUpdateWeights()">Edit Weights</u>
-            </div>
-            <a class="btn btn-med" onclick="showUpdateWeights()">Edit Weights</a>
-            <div id="chart-container-1" class="chart-container" style="position: relative; height:60vh; width:75vw;margin: 0 auto;">
-                <canvas id="chart-1" class="chart" style="width:50%; margin: auto;"></canvas>
-            </div>
-        </span>
+        <% if (user.alerts.lastUpdated != 'never') { %>
+            <span id="section-1">
+                <div class="alert alert-danger alert-dismissible" id="weightmsg-1" style="display:none">
+                    <a class="close" data-dismiss="alert" aria-label="close">X</a>
+                    <span id="weightmsg_text-1"></span><u style="float: right; cursor: pointer" onclick="showUpdateWeights()">Edit Weights</u>
+                </div>
+                <a class="btn btn-med" onclick="showUpdateWeights()">Edit Weights</a>
+                <div id="chart-container-1" class="chart-container" style="position: relative; height:60vh; width:75vw;margin: 0 auto;">
+                    <canvas id="chart-1" class="chart" style="width:50%; margin: auto;"></canvas>
+                </div>
+            </span>
+        <% } %>
 
         <!-- Class Sections -->
         <% for (let i = 0; i<JSON.parse(gradeData).length; i++) { %>
