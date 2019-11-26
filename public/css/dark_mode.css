@@ -380,3 +380,7 @@ html {
     border-radius: 1em;
     text-align-last: center;
 }
+
+.collapsed:hover {
+    text: bold;
+}
