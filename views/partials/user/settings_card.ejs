@@ -40,7 +40,7 @@
                                 <input id="password" type="password" class="form-control" name="password">
                             </div>
                             <div class="text-center">
-                                <button type="submit" onclick="ajaxPostForm('#changePassword',['#password'])" class="btn btn-default btn-lg">
+                                <button type="submit" onclick="ajaxPostForm('#changePassword',['#password'],'#accountSettingsMessage')" class="btn btn-default btn-lg">
                                     Change Password
                                 </button>
                             </div>
@@ -67,7 +67,7 @@
                         <form id="changeAlertSettings" class="form-signin" action="/changealertsettings" method="post">
                             <div class="form-group">
                                 <label>Grade Update Reminder:</label>
-                                <select class="dropdown" name="updateGradesReminder">
+                                <select style="float: right" class="dropdown" name="updateGradesReminder">
                                     <option value="Daily" <% if (user.alerts.updateGradesReminder == 'Daily') { %> selected <% } %>>Daily</option>
                                     <option value="Weekly" <% if (user.alerts.updateGradesReminder == 'Weekly') { %> selected <% } %>>Weekly</option>
                                     <option value="Never" <% if (user.alerts.updateGradesReminder == 'Never') { %> selected <% } %>>Never</option>
