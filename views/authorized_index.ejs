@@ -83,7 +83,7 @@
             <span id="section-1">
                 <div class="alert alert-danger alert-dismissible" id="weightmsg-1" style="display:none">
                     <a class="close" data-dismiss="alert" aria-label="close">X</a>
-                    <span id="weightmsg_text-1"></span><u style="float: right; cursor: pointer" onclick="showUpdateWeights()">Edit Weights</u>
+                    <span id="weightmsg_text-1"></span><u style="float: right; cursor: pointer" onclick="showUpdateWeights()">Add Weights</u>
                 </div>
                 <a class="btn btn-med" onclick="showUpdateWeights()">Edit Weights</a>
                 <div id="chart-container-1" class="chart-container" style="position: relative; height:60vh; width:75vw;margin: 0 auto;">
@@ -150,9 +150,6 @@
         let unobtainedWeights = {};
 
         parseData();
-        if (Object.keys(unobtainedWeights).length){ //If not empty
-            showUpdateWeights();
-        }
         updateWeightMessages();
         renderAllCharts();
 

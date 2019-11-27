@@ -134,19 +134,27 @@ module.exports = {
         }
         userRef.assign({grades: grade_update_status.new_grades}).write();
         console.log('Got grades');
-        this.setRandomDefaultColors(userRef, grade_update_status.new_grades);
+        this.setRandomDefaultColors(lc_username, []);
         userRef.get('alerts').set('lastUpdated',Date.now()).write();
         return {success: true, message: "Updated grades!"};
     },
 
-    setRandomDefaultColors: function(userRef, grades) {
+    setRandomDefaultColors: function(username, lockedColorIndices) {
+        let lc_username = username.toLowerCase();
+        let userRef = db.get('users').find({username: lc_username});
+        let grades = userRef.get('grades').value();
         let numClasses = Object.keys(grades).length;
-        let classColors = [];
+        let classColors = userRef.get('appearance').get('classColors').value();
+        console.log(lockedColorIndices);
         for (let i = 0; i < numClasses; i++) {
-            classColors[i] = randomColor(0.75,0.95).hexString();
+            if (!(lockedColorIndices.includes(i.toString()))) {
+                console.log(i);
+                classColors[i] = randomColor(0.75, 0.95).hexString();
+            }
         }
-
+        console.log(classColors);
         userRef.get('appearance').set('classColors',classColors).write();
+        return {success: true, message: classColors};
     },
 
     getAllUsers: function() {

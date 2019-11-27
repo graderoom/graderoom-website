@@ -18,6 +18,21 @@
                 </div>
                 <div id="Appearance" class="tabcontent" style="display:block">
                     <div class="card-body">
+                        <div id="appearanceSettingsMessage" class="alert alert-success alert-dismissible" style="display:none">
+                            <div class="messageTxt"></div>
+                            <a class="close" onclick="closeMessage('appearanceSettingsMessage')" aria-label="close">X</a>
+                        </div>
+                        <h3>Class Colors</h3>
+                        <h6>Click a color to lock or unlock it</h6>
+                        <form id="randomizeClassColors" class="form-signin" action="/randomizeclasscolors" method="post">
+                            <% for (var i = 0; i < user.grades.length; i++) { %>
+                                <label onclick="toggleColor(<%=i%>); updateClassColorsDisplay()" id="classColor<%=i%>" style="cursor: pointer; color: <%=user.appearance.classColors[i]%>"><%-user.grades[i].class_name%></label>
+                            <% } %>
+                            <button onclick="ajaxPostForm('#randomizeClassColors',[],<%=user.grades.length%>)" type="submit" class="btn btn-default btn-lg">
+                                Randomize
+                            </button>
+                        </form>
+                        <h3>Overall Appearance</h3>
                         <form id="updateAppearance" class="form-signin" action="/updateappearance" method="post">
                             <label style="cursor: pointer">
                                 <input id="darkModeToggle" type="checkbox" name="darkMode" <% if (user.appearance.darkMode) { %> checked <% } %>>Dark Mode
@@ -90,6 +105,49 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script type="text/javascript">
 
+    let lockedColors = [];
+
+    function getLockedColorIndices() {
+        let result = [];
+        let index = 0;
+        for (let i = 0; i < lockedColors.length; i++) {
+            if (lockedColors[i] == 'Locked') {
+                result[index] = i;
+                index++;
+            }
+        }
+        return result;
+    }
+
+    function updateClassColorsDisplay() {
+        for (let i = 0; i < user.grades.length; i++) {
+            let id = '#classColor' + i.toString();
+            if (lockedColors[i] == 'Locked') {
+                $(id).css('fontWeight','bolder');
+            } else {
+                $(id).css('fontWeight','normal');
+            }
+        }
+    }
+
+    function toggleColor(index) {
+        if (lockedColors == []) {
+            lockedColors = Array(user.grades.length).fill('Unlocked');
+        }
+        if (lockedColors[index] === 'Locked') {
+            lockedColors[index] = 'Unlocked';
+        } else {
+            lockedColors[index] = 'Locked';
+        }
+    }
+
+    function updateClassColors(numClasses, colorsString) {
+        let colors = colorsString;//.split(',');
+        for (let i = 0; i < numClasses; i++) {
+            document.getElementById('classColor' + i).style.color = colors[i];
+        }
+    }
+
     function updateSchoolUsernameDisplay() {
         document.getElementById('schoolUsernameDisplay').textContent = document.getElementById('school_email').value;
     }
@@ -102,34 +160,56 @@
             // Stop the browser from submitting the form.
             event.preventDefault();
 
-            // Serialize the form data.
-            let formData = $(form).serialize();
+            let formData;
+            let message;
 
-            // Get the messages.
-            let formMessagesDiv = $(messagesDivID);
-            let message = $(formMessagesDiv).find('.messageTxt');
+            // Different behavior for class colors
+            if (formID == '#randomizeClassColors') {
+                // Locked colors stored in fieldIDsToClear
+                let data = getLockedColorIndices();
+                let dataArr = []
+                for (let i = 0; i < data.length; i++) {
+                    dataArr.push(`${data[i]}`);
+                }
+                formData = 'lockedColorIndices=' + JSON.stringify(dataArr) + ''
+            } else {
+                // Serialize the form data.
+                formData = $(form).serialize();
+
+                // Get the messages.
+                let formMessagesDiv = $(messagesDivID);
+                message = $(formMessagesDiv).find('.messageTxt');
+            }
 
             // Submit the form using AJAX.
             $.ajax({
                 type: 'POST',
                 url: $(form).attr('action'),
-                data: formData
+                data: formData,
+                async: false
             })
 
             .done(function(response) {
-                // Make sure that the formMessages div has the alert-success class.
-                $(formMessagesDiv).removeClass('alert-danger');
-                $(formMessagesDiv).addClass('alert-success');
+                // Special behavior for class colors.
+                if (formID == '#randomizeClassColors') {
+                    // numClasses is contained in messagesDivID
+                    // colors come from response
+                    updateClassColors(messagesDivID, response);
+                } else {
+                    // Make sure that the formMessages div has the alert-success class.
+                    $(formMessagesDiv).removeClass('alert-danger');
+                    $(formMessagesDiv).addClass('alert-success');
 
-                // Set the message text.
-                $(message).text(response);
+                    // Set the message text.
+                    $(message).text(response);
 
-                // Show the div.
-                $(formMessagesDiv).css('display','block');
+                    // Show the div.
+                    $(formMessagesDiv).css('display', 'block');
 
-                // Clear fields to clear
-                for (let i = 0; i < fieldIDsToClear.length; i++) {
-                    $(fieldIDsToClear[i]).val('');
+                    // Clear fields to clear
+                    for (let i = 0; i < fieldIDsToClear.length; i++) {
+                        $(fieldIDsToClear[i]).val('');
+                    }
                 }
             })
 
