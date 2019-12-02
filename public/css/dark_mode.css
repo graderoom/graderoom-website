@@ -329,6 +329,8 @@ html {
     padding: 0.25rem;
     background-color: #333333;
     cursor: context-menu;
+    width: max-content;
+    margin: auto;
 }
 
 .tablinks {
