@@ -215,7 +215,7 @@ app.post('/changealertsettings', isLoggedIn, (req, res) => {
 });
 
 app.post('/randomizeclasscolors', isLoggedIn, (req, res) => {
-    let resp = authenticator.setRandomDefaultColors(req.user.username, req.body.lockedColorIndices);
+    let resp = authenticator.setRandomClassColors(req.user.username, req.body.lockedColorIndices);
     if (resp.success) {
         res.status(200).send(resp.message);
     } else {
