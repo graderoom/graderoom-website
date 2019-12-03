@@ -21,7 +21,7 @@
     <% include partials/user/edit_weights_card.ejs %>
 
     <!-- Class Links -->
-    <ul class="mx-5 my-3 nav nav-fill" style="border-bottom: 2px solid #999999; color: #BBBBBB;" >
+    <ul id="classLinks" class="mx-5 my-3 nav nav-fill" style="border-bottom: 2px solid #969696; color: #BBBBBB;" >
         <li class="nav-item active" id="link-1">
             <a class="nav-link" onclick="showPage(-1)">Overview</a>
         </li>
@@ -85,7 +85,6 @@
                     <a class="close" data-dismiss="alert" aria-label="close">X</a>
                     <span id="weightmsg_text-1"></span><u style="float: right; cursor: pointer" onclick="showUpdateWeights()">Add Weights</u>
                 </div>
-                <a class="btn btn-med" onclick="showUpdateWeights()">Edit Weights</a>
                 <div id="chart-container-1" class="chart-container" style="position: relative; height:60vh; width:75vw;margin: 0 auto;">
                     <canvas id="chart-1" class="chart" style="width:50%; margin: auto;"></canvas>
                 </div>
@@ -99,7 +98,6 @@
                 <a class="close" data-dismiss="alert" aria-label="close">X</a>
                 <span id="weightmsg_text<%=i%>"></span>
             </div>
-            <a class="btn btn-med" onclick="showUpdateWeights(<%=i%>)">Edit Weights</a>
             <div id="chart-container<%=i%>" class="chart-container" style="position: relative; height:40vh; width:50vw;margin: 0 auto;">
                 <canvas id="chart<%=i%>" class="chart" style="width:50%; margin: auto;"></canvas>
             </div>
@@ -562,6 +560,12 @@
                 document.getElementById("section" + i).style.display = "none";
             }
             document.getElementById("section" + id).style.display = "block";
+
+            if (id == -1) {
+                document.getElementById("classLinks").style.borderBottomColor = brighten("#BBBBBB",-20);
+            } else {
+                document.getElementById("classLinks").style.borderBottomColor = brighten(user.appearance.classColors[id],-20);
+            }
         }
 
     </script>
