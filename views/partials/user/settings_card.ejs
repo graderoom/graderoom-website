@@ -196,6 +196,7 @@
             let formData;
             let message;
             let formMessagesDiv;
+            let async;
 
             // Different behavior for class colors
             if (formID == '#randomizeClassColors') {
@@ -205,6 +206,7 @@
                     dataArr.push(`${data[i]}`);
                 }
                 formData = 'lockedColorIndices=' + JSON.stringify(dataArr);
+                async = false;
             } else {
                 // Serialize the form data.
                 formData = $(form).serialize();
@@ -212,6 +214,7 @@
                 // Get the messages.
                 formMessagesDiv = $(messagesDivID);
                 message = $(formMessagesDiv).find('.messageTxt');
+                async = true;
             }
 
             // Submit the form using AJAX.
@@ -219,7 +222,7 @@
                 type: 'POST',
                 url: $(form).attr('action'),
                 data: formData,
-                async: false
+                async: async
             })
 
             .done(function(response) {
