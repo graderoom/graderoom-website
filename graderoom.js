@@ -11,7 +11,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const passport = require('passport');
 const dbConn = require('./authenticator.js');
-const os = require('os');
+const fs = require('fs');
 
 const usingHttps = false;
 
