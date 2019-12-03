@@ -62,7 +62,7 @@ if (usingHttps) {
 
     const domainName = 'graderoom.me';
 
-    const privateKey = fs.readFileSync('etc/letsencrypt/live/' + domainName + '/privkey.pem', 'utf8');
+    const privateKey = fs.readFileSync('/etc/letsencrypt/live/' + domainName + '/privkey.pem', 'utf8');
     const certificate = fs.readFileSync('/etc/letsencrypt/live/' + domainName + '/cert.pem', 'utf8');
     const ca = fs.readFileSync('/etc/letsencrypt/live/' + domainName + '/chain.pem', 'utf8');
 
