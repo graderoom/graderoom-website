@@ -90,10 +90,6 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
     font-weight: bolder;
 }
 
-.nav :hover {
-    font-size: large;
-}
-
 /* Card Styling */
 .card {
     background: #333333;
