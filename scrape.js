@@ -11,6 +11,7 @@ module.exports = {
             // pythonOptions: ['-u'], // get print results in real-time
             // // scriptPath: 'path/to/my/scripts',
             // // scriptPath: 'path/to/my/scripts',
+            pythonPath: 'python3',
             args: [email, password]
         };
 
