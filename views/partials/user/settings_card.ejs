@@ -12,14 +12,44 @@
                     <h1 class="card-title text-center"><span class="fa fa-cog"></span> Settings</h1>
                 </div>
                 <div class="tab">
-                    <btn id="btnAppearance" class="tablinks active" onclick="openTab('Appearance'); openSubTab('Appearance','Class Colors')">Appearance</btn>
-                    <btn id="btnAccount" class="tablinks" onclick="openTab('Account')">Account</btn>
+                    <btn id="btnAccount" class="tablinks active" onclick="openTab('Account')">Account</btn>
+                    <btn id="btnAppearance" class="tablinks" onclick="openTab('Appearance'); openSubTab('Appearance','Class Colors')">Appearance</btn>
                     <btn id="btnAlerts" class="tablinks" onclick="openTab('Alerts')">Alerts</btn>
                 </div>
-                <div id="Appearance" class="tabcontent" style="display:block">
+                <div id="Account" class="tabcontent" style="display:block">
+                    <div class="card-body">
+                        <div id="accountSettingsMessage" class="alert alert-success alert-dismissible" style="display:none">
+                            <div class="messageTxt"></div>
+                            <a class="close" onclick="closeMessage('accountSettingsMessage')" aria-label="close">X</a>
+                        </div>
+                        <form id="changePassword" class="form-signin" action="/changepassword" method="post">
+                            <div class="form-group">
+                                <label>Change Password</label>
+                                <input id="password" type="password" class="form-control" name="password">
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" onclick="ajaxPostForm('#changePassword',['#password'],'#accountSettingsMessage')" class="btn btn-default btn-lg">
+                                    Change Password
+                                </button>
+                            </div>
+                        </form>
+                        <form id="changeSchoolEmail" class="form-signin" style="margin-top: 1em" action="/changeschoolemail" method="post">
+                            <div class="form-group">
+                                <label>Change School Email</label>
+                                <input id="school_email" type="text" class="form-control" name="school_email">
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" onclick="ajaxPostForm('#changeSchoolEmail',['#school_email'],'#accountSettingsMessage'); updateSchoolUsernameDisplay()" class="btn btn-default btn-lg">
+                                    Change School Email
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div id="Appearance" class="tabcontent" style="display:none">
                     <div class="card-body" style="cursor: default">
                         <div class="tab" style="width: ">
-                            <btn id="btnClass Colors" class="tablinks active" onclick="openSubTab('Appearance','Class Colors')">Class Colors</btn>
+                            <btn id="btnClass Colors" class="tablinks" onclick="openSubTab('Appearance','Class Colors')">Class Colors</btn>
                             <btn id="btnTheme" class="tablinks" onclick="openSubTab('Appearance','Theme')">Theme</btn>
                         </div>
                         <div id="Class Colors" class="tabcontent" style="display:block">
@@ -54,36 +84,6 @@
                                 </button>
                             </form>
                         </div>
-                    </div>
-                </div>
-                <div id="Account" class="tabcontent">
-                    <div class="card-body">
-                        <div id="accountSettingsMessage" class="alert alert-success alert-dismissible" style="display:none">
-                            <div class="messageTxt"></div>
-                            <a class="close" onclick="closeMessage('accountSettingsMessage')" aria-label="close">X</a>
-                        </div>
-                        <form id="changePassword" class="form-signin" action="/changepassword" method="post">
-                            <div class="form-group">
-                                <label>Change Password</label>
-                                <input id="password" type="password" class="form-control" name="password">
-                            </div>
-                            <div class="text-center">
-                                <button type="submit" onclick="ajaxPostForm('#changePassword',['#password'],'#accountSettingsMessage')" class="btn btn-default btn-lg">
-                                    Change Password
-                                </button>
-                            </div>
-                        </form>
-                        <form id="changeSchoolEmail" class="form-signin" style="margin-top: 1em" action="/changeschoolemail" method="post">
-                            <div class="form-group">
-                                <label>Change School Email</label>
-                                <input id="school_email" type="text" class="form-control" name="school_email">
-                            </div>
-                            <div class="text-center">
-                                <button type="submit" onclick="ajaxPostForm('#changeSchoolEmail',['#school_email'],'#accountSettingsMessage'); updateSchoolUsernameDisplay()" class="btn btn-default btn-lg">
-                                    Change School Email
-                                </button>
-                            </div>
-                        </form>
                     </div>
                 </div>
                 <div id="Alerts" class="tabcontent">
@@ -195,6 +195,7 @@
 
             let formData;
             let message;
+            let formMessagesDiv;
 
             // Different behavior for class colors
             if (formID == '#randomizeClassColors') {
@@ -209,7 +210,7 @@
                 formData = $(form).serialize();
 
                 // Get the messages.
-                let formMessagesDiv = $(messagesDivID);
+                formMessagesDiv = $(messagesDivID);
                 message = $(formMessagesDiv).find('.messageTxt');
             }
 
