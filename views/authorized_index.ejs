@@ -96,7 +96,7 @@
         <span id="section<%=i%>" style="display: none;">
             <div class="alert alert-danger alert-dismissible" id="weightmsg<%=i%>" style="display:none">
                 <a class="close" data-dismiss="alert" aria-label="close">X</a>
-                <span id="weightmsg_text<%=i%>"></span>
+                <span id="weightmsg_text<%=i%>"></span></span><u style="float: right; cursor: pointer" onclick="showUpdateWeights()">Add Weights</u>
             </div>
             <div id="chart-container<%=i%>" class="chart-container" style="position: relative; height:40vh; width:50vw;margin: 0 auto;">
                 <canvas id="chart<%=i%>" class="chart" style="width:50%; margin: auto;"></canvas>
@@ -360,7 +360,8 @@
                                 }
                                 chart.update(2000);
                             }
-                        }, 3000);
+
+                        }, 6000);
                     },
                     scales: {
                         xAxes: [{
