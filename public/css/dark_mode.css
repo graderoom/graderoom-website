@@ -87,7 +87,11 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
 
 .nav .active {
     color: #FFFFFF;
-    font-weight: bold;
+    font-weight: bolder;
+}
+
+.nav :hover {
+    font-size: large;
 }
 
 /* Card Styling */
