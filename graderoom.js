@@ -1,7 +1,9 @@
 const express = require('express');
 const app = express();
 const http = require('http');
-const port = process.env.PORT || 8080;
+const https = require('https');
+const httpPort = 80; //process.env.PORT || 8080;
+const httpsPort = 443; //process.env.PORT || 8080;
 const flash = require('connect-flash');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
@@ -10,6 +12,8 @@ const session = require('express-session');
 const passport = require('passport');
 const dbConn = require('./authenticator.js');
 const os = require('os');
+
+const usingHttps = false;
 
 app.use('/public/', express.static('./public'));
 require('./passport')(passport); // pass passport for configuration
@@ -52,25 +56,34 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 // routes ======================================================================
 require('./routes.js')(app, passport); // load our routes and pass in our app and fully configured passport
 
-// get ipv4 address ============================================================
-// Connecting through another device requires disabling windows firewall
-let networkInterfaces = Object.values(os.networkInterfaces());
-let ips = [];
-for (let i = 0; i < networkInterfaces.length; i++) {
-    if (i === 0) {
-        ips = Object.values(networkInterfaces[0]);
-    } else {
-        ips = ips.concat(Object.values(networkInterfaces[i]))
-    }
-}
-let ipv4 = "";
-for (let i = 0; i < ips.length; i++) {
-    if (ips[i]["address"].indexOf(".") !== -1 && !ips[i]["internal"]) {
-        ipv4 = ips[i]["address"];
-    }
-}
 
 // launch ======================================================================
-app.listen(port);
-console.log('Listening on ' + ipv4 + ':' + port + ' (localhost:' + port + ')');
-console.log('Use http://localhost:' + port + ' or http://' + ipv4 + ':' + port);
+if (usingHttps) {
+
+    const domainName = 'graderoom.me';
+
+    const privateKey = fs.readFileSync('etc/letsencrypt/live/' + domainName + '/privkey.pem', 'utf8');
+    const certificate = fs.readFileSync('/etc/letsencrypt/live/' + domainName + '/cert.pem', 'utf8');
+    const ca = fs.readFileSync('/etc/letsencrypt/live/' + domainName + '/chain.pem', 'utf8');
+
+    const credentials = {
+        key: privateKey,
+        cert: certificate,
+        ca: ca
+    };
+
+    // Starting both http & https servers
+    const httpsServer = https.createServer(credentials, app);
+
+    httpsServer.listen(httpsPort, () => {
+        console.log('HTTPS Server running on port ' + httpsPort);
+    });
+
+}
+
+
+
+const httpServer = http.createServer(app);
+httpServer.listen(httpPort, () => {
+    console.log('HTTP Server running on port ' + httpPort);
+});
