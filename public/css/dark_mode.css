@@ -130,11 +130,11 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
     font-weight: 400;
 }
 
-#weightsCard h5 i::after{
+#weightsCard label h5 i::after{
     content: '\f107'; /*Arrow Icon Toggling*/
 }
 
-#weightsCard h5.collapsed i::after{
+#weightsCard label.collapsed h5 i::after{
     content: '\f105'; /*Arrow Icon Toggling*/
 }
 
