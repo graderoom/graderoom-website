@@ -92,14 +92,14 @@
         <% } %>
 
         <!-- Class Sections -->
-        <% for (let i = 0; i<JSON.parse(gradeData).length; i++) { %>
+        <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
         <span id="section<%=i%>" style="display: none;">
             <div class="alert alert-danger alert-dismissible" id="weightmsg<%=i%>" style="display:none">
                 <a class="close" data-dismiss="alert" aria-label="close">X</a>
                 <span id="weightmsg_text<%=i%>"></span></span><u style="float: right; cursor: pointer" onclick="showUpdateWeights()">Add Weights</u>
             </div>
             <div style="display:flex; align-items: center">
-                <% if (Object.keys(JSON.parse(weightData)).length > 0) { %>
+                <% if (JSON.parse(gradeData)[i].class_name in JSON.parse(weightData)) { %>
                     <div class="text-center" style="width: 25%">
                         <div id="overallGrade<%=i%>" style="font-weight: bolder; font-size: 80px; margin-bottom: 30px; color: <%=user.appearance.classColors[i]%>"></div>
                         <div id="overallLetterGrade<%=i%>" style="font-weight: bolder; font-size: 80px; margin-bottom: 30px; color: <%=user.appearance.classColors[i]%>"></div>
@@ -108,7 +108,7 @@
                 <div id="chart-container<%=i%>" class="chart-container" style="position: relative; height:40vh; width:50vw;margin: 0 auto;">
                     <canvas id="chart<%=i%>" class="chart" style="margin: auto;"></canvas>
                 </div>
-                <% if (Object.keys(JSON.parse(weightData)).length > 0) { %>
+                <% if (JSON.parse(gradeData)[i].class_name in JSON.parse(weightData)) { %>
                     <table class="table text-center" style="width: 25%; margin: 20px" id="weightsTable<%=i%>">
                         <thead><tr>
                             <th style="width: 50%">Category</th>
@@ -173,24 +173,24 @@
         let unobtainedWeights = {};
 
         parseData();
-        if (Object.keys(weights).length > 0) {
-            setupOverallGrades();
-            setupWeightsTables();
-        }
+        setupOverallGrades();
+        setupWeightsTables();
         updateWeightMessages();
         renderAllCharts();
 
         function setupOverallGrades() {
             for (let i = 0; i < data.length; i++) {
-                let overallGrade = getOverallGrade(i);
-                document.getElementById('overallLetterGrade' + i).textContent = getLetterGrade(overallGrade)
-                document.getElementById('overallGrade' + i).textContent = (+(overallGrade.toFixed(0))).toString();
+                if (data[i].class_name in weights) {
+                    let overallGrade = getOverallGrade(i);
+                    document.getElementById('overallLetterGrade' + i).textContent = getLetterGrade(overallGrade)
+                    document.getElementById('overallGrade' + i).textContent = (+(overallGrade.toFixed(0))).toString();
+                }
             }
         }
 
         function getOverallGrade(classIndex) {
-            if (Object.keys(weights).length > 0) {
-                let className = data[classIndex].class_name;
+            let className = data[classIndex].class_name;
+            if (className in weights) {
                 let classCategories = Object.keys(weights[className]);
                 let classWeights = Object.values(weights[className]);
                 let overallGrade = 0;
@@ -239,12 +239,16 @@
         function setupWeightsTables() {
             for (let i = 0; i < data.length; i++) {
                 let className = data[i].class_name;
-                let tableCategories = Object.keys(weights[className]);
-                let tableWeights = Object.values(weights[className]);
-                for (let j = 0; j < tableCategories.length; j++) {
-                    document.getElementById('weightTableCategory' + i + j).textContent = tableCategories[j];
-                    document.getElementById('weightTableWeight' + i + j).textContent = tableWeights[j] + '%';
-                    document.getElementById('weightTableGrade' + i + j).textContent = getCategoryGrade(i, tableCategories[j]);
+                if (className in weights) {
+                    if (weights[className]) {
+                        let tableCategories = Object.keys(weights[className]);
+                        let tableWeights = Object.values(weights[className]);
+                        for (let j = 0; j < tableCategories.length; j++) {
+                            document.getElementById('weightTableCategory' + i + j).textContent = tableCategories[j];
+                            document.getElementById('weightTableWeight' + i + j).textContent = tableWeights[j] + '%';
+                            document.getElementById('weightTableGrade' + i + j).textContent = getCategoryGrade(i, tableCategories[j]);
+                        }
+                    }
                 }
             }
         }
