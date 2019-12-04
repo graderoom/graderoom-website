@@ -99,16 +99,16 @@
                 <span id="weightmsg_text<%=i%>"></span></span><u style="float: right; cursor: pointer" onclick="showUpdateWeights()">Add Weights</u>
             </div>
             <div style="display:flex; align-items: center">
-                <% if (JSON.parse(weightData).length > 0) { %>
-                    <div class="text-center">
-                        <div id="overallGrade<%=i%>" style="font-weight: bolder; font-size: 100px; color: <%=user.appearance.classColors[i]%>"></div>
-                        <div id="overallLetterGrade<%=i%>" style="font-weight: bolder; font-size: 100px; color: <%=user.appearance.classColors[i]%>"></div>
+                <% if (Object.keys(JSON.parse(weightData)).length > 0) { %>
+                    <div class="text-center" style="width: 25%">
+                        <div id="overallGrade<%=i%>" style="font-weight: bolder; font-size: 80px; margin-bottom: 30px; color: <%=user.appearance.classColors[i]%>"></div>
+                        <div id="overallLetterGrade<%=i%>" style="font-weight: bolder; font-size: 80px; margin-bottom: 30px; color: <%=user.appearance.classColors[i]%>"></div>
                     </div>
                 <% } %>
                 <div id="chart-container<%=i%>" class="chart-container" style="position: relative; height:40vh; width:50vw;margin: 0 auto;">
                     <canvas id="chart<%=i%>" class="chart" style="margin: auto;"></canvas>
                 </div>
-                <% if (JSON.parse(weightData).length > 0) { %>
+                <% if (Object.keys(JSON.parse(weightData)).length > 0) { %>
                     <table class="table text-center" style="width: 25%; margin: 20px" id="weightsTable<%=i%>">
                         <thead><tr>
                             <th style="width: 50%">Category</th>
@@ -173,7 +173,7 @@
         let unobtainedWeights = {};
 
         parseData();
-        if (weights.length > 0) {
+        if (Object.keys(weights).length > 0) {
             setupOverallGrades();
             setupWeightsTables();
         }
@@ -189,7 +189,7 @@
         }
 
         function getOverallGrade(classIndex) {
-            if (weights.length > 0) {
+            if (Object.keys(weights).length > 0) {
                 let className = data[classIndex].class_name;
                 let classCategories = Object.keys(weights[className]);
                 let classWeights = Object.values(weights[className]);
