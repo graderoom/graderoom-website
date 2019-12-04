@@ -116,13 +116,19 @@
                             <th style="width: 25%">Grade</th>
                         </tr></thead>
 
-                        <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]).length; j++) { %>
-                            <tr>
-                                <td id="weightTableCategory<%=i%><%=j%>" ></td>
-                                <td id="weightTableWeight<%=i%><%=j%>" ></td>
-                                <td id="weightTableGrade<%=i%><%=j%>" ></td>
-                            </tr>
-                        <% } %>
+                        <tbody>
+                            <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]).length; j++) { %>
+                                <tr>
+                                    <td id="weightTableCategory<%=i%><%=j%>" ></td>
+                                    <td id="weightTableWeight<%=i%><%=j%>" ></td>
+                                    <td id="weightTableGrade<%=i%><%=j%>" ></td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+
+                        <tfoot><tr>
+                            <th colspan="3" id="weightTableOverallGrade<%=i%>"></th>
+                        </tr></tfoot>
                     </table>
                 <% } %>
             </div>
@@ -136,23 +142,25 @@
                     <th style="width:25%;">Score</th>
                 </tr></thead>
 
-                <% for (let grade of JSON.parse(gradeData)[i].grades) { %>
-                    <tr>
-                        <td><%= grade.assignment_name%> </td>
-                        <td><%= grade.date%> </td>
-                        <td><%= grade.category%> </td>
-                        <% if (grade.grade_percent == -1) { %>
-                        <td></td>
-                        <% } else { %>
-                        <td><%= grade.grade_percent %></td>
-                        <% } %>
-                        <% if (grade.points_possible != 0) { %>
-                        <td><%= grade.points_gotten %>/<%= grade.points_possible %></td>
-                        <% } else { %>
-                        <td><%= grade.points_gotten %></td>
-                        <% } %>
-                    </tr>
-                <% } %>
+                <tbody>
+                    <% for (let grade of JSON.parse(gradeData)[i].grades) { %>
+                        <tr>
+                            <td><%= grade.assignment_name%> </td>
+                            <td><%= grade.date%> </td>
+                            <td><%= grade.category%> </td>
+                            <% if (grade.grade_percent == -1) { %>
+                            <td></td>
+                            <% } else { %>
+                            <td><%= grade.grade_percent %></td>
+                            <% } %>
+                            <% if (grade.points_possible != 0) { %>
+                            <td><%= grade.points_gotten %>/<%= grade.points_possible %></td>
+                            <% } else { %>
+                            <td><%= grade.points_gotten %></td>
+                            <% } %>
+                        </tr>
+                    <% } %>
+                </tbody>
             </table>
         </span>
         <% } %>
@@ -188,19 +196,27 @@
             }
         }
 
+        function getTotalWeight(classIndex) {
+            let className = data[classIndex].class_name;
+            let classWeights = Object.values(weights[className]);
+            let totalWeight = 0;
+            for (let i = 0; i < classWeights.length; i++) {
+                totalWeight += classWeights[i];
+            }
+            return totalWeight;
+        }
+
         function getOverallGrade(classIndex) {
             let className = data[classIndex].class_name;
             if (className in weights) {
                 let classCategories = Object.keys(weights[className]);
                 let classWeights = Object.values(weights[className]);
                 let overallGrade = 0;
-                let totalWeights = 0;
                 for (let i = 0; i < classCategories.length; i++) {
-                    totalWeights += classWeights[i];
                     overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i] / 100;
                     console.log(overallGrade);
                 }
-                let ratio = 100 / totalWeights;
+                let ratio = 100 / getTotalWeight(classIndex);
                 overallGrade *= ratio;
                 return overallGrade;
             }
@@ -248,6 +264,8 @@
                             document.getElementById('weightTableWeight' + i + j).textContent = tableWeights[j] + '%';
                             document.getElementById('weightTableGrade' + i + j).textContent = getCategoryGrade(i, tableCategories[j]);
                         }
+                        let overallGrade = getOverallGrade(i);
+                        document.getElementById('weightTableOverallGrade' + i).textContent = (+(overallGrade.toFixed(3))).toString() + '% (' + getLetterGrade(overallGrade) + ')';
                     }
                 }
             }
