@@ -98,11 +98,32 @@
                 <a class="close" data-dismiss="alert" aria-label="close">X</a>
                 <span id="weightmsg_text<%=i%>"></span></span><u style="float: right; cursor: pointer" onclick="showUpdateWeights()">Add Weights</u>
             </div>
-            <div id="chart-container<%=i%>" class="chart-container" style="position: relative; height:40vh; width:50vw;margin: 0 auto;">
-                <canvas id="chart<%=i%>" class="chart" style="width:50%; margin: auto;"></canvas>
+            <div style="display:flex; align-items: center">
+                <div class="text-center">
+                    <div id="overallGrade<%=i%>" style="font-weight: bolder; font-size: 100px; color: <%=user.appearance.classColors[i]%>"></div>
+                    <div id="overallLetterGrade<%=i%>" style="font-weight: bolder; font-size: 100px; color: <%=user.appearance.classColors[i]%>"></div>
+                </div>
+                <div id="chart-container<%=i%>" class="chart-container" style="position: relative; height:40vh; width:50vw;margin: 0 auto;">
+                    <canvas id="chart<%=i%>" class="chart" style="margin: auto;"></canvas>
+                </div>
+                <table class="table text-center" style="width: 25%; margin: 20px" id="weightsTable<%=i%>">
+                    <thead><tr>
+                        <th style="width: 50%">Category</th>
+                        <th style="width: 25%">Weight</th>
+                        <th style="width: 25%">Grade</th>
+                    </tr></thead>
+
+                    <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]).length; j++) { %>
+                        <tr>
+                            <td id="weightTableCategory<%=i%><%=j%>" ></td>
+                            <td id="weightTableWeight<%=i%><%=j%>" ></td>
+                            <td id="weightTableGrade<%=i%><%=j%>" ></td>
+                        </tr>
+                    <% } %>
+                </table>
             </div>
             <hr>
-            <table class="table" id="table<%=i%>">
+            <table class="table text-center" id="table<%=i%>">
                 <thead><tr>
                     <th style="width:25%;">Assignment Name</th>
                     <th style="width:25%;">Date</th>
@@ -148,8 +169,92 @@
         let unobtainedWeights = {};
 
         parseData();
+        setupOverallGrades();
+        setupWeightsTables();
         updateWeightMessages();
         renderAllCharts();
+
+        function setupOverallGrades() {
+            for (let i = 0; i < data.length; i++) {
+                let overallGrade = getOverallGrade(i);
+                document.getElementById('overallLetterGrade' + i).textContent = getLetterGrade(overallGrade)
+                document.getElementById('overallGrade' + i).textContent = (+(overallGrade.toFixed(0))).toString();
+            }
+        }
+
+        function getOverallGrade(classIndex) {
+            let className = data[classIndex].class_name;
+            let classCategories = Object.keys(weights[className]);
+            let classWeights = Object.values(weights[className]);
+            let overallGrade = 0;
+            let totalWeights = 0;
+            for (let i = 0; i < classCategories.length; i++) {
+                totalWeights += classWeights[i];
+                overallGrade += getCategoryGrade(classIndex,classCategories[i]) * classWeights[i] / 100;
+                console.log(overallGrade);
+            }
+            let ratio = 100 / totalWeights;
+            overallGrade *= ratio;
+            return overallGrade;
+        }
+
+        function getLetterGrade(grade) {
+            if (grade >= 97.5) {
+                return 'A+';
+            } else if (grade >= 92.5) {
+                return 'A';
+            } else if (grade >= 89.5) {
+                return 'A-';
+            } else if (grade >= 87.5) {
+                return 'B+';
+            } else if (grade >= 82.5) {
+                return 'B';
+            } else if (grade >= 79.5) {
+                return 'B-';
+            } else if (grade >= 77.5) {
+                return 'C+';
+            } else if (grade >= 72.5) {
+                return 'C';
+            } else if (grade >= 69.5) {
+                return 'C-';
+            } else if (grade >= 67.5) {
+                return 'D+';
+            } else if (grade >= 62.5) {
+                return 'D';
+            } else if (grade >= 59.5) {
+                return 'D-';
+            }
+            return 'F';
+        }
+
+        function setupWeightsTables() {
+            for (let i = 0; i < data.length; i++) {
+                let className = data[i].class_name;
+                let tableCategories = Object.keys(weights[className]);
+                let tableWeights = Object.values(weights[className]);
+                for (let j = 0; j < tableCategories.length; j++) {
+                    document.getElementById('weightTableCategory' + i + j).textContent = tableCategories[j];
+                    document.getElementById('weightTableWeight' + i + j).textContent = tableWeights[j] + '%';
+                    document.getElementById('weightTableGrade' + i + j).textContent = getCategoryGrade(i, tableCategories[j]);
+                }
+            }
+        }
+
+        function getCategoryGrade(classIndex, categoryName) {
+            let grades = data[classIndex].grades;
+            let totalGotten = 0;
+            let totalPossible = 0;
+            for (let i = 0; i < grades.length; i++) {
+                if (!grades[i].exclude && grades[i].category == categoryName) {
+                    totalGotten += grades[i].points_gotten;
+                    totalPossible += grades[i].points_possible;
+                }
+            }
+            if (totalPossible == 0) {
+                return 0;
+            }
+            return +((totalGotten / totalPossible * 100).toFixed(3));
+        }
 
         function showWeightMessage(msg,id) {
             let wmRef = document.getElementById("weightmsg"+id);
