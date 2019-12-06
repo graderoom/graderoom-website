@@ -128,6 +128,7 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
     font-family: 'Montserrat';
     font-size: 1.1rem;
     font-weight: 400;
+    padding-top: 8px;
 }
 
 #weightsCard label h5 i::after{
@@ -141,11 +142,10 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
 #weightsCard h5.collapsed {
     border-top: none;
 }
-#weightsCard h5.collapsed ~ span.collase-undeline {
+#weightsCard h5.collapsed ~ span.collapse-underline {
     border-bottom: none;
 }
-#weightsCard h5 {
-    /* border-top: 1px solid #999; */
+#weightsCard h5.class {
     padding-top: 0.5rem;
 }
 #weightsCard h5 ~ span.collapse-underline{
@@ -160,8 +160,7 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
 #weightsCard .form-signin .btn {
     width: auto;
     padding: .375rem .75rem;
-    margin: 0;
-    margin-bottom: 1rem;
+    margin: 0 0 1rem;
     background: #999;
 }
 
@@ -193,8 +192,8 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
 
 #weightsCard input.text-view {
     border-color: white;
-    border:none;
-    padding:0;
+    border-bottom: 1px transparent;
+    padding: .1rem .1rem;
 }
 
 #weightsCard input.text-view:hover, #weightsCard input.text-view:focus  {
@@ -340,7 +339,7 @@ html {
 /* Style the buttons that are used to open the tab content */
 .tab btn {
     background: none;
-    color: #555555;
+    color: #888888;
     float: left;
     border: none;
     outline: none;
@@ -358,7 +357,7 @@ html {
 /* Create an active/current tablink class */
 .tab btn.active {
     background-color: #444444;
-    color: #BBBBBB;
+    color: #DDDDDD;
     font-weight: bold;
 }
 
