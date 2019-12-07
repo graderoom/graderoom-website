@@ -19,6 +19,12 @@ app.use('/public/', express.static('./public'));
 require('./passport')(passport); // pass passport for configuration
 
 // set up our express application
+if (usingHttps) {
+    app.use(morgan('common', {
+        stream: fs.createWriteStream('./graderoom.log', {flags: 'a'})
+    }));
+}
+
 app.use(morgan('dev')); // log every request to the console
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser.json()); // get information from html forms
