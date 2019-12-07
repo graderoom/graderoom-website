@@ -13,7 +13,7 @@ const passport = require('passport');
 const dbConn = require('./authenticator.js');
 const fs = require('fs');
 
-const usingHttps = false;
+const usingHttps = process.argv[2] === undefined ? false : process.argv[2];
 
 app.use('/public/', express.static('./public'));
 require('./passport')(passport); // pass passport for configuration
