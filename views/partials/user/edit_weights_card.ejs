@@ -32,14 +32,15 @@
                                         weights.push(assignment.category); %>
                                         <div class="form-group" style="display: flex; align-items: flex-end;">
                                             <% let value = ""; try {value = JSON.parse(weightData)[grade.class_name][assignment.category]} catch {}; %>
-                                            <label style="font-size: 0.9rem; color:<%=user.appearance.classColors[i]%>; <%if(value == ""){%> color: lightcoral!important; <%}%> white-space: nowrap; margin-bottom: 0;"><%=assignment.category%>:&nbsp</label>
-                                            <input  value='<%=value%>' 
-                                                    type="number" 
-                                                    min="0"
-                                                    class="form-control <%if(value){%> text-view <%}%>" 
-                                                    name="<%=assignment.category%>" 
-                                                    oninput="this.classList.remove('text-view'); showSubmitButton(this); "
-                                                    required> 
+                                            <label id="label<%=i%><%=weights.indexOf(assignment.category)%>" style="font-size: 0.9rem; color:<%=user.appearance.classColors[i]%>; <%if(value == ""){%> color: lightcoral!important; <%}%> white-space: nowrap; margin-bottom: 0;"><%=assignment.category%>:&nbsp</label>
+                                            <input id="value<%=i%><%=weights.indexOf(assignment.category)%>"
+                                                   value='<%=value%>'
+                                                   type="number"
+                                                   min="0"
+                                                   class="form-control <%if(value){%> text-view <%}%>"
+                                                   name="<%=assignment.category%>"
+                                                   oninput="this.classList.remove('text-view'); showSubmitButton(this); "
+                                                   required>
                                         </div>
                                     <% } %>
                                 <% } %>
@@ -100,7 +101,7 @@
                         weightURI = encodeURIComponent(JSON.stringify(weightURI));
 
                         let className = encodeURI($(form).find('h5').attr('id'));
-                        formData = "className="+className+"&newWeights="+weightURI;
+                        let formData = "className="+className+"&newWeights="+weightURI;
 
                         let formMessagesDiv = $(this).find('.alert-custom');
                         let message = $(this).find('.messageTxt');
@@ -118,6 +119,16 @@
                             $(form).find("input").each(function() {
                                 $(this).addClass("text-view");
                             })
+
+                            for (let i = 0; i < <%- gradeData %>.length; i++) {
+                                let j = 0;
+                                while ($('#label' + i + j).length) {
+                                    if ($('#value' + i + j).val() != '') {
+                                        $('#label' + i + j).css('color',user.appearance.classColors[i]);
+                                    }
+                                    j++;
+                                }
+                            }
                             
                             // Set the message text.
                             $(message).text(response);
