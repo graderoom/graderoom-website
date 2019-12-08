@@ -64,8 +64,18 @@
         $(element).parents("form").find(".formSubmitButton").css('display','block');
     }
     function showUpdateWeights(defaultId) {
-        if (defaultId === undefined) 
+        if (defaultId === undefined)
+        {
             defaultId = 0;
+            if (!(Object.keys(unobtainedWeights).length === 0))
+            {
+                let classNameToOpen = Object.keys(unobtainedWeights)[0];
+                for (let i = 0; i < data.length; i++)
+                    if (data[i].class_name == classNameToOpen)
+                        defaultId = i;
+            }
+        }
+            
         showDiv('updateWeightsDisplay');
         if ($("form.form-weights").length > 0) {
             $("form.form-weights").each(function () {
