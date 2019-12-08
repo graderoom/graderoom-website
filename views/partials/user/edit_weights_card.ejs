@@ -32,10 +32,10 @@
                                         weights.push(assignment.category); %>
                                         <div class="form-group" style="display: flex; align-items: flex-end;">
                                             <% let value = ""; try {value = JSON.parse(weightData)[grade.class_name][assignment.category]} catch {}; %>
-                                            <label style="font-size: 0.9rem; <%if(value == ""){%> color: lightcoral!important; <%}%> white-space: nowrap; margin-bottom: 0;"><%=assignment.category%>:&nbsp</label>
+                                            <label style="font-size: 0.9rem; color:<%=user.appearance.classColors[i]%>; <%if(value == ""){%> color: lightcoral!important; <%}%> white-space: nowrap; margin-bottom: 0;"><%=assignment.category%>:&nbsp</label>
                                             <input  value='<%=value%>' 
                                                     type="number" 
-                                                    min="0" 
+                                                    min="0"
                                                     class="form-control <%if(value){%> text-view <%}%>" 
                                                     name="<%=assignment.category%>" 
                                                     oninput="this.classList.remove('text-view'); showSubmitButton(this); "
@@ -118,9 +118,6 @@
                             $(form).find("input").each(function() {
                                 $(this).addClass("text-view");
                             })
-                            $(form).find("label").each(function() {
-                                $(this).css('color','#DDDDDD');
-                            })
                             
                             // Set the message text.
                             $(message).text(response);
@@ -130,7 +127,6 @@
 
                             parseData();
                             updateWeightMessages();
-                            renderAllCharts();
                         })
 
                         .fail(function(data) {

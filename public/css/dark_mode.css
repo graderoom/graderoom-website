@@ -240,7 +240,7 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
 }
 
 .form-group:focus-within label {
-    color: #BBBBBB !important;
+    font-weight: bold;
 }
 
 /* Input Form Background Images */
