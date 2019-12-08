@@ -336,6 +336,9 @@
                             needWeights = true;
                         }
                     }
+
+                    if (localMissingCategories.length <=1) // Not need weights if only one weight
+                        needWeights = false;
                     // console.log("LMC")
                     // console.log(localMissingCategories)
 
