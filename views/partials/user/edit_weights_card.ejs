@@ -128,6 +128,11 @@
                             $(form).find("input").each(function() {
                                 $(this).addClass("text-view");
                             })
+
+                            let id = parseInt($(form).attr('id').replace(/\D/g,''));
+                            $(form).find("label").each(function() {
+                                $(this).css('color',user.appearance.classColors[id]);
+                            })
                             
                             // Set the message text.
                             $(message).text(response);
