@@ -90,7 +90,7 @@
         <span id="section<%=i%>" style="display: none;">
             <div class="alert alert-danger alert-dismissible" id="weightmsg<%=i%>" style="display:none">
                 <a class="close" data-dismiss="alert" aria-label="close">X</a>
-                <span id="weightmsg_text<%=i%>"></span></span><u style="float: right; cursor: pointer" onclick="showUpdateWeights()">Add Weights</u>
+                <span id="weightmsg_text<%=i%>"></span></span><u style="float: right; cursor: pointer" onclick="showUpdateWeights(<%=i%>)">Add Weights</u>
             </div>
             <div style="display:flex; align-items: center">
                 <% if (JSON.parse(gradeData)[i].class_name in JSON.parse(weightData)) { %>
@@ -170,6 +170,8 @@
         let user = <%- userRef %>;
         let data = <%- gradeData %>;
         let weights = <%- weightData %>;
+
+        console.log(data);
             
         let parsedData = [];
         let unobtainedWeights = {};

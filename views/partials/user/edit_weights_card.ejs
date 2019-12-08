@@ -32,9 +32,8 @@
                                         weights.push(assignment.category); %>
                                         <div class="form-group" style="display: flex; align-items: flex-end;">
                                             <% let value = ""; try {value = JSON.parse(weightData)[grade.class_name][assignment.category]} catch {}; %>
-                                            <label id="label<%=i%><%=weights.indexOf(assignment.category)%>" style="font-size: 0.9rem; color:<%=user.appearance.classColors[i]%>; <%if(value == ""){%> color: lightcoral!important; <%}%> white-space: nowrap; margin-bottom: 0;"><%=assignment.category%>:&nbsp</label>
-                                            <input id="value<%=i%><%=weights.indexOf(assignment.category)%>"
-                                                   value='<%=value%>'
+                                            <label style="font-size: 0.9rem; color:<%=user.appearance.classColors[i]%>; <%if(value == ""){%> color: lightcoral!important; <%}%> white-space: nowrap; margin-bottom: 0;"><%=assignment.category%>:&nbsp</label>
+                                            <input value='<%=value%>'
                                                    type="number"
                                                    min="0"
                                                    class="form-control <%if(value){%> text-view <%}%>"
@@ -65,8 +64,18 @@
         $(element).parents("form").find(".formSubmitButton").css('display','block');
     }
     function showUpdateWeights(defaultId) {
-        if (defaultId === undefined) 
+        if (defaultId === undefined)
+        {
             defaultId = 0;
+            if (!(Object.keys(unobtainedWeights).length === 0))
+            {
+                let classNameToOpen = Object.keys(unobtainedWeights)[0];
+                for (let i = 0; i < data.length; i++)
+                    if (data[i].class_name == classNameToOpen)
+                        defaultId = i;
+            }
+        }
+            
         showDiv('updateWeightsDisplay');
         if ($("form.form-weights").length > 0) {
             $("form.form-weights").each(function () {
@@ -120,15 +129,11 @@
                                 $(this).addClass("text-view");
                             })
 
-                            for (let i = 0; i < <%- gradeData %>.length; i++) {
-                                let j = 0;
-                                while ($('#label' + i + j).length) {
-                                    if ($('#value' + i + j).val() != '') {
-                                        $('#label' + i + j).css('color',user.appearance.classColors[i]);
-                                    }
-                                    j++;
-                                }
-                            }
+
+                            let id = parseInt($(form).attr('id').replace(/\D/g,''));
+                            $(form).find("label").each(function() {
+                                $(this).css('color',user.appearance.classColors[id]);
+                            })
                             
                             // Set the message text.
                             $(message).text(response);
