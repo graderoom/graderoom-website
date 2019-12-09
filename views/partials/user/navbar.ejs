@@ -57,10 +57,6 @@
 <% include settings_card.ejs %>
 <% include sync_grades_card.ejs %>
 
-<!-- JavaScript Imports -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-
 <!-- Custom JavaScript -->
 <script>
     function showDiv(id) {
@@ -109,7 +105,7 @@
             } catch(e) {}
             closeForm('updateGradesDisplay');
             closeForm('settingsCardDisplay');
-            hideDiv('updateWeightsDisplay');
+            closeForm('updateWeightsDisplay');
         }
     });
 </script>
