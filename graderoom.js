@@ -87,15 +87,12 @@ if (usingHttps) {
         console.log('HTTPS Server running on port ' + httpsPort);
     });
 
-} else {
-
-    const httpServer = http.createServer(app);
-    httpServer.listen(httpPort, () => {
-        console.log('HTTP Server running on port ' + httpPort);
-    });
-
 }
 
+const httpServer = http.createServer(app);
+httpServer.listen(httpPort, () => {
+    console.log('HTTP Server running on port ' + httpPort);
+});
 
 
 
