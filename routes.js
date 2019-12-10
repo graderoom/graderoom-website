@@ -6,7 +6,7 @@ module.exports = function(app, passport) {
 // normal routes ===============================================================
 
 // show the home page (will also have our login links)
-app.get('/', function(req, res) {
+app.get('/', forceHTTPS, function(req, res) {
 
     if (req.isAuthenticated()) {
 
@@ -32,12 +32,12 @@ app.get('/', function(req, res) {
     });
 });
 
-app.get('/logout', function(req, res) {
+app.get('/logout', [forceHTTPS, isLoggedIn], function(req, res) {
     req.logout();
     res.redirect('/');
 });
 
-app.post('/deleteUser', isAdmin, function (req, res) {
+app.post('/deleteUser', [forceHTTPS, isAdmin], function (req, res) {
     let username = req.body.deleteUser;
     console.log("Got request to delete: " + username);
 
@@ -52,7 +52,7 @@ app.post('/deleteUser', isAdmin, function (req, res) {
     res.redirect('/admin')
 });
 
-app.post('/makeadmin', isAdmin, function (req, res) {
+app.post('/makeadmin', [forceHTTPS, isAdmin], function (req, res) {
     let username = req.body.newAdminUser;
     console.log("Got request to make admin: " + username);
 
@@ -67,7 +67,7 @@ app.post('/makeadmin', isAdmin, function (req, res) {
     res.redirect('/admin');
 });
 
-app.post('/removeadmin', isAdmin, function (req, res) {
+app.post('/removeadmin', [forceHTTPS, isAdmin], function (req, res) {
     let username = req.body.removeAdminUser;
     console.log("Got request to remove admin: " + username);
 
@@ -82,7 +82,7 @@ app.post('/removeadmin', isAdmin, function (req, res) {
     res.redirect('/admin');
 });
 
-app.get('/admin', isAdmin, function (req, res) {
+app.get('/admin', [forceHTTPSm, isAdmin], function (req, res) {
     // admin panel TODO
     let allUsers = authenticator.getAllUsers();
     res.render('admin.ejs', {
@@ -93,7 +93,7 @@ app.get('/admin', isAdmin, function (req, res) {
     });
 });
 
-app.get('/update',isLoggedIn, function(req, res) {
+app.get('/update',[ forceHTTPS, isLoggedIn], function(req, res) {
 
     //todo rate limits
     //todo use axios to contact python api and update data.
@@ -101,14 +101,14 @@ app.get('/update',isLoggedIn, function(req, res) {
     res.redirect('/');
 });
 
-app.post('/updateappearance', isLoggedIn, (req, res) => {
+app.post('/updateappearance', [forceHTTPS, isLoggedIn], (req, res) => {
     let darkMode;
     darkMode = req.body.darkMode === 'on';
     authenticator.setMode(req.user.username, darkMode);
     res.redirect('/');
 });
 
-app.post('/changepassword', isLoggedIn, (req, res) => {
+app.post('/changepassword', [forceHTTPS, isLoggedIn], (req, res) => {
 
     let new_pass = req.body.password;
     let resp = authenticator.changePassword(req.user.username, new_pass);
@@ -119,7 +119,7 @@ app.post('/changepassword', isLoggedIn, (req, res) => {
     }
 });
 
-app.post('/changeschoolemail', isLoggedIn, (req, res) => {
+app.post('/changeschoolemail', [forceHTTPS, isLoggedIn], (req, res) => {
 
     let new_school_email = req.body.school_email;
     let resp = authenticator.changeSchoolEmail(req.user.username, new_school_email);
@@ -131,7 +131,7 @@ app.post('/changeschoolemail', isLoggedIn, (req, res) => {
 });
 
 // process the login form
-app.post('/login', passport.authenticate('local-login', {
+app.post('/login', forceHTTPS, passport.authenticate('local-login', {
     successRedirect : '/', // redirect to the secure profile section
     failureRedirect : '/', // redirect back to the signup page if there is an error
     failureFlash : true // allow flash messages
@@ -139,7 +139,7 @@ app.post('/login', passport.authenticate('local-login', {
 
 // SIGNUP =================================
 // show the signup form
-app.get('/signup', function(req, res) {
+app.get('/signup', forceHTTPS, function(req, res) {
     res.render('signup.ejs', {
         message: req.flash('signupMessage')
     });
@@ -152,7 +152,7 @@ app.get('/signup', function(req, res) {
 //     failureFlash : true // allow flash messages
 // }));
 
-app.post('/signup', async function(req, res, next) {
+app.post('/signup', forceHTTPS, async function(req, res, next) {
 
         let username = req.body.username;
         let password = req.body.password;
@@ -177,7 +177,7 @@ app.post('/signup', async function(req, res, next) {
         }   
 });
 
-app.post('/update', isLoggedIn, async function(req,res) {
+app.post('/update', [forceHTTPS, isLoggedIn], async function(req,res) {
 
     let pass = req.body.school_password;
     let resp = await authenticator.updateGrades(req.user.username,pass);
@@ -192,7 +192,7 @@ app.post('/update', isLoggedIn, async function(req,res) {
 });
 
 //must be called via client side ajax+js
-app.post('/updateweights', isLoggedIn, async function(req,res) {
+app.post('/updateweights', [forceHTTPS, isLoggedIn], async function(req,res) {
     console.log(req.body);
     let className = req.body.className;
     let newWeights = JSON.parse(req.body.newWeights);
@@ -205,7 +205,7 @@ app.post('/updateweights', isLoggedIn, async function(req,res) {
     }
 });
 
-app.post('/changealertsettings', isLoggedIn, (req, res) => {
+app.post('/changealertsettings', [forceHTTPS, isLoggedIn], (req, res) => {
     let resp = authenticator.setUpdateGradesReminder(req.user.username, req.body.updateGradesReminder);
     if (resp.success) {
         res.status(200).send(resp.message);
@@ -214,7 +214,7 @@ app.post('/changealertsettings', isLoggedIn, (req, res) => {
     }
 });
 
-app.post('/randomizeclasscolors', isLoggedIn, (req, res) => {
+app.post('/randomizeclasscolors', [forceHTTPS, isLoggedIn], (req, res) => {
     let resp = authenticator.setRandomClassColors(req.user.username, req.body.lockedColorIndices);
     if (resp.success) {
         res.status(200).send(resp.message);
@@ -229,7 +229,7 @@ app.post('/randomizeclasscolors', isLoggedIn, (req, res) => {
 
 
 // general web app
-app.get('/*', function (req, res) {
+app.get('/*', forceHTTPS, function (req, res) {
     res.redirect('/');
 });
 
@@ -250,3 +250,14 @@ function isAdmin(req, res, next) {
     }
 };
 
+function forceHTTPS(req, res, next) {
+
+    if (!server.usingHTTPS) {
+        return next()
+    }
+
+    if(req.secure){
+        return next();
+    }
+    res.redirect("https://" + req.headers.host + req.url);
+}
