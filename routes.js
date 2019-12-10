@@ -82,7 +82,7 @@ app.post('/removeadmin', [forceHTTPS, isAdmin], function (req, res) {
     res.redirect('/admin');
 });
 
-app.get('/admin', [forceHTTPSm, isAdmin], function (req, res) {
+app.get('/admin', [forceHTTPS, isAdmin], function (req, res) {
     // admin panel TODO
     let allUsers = authenticator.getAllUsers();
     res.render('admin.ejs', {
