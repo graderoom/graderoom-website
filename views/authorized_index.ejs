@@ -88,6 +88,19 @@
                 <div id="chart-container-1" class="chart-container" style="position: relative; height:60vh; width:75vw;margin: 0 auto;">
                     <canvas id="chart-1" class="chart" style="width:50%; margin: auto;"></canvas>
                 </div>
+                <hr> 
+                <table class="table text-center" id="table-1">
+                    <thead><tr>
+                        <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
+                        <th style="border:0; color: <%=user.appearance.classColors[i]%>"><%=JSON.parse(gradeData)[i].class_name%></th>
+                        <%}%>
+                    </tr></thead>
+                    <tbody> 
+                        <tr> <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
+                            <td id="overviewChart<%=i%>" style="border: 0; padding-top: 0; color: <%=user.appearance.classColors[i]%>"></td>
+                        <%}%> </tr>
+                    </tbody>
+                </table>
             </span>
         <% } %>
 
@@ -181,6 +194,7 @@
         parseData();
         setupOverallGrades();
         setupWeightsTables();
+        setupOverviewTable();
         updateWeightMessages();
         renderAllCharts();
 
@@ -212,7 +226,7 @@
                 let overallGrade = 0;
                 for (let i = 0; i < classCategories.length; i++) {
                     overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i] / 100;
-                    console.log(overallGrade);
+                    // console.log(overallGrade);
                 }
                 let ratio = 100 / getTotalWeight(classIndex);
                 overallGrade *= ratio;
@@ -268,6 +282,13 @@
                         document.getElementById('weightTableOverallGrade' + i).textContent = (+(overallGrade.toFixed(3))).toString() + '% (' + getLetterGrade(overallGrade) + ')';
                     }
                 }
+            }
+        }
+
+        function setupOverviewTable() {
+            for (let i = 0; i < data.length; i++) {
+                let overallGrade = getOverallGrade(i);
+                document.getElementById('overviewChart'+i).innerHTML =  (+(overallGrade.toFixed(2))).toString() + '% </br>' + getLetterGrade(overallGrade);        
             }
         }
 
@@ -434,7 +455,7 @@
                     assignmentCategories: assignmentCategories,
                     mixedData: mixedData,
                 });
-                console.log(parsedData);
+                // console.log(parsedData);
             }
         }
 
