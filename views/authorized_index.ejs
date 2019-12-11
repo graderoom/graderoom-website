@@ -410,6 +410,7 @@
                 let assignmentTimestamps = classData.grades.map(x => new Date(x.date));
                 let assignmentPercents = classData.grades.map(x => x.grade_percent);
                 let assignmentScoresParsed = classData.grades.map(x => x.points_gotten+"/"+x.points_possible);
+                let assignmentCategories = classData.grades.map(x => x.category);
                 let mixedData = overallGradeSteps.map(function (grade, i) {
                     return {x:assignmentTimestamps[i], y:grade}
                 });
@@ -419,8 +420,10 @@
                     assignmentTimestamps: assignmentTimestamps,
                     assignmentPercents: assignmentPercents,
                     assignmentScoresParsed: assignmentScoresParsed,
+                    assignmentCategories: assignmentCategories,
                     mixedData: mixedData,
                 });
+                console.log(parsedData);
             }
         }
 
@@ -545,9 +548,7 @@
                                 return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
                             },
                             label: function(tooltipItem, data) {
-                                // console.log(tooltipItem);
-                                // console.log(data);
-                                return parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + " - "
+                                return [parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + " - "
                                     + (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== -1 ?
                                         (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "%") :
                                         (""))
@@ -556,7 +557,8 @@
                                     !== '/0' ?
                                         (" (" + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")") :
                                         (parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0,
-                                            parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)));
+                                            parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)))
+                                    ,"\n(" + parsedData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.index] + ")"];
                             },
                         }
                     },
@@ -664,7 +666,7 @@
                                 return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
                             },
                             label: function(tooltipItem, data) {
-                                return parsedData[id].assignmentNames[tooltipItem.index] + " - "
+                                return [parsedData[id].assignmentNames[tooltipItem.index] + " - "
                                         + (parsedData[id].assignmentPercents[tooltipItem.index] !== -1 ?
                                         (parsedData[id].assignmentPercents[tooltipItem.index] + "%") :
                                         (""))
@@ -673,7 +675,8 @@
                                         !== '/0' ?
                                         (" (" + parsedData[id].assignmentScoresParsed[tooltipItem.index] + ")") :
                                         (parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(0,
-                                        parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)));
+                                        parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)))
+                                        , "\n(" + parsedData[id].assignmentCategories[tooltipItem.index] + ")"];
                             },
                         }
                     },
