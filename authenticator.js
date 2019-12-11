@@ -7,9 +7,53 @@ const scraper = require('./scrape');
 const randomColor = require('random-color');
 
 
-db.defaults({users: []}).write();
+db.defaults({users: [], keys: []}).write();
 
 module.exports = {
+
+    /* beta key functions */
+
+    betaAddNewUser: async function(betaKey, username, password, schoolUsername, isAdmin) {
+
+
+        if (db.get("keys").find({betaKey: betaKey}).value()) {
+
+            let r = await this.addNewUser(username, password, schoolUsername, isAdmin);
+            if (r.success === true) {
+                db.get("keys").find({betaKey: betaKey}).set("claimed", true).write();
+                db.get("keys").find({betaKey: betaKey}).set("claimedBy", username).write();
+            }
+            return r;
+        }
+        return {success: false, message: "Invalid beta key."};
+
+    },
+
+    addNewBetaKey: function(betaKey) {
+        db.get("keys").push({
+            betaKey: betaKey,
+            claimed: false,
+            claimedBy: "",
+        }).write();
+        return {success: true, message: "Added beta key: " + betaKey + "."};
+    },
+
+
+    getAllBetaKeyData: function() {
+        return db.get("keys").value();
+    },
+
+    removeBetaKey: function(betaKey) {
+        db.get("keys").remove({
+            betaKey: betaKey
+        }).write();
+        return {success: true, message: "Removed beta key."};
+    },
+
+
+
+    /* user functions
+     */
     //Need to add Try Catches to error check when updating db values
     addNewUser: function(username, password, schoolUsername, isAdmin) {
 

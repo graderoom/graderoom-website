@@ -1,6 +1,7 @@
 let server = require('./graderoom.js');
 let authenticator = require('./authenticator.js');
 
+
 module.exports = function(app, passport) {
 
 // normal routes ===============================================================
@@ -141,7 +142,8 @@ app.post('/login', forceHTTPS, passport.authenticate('local-login', {
 // show the signup form
 app.get('/signup', forceHTTPS, function(req, res) {
     res.render('signup.ejs', {
-        message: req.flash('signupMessage')
+        message: req.flash('signupMessage'),
+        needsBeta: server.needsBetaKeyToSignUp,
     });
 });
 
@@ -162,8 +164,21 @@ app.post('/signup', forceHTTPS, async function(req, res, next) {
 
         //check if can create here (i.e. username not in use)
 
-        let resp = await authenticator.addNewUser(username, password, s_email, false);
-        console.log(resp);
+        let resp;
+        if (server.needsBetaKeyToSignUp) {
+
+            let bk = req.body.beta_key;
+            resp = await authenticator.betaAddNewUser(bk, username, password, s_email, false);
+            console.log("beta: " + resp);
+
+
+        } else {
+
+            resp = await authenticator.addNewUser(username, password, s_email, false);
+            console.log("nonbeta: " + resp);
+
+        }
+
 
         if (!resp.success) {
             req.flash('signupMessage', resp.message);
@@ -173,8 +188,8 @@ app.post('/signup', forceHTTPS, async function(req, res, next) {
                 successRedirect : '/', // redirect to the secure profile section
                 failureRedirect : '/signup', // redirect back to the signup page if there is an error
                 failureFlash : false // Don't want to flash messages to login page when using signup page
-            })(req, res, next); // this was hard :(   
-        }   
+            })(req, res, next); // this was hard :(
+        }
 });
 
 app.post('/update', [forceHTTPS, isLoggedIn], async function(req,res) {
@@ -223,6 +238,48 @@ app.post('/randomizeclasscolors', [forceHTTPS, isLoggedIn], (req, res) => {
     }
 });
 
+app.get("/betakeys", [forceHTTPS, isAdmin], (req, res) => {
+
+    res.render("betakeys.ejs", {
+        betaKeyData: authenticator.getAllBetaKeyData(),
+        betaKeySuccessMessage: req.flash("betaKeySuccessMessage"),
+        betaKeyFailMessage: req.flash("betaKeyFailMessage"),
+        user: req.user,
+    })
+
+});
+
+app.post("/newbetakey", [forceHTTPS, isAdmin], (req, res) => {
+
+    // let bk = req.body.beta_key;
+    let bk = makeKey(7);
+    let resp = authenticator.addNewBetaKey(bk);
+
+    if (resp.success) {
+        req.flash('betaKeySuccessMessage', resp.message);
+    } else {
+        req.flash('betaKeyFailMessage', resp.message);
+    }
+
+    res.redirect('/betakeys');
+
+});
+
+app.post("/deletebetakey", [forceHTTPS, isAdmin], (req, res) => {
+
+    let bk = req.body.beta_key;
+    let resp = authenticator.removeBetaKey(bk);
+
+    if (resp.success) {
+        req.flash('betaKeySuccessMessage', resp.message);
+    } else {
+        req.flash('betaKeyFailMessage', resp.message);
+    }
+
+    res.redirect('/betakeys');
+
+});
+
 /**
  * END GENERAL USER MANAGEMENT
  */
@@ -260,4 +317,14 @@ function forceHTTPS(req, res, next) {
         return next();
     }
     res.redirect("https://" + req.headers.host + req.url);
+}
+
+function makeKey(length) {
+    let result           = '';
+    let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let charactersLength = characters.length;
+    for ( let i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
 }
