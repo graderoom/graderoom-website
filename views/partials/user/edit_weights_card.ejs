@@ -63,6 +63,12 @@
         $(element).parents("form").find(".formSubmitButton").css('display','block');
     }
     function showUpdateWeights(defaultId) {
+        //Close Mobile navbar
+        try {
+            $('.navbar-collapse').collapse('hide');
+            closeForm('toggle');
+        } catch(e) {}
+
         console.log(defaultId);
         if (defaultId === undefined || defaultId < 0)
             defaultId = 0;
