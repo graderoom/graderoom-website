@@ -53,7 +53,8 @@
                 <% for (let u of userList) { %>
                     <tr>
                         <td><%= u.username%> </td>
-                        <td><%= new Date(u.alerts.lastUpdated).toLocaleString()%></td>
+                        <% let lastUpdated = new Date(u.alerts.lastUpdated); %>
+                        <td><%= lastUpdated.toString()%></td>
                         <td><%= u.isAdmin%> </td>
                         <td>
                             <% if (!u.isAdmin) { %>
