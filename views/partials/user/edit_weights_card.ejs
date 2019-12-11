@@ -15,8 +15,8 @@
                         let grade = JSON.parse(gradeData)[i]; %>
                         <form id="weights<%=i%>" class="form-ajax form-weights form-signin" action="/updateweights">
                             <className style="display:none"><%=grade.class_name%></className>
-                            <label class="collapsed" data-toggle="collapse" href="#collapse<%=i%>" style="display: flex; margin: 0; cursor: pointer">
-                                <h5 style="color:<%=user.appearance.classColors[i]%>; cursor: pointer" id="<%=grade.class_name%>" style="display: inline-block" onclick="showPage(<%=i%>)">
+                            <label class="collapsed" data-toggle="collapse" href="#collapse<%=i%>" style="display: flex; margin: 0; cursor: pointer" onclick="showPage(<%=i%>)">
+                                <h5 style="color:<%=user.appearance.classColors[i]%>; cursor: pointer" id="<%=grade.class_name%>" style="display: inline-block">
                                     <%=grade.class_name%>&nbsp;
                                     <i class="fa" aria-hidden="true"></i>
                                 </h5>
