@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+<head>
+    <title>Graderoom</title>
+    <link rel="icon" href="../public/resources/common/icon.png">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
+    <% if (user.appearance.darkMode) { %>
+        <link rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+    <% } else { %>
+        <link rel="stylesheet" type="text/css" href="public/css/light_mode.css">
+    <% } %>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<!-- Admin Navbar -->
+<% include partials/admin/admin_navbar.ejs %>
+
+<!-- Main Screen -->
+<div class="container">
+    <!-- Messages -->
+    <% if (betaKeySuccessMessage.length > 0) { %>
+        <br>
+        <div class="alert alert-danger alert-dismissible">
+            <a class="close" data-dismiss="alert" aria-label="close">X</a>
+            <%= betaKeySuccessMessage %>
+        </div>
+    <% } else if (betaKeyFailMessage.length > 0) { %>
+        <br>
+        <div class="alert alert-success alert-dismissible">
+            <a class="close" data-dismiss="alert" aria-label="close">X</a>
+            <%= betaKeyFailMessage %>
+        </div>
+    <% } else { %>
+        <br>
+    <% } %>
+
+    <span id="table-container">
+            <hr>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th style="width:30%;">Key</th>
+                    <th style="width:20%;">Claimed</th>
+                    <th style="width:20%;">Claimed By</th>
+                    <th style="width:20%;">Delete</th>
+
+                </tr>
+                </thead>
+
+                <% for (let k of betaKeyData) { %>
+                    <tr>
+                        <td><%=k.betaKey%> </td>
+                        <td><%=k.claimed%></td>
+                        <td><%=k.claimedBy%> </td>
+
+                        <% if (k.claimed === false){ %>
+
+                        <td>
+                            <form action="/deletebetakey" method="post">
+                                    <button type="submit" name="beta_key" class="btn btn-sm" value="<%=k.betaKey%>">Delete Key</button>
+                            </form>
+                        </td>
+
+                        <% } else { %>
+
+                            <td>Already claimed!</td>
+                        <% } %>
+
+
+                    </tr>
+                <% } %>
+            </table>
+        </span>
+
+    <div class="text-center">
+        <form action="/newbetakey" method="post">
+            <button type="submit" class="btn btn-sm">Create new random Beta Key</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
