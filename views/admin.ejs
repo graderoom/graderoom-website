@@ -54,7 +54,7 @@
                     <tr>
                         <td><%= u.username%> </td>
                         <% let lastUpdated = new Date(u.alerts.lastUpdated); %>
-                        <td><%= lastUpdated.toString()%></td>
+                        <td><%= lastUpdated.toLocaleString("en-US", {timeZone: "America/Los_Angeles"})%></td>
                         <td><%= u.isAdmin%> </td>
                         <td>
                             <% if (!u.isAdmin) { %>
