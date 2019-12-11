@@ -61,6 +61,11 @@
 <script>
     function showDiv(id) {
         document.getElementById(id).style.display = "block";
+        //Close mobile navbar
+        try {
+            $('.navbar-collapse').collapse('hide');
+            closeForm('toggle');
+        } catch(e) {}
     }
     function closeForm(id) {
         let form = document.getElementById(id);
