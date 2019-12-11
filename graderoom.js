@@ -15,6 +15,8 @@ const fs = require('fs');
 
 const usingHttps = process.argv[2] === undefined ? false : process.argv[2];
 
+module.exports.usingHTTPS = usingHttps;
+
 app.use('/public/', express.static('./public'));
 require('./passport')(passport); // pass passport for configuration
 
@@ -87,9 +89,10 @@ if (usingHttps) {
 
 }
 
-
-
 const httpServer = http.createServer(app);
 httpServer.listen(httpPort, () => {
     console.log('HTTP Server running on port ' + httpPort);
 });
+
+
+
