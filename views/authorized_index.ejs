@@ -26,6 +26,9 @@
     <% include partials/user/navbar.ejs %>
     <% include partials/user/edit_weights_card.ejs %>
 
+    <% let page = -1;%>
+    <i id="pageNumber" style="display:none"><%=page%></i>
+
     <!-- Class Links -->
     <ul id="classLinks" class="mx-5 my-3 nav nav-fill" style="border-bottom: 2px solid #969696; color: #BBBBBB;" >
         <li class="nav-item active" id="link-1">
@@ -719,6 +722,7 @@
         }
 
         function showPage(id) {
+            document.getElementById("pageNumber").textContent = id;
             for (let i = -1; i < data.length; i++) {
                 document.getElementById("link" + i).classList.remove("active");
             }
