@@ -198,6 +198,7 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
 
 #weightsCard input.text-view:hover, #weightsCard input.text-view:focus  {
     border-bottom: 1px solid #ced4da;
+    margin-bottom: -1px;
     padding: .1rem .1rem;
 }
 
