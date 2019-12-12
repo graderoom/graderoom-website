@@ -14,9 +14,13 @@ module.exports = {
     /* beta key functions */
 
     betaAddNewUser: async function(betaKey, username, password, schoolUsername, isAdmin) {
+        let asbk = db.get("keys").find({betaKey: betaKey}).value()
+        if (asbk) {
 
+            if (asbk.claimed) {
+                return {success: false, message: "Beta key already claimed."};
+            }
 
-        if (db.get("keys").find({betaKey: betaKey}).value()) {
 
             let r = await this.addNewUser(username, password, schoolUsername, isAdmin);
             if (r.success === true) {
