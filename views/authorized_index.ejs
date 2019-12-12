@@ -206,7 +206,7 @@
                 if (data[i].class_name in weights) {
                     let overallGrade = getOverallGrade(i);
                     document.getElementById('overallLetterGrade' + i).textContent = getLetterGrade(overallGrade)
-                    document.getElementById('overallGrade' + i).textContent = (+(overallGrade.toFixed(0))).toString();
+                    document.getElementById('overallGrade' + i).textContent = (+(overallGrade.toFixed(1))).toString();
                 }
             }
         }
