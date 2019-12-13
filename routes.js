@@ -16,6 +16,7 @@ app.get('/', forceHTTPS, function(req, res) {
         
         res.render('authorized_index.ejs', {
             user: req.user,
+            page: 'home',
             userRef: JSON.stringify(user),
             schoolUsername: req.user.schoolUsername,
             gradeData: gradeDat,
@@ -221,6 +222,28 @@ app.post('/randomizeclasscolors', [forceHTTPS, isLoggedIn], (req, res) => {
     } else {
         res.status(400).send(resp.message);
     }
+});
+
+app.get("/finalgradecalculator", (req, res) => {
+
+    if (req.isAuthenticated()) {
+        res.render("final_grade_calculator.ejs", {
+            page: 'calc',
+            calculatorSuccessMessage: req.flash("calculatorSuccessMessage"),
+            calculatorFailMessage: req.flash("calculatorFailMessage"),
+            authenticated: true,
+            user: req.user,
+            userRef: JSON.stringify(req.user),
+            schoolUsername: req.user.schoolUsername,
+        });
+    } else {
+        res.render("final_grade_calculator.ejs", {
+            calculatorSuccessMessage: req.flash("calculatorSuccessMessage"),
+            calculatorFailMessage: req.flash("calculatorFailMessage"),
+            authenticated: false,
+        });
+    }
+
 });
 
 /**

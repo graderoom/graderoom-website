@@ -25,16 +25,31 @@
                     </a>
                 </li>
             <% } %>
+            <% if (page == 'home') { %>
+                <li id="finalGradeCalculator" class="nav-item">
+                    <a class="btn btn-med" href="/finalgradecalculator">
+                        <i class="fa fa-calculator" aria-hidden="true"></i>
+                        Calculator
+                    </a>
+                </li>
+            <% } else { %>
+                <li id="home" class="nav-item">
+                    <a class="btn btn-med" href="/">
+                        <i class="fa fa-home" aria-hidden="true"></i>
+                        Home
+                    </a>
+                </li>
+            <% } %>
             <li id="editWeights" class="nav-item">
                 <btn class="btn btn-med" onclick="showUpdateWeights()">
                     <i class="fa fa-pencil" aria-hidden="true"></i>
-                    Edit Weights
+                    Weights
                 </btn>
             </li>
             <li id="syncGrades" class="nav-item">
                 <btn class="btn btn-med" onclick="showDiv('updateGradesDisplay')">
                     <i class="fa fa-refresh" aria-hidden="true"></i>
-                    Sync Grades
+                    Sync
                 </btn>
             </li>
             <li id="settings" class="nav-item">
