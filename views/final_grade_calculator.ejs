@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+<head>
+    <title>Graderoom</title>
+    <link rel="icon" href="../public/resources/common/icon.png">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.css">
+    <% if (!authenticated || user.appearance.darkMode) { %>
+        <link rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+    <% } else { %>
+        <link rel="stylesheet" type="text/css" href="public/css/light_mode.css">
+    <% } %>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <% if (authenticated) { %>
+        <% include partials/user/navbar.ejs %>
+        <div class="container h-100 d-flex justify-content-center">
+            <div class="col-sm-12 col-md-10 col-lg-9 col-xl-8">
+                <div class="card card-signin my-5">
+                    <div class="card-body">
+                        <h1 class="text-center card-title">
+                            <i class="fa fa-calculator" aria-hidden="true"></i>
+                            Final Grade Calculator
+                        </h1>
+                        <div id="calculatorMessage" class="alert alert-success alert-dismissible" style="display:none">
+                            <div class="messageTxt"></div>
+                            <a class="close" onclick="closeMessage('calculatorMessage')" aria-label="close">X</a>
+                        </div>
+                        <form id="calculateFinalGradeLoggedIn" class="form-signin" action ="/calculateLoggedIn" method="post">
+                            <div class="form-group">
+                                <label style="display: flex; align-items: flex-end"></label>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% } else { %>
+        <% include partials/viewer/viewer_navbar.ejs %>
+        <div class="container h-100 d-flex justify-content-center">
+            <div class="col-sm-10 col-md-9 col-lg-8 col-xl-7">
+                <div class="card card-signin my-5">
+                    <div class="card-body">
+                        <h1 class="text-center card-title">
+                            <i class="fa fa-calculator" aria-hidden="true"></i>
+                            Final Grade Calculator
+                        </h1>
+                        <div id="calculatorMessage" class="alert alert-success alert-dismissible" style="display:none">
+                            <div class="messageTxt"></div>
+                            <a class="close" onclick="closeMessage('calculatorMessage')" aria-label="close">X</a>
+                        </div>
+                        <form id="calculateFinalGrade" class="form-signin" action="/calculate" method="post">
+                            <div class="form-group">
+                                <label style="display: flex; align-items: flex-end">
+                                    <h5>Your current grade is</h5>
+                                    <input style="margin-left: 1rem; width: 5rem" id="currentGrade" type="number" class="form-control" name="current_grade">
+                                    <h5>%</h5>
+                                </label>
+                                <label style="display: flex; align-items: flex-end">
+                                    <h5>You want a</h5>
+                                    <input style="margin: 0 1rem 0 1rem; width: 5rem" id="currentGrade" type="number" class="form-control" name="current_grade">
+                                    <h5>% in the class.</h5>
+                                </label>
+                                <label style="display: flex; align-items: flex-end">
+                                    <h5>Your final is worth</h5>
+                                    <input style="margin: 0 1rem 0 1rem; width: 5rem" id="currentGrade" type="number" class="form-control" name="current_grade">
+                                    <h5>% of your grade.</h5>
+                                </label>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" onclick="ajaxPostForm('#calculateFinalGrade',[],'#calculatorMessage')" class="btn btn-default btn-lg">
+                                    Calculate
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% } %>
+
+</body>
+</html>
+
+<script>
+    function closeMessage(id) {
+        document.getElementById(id).style.display = 'none';
+    }
+</script>
