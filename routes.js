@@ -94,7 +94,7 @@ app.get('/admin', [forceHTTPS, isAdmin], function (req, res) {
     });
 });
 
-app.get('/update',[ forceHTTPS, isLoggedIn], function(req, res) {
+app.get('/update',[forceHTTPS, isLoggedIn], function(req, res) {
 
     //todo rate limits
     //todo use axios to contact python api and update data.
@@ -224,26 +224,42 @@ app.post('/randomizeclasscolors', [forceHTTPS, isLoggedIn], (req, res) => {
     }
 });
 
-app.get("/finalgradecalculator", (req, res) => {
+app.get('/finalgradecalculator', forceHTTPS, (req, res) => {
 
     if (req.isAuthenticated()) {
         res.render("final_grade_calculator.ejs", {
             page: 'calc',
             calculatorSuccessMessage: req.flash("calculatorSuccessMessage"),
             calculatorFailMessage: req.flash("calculatorFailMessage"),
-            authenticated: true,
             user: req.user,
             userRef: JSON.stringify(req.user),
             schoolUsername: req.user.schoolUsername,
         });
     } else {
-        res.render("final_grade_calculator.ejs", {
+        res.render("final_grade_calculator_logged_out.ejs", {
             calculatorSuccessMessage: req.flash("calculatorSuccessMessage"),
             calculatorFailMessage: req.flash("calculatorFailMessage"),
-            authenticated: false,
         });
     }
 
+});
+
+app.post('/getFinalWeightWithCategory', [forceHTTPS, isLoggedIn], (req, res) => {
+    let resp = authenticator.getFinalWeightWithCategory(req.user.username, req.body.className, req.body.categoryName, req.body.finalPoints, req.body.categoryWeight);
+    if (resp.success) {
+        res.status(200).send(resp.message);
+    } else {
+        res.status(400).send(resp.message);
+    }
+});
+
+app.post('/calculate', [forceHTTPS, isLoggedIn], (req, res) => {
+    let resp = authenticator.calculate(req.user.username, req.body.currentGrade, req.body.className, req.body.categoryName, req.body.categoryWeight, req.body.goal);
+    if (resp.success) {
+        res.status(200).send(resp.message);
+    } else {
+        res.status(400).send(resp.message);
+    }
 });
 
 /**

@@ -155,6 +155,31 @@ module.exports = {
         return {success: true, message: classColors};
     },
 
+    getFinalWeightWithCategory: function(username, className, categoryName, finalPoints, categoryWeight) {
+        console.log(username, className, categoryName, finalPoints, categoryWeight);
+        let lc_username = username.toLowerCase();
+        let userRef = db.get('users').find({username: lc_username});
+        let grades = userRef.get('grades');
+        console.log(grades.find({class_name: className}));
+        let classGrades = grades.find({class_name: className}).value();
+        let numPossible = 0;
+        for (let i = 0; i < classGrades.length; i++) {
+            if (classGrades[i].category === categoryName) {
+                numPossible += classGrades[i].points_possible;
+            }
+        }
+        if (numPossible > 0) {
+            let finalWeight = finalPoints / numPossible * categoryWeight;
+            return {success: true, message: finalWeight}
+        } else {
+            return {success: false, message: ''}
+        }
+    },
+
+    calculate: function(username, currentGrade, className, categoryName, categoryWeight, goal) {
+
+    },
+
     getAllUsers: function() {
         return db.get('users').value();
     },

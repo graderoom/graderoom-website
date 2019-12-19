@@ -210,7 +210,6 @@
                 let overallGrade = 0;
                 for (let i = 0; i < classCategories.length; i++) {
                     overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i] / 100;
-                    console.log(overallGrade);
                 }
                 let ratio = 100 / getTotalWeight(classIndex);
                 overallGrade *= ratio;
@@ -347,7 +346,6 @@
                 }
             }
 
-            console.log(unobtainedWeights)
 
             /**
              * now grades!

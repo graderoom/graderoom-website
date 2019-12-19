@@ -6,89 +6,292 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.css">
-    <% if (!authenticated || user.appearance.darkMode) { %>
+    <% if (user.appearance.darkMode) { %>
         <link rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else { %>
         <link rel="stylesheet" type="text/css" href="public/css/light_mode.css">
     <% } %>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Javascript imports -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </head>
 <body>
 
     <!-- Navbar -->
-    <% if (authenticated) { %>
-        <% include partials/user/navbar.ejs %>
-        <div class="container h-100 d-flex justify-content-center">
-            <div class="col-sm-12 col-md-10 col-lg-9 col-xl-8">
-                <div class="card card-signin my-5">
-                    <div class="card-body">
-                        <h1 class="text-center card-title">
-                            <i class="fa fa-calculator" aria-hidden="true"></i>
-                            Final Grade Calculator
-                        </h1>
-                        <div id="calculatorMessage" class="alert alert-success alert-dismissible" style="display:none">
-                            <div class="messageTxt"></div>
-                            <a class="close" onclick="closeMessage('calculatorMessage')" aria-label="close">X</a>
-                        </div>
-                        <form id="calculateFinalGradeLoggedIn" class="form-signin" action ="/calculateLoggedIn" method="post">
-                            <div class="form-group">
-                                <label style="display: flex; align-items: flex-end"></label>
-                            </div>
-                        </form>
+    <% include partials/user/navbar.ejs %>
+    <div class="container h-100 d-flex justify-content-center">
+        <div class="col-sm-12 col-md-10 col-lg-9 col-xl-8">
+            <div class="card card-signin my-5">
+                <div class="card-body">
+                    <h1 class="text-center card-title">
+                        <i class="fa fa-calculator" aria-hidden="true"></i>
+                        Final Grade Calculator
+                    </h1>
+                    <div id="calculatorMessage" class="alert alert-success alert-dismissible" style="display:none">
+                        <div class="messageTxt"></div>
+                        <a class="close" onclick="closeMessage('calculatorMessage')" aria-label="close">X</a>
                     </div>
+                    <form id="calculateFinalGrade" class="form-signin" action ="/calculate" method="post">
+                        <div style="display: flex; align-items: center">
+                            <label class="form-group" style="display: flex; align-items: flex-end">
+                                <h5 style="text-align: right">Your current grade is</h5>
+                                <input class="number-input form-control" style="margin-left: 1rem; width: 100px" id="currentGrade" type="number" step=".01" name="currentGrade" required>
+                                <h5 style="text-align: left">%</h5>
+                            </label>
+                            <label style="display: flex; align-items: flex-end">
+                                <select id="chooseClass" style="float: right" class="dropdown" name="className">
+                                    <option>-- Class --</option>
+                                    <% for (let i = 0; i < user.grades.length; i++) {%>
+                                        <option><%=user.grades[Object.keys(user.grades)[i]].class_name%></option>
+                                    <% } %>
+                                </select>
+                            </label>
+                        </div>
+                        <div style="display: flex; align-items: center">
+                            <label class="form-group" style="display: flex; align-items: flex-end">
+                                <h5 style="text-align: right">You want at least a</h5>
+                                <input class="number-input form-control" style="margin: 0 1rem 0 1rem; width: 100px" id="goal" type="number" step=".01" name="goal" required>
+                                <h5 style="text-align: left">% in the class.</h5>
+                            </label>
+                            <label style="display: flex; align-items: flex-end">
+                                <select id="chooseLetterGrade" style="float: right" class="dropdown" name="letterGrade">
+                                    <option value="97.5">A+</option>
+                                    <option value="92.5">A</option>
+                                    <option value="89.5">A-</option>
+                                    <option value="87.5">B+</option>
+                                    <option value="82.5">B</option>
+                                    <option value="79.5">B-</option>
+                                    <option value="77.5">C+</option>
+                                    <option value="72.5">C</option>
+                                    <option value="69.5">C-</option>
+                                    <option value="67.5">D+</option>
+                                    <option value="62.5">D</option>
+                                    <option value="59.5">D-</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div style="display: flex; align-items: center">
+                            <label class="form-group" style="display: flex; align-items: flex-end;">
+                                <h5 style="text-align: right">Your final is worth</h5>
+                                <input class="number-input form-control" style="margin: 0 1rem 0 1rem; width: 100px" id="categoryWeight" type="number" step=".01" min="1" max="100" name="categoryWeight" required>
+                                <h5 style="text-align: left">% of your grade.</h5>
+                            </label>
+                            <label style="display: flex; align-items: flex-end">
+                                <select id="chooseWeight" style="float: right" class="dropdown" name="categoryName"></select>
+                            </label>
+                        </div>
+                        <div class="text-center">
+                            <button class="btn btn-default btn-lg" type="submit" onclick="ajaxPostForm('#calculateFinalGrade',[],'#calculatorMessage')">
+                                Calculate what I need on the final
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-    <% } else { %>
-        <% include partials/viewer/viewer_navbar.ejs %>
-        <div class="container h-100 d-flex justify-content-center">
-            <div class="col-sm-10 col-md-9 col-lg-8 col-xl-7">
-                <div class="card card-signin my-5">
-                    <div class="card-body">
-                        <h1 class="text-center card-title">
-                            <i class="fa fa-calculator" aria-hidden="true"></i>
-                            Final Grade Calculator
-                        </h1>
-                        <div id="calculatorMessage" class="alert alert-success alert-dismissible" style="display:none">
-                            <div class="messageTxt"></div>
-                            <a class="close" onclick="closeMessage('calculatorMessage')" aria-label="close">X</a>
-                        </div>
-                        <form id="calculateFinalGrade" class="form-signin" action="/calculate" method="post">
-                            <div class="form-group">
-                                <label style="display: flex; align-items: flex-end">
-                                    <h5>Your current grade is</h5>
-                                    <input style="margin-left: 1rem; width: 5rem" id="currentGrade" type="number" class="form-control" name="current_grade">
-                                    <h5>%</h5>
-                                </label>
-                                <label style="display: flex; align-items: flex-end">
-                                    <h5>You want a</h5>
-                                    <input style="margin: 0 1rem 0 1rem; width: 5rem" id="currentGrade" type="number" class="form-control" name="current_grade">
-                                    <h5>% in the class.</h5>
-                                </label>
-                                <label style="display: flex; align-items: flex-end">
-                                    <h5>Your final is worth</h5>
-                                    <input style="margin: 0 1rem 0 1rem; width: 5rem" id="currentGrade" type="number" class="form-control" name="current_grade">
-                                    <h5>% of your grade.</h5>
-                                </label>
-                            </div>
-                            <div class="text-center">
-                                <button type="submit" onclick="ajaxPostForm('#calculateFinalGrade',[],'#calculatorMessage')" class="btn btn-default btn-lg">
-                                    Calculate
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    <% } %>
+    </div>
 
 </body>
 </html>
 
 <script>
+
+    user = <%- userRef %>;
+    $('#goal').attr('value', 97.5);
+    let chooseClassDiv = $('#chooseClass');
+    manageChooseWeight(chooseClassDiv[0].selectedIndex + 1);
+
+    chooseClassDiv.on('change', function() {
+        if ($(this)[0].selectedIndex === 0) {
+            $('#currentGrade').attr('value', '');
+            $('#categoryWeight').attr('value', '');
+        } else {
+            $('#currentGrade').attr('value', +(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
+        }
+        manageChooseWeight($(this)[0].selectedIndex - 1);
+    });
+
+    $('#chooseLetterGrade').on('change', function() {
+        if ($(this)[0].selectedIndex === 0) {
+            $('#goal').attr('value', '');
+        } else {
+            $('#goal').attr('value', document.getElementById('chooseLetterGrade').options[$(this)[0].selectedIndex - 1].value);
+        }
+    });
+
+    let chooseWeightDiv = $('#chooseWeight');
+    chooseWeightDiv.on('change', function() {
+        if ($(this)[0].selectedIndex === 0) {
+            $('#categoryWeight').attr('value', '');
+        } else {
+            // Get the form.
+            let form = $('#calculateFinalGrade');
+            let formData;
+            let message;
+            let formMessagesDiv;
+
+            // Serialize the form data.
+            formData = $(form).serialize();
+
+            // Get the text field
+            message = $('#categoryWeight');
+
+            // Submit the form using AJAX.
+            $.ajax({
+                type: 'POST',
+                url: '/getFinalWeightWithCategory',
+                data: formData,
+                async: true
+            })
+
+            .done(function(response) {
+                // Set the message text.
+                $(message).attr('value', response);
+            })
+
+            .fail(function(data) {
+
+                // Set the message text.
+                if (data.responseText !== '') {
+                    $(message).attr('value', data.responseText);
+                } else {
+                    $(message).text('----');
+                }
+
+                // Show the div.
+                $(formMessagesDiv).css('display','block');
+            })
+        }
+    });
+
+    function manageChooseWeight(classIndex) {
+        let weightDropdown = document.getElementById('chooseWeight');
+        $('#chooseWeight').find('option').remove();
+        let newWeight = document.createElement('option');
+        newWeight.text = '-- Category --';
+        newWeight.value = '';
+        weightDropdown.add(newWeight);
+        if (classIndex < 0) {
+
+        } else {
+            for (let i = 0; i < Object.keys(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name]).length; i++) {
+                let newWeight = document.createElement('option');
+                newWeight.text = Object.keys(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name])[i];
+                newWeight.value = Object.values(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name])[i].toString();
+                weightDropdown.add(newWeight)
+            }
+        }
+
+    }
+
     function closeMessage(id) {
         document.getElementById(id).style.display = 'none';
     }
+
+    function ajaxPostForm(formID, fieldIDsToClear, messagesDivID) {
+        // Get the form.
+        let form = $(formID);
+
+        $(form).submit(function(event) {
+            // Stop the browser from submitting the form.
+            event.preventDefault();
+
+            let formData;
+            let message;
+            let formMessagesDiv;
+
+            // Serialize the form data.
+            formData = $(form).serialize();
+
+            // Get the messages.
+            formMessagesDiv = $(messagesDivID);
+            message = $(formMessagesDiv).find('.messageTxt');
+
+            // Submit the form using AJAX.
+            $.ajax({
+                type: 'POST',
+                url: $(form).attr('action'),
+                data: formData,
+                async: true
+            })
+
+            .done(function(response) {
+                // Make sure that the formMessages div has the alert-success class.
+                $(formMessagesDiv).removeClass('alert-danger');
+                $(formMessagesDiv).addClass('alert-success');
+
+                // Set the message text.
+                $(message).text(response);
+
+                // Show the div.
+                $(formMessagesDiv).css('display', 'block');
+
+                // Clear fields to clear
+                for (let i = 0; i < fieldIDsToClear.length; i++) {
+                    $(fieldIDsToClear[i]).val('');
+                }
+            })
+
+            .fail(function(data) {
+                // Make sure that the formMessages div has the alert-danger class
+                $(formMessagesDiv).removeClass('alert-success');
+                $(formMessagesDiv).addClass('alert-danger');
+
+                // Set the message text.
+                if (data.responseText !== '') {
+                    $(message).text(data.responseText);
+                } else {
+                    $(message).text('Oops! An error occurred and your message could not be sent.');
+                }
+
+                // Show the div.
+                $(formMessagesDiv).css('display','block');
+            })
+        })
+    }
+
+    function getTotalWeight(classIndex) {
+        let className = user.grades[classIndex].class_name;
+        let classWeights = Object.values(user.weights[className]);
+        let totalWeight = 0;
+        for (let i = 0; i < classWeights.length; i++) {
+            totalWeight += classWeights[i];
+        }
+        return totalWeight;
+    }
+
+    function getOverallGrade(classIndex) {
+        let className = user.grades[classIndex].class_name;
+        if (className in user.weights) {
+            let classCategories = Object.keys(user.weights[className]);
+            let classWeights = Object.values(user.weights[className]);
+            let overallGrade = 0;
+            for (let i = 0; i < classCategories.length; i++) {
+                overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i] / 100;
+            }
+            let ratio = 100 / getTotalWeight(classIndex);
+            overallGrade *= ratio;
+            return overallGrade;
+        }
+        return 0;
+    }
+
+    function getCategoryGrade(classIndex, categoryName) {
+        let grades = user.grades[classIndex].grades;
+        let totalGotten = 0;
+        let totalPossible = 0;
+        for (let i = 0; i < grades.length; i++) {
+            if (!grades[i].exclude && grades[i].category === categoryName) {
+                totalGotten += grades[i].points_gotten;
+                totalPossible += grades[i].points_possible;
+            }
+        }
+        if (totalPossible === 0) {
+            return 0;
+        }
+        return +((totalGotten / totalPossible * 100).toFixed(3));
+    }
+
 </script>
