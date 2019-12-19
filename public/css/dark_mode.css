@@ -377,7 +377,7 @@ html {
 .dropdown {
     text: bold;
     margin-left: 20px;
-    width: 100px;
+    width: fit-content;
     border-radius: 1em;
     text-align-last: center;
 }
@@ -442,4 +442,10 @@ html {
     } 100%, 0% {
       transform: scale(1.0); 
     } 
+}
+
+.number-input::-webkit-inner-spin-button,
+.number-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
