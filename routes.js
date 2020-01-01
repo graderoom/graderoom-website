@@ -17,7 +17,7 @@ app.get('/', forceHTTPS, function(req, res) {
         
         res.render('authorized_index.ejs', {
             user: req.user,
-            page: 'home',
+            current: 'home',
             userRef: JSON.stringify(user),
             schoolUsername: req.user.schoolUsername,
             gradeData: gradeDat,
@@ -243,7 +243,7 @@ app.get('/finalgradecalculator', forceHTTPS, (req, res) => {
 
     if (req.isAuthenticated()) {
         res.render("final_grade_calculator.ejs", {
-            page: 'calc',
+            current: 'calc',
             calculatorSuccessMessage: req.flash("calculatorSuccessMessage"),
             calculatorFailMessage: req.flash("calculatorFailMessage"),
             user: req.user,
