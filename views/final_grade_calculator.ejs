@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
     <title>Graderoom</title>
     <link rel="icon" href="../public/resources/common/icon.png">
@@ -30,15 +30,15 @@
                         Final Grade Calculator
                     </h1>
                     <div id="calculatorMessage" class="alert alert-success alert-dismissible" style="display:none">
-                        <div class="messageTxt"></div>
+                        <div style="font-weight: bold" class="messageTxt"></div>
                         <a class="close" onclick="closeMessage('calculatorMessage')" aria-label="close">X</a>
                     </div>
-                    <form id="calculateFinalGrade" class="form-signin" action ="/calculate" method="post">
+                    <form id="calculateFinalGrade" class="form-signin">
                         <div style="display: flex; align-items: center">
                             <label class="form-group" style="display: flex; align-items: flex-end">
-                                <h5 style="text-align: right">Your current grade is</h5>
-                                <input class="number-input form-control" style="margin-left: 1rem; width: 100px" id="currentGrade" type="number" step=".01" name="currentGrade" required>
-                                <h5 style="text-align: left">%</h5>
+                                <span style="text-align: right">Your current grade is</span>
+                                <input class="number-input form-control" style="margin-left: 1rem; width: 100px" id="currentGrade" type="number" step="0.0001" name="currentGrade" required>
+                                <span style="text-align: left">%</span>
                             </label>
                             <label style="display: flex; align-items: flex-end">
                                 <select id="chooseClass" style="float: right" class="dropdown" name="className">
@@ -51,9 +51,9 @@
                         </div>
                         <div style="display: flex; align-items: center">
                             <label class="form-group" style="display: flex; align-items: flex-end">
-                                <h5 style="text-align: right">You want at least a</h5>
-                                <input class="number-input form-control" style="margin: 0 1rem 0 1rem; width: 100px" id="goal" type="number" step=".01" name="goal" required>
-                                <h5 style="text-align: left">% in the class.</h5>
+                                <span style="text-align: right">You want at least a</span>
+                                <input class="number-input form-control" style="margin: 0 1rem 0 1rem; width: 100px" id="goal" type="number" step="0.01" name="goal" required>
+                                <span style="text-align: left">% in the class.</span>
                             </label>
                             <label style="display: flex; align-items: flex-end">
                                 <select id="chooseLetterGrade" style="float: right" class="dropdown" name="letterGrade">
@@ -72,18 +72,28 @@
                                 </select>
                             </label>
                         </div>
-                        <div style="display: flex; align-items: center">
-                            <label class="form-group" style="display: flex; align-items: flex-end;">
-                                <h5 style="text-align: right">Your final is worth</h5>
-                                <input class="number-input form-control" style="margin: 0 1rem 0 1rem; width: 100px" id="categoryWeight" type="number" step=".01" min="1" max="100" name="categoryWeight" required>
-                                <h5 style="text-align: left">% of your grade.</h5>
-                            </label>
-                            <label style="display: flex; align-items: flex-end">
-                                <select id="chooseWeight" style="float: right" class="dropdown" name="categoryName"></select>
-                            </label>
+                        <div class="card-footer">
+                            <div style="display: flex; align-items: center">
+                                <label class="form-group" style="display: flex; align-items: flex-end;">
+                                    <span style="text-align: right">Your final is worth</span>
+                                    <input class="number-input form-control" style="margin: 0 1rem 0 1rem; width: 100px" id="finalWeight" type="number" step="0.00000001" name="finalWeight">
+                                    <span style="text-align: left">% of your grade.</span>
+                                </label>
+                            </div>
+                            <p>or</p>
+                            <div style="display: flex; align-items: center">
+                                <label class="form-group" style="display: flex; align-items: flex-end;">
+                                    <span style="text-align: right">Your final is worth</span>
+                                    <input class="number-input form-control" style="margin: 0 1rem 0 1rem; width: 100px" id="finalPoints" type="number" step="0.00000001" name="finalPoints">
+                                    <span style="text-align: left">points in </span>
+                                </label>
+                                <label style="display: flex; align-items: flex-end">
+                                    <select id="chooseWeight" style="float: right" class="dropdown" name="categoryName"></select>
+                                </label>
+                            </div>
                         </div>
                         <div class="text-center">
-                            <button class="btn btn-default btn-lg" type="submit" onclick="ajaxPostForm('#calculateFinalGrade',[],'#calculatorMessage')">
+                            <button class="btn btn-default btn-lg" type="submit">
                                 Calculate what I need on the final
                             </button>
                         </div>
@@ -106,7 +116,7 @@
     chooseClassDiv.on('change', function() {
         if ($(this)[0].selectedIndex === 0) {
             $('#currentGrade').attr('value', '');
-            $('#categoryWeight').attr('value', '');
+            $('#finalWeight').attr('value', '');
         } else {
             $('#currentGrade').attr('value', +(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
         }
@@ -114,29 +124,29 @@
     });
 
     $('#chooseLetterGrade').on('change', function() {
-        if ($(this)[0].selectedIndex === 0) {
-            $('#goal').attr('value', '');
-        } else {
-            $('#goal').attr('value', document.getElementById('chooseLetterGrade').options[$(this)[0].selectedIndex - 1].value);
-        }
+        $('#goal').attr('value', document.getElementById('chooseLetterGrade').options[$(this)[0].selectedIndex].value);
     });
 
     let chooseWeightDiv = $('#chooseWeight');
     chooseWeightDiv.on('change', function() {
         if ($(this)[0].selectedIndex === 0) {
-            $('#categoryWeight').attr('value', '');
+            $('#finalWeight').attr('value', '');
         } else {
             // Get the form.
-            let form = $('#calculateFinalGrade');
             let formData;
             let message;
             let formMessagesDiv;
 
             // Serialize the form data.
-            formData = $(form).serialize();
+            formData = JSON.parse(JSON.stringify('username=' + user.username
+                + '&' + 'currentGrade=' + $('#currentGrade')[0].valueAsNumber
+                + '&' + 'classIndex=' + ($('#chooseClass')[0].selectedIndex - 1)
+                + '&' + 'categoryName=' + $('#chooseWeight option:selected').html()
+                + '&' + 'finalPoints=' + $('#finalPoints').val()
+                + '&' + 'categoryWeight=' + $('#chooseWeight option:selected').val()));
 
             // Get the text field
-            message = $('#categoryWeight');
+            message = $('#finalWeight');
 
             // Submit the form using AJAX.
             $.ajax({
@@ -148,7 +158,7 @@
 
             .done(function(response) {
                 // Set the message text.
-                $(message).attr('value', response);
+                $(message).val(parseFloat(parseFloat(response).toFixed(8)));
             })
 
             .fail(function(data) {
@@ -162,6 +172,54 @@
 
                 // Show the div.
                 $(formMessagesDiv).css('display','block');
+            })
+        }
+    });
+
+    let finalPointsDiv = $('#finalPoints');
+    finalPointsDiv.on('change', function() {
+        $('#finalWeight').attr('value','');
+        if ($(this)[0].selectedIndex !== 0) {
+            // Get the form.
+            let formData;
+            let message;
+            let formMessagesDiv;
+
+            // Serialize the form data.
+            formData = JSON.parse(JSON.stringify('username=' + user.username
+                + '&' + 'currentGrade=' + $('#currentGrade')[0].valueAsNumber
+                + '&' + 'classIndex=' + ($('#chooseClass')[0].selectedIndex - 1)
+                + '&' + 'categoryName=' + $('#chooseWeight option:selected').html()
+                + '&' + 'finalPoints=' + $('#finalPoints').val()
+                + '&' + 'categoryWeight=' + $('#chooseWeight option:selected').val()));
+
+            // Get the text field
+            message = $('#finalWeight');
+
+            // Submit the form using AJAX.
+            $.ajax({
+                type: 'POST',
+                url: '/getFinalWeightWithCategory',
+                data: formData,
+                async: true
+            })
+
+            .done(function (response) {
+                // Set the message text.
+                $(message).val(parseFloat(parseFloat(response).toFixed(8)));
+            })
+
+            .fail(function (data) {
+
+                // Set the message text.
+                if (data.responseText !== '') {
+                    $(message).val(data.responseText);
+                } else {
+                    $(message).val('----');
+                }
+
+                // Show the div.
+                $(formMessagesDiv).css('display', 'block');
             })
         }
     });
@@ -190,67 +248,91 @@
         document.getElementById(id).style.display = 'none';
     }
 
-    function ajaxPostForm(formID, fieldIDsToClear, messagesDivID) {
-        // Get the form.
-        let form = $(formID);
+    $('#calculateFinalGrade').submit(function(event) {
 
-        $(form).submit(function(event) {
-            // Stop the browser from submitting the form.
-            event.preventDefault();
+        event.preventDefault();
 
-            let formData;
-            let message;
-            let formMessagesDiv;
+        let currentGradeDiv = $('#currentGrade');
+        let goalDiv = $('#goal');
+        let finalWeightDiv = $('#finalWeight');
+        let currentGrade = currentGradeDiv[0].valueAsNumber;
+        let goal = goalDiv[0].value;
+        let finalWeight = finalWeightDiv[0].valueAsNumber;
+        let letterGoal;
 
-            // Serialize the form data.
-            formData = $(form).serialize();
+        let digitsInGoalMinusOne = Math.floor(Math.log10(goal)),
+            firstDigitInGoal = Math.floor(goal / Math.pow(10, digitsInGoalMinusOne));
+        if (firstDigitInGoal === 8) { letterGoal = 'an ' + goal + '%'; }
+        else {letterGoal = 'a ' + goal + '%'; }
 
-            // Get the messages.
-            formMessagesDiv = $(messagesDivID);
-            message = $(formMessagesDiv).find('.messageTxt');
+        if (goal === '97.5') { letterGoal = 'an A+'; }
+        else if (goal === '92.5') { letterGoal = 'an A'; }
+        else if (goal === '89.5') { letterGoal = 'an A-'; }
+        else if (goal === '87.5') { letterGoal = 'a B+'; }
+        else if (goal === '82.5') { letterGoal = 'a B'; }
+        else if (goal === '79.5') { letterGoal = 'a B-'; }
+        else if (goal === '77.5') { letterGoal = 'a C+'; }
+        else if (goal === '72.5') { letterGoal = 'a C'; }
+        else if (goal === '69.5') { letterGoal = 'a C-'; }
+        else if (goal === '67.5') { letterGoal = 'a D+'; }
+        else if (goal === '62.5') { letterGoal = 'a D'; }
+        else if (goal === '59.5') { letterGoal = 'a D-'; }
 
-            // Submit the form using AJAX.
-            $.ajax({
-                type: 'POST',
-                url: $(form).attr('action'),
-                data: formData,
-                async: true
-            })
+        //TODO Finish these messages
+        let grade = +((goal - (currentGrade * (100 - finalWeight) / 100)) / finalWeight * 100).toFixed(3);
+        let startMessage;
+        let endMessage;
+        if (grade > 100) {
+            startMessage = "Aww snap!";
+            endMessage = "Try aiming a little lower.";
+        } else if (grade > 90) {
+            startMessage = "Ooh that's close!";
+            endMessage = "Study hard!";
+        } else if (grade > 80) {
+            startMessage = "Hey, that's not bad!";
+            endMessage = "You can do it!"
+        } else if (grade > 70) {
+            startMessage = "Looks like your hard work paid off!";
+            endMessage = "";
+        } else if (grade > 60) {
+            startMessage = "";
+            endMessage = "";
+        } else if (grade > 50) {
+            startMessage = "";
+            endMessage = "";
+        } else if (grade > 0) {
+            startMessage = "";
+            endMessage = "";
+        } else {
+            startMessage = "";
+            endMessage = "";
+        }
 
-            .done(function(response) {
-                // Make sure that the formMessages div has the alert-success class.
-                $(formMessagesDiv).removeClass('alert-danger');
-                $(formMessagesDiv).addClass('alert-success');
+        let digitsInGradeMinusOne = Math.floor(Math.log10(grade)),
+            firstDigitInGrade = Math.floor(grade / Math.pow(10, digitsInGradeMinusOne));
 
-                // Set the message text.
-                $(message).text(response);
+        let formattedGrade;
+        if (firstDigitInGrade === 8) { formattedGrade = 'an ' + grade + '%'; }
+        else { formattedGrade = 'a ' + grade + '%'; }
 
-                // Show the div.
-                $(formMessagesDiv).css('display', 'block');
+        let gradeMessage = "You need " + formattedGrade + " on the final to get " + letterGoal + " overall.";
+        let message = startMessage + " " + gradeMessage + " " + endMessage;
 
-                // Clear fields to clear
-                for (let i = 0; i < fieldIDsToClear.length; i++) {
-                    $(fieldIDsToClear[i]).val('');
-                }
-            })
+        let calculatorMessageDiv = $('#calculatorMessage').css('display','none');
+        let extraMessageDiv = $('#extraMessage').css('display','none');
+        if (currentGradeDiv[0].valueAsNumber < 0) {
+            calculatorMessageDiv.removeClass('alert-danger').addClass('alert-success').css('display', 'block').find('.messageTxt').text(message);
+            extraMessageDiv.removeClass('alert-success').addClass('alert-danger').css('display', 'block').find('.messageTxt').text('But I highly doubt you have a negative grade.');
+        } else if (finalWeightDiv[0].valueAsNumber <= 0) {
+            extraMessageDiv.removeClass('alert-success').addClass('alert-danger').css('display', 'block').find('.messageTxt').text('Your final weight must be greater than 0.');
+        } else if (grade < 0) {
+            calculatorMessageDiv.removeClass('alert-danger').addClass('alert-success').css('display', 'block').find('.messageTxt').text(message);
+            extraMessageDiv.removeClass('alert-danger').addClass('alert-success').css('display', 'block').find('.messageTxt').text("Well done!");
+        } else {
+            calculatorMessageDiv.removeClass('alert-danger').addClass('alert-success').css('display', 'block').find('.messageTxt').text(message);
+        }
 
-            .fail(function(data) {
-                // Make sure that the formMessages div has the alert-danger class
-                $(formMessagesDiv).removeClass('alert-success');
-                $(formMessagesDiv).addClass('alert-danger');
-
-                // Set the message text.
-                if (data.responseText !== '') {
-                    $(message).text(data.responseText);
-                } else {
-                    $(message).text('Oops! An error occurred and your message could not be sent.');
-                }
-
-                // Show the div.
-                $(formMessagesDiv).css('display','block');
-            })
-        })
-    }
+    });
 
     function getTotalWeight(classIndex) {
         let className = user.grades[classIndex].class_name;

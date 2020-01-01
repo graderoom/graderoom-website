@@ -42,18 +42,18 @@
     <div class="container">
         <!-- Messages -->
         <% var daysSinceUpdated = 0; %>
-        <% if (user.alerts.lastUpdated == 'never') { %>
+        <% if (user.alerts.lastUpdated == 'Never') { %>
             <br>
             <div class="alert alert-success">
                 <u style="cursor: pointer" onclick="showDiv('updateGradesDisplay')">Sync your grades</u> now!
             </div>
         <% } else { %>
-            <% if (!(user.alerts.updateGradesReminder == 'never')) { daysSinceUpdated = Math.floor((Date.now() - user.alerts.lastUpdated) / (1000 * 3600 * 24)) } %>
-            <% if ((user.alerts.updateGradesReminder == 'daily' && daysSinceUpdated >= 1) || (user.alerts.updateGradesReminder == 'weekly' && daysSinceUpdated >= 7)) { %>
+            <% daysSinceUpdated = Math.floor((Date.now() - user.alerts.lastUpdated) / (1000 * 3600 * 24)); %>
+             <% if ((user.alerts.updateGradesReminder == 'Daily' && daysSinceUpdated >= 1) || (user.alerts.updateGradesReminder == 'Weekly' && daysSinceUpdated >= 7)) { %>
                 <br>
                 <div class="alert alert-danger alert-dismissible">
                     <a class="close" data-dismiss="alert" aria-label="close">X</a>
-                    It's been <%=daysSinceUpdated%> <% if (daysSinceUpdated == 1) { %> day <% } else { %> days <% } %>since you last synced your grades! <span style="float: right; display: flex"><u style="cursor: pointer; margin-right: 10px" onclick="showDiv('settingsCardDisplay')">Alert Settings</u><u style="cursor: pointer" onclick="showDiv('updateGradesDisplay')">Sync Grades</u></span>
+                    It's been <%=daysSinceUpdated%> <% if (daysSinceUpdated == 1) { %> day <% } else { %> days <% } %>since you last synced your grades! <span style="float: right; display: flex"><u style="cursor: pointer; margin-right: 10px" onclick="showDiv('settingsCardDisplay'); openTab('Alerts')">Alert Settings</u><u style="cursor: pointer" onclick="showDiv('updateGradesDisplay')">Sync Grades</u></span>
                 </div>
             <% } %>
         <% } %>
@@ -79,7 +79,7 @@
         </div> -->
 
         <!-- Overview Section -->
-        <% if (user.alerts.lastUpdated != 'never') { %>
+        <% if (user.alerts.lastUpdated != 'Never') { %>
             <span id="section-1">
                 <div class="alert alert-danger alert-dismissible" id="weightmsg-1" style="display:none">
                     <a class="close" data-dismiss="alert" aria-label="close">X</a>

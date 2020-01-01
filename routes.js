@@ -245,7 +245,7 @@ app.get('/finalgradecalculator', forceHTTPS, (req, res) => {
 });
 
 app.post('/getFinalWeightWithCategory', [forceHTTPS, isLoggedIn], (req, res) => {
-    let resp = authenticator.getFinalWeightWithCategory(req.user.username, req.body.className, req.body.categoryName, req.body.finalPoints, req.body.categoryWeight);
+    let resp = authenticator.getFinalWeightWithCategory(req.user.username, req.body.classIndex, req.body.categoryName, req.body.finalPoints, req.body.categoryWeight);
     if (resp.success) {
         res.status(200).send(resp.message);
     } else {
@@ -254,7 +254,7 @@ app.post('/getFinalWeightWithCategory', [forceHTTPS, isLoggedIn], (req, res) => 
 });
 
 app.post('/calculate', [forceHTTPS, isLoggedIn], (req, res) => {
-    let resp = authenticator.calculate(req.user.username, req.body.currentGrade, req.body.className, req.body.categoryName, req.body.categoryWeight, req.body.goal);
+    let resp = authenticator.calculate(req.user.username, req.body.currentGrade, req.body.classIndex, req.body.categoryName, req.body.categoryWeight, req.body.goal);
     if (resp.success) {
         res.status(200).send(resp.message);
     } else {
