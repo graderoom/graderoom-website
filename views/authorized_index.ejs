@@ -26,6 +26,9 @@
     <% include partials/user/navbar.ejs %>
     <% include partials/user/edit_weights_card.ejs %>
 
+    <% let page = -1;%>
+    <i id="pageNumber" style="display:none"><%=page%></i>
+
     <!-- Class Links -->
     <ul id="classLinks" class="mx-5 my-3 nav nav-fill" style="border-bottom: 2px solid #969696; color: #BBBBBB;" >
         <li class="nav-item active" id="link-1">
@@ -88,6 +91,19 @@
                 <div id="chart-container-1" class="chart-container" style="position: relative; height:60vh; width:75vw;margin: 0 auto;">
                     <canvas id="chart-1" class="chart" style="width:50%; margin: auto;"></canvas>
                 </div>
+                <hr> 
+                <table class="table text-center" id="table-1">
+                    <thead><tr>
+                        <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
+                        <th style="border:0; color: <%=user.appearance.classColors[i]%>"><%=JSON.parse(gradeData)[i].class_name%></th>
+                        <%}%>
+                    </tr></thead>
+                    <tbody> 
+                        <tr> <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
+                            <td id="overviewChart<%=i%>" style="border: 0; padding-top: 0; color: <%=user.appearance.classColors[i]%>"></td>
+                        <%}%> </tr>
+                    </tbody>
+                </table>
             </span>
         <% } %>
 
@@ -111,9 +127,10 @@
                 <% if (JSON.parse(gradeData)[i].class_name in JSON.parse(weightData)) { %>
                     <table class="table text-center" style="width: 25%; margin: 20px" id="weightsTable<%=i%>">
                         <thead><tr>
-                            <th style="width: 50%">Category</th>
-                            <th style="width: 25%">Weight</th>
-                            <th style="width: 25%">Grade</th>
+                            <th style="width: 40%">Category</th>
+                            <th style="width: 20%">Weight</th>
+                            <th style="width: 20%">Points</th>
+                            <th style="width: 20%">Grade</th>
                         </tr></thead>
 
                         <tbody>
@@ -121,13 +138,14 @@
                                 <tr>
                                     <td id="weightTableCategory<%=i%><%=j%>" ></td>
                                     <td id="weightTableWeight<%=i%><%=j%>" ></td>
+                                    <td id="weightTablePoints<%=i%><%=j%>" ></td>
                                     <td id="weightTableGrade<%=i%><%=j%>" ></td>
                                 </tr>
                             <% } %>
                         </tbody>
 
                         <tfoot><tr>
-                            <th colspan="3" id="weightTableOverallGrade<%=i%>"></th>
+                            <th colspan="4" id="weightTableOverallGrade<%=i%>"></th>
                         </tr></tfoot>
                     </table>
                 <% } %>
@@ -179,6 +197,7 @@
         parseData();
         setupOverallGrades();
         setupWeightsTables();
+        setupOverviewTable();
         updateWeightMessages();
         renderAllCharts();
 
@@ -187,7 +206,7 @@
                 if (data[i].class_name in weights) {
                     let overallGrade = getOverallGrade(i);
                     document.getElementById('overallLetterGrade' + i).textContent = getLetterGrade(overallGrade)
-                    document.getElementById('overallGrade' + i).textContent = (+(overallGrade.toFixed(0))).toString();
+                    document.getElementById('overallGrade' + i).textContent = (+(overallGrade.toFixed(1))).toString();
                 }
             }
         }
@@ -257,6 +276,8 @@
                         for (let j = 0; j < tableCategories.length; j++) {
                             document.getElementById('weightTableCategory' + i + j).textContent = tableCategories[j];
                             document.getElementById('weightTableWeight' + i + j).textContent = tableWeights[j] + '%';
+                            let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
+                            document.getElementById('weightTablePoints' + i + j).textContent = +(categoryGottenAndPossible.gotten.toFixed(3)) + ((categoryGottenAndPossible.possible != 0) ? ('/' + +(categoryGottenAndPossible.possible.toFixed(3))) : '');
                             document.getElementById('weightTableGrade' + i + j).textContent = getCategoryGrade(i, tableCategories[j]);
                         }
                         let overallGrade = getOverallGrade(i);
@@ -266,7 +287,14 @@
             }
         }
 
-        function getCategoryGrade(classIndex, categoryName) {
+        function setupOverviewTable() {
+            for (let i = 0; i < data.length; i++) {
+                let overallGrade = getOverallGrade(i);
+                document.getElementById('overviewChart'+i).innerHTML =  (+(overallGrade.toFixed(2))).toString() + '% </br>' + getLetterGrade(overallGrade);        
+            }
+        }
+
+        function getCategoryGottenAndPossible(classIndex, categoryName) {
             let grades = data[classIndex].grades;
             let totalGotten = 0;
             let totalPossible = 0;
@@ -276,6 +304,13 @@
                     totalPossible += grades[i].points_possible;
                 }
             }
+            return {"gotten": totalGotten, "possible": totalPossible};
+        }
+
+        function getCategoryGrade(classIndex, categoryName) {
+            let categoryGottenAndPossible = getCategoryGottenAndPossible(classIndex, categoryName);
+            let totalGotten = categoryGottenAndPossible.gotten;
+            let totalPossible = categoryGottenAndPossible.possible;
             if (totalPossible == 0) {
                 return 0;
             }
@@ -408,6 +443,7 @@
                 let assignmentTimestamps = classData.grades.map(x => new Date(x.date));
                 let assignmentPercents = classData.grades.map(x => x.grade_percent);
                 let assignmentScoresParsed = classData.grades.map(x => x.points_gotten+"/"+x.points_possible);
+                let assignmentCategories = classData.grades.map(x => x.category);
                 let mixedData = overallGradeSteps.map(function (grade, i) {
                     return {x:assignmentTimestamps[i], y:grade}
                 });
@@ -417,8 +453,10 @@
                     assignmentTimestamps: assignmentTimestamps,
                     assignmentPercents: assignmentPercents,
                     assignmentScoresParsed: assignmentScoresParsed,
+                    assignmentCategories: assignmentCategories,
                     mixedData: mixedData,
                 });
+                // console.log(parsedData);
             }
         }
 
@@ -543,9 +581,7 @@
                                 return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
                             },
                             label: function(tooltipItem, data) {
-                                // console.log(tooltipItem);
-                                // console.log(data);
-                                return parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + " - "
+                                return [parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + " - "
                                     + (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== -1 ?
                                         (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "%") :
                                         (""))
@@ -554,7 +590,8 @@
                                     !== '/0' ?
                                         (" (" + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")") :
                                         (parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0,
-                                            parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)));
+                                            parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)))
+                                    ,"\n(" + parsedData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.index] + ")"];
                             },
                         }
                     },
@@ -662,7 +699,7 @@
                                 return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
                             },
                             label: function(tooltipItem, data) {
-                                return parsedData[id].assignmentNames[tooltipItem.index] + " - "
+                                return [parsedData[id].assignmentNames[tooltipItem.index] + " - "
                                         + (parsedData[id].assignmentPercents[tooltipItem.index] !== -1 ?
                                         (parsedData[id].assignmentPercents[tooltipItem.index] + "%") :
                                         (""))
@@ -671,7 +708,8 @@
                                         !== '/0' ?
                                         (" (" + parsedData[id].assignmentScoresParsed[tooltipItem.index] + ")") :
                                         (parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(0,
-                                        parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)));
+                                        parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)))
+                                        , "\n(" + parsedData[id].assignmentCategories[tooltipItem.index] + ")"];
                             },
                         }
                     },
@@ -682,6 +720,7 @@
         }
 
         function showPage(id) {
+            document.getElementById("pageNumber").textContent = id;
             for (let i = -1; i < data.length; i++) {
                 document.getElementById("link" + i).classList.remove("active");
             }
