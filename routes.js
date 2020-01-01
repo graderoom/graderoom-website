@@ -275,6 +275,7 @@ app.post('/calculate', [forceHTTPS, isLoggedIn], (req, res) => {
     } else {
         res.status(400).send(resp.message);
     }
+});
   
 app.get("/betakeys", [forceHTTPS, isAdmin], (req, res) => {
 
