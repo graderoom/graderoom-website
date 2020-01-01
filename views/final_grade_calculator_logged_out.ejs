@@ -36,21 +36,21 @@
                         <div class="form-group">
                             <label style="display: flex; align-items: flex-end">
                                 <h5 style="text-align: right">Your current grade is</h5>
-                                <input class="number-input form-control" style="margin-left: 1rem; width: 100px" id="currentGrade" type="number" step=".001" name="currentGrade" required autofocus>
+                                <input class="number-input form-control" style="margin-left: 1rem; width: 100px" id="currentGrade" type="number" step="0.001" name="currentGrade" required autofocus>
                                 <h5 style="text-align: left">%</h5>
                             </label>
                         </div>
                         <div class="form-group">
                             <label style="display: flex; align-items: flex-end">
                                 <h5 style="text-align: right">You want a(n)</h5>
-                                <input class="number-input form-control" style="margin: 0 1rem 0 1rem; width: 100px" id="goal" type="number" step=".01" name="goal" required>
+                                <input class="number-input form-control" style="margin: 0 1rem 0 1rem; width: 100px" id="goal" type="number" step="0.1" name="goal" required>
                                 <h5 style="text-align: left">% in the class.</h5>
                             </label>
                         </div>
                         <div class="form-group">
                             <label style="display: flex; align-items: flex-end;">
                                 <h5 style="text-align: right">Your final is worth</h5>
-                                <input class="number-input form-control" style="margin: 0 1rem 0 1rem; width: 100px" id="finalWeight" type="number" step=".01" min="1" max="100" name="finalWeight" required>
+                                <input class="number-input form-control" style="margin: 0 1rem 0 1rem; width: 100px" id="finalWeight" type="number" step="1" name="finalWeight" required>
                                 <h5 style="text-align: left">% of your grade.</h5>
                             </label>
                         </div>
@@ -84,9 +84,9 @@
         let currentGradeDiv = $('#currentGrade');
         let goalDiv = $('#goal');
         let finalWeightDiv = $('#finalWeight');
-        let currentGrade = currentGradeDiv[0].value;
+        let currentGrade = currentGradeDiv[0].valueAsNumber;
         let goal = goalDiv[0].value;
-        let finalWeight = finalWeightDiv[0].value;
+        let finalWeight = finalWeightDiv[0].valueAsNumber;
         let letterGoal;
 
         let digitsInGoalMinusOne = Math.floor(Math.log10(goal)),
@@ -152,9 +152,11 @@
         if (currentGradeDiv[0].valueAsNumber < 0) {
             calculatorMessageDiv.removeClass('alert-danger').addClass('alert-success').css('display', 'block').find('.messageTxt').text(message);
             extraMessageDiv.removeClass('alert-success').addClass('alert-danger').css('display', 'block').find('.messageTxt').text('But I highly doubt you have a negative grade.');
+        } else if (finalWeightDiv[0].valueAsNumber <= 0) {
+            extraMessageDiv.removeClass('alert-success').addClass('alert-danger').css('display', 'block').find('.messageTxt').text('Your final weight must be greater than 0.');
         } else if (grade < 0) {
             calculatorMessageDiv.removeClass('alert-danger').addClass('alert-success').css('display', 'block').find('.messageTxt').text(message);
-            extraMessageDiv.removeClass('alert-danger').addClass('alert-success').css('display', 'block').find('.messageTxt').text("Seriously...You're insane");
+            extraMessageDiv.removeClass('alert-danger').addClass('alert-success').css('display', 'block').find('.messageTxt').text("Well done!");
         } else {
             calculatorMessageDiv.removeClass('alert-danger').addClass('alert-success').css('display', 'block').find('.messageTxt').text(message);
         }
