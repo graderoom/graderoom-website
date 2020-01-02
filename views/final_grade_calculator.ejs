@@ -26,7 +26,7 @@
         <div class="card card-signin my-5">
             <div class="card-body">
                 <h1 class="text-center card-title">
-                    <i class="fa fa-calculator" aria-hidden="true" ></i>
+                    <i class="fa fa-calculator" aria-hidden="true"></i>
                     Final Grade Calculator
                 </h1>
                 <div id="calculatorMessage" class="alert alert-success alert-dismissible" style="display:none">
@@ -113,6 +113,8 @@
 <script>
 
     user = <%- userRef %>;
+
+    // setup jquery divs
     let currentGradeDiv = $('#currentGrade');
     let chooseClassDiv = $('#chooseClass');
     let goalDiv = $('#goal');
@@ -122,10 +124,18 @@
     let chooseWeightDiv = $('#chooseWeight');
     let form = $('#calculateFinalGrade');
 
+    // Initialize goal and weight dropdown
     goalDiv.val(97.5);
     goalDiv.prop('defaultValue', 97.5);
     manageChooseWeight(chooseClassDiv[0].selectedIndex - 1);
 
+    // Manage changes of currentGradeDiv
+    currentGradeDiv.on('input', function () {
+        // Submit the form.
+        form.submit();
+    });
+
+    // Manage changes of chooseClassDiv
     chooseClassDiv.on('input', function () {
         if ($(this)[0].selectedIndex === 0) {
             currentGradeDiv.val('');
@@ -146,92 +156,25 @@
         form.submit();
     });
 
-    currentGradeDiv.on('input', function () {
-        // Submit the form.
-        form.submit();
-    });
-
+    // Manage changes of goalDiv
     goalDiv.on('input', function () {
         // Submit the form.
         form.submit();
     });
 
+    // Manage changes of chooseLetterGradeDiv
     chooseLetterGradeDiv.on('input', function () {
         goalDiv.val(document.getElementById('chooseLetterGrade').options[$(this)[0].selectedIndex].value);
         goalDiv.prop('defaultValue', document.getElementById('chooseLetterGrade').options[$(this)[0].selectedIndex].value);
     });
 
-    chooseWeightDiv.on('input', function () {
-        finalWeightDiv.val('');
-        finalWeightDiv.prop('defaultValue', '');
-        let selectedWeight = $('#chooseWeight option:selected');
-
-        if (!selectedWeight.val()) {
-            console.log('no selected weight');
-            return;
-        }
-
-        if (!finalPointsDiv.val()) {
-            console.log('no final points');
-            return;
-        }
-
-        if ($(this[0].selectedIndex !== 0)) {
-            // Get the form.
-            let formData;
-            let message;
-            let formMessagesDiv;
-
-            // Serialize the form data.
-            let selectedWeight = $('#chooseWeight option:selected');
-            formData = JSON.parse(JSON.stringify('username=' + user.username
-                + '&' + 'currentGrade=' + currentGradeDiv[0].valueAsNumber
-                + '&' + 'classIndex=' + (chooseClassDiv[0].selectedIndex - 1)
-                + '&' + 'categoryName=' + selectedWeight.html()
-                + '&' + 'finalPoints=' + finalPointsDiv.val()
-                + '&' + 'categoryWeight=' + selectedWeight.val()));
-
-            // Get the text field
-            message = finalWeightDiv;
-
-            // Submit the form using AJAX.
-            $.ajax({
-                type: 'POST',
-                url: '/getFinalWeightWithCategory',
-                data: formData,
-                async: true
-            })
-
-                .done(function (response) {
-                    // Set the message text.
-                    $(message).val('');
-                    $(message).prop('defaultValue', '');
-                    $(message).val(parseFloat(parseFloat(response).toFixed(8)));
-                    $(message).prop('defaultValue', parseFloat(parseFloat(response).toFixed(8)));
-                })
-
-                .fail(function (data) {
-
-                    // Set the message text.
-                    if (data.responseText !== '') {
-                        $(message).val(data.responseText);
-                        $(message).prop('defaultValue', data.responseText);
-                    } else {
-                        $(message).val('----');
-                        $(message).prop('defaultValue', '----');
-                    }
-
-                    // Show the div.
-                    $(formMessagesDiv).css('display', 'block');
-                })
-        }
-    });
-    
+    // Manage changes of finalWeightDiv
     finalWeightDiv.on('input', function () {
         // Submit the form.
         form.submit();
     });
 
+    // Manage changes of finalPointsDiv
     finalPointsDiv.on('input', function () {
         finalWeightDiv.val('');
         finalWeightDiv.prop('defaultValue', '');
@@ -300,35 +243,74 @@
         }
     });
 
-    function manageChooseWeight(classIndex) {
-        let weightDropdown = document.getElementById('chooseWeight');
-        chooseWeightDiv.find('option').remove();
-        let newWeight = document.createElement('option');
-        newWeight.text = '-- Category --';
-        newWeight.value = '';
-        weightDropdown.add(newWeight);
-        if (classIndex >= 0) {
-            for (let i = 0; i < Object.keys(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name]).length; i++) {
-                let newWeight = document.createElement('option');
-                newWeight.text = Object.keys(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name])[i];
-                newWeight.value = Object.values(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name])[i].toString();
-                weightDropdown.add(newWeight)
-            }
-        }
-        if (weightDropdown.length === 1) {
-            chooseWeightDiv.find('option').remove();
-            newWeight.text = '-- Select Class --';
-            newWeight.value = '';
-            weightDropdown.add(newWeight);
+    // Mange changes of chooseWeightDiv
+    chooseWeightDiv.on('input', function () {
+        finalWeightDiv.val('');
+        finalWeightDiv.prop('defaultValue', '');
+        let selectedWeight = $('#chooseWeight option:selected');
+
+        if (!selectedWeight.val()) {
+            console.log('no selected weight');
+            return;
         }
 
-    }
+        if (!finalPointsDiv.val()) {
+            console.log('no final points');
+            return;
+        }
 
-    function closeMessage(id) {
-        document.getElementById(id).style.display = 'none';
-    }
+        if ($(this[0].selectedIndex !== 0)) {
+            // Get the form.
+            let formData;
+            let message;
+            let formMessagesDiv;
 
-    $('#calculateFinalGrade').submit(function (event) {
+            // Serialize the form data
+            formData = JSON.parse(JSON.stringify('username=' + user.username
+                + '&' + 'currentGrade=' + currentGradeDiv[0].valueAsNumber
+                + '&' + 'classIndex=' + (chooseClassDiv[0].selectedIndex - 1)
+                + '&' + 'categoryName=' + selectedWeight.html()
+                + '&' + 'finalPoints=' + finalPointsDiv.val()
+                + '&' + 'categoryWeight=' + selectedWeight.val()));
+
+            // Get the text field
+            message = finalWeightDiv;
+
+            // Submit the form using AJAX.
+            $.ajax({
+                type: 'POST',
+                url: '/getFinalWeightWithCategory',
+                data: formData,
+                async: true
+            })
+
+                .done(function (response) {
+                    // Set the message text.
+                    $(message).val('');
+                    $(message).prop('defaultValue', '');
+                    $(message).val(parseFloat(parseFloat(response).toFixed(8)));
+                    $(message).prop('defaultValue', parseFloat(parseFloat(response).toFixed(8)));
+                })
+
+                .fail(function (data) {
+
+                    // Set the message text.
+                    if (data.responseText !== '') {
+                        $(message).val(data.responseText);
+                        $(message).prop('defaultValue', data.responseText);
+                    } else {
+                        $(message).val('----');
+                        $(message).prop('defaultValue', '----');
+                    }
+
+                    // Show the div.
+                    $(formMessagesDiv).css('display', 'block');
+                })
+        }
+    });
+
+    // Manage form submission
+    form.submit(function (event) {
 
         event.preventDefault();
         console.log('submitting');
@@ -447,6 +429,37 @@
 
     });
 
+    // Sets up weight dropdown based on selected class
+    function manageChooseWeight(classIndex) {
+        let weightDropdown = document.getElementById('chooseWeight');
+        chooseWeightDiv.find('option').remove();
+        let newWeight = document.createElement('option');
+        newWeight.text = '-- Category --';
+        newWeight.value = '';
+        weightDropdown.add(newWeight);
+        if (classIndex >= 0) {
+            for (let i = 0; i < Object.keys(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name]).length; i++) {
+                let newWeight = document.createElement('option');
+                newWeight.text = Object.keys(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name])[i];
+                newWeight.value = Object.values(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name])[i].toString();
+                weightDropdown.add(newWeight)
+            }
+        }
+        if (weightDropdown.length === 1) {
+            chooseWeightDiv.find('option').remove();
+            newWeight.text = '-- Select Class --';
+            newWeight.value = '';
+            weightDropdown.add(newWeight);
+        }
+
+    }
+
+    // Hides message
+    function closeMessage(id) {
+        document.getElementById(id).style.display = 'none';
+    }
+
+    // Returns total weight of class
     function getTotalWeight(classIndex) {
         let className = user.grades[classIndex].class_name;
         let classWeights = Object.values(user.weights[className]);
@@ -457,6 +470,7 @@
         return totalWeight;
     }
 
+    // Returns overall grade of class
     function getOverallGrade(classIndex) {
         let className = user.grades[classIndex].class_name;
         if (className in user.weights) {
@@ -473,6 +487,7 @@
         return 0;
     }
 
+    // Returns grade in category of class
     function getCategoryGrade(classIndex, categoryName) {
         let grades = user.grades[classIndex].grades;
         let totalGotten = 0;
