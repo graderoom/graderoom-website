@@ -111,7 +111,7 @@
     user = <%- userRef %>;
     $('#goal').attr('value', 97.5);
     let chooseClassDiv = $('#chooseClass');
-    manageChooseWeight(chooseClassDiv[0].selectedIndex + 1);
+    manageChooseWeight(chooseClassDiv[0].selectedIndex - 1);
 
     chooseClassDiv.on('change', function() {
         if ($(this)[0].selectedIndex === 0) {
@@ -231,15 +231,19 @@
         newWeight.text = '-- Category --';
         newWeight.value = '';
         weightDropdown.add(newWeight);
-        if (classIndex < 0) {
-
-        } else {
+        if (classIndex >= 0) {
             for (let i = 0; i < Object.keys(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name]).length; i++) {
                 let newWeight = document.createElement('option');
                 newWeight.text = Object.keys(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name])[i];
                 newWeight.value = Object.values(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name])[i].toString();
                 weightDropdown.add(newWeight)
             }
+        }
+        if (weightDropdown.length === 1) {
+            $('#chooseWeight').find('option').remove();
+            newWeight.text = '-- Select Class --';
+            newWeight.value = '';
+            weightDropdown.add(newWeight);
         }
 
     }
