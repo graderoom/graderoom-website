@@ -118,6 +118,7 @@
     let goalDiv = $('#goal');
     let chooseLetterGradeDiv = $('#chooseLetterGrade');
     let finalWeightDiv = $('#finalWeight');
+    let finalPointsDiv = $('#finalPoints');
     let chooseWeightDiv = $('#chooseWeight');
     let form = $('#calculateFinalGrade');
 
@@ -161,10 +162,21 @@
     });
 
     chooseWeightDiv.on('input', function () {
-        if ($(this)[0].selectedIndex === 0) {
-            finalWeightDiv.val('');
-            finalWeightDiv.prop('defaultValue', '');
-        } else {
+        finalWeightDiv.val('');
+        finalWeightDiv.prop('defaultValue', '');
+        let selectedWeight = $('#chooseWeight option:selected');
+
+        if (!selectedWeight.val()) {
+            console.log('no selected weight');
+            return;
+        }
+
+        if (!finalPointsDiv.val()) {
+            console.log('no final points');
+            return;
+        }
+
+        if ($(this[0].selectedIndex !== 0)) {
             // Get the form.
             let formData;
             let message;
@@ -220,10 +232,21 @@
         form.submit();
     });
 
-    let finalPointsDiv = $('#finalPoints');
     finalPointsDiv.on('input', function () {
         finalWeightDiv.val('');
         finalWeightDiv.prop('defaultValue', '');
+        let selectedWeight = $('#chooseWeight option:selected');
+
+        if (!selectedWeight.val()) {
+            console.log('no selected weight');
+            return;
+        }
+
+        if (!finalPointsDiv.val()) {
+            console.log('no final points');
+            return;
+        }
+
         if (chooseClassDiv[0].selectedIndex !== 0) {
             // Get the form.
             let formData;
@@ -234,9 +257,9 @@
             formData = JSON.parse(JSON.stringify('username=' + user.username
                 + '&' + 'currentGrade=' + currentGradeDiv[0].valueAsNumber
                 + '&' + 'classIndex=' + (chooseClassDiv[0].selectedIndex - 1)
-                + '&' + 'categoryName=' + $('#chooseWeight option:selected').html()
-                + '&' + 'finalPoints=' + $('#finalPoints').val()
-                + '&' + 'categoryWeight=' + $('#chooseWeight option:selected').val()));
+                + '&' + 'categoryName=' + selectedWeight.html()
+                + '&' + 'finalPoints=' + finalPointsDiv.val()
+                + '&' + 'categoryWeight=' + selectedWeight.val()));
 
             // Get the text field
             message = finalWeightDiv;
