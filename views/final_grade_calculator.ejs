@@ -314,6 +314,20 @@
         let finalWeight = finalWeightDiv[0].valueAsNumber;
         let letterGoal;
 
+        if (!currentGrade) {
+            console.log('no current grade');
+        }
+
+        if (!goal) {
+            console.log('no goal');
+            return;
+        }
+
+        if (!finalWeight) {
+            console.log('no final weight');
+            return;
+        }
+
         let digitsInGoalMinusOne = Math.floor(Math.log10(goal)),
             firstDigitInGoal = Math.floor(goal / Math.pow(10, digitsInGoalMinusOne));
         if (firstDigitInGoal === 8) {
