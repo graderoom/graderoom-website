@@ -109,28 +109,41 @@
 <script>
 
     user = <%- userRef %>;
-    $('#goal').attr('value', 97.5);
+    $('#goal').val(97.5);
+    $('#goal').prop('defaultValue', 97.5);
     let chooseClassDiv = $('#chooseClass');
     manageChooseWeight(chooseClassDiv[0].selectedIndex - 1);
 
-    chooseClassDiv.on('change', function() {
+    chooseClassDiv.on('input', function() {
         if ($(this)[0].selectedIndex === 0) {
-            $('#currentGrade').attr('value', '');
-            $('#finalWeight').attr('value', '');
+            $('#currentGrade').val('');
+            $('#currentGrade').prop('defaultValue', '');
+            $('#finalWeight').val('');
+            $('#finalWeight').prop('defaultValue', '');
         } else {
-            $('#currentGrade').attr('value', +(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
+            $('#currentGrade').val(+(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
+            $('#currentGrade').prop('defaultValue', +(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
         }
+        $('#finalWeight').val('');
+        $('#finalWeight').prop('defaultValue', '');
+        $('#finalPoints').val('');
+        $('#finalPoints').prop('defaultValue', '');
         manageChooseWeight($(this)[0].selectedIndex - 1);
+
+        // Submit the form.
+        $('#calculateFinalGrade').submit();
     });
 
-    $('#chooseLetterGrade').on('change', function() {
-        $('#goal').attr('value', document.getElementById('chooseLetterGrade').options[$(this)[0].selectedIndex].value);
+    $('#chooseLetterGrade').on('input', function() {
+        $('#goal').val(document.getElementById('chooseLetterGrade').options[$(this)[0].selectedIndex].value);
+        $('#goal').prop('defaultValue', document.getElementById('chooseLetterGrade').options[$(this)[0].selectedIndex].value);
     });
 
     let chooseWeightDiv = $('#chooseWeight');
-    chooseWeightDiv.on('change', function() {
+    chooseWeightDiv.on('input', function() {
         if ($(this)[0].selectedIndex === 0) {
-            $('#finalWeight').attr('value', '');
+            $('#finalWeight').val('');
+            $('#finalWeight').prop('defaultValue', '');
         } else {
             // Get the form.
             let formData;
@@ -158,16 +171,21 @@
 
             .done(function(response) {
                 // Set the message text.
+                $(message).val('');
+                $(message).prop('defaultValue', '');
                 $(message).val(parseFloat(parseFloat(response).toFixed(8)));
+                $(message).prop('defaultValue', parseFloat(parseFloat(response).toFixed(8)));
             })
 
             .fail(function(data) {
 
                 // Set the message text.
                 if (data.responseText !== '') {
-                    $(message).attr('value', data.responseText);
+                    $(message).val(data.responseText);
+                    $(message).prop('defaultValue', data.responseText);
                 } else {
-                    $(message).text('----');
+                    $(message).val('----');
+                    $(message).prop('defaultValue', '----');
                 }
 
                 // Show the div.
@@ -176,9 +194,17 @@
         }
     });
 
+    let finalWeightDiv = $('#finalWeight');
+    finalWeightDiv.on('input', function() {
+        console.log('ginal');
+        // Submit the form.
+        $('#calculateFinalGrade').submit();
+    });
+
     let finalPointsDiv = $('#finalPoints');
-    finalPointsDiv.on('change', function() {
-        $('#finalWeight').attr('value','');
+    finalPointsDiv.on('input', function() {
+        $('#finalWeight').val('');
+        $('#finalWeight').prop('defaultValue', '');
         if ($(this)[0].selectedIndex !== 0) {
             // Get the form.
             let formData;
@@ -207,6 +233,10 @@
             .done(function (response) {
                 // Set the message text.
                 $(message).val(parseFloat(parseFloat(response).toFixed(8)));
+                $(message).prop('defaultValue', parseFloat(parseFloat(response).toFixed(8)));
+
+                // Submit the form.
+                $('#calculateFinalGrade').submit();
             })
 
             .fail(function (data) {
@@ -214,8 +244,12 @@
                 // Set the message text.
                 if (data.responseText !== '') {
                     $(message).val(data.responseText);
+                    $(message).prop('defaultValue', data.responseText);
                 } else {
+                    $(message).val('');
+                    $(message).prop('defaultValue', '');
                     $(message).val('----');
+                    $(message).prop('defaultValue', '----');
                 }
 
                 // Show the div.
@@ -255,7 +289,7 @@
     $('#calculateFinalGrade').submit(function(event) {
 
         event.preventDefault();
-
+        console.log('submitting');
         let currentGradeDiv = $('#currentGrade');
         let goalDiv = $('#goal');
         let finalWeightDiv = $('#finalWeight');
@@ -316,6 +350,7 @@
             firstDigitInGrade = Math.floor(grade / Math.pow(10, digitsInGradeMinusOne));
 
         let formattedGrade;
+        if (!grade) { return; }
         if (firstDigitInGrade === 8) { formattedGrade = 'an ' + grade + '%'; }
         else { formattedGrade = 'a ' + grade + '%'; }
 
