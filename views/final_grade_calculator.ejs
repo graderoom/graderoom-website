@@ -41,13 +41,13 @@
                         <div style="display: flex; align-items: center; align-self: center">
                             <label class="form-group" style="display: flex; align-items: flex-end">
                                 <span style="text-align: right">Your current grade is</span>
-                                <input class="number-input form-control" style="margin-left: 1rem; width: 100px"
+                                <input class="number-input form-control" style="margin-left: 1rem;"
                                        id="currentGrade" type="number" step="0.0001" required>
                                 <span style="text-align: left">%</span>
                             </label>
                             <label style="display: flex; align-items: flex-end">
                                 <select id="chooseClass" style="float: right" class="dropdown">
-                                    <option>-- Class --</option>
+                                    <option selected>- - Select Class - -</option>
                                     <% for (let i = 0; i < user.grades.length; i++) { %>
                                         <option><%= user.grades[Object.keys(user.grades)[i]].class_name %></option>
                                     <% } %>
@@ -57,13 +57,13 @@
                         <div style="display: flex; align-items: center">
                             <label class="form-group" style="display: flex; align-items: flex-end">
                                 <span style="text-align: right">You want at least a</span>
-                                <input class="number-input form-control" style="margin: 0 1rem 0 1rem; width: 100px"
+                                <input class="number-input form-control" style="margin: 0 1rem 0 1rem;"
                                        id="goal" type="number" step="0.01" required>
                                 <span style="text-align: left">% in the class.</span>
                             </label>
                             <label style="display: flex; align-items: flex-end">
                                 <select id="chooseLetterGrade" style="float: right" class="dropdown">
-                                    <option>-- Letter Grade --</option>
+                                    <option disabled selected hidden>- - Grade - -</option>
                                     <option value="97.5">A+</option>
                                     <option value="92.5">A</option>
                                     <option value="89.5">A-</option>
@@ -85,7 +85,7 @@
                         <div style="display: flex; align-items: center">
                             <label class="form-group" style="display: flex; align-items: flex-end;">
                                 <span style="text-align: right">Your final is worth</span>
-                                <input class="number-input form-control" style="margin: 0 1rem 0 1rem; width: 100px"
+                                <input class="number-input form-control" style="margin: 0 1rem 0 1rem;"
                                        id="finalWeight" type="number" step="0.00000001">
                                 <span style="text-align: left">% of your grade.</span>
                             </label>
@@ -94,12 +94,14 @@
                         <div style="display: flex; align-items: center">
                             <label class="form-group" style="display: flex; align-items: flex-end;">
                                 <span style="text-align: right">Your final is worth</span>
-                                <input class="number-input form-control" style="margin: 0 1rem 0 1rem; width: 100px"
+                                <input class="number-input form-control" style="margin: 0 1rem 0 1rem;"
                                        id="finalPoints" type="number" step="0.00000001">
                                 <span style="text-align: left">points in </span>
                             </label>
                             <label style="display: flex; align-items: flex-end">
-                                <select id="chooseWeight" style="float: right" class="dropdown"></select>
+                                <select id="chooseWeight" style="float: right" class="dropdown">
+                                    <option disabled selected hidden>- - Select Class - -</option>
+                                </select>
                             </label>
                         </div>
                     </div>
@@ -134,9 +136,6 @@
     // Messages
     let feedbackMessageDiv = $('#calculatorMessage');
 
-    // Initialize  weight dropdown
-    manageChooseWeight(chooseClassDiv[0].selectedIndex - 1);
-
     // Manage changes of currentGradeDiv
     currentGradeDiv.on('input', function () {
         // Submit the form.
@@ -144,8 +143,8 @@
     });
 
     // Manage changes of chooseClassDiv
-    chooseClassDiv.on('input', function () {
-        if ($(this)[0].selectedIndex === 0) {
+    chooseClassDiv.on('change', function () {
+        if ($(this)[0].selectedIndex <= 1) {
             currentGradeDiv.val('');
             currentGradeDiv.prop('defaultValue', '');
             finalWeightDiv.val('');
@@ -154,10 +153,12 @@
             currentGradeDiv.val(+(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
             currentGradeDiv.prop('defaultValue', +(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
         }
-        finalWeightDiv.val('');
-        finalWeightDiv.prop('defaultValue', '');
-        finalPointsDiv.val('');
-        finalPointsDiv.prop('defaultValue', '');
+        if (finalWeightDiv.val()) {
+            finalWeightDiv.val('');
+            finalWeightDiv.prop('defaultValue', '');
+            finalPointsDiv.val('');
+            finalPointsDiv.prop('defaultValue', '');
+        }
         manageChooseWeight($(this)[0].selectedIndex - 1);
 
         // Submit the form.
@@ -171,9 +172,10 @@
     });
 
     // Manage changes of chooseLetterGradeDiv
-    chooseLetterGradeDiv.on('input', function () {
+    chooseLetterGradeDiv.on('change', function () {
         goalDiv.val(document.getElementById('chooseLetterGrade').options[$(this)[0].selectedIndex].value);
         goalDiv.prop('defaultValue', document.getElementById('chooseLetterGrade').options[$(this)[0].selectedIndex].value);
+        form.submit();
     });
 
     // Manage changes of finalWeightDiv
@@ -201,15 +203,13 @@
         if (!selectedWeight.val()) {
             let selectedClass = $('#chooseClass option:selected');
             console.log(selectedClass);
-            if (selectedClass.val() !== '-- Class --') {
+            if (selectedClass.val() !== 'Select Class') {
                 feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').css('display', 'block').find('.messageTxt').text('Select a Category');
             } else {
-                feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').css('display', 'block').find('.messageTxt').text('Select a Class');
+                feedbackMessageDiv.removeClass('alert-success').removeClass('alert-info').addClass('alert-danger').css('display', 'block').find('.messageTxt').text('Select a Class');
             }
             return;
         }
-
-        feedbackMessageDiv.css('display', 'none').find('.messageTxt').text('');
 
         if (chooseClassDiv[0].selectedIndex !== 0) {
             // Get the form.
@@ -262,7 +262,7 @@
     });
 
     // Mange changes of chooseWeightDiv
-    chooseWeightDiv.on('input', function () {
+    chooseWeightDiv.on('change', function () {
         finalWeightDiv.val('');
         finalWeightDiv.prop('defaultValue', '');
         let selectedWeight = $('#chooseWeight option:selected');
@@ -281,8 +281,6 @@
             feedbackMessageDiv.removeClass('alert-success').removeClass('alert-info').addClass('alert-info').css('display', 'block').find('.messageTxt').text('Enter Final Points');
             return;
         }
-
-        feedbackMessageDiv.css('display', 'none').find('.messageTxt').text('');
 
         if ($(this[0].selectedIndex !== 0)) {
             // Get the form.
@@ -344,7 +342,7 @@
         let letterGoal;
 
         if (!currentGrade) {
-            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').find('.messageTxt').text('Enter Current Grade or Select Class');
+            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').find('.messageTxt').text('Enter Current Grade or Select a Class');
             return;
         }
 

@@ -380,6 +380,8 @@ html {
     width: fit-content;
     border-radius: 1em;
     text-align-last: center;
+    max-height: 10rem;
+    overflow-y: auto;
 }
 
 .collapsed:hover {
@@ -448,4 +450,8 @@ html {
 .number-input::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
+}
+
+.number-input {
+    width: 5rem;
 }
