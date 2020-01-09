@@ -155,7 +155,7 @@
         } else {
             currentGradeDiv.val(+(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
             currentGradeDiv.prop('defaultValue', +(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
-            document.getElementById('specialFinal').style.display = 'block  ';
+            document.getElementById('specialFinal').style.display = 'block';
         }
         if (finalWeightDiv !== null) {
             finalWeightDiv.val('');
@@ -210,53 +210,32 @@
         }
 
         if (chooseClassDiv[0].selectedIndex !== 0) {
-            // Get the form.
-            let formData;
-            let message;
 
-            // Serialize the form data.
-            formData = JSON.parse(JSON.stringify('username=' + user.username
-                + '&' + 'currentGrade=' + currentGradeDiv[0].valueAsNumber
-                + '&' + 'classIndex=' + (chooseClassDiv[0].selectedIndex - 1)
-                + '&' + 'categoryName=' + selectedWeight.html()
-                + '&' + 'finalPoints=' + finalPointsDiv.val()
-                + '&' + 'categoryWeight=' + selectedWeight.val()));
+            let classIndex = chooseClassDiv[0].selectedIndex - 1;
+            let categoryName = selectedWeight.html();
+            let finalPoints = finalPointsDiv.val();
+            let categoryWeight = selectedWeight.val();
+
+            let grades = user.get('grades').value();
+            let classGrades = Object.values(grades)[classIndex].grades;
+            let numPossible = 0;
+            for (let i = 0; i < classGrades.length; i++) {
+                if (classGrades[i].category === categoryName) {
+                    numPossible += classGrades[i].points_possible;
+                }
+            }
+            let finalWeight = 0;
+            if (numPossible > 0) {
+                finalWeight = parseFloat(finalPoints) / (numPossible + parseFloat(finalPoints)) * categoryWeight;
+            }
 
             // Get the text field
-            message = finalWeightDiv;
+            let message = finalWeightDiv;
+            $(message).val(parseFloat(finalWeight.toFixed(8)));
+            $(message).prop('defaultValue', parseFloat(finalWeight.toFixed(8)));
 
-            // Submit the form using AJAX.
-            $.ajax({
-                type: 'POST',
-                url: '/getFinalWeightWithCategory',
-                data: formData,
-                async: true
-            })
-
-                .done(function (response) {
-                    // Set the message text.
-                    $(message).val(parseFloat(parseFloat(response).toFixed(8)));
-                    $(message).prop('defaultValue', parseFloat(parseFloat(response).toFixed(8)));
-
-                    // Submit the form.
-                    form.submit();
-                })
-
-                .fail(function (data) {
-
-                    // Set the message text.
-                    if (data.responseText !== '') {
-                        $(message).val(data.responseText);
-                        $(message).prop('defaultValue', data.responseText);
-                    } else {
-                        $(message).val('');
-                        $(message).prop('defaultValue', '');
-                        $(message).val('----');
-                        $(message).prop('defaultValue', '----');
-                    }
-
-                })
         }
+
     });
 
     // Mange changes of chooseWeightDiv
@@ -281,51 +260,30 @@
         }
 
         if ($(this[0].selectedIndex !== 0)) {
-            // Get the form.
-            let formData;
-            let message;
 
-            // Serialize the form data
-            formData = JSON.parse(JSON.stringify('username=' + user.username
-                + '&' + 'currentGrade=' + currentGradeDiv[0].valueAsNumber
-                + '&' + 'classIndex=' + (chooseClassDiv[0].selectedIndex - 1)
-                + '&' + 'categoryName=' + selectedWeight.html()
-                + '&' + 'finalPoints=' + finalPointsDiv.val()
-                + '&' + 'categoryWeight=' + selectedWeight.val()));
+            let classIndex = chooseClassDiv[0].selectedIndex - 1;
+            let categoryName = selectedWeight.html();
+            let finalPoints = finalPointsDiv.val();
+            let categoryWeight = selectedWeight.val();
+
+            let grades = user.get('grades').value();
+            let classGrades = Object.values(grades)[classIndex].grades;
+            let numPossible = 0;
+            for (let i = 0; i < classGrades.length; i++) {
+                if (classGrades[i].category === categoryName) {
+                    numPossible += classGrades[i].points_possible;
+                }
+            }
+            let finalWeight = 0;
+            if (numPossible > 0) {
+                finalWeight = parseFloat(finalPoints) / (numPossible + parseFloat(finalPoints)) * categoryWeight;
+            }
 
             // Get the text field
-            message = finalWeightDiv;
+            let message = finalWeightDiv;
+            $(message).val(parseFloat(finalWeight.toFixed(8)));
+            $(message).prop('defaultValue', parseFloat(finalWeight.toFixed(8)));
 
-            // Submit the form using AJAX.
-            $.ajax({
-                type: 'POST',
-                url: '/getFinalWeightWithCategory',
-                data: formData,
-                async: true
-            })
-
-                .done(function (response) {
-                    // Set the message text.
-                    $(message).val('');
-                    $(message).prop('defaultValue', '');
-                    $(message).val(parseFloat(parseFloat(response).toFixed(8)));
-                    $(message).prop('defaultValue', parseFloat(parseFloat(response).toFixed(8)));
-
-                    // Submit form (Necessary in some cases)
-                    form.submit();
-                })
-
-                .fail(function (data) {
-
-                    // Set the message text.
-                    if (data.responseText !== '') {
-                        $(message).val(data.responseText);
-                        $(message).prop('defaultValue', data.responseText);
-                    } else {
-                        $(message).val('----');
-                        $(message).prop('defaultValue', '----');
-                    }
-                })
         }
     });
 
