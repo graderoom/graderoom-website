@@ -247,6 +247,7 @@ app.get('/finalgradecalculator', forceHTTPS, (req, res) => {
             calculatorSuccessMessage: req.flash("calculatorSuccessMessage"),
             calculatorFailMessage: req.flash("calculatorFailMessage"),
             user: req.user,
+            gradeData: JSON.stringify(req.user.grades),
             userRef: JSON.stringify(req.user),
             schoolUsername: req.user.schoolUsername,
         });
