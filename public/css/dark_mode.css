@@ -240,7 +240,12 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
 }
 
 .form-group:focus-within label {
-    color: #BBBBBB !important;
+    color: #BBBBBB;
+}
+
+.break {
+    flex-basis: 100%;
+    height: 0;
 }
 
 /* Input Form Background Images */
