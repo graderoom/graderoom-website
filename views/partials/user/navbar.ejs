@@ -1,76 +1,63 @@
 <!-- Nav Bar -->
 <nav class="navbar navbar-dark navbar-expand-lg justify-content-center">
     <span class="d-flex w-50 mr-auto">
-        <a href="/" class="navbar-brand" >            
+        <a href="/" class="navbar-brand">
             <h1> <img src="/public/resources/dark_mode/logo.png" style="width: 3rem" class="d-inline-block logo" alt=""> Graderoom </h1>
         </a>
     </span>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNav" aria-controls="collapsingNav" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNav"
+            aria-controls="collapsingNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="navbar-collapse collapse w-100" id="collapsingNav">
         <% if (user.username.length > 0) { %>
             <ul class="navbar-nav w-100 justify-content-center">
                 <li class="nav-item">
-                    <h5><%=user.username%></h5>
+                    <h5><%= user.username %></h5>
                 </li>
             </ul>
         <% } %>
         <ul class="navbar-nav w-100 justify-content-end align-items-end ml-auto">
             <% if (user.isAdmin) { %>
                 <li id="toggleAdmin" class="nav-item toggle-admin">
-                    <a class="btn btn-med" href="/admin">
-                        <i class="fa fa-fighter-jet" aria-hidden="true"></i>
-                        Admin
+                    <a class="btn btn-med" href="/admin"> <i class="fa fa-fighter-jet" aria-hidden="true"></i> Admin
                     </a>
                 </li>
             <% } %>
             <% if (current == 'home') { %>
                 <li id="finalGradeCalculator" class="nav-item">
-                    <a class="btn btn-med" href="/finalgradecalculator">
-                        <i class="fa fa-calculator" aria-hidden="true"></i>
-                        Calculator
-                    </a>
+                    <a class="btn btn-med" href="/finalgradecalculator"> <i class="fa fa-calculator"
+                                                                            aria-hidden="true"></i> Calculator </a>
                 </li>
             <% } else { %>
                 <li id="home" class="nav-item">
-                    <a class="btn btn-med" href="/">
-                        <i class="fa fa-home" aria-hidden="true"></i>
-                        Home
-                    </a>
+                    <a class="btn btn-med" href="/"> <i class="fa fa-home" aria-hidden="true"></i> Home </a>
                 </li>
             <% } %>
             <li id="editWeights" class="nav-item">
                 <btn class="btn btn-med" onclick="showUpdateWeights(document.getElementById('pageNumber').textContent)">
-                    <i class="fa fa-pencil" aria-hidden="true"></i>
-                    Weights
+                    <i class="fa fa-pencil" aria-hidden="true"></i> Weights
                 </btn>
             </li>
             <li id="syncGrades" class="nav-item">
                 <btn class="btn btn-med" onclick="showDiv('updateGradesDisplay')">
-                    <i class="fa fa-refresh" aria-hidden="true"></i>
-                    Sync
+                    <i class="fa fa-refresh" aria-hidden="true"></i> Sync
                 </btn>
             </li>
             <li id="settings" class="nav-item">
                 <btn class="btn btn-med" onclick="showDiv('settingsCardDisplay')">
-                    <i class="fa fa-cog" aria-hidden="true"></i>
-                    Settings
+                    <i class="fa fa-cog" aria-hidden="true"></i> Settings
                 </btn>
             </li>
             <li class="nav-item active">
-                <a href="/logout" class="btn btn-med">
-                    <i class="fa fa-sign-out" aria-hidden="true"></i>
-                    Logout
-                </a>
+                <a href="/logout" class="btn btn-med"> <i class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
             </li>
         </ul>
     </div>
 </nav>
 
 <!-- Cards -->
-<% include settings_card.ejs %>
-<% include sync_grades_card.ejs %>
+<% include settings_card.ejs %> <% include sync_grades_card.ejs %>
 
 <!-- Custom JavaScript -->
 <script>
@@ -80,10 +67,13 @@
         try {
             $('.navbar-collapse').collapse('hide');
             closeForm('toggle');
-        } catch(e) {}
+        }
+        catch (e) {
+        }
     }
+
     function closeForm(id) {
-        let form = document.getElementById(id);
+        let form           = document.getElementById(id);
         form.style.display = "none";
         if (id != 'updateWeightsDisplay') {
             let inputFields = form.getElementsByClassName('form-control');
@@ -101,7 +91,9 @@
             } else if (!document.getElementById('getUser').value && darkModeCheckbox.checked) {
                 darkModeCheckbox.checked = false;
             }
-        } catch {}
+        }
+        catch {
+        }
     }
 
     // Collapse navbar or card when click outside
@@ -112,7 +104,7 @@
                 closeForm($(e.target).closest('.blurred-login')[0].id);
             }
         }
-        if (!$(e.target).closest('#collapsingNav').length && !$(e.target).is('#collapsingNav')){
+        if (!$(e.target).closest('#collapsingNav').length && !$(e.target).is('#collapsingNav')) {
             $('.navbar-collapse').collapse('hide');
         }
     });
@@ -122,7 +114,9 @@
             try {
                 $('.navbar-collapse').collapse('hide');
                 closeForm('toggle');
-            } catch(e) {}
+            }
+            catch (e) {
+            }
             closeForm('updateGradesDisplay');
             closeForm('settingsCardDisplay');
             closeForm('updateWeightsDisplay');
