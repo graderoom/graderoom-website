@@ -15,33 +15,33 @@
 </head>
 <body>
 
-    <!-- Admin Navbar -->
-    <% include partials/admin/admin_navbar.ejs %>
+<!-- Admin Navbar -->
+<% include partials/admin/admin_navbar.ejs %>
 
-    <!-- Main Screen -->
-    <div class="container">
-        <!-- Messages -->
-        <% if (adminSuccessMessage.length > 0) { %>
-            <br>
-            <div class="alert alert-danger alert-dismissible">
-                <a class="close" data-dismiss="alert" aria-label="close">X</a>
-                <%= adminSuccessMessage %>
-            </div>
-        <% } else if (adminFailMessage.length > 0) { %>
-            <br>
-            <div class="alert alert-success alert-dismissible">
-                <a class="close" data-dismiss="alert" aria-label="close">X</a>
-                <%= adminFailMessage %>
-            </div>
-        <% } else { %>
-            <br>
-        <% } %>
+<!-- Main Screen -->
+<div class="container">
+    <!-- Messages -->
+    <% if (adminSuccessMessage.length > 0) { %>
+        <br>
+        <div class="alert alert-danger alert-dismissible">
+            <a class="close" data-dismiss="alert" aria-label="close">X</a>
+            <%= adminSuccessMessage %>
+        </div>
+    <% } else if (adminFailMessage.length > 0) { %>
+        <br>
+        <div class="alert alert-success alert-dismissible">
+            <a class="close" data-dismiss="alert" aria-label="close">X</a>
+            <%= adminFailMessage %>
+        </div>
+    <% } else { %>
+        <br>
+    <% } %>
 
-        <form action="/betakeys" method="get" class="text-center">
-            <button type="submit" class="btn btn-md">Beta Key Panel</button>
-        </form>
+    <form action="/betakeys" method="get" class="text-center">
+        <button type="submit" class="btn btn-md">Beta Key Panel</button>
+    </form>
 
-        <span id="table-container">
+    <span id="table-container">
             <hr>
             <table class="table">
                 <thead>
@@ -57,15 +57,16 @@
 
                 <% for (let u of userList) { %>
                     <tr>
-                        <td><%= u.username%> </td>
-                        <td><%= u.schoolUsername%></td>
+                        <td><%= u.username %> </td>
+                        <td><%= u.schoolUsername %></td>
                         <% let lastUpdated = new Date(u.alerts.lastUpdated); %>
-                        <td><%= lastUpdated.toLocaleString("en-US", {timeZone: "America/Los_Angeles"})%></td>
-                        <td><%= u.isAdmin%> </td>
+                        <td><%= lastUpdated.toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) %></td>
+                        <td><%= u.isAdmin %> </td>
                         <td>
                             <% if (!u.isAdmin) { %>
                                 <form action="/deleteuser" method="post">
-                                    <button type="submit" name="deleteUser" class="btn btn-sm" value="<%=u.username%>">Delete User</button>
+                                    <button type="submit" name="deleteUser" class="btn btn-sm"
+                                            value="<%= u.username %>">Delete User</button>
                                 </form>
                             <% } else { %>
                                 Cannot Delete Admin
@@ -76,11 +77,13 @@
                             <% if (u != user) { %>
                                 <% if (u.isAdmin) { %>
                                     <form action="/removeadmin" method="post">
-                                        <button type="submit" name="removeAdminUser" class="btn btm-sm" value="<%=u.username%>">Remove Admin Privileges</button>
+                                        <button type="submit" name="removeAdminUser" class="btn btm-sm"
+                                                value="<%= u.username %>">Remove Admin Privileges</button>
                                     </form>
                                 <% } else { %>
                                     <form action="/makeadmin" method="post">
-                                        <button type="submit" name="newAdminUser" class="btn btn-sm" value="<%=u.username%>">Make User Admin</button>
+                                        <button type="submit" name="newAdminUser" class="btn btn-sm"
+                                                value="<%= u.username %>">Make User Admin</button>
                                     </form>
                                 <% } %>
                             <% } else { %>
@@ -91,6 +94,6 @@
                 <% } %>
             </table>
         </span>
-    </div>
+</div>
 </body>
 </html>

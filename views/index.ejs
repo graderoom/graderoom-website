@@ -11,54 +11,51 @@
 </head>
 
 <body>
-    <div class="container h-100 d-flex justify-content-center ">
-        <div class="col-sm-10 col-md-8 col-lg-6 col-xl-5">
-            <div class="card card-signin my-5">
-                <div class="card-body">
-                    <h1 class="text-center card-title">
-                        <img src="/public/resources/dark_mode/logo.png" class="logo" width=60rem>
-                        Graderoom
-                    </h1>
-                    <% if (message.length > 0) { %>
-                        <div class="alert alert-danger alert-dismissible">
-                            <a class="close" data-dismiss="alert" aria-label="close">X</a>
-                            <%= message %>
-                        </div>
-                    <% } %>
+<div class="container h-100 d-flex justify-content-center ">
+    <div class="col-sm-10 col-md-8 col-lg-6 col-xl-5">
+        <div class="card card-signin my-5">
+            <div class="card-body">
+                <h1 class="text-center card-title">
+                    <img src="/public/resources/dark_mode/logo.png" class="logo" width=60rem> Graderoom
+                </h1>
+                <% if (message.length > 0) { %>
+                    <div class="alert alert-danger alert-dismissible">
+                        <a class="close" data-dismiss="alert" aria-label="close">X</a>
+                        <%= message %>
+                    </div>
+                <% } %>
+                <br>
+                <form class="form-signin" action="/login" method="post">
+                    <div class="form-group">
+                        <label>Username</label> <input type="text" class="form-control user-bg" name="username"
+                                                       autofocus>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label> <input type="password" class="form-control lock-bg" name="password">
+                    </div>
                     <br>
-                    <form class="form-signin" action="/login" method="post">
-                        <div class="form-group">
-                            <label>Username</label>
-                            <input type="text" class="form-control user-bg" name="username" autofocus>
-                        </div>
-                        <div class="form-group">
-                            <label>Password</label>
-                            <input type="password" class="form-control lock-bg" name="password">
-                        </div>
-                        <br>
-                        <div class="text-center">  
-                            <button type="submit" class="btn btn-default btn-lg">
-                                <i class="fa fa-sign-in" aria-hidden="true"></i> 
-                                Login
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                <div class="card-footer text-center">
-                    <a href="/signup">Create Account</a>
-                </div>
-                <div class="card-footer text-center">
-                    <a href="/finalgradecalculator">Final Grade Calculator</a>
-                </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-default btn-lg">
+                            <i class="fa fa-sign-in" aria-hidden="true"></i> Login
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <a href="/signup">Create Account</a>
+            </div>
+            <div class="card-footer text-center">
+                <a href="/finalgradecalculator">Final Grade Calculator</a>
             </div>
         </div>
     </div>
-    <!-- JavaScript Imports -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-    crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-    crossorigin="anonymous"></script>
+</div>
+<!-- JavaScript Imports -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
 </body>
 </html>

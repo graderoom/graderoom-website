@@ -21,12 +21,12 @@
         <div class="card card-signin my-5">
             <div class="card-body">
                 <h1 class="text-center card-title">
-                    <i class="fa fa-calculator" aria-hidden="true"></i>
-                    Final Grade Calculator
+                    <i class="fa fa-calculator" aria-hidden="true"></i> Final Grade Calculator
                 </h1>
-                <div id="calculatorMessage" class="alert alert-success alert-dismissible" style="display:none">
-                    <div style="font-weight: bold" class="messageTxt"></div>
-                    <a class="close" onclick="closeMessage('calculatorMessage')" aria-label="close">X</a>
+                <div id="calculatorMessage" class="alert alert-info">
+                    <div style="font-weight: bold" class="messageTxt">
+                        Step 1: Enter Current Grade
+                    </div>
                 </div>
                 <div id="extraMessage" class="alert alert-success alert-dismissible" style="display:none">
                     <div class="messageTxt"></div>
@@ -34,33 +34,22 @@
                 </div>
                 <form id="calculateFinalGrade" class="form-signin">
                     <div class="form-group">
-                        <label style="display: flex; align-items: flex-end">
-                            <span style="text-align: right">Your current grade is</span>
+                        <label style="display: flex; align-items: flex-end"> <span style="text-align: right">Your current grade is</span>
                             <input class="number-input form-control" style="margin-left: 1rem;"
                                    id="currentGrade" type="number" step="0.001" name="currentGrade" required autofocus>
-                            <span style="text-align: left">%</span>
-                        </label>
+                            <span style="text-align: left">%</span> </label>
                     </div>
                     <div class="form-group">
-                        <label style="display: flex; align-items: flex-end">
-                            <span style="text-align: right">You want a(n)</span>
+                        <label style="display: flex; align-items: flex-end"> <span style="text-align: right">You want a(n)</span>
                             <input class="number-input form-control" style="margin: 0 1rem 0 1rem;"
-                                   id="goal" type="number" step="0.1" name="goal" required>
-                            <span style="text-align: left">% in the class.</span>
-                        </label>
+                                   id="goal" type="number" step="0.1" name="goal" required> <span
+                                    style="text-align: left">% in the class.</span> </label>
                     </div>
                     <div class="form-group">
-                        <label style="display: flex; align-items: flex-end;">
-                            <span style="text-align: right">Your final is worth</span>
+                        <label style="display: flex; align-items: flex-end;"> <span style="text-align: right">Your final is worth</span>
                             <input class="number-input form-control" style="margin: 0 1rem 0 1rem;"
-                                   id="finalWeight" type="number" step="1" name="finalWeight" required>
-                            <span style="text-align: left">% of your grade.</span>
-                        </label>
-                    </div>
-                    <div class="text-center">
-                        <button class="btn btn-default btn-lg" type="submit">
-                            Calculate what I need on the final
-                        </button>
+                                   id="finalWeight" type="number" step="1" name="finalWeight" required> <span
+                                    style="text-align: left">% of your grade.</span> </label>
                     </div>
                 </form>
             </div>
@@ -76,88 +65,153 @@
 
 <script>
 
+    // Set up input divs
+    let currentGradeDiv = $('#currentGrade');
+    let goalDiv         = $('#goal');
+    let finalWeightDiv  = $('#finalWeight');
+    let form            = $('#calculateFinalGrade');
+
+    // Messages
+    let feedbackMessageDiv = $('#calculatorMessage');
+
     function closeMessage(id) {
         document.getElementById(id).style.display = 'none';
     }
 
-    $('#calculateFinalGrade').submit(function (event) {
+    // Manage changes of currentGradeDiv
+    currentGradeDiv.on('input', function () {
+        // Submit the form.
+        form.submit();
+    });
+
+    // Manage changes of goalDiv
+    goalDiv.on('input', function () {
+        // Submit the form.
+        form.submit();
+    });
+
+    // Manage changes of finalWeightDiv
+    finalWeightDiv.on('input', function () {
+        // Submit the form.
+        form.submit();
+    });
+
+    form.submit(function (event) {
 
         event.preventDefault();
-
-        let currentGradeDiv = $('#currentGrade');
-        let goalDiv = $('#goal');
-        let finalWeightDiv = $('#finalWeight');
         let currentGrade = currentGradeDiv[0].valueAsNumber;
-        let goal = goalDiv[0].value;
-        let finalWeight = finalWeightDiv[0].valueAsNumber;
+        let goal         = goalDiv[0].valueAsNumber;
+        let finalWeight  = finalWeightDiv[0].valueAsNumber;
         let letterGoal;
 
+        if (!currentGrade && currentGrade !== 0) {
+            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').find(
+                '.messageTxt').text('Step 1: Enter Current Grade');
+            return;
+        }
+
+        if (currentGrade < 0) {
+            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-info').addClass('alert-danger').find(
+                '.messageTxt').text('Your Current Grade Should Be a Positive Number');
+            return;
+        }
+
+        if (goal <= 0) {
+            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-info').addClass('alert-danger').find(
+                '.messageTxt').text('Try aiming higher');
+            return;
+        }
+
+        if (!goal && goal !== 0) {
+            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').find(
+                '.messageTxt').text('Step 2: Enter Your Goal or Select Letter Grade');
+            return;
+        }
+
+        if (finalWeight < 0) {
+            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-info').addClass('alert-danger').find(
+                '.messageTxt').text('Your final weight cannot be negative');
+            return;
+        }
+
+        if (!finalWeight && finalWeight !== 0) {
+            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').find(
+                '.messageTxt').text('Step 3: Complete Final Info');
+            return;
+        }
+
         let digitsInGoalMinusOne = Math.floor(Math.log10(goal)),
-            firstDigitInGoal = Math.floor(goal / Math.pow(10, digitsInGoalMinusOne));
+            firstDigitInGoal     = Math.floor(goal / Math.pow(10, digitsInGoalMinusOne));
         if (firstDigitInGoal === 8) {
             letterGoal = 'an ' + goal + '%';
         } else {
             letterGoal = 'a ' + goal + '%';
         }
 
-        if (goal === '97.5') {
+        if (goal === 97.5) {
             letterGoal = 'an A+';
-        } else if (goal === '92.5') {
+        } else if (goal === 92.5) {
             letterGoal = 'an A';
-        } else if (goal === '89.5') {
+        } else if (goal === 89.5) {
             letterGoal = 'an A-';
-        } else if (goal === '87.5') {
+        } else if (goal === 87.5) {
             letterGoal = 'a B+';
-        } else if (goal === '82.5') {
+        } else if (goal === 82.5) {
             letterGoal = 'a B';
-        } else if (goal === '79.5') {
+        } else if (goal === 79.5) {
             letterGoal = 'a B-';
-        } else if (goal === '77.5') {
+        } else if (goal === 77.5) {
             letterGoal = 'a C+';
-        } else if (goal === '72.5') {
+        } else if (goal === 72.5) {
             letterGoal = 'a C';
-        } else if (goal === '69.5') {
+        } else if (goal === 69.5) {
             letterGoal = 'a C-';
-        } else if (goal === '67.5') {
+        } else if (goal === 67.5) {
             letterGoal = 'a D+';
-        } else if (goal === '62.5') {
+        } else if (goal === 62.5) {
             letterGoal = 'a D';
-        } else if (goal === '59.5') {
+        } else if (goal === 59.5) {
             letterGoal = 'a D-';
         }
 
+        let grade;
+        if (finalWeight > 0) {
+            grade = +((goal - (currentGrade * (100 - finalWeight) / 100)) / finalWeight * 100).toFixed(3);
+        } else {
+            grade = 0;
+        }
+
         //TODO Finish these messages
-        let grade = +((goal - (currentGrade * (100 - finalWeight) / 100)) / finalWeight * 100).toFixed(3);
         let startMessage;
         let endMessage;
         if (grade > 100) {
             startMessage = "";
-            endMessage = "";
+            endMessage   = "";
         } else if (grade > 90) {
             startMessage = "";
-            endMessage = "";
+            endMessage   = "";
         } else if (grade > 80) {
             startMessage = "";
-            endMessage = ""
+            endMessage   = ""
         } else if (grade > 70) {
             startMessage = "";
-            endMessage = "";
+            endMessage   = "";
         } else if (grade > 60) {
             startMessage = "";
-            endMessage = "";
+            endMessage   = "";
         } else if (grade > 50) {
             startMessage = "";
-            endMessage = "";
+            endMessage   = "";
         } else if (grade > 0) {
             startMessage = "";
-            endMessage = "";
+            endMessage   = "";
         } else {
             startMessage = "";
-            endMessage = "";
+            endMessage   = "";
         }
 
         let digitsInGradeMinusOne = Math.floor(Math.log10(grade)),
-            firstDigitInGrade = Math.floor(grade / Math.pow(10, digitsInGradeMinusOne));
+            firstDigitInGrade     = Math.floor(grade / Math.pow(10, digitsInGradeMinusOne));
 
         let formattedGrade;
         if (firstDigitInGrade === 8) {
@@ -167,20 +221,17 @@
         }
 
         let gradeMessage = "You need " + formattedGrade + " on the final to get " + letterGoal + " overall.";
-        let message = startMessage + " " + gradeMessage + " " + endMessage;
+        let message      = startMessage + " " + gradeMessage + " " + endMessage;
 
-        let calculatorMessageDiv = $('#calculatorMessage').css('display', 'none');
-        let extraMessageDiv = $('#extraMessage').css('display', 'none');
-        if (currentGradeDiv[0].valueAsNumber < 0) {
-            calculatorMessageDiv.removeClass('alert-danger').addClass('alert-success').css('display', 'block').find('.messageTxt').text(message);
-            extraMessageDiv.removeClass('alert-success').addClass('alert-danger').css('display', 'block').find('.messageTxt').text('But I highly doubt you have a negative grade.');
-        } else if (finalWeightDiv[0].valueAsNumber <= 0) {
-            extraMessageDiv.removeClass('alert-success').addClass('alert-danger').css('display', 'block').find('.messageTxt').text('Your final weight must be greater than 0.');
-        } else if (grade < 0) {
-            calculatorMessageDiv.removeClass('alert-danger').addClass('alert-success').css('display', 'block').find('.messageTxt').text(message);
-            extraMessageDiv.removeClass('alert-danger').addClass('alert-success').css('display', 'block').find('.messageTxt').text("Well done!");
+        if (grade > 100) {
+            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-info').addClass('alert-danger').css(
+                'display', 'block').find('.messageTxt').text(message);
+        } else if (grade > 80) {
+            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').css(
+                'display', 'block').find('.messageTxt').text(message);
         } else {
-            calculatorMessageDiv.removeClass('alert-danger').addClass('alert-success').css('display', 'block').find('.messageTxt').text(message);
+            feedbackMessageDiv.removeClass('alert-info').removeClass('alert-danger').addClass('alert-success').css(
+                'display', 'block').find('.messageTxt').text(message);
         }
 
     });

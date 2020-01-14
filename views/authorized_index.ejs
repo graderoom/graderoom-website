@@ -46,42 +46,41 @@
 <div class="container">
     <!-- Messages -->
     <% var daysSinceUpdated = 0; %>
-    <% if (user.alerts.lastUpdated == 'Never') { %>
-        <br>
-        <div class="alert alert-success">
-            <u style="cursor: pointer" onclick="showDiv('updateGradesDisplay')">Sync your grades</u> now!
-        </div>
-    <% } else { %>
-        <% daysSinceUpdated = Math.floor((Date.now() - user.alerts.lastUpdated) / (1000 * 3600 * 24)); %>
-        <% if ((user.alerts.updateGradesReminder == 'Daily' && daysSinceUpdated >= 1) || (user.alerts.updateGradesReminder == 'Weekly' && daysSinceUpdated >= 7)) { %>
-            <br>
-            <div class="alert alert-danger alert-dismissible">
-                <a class="close" data-dismiss="alert" aria-label="close">X</a>
-                It's been <%= daysSinceUpdated %>
-                <% if (daysSinceUpdated == 1) { %> day
-                <% } else { %> days
-                <% } %>
-                since you last synced your grades! <span style="float: right; display: flex"><u
-                            style="cursor: pointer; margin-right: 10px"
-                            onclick="showDiv('settingsCardDisplay'); openTab('Alerts')">Alert Settings</u><u
-                            style="cursor: pointer" onclick="showDiv('updateGradesDisplay')">Sync Grades</u></span>
-            </div>
-        <% } %>
-    <% } %>
-    <% if (updateGradesMessageSuccess.length > 0) { %>
-        <br>
-        <div class="alert alert-success alert-dismissible">
-            <a class="close" data-dismiss="alert" aria-label="close">X</a>
-            <%= updateGradesMessageSuccess %>
-        </div>
-    <% } else if (updateGradesMessageFail.length > 0) { %>
+    <% if (user.alerts.lastUpdated == 'Never') { %> <br>
+    <div class="alert alert-success">
+        <u style="cursor: pointer" onclick="showDiv('updateGradesDisplay')">Sync your grades</u> now!
+    </div>
+    <% } else { %> <% daysSinceUpdated = Math.floor(
+            (Date.now() - user.alerts.lastUpdated) / (1000 * 3600 * 24)); %> <% if ((user.alerts.updateGradesReminder
+                                                                                     == 'Daily' && daysSinceUpdated
+                                                                                     >= 1)
+                                                                                    || (user.alerts.updateGradesReminder
+                                                                                        == 'Weekly' && daysSinceUpdated
+                                                                                        >= 7)) { %>
         <br>
         <div class="alert alert-danger alert-dismissible">
-            <a class="close" data-dismiss="alert" aria-label="close">X</a>
-            <%= updateGradesMessageFail %>
+            <a class="close" data-dismiss="alert" aria-label="close">X</a> It's been <%= daysSinceUpdated %>
+            <% if (daysSinceUpdated == 1) { %>
+                                                                           day
+            <% } else { %> days
+            <% } %>
+                                                                           since you last synced your grades! <span
+                    style="float: right; display: flex"><u
+                        style="cursor: pointer; margin-right: 10px"
+                        onclick="showDiv('settingsCardDisplay'); openTab('Alerts')">Alert Settings</u><u
+                        style="cursor: pointer" onclick="showDiv('updateGradesDisplay')">Sync Grades</u></span>
         </div>
-    <% } else { %>
-        <br>
+    <% } %>
+    <% } %>
+    <% if (updateGradesMessageSuccess.length > 0) { %> <br>
+    <div class="alert alert-success alert-dismissible">
+        <a class="close" data-dismiss="alert" aria-label="close">X</a> <%= updateGradesMessageSuccess %>
+    </div>
+    <% } else if (updateGradesMessageFail.length > 0) { %> <br>
+    <div class="alert alert-danger alert-dismissible">
+        <a class="close" data-dismiss="alert" aria-label="close">X</a> <%= updateGradesMessageFail %>
+    </div>
+    <% } else { %> <br>
     <% } %>
 
     <!-- <div class="alert alert-danger alert-dismissible" id="weightmsg" style="display:none">
@@ -90,8 +89,7 @@
     </div> -->
 
     <!-- Overview Section -->
-    <% if (user.alerts.lastUpdated != 'Never') { %>
-        <span id="section-1">
+    <% if (user.alerts.lastUpdated != 'Never') { %> <span id="section-1">
                 <div class="alert alert-danger alert-dismissible" id="weightmsg-1" style="display:none">
                     <a class="close" data-dismiss="alert" aria-label="close">X</a>
                     <span id="weightmsg_text-1"></span><u style="float: right; cursor: pointer"
@@ -105,7 +103,8 @@
                 <table class="table text-center" id="table-1">
                     <thead><tr>
                         <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                            <th style="border:0; color: <%= user.appearance.classColors[i] %>"><%= JSON.parse(gradeData)[i].class_name %></th>
+                            <th style="border:0; color: <%= user.appearance.classColors[i] %>"><%= JSON.parse(
+                                        gradeData)[i].class_name %></th>
                         <% } %>
                     </tr></thead>
                     <tbody> 
@@ -121,8 +120,8 @@
     <% } %>
 
     <!-- Class Sections -->
-    <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-        <span id="section<%= i %>" style="display: none;">
+    <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %> <span id="section<%= i %>"
+                                                                         style="display: none;">
             <div class="alert alert-danger alert-dismissible" id="weightmsg<%= i %>" style="display:none">
                 <a class="close" data-dismiss="alert" aria-label="close">X</a>
                 <span id="weightmsg_text<%= i %>"></span></span><u style="float: right; cursor: pointer"
@@ -153,7 +152,8 @@
             </thead>
 
             <tbody>
-            <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]).length; j++) { %>
+            <% for (let j = 0; j < Object.keys(
+                    JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]).length; j++) { %>
                 <tr>
                     <td id="weightTableCategory<%= i %><%= j %>"></td>
                     <td id="weightTableWeight<%= i %><%= j %>"></td>
@@ -210,11 +210,11 @@
 <!-- Custom JavaScript -->
 <script>
 
-    let user = <%- userRef %>;
-    let data = <%- gradeData %>;
+    let user    = <%- userRef %>;
+    let data    = <%- gradeData %>;
     let weights = <%- weightData %>;
 
-    let parsedData = [];
+    let parsedData        = [];
     let unobtainedWeights = {};
 
     let currentPage = -1;
@@ -229,17 +229,17 @@
     function setupOverallGrades() {
         for (let i = 0; i < data.length; i++) {
             if (data[i].class_name in weights) {
-                let overallGrade = getOverallGrade(i);
-                document.getElementById('overallLetterGrade' + i).textContent = getLetterGrade(overallGrade)
-                document.getElementById('overallGrade' + i).textContent = (+(overallGrade.toFixed(1))).toString();
+                let overallGrade                                              = getOverallGrade(i);
+                document.getElementById('overallLetterGrade' + i).textContent = getLetterGrade(overallGrade);
+                document.getElementById('overallGrade' + i).textContent       = (+(overallGrade.toFixed(1))).toString();
             }
         }
     }
 
     function getTotalWeight(classIndex) {
-        let className = data[classIndex].class_name;
+        let className    = data[classIndex].class_name;
         let classWeights = Object.values(weights[className]);
-        let totalWeight = 0;
+        let totalWeight  = 0;
         for (let i = 0; i < classWeights.length; i++) {
             totalWeight += classWeights[i];
         }
@@ -250,8 +250,8 @@
         let className = data[classIndex].class_name;
         if (className in weights) {
             let classCategories = Object.keys(weights[className]);
-            let classWeights = Object.values(weights[className]);
-            let overallGrade = 0;
+            let classWeights    = Object.values(weights[className]);
+            let overallGrade    = 0;
             for (let i = 0; i < classCategories.length; i++) {
                 overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i] / 100;
             }
@@ -297,16 +297,23 @@
             if (className in weights) {
                 if (weights[className]) {
                     let tableCategories = Object.keys(weights[className]);
-                    let tableWeights = Object.values(weights[className]);
+                    let tableWeights    = Object.values(weights[className]);
                     for (let j = 0; j < tableCategories.length; j++) {
                         document.getElementById('weightTableCategory' + i + j).textContent = tableCategories[j];
-                        document.getElementById('weightTableWeight' + i + j).textContent = tableWeights[j] + '%';
-                        let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
-                        document.getElementById('weightTablePoints' + i + j).textContent = +(categoryGottenAndPossible.gotten.toFixed(3)) + ((categoryGottenAndPossible.possible != 0) ? ('/' + +(categoryGottenAndPossible.possible.toFixed(3))) : '');
-                        document.getElementById('weightTableGrade' + i + j).textContent = getCategoryGrade(i, tableCategories[j]);
+                        document.getElementById('weightTableWeight' + i + j).textContent   = tableWeights[j] + '%';
+                        let categoryGottenAndPossible                                      = getCategoryGottenAndPossible(
+                            i, tableCategories[j]);
+                        document.getElementById('weightTablePoints' + i + j).textContent
+                                                                                           = +(categoryGottenAndPossible.gotten.toFixed(
+                            3)) + ((categoryGottenAndPossible.possible != 0) ? ('/'
+                                                                                             + +(categoryGottenAndPossible.possible.toFixed(
+                                3))) : '');
+                        document.getElementById('weightTableGrade' + i + j).textContent    = getCategoryGrade(i,
+                            tableCategories[j]);
                     }
-                    let overallGrade = getOverallGrade(i);
-                    document.getElementById('weightTableOverallGrade' + i).textContent = (+(overallGrade.toFixed(3))).toString() + '% (' + getLetterGrade(overallGrade) + ')';
+                    let overallGrade                                                   = getOverallGrade(i);
+                    document.getElementById('weightTableOverallGrade' + i).textContent = (+(overallGrade.toFixed(
+                        3))).toString() + '% (' + getLetterGrade(overallGrade) + ')';
                 }
             }
         }
@@ -314,14 +321,15 @@
 
     function setupOverviewTable() {
         for (let i = 0; i < data.length; i++) {
-            let overallGrade = getOverallGrade(i);
-            document.getElementById('overviewChart' + i).innerHTML = (+(overallGrade.toFixed(2))).toString() + '% </br>' + getLetterGrade(overallGrade);
+            let overallGrade                                       = getOverallGrade(i);
+            document.getElementById('overviewChart' + i).innerHTML = (+(overallGrade.toFixed(2))).toString() + '% </br>'
+                                                                     + getLetterGrade(overallGrade);
         }
     }
 
     function getCategoryGottenAndPossible(classIndex, categoryName) {
-        let grades = data[classIndex].grades;
-        let totalGotten = 0;
+        let grades        = data[classIndex].grades;
+        let totalGotten   = 0;
         let totalPossible = 0;
         for (let i = 0; i < grades.length; i++) {
             if (!grades[i].exclude && grades[i].category == categoryName) {
@@ -334,8 +342,8 @@
 
     function getCategoryGrade(classIndex, categoryName) {
         let categoryGottenAndPossible = getCategoryGottenAndPossible(classIndex, categoryName);
-        let totalGotten = categoryGottenAndPossible.gotten;
-        let totalPossible = categoryGottenAndPossible.possible;
+        let totalGotten               = categoryGottenAndPossible.gotten;
+        let totalPossible             = categoryGottenAndPossible.possible;
         if (totalPossible == 0) {
             return 0;
         }
@@ -343,7 +351,7 @@
     }
 
     function showWeightMessage(msg, id) {
-        let wmRef = document.getElementById("weightmsg" + id);
+        let wmRef     = document.getElementById("weightmsg" + id);
         let wmTextRef = document.getElementById("weightmsg_text" + id);
         if (msg !== 'Missing Weights: ') {
             wmRef.style.display = "block";
@@ -352,8 +360,8 @@
     }
 
     function hideWeightMessage(id) {
-        let wmRef = document.getElementById("weightmsg" + id);
-        let wmTextRef = document.getElementById("weightmsg_text" + id);
+        let wmRef           = document.getElementById("weightmsg" + id);
+        let wmTextRef       = document.getElementById("weightmsg_text" + id);
         wmRef.style.display = "none";
         wmTextRef.innerText = "";
     }
@@ -376,17 +384,18 @@
     function parseData() {
 
         /*
-        WEIGHTS first
+         WEIGHTS first
          */
 
         for (let classData of data) {
-            let className = classData.class_name;
-            let needWeights = !(className in weights) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object)
+            let className              = classData.class_name;
+            let needWeights            = !(className in weights) || (Object.entries(weights[className]).length === 0
+                                                                     && weights[className].constructor === Object);
             let localMissingCategories = [];
 
-            if ((className in weights) && (!weights[className].hasWeight))
+            if ((className in weights) && (!weights[className].hasWeight)) {
                 needWeights = false;
-            else {
+            } else {
                 for (let grade of classData.grades) {
                     // console.log(grade.category)
 
@@ -406,7 +415,6 @@
             }
         }
 
-
         /**
          * now grades!
          */
@@ -416,10 +424,10 @@
 
         for (let classData of data) {
 
-            let className = classData.class_name;
-            let overallGradeSteps = [];
+            let className                = classData.class_name;
+            let overallGradeSteps        = [];
             let totalPossiblesAndGottens = {}; //by category
-            let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
+            let totalWeightValue         = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
             // VERY JANK CHANGE LATER
             let doesntHaveWeights = className in unobtainedWeights; //Already checked for above: || weights[className].hasWeights === false;
             // console.log(className + " DHW? : " + doesntHaveWeights);
@@ -436,10 +444,8 @@
                             weightVal = weights[className][category];
                         }
                         totalPossiblesAndGottens[category] = {
-                            totalPossible: 0,
-                            totalGotten: 0,
-                            weight: weightVal,
-                        }
+                            totalPossible: 0, totalGotten: 0, weight: weightVal,
+                        };
                         totalWeightValue += weightVal;
                     }
 
@@ -450,26 +456,28 @@
 
                     let overallPercent = 0;
                     for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
-                        overallPercent = overallPercent + (value.weight * (value.totalPossible !== 0 ?
-                            (value.totalGotten / value.totalPossible) : value.totalGotten));
+                        overallPercent = overallPercent + (value.weight * (value.totalPossible !== 0
+                                                                           ? (value.totalGotten / value.totalPossible)
+                                                                           : value.totalGotten));
                     }
                     let total = ((overallPercent / totalWeightValue) * 100).toFixed(3);
-                    total = +total;
+                    total     = +total;
                     //rounds to 3 decimal places (the plus sign drops any trailing zeros)
 
                     overallGradeSteps.push(total);
-                } catch (err) {
+                }
+                catch (err) {
                     console.log(err);
                     console.log("bad weight input");
                 }
             }
 
-            let assignmentNames = classData.grades.map(x => x.assignment_name);
-            let assignmentTimestamps = classData.grades.map(x => new Date(x.date));
-            let assignmentPercents = classData.grades.map(x => x.grade_percent);
+            let assignmentNames        = classData.grades.map(x => x.assignment_name);
+            let assignmentTimestamps   = classData.grades.map(x => new Date(x.date));
+            let assignmentPercents     = classData.grades.map(x => x.grade_percent);
             let assignmentScoresParsed = classData.grades.map(x => x.points_gotten + "/" + x.points_possible);
-            let assignmentCategories = classData.grades.map(x => x.category);
-            let mixedData = overallGradeSteps.map(function (grade, i) {
+            let assignmentCategories   = classData.grades.map(x => x.category);
+            let mixedData              = overallGradeSteps.map(function (grade, i) {
                 return {x: assignmentTimestamps[i], y: grade}
             });
 
@@ -495,10 +503,10 @@
     let hoveredDatasetIndex = -1;
 
     function renderOverviewChart() {
-        let ctx = document.getElementById('chart-1');
-        let id = 0;
-        let dataset = []
-        let colors = user.appearance.classColors;
+        let ctx     = document.getElementById('chart-1');
+        let id      = 0;
+        let dataset = [];
+        let colors  = user.appearance.classColors;
         for (let i = 0; i < data.length; i++) {
             dataset.push({
                 label: data[i].class_name,
@@ -518,22 +526,20 @@
             });
         }
         let numRunning = 0;
-        let myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
+        let myChart    = new Chart(ctx, {
+            type: 'line', data: {
                 datasets: dataset,
-            },
-            options: {
+            }, options: {
                 hover: {
-                    mode: 'nearest',
-                    intersect: false,
-                },
-                onHover: function onHover(evt, activeElements) {
-                    if (!activeElements || !activeElements.length) return;
-                    let datasetIndex = activeElements[0]._datasetIndex;
+                    mode: 'nearest', intersect: false,
+                }, onHover: function onHover(evt, activeElements) {
+                    if (!activeElements || !activeElements.length) {
+                        return;
+                    }
+                    let datasetIndex  = activeElements[0]._datasetIndex;
                     let activeDataset = this.data.datasets[datasetIndex];
                     for (let i = 0; i < this.data.datasets.length; i++) {
-                        let inactiveDataset = this.data.datasets[i];
+                        let inactiveDataset         = this.data.datasets[i];
                         inactiveDataset.borderWidth = 3;
                         inactiveDataset.pointRadius = 3;
                     }
@@ -546,7 +552,7 @@
                         numRunning--;
                         if (numRunning === 0) {
                             for (let i = 0; i < chart.data.datasets.length; i++) {
-                                let dataset = chart.data.datasets[i];
+                                let dataset         = chart.data.datasets[i];
                                 dataset.borderWidth = 3;
                                 dataset.pointRadius = 3;
                             }
@@ -554,88 +560,68 @@
                         }
 
                     }, 6000);
-                },
-                scales: {
+                }, scales: {
                     xAxes: [{
-                        type: 'time',
-                        time: {
+                        type: 'time', time: {
                             unit: 'month'
-                        },
-                        ticks: {
-                            fontColor: 'white',
-                            fontFamily: 'Verdana',
-                            fontSize: '13'
-                        },
-                        gridLines: {
+                        }, ticks: {
+                            fontColor: 'white', fontFamily: 'Verdana', fontSize: '13'
+                        }, gridLines: {
                             color: '#555555',
                         }
-                    }],
-                    yAxes: [{
+                    }], yAxes: [{
                         ticks: {
-                            fontColor: 'white',
-                            fontFamily: 'Verdana',
-                            fontSize: '12'
-                        },
-                        gridLines: {
-                            color: '#555555',
-                            drawBorder: false
+                            fontColor: 'white', fontFamily: 'Verdana', fontSize: '12'
+                        }, gridLines: {
+                            color: '#555555', drawBorder: false
                         }
                     }]
-                },
-                animation: {
+                }, animation: {
                     easing: 'easeOutCubic'
-                },
-                legend: {
-                    display: true,
-                    position: 'top',
-                    labels: {
-                        fontColor: 'white',
-                        fontFamily: 'Verdana',
-                        boxWidth: 20,
-                        fontSize: 13,
+                }, legend: {
+                    display: true, position: 'top', labels: {
+                        fontColor: 'white', fontFamily: 'Verdana', boxWidth: 20, fontSize: 13,
                     }
-                },
-                tooltips: {
-                    enabled: true,
-                    position: 'nearest',
-                    intersect: false,
-                    displayColors: false,
-                    callbacks: {
+                }, tooltips: {
+                    enabled: true, position: 'nearest', intersect: false, displayColors: false, callbacks: {
                         title: function (tooltipItems, data) {
-                            return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
-                        },
-                        label: function (tooltipItem, data) {
+                            return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(
+                                tooltipItems[0].value).toFixed(2) + "%";
+                        }, label: function (tooltipItem, data) {
                             return [parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + " - "
-                            + (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== -1 ?
-                                (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "%") :
-                                (""))
-                            + ((parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index]
-                                .substring(parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2))
-                            !== '/0' ?
-                                (" (" + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")") :
-                                (parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0,
-                                    parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)))
-                                , "\n(" + parsedData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.index] + ")"];
+                                    + (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== -1
+                                       ? (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index]
+                                    + "%") : (""))
+                                    + ((parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index]
+                                .substring(
+                                    parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length
+                                    - 2)) !== '/0' ? (" ("
+                                    + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index]
+                                    + ")")
+                                                   : (parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(
+                                    0,
+                                    parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length
+                                    - 2))),
+                                    "\n(" + parsedData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.index]
+                                    + ")"];
                         },
                     }
-                },
-                responsive: true,
-                maintainAspectRatio: false,
+                }, responsive: true, maintainAspectRatio: false,
             }
         });
     }
 
     function brighten(color, amount) {
-        let hex = color.substring(1);
-        let origR = parseInt(hex.substring(0, 2), 16);
-        let origG = parseInt(hex.substring(2, 4), 16);
-        let origB = parseInt(hex.substring(4), 16);
-        let minAmtR = -100;
-        let maxAmtR = Math.round((255 - origR) / 255 * 100);
-        let minAmtG = -100;
-        let maxAmtG = Math.round((255 - origG) / 255 * 100);
-        let minAmtB = -100;
-        let maxAmtB = Math.round((255 - origB) / 255 * 100);
+        let hex       = color.substring(1);
+        let origR     = parseInt(hex.substring(0, 2), 16);
+        let origG     = parseInt(hex.substring(2, 4), 16);
+        let origB     = parseInt(hex.substring(4), 16);
+        let minAmtR   = -100;
+        let maxAmtR   = Math.round((255 - origR) / 255 * 100);
+        let minAmtG   = -100;
+        let maxAmtG   = Math.round((255 - origG) / 255 * 100);
+        let minAmtB   = -100;
+        let maxAmtB   = Math.round((255 - origB) / 255 * 100);
         let commonMin = Math.max(minAmtR, minAmtG, minAmtB);
         let commonMax = Math.min(maxAmtR, maxAmtG, maxAmtB);
         amount < commonMin ? amount = commonMin : amount;
@@ -650,95 +636,68 @@
     }
 
     function renderChart(id) {
-        let ctx = document.getElementById('chart' + id);
-        let colors = user.appearance.classColors;
+        let ctx     = document.getElementById('chart' + id);
+        let colors  = user.appearance.classColors;
         let myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                datasets: [
-                    {
-                        label: 'parsedData[id]',
-                        backgroundColor: 'rgba(256,256,256,0.05)',
-                        pointBackgroundColor: brighten(colors[id], 100),
-                        pointBorderColor: brighten(colors[id], 100),
-                        borderColor: brighten(colors[id], 100),
-                        fill: 'start',
-                        data: parsedData[id].mixedData,
-                        cubicInterpolationMode: 'monotone',
-                        spanGaps: false,
-                        pointRadius: 3,
-                        borderWidth: 3,
-                        pointHoverRadius: 7,
-                        pointHoverBackgroundColor: brighten(colors[id], -20),
-                        pointHoverBorderColor: brighten(colors[id], 10),
-                        pointHoverBorderWidth: 2
-                    }
-                ]
-            },
-            options: {
+            type: 'line', data: {
+                datasets: [{
+                    label: 'parsedData[id]',
+                    backgroundColor: 'rgba(256,256,256,0.05)',
+                    pointBackgroundColor: brighten(colors[id], 100),
+                    pointBorderColor: brighten(colors[id], 100),
+                    borderColor: brighten(colors[id], 100),
+                    fill: 'start',
+                    data: parsedData[id].mixedData,
+                    cubicInterpolationMode: 'monotone',
+                    spanGaps: false,
+                    pointRadius: 3,
+                    borderWidth: 3,
+                    pointHoverRadius: 7,
+                    pointHoverBackgroundColor: brighten(colors[id], -20),
+                    pointHoverBorderColor: brighten(colors[id], 10),
+                    pointHoverBorderWidth: 2
+                }]
+            }, options: {
                 hover: {
-                    mode: 'nearest',
-                    intersect: false
-                },
-                scales: {
+                    mode: 'nearest', intersect: false
+                }, scales: {
                     xAxes: [{
-                        type: 'time',
-                        time: {
+                        type: 'time', time: {
                             unit: 'month'
-                        },
-                        ticks: {
-                            fontColor: 'white',
-                            fontFamily: 'Verdana',
-                            fontSize: '13'
-                        },
-                        gridLines: {
+                        }, ticks: {
+                            fontColor: 'white', fontFamily: 'Verdana', fontSize: '13'
+                        }, gridLines: {
                             color: '#555555',
                         }
-                    }],
-                    yAxes: [{
+                    }], yAxes: [{
                         ticks: {
-                            fontColor: 'white',
-                            fontFamily: 'Verdana',
-                            fontSize: '12'
-                        },
-                        gridLines: {
-                            color: '#555555',
-                            drawBorder: false
+                            fontColor: 'white', fontFamily: 'Verdana', fontSize: '12'
+                        }, gridLines: {
+                            color: '#555555', drawBorder: false
                         }
                     }]
-                },
-                animation: {
+                }, animation: {
                     easing: 'easeOutCubic'
-                },
-                legend: {
+                }, legend: {
                     display: false,
-                },
-                tooltips: {
-                    enabled: true,
-                    position: 'nearest',
-                    intersect: false,
-                    displayColors: false,
-                    callbacks: {
+                }, tooltips: {
+                    enabled: true, position: 'nearest', intersect: false, displayColors: false, callbacks: {
                         title: function (tooltipItems, data) {
-                            return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
-                        },
-                        label: function (tooltipItem, data) {
+                            return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(
+                                tooltipItems[0].value).toFixed(2) + "%";
+                        }, label: function (tooltipItem, data) {
                             return [parsedData[id].assignmentNames[tooltipItem.index] + " - "
-                            + (parsedData[id].assignmentPercents[tooltipItem.index] !== -1 ?
-                                (parsedData[id].assignmentPercents[tooltipItem.index] + "%") :
-                                (""))
-                            + ((parsedData[id].assignmentScoresParsed[tooltipItem.index]
+                                    + (parsedData[id].assignmentPercents[tooltipItem.index] !== -1
+                                       ? (parsedData[id].assignmentPercents[tooltipItem.index] + "%") : (""))
+                                    + ((parsedData[id].assignmentScoresParsed[tooltipItem.index]
                                 .substring(parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2))
-                            !== '/0' ?
-                                (" (" + parsedData[id].assignmentScoresParsed[tooltipItem.index] + ")") :
-                                (parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(0,
-                                    parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)))
-                                , "\n(" + parsedData[id].assignmentCategories[tooltipItem.index] + ")"];
+                                       !== '/0' ? (" (" + parsedData[id].assignmentScoresParsed[tooltipItem.index]
+                                    + ")") : (parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(0,
+                                parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2))),
+                                    "\n(" + parsedData[id].assignmentCategories[tooltipItem.index] + ")"];
                         },
                     }
-                },
-                responsive: true,
-                maintainAspectRatio: false,
+                }, responsive: true, maintainAspectRatio: false,
             }
         });
     }
@@ -758,7 +717,8 @@
         if (id == -1) {
             document.getElementById("classLinks").style.borderBottomColor = brighten("#BBBBBB", -20);
         } else {
-            document.getElementById("classLinks").style.borderBottomColor = brighten(user.appearance.classColors[id], -20);
+            document.getElementById("classLinks").style.borderBottomColor = brighten(user.appearance.classColors[id],
+                -20);
         }
         currentPage = id;
     }
