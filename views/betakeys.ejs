@@ -52,15 +52,15 @@
 
                 <% for (let k of betaKeyData) { %>
                     <tr>
-                        <td><%=k.betaKey%> </td>
-                        <td><%=k.claimed%></td>
-                        <td><%=k.claimedBy%> </td>
+                        <td><%= k.betaKey %> </td>
+                        <td><%= k.claimed %></td>
+                        <td><%= k.claimedBy %> </td>
 
                         <% if (k.claimed === false){ %>
 
-                        <td>
+                            <td>
                             <form action="/deletebetakey" method="post">
-                                    <button type="submit" name="beta_key" class="btn btn-sm" value="<%=k.betaKey%>">Delete Key</button>
+                                    <button type="submit" name="beta_key" class="btn btn-sm" value="<%= k.betaKey %>">Delete Key</button>
                             </form>
                         </td>
 
@@ -68,7 +68,6 @@
 
                             <td>Already claimed!</td>
                         <% } %>
-
 
                     </tr>
                 <% } %>

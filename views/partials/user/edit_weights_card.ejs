@@ -1,46 +1,56 @@
 <!-- Settings Card -->
 <div class="container">
-    <div class="blurred-login" id="updateWeightsDisplay" style="position:fixed; display:none; height: 100vh; width: 100%; top: 0; left: 0; z-index: 1">
+    <div class="blurred-login" id="updateWeightsDisplay"
+         style="position:fixed; display:none; height: 100vh; width: 100%; top: 0; left: 0; z-index: 1">
         <div class="blurred-background" style="position: fixed; width: 100%; height: 100%; filter: opacity(0.7);"></div>
         <div class="col-sm-10 col-md-8 col-lg-8 col-xl-7 mx-auto">
             <div id="weightsCard" class="card card-signin my-5" style="max-height:90%; overflow:scroll;">
-                <btn class="btn btn-md" onclick="closeForm('updateWeightsDisplay')" style="width: fit-content; margin-bottom:0">
-                    <i class="fa fa-arrow-left" aria-hidden="true"></i>
-                    Back
+                <btn class="btn btn-md" onclick="closeForm('updateWeightsDisplay')"
+                     style="width: fit-content; margin-bottom:0">
+                    <i class="fa fa-arrow-left" aria-hidden="true"></i> Back
                 </btn>
-                <div class="card-body" style="padding-top: 1em; padding-bottom: 1em;">  
+                <div class="card-body" style="padding-top: 1em; padding-bottom: 1em;">
                     <h1 class="card-title text-center"><span class="fa fa-pencil"></span> Update Weights</h1>
                     <span class="accordion" id="accordionForms">
-                    <% for (var i = 0; i<JSON.parse(gradeData).length; i++) {
-                        let grade = JSON.parse(gradeData)[i]; %>
-                        <form id="weights<%=i%>" class="form-ajax form-weights form-signin" action="/updateweights">
-                            <className style="display:none"><%=grade.class_name%></className>
-                            <label class="collapsed" data-toggle="collapse" href="#collapse<%=i%>" style="display: flex; margin: 0; cursor: pointer" onclick="showPage(<%=i%>)">
-                                <h5 style="color:<%=user.appearance.classColors[i]%>; cursor: pointer" id="<%=grade.class_name%>" style="display: inline-block">
-                                    <%=grade.class_name%>&nbsp;
+                        <% for (var i = 0; i < JSON.parse(gradeData).length; i++) {
+                            let grade = JSON.parse(gradeData)[i]; %>
+                        <form id="weights<%= i %>" class="form-ajax form-weights form-signin" action="/updateweights">
+                            <className style="display:none"><%= grade.class_name %></className>
+                            <label class="collapsed" data-toggle="collapse" href="#collapse<%= i %>"
+                                   style="display: flex; margin: 0; cursor: pointer" onclick="showPage(<%= i %>)">
+                                <h5 style="color:<%= user.appearance.classColors[i] %>; cursor: pointer"
+                                    id="<%= grade.class_name %>" style="display: inline-block">
+                                    <%= grade.class_name %>&nbsp;
                                     <i class="fa" aria-hidden="true"></i>
                                 </h5>
-                                <span id="weightMessage<%=i%>" class="alert-custom fail" style="float: right; width: fit-content; display:none; margin-bottom: 8px; padding: 8px 0 0 8px">
+                                <span id="weightMessage<%= i %>" class="alert-custom fail"
+                                      style="float: right; width: fit-content; display:none; margin-bottom: 8px; padding: 8px 0 0 8px">
                                     <span class="messageTxt">Missing weights</span>
                                 </span>
                             </label>
-                            <span style="border-radius: 0.25em" class="collapse collapse-underline" id="collapse<%=i%>" data-parent="#accordionForms">
-                            <%  let weights = []; 
-                                for (let assignment of grade.grades) { 
-                                    if (!(weights.includes(assignment.category))) {
-                                        weights.push(assignment.category); %>
-                                        <div class="form-group" style="display: flex; align-items: flex-end;">
-                                            <% let value = null; try {value = JSON.parse(weightData)[grade.class_name][assignment.category]} catch {}; %>
-                                            <label style="font-size: 0.9rem; <%if(value === null){%> color: lightcoral!important; <%}%> white-space: nowrap; margin-bottom: 0;"><%=assignment.category%>:&nbsp</label>
-                                            <input  value='<%=value%>' 
-                                                    type="number" 
-                                                    min="0" 
-                                                    class="form-control <%if(!(value===null)){%> text-view <%}%>" 
-                                                    name="<%=assignment.category%>" 
-                                                    oninput="this.classList.remove('text-view'); showSubmitButton(this); "
-                                                    required> 
+                            <span style="border-radius: 0.25em" class="collapse collapse-underline"
+                                  id="collapse<%= i %>" data-parent="#accordionForms">
+                                <% let weights = [];
+                                        for (let assignment of grade.grades) {
+                                if (!(weights.includes(assignment.category))) {
+                                    weights.push(assignment.category); %>
+                                <div class="form-group" style="display: flex; align-items: flex-end;">
+                                    <% let value = null; try {
+                                        value = JSON.parse(weightData)[grade.class_name][assignment.category]
+                                    }
+                                    catch {
+                                    } %>
+                                    <label style="font-size: 0.9rem; <% if(value
+                                                                           === null){ %> color: lightcoral!important; <% } %> white-space: nowrap; margin-bottom: 0;"><%= assignment.category %>:&nbsp</label>
+                                            <input value='<%= value %>'
+                                                   type="number"
+                                                   min="0"
+                                                   class="form-control <% if(!(value === null)){ %> text-view <% } %>"
+                                                   name="<%= assignment.category %>"
+                                                   oninput="this.classList.remove('text-view'); showSubmitButton(this); "
+                                                   required>
                                         </div>
-                                    <% } %>
+                                <% } %>
                                 <% } %>
                                 <div class="formSubmitButton" style="width: 100%; display: none">
                                     <button type="submit" class="btn btn-default btn-med">
@@ -50,8 +60,8 @@
                                 </div>
                             </span>
                         </form>
-                    <% } %>
-                    </span>   
+                        <% } %>
+                    </span>
                 </div>
             </div>
         </div>
@@ -59,101 +69,103 @@
 </div>
 
 <script>
-    function showSubmitButton (element) {
-        $(element).parents("form").find(".formSubmitButton").css('display','block');
+    function showSubmitButton(element) {
+        $(element).parents("form").find(".formSubmitButton").css('display', 'block');
     }
+
     function showUpdateWeights(defaultId) {
         //Close Mobile navbar
         try {
             $('.navbar-collapse').collapse('hide');
             closeForm('toggle');
-        } catch(e) {}
+        }
+        catch (e) {
+        }
 
         console.log(defaultId);
-        if (defaultId === undefined || defaultId < 0)
+        if (defaultId === undefined || defaultId < 0) {
             defaultId = 0;
+        }
         showDiv('updateWeightsDisplay');
         if ($("form.form-weights").length > 0) {
             $("form.form-weights").each(function () {
-                var form = $(this);
+                var form            = $(this);
                 let formMessagesDiv = $(this).find('.alert-custom');
-                let message = $(this).find('.messageTxt');
-                if(unobtainedWeights.hasOwnProperty(form.find("className").text())) {    
+                let message         = $(this).find('.messageTxt');
+                if (unobtainedWeights.hasOwnProperty(form.find("className").text())) {
                     $(formMessagesDiv).removeClass('success');
                     $(formMessagesDiv).addClass('fail');
                     $(message).text("Missing Weights");
-                    $(formMessagesDiv).css('display','inline');
+                    $(formMessagesDiv).css('display', 'inline');
                 } else {
-                    $(formMessagesDiv).css('display','none');
+                    $(formMessagesDiv).css('display', 'none');
                 }
             })
         }
-        $('#collapse'+defaultId).collapse('show');    
-    } 
+        $('#collapse' + defaultId).collapse('show');
+    }
 
     $(function initAjaxFormPosts() {
         if ($("form.form-weights").length > 0) {
             $("form.form-weights").each(function () {
                 var form = $(this);
-                $(form).submit(function(event) {
+                $(form).submit(function (event) {
                     event.preventDefault();
-                    if (($(this).find(".formSubmitButton").css('display')) !== 'none'){
+                    if (($(this).find(".formSubmitButton").css('display')) !== 'none') {
                         let weightData = (($(form).serializeArray()));
-                        let weightURI = {};
+                        let weightURI  = {};
                         jQuery.map(weightData, function (n, i) {
                             weightURI[n.name] = parseInt(n.value);
                         });
                         weightURI = encodeURIComponent(JSON.stringify(weightURI));
 
                         let className = encodeURI($(form).find('h5').attr('id'));
-                        formData = "className="+className+"&newWeights="+weightURI;
+                        formData      = "className=" + className + "&newWeights=" + weightURI;
 
                         let formMessagesDiv = $(this).find('.alert-custom');
-                        let message = $(this).find('.messageTxt');
+                        let message         = $(this).find('.messageTxt');
 
                         $.ajax({
-                            type: 'POST',
-                            url: $(form).attr('action'),
-                            data: formData
+                            type: 'POST', url: $(form).attr('action'), data: formData
                         })
-                        .done(function(response) {
-                            // Make sure that the formMessages div has the alert-success class.
-                            $(formMessagesDiv).removeClass('fail');
-                            $(formMessagesDiv).addClass('success');
-                            $(form).find(".formSubmitButton").css('display','none');
-                            $(form).find("input").each(function() {
-                                $(this).addClass("text-view");
-                            })
-                            $(form).find("label").each(function() {
-                                $(this).css('color','#DDDDDD');
-                            })
-                            
-                            // Set the message text.
-                            $(message).text(response);
+                         .done(function (response) {
+                             // Make sure that the formMessages div has the alert-success class.
+                             $(formMessagesDiv).removeClass('fail');
+                             $(formMessagesDiv).addClass('success');
+                             $(form).find(".formSubmitButton").css('display', 'none');
+                             $(form).find("input").each(function () {
+                                 $(this).addClass("text-view");
+                             });
+                             $(form).find("label").each(function () {
+                                 $(this).css('color', '#DDDDDD');
+                             });
 
-                            // Show the div.
-                            $(formMessagesDiv).css('display','inline');
+                             // Set the message text.
+                             $(message).text(response);
 
-                            parseData();
-                            updateWeightMessages();
-                            renderAllCharts();
-                        })
+                             // Show the div.
+                             $(formMessagesDiv).css('display', 'inline');
 
-                        .fail(function(data) {
-                            //Make sure that the formMessages div has the alert-danger class
-                            $(formMessagesDiv).removeClass('success');
-                            $(formMessagesDiv).addClass('fail');
+                             parseData();
+                             updateWeightMessages();
+                             renderAllCharts();
+                         })
 
-                            // Set the message text.
-                            if (data.responseText !== '') {
-                                $(message).text(data.responseText);
-                            } else {
-                                $(message).text('Oops! An error occurred and your message could not be sent.');
-                            }
+                         .fail(function (data) {
+                             //Make sure that the formMessages div has the alert-danger class
+                             $(formMessagesDiv).removeClass('success');
+                             $(formMessagesDiv).addClass('fail');
 
-                            // Show the div.
-                            $(formMessagesDiv).css('display','inline');
-                        })
+                             // Set the message text.
+                             if (data.responseText !== '') {
+                                 $(message).text(data.responseText);
+                             } else {
+                                 $(message).text('Oops! An error occurred and your message could not be sent.');
+                             }
+
+                             // Show the div.
+                             $(formMessagesDiv).css('display', 'inline');
+                         })
                     }
                 })
             });
