@@ -242,8 +242,7 @@
         let totalWeight  = 0;
         let classCategories = Object.keys(weights[className]);
         for (let i = 0; i < classWeights.length; i++) {
-            let categoryGottenAndPossible = getCategoryGottenAndPossible(classIndex, classCategories[i]);
-            if (categoryGottenAndPossible.possible !== 0) {
+            if (getCategoryGottenAndPossible(classIndex, classCategories[i]) !== 0) {
                 totalWeight += classWeights[i];
             }
         }
