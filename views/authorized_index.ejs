@@ -237,12 +237,12 @@
     }
 
     function getTotalWeight(classIndex) {
-        let className    = data[classIndex].class_name;
-        let classWeights = Object.values(weights[className]);
-        let totalWeight  = 0;
+        let className       = data[classIndex].class_name;
+        let classWeights    = Object.values(weights[className]);
+        let totalWeight     = 0;
         let classCategories = Object.keys(weights[className]);
         for (let i = 0; i < classWeights.length; i++) {
-            if (getCategoryGottenAndPossible(classIndex, classCategories[i]) !== 0) {
+            if (getCategoryGottenAndPossible(classIndex, classCategories[i]).possible !== 0) {
                 totalWeight += classWeights[i];
             }
         }
