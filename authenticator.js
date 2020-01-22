@@ -252,7 +252,7 @@ module.exports = {
         let weightsRef = userRef.get('weights');
 
         //Replace dots(.) with unicode escape sequence
-        let modClassName = className;//className.replace(/\./g,"\\u002e");
+        let modClassName = className.replace(/\./g,"\\u002e");
 
         if (update) {
             let currentWeights = weightsRef.get(modClassName).value();
