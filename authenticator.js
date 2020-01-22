@@ -234,11 +234,11 @@ module.exports = {
         return {success: false, message: "User does not exist."}
     },
 
-    updateWeightsForClass: function(username, className, weights, update=true) {
+    updateWeightsForClass: function(username, className, hasWeights, weights, update=true) {
+        console.log("wertfcvbhgvbhgvbhgvbgvbhgv bv bgv bgv bv bv bv bgv bv bgv bv b")
         //default update, not override
         let lc_username = username.toLowerCase();
         let userRef = db.get('users').find({username: lc_username});
-        console.log(weights);
         if (!userRef.value()) {
             return {success: false, message: "User does not exist."}
         }
@@ -254,13 +254,17 @@ module.exports = {
         //Replace dots(.) with unicode escape sequence
         let modClassName = className.replace(/\./g,"\\u002e");
 
+        console.log("the class is: "+modClassName);
+
         if (update) {
-            let currentWeights = weightsRef.get(modClassName).value();
+            let currentWeights = weightsRef.get(modClassName+".weights").value();
             let newWeights = Object.assign({}, currentWeights, weights);
-            weightsRef.set(modClassName, newWeights).write();
+            weightsRef.set(modClassName+'.weights',newWeights).write(); //Replace weights inside of specific class
+            weightsRef.set(modClassName+'.hasWeights',hasWeights).write();
             console.log(weightsRef.value());
         } else {
-            weightsRef.set(modClassName, weights).write();
+            weightsRef.set(modClassName+'.weights',weights).write(); //Replace weights inside of specific class
+            weightsRef.set(modClassName+'.hasWeights',hasWeights).write();
             console.log(weightsRef.value());
         }
         return {success: true, message: "Updated weights for " + className + "!"};
