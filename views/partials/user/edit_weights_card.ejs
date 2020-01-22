@@ -16,7 +16,7 @@
                         <form id="weights<%=i%>" class="form-ajax form-weights form-signin" action="/updateweights">
                             <className style="display:none"><%=grade.class_name%></className>
                             <label class="collapsed" data-toggle="collapse" href="#collapse<%=i%>" style="display: flex; margin: 0; cursor: pointer" onclick="showPage(<%=i%>)">
-                                <h5 style="color:<%=user.appearance.classColors[i]%>; cursor: pointer" id="<%=grade.class_name%>" style="display: inline-block">
+                                <h5 style="color:<%=user.appearance.classColors[i]%>; cursor:pointer" id="<%=grade.class_name%>" style="display: inline-block">
                                     <%=grade.class_name%>&nbsp;
                                     <i class="fa" aria-hidden="true"></i>
                                 </h5>
@@ -50,6 +50,7 @@
                                         type="checkbox" 
                                         class="form-control" 
                                         name="hasWeights" 
+                                        value="false"
                                         oninput="showSubmitButton(this);"
                                         > 
                                 </div>                               
@@ -80,7 +81,6 @@
             closeForm('toggle');
         } catch(e) {}
 
-        console.log(defaultId);
         if (defaultId === undefined || defaultId < 0)
             defaultId = 0;
         showDiv('updateWeightsDisplay');
@@ -112,12 +112,15 @@
                         let weightData = (($(form).serializeArray()));
                         let weightURI = {};
                         jQuery.map(weightData, function (n, i) {
-                            weightURI[n.name] = parseInt(n.value);
+                            if (n.name != "hasWeights")
+                                weightURI[n.name] = isNaN(parseInt(n.value)) ? n.value : parseInt(n.value);
+
                         });
                         weightURI = encodeURIComponent(JSON.stringify(weightURI));
 
                         let className = encodeURI($(form).find('h5').attr('id'));
-                        formData = "className="+className+"&newWeights="+weightURI;
+                        let hasWeights = encodeURI(!($(form).find('input[name="hasWeights"]')).is(':checked'));
+                        formData = "className="+className+"&hasWeights="+hasWeights+"&newWeights="+weightURI;
 
                         let formMessagesDiv = $(this).find('.alert-custom');
                         let message = $(this).find('.messageTxt');
