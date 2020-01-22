@@ -166,7 +166,7 @@ module.exports = {
         let user = db.get('users').find({username: lc_username}).value();
         //Parse weights with unicode to dots
         if (user) {
-            user.weights = JSON.parse(JSON.stringify(user.weights).replace(/\\\\u002e/g, "."));
+            user.weights = JSON.parse(JSON.stringify(user.weights).replace("*", "."));
         }
         return user;
     },
@@ -235,7 +235,7 @@ module.exports = {
     },
 
     updateWeightsForClass: function(username, className, hasWeights, weights, update=true) {
-        console.log("wertfcvbhgvbhgvbhgvbgvbhgv bv bgv bgv bv bv bv bgv bv bgv bv b")
+        console.log("wertfcvbhgvbhgvbhgvbgvbhgv bv bgv bgv bv bv bv bgv bv bgv bv b");
         //default update, not override
         let lc_username = username.toLowerCase();
         let userRef = db.get('users').find({username: lc_username});
@@ -252,20 +252,16 @@ module.exports = {
         let weightsRef = userRef.get('weights');
 
         //Replace dots(.) with unicode escape sequence
-        let modClassName = className.replace(/\./g,"\\u002e");
-
-        console.log("the class is: "+modClassName);
+        let modClassName = '["' + className + '"]';
 
         if (update) {
-            let currentWeights = weightsRef.get(modClassName+".weights").value();
+            let currentWeights = weightsRef.get(modClassName).get("weights").value();
             let newWeights = Object.assign({}, currentWeights, weights);
             weightsRef.set(modClassName+'.weights',newWeights).write(); //Replace weights inside of specific class
             weightsRef.set(modClassName+'.hasWeights',hasWeights).write();
-            console.log(weightsRef.value());
         } else {
             weightsRef.set(modClassName+'.weights',weights).write(); //Replace weights inside of specific class
             weightsRef.set(modClassName+'.hasWeights',hasWeights).write();
-            console.log(weightsRef.value());
         }
         return {success: true, message: "Updated weights for " + className + "!"};
     }
