@@ -252,16 +252,14 @@ module.exports = {
         let weightsRef = userRef.get('weights');
 
         //Replace dots(.) with unicode escape sequence
-        let modClassName = className.replace(/\./g,"\\u002e");
+        let modClassName = className;//className.replace(/\./g,"\\u002e");
 
         if (update) {
             let currentWeights = weightsRef.get(modClassName).value();
             let newWeights = Object.assign({}, currentWeights, weights);
             weightsRef.set(modClassName, newWeights).write();
-            console.log(weightsRef.value());
         } else {
             weightsRef.set(modClassName, weights).write();
-            console.log(weightsRef.value());
         }
         return {success: true, message: "Updated weights for " + className + "!"};
     }
