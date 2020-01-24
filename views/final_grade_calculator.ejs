@@ -433,13 +433,30 @@
 
     // Returns total weight of class
     function getTotalWeight(classIndex) {
-        let className    = user.grades[classIndex].class_name;
-        let classWeights = Object.values(user.weights[className]);
-        let totalWeight  = 0;
+        let className       = data[classIndex].class_name;
+        let classWeights    = Object.values(user.weights[className]);
+        let totalWeight     = 0;
+        let classCategories = Object.keys(user.weights[className]);
         for (let i = 0; i < classWeights.length; i++) {
-            totalWeight += classWeights[i];
+            if (getCategoryGottenAndPossible(classIndex, classCategories[i]).possible !== 0) {
+                totalWeight += classWeights[i];
+            }
         }
         return totalWeight;
+    }
+
+    // Returns category gotten and possible
+    function getCategoryGottenAndPossible(classIndex, categoryName) {
+        let grades        = data[classIndex].grades;
+        let totalGotten   = 0;
+        let totalPossible = 0;
+        for (let i = 0; i < grades.length; i++) {
+            if (!grades[i].exclude && grades[i].category === categoryName) {
+                totalGotten += grades[i].points_gotten;
+                totalPossible += grades[i].points_possible;
+            }
+        }
+        return {"gotten": totalGotten, "possible": totalPossible};
     }
 
     // Returns overall grade of class
