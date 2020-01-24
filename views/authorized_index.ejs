@@ -335,7 +335,7 @@
         let totalGotten   = 0;
         let totalPossible = 0;
         for (let i = 0; i < grades.length; i++) {
-            if (!grades[i].exclude && grades[i].category == categoryName) {
+            if (!grades[i].exclude && grades[i].category === categoryName) {
                 totalGotten += grades[i].points_gotten;
                 totalPossible += grades[i].points_possible;
             }
