@@ -88,7 +88,7 @@ module.exports = {
                         darkMode: true, accentColor: null, classColors: [],
                     },
                     alerts: {
-                        lastUpdated: 'never', updateGradesReminder: 'daily',
+                        lastUpdated: 'Never', updateGradesReminder: 'Daily',
                     },
                     weights: {},
                     grades: [],
