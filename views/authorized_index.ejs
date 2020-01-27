@@ -682,7 +682,7 @@
                 }, legend: {
                     display: false,
                 }, tooltips: {
-                    enabled: true, position: 'nearest', intersect: false, displayColors: true, callbacks: {
+                    enabled: true, position: 'nearest', intersect: false, displayColors: false, callbacks: {
                         title: function (tooltipItems, data) {
                             return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(
                                 tooltipItems[0].value).toFixed(2) + "%";
