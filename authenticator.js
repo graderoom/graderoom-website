@@ -88,7 +88,7 @@ module.exports = {
                         darkMode: true, accentColor: null, classColors: [],
                     },
                     alerts: {
-                        lastUpdated: 'Never', updateGradesReminder: 'Daily',
+                        lastUpdated: 'never', updateGradesReminder: 'daily',
                     },
                     weights: {},
                     grades: [],
@@ -143,7 +143,7 @@ module.exports = {
         let lc_username                  = username.toLowerCase();
         let user                         = db.get('users').find({username: lc_username}).value();
         user.alerts.updateGradesReminder = updateGradesReminder;
-        if (updateGradesReminder == 'Never') {
+        if (updateGradesReminder.toLowerCase() === 'never') {
             return {success: true, message: "Grade update alerts disabled."}
         }
         return {success: true, message: updateGradesReminder + " grade update alerts enabled!"}
