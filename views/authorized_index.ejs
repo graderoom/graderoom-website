@@ -46,7 +46,7 @@
 <div class="container">
     <!-- Messages -->
     <% var daysSinceUpdated = 0; %>
-    <% if (user.alerts.lastUpdated.toLowerCase() == ('never')) { %> <br>
+    <% if (user.alerts.lastUpdated.toString().toLowerCase() == ('never')) { %> <br>
     <div class="alert alert-success">
         <u style="cursor: pointer" onclick="showDiv('updateGradesDisplay')">Sync your grades</u> now!
     </div>
@@ -87,7 +87,7 @@
     </div> -->
 
     <!-- Overview Section -->
-    <% if (user.alerts.lastUpdated.toLowerCase() != 'never') { %> <span id="section-1">
+    <% if (user.alerts.lastUpdated.toString().toLowerCase() != 'never') { %> <span id="section-1">
                 <div class="alert alert-danger alert-dismissible" id="weightmsg-1" style="display:none">
                     <a class="close" data-dismiss="alert" aria-label="close">X</a>
                     <span id="weightmsg_text-1"></span><u style="float: right; cursor: pointer"
