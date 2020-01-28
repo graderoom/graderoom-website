@@ -46,17 +46,15 @@
 <div class="container">
     <!-- Messages -->
     <% var daysSinceUpdated = 0; %>
-    <% if (user.alerts.lastUpdated == 'Never') { %> <br>
+    <% if (user.alerts.lastUpdated.toString().toLowerCase() == ('never')) { %> <br>
     <div class="alert alert-success">
         <u style="cursor: pointer" onclick="showDiv('updateGradesDisplay')">Sync your grades</u> now!
     </div>
     <% } else { %> <% daysSinceUpdated = Math.floor(
-            (Date.now() - user.alerts.lastUpdated) / (1000 * 3600 * 24)); %> <% if ((user.alerts.updateGradesReminder
-            == 'Daily' && daysSinceUpdated
-            >= 1)
-            || (user.alerts.updateGradesReminder
-                    == 'Weekly' && daysSinceUpdated
-                    >= 7)) { %>
+            (Date.now() - user.alerts.lastUpdated) /
+            (1000 * 3600 * 24)); %> <% if ((user.alerts.updateGradesReminder.toLowerCase() == ('daily') &&
+            daysSinceUpdated >= 1) ||
+            (user.alerts.updateGradesReminder.toLowerCase() == 'weekly') && daysSinceUpdated >= 7) { %>
         <br>
         <div class="alert alert-danger alert-dismissible">
             <a class="close" data-dismiss="alert" aria-label="close">X</a> It's been <%= daysSinceUpdated %>
@@ -601,7 +599,8 @@
                                     - 2)) !== '/0' ? (" ("
                                 + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index]
                                 + ")")
-                                : (parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(
+                                :
+                                (parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(
                                     0,
                                     parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length
                                     - 2)))];
