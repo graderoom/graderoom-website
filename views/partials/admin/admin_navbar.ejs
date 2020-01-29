@@ -30,11 +30,20 @@
             </ul>
         <% } %>
         <ul class="navbar-nav w-100 justify-content-left">
-            <% if (user.isAdmin) { %>
-                <li id="toggleAdmin" class="nav-item toggle-admin">
-                    <a class="btn btn-med" href="/"> <i class="fa fa-home" aria-hidden="true"></i> Home </a>
+            <% if (page != 'keys') { %>
+                <li id="betakeys" class="nav-item">
+                    <a class="btn btn-md" href="/betakeys"> <i class="fa fa-key" aria-hidden="true"></i> Beta Key Panel
+                    </a>
                 </li>
             <% } %>
+            <% if (page != 'admin') { %>
+                <li id="admin" class="nav-item">
+                    <a class="btn btn-med" href="/admin"> <i class="fa fa-fighter-jet" aria-hidden="true"></i> Admin </a>
+                </li>
+            <% } %>
+            <li id="toggleAdmin" class="nav-item toggle-admin">
+                <a class="btn btn-med" href="/"> <i class="fa fa-home" aria-hidden="true"></i> Home </a>
+            </li>
             <li id="settings" class="nav-item">
                 <btn class="btn btn-med" onclick="showDiv('settingsCardDisplay')">
                     <i class="fa fa-cog" aria-hidden="true"></i> Settings
@@ -79,8 +88,7 @@
             try {
                 $('.navbar-collapse').collapse('hide');
                 hideDiv('toggle');
-            }
-            catch (e) {
+            } catch (e) {
             }
             hideDiv('updateGradesDisplay');
             hideDiv('settingsCardDisplay');

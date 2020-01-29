@@ -111,6 +111,7 @@ module.exports = function (app, passport) {
         let allUsers = authenticator.getAllUsers();
         res.render('admin.ejs', {
             user: req.user,
+            page: 'admin',
             userList: allUsers,
             adminSuccessMessage: req.flash('adminSuccessMessage'),
             adminFailMessage: req.flash('adminFailMessage')
@@ -299,6 +300,7 @@ module.exports = function (app, passport) {
             betaKeySuccessMessage: req.flash("betaKeySuccessMessage"),
             betaKeyFailMessage: req.flash("betaKeyFailMessage"),
             user: req.user,
+            page: 'keys',
         })
 
     });
