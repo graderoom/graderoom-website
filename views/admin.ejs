@@ -46,12 +46,13 @@
             <table class="table">
                 <thead>
                 <tr>
-                    <th style="width:16%;">Username</th>
-                    <th style="width:17%;">School Email</th>
-                    <th style="width:17%;">Last Updated</th>
-                    <th style="width:17%;">Is Admin?</th>
-                    <th style="width:17%;">Delete User</th>
-                    <th style="width:16%;">Change Admin Privileges</th>
+                    <th style="width:17%;">Username</th>
+                    <th style="width:15%;">School Email</th>
+                    <th style="width:15%;">Last Updated</th>
+                    <th style="width:15%;">Is Admin?</th>
+                    <th style="width:15%;">Render User Site</th>
+                    <th style="width:15%;">Delete User</th>
+                    <th style="width:15%;">Change Admin Privileges</th>
                 </tr>
                 </thead>
 
@@ -62,6 +63,13 @@
                         <% let lastUpdated = new Date(u.alerts.lastUpdated); %>
                         <td><%= lastUpdated.toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) %></td>
                         <td><%= u.isAdmin %> </td>
+                        <td>
+                            <form action="/viewuser" method="get">
+                                <button type="submit" name="usernameToRender" class="btn btn-sm" value="<%= u.username %>">
+                                    Render User Site
+                                </button>
+                            </form>
+                        </td>
                         <td>
                             <% if (!u.isAdmin) { %>
                                 <form action="/deleteuser" method="post">

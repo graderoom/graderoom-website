@@ -1,4 +1,4 @@
-let server        = require('./graderoom.js');
+let server = require('./graderoom.js');
 let authenticator = require('./authenticator.js');
 
 module.exports = function (app, passport) {
@@ -10,9 +10,9 @@ module.exports = function (app, passport) {
 
         if (req.isAuthenticated()) {
 
-            let user       = authenticator.getUser(req.user.username);
+            let user = authenticator.getUser(req.user.username);
             let weightData = JSON.stringify(user.weights);
-            let gradeDat   = JSON.stringify(user.grades);
+            let gradeDat = JSON.stringify(user.grades);
 
             res.render('authorized_index.ejs', {
                 user: req.user,
@@ -31,6 +31,29 @@ module.exports = function (app, passport) {
         res.render('index.ejs', {
             message: req.flash('loginMessage')
         });
+    });
+
+    app.get('/viewuser', [forceHTTPS, isAdmin], function (req, res) {
+        if (req.query.usernameToRender) {
+            let user = authenticator.getUser(req.query.usernameToRender);
+            let weightData = JSON.stringify(user.weights);
+            let gradeData = JSON.stringify(user.grades);
+
+            res.render('authorized_index.ejs', {
+                user: user,
+                current: 'home',
+                userRef: JSON.stringify(user),
+                schoolUsername: user.schoolUsername,
+                gradeData: gradeData,
+                weightData: weightData,
+                updateGradesMessageSuccess: req.flash('updateGradesMessageSuccess'),
+                updateGradesMessageFail: req.flash('updateGradesMessageFail'),
+                settingsChangeMessageSuccess: req.flash('settingsChangeMessageSuccess'),
+                settingsChangeMessageFail: req.flash('settingsChangeMessageFail'),
+            });
+            return;
+        }
+        res.redirect('/');
     });
 
     app.get('/logout', [forceHTTPS, isLoggedIn], function (req, res) {
@@ -112,7 +135,7 @@ module.exports = function (app, passport) {
     app.post('/changepassword', [forceHTTPS, isLoggedIn], (req, res) => {
 
         let new_pass = req.body.password;
-        let resp     = authenticator.changePassword(req.user.username, new_pass);
+        let resp = authenticator.changePassword(req.user.username, new_pass);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
@@ -123,7 +146,7 @@ module.exports = function (app, passport) {
     app.post('/changeschoolemail', [forceHTTPS, isLoggedIn], (req, res) => {
 
         let new_school_email = req.body.school_email;
-        let resp             = authenticator.changeSchoolEmail(req.user.username, new_school_email);
+        let resp = authenticator.changeSchoolEmail(req.user.username, new_school_email);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
@@ -156,7 +179,7 @@ module.exports = function (app, passport) {
 
         let username = req.body.username;
         let password = req.body.password;
-        let s_email  = req.body.school_email;
+        let s_email = req.body.school_email;
 
         console.log("Trying to create user: " + username);
 
@@ -166,7 +189,7 @@ module.exports = function (app, passport) {
         if (server.needsBetaKeyToSignUp) {
 
             let bk = req.body.beta_key;
-            resp   = await authenticator.betaAddNewUser(bk, username, password, s_email, false);
+            resp = await authenticator.betaAddNewUser(bk, username, password, s_email, false);
             console.log("beta: " + resp);
 
         } else {
@@ -206,7 +229,7 @@ module.exports = function (app, passport) {
     //must be called via client side ajax+js
     app.post('/updateweights', [forceHTTPS, isLoggedIn], async function (req, res) {
         console.log(req.body);
-        let className  = req.body.className;
+        let className = req.body.className;
         let newWeights = JSON.parse(req.body.newWeights);
 
         let resp = authenticator.updateWeightsForClass(req.user.username, className, newWeights,
@@ -283,7 +306,7 @@ module.exports = function (app, passport) {
     app.post("/newbetakey", [forceHTTPS, isAdmin], (req, res) => {
 
         // let bk = req.body.beta_key;
-        let bk   = makeKey(7);
+        let bk = makeKey(7);
         let resp = authenticator.addNewBetaKey(bk);
 
         if (resp.success) {
@@ -298,7 +321,7 @@ module.exports = function (app, passport) {
 
     app.post("/deletebetakey", [forceHTTPS, isAdmin], (req, res) => {
 
-        let bk   = req.body.beta_key;
+        let bk = req.body.beta_key;
         let resp = authenticator.removeBetaKey(bk);
 
         if (resp.success) {
@@ -350,8 +373,8 @@ function forceHTTPS(req, res, next) {
 }
 
 function makeKey(length) {
-    let result           = '';
-    let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let charactersLength = characters.length;
     for (let i = 0; i < length; i++) {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
