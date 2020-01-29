@@ -56,7 +56,7 @@
             daysSinceUpdated >= 1) ||
             (user.alerts.updateGradesReminder.toLowerCase() == 'weekly') && daysSinceUpdated >= 7) { %>
         <br>
-        <div class="alert alert-danger alert-dismissible">
+        <div class="alert alert-danger alert-dismissible font-weight-bold">
             <a class="close" data-dismiss="alert" aria-label="close">X</a> It's been <%= daysSinceUpdated %>
             <% if (daysSinceUpdated == 1) { %>
                 day
@@ -75,7 +75,7 @@
         <a class="close" data-dismiss="alert" aria-label="close">X</a> <%= updateGradesMessageSuccess %>
     </div>
     <% } else if (updateGradesMessageFail.length > 0) { %> <br>
-    <div class="alert alert-danger alert-dismissible">
+    <div class="alert alert-danger alert-dismissible font-weight-bold">
         <a class="close" data-dismiss="alert" aria-label="close">X</a> <%= updateGradesMessageFail %>
     </div>
     <% } else { %> <br>
@@ -88,7 +88,7 @@
 
     <!-- Overview Section -->
     <% if (user.alerts.lastUpdated.toString().toLowerCase() != 'never') { %> <span id="section-1">
-                <div class="alert alert-danger alert-dismissible" id="weightmsg-1" style="display:none">
+                <div class="alert alert-danger alert-dismissible font-weight-bold" id="weightmsg-1" style="display:none">
                     <a class="close" data-dismiss="alert" aria-label="close">X</a>
                     <span id="weightmsg_text-1"></span><u style="float: right; cursor: pointer"
                                                           onclick="showUpdateWeights()">Add Weights</u>
@@ -120,7 +120,7 @@
     <!-- Class Sections -->
     <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %> <span id="section<%= i %>"
                                                                          style="display: none;">
-            <div class="alert alert-danger alert-dismissible" id="weightmsg<%= i %>" style="display:none">
+            <div class="alert alert-danger alert-dismissible font-weight-bold" id="weightmsg<%= i %>" style="display:none">
                 <a class="close" data-dismiss="alert" aria-label="close">X</a>
                 <span id="weightmsg_text<%= i %>"></span></span><u style="float: right; cursor: pointer"
                                                                    onclick="showUpdateWeights()">Add Weights</u>
