@@ -1,9 +1,7 @@
 const express      = require('express');
 const app          = express();
 const http         = require('http');
-const https        = require('https');
-const httpPort     = 80; //process.env.PORT || 8080;
-const httpsPort    = 443; //process.env.PORT || 8080;
+const httpPort     = 5996; //process.env.PORT || 8080;
 const flash        = require('connect-flash');
 const morgan       = require('morgan');
 const cookieParser = require('cookie-parser');
@@ -13,9 +11,6 @@ const passport     = require('passport');
 const dbConn       = require('./authenticator.js');
 const fs           = require('fs');
 
-const usingHttps = process.argv[2] === undefined ? false : process.argv[2];
-
-module.exports.usingHTTPS           = usingHttps;
 module.exports.needsBetaKeyToSignUp = true; //todo
 
 app.use('/public/', express.static('./public'));
@@ -66,29 +61,6 @@ require('./routes.js')(app, passport); // load our routes and pass in our app an
                                        // passport
 
 // launch ======================================================================
-if (usingHttps) {
-
-    const domainName = 'graderoom.me';
-
-    const privateKey  = fs.readFileSync('/etc/letsencrypt/live/' + domainName + '/privkey.pem',
-        'utf8');
-    const certificate = fs.readFileSync('/etc/letsencrypt/live/' + domainName + '/cert.pem',
-        'utf8');
-    const ca          = fs.readFileSync('/etc/letsencrypt/live/' + domainName + '/chain.pem',
-        'utf8');
-
-    const credentials = {
-        key: privateKey, cert: certificate, ca: ca
-    };
-
-    // Starting both http & https servers
-    const httpsServer = https.createServer(credentials, app);
-
-    httpsServer.listen(httpsPort, () => {
-        console.log('HTTPS Server running on port ' + httpsPort);
-    });
-
-}
 
 const httpServer = http.createServer(app);
 httpServer.listen(httpPort, () => {
