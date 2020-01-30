@@ -1,15 +1,14 @@
-import requests
-from bs4 import BeautifulSoup as BS
-import sys
 import json
+import requests
+import sys
+from bs4 import BeautifulSoup as BS
+
 
 def json_format(success, message_or_grades):
-
     if success:
         return json.dumps({'success': True, 'grades': message_or_grades})
 
     return json.dumps({'success': False, 'message': message_or_grades})
-
 
 
 class ClassGrade:
@@ -20,13 +19,12 @@ class ClassGrade:
         self.overall_percent = overall_percent
         self.grades = []
 
-
     def add_grade(self, assignment_name, date, grade_percent, points_gotten, points_possible, category, exclude):
         # todo add a case for no grade yet?
 
         new_grade = {
             'assignment_name': assignment_name,  # string
-            'date': date, #string
+            'date': date,  # string
             'category': category,  # string
             'grade_percent': grade_percent,  # double
             'points_gotten': points_gotten,  # double
@@ -183,7 +181,7 @@ class PowerschoolScraper:
         jsesh = self.sesh.cookies.get_dict()['JSESSIONID']
         headers_3['Cookie'] = "JSESSIONID=" + jsesh  # todo figure out best way to store this for later use
         self.resp_4 = self.sesh.post(url_4, data=data, headers=headers_3)
-#         print("Added resp_4 to class data.")
+        #         print("Added resp_4 to class data.")
 
         # print(self.resp_4.text)
         # powerschool home page ^!
@@ -298,8 +296,8 @@ class PowerschoolScraper:
                         pp = float(temp.split('/')[1])
                         pg = float(temp.split('/')[0])
                 except:
-#                    print(temp)
-#                    print('Found empty/non graded assignment. Skipping')
+                    #                    print(temp)
+                    #                    print('Found empty/non graded assignment. Skipping')
                     continue
                 if (pp != 0):
                     gp = td_gs[9].text
@@ -310,14 +308,14 @@ class PowerschoolScraper:
             # todo check if local_class is good /complete enough
             final_all_classes.append(local_class.as_dict())
 
-#         print("Found classes for " + self.email + "!")
-#         for cla in final_all_classes:
-#             print(cla)
-#         print('--------------------')
+        #         print("Found classes for " + self.email + "!")
+        #         for cla in final_all_classes:
+        #             print(cla)
+        #         print('--------------------')
         if final_all_classes == []:
             print(json_format(False, "No class data."))
         else:
-            print(json_format(True, final_all_classes)) # list to send
+            print(json_format(True, final_all_classes))  # list to send
     # TODO add more login checks
 
 
@@ -325,10 +323,9 @@ if __name__ == "__main__":
     try:
         user = sys.argv[1]
         password = sys.argv[2]
-        #user = ""
-        #password = ""
+        # user = ""
+        # password = ""
         ps = PowerschoolScraper(user, password)
         ps.login_and_get_all_class_grades_and_print_resp()
     except Exception:
         print(json_format(False, "Error scraping grades."))
-

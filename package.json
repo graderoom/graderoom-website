@@ -5,24 +5,23 @@
   "main": "graderoom.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "echo \"Running HTTPs on *nix with a valid SSL cert.\" && sudo node graderoom.js true"
+    "start": "echo \"Running HTTP Server in production mode\" && sudo node graderoom.js true"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^3.0.6",
-    "body-parser": "latest",
     "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.4",
-    "ejs": "^2.7.1",
+    "ejs": "^2.7.3",
     "express": "^4.17.1",
-    "express-session": "^1.16.2",
+    "express-session": "^1.17.0",
     "lowdb": "^1.0.0",
     "morgan": "^1.9.1",
-    "passport": "^0.4.0",
+    "passport": "^0.4.1",
     "passport-local": "^1.0.0",
     "python-shell": "^1.0.8",
     "random-color": "^1.0.1",
-    "react-color": "^2.17.3"
+    "body-parser": "latest"
   }
 }
