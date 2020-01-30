@@ -31,27 +31,29 @@
                                         weights.push(assignment.category); %>
                                         <div class="form-group" style="display: flex; align-items: flex-end;">
                                             <% let value = null; try {value = JSON.parse(weightData)[grade.class_name][assignment.category]} catch {}; %>
-                                            <label style="font-size: 0.9rem; <%if(value === null){%> color: lightcoral!important; <%}%> white-space: nowrap; margin-bottom: 0;"><%=assignment.category%>:&nbsp</label>
+                                            <label class="disableable" style="font-size: 0.9rem; <%if(value === null){%> color: lightcoral!important; <%}%> white-space: nowrap; margin-bottom: 0;"><%=assignment.category%>:&nbsp</label>
                                             <input  value='<%=value%>' 
                                                     type="number" 
                                                     min="0" 
-                                                    class="form-control <%if(!(value===null)){%> text-view <%}%>" 
+                                                    class="disableable form-control <%if(!(value===null)){%> text-view <%}%>" 
                                                     name="<%=assignment.category%>" 
                                                     oninput="this.classList.remove('text-view'); showSubmitButton(this); "
-                                                    required> 
+                                                    required
+                                                    > 
                                         </div>
                                     <% } %>
                                 <% } %>
                                 <div class="break"></div>
                                 <div class="form-group" style="display: flex; align-items: flex-end;">
                                     <label style="color: white; font-size: 0.9rem; white-space: nowrap; margin-bottom: 0;">Point Based?</label>
-                                    <input 
+                                    <input
+                                        id="check<%=i%>"
                                         style="margin: auto;"
                                         type="checkbox" 
                                         class="form-control" 
                                         name="hasWeights" 
                                         value="false"
-                                        oninput="showSubmitButton(this);"
+                                        oninput="showSubmitButton(this); disableInput('check<%=i%>','collapse<%=i%>');"
                                         > 
                                 </div>                               
                                 <div class="formSubmitButton" style="width: 100%; display: none">
@@ -73,6 +75,19 @@
 <script>
     function showSubmitButton (element) {
         $(element).parents("form").find(".formSubmitButton").css('display','block');
+    }
+    function disableInput(checkBoxID, id) {
+        $('#'+id).find('.disableable').each(function(){
+            if ($('#'+checkBoxID).is(":checked")){
+                $(this).css('color','#999');
+                $(this).css('border-bottom','none');
+                $(this).attr('disabled','disabled');
+            } else {
+                $(this).css('color','');
+                $(this).css('border-bottom','');
+                $(this).removeAttr('disabled');
+            } 
+        })
     }
     function showUpdateWeights(defaultId) {
         //Close Mobile navbar
