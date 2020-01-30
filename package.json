@@ -21,6 +21,7 @@
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
     "python-shell": "^1.0.8",
-    "random-color": "^1.0.1"
+    "random-color": "^1.0.1",
+    "body-parser": "latest"
   }
 }
