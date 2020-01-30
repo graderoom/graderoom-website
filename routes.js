@@ -321,7 +321,7 @@ module.exports = function (app, passport) {
 
     });
 
-    app.post("/deletebetakey", [ isAdmin], (req, res) => {
+    app.post("/deletebetakey", [isAdmin], (req, res) => {
 
         let bk = req.body.beta_key;
         let resp = authenticator.removeBetaKey(bk);

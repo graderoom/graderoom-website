@@ -5,7 +5,7 @@
   "main": "graderoom.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "echo \"Running HTTPs on *nix with a valid SSL cert.\" && sudo node graderoom.js true"
+    "start": "echo \"Running HTTP Server in production mode\" && sudo node graderoom.js true"
   },
   "author": "",
   "license": "ISC",
