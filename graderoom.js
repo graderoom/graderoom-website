@@ -12,12 +12,13 @@ const dbConn       = require('./authenticator.js');
 const fs           = require('fs');
 
 module.exports.needsBetaKeyToSignUp = true; //todo
+const productionEnv = process.argv[2] === undefined ? false : process.argv[2];
 
 app.use('/public/', express.static('./public'));
 require('./passport')(passport); // pass passport for configuration
 
 // set up our express application
-if (usingHttps) {
+if (productionEnv) {
     app.use(morgan('common', {
         stream: fs.createWriteStream('./graderoom.log', {flags: 'a'})
     }));
