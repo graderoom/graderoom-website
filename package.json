@@ -13,7 +13,7 @@
     "bcrypt": "^3.0.6",
     "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.4",
-    "ejs": "^3.0.1",
+    "ejs": "^2.7.3",
     "express": "^4.17.1",
     "express-session": "^1.17.0",
     "lowdb": "^1.0.0",
