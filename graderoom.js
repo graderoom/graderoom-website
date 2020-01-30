@@ -10,8 +10,9 @@ const passport     = require('passport');
 const dbConn       = require('./authenticator.js');
 const fs           = require('fs');
 
-module.exports.needsBetaKeyToSignUp = true; //todo
 const productionEnv = process.argv[2] === undefined ? false : process.argv[2];
+
+module.exports.needsBetaKeyToSignUp = true; //todo
 
 app.use('/public/', express.static('./public'));
 require('./passport')(passport); // pass passport for configuration
