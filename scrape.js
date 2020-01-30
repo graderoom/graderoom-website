@@ -2,7 +2,7 @@ let {PythonShell} = require('python-shell');
 
 module.exports = {
 
-    loginAndScrapeGrades: function(email, password) {
+    loginAndScrapeGrades: function (email, password) {
         //TODO return {success: true, message: "Done!"} etc
 
         let pythonPath;
@@ -14,16 +14,14 @@ module.exports = {
         }
 
         let options = {
-            mode: 'json',
-            // pythonPath: 'path/to/python',
+            mode: 'json', // pythonPath: 'path/to/python',
             // pythonOptions: ['-u'], // get print results in real-time
             // // scriptPath: 'path/to/my/scripts',
             // // scriptPath: 'path/to/my/scripts',
-            pythonPath: pythonPath,
-            args: [email, password]
+            pythonPath: pythonPath, args: [email, password]
         };
 
-        return new Promise(function(resolve) {
+        return new Promise(function (resolve) {
 
             PythonShell.run('./scrape.py', options, (err, results) => {
 
