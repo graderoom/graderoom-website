@@ -2,7 +2,7 @@ const low         = require('lowdb');
 const FileSync    = require('lowdb/adapters/FileSync');
 const adapter     = new FileSync('user_db.json');
 const db          = low(adapter);
-const bcrypt      = require('bcrypt');
+const bcrypt      = require('bcryptjs');
 const scraper     = require('./scrape');
 const randomColor = require('random-color');
 
