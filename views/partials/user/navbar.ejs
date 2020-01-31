@@ -67,15 +67,14 @@
         try {
             $('.navbar-collapse').collapse('hide');
             closeForm('toggle');
-        }
-        catch (e) {
+        } catch (e) {
         }
     }
 
     function closeForm(id) {
-        let form           = document.getElementById(id);
+        let form = document.getElementById(id);
         form.style.display = "none";
-        if (id != 'updateWeightsDisplay') {
+        if (id !== 'updateWeightsDisplay') {
             let inputFields = form.getElementsByClassName('form-control');
             for (let i = 0; i < inputFields.length; i++) {
                 inputFields[i].value = "";
@@ -83,6 +82,7 @@
         } else {
             window.location.reload(true);
         }
+
         // Manage darkMode checkbox, if it exists
         try {
             let darkModeCheckbox = document.getElementById('darkModeToggle');
@@ -91,14 +91,24 @@
             } else if (!document.getElementById('getUser').value && darkModeCheckbox.checked) {
                 darkModeCheckbox.checked = false;
             }
+        } catch {
         }
-        catch {
+
+        // Manage autosync checkbox, if it exists
+        try {
+            let autosyncCheckbox = document.getElementById('savePasswordToggle');
+            if (document.getElementById('getUser').value && !autosyncCheckbox.checked) {
+                autosyncCheckbox.checked = true;
+            } else if (!document.getElementById('getUser').value && autosyncCheckbox.checked) {
+                autosyncCheckbox.checked = false;
+            }
+        } catch {
         }
     }
 
     // Collapse navbar or card when click outside
     $(document).click(function (e) {
-        //Auto hide for any card with blurred-login 
+        //Auto hide for any card with blurred-login
         if ($(e.target).closest('.blurred-login').length) {
             if (!$(e.target).closest('.card').length) {
                 closeForm($(e.target).closest('.blurred-login')[0].id);
@@ -114,8 +124,7 @@
             try {
                 $('.navbar-collapse').collapse('hide');
                 closeForm('toggle');
-            }
-            catch (e) {
+            } catch (e) {
             }
             closeForm('updateGradesDisplay');
             closeForm('settingsCardDisplay');

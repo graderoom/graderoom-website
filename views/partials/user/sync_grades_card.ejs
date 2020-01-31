@@ -19,6 +19,21 @@
                             <input name="school_password" type="password" id="inputPassword" class="form-control"
                                    placeholder="Password" required autofocus>
                         </div>
+                        <div style="float: right">
+                            <label style="cursor: pointer; text-align: left">
+                                <input style="cursor: inherit"
+                                       id="savePasswordToggle"
+                                       type="checkbox"
+                                       name="savePassword"
+                                <% if (user.schoolPassword) { %> checked
+                                        <% } %>
+                                > Auto-Sync </label>
+                            <i class="fa fa-info-circle popup" style="margin-left: 1rem">
+                            <span class="popuptext" id="autosyncPopup">
+                                Graderoom encrypts your school password with your password
+                            </span>
+                            </i>
+                        </div>
                         <div class="text-center">
                             <button class="btn btn-lg btn-default" type="submit">Sign In</button>
                         </div>
