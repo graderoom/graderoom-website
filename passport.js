@@ -1,8 +1,8 @@
 // load all the things we need
 const LocalStrategy = require('passport-local').Strategy;
-const authent       = require('./authenticator.js');
-const bcrypt        = require('bcryptjs');
-module.exports      = function (passport) {
+const authent = require('./authenticator.js');
+const bcrypt = require('bcryptjs');
+module.exports = function (passport) {
 
     // =========================================================================
     // passport session setup ==================================================

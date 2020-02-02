@@ -518,8 +518,9 @@ html {
 }
 
 .popup .popuptext {
+    font-family: 'Montserrat';
     visibility: hidden;
-    width: fit-content;
+    width: 180px;
     height: fit-content;
     background-color: #555;
     color: #fff;
@@ -530,7 +531,7 @@ html {
     z-index: 1;
     bottom: 150%;
     left: 50%;
-    margin-left: -44.4px;
+    margin-left: -90px;
 }
 
 .popup .popuptext::after {

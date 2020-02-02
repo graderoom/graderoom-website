@@ -218,12 +218,10 @@ module.exports = function (app, passport) {
         let pass = req.body.school_password;
         let resp = await authenticator.updateGrades(req.user.username, pass);
         if (resp.success) {
-            req.flash('updateGradesMessageSuccess', resp.message);
+            res.status(200).send(resp.message);
         } else {
-            req.flash('updateGradesMessageFail', resp.message);
+            res.status(400).send(resp.message);
         }
-
-        res.redirect('/');
 
     });
 
