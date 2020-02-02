@@ -1,10 +1,12 @@
-const low         = require('lowdb');
-const FileSync    = require('lowdb/adapters/FileSync');
-const adapter     = new FileSync('user_db.json');
-const db          = low(adapter);
-const bcrypt      = require('bcryptjs');
-const scraper     = require('./scrape');
+const low = require('lowdb');
+const FileSync = require('lowdb/adapters/FileSync');
+const adapter = new FileSync('user_db.json');
+const db = low(adapter);
+const bcrypt = require('bcryptjs');
+const scraper = require('./scrape');
 const randomColor = require('random-color');
+const crypto = require('crypto');
+const _ = require('lodash');
 
 db.defaults({users: [], keys: []}).write();
 
@@ -100,7 +102,7 @@ module.exports = {
 
     }, login: function (username, password) {
         let lc_username = username.toLowerCase();
-        let user        = db.get('users').find({username: lc_username}).value();
+        let user = db.get('users').find({username: lc_username}).value();
         bcrypt.compare(password, user.password, function (err, res) {
             if (res) {
                 return {success: true, message: "Login Successful"};
@@ -132,16 +134,16 @@ module.exports = {
         return {success: true, message: "Account deleted."};
     }, userExists: function (username) {
         let lc_username = username.toLowerCase();
-        let user        = db.get('users').find({username: lc_username}).value();
+        let user = db.get('users').find({username: lc_username}).value();
         return !!user;
 
     }, setMode: function (username, darkMode) {
-        let lc_username          = username.toLowerCase();
-        let user                 = db.get('users').find({username: lc_username}).value();
+        let lc_username = username.toLowerCase();
+        let user = db.get('users').find({username: lc_username}).value();
         user.appearance.darkMode = darkMode;
     }, setUpdateGradesReminder: function (username, updateGradesReminder) {
-        let lc_username                  = username.toLowerCase();
-        let user                         = db.get('users').find({username: lc_username}).value();
+        let lc_username = username.toLowerCase();
+        let user = db.get('users').find({username: lc_username}).value();
         user.alerts.updateGradesReminder = updateGradesReminder;
         if (updateGradesReminder.toLowerCase() === 'never') {
             return {success: true, message: "Grade update alerts disabled."}
@@ -149,7 +151,7 @@ module.exports = {
         return {success: true, message: updateGradesReminder + " grade update alerts enabled!"}
     }, getUser: function (username) {
         let lc_username = username.toLowerCase();
-        let user        = db.get('users').find({username: lc_username}).value();
+        let user = db.get('users').find({username: lc_username}).value();
         //Parse weights with unicode to dots
         if (user) {
             user.weights = JSON.parse(JSON.stringify(user.weights).replace(/\\\\u002e/g, "."));
@@ -158,8 +160,8 @@ module.exports = {
     },
 
     updateGrades: async function (acc_username, school_password) {
-        let lc_username         = acc_username.toLowerCase();
-        let userRef             = db.get('users').find({username: lc_username});
+        let lc_username = acc_username.toLowerCase();
+        let userRef = db.get('users').find({username: lc_username});
         let grade_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername,
             school_password);
         // console.log(grade_update_status);
@@ -167,7 +169,7 @@ module.exports = {
             //error updating grades
             return grade_update_status;
         }
-        let alreadyGrades      = userRef.value().grades.length;
+        let alreadyGrades = userRef.value().grades.length;
         let lockedColorIndices = new Array(alreadyGrades).fill().map((e, i) => i.toString());
         userRef.assign({grades: grade_update_status.new_grades}).write();
         this.setRandomClassColors(lc_username, lockedColorIndices);
@@ -177,9 +179,9 @@ module.exports = {
 
     setRandomClassColors: function (username, lockedColorIndices) {
         let lc_username = username.toLowerCase();
-        let userRef     = db.get('users').find({username: lc_username});
-        let grades      = userRef.get('grades').value();
-        let numClasses  = Object.keys(grades).length;
+        let userRef = db.get('users').find({username: lc_username});
+        let grades = userRef.get('grades').value();
+        let numClasses = Object.keys(grades).length;
         let classColors = userRef.get('appearance').get('classColors').value();
         for (let i = 0; i < numClasses; i++) {
             if (!(lockedColorIndices.includes(i.toString()))) {
@@ -224,7 +226,7 @@ module.exports = {
     updateWeightsForClass: function (username, className, weights, update = true) {
         //default update, not override
         let lc_username = username.toLowerCase();
-        let userRef     = db.get('users').find({username: lc_username});
+        let userRef = db.get('users').find({username: lc_username});
         console.log(weights);
         if (!userRef.value()) {
             return {success: false, message: "User does not exist."}
@@ -243,7 +245,7 @@ module.exports = {
 
         if (update) {
             let currentWeights = weightsRef.get(modClassName).value();
-            let newWeights     = Object.assign({}, currentWeights, weights);
+            let newWeights = Object.assign({}, currentWeights, weights);
             weightsRef.set(modClassName, newWeights).write();
             console.log(weightsRef.value());
         } else {
@@ -251,6 +253,25 @@ module.exports = {
             console.log(weightsRef.value());
         }
         return {success: true, message: "Updated weights for " + className + "!"};
+    },
+
+    encryptAndStore: function (username, schoolPass, userPass) {
+        let resizedIV = Buffer.allocUnsafe(16);
+        let iv = crypto.createHash("sha256").update("myHashedIV").digest();
+        iv.copy(resizedIV);
+        let key = crypto.createHash("sha256").update(userPass).digest();
+        let cipher = crypto.createCipheriv("aes256", key, resizedIV);
+        let encryptedPass = [];
+        _.forEach(function(phrase) {
+            encryptedPass.push(cipher.update(phrase, "binary", "hex"));
+        });
+        encryptedPass.push(cipher.final("hex"));
+        encryptedPass = encryptedPass.join("");
+
+        let lc_username = username.toLowerCase();
+        let user = db.get('users').find({username: lc_username});
+        user.set("schoolPassword", encryptedPass);
+        return {success: true, message: encryptedPass};
     }
 };
 
@@ -269,20 +290,6 @@ function isAlphaNumeric(str) {
 }
 
 function validateEmail(email) {
-    let re = /\S+@bcp+\.org+/;
+    let re = /\S+\D+@bcp+\.org+/;
     return re.test(email);
 }
-
-/*
-
- example of weights object
-
- {
- "Biology H":
- {
- "Test": 50,
- "Final": 25,
- "Quiz": 25,
- }
- }
- */

@@ -10,6 +10,11 @@
                     <i class="fa fa-arrow-left" aria-hidden="true"></i> Back
                 </btn>
                 <div class="card-body">
+                    <div id="updateGradesMessage" class="alert alert-success alert-dismissible"
+                         style="display:none">
+                        <div class="font-weight-bold messageTxt"></div>
+                        <a class="close" onclick="closeMessage('updateGradesMessage')" aria-label="close">X</a>
+                    </div>
                     <h1 class="card-title text-center">School Login</h1>
                     <h5 class="text-center">Enter password for: </h5>
                     <h5 id="schoolUsernameDisplay" class="school-username text-center"><%= schoolUsername %></h5>
@@ -19,7 +24,7 @@
                             <input name="school_password" type="password" id="inputPassword" class="form-control"
                                    placeholder="Password" required autofocus>
                         </div>
-                        <div style="float: right">
+                        <div style="float: right" class="popup">
                             <label style="cursor: pointer; text-align: left">
                                 <input style="cursor: inherit"
                                        id="savePasswordToggle"
@@ -27,15 +32,20 @@
                                        name="savePassword"
                                 <% if (user.schoolPassword) { %> checked
                                         <% } %>
-                                > Auto-Sync </label>
-                            <i class="fa fa-info-circle popup" style="margin-left: 1rem">
+                                > Auto-Sync</label>
+                            <i class="fa fa-info-circle popup">
                             <span class="popuptext" id="autosyncPopup">
-                                Graderoom encrypts your school password with your password
+                                <p>Graderoom will sync automatically whenever you login.</p>
+                                <p>You will still be able to manually sync at any time.</p>
+                                Graderoom never stores your passwords.
                             </span>
                             </i>
                         </div>
                         <div class="text-center">
-                            <button class="btn btn-lg btn-default" type="submit">Sign In</button>
+                            <button id="autoSyncSubmit" class="btn btn-lg btn-default" type="submit"
+                                    onclick="ajaxPostForm('#syncGradesForm',['#school_password'],'#updateGradesMessage')">Sign
+                                In
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -58,10 +68,3 @@
         </div>
     </div>
 </div>
-
-<!-- Custom Java Script -->
-<script>
-    $("#syncGradesForm").submit(function () {
-        showDiv('loadingDisplay');
-    });
-</script>
