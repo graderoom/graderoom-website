@@ -40,12 +40,12 @@
                 </btn>
             </li>
             <li id="syncGrades" class="nav-item">
-                <btn class="btn btn-med" onclick="showDiv('updateGradesDisplay')">
+                <btn class="btn btn-med" onclick="$('#updateGradesDisplay').show()">
                     <i class="fa fa-refresh" aria-hidden="true"></i> Sync
                 </btn>
             </li>
             <li id="settings" class="nav-item">
-                <btn class="btn btn-med" onclick="showDiv('settingsCardDisplay')">
+                <btn class="btn btn-med" onclick="$('#settingsCardDisplay').show()">
                     <i class="fa fa-cog" aria-hidden="true"></i> Settings
                 </btn>
             </li>
@@ -148,16 +148,6 @@
                     }
                 })
         })
-    }
-
-    function showDiv(id) {
-        document.getElementById(id).style.display = "block";
-        //Close mobile navbar
-        try {
-            $('.navbar-collapse').collapse('hide');
-            closeForm('toggle');
-        } catch (e) {
-        }
     }
 
     function closeForm(id) {

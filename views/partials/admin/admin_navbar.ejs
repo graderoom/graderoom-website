@@ -1,15 +1,3 @@
-<script type="text/javascript">
-    function showDiv(id) {
-        document.getElementById(id).style.display = "block";
-    }
-
-    function hideDiv(id) {
-        if (document.getElementById(id)) {
-            document.getElementById(id).style.display = "none";
-        }
-    }
-</script>
-
 <!-- Admin Nav Bar -->
 <nav class="navbar navbar-dark navbar-expand-lg justify-content-center">
     <span class="d-flex w-50 mr-auto">
@@ -45,7 +33,7 @@
                 <a class="btn btn-med" href="/"> <i class="fa fa-home" aria-hidden="true"></i> Home </a>
             </li>
             <li id="settings" class="nav-item">
-                <btn class="btn btn-med" onclick="showDiv('settingsCardDisplay')">
+                <btn class="btn btn-med" onclick="$('#settingsCardDisplay').show()">
                     <i class="fa fa-cog" aria-hidden="true"></i> Settings
                 </btn>
             </li>
@@ -73,12 +61,12 @@
         }
         if (!$(e.target).closest('#updateGradesCard').length && !$(e.target).is('#updateGradesCard')) {
             if (!$(e.target).closest('#updateGrades').length && !$(e.target).is('#updateGrades')) {
-                hideDiv('updateGradesDisplay');
+                $('#updateGradesDisplay').hide();
             }
         }
         if (!$(e.target).closest('#settingsCard').length && !$(e.target).is('#settingsCard')) {
             if (!$(e.target).closest('#settings').length && !$(e.target).is('#settings')) {
-                hideDiv('settingsCardDisplay');
+                $('#settingsCardDisplay').hide();
             }
         }
     });
@@ -87,11 +75,11 @@
         if (e.key === "Escape") { // escape key maps to keycode `27`
             try {
                 $('.navbar-collapse').collapse('hide');
-                hideDiv('toggle');
+                $('#toggle').hide();
             } catch (e) {
             }
-            hideDiv('updateGradesDisplay');
-            hideDiv('settingsCardDisplay');
+            $('#updateGradesDisplay').hide();
+            $('#settingsCardDisplay').hide();
         }
     });
 </script>
