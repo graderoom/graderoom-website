@@ -51,11 +51,7 @@
         <u style="cursor: pointer" onclick="$('#updateGradesDisplay').show(); $('#inputPassword').focus()">Sync your
             grades</u> now!
     </div>
-    <% } else { %> <% daysSinceUpdated = Math.floor(
-            (Date.now() - user.alerts.lastUpdated) /
-            (1000 * 3600 * 24)); %> <% if ((user.alerts.updateGradesReminder.toLowerCase() == ('daily') &&
-            daysSinceUpdated >= 1) ||
-            (user.alerts.updateGradesReminder.toLowerCase() == 'weekly') && daysSinceUpdated >= 7) { %>
+    <% } else { %> <% daysSinceUpdated = Math.floor((Date.now() - user.alerts.lastUpdated) / (1000 * 3600 * 24)); %> <% if ((user.alerts.updateGradesReminder.toLowerCase() == ('daily') && daysSinceUpdated >= 1) || (user.alerts.updateGradesReminder.toLowerCase() == 'weekly') && daysSinceUpdated >= 7) { %>
         <br>
         <div class="alert alert-danger alert-dismissible font-weight-bold">
             <a class="close" data-dismiss="alert" aria-label="close">X</a> It's been <%= daysSinceUpdated %>
@@ -104,8 +100,7 @@
             <table class="table text-center" id="table-1">
                 <thead><tr>
                     <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                        <th style="border:0; color: <%= user.appearance.classColors[i] %>"><%= JSON.parse(
-                                    gradeData)[i].class_name %></th>
+                        <th style="border:0; color: <%= user.appearance.classColors[i] %>"><%= JSON.parse(gradeData)[i].class_name %></th>
                     <% } %>
                 </tr></thead>
                 <tbody>
@@ -154,8 +149,7 @@
                 </thead>
 
                 <tbody>
-                <% for (let j = 0; j < Object.keys(
-                        JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]).length; j++) { %>
+                <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]).length; j++) { %>
                     <tr>
                         <td id="weightTableCategory<%= i %><%= j %>"></td>
                         <td id="weightTableWeight<%= i %><%= j %>"></td>
@@ -306,19 +300,12 @@
                     for (let j = 0; j < tableCategories.length; j++) {
                         document.getElementById('weightTableCategory' + i + j).textContent = tableCategories[j];
                         document.getElementById('weightTableWeight' + i + j).textContent = tableWeights[j] + '%';
-                        let categoryGottenAndPossible = getCategoryGottenAndPossible(
-                            i, tableCategories[j]);
-                        document.getElementById('weightTablePoints' + i + j).textContent
-                            = +(categoryGottenAndPossible.gotten.toFixed(
-                            3)) + ((categoryGottenAndPossible.possible != 0) ? ('/'
-                            + +(categoryGottenAndPossible.possible.toFixed(
-                                3))) : '');
-                        document.getElementById('weightTableGrade' + i + j).textContent = getCategoryGrade(i,
-                            tableCategories[j]);
+                        let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
+                        document.getElementById('weightTablePoints' + i + j).textContent = +(categoryGottenAndPossible.gotten.toFixed(3)) + ((categoryGottenAndPossible.possible != 0) ? ('/' + +(categoryGottenAndPossible.possible.toFixed(3))) : '');
+                        document.getElementById('weightTableGrade' + i + j).textContent = getCategoryGrade(i, tableCategories[j]);
                     }
                     let overallGrade = getOverallGrade(i);
-                    document.getElementById('weightTableOverallGrade' + i).textContent = (+(overallGrade.toFixed(
-                        3))).toString() + '% (' + getLetterGrade(overallGrade) + ')';
+                    document.getElementById('weightTableOverallGrade' + i).textContent = (+(overallGrade.toFixed(3))).toString() + '% (' + getLetterGrade(overallGrade) + ')';
                 }
             }
         }
@@ -327,8 +314,7 @@
     function setupOverviewTable() {
         for (let i = 0; i < data.length; i++) {
             let overallGrade = getOverallGrade(i);
-            document.getElementById('overviewChart' + i).innerHTML = (+(overallGrade.toFixed(2))).toString() + '% </br>'
-                + getLetterGrade(overallGrade);
+            document.getElementById('overviewChart' + i).innerHTML = (+(overallGrade.toFixed(2))).toString() + '% </br>' + getLetterGrade(overallGrade);
         }
     }
 
@@ -394,8 +380,7 @@
 
         for (let classData of data) {
             let className = classData.class_name;
-            let needWeights = !(className in weights) || (Object.entries(weights[className]).length === 0
-                && weights[className].constructor === Object);
+            let needWeights = !(className in weights) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object);
             let localMissingCategories = [];
 
             if ((className in weights) && (!weights[className].hasWeight)) {
@@ -461,9 +446,7 @@
 
                     let overallPercent = 0;
                     for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
-                        overallPercent = overallPercent + (value.weight * (value.totalPossible !== 0
-                            ? (value.totalGotten / value.totalPossible)
-                            : value.totalGotten));
+                        overallPercent = overallPercent + (value.weight * (value.totalPossible !== 0 ? (value.totalGotten / value.totalPossible) : value.totalGotten));
                     }
                     let total = ((overallPercent / totalWeightValue) * 100).toFixed(3);
                     total = +total;
@@ -486,13 +469,13 @@
             });
 
             parsedData.push({
-                assignmentNames: assignmentNames,
-                assignmentTimestamps: assignmentTimestamps,
-                assignmentPercents: assignmentPercents,
-                assignmentScoresParsed: assignmentScoresParsed,
-                assignmentCategories: assignmentCategories,
-                mixedData: mixedData,
-            });
+                                assignmentNames: assignmentNames,
+                                assignmentTimestamps: assignmentTimestamps,
+                                assignmentPercents: assignmentPercents,
+                                assignmentScoresParsed: assignmentScoresParsed,
+                                assignmentCategories: assignmentCategories,
+                                mixedData: mixedData,
+                            });
             // console.log(parsedData);
         }
     }
@@ -513,21 +496,21 @@
         let colors = user.appearance.classColors;
         for (let i = 0; i < data.length; i++) {
             dataset.push({
-                label: data[i].class_name,
-                backgroundColor: 'transparent',
-                pointBackgroundColor: brighten(colors[i], 100),
-                pointBorderColor: 'transparent',
-                borderColor: brighten(colors[i], 100),
-                data: parsedData[i].mixedData,
-                cubicInterpolationMode: 'monotone',
-                spanGaps: false,
-                pointRadius: 3,
-                borderWidth: 3,
-                pointHoverRadius: 7,
-                pointHoverBackgroundColor: brighten(colors[i], -20),
-                pointHoverBorderColor: brighten(colors[i], 10),
-                pointHoverBorderWidth: 2
-            });
+                             label: data[i].class_name,
+                             backgroundColor: 'transparent',
+                             pointBackgroundColor: brighten(colors[i], 100),
+                             pointBorderColor: 'transparent',
+                             borderColor: brighten(colors[i], 100),
+                             data: parsedData[i].mixedData,
+                             cubicInterpolationMode: 'monotone',
+                             spanGaps: false,
+                             pointRadius: 3,
+                             borderWidth: 3,
+                             pointHoverRadius: 7,
+                             pointHoverBackgroundColor: brighten(colors[i], -20),
+                             pointHoverBorderColor: brighten(colors[i], 10),
+                             pointHoverBorderWidth: 2
+                         });
         }
         let numRunning = 0;
         let myChart = new Chart(ctx, {
@@ -589,25 +572,9 @@
                 }, tooltips: {
                     enabled: true, position: 'nearest', intersect: false, displayColors: true, callbacks: {
                         title: function (tooltipItems, data) {
-                            return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(
-                                tooltipItems[0].value).toFixed(2) + "%";
+                            return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
                         }, label: function (tooltipItem, data) {
-                            return ["[" + parsedData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.index]
-                            + "] " + parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + " - "
-                            + (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== -1
-                                ? (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index]
-                                    + "%") : (""))
-                            + ((parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index]
-                                .substring(
-                                    parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length
-                                    - 2)) !== '/0' ? (" ("
-                                + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index]
-                                + ")")
-                                :
-                                (parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(
-                                    0,
-                                    parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length
-                                    - 2)))];
+                            return ["[" + parsedData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.index] + "] " + parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + " - " + (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== -1 ? (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "%") : ("")) + ((parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)) !== '/0' ? (" (" + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")") : (parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)))];
                         },
                     }
                 }, responsive: true, maintainAspectRatio: false,
@@ -687,18 +654,9 @@
                 }, tooltips: {
                     enabled: true, position: 'nearest', intersect: false, displayColors: false, callbacks: {
                         title: function (tooltipItems, data) {
-                            return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(
-                                tooltipItems[0].value).toFixed(2) + "%";
+                            return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
                         }, label: function (tooltipItem, data) {
-                            return ["[" + parsedData[id].assignmentCategories[tooltipItem.index] + "] " +
-                            parsedData[id].assignmentNames[tooltipItem.index] + " - "
-                            + (parsedData[id].assignmentPercents[tooltipItem.index] !== -1
-                                ? (parsedData[id].assignmentPercents[tooltipItem.index] + "%") : (""))
-                            + ((parsedData[id].assignmentScoresParsed[tooltipItem.index]
-                                .substring(parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2))
-                            !== '/0' ? (" (" + parsedData[id].assignmentScoresParsed[tooltipItem.index]
-                                + ")") : (parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(0,
-                                parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)))];
+                            return ["[" + parsedData[id].assignmentCategories[tooltipItem.index] + "] " + parsedData[id].assignmentNames[tooltipItem.index] + " - " + (parsedData[id].assignmentPercents[tooltipItem.index] !== -1 ? (parsedData[id].assignmentPercents[tooltipItem.index] + "%") : ("")) + ((parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)) !== '/0' ? (" (" + parsedData[id].assignmentScoresParsed[tooltipItem.index] + ")") : (parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(0, parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)))];
                         },
                     }
                 }, responsive: true, maintainAspectRatio: false,
@@ -721,8 +679,7 @@
         if (id == -1) {
             document.getElementById("classLinks").style.borderBottomColor = brighten("#BBBBBB", -20);
         } else {
-            document.getElementById("classLinks").style.borderBottomColor = brighten(user.appearance.classColors[id],
-                -20);
+            document.getElementById("classLinks").style.borderBottomColor = brighten(user.appearance.classColors[id], -20);
         }
         currentPage = id;
     }
