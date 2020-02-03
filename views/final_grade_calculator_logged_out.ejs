@@ -105,38 +105,32 @@
         let letterGoal;
 
         if (!currentGrade && currentGrade !== 0) {
-            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').find(
-                '.messageTxt').text('Step 1: Enter Current Grade');
+            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').find('.messageTxt').text('Step 1: Enter Current Grade');
             return;
         }
 
         if (currentGrade < 0) {
-            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-info').addClass('alert-danger').find(
-                '.messageTxt').text('Your Current Grade Should Be a Positive Number');
+            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-info').addClass('alert-danger').find('.messageTxt').text('Your Current Grade Should Be a Positive Number');
             return;
         }
 
         if (goal <= 0) {
-            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-info').addClass('alert-danger').find(
-                '.messageTxt').text('Try aiming higher');
+            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-info').addClass('alert-danger').find('.messageTxt').text('Try aiming higher');
             return;
         }
 
         if (!goal && goal !== 0) {
-            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').find(
-                '.messageTxt').text('Step 2: Enter Your Goal or Select Letter Grade');
+            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').find('.messageTxt').text('Step 2: Enter Your Goal or Select Letter Grade');
             return;
         }
 
         if (finalWeight < 0) {
-            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-info').addClass('alert-danger').find(
-                '.messageTxt').text('Your final weight cannot be negative');
+            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-info').addClass('alert-danger').find('.messageTxt').text('Your final weight cannot be negative');
             return;
         }
 
         if (!finalWeight && finalWeight !== 0) {
-            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').find(
-                '.messageTxt').text('Step 3: Complete Final Info');
+            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').find('.messageTxt').text('Step 3: Complete Final Info');
             return;
         }
 
@@ -224,14 +218,11 @@
         let message = startMessage + " " + gradeMessage + " " + endMessage;
 
         if (grade > 100) {
-            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-info').addClass('alert-danger').css(
-                'display', 'block').find('.messageTxt').text(message);
+            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-info').addClass('alert-danger').css('display', 'block').find('.messageTxt').text(message);
         } else if (grade > 80) {
-            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').css(
-                'display', 'block').find('.messageTxt').text(message);
+            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').css('display', 'block').find('.messageTxt').text(message);
         } else {
-            feedbackMessageDiv.removeClass('alert-info').removeClass('alert-danger').addClass('alert-success').css(
-                'display', 'block').find('.messageTxt').text(message);
+            feedbackMessageDiv.removeClass('alert-info').removeClass('alert-danger').addClass('alert-success').css('display', 'block').find('.messageTxt').text(message);
         }
 
     });
