@@ -48,7 +48,7 @@
     <% var daysSinceUpdated = 0; %>
     <% if (user.alerts.lastUpdated.toString().toLowerCase() == ('never')) { %> <br>
     <div class="alert alert-success">
-        <u style="cursor: pointer" onclick="showDiv('updateGradesDisplay')">Sync your grades</u> now!
+        <u style="cursor: pointer" onclick="$('#updateGradesDisplay').show()">Sync your grades</u> now!
     </div>
     <% } else { %> <% daysSinceUpdated = Math.floor(
             (Date.now() - user.alerts.lastUpdated) /
@@ -65,8 +65,8 @@
             since you last synced your grades! <span
                     style="float: right; display: flex"><u
                         style="cursor: pointer; margin-right: 10px"
-                        onclick="showDiv('settingsCardDisplay'); openTab('Alerts')">Alert Settings</u><u
-                        style="cursor: pointer" onclick="showDiv('updateGradesDisplay')">Sync Grades</u></span>
+                        onclick="$('#settingsCardDisplay').show(); openTab('Alerts')">Alert Settings</u><u
+                        style="cursor: pointer" onclick="$('#updateGradesDisplay').show()">Sync Grades</u></span>
         </div>
     <% } %>
     <% } %>
@@ -87,122 +87,125 @@
     </div> -->
 
     <!-- Overview Section -->
-    <% if (user.alerts.lastUpdated.toString().toLowerCase() != 'never') { %> <span id="section-1">
-                <div class="alert alert-danger alert-dismissible font-weight-bold" id="weightmsg-1" style="display:none">
+    <% if (user.alerts.lastUpdated.toString().toLowerCase() != 'never') { %>
+        <span id="section-1">
+            <div class="alert alert-danger alert-dismissible font-weight-bold" id="weightmsg-1"
+                 style="display:none">
                     <a class="close" data-dismiss="alert" aria-label="close">X</a>
                     <span id="weightmsg_text-1"></span><u style="float: right; cursor: pointer"
                                                           onclick="showUpdateWeights()">Add Weights</u>
-                </div>
-                <div id="chart-container-1" class="chart-container text-center"
-                     style="position: relative; height:60vh; width: 100%; margin: 0 auto;">
+            </div>
+            <div id="chart-container-1" class="chart-container text-center"
+                 style="position: relative; height:60vh; width: 100%; margin: 0 auto;">
                     <canvas id="chart-1" class="chart" style="width:50%; margin: 0;"></canvas>
-                </div>
-                <hr>
-                <table class="table text-center" id="table-1">
-                    <thead><tr>
+            </div>
+            <hr>
+            <table class="table text-center" id="table-1">
+                <thead><tr>
+                    <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
+                        <th style="border:0; color: <%= user.appearance.classColors[i] %>"><%= JSON.parse(
+                                    gradeData)[i].class_name %></th>
+                    <% } %>
+                </tr></thead>
+                <tbody>
+                    <tr>
                         <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                            <th style="border:0; color: <%= user.appearance.classColors[i] %>"><%= JSON.parse(
-                                        gradeData)[i].class_name %></th>
+                            <td id="overviewChart<%= i %>"
+                                style="border: 0; padding-top: 0; color: <%= user.appearance.classColors[i] %>"></td>
                         <% } %>
-                    </tr></thead>
-                    <tbody> 
-                        <tr>
-                            <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                                <td id="overviewChart<%= i %>"
-                                    style="border: 0; padding-top: 0; color: <%= user.appearance.classColors[i] %>"></td>
-                            <% } %>
-                        </tr>
-                    </tbody>
-                </table>
-            </span>
+                    </tr>
+                </tbody>
+            </table>
+        </span>
     <% } %>
 
     <!-- Class Sections -->
-    <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %> <span id="section<%= i %>"
-                                                                         style="display: none;">
-            <div class="alert alert-danger alert-dismissible font-weight-bold" id="weightmsg<%= i %>" style="display:none">
+    <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
+        <span id="section<%= i %>" style="display: none;">
+            <div class="alert alert-danger alert-dismissible font-weight-bold" id="weightmsg<%= i %>"
+                 style="display:none">
                 <a class="close" data-dismiss="alert" aria-label="close">X</a>
-                <span id="weightmsg_text<%= i %>"></span></span><u style="float: right; cursor: pointer"
-                                                                   onclick="showUpdateWeights()">Add Weights</u>
-</div>
-<div style="display:flex; align-items: center">
-    <% if (JSON.parse(gradeData)[i].class_name in JSON.parse(weightData)) { %>
-        <div class="text-center" style="width: 25%">
-            <div id="overallGrade<%= i %>"
-                 style="font-weight: bolder; font-size: 80px; margin-bottom: 30px; color: <%= user.appearance.classColors[i] %>"></div>
-            <div id="overallLetterGrade<%= i %>"
-                 style="font-weight: bolder; font-size: 80px; margin-bottom: 30px; color: <%= user.appearance.classColors[i] %>"></div>
-        </div>
-    <% } %>
-    <div id="chart-container<%= i %>" class="chart-container"
-         style="position: relative; height:40vh; width:100%;margin: 0 auto;">
-        <canvas id="chart<%= i %>" class="chart" style="margin: auto;"></canvas>
-    </div>
-    <% if (JSON.parse(gradeData)[i].class_name in JSON.parse(weightData)) { %>
-        <table class="table text-center" style="width: 25%; margin: 20px" id="weightsTable<%= i %>">
+                <span id="weightmsg_text<%= i %>"></span><u style="float: right; cursor: pointer"
+                                                            onclick="showUpdateWeights()">Add Weights</u>
+            </div>
+            <div style="display:flex; align-items: center">
+                <% if (JSON.parse(gradeData)[i].class_name in JSON.parse(weightData)) { %>
+                    <div class="text-center" style="width: 25%">
+                    <div id="overallGrade<%= i %>"
+                         style="font-weight: bolder; font-size: 80px; margin-bottom: 30px; color: <%= user.appearance.classColors[i] %>"></div>
+                    <div id="overallLetterGrade<%= i %>"
+                         style="font-weight: bolder; font-size: 80px; margin-bottom: 30px; color: <%= user.appearance.classColors[i] %>"></div>
+                </div>
+                <% } %>
+                <div id="chart-container<%= i %>" class="chart-container"
+                     style="position: relative; height:40vh; width:100%;margin: 0 auto;">
+                <canvas id="chart<%= i %>" class="chart" style="margin: auto;"></canvas>
+            </div>
+                <% if (JSON.parse(gradeData)[i].class_name in JSON.parse(weightData)) { %>
+                    <table class="table text-center" style="width: 25%; margin: 20px" id="weightsTable<%= i %>">
+                <thead>
+                <tr>
+                    <th style="width: 40%">Category</th>
+                    <th style="width: 20%">Weight</th>
+                    <th style="width: 20%">Points</th>
+                    <th style="width: 20%">Grade</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <% for (let j = 0; j < Object.keys(
+                        JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]).length; j++) { %>
+                    <tr>
+                        <td id="weightTableCategory<%= i %><%= j %>"></td>
+                        <td id="weightTableWeight<%= i %><%= j %>"></td>
+                        <td id="weightTablePoints<%= i %><%= j %>"></td>
+                        <td id="weightTableGrade<%= i %><%= j %>"></td>
+                    </tr>
+                <% } %>
+                </tbody>
+
+                <tfoot>
+                <tr>
+                    <th colspan="4" id="weightTableOverallGrade<%= i %>"></th>
+                </tr>
+                </tfoot>
+            </table>
+                <% } %>
+            </div>
+        <hr>
+        <table class="table text-center" id="table<%= i %>">
             <thead>
             <tr>
-                <th style="width: 40%">Category</th>
-                <th style="width: 20%">Weight</th>
-                <th style="width: 20%">Points</th>
-                <th style="width: 20%">Grade</th>
+                <th style="width:25%;">Assignment Name</th>
+                <th style="width:25%;">Date</th>
+                <th style="width:25%;">Category</th>
+                <th style="width:25%;">Assignment Percent</th>
+                <th style="width:25%;">Score</th>
             </tr>
             </thead>
 
             <tbody>
-            <% for (let j = 0; j < Object.keys(
-                    JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]).length; j++) { %>
+            <% for (let grade of JSON.parse(gradeData)[i].grades) { %>
                 <tr>
-                    <td id="weightTableCategory<%= i %><%= j %>"></td>
-                    <td id="weightTableWeight<%= i %><%= j %>"></td>
-                    <td id="weightTablePoints<%= i %><%= j %>"></td>
-                    <td id="weightTableGrade<%= i %><%= j %>"></td>
+                    <td><%= grade.assignment_name %> </td>
+                    <td><%= grade.date %> </td>
+                    <td><%= grade.category %> </td>
+                    <% if (grade.grade_percent == -1) { %>
+                        <td></td>
+                    <% } else { %>
+                        <td><%= grade.grade_percent %></td>
+                    <% } %>
+                    <% if (grade.points_possible != 0) { %>
+                        <td><%= grade.points_gotten %>/<%= grade.points_possible %></td>
+                    <% } else { %>
+                        <td><%= grade.points_gotten %></td>
+                    <% } %>
                 </tr>
             <% } %>
             </tbody>
-
-            <tfoot>
-            <tr>
-                <th colspan="4" id="weightTableOverallGrade<%= i %>"></th>
-            </tr>
-            </tfoot>
         </table>
+        </span>
     <% } %>
-</div>
-<hr>
-<table class="table text-center" id="table<%= i %>">
-    <thead>
-    <tr>
-        <th style="width:25%;">Assignment Name</th>
-        <th style="width:25%;">Date</th>
-        <th style="width:25%;">Category</th>
-        <th style="width:25%;">Assignment Percent</th>
-        <th style="width:25%;">Score</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    <% for (let grade of JSON.parse(gradeData)[i].grades) { %>
-        <tr>
-            <td><%= grade.assignment_name %> </td>
-            <td><%= grade.date %> </td>
-            <td><%= grade.category %> </td>
-            <% if (grade.grade_percent == -1) { %>
-                <td></td>
-            <% } else { %>
-                <td><%= grade.grade_percent %></td>
-            <% } %>
-            <% if (grade.points_possible != 0) { %>
-                <td><%= grade.points_gotten %>/<%= grade.points_possible %></td>
-            <% } else { %>
-                <td><%= grade.points_gotten %></td>
-            <% } %>
-        </tr>
-    <% } %>
-    </tbody>
-</table>
-</span>
-<% } %>
 </div>
 
 <!-- Custom JavaScript -->
