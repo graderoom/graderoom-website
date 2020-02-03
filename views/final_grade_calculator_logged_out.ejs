@@ -67,9 +67,9 @@
 
     // Set up input divs
     let currentGradeDiv = $('#currentGrade');
-    let goalDiv         = $('#goal');
-    let finalWeightDiv  = $('#finalWeight');
-    let form            = $('#calculateFinalGrade');
+    let goalDiv = $('#goal');
+    let finalWeightDiv = $('#finalWeight');
+    let form = $('#calculateFinalGrade');
 
     // Messages
     let feedbackMessageDiv = $('#calculatorMessage');
@@ -100,8 +100,8 @@
 
         event.preventDefault();
         let currentGrade = currentGradeDiv[0].valueAsNumber;
-        let goal         = goalDiv[0].valueAsNumber;
-        let finalWeight  = finalWeightDiv[0].valueAsNumber;
+        let goal = goalDiv[0].valueAsNumber;
+        let finalWeight = finalWeightDiv[0].valueAsNumber;
         let letterGoal;
 
         if (!currentGrade && currentGrade !== 0) {
@@ -141,7 +141,7 @@
         }
 
         let digitsInGoalMinusOne = Math.floor(Math.log10(goal)),
-            firstDigitInGoal     = Math.floor(goal / Math.pow(10, digitsInGoalMinusOne));
+            firstDigitInGoal = Math.floor(goal / Math.pow(10, digitsInGoalMinusOne));
         if (firstDigitInGoal === 8) {
             letterGoal = 'an ' + goal + '%';
         } else {
@@ -186,32 +186,32 @@
         let endMessage;
         if (grade > 100) {
             startMessage = "";
-            endMessage   = "";
+            endMessage = "";
         } else if (grade > 90) {
             startMessage = "";
-            endMessage   = "";
+            endMessage = "";
         } else if (grade > 80) {
             startMessage = "";
-            endMessage   = ""
+            endMessage = ""
         } else if (grade > 70) {
             startMessage = "";
-            endMessage   = "";
+            endMessage = "";
         } else if (grade > 60) {
             startMessage = "";
-            endMessage   = "";
+            endMessage = "";
         } else if (grade > 50) {
             startMessage = "";
-            endMessage   = "";
+            endMessage = "";
         } else if (grade > 0) {
             startMessage = "";
-            endMessage   = "";
+            endMessage = "";
         } else {
             startMessage = "";
-            endMessage   = "";
+            endMessage = "";
         }
 
         let digitsInGradeMinusOne = Math.floor(Math.log10(grade)),
-            firstDigitInGrade     = Math.floor(grade / Math.pow(10, digitsInGradeMinusOne));
+            firstDigitInGrade = Math.floor(grade / Math.pow(10, digitsInGradeMinusOne));
 
         let formattedGrade;
         if (firstDigitInGrade === 8) {
@@ -221,7 +221,7 @@
         }
 
         let gradeMessage = "You need " + formattedGrade + " on the final to get " + letterGoal + " overall.";
-        let message      = startMessage + " " + gradeMessage + " " + endMessage;
+        let message = startMessage + " " + gradeMessage + " " + endMessage;
 
         if (grade > 100) {
             feedbackMessageDiv.removeClass('alert-success').removeClass('alert-info').addClass('alert-danger').css(
