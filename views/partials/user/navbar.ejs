@@ -147,7 +147,7 @@
     function closeForm(id) {
         let form = document.getElementById(id);
         form.style.display = "none";
-        if (id !== 'updateWeightsDisplay') {
+        if (id !== 'updateWeightsDisplay' && id !=='updateGradesDisplay') {
             let inputFields = form.getElementsByClassName('form-control');
             for (let i = 0; i < inputFields.length; i++) {
                 inputFields[i].value = "";
