@@ -23,17 +23,17 @@
                     <form id="syncGradesForm" class="form-signin" action="/update" method="post">
                         <div class="form-group">
                             <input name="school_password" type="password" id="inputPassword" class="form-control"
-                                   placeholder="Password" required autofocus>
+                                   placeholder="School Password" required>
                         </div>
                         <div style="float: right" class="popup">
-                            <label style="cursor: pointer; text-align: left">
+                            <label style="cursor: pointer; text-align: left" onclick="toggleInputUserPasswordDisplay()">
                                 <input style="cursor: inherit"
                                        id="savePasswordToggle"
                                        type="checkbox"
                                        name="savePassword"
                                 <% if (user.schoolPassword) { %> checked
                                         <% } %>
-                                > Auto-Sync</label>
+                                > GradeSync</label>
                             <i class="fa fa-info-circle popup">
                             <span class="popuptext" id="autosyncPopup">
                                 <p>Graderoom will sync automatically whenever you login.</p>
@@ -42,9 +42,15 @@
                             </span>
                             </i>
                         </div>
+                        <br><br>
+                        <div id="userPassword" class="form-group" style="display:none">
+                            <h6>Enter your Graderoom Password to enable GradeSync</h6>
+                            <input name="user_password" type="password" id="inputUserPassword" class="form-control"
+                                   placeholder="Graderoom Password">
+                        </div>
                         <div class="text-center">
                             <button id="autoSyncSubmit" class="btn btn-lg btn-default" type="submit"
-                                    onclick="ajaxPostForm('#syncGradesForm',['#inputPassword'],'#updateGradesMessage')">
+                                    onclick="ajaxPostForm('#syncGradesForm',['#inputPassword','#inputUserPassword'],'#updateGradesMessage')">
                                 Sign In
                             </button>
                         </div>
@@ -69,3 +75,15 @@
         </div>
     </div>
 </div>
+
+<script>
+    function toggleInputUserPasswordDisplay() {
+        if ($('#savePasswordToggle').is(':checked')) {
+            $('#userPassword').show();
+            $('#inputUserPassword').attr('required', 'required');
+        } else {
+            $('#userPassword').hide();
+            $('#inputUserPassword').removeAttr('required');
+        }
+    }
+</script>
