@@ -230,89 +230,9 @@
         document.getElementById('schoolUsernameDisplay').textContent = document.getElementById('school_email').value;
     }
 
-    function ajaxPostForm(formID, fieldIDsToClear, messagesDivID) {
-        // Get the form.
-        let form = $(formID);
-
-        $(form).submit(function (event) {
-            // Stop the browser from submitting the form.
-            event.preventDefault();
-            event.stopImmediatePropagation();
-
-            let formData;
-            let message;
-            let formMessagesDiv;
-
-            // Different behavior for class colors
-            if (formID === '#randomizeClassColors') {
-                let data = getLockedColorIndices();
-                let dataArr = [];
-                for (let i = 0; i < data.length; i++) {
-                    dataArr.push(`${data[i]}`);
-                }
-                formData = 'lockedColorIndices=' + JSON.stringify(dataArr);
-            } else {
-
-                // Serialize the form data.
-                formData = $(form).serialize();
-
-                // Get the messages.
-                formMessagesDiv = $(messagesDivID);
-                message = $(formMessagesDiv).find('.messageTxt');
-            }
-
-            // Submit the form using AJAX.
-            $.ajax({
-                type: 'POST', url: $(form).attr('action'), data: formData, async: false,
-                beforeSend: function () {
-                    $('#loadingDisplay').show();
-                },
-                complete: function () {
-                    $('#loadingDisplay').hide();
-                }
-            })
-
-                .done(function (response) {
-                    // Special behavior for class colors.
-                    if (formID === '#randomizeClassColors') {
-                        // numClasses is contained in messagesDivID
-                        // colors come from response
-                        updateClassColors(messagesDivID, response);
-                    } else {
-
-                        // Make sure that the formMessages div has the alert-success class.
-                        $(formMessagesDiv).removeClass('alert-danger');
-                        $(formMessagesDiv).addClass('alert-success');
-
-                        // Set the message text.
-                        $(message).text(response);
-
-                        // Show the div.
-                        $(formMessagesDiv).css('display', 'block');
-
-                        // Clear fields to clear
-                        for (let i = 0; i < fieldIDsToClear.length; i++) {
-                            $(fieldIDsToClear[i]).val('');
-                        }
-                    }
-                })
-
-                .fail(function (data) {
-                    // Make sure that the formMessages div has the alert-danger class
-                    $(formMessagesDiv).removeClass('alert-success');
-                    $(formMessagesDiv).addClass('alert-danger');
-
-                    // Set the message text.
-                    if (data.responseText !== '') {
-                        $(message).text(data.responseText);
-                    } else {
-                        $(message).text('Oops! An error occurred and your message could not be sent.');
-                    }
-
-                    // Show the div.
-                    $(formMessagesDiv).css('display', 'block');
-                })
-        })
+    function showLoading() {
+        $('#loadingDisplay').show();
+        return done;
     }
 
     function openSubTab(parentName, tabName) {
