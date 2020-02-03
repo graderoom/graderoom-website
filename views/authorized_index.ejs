@@ -48,7 +48,7 @@
     <% var daysSinceUpdated = 0; %>
     <% if (user.alerts.lastUpdated.toString().toLowerCase() == ('never')) { %> <br>
     <div class="alert alert-success">
-        <u style="cursor: pointer" onclick="$('#updateGradesDisplay').show()">Sync your grades</u> now!
+        <u style="cursor: pointer" onclick="$('#updateGradesDisplay').show(); $('#inputPassword').focus()">Sync your grades</u> now!
     </div>
     <% } else { %> <% daysSinceUpdated = Math.floor(
             (Date.now() - user.alerts.lastUpdated) /
