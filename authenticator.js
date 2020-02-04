@@ -262,15 +262,16 @@ module.exports = {
         let key = crypto.createHash("sha256").update(userPass).digest();
         let cipher = crypto.createCipheriv("aes256", key, resizedIV);
         let encryptedPass = [];
-        _.forEach(function(phrase) {
+        _.forEach(schoolPass,function(phrase) {
             encryptedPass.push(cipher.update(phrase, "binary", "hex"));
         });
         encryptedPass.push(cipher.final("hex"));
         encryptedPass = encryptedPass.join("");
+        console.log(encryptedPass);
 
         let lc_username = username.toLowerCase();
         let user = db.get('users').find({username: lc_username});
-        user.set("schoolPassword", encryptedPass);
+        user.set("schoolPassword", encryptedPass).write();
         return {success: true, message: encryptedPass};
     }
 };

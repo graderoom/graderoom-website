@@ -215,7 +215,13 @@ module.exports = function (app, passport) {
 
     app.post('/update', [ isLoggedIn], async function (req, res) {
 
+        let autosync = req.body.savePassword === 'on';
         let pass = req.body.school_password;
+        let user = req.user.username;
+        if (autosync) {
+            let userPass = req.body.user_password;
+            await authenticator.encryptAndStore(user, pass, userPass);
+        }
         let resp = await authenticator.updateGrades(req.user.username, pass);
         if (resp.success) {
             res.status(200).send(resp.message);
