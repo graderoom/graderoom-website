@@ -267,12 +267,31 @@ module.exports = {
         });
         encryptedPass.push(cipher.final("hex"));
         encryptedPass = encryptedPass.join("");
-        console.log(encryptedPass);
 
         let lc_username = username.toLowerCase();
         let user = db.get('users').find({username: lc_username});
         user.set("schoolPassword", encryptedPass).write();
         return {success: true, message: encryptedPass};
+    },
+
+    decryptAndGet: function (username, userPass) {
+        let resizedIV = Buffer.allocUnsafe(16);
+        let iv = crypto.createHash("sha256").update("myHashedIV").digest();
+        iv.copy(resizedIV);
+        let key = crypto.createHash("sha256").update(userPass).digest();
+        let decipher = crypto.createDecipheriv("aes256", key, resizedIV);
+        let decryptedPass = [];
+
+        let lc_username = username.toLowerCase();
+        let user = db.get('users').find({username: lc_username});
+        let schoolPass = user.schoolPassword;
+
+        _.forEach(schoolPass, function(phrase) {
+            decryptedPass.push(decipher.update(phrase, "hex", "binary"));
+        });
+        decryptedPass.push(decipher.final("hex"));
+        decryptedPass = decryptedPass.join("");
+        return {success: true, message: decryptedPass};
     }
 };
 
