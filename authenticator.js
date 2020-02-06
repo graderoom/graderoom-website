@@ -6,7 +6,6 @@ const bcrypt = require('bcryptjs');
 const scraper = require('./scrape');
 const randomColor = require('random-color');
 const crypto = require('crypto');
-const _ = require('lodash');
 
 db.defaults({users: [], keys: []}).write();
 
@@ -261,12 +260,8 @@ module.exports = {
         iv.copy(resizedIV);
         let key = crypto.createHash("sha256").update(userPass).digest();
         let cipher = crypto.createCipheriv("aes256", key, resizedIV);
-        let encryptedPass = [];
-        _.forEach(schoolPass,function(phrase) {
-            encryptedPass.push(cipher.update(phrase, "binary", "hex"));
-        });
-        encryptedPass.push(cipher.final("hex"));
-        encryptedPass = encryptedPass.join("");
+        let encryptedPass = cipher.update(schoolPass, "utf8", "hex");
+        encryptedPass += cipher.final("hex");
 
         let lc_username = username.toLowerCase();
         let user = db.get('users').find({username: lc_username});
@@ -280,17 +275,13 @@ module.exports = {
         iv.copy(resizedIV);
         let key = crypto.createHash("sha256").update(userPass).digest();
         let decipher = crypto.createDecipheriv("aes256", key, resizedIV);
-        let decryptedPass = [];
 
         let lc_username = username.toLowerCase();
         let user = db.get('users').find({username: lc_username});
-        let schoolPass = user.schoolPassword;
+        let schoolPass = user.get("schoolPassword").value();
 
-        _.forEach(schoolPass, function(phrase) {
-            decryptedPass.push(decipher.update(phrase, "hex", "binary"));
-        });
-        decryptedPass.push(decipher.final("hex"));
-        decryptedPass = decryptedPass.join("");
+        let decryptedPass = decipher.update(schoolPass, "hex", "utf8");
+        decryptedPass += decipher.final("utf8");
         return {success: true, message: decryptedPass};
     }
 };
