@@ -301,6 +301,6 @@ function isAlphaNumeric(str) {
 }
 
 function validateEmail(email) {
-    let re = /\S+\D+@bcp+\.org+/;
+    let re = /\S+\d+@bcp+\.org+/;
     return re.test(email);
 }
