@@ -245,23 +245,23 @@
     checkUpdateBackground();
 
     async function checkUpdateBackground() {
-        $('#backgroundRefreshMessage').show();
         let checking = window.setInterval(function () {
             $.get("/checkUpdateBackground", function (data, status) {
                 console.log(data, status);
-                if (status) {
+                if (status === "success") {
                     console.log(data);
                     if (data === "Sync Complete!") {
-                        $('#backgroundRefreshMessage').show();
                         $('#preRefresh').hide();
                         $('#refresh').show();
                         $.ajax({
                                    type: 'POST', url: "/updateSuccess"
                                });
+                    } else if (data === "Did not sync") {
+                        $('#backgroundRefreshMessage').show();
+                        $('#weightmsg-1').hide();
                     } else {
-                        $('#backgroundRefreshMessage').hide();
+                        clearInterval(checking);
                     }
-                    clearInterval(checking);
                 }
             })
         }, 1000);
