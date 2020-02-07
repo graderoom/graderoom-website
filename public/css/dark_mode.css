@@ -422,7 +422,7 @@ html {
     bottom: 0;
     left: 0;
     right: 0;
-    animation: sk-chase 2.5s infinite linear both;
+    animation: sk-chase 1.0s infinite linear both;
 }
 
 .sk-chase-dot {
@@ -445,7 +445,8 @@ html {
 }
 
 .mini:before {
-    background-color: green;
+    background-color: darkgreen;
+    animation: sk-chase-dot-before 1.5s infinite ease-in-out both;
 }
 
 .sk-chase-dot:nth-child(1) {
