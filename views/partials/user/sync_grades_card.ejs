@@ -17,43 +17,67 @@
                         <a class="close" onclick="closeMessage('updateGradesMessage')" aria-label="close">X</a>
                     </div>
                     <h1 class="card-title text-center">School Login</h1>
-                    <h5 class="text-center">Enter password for: </h5>
-                    <h5 id="schoolUsernameDisplay" class="school-username text-center"><%= schoolUsername %></h5>
-                    <br>
-                    <form id="syncGradesForm" class="form-signin" action="/update" method="post">
-                        <div class="form-group">
-                            <input name="school_password" type="password" id="inputPassword" class="form-control"
-                                   placeholder="School Password" required>
-                        </div>
-                        <div style="float: right" class="popup">
-                            <label style="cursor: pointer; text-align: left" onclick="toggleInputUserPasswordDisplay()">
-                                <input style="cursor: inherit"
-                                       id="savePasswordToggle"
-                                       type="checkbox"
-                                       name="savePassword"
-                                <% if (user.schoolPassword) { %> checked
-                                        <% } %>
-                                > GradeSync</label>
-                            <i class="fa fa-info-circle popup">
-                            <span class="popuptext" id="autosyncPopup">
+                    <% if (!user.schoolPassword) { %>
+                        <h5 class="text-center">Enter password for:</h5>
+                        <h5 id="schoolUsernameDisplay" class="school-username text-center"><%= schoolUsername %></h5>
+                        <br>
+                        <form id="syncGradesForm" class="form-signin" action="/update" method="post">
+                            <div class="form-group">
+                                <input name="school_password" type="password" id="inputPassword" class="form-control"
+                                       placeholder="School Password" required>
+                            </div>
+                            <div style="float: right" class="popup">
+                                <label style="cursor: pointer; text-align: left"
+                                       onclick="toggleInputUserPasswordDisplay()">
+                                    <input style="cursor: inherit"
+                                           id="savePasswordToggle"
+                                           type="checkbox"
+                                           name="savePassword"
+                                    <% if (user.schoolPassword) { %> checked
+                                            <% } %>
+                                    > SmartSync</label>
+                                <i class="fa fa-info-circle popup">
+                                    <span class="popuptext" id="smartSyncPopup">
+                                        <p>Graderoom will sync automatically whenever you login.</p>
+                                        You will still be able to manually sync at any time.
+                                    </span>
+                                </i>
+                            </div>
+                            <br><br>
+                            <div id="userPassword" class="form-group" style="display:none">
+                                <h6>Enter your Graderoom Password to enable SmartSync</h6>
+                                <input name="user_password" type="password" id="inputUserPassword" class="form-control"
+                                       placeholder="Graderoom Password">
+                            </div>
+                            <div class="text-center">
+                                <button id="smartSyncSubmit" class="btn btn-lg btn-default" type="submit"
+                                        onclick="ajaxPostForm('#syncGradesForm',['#inputPassword','#inputUserPassword'],'#updateGradesMessage')">
+                                    Sign In
+                                </button>
+                            </div>
+                        </form>
+                    <% } else { %>
+                        <form id="smartSyncGradesForm" class="form-signin" action="/update" method="post">
+                            <div class="form-group">
+                                <input name="user_password" type="password" id="smartSyncInputUserPassword"
+                                       class="form-control"
+                                       placeholder="Graderoom Password" required>
+                            </div>
+                            <div style="float: right" class="popup">
+                                <label class="text-center popup" style="align-self: flex-end">SmartSync Enabled</label>
+                                <i class="fa fa-info-circle popup">
+                            <span class="popuptext" id="smartSyncPopup">
                                 <p>Graderoom will sync automatically whenever you login.</p>
                                 You will still be able to manually sync at any time.
                             </span>
-                            </i>
-                        </div>
-                        <br><br>
-                        <div id="userPassword" class="form-group" style="display:none">
-                            <h6>Enter your Graderoom Password to enable GradeSync</h6>
-                            <input name="user_password" type="password" id="inputUserPassword" class="form-control"
-                                   placeholder="Graderoom Password">
-                        </div>
-                        <div class="text-center">
-                            <button id="autoSyncSubmit" class="btn btn-lg btn-default" type="submit"
-                                    onclick="ajaxPostForm('#syncGradesForm',['#inputPassword','#inputUserPassword'],'#updateGradesMessage')">
-                                Sign In
+                                </i>
+                            </div>
+                            <button class="btn btn-lg btn-default" type="submit"
+                                    onclick="ajaxPostForm('#smartSyncGradesForm',['#smartSyncInputUserPassword'],'#updateGradesMessage')">
+                                Log In
                             </button>
-                        </div>
-                    </form>
+                        </form>
+                    <% } %>
                 </div>
             </div>
         </div>
