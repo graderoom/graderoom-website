@@ -156,6 +156,10 @@ module.exports = {
         return user;
     },
 
+    updateGradesBackground: function(acc_username, school_password) {
+        this.updateGrades(acc_username, school_password).then(function () {console.log('finished')});
+    },
+
     updateGrades: async function (acc_username, school_password) {
         let lc_username = acc_username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});

@@ -45,19 +45,15 @@ module.exports = function (passport) {
                 return done(null, false, req.flash("loginMessage", "User Not Found."));
             }
 
-            bcrypt.compare(password, user.password, async function (err, res) {
-                if (res) {
-                    if (user.schoolPassword) {
-                        let resp = authent.decryptAndGet(user.username, password);
-                        let schoolPass = resp.message;
-                        await authent.updateGrades(user.username, schoolPass);
-                    }
-                    return done(null, user);
-                } else {
-                    return done(null, false, req.flash("loginMessage", "Incorrect Password."));
+            if (bcrypt.compareSync(password, user.password)) {
+                if (user.schoolPassword) {
+                    let resp = authent.decryptAndGet(user.username, password);
+                    let schoolPass = resp.message;
+                    authent.updateGradesBackground(user.username, schoolPass);
                 }
-            });
-
+                return done(null, user);
+            }
+            return done(null, false, req.flash("loginMessage", "Incorrect Password."));
         });
     }));
 };
