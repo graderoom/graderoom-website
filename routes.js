@@ -215,12 +215,32 @@ module.exports = function (app, passport) {
 
     app.post('/update', [ isLoggedIn], async function (req, res) {
 
-        let autosync = req.body.savePassword === 'on';
+        let smartSync = req.body.savePassword === 'on';
         let pass = req.body.school_password;
         let user = req.user.username;
-        if (autosync) {
+        let userPass = req.body.user_password;
+        if (smartSync) {
             let userPass = req.body.user_password;
-            await authenticator.encryptAndStore(user, pass, userPass);
+            let resp = authenticator.encryptAndStore(user, pass, userPass);
+            if (!resp.success) {
+                res.status(400).send(resp.message);
+                return;
+            }
+        }
+        if (userPass) {
+            let resp = authenticator.decryptAndGet(user, userPass);
+            if (!resp.success) {
+                if (smartSync) {
+                    let userPass = req.body.user_password;
+                    let resp = authenticator.encryptAndStore(user, pass, userPass);
+                    if (!resp.success) {
+                        res.status(400).send(resp.message);
+                        return;
+                    }
+                }
+                res.status(400).send(resp.message);
+                return;
+            }
         }
         let resp = await authenticator.updateGrades(req.user.username, pass);
         if (resp.success) {
