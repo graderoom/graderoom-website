@@ -45,27 +45,50 @@
 <!-- Main Screen -->
 <div class="container">
     <!-- Messages -->
+    <div style="display: none" id="backgroundRefreshMessage"
+         class="alert alert-success font-weight-bold">
+        <span style="display: flex;" id="preRefresh">
+            Syncing...
+            <div style="float: right" class="container" id="miniLoadingDisplay">
+                <div style="float: left" class="sk-chase-mini">
+                    <div class="sk-chase-dot mini"></div>
+                    <div class="sk-chase-dot mini"></div>
+                    <div class="sk-chase-dot mini"></div>
+                    <div class="sk-chase-dot mini"></div>
+                    <div class="sk-chase-dot mini"></div>
+                    <div class="sk-chase-dot mini"></div>
+                </div>
+            </div>
+        </span>
+        <span style="display: none;" id="refresh"> <u style="cursor: pointer"
+                                                      onclick="window.reload()">Refresh</u>
+             to see new updates.
+            <a class="close" data-dismiss="alert"
+               aria-label="close">X</a>
+        </span>
+    </div>
     <% var daysSinceUpdated = 0; %>
     <% if (user.alerts.lastUpdated.toString().toLowerCase() == ('never')) { %> <br>
     <div class="alert alert-success">
         <u style="cursor: pointer" onclick="$('#updateGradesDisplay').show(); $('#inputPassword').focus()">Sync your
             grades</u> now!
     </div>
-    <% } else { %> <% daysSinceUpdated = Math.floor((Date.now() - user.alerts.lastUpdated) / (1000 * 3600 * 24)); %> <% if ((user.alerts.updateGradesReminder.toLowerCase() == ('daily') && daysSinceUpdated >= 1) || (user.alerts.updateGradesReminder.toLowerCase() == 'weekly') && daysSinceUpdated >= 7) { %>
-        <br>
-        <div class="alert alert-danger alert-dismissible font-weight-bold">
-            <a class="close" data-dismiss="alert" aria-label="close">X</a> It's been <%= daysSinceUpdated %>
-            <% if (daysSinceUpdated == 1) { %>
-                day
-            <% } else { %> days
-            <% } %>
-            since you last synced your grades! <span
-                    style="float: right; display: flex"><u
-                        style="cursor: pointer; margin-right: 10px"
-                        onclick="$('#settingsCardDisplay').show(); openTab('Alerts')">Alert Settings</u><u
-                        style="cursor: pointer" onclick="$('#updateGradesDisplay').show()">Sync Grades</u></span>
-        </div>
-    <% } %>
+    <% } else { %>
+        <% daysSinceUpdated = Math.floor((Date.now() - user.alerts.lastUpdated) / (1000 * 3600 * 24)); %>
+        <% if ((user.alerts.updateGradesReminder.toLowerCase() == ('daily') && daysSinceUpdated >= 1) || (user.alerts.updateGradesReminder.toLowerCase() == 'weekly') && daysSinceUpdated >= 7) { %>
+            <div class="alert alert-danger alert-dismissible font-weight-bold">
+                <a class="close" data-dismiss="alert" aria-label="close">X</a> It's been <%= daysSinceUpdated %>
+                <% if (daysSinceUpdated == 1) { %>
+                    day
+                <% } else { %> days
+                <% } %>
+                since you last synced your grades! <span
+                        style="float: right; display: flex"><u
+                            style="cursor: pointer; margin-right: 10px"
+                            onclick="$('#settingsCardDisplay').show(); openTab('Alerts')">Alert Settings</u><u
+                            style="cursor: pointer" onclick="$('#updateGradesDisplay').show()">Sync Grades</u></span>
+            </div>
+        <% } %>
     <% } %>
     <% if (updateGradesMessageSuccess.length > 0) { %> <br>
     <div class="alert alert-success alert-dismissible">
@@ -75,7 +98,6 @@
     <div class="alert alert-danger alert-dismissible font-weight-bold">
         <a class="close" data-dismiss="alert" aria-label="close">X</a> <%= updateGradesMessageFail %>
     </div>
-    <% } else { %> <br>
     <% } %>
 
     <!-- <div class="alert alert-danger alert-dismissible" id="weightmsg" style="display:none">
@@ -96,7 +118,6 @@
                  style="position: relative; height:60vh; width: 100%; margin: 0 auto;">
                     <canvas id="chart-1" class="chart" style="width:50%; margin: 0;"></canvas>
             </div>
-            <hr>
             <table class="table text-center" id="table-1">
                 <thead><tr>
                     <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
@@ -221,6 +242,30 @@
     setupOverviewTable();
     updateWeightMessages();
     renderAllCharts();
+    checkUpdateBackground();
+
+    async function checkUpdateBackground() {
+        $('#backgroundRefreshMessage').show();
+        let checking = window.setInterval(function () {
+            $.get("/checkUpdateBackground", function (data, status) {
+                console.log(data, status);
+                if (status) {
+                    console.log(data);
+                    if (data === "Sync Complete!") {
+                        $('#backgroundRefreshMessage').show();
+                        $('#preRefresh').hide();
+                        $('#refresh').show();
+                        $.ajax({
+                                   type: 'POST', url: "/updateSuccess"
+                               });
+                    } else {
+                        $('#backgroundRefreshMessage').hide();
+                    }
+                    clearInterval(checking);
+                }
+            })
+        }, 1000);
+    }
 
     function setupOverallGrades() {
         for (let i = 0; i < data.length; i++) {

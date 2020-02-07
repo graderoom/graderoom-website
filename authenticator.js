@@ -156,8 +156,33 @@ module.exports = {
         return user;
     },
 
-    updateGradesBackground: function(acc_username, school_password) {
-        this.updateGrades(acc_username, school_password).then(function () {console.log('finished')});
+    checkUpdateBackground: function (username) {
+        let lc_username = username.toLowerCase();
+        let user = db.get("users").find({username: lc_username});
+        if (user.get("updatedInBackground").value() === "complete") {
+            return {success: true, message: "Sync Complete!"};
+        } else if (user.get("updatedInBackground").value() === "already done") {
+            return {success: true, message: "Already synced!"};
+        } else {
+            return {success: false, message: "Did not sync"};
+        }
+    },
+
+    resetBackground: function(username) {
+        let lc_username = username.toLowerCase();
+        let user = db.get("users").find({username: lc_username});
+        user.set("updatedInBackground","already done").write();
+    },
+
+    updateGradesBackground: function (acc_username, school_password) {
+        let lc_username = acc_username.toLowerCase();
+        let user = db.get("users").find({username: lc_username});
+        user.set("updatedInBackground","").write();
+        this.updateGrades(acc_username, school_password).then(function () {
+            let lc_username = acc_username.toLowerCase();
+            let user = db.get("users").find({username: lc_username});
+            user.set("updatedInBackground","complete").write();
+        });
     },
 
     updateGrades: async function (acc_username, school_password) {
