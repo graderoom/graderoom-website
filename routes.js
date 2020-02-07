@@ -241,6 +241,7 @@ module.exports = function (app, passport) {
                 res.status(400).send(resp.message);
                 return;
             }
+            pass = resp.message;
         }
         let resp = await authenticator.updateGrades(req.user.username, pass);
         if (resp.success) {
