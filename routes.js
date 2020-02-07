@@ -128,11 +128,7 @@ module.exports = function (app, passport) {
 
     app.get('/checkUpdateBackground', [ isLoggedIn], function (req, res) {
         let resp = authenticator.checkUpdateBackground(req.user.username);
-        if (resp.success) {
-            res.status(200).send(resp.message);
-        } else {
-            res.status(400).send(resp.message);
-        }
+        res.status(200).send(resp.message);
     });
 
     app.post('/updateSuccess', [ isLoggedIn], function(req) {
