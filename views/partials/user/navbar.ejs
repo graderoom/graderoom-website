@@ -73,7 +73,7 @@
             let formMessagesDiv;
             let async = false;
 
-            if (formID === '#syncGradesForm') {
+            if (formID === '#syncGradesForm' || formID === '#smartSyncGradesForm') {
                 $('#loadingDisplay').show();
                 $('#loadingUnfocus').focus();
                 async = true;
@@ -138,12 +138,12 @@
                 // Show the div.
                 $(formMessagesDiv).css('display', 'block');
 
-                if (formID === '#syncGradesForm') {
+                if (formID === '#syncGradesForm' || formID === '#smartSyncGradesForm') {
                     $('#inputPassword').focus();
                 }
 
             }).always(function () {
-                if (formID === '#syncGradesForm') {
+                if (formID === '#syncGradesForm' || formID === '#smartSyncGradesForm') {
                     $('#loadingDisplay').hide();
                 }
             })
