@@ -262,6 +262,7 @@
                                    type: 'POST', url: "/updateSuccess"
                                });
                         if (user.autoRefresh) {
+                            $('#backgroundRefreshMessage').hide();
                             window.reload();
                         } else {
                             $('#refresh').show();

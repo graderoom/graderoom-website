@@ -134,26 +134,36 @@
                         </div>
                         <div id="Other" class="tabcontent" style="display: none">
                             <form id="updateOther" class="form-signin" action="/updateOther" method="post">
-                                <label style="cursor: pointer"> <input id="darkModeToggle" type="checkbox"
-                                                                       name="darkMode"
-                                    <% if (user.appearance.darkMode) { %> checked
-                                            <% } %>
-                                    > Dark Mode</label>
+                                <div class="card-footer">
+                                    <h5>Theme</h5>
+                                    <label style="cursor: pointer"> <input id="darkModeToggle" type="checkbox"
+                                                                           name="darkMode"
+                                        <% if (user.appearance.darkMode) { %> checked
+                                                <% } %>
+                                        > Dark Mode</label>
+                                </div>
                                 <% if (user.schoolPassword) { %>
-                                    <br>
-                                    <label style="cursor: pointer">
-                                        <input id="gradeSyncToggle" type="checkbox" name="gradeSync"
-                                        <% if (user.schoolPassword) { %> checked
-                                                <% } %>
-                                        > GradeSync
-                                    </label>
-                                    <br>
-                                    <label style="cursor: pointer">
-                                        <input id="autoRefreshToggle" type="checkbox" name="autoRefresh"
-                                        <% if (user.autoRefresh) { %> checked
-                                                <% } %>
-                                        > Auto-Refresh
-                                    </label>
+                                    <div class="card-footer">
+                                        <h5>GradeSync</h5>
+                                        <label style="cursor: pointer">
+                                            <input id="gradeSyncToggle" type="checkbox" name="gradeSync"
+                                            <% if (user.schoolPassword) { %> checked
+                                                    <% } %>
+                                            > Enable
+                                        </label>
+                                        <br>
+                                        <label style="cursor: pointer; text-align: left" class="popup">
+                                            <input id="autoRefreshToggle" type="checkbox" name="autoRefresh"
+                                            <% if (user.autoRefresh) { %> checked
+                                                    <% } %>
+                                            > Auto-Refresh
+                                            <i class="fa fa-info-circle popup">
+                                                <span class="popuptext">
+                                                    After GradeSync is complete, Graderoom will refresh automatically to display the most recent data.
+                                                </span>
+                                            </i>
+                                        </label>
+                                    </div>
                                 <% } %>
                                 <button type="submit" class="btn btn-default btn-lg">
                                     Apply
