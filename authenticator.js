@@ -108,13 +108,17 @@ module.exports = {
             return {success: false, message: "Login Failed"};
         }
 
-    }, changePassword: function (username, password) {
+    }, changePassword: function (username, oldPassword, newPassword) {
         let lc_username = username.toLowerCase();
-        if (password.length < 6 || password.length > 64) {
-            return {success: false, message: "Password must be 6 - 64 characters in length."};
+        if (!this.login(username, oldPassword).success) {
+            return {success: false, message: "Old Password is Incorrect"}
         }
+        if (newPassword.length < 6 || newPassword.length > 64) {
+            return {success: false, message: "New Password must be 6 - 64 characters in length."};
+        }
+        this.encryptAndStore(username, this.decryptAndGet(username, oldPassword), newPassword);
         let roundsToGenerateSalt = 10;
-        bcrypt.hash(password, roundsToGenerateSalt, function (err, hash) {
+        bcrypt.hash(newPassword, roundsToGenerateSalt, function (err, hash) {
             db.get("users").find({username: lc_username}).assign({password: hash}).write();
         });
         return {success: true, message: "Password Updated"};
