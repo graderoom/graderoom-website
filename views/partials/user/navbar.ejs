@@ -61,7 +61,7 @@
 
 <!-- Custom JavaScript -->
 <script>
-    function ajaxPostForm(formID, fieldIDsToClear, messagesDivID) {
+    function ajaxPostForm(formID, fieldIDsToClear, messagesDivID, async) {
         // Get the form.
         let form = $(formID);
         $(form).submit(function (event) {
@@ -71,12 +71,10 @@
             let formData;
             let message;
             let formMessagesDiv;
-            let async = false;
 
             if (formID === '#syncGradesForm' || formID === '#gradeSyncForm') {
                 $('#loadingDisplay').show();
                 $('#loadingUnfocus').focus();
-                async = true;
             }
 
             // Different behavior for class colors

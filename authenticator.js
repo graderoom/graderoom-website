@@ -108,19 +108,25 @@ module.exports = {
             return {success: false, message: "Login Failed"};
         }
 
-    }, changePassword: function (username, oldPassword, newPassword) {
+    }, changePassword: async function (username, oldPassword, newPassword) {
         let lc_username = username.toLowerCase();
         if (!this.login(username, oldPassword).success) {
-            return {success: false, message: "Old Password is Incorrect"}
+            return {success: false, message: "Old Password is Incorrect"};
         }
         if (newPassword.length < 6 || newPassword.length > 64) {
             return {success: false, message: "New Password must be 6 - 64 characters in length."};
         }
-        this.encryptAndStore(username, this.decryptAndGet(username, oldPassword).message, newPassword);
+        let user = db.get("users").find({username: lc_username});
+        let schoolPass;
+        if (user.get("schoolPassword").value()) {
+            schoolPass = this.decryptAndGet(username, oldPassword).message;
+        }
         let roundsToGenerateSalt = 10;
-        bcrypt.hash(newPassword, roundsToGenerateSalt, function (err, hash) {
-            db.get("users").find({username: lc_username}).assign({password: hash}).write();
-        });
+        let hashedPass = bcrypt.hashSync(newPassword, roundsToGenerateSalt);
+        user.assign({password: hashedPass}).write();
+        if (schoolPass) {
+            this.encryptAndStore(username, schoolPass, newPassword);
+        }
         return {success: true, message: "Password Updated"};
     }, changeSchoolEmail: function (username, schoolUsername) {
         let lc_username = username.toLowerCase();
@@ -172,19 +178,19 @@ module.exports = {
         }
     },
 
-    resetBackground: function(username) {
+    resetBackground: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
-        user.set("updatedInBackground","already done").write();
+        user.set("updatedInBackground", "already done").write();
     },
 
-    disableGradeSync: function(username) {
+    disableGradeSync: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         user.unset("schoolPassword").write();
     },
 
-    setAutoRefresh: function(username, autoRefresh) {
+    setAutoRefresh: function (username, autoRefresh) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         user.set("autoRefresh", autoRefresh).write();
@@ -193,11 +199,11 @@ module.exports = {
     updateGradesBackground: function (acc_username, school_password) {
         let lc_username = acc_username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
-        user.set("updatedInBackground","").write();
+        user.set("updatedInBackground", "").write();
         this.updateGrades(acc_username, school_password).then(function () {
             let lc_username = acc_username.toLowerCase();
             let user = db.get("users").find({username: lc_username});
-            user.set("updatedInBackground","complete").write();
+            user.set("updatedInBackground", "complete").write();
         });
     },
 
@@ -215,7 +221,7 @@ module.exports = {
         userRef.assign({grades: grade_update_status.new_grades}).write();
         this.setRandomClassColors(lc_username, lockedColorIndices);
         userRef.get("alerts").set("lastUpdated", Date.now()).write();
-        userRef.set("updatedInBackground","already done").write();
+        userRef.set("updatedInBackground", "already done").write();
         return {success: true, message: "Updated grades!"};
     },
 
