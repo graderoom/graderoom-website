@@ -241,33 +241,26 @@ module.exports = function (app, passport) {
         let pass = req.body.school_password;
         let user = req.user.username;
         let userPass = req.body.user_password;
-        if (gradeSync) {
-            let userPass = req.body.user_password;
-            let resp = authenticator.encryptAndStore(user, pass, userPass);
-            if (!resp.success) {
-                res.status(400).send(resp.message);
-                return;
-            }
-        }
         if (userPass) {
-            let resp = authenticator.decryptAndGet(user, userPass);
-            if (!resp.success) {
-                if (gradeSync) {
-                    let userPass = req.body.user_password;
-                    let resp = authenticator.encryptAndStore(user, pass, userPass);
-                    if (!resp.success) {
-                        res.status(400).send(resp.message);
-                        return;
-                    }
+            if (!gradeSync) {
+                let resp = authenticator.decryptAndGet(user, userPass);
+                if (resp.success) {
+                    pass = resp.message;
+                } else {
+                    res.status(400).send(resp.message);
+                    return;
                 }
-                res.status(400).send(resp.message);
-                return;
             }
-            pass = resp.message;
         }
         let resp = await authenticator.updateGrades(req.user.username, pass);
         if (resp.success) {
             if (gradeSync) {
+                let userPass = req.body.user_password;
+                let encryptResp = authenticator.encryptAndStore(user, pass, userPass);
+                if (!encryptResp.success) {
+                    res.status(400).send(encryptResp.message);
+                    return;
+                }
                 res.status(200).send("GradeSync Enabled. " + resp.message);
             } else {
                 res.status(200).send(resp.message);

@@ -242,7 +242,9 @@
     setupWeightsTables();
     setupOverviewTable();
     updateWeightMessages();
-    renderAllCharts();
+    if (user.alerts.lastUpdated !== "never") {
+        renderAllCharts();
+    }
     if (user.schoolPassword) {
         $('#syncGradesDiv').hide();
         $('#gradeSyncDiv').show();

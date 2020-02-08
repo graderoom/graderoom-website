@@ -215,6 +215,7 @@ module.exports = {
         userRef.assign({grades: grade_update_status.new_grades}).write();
         this.setRandomClassColors(lc_username, lockedColorIndices);
         userRef.get("alerts").set("lastUpdated", Date.now()).write();
+        userRef.set("updatedInBackground","already done").write();
         return {success: true, message: "Updated grades!"};
     },
 
