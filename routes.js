@@ -156,8 +156,9 @@ module.exports = function (app, passport) {
 
     app.post("/changepassword", [isLoggedIn], (req, res) => {
 
+        let old_pass = req.body.oldPass;
         let new_pass = req.body.password;
-        let resp = authenticator.changePassword(req.user.username, new_pass);
+        let resp = authenticator.changePassword(req.user.username, old_pass, new_pass);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
