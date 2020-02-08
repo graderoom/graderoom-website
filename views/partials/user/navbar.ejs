@@ -151,8 +151,8 @@
                 if (formID === '#syncGradesForm' || formID === '#gradeSyncForm') {
                     $('#loadingDisplay').hide();
                 }
-            })
-        })
+            });
+        });
     }
 
     function closeForm(id) {
@@ -170,21 +170,32 @@
         // Manage darkMode checkbox, if it exists
         try {
             let darkModeCheckbox = document.getElementById('darkModeToggle');
-            if (document.getElementById('getUser').value && !darkModeCheckbox.checked) {
+            if (user.appearance.darkMode && !darkModeCheckbox.checked) {
                 darkModeCheckbox.checked = true;
-            } else if (!document.getElementById('getUser').value && darkModeCheckbox.checked) {
+            } else if (!user.appearance.darkMode && darkModeCheckbox.checked) {
                 darkModeCheckbox.checked = false;
             }
         } catch {
         }
 
-        // Manage autosync checkbox, if it exists
+        // Manage gradeSync checkbox, if it exists
         try {
-            let autosyncCheckbox = document.getElementById('savePasswordToggle');
-            if (document.getElementById('getUser').value && !autosyncCheckbox.checked) {
-                autosyncCheckbox.checked = true;
-            } else if (!document.getElementById('getUser').value && autosyncCheckbox.checked) {
-                autosyncCheckbox.checked = false;
+            let gradeSync = document.getElementById('gradeSyncToggle');
+            if (user.schoolPassword && !gradeSync.checked) {
+                gradeSync.checked = true;
+            } else if (!uesr.schoolPassword && gradeSync.checked) {
+                gradeSync.checked = false;
+            }
+        } catch {
+        }
+
+        // Manage autoRefresh checkbox, if it exists
+        try {
+            let autoRefresh = document.getElementById('autoRefreshToggle');
+            if (user.autoRefresh && !autoRefresh.checked) {
+                autoRefresh.checked = true;
+            } else if (!user.autoRefresh && autoRefresh.checked) {
+                autoRefresh.checked = false;
             }
         } catch {
         }
