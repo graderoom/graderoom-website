@@ -17,7 +17,7 @@
                         <a class="close" onclick="closeMessage('updateGradesMessage')" aria-label="close">X</a>
                     </div>
                     <h1 class="card-title text-center">School Login</h1>
-                    <% if (!user.schoolPassword) { %>
+                    <div id="syncGradesDiv" style="display: none">
                         <h5 class="text-center">Enter password for:</h5>
                         <h5 id="schoolUsernameDisplay" class="school-username text-center"><%= schoolUsername %></h5>
                         <br>
@@ -35,9 +35,9 @@
                                            name="savePassword"
                                     <% if (user.schoolPassword) { %> checked
                                             <% } %>
-                                    > SmartSync</label>
+                                    > GradeSync</label>
                                 <i class="fa fa-info-circle popup">
-                                    <span class="popuptext" id="smartSyncPopup">
+                                    <span class="popuptext">
                                         <p>Graderoom will sync automatically whenever you login.</p>
                                         You will still be able to manually sync at any time.
                                     </span>
@@ -45,39 +45,41 @@
                             </div>
                             <br><br>
                             <div id="userPassword" class="form-group" style="display:none">
-                                <h6>Enter your Graderoom Password to enable SmartSync</h6>
+                                <h6>Enter your Graderoom Password to enable GradeSync</h6>
                                 <input name="user_password" type="password" id="inputUserPassword" class="form-control"
                                        placeholder="Graderoom Password">
                             </div>
                             <div class="text-center">
-                                <button id="smartSyncSubmit" class="btn btn-lg btn-default" type="submit"
+                                <button class="btn btn-lg btn-default" type="submit"
                                         onclick="ajaxPostForm('#syncGradesForm',['#inputPassword','#inputUserPassword'],'#updateGradesMessage')">
                                     Sign In
                                 </button>
                             </div>
                         </form>
-                    <% } else { %>
-                        <form id="smartSyncGradesForm" class="form-signin" action="/update" method="post">
+                    </div>
+                    <div id="gradeSyncDiv" style="display: none">
+                        <form id="gradeSyncForm" class="form-signin" action="/update" method="post">
                             <div class="form-group">
-                                <input name="user_password" type="password" id="smartSyncInputUserPassword"
+                                <input name="user_password" type="password" id="gradeSyncInputUserPassword"
                                        class="form-control"
                                        placeholder="Graderoom Password" required>
                             </div>
                             <div style="float: right" class="popup">
-                                <label class="text-center popup" style="align-self: flex-end">SmartSync Enabled</label>
+                                <label class="text-center popup" style="align-self: flex-end">GradeSync Enabled</label>
                                 <i class="fa fa-info-circle popup">
-                            <span class="popuptext" id="smartSyncPopup">
+                            <span class="popuptext">
                                 <p>Graderoom will sync automatically whenever you login.</p>
-                                You will still be able to manually sync at any time.
+                                <p>You will still be able to manually sync at any time.</p>
+                                You can disable GradeSync in settings.
                             </span>
                                 </i>
                             </div>
                             <button class="btn btn-lg btn-default" type="submit"
-                                    onclick="ajaxPostForm('#smartSyncGradesForm',['#smartSyncInputUserPassword'],'#updateGradesMessage')">
+                                    onclick="ajaxPostForm('#gradeSyncForm',['#gradeSyncInputUserPassword'],'#updateGradesMessage')">
                                 Log In
                             </button>
                         </form>
-                    <% } %>
+                    </div>
                 </div>
             </div>
         </div>

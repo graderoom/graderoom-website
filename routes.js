@@ -135,10 +135,17 @@ module.exports = function (app, passport) {
         authenticator.resetBackground(req.user.username);
     });
 
-    app.post('/updateappearance', [ isLoggedIn], (req, res) => {
+    app.post('/updateOther', [ isLoggedIn], (req, res) => {
         let darkMode;
         darkMode = req.body.darkMode === 'on';
-        authenticator.setMode(req.user.username, darkMode);
+        if (darkMode) {
+            authenticator.setMode(req.user.username, darkMode);
+        }
+        let gradeSync;
+        gradeSync = req.body.gradeSync === 'on';
+        if (!gradeSync) {
+            authenticator.disableGradeSync(req.user.username);
+        }
         res.redirect('/');
     });
 
@@ -224,11 +231,11 @@ module.exports = function (app, passport) {
 
     app.post('/update', [ isLoggedIn], async function (req, res) {
 
-        let smartSync = req.body.savePassword === 'on';
+        let gradeSync = req.body.savePassword === 'on';
         let pass = req.body.school_password;
         let user = req.user.username;
         let userPass = req.body.user_password;
-        if (smartSync) {
+        if (gradeSync) {
             let userPass = req.body.user_password;
             let resp = authenticator.encryptAndStore(user, pass, userPass);
             if (!resp.success) {
@@ -239,7 +246,7 @@ module.exports = function (app, passport) {
         if (userPass) {
             let resp = authenticator.decryptAndGet(user, userPass);
             if (!resp.success) {
-                if (smartSync) {
+                if (gradeSync) {
                     let userPass = req.body.user_password;
                     let resp = authenticator.encryptAndStore(user, pass, userPass);
                     if (!resp.success) {
@@ -254,7 +261,11 @@ module.exports = function (app, passport) {
         }
         let resp = await authenticator.updateGrades(req.user.username, pass);
         if (resp.success) {
-            res.status(200).send(resp.message);
+            if (gradeSync) {
+                res.status(200).send('GradeSync Enabled. ' + resp.message);
+            } else {
+                res.status(200).send(resp.message);
+            }
         } else {
             res.status(400).send(resp.message);
         }

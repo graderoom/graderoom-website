@@ -62,7 +62,8 @@
         </span>
         <span style="display: none;" id="refresh"> <u style="cursor: pointer"
                                                       onclick="window.reload()">Refresh</u>
-             to see new updates.
+             to see new updates or <u
+                    onclick="$('#settingsCardDisplay').show(); openTab('Advanced'); openSubTab('GradeSync');">turn on auto-refresh</u>.
             <a class="close" data-dismiss="alert"
                aria-label="close">X</a>
         </span>
@@ -242,7 +243,14 @@
     setupOverviewTable();
     updateWeightMessages();
     renderAllCharts();
-    checkUpdateBackground();
+    if (user.schoolPassword) {
+        $('#syncGradesDiv').hide();
+        $('#gradeSyncDiv').show();
+        checkUpdateBackground();
+    } else {
+        $('#gradeSyncDiv').hide();
+        $('#syncGradesDiv').show();
+    }
 
     async function checkUpdateBackground() {
         let checking = window.setInterval(function () {
