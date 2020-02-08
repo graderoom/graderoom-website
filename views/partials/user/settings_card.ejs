@@ -145,7 +145,15 @@
                                         <input id="gradeSyncToggle" type="checkbox" name="gradeSync"
                                         <% if (user.schoolPassword) { %> checked
                                                 <% } %>
-                                        > GradeSync</label>
+                                        > GradeSync
+                                    </label>
+                                    <br>
+                                    <label style="cursor: pointer">
+                                        <input id="autoRefreshToggle" type="checkbox" name="autoRefresh"
+                                        <% if (user.autoRefresh) { %> checked
+                                                <% } %>
+                                        > Auto-Refresh
+                                    </label>
                                 <% } %>
                                 <button type="submit" class="btn btn-default btn-lg">
                                     Apply

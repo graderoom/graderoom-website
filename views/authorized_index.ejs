@@ -255,15 +255,17 @@
     async function checkUpdateBackground() {
         let checking = window.setInterval(function () {
             $.get("/checkUpdateBackground", function (data, status) {
-                console.log(data, status);
                 if (status === "success") {
-                    console.log(data);
                     if (data === "Sync Complete!") {
                         $('#preRefresh').hide();
-                        $('#refresh').show();
                         $.ajax({
                                    type: 'POST', url: "/updateSuccess"
                                });
+                        if (user.autoRefresh) {
+                            window.reload();
+                        } else {
+                            $('#refresh').show();
+                        }
                     } else if (data === "Did not sync") {
                         $('#backgroundRefreshMessage').show();
                         $('#weightmsg-1').hide();
