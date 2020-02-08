@@ -15,10 +15,10 @@
                 </div>
                 <div class="tab">
                     <btn id="btnAccount" class="tablinks active" onclick="openTab('Account')">Account</btn>
-                    <btn id="btnAppearance" class="tablinks"
-                         onclick="openTab('Appearance'); openSubTab('Appearance','Class Colors')">Appearance
-                    </btn>
                     <btn id="btnAlerts" class="tablinks" onclick="openTab('Alerts')">Alerts</btn>
+                    <btn id="btnAdvanced" class="tablinks"
+                         onclick="openTab('Advanced'); openSubTab('Advanced','Class Colors')">Advanced
+                    </btn>
                     <btn id="btnFeedback" class="tablinks" onclick="openTab('Feedback')">Feedback</btn>
                 </div>
                 <div id="Account" class="tabcontent" style="display:block">
@@ -57,58 +57,6 @@
                         </form>
                     </div>
                 </div>
-                <div id="Appearance" class="tabcontent" style="display:none">
-                    <div class="card-body" style="cursor: default">
-                        <div class="tab" style="width: ">
-                            <btn id="btnClass Colors" class="tablinks"
-                                 onclick="openSubTab('Appearance','Class Colors')">Class Colors
-                            </btn>
-                            <btn id="btnTheme" class="tablinks" onclick="openSubTab('Appearance','Theme')">Theme</btn>
-                        </div>
-                        <div id="Class Colors" class="tabcontent" style="display:block">
-                            <h6>Click a color to lock or unlock it</h6>
-                            <form id="randomizeClassColors" class="form-signin" action="/randomizeclasscolors"
-                                  method="post">
-                                <% for (var i = 0; i < user.grades.length; i++) { %>
-                                    <label id="classColor<%= i %>"
-                                           style="font-size: larger; font-weight: bolder; cursor: pointer; color: <%= user.appearance.classColors[i] %>">
-                                        <i id="lock<%= i %>" class="fa fa-lock" aria-hidden="true"></i> <label
-                                                style="cursor: pointer"
-                                                onclick="toggleColor(<%= i %>)"><%- user.grades[i].class_name %></label>
-                                    </label>
-                                <% } %>
-                                <div style="display: flex">
-                                    <button onclick="lockAllColors()" class="btn btn-default btn-lg" type="button">Lock
-                                        All
-                                    </button>
-                                    <button onclick="unlockAllColors()" class="btn btn-default btn-lg" type="button">
-                                        Unlock All
-                                    </button>
-                                    <button onclick="ajaxPostForm('#randomizeClassColors',[],<%= user.grades.length %>)"
-                                            type="submit" class="btn btn-default btn-lg">
-                                        Randomize
-                                    </button>
-                                </div>
-                                <button onclick="reload()" type="button" class="btn btn-default btn-lg">
-                                    Apply
-                                </button>
-                            </form>
-                        </div>
-                        <div id="Theme" class="tabcontent" style="display: none">
-                            <h3>Overall Appearance</h3>
-                            <form id="updateAppearance" class="form-signin" action="/updateappearance" method="post">
-                                <label style="cursor: pointer"> <input id="darkModeToggle" type="checkbox"
-                                                                       name="darkMode"
-                                    <% if (user.appearance.darkMode) { %> checked
-                                            <% } %>
-                                    >Dark Mode </label>
-                                <button type="submit" class="btn btn-default btn-lg">
-                                    Apply
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
                 <div id="Alerts" class="tabcontent">
                     <div class="card-body">
                         <div id="alertSettingsMessage" class="alert alert alert-success alert-dismissible"
@@ -145,6 +93,65 @@
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+                <div id="Advanced" class="tabcontent" style="display:none">
+                    <div class="card-body" style="cursor: default">
+                        <div class="tab">
+                            <btn id="btnClass Colors" class="tablinks"
+                                 onclick="openSubTab('Advanced','Class Colors')">Class Colors
+                            </btn>
+                            <btn id="btnOther" class="tablinks" onclick="openSubTab('Advanced','Other')">Other</btn>
+                        </div>
+                        <div id="Class Colors" class="tabcontent" style="display:block">
+                            <h6>Click a color to lock or unlock it</h6>
+                            <form id="randomizeClassColors" class="form-signin" action="/randomizeclasscolors"
+                                  method="post">
+                                <% for (var i = 0; i < user.grades.length; i++) { %>
+                                    <label id="classColor<%= i %>"
+                                           style="font-size: larger; font-weight: bolder; cursor: pointer; color: <%= user.appearance.classColors[i] %>">
+                                        <i id="lock<%= i %>" class="fa fa-lock" aria-hidden="true"></i> <label
+                                                style="cursor: pointer"
+                                                onclick="toggleColor(<%= i %>)"><%- user.grades[i].class_name %></label>
+                                    </label>
+                                <% } %>
+                                <div style="display: flex">
+                                    <button onclick="lockAllColors()" class="btn btn-default btn-lg" type="button">Lock
+                                        All
+                                    </button>
+                                    <button onclick="unlockAllColors()" class="btn btn-default btn-lg" type="button">
+                                        Unlock All
+                                    </button>
+                                    <button onclick="ajaxPostForm('#randomizeClassColors',[],<%= user.grades.length %>)"
+                                            type="submit" class="btn btn-default btn-lg">
+                                        Randomize
+                                    </button>
+                                </div>
+                                <button onclick="reload()" type="button" class="btn btn-default btn-lg">
+                                    Apply
+                                </button>
+                            </form>
+                        </div>
+                        <div id="Other" class="tabcontent" style="display: none">
+                            <form id="updateOther" class="form-signin" action="/updateOther" method="post">
+                                <label style="cursor: pointer"> <input id="darkModeToggle" type="checkbox"
+                                                                       name="darkMode"
+                                    <% if (user.appearance.darkMode) { %> checked
+                                            <% } %>
+                                    > Dark Mode</label>
+                                <% if (user.schoolPassword) { %>
+                                    <br>
+                                    <label style="cursor: pointer">
+                                        <input id="gradeSyncToggle" type="checkbox" name="gradeSync"
+                                        <% if (user.schoolPassword) { %> checked
+                                                <% } %>
+                                        > GradeSync</label>
+                                <% } %>
+                                <button type="submit" class="btn btn-default btn-lg">
+                                    Apply
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
                 <div id="Feedback" class="tabcontent">

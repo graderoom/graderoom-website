@@ -174,6 +174,12 @@ module.exports = {
         user.set("updatedInBackground","already done").write();
     },
 
+    disableGradeSync: function(username) {
+        let lc_username = username.toLowerCase();
+        let user = db.get("users").find({username: lc_username});
+        user.unset("schoolPassword").write();
+    },
+
     updateGradesBackground: function (acc_username, school_password) {
         let lc_username = acc_username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
