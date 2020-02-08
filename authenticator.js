@@ -116,7 +116,7 @@ module.exports = {
         if (newPassword.length < 6 || newPassword.length > 64) {
             return {success: false, message: "New Password must be 6 - 64 characters in length."};
         }
-        this.encryptAndStore(username, this.decryptAndGet(username, oldPassword), newPassword);
+        this.encryptAndStore(username, this.decryptAndGet(username, oldPassword).message, newPassword);
         let roundsToGenerateSalt = 10;
         bcrypt.hash(newPassword, roundsToGenerateSalt, function (err, hash) {
             db.get("users").find({username: lc_username}).assign({password: hash}).write();
