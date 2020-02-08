@@ -154,11 +154,11 @@ module.exports = function (app, passport) {
         res.redirect("/");
     });
 
-    app.post("/changepassword", [isLoggedIn], (req, res) => {
+    app.post("/changepassword", [isLoggedIn], async function (req, res) {
 
         let old_pass = req.body.oldPass;
         let new_pass = req.body.password;
-        let resp = authenticator.changePassword(req.user.username, old_pass, new_pass);
+        let resp = await authenticator.changePassword(req.user.username, old_pass, new_pass);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
@@ -255,7 +255,6 @@ module.exports = function (app, passport) {
         let resp = await authenticator.updateGrades(req.user.username, pass);
         if (resp.success) {
             if (gradeSync) {
-                let userPass = req.body.user_password;
                 let encryptResp = authenticator.encryptAndStore(user, pass, userPass);
                 if (!encryptResp.success) {
                     res.status(400).send(encryptResp.message);

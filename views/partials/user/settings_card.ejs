@@ -30,12 +30,14 @@
                         </div>
                         <form id="changePassword" class="card-footer form-signin" action="/changepassword" method="post">
                             <div class="form-group">
-                                <label>Change Password</label> <input id="password" type="password" class="form-control"
-                                                                      name="password">
+                                <label>Change Password</label>
+                                <input id="oldPassword" type="password" class="form-control" name="oldPass" placeholder="Old Password" required>
+                                <input id="password" type="password" class="form-control"
+                                                                      name="password" placeholder="New Password" required>
                             </div>
                             <div class="text-center">
                                 <button type="submit"
-                                        onclick="ajaxPostForm('#changePassword',['#password'],'#accountSettingsMessage')"
+                                        onclick="ajaxPostForm('#changePassword',['#oldPassword','#password'],'#accountSettingsMessage', true)"
                                         class="btn btn-default btn-lg">
                                     Change Password
                                 </button>
@@ -45,11 +47,11 @@
                               action="/changeschoolemail" method="post">
                             <div class="form-group">
                                 <label>Change School Email</label> <input id="school_email" type="text"
-                                                                          class="form-control" name="school_email">
+                                                                          class="form-control" name="school_email" required>
                             </div>
                             <div class="text-center">
                                 <button type="submit"
-                                        onclick="ajaxPostForm('#changeSchoolEmail',['#school_email'],'#accountSettingsMessage'); updateSchoolUsernameDisplay()"
+                                        onclick="ajaxPostForm('#changeSchoolEmail',['#school_email'],'#accountSettingsMessage', false); updateSchoolUsernameDisplay()"
                                         class="btn btn-default btn-lg">
                                     Change School Email
                                 </button>
@@ -87,7 +89,7 @@
                             </div>
                             <div class="text-center">
                                 <button type="submit"
-                                        onclick="ajaxPostForm('#changeAlertSettings',[],'#alertSettingsMessage'); updateSchoolUsernameDisplay()"
+                                        onclick="ajaxPostForm('#changeAlertSettings',[],'#alertSettingsMessage', false); updateSchoolUsernameDisplay()"
                                         class="btn btn-default btn-lg">
                                     Save
                                 </button>
@@ -122,7 +124,7 @@
                                     <button onclick="unlockAllColors()" class="btn btn-default btn-lg" type="button">
                                         Unlock All
                                     </button>
-                                    <button onclick="ajaxPostForm('#randomizeClassColors',[],<%= user.grades.length %>)"
+                                    <button onclick="ajaxPostForm('#randomizeClassColors',[],<%= user.grades.length %>, false)"
                                             type="submit" class="btn btn-default btn-lg">
                                         Randomize
                                     </button>
