@@ -170,19 +170,10 @@ module.exports = {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         if (user.get("updatedInBackground").value() === "complete") {
-            this.resetBackground(username);
             return {success: true, message: "Sync Complete!"};
-        } else if (user.get("updatedInBackground").value() === "already done") {
-            return {success: true, message: "Already synced!"};
         } else {
             return {success: false, message: "Did not sync"};
         }
-    },
-
-    resetBackground: function (username) {
-        let lc_username = username.toLowerCase();
-        let user = db.get("users").find({username: lc_username});
-        user.set("updatedInBackground", "already done").write();
     },
 
     disableGradeSync: function (username) {

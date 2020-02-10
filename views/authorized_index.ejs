@@ -258,7 +258,7 @@
         let checking = window.setInterval(function () {
             $.get("/checkUpdateBackground", function (data, status) {
                 if (status === "success") {
-                    if (data === "Sync Complete!" || data === "Already synced!") {
+                    if (data === "Sync Complete!") {
                         $('#preRefresh').hide();
                         if (user.autoRefresh) {
                             $('#backgroundRefreshMessage').hide();
