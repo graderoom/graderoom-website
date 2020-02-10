@@ -258,22 +258,18 @@
         let checking = window.setInterval(function () {
             $.get("/checkUpdateBackground", function (data, status) {
                 if (status === "success") {
-                    if (data === "Sync Complete!") {
+                    if (data === "Sync Complete!" || data === "Already synced!") {
                         $('#preRefresh').hide();
-                        $.ajax({
-                                   type: 'POST', url: "/updateSuccess"
-                               });
                         if (user.autoRefresh) {
                             $('#backgroundRefreshMessage').hide();
                             window.reload();
                         } else {
                             $('#refresh').show();
                         }
+                        clearInterval(checking);
                     } else if (data === "Did not sync") {
                         $('#backgroundRefreshMessage').show();
                         $('#weightmsg-1').hide();
-                    } else {
-                        clearInterval(checking);
                     }
                 }
             })
