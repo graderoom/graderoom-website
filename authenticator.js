@@ -170,6 +170,7 @@ module.exports = {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         if (user.get("updatedInBackground").value() === "complete") {
+            this.resetBackground(username);
             return {success: true, message: "Sync Complete!"};
         } else if (user.get("updatedInBackground").value() === "already done") {
             return {success: true, message: "Already synced!"};

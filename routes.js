@@ -131,10 +131,6 @@ module.exports = function (app, passport) {
         res.status(200).send(resp.message);
     });
 
-    app.post("/updateSuccess", [isLoggedIn], function (req) {
-        authenticator.resetBackground(req.user.username);
-    });
-
     app.post("/updateOther", [isLoggedIn], (req, res) => {
         let darkMode;
         darkMode = req.body.darkMode === "on";
