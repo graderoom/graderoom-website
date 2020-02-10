@@ -166,6 +166,12 @@ module.exports = {
         return user;
     },
 
+    setComplete: function (username) {
+        let lc_username = username.toLowerCase();
+        let user = db.get("users").find({username: lc_username});
+        user.set("updatedInBackground","complete");
+    },
+
     checkUpdateBackground: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
@@ -213,7 +219,7 @@ module.exports = {
         userRef.assign({grades: grade_update_status.new_grades}).write();
         this.setRandomClassColors(lc_username, lockedColorIndices);
         userRef.get("alerts").set("lastUpdated", Date.now()).write();
-        userRef.set("updatedInBackground", "already done").write();
+        userRef.set("updatedInBackground", "complete").write();
         return {success: true, message: "Updated grades!"};
     },
 
