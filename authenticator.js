@@ -166,17 +166,14 @@ module.exports = {
         return user;
     },
 
-    setComplete: function (username) {
-        let lc_username = username.toLowerCase();
-        let user = db.get("users").find({username: lc_username});
-        user.set("updatedInBackground","complete");
-    },
-
     checkUpdateBackground: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         if (user.get("updatedInBackground").value() === "complete") {
+            user.set("updatedInBackground","already done").write();
             return {success: true, message: "Sync Complete!"};
+        } else if (user.get("updatedInBackground").value() === "already done") {
+            return {success: true, message: "Already Synced!"};
         } else {
             return {success: false, message: "Did not sync"};
         }
@@ -219,7 +216,7 @@ module.exports = {
         userRef.assign({grades: grade_update_status.new_grades}).write();
         this.setRandomClassColors(lc_username, lockedColorIndices);
         userRef.get("alerts").set("lastUpdated", Date.now()).write();
-        userRef.set("updatedInBackground", "complete").write();
+        userRef.set("updatedInBackground", "already done").write();
         return {success: true, message: "Updated grades!"};
     },
 

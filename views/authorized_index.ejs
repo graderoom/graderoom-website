@@ -267,6 +267,8 @@
                             $('#refresh').show();
                         }
                         clearInterval(checking);
+                    } else if (data === "Already Synced!") {
+                        clearInterval(checking);
                     } else if (data === "Did not sync") {
                         $('#backgroundRefreshMessage').show();
                         $('#weightmsg-1').hide();
