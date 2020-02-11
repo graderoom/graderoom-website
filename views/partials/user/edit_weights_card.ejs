@@ -10,6 +10,7 @@
                     <i class="fa fa-arrow-left" aria-hidden="true"></i> Back
                 </btn>
                 <div class="card-body" style="padding-top: 1em; padding-bottom: 1em;">
+                    <div id="edited" style="display:none"></div>
                     <h1 class="card-title text-center"><span class="fa fa-pencil"></span> Update Weights</h1>
                     <span class="accordion" id="accordionForms">
                         <% for (var i = 0; i < JSON.parse(gradeData).length; i++) {
@@ -141,6 +142,9 @@
 
                             // Show the div.
                             $(formMessagesDiv).css('display', 'inline');
+
+                            // Set edited variable
+                            $("#edited").text("Edited");
 
                             parseData();
                             updateWeightMessages();
