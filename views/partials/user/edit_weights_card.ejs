@@ -10,6 +10,7 @@
                     <i class="fa fa-arrow-left" aria-hidden="true"></i> Back
                 </btn>
                 <div class="card-body" style="padding-top: 1em; padding-bottom: 1em;">
+                    <div id="edited" style="display:none"></div>
                     <h1 class="card-title text-center"><span class="fa fa-pencil"></span> Update Weights</h1>
                     <span class="accordion" id="accordionForms">
                         <% for (var i = 0; i < JSON.parse(gradeData).length; i++) {
@@ -37,11 +38,9 @@
                                 <div class="form-group" style="display: flex; align-items: flex-end;">
                                     <% let value = null; try {
                                         value = JSON.parse(weightData)[grade.class_name][assignment.category]
-                                    }
-                                    catch {
+                                    } catch {
                                     } %>
-                                    <label style="font-size: 0.9rem; <% if(value
-                                                                           === null){ %> color: lightcoral!important; <% } %> white-space: nowrap; margin-bottom: 0;"><%= assignment.category %>:&nbsp</label>
+                                    <label style="font-size: 0.9rem; <% if(value === null){ %> color: lightcoral!important; <% } %> white-space: nowrap; margin-bottom: 0;"><%= assignment.category %>:&nbsp</label>
                                             <input value='<%= value %>'
                                                    type="number"
                                                    min="0"
@@ -78,20 +77,19 @@
         try {
             $('.navbar-collapse').collapse('hide');
             closeForm('toggle');
-        }
-        catch (e) {
+        } catch (e) {
         }
 
         console.log(defaultId);
         if (defaultId === undefined || defaultId < 0) {
             defaultId = 0;
         }
-        showDiv('updateWeightsDisplay');
+        $('#updateWeightsDisplay').show();
         if ($("form.form-weights").length > 0) {
             $("form.form-weights").each(function () {
-                var form            = $(this);
+                var form = $(this);
                 let formMessagesDiv = $(this).find('.alert-custom');
-                let message         = $(this).find('.messageTxt');
+                let message = $(this).find('.messageTxt');
                 if (unobtainedWeights.hasOwnProperty(form.find("className").text())) {
                     $(formMessagesDiv).removeClass('success');
                     $(formMessagesDiv).addClass('fail');
@@ -113,59 +111,59 @@
                     event.preventDefault();
                     if (($(this).find(".formSubmitButton").css('display')) !== 'none') {
                         let weightData = (($(form).serializeArray()));
-                        let weightURI  = {};
+                        let weightURI = {};
                         jQuery.map(weightData, function (n, i) {
                             weightURI[n.name] = parseInt(n.value);
                         });
                         weightURI = encodeURIComponent(JSON.stringify(weightURI));
 
                         let className = encodeURI($(form).find('h5').attr('id'));
-                        formData      = "className=" + className + "&newWeights=" + weightURI;
+                        formData = "className=" + className + "&newWeights=" + weightURI;
 
                         let formMessagesDiv = $(this).find('.alert-custom');
-                        let message         = $(this).find('.messageTxt');
+                        let message = $(this).find('.messageTxt');
 
                         $.ajax({
-                            type: 'POST', url: $(form).attr('action'), data: formData
+                                   type: 'POST', url: $(form).attr('action'), data: formData
+                               }).done(function (response) {
+                            // Make sure that the formMessages div has the alert-success class.
+                            $(formMessagesDiv).removeClass('fail');
+                            $(formMessagesDiv).addClass('success');
+                            $(form).find(".formSubmitButton").css('display', 'none');
+                            $(form).find("input").each(function () {
+                                $(this).addClass("text-view");
+                            });
+                            $(form).find("label").each(function () {
+                                $(this).css('color', '#DDDDDD');
+                            });
+
+                            // Set the message text.
+                            $(message).text(response);
+
+                            // Show the div.
+                            $(formMessagesDiv).css('display', 'inline');
+
+                            // Set edited variable
+                            $("#edited").text("Edited");
+
+                            parseData();
+                            updateWeightMessages();
+                            renderAllCharts();
+                        }).fail(function (data) {
+                            //Make sure that the formMessages div has the alert-danger class
+                            $(formMessagesDiv).removeClass('success');
+                            $(formMessagesDiv).addClass('fail');
+
+                            // Set the message text.
+                            if (data.responseText !== '') {
+                                $(message).text(data.responseText);
+                            } else {
+                                $(message).text('Oops! An error occurred and your message could not be sent.');
+                            }
+
+                            // Show the div.
+                            $(formMessagesDiv).css('display', 'inline');
                         })
-                         .done(function (response) {
-                             // Make sure that the formMessages div has the alert-success class.
-                             $(formMessagesDiv).removeClass('fail');
-                             $(formMessagesDiv).addClass('success');
-                             $(form).find(".formSubmitButton").css('display', 'none');
-                             $(form).find("input").each(function () {
-                                 $(this).addClass("text-view");
-                             });
-                             $(form).find("label").each(function () {
-                                 $(this).css('color', '#DDDDDD');
-                             });
-
-                             // Set the message text.
-                             $(message).text(response);
-
-                             // Show the div.
-                             $(formMessagesDiv).css('display', 'inline');
-
-                             parseData();
-                             updateWeightMessages();
-                             renderAllCharts();
-                         })
-
-                         .fail(function (data) {
-                             //Make sure that the formMessages div has the alert-danger class
-                             $(formMessagesDiv).removeClass('success');
-                             $(formMessagesDiv).addClass('fail');
-
-                             // Set the message text.
-                             if (data.responseText !== '') {
-                                 $(message).text(data.responseText);
-                             } else {
-                                 $(message).text('Oops! An error occurred and your message could not be sent.');
-                             }
-
-                             // Show the div.
-                             $(formMessagesDiv).css('display', 'inline');
-                         })
                     }
                 })
             });

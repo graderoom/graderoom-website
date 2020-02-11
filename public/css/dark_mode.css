@@ -38,7 +38,8 @@ nav {
 }
 
 nav h1 {
-    font-family: 'Montserrat';
+    font-family: "Montserrat";
+    font-display: swap;
     margin-bottom: 0;
 }
 
@@ -49,7 +50,8 @@ nav h1 {
 }
 
 nav h5 {
-    font-family: 'Montserrat';
+    font-family: "Montserrat";
+    font-display: swap;
     margin-bottom: 0;
     color: #CCCCCC;
     padding: .375rem .75rem
@@ -105,11 +107,13 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
 }
 
 .card h1 {
-    font-family: 'Montserrat'
+    font-family: "Montserrat";
+    font-display: swap;
 }
 
 .card label {
-    font-family: 'Montserrat'
+    font-family: "Montserrat";
+    font-display: swap;
 }
 
 .card-signin {
@@ -125,18 +129,19 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
 /* Weights Card Styling */
 
 #weightsCard h5 {
-    font-family: 'Montserrat';
+    font-family: "Montserrat";
+    font-display: swap;
     font-size: 1.1rem;
     font-weight: 400;
     padding-top: 8px;
 }
 
 #weightsCard label h5 i::after {
-    content: '\f107'; /*Arrow Icon Toggling*/
+    content: "\f107"; /*Arrow Icon Toggling*/
 }
 
 #weightsCard label.collapsed h5 i::after {
-    content: '\f105'; /*Arrow Icon Toggling*/
+    content: "\f105"; /*Arrow Icon Toggling*/
 }
 
 #weightsCard h5.collapsed {
@@ -152,7 +157,7 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
 }
 
 #weightsCard h5 ~ span.collapse-underline {
-    border-bottom: 1px solid #999;
+    border-bottom: 1px solid #999999;
 }
 
 #weightsCard .collapse.show, #weightsCard .collapsing {
@@ -164,7 +169,7 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
     width: auto;
     padding: .375rem .75rem;
     margin: 0 0 1rem;
-    background: #999;
+    background: #999999;
 }
 
 #weightsCard .form-signin .btn:hover {
@@ -201,7 +206,7 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
 }
 
 #weightsCard input.text-view:hover, #weightsCard input.text-view:focus {
-    border-bottom: 1px solid #ced4da;
+    border-bottom: 1px solid #CED4DA;
     padding: .1rem .1rem;
 }
 
@@ -311,13 +316,13 @@ html {
     border-top: 15px solid rgba(0, 0, 0, 0.1);
     border-bottom: 15px solid rgba(0, 0, 0, 0.1);
     background-clip: padding-box;
-    background-color: #555;
+    background-color: #555555;
     /* box-shadow: inset -1px -1px 0px rgba(0, 0, 0, 0.05), inset 1px 1px 0px rgba(0, 0, 0, 0.05); */
 }
 
 /* Handle on hover */
 .card::-webkit-scrollbar-thumb:hover {
-    background-color: #777;
+    background-color: #777777;
 }
 
 .nav-item {
@@ -409,6 +414,17 @@ html {
     animation: sk-chase 2.5s infinite linear both;
 }
 
+.sk-chase-mini {
+    width: 1rem;
+    height: 1rem;
+    margin-top: 3px;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    animation: sk-chase 2.5s infinite linear both;
+}
+
 .sk-chase-dot {
     width: 100%;
     height: 100%;
@@ -419,12 +435,17 @@ html {
 }
 
 .sk-chase-dot:before {
-    content: '';
+    content: "";
     display: block;
     width: 25%;
     height: 25%;
-    background-color: #fff;
+    background-color: #FFFFFF;
     border-radius: 100%;
+    animation: sk-chase-dot-before 2.0s infinite ease-in-out both;
+}
+
+.mini:before {
+    background-color: darkgreen;
     animation: sk-chase-dot-before 2.0s infinite ease-in-out both;
 }
 
@@ -505,4 +526,67 @@ html {
 
 .number-input {
     width: 5rem;
+}
+
+.popup {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.popup .popuptext {
+    font-family: "Montserrat";
+    font-displat: swap;
+    visibility: hidden;
+    width: 180px;
+    height: fit-content;
+    background-color: #555555;
+    color: #FFFFFF;
+    text-align: center;
+    border-radius: 6px;
+    padding: 8px 8px 8px 8px;
+    position: absolute;
+    z-index: 1;
+    bottom: 150%;
+    left: 50%;
+    margin-left: -90px;
+}
+
+.popup .popuptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555555 transparent transparent transparent;
+}
+
+.popup:hover .popuptext {
+    visibility: visible;
+    -webkit-animation: fadeIn 1s;
+    animation: fadeIn 1s;
+}
+
+@-webkit-keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }

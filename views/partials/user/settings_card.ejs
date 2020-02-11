@@ -14,99 +14,91 @@
                     <h1 class="card-title text-center"><span class="fa fa-cog"></span> Settings</h1>
                 </div>
                 <div class="tab">
-                    <btn id="btnAccount" class="tablinks active" onclick="openTab('Account')">Account</btn>
-                    <btn id="btnAppearance" class="tablinks"
-                         onclick="openTab('Appearance'); openSubTab('Appearance','Class Colors')">Appearance
-                    </btn>
-                    <btn id="btnAlerts" class="tablinks" onclick="openTab('Alerts')">Alerts</btn>
+                    <btn id="btnClass Colors" class="tablinks active" onclick="openTab('Class Colors')">Class Colors</btn>
                     <btn id="btnFeedback" class="tablinks" onclick="openTab('Feedback')">Feedback</btn>
+                    <btn id="btnAccount" class="tablinks" onclick="openTab('Account')">Account</btn>
+                    <btn id="btnAlerts" class="tablinks" onclick="openTab('Alerts')">Alerts</btn>
+                    <btn id="btnAdvanced" class="tablinks" onclick="openTab('Advanced');">Advanced
+                    </btn>
                 </div>
-                <div id="Account" class="tabcontent" style="display:block">
+                <div id="Class Colors" class="tabcontent" style="display: block">
+                    <div class="card-body">
+                        <h6>Click a color to lock or unlock it</h6>
+                        <form id="randomizeClassColors" class="form-signin" action="/randomizeclasscolors"
+                              method="post">
+                            <% for (var i = 0; i < user.grades.length; i++) { %>
+                                <label id="classColor<%= i %>"
+                                       style="font-size: larger; font-weight: bolder; cursor: pointer; color: <%= user.appearance.classColors[i] %>">
+                                    <i id="lock<%= i %>" class="fa fa-lock" aria-hidden="true"></i> <label
+                                            style="cursor: pointer"
+                                            onclick="toggleColor(<%= i %>)"><%- user.grades[i].class_name %></label>
+                                </label>
+                            <% } %>
+                            <div style="display: flex">
+                                <button onclick="lockAllColors()" class="btn btn-default btn-lg" type="button">Lock
+                                    All
+                                </button>
+                                <button onclick="unlockAllColors()" class="btn btn-default btn-lg" type="button">
+                                    Unlock All
+                                </button>
+                                <button onclick="ajaxPostForm('#randomizeClassColors',[],<%= user.grades.length %>, false)"
+                                        type="submit" class="btn btn-default btn-lg">
+                                    Randomize
+                                </button>
+                            </div>
+                            <button onclick="reload()" type="button" class="btn btn-default btn-lg">
+                                Apply
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div id="Feedback" class="tabcontent">
+                    <div class="card-body">
+                        <iframe style="color: #FFFFFF; height: 50vh; width: 100%;"
+                                src="https://docs.google.com/forms/d/e/1FAIpQLSfBiwyEi3TKH2Kr356ZOtLTUwUml9I9h_bWlOcraVXDyBIzbA/viewform?embedded=true"
+                                frameborder="0" marginheight="0" marginwidth="0">Loading…
+                        </iframe>
+                    </div>
+                </div>
+                <div id="Account" class="tabcontent">
                     <div class="card-body">
                         <div id="accountSettingsMessage" class="alert alert-success alert-dismissible"
                              style="display:none">
                             <div class="messageTxt"></div>
                             <a class="close" onclick="closeMessage('accountSettingsMessage')" aria-label="close">X</a>
                         </div>
-                        <form id="changePassword" class="form-signin" action="/changepassword" method="post">
+                        <form id="changePassword" class="card-footer form-signin" action="/changepassword"
+                              method="post">
                             <div class="form-group">
-                                <label>Change Password</label> <input id="password" type="password" class="form-control"
-                                                                      name="password">
+                                <label>Change Password</label>
+                                <input id="oldPassword" type="password" class="form-control" name="oldPass"
+                                       placeholder="Old Password" required>
+                                <input id="password" type="password" class="form-control"
+                                       name="password" placeholder="New Password" required>
                             </div>
                             <div class="text-center">
                                 <button type="submit"
-                                        onclick="ajaxPostForm('#changePassword',['#password'],'#accountSettingsMessage')"
+                                        onclick="ajaxPostForm('#changePassword',['#oldPassword','#password'],'#accountSettingsMessage', true)"
                                         class="btn btn-default btn-lg">
                                     Change Password
                                 </button>
                             </div>
                         </form>
-                        <form id="changeSchoolEmail" class="form-signin" style="margin-top: 1em"
+                        <form id="changeSchoolEmail" class="card-footer form-signin" style="margin-top: 1em"
                               action="/changeschoolemail" method="post">
                             <div class="form-group">
                                 <label>Change School Email</label> <input id="school_email" type="text"
-                                                                          class="form-control" name="school_email">
+                                                                          class="form-control" name="school_email"
+                                                                          required>
                             </div>
                             <div class="text-center">
                                 <button type="submit"
-                                        onclick="ajaxPostForm('#changeSchoolEmail',['#school_email'],'#accountSettingsMessage'); updateSchoolUsernameDisplay()"
+                                        onclick="ajaxPostForm('#changeSchoolEmail',['#school_email'],'#accountSettingsMessage', false); updateSchoolUsernameDisplay()"
                                         class="btn btn-default btn-lg">
                                     Change School Email
                                 </button>
                             </div>
                         </form>
-                    </div>
-                </div>
-                <div id="Appearance" class="tabcontent" style="display:none">
-                    <div class="card-body" style="cursor: default">
-                        <div class="tab" style="width: ">
-                            <btn id="btnClass Colors" class="tablinks"
-                                 onclick="openSubTab('Appearance','Class Colors')">Class Colors
-                            </btn>
-                            <btn id="btnTheme" class="tablinks" onclick="openSubTab('Appearance','Theme')">Theme</btn>
-                        </div>
-                        <div id="Class Colors" class="tabcontent" style="display:block">
-                            <h6>Click a color to lock or unlock it</h6>
-                            <form id="randomizeClassColors" class="form-signin" action="/randomizeclasscolors"
-                                  method="post">
-                                <% for (var i = 0; i < user.grades.length; i++) { %>
-                                    <label id="classColor<%= i %>"
-                                           style="font-size: larger; font-weight: bolder; cursor: pointer; color: <%= user.appearance.classColors[i] %>">
-                                        <i id="lock<%= i %>" class="fa fa-lock" aria-hidden="true"></i> <label
-                                                style="cursor: pointer"
-                                                onclick="toggleColor(<%= i %>)"><%- user.grades[i].class_name %></label>
-                                    </label>
-                                <% } %>
-                                <div style="display: flex">
-                                    <button onclick="lockAllColors()" class="btn btn-default btn-lg" type="button">Lock
-                                                                                                                   All
-                                    </button>
-                                    <button onclick="unlockAllColors()" class="btn btn-default btn-lg" type="button">
-                                        Unlock All
-                                    </button>
-                                    <button onclick="ajaxPostForm('#randomizeClassColors',[],<%= user.grades.length %>)"
-                                            type="submit" class="btn btn-default btn-lg">
-                                        Randomize
-                                    </button>
-                                </div>
-                                <button onclick="reload()" type="button" class="btn btn-default btn-lg">
-                                    Apply
-                                </button>
-                            </form>
-                        </div>
-                        <div id="Theme" class="tabcontent" style="display: none">
-                            <h3>Overall Appearance</h3>
-                            <form id="updateAppearance" class="form-signin" action="/updateappearance" method="post">
-                                <label style="cursor: pointer"> <input id="darkModeToggle" type="checkbox"
-                                                                       name="darkMode"
-                                    <% if (user.appearance.darkMode) { %> checked
-                                            <% } %>
-                                    >Dark Mode </label>
-                                <button type="submit" class="btn btn-default btn-lg">
-                                    Apply
-                                </button>
-                            </form>
-                        </div>
                     </div>
                 </div>
                 <div id="Alerts" class="tabcontent">
@@ -139,7 +131,7 @@
                             </div>
                             <div class="text-center">
                                 <button type="submit"
-                                        onclick="ajaxPostForm('#changeAlertSettings',[],'#alertSettingsMessage'); updateSchoolUsernameDisplay()"
+                                        onclick="ajaxPostForm('#changeAlertSettings',[],'#alertSettingsMessage', false); updateSchoolUsernameDisplay()"
                                         class="btn btn-default btn-lg">
                                     Save
                                 </button>
@@ -147,12 +139,44 @@
                         </form>
                     </div>
                 </div>
-                <div id="Feedback" class="tabcontent">
-                    <div class="card-body">
-                        <iframe style="color: #FFFFFF; height: 50vh; width: 100%;"
-                                src="https://docs.google.com/forms/d/e/1FAIpQLSfBiwyEi3TKH2Kr356ZOtLTUwUml9I9h_bWlOcraVXDyBIzbA/viewform?embedded=true"
-                                frameborder="0" marginheight="0" marginwidth="0">Loading…
-                        </iframe>
+                <div id="Advanced" class="tabcontent" style="display:none">
+                    <div class="card-body" style="cursor: default">
+                        <form id="updateOther" class="form-signin" action="/updateOther" method="post">
+                            <div class="card-footer">
+                                <h5>Theme</h5>
+                                <label style="cursor: pointer"> <input id="darkModeToggle" type="checkbox"
+                                                                       name="darkMode"
+                                    <% if (user.appearance.darkMode) { %> checked
+                                            <% } %>
+                                    > Dark Mode</label>
+                            </div>
+                            <% if (user.schoolPassword) { %>
+                                <div class="card-footer">
+                                    <h5>GradeSync</h5>
+                                    <label style="cursor: pointer">
+                                        <input id="gradeSyncToggle" type="checkbox" name="gradeSync"
+                                        <% if (user.schoolPassword) { %> checked
+                                                <% } %>
+                                        > Enable
+                                    </label>
+                                    <br>
+                                    <label style="cursor: pointer; text-align: left" class="popup">
+                                        <input id="autoRefreshToggle" type="checkbox" name="autoRefresh"
+                                        <% if (user.autoRefresh) { %> checked
+                                                <% } %>
+                                        > Auto-Refresh
+                                        <i class="fa fa-info-circle popup">
+                                                <span class="popuptext">
+                                                    After GradeSync is complete, Graderoom will refresh automatically to display the most recent data.
+                                                </span>
+                                        </i>
+                                    </label>
+                                </div>
+                            <% } %>
+                            <button type="submit" class="btn btn-default btn-lg">
+                                Apply
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -167,23 +191,23 @@
         location.reload();
     }
 
-    let lockedColors = Array(<%= user.grades.length %>).fill('Locked');
+    let lockedColors = Array(<%= user.grades.length %>).fill("Locked");
 
     function lockAllColors() {
-        lockedColors.fill('Locked');
+        lockedColors.fill("Locked");
         updateClassColorsDisplay();
     }
 
     function unlockAllColors() {
-        lockedColors.fill('Unlocked');
+        lockedColors.fill("Unlocked");
         updateClassColorsDisplay();
     }
 
     function getLockedColorIndices() {
         let result = [];
-        let index  = 0;
+        let index = 0;
         for (let i = 0; i < lockedColors.length; i++) {
-            if (lockedColors[i] == 'Locked') {
+            if (lockedColors[i] == "Locked") {
                 result[index] = i;
                 index++;
             }
@@ -193,28 +217,28 @@
 
     function updateClassColorsDisplay() {
         for (let i = 0; i < user.grades.length; i++) {
-            let colorTextID = '#classColor' + i.toString();
-            let lockID      = '#lock' + i.toString();
-            if (lockedColors[i] == 'Locked') {
-                $(colorTextID).css('fontWeight', 'bolder');
-                $(colorTextID).css('fontSize', 'larger');
-                $(lockID).removeClass('fa-unlock');
-                $(lockID).addClass('fa-lock');
+            let colorTextID = "#classColor" + i.toString();
+            let lockID = "#lock" + i.toString();
+            if (lockedColors[i] == "Locked") {
+                $(colorTextID).css("fontWeight", "bolder");
+                $(colorTextID).css("fontSize", "larger");
+                $(lockID).removeClass("fa-unlock");
+                $(lockID).addClass("fa-lock");
             } else {
-                $(colorTextID).css('fontWeight', 'normal');
-                $(colorTextID).css('fontSize', 'large');
-                $(lockID).removeClass('fa-lock');
-                $(lockID).addClass('fa-unlock');
+                $(colorTextID).css("fontWeight", "normal");
+                $(colorTextID).css("fontSize", "large");
+                $(lockID).removeClass("fa-lock");
+                $(lockID).addClass("fa-unlock");
             }
         }
         console.log(lockedColors);
     }
 
     function toggleColor(index) {
-        if (lockedColors[index] === 'Locked') {
-            lockedColors[index] = 'Unlocked';
+        if (lockedColors[index] === "Locked") {
+            lockedColors[index] = "Unlocked";
         } else {
-            lockedColors[index] = 'Locked';
+            lockedColors[index] = "Locked";
         }
         updateClassColorsDisplay();
     }
@@ -222,100 +246,17 @@
     function updateClassColors(numClasses, colorsString) {
         let colors = colorsString;
         for (let i = 0; i < numClasses; i++) {
-            document.getElementById('classColor' + i).style.color = colors[i];
+            document.getElementById("classColor" + i).style.color = colors[i];
         }
     }
 
     function updateSchoolUsernameDisplay() {
-        document.getElementById('schoolUsernameDisplay').textContent = document.getElementById('school_email').value;
+        document.getElementById("schoolUsernameDisplay").textContent = document.getElementById("school_email").value;
     }
 
-    function ajaxPostForm(formID, fieldIDsToClear, messagesDivID) {
-        // Get the form.
-        let form = $(formID);
-
-        $(form).submit(function (event) {
-            // Stop the browser from submitting the form.
-            event.preventDefault();
-
-            let formData;
-            let message;
-            let formMessagesDiv;
-            let async;
-
-            // Different behavior for class colors
-            if (formID == '#randomizeClassColors') {
-                let data    = getLockedColorIndices();
-                let dataArr = [];
-                for (let i = 0; i < data.length; i++) {
-                    dataArr.push(`${data[i]}`);
-                }
-                formData = 'lockedColorIndices=' + JSON.stringify(dataArr);
-                async    = false;
-            } else {
-                // Serialize the form data.
-                formData = $(form).serialize();
-
-                // Get the messages.
-                formMessagesDiv = $(messagesDivID);
-                message         = $(formMessagesDiv).find('.messageTxt');
-                async           = true;
-            }
-
-            // Submit the form using AJAX.
-            $.ajax({
-                type: 'POST', url: $(form).attr('action'), data: formData, async: async
-            })
-
-             .done(function (response) {
-                 // Special behavior for class colors.
-                 if (formID == '#randomizeClassColors') {
-                     // numClasses is contained in messagesDivID
-                     // colors come from response
-                     updateClassColors(messagesDivID, response);
-                 } else {
-                     // Make sure that the formMessages div has the alert-success class.
-                     $(formMessagesDiv).removeClass('alert-danger');
-                     $(formMessagesDiv).addClass('alert-success');
-
-                     // Set the message text.
-                     $(message).text(response);
-
-                     // Show the div.
-                     $(formMessagesDiv).css('display', 'block');
-
-                     // Clear fields to clear
-                     for (let i = 0; i < fieldIDsToClear.length; i++) {
-                         $(fieldIDsToClear[i]).val('');
-                     }
-                 }
-             })
-
-             .fail(function (data) {
-                 // Make sure that the formMessages div has the alert-danger class
-                 $(formMessagesDiv).removeClass('alert-success');
-                 $(formMessagesDiv).addClass('alert-danger');
-
-                 // Set the message text.
-                 if (data.responseText !== '') {
-                     $(message).text(data.responseText);
-                 } else {
-                     $(message).text('Oops! An error occurred and your message could not be sent.');
-                 }
-
-                 // Show the div.
-                 $(formMessagesDiv).css('display', 'block');
-             })
-        })
-    }
-
-    function openSubTab(parentName, tabName) {
-        // Show the parent tab
-        openTab(parentName);
-
-        // Show the current subtab, and add an "active" class to the button that opened the tab
-        document.getElementById(tabName).style.display = "block";
-        document.getElementById('btn' + tabName).classList.add('active');
+    function showLoading() {
+        $("#loadingDisplay").show();
+        return done;
     }
 
     function openTab(tabName) {
@@ -331,15 +272,15 @@
         // Get all elements with class="tablinks" and remove the class "active"
         tablinks = document.getElementsByClassName("tablinks");
         for (i = 0; i < tablinks.length; i++) {
-            tablinks[i].classList.remove('active');
+            tablinks[i].classList.remove("active");
         }
 
         // Show the current tab, and add an "active" class to the button that opened the tab
         document.getElementById(tabName).style.display = "block";
-        document.getElementById('btn' + tabName).classList.add('active');
+        document.getElementById("btn" + tabName).classList.add("active");
     }
 
     function closeMessage(id) {
-        document.getElementById(id).style.display = 'none';
+        document.getElementById(id).style.display = "none";
     }
 </script>

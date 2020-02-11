@@ -45,30 +45,51 @@
 <!-- Main Screen -->
 <div class="container">
     <!-- Messages -->
+    <div style="display: none" id="backgroundRefreshMessage"
+         class="alert alert-success font-weight-bold">
+        <span style="display: flex;" id="preRefresh">
+            Syncing...
+            <div style="float: right" class="container" id="miniLoadingDisplay">
+                <div style="float: left" class="sk-chase-mini">
+                    <div class="sk-chase-dot mini"></div>
+                    <div class="sk-chase-dot mini"></div>
+                    <div class="sk-chase-dot mini"></div>
+                    <div class="sk-chase-dot mini"></div>
+                    <div class="sk-chase-dot mini"></div>
+                    <div class="sk-chase-dot mini"></div>
+                </div>
+            </div>
+        </span>
+        <span style="display: none;" id="refresh"> <u style="cursor: pointer"
+                                                      onclick="window.reload()">Refresh</u>
+             to see new updates or turn on Auto-Refresh in <u style="cursor: pointer"
+                    onclick="$('#settingsCardDisplay').show(); openTab('Advanced');">settings</u>.
+            <a class="close" data-dismiss="alert"
+               aria-label="close">X</a>
+        </span>
+    </div>
     <% var daysSinceUpdated = 0; %>
     <% if (user.alerts.lastUpdated.toString().toLowerCase() == ('never')) { %> <br>
     <div class="alert alert-success">
-        <u style="cursor: pointer" onclick="showDiv('updateGradesDisplay')">Sync your grades</u> now!
+        <u style="cursor: pointer" onclick="$('#updateGradesDisplay').show(); $('#inputPassword').focus()">Sync your
+            grades</u> now!
     </div>
-    <% } else { %> <% daysSinceUpdated = Math.floor(
-            (Date.now() - user.alerts.lastUpdated) /
-            (1000 * 3600 * 24)); %> <% if ((user.alerts.updateGradesReminder.toLowerCase() == ('daily') &&
-            daysSinceUpdated >= 1) ||
-            (user.alerts.updateGradesReminder.toLowerCase() == 'weekly') && daysSinceUpdated >= 7) { %>
-        <br>
-        <div class="alert alert-danger alert-dismissible font-weight-bold">
-            <a class="close" data-dismiss="alert" aria-label="close">X</a> It's been <%= daysSinceUpdated %>
-            <% if (daysSinceUpdated == 1) { %>
-                day
-            <% } else { %> days
-            <% } %>
-            since you last synced your grades! <span
-                    style="float: right; display: flex"><u
-                        style="cursor: pointer; margin-right: 10px"
-                        onclick="showDiv('settingsCardDisplay'); openTab('Alerts')">Alert Settings</u><u
-                        style="cursor: pointer" onclick="showDiv('updateGradesDisplay')">Sync Grades</u></span>
-        </div>
-    <% } %>
+    <% } else { %>
+        <% daysSinceUpdated = Math.floor((Date.now() - user.alerts.lastUpdated) / (1000 * 3600 * 24)); %>
+        <% if ((user.alerts.updateGradesReminder.toLowerCase() == ('daily') && daysSinceUpdated >= 1) || (user.alerts.updateGradesReminder.toLowerCase() == 'weekly') && daysSinceUpdated >= 7) { %>
+            <div class="alert alert-danger alert-dismissible font-weight-bold">
+                <a class="close" data-dismiss="alert" aria-label="close">X</a> It's been <%= daysSinceUpdated %>
+                <% if (daysSinceUpdated == 1) { %>
+                    day
+                <% } else { %> days
+                <% } %>
+                since you last synced your grades! <span
+                        style="float: right; display: flex"><u
+                            style="cursor: pointer; margin-right: 10px"
+                            onclick="$('#settingsCardDisplay').show(); openTab('Alerts')">Alert Settings</u><u
+                            style="cursor: pointer" onclick="$('#updateGradesDisplay').show()">Sync Grades</u></span>
+            </div>
+        <% } %>
     <% } %>
     <% if (updateGradesMessageSuccess.length > 0) { %> <br>
     <div class="alert alert-success alert-dismissible">
@@ -78,7 +99,6 @@
     <div class="alert alert-danger alert-dismissible font-weight-bold">
         <a class="close" data-dismiss="alert" aria-label="close">X</a> <%= updateGradesMessageFail %>
     </div>
-    <% } else { %> <br>
     <% } %>
 
     <!-- <div class="alert alert-danger alert-dismissible" id="weightmsg" style="display:none">
@@ -87,122 +107,122 @@
     </div> -->
 
     <!-- Overview Section -->
-    <% if (user.alerts.lastUpdated.toString().toLowerCase() != 'never') { %> <span id="section-1">
-                <div class="alert alert-danger alert-dismissible font-weight-bold" id="weightmsg-1" style="display:none">
+    <% if (user.alerts.lastUpdated.toString().toLowerCase() != 'never') { %>
+        <span id="section-1">
+            <div class="alert alert-danger alert-dismissible font-weight-bold" id="weightmsg-1"
+                 style="display:none">
                     <a class="close" data-dismiss="alert" aria-label="close">X</a>
                     <span id="weightmsg_text-1"></span><u style="float: right; cursor: pointer"
                                                           onclick="showUpdateWeights()">Add Weights</u>
-                </div>
-                <div id="chart-container-1" class="chart-container text-center"
-                     style="position: relative; height:60vh; width: 100%; margin: 0 auto;">
+            </div>
+            <div id="chart-container-1" class="chart-container text-center"
+                 style="position: relative; height:60vh; width: 100%; margin: 0 auto;">
                     <canvas id="chart-1" class="chart" style="width:50%; margin: 0;"></canvas>
-                </div>
-                <hr>
-                <table class="table text-center" id="table-1">
-                    <thead><tr>
+            </div>
+            <table class="table text-center" id="table-1">
+                <thead><tr>
+                    <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
+                        <th style="border:0; color: <%= user.appearance.classColors[i] %>"><%= JSON.parse(gradeData)[i].class_name %></th>
+                    <% } %>
+                </tr></thead>
+                <tbody>
+                    <tr>
                         <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                            <th style="border:0; color: <%= user.appearance.classColors[i] %>"><%= JSON.parse(
-                                        gradeData)[i].class_name %></th>
+                            <td id="overviewChart<%= i %>"
+                                style="border: 0; padding-top: 0; color: <%= user.appearance.classColors[i] %>"></td>
                         <% } %>
-                    </tr></thead>
-                    <tbody> 
-                        <tr>
-                            <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                                <td id="overviewChart<%= i %>"
-                                    style="border: 0; padding-top: 0; color: <%= user.appearance.classColors[i] %>"></td>
-                            <% } %>
-                        </tr>
-                    </tbody>
-                </table>
-            </span>
+                    </tr>
+                </tbody>
+            </table>
+        </span>
     <% } %>
 
     <!-- Class Sections -->
-    <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %> <span id="section<%= i %>"
-                                                                         style="display: none;">
-            <div class="alert alert-danger alert-dismissible font-weight-bold" id="weightmsg<%= i %>" style="display:none">
+    <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
+        <span id="section<%= i %>" style="display: none;">
+            <div class="alert alert-danger alert-dismissible font-weight-bold" id="weightmsg<%= i %>"
+                 style="display:none">
                 <a class="close" data-dismiss="alert" aria-label="close">X</a>
-                <span id="weightmsg_text<%= i %>"></span></span><u style="float: right; cursor: pointer"
-                                                                   onclick="showUpdateWeights()">Add Weights</u>
-</div>
-<div style="display:flex; align-items: center">
-    <% if (JSON.parse(gradeData)[i].class_name in JSON.parse(weightData)) { %>
-        <div class="text-center" style="width: 25%">
-            <div id="overallGrade<%= i %>"
-                 style="font-weight: bolder; font-size: 80px; margin-bottom: 30px; color: <%= user.appearance.classColors[i] %>"></div>
-            <div id="overallLetterGrade<%= i %>"
-                 style="font-weight: bolder; font-size: 80px; margin-bottom: 30px; color: <%= user.appearance.classColors[i] %>"></div>
-        </div>
-    <% } %>
-    <div id="chart-container<%= i %>" class="chart-container"
-         style="position: relative; height:40vh; width:100%;margin: 0 auto;">
-        <canvas id="chart<%= i %>" class="chart" style="margin: auto;"></canvas>
-    </div>
-    <% if (JSON.parse(gradeData)[i].class_name in JSON.parse(weightData)) { %>
-        <table class="table text-center" style="width: 25%; margin: 20px" id="weightsTable<%= i %>">
+                <span id="weightmsg_text<%= i %>"></span><u style="float: right; cursor: pointer"
+                                                            onclick="showUpdateWeights()">Add Weights</u>
+            </div>
+            <div style="display:flex; align-items: center">
+                <% if (JSON.parse(gradeData)[i].class_name in JSON.parse(weightData)) { %>
+                    <div class="text-center" style="width: 25%">
+                    <div id="overallGrade<%= i %>"
+                         style="font-weight: bolder; font-size: 80px; margin-bottom: 30px; color: <%= user.appearance.classColors[i] %>"></div>
+                    <div id="overallLetterGrade<%= i %>"
+                         style="font-weight: bolder; font-size: 80px; margin-bottom: 30px; color: <%= user.appearance.classColors[i] %>"></div>
+                </div>
+                <% } %>
+                <div id="chart-container<%= i %>" class="chart-container"
+                     style="position: relative; height:40vh; width:100%;margin: 0 auto;">
+                <canvas id="chart<%= i %>" class="chart" style="margin: auto;"></canvas>
+            </div>
+                <% if (JSON.parse(gradeData)[i].class_name in JSON.parse(weightData)) { %>
+                    <table class="table text-center" style="width: 25%; margin: 20px" id="weightsTable<%= i %>">
+                <thead>
+                <tr>
+                    <th style="width: 40%">Category</th>
+                    <th style="width: 20%">Weight</th>
+                    <th style="width: 20%">Points</th>
+                    <th style="width: 20%">Grade</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]).length; j++) { %>
+                    <tr>
+                        <td id="weightTableCategory<%= i %><%= j %>"></td>
+                        <td id="weightTableWeight<%= i %><%= j %>"></td>
+                        <td id="weightTablePoints<%= i %><%= j %>"></td>
+                        <td id="weightTableGrade<%= i %><%= j %>"></td>
+                    </tr>
+                <% } %>
+                </tbody>
+
+                <tfoot>
+                <tr>
+                    <th colspan="4" id="weightTableOverallGrade<%= i %>"></th>
+                </tr>
+                </tfoot>
+            </table>
+                <% } %>
+            </div>
+        <hr>
+        <table class="table text-center" id="table<%= i %>">
             <thead>
             <tr>
-                <th style="width: 40%">Category</th>
-                <th style="width: 20%">Weight</th>
-                <th style="width: 20%">Points</th>
-                <th style="width: 20%">Grade</th>
+                <th style="width:25%;">Assignment Name</th>
+                <th style="width:25%;">Date</th>
+                <th style="width:25%;">Category</th>
+                <th style="width:25%;">Assignment Percent</th>
+                <th style="width:25%;">Score</th>
             </tr>
             </thead>
 
             <tbody>
-            <% for (let j = 0; j < Object.keys(
-                    JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]).length; j++) { %>
+            <% for (let grade of JSON.parse(gradeData)[i].grades) { %>
                 <tr>
-                    <td id="weightTableCategory<%= i %><%= j %>"></td>
-                    <td id="weightTableWeight<%= i %><%= j %>"></td>
-                    <td id="weightTablePoints<%= i %><%= j %>"></td>
-                    <td id="weightTableGrade<%= i %><%= j %>"></td>
+                    <td><%= grade.assignment_name %> </td>
+                    <td><%= grade.date %> </td>
+                    <td><%= grade.category %> </td>
+                    <% if (grade.grade_percent == -1) { %>
+                        <td></td>
+                    <% } else { %>
+                        <td><%= grade.grade_percent %></td>
+                    <% } %>
+                    <% if (grade.points_possible != 0) { %>
+                        <td><%= grade.points_gotten %>/<%= grade.points_possible %></td>
+                    <% } else { %>
+                        <td><%= grade.points_gotten %></td>
+                    <% } %>
                 </tr>
             <% } %>
             </tbody>
-
-            <tfoot>
-            <tr>
-                <th colspan="4" id="weightTableOverallGrade<%= i %>"></th>
-            </tr>
-            </tfoot>
         </table>
+        </span>
     <% } %>
-</div>
-<hr>
-<table class="table text-center" id="table<%= i %>">
-    <thead>
-    <tr>
-        <th style="width:25%;">Assignment Name</th>
-        <th style="width:25%;">Date</th>
-        <th style="width:25%;">Category</th>
-        <th style="width:25%;">Assignment Percent</th>
-        <th style="width:25%;">Score</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    <% for (let grade of JSON.parse(gradeData)[i].grades) { %>
-        <tr>
-            <td><%= grade.assignment_name %> </td>
-            <td><%= grade.date %> </td>
-            <td><%= grade.category %> </td>
-            <% if (grade.grade_percent == -1) { %>
-                <td></td>
-            <% } else { %>
-                <td><%= grade.grade_percent %></td>
-            <% } %>
-            <% if (grade.points_possible != 0) { %>
-                <td><%= grade.points_gotten %>/<%= grade.points_possible %></td>
-            <% } else { %>
-                <td><%= grade.points_gotten %></td>
-            <% } %>
-        </tr>
-    <% } %>
-    </tbody>
-</table>
-</span>
-<% } %>
 </div>
 
 <!-- Custom JavaScript -->
@@ -222,7 +242,41 @@
     setupWeightsTables();
     setupOverviewTable();
     updateWeightMessages();
-    renderAllCharts();
+    if (user.alerts.lastUpdated !== "never") {
+        renderAllCharts();
+    }
+    if (user.schoolPassword) {
+        $('#syncGradesDiv').hide();
+        $('#gradeSyncDiv').show();
+        checkUpdateBackground();
+    } else {
+        $('#gradeSyncDiv').hide();
+        $('#syncGradesDiv').show();
+    }
+
+    async function checkUpdateBackground() {
+        let checking = window.setInterval(function () {
+            $.get("/checkUpdateBackground", function (data, status) {
+                if (status === "success") {
+                    if (data === "Sync Complete!") {
+                        $('#preRefresh').hide();
+                        if (user.autoRefresh) {
+                            $('#backgroundRefreshMessage').hide();
+                            window.reload();
+                        } else {
+                            $('#refresh').show();
+                        }
+                        clearInterval(checking);
+                    } else if (data === "Already Synced!") {
+                        clearInterval(checking);
+                    } else if (data === "Did not sync") {
+                        $('#backgroundRefreshMessage').show();
+                        $('#weightmsg-1').hide();
+                    }
+                }
+            })
+        }, 1000);
+    }
 
     function setupOverallGrades() {
         for (let i = 0; i < data.length; i++) {
@@ -302,19 +356,12 @@
                     for (let j = 0; j < tableCategories.length; j++) {
                         document.getElementById('weightTableCategory' + i + j).textContent = tableCategories[j];
                         document.getElementById('weightTableWeight' + i + j).textContent = tableWeights[j] + '%';
-                        let categoryGottenAndPossible = getCategoryGottenAndPossible(
-                            i, tableCategories[j]);
-                        document.getElementById('weightTablePoints' + i + j).textContent
-                            = +(categoryGottenAndPossible.gotten.toFixed(
-                            3)) + ((categoryGottenAndPossible.possible != 0) ? ('/'
-                            + +(categoryGottenAndPossible.possible.toFixed(
-                                3))) : '');
-                        document.getElementById('weightTableGrade' + i + j).textContent = getCategoryGrade(i,
-                            tableCategories[j]);
+                        let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
+                        document.getElementById('weightTablePoints' + i + j).textContent = +(categoryGottenAndPossible.gotten.toFixed(3)) + ((categoryGottenAndPossible.possible != 0) ? ('/' + +(categoryGottenAndPossible.possible.toFixed(3))) : '');
+                        document.getElementById('weightTableGrade' + i + j).textContent = getCategoryGrade(i, tableCategories[j]);
                     }
                     let overallGrade = getOverallGrade(i);
-                    document.getElementById('weightTableOverallGrade' + i).textContent = (+(overallGrade.toFixed(
-                        3))).toString() + '% (' + getLetterGrade(overallGrade) + ')';
+                    document.getElementById('weightTableOverallGrade' + i).textContent = (+(overallGrade.toFixed(3))).toString() + '% (' + getLetterGrade(overallGrade) + ')';
                 }
             }
         }
@@ -323,8 +370,7 @@
     function setupOverviewTable() {
         for (let i = 0; i < data.length; i++) {
             let overallGrade = getOverallGrade(i);
-            document.getElementById('overviewChart' + i).innerHTML = (+(overallGrade.toFixed(2))).toString() + '% </br>'
-                + getLetterGrade(overallGrade);
+            document.getElementById('overviewChart' + i).innerHTML = (+(overallGrade.toFixed(2))).toString() + '% </br>' + getLetterGrade(overallGrade);
         }
     }
 
@@ -390,8 +436,7 @@
 
         for (let classData of data) {
             let className = classData.class_name;
-            let needWeights = !(className in weights) || (Object.entries(weights[className]).length === 0
-                && weights[className].constructor === Object);
+            let needWeights = !(className in weights) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object);
             let localMissingCategories = [];
 
             if ((className in weights) && (!weights[className].hasWeight)) {
@@ -457,9 +502,7 @@
 
                     let overallPercent = 0;
                     for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
-                        overallPercent = overallPercent + (value.weight * (value.totalPossible !== 0
-                            ? (value.totalGotten / value.totalPossible)
-                            : value.totalGotten));
+                        overallPercent = overallPercent + (value.weight * (value.totalPossible !== 0 ? (value.totalGotten / value.totalPossible) : value.totalGotten));
                     }
                     let total = ((overallPercent / totalWeightValue) * 100).toFixed(3);
                     total = +total;
@@ -482,13 +525,13 @@
             });
 
             parsedData.push({
-                assignmentNames: assignmentNames,
-                assignmentTimestamps: assignmentTimestamps,
-                assignmentPercents: assignmentPercents,
-                assignmentScoresParsed: assignmentScoresParsed,
-                assignmentCategories: assignmentCategories,
-                mixedData: mixedData,
-            });
+                                assignmentNames: assignmentNames,
+                                assignmentTimestamps: assignmentTimestamps,
+                                assignmentPercents: assignmentPercents,
+                                assignmentScoresParsed: assignmentScoresParsed,
+                                assignmentCategories: assignmentCategories,
+                                mixedData: mixedData,
+                            });
             // console.log(parsedData);
         }
     }
@@ -509,21 +552,21 @@
         let colors = user.appearance.classColors;
         for (let i = 0; i < data.length; i++) {
             dataset.push({
-                label: data[i].class_name,
-                backgroundColor: 'transparent',
-                pointBackgroundColor: brighten(colors[i], 100),
-                pointBorderColor: 'transparent',
-                borderColor: brighten(colors[i], 100),
-                data: parsedData[i].mixedData,
-                cubicInterpolationMode: 'monotone',
-                spanGaps: false,
-                pointRadius: 3,
-                borderWidth: 3,
-                pointHoverRadius: 7,
-                pointHoverBackgroundColor: brighten(colors[i], -20),
-                pointHoverBorderColor: brighten(colors[i], 10),
-                pointHoverBorderWidth: 2
-            });
+                             label: data[i].class_name,
+                             backgroundColor: 'transparent',
+                             pointBackgroundColor: brighten(colors[i], 100),
+                             pointBorderColor: 'transparent',
+                             borderColor: brighten(colors[i], 100),
+                             data: parsedData[i].mixedData,
+                             cubicInterpolationMode: 'monotone',
+                             spanGaps: false,
+                             pointRadius: 3,
+                             borderWidth: 3,
+                             pointHoverRadius: 7,
+                             pointHoverBackgroundColor: brighten(colors[i], -20),
+                             pointHoverBorderColor: brighten(colors[i], 10),
+                             pointHoverBorderWidth: 2
+                         });
         }
         let numRunning = 0;
         let myChart = new Chart(ctx, {
@@ -585,25 +628,9 @@
                 }, tooltips: {
                     enabled: true, position: 'nearest', intersect: false, displayColors: true, callbacks: {
                         title: function (tooltipItems, data) {
-                            return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(
-                                tooltipItems[0].value).toFixed(2) + "%";
+                            return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
                         }, label: function (tooltipItem, data) {
-                            return ["[" + parsedData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.index]
-                            + "] " + parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + " - "
-                            + (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== -1
-                                ? (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index]
-                                    + "%") : (""))
-                            + ((parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index]
-                                .substring(
-                                    parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length
-                                    - 2)) !== '/0' ? (" ("
-                                + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index]
-                                + ")")
-                                :
-                                (parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(
-                                    0,
-                                    parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length
-                                    - 2)))];
+                            return ["[" + parsedData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.index] + "] " + parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + " - " + (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== -1 ? (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "%") : ("")) + ((parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)) !== '/0' ? (" (" + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")") : (parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)))];
                         },
                     }
                 }, responsive: true, maintainAspectRatio: false,
@@ -683,18 +710,9 @@
                 }, tooltips: {
                     enabled: true, position: 'nearest', intersect: false, displayColors: false, callbacks: {
                         title: function (tooltipItems, data) {
-                            return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(
-                                tooltipItems[0].value).toFixed(2) + "%";
+                            return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
                         }, label: function (tooltipItem, data) {
-                            return ["[" + parsedData[id].assignmentCategories[tooltipItem.index] + "] " +
-                            parsedData[id].assignmentNames[tooltipItem.index] + " - "
-                            + (parsedData[id].assignmentPercents[tooltipItem.index] !== -1
-                                ? (parsedData[id].assignmentPercents[tooltipItem.index] + "%") : (""))
-                            + ((parsedData[id].assignmentScoresParsed[tooltipItem.index]
-                                .substring(parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2))
-                            !== '/0' ? (" (" + parsedData[id].assignmentScoresParsed[tooltipItem.index]
-                                + ")") : (parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(0,
-                                parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)))];
+                            return ["[" + parsedData[id].assignmentCategories[tooltipItem.index] + "] " + parsedData[id].assignmentNames[tooltipItem.index] + " - " + (parsedData[id].assignmentPercents[tooltipItem.index] !== -1 ? (parsedData[id].assignmentPercents[tooltipItem.index] + "%") : ("")) + ((parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)) !== '/0' ? (" (" + parsedData[id].assignmentScoresParsed[tooltipItem.index] + ")") : (parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(0, parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)))];
                         },
                     }
                 }, responsive: true, maintainAspectRatio: false,
@@ -717,8 +735,7 @@
         if (id == -1) {
             document.getElementById("classLinks").style.borderBottomColor = brighten("#BBBBBB", -20);
         } else {
-            document.getElementById("classLinks").style.borderBottomColor = brighten(user.appearance.classColors[id],
-                -20);
+            document.getElementById("classLinks").style.borderBottomColor = brighten(user.appearance.classColors[id], -20);
         }
         currentPage = id;
     }

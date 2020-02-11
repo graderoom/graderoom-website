@@ -36,7 +36,7 @@ nav {
 
 nav h1 {
     color: #333333;
-    font-family: 'Montserrat';
+    font-family: "Montserrat";
     margin-bottom: 0;
 }
 
@@ -47,7 +47,7 @@ nav h1 {
 }
 
 nav h5 {
-    font-family: 'Montserrat';
+    font-family: "Montserrat";
     margin-bottom: 0;
     color: #333333;
     padding: .375rem .75rem
@@ -61,7 +61,7 @@ nav .btn {
 nav .btn:hover {
     /* color: #CCCCCC; */
     color: black;
-    background-color: #e5e5e5;
+    background-color: #E5E5E5;
     border-color: transparent;
 }
 
@@ -101,11 +101,11 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
 }
 
 .card h1 {
-    font-family: 'Montserrat'
+    font-family: "Montserrat"
 }
 
 .card label {
-    font-family: 'Montserrat'
+    font-family: "Montserrat"
 }
 
 .card-signin {
@@ -275,12 +275,12 @@ html {
 }
 
 .sk-chase-dot:before {
-    content: '';
+    content: "";
     display: block;
     width: 25%;
     height: 25%;
     /* background-color: #fff; */
-    background-color: #000;
+    background-color: #000000;
     border-radius: 100%;
     animation: sk-chase-dot-before 2.0s infinite ease-in-out both;
 }
