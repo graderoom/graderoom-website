@@ -134,7 +134,7 @@ module.exports = function (app, passport) {
     app.post("/updateOther", [isLoggedIn], (req, res) => {
         let darkMode;
         darkMode = req.body.darkMode === "on";
-        if (darkMode) {
+        if (darkMode !== null) {
             authenticator.setMode(req.user.username, darkMode);
         }
         let gradeSync;
