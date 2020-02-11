@@ -18,32 +18,33 @@
             </ul>
         <% } %>
         <ul class="navbar-nav w-100 justify-content-end align-items-end ml-auto">
-            <% if (user.isAdmin) { %>
-                <li id="toggleAdmin" class="nav-item toggle-admin">
-                    <a class="btn btn-med" href="/admin"> <i class="fa fa-fighter-jet" aria-hidden="true"></i> Admin
-                    </a>
-                </li>
-            <% } %>
             <% if (current == 'home') { %>
                 <li id="finalGradeCalculator" class="nav-item">
                     <a class="btn btn-med" href="/finalgradecalculator"> <i class="fa fa-calculator"
                                                                             aria-hidden="true"></i> Calculator </a>
+                </li>
+                <li id="editWeights" class="nav-item">
+                    <btn class="btn btn-med"
+                         onclick="showUpdateWeights(document.getElementById('pageNumber').textContent)">
+                        <i class="fa fa-pencil" aria-hidden="true"></i> Weights
+                    </btn>
+                </li>
+                <li id="syncGrades" class="nav-item">
+                    <btn class="btn btn-med" onclick="$('#updateGradesDisplay').show(); $('#inputPassword').focus()">
+                        <i class="fa fa-refresh" aria-hidden="true"></i> Sync
+                    </btn>
                 </li>
             <% } else { %>
                 <li id="home" class="nav-item">
                     <a class="btn btn-med" href="/"> <i class="fa fa-home" aria-hidden="true"></i> Home </a>
                 </li>
             <% } %>
-            <li id="editWeights" class="nav-item">
-                <btn class="btn btn-med" onclick="showUpdateWeights(document.getElementById('pageNumber').textContent)">
-                    <i class="fa fa-pencil" aria-hidden="true"></i> Weights
-                </btn>
-            </li>
-            <li id="syncGrades" class="nav-item">
-                <btn class="btn btn-med" onclick="$('#updateGradesDisplay').show(); $('#inputPassword').focus()">
-                    <i class="fa fa-refresh" aria-hidden="true"></i> Sync
-                </btn>
-            </li>
+            <% if (user.isAdmin) { %>
+                <li id="toggleAdmin" class="nav-item toggle-admin">
+                    <a class="btn btn-med" href="/admin"> <i class="fa fa-fighter-jet" aria-hidden="true"></i> Admin
+                    </a>
+                </li>
+            <% } %>
             <li id="settings" class="nav-item">
                 <btn class="btn btn-med" onclick="$('#settingsCardDisplay').show()">
                     <i class="fa fa-cog" aria-hidden="true"></i> Settings
