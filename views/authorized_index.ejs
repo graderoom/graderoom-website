@@ -30,7 +30,7 @@
 <i id="pageNumber" style="display:none"><%= page %></i>
 
 <!-- Class Links -->
-<ul id="classLinks" class="mx-5 my-3 nav nav-fill" style="border-bottom: 2px solid #969696; color: #BBBBBB;">
+<ul id="classLinks" class="mx-5 my-3 nav nav-fill" style="color: #BBBBBB;">
     <li class="nav-item active" id="link-1">
         <a class="nav-link" onclick="showPage(-1)">Overview</a>
     </li>
@@ -119,6 +119,7 @@
                  style="position: relative; height:60vh; width: 100%; margin: 0 auto;">
                     <canvas id="chart-1" class="chart" style="width:50%; margin: 0;"></canvas>
             </div>
+            <br>
             <table class="table text-center" id="table-1">
                 <thead><tr>
                     <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
@@ -147,14 +148,6 @@
                                                             onclick="showUpdateWeights()">Add Weights</u>
             </div>
             <div style="display:flex; align-items: center">
-                <% if (JSON.parse(gradeData)[i].class_name in JSON.parse(weightData)) { %>
-                    <div class="text-center" style="width: 25%">
-                    <div id="overallGrade<%= i %>"
-                         style="font-weight: bolder; font-size: 80px; margin-bottom: 30px; color: <%= user.appearance.classColors[i] %>"></div>
-                    <div id="overallLetterGrade<%= i %>"
-                         style="font-weight: bolder; font-size: 80px; margin-bottom: 30px; color: <%= user.appearance.classColors[i] %>"></div>
-                </div>
-                <% } %>
                 <div id="chart-container<%= i %>" class="chart-container"
                      style="position: relative; height:40vh; width:100%;margin: 0 auto;">
                 <canvas id="chart<%= i %>" class="chart" style="margin: auto;"></canvas>
@@ -238,7 +231,6 @@
     let currentPage = -1;
 
     parseData();
-    setupOverallGrades();
     setupWeightsTables();
     setupOverviewTable();
     updateWeightMessages();
@@ -283,16 +275,6 @@
                 }
             });
         }, 1000);
-    }
-
-    function setupOverallGrades() {
-        for (let i = 0; i < data.length; i++) {
-            if (data[i].class_name in weights) {
-                let overallGrade = getOverallGrade(i);
-                document.getElementById("overallLetterGrade" + i).textContent = getLetterGrade(overallGrade);
-                document.getElementById("overallGrade" + i).textContent = (+(overallGrade.toFixed(1))).toString();
-            }
-        }
     }
 
     function getTotalWeight(classIndex) {
@@ -615,13 +597,13 @@
                         type: "time", time: {
                             unit: "month"
                         }, ticks: {
-                            fontColor: "white", fontFamily: "Verdana", fontSize: "13"
+                            fontColor: (user.appearance.darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "13"
                         }, gridLines: {
                             color: "#555555"
                         }
                     }], yAxes: [{
                         ticks: {
-                            fontColor: "white", fontFamily: "Verdana", fontSize: "12"
+                            fontColor: (user.appearance.darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "12"
                         }, gridLines: {
                             color: "#555555", drawBorder: false
                         }
@@ -630,7 +612,7 @@
                     easing: "easeOutCubic"
                 }, legend: {
                     display: true, position: "top", labels: {
-                        fontColor: "white", fontFamily: "Verdana", boxWidth: 20, fontSize: 13
+                        fontColor: (user.appearance.darkMode ? "white" : "black"), fontFamily: "Verdana", boxWidth: 20, fontSize: 13
                     }
                 }, tooltips: {
                     enabled: true, position: "nearest", intersect: false, displayColors: true, callbacks: {
@@ -699,13 +681,13 @@
                         type: "time", time: {
                             unit: "month"
                         }, ticks: {
-                            fontColor: "white", fontFamily: "Verdana", fontSize: "13"
+                            fontColor: (user.appearance.darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "13"
                         }, gridLines: {
                             color: "#555555"
                         }
                     }], yAxes: [{
                         ticks: {
-                            fontColor: "white", fontFamily: "Verdana", fontSize: "12"
+                            fontColor: (user.appearance.darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "12"
                         }, gridLines: {
                             color: "#555555", drawBorder: false
                         }
@@ -739,11 +721,11 @@
         }
         document.getElementById("section" + id).style.display = "block";
 
-        if (id == -1) {
-            document.getElementById("classLinks").style.borderBottomColor = brighten("#BBBBBB", -20);
-        } else {
-            document.getElementById("classLinks").style.borderBottomColor = brighten(user.appearance.classColors[id], -20);
-        }
+        // if (id == -1) {
+        //     document.getElementById("classLinks").style.borderBottomColor = brighten("#BBBBBB", -20);
+        // } else {
+        //     document.getElementById("classLinks").style.borderBottomColor = brighten(user.appearance.classColors[id], -20);
+        // }
         currentPage = id;
     }
 

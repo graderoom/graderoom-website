@@ -1,24 +1,44 @@
 body {
-    background: #E5E5E5;
-    color: #333333;
+    background: #FFFFFF;
+    color: #222222;
 }
 
 .btn {
-    background: #BBBBBB;
-    color: black;
+    background: #333333;
+    color: #BBBBBB;
     font-weight: bold;
     margin: 1em;
 }
 
 .btn:hover {
     background: none;
-    border-color: black;
-    color: black;
+    border-color: #BBBBBB;
+    color: #BBBBBB;
+}
+
+.btn:focus {
+    box-shadow: none;
+}
+
+.nav {
+    padding: 1rem 1rem 0 1rem;
+    margin-top: 0 !important;
+    border-radius: 0 0 1rem 1rem;
+    background-color: #EEEEEE;
+    border-color: #000000;
 }
 
 .nav .active {
     color: #000000;
+    background-color: #FFFFFF;
+    border-radius: 1rem 1rem 0 0;
     font-weight: bold;
+}
+
+.nav-item:hover {
+    background-color: #FFFFFF;
+    opacity: 0.2;
+    border-radius: 1rem 1rem 0 0;
 }
 
 .alert .close {
@@ -30,12 +50,15 @@ body {
 /* Nav Bar Styling */
 
 nav {
-    background: white;
-    box-shadow: 0 1px 3px;
+    background: #FFFFFF;
+    border-radius: 5px;
+    box-shadow: 1px 4px  10px #555555;
+    width: 99%;
+    transform: translateX(.5%) translateY(5%);
 }
 
 nav h1 {
-    color: #333333;
+    color: #000000;
     font-family: "Montserrat";
     margin-bottom: 0;
 }
@@ -49,20 +72,21 @@ nav h1 {
 nav h5 {
     font-family: "Montserrat";
     margin-bottom: 0;
-    color: #333333;
+    color: #555555;
+    font-size: 1.5rem;
     padding: .375rem .75rem
 }
 
 nav .btn {
     color: black;
     background-color: transparent;
+    margin: .5rem
 }
 
 nav .btn:hover {
-    /* color: #CCCCCC; */
-    color: black;
-    background-color: #E5E5E5;
-    border-color: transparent;
+    color: #888888;
+    background-color: #FFFFFF;
+    box-shadow: 1px 1px 3px #999999;
 }
 
 nav .navbar-toggler:focus {
@@ -85,10 +109,14 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
     }
 }
 
+.nav .active {
+    color: #000000;
+    font-weight: bolder;
+}
 
-/* Form Input Card Styling */
+/* Card Styling */
 .card {
-    background: #EEEEEE;
+    background: #FFFFFF;
 }
 
 .card-no-bg {
@@ -97,7 +125,7 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
 }
 
 .card a {
-    color: #000000;
+    color: #222222;
 }
 
 .card h1 {
@@ -118,9 +146,102 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
     padding: 2rem;
 }
 
+/* Weights Cars Styling */
+
+#weightsCard h5 {
+    font-family: "Montserrat";
+    font-size: 1.1rem;
+    font-weight: 400;
+    padding-top: 8px;
+}
+
+#weightsCard label h5 i::after {
+    content: "\f107"; /*Arrow Icon Toggling*/
+}
+
+#weightsCard label.collapsed h5 i::after {
+    content: "\f105"; /*Arrow Icon Toggling*/
+}
+
+#weightsCard h5.collapsed {
+    border-top: none;
+}
+
+#weightsCard h5.collapsed ~ span.collapse-underline {
+    border-bottom: none;
+}
+
+#weightsCard h5.class {
+    padding-top: 0.5rem;
+}
+
+#weightsCard h5 ~ span.collapse-underline {
+    border-bottom: 1px solid #BBBBBB;
+}
+
+#weightsCard .collapse.show, #weightsCard .collapsing {
+    display: flex;
+    flex-flow: row wrap;
+}
+
+#weightsCard .form-signin .btn {
+    width: auto;
+    padding: .375rem .75rem;
+    margin: 0 0 1rem;
+    background: #CCCCCC;
+}
+
+#weightsCard .form-signin .btn:hover {
+    background: none;
+}
+
+#weightsCard input[type="number"]::-webkit-outer-spin-button,
+#weightsCard input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#weightsCard input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+#weightsCard input {
+    font-size: 0.9rem;
+    padding: .1rem .1rem;
+    width: 3rem;
+    text-align: center;
+    margin-right: 1rem;
+    border-color: lightcoral;
+}
+
+#weightsCard input:focus {
+    border-color: red;
+}
+
+#weightsCard input.text-view {
+    border-color: white;
+    border-bottom: 1px transparent;
+    padding: .1rem .1rem;
+}
+
+#weightsCard input.text-view:hover, #weightsCard input.text-view:focus {
+    border-bottom: 1px solid #CED4DA;
+    padding: .1rem .1rem;
+}
+
+#weightsCard .success {
+    color: lightgreen;
+}
+
+#weightsCard .fail {
+    color: lightcoral;
+}
+
+/* Input Form Styling */
+
 .form-signin .btn {
-    background: #BBBBBB;
-    color: #000000;
+    background: #444444;
+    color: #DDDDDD;
     font-weight: bold;
     padding: 0.25rem;
     width: 90%;
@@ -128,7 +249,8 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
 
 .form-signin .btn:hover {
     background: none;
-    border-color: #444444;
+    border-color: #000000;
+    color: #DDDDDD;
 }
 
 .form-group input {
@@ -137,7 +259,6 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
     border-top: none;
     border-right: none;
     border-left: none;
-    border-bottom-color: #333333;
     color: black;
 }
 
@@ -145,6 +266,10 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
     color: black;
     border-bottom-color: #BBBBBB;
     box-shadow: none;
+}
+
+.form-group:focus-within label {
+    color: #888888 !important;
 }
 
 /* Input Form Background Images */
@@ -181,6 +306,10 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
     background-image: url(/public/resources/light_mode/blur.png) !important;
 }
 
+.nav-item {
+    width: inherit;
+}
+
 html {
     overflow: scroll;
     overflow-x: hidden;
@@ -189,11 +318,34 @@ html {
 }
 
 ::-webkit-scrollbar {
-    width: 0; /* Remove scrollbar space */
-    background: transparent; /* Optional: just make scrollbar invisible */
+    display: none
+}
+
+.card::-webkit-scrollbar {
+    display: initial;
+    width: 24px;
+}
+
+.card::-webkit-scrollbar-button, .card::-webkit-scrollbar-corner {
+    display: none;
+}
+
+.card::-webkit-scrollbar-thumb {
+    border: 8px solid transparent;
+    border-top: 15px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 15px solid rgba(0, 0, 0, 0.1);
+    background-clip: padding-box;
+    background-color: #555555;
+    /* box-shadow: inset -1px -1px 0px rgba(0, 0, 0, 0.05), inset 1px 1px 0px rgba(0, 0, 0, 0.05); */
+}
+
+/* Handle on hover */
+.card::-webkit-scrollbar-thumb:hover {
+    background-color: #777777;
 }
 
 .nav-item {
+    cursor: pointer;
     width: inherit;
 }
 
@@ -206,7 +358,7 @@ html {
     border-top: solid #DDDDDD;
     border-bottom: solid #DDDDDD;
     padding: 0.25rem;
-    background-color: #EEEEEE;
+    background-color: #FFFFFF;
     cursor: context-menu;
 }
 
@@ -217,7 +369,7 @@ html {
 /* Style the buttons that are used to open the tab content */
 .tab btn {
     background: none;
-    color: #BBBBBB;
+    color: #666666;
     float: left;
     border: none;
     outline: none;
@@ -234,8 +386,8 @@ html {
 
 /* Create an active/current tablink class */
 .tab btn.active {
-    background-color: #FFFFFF;
-    color: #BBBBBB;
+    background-color: #CCCCCC;
+    color: #000000;
     font-weight: bold;
 }
 
@@ -252,12 +404,37 @@ html {
     border-top: none;
 }
 
+.dropdown {
+    text: bold;
+    margin-left: 20px;
+    width: fit-content;
+    border-radius: 1em;
+    text-align-last: center;
+    max-height: 10rem;
+    overflow-y: auto;
+}
+
+.collapsed:hover {
+    text: bold;
+}
+
 /* Loading Screen Animation */
 .sk-chase {
     width: 5rem;
     height: 5rem;
     position: absolute;
     margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    animation: sk-chase 2.5s infinite linear both;
+}
+
+.sk-chase-mini {
+    width: 1rem;
+    height: 1rem;
+    margin-top: 3px;
     top: 0;
     bottom: 0;
     left: 0;
@@ -279,10 +456,13 @@ html {
     display: block;
     width: 25%;
     height: 25%;
-    /* background-color: #fff; */
     background-color: #000000;
     border-radius: 100%;
     animation: sk-chase-dot-before 2.0s infinite ease-in-out both;
+}
+
+.mini:before {
+    background-color: darkgreen;
 }
 
 .sk-chase-dot:nth-child(1) {
@@ -352,4 +532,98 @@ html {
     100%, 0% {
         transform: scale(1.0);
     }
+}
+
+.number-input::-webkit-inner-spin-button,
+.number-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.number-input {
+    width: 5rem;
+}
+
+.popup {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.popup .popuptext {
+    font-family: "Montserrat";
+    font-displat: swap;
+    visibility: hidden;
+    width: 180px;
+    height: fit-content;
+    background-color: #555555;
+    color: #FFFFFF;
+    text-align: center;
+    border-radius: 6px;
+    padding: 8px 8px 8px 8px;
+    position: absolute;
+    z-index: 1;
+    bottom: 150%;
+    left: 50%;
+    margin-left: -90px;
+}
+
+.popup .popuptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555555 transparent transparent transparent;
+}
+
+.popup:hover .popuptext {
+    visibility: visible;
+    -webkit-animation: fadeIn 1s;
+    animation: fadeIn 1s;
+}
+
+@-webkit-keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.chart {
+    border-radius: 1rem;
+    background: #FFFFFF;
+    padding: 1rem 1rem 0 1rem;
+    box-shadow: 1px 1px 10px #222222;
+}
+
+.table {
+    border-radius: 1rem;
+    box-shadow: 1px 1px 10px #222222;
+}
+
+.table th {
+    border-top: none;
+}
+
+hr {
+    background-color: #EEEEEE;
+    height: 1px;
 }
