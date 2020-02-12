@@ -38,8 +38,8 @@ nav {
 }
 
 nav h1 {
+    color: #FFFFFF;
     font-family: "Montserrat";
-    font-display: swap;
     margin-bottom: 0;
 }
 
@@ -51,7 +51,6 @@ nav h1 {
 
 nav h5 {
     font-family: "Montserrat";
-    font-display: swap;
     margin-bottom: 0;
     color: #CCCCCC;
     padding: .375rem .75rem
@@ -108,12 +107,10 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
 
 .card h1 {
     font-family: "Montserrat";
-    font-display: swap;
 }
 
 .card label {
     font-family: "Montserrat";
-    font-display: swap;
 }
 
 .card-signin {
@@ -130,7 +127,6 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
 
 #weightsCard h5 {
     font-family: "Montserrat";
-    font-display: swap;
     font-size: 1.1rem;
     font-weight: 400;
     padding-top: 8px;
@@ -446,7 +442,6 @@ html {
 
 .mini:before {
     background-color: darkgreen;
-    animation: sk-chase-dot-before 2.0s infinite ease-in-out both;
 }
 
 .sk-chase-dot:nth-child(1) {
