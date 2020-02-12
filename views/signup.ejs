@@ -5,7 +5,7 @@
     <link rel="icon" href="../public/resources/common/icon.png">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+    <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
@@ -58,5 +58,16 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
+<script>
+    let localStorage = window.localStorage;
+    let defaultAppearance = localStorage.getItem("defaultAppearance");
+    if (defaultAppearance) {
+        if (defaultAppearance === "dark") {
+            document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+        }
+    } else {
+        localStorage.setItem("defaultAppearance", "light");
+    }
+</script>
 </body>
 </html>

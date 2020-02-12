@@ -63,7 +63,7 @@
         <span style="display: none;" id="refresh"> <u style="cursor: pointer"
                                                       onclick="window.reload()">Refresh</u>
              to see new updates or turn on Auto-Refresh in <u style="cursor: pointer"
-                    onclick="$('#settingsCardDisplay').show(); openTab('Advanced');">settings</u>.
+                                                              onclick="$('#settingsCardDisplay').show(); openTab('Advanced');">settings</u>.
             <a class="close" data-dismiss="alert"
                aria-label="close">X</a>
         </span>
@@ -246,12 +246,19 @@
         renderAllCharts();
     }
     if (user.schoolPassword) {
-        $('#syncGradesDiv').hide();
-        $('#gradeSyncDiv').show();
+        $("#syncGradesDiv").hide();
+        $("#gradeSyncDiv").show();
         checkUpdateBackground();
     } else {
-        $('#gradeSyncDiv').hide();
-        $('#syncGradesDiv').show();
+        $("#gradeSyncDiv").hide();
+        $("#syncGradesDiv").show();
+    }
+
+    let localStorage = window.localStorage;
+    if (user.appearance.darkMode == true) {
+        localStorage.setItem("defaultAppearance", "dark");
+    } else {
+        localStorage.setItem("defaultAppearance", "light");
     }
 
     async function checkUpdateBackground() {
@@ -259,22 +266,22 @@
             $.get("/checkUpdateBackground", function (data, status) {
                 if (status === "success") {
                     if (data === "Sync Complete!") {
-                        $('#preRefresh').hide();
+                        $("#preRefresh").hide();
                         if (user.autoRefresh) {
-                            $('#backgroundRefreshMessage').hide();
+                            $("#backgroundRefreshMessage").hide();
                             window.reload();
                         } else {
-                            $('#refresh').show();
+                            $("#refresh").show();
                         }
                         clearInterval(checking);
                     } else if (data === "Already Synced!") {
                         clearInterval(checking);
                     } else if (data === "Did not sync") {
-                        $('#backgroundRefreshMessage').show();
-                        $('#weightmsg-1').hide();
+                        $("#backgroundRefreshMessage").show();
+                        $("#weightmsg-1").hide();
                     }
                 }
-            })
+            });
         }, 1000);
     }
 
@@ -282,8 +289,8 @@
         for (let i = 0; i < data.length; i++) {
             if (data[i].class_name in weights) {
                 let overallGrade = getOverallGrade(i);
-                document.getElementById('overallLetterGrade' + i).textContent = getLetterGrade(overallGrade);
-                document.getElementById('overallGrade' + i).textContent = (+(overallGrade.toFixed(1))).toString();
+                document.getElementById("overallLetterGrade" + i).textContent = getLetterGrade(overallGrade);
+                document.getElementById("overallGrade" + i).textContent = (+(overallGrade.toFixed(1))).toString();
             }
         }
     }
@@ -319,31 +326,31 @@
 
     function getLetterGrade(grade) {
         if (grade >= 97.5) {
-            return 'A+';
+            return "A+";
         } else if (grade >= 92.5) {
-            return 'A';
+            return "A";
         } else if (grade >= 89.5) {
-            return 'A-';
+            return "A-";
         } else if (grade >= 87.5) {
-            return 'B+';
+            return "B+";
         } else if (grade >= 82.5) {
-            return 'B';
+            return "B";
         } else if (grade >= 79.5) {
-            return 'B-';
+            return "B-";
         } else if (grade >= 77.5) {
-            return 'C+';
+            return "C+";
         } else if (grade >= 72.5) {
-            return 'C';
+            return "C";
         } else if (grade >= 69.5) {
-            return 'C-';
+            return "C-";
         } else if (grade >= 67.5) {
-            return 'D+';
+            return "D+";
         } else if (grade >= 62.5) {
-            return 'D';
+            return "D";
         } else if (grade >= 59.5) {
-            return 'D-';
+            return "D-";
         }
-        return 'F';
+        return "F";
     }
 
     function setupWeightsTables() {
@@ -354,14 +361,14 @@
                     let tableCategories = Object.keys(weights[className]);
                     let tableWeights = Object.values(weights[className]);
                     for (let j = 0; j < tableCategories.length; j++) {
-                        document.getElementById('weightTableCategory' + i + j).textContent = tableCategories[j];
-                        document.getElementById('weightTableWeight' + i + j).textContent = tableWeights[j] + '%';
+                        document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
+                        document.getElementById("weightTableWeight" + i + j).textContent = tableWeights[j] + "%";
                         let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
-                        document.getElementById('weightTablePoints' + i + j).textContent = +(categoryGottenAndPossible.gotten.toFixed(3)) + ((categoryGottenAndPossible.possible != 0) ? ('/' + +(categoryGottenAndPossible.possible.toFixed(3))) : '');
-                        document.getElementById('weightTableGrade' + i + j).textContent = getCategoryGrade(i, tableCategories[j]);
+                        document.getElementById("weightTablePoints" + i + j).textContent = +(categoryGottenAndPossible.gotten.toFixed(3)) + ((categoryGottenAndPossible.possible != 0) ? ("/" + +(categoryGottenAndPossible.possible.toFixed(3))) : "");
+                        document.getElementById("weightTableGrade" + i + j).textContent = getCategoryGrade(i, tableCategories[j]);
                     }
                     let overallGrade = getOverallGrade(i);
-                    document.getElementById('weightTableOverallGrade' + i).textContent = (+(overallGrade.toFixed(3))).toString() + '% (' + getLetterGrade(overallGrade) + ')';
+                    document.getElementById("weightTableOverallGrade" + i).textContent = (+(overallGrade.toFixed(3))).toString() + "% (" + getLetterGrade(overallGrade) + ")";
                 }
             }
         }
@@ -370,7 +377,7 @@
     function setupOverviewTable() {
         for (let i = 0; i < data.length; i++) {
             let overallGrade = getOverallGrade(i);
-            document.getElementById('overviewChart' + i).innerHTML = (+(overallGrade.toFixed(2))).toString() + '% </br>' + getLetterGrade(overallGrade);
+            document.getElementById("overviewChart" + i).innerHTML = (+(overallGrade.toFixed(2))).toString() + "% </br>" + getLetterGrade(overallGrade);
         }
     }
 
@@ -400,7 +407,7 @@
     function showWeightMessage(msg, id) {
         let wmRef = document.getElementById("weightmsg" + id);
         let wmTextRef = document.getElementById("weightmsg_text" + id);
-        if (msg !== 'Missing Weights: ') {
+        if (msg !== "Missing Weights: ") {
             wmRef.style.display = "block";
             wmTextRef.innerText = msg;
         }
@@ -415,15 +422,15 @@
 
     function updateWeightMessages() {
         if (unobtainedWeights.length > 0) {
-            hideWeightMessage(-1)
+            hideWeightMessage(-1);
         } else {
             showWeightMessage("Missing Weights: " + Object.keys(unobtainedWeights).join(", "), -1);
         }
         for (var id = 0; id < data.length; id++) {
             if (data[id].class_name in unobtainedWeights) { //TODO idk if this index get is safe
-                showWeightMessage("Missing Weights: " + unobtainedWeights[data[id].class_name].join(", "), id)
+                showWeightMessage("Missing Weights: " + unobtainedWeights[data[id].class_name].join(", "), id);
             } else {
-                hideWeightMessage(id)
+                hideWeightMessage(id);
             }
         }
     }
@@ -481,16 +488,16 @@
             for (let grade of classData.grades) {
                 let category = grade.category;
                 if (doesntHaveWeights) {
-                    category = 'default';
+                    category = "default";
                 }
                 try {
-                    if (typeof totalPossiblesAndGottens[category] === 'undefined') {
+                    if (typeof totalPossiblesAndGottens[category] === "undefined") {
                         let weightVal = 100;
                         if (!doesntHaveWeights) {
                             weightVal = weights[className][category];
                         }
                         totalPossiblesAndGottens[category] = {
-                            totalPossible: 0, totalGotten: 0, weight: weightVal,
+                            totalPossible: 0, totalGotten: 0, weight: weightVal
                         };
                         totalWeightValue += weightVal;
                     }
@@ -521,7 +528,7 @@
             let assignmentScoresParsed = classData.grades.map(x => x.points_gotten + "/" + x.points_possible);
             let assignmentCategories = classData.grades.map(x => x.category);
             let mixedData = overallGradeSteps.map(function (grade, i) {
-                return {x: assignmentTimestamps[i], y: grade}
+                return {x: assignmentTimestamps[i], y: grade};
             });
 
             parsedData.push({
@@ -530,7 +537,7 @@
                                 assignmentPercents: assignmentPercents,
                                 assignmentScoresParsed: assignmentScoresParsed,
                                 assignmentCategories: assignmentCategories,
-                                mixedData: mixedData,
+                                mixedData: mixedData
                             });
             // console.log(parsedData);
         }
@@ -539,26 +546,26 @@
     function renderAllCharts() {
         renderOverviewChart();
         for (let i = 0; i < data.length; i++) {
-            renderChart(i)
+            renderChart(i);
         }
     }
 
     let hoveredDatasetIndex = -1;
 
     function renderOverviewChart() {
-        let ctx = document.getElementById('chart-1');
+        let ctx = document.getElementById("chart-1");
         let id = 0;
         let dataset = [];
         let colors = user.appearance.classColors;
         for (let i = 0; i < data.length; i++) {
             dataset.push({
                              label: data[i].class_name,
-                             backgroundColor: 'transparent',
+                             backgroundColor: "transparent",
                              pointBackgroundColor: brighten(colors[i], 100),
-                             pointBorderColor: 'transparent',
+                             pointBorderColor: "transparent",
                              borderColor: brighten(colors[i], 100),
                              data: parsedData[i].mixedData,
-                             cubicInterpolationMode: 'monotone',
+                             cubicInterpolationMode: "monotone",
                              spanGaps: false,
                              pointRadius: 3,
                              borderWidth: 3,
@@ -570,11 +577,11 @@
         }
         let numRunning = 0;
         let myChart = new Chart(ctx, {
-            type: 'line', data: {
-                datasets: dataset,
+            type: "line", data: {
+                datasets: dataset
             }, options: {
                 hover: {
-                    mode: 'nearest', intersect: false,
+                    mode: "nearest", intersect: false
                 }, onHover: function onHover(evt, activeElements) {
                     if (!activeElements || !activeElements.length) {
                         return;
@@ -605,35 +612,35 @@
                     }, 6000);
                 }, scales: {
                     xAxes: [{
-                        type: 'time', time: {
-                            unit: 'month'
+                        type: "time", time: {
+                            unit: "month"
                         }, ticks: {
-                            fontColor: 'white', fontFamily: 'Verdana', fontSize: '13'
+                            fontColor: "white", fontFamily: "Verdana", fontSize: "13"
                         }, gridLines: {
-                            color: '#555555',
+                            color: "#555555"
                         }
                     }], yAxes: [{
                         ticks: {
-                            fontColor: 'white', fontFamily: 'Verdana', fontSize: '12'
+                            fontColor: "white", fontFamily: "Verdana", fontSize: "12"
                         }, gridLines: {
-                            color: '#555555', drawBorder: false
+                            color: "#555555", drawBorder: false
                         }
                     }]
                 }, animation: {
-                    easing: 'easeOutCubic'
+                    easing: "easeOutCubic"
                 }, legend: {
-                    display: true, position: 'top', labels: {
-                        fontColor: 'white', fontFamily: 'Verdana', boxWidth: 20, fontSize: 13,
+                    display: true, position: "top", labels: {
+                        fontColor: "white", fontFamily: "Verdana", boxWidth: 20, fontSize: 13
                     }
                 }, tooltips: {
-                    enabled: true, position: 'nearest', intersect: false, displayColors: true, callbacks: {
+                    enabled: true, position: "nearest", intersect: false, displayColors: true, callbacks: {
                         title: function (tooltipItems, data) {
                             return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
                         }, label: function (tooltipItem, data) {
-                            return ["[" + parsedData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.index] + "] " + parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + " - " + (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== -1 ? (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "%") : ("")) + ((parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)) !== '/0' ? (" (" + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")") : (parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)))];
-                        },
+                            return ["[" + parsedData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.index] + "] " + parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + " - " + (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== -1 ? (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "%") : ("")) + ((parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? (" (" + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")") : (parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)))];
+                        }
                     }
-                }, responsive: true, maintainAspectRatio: false,
+                }, responsive: true, maintainAspectRatio: false
             }
         });
     }
@@ -659,23 +666,23 @@
         newR > 255 ? newR = 255 : newR < 0 ? newR = 0 : newR;
         newG > 255 ? newG = 255 : newG < 0 ? newG = 0 : newG;
         newB > 255 ? newB = 255 : newB < 0 ? newB = 0 : newB;
-        return ('#' + newR.toString(16) + newG.toString(16) + newB.toString(16)).toUpperCase();
+        return ("#" + newR.toString(16) + newG.toString(16) + newB.toString(16)).toUpperCase();
     }
 
     function renderChart(id) {
-        let ctx = document.getElementById('chart' + id);
+        let ctx = document.getElementById("chart" + id);
         let colors = user.appearance.classColors;
         let myChart = new Chart(ctx, {
-            type: 'line', data: {
+            type: "line", data: {
                 datasets: [{
-                    label: 'parsedData[id]',
-                    backgroundColor: 'rgba(256,256,256,0.05)',
+                    label: "parsedData[id]",
+                    backgroundColor: "rgba(256,256,256,0.05)",
                     pointBackgroundColor: brighten(colors[id], 100),
                     pointBorderColor: brighten(colors[id], 100),
                     borderColor: brighten(colors[id], 100),
-                    fill: 'start',
+                    fill: "start",
                     data: parsedData[id].mixedData,
-                    cubicInterpolationMode: 'monotone',
+                    cubicInterpolationMode: "monotone",
                     spanGaps: false,
                     pointRadius: 3,
                     borderWidth: 3,
@@ -686,36 +693,36 @@
                 }]
             }, options: {
                 hover: {
-                    mode: 'nearest', intersect: false
+                    mode: "nearest", intersect: false
                 }, scales: {
                     xAxes: [{
-                        type: 'time', time: {
-                            unit: 'month'
+                        type: "time", time: {
+                            unit: "month"
                         }, ticks: {
-                            fontColor: 'white', fontFamily: 'Verdana', fontSize: '13'
+                            fontColor: "white", fontFamily: "Verdana", fontSize: "13"
                         }, gridLines: {
-                            color: '#555555',
+                            color: "#555555"
                         }
                     }], yAxes: [{
                         ticks: {
-                            fontColor: 'white', fontFamily: 'Verdana', fontSize: '12'
+                            fontColor: "white", fontFamily: "Verdana", fontSize: "12"
                         }, gridLines: {
-                            color: '#555555', drawBorder: false
+                            color: "#555555", drawBorder: false
                         }
                     }]
                 }, animation: {
-                    easing: 'easeOutCubic'
+                    easing: "easeOutCubic"
                 }, legend: {
-                    display: false,
+                    display: false
                 }, tooltips: {
-                    enabled: true, position: 'nearest', intersect: false, displayColors: false, callbacks: {
+                    enabled: true, position: "nearest", intersect: false, displayColors: false, callbacks: {
                         title: function (tooltipItems, data) {
                             return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
                         }, label: function (tooltipItem, data) {
-                            return ["[" + parsedData[id].assignmentCategories[tooltipItem.index] + "] " + parsedData[id].assignmentNames[tooltipItem.index] + " - " + (parsedData[id].assignmentPercents[tooltipItem.index] !== -1 ? (parsedData[id].assignmentPercents[tooltipItem.index] + "%") : ("")) + ((parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)) !== '/0' ? (" (" + parsedData[id].assignmentScoresParsed[tooltipItem.index] + ")") : (parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(0, parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)))];
-                        },
+                            return ["[" + parsedData[id].assignmentCategories[tooltipItem.index] + "] " + parsedData[id].assignmentNames[tooltipItem.index] + " - " + (parsedData[id].assignmentPercents[tooltipItem.index] !== -1 ? (parsedData[id].assignmentPercents[tooltipItem.index] + "%") : ("")) + ((parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? (" (" + parsedData[id].assignmentScoresParsed[tooltipItem.index] + ")") : (parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(0, parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)))];
+                        }
                     }
-                }, responsive: true, maintainAspectRatio: false,
+                }, responsive: true, maintainAspectRatio: false
             }
         });
     }
@@ -764,7 +771,7 @@
             }
         }
 
-    }
+    };
 
 </script>
 </body>
