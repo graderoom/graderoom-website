@@ -543,17 +543,17 @@
             dataset.push({
                              label: data[i].class_name,
                              backgroundColor: "transparent",
-                             pointBackgroundColor: brighten(colors[i], 100),
+                             pointBackgroundColor: colors[i],
                              pointBorderColor: "transparent",
-                             borderColor: brighten(colors[i], 100),
+                             borderColor: colors[i],
                              data: parsedData[i].mixedData,
                              cubicInterpolationMode: "monotone",
                              spanGaps: false,
                              pointRadius: 3,
                              borderWidth: 3,
                              pointHoverRadius: 7,
-                             pointHoverBackgroundColor: brighten(colors[i], -20),
-                             pointHoverBorderColor: brighten(colors[i], 10),
+                             pointHoverBackgroundColor: colors[i],
+                             pointHoverBorderColor: colors[i],
                              pointHoverBorderWidth: 2
                          });
         }
@@ -627,30 +627,6 @@
         });
     }
 
-    function brighten(color, amount) {
-        let hex = color.substring(1);
-        let origR = parseInt(hex.substring(0, 2), 16);
-        let origG = parseInt(hex.substring(2, 4), 16);
-        let origB = parseInt(hex.substring(4), 16);
-        let minAmtR = -100;
-        let maxAmtR = Math.round((255 - origR) / 255 * 100);
-        let minAmtG = -100;
-        let maxAmtG = Math.round((255 - origG) / 255 * 100);
-        let minAmtB = -100;
-        let maxAmtB = Math.round((255 - origB) / 255 * 100);
-        let commonMin = Math.max(minAmtR, minAmtG, minAmtB);
-        let commonMax = Math.min(maxAmtR, maxAmtG, maxAmtB);
-        amount < commonMin ? amount = commonMin : amount;
-        amount > commonMax ? amount = commonMax : amount;
-        let newR = Math.round(origR * (100 + amount) / 100);
-        let newG = Math.round(origG * (100 + amount) / 100);
-        let newB = Math.round(origB * (100 + amount) / 100);
-        newR > 255 ? newR = 255 : newR < 0 ? newR = 0 : newR;
-        newG > 255 ? newG = 255 : newG < 0 ? newG = 0 : newG;
-        newB > 255 ? newB = 255 : newB < 0 ? newB = 0 : newB;
-        return ("#" + newR.toString(16) + newG.toString(16) + newB.toString(16)).toUpperCase();
-    }
-
     function renderChart(id) {
         let ctx = document.getElementById("chart" + id);
         let colors = user.appearance.classColors;
@@ -659,9 +635,9 @@
                 datasets: [{
                     label: "parsedData[id]",
                     backgroundColor: "rgba(256,256,256,0.05)",
-                    pointBackgroundColor: brighten(colors[id], 100),
-                    pointBorderColor: brighten(colors[id], 100),
-                    borderColor: brighten(colors[id], 100),
+                    pointBackgroundColor: colors[id],
+                    pointBorderColor: colors[id],
+                    borderColor: colors[id],
                     fill: "start",
                     data: parsedData[id].mixedData,
                     cubicInterpolationMode: "monotone",
@@ -669,8 +645,8 @@
                     pointRadius: 3,
                     borderWidth: 3,
                     pointHoverRadius: 7,
-                    pointHoverBackgroundColor: brighten(colors[id], -20),
-                    pointHoverBorderColor: brighten(colors[id], 10),
+                    pointHoverBackgroundColor: colors[id],
+                    pointHoverBorderColor: colors[id],
                     pointHoverBorderWidth: 2
                 }]
             }, options: {
@@ -710,6 +686,11 @@
     }
 
     function showPage(id) {
+        if (id === -1) {
+            renderOverviewChart();
+        } else {
+            renderChart(id);
+        }
         document.getElementById("pageNumber").textContent = id;
         for (let i = -1; i < data.length; i++) {
             document.getElementById("link" + i).classList.remove("active");
