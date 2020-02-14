@@ -4,7 +4,7 @@ const adapter = new FileSync("user_db.json");
 const db = low(adapter);
 const bcrypt = require("bcryptjs");
 const scraper = require("./scrape");
-const randomColor = require("random-color");
+const randomColor = require("randomcolor");
 const crypto = require("crypto");
 
 db.defaults({users: [], keys: []}).write();
@@ -226,9 +226,25 @@ module.exports = {
         let grades = userRef.get("grades").value();
         let numClasses = Object.keys(grades).length;
         let classColors = userRef.get("appearance").get("classColors").value();
+        let numNewColors = 0;
+        // for (let i = 0; i < numClasses; i++) {
+        //     if (!(lockedColorIndices.includes(i.toString()))) {
+        //         numNewColors++;
+        //     }
+        // }
+        // let randomColors = randomColor({count: numNewColors, hue: 'random', luminosity: 'random'});
+        // let j = 0;
         for (let i = 0; i < numClasses; i++) {
             if (!(lockedColorIndices.includes(i.toString()))) {
-                classColors[i] = randomColor(0.75, 0.95).hexString();
+                let randomSeed;
+                if (lockedColorIndices.length === 0) {
+                    randomSeed = "#888888";
+                } else {
+                    do {
+                        randomSeed = Math.floor(Math.random() * numClasses);
+                    } while (!(randomSeed.toString() in lockedColorIndices));
+                }
+                classColors[i] = randomColor(randomSeed);//randomColors[j++];
             }
         }
         userRef.get("appearance").set("classColors", classColors).write();
