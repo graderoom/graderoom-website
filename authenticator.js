@@ -237,12 +237,12 @@ module.exports = {
         for (let i = 0; i < numClasses; i++) {
             if (!(lockedColorIndices.includes(i.toString()))) {
                 let randomSeed;
-                if (lockedColorIndices.length === 0) {
+                if (lockedColorIndices.length === 2) {
                     randomSeed = "#888888";
                 } else {
                     do {
                         randomSeed = Math.floor(Math.random() * numClasses);
-                    } while (!(randomSeed.toString() in lockedColorIndices));
+                    } while (!(lockedColorIndices.includes(randomSeed.toString())));
                 }
                 classColors[i] = randomColor(randomSeed);//randomColors[j++];
             }
