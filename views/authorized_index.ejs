@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.css">
-    <% if (user.appearance.theme === "dark") { %>
+    <% if (user.appearance.theme === "dark" || (user.appearance.theme === "auto" && (((Date.now() / 1000 / 3600 - 8) % 24 ) >= 18) || ((Date.now() / 1000 / 3600 - 8) % 24) < 7)) { %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else { %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
@@ -235,6 +235,8 @@
     let maxTab = 4;
 
     let darkMode;
+    let nightLimit = 18; // 6PM
+    let morningLimit = 7; // 7AM
 
     parseData();
     setupWeightsTables();
@@ -266,22 +268,28 @@
         localStorage.setItem("defaultAppearance", "light");
     }
 
-    async function checkTime() {
-        if (Math.floor((Date.now() / 1000 / 3600) % 24 + 16) > 18 || Math.floor((Date.now() / 1000 / 3600) % 24 + 16) < 7) {
+    function setAutoTheme() {
+        if (Math.floor((Date.now() / 1000 / 3600 - 8) % 24) >= nightLimit || Math.floor((Date.now() / 1000 / 3600 - 8) % 24) < 7) {
             document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+            let oldDarkMode = darkMode;
             darkMode = true;
+            if (darkMode !== oldDarkMode) {
+                renderAllCharts();
+            }
         } else {
             document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+            let oldDarkMode = darkMode;
             darkMode = false;
-        }
-        window.setInterval(function () {
-            if (Math.floor((Date.now() / 1000 / 3600) % 24 + 16) > 18 || Math.floor((Date.now() / 1000 / 3600) % 24 + 16) < 7) {
-                document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
-                darkMode = true;
-            } else {
-                document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
-                darkMode = false;
+            if (darkMode !== oldDarkMode) {
+                renderAllCharts();
             }
+        }
+    }
+
+    async function checkTime() {
+        setAutoTheme();
+        window.setInterval(function () {
+            setAutoTheme();
         }, 60000);
     }
 

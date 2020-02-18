@@ -32,6 +32,10 @@ nav .btn:hover {
     background-color: #FFFFFF;
 }
 
+nav .navbar-toggler {
+    background-color: #AAAAAA;
+}
+
 nav .navbar-toggler:hover {
     background: #BBBBBB;
 }

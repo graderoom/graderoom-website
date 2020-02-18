@@ -137,21 +137,21 @@
                     if (formID === "#chooseTheme") {
                         if (response === "Updated theme to dark!") {
                             document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+                            let oldDarkMode = darkMode;
                             darkMode = true;
+                            if (darkMode !== oldDarkMode) {
+                                renderAllCharts();
+                            }
                         } else if (response === "Updated theme to light!") {
                             document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+                            let oldDarkMode = darkMode;
                             darkMode = false;
-                        } else {
-                            if (Math.floor((Date.now() / 1000 / 3600) % 24 + 16) > 18 || Math.floor((Date.now() / 1000 / 3600) % 24 + 16) < 7) {
-                                document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
-                                darkMode = true;
-                            } else {
-                                document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
-                                darkMode = false;
+                            if (darkMode !== oldDarkMode) {
+                                renderAllCharts();
                             }
-                            console.log(Math.floor((Date.now() / 1000 / 3600 - 8) % 24));
+                        } else {
+                            setAutoTheme();
                         }
-                        renderAllCharts();
                     }
                 }
             }).fail(function (data) {
