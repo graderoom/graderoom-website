@@ -144,10 +144,11 @@ module.exports = {
         let user = db.get("users").find({username: lc_username}).value();
         return !!user;
 
-    }, setMode: function (username, darkMode) {
+    }, setTheme: function (username, theme) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username}).value();
-        user.appearance.darkMode = darkMode;
+        user.appearance.theme = theme;
+        return {success: true, message: "Updated theme to " + theme + "!"};
     }, setUpdateGradesReminder: function (username, updateGradesReminder) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username}).value();
@@ -170,7 +171,7 @@ module.exports = {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         if (user.get("updatedInBackground").value() === "complete") {
-            user.set("updatedInBackground","already done").write();
+            user.set("updatedInBackground", "already done").write();
             return {success: true, message: "Sync Complete!"};
         } else if (user.get("updatedInBackground").value() === "already done") {
             return {success: true, message: "Already Synced!"};
@@ -226,29 +227,39 @@ module.exports = {
         let grades = userRef.get("grades").value();
         let numClasses = Object.keys(grades).length;
         let classColors = userRef.get("appearance").get("classColors").value();
-        let numNewColors = 0;
-        // for (let i = 0; i < numClasses; i++) {
-        //     if (!(lockedColorIndices.includes(i.toString()))) {
-        //         numNewColors++;
-        //     }
-        // }
-        // let randomColors = randomColor({count: numNewColors, hue: 'random', luminosity: 'random'});
-        // let j = 0;
+        let randomSeed;
+        if (lockedColorIndices.length === 2) {
+            randomSeed = "#888888";
+        } else {
+            let colorArray = [];
+            for (let i = 2; i < lockedColorIndices.length; i+=4) {
+                colorArray.push(classColors[parseInt(lockedColorIndices[i])]);
+            }
+            randomSeed = this.getAverageColor(colorArray);
+        }
+        let j = 0;
         for (let i = 0; i < numClasses; i++) {
-            if (!(lockedColorIndices.includes(i.toString()))) {
-                let randomSeed;
-                if (lockedColorIndices.length === 2) {
-                    randomSeed = "#888888";
-                } else {
-                    do {
-                        randomSeed = Math.floor(Math.random() * numClasses);
-                    } while (!(lockedColorIndices.includes(randomSeed.toString())));
-                }
-                classColors[i] = randomColor(randomSeed);//randomColors[j++];
+            if (!lockedColorIndices.includes(i.toString())) {
+                classColors[i] = randomColor(randomSeed);
             }
         }
         userRef.get("appearance").set("classColors", classColors).write();
         return {success: true, message: classColors};
+    },
+
+    getAverageColor: function (colorArray) {
+        let runningRSum = parseInt(colorArray[0].substring(1,3),16) ** 2;
+        let runningGSum = parseInt(colorArray[0].substring(3,5),16) ** 2;
+        let runningBSum = parseInt(colorArray[0].substring(5,7),16) ** 2;
+        for (let i = 1; i < colorArray.length; i++) {
+            runningRSum += parseInt(colorArray[i].substring(1,3),16) ** 2;
+            runningGSum += parseInt(colorArray[i].substring(3,5),16) ** 2;
+            runningBSum += parseInt(colorArray[i].substring(5,7),16) ** 2;
+        }
+        let rAverage = Math.round(Math.sqrt(runningRSum / colorArray.length)).toString(16);
+        let gAverage = Math.round(Math.sqrt(runningGSum / colorArray.length)).toString(16);
+        let bAverage = Math.round(Math.sqrt(runningBSum / colorArray.length)).toString(16);
+        return "#" + rAverage + gAverage + bAverage;
     },
 
     getAllUsers: function () {

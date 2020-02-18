@@ -131,12 +131,12 @@ module.exports = function (app, passport) {
         res.status(200).send(resp.message);
     });
 
-    app.post("/updateOther", [isLoggedIn], (req, res) => {
-        let darkMode;
-        darkMode = req.body.darkMode === "on";
-        if (darkMode !== null) {
-            authenticator.setMode(req.user.username, darkMode);
-        }
+    app.post("/updateAppearance", [isLoggedIn], (req, res) => {
+        let resp = authenticator.setTheme(req.user.username, req.body.theme);
+        res.status(200).send(resp.message);
+    });
+
+    app.post("/updateGradeSync", [isLoggedIn], (req, res) => {
         let gradeSync;
         gradeSync = req.body.gradeSync === "on";
         if (!gradeSync) {
