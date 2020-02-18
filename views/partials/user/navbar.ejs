@@ -132,6 +132,27 @@
                     if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
                         $("#synced").text("Synced");
                     }
+
+                    // Switch mode instantly
+                    if (formID === "#chooseTheme") {
+                        if (response === "Updated theme to dark!") {
+                            document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+                            darkMode = true;
+                        } else if (response === "Updated theme to light!") {
+                            document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+                            darkMode = false;
+                        } else {
+                            if (Math.floor((Date.now() / 1000 / 3600) % 24 + 16) > 18 || Math.floor((Date.now() / 1000 / 3600) % 24 + 16) < 7) {
+                                document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+                                darkMode = true;
+                            } else {
+                                document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+                                darkMode = false;
+                            }
+                            console.log(Math.floor((Date.now() / 1000 / 3600 - 8) % 24));
+                        }
+                        renderAllCharts();
+                    }
                 }
             }).fail(function (data) {
                 // Make sure that the formMessages div has the alert-danger class

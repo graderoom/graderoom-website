@@ -7,11 +7,12 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.css">
-    <% if (user.appearance.darkMode) { %>
-        <link rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+    <% if (user.appearance.theme === "dark") { %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else { %>
-        <link rel="stylesheet" type="text/css" href="public/css/light_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
     <% } %>
+    <link rel="stylesheet" type="text/css" href="public/css/main.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- JavaScript Imports -->
@@ -229,14 +230,16 @@
     let unobtainedWeights = {};
 
     let currentPage = -1;
+    let cardDisplayed = "none";
+    let currentTab = 1;
+    let maxTab = 4;
+
+    let darkMode;
 
     parseData();
     setupWeightsTables();
     setupOverviewTable();
     updateWeightMessages();
-    if (user.alerts.lastUpdated !== "never") {
-        renderAllCharts();
-    }
     if (user.schoolPassword) {
         $("#syncGradesDiv").hide();
         $("#gradeSyncDiv").show();
@@ -245,15 +248,63 @@
         $("#gradeSyncDiv").hide();
         $("#syncGradesDiv").show();
     }
+    if (user.appearance.theme === "auto") {
+        checkTime();
+    } else if (user.appearance.theme === "dark") {
+        darkMode = true;
+    } else {
+        darkMode = false;
+    }
+    if (user.alerts.lastUpdated !== "never") {
+        renderAllCharts();
+    }
 
     let localStorage = window.localStorage;
-    if (user.appearance.darkMode == true) {
+    if (darkMode) {
         localStorage.setItem("defaultAppearance", "dark");
     } else {
         localStorage.setItem("defaultAppearance", "light");
     }
 
+    async function checkTime() {
+        if (Math.floor((Date.now() / 1000 / 3600) % 24 + 16) > 18 || Math.floor((Date.now() / 1000 / 3600) % 24 + 16) < 7) {
+            document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+            darkMode = true;
+        } else {
+            document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+            darkMode = false;
+        }
+        window.setInterval(function () {
+            if (Math.floor((Date.now() / 1000 / 3600) % 24 + 16) > 18 || Math.floor((Date.now() / 1000 / 3600) % 24 + 16) < 7) {
+                document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+                darkMode = true;
+            } else {
+                document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+                darkMode = false;
+            }
+        }, 60000);
+    }
+
     async function checkUpdateBackground() {
+        $.get("/checkUpdateBackground", function (data, status) {
+            if (status === "success") {
+                if (data === "Sync Complete!") {
+                    $("#preRefresh").hide();
+                    if (user.autoRefresh) {
+                        $("#backgroundRefreshMessage").hide();
+                        window.reload();
+                    } else {
+                        $("#refresh").show();
+                    }
+                    clearInterval(checking);
+                } else if (data === "Already Synced!") {
+                    clearInterval(checking);
+                } else if (data === "Did not sync") {
+                    $("#backgroundRefreshMessage").show();
+                    $("#weightmsg-1").hide();
+                }
+            }
+        });
         let checking = window.setInterval(function () {
             $.get("/checkUpdateBackground", function (data, status) {
                 if (status === "success") {
@@ -597,13 +648,17 @@
                         type: "time", time: {
                             unit: "month"
                         }, ticks: {
-                            fontColor: (user.appearance.darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "13"
+                            fontColor: (darkMode ? "white" : "black"),
+                            fontFamily: "Verdana",
+                            fontSize: "13"
                         }, gridLines: {
                             color: "#555555"
                         }
                     }], yAxes: [{
                         ticks: {
-                            fontColor: (user.appearance.darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "12"
+                            fontColor: (darkMode ? "white" : "black"),
+                            fontFamily: "Verdana",
+                            fontSize: "12"
                         }, gridLines: {
                             color: "#555555", drawBorder: false
                         }
@@ -612,7 +667,10 @@
                     easing: "easeOutCubic"
                 }, legend: {
                     display: true, position: "top", labels: {
-                        fontColor: (user.appearance.darkMode ? "white" : "black"), fontFamily: "Verdana", boxWidth: 20, fontSize: 13
+                        fontColor: (darkMode ? "white" : "black"),
+                        fontFamily: "Verdana",
+                        boxWidth: 20,
+                        fontSize: 13
                     }
                 }, tooltips: {
                     enabled: true, position: "nearest", intersect: false, displayColors: true, callbacks: {
@@ -657,13 +715,17 @@
                         type: "time", time: {
                             unit: "month"
                         }, ticks: {
-                            fontColor: (user.appearance.darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "13"
+                            fontColor: (darkMode ? "white" : "black"),
+                            fontFamily: "Verdana",
+                            fontSize: "13"
                         }, gridLines: {
                             color: "#555555"
                         }
                     }], yAxes: [{
                         ticks: {
-                            fontColor: (user.appearance.darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "12"
+                            fontColor: (darkMode ? "white" : "black"),
+                            fontFamily: "Verdana",
+                            fontSize: "12"
                         }, gridLines: {
                             color: "#555555", drawBorder: false
                         }
@@ -720,17 +782,37 @@
             // down arrow
         } else if (e.keyCode === 37) {
             // left arrow
-            if (currentPage === -1) {
-                showPage(data.length - 1);
+            if ($('#settingsCardDisplay').css('display') === 'block') {
+                if (currentTab === 1) {
+                    openTab(maxTab);
+                } else {
+                    openTab(currentTab - 1);
+                }
+            } else if ($('#updateGradesDisplay').css('display') === 'block') {
+            } else if ($('#updateWeightsDisplay').css('display') === 'block') {
             } else {
-                showPage(currentPage - 1);
+                if (currentPage === -1) {
+                    showPage(data.length - 1);
+                } else {
+                    showPage(currentPage - 1);
+                }
             }
         } else if (e.keyCode === 39) {
             // right arrow
-            if (currentPage === data.length - 1) {
-                showPage(-1);
+            if ($('#settingsCardDisplay').css('display') === 'block') {
+                if (currentTab === maxTab) {
+                    openTab(1);
+                } else {
+                    openTab(currentTab + 1);
+                }
+            } else if ($('#updateGradesDisplay').css('display') === 'block') {
+            } else if ($('#updateWeightsDisplay').css('display') === 'block') {
             } else {
-                showPage(currentPage + 1);
+                if (currentPage === data.length - 1) {
+                    showPage(-1);
+                } else {
+                    showPage(currentPage + 1);
+                }
             }
         }
 
