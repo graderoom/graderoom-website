@@ -144,11 +144,21 @@ module.exports = {
         let user = db.get("users").find({username: lc_username}).value();
         return !!user;
 
-    }, setTheme: function (username, theme) {
+    }, setTheme: function (username, theme, nightLimit, morningLimit) {
         let lc_username = username.toLowerCase();
-        let user = db.get("users").find({username: lc_username}).value();
-        user.appearance.theme = theme;
-        return {success: true, message: "Updated theme to " + theme + "!"};
+        let user = db.get("users").find({username: lc_username});
+        user.get("appearance").set("theme", theme).write();
+        let message = "Updated theme to " + theme + "!";
+        if (nightLimit) {
+            user.get("appearance").set("nightLimit", parseInt(nightLimit) + 12).write();
+        }
+        if (morningLimit) {
+            user.get("appearance").set("morningLimit", parseInt(morningLimit)).write();
+        }
+        if (theme === "auto") {
+            message += "\nDark mode enabled from " + (user.value().appearance.nightLimit - 12) + " PM to " + user.value().appearance.morningLimit + " AM.";
+        }
+        return {success: true, message: message};
     }, setUpdateGradesReminder: function (username, updateGradesReminder) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username}).value();

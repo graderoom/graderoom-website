@@ -141,6 +141,10 @@
                                 renderAllCharts();
                             }
                         } else {
+                            nightLimit = (form[0].elements.nightLimit.valueAsNumber + 12) || (parseInt(form[0].elements.nightLimit.placeholder) + 12);
+                            morningLimit = form[0].elements.morningLimit.valueAsNumber || form[0].elements.morningLimit.placeholder;
+                            document.getElementById("nightLimit").setAttribute("placeholder", (nightLimit - 12).toString());
+                            document.getElementById("morningLimit").setAttribute("placeholder", morningLimit.toString());
                             checkTime();
                         }
                     }
