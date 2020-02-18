@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
-    <% if (user.appearance.theme === "dark" || (user.appearance.theme === "auto")) { %>
+    <% if (user.appearance.theme === "dark" || (user.appearance.theme === "auto" && (((Date.now() / 1000 / 3600 - 8) % 24 ) >= user.appearance.nightLimit) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.morningLimit)) { %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else { %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">

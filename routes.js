@@ -132,7 +132,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/updateAppearance", [isLoggedIn], (req, res) => {
-        let resp = authenticator.setTheme(req.user.username, req.body.theme);
+        let resp = authenticator.setTheme(req.user.username, req.body.theme, req.body.nightLimit, req.body.morningLimit);
         res.status(200).send(resp.message);
     });
 
