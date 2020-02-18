@@ -86,7 +86,7 @@ module.exports = {
                                          schoolUsername: schoolUsername,
                                          isAdmin: isAdmin,
                                          appearance: {
-                                             darkMode: true, accentColor: null, classColors: []
+                                             theme: "auto", accentColor: null, classColors: []
                                          },
                                          alerts: {
                                              lastUpdated: "never", updateGradesReminder: "daily"
@@ -212,54 +212,23 @@ module.exports = {
             //error updating grades
             return grade_update_status;
         }
-        let alreadyGrades = userRef.value().grades.length;
-        let lockedColorIndices = new Array(alreadyGrades).fill().map((e, i) => i.toString());
+        for (let i = userRef.value().grades.length - 1; i < grade_update_status.new_grades; i++) {
+            this.setRandomClassColor(lc_username, i);
+        }
         userRef.assign({grades: grade_update_status.new_grades}).write();
-        this.setRandomClassColors(lc_username, lockedColorIndices);
         userRef.get("alerts").set("lastUpdated", Date.now()).write();
         userRef.set("updatedInBackground", "already done").write();
         return {success: true, message: "Updated grades!"};
     },
 
-    setRandomClassColors: function (username, lockedColorIndices) {
+    setRandomClassColor: function (username, index) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
-        let grades = userRef.get("grades").value();
-        let numClasses = Object.keys(grades).length;
         let classColors = userRef.get("appearance").get("classColors").value();
-        let randomSeed;
-        if (lockedColorIndices.length === 2) {
-            randomSeed = "#888888";
-        } else {
-            let colorArray = [];
-            for (let i = 2; i < lockedColorIndices.length; i+=4) {
-                colorArray.push(classColors[parseInt(lockedColorIndices[i])]);
-            }
-            randomSeed = this.getAverageColor(colorArray);
-        }
-        let j = 0;
-        for (let i = 0; i < numClasses; i++) {
-            if (!lockedColorIndices.includes(i.toString())) {
-                classColors[i] = randomColor(randomSeed);
-            }
-        }
+
+        classColors[index] = randomColor();
         userRef.get("appearance").set("classColors", classColors).write();
         return {success: true, message: classColors};
-    },
-
-    getAverageColor: function (colorArray) {
-        let runningRSum = parseInt(colorArray[0].substring(1,3),16) ** 2;
-        let runningGSum = parseInt(colorArray[0].substring(3,5),16) ** 2;
-        let runningBSum = parseInt(colorArray[0].substring(5,7),16) ** 2;
-        for (let i = 1; i < colorArray.length; i++) {
-            runningRSum += parseInt(colorArray[i].substring(1,3),16) ** 2;
-            runningGSum += parseInt(colorArray[i].substring(3,5),16) ** 2;
-            runningBSum += parseInt(colorArray[i].substring(5,7),16) ** 2;
-        }
-        let rAverage = Math.round(Math.sqrt(runningRSum / colorArray.length)).toString(16);
-        let gAverage = Math.round(Math.sqrt(runningGSum / colorArray.length)).toString(16);
-        let bAverage = Math.round(Math.sqrt(runningBSum / colorArray.length)).toString(16);
-        return "#" + rAverage + gAverage + bAverage;
     },
 
     getAllUsers: function () {

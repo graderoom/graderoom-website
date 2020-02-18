@@ -290,7 +290,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/randomizeclasscolors", [isLoggedIn], (req, res) => {
-        let resp = authenticator.setRandomClassColors(req.user.username, req.body.lockedColorIndices);
+        let resp = authenticator.setRandomClassColor(req.user.username, req.body.index);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
