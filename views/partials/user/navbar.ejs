@@ -78,33 +78,23 @@
                 $("#loadingUnfocus").focus();
             }
 
-            // Different behavior for class colors
-            if (formID === "#randomizeClassColors") {
-                let data = getLockedColorIndices();
-                let dataArr = [];
-                for (let i = 0; i < data.length; i++) {
-                    dataArr.push(`${data[i]}`);
-                }
-                formData = "lockedColorIndices=" + JSON.stringify(dataArr);
-            } else {
+            // Serialize the form data.
+            formData = $(form).serialize();
 
-                // Serialize the form data.
-                formData = $(form).serialize();
+            // Get the messages.
+            formMessagesDiv = $(messagesDivID);
+            message = $(formMessagesDiv).find(".messageTxt");
 
-                // Get the messages.
-                formMessagesDiv = $(messagesDivID);
-                message = $(formMessagesDiv).find(".messageTxt");
-            }
 
             // Submit the form using AJAX.
             $.ajax({
                        type: "POST", url: $(form).attr("action"), data: formData, async: async
                    }).done(function (response) {
                 // Special behavior for class colors.
-                if (formID === "#randomizeClassColors") {
+                if (formID.substring(0, 10) === "#randomize") {
                     // numClasses is contained in messagesDivID
                     // colors come from response
-                    updateClassColors(messagesDivID, response);
+                    updateClassColors(response);
                 } else {
 
                     // Make sure that the formMessages div has the alert-success class.
@@ -135,6 +125,7 @@
 
                     // Switch mode instantly
                     if (formID === "#chooseTheme") {
+                        clearInterval(checkingTheme);
                         if (response === "Updated theme to dark!") {
                             document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
                             let oldDarkMode = darkMode;
@@ -150,7 +141,7 @@
                                 renderAllCharts();
                             }
                         } else {
-                            setAutoTheme();
+                            checkTime();
                         }
                     }
                 }

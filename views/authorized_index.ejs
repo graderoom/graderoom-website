@@ -238,6 +238,8 @@
     let nightLimit = 18; // 6PM
     let morningLimit = 7; // 7AM
 
+    let checkingTheme;
+
     parseData();
     setupWeightsTables();
     setupOverviewTable();
@@ -288,7 +290,7 @@
 
     async function checkTime() {
         setAutoTheme();
-        window.setInterval(function () {
+        checkingTheme = window.setInterval(function () {
             setAutoTheme();
         }, 60000);
     }

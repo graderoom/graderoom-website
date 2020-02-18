@@ -21,32 +21,31 @@
                 </div>
                 <div id="settings-1" class="tabcontent" style="display: block">
                     <div class="card-body">
-                        <div class="card-footer">
-                            <h5>Class Colors</h5>
-                            <form id="randomizeClassColors" class="form-signin" action="/randomizeclasscolors"
-                                  method="post">
-                                <% for (var i = 0; i < user.grades.length; i++) { %>
+                        <% if (user.grades.length > 0) { %>
+                            <div class="card-footer">
+                                <h5>Class Colors</h5>
+                                <h6>Click a color to change it</h6>
+                                <div class="text-center">
+                                    <% for (var i = 0; i < user.grades.length; i++) { %>
                                     <label id="classColor<%= i %>"
-                                           style="font-size: smaller; font-weight: bolder; cursor: pointer; color: <%= user.appearance.classColors[i] %>">
-                                        <i id="lock<%= i %>" class="fa fa-lock" aria-hidden="true"></i> <label
-                                                style="cursor: pointer"
-                                                onclick="toggleColor(<%= i %>)"><%- user.grades[i].class_name %></label>
+                                           style="margin-bottom: 0; padding: 0 1rem 0 1rem; cursor: pointer; color: <%= user.appearance.classColors[i] %>; font-size: larger; font-weight: bolder;"
+                                           onclick="ajaxPostForm('#randomizeClassColors' + <%= i %>,[],'',true); $('#reloadClassColors').show()">
+                                        <form id="randomizeClassColors<%= i %>" class="form-signin"
+                                              action="/randomizeClassColors"
+                                              method="post">
+                                            <button type="submit" style="display: none"></button>
+                                            <input name="index" value="<%= i %>" id="classColor<%= i %>"
+                                                   style="display: none;">
+                                            <%- user.grades[i].class_name %>
+                                        </form>
                                     </label>
-                                <% } %>
-                                <div style="display: flex">
-                                    <button onclick="lockAllColors()" class="btn btn-default btn-med" type="button">Lock
-                                        All
-                                    </button>
-                                    <button onclick="unlockAllColors()" class="btn btn-default btn-med" type="button">
-                                        Unlock All
-                                    </button>
-                                    <button onclick="ajaxPostForm('#randomizeClassColors',[],<%= user.grades.length %>, false)"
-                                            type="submit" class="btn btn-default btn-med">
-                                        Randomize
-                                    </button>
+                                    <% } %>
+                                    <div id="reloadClassColors" style="display: none" class="text-center form-signin">
+                                        <button class="btn btn-default btn-med" onclick="window.reload()">Refresh</button>
+                                    </div>
                                 </div>
-                            </form>
-                        </div>
+                            </div>
+                        <% } %>
                         <div class="card-footer">
                             <h5>Theme</h5>
                             <div id="themeMessage" class="alert alert-success alert-dismissible"
@@ -55,23 +54,24 @@
                                 <a class="close" onclick="closeMessage('themeMessage')" aria-label="close">X</a>
                             </div>
                             <form id="chooseTheme" class="form-signin" action="/updateAppearance" method="post">
-                                <label style="cursor: pointer"> <input type="radio" value="light"
+                                <label style="cursor: pointer"> <input style="cursor: inherit" type="radio" value="light"
                                                                        name="theme"
                                     <% if (user.appearance.theme === "light") { %> checked
                                             <% } %>
                                     > Light</label>
-                                <label style="cursor: pointer"> <input type="radio" value="dark"
+                                <label style="cursor: pointer"> <input style="cursor: inherit" type="radio" value="dark"
                                                                        name="theme"
                                     <% if (user.appearance.theme === "dark") { %> checked
                                             <% } %>
                                     > Dark</label>
-                                <label style="cursor: pointer"> <input type="radio" value="auto" type="checkbox"
+                                <label style="cursor: pointer"> <input style="cursor: inherit" type="radio" value="auto"
                                                                        name="theme"
                                     <% if (user.appearance.theme === "auto") { %> checked
                                             <% } %>
                                     > Auto</label>
                                 <div class="text-center">
-                                    <button type="submit" class="btn btn-default btn-med" onclick="ajaxPostForm('#chooseTheme',[],'#themeMessage',true);">
+                                    <button type="submit" class="btn btn-default btn-med"
+                                            onclick="ajaxPostForm('#chooseTheme',[],'#themeMessage',true);">
                                         Apply
                                     </button>
                                 </div>
@@ -120,7 +120,7 @@
                             </div>
                             <div class="text-center">
                                 <button type="submit"
-                                        onclick="ajaxPostForm('#changeSchoolEmail',['#school_email'],'#accountSettingsMessage', false); updateSchoolUsernameDisplay()"
+                                        onclick=" updateSchoolUsernameDisplay(); ajaxPostForm('#changeSchoolEmail',['#school_email'],'#accountSettingsMessage', true);"
                                         class="btn btn-default btn-med">
                                     Change School Email
                                 </button>
@@ -161,7 +161,7 @@
                                 </div>
                                 <div class="text-center">
                                     <button type="submit"
-                                            onclick="ajaxPostForm('#changeAlertSettings',[],'#alertSettingsMessage', false); updateSchoolUsernameDisplay()"
+                                            onclick="ajaxPostForm('#changeAlertSettings',[],'#alertSettingsMessage', true); updateSchoolUsernameDisplay()"
                                             class="btn btn-default btn-med">
                                         Save
                                     </button>
@@ -210,61 +210,9 @@
         location.reload();
     }
 
-    let lockedColors = Array(<%= user.grades.length %>).fill("Locked");
-
-    function lockAllColors() {
-        lockedColors.fill("Locked");
-        updateClassColorsDisplay();
-    }
-
-    function unlockAllColors() {
-        lockedColors.fill("Unlocked");
-        updateClassColorsDisplay();
-    }
-
-    function getLockedColorIndices() {
-        let result = [];
-        let index = 0;
-        for (let i = 0; i < lockedColors.length; i++) {
-            if (lockedColors[i] == "Locked") {
-                result[index] = i;
-                index++;
-            }
-        }
-        return result;
-    }
-
-    function updateClassColorsDisplay() {
-        for (let i = 0; i < user.grades.length; i++) {
-            let colorTextID = "#classColor" + i.toString();
-            let lockID = "#lock" + i.toString();
-            if (lockedColors[i] == "Locked") {
-                $(colorTextID).css("fontWeight", "bolder");
-                $(colorTextID).css("fontSize", "smaller");
-                $(lockID).removeClass("fa-unlock");
-                $(lockID).addClass("fa-lock");
-            } else {
-                $(colorTextID).css("fontWeight", "normal");
-                $(colorTextID).css("fontSize", "small");
-                $(lockID).removeClass("fa-lock");
-                $(lockID).addClass("fa-unlock");
-            }
-        }
-        console.log(lockedColors);
-    }
-
-    function toggleColor(index) {
-        if (lockedColors[index] === "Locked") {
-            lockedColors[index] = "Unlocked";
-        } else {
-            lockedColors[index] = "Locked";
-        }
-        updateClassColorsDisplay();
-    }
-
-    function updateClassColors(numClasses, colorsString) {
+    function updateClassColors(colorsString) {
         let colors = colorsString;
-        for (let i = 0; i < numClasses; i++) {
+        for (let i = 0; i < colors.length; i++) {
             document.getElementById("classColor" + i).style.color = colors[i];
         }
     }
