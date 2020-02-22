@@ -73,23 +73,28 @@
                                             <% } %>
                                     > Automatic
                                 </label>
+                                <br>
                                 <label class="form-group" id="autoLimits"
-                                       style="<% if (user.appearance.theme !== 'auto') { %>display: none;<% } else { %>display: flex;<% } %>font-size: 0.9rem; margin-bottom: 0;">
-                                    Dark theme from
-                                    <input id="darkModeStart" style="padding: 0 1rem 0 1rem" type="number"
+                                       style="<% if (user.appearance.theme !== 'auto') { %>display: none;<% } else { %>display: inline-flex;<% } %>font-size: 0.9rem; margin-bottom: 0;">
+                                    <label style="vertical-align: center">
+                                        Dark theme from
+                                    </label>
+                                    <input id="darkModeStart"
+                                           style="padding: 0 0.75rem 0 0.75rem; width: 3rem !important" type="number"
                                            class="text-center number-input form-control" name="darkModeStart" min="1"
                                            max="12">
-                                    <select id="darkModeStartAmPm" class="dropdown" name="darkModeStartAmPm">
+                                    <select style="margin-left: 0 !important" id="darkModeStartAmPm" class="dropdown" name="darkModeStartAmPm">
                                         <option value="PM">PM</option>
                                         <option value="AM">AM</option>
                                     </select>
-                                    <label>
+                                    <label style="margin-left: 0.25rem">
                                         to
                                     </label>
-                                    <input id="darkModeFinish" style="padding: 0 1rem 0 1rem" type="number"
+                                    <input id="darkModeFinish"
+                                           style="padding: 0 0.75rem 0 0.75rem; width: 3rem !important" type="number"
                                            class="text-center number-input form-control" name="darkModeFinish" min="1"
                                            max="12">
-                                    <select id="darkModeFinishAmPm" class="dropdown" name="darkModeFinishAmPm">
+                                    <select style="margin-left: 0 !important" id="darkModeFinishAmPm" class="dropdown" name="darkModeFinishAmPm">
                                         <option value="AM">AM</option>
                                         <option value="PM"
                                         <% if (user.appearance.darkModeFinish > 12 && !(user.appearance.darkModeFinish === 24)) { %>
