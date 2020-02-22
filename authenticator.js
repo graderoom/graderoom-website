@@ -329,7 +329,7 @@ module.exports = {
         return {success: false, message: "User does not exist."};
     },
 
-    updateWeightsForClass: function (username, className, weights, update = true) {
+    updateWeightsForClass: function (username, className, weights) {
         //default update, not override
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
@@ -349,15 +349,8 @@ module.exports = {
         //Replace dots(.) with unicode escape sequence
         let modClassName = className.replace(/\./g, "\\u002e");
 
-        if (update) {
-            let currentWeights = weightsRef.get(modClassName).value();
-            let newWeights = Object.assign({}, currentWeights, weights);
-            weightsRef.set(modClassName, newWeights).write();
-            console.log(weightsRef.value());
-        } else {
-            weightsRef.set(modClassName, weights).write();
-            console.log(weightsRef.value());
-        }
+        weightsRef.set(modClassName, weights).write();
+        console.log(weightsRef.value());
         return {success: true, message: "Updated weights for " + className + "!"};
     },
 

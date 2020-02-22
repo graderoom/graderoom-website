@@ -281,7 +281,7 @@ module.exports = function (app, passport) {
         let className = req.body.className;
         let newWeights = JSON.parse(req.body.newWeights);
 
-        let resp = authenticator.updateWeightsForClass(req.user.username, className, newWeights, true);
+        let resp = authenticator.updateWeightsForClass(req.user.username, className, newWeights);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
