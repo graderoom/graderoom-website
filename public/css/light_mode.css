@@ -11,7 +11,7 @@ hr {
 nav {
     background: #FFFFFF;
     border-radius: 1rem 1rem 1rem 1rem;
-    box-shadow: 1px 4px  10px #555555;
+    box-shadow: 1px 4px 10px #555555;
 }
 
 nav h1 {
@@ -38,6 +38,14 @@ nav .navbar-toggler {
 
 nav .navbar-toggler:hover {
     background: #BBBBBB;
+}
+
+table tbody tr td {
+    border-color: #EEEEEE;
+}
+
+table thead tr th {
+    border-color: #EEEEEE;
 }
 
 .blurred-background {

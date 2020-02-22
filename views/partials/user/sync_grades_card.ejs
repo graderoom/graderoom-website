@@ -12,8 +12,16 @@
                 </btn>
                 <div class="card-body">
                     <div id="updateGradesMessage" class="alert alert-success alert-dismissible"
-                         style="display:none">
-                        <div class="font-weight-bold messageTxt"></div>
+                         style="display:block">
+                        <div style="display: flex">
+                            <div class="font-weight-bold messageTxt"></div>
+                            <i class="fa fa-info-circle popup" id="syncFailure"
+                               style="padding-left: 0.2rem; align-self: center; display:block">
+                            <span class="popuptext">
+                                This usually occurs when the PowerSchool website is down.
+                            </span>
+                            </i>
+                        </div>
                         <a class="close" onclick="closeMessage('updateGradesMessage')" aria-label="close">X</a>
                     </div>
                     <h1 class="card-title text-center">School Login</h1>
@@ -27,7 +35,8 @@
                                 <input name="school_password" type="password" id="inputPassword" class="form-control"
                                        placeholder="School Password" required>
                             </div>
-                            <label style="cursor: pointer; float: right; text-align: left" class="popup"onclick="toggleInputUserPasswordDisplay()">
+                            <label style="cursor: pointer; float: right; text-align: left" class="popup"
+                                   onclick="toggleInputUserPasswordDisplay()">
                                 <input style="cursor: inherit"
                                        id="savePasswordToggle"
                                        type="checkbox"

@@ -29,6 +29,14 @@ nav .navbar-toggler:hover {
     background: #444444;
 }
 
+table tbody tr td {
+    border-color: #333333;
+}
+
+table thead tr th {
+    border-color: #333333;
+}
+
 .blurred-background {
     background-image: url(/public/resources/dark_mode/blur.png) !important;
 }

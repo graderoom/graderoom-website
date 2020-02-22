@@ -67,7 +67,8 @@
                                             <% } %>
                                     > Dark Theme</label><br>
                                 <label style="cursor: pointer"> <input style="cursor: inherit" type="radio" value="auto"
-                                                                       name="theme" onclick="$('#autoLimits').show().css('display','flex');"
+                                                                       name="theme"
+                                                                       onclick="$('#autoLimits').show().css('display','flex');"
                                     <% if (user.appearance.theme === "auto") { %> checked
                                             <% } %>
                                     > Automatic
@@ -75,12 +76,28 @@
                                 <label class="form-group" id="autoLimits"
                                        style="<% if (user.appearance.theme !== 'auto') { %>display: none;<% } else { %>display: flex;<% } %>font-size: 0.9rem; margin-bottom: 0;">
                                     Dark theme from
-                                    <input id="nightLimit" style="padding: 0 1rem 0 1rem" type="number"
-                                           class="text-center number-input form-control" name="nightLimit" min="1"
-                                           max="12"> PM to
-                                    <input id="morningLimit" style="padding: 0 1rem 0 1rem" type="number"
-                                           class="text-center number-input form-control" name="morningLimit" min="1"
-                                           max="12"> AM
+                                    <input id="darkModeStart" style="padding: 0 1rem 0 1rem" type="number"
+                                           class="text-center number-input form-control" name="darkModeStart" min="1"
+                                           max="12">
+                                    <select id="darkModeStartAmPm" class="dropdown" name="darkModeStartAmPm">
+                                        <option value="PM">PM</option>
+                                        <option value="AM">AM</option>
+                                    </select>
+                                    <label>
+                                        to
+                                    </label>
+                                    <input id="darkModeFinish" style="padding: 0 1rem 0 1rem" type="number"
+                                           class="text-center number-input form-control" name="darkModeFinish" min="1"
+                                           max="12">
+                                    <select id="darkModeFinishAmPm" class="dropdown" name="darkModeFinishAmPm">
+                                        <option value="AM">AM</option>
+                                        <option value="PM"
+                                        <% if (user.appearance.darkModeFinish > 12 && !(user.appearance.darkModeFinish === 24)) { %>
+                                                selected
+                                                <% } %>
+                                        >PM
+                                        </option>
+                                    </select>
                                 </label>
                                 <div class="text-center">
                                     <button type="submit" class="btn btn-default btn-med"

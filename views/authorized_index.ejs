@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.css">
-    <% if (user.appearance.theme === "dark" || (user.appearance.theme === "auto" && (((Date.now() / 1000 / 3600 - 8) % 24 ) >= user.appearance.nightLimit) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.morningLimit)) { %>
+    <% if (user.appearance.theme === "dark" || (user.appearance.theme === "auto" && ((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) && ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish)) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish)))) { %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else { %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
@@ -64,7 +64,7 @@
         <span style="display: none;" id="refresh"> <u style="cursor: pointer"
                                                       onclick="window.reload()">Refresh</u>
              to see new updates or turn on Auto-Refresh in <u style="cursor: pointer"
-                                                              onclick="$('#settingsCardDisplay').show(); openTab('Advanced');">settings</u>.
+                                                              onclick="$('#settingsCardDisplay').show(); openTab(4);">settings</u>.
             <a class="close" data-dismiss="alert"
                aria-label="close">X</a>
         </span>
@@ -87,19 +87,10 @@
                 since you last synced your grades! <span
                         style="float: right; display: flex"><u
                             style="cursor: pointer; margin-right: 10px"
-                            onclick="$('#settingsCardDisplay').show(); openTab('Alerts')">Alert Settings</u><u
+                            onclick="$('#settingsCardDisplay').show(); openTab(4)">Alert Settings</u><u
                             style="cursor: pointer" onclick="$('#updateGradesDisplay').show()">Sync Grades</u></span>
             </div>
         <% } %>
-    <% } %>
-    <% if (updateGradesMessageSuccess.length > 0) { %> <br>
-    <div class="alert alert-success alert-dismissible">
-        <a class="close" data-dismiss="alert" aria-label="close">X</a> <%= updateGradesMessageSuccess %>
-    </div>
-    <% } else if (updateGradesMessageFail.length > 0) { %> <br>
-    <div class="alert alert-danger alert-dismissible font-weight-bold">
-        <a class="close" data-dismiss="alert" aria-label="close">X</a> <%= updateGradesMessageFail %>
-    </div>
     <% } %>
 
     <!-- <div class="alert alert-danger alert-dismissible" id="weightmsg" style="display:none">
@@ -110,12 +101,6 @@
     <!-- Overview Section -->
     <% if (user.alerts.lastUpdated.toString().toLowerCase() != 'never') { %>
         <span id="section-1">
-            <div class="alert alert-danger alert-dismissible font-weight-bold" id="weightmsg-1"
-                 style="display:none">
-                    <a class="close" data-dismiss="alert" aria-label="close">X</a>
-                    <span id="weightmsg_text-1"></span><u style="float: right; cursor: pointer"
-                                                          onclick="showUpdateWeights()">Add Weights</u>
-            </div>
             <div id="chart-container-1" class="chart-container text-center"
                  style="position: relative; height:60vh; width: 100%; margin: 0 auto;">
                     <canvas id="chart-1" class="chart" style="width:50%; margin: 0;"></canvas>
@@ -124,17 +109,22 @@
             <table class="table text-center" id="table-1">
                 <thead><tr>
                     <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                        <th style="border:0; color: <%= user.appearance.classColors[i] %>"><%= JSON.parse(gradeData)[i].class_name %></th>
+                        <th style="color: <%= user.appearance.classColors[i] %>"><%= JSON.parse(gradeData)[i].class_name %></th>
                     <% } %>
                 </tr></thead>
-                <tbody>
-                    <tr>
-                        <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                            <td id="overviewChart<%= i %>"
-                                style="border: 0; padding-top: 0; color: <%= user.appearance.classColors[i] %>"></td>
-                        <% } %>
-                    </tr>
-                </tbody>
+                <tbody><tr>
+                    <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
+                        <td style="color: <%= user.appearance.classColors[i] %>">
+                            <div id="overviewChart<%= i %>" style="display:none; font-weight:bolder"></div>
+                            <div id="weightmsgcontainer<%= i %>" style="display:none">
+                                <div class="alert alert-danger font-weight-bold"
+                                     id="weightmsg<%= i %>"><u style="cursor: pointer"
+                                                               onclick="showUpdateWeights(<%= i %>)">Add Weights</u>
+                                </div>
+                            </div>
+                        </td>
+                    <% } %>
+                </tr></tbody>
             </table>
         </span>
     <% } %>
@@ -142,19 +132,12 @@
     <!-- Class Sections -->
     <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
         <span id="section<%= i %>" style="display: none;">
-            <div class="alert alert-danger alert-dismissible font-weight-bold" id="weightmsg<%= i %>"
-                 style="display:none">
-                <a class="close" data-dismiss="alert" aria-label="close">X</a>
-                <span id="weightmsg_text<%= i %>"></span><u style="float: right; cursor: pointer"
-                                                            onclick="showUpdateWeights()">Add Weights</u>
-            </div>
             <div style="display:flex; align-items: center">
                 <div id="chart-container<%= i %>" class="chart-container"
                      style="position: relative; height:40vh; width:100%;margin: 0 auto;">
                 <canvas id="chart<%= i %>" class="chart" style="margin: auto;"></canvas>
             </div>
-                <% if (JSON.parse(gradeData)[i].class_name in JSON.parse(weightData)) { %>
-                    <table class="table text-center" style="width: 25%; margin: 20px" id="weightsTable<%= i %>">
+                <table class="table text-center" style="width: 25%; margin: 20px" id="weightsTable<%= i %>">
                 <thead>
                 <tr>
                     <th style="width: 40%">Category</th>
@@ -164,24 +147,34 @@
                 </tr>
                 </thead>
 
-                <tbody>
-                <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]).length; j++) { %>
-                    <tr>
+                        <tbody>
+                        <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]).length; j++) { %>
+                            <tr>
                         <td id="weightTableCategory<%= i %><%= j %>"></td>
                         <td id="weightTableWeight<%= i %><%= j %>"></td>
                         <td id="weightTablePoints<%= i %><%= j %>"></td>
                         <td id="weightTableGrade<%= i %><%= j %>"></td>
-                    </tr>
-                <% } %>
-                </tbody>
-
-                <tfoot>
+                            </tr>
+                        <% } %>
+                        </tbody>
+                    </th>
+                    <tfoot>
                 <tr>
-                    <th colspan="4" id="weightTableOverallGrade<%= i %>"></th>
+                    <th colspan="4">
+                        <div style="display:none" id="weightTableOverallGrade<%= i %>">
+
+                        </div>
+                        <div style="display:none" colspan="4"
+                             class="alert alert-danger alert-dismissible font-weight-bold"
+                             id="weightTablemsg<%= i %>">
+                        <a class="close" data-dismiss="alert" aria-label="close">X</a>
+                        <span id="weightmsg_text<%= i %>"></span><br><u style="cursor: pointer"
+                                                                        onclick="showUpdateWeights(<%= i %>)">Add Weights</u>
+                    </div>
+                    </th>
                 </tr>
                 </tfoot>
-            </table>
-                <% } %>
+                </table>
             </div>
         <hr>
         <table class="table text-center" id="table<%= i %>">
@@ -224,9 +217,8 @@
 
     let user = <%- userRef %>;
     let data = <%- gradeData %>;
-    let weights = <%- weightData %>;
-
-    let parsedData = [];
+    let weights = <%- weightData %>
+        parsedData = [];
     let unobtainedWeights = {};
 
     let currentPage = -1;
@@ -235,8 +227,8 @@
     let maxTab = 4;
 
     let darkMode;
-    let nightLimit = user.appearance.nightLimit || 18; // 6PM
-    let morningLimit = user.appearance.morningLimit || 7; // 7AM
+    let darkModeStart = user.appearance.darkModeStart || 18; // 6PM
+    let darkModeFinish = user.appearance.darkModeFinish || 7; // 7AM
 
     let checkingTheme;
 
@@ -259,8 +251,8 @@
     } else {
         darkMode = false;
     }
-    document.getElementById("nightLimit").setAttribute("placeholder",(nightLimit - 12).toString());
-    document.getElementById("morningLimit").setAttribute("placeholder",morningLimit.toString());
+    document.getElementById("darkModeStart").setAttribute("placeholder", (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString()));
+    document.getElementById("darkModeFinish").setAttribute("placeholder", (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString()));
     if (user.alerts.lastUpdated !== "never") {
         renderAllCharts();
     }
@@ -273,7 +265,8 @@
     }
 
     function setAutoTheme() {
-        if (Math.floor((Date.now() / 1000 / 3600 - 8) % 24) >= nightLimit || Math.floor((Date.now() / 1000 / 3600 - 8) % 24) < morningLimit) {
+        console.log(darkModeStart, darkModeFinish);
+        if (user.appearance.theme === "dark" || (user.appearance.theme === "auto" && ((darkModeStart < darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart) && ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart) || ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish)))) {
             document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
             let oldDarkMode = darkMode;
             darkMode = true;
@@ -401,28 +394,37 @@
     function setupWeightsTables() {
         for (let i = 0; i < data.length; i++) {
             let className = data[i].class_name;
-            if (className in weights) {
-                if (weights[className]) {
-                    let tableCategories = Object.keys(weights[className]);
-                    let tableWeights = Object.values(weights[className]);
-                    for (let j = 0; j < tableCategories.length; j++) {
-                        document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
-                        document.getElementById("weightTableWeight" + i + j).textContent = tableWeights[j] + "%";
-                        let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
-                        document.getElementById("weightTablePoints" + i + j).textContent = +(categoryGottenAndPossible.gotten.toFixed(3)) + ((categoryGottenAndPossible.possible != 0) ? ("/" + +(categoryGottenAndPossible.possible.toFixed(3))) : "");
-                        document.getElementById("weightTableGrade" + i + j).textContent = getCategoryGrade(i, tableCategories[j]);
-                    }
-                    let overallGrade = getOverallGrade(i);
-                    document.getElementById("weightTableOverallGrade" + i).textContent = (+(overallGrade.toFixed(3))).toString() + "% (" + getLetterGrade(overallGrade) + ")";
+            if (weights[className]) {
+                let tableCategories = Object.keys(weights[className]);
+                let tableWeights = Object.values(weights[className]);
+                for (let j = 0; j < tableCategories.length; j++) {
+                    document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
+                    document.getElementById("weightTableWeight" + i + j).textContent = tableWeights[j] + "%";
+                    let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
+                    document.getElementById("weightTablePoints" + i + j).textContent = +(categoryGottenAndPossible.gotten.toFixed(3)) + ((categoryGottenAndPossible.possible !== 0) ? ("/" + +(categoryGottenAndPossible.possible.toFixed(3))) : "");
+                    document.getElementById("weightTableGrade" + i + j).textContent = getCategoryGrade(i, tableCategories[j]);
                 }
+                let overallGrade = getOverallGrade(i);
+                document.getElementById("weightTableOverallGrade" + i).textContent = (+(overallGrade.toFixed(3))).toString() + "% (" + getLetterGrade(overallGrade) + ")";
+            }
+            if (!unobtainedWeights[className]) {
+                document.getElementById("weightTableOverallGrade" + i).style.display = "block";
+            } else {
+                document.getElementById("weightTablemsg" + i).style.display = "block";
             }
         }
     }
 
     function setupOverviewTable() {
         for (let i = 0; i < data.length; i++) {
-            let overallGrade = getOverallGrade(i);
-            document.getElementById("overviewChart" + i).innerHTML = (+(overallGrade.toFixed(2))).toString() + "% </br>" + getLetterGrade(overallGrade);
+            let className = data[i].class_name;
+            if (!unobtainedWeights[className]) {
+                document.getElementById("overviewChart" + i).style.display = "block";
+                let overallGrade = getOverallGrade(i);
+                document.getElementById("overviewChart" + i).innerHTML = (+(overallGrade.toFixed(2))).toString() + "% </br>" + getLetterGrade(overallGrade);
+            } else {
+                document.getElementById("weightmsgcontainer" + i).style.display = "block";
+            }
         }
     }
 
@@ -452,10 +454,8 @@
     function showWeightMessage(msg, id) {
         let wmRef = document.getElementById("weightmsg" + id);
         let wmTextRef = document.getElementById("weightmsg_text" + id);
-        if (msg !== "Missing Weights: ") {
-            wmRef.style.display = "block";
-            wmTextRef.innerText = msg;
-        }
+        wmRef.style.display = "block";
+        wmTextRef.innerText = msg;
     }
 
     function hideWeightMessage(id) {
@@ -466,16 +466,9 @@
     }
 
     function updateWeightMessages() {
-        if (unobtainedWeights.length > 0) {
-            hideWeightMessage(-1);
-        } else {
-            showWeightMessage("Missing Weights: " + Object.keys(unobtainedWeights).join(", "), -1);
-        }
-        for (var id = 0; id < data.length; id++) {
+        for (let id = 0; id < data.length; id++) {
             if (data[id].class_name in unobtainedWeights) { //TODO idk if this index get is safe
                 showWeightMessage("Missing Weights: " + unobtainedWeights[data[id].class_name].join(", "), id);
-            } else {
-                hideWeightMessage(id);
             }
         }
     }
@@ -491,13 +484,13 @@
             let needWeights = !(className in weights) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object);
             let localMissingCategories = [];
 
-            if ((className in weights) && (!weights[className].hasWeight)) {
+            if ((className in weights) && (weights[className].length)) {
                 needWeights = false;
             } else {
                 for (let grade of classData.grades) {
                     // console.log(grade.category)
 
-                    if (!(className in weights) || !(grade.category in weights[className])) {
+                    if (!(grade.category in weights[className])) {
                         if (!localMissingCategories.includes(grade.category)) {
                             localMissingCategories.push(grade.category);
                         }
@@ -507,7 +500,7 @@
                 // console.log("LMC")
                 // console.log(localMissingCategories)
 
-                if (!(className in unobtainedWeights) && needWeights) {
+                if (needWeights) {
                     unobtainedWeights[className] = localMissingCategories; //todo here add specific weights (i.e. You don't have the Test category...)
                 }
             }
@@ -589,9 +582,12 @@
     }
 
     function renderAllCharts() {
-        renderOverviewChart();
-        for (let i = 0; i < data.length; i++) {
-            renderChart(i);
+        try {
+            renderOverviewChart();
+            for (let i = 0; i < data.length; i++) {
+                renderChart(i);
+            }
+        } catch {
         }
     }
 
@@ -660,17 +656,13 @@
                         type: "time", time: {
                             unit: "month"
                         }, ticks: {
-                            fontColor: (darkMode ? "white" : "black"),
-                            fontFamily: "Verdana",
-                            fontSize: "13"
+                            fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "13"
                         }, gridLines: {
                             color: "#555555"
                         }
                     }], yAxes: [{
                         ticks: {
-                            fontColor: (darkMode ? "white" : "black"),
-                            fontFamily: "Verdana",
-                            fontSize: "12"
+                            fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "12"
                         }, gridLines: {
                             color: "#555555", drawBorder: false
                         }
@@ -679,10 +671,7 @@
                     easing: "easeOutCubic"
                 }, legend: {
                     display: true, position: "top", labels: {
-                        fontColor: (darkMode ? "white" : "black"),
-                        fontFamily: "Verdana",
-                        boxWidth: 20,
-                        fontSize: 13
+                        fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", boxWidth: 20, fontSize: 13
                     }
                 }, tooltips: {
                     enabled: true, position: "nearest", intersect: false, displayColors: true, callbacks: {
@@ -727,17 +716,13 @@
                         type: "time", time: {
                             unit: "month"
                         }, ticks: {
-                            fontColor: (darkMode ? "white" : "black"),
-                            fontFamily: "Verdana",
-                            fontSize: "13"
+                            fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "13"
                         }, gridLines: {
                             color: "#555555"
                         }
                     }], yAxes: [{
                         ticks: {
-                            fontColor: (darkMode ? "white" : "black"),
-                            fontFamily: "Verdana",
-                            fontSize: "12"
+                            fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "12"
                         }, gridLines: {
                             color: "#555555", drawBorder: false
                         }
@@ -794,14 +779,14 @@
             // down arrow
         } else if (e.keyCode === 37) {
             // left arrow
-            if ($('#settingsCardDisplay').css('display') === 'block') {
+            if ($("#settingsCardDisplay").css("display") === "block") {
                 if (currentTab === 1) {
                     openTab(maxTab);
                 } else {
                     openTab(currentTab - 1);
                 }
-            } else if ($('#updateGradesDisplay').css('display') === 'block') {
-            } else if ($('#updateWeightsDisplay').css('display') === 'block') {
+            } else if ($("#updateGradesDisplay").css("display") === "block") {
+            } else if ($("#updateWeightsDisplay").css("display") === "block") {
             } else {
                 if (currentPage === -1) {
                     showPage(data.length - 1);
@@ -811,14 +796,14 @@
             }
         } else if (e.keyCode === 39) {
             // right arrow
-            if ($('#settingsCardDisplay').css('display') === 'block') {
+            if ($("#settingsCardDisplay").css("display") === "block") {
                 if (currentTab === maxTab) {
                     openTab(1);
                 } else {
                     openTab(currentTab + 1);
                 }
-            } else if ($('#updateGradesDisplay').css('display') === 'block') {
-            } else if ($('#updateWeightsDisplay').css('display') === 'block') {
+            } else if ($("#updateGradesDisplay").css("display") === "block") {
+            } else if ($("#updateWeightsDisplay").css("display") === "block") {
             } else {
                 if (currentPage === data.length - 1) {
                     showPage(-1);
@@ -827,10 +812,12 @@
                 }
             }
         } else if (e.keyCode === 83) {
-            if ($('#settingsCardDisplay').css('display') === 'block') {
-                $('#settingsCardDisplay').hide();
+            if ($("#settingsCardDisplay").css("display") === "block") {
+                closeForm("settingsCardDisplay");
+            } else if ($("#updateGradesDisplay").css("display") === "block") {
+            } else if ($("#updateWeightsDisplay").css("display") === "block") {
             } else {
-                $('#settingsCardDisplay').show();
+                $("#settingsCardDisplay").show();
             }
         } else {
             console.log(e.keyCode);
