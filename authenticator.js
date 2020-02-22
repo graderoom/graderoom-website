@@ -184,7 +184,7 @@ module.exports = {
             if (darkModeFinish === 24) {
                 darkModeFinish = 12;
             }
-            message = "Dark mode enabled from " + darkModeStart + " " + darkModeStartAmPm + " to " + darkModeFinish + " " + darkModeFinishAmPm + ".";
+            message = "Dark theme enabled from " + darkModeStart + " " + darkModeStartAmPm + " to " + darkModeFinish + " " + darkModeFinishAmPm + ".";
         }
         return {success: true, message: message};
     }, setUpdateGradesReminder: function (username, updateGradesReminder) {
