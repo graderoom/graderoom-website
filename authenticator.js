@@ -149,6 +149,8 @@ module.exports = {
         let user = db.get("users").find({username: lc_username});
         user.get("appearance").set("theme", theme).write();
         let message = theme.replace(/^\w/, c => c.toUpperCase()) + " theme enabled!";
+        user.get("appearance").unset("darkModeStart").write();
+        user.get("appearance").unset("darkModeFinish").write();
         if (theme === "auto") {
             darkModeStart = parseInt(darkModeStart);
             darkModeFinish = parseInt(darkModeFinish);
