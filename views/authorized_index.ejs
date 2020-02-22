@@ -137,7 +137,8 @@
                      style="position: relative; height:40vh; width:100%; margin: 0 auto;">
                 <canvas id="chart<%= i %>" class="chart" style="margin: auto;"></canvas>
                 </div>
-                <table class="table text-center" style="width: 25%; white-space: nowrap; margin: 20px" id="weightsTable<%= i %>">
+                <table class="table text-center" style="width: 25%; white-space: nowrap; margin: 20px"
+                       id="weightsTable<%= i %>">
                 <thead>
                 <tr>
                     <th>Category</th>
@@ -235,7 +236,8 @@
     parseData();
     setupWeightsTables();
     setupOverviewTable();
-    updateWeightMessages();if (user.appearance.theme === "auto") {
+    updateWeightMessages();
+    if (user.appearance.theme === "auto") {
         checkTime();
     } else if (user.appearance.theme === "dark") {
         darkMode = true;
@@ -251,7 +253,7 @@
     if (localStorage.getItem("currentPage")) {
         currentPage = parseInt(localStorage.getItem("currentPage"));
     } else {
-        localStorage.setItem("currentPage",currentPage);
+        localStorage.setItem("currentPage", currentPage);
     }
     if (user.alerts.lastUpdated !== "never") {
         renderAllCharts();
@@ -407,7 +409,9 @@
                     let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
                     document.getElementById("weightTablePoints" + i + j).textContent = +(categoryGottenAndPossible.gotten.toFixed(3)) + ((categoryGottenAndPossible.possible !== 0) ? ("/" + +(categoryGottenAndPossible.possible.toFixed(3))) : "");
                     let categoryGrade = getCategoryGrade(i, tableCategories[j]);
-                    document.getElementById("weightTableGrade" + i + j).textContent = categoryGrade + "% (" + getLetterGrade(categoryGrade) + ")";
+                    if (categoryGottenAndPossible.possible !== 0) {
+                        document.getElementById("weightTableGrade" + i + j).textContent = categoryGrade + "% (" + getLetterGrade(categoryGrade) + ")";
+                    }
                 }
                 let overallGrade = getOverallGrade(i);
                 document.getElementById("weightTableOverallGrade" + i).textContent = (+(overallGrade.toFixed(3))).toString() + "% (" + getLetterGrade(overallGrade) + ")";
@@ -450,7 +454,7 @@
         let categoryGottenAndPossible = getCategoryGottenAndPossible(classIndex, categoryName);
         let totalGotten = categoryGottenAndPossible.gotten;
         let totalPossible = categoryGottenAndPossible.possible;
-        if (totalPossible == 0) {
+        if (totalPossible === 0) {
             return 0;
         }
         return +((totalGotten / totalPossible * 100).toFixed(3));
@@ -766,7 +770,7 @@
         }
         document.getElementById("section" + id).style.display = "block";
 
-        window.localStorage.setItem("currentPage",id);
+        window.localStorage.setItem("currentPage", id);
         currentPage = id;
     }
 

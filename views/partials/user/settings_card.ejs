@@ -91,7 +91,9 @@
                                         <option value="AM"
                                         <% if (user.appearance.darkModeFinish < 12 || user.appearance.darkModeFinish === 24) { %>
                                                 selected
-                                                <% } %>>AM</option>
+                                                <% } %>
+                                        >AM
+                                        </option>
                                     </select>
                                     <label style="margin-left: 0.25rem">
                                         to
@@ -105,7 +107,9 @@
                                         <option value="AM"
                                         <% if (user.appearance.darkModeFinish < 12 || user.appearance.darkModeFinish === 24) { %>
                                                 selected
-                                                <% } %>>AM</option>
+                                                <% } %>
+                                        >AM
+                                        </option>
                                         <option value="PM"
                                         <% if (user.appearance.darkModeFinish >= 12 && user.appearance.darkModeFinish !== 24) { %>
                                                 selected
@@ -235,9 +239,11 @@
                                                 </span>
                                         </i>
                                     </label>
-                                    <button type="submit" class="btn btn-default btn-med">
-                                        Apply
-                                    </button>
+                                    <div class="text-center">
+                                        <button type="submit" class="btn btn-default btn-med">
+                                            Apply
+                                        </button>
+                                    </div>
                                 </div>
                             <% } %>
                         </form>
