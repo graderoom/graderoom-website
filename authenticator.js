@@ -144,19 +144,47 @@ module.exports = {
         let user = db.get("users").find({username: lc_username}).value();
         return !!user;
 
-    }, setTheme: function (username, theme, nightLimit, morningLimit) {
+    }, setTheme: function (username, theme, darkModeStart, darkModeStartAmPm, darkModeFinish, darkModeFinishAmPm) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         user.get("appearance").set("theme", theme).write();
-        let message = "Updated theme to " + theme + "!";
-        if (nightLimit) {
-            user.get("appearance").set("nightLimit", parseInt(nightLimit) + 12).write();
-        }
-        if (morningLimit) {
-            user.get("appearance").set("morningLimit", parseInt(morningLimit)).write();
-        }
+        let message = theme.replace(/^\w/, c => c.toUpperCase()) + " theme enabled!";
         if (theme === "auto") {
-            message += "\nDark mode enabled from " + (user.value().appearance.nightLimit - 12) + " PM to " + user.value().appearance.morningLimit + " AM.";
+            darkModeStart = parseInt(darkModeStart);
+            darkModeFinish = parseInt(darkModeFinish);
+            if (darkModeStartAmPm === "PM") {
+                if (darkModeStart !== 12) {
+                    darkModeStart += 12;
+                }
+            } else if (darkModeStart === 12) {
+                darkModeStart -= 12;
+            }
+            if (darkModeFinishAmPm === "PM") {
+                if (darkModeFinish !== 12) {
+                    darkModeFinish += 12;
+                }
+            } else if (darkModeFinish === 12) {
+                darkModeFinish += 12;
+            }
+            if (darkModeStart === darkModeFinish) {
+                user.get("appearance").set("theme", "light").write();
+                return {success: true, message: "Light theme enabled!"};
+            }
+            user.get("appearance").set("darkModeStart", parseInt(darkModeStart)).write();
+            user.get("appearance").set("darkModeFinish", parseInt(darkModeFinish)).write();
+            if (darkModeStartAmPm === "PM") {
+                darkModeStart -= 12;
+            }
+            if (darkModeFinishAmPm === "PM") {
+                darkModeFinish -= 12;
+            }
+            if (darkModeStart === 0) {
+                darkModeStart = 12;
+            }
+            if (darkModeFinish === 24) {
+                darkModeFinish = 12;
+            }
+            message = "Dark mode enabled from " + darkModeStart + " " + darkModeStartAmPm + " to " + darkModeFinish + " " + darkModeFinishAmPm + ".";
         }
         return {success: true, message: message};
     }, setUpdateGradesReminder: function (username, updateGradesReminder) {
@@ -217,13 +245,17 @@ module.exports = {
         let lc_username = acc_username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         let grade_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password);
-        // console.log(grade_update_status);
         if (!grade_update_status.success) {
             //error updating grades
             return grade_update_status;
         }
-        for (let i = userRef.value().grades.length - 1; i < grade_update_status.new_grades; i++) {
-            this.setRandomClassColor(lc_username, i);
+        for (let i = 0; i < grade_update_status.new_grades.length; i++) {
+            if (!(containsClass(grade_update_status.new_grades[i], userRef.value().grades))) {
+                this.setRandomClassColor(lc_username, i, true);
+            }
+            if (!(userRef.value().weights[grade_update_status.new_grades[i].class_name])) {
+                this.addNewWeightDict(lc_username, i, grade_update_status.new_grades[i].class_name);
+            }
         }
         userRef.assign({grades: grade_update_status.new_grades}).write();
         userRef.get("alerts").set("lastUpdated", Date.now()).write();
@@ -231,11 +263,36 @@ module.exports = {
         return {success: true, message: "Updated grades!"};
     },
 
-    setRandomClassColor: function (username, index) {
+    addNewWeightDict: function (username, index, className) {
+        let lc_username = username.toLowerCase();
+        let userRef = db.get("users").find({username: lc_username});
+        let weights = userRef.value().weights;
+        let newWeights = {};
+
+        for (let i = 0; i < Object.keys(weights).length + 1; i++) {
+            if (i < index) {
+                newWeights[Object.keys(weights)[i]] = Object.values(weights)[i];
+            } else if (i === index) {
+                newWeights[className] = {};
+            } else {
+                newWeights[Object.keys(weights)[i - 1]] = Object.values(weights)[i - 1];
+            }
+        }
+        userRef.set("weights", newWeights).write();
+        return {success: true, message: newWeights};
+    },
+
+    setRandomClassColor: function (username, index, isNew) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         let classColors = userRef.get("appearance").get("classColors").value();
 
+        if (isNew) {
+            let length = classColors.length;
+            for (let i = index; i < length; i++) {
+                classColors[i + 1] = classColors[i];
+            }
+        }
         classColors[index] = randomColor();
         userRef.get("appearance").set("classColors", classColors).write();
         return {success: true, message: classColors};
@@ -365,4 +422,13 @@ function isAlphaNumeric(str) {
 function validateEmail(email) {
     let re = /\S+\d+@bcp+\.org+/;
     return re.test(email);
+}
+
+function containsClass(obj, list) {
+    for (let i = 0; i < list.length; i++) {
+        if (list[i].class_name === obj.class_name) {
+            return true;
+        }
+    }
+    return false;
 }

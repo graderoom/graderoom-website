@@ -11,8 +11,16 @@ module.exports = function (app, passport) {
         if (req.isAuthenticated()) {
 
             let user = authenticator.getUser(req.user.username);
-            let weightData = JSON.stringify(user.weights);
             let gradeDat = JSON.stringify(user.grades);
+
+            // Fixes db for all old users
+            for (let i = 0; i < user.grades.length; i++) {
+                if (!(user.weights[user.grades[i].class_name])) {
+                    authenticator.addNewWeightDict(req.user.username, i, user.grades[i].class_name);
+                }
+            }
+
+            let weightData = JSON.stringify(user.weights);
 
             res.render("authorized_index.ejs", {
                 user: req.user,
@@ -20,11 +28,7 @@ module.exports = function (app, passport) {
                 userRef: JSON.stringify(user),
                 schoolUsername: req.user.schoolUsername,
                 gradeData: gradeDat,
-                weightData: weightData,
-                updateGradesMessageSuccess: req.flash("updateGradesMessageSuccess"),
-                updateGradesMessageFail: req.flash("updateGradesMessageFail"),
-                settingsChangeMessageSuccess: req.flash("settingsChangeMessageSuccess"),
-                settingsChangeMessageFail: req.flash("settingsChangeMessageFail")
+                weightData: weightData
             });
             return;
         }
@@ -132,8 +136,13 @@ module.exports = function (app, passport) {
     });
 
     app.post("/updateAppearance", [isLoggedIn], (req, res) => {
-        let resp = authenticator.setTheme(req.user.username, req.body.theme, req.body.nightLimit, req.body.morningLimit);
-        res.status(200).send(resp.message);
+        console.log(req.body.theme, req.body.darkModeStart, req.body.darkModeStartAmPm, req.body.darkModeFinish, req.body.darkModeFinishAmPm);
+        let resp = authenticator.setTheme(req.user.username, req.body.theme, req.body.darkModeStart, req.body.darkModeStartAmPm, req.body.darkModeFinish, req.body.darkModeFinishAmPm);
+        if (resp.success) {
+            res.status(200).send(resp.message);
+        } else {
+            res.status(400).send(resp.message);
+        }
     });
 
     app.post("/updateGradeSync", [isLoggedIn], (req, res) => {

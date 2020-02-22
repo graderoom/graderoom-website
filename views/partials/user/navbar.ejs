@@ -79,7 +79,20 @@
             }
 
             // Serialize the form data.
-            formData = $(form).serialize();
+            if (formID === "#chooseTheme") {
+                let data = JSON.parse(JSON.stringify($(form).serializeArray()));
+                if (data[0].value === "auto") {
+                    if (!data[1].value) {
+                        data[1].value = document.getElementById("darkModeStart").placeholder;
+                    }
+                    if (!data[3].value) {
+                        data[3].value = document.getElementById("darkModeFinish").placeholder;
+                    }
+                }
+                formData = data;
+            } else {
+                formData = $(form).serialize();
+            }
 
             // Get the messages.
             formMessagesDiv = $(messagesDivID);
@@ -126,25 +139,47 @@
                     // Switch mode instantly
                     if (formID === "#chooseTheme") {
                         clearInterval(checkingTheme);
-                        if (response === "Updated theme to dark!") {
+                        if (response === "Dark theme enabled!") {
                             document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
                             let oldDarkMode = darkMode;
                             darkMode = true;
                             if (darkMode !== oldDarkMode) {
                                 renderAllCharts();
                             }
-                        } else if (response === "Updated theme to light!") {
+                        } else if (response === "Light theme enabled!") {
                             document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+                            document.getElementsByName("theme")[0].setAttribute("checked", "checked");
                             let oldDarkMode = darkMode;
                             darkMode = false;
                             if (darkMode !== oldDarkMode) {
                                 renderAllCharts();
                             }
                         } else {
-                            nightLimit = (form[0].elements.nightLimit.valueAsNumber + 12) || (parseInt(form[0].elements.nightLimit.placeholder) + 12);
-                            morningLimit = form[0].elements.morningLimit.valueAsNumber || form[0].elements.morningLimit.placeholder;
-                            document.getElementById("nightLimit").setAttribute("placeholder", (nightLimit - 12).toString());
-                            document.getElementById("morningLimit").setAttribute("placeholder", morningLimit.toString());
+                            console.log($(form[0].elements.darkModeStart)[0].valueAsNumber + 12);
+                            console.log("1", darkModeStart, darkModeFinish);
+                            if ($(form[0].elements.darkModeStartAmPm)[0].selectedOptions[0].value === "PM") {
+                                if ($(form[0].elements.darkModeStart)[0].value) {
+                                    darkModeStart = ($(form[0].elements.darkModeStart)[0].valueAsNumber + 12);
+                                } else {
+                                    darkModeStart = parseInt($(form[0].elements.darkModeStart)[0].placeholder) + 12;
+                                }
+                            }
+                            if ($(form[0].elements.darkModeFinishAmPm)[0].selectedOptions[0].value === "PM") {
+                                if ($(form[0].elements.darkModeFinish)[0].value) {
+                                    darkModeFinish = ($(form[0].elements.darkModeFinish)[0].valueAsNumber + 12);
+                                } else {
+                                    darkModeFinish = parseInt($(form[0].elements.darkModeFinish)[0].placeholder) + 12;
+                                }
+                            }
+                            if ($(form[0].elements.darkModeStart)[0].valueAsNumber === 0) {
+                                darkModeStart = 12;
+                            }
+                            if ($(form[0].elements.darkModeFinish)[0].valueAsNumber === 24) {
+                                darkModeFinish = 12;
+                            }
+                            console.log("2", darkModeStart, darkModeFinish);
+                            document.getElementById("darkModeStart").setAttribute("placeholder", (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString()));
+                            document.getElementById("darkModeFinish").setAttribute("placeholder", (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString()));
                             checkTime();
                         }
                     }
@@ -156,6 +191,9 @@
 
                 // Set the message text.
                 if (data.responseText !== "") {
+                    if (data.responseText === "Error scraping grades.") {
+                        $("#syncFailure").show();
+                    }
                     $(message).text(data.responseText);
                 } else {
                     $(message).text("Oops! An error occurred and your message could not be sent.");
