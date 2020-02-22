@@ -3,7 +3,7 @@
     <div class="blurred-login" id="settingsCardDisplay"
          style="position:fixed; display:none; height: 100%; width: 100%; top: 0; left: 0; z-index: 1">
         <div class="blurred-background" style="position: fixed; width: 100%; height: 100%; filter: opacity(0.7);"></div>
-        <div class="col-sm-10 col-md-8 col-lg-6 col-xl-5 mx-auto">
+        <div class="col-sm-11 col-md-10 col-lg-9 col-xl-6 mx-auto">
             <div id="settingsCard" class="settings card card-signin my-5">
                 <btn class="btn btn-md"
                      onclick="closeForm('settingsCardDisplay'); closeMessage('accountSettingsMessage'); closeMessage('alertSettingsMessage');"
@@ -13,6 +13,7 @@
                 <div class="card-body">
                     <h1 class="card-title text-center"><span class="fa fa-cog"></span> Settings</h1>
                 </div>
+                <div id="reloadNeeded" style="display: none"></div>
                 <div class="tab">
                     <btn id="btn-1" class="tablinks active" onclick="openTab(1)">Appearance</btn>
                     <btn id="btn-2" class="tablinks" onclick="openTab(2)">Feedback</btn>
@@ -28,8 +29,8 @@
                                 <div class="text-center">
                                     <% for (var i = 0; i < user.grades.length; i++) { %>
                                         <label id="classColor<%= i %>"
-                                               style="margin-bottom: 0; padding: 0 1rem 0 1rem; cursor: pointer; color: <%= user.appearance.classColors[i] %>; font-size: larger; font-weight: bolder;"
-                                               onclick="ajaxPostForm('#randomizeClassColors' + <%= i %>,[],'',true); $('#reloadClassColors').show()">
+                                               style="margin-bottom: 0; padding: 0 1rem 0 1rem; cursor: pointer; color: <%= user.appearance.classColors[i] %>; font-size: medium; font-weight: bolder;"
+                                               onclick="ajaxPostForm('#randomizeClassColors' + <%= i %>,[],'',true)">
                                             <form id="randomizeClassColors<%= i %>" class="form-signin"
                                                   action="/randomizeClassColors"
                                                   method="post">
@@ -40,10 +41,6 @@
                                             </form>
                                         </label>
                                     <% } %>
-                                    <div id="reloadClassColors" style="display: none" class="text-center form-signin">
-                                        <button class="btn btn-default btn-med" onclick="window.reload()">Refresh
-                                        </button>
-                                    </div>
                                 </div>
                             </div>
                         <% } %>
@@ -83,9 +80,18 @@
                                            style="padding: 0 0.75rem 0 0.75rem; width: 3rem !important" type="number"
                                            class="text-center number-input form-control" name="darkModeStart" min="1"
                                            max="12">
-                                    <select style="margin-left: 0 !important" id="darkModeStartAmPm" class="dropdown" name="darkModeStartAmPm">
-                                        <option value="PM">PM</option>
-                                        <option value="AM">AM</option>
+                                    <select style="margin-left: 0 !important" id="darkModeStartAmPm" class="dropdown"
+                                            name="darkModeStartAmPm">
+                                        <option value="PM"
+                                        <% if (user.appearance.darkModeFinish >= 12 && user.appearance.darkModeFinish !== 24) { %>
+                                                selected
+                                                <% } %>
+                                        >PM
+                                        </option>
+                                        <option value="AM"
+                                        <% if (user.appearance.darkModeFinish < 12 || user.appearance.darkModeFinish === 24) { %>
+                                                selected
+                                                <% } %>>AM</option>
                                     </select>
                                     <label style="margin-left: 0.25rem">
                                         to
@@ -94,10 +100,14 @@
                                            style="padding: 0 0.75rem 0 0.75rem; width: 3rem !important" type="number"
                                            class="text-center number-input form-control" name="darkModeFinish" min="1"
                                            max="12">
-                                    <select style="margin-left: 0 !important" id="darkModeFinishAmPm" class="dropdown" name="darkModeFinishAmPm">
-                                        <option value="AM">AM</option>
+                                    <select style="margin-left: 0 !important" id="darkModeFinishAmPm" class="dropdown"
+                                            name="darkModeFinishAmPm">
+                                        <option value="AM"
+                                        <% if (user.appearance.darkModeFinish < 12 || user.appearance.darkModeFinish === 24) { %>
+                                                selected
+                                                <% } %>>AM</option>
                                         <option value="PM"
-                                        <% if (user.appearance.darkModeFinish > 12 && !(user.appearance.darkModeFinish === 24)) { %>
+                                        <% if (user.appearance.darkModeFinish >= 12 && user.appearance.darkModeFinish !== 24) { %>
                                                 selected
                                                 <% } %>
                                         >PM

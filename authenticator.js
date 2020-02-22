@@ -175,10 +175,14 @@ module.exports = {
             user.get("appearance").set("darkModeStart", parseInt(darkModeStart)).write();
             user.get("appearance").set("darkModeFinish", parseInt(darkModeFinish)).write();
             if (darkModeStartAmPm === "PM") {
-                darkModeStart -= 12;
+                if (darkModeStart !== 12) {
+                    darkModeStart -= 12;
+                }
             }
             if (darkModeFinishAmPm === "PM") {
-                darkModeFinish -= 12;
+                if (darkModeFinish !== 12) {
+                    darkModeFinish -= 12;
+                }
             }
             if (darkModeStart === 0) {
                 darkModeStart = 12;
