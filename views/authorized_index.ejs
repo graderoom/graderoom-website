@@ -265,7 +265,7 @@
     }
 
     function setAutoTheme() {
-        console.log(darkModeStart, darkModeFinish);
+        console.log("Start, finish", darkModeStart, darkModeFinish);
         if (user.appearance.theme === "dark" || (user.appearance.theme === "auto" && ((darkModeStart < darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart) && ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart) || ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish)))) {
             document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
             let oldDarkMode = darkMode;

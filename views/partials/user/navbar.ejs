@@ -89,6 +89,7 @@
                         data[3].value = document.getElementById("darkModeFinish").placeholder;
                     }
                 }
+                console.log(data);
                 formData = data;
             } else {
                 formData = $(form).serialize();
@@ -108,6 +109,7 @@
                     // numClasses is contained in messagesDivID
                     // colors come from response
                     updateClassColors(response);
+                    $("#reloadNeeded").text("Reload Needed");
                 } else {
 
                     // Make sure that the formMessages div has the alert-success class.
@@ -155,29 +157,42 @@
                                 renderAllCharts();
                             }
                         } else {
-                            console.log($(form[0].elements.darkModeStart)[0].valueAsNumber + 12);
-                            console.log("1", darkModeStart, darkModeFinish);
-                            if ($(form[0].elements.darkModeStartAmPm)[0].selectedOptions[0].value === "PM") {
+                            console.log("1: ", darkModeStart, darkModeFinish);
+                            if ($(form[0].elements.darkModeStartAmPm)[0].selectedOptions[0].value === "PM" && $(form[0].elements.darkModeStart)[0].valueAsNumber !== 12) {
                                 if ($(form[0].elements.darkModeStart)[0].value) {
                                     darkModeStart = ($(form[0].elements.darkModeStart)[0].valueAsNumber + 12);
-                                } else {
+                                } else if (parseInt($(form[0].elements.darkModeStart)[0].placeholder) !== 12) {
                                     darkModeStart = parseInt($(form[0].elements.darkModeStart)[0].placeholder) + 12;
+                                } else {
+                                    darkModeStart = $(form[0].elements.darkModeStart)[0].placeholder;
                                 }
+                            } else if ($(form[0].elements.darkModeStart)[0].value) {
+                                if ($(form[0].elements.darkModeStart)[0].valueAsNumber === 12) {
+                                    darkModeStart = 0;
+                                } else {
+                                    darkModeStart = $(form[0].elements.darkModeStart)[0].valueAsNumber;
+                                }
+                            } else if (parseInt($(form[0].elements.darkModeStart)[0].placeholder) === 12) {
+                                darkModeStart = 0;
                             }
-                            if ($(form[0].elements.darkModeFinishAmPm)[0].selectedOptions[0].value === "PM") {
+                            if ($(form[0].elements.darkModeFinishAmPm)[0].selectedOptions[0].value === "PM" && $(form[0].elements.darkModeFinish)[0].valueAsNumber !== 12) {
                                 if ($(form[0].elements.darkModeFinish)[0].value) {
                                     darkModeFinish = ($(form[0].elements.darkModeFinish)[0].valueAsNumber + 12);
-                                } else {
+                                } else if (parseInt($(form[0].elements.darkModeFinish)[0].placeholder) !== 12) {
                                     darkModeFinish = parseInt($(form[0].elements.darkModeFinish)[0].placeholder) + 12;
+                                } else {
+                                    darkModeFinish = $(form[0].elements.darkModeFinish)[0].placeholder;
                                 }
+                            } else if ($(form[0].elements.darkModeFinish)[0].value) {
+                                if ($(form[0].elements.darkModeFinish)[0].valueAsNumber === 12) {
+                                    darkModeFinish = 24;
+                                } else {
+                                    darkModeFinish = $(form[0].elements.darkModeFinish)[0].valueAsNumber;
+                                }
+                            } else if (parseInt($(form[0].elements.darkModeFinish)[0].placeholder) === 12) {
+                                darkModeFinish = 24;
                             }
-                            if ($(form[0].elements.darkModeStart)[0].valueAsNumber === 0) {
-                                darkModeStart = 12;
-                            }
-                            if ($(form[0].elements.darkModeFinish)[0].valueAsNumber === 24) {
-                                darkModeFinish = 12;
-                            }
-                            console.log("2", darkModeStart, darkModeFinish);
+                            console.log("2: ", darkModeStart, darkModeFinish);
                             document.getElementById("darkModeStart").setAttribute("placeholder", (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString()));
                             document.getElementById("darkModeFinish").setAttribute("placeholder", (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString()));
                             checkTime();
@@ -217,16 +232,14 @@
     function closeForm(id) {
         let form = document.getElementById(id);
         form.style.display = "none";
-        if (id === "updateGradesDisplay") {
-            let synced = document.getElementById("synced").textContent;
-            if (synced === "Synced") {
-                window.reload();
-            }
+        if (id === "updateGradesDisplay" && document.getElementById("synced").textContent === "Synced") {
+            window.reload();
         } else if (id === "updateWeightsDisplay") {
-            let edited = document.getElementById("edited").textContent;
-            if (edited === "Edited") {
+            if (document.getElementById("edited").textContent === "Edited") {
                 window.reload();
             }
+        } else if (id === "settingsCardDisplay" && document.getElementById("reloadNeeded").textContent === "Reload Needed") {
+            window.reload();
         } else {
             let inputFields = form.getElementsByClassName("form-control");
             for (let i = 0; i < inputFields.length; i++) {
