@@ -89,7 +89,6 @@
                         data[3].value = document.getElementById("darkModeFinish").placeholder;
                     }
                 }
-                console.log(data);
                 formData = data;
             } else {
                 formData = $(form).serialize();
@@ -157,7 +156,7 @@
                                 renderAllCharts();
                             }
                         } else {
-                            console.log("1: ", darkModeStart, darkModeFinish);
+                           // console.log("1: ", darkModeStart, darkModeFinish);
                             if ($(form[0].elements.darkModeStartAmPm)[0].selectedOptions[0].value === "PM" && $(form[0].elements.darkModeStart)[0].valueAsNumber !== 12) {
                                 if ($(form[0].elements.darkModeStart)[0].value) {
                                     darkModeStart = ($(form[0].elements.darkModeStart)[0].valueAsNumber + 12);
@@ -192,7 +191,7 @@
                             } else if (parseInt($(form[0].elements.darkModeFinish)[0].placeholder) === 12) {
                                 darkModeFinish = 24;
                             }
-                            console.log("2: ", darkModeStart, darkModeFinish);
+                            //console.log("2: ", darkModeStart, darkModeFinish);
                             document.getElementById("darkModeStart").setAttribute("placeholder", (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString()));
                             document.getElementById("darkModeFinish").setAttribute("placeholder", (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString()));
                             checkTime();
