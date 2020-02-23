@@ -162,7 +162,8 @@
                     <tfoot>
                 <tr>
                     <th colspan="4">
-                        <div style="display:none" id="weightTableOverallGrade<%= i %>">
+                        <div style="display:none; color: <%= user.appearance.classColors[i] %>"
+                             id="weightTableOverallGrade<%= i %>">
 
                         </div>
                         <div style="display:none" colspan="4"
@@ -193,7 +194,7 @@
                 <tr>
                     <td><%= grade.assignment_name %> </td>
                     <td><%= grade.date %> </td>
-                    <td><%= grade.category %> </td>
+                    <td><%= grade.category + (grade.exclude ? " (EXCLUDED) " : "") %></td>
                     <% if (grade.grade_percent == -1) { %>
                         <td></td>
                     <% } else { %>
@@ -573,6 +574,7 @@
             let assignmentPercents = classData.grades.map(x => x.grade_percent);
             let assignmentScoresParsed = classData.grades.map(x => x.points_gotten + "/" + x.points_possible);
             let assignmentCategories = classData.grades.map(x => x.category);
+            let assignmentExcluded = classData.grades.map(x => x.exclude);
             let mixedData = overallGradeSteps.map(function (grade, i) {
                 return {x: assignmentTimestamps[i], y: grade};
             });
@@ -583,9 +585,9 @@
                                 assignmentPercents: assignmentPercents,
                                 assignmentScoresParsed: assignmentScoresParsed,
                                 assignmentCategories: assignmentCategories,
+                                assignmentExcluded: assignmentExcluded,
                                 mixedData: mixedData
                             });
-            // console.log(parsedData);
         }
     }
 
@@ -686,7 +688,7 @@
                         title: function (tooltipItems, data) {
                             return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
                         }, label: function (tooltipItem, data) {
-                            return ["[" + parsedData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.index] + "] " + parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + " - " + (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== -1 ? (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "%") : ("")) + ((parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? (" (" + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")") : (parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)))];
+                            return ["[" + parsedData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.index] + "] " + (parsedData[tooltipItem.datasetIndex].assignmentExcluded[tooltipItem.index] ? "[EXCLUDED] " : "") + parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + " - " + (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== -1 ? (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "%") : ("")) + ((parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? (" (" + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")") : (parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)))];
                         }
                     }
                 }, responsive: true, maintainAspectRatio: false
@@ -744,7 +746,7 @@
                         title: function (tooltipItems, data) {
                             return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
                         }, label: function (tooltipItem, data) {
-                            return ["[" + parsedData[id].assignmentCategories[tooltipItem.index] + "] " + parsedData[id].assignmentNames[tooltipItem.index] + " - " + (parsedData[id].assignmentPercents[tooltipItem.index] !== -1 ? (parsedData[id].assignmentPercents[tooltipItem.index] + "%") : ("")) + ((parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? (" (" + parsedData[id].assignmentScoresParsed[tooltipItem.index] + ")") : (parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(0, parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)))];
+                            return ["[" + parsedData[id].assignmentCategories[tooltipItem.index] + "] " + (parsedData[tooltipItem.datasetIndex].assignmentExcluded[tooltipItem.index] ? "[EXCLUDED]" : "") + parsedData[id].assignmentNames[tooltipItem.index] + " - " + (parsedData[id].assignmentPercents[tooltipItem.index] !== -1 ? (parsedData[id].assignmentPercents[tooltipItem.index] + "%") : ("")) + ((parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? (" (" + parsedData[id].assignmentScoresParsed[tooltipItem.index] + ")") : (parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(0, parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)))];
                         }
                     }
                 }, responsive: true, maintainAspectRatio: false
