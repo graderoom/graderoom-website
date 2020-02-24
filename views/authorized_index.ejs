@@ -278,6 +278,12 @@
             darkMode = true;
             if (darkMode !== oldDarkMode) {
                 renderAllCharts();
+                let localStorage = window.localStorage;
+                if (darkMode) {
+                    localStorage.setItem("defaultAppearance", "dark");
+                } else {
+                    localStorage.setItem("defaultAppearance", "light");
+                }
             }
         } else {
             document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
@@ -285,6 +291,12 @@
             darkMode = false;
             if (darkMode !== oldDarkMode) {
                 renderAllCharts();
+            }
+            let localStorage = window.localStorage;
+            if (darkMode) {
+                localStorage.setItem("defaultAppearance", "dark");
+            } else {
+                localStorage.setItem("defaultAppearance", "light");
             }
         }
     }
