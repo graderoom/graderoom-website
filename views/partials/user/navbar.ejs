@@ -144,6 +144,7 @@
                             document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
                             let oldDarkMode = darkMode;
                             darkMode = true;
+                            theme = "dark";
                             if (darkMode !== oldDarkMode) {
                                 renderAllCharts();
                             }
@@ -152,14 +153,20 @@
                             document.getElementsByName("theme")[0].setAttribute("checked", "checked");
                             let oldDarkMode = darkMode;
                             darkMode = false;
+                            theme = "light";
                             if (darkMode !== oldDarkMode) {
                                 renderAllCharts();
                             }
                         } else {
-                           // console.log("1: ", darkModeStart, darkModeFinish);
-                            if ($(form[0].elements.darkModeStartAmPm)[0].selectedOptions[0].value === "PM" && $(form[0].elements.darkModeStart)[0].valueAsNumber !== 12) {
+                            theme = "auto";
+                            //console.log("1: ", darkModeStart, darkModeFinish);
+                            if ($(form[0].elements.darkModeStartAmPm)[0].selectedOptions[0].value === "PM") {
                                 if ($(form[0].elements.darkModeStart)[0].value) {
-                                    darkModeStart = ($(form[0].elements.darkModeStart)[0].valueAsNumber + 12);
+                                    if ($(form[0].elements.darkModeStart)[0].valueAsNumber !== 12) {
+                                        darkModeStart = ($(form[0].elements.darkModeStart)[0].valueAsNumber + 12);
+                                    } else {
+                                        darkModeStart = 12;
+                                    }
                                 } else if (parseInt($(form[0].elements.darkModeStart)[0].placeholder) !== 12) {
                                     darkModeStart = parseInt($(form[0].elements.darkModeStart)[0].placeholder) + 12;
                                 } else {
@@ -176,9 +183,13 @@
                             } else {
                                 darkModeStart = $(form[0].elements.darkModeStart)[0].placeholder;
                             }
-                            if ($(form[0].elements.darkModeFinishAmPm)[0].selectedOptions[0].value === "PM" && $(form[0].elements.darkModeFinish)[0].valueAsNumber !== 12) {
+                            if ($(form[0].elements.darkModeFinishAmPm)[0].selectedOptions[0].value === "PM") {
                                 if ($(form[0].elements.darkModeFinish)[0].value) {
-                                    darkModeFinish = ($(form[0].elements.darkModeFinish)[0].valueAsNumber + 12);
+                                    if ($(form[0].elements.darkModeFinish)[0].valueAsNumber !== 12) {
+                                        darkModeFinish = ($(form[0].elements.darkModeFinish)[0].valueAsNumber + 12);
+                                    } else {
+                                        darkModeFinish = 12;
+                                    }
                                 } else if (parseInt($(form[0].elements.darkModeFinish)[0].placeholder) !== 12) {
                                     darkModeFinish = parseInt($(form[0].elements.darkModeFinish)[0].placeholder) + 12;
                                 } else {
@@ -248,17 +259,6 @@
             for (let i = 0; i < inputFields.length; i++) {
                 inputFields[i].value = "";
             }
-        }
-
-        // Manage darkMode checkbox, if it exists
-        try {
-            let darkModeCheckbox = document.getElementById("darkModeToggle");
-            if (user.appearance.darkMode && !darkModeCheckbox.checked) {
-                darkModeCheckbox.checked = true;
-            } else if (!user.appearance.darkMode && darkModeCheckbox.checked) {
-                darkModeCheckbox.checked = false;
-            }
-        } catch {
         }
 
         // Manage gradeSync checkbox, if it exists

@@ -7,7 +7,14 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.css">
-    <% if (user.appearance.theme === "dark" || (user.appearance.theme === "auto" && ((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) && ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish)) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish)))) { %>
+    <% if (user.appearance.theme === "dark" ||
+           (user.appearance.theme === "auto" &&
+           ((user.appearance.darkModeStart < user.appearance.darkModeFinish) &&
+            ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) &&
+            ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish)) ||
+           ((user.appearance.darkModeStart > user.appearance.darkModeFinish) &&
+            ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) ||
+             ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish)))) { %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else { %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
@@ -237,9 +244,10 @@
     setupWeightsTables();
     setupOverviewTable();
     updateWeightMessages();
-    if (user.appearance.theme === "auto") {
+    let theme = user.appearance.theme;
+    if (theme === "auto") {
         checkTime();
-    } else if (user.appearance.theme === "dark") {
+    } else if (theme === "dark") {
         darkMode = true;
     } else {
         darkMode = false;
@@ -271,8 +279,18 @@
     document.getElementById("darkModeFinish").setAttribute("placeholder", (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString()));
 
     function setAutoTheme() {
-        // console.log("Start, finish", darkModeStart, darkModeFinish);
-        if (user.appearance.theme === "dark" || (user.appearance.theme === "auto" && ((darkModeStart < darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart) && ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart) || ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish)))) {
+        darkModeStart = parseInt(darkModeStart);
+        darkModeFinish = parseInt(darkModeFinish);
+        //console.log("Start, finish, theme", darkModeStart, darkModeFinish, theme);
+        //console.log(((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart);
+        if (theme === "dark" ||
+            (theme === "auto" &&
+             ((darkModeStart < darkModeFinish) &&
+             ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart) &&
+             ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish)) ||
+            ((darkModeStart > darkModeFinish) &&
+             ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart) ||
+              ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish)))) {
             document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
             let oldDarkMode = darkMode;
             darkMode = true;
@@ -302,6 +320,7 @@
     }
 
     async function checkTime() {
+        clearInterval(checkingTheme);
         setAutoTheme();
         checkingTheme = window.setInterval(function () {
             setAutoTheme();

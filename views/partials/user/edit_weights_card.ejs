@@ -46,6 +46,7 @@
                                                    value="<%= value %>"
                                                    type="number"
                                                    min="0"
+                                                   step="0.1"
                                                    class="form-control <% if(value || value == 0){ %> text-view <% } %>"
                                                    name="<%= assignment.category %>"
                                                    oninput="this.classList.remove('text-view'); showSubmitButton(this); "
