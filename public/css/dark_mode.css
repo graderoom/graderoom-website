@@ -71,6 +71,11 @@ table thead tr th {
     color: white;
 }
 
+#weightsCard input.text-view:hover, #weightsCard input.text-view:focus  {
+    border-bottom: 1px solid #ced4da;
+    margin-bottom: -1px;
+    padding: .1rem .1rem;
+
 .form-group input:focus {
     border-bottom-color: #555555;
     color: white;
@@ -89,6 +94,29 @@ table thead tr th {
     border-color: #BBBBBB;
     color: #BBBBBB;
 }
+
+.form-group input{
+    background: none !important;
+    border-radius: 0;
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    color: white;
+}
+
+.form-group input:focus {
+    border-bottom-color: #555555;
+    color: white;
+    box-shadow: none;
+}
+
+.form-group:focus-within label {
+    font-weight: bold;
+}
+
+.form-group .user-bg {
+    background: url(/public/resources/dark_mode/user.png) no-repeat left/23px 27px !important;
+    padding-left: 35px;
 
 .logo {
     content: url(/public/resources/dark_mode/logo.png) !important;

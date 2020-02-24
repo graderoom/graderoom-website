@@ -81,8 +81,16 @@
         } catch (e) {
         }
 
-        if (defaultId === undefined || defaultId < 0) {
+        if (defaultId === undefined)
+        {
             defaultId = 0;
+            if (!(Object.keys(unobtainedWeights).length === 0))
+            {
+                let classNameToOpen = Object.keys(unobtainedWeights)[0];
+                for (let i = 0; i < data.length; i++)
+                    if (data[i].class_name == classNameToOpen)
+                        defaultId = i;
+            }
         }
         $("#updateWeightsDisplay").show();
         if ($("form.form-weights").length > 0) {
@@ -140,10 +148,11 @@
                                     $(this).removeClass("text-view");
                                 }
                             });
+                            let id = parseInt($(form).attr('id').replace(/\D/g,''));
                             $(form).find("label").each(function () {
                                 if ($(this)[0].nextElementSibling.value) {
-                                    $(this).css("color", (darkMode ? "white" : "black"));
-                                    $($(this)[0].nextElementSibling).css("border-color", (darkMode ? "white" : "black"));
+                                    $(this).css("color",user.appearance.classColors[id]);
+                                    $($(this)[0].nextElementSibling).css("border-color", user.appearance.classColors[id]);
                                 } else {
                                     $(this).css("color", "lightcoral");
                                     $($(this)[0].nextElementSibling).css("border-color", "red");
@@ -162,8 +171,9 @@
 
                             parseData();
                             updateWeightMessages();
-                            renderAllCharts();
-                        }).fail(function (data) {
+                        })
+
+                        .fail(function(data) {
                             //Make sure that the formMessages div has the alert-danger class
                             $(formMessagesDiv).removeClass("success");
                             $(formMessagesDiv).addClass("fail");
