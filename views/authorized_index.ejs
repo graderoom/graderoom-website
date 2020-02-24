@@ -151,7 +151,7 @@
 
             <tbody>
             <% for (let j = 0; j < Object.keys(
-                    JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]).length; j++) { %>
+                    JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]).length; j++) { %>
                 <tr>
                     <td id="weightTableCategory<%= i %><%= j %>"></td>
                     <td id="weightTableWeight<%= i %><%= j %>"></td>
@@ -236,9 +236,9 @@
 
     function getTotalWeight(classIndex) {
         let className = data[classIndex].class_name;
-        let classWeights = Object.values(weights[className]);
+        let classWeights = Object.values(weights[className]["weights"]);
         let totalWeight = 0;
-        let classCategories = Object.keys(weights[className]);
+        let classCategories = Object.keys(weights[className]["weights"]);
         for (let i = 0; i < classWeights.length; i++) {
             if (getCategoryGottenAndPossible(classIndex, classCategories[i]).possible !== 0) {
                 totalWeight += classWeights[i];
@@ -250,8 +250,8 @@
     function getOverallGrade(classIndex) {
         let className = data[classIndex].class_name;
         if (className in weights) {
-            let classCategories = Object.keys(weights[className]);
-            let classWeights = Object.values(weights[className]);
+            let classCategories = Object.keys(weights[className]["weights"]);
+            let classWeights = Object.values(weights[className]["weights"]);
             let overallGrade = 0;
             for (let i = 0; i < classCategories.length; i++) {
                 overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i] / 100;
@@ -296,9 +296,9 @@
         for (let i = 0; i < data.length; i++) {
             let className = data[i].class_name;
             if (className in weights) {
-                if (weights[className]) {
-                    let tableCategories = Object.keys(weights[className]);
-                    let tableWeights = Object.values(weights[className]);
+                if (weights[className]["weights"]) {
+                    let tableCategories = Object.keys(weights[className]["weights"]);
+                    let tableWeights = Object.values(weights[className]["weights"]);
                     for (let j = 0; j < tableCategories.length; j++) {
                         document.getElementById('weightTableCategory' + i + j).textContent = tableCategories[j];
                         document.getElementById('weightTableWeight' + i + j).textContent = tableWeights[j] + '%';
@@ -400,7 +400,7 @@
                 for (let grade of classData.grades) {
                     // console.log(grade.category)
 
-                    if (!(className in weights) || !(grade.category in weights[className])) {
+                    if (!(className in weights) || !(grade.category in weights[className]["weights"])) {
                         if (!localMissingCategories.includes(grade.category)) {
                             localMissingCategories.push(grade.category);
                         }
@@ -442,7 +442,7 @@
                     if (typeof totalPossiblesAndGottens[category] === 'undefined') {
                         let weightVal = 100;
                         if (!doesntHaveWeights) {
-                            weightVal = weights[className][category];
+                            weightVal = weights[className]["weights"][category];
                         }
                         totalPossiblesAndGottens[category] = {
                             totalPossible: 0, totalGotten: 0, weight: weightVal,
