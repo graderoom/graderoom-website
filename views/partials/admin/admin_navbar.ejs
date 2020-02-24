@@ -1,46 +1,47 @@
-<script type="text/javascript">
-    function showDiv(id) {document.getElementById(id).style.display = "block";}
-    function hideDiv(id) {document.getElementById(id).style.display = "none";}
-</script>
-
 <!-- Admin Nav Bar -->
 <nav class="navbar navbar-dark navbar-expand-lg justify-content-center">
     <span class="d-flex w-50 mr-auto">
-        <a href="/" class="navbar-brand" >            
+        <a href="/" class="navbar-brand">
             <h1> <img src="/public/resources/dark_mode/logo.png" style="width: 3rem" class="d-inline-block logo" alt=""> Graderoom </h1>
         </a>
     </span>
-    <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#collapsingNav" aria-controls="collapsingNav" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#collapsingNav"
+            aria-controls="collapsingNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="navbar-collapse collapse w-100" id="collapsingNav">
         <% if (user.username.length > 0) { %>
             <ul class="navbar-nav w-100 justify-content-center">
                 <li class="nav-item">
-                    <h5 class=""><%=user.username%></h5>
+                    <h5 class=""><%= user.username %></h5>
                 </li>
             </ul>
         <% } %>
         <ul class="navbar-nav w-100 justify-content-left">
-            <% if (user.isAdmin) { %>
-                <li id="toggleAdmin" class="nav-item toggle-admin">
-                    <a class="btn btn-med" href="/">
-                        <i class="fa fa-fighter-jet" aria-hidden="true"></i>
-                        Home
+            <% if (page != 'keys') { %>
+                <li id="betakeys" class="nav-item">
+                    <a class="btn btn-md" href="/betakeys"> <i class="fa fa-key" aria-hidden="true"></i> Beta Key Panel
                     </a>
                 </li>
             <% } %>
-            <li id="settings" class="nav-item">
-                <btn class="btn btn-med" onclick="showDiv('settingsCardDisplay')">
-                    <i class="fa fa-cog" aria-hidden="true"></i>
-                    Settings
-                </btn>
+            <% if (page != 'admin') { %>
+                <li id="admin" class="nav-item">
+                    <a class="btn btn-med" href="/admin"> <i class="fa fa-fighter-jet" aria-hidden="true"></i> Admin
+                    </a>
+                </li>
+            <% } %>
+            <li id="toggleAdmin" class="nav-item toggle-admin">
+                <a class="btn btn-med" href="/"> <i class="fa fa-home" aria-hidden="true"></i> Home </a>
             </li>
+            <% if (page != 'admin' && page != 'keys') { %>
+                <li id="settings" class="nav-item">
+                    <btn class="btn btn-med" onclick="$('#settingsCardDisplay').show()">
+                        <i class="fa fa-cog" aria-hidden="true"></i> Settings
+                    </btn>
+                </li>
+            <% } %>
             <li class="nav-item active">
-                <a href="/logout" class="btn btn-med">
-                    <i class="fa fa-sign-out" aria-hidden="true"></i>
-                    Logout
-                </a>
+                <a href="/logout" class="btn btn-med"> <i class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
             </li>
         </ul>
     </div>
@@ -58,17 +59,17 @@
 <script>
     // Collapse navbar when click outside
     $(document).click(function (e) {
-        if (!$(e.target).closest('#collapsingNav').length && !$(e.target).is('#collapsingNav')){
-            $('.navbar-collapse').collapse('hide');
+        if (!$(e.target).closest("#collapsingNav").length && !$(e.target).is("#collapsingNav")) {
+            $(".navbar-collapse").collapse("hide");
         }
-        if (!$(e.target).closest('#updateGradesCard').length && !$(e.target).is('#updateGradesCard')){
-            if (!$(e.target).closest('#updateGrades').length && !$(e.target).is('#updateGrades')){
-                hideDiv('updateGradesDisplay');
+        if (!$(e.target).closest("#updateGradesCard").length && !$(e.target).is("#updateGradesCard")) {
+            if (!$(e.target).closest("#updateGrades").length && !$(e.target).is("#updateGrades")) {
+                $("#updateGradesDisplay").hide();
             }
         }
-        if (!$(e.target).closest('#settingsCard').length && !$(e.target).is('#settingsCard')){
-            if (!$(e.target).closest('#settings').length && !$(e.target).is('#settings')){
-                hideDiv('settingsCardDisplay');
+        if (!$(e.target).closest("#settingsCard").length && !$(e.target).is("#settingsCard")) {
+            if (!$(e.target).closest("#settings").length && !$(e.target).is("#settings")) {
+                $("#settingsCardDisplay").hide();
             }
         }
     });
@@ -76,11 +77,12 @@
     $(document).keyup(function (e) {
         if (e.key === "Escape") { // escape key maps to keycode `27`
             try {
-                $('.navbar-collapse').collapse('hide');
-                hideDiv('toggle');
-            } catch(e) {}
-            hideDiv('updateGradesDisplay');
-            hideDiv('settingsCardDisplay');
+                $(".navbar-collapse").collapse("hide");
+                $("#toggle").hide();
+            } catch (e) {
+            }
+            $("#updateGradesDisplay").hide();
+            $("#settingsCardDisplay").hide();
         }
     });
 </script>

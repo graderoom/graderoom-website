@@ -1,25 +1,25 @@
-const express = require('express');
-const app = express();
-const http = require('http');
-const https = require('https');
-const httpPort = 80; //process.env.PORT || 8080;
-const httpsPort = 443; //process.env.PORT || 8080;
-const flash = require('connect-flash');
-const morgan = require('morgan');
+const express      = require('express');
+const app          = express();
+const http         = require('http');
+const httpPort     = 5998; //process.env.PORT || 8080;
+const flash        = require('connect-flash');
+const morgan       = require('morgan');
 const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
-const session = require('express-session');
-const passport = require('passport');
-const dbConn = require('./authenticator.js');
-const fs = require('fs');
+const bodyParser   = require('body-parser');
+const session      = require('express-session');
+const passport     = require('passport');
+const dbConn       = require('./authenticator.js');
+const fs           = require('fs');
 
-const usingHttps = process.argv[2] === undefined ? false : process.argv[2];
+const productionEnv = process.argv[2] === undefined ? false : process.argv[2];
+
+module.exports.needsBetaKeyToSignUp = true; //todo
 
 app.use('/public/', express.static('./public'));
 require('./passport')(passport); // pass passport for configuration
 
 // set up our express application
-if (usingHttps) {
+if (productionEnv) {
     app.use(morgan('common', {
         stream: fs.createWriteStream('./graderoom.log', {flags: 'a'})
     }));
@@ -28,7 +28,7 @@ if (usingHttps) {
 app.use(morgan('dev')); // log every request to the console
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser.json()); // get information from html forms
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({extended: true}));
 
 app.set('view engine', 'ejs'); // set up ejs for templating #todo do we want this
 
@@ -38,9 +38,9 @@ app.set('view engine', 'ejs'); // set up ejs for templating #todo do we want thi
  * also TODO dont hard code this
  */
 
-const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'password';
-const ADMIN_SCHOOL_USERNAME = 'admin@bcp.org';
+const ADMIN_USERNAME        = 'admin';
+const ADMIN_PASSWORD        = 'password';
+const ADMIN_SCHOOL_USERNAME = 'admin1@bcp.org';
 
 if (!dbConn.userExists(ADMIN_USERNAME)) {
     console.log("Creating admin account.");
@@ -53,43 +53,23 @@ if (!dbConn.userExists(ADMIN_USERNAME)) {
 app.use(session({
     secret: 'secret', // session secret //TODO CHANGE
     resave: true,
-    saveUninitialized: true
+    saveUninitialized: true,
+    cookie: {maxAge: 24 * 60 * 60 * 1000}
 }));
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
 // routes ======================================================================
-require('./routes.js')(app, passport); // load our routes and pass in our app and fully configured passport
-
+require('./routes.js')(app, passport); // load our routes and pass in our app and fully configured
+                                       // passport
 
 // launch ======================================================================
-if (usingHttps) {
-
-    const domainName = 'graderoom.me';
-
-    const privateKey = fs.readFileSync('/etc/letsencrypt/live/' + domainName + '/privkey.pem', 'utf8');
-    const certificate = fs.readFileSync('/etc/letsencrypt/live/' + domainName + '/cert.pem', 'utf8');
-    const ca = fs.readFileSync('/etc/letsencrypt/live/' + domainName + '/chain.pem', 'utf8');
-
-    const credentials = {
-        key: privateKey,
-        cert: certificate,
-        ca: ca
-    };
-
-    // Starting both http & https servers
-    const httpsServer = https.createServer(credentials, app);
-
-    httpsServer.listen(httpsPort, () => {
-        console.log('HTTPS Server running on port ' + httpsPort);
-    });
-
-}
-
-
 
 const httpServer = http.createServer(app);
 httpServer.listen(httpPort, () => {
     console.log('HTTP Server running on port ' + httpPort);
 });
+
+
+

@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Graderoom</title>
+    <link rel="icon" href="../public/resources/common/icon.png">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
+    <% if (user.appearance.theme === "dark" || (user.appearance.theme === "auto" && ((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) && ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish)) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish)))) { %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+    <% } else { %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
+    <% } %>
+    <link rel="stylesheet" type="text/css" href="public/css/main.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Javascript imports -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<!-- Navbar -->
+<% include partials/user/navbar.ejs %>
+<div class="container h-100 d-flex justify-content-center">
+    <div class="col-sm-12 col-md-10 col-lg-9 col-xl-8">
+        <div class="card card-signin my-5">
+            <div class="card-body">
+                <h1 class="text-center card-title">
+                    <i class="fa fa-calculator" aria-hidden="true"></i> Final Grade Calculator
+                </h1>
+                <div id="calculatorMessage" class="alert alert-info">
+                    <div style="font-weight: bold" class="messageTxt">
+                        Step 1: Enter Current Grade or Select a Class
+                    </div>
+                </div>
+                <form id="calculateFinalGrade" class="form-signin">
+                    <div class="card-footer">
+                        <h5>Current Info</h5>
+                        <div style="display: flex; justify-content: space-evenly; align-items: center">
+                            <label style="display: flex; align-items: flex-end; width: 50%"> <select id="chooseClass"
+                                                                                                     style="float: right;"
+                                                                                                     class="dropdown">
+                                    <option selected>- - Select Class - -</option>
+                                    <% for (let i = 0; i < user.grades.length; i++) { %>
+                                        <option><%= user.grades[Object.keys(user.grades)[i]].class_name %></option>
+                                    <% } %>
+                                </select> </label> <label style="display: flex; align-items: flex-end; width: 50%">
+                                <select id="chooseLetterGrade" style="float: right" class="dropdown">
+                                    <option disabled selected hidden>- - Grade - -</option>
+                                    <option value="97.5">A+</option>
+                                    <option value="92.5">A</option>
+                                    <option value="89.5">A-</option>
+                                    <option value="87.5">B+</option>
+                                    <option value="82.5">B</option>
+                                    <option value="79.5">B-</option>
+                                    <option value="77.5">C+</option>
+                                    <option value="72.5">C</option>
+                                    <option value="69.5">C-</option>
+                                    <option value="67.5">D+</option>
+                                    <option value="62.5">D</option>
+                                    <option value="59.5">D-</option>
+                                </select> </label>
+                        </div>
+                        <div style="display: flex; align-items: center; align-self: center">
+                            <label class="form-group" style="display: flex; align-items: flex-end"> <span
+                                        style="text-align: right">Your current grade is</span> <input
+                                        class="number-input form-control" style="margin-left: 1rem;"
+                                        id="currentGrade" type="number" step="0.0001" required autofocus> <span
+                                        style="text-align: left">%</span> </label> <label class="form-group"
+                                                                                          style="display: flex; align-items: flex-end">
+                                <span style="text-align: right">You want at least a</span> <input
+                                        class="number-input form-control" style="margin: 0 1rem 0 1rem;"
+                                        id="goal" type="number" step="0.01" required> <span style="text-align: left">% in the class.</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <h5>Final Info</h5>
+                        <div style="display: flex; align-items: center">
+                            <label class="form-group" style="display: flex; align-items: flex-end;"> <span
+                                        style="text-align: right">Your final is worth</span> <input
+                                        class="number-input form-control" style="margin: 0 1rem 0 1rem;"
+                                        id="finalWeight" type="number" step="0.00000001" required> <span
+                                        style="text-align: left">% of your grade.</span> </label>
+                        </div>
+                        <div id="specialFinal" style="display:none">
+                            <h6><strong>or</strong></h6>
+                            <div style="display: flex; align-items: center">
+                                <label class="form-group" style="display: flex; align-items: flex-end;"> <span
+                                            style="text-align: right">Your final is worth</span> <input
+                                            class="number-input form-control" style="margin: 0 1rem 0 1rem;"
+                                            id="finalPoints" type="number" step="0.00000001"> <span
+                                            style="text-align: left">points in </span> </label> <label
+                                        style="display: flex; align-items: flex-end"> <select id="chooseWeight"
+                                                                                              style="float: right"
+                                                                                              class="dropdown">
+                                        <option disabled selected hidden>- - Select Class - -</option>
+                                    </select> </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+
+<script>
+
+    user = <%- userRef %>;
+    data = <%- gradeData %>;
+
+    // Set up input divs
+    let currentGradeDiv = $("#currentGrade");
+    let chooseClassDiv = $("#chooseClass");
+    let goalDiv = $("#goal");
+    let chooseLetterGradeDiv = $("#chooseLetterGrade");
+    let finalWeightDiv = $("#finalWeight");
+    let finalPointsDiv = $("#finalPoints");
+    let chooseWeightDiv = $("#chooseWeight");
+    let form = $("#calculateFinalGrade");
+
+    // Messages
+    let feedbackMessageDiv = $("#calculatorMessage");
+
+    // Manage changes of currentGradeDiv
+    currentGradeDiv.on("input", function () {
+        // Submit the form.
+        form.submit();
+    });
+
+    // Manage changes of chooseClassDiv
+    chooseClassDiv.on("change", function () {
+        if ($(this)[0].selectedIndex === 0) {
+            currentGradeDiv.val("");
+            currentGradeDiv.prop("defaultValue", "");
+            finalWeightDiv.val("");
+            finalWeightDiv.prop("defaultValue", "");
+            document.getElementById("specialFinal").style.display = "none";
+        } else {
+            currentGradeDiv.val(+(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
+            currentGradeDiv.prop("defaultValue", +(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
+            document.getElementById("specialFinal").style.display = "block";
+        }
+        if (finalWeightDiv !== null) {
+            finalWeightDiv.val("");
+            finalWeightDiv.prop("defaultValue", "");
+            finalPointsDiv.val("");
+            finalPointsDiv.prop("defaultValue", "");
+        }
+        manageChooseWeight($(this)[0].selectedIndex - 1);
+
+        // Submit the form.
+        form.submit();
+    });
+
+    // Manage changes of goalDiv
+    goalDiv.on("input", function () {
+        // Submit the form.
+        form.submit();
+    });
+
+    // Manage changes of chooseLetterGradeDiv
+    chooseLetterGradeDiv.on("change", function () {
+        goalDiv.val(document.getElementById("chooseLetterGrade").options[$(this)[0].selectedIndex].value);
+        goalDiv.prop("defaultValue", document.getElementById("chooseLetterGrade").options[$(this)[0].selectedIndex].value);
+        form.submit();
+    });
+
+    // Manage changes of finalWeightDiv
+    finalWeightDiv.on("input", function () {
+        finalPointsDiv.val("");
+        finalPointsDiv.prop("defaultValue", "");
+        $("#chooseWeight")[0].selectedIndex = 0;
+        // Submit the form.
+        form.submit();
+    });
+
+    // Manage changes of finalPointsDiv
+    finalPointsDiv.on("input", function () {
+        finalWeightDiv.val("");
+        finalWeightDiv.prop("defaultValue", "");
+        let selectedWeight = $("#chooseWeight option:selected");
+        if (chooseClassDiv[0].selectedIndex !== 0) {
+            updateFinalWeight(selectedWeight, "finalPointsDiv");
+        }
+    });
+
+    // Mange changes of chooseWeightDiv
+    chooseWeightDiv.on("change", function () {
+        finalWeightDiv.val("");
+        finalWeightDiv.prop("defaultValue", "");
+        let selectedWeight = $("#chooseWeight option:selected");
+        updateFinalWeight(selectedWeight, "chooseWeightDiv");
+    });
+
+    function updateFinalWeight(selectedWeight, editedField) {
+
+        let classIndex = chooseClassDiv[0].selectedIndex - 1;
+        let categoryName = selectedWeight.html();
+        let finalPoints = finalPointsDiv.val();
+        let categoryWeight = selectedWeight[0].value;
+
+        console.log(categoryWeight, finalPoints);
+        if (categoryWeight === "" && finalPoints === "") {
+            feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 3: Complete Final Info");
+            return;
+        }
+
+        if (editedField === "finalPointsDiv") {
+            if (categoryWeight === "") {
+                feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 4: Select a Category");
+                return;
+            }
+
+            if (finalPoints === "") {
+                feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 4: Enter Final Points");
+                return;
+            }
+        } else if (editedField === "chooseWeightDiv") {
+            if (finalPoints === "") {
+                feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 4: Enter Final Points");
+                return;
+            }
+            if (categoryWeight === "") {
+                feedbackMessageDiv.removeClass("alert-success").removeClass("alert-info").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 4: Select a Category");
+                return;
+            }
+        }
+
+        let grades = data;
+        let classGrades = Object.values(grades)[classIndex].grades;
+        let numPossible = 0;
+        for (let i = 0; i < classGrades.length; i++) {
+            if (classGrades[i].category === categoryName) {
+                numPossible += classGrades[i].points_possible;
+            }
+        }
+        let finalWeight = 0;
+        console.log(finalPoints, numPossible, categoryWeight);
+        if (parseFloat(finalPoints) > 0) {
+            finalWeight = parseFloat(finalPoints) / (numPossible + parseFloat(finalPoints)) * categoryWeight;
+        }
+
+        // Get the text field
+        let message = finalWeightDiv;
+        $(message).val(parseFloat(finalWeight.toFixed(8)));
+        $(message).prop("defaultValue", parseFloat(finalWeight.toFixed(8)));
+
+        // Submit the form
+        form.submit();
+
+    }
+
+    // Manage form submission
+    form.submit(function (event) {
+
+        event.preventDefault();
+        let currentGrade = currentGradeDiv[0].valueAsNumber;
+        let goal = goalDiv[0].valueAsNumber;
+        let finalWeight = finalWeightDiv[0].valueAsNumber;
+        let letterGoal;
+
+        if (!currentGrade && currentGrade !== 0) {
+            feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").find(".messageTxt").text("Step 1: Enter Current Grade or Select a Class");
+            return;
+        }
+
+        if (currentGrade < 0) {
+            feedbackMessageDiv.removeClass("alert-success").removeClass("alert-info").addClass("alert-danger").find(".messageTxt").text("Your Current Grade Should Be a Positive Number");
+            return;
+        }
+
+        if (goal <= 0) {
+            feedbackMessageDiv.removeClass("alert-success").removeClass("alert-info").addClass("alert-danger").find(".messageTxt").text("Try aiming higher");
+            return;
+        }
+
+        if (!goal && goal !== 0) {
+            feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").find(".messageTxt").text("Step 2: Enter Your Goal or Select Letter Grade");
+            return;
+        }
+
+        if (finalWeight <= 0) {
+            feedbackMessageDiv.removeClass("alert-success").removeClass("alert-info").addClass("alert-danger").find(".messageTxt").text("Your final weight must be positive");
+            return;
+        }
+
+        if (!finalWeight) {
+            feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").find(".messageTxt").text("Step 3: Complete Final Info");
+            return;
+        }
+
+        let digitsInGoalMinusOne = Math.floor(Math.log10(goal)),
+            firstDigitInGoal = Math.floor(goal / Math.pow(10, digitsInGoalMinusOne));
+        if (firstDigitInGoal === 8) {
+            letterGoal = "an " + goal + "%";
+        } else {
+            letterGoal = "a " + goal + "%";
+        }
+
+        if (goal === 97.5) {
+            letterGoal = "an A+";
+        } else if (goal === 92.5) {
+            letterGoal = "an A";
+        } else if (goal === 89.5) {
+            letterGoal = "an A-";
+        } else if (goal === 87.5) {
+            letterGoal = "a B+";
+        } else if (goal === 82.5) {
+            letterGoal = "a B";
+        } else if (goal === 79.5) {
+            letterGoal = "a B-";
+        } else if (goal === 77.5) {
+            letterGoal = "a C+";
+        } else if (goal === 72.5) {
+            letterGoal = "a C";
+        } else if (goal === 69.5) {
+            letterGoal = "a C-";
+        } else if (goal === 67.5) {
+            letterGoal = "a D+";
+        } else if (goal === 62.5) {
+            letterGoal = "a D";
+        } else if (goal === 59.5) {
+            letterGoal = "a D-";
+        }
+
+        //TODO Finish these messages
+        let grade = +((goal - (currentGrade * (100 - finalWeight) / 100)) / finalWeight * 100).toFixed(3);
+        if (grade == null) {
+            return;
+        }
+        let startMessage;
+        let endMessage;
+        if (grade > 100) {
+            startMessage = "";
+            endMessage = "";
+        } else if (grade > 90) {
+            startMessage = "";
+            endMessage = "";
+        } else if (grade > 80) {
+            startMessage = "";
+            endMessage = "";
+        } else if (grade > 70) {
+            startMessage = "";
+            endMessage = "";
+        } else if (grade > 60) {
+            startMessage = "";
+            endMessage = "";
+        } else if (grade > 50) {
+            startMessage = "";
+            endMessage = "";
+        } else if (grade > 0) {
+            startMessage = "";
+            endMessage = "";
+        } else {
+            startMessage = "";
+            endMessage = "";
+        }
+
+        let digitsInGradeMinusOne = Math.floor(Math.log10(grade)),
+            firstDigitInGrade = Math.floor(grade / Math.pow(10, digitsInGradeMinusOne));
+
+        let formattedGrade;
+        if (firstDigitInGrade === 8) {
+            formattedGrade = "an " + grade + "%";
+        } else {
+            formattedGrade = "a " + grade + "%";
+        }
+
+        let gradeMessage = "You need " + formattedGrade + " on the final to get " + letterGoal + " overall.";
+        let message = startMessage + " " + gradeMessage + " " + endMessage;
+
+        if (grade > 100) {
+            feedbackMessageDiv.removeClass("alert-success").removeClass("alert-info").addClass("alert-danger").css("display", "block").find(".messageTxt").text(message);
+        } else if (grade > 80) {
+            feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").css("display", "block").find(".messageTxt").text(message);
+        } else {
+            feedbackMessageDiv.removeClass("alert-info").removeClass("alert-danger").addClass("alert-success").css("display", "block").find(".messageTxt").text(message);
+        }
+
+    });
+
+    // Sets up weight dropdown based on selected class
+    function manageChooseWeight(classIndex) {
+        let weightDropdown = document.getElementById("chooseWeight");
+        chooseWeightDiv.find("option").remove();
+        let newWeight = document.createElement("option");
+        newWeight.text = "-- Category --";
+        newWeight.value = "";
+        weightDropdown.add(newWeight);
+        if (classIndex >= 0) {
+            for (let i = 0; i < Object.keys(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name]).length; i++) {
+                let newWeight = document.createElement("option");
+                newWeight.text = Object.keys(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name])[i];
+                newWeight.value = Object.values(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name])[i].toString();
+                weightDropdown.add(newWeight);
+            }
+        }
+        if (weightDropdown.length === 1) {
+            chooseWeightDiv.find("option").remove();
+            newWeight.text = "-- Select Class --";
+            newWeight.value = "";
+            weightDropdown.add(newWeight);
+        }
+
+    }
+
+    // Hides message
+    function closeMessage(id) {
+        document.getElementById(id).style.display = "none";
+    }
+
+    // Returns total weight of class
+    function getTotalWeight(classIndex) {
+        let className = data[classIndex].class_name;
+        let classWeights = Object.values(user.weights[className]);
+        let totalWeight = 0;
+        let classCategories = Object.keys(user.weights[className]);
+        for (let i = 0; i < classWeights.length; i++) {
+            if (getCategoryGottenAndPossible(classIndex, classCategories[i]).possible !== 0) {
+                totalWeight += classWeights[i];
+            }
+        }
+        return totalWeight;
+    }
+
+    // Returns category gotten and possible
+    function getCategoryGottenAndPossible(classIndex, categoryName) {
+        let grades = data[classIndex].grades;
+        let totalGotten = 0;
+        let totalPossible = 0;
+        for (let i = 0; i < grades.length; i++) {
+            if (!grades[i].exclude && grades[i].category === categoryName) {
+                totalGotten += grades[i].points_gotten;
+                totalPossible += grades[i].points_possible;
+            }
+        }
+        return {"gotten": totalGotten, "possible": totalPossible};
+    }
+
+    // Returns overall grade of class
+    function getOverallGrade(classIndex) {
+        let className = user.grades[classIndex].class_name;
+        if (className in user.weights) {
+            let classCategories = Object.keys(user.weights[className]);
+            let classWeights = Object.values(user.weights[className]);
+            let overallGrade = 0;
+            for (let i = 0; i < classCategories.length; i++) {
+                overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i] / 100;
+            }
+            let ratio = 100 / getTotalWeight(classIndex);
+            overallGrade *= ratio;
+            return overallGrade;
+        }
+        return 0;
+    }
+
+    // Returns grade in category of class
+    function getCategoryGrade(classIndex, categoryName) {
+        let grades = user.grades[classIndex].grades;
+        let totalGotten = 0;
+        let totalPossible = 0;
+        for (let i = 0; i < grades.length; i++) {
+            if (!grades[i].exclude && grades[i].category === categoryName) {
+                totalGotten += grades[i].points_gotten;
+                totalPossible += grades[i].points_possible;
+            }
+        }
+        if (totalPossible === 0) {
+            return 0;
+        }
+        return +((totalGotten / totalPossible * 100).toFixed(3));
+    }
+
+</script>
