@@ -173,6 +173,8 @@
                                 }
                             } else if (parseInt($(form[0].elements.darkModeStart)[0].placeholder) === 12) {
                                 darkModeStart = 0;
+                            } else {
+                                darkModeStart = $(form[0].elements.darkModeStart)[0].placeholder;
                             }
                             if ($(form[0].elements.darkModeFinishAmPm)[0].selectedOptions[0].value === "PM" && $(form[0].elements.darkModeFinish)[0].valueAsNumber !== 12) {
                                 if ($(form[0].elements.darkModeFinish)[0].value) {
@@ -190,6 +192,8 @@
                                 }
                             } else if (parseInt($(form[0].elements.darkModeFinish)[0].placeholder) === 12) {
                                 darkModeFinish = 24;
+                            } else {
+                                darkModeFinish = $(form[0].elements.darkModeFinish)[0].placeholder;
                             }
                             //console.log("2: ", darkModeStart, darkModeFinish);
                             document.getElementById("darkModeStart").setAttribute("placeholder", (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString()));
