@@ -71,11 +71,6 @@ table thead tr th {
     color: white;
 }
 
-#weightsCard input.text-view:hover, #weightsCard input.text-view:focus  {
-    border-bottom: 1px solid #ced4da;
-    margin-bottom: -1px;
-    padding: .1rem .1rem;
-
 .form-group input:focus {
     border-bottom-color: #555555;
     color: white;
@@ -110,13 +105,25 @@ table thead tr th {
     box-shadow: none;
 }
 
-.form-group:focus-within label {
-    font-weight: bold;
+.form-group .email-bg {
+    background: url(/public/resources/dark_mode/email.png) no-repeat left/27px 20px !important;
+}
+
+.form-group .lock-bg {
+    background: url(/public/resources/dark_mode/lock.png)  no-repeat left/22px 27px !important;
+}
+
+.form-group .key-bg {
+    background: url(/public/resources/dark_mode/key.png) no-repeat left/26px 22px !important;
 }
 
 .form-group .user-bg {
     background: url(/public/resources/dark_mode/user.png) no-repeat left/23px 27px !important;
-    padding-left: 35px;
+}
+
+.form-group:focus-within label {
+    font-weight: bold;
+}
 
 .logo {
     content: url(/public/resources/dark_mode/logo.png) !important;

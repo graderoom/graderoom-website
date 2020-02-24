@@ -93,6 +93,22 @@ table thead tr th {
     border-bottom-color: #BBBBBB;
 }
 
+.form-group .email-bg {
+    background: url(/public/resources/light_mode/email.png) no-repeat left/27px 20px !important;
+}
+
+.form-group .lock-bg {
+    background: url(/public/resources/light_mode/lock.png)  no-repeat left/22px 27px !important;
+}
+
+.form-group .key-bg {
+    background: url(/public/resources/light_mode/key.png) no-repeat left/26px 22px !important;
+}
+
+.form-group .user-bg {
+    background: url(/public/resources/light_mode/user.png) no-repeat left/23px 27px !important;
+}
+
 .form-group:focus-within label {
     color: #888888 !important;
 }

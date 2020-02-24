@@ -206,22 +206,18 @@ table tfoot tr th {
 }
 
 .form-group .user-bg {
-    background: url(/public/resources/light_mode/user.png) no-repeat left/23px 27px !important;
     padding-left: 35px;
 }
 
 .form-group .lock-bg {
-    background: url(/public/resources/light_mode/lock.png) no-repeat left/22px 27px !important;
     padding-left: 35px;
 }
 
 .form-group .email-bg {
-    background: url(/public/resources/light_mode/email.png) no-repeat left/27px 20px !important;
     padding-left: 35px;
 }
 
 .form-group .password-bg {
-    background: url(/public/resources/light_mode/password.png) no-repeat left/26px 22px !important;
     padding-left: 35px;
 }
 
@@ -445,6 +441,7 @@ table tfoot tr th {
 }
 
 #weightsCard input.text-view:hover, #weightsCard input.text-view:focus {
+    margin-bottom: -1px;
     padding: .1rem .1rem;
 }
 
