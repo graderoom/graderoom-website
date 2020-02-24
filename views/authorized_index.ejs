@@ -383,11 +383,9 @@
     }
 
     function parseData() {
-
         /*
          WEIGHTS first
          */
-
         for (let classData of data) {
             let className = classData.class_name;
             let needWeights = !(className in weights) || (Object.entries(weights[className]).length === 0
