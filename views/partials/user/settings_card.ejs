@@ -83,13 +83,13 @@
                                     <select style="margin-left: 0 !important" id="darkModeStartAmPm" class="dropdown"
                                             name="darkModeStartAmPm">
                                         <option value="PM"
-                                        <% if (user.appearance.darkModeFinish >= 12 && user.appearance.darkModeFinish !== 24) { %>
+                                        <% if (user.appearance.darkModeStart >= 12 && user.appearance.darkModeStart !== 24) { %>
                                                 selected
                                                 <% } %>
                                         >PM
                                         </option>
                                         <option value="AM"
-                                        <% if (user.appearance.darkModeFinish < 12 || user.appearance.darkModeFinish === 24) { %>
+                                        <% if (user.appearance.darkModeStart < 12 || user.appearance.darkModeStart === 24) { %>
                                                 selected
                                                 <% } %>
                                         >AM
