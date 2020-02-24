@@ -221,7 +221,7 @@ module.exports = {
         return {success: false, message: "User does not exist."}
     },
 
-    updateWeightsForClass: function (username, className, weights, update = true) {
+    updateWeightsForClass: function (username, className, hasWeights, weights, update = true) {
         //default update, not override
         let lc_username = username.toLowerCase();
         let userRef     = db.get('users').find({username: lc_username});
@@ -235,7 +235,7 @@ module.exports = {
         if (!clsRef.value()) {
             return {success: false, message: "Class does not exist."}
         }
-
+        console.log("hasWeights: "+hasWeights);
         let weightsRef = userRef.get('weights');
 
         //Replace dots(.) with unicode escape sequence

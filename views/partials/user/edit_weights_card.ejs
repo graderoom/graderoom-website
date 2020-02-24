@@ -32,7 +32,7 @@
                                     if (!(weights.includes(assignment.category))) {
                                         weights.push(assignment.category); %>
                                         <div class="form-group" style="display: flex; align-items: flex-end;">
-                                            <% let value = null; try {value = JSON.parse(weightData)[grade.class_name][assignment.category]} catch {}; %>
+                                            <% let value = null; try {value = JSON.parse(weightData)[grade.class_name]["weights"][assignment.category]} catch {}; %>
                                             <label class="disableable" style="font-size: 0.9rem; <%if(value === null){%> color: lightcoral!important; <%}%> white-space: nowrap; margin-bottom: 0;"><%=assignment.category%>:&nbsp</label>
                                             <input  value='<%=value%>' 
                                                     type="number" 
@@ -43,7 +43,7 @@
                                                     required
                                                     > 
                                         </div>
-                                <% } %>
+                                    <% } %>
                                 <% } %>
                                 <div class="break"></div>
                                 <div class="form-group" style="display: flex; align-items: flex-end;">
@@ -54,12 +54,14 @@
                                         type="checkbox" 
                                         class="form-control" 
                                         name="hasWeights" 
-                                        value="false"
+                                        <% try { if (JSON.parse(weightData)[grade.class_name]["hasWeights"]==="false") { %> 
+                                            checked
+                                        <% }} catch {}%>                                      
                                         oninput="showSubmitButton(this); disableInput('check<%=i%>','collapse<%=i%>');"
                                         > 
                                 </div>                               
                                 <div class="formSubmitButton" style="width: 100%; display: none">
-                                    <button type="submit" class="btn btn-default btn-med">
+                                    <button type="submit" class="btn btn-default btn-med">  
                                         <i class="fa fa-refresh" aria-hidden="true"></i>
                                         Update
                                     </button>
