@@ -10,7 +10,6 @@ hr {
 
 nav {
     background: #FFFFFF;
-    border-radius: 1rem 1rem 1rem 1rem;
     box-shadow: 1px 4px 10px #555555;
 }
 
@@ -79,7 +78,7 @@ table thead tr th {
 }
 
 .chart {
-    border-radius: 1rem;
+    border-radius: 0.5rem;
     background: #FFFFFF;
     padding: 1rem 1rem 0 1rem;
 }
@@ -132,9 +131,6 @@ table thead tr th {
 }
 
 .nav {
-    padding: 1rem 1rem 0 1rem;
-    margin-top: 0 !important;
-    border-radius: 0 0 1rem 1rem;
     background-color: #FFFFFF;
     border-color: #000000;
 }
@@ -142,7 +138,6 @@ table thead tr th {
 .nav .active {
     color: #000000;
     background-color: #EEEEEE;
-    border-radius: 1rem 1rem 0 0;
 }
 
 .popup .popuptext {
@@ -178,7 +173,7 @@ table thead tr th {
 }
 
 .table {
-    border-radius: 1rem;
+    border-radius: 0.5rem;
     background-color: #FFFFFF;
 }
 
