@@ -224,7 +224,7 @@ table tfoot tr th {
 .nav {
     margin: auto;
     width: fit-content;
-    padding: 0.5rem 1rem 0 1rem;
+    padding: 0.5rem 1rem 0.5rem 1rem;
     margin-top: 0 !important;
     margin-bottom: 1rem;
     border-radius: 0 0 0.5rem 0.5rem;
@@ -232,7 +232,7 @@ table tfoot tr th {
 
 .nav .active {
     font-weight: bolder;
-    border-radius: 0.5rem 0.5rem 0 0;
+    border-radius: 0.5rem;
 }
 
 .nav-item {
