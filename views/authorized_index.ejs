@@ -506,13 +506,7 @@
                         needWeights = true;
                     }
 
-                    if (localMissingCategories.length <=1) // Not need weights if only one weight
-                        needWeights = false;
-                    // console.log("LMC")
-                    // console.log(localMissingCategories)
                 }
-                // console.log("LMC")
-                // console.log(localMissingCategories)
 
                 if (needWeights) {
                     unobtainedWeights[className] = localMissingCategories; //todo here add specific weights (i.e. You don't have the Test category...)
