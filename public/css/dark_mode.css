@@ -5,6 +5,8 @@ body {
 
 nav {
     background: #333333;
+    box-shadow: 1px 4px 10px #222222;
+
 }
 
 nav h1 {
@@ -133,7 +135,12 @@ table thead tr th {
     background-color: darkgreen;
 }
 
+.nav {
+    background-color: #333333;
+}
+
 .nav .active {
+    background-color: #222222;
     color: #FFFFFF;
 }
 

@@ -31,7 +31,7 @@
 <i id="pageNumber" style="display:none"><%= page %></i>
 
 <!-- Class Links -->
-<ul id="classLinks" class="mx-5 my-3 nav nav-fill" style="color: #BBBBBB;">
+<ul id="classLinks" class="nav nav-fill" style="color: #BBBBBB;">
     <li class="nav-item" id="link-1">
         <a class="nav-link" onclick="showPage(-1)">Overview</a>
     </li>
@@ -667,13 +667,13 @@
                         }, ticks: {
                             fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "13"
                         }, gridLines: {
-                            color: "#555555"
+                            color: (darkMode ? "#555555" : "#CCCCCC")
                         }
                     }], yAxes: [{
                         ticks: {
                             fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "12"
                         }, gridLines: {
-                            color: "#555555", drawBorder: false
+                            color: (darkMode ? "#555555" : "#CCCCCC"), drawBorder: false
                         }
                     }]
                 }, animation: {
@@ -702,7 +702,7 @@
             type: "line", data: {
                 datasets: [{
                     label: "parsedData[id]",
-                    backgroundColor: "rgba(256,256,256,0.05)",
+                    backgroundColor: (darkMode ? "rgba(256,256,256,0.05)" : "rgba(0,0,0,0.05)"),
                     pointBackgroundColor: colors[id],
                     pointBorderColor: colors[id],
                     borderColor: colors[id],
@@ -727,13 +727,13 @@
                         }, ticks: {
                             fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "13"
                         }, gridLines: {
-                            color: "#555555"
+                            color: (darkMode ? "#555555" : "#CCCCCC")
                         }
                     }], yAxes: [{
                         ticks: {
                             fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "12"
                         }, gridLines: {
-                            color: "#555555", drawBorder: false
+                            color: (darkMode ? "#555555" : "#CCCCCC"), drawBorder: false
                         }
                     }]
                 }, animation: {

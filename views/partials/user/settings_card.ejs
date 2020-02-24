@@ -46,31 +46,36 @@
                         <% } %>
                         <div class="card-footer">
                             <h5>Theme</h5>
-                            <div id="themeMessage" class="alert alert-success alert-dismissible"
-                                 style="display:none">
-                                <div class="messageTxt"></div>
-                                <a class="close" onclick="closeMessage('themeMessage')" aria-label="close">X</a>
-                            </div>
                             <form id="chooseTheme" class="form-signin" action="/updateAppearance" method="post">
-                                <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
-                                                                       value="light"
-                                                                       name="theme" onclick="$('#autoLimits').hide()"
-                                    <% if (user.appearance.theme === "light") { %> checked
-                                            <% } %>
-                                    > Light Theme</label><br>
-                                <label style="cursor: pointer"> <input style="cursor: inherit" type="radio" value="dark"
-                                                                       name="theme" onclick="$('#autoLimits').hide()"
-                                    <% if (user.appearance.theme === "dark") { %> checked
-                                            <% } %>
-                                    > Dark Theme</label><br>
-                                <label style="cursor: pointer"> <input style="cursor: inherit" type="radio" value="auto"
-                                                                       name="theme"
-                                                                       onclick="$('#autoLimits').show().css('display','flex');"
-                                    <% if (user.appearance.theme === "auto") { %> checked
-                                            <% } %>
-                                    > Automatic
-                                </label>
-                                <br>
+                                <div id="theme">
+                                    <div id="themeMessage" class="alert alert-success alert-dismissible"
+                                         style="display:none">
+                                        <div class="messageTxt"></div>
+                                        <a class="close" onclick="closeMessage('themeMessage')" aria-label="close">X</a>
+                                    </div>
+                                    <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
+                                                                           value="light"
+                                                                           name="theme"
+                                                                           onclick="$('#autoLimits').hide()"
+                                        <% if (user.appearance.theme === "light") { %> checked
+                                                <% } %>
+                                        > Light Theme</label><br>
+                                    <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
+                                                                           value="dark"
+                                                                           name="theme"
+                                                                           onclick="$('#autoLimits').hide()"
+                                        <% if (user.appearance.theme === "dark") { %> checked
+                                                <% } %>
+                                        > Dark Theme</label><br>
+                                    <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
+                                                                           value="auto"
+                                                                           name="theme"
+                                                                           onclick="$('#autoLimits').show().css('display','flex');"
+                                        <% if (user.appearance.theme === "auto") { %> checked
+                                                <% } %>
+                                        > Automatic
+                                    </label>
+                                </div>
                                 <label class="form-group" id="autoLimits"
                                        style="<% if (user.appearance.theme !== 'auto') { %>display: none;<% } else { %>display: inline-flex;<% } %>font-size: 0.9rem; margin-bottom: 0;">
                                     <label style="vertical-align: center">
@@ -118,12 +123,6 @@
                                         </option>
                                     </select>
                                 </label>
-                                <div class="text-center">
-                                    <button type="submit" class="btn btn-default btn-med"
-                                            onclick="ajaxPostForm('#chooseTheme',[],'#themeMessage',true);">
-                                        Apply
-                                    </button>
-                                </div>
                             </form>
                         </div>
                     </div>
@@ -256,6 +255,33 @@
 
 <!-- Custom JavaScript -->
 <script type="text/javascript">
+
+    let themeForm = $('#chooseTheme');
+
+    $('#theme').on('input', function () {
+        ajaxPostForm('#chooseTheme', [], '#themeMessage', true);
+        themeForm.submit();
+    });
+
+    $('#darkModeStart').on('input', function () {
+        ajaxPostForm('#chooseTheme', [], '#themeMessage', true);
+        themeForm.submit();
+    });
+
+    $('#darkModeStartAmPm').on('input', function () {
+        ajaxPostForm('#chooseTheme', [], '#themeMessage', true);
+        themeForm.submit();
+    });
+
+    $('#darkModeFinish').on('input', function () {
+        ajaxPostForm('#chooseTheme', [], '#themeMessage', true);
+        themeForm.submit();
+    });
+
+    $('#darkModeFinishAmPm').on('input', function () {
+        ajaxPostForm('#chooseTheme', [], '#themeMessage', true);
+        themeForm.submit();
+    });
 
     function reload() {
         location.reload();
