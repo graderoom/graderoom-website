@@ -392,13 +392,11 @@
                 && weights[className].constructor === Object);
             let localMissingCategories = [];
 
-            if ((className in weights) && (!weights[className].hasWeight)) {
+            if ((className in weights) && (weights[className]["hasWeights"]==="false")) {
                 needWeights = false;
-            console.log(className + " | Need Weights: " + needWeights)
             } else {
                 for (let grade of classData.grades) {
                     // console.log(grade.category)
-
                     if (!(className in weights) || !(grade.category in weights[className]["weights"])) {
                         if (!localMissingCategories.includes(grade.category)) {
                             localMissingCategories.push(grade.category);
@@ -429,7 +427,7 @@
             let totalPossiblesAndGottens = {}; //by category
             let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
             // VERY JANK CHANGE LATER
-            let doesntHaveWeights = className in unobtainedWeights; //Already checked for above: || weights[className].hasWeights === false;
+            let doesntHaveWeights = (className in unobtainedWeights) || (weights[className]["hasWeights"]==="false");
             // console.log(className + " DHW? : " + doesntHaveWeights);
 
             for (let grade of classData.grades) {
