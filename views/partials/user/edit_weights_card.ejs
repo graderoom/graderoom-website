@@ -81,14 +81,14 @@
         } catch (e) {
         }
 
-        if (defaultId === undefined)
+        if (parseInt(defaultId) === -1)
         {
             defaultId = 0;
             if (!(Object.keys(unobtainedWeights).length === 0))
             {
                 let classNameToOpen = Object.keys(unobtainedWeights)[0];
                 for (let i = 0; i < data.length; i++)
-                    if (data[i].class_name == classNameToOpen)
+                    if (data[i].class_name === classNameToOpen)
                         defaultId = i;
             }
         }
