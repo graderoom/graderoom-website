@@ -41,8 +41,9 @@
                                         value = JSON.parse(weightData)[grade.class_name][assignment.category]
                                     } catch {
                                     } %>
-                                    <label style="font-size: 0.9rem; <% if(!value && value != 0){ %> color: #f08080!important; <% } %> white-space: nowrap; margin-bottom: 0;"><%= assignment.category %>:&nbsp</label>
-                                            <input value='<%= value %>'
+                                    <label style="font-size: 0.9rem; <% if(!value && value != 0){ %> color: lightcoral!important; <% } else { %> color: <%= user.appearance.classColors[i] %>; <% } %> white-space: nowrap; margin-bottom: 0;"><%= assignment.category %>:&nbsp</label>
+                                            <input style="<% if (!value && value != 0) { %> border-color: lightcoral!important; <% } else { %> border-color: <%= user.appearance.classColors[i] %>!important; <% } %>"
+                                                   value="<%= value %>"
                                                    type="number"
                                                    min="0"
                                                    class="form-control <% if(value || value == 0){ %> text-view <% } %>"
@@ -81,15 +82,11 @@
         } catch (e) {
         }
 
-        if (parseInt(defaultId) === -1)
-        {
+        if (parseInt(defaultId) === -1) {
             defaultId = 0;
-            if (!(Object.keys(unobtainedWeights).length === 0))
-            {
+            if (!(Object.keys(unobtainedWeights).length === 0)) {
                 let classNameToOpen = Object.keys(unobtainedWeights)[0];
-                for (let i = 0; i < data.length; i++)
-                    if (data[i].class_name === classNameToOpen)
-                        defaultId = i;
+                for (let i = 0; i < data.length; i++) if (data[i].class_name === classNameToOpen) defaultId = i;
             }
         }
         $("#updateWeightsDisplay").show();
@@ -148,14 +145,14 @@
                                     $(this).removeClass("text-view");
                                 }
                             });
-                            let id = parseInt($(form).attr('id').replace(/\D/g,''));
+                            let id = parseInt($(form).attr('id').replace(/\D/g, ''));
                             $(form).find("label").each(function () {
                                 if ($(this)[0].nextElementSibling.value) {
-                                    $(this).css("color",user.appearance.classColors[id]);
+                                    $(this).css("color", user.appearance.classColors[id]);
                                     $($(this)[0].nextElementSibling).css("border-color", user.appearance.classColors[id]);
                                 } else {
                                     $(this).css("color", "lightcoral");
-                                    $($(this)[0].nextElementSibling).css("border-color", "red");
+                                    $($(this)[0].nextElementSibling).css("border-color", "lightcoral");
                                 }
                             });
                             $("#weightsUnfocus").focus();
@@ -171,9 +168,7 @@
 
                             parseData();
                             updateWeightMessages();
-                        })
-
-                        .fail(function(data) {
+                        }).fail(function (data) {
                             //Make sure that the formMessages div has the alert-danger class
                             $(formMessagesDiv).removeClass("success");
                             $(formMessagesDiv).addClass("fail");
