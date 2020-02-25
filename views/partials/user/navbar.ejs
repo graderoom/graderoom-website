@@ -139,7 +139,6 @@
 
                     // Switch mode instantly
                     if (formID === "#chooseTheme") {
-                        clearInterval(checkingTheme);
                         if (response === "Dark theme enabled!") {
                             document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
                             let oldDarkMode = darkMode;

@@ -31,12 +31,12 @@ nav .navbar-toggler:hover {
     background: #444444;
 }
 
-table tbody tr td {
-    border-color: #333333;
+td {
+    border-color: #333333 !important;
 }
 
-table thead tr th {
-    border-color: #333333;
+th {
+    border-color: #333333 !important;
 }
 
 .blurred-background {

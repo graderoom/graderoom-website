@@ -116,12 +116,12 @@
             <table class="table text-center" id="table-1">
                 <thead><tr>
                     <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                        <th style="color: <%= user.appearance.classColors[i] %>"><%= JSON.parse(gradeData)[i].class_name %></th>
+                        <th class="overview" style="color: <%= user.appearance.classColors[i] %>"><%= JSON.parse(gradeData)[i].class_name %></th>
                     <% } %>
                 </tr></thead>
                 <tbody><tr>
                     <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                        <td style="color: <%= user.appearance.classColors[i] %>">
+                        <td class="overview" style="color: <%= user.appearance.classColors[i] %>">
                             <div id="overviewChart<%= i %>" style="display:none; font-weight:bolder"></div>
                             <div id="weightmsgcontainer<%= i %>" style="display:none">
                                 <div class="alert alert-danger font-weight-bold"
@@ -588,8 +588,7 @@
                     for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
                         overallPercent = overallPercent + (value.weight * (value.totalPossible !== 0 ? (value.totalGotten / value.totalPossible) : value.totalGotten));
                     }
-                    let total = ((overallPercent / totalWeightValue) * 100).toFixed(3);
-                    total = +total;
+                    let total = +(((overallPercent / totalWeightValue) * 100).toFixed(3));
                     //rounds to 3 decimal places (the plus sign drops any trailing zeros)
 
                     overallGradeSteps.push(total);
@@ -674,23 +673,25 @@
                         inactiveDataset.borderWidth = 3;
                         inactiveDataset.pointRadius = 3;
                     }
-                    activeDataset.borderWidth = 5;
-                    activeDataset.pointRadius = 5;
-                    this.update(200);
+                    activeDataset.borderWidth = 6;
+                    activeDataset.pointRadius = 6;
+                    this.update(100);
                     let chart = this;
                     numRunning++;
-                    setTimeout(function () {
-                        numRunning--;
-                        if (numRunning === 0) {
-                            for (let i = 0; i < chart.data.datasets.length; i++) {
-                                let dataset = chart.data.datasets[i];
-                                dataset.borderWidth = 3;
-                                dataset.pointRadius = 3;
+                    if (numRunning === 1) {
+                        setTimeout(function () {
+                            numRunning--;
+                            if (numRunning === 0) {
+                                for (let i = 0; i < chart.data.datasets.length; i++) {
+                                    let dataset = chart.data.datasets[i];
+                                    dataset.borderWidth = 3;
+                                    dataset.pointRadius = 3;
+                                }
+                                chart.update(1000);
                             }
-                            chart.update(2000);
-                        }
 
-                    }, 6000);
+                        }, 6000);
+                    }
                 }, scales: {
                     xAxes: [{
                         type: "time", time: {
