@@ -75,7 +75,12 @@
 
             if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
                 $("#loadingDisplay").show();
-                $("#loadingUnfocus").focus();
+                $("#syncGradesForm").find("input").each(function () {
+                    $(this).blur();
+                });
+                $("#gradeSyncForm").find("input").each(function () {
+                    $(this).blur();
+                });
             }
 
             // Serialize the form data.
