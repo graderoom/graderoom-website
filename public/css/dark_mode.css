@@ -128,7 +128,7 @@ th {
 }
 
 .mini:before {
-    background-color: darkgreen;
+    background-color: darkgreen !important;
 }
 
 .nav {
