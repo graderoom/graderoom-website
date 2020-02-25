@@ -78,10 +78,6 @@ th {
     color: white;
 }
 
-.form-group:focus-within label {
-    color: #BBBBBB !important;
-}
-
 .form-signin .btn {
     background: #BBBBBB;
     color: #333333;
@@ -176,10 +172,6 @@ th {
     color: #BBBBBB;
 }
 
-#weightsCard h5 ~ span.collapse-underline {
-    border-bottom: 1px solid #999999;
-}
-
 #weightsCard input {
     border-color: lightcoral;
 }
@@ -193,11 +185,15 @@ th {
 }
 
 #weightsCard input.text-view:hover, #weightsCard input.text-view:focus {
-    border-bottom: 1px solid #CED4DA;
+    border-bottom: 1px solid;
 }
 
 #weightsCard .fail {
     color: lightcoral;
+}
+
+#weightsCard .form-group:focus-within label {
+    font-weight: bolder;
 }
 
 #weightsCard .form-signin .btn {

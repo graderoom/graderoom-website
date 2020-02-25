@@ -861,8 +861,16 @@
             } else {
                 $("#settingsCardDisplay").show();
             }
+        } else if (e.keyCode === 87) {
+            if ($("#settingsCardDisplay").css("display") === "block") {
+            } else if ($("#updateGradesDisplay").css("display") === "block") {
+            } else if ($("#updateWeightsDisplay").css("display") === "block") {
+                closeForm("updateWeightsDisplay");
+            } else {
+                showUpdateWeights(-1);
+            }
         } else {
-            //console.log(e.keyCode);
+            console.log(e.keyCode);
         }
 
     };
