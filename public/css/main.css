@@ -93,6 +93,7 @@ table tbody tr td:last-child {
 
 table thead tr th {
     border-style: solid;
+    border-left: none;
 }
 
 table thead tr th:last-child {
