@@ -2,7 +2,6 @@
 <div class="container">
     <div class="blurred-login" id="updateWeightsDisplay"
          style="position:fixed; display:none; height: 100vh; width: 100%; top: 0; left: 0; z-index: 1">
-        <input id="weightsUnfocus" type="text" style="position:absolute; height:0">
         <div class="blurred-background" style="position: fixed; width: 100%; height: 100%; filter: opacity(0.7);"></div>
         <div class="col-sm-10 col-md-8 col-lg-8 col-xl-7 mx-auto">
             <div id="weightsCard" class="card card-signin my-5" style="max-height:90%; overflow:scroll;">
@@ -139,7 +138,7 @@
                             $(formMessagesDiv).addClass("success");
                             $(form).find(".formSubmitButton").css("display", "none");
                             $(form).find("input").each(function () {
-                                console.log($(this));
+                                $(this).blur();
                                 if ($(this)[0].value) {
                                     $(this).addClass("text-view");
                                 } else {
@@ -156,7 +155,6 @@
                                     $($(this)[0].nextElementSibling).css("border-color", "lightcoral");
                                 }
                             });
-                            $("#weightsUnfocus").focus();
 
                             // Set the message text.
                             $(message).text(response);
