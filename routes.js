@@ -11,15 +11,9 @@ module.exports = function (app, passport) {
         if (req.isAuthenticated()) {
 
             let user = authenticator.getUser(req.user.username);
+            authenticator.bringUpToDate(user.username);
+
             let gradeDat = JSON.stringify(user.grades);
-
-            // Fixes db for all old users
-            for (let i = 0; i < user.grades.length; i++) {
-                if (!(user.weights[user.grades[i].class_name])) {
-                    authenticator.addNewWeightDict(req.user.username, i, user.grades[i].class_name);
-                }
-            }
-
             let weightData = JSON.stringify(user.weights);
 
             res.render("authorized_index.ejs", {

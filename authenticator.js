@@ -52,8 +52,28 @@ module.exports = {
 
     /* user functions
      */
+
+    bringUpToDate: function (username) {
+        let lc_username = username.toLowerCase();
+        let user = db.get("users").find({username: lc_username});
+        // Fixes db for all old users
+        for (let i = 0; i < user.value().grades.length; i++) {
+            if (!(user.value().weights[user.value().grades[i].class_name])) {
+                this.addNewWeightDict(lc_username, i, user.value().grades[i].class_name);
+            }
+        }
+
+        // Fix theme for old users
+        if (user.value().appearance.darkMode) {
+            user.get("appearance").unset("darkMode").write();
+            user.value().appearance.theme = "auto";
+            user.value().appearance.darkModeStart = 18;
+            user.value().appearance.darkModeFinish = 7;
+        }
+    }
+
     //Need to add Try Catches to error check when updating db values
-    addNewUser: function (username, password, schoolUsername, isAdmin) {
+    ,addNewUser: function (username, password, schoolUsername, isAdmin) {
 
         let lc_username = username.toLowerCase();
         return new Promise((resolve, reject) => {
