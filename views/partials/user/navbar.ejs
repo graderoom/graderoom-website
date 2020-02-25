@@ -51,7 +51,7 @@
                 </btn>
             </li>
             <li class="nav-item active">
-                <a href="/logout" class="btn btn-med"> <i class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
+                <a onclick="window.localStorage.setItem('currentPage','')" href="/logout" class="btn btn-med"> <i class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
             </li>
         </ul>
     </div>
@@ -78,33 +78,37 @@
                 $("#loadingUnfocus").focus();
             }
 
-            // Different behavior for class colors
-            if (formID === "#randomizeClassColors") {
-                let data = getLockedColorIndices();
-                let dataArr = [];
-                for (let i = 0; i < data.length; i++) {
-                    dataArr.push(`${data[i]}`);
+            // Serialize the form data.
+            if (formID === "#chooseTheme") {
+                let data = JSON.parse(JSON.stringify($(form).serializeArray()));
+                if (data[0].value === "auto") {
+                    if (!data[1].value) {
+                        data[1].value = document.getElementById("darkModeStart").placeholder;
+                    }
+                    if (!data[3].value) {
+                        data[3].value = document.getElementById("darkModeFinish").placeholder;
+                    }
                 }
-                formData = "lockedColorIndices=" + JSON.stringify(dataArr);
+                formData = data;
             } else {
-
-                // Serialize the form data.
                 formData = $(form).serialize();
-
-                // Get the messages.
-                formMessagesDiv = $(messagesDivID);
-                message = $(formMessagesDiv).find(".messageTxt");
             }
+
+            // Get the messages.
+            formMessagesDiv = $(messagesDivID);
+            message = $(formMessagesDiv).find(".messageTxt");
+
 
             // Submit the form using AJAX.
             $.ajax({
                        type: "POST", url: $(form).attr("action"), data: formData, async: async
                    }).done(function (response) {
                 // Special behavior for class colors.
-                if (formID === "#randomizeClassColors") {
+                if (formID.substring(0, 10) === "#randomize") {
                     // numClasses is contained in messagesDivID
                     // colors come from response
-                    updateClassColors(messagesDivID, response);
+                    updateClassColors(response);
+                    $("#reloadNeeded").text("Reload Needed");
                 } else {
 
                     // Make sure that the formMessages div has the alert-success class.
@@ -132,6 +136,81 @@
                     if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
                         $("#synced").text("Synced");
                     }
+
+                    // Switch mode instantly
+                    if (formID === "#chooseTheme") {
+                        if (response === "Dark theme enabled!") {
+                            document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+                            let oldDarkMode = darkMode;
+                            darkMode = true;
+                            theme = "dark";
+                            if (darkMode !== oldDarkMode) {
+                                renderAllCharts();
+                            }
+                        } else if (response === "Light theme enabled!") {
+                            document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+                            document.getElementsByName("theme")[0].setAttribute("checked", "checked");
+                            let oldDarkMode = darkMode;
+                            darkMode = false;
+                            theme = "light";
+                            if (darkMode !== oldDarkMode) {
+                                renderAllCharts();
+                            }
+                        } else {
+                            theme = "auto";
+                            //console.log("1: ", darkModeStart, darkModeFinish);
+                            if ($(form[0].elements.darkModeStartAmPm)[0].selectedOptions[0].value === "PM") {
+                                if ($(form[0].elements.darkModeStart)[0].value) {
+                                    if ($(form[0].elements.darkModeStart)[0].valueAsNumber !== 12) {
+                                        darkModeStart = ($(form[0].elements.darkModeStart)[0].valueAsNumber + 12);
+                                    } else {
+                                        darkModeStart = 12;
+                                    }
+                                } else if (parseInt($(form[0].elements.darkModeStart)[0].placeholder) !== 12) {
+                                    darkModeStart = parseInt($(form[0].elements.darkModeStart)[0].placeholder) + 12;
+                                } else {
+                                    darkModeStart = $(form[0].elements.darkModeStart)[0].placeholder;
+                                }
+                            } else if ($(form[0].elements.darkModeStart)[0].value) {
+                                if ($(form[0].elements.darkModeStart)[0].valueAsNumber === 12) {
+                                    darkModeStart = 0;
+                                } else {
+                                    darkModeStart = $(form[0].elements.darkModeStart)[0].valueAsNumber;
+                                }
+                            } else if (parseInt($(form[0].elements.darkModeStart)[0].placeholder) === 12) {
+                                darkModeStart = 0;
+                            } else {
+                                darkModeStart = $(form[0].elements.darkModeStart)[0].placeholder;
+                            }
+                            if ($(form[0].elements.darkModeFinishAmPm)[0].selectedOptions[0].value === "PM") {
+                                if ($(form[0].elements.darkModeFinish)[0].value) {
+                                    if ($(form[0].elements.darkModeFinish)[0].valueAsNumber !== 12) {
+                                        darkModeFinish = ($(form[0].elements.darkModeFinish)[0].valueAsNumber + 12);
+                                    } else {
+                                        darkModeFinish = 12;
+                                    }
+                                } else if (parseInt($(form[0].elements.darkModeFinish)[0].placeholder) !== 12) {
+                                    darkModeFinish = parseInt($(form[0].elements.darkModeFinish)[0].placeholder) + 12;
+                                } else {
+                                    darkModeFinish = $(form[0].elements.darkModeFinish)[0].placeholder;
+                                }
+                            } else if ($(form[0].elements.darkModeFinish)[0].value) {
+                                if ($(form[0].elements.darkModeFinish)[0].valueAsNumber === 12) {
+                                    darkModeFinish = 24;
+                                } else {
+                                    darkModeFinish = $(form[0].elements.darkModeFinish)[0].valueAsNumber;
+                                }
+                            } else if (parseInt($(form[0].elements.darkModeFinish)[0].placeholder) === 12) {
+                                darkModeFinish = 24;
+                            } else {
+                                darkModeFinish = $(form[0].elements.darkModeFinish)[0].placeholder;
+                            }
+                            //console.log("2: ", darkModeStart, darkModeFinish);
+                            document.getElementById("darkModeStart").setAttribute("placeholder", (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString()));
+                            document.getElementById("darkModeFinish").setAttribute("placeholder", (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString()));
+                            checkTime();
+                        }
+                    }
                 }
             }).fail(function (data) {
                 // Make sure that the formMessages div has the alert-danger class
@@ -140,6 +219,9 @@
 
                 // Set the message text.
                 if (data.responseText !== "") {
+                    if (data.responseText === "Error scraping grades.") {
+                        $("#syncFailure").show();
+                    }
                     $(message).text(data.responseText);
                 } else {
                     $(message).text("Oops! An error occurred and your message could not be sent.");
@@ -163,32 +245,19 @@
     function closeForm(id) {
         let form = document.getElementById(id);
         form.style.display = "none";
-        if (id === "updateGradesDisplay") {
-            let synced = document.getElementById("synced").textContent;
-            if (synced === "Synced") {
-                window.reload();
-            }
+        if (id === "updateGradesDisplay" && document.getElementById("synced").textContent === "Synced") {
+            window.reload();
         } else if (id === "updateWeightsDisplay") {
-            let edited = document.getElementById("edited").textContent;
-            if (edited === "Edited") {
+            if (document.getElementById("edited").textContent === "Edited") {
                 window.reload();
             }
+        } else if (id === "settingsCardDisplay" && document.getElementById("reloadNeeded").textContent === "Reload Needed") {
+            window.reload();
         } else {
             let inputFields = form.getElementsByClassName("form-control");
             for (let i = 0; i < inputFields.length; i++) {
                 inputFields[i].value = "";
             }
-        }
-
-        // Manage darkMode checkbox, if it exists
-        try {
-            let darkModeCheckbox = document.getElementById("darkModeToggle");
-            if (user.appearance.darkMode && !darkModeCheckbox.checked) {
-                darkModeCheckbox.checked = true;
-            } else if (!user.appearance.darkMode && darkModeCheckbox.checked) {
-                darkModeCheckbox.checked = false;
-            }
-        } catch {
         }
 
         // Manage gradeSync checkbox, if it exists

@@ -11,8 +11,10 @@ module.exports = function (app, passport) {
         if (req.isAuthenticated()) {
 
             let user = authenticator.getUser(req.user.username);
-            let weightData = JSON.stringify(user.weights);
+            authenticator.bringUpToDate(user.username);
+
             let gradeDat = JSON.stringify(user.grades);
+            let weightData = JSON.stringify(user.weights);
 
             res.render("authorized_index.ejs", {
                 user: req.user,
@@ -20,11 +22,7 @@ module.exports = function (app, passport) {
                 userRef: JSON.stringify(user),
                 schoolUsername: req.user.schoolUsername,
                 gradeData: gradeDat,
-                weightData: weightData,
-                updateGradesMessageSuccess: req.flash("updateGradesMessageSuccess"),
-                updateGradesMessageFail: req.flash("updateGradesMessageFail"),
-                settingsChangeMessageSuccess: req.flash("settingsChangeMessageSuccess"),
-                settingsChangeMessageFail: req.flash("settingsChangeMessageFail")
+                weightData: weightData
             });
             return;
         }
@@ -131,12 +129,17 @@ module.exports = function (app, passport) {
         res.status(200).send(resp.message);
     });
 
-    app.post("/updateOther", [isLoggedIn], (req, res) => {
-        let darkMode;
-        darkMode = req.body.darkMode === "on";
-        if (darkMode !== null) {
-            authenticator.setMode(req.user.username, darkMode);
+    app.post("/updateAppearance", [isLoggedIn], (req, res) => {
+        console.log(req.body.theme, req.body.darkModeStart, req.body.darkModeStartAmPm, req.body.darkModeFinish, req.body.darkModeFinishAmPm);
+        let resp = authenticator.setTheme(req.user.username, req.body.theme, req.body.darkModeStart, req.body.darkModeStartAmPm, req.body.darkModeFinish, req.body.darkModeFinishAmPm);
+        if (resp.success) {
+            res.status(200).send(resp.message);
+        } else {
+            res.status(400).send(resp.message);
         }
+    });
+
+    app.post("/updateGradeSync", [isLoggedIn], (req, res) => {
         let gradeSync;
         gradeSync = req.body.gradeSync === "on";
         if (!gradeSync) {
@@ -272,7 +275,7 @@ module.exports = function (app, passport) {
         let className = req.body.className;
         let newWeights = JSON.parse(req.body.newWeights);
 
-        let resp = authenticator.updateWeightsForClass(req.user.username, className, newWeights, true);
+        let resp = authenticator.updateWeightsForClass(req.user.username, className, newWeights);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
@@ -290,7 +293,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/randomizeclasscolors", [isLoggedIn], (req, res) => {
-        let resp = authenticator.setRandomClassColors(req.user.username, req.body.lockedColorIndices);
+        let resp = authenticator.setRandomClassColor(req.user.username, req.body.index);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
