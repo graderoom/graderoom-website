@@ -108,10 +108,6 @@ table thead tr th {
     background: url(/public/resources/light_mode/user.png) no-repeat left/23px 27px !important;
 }
 
-.form-group:focus-within label {
-    color: #888888 !important;
-}
-
 .form-signin .btn {
     background: #444444;
     color: #DDDDDD;
@@ -181,10 +177,6 @@ table thead tr th {
     border-top: none;
 }
 
-#weightsCard h5 ~ span.collapse-underline {
-    border-bottom: 1px solid #BBBBBB;
-}
-
 #weightsCard input {
     border-color: lightcoral;
 }
@@ -198,11 +190,15 @@ table thead tr th {
 }
 
 #weightsCard input.text-view:hover, #weightsCard input.text-view:focus {
-    border-bottom: 1px solid #CED4DA;
+    border-bottom: 1px solid;
 }
 
 #weightsCard .fail {
     color: lightcoral;
+}
+
+#weightsCard .form-group:focus-within label {
+    font-weight: bolder !important;
 }
 
 #weightsCard .form-signin .btn {
