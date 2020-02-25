@@ -54,7 +54,7 @@ module.exports = {
      */
 
     bringAllUpToDate: function () {
-        let users = db.get("users");
+        let users = db.get("users").value();
         for (let i = 0; i < users.length; i++) {
             this.bringUpToDate(users[i].username);
         }
