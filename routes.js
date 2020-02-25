@@ -10,9 +10,8 @@ module.exports = function (app, passport) {
 
         if (req.isAuthenticated()) {
 
+            authenticator.bringUpToDate(req.user.username);
             let user = authenticator.getUser(req.user.username);
-            authenticator.bringUpToDate(user.username);
-
             let gradeDat = JSON.stringify(user.grades);
             let weightData = JSON.stringify(user.weights);
 
