@@ -83,7 +83,6 @@ nav .navbar-toggler:focus {
 
 table tbody tr td {
     border-style: solid;
-    border-top: none !important;
     border-bottom: none;
     border-left: none;
 }
@@ -94,17 +93,10 @@ table tbody tr td:last-child {
 
 table thead tr th {
     border-style: solid;
-    border-top: none !important;
-    border-bottom: none !important;
-    border-left: none !important;
 }
 
 table thead tr th:last-child {
     border-right: none;
-}
-
-table tfoot tr th {
-    border: none !important;
 }
 
 ::-webkit-scrollbar {
