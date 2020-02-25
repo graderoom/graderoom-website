@@ -13,7 +13,15 @@
                 <div class="card-body">
                     <div id="updateGradesMessage" class="alert alert-success alert-dismissible"
                          style="display:none">
-                        <div class="font-weight-bold messageTxt"></div>
+                        <div style="display: flex">
+                            <div class="font-weight-bold messageTxt"></div>
+                            <i class="fa fa-info-circle popup" id="syncFailure"
+                               style="padding-left: 0.2rem; align-self: center; display:none">
+                            <span class="popuptext">
+                                This usually occurs when the PowerSchool website is down.
+                            </span>
+                            </i>
+                        </div>
                         <a class="close" onclick="closeMessage('updateGradesMessage')" aria-label="close">X</a>
                     </div>
                     <h1 class="card-title text-center">School Login</h1>
@@ -27,7 +35,8 @@
                                 <input name="school_password" type="password" id="inputPassword" class="form-control"
                                        placeholder="School Password" required>
                             </div>
-                            <label style="cursor: pointer; float: right; text-align: left" class="popup"onclick="toggleInputUserPasswordDisplay()">
+                            <label style="cursor: pointer; float: right; text-align: left" class="popup"
+                                   onclick="toggleInputUserPasswordDisplay()">
                                 <input style="cursor: inherit"
                                        id="savePasswordToggle"
                                        type="checkbox"
@@ -69,9 +78,8 @@
                                 <i class="fa fa-info-circle popup">
                             <span class="popuptext">
                                 <p>Graderoom will sync automatically whenever you login.</p>
-                                <p>You will still be able to manually sync at any time.</p>
-                                You can disable GradeSync in Settings > Advanced > Other.
-                            </span>
+                                <p>You can also manually sync with your Graderoom password</p>
+                                You can disable GradeSync in Settings                            </span>
                                 </i>
                             </label>
                             <button class="btn btn-lg btn-default" type="submit"

@@ -3,64 +3,23 @@ body {
     color: #FFFFFF
 }
 
-.btn {
-    background: #BBBBBB;
-    color: #333333;
-    font-weight: bold;
-    margin: 1em;
-}
-
-.btn:hover {
-    background: none;
-    border-color: #BBBBBB;
-    color: #BBBBBB;
-}
-
-.btn:focus {
-    box-shadow: none;
-}
-
-.nav .active {
-    color: #FFFFFF;
-    font-weight: bold;
-}
-
-.alert .close {
-    line-height: 1.5;
-    font-size: 1rem;
-    color: inherit !important;
-}
-
-/* Nav Bar Styling */
-
 nav {
     background: #333333;
+    box-shadow: 0 1px 2px #222222;
+
 }
 
 nav h1 {
-    font-family: "Montserrat";
-    font-display: swap;
-    margin-bottom: 0;
-}
-
-@media only screen and (max-width: 768px) {
-    nav h1 {
-        font-size: 2rem;
-    }
+    color: #FFFFFF;
 }
 
 nav h5 {
-    font-family: "Montserrat";
-    font-display: swap;
-    margin-bottom: 0;
     color: #CCCCCC;
-    padding: .375rem .75rem
 }
 
 nav .btn {
     color: white;
     background-color: transparent;
-    margin: .5rem;
 }
 
 nav .btn:hover {
@@ -68,173 +27,72 @@ nav .btn:hover {
     background-color: #BBBBBB;
 }
 
-nav .navbar-toggler:focus {
-    outline: none;
-}
-
 nav .navbar-toggler:hover {
     background: #444444;
 }
 
-nav .navbar-collapse li, nav .navbar-collapse .btn {
-    width: 100%;
-    text-align: center;
+td {
+    border-color: #333333 !important;
 }
 
-@media (max-width: 991px) {
-    nav .navbar-collapse li, nav .navbar-collapse .btn {
-        margin: 0.1rem 0;
-    }
+th {
+    border-color: #333333 !important;
 }
 
-.nav .active {
-    color: #FFFFFF;
-    font-weight: bolder;
+.blurred-background {
+    background-image: url(/public/resources/dark_mode/blur.png) !important;
 }
 
-/* Card Styling */
+.btn {
+    background: #BBBBBB;
+    color: #333333;
+}
+
+.btn:hover {
+    border-color: #BBBBBB;
+    color: #BBBBBB;
+}
+
 .card {
     background: #333333;
-}
-
-.card-no-bg {
-    background: none !important;
-    box-shadow: none !important;
 }
 
 .card a {
     color: #BBBBBB;
 }
 
-.card h1 {
-    font-family: "Montserrat";
-    font-display: swap;
+.card::-webkit-scrollbar-thumb {
+    background-color: #555555;
 }
 
-.card label {
-    font-family: "Montserrat";
-    font-display: swap;
+.card::-webkit-scrollbar-thumb:hover {
+    background-color: #777777;
 }
 
-.card-signin {
-    border: 0;
-    border-radius: 1rem;
-    box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.1);
+.form-group input {
+    color: white;
 }
 
-.card-signin .card-body {
-    padding: 2rem;
+.form-group input:focus {
+    border-bottom-color: #555555;
+    color: white;
 }
 
-/* Weights Card Styling */
-
-#weightsCard h5 {
-    font-family: "Montserrat";
-    font-display: swap;
-    font-size: 1.1rem;
-    font-weight: 400;
-    padding-top: 8px;
+.form-group:focus-within label {
+    color: #BBBBBB !important;
 }
-
-#weightsCard label h5 i::after {
-    content: "\f107"; /*Arrow Icon Toggling*/
-}
-
-#weightsCard label.collapsed h5 i::after {
-    content: "\f105"; /*Arrow Icon Toggling*/
-}
-
-#weightsCard h5.collapsed {
-    border-top: none;
-}
-
-#weightsCard h5.collapsed ~ span.collapse-underline {
-    border-bottom: none;
-}
-
-#weightsCard h5.class {
-    padding-top: 0.5rem;
-}
-
-#weightsCard h5 ~ span.collapse-underline {
-    border-bottom: 1px solid #999999;
-}
-
-#weightsCard .collapse.show, #weightsCard .collapsing {
-    display: flex;
-    flex-flow: row wrap;
-}
-
-#weightsCard .form-signin .btn {
-    width: auto;
-    padding: .375rem .75rem;
-    margin: 0 0 1rem;
-    background: #999999;
-}
-
-#weightsCard .form-signin .btn:hover {
-    background: none;
-}
-
-#weightsCard input[type="number"]::-webkit-outer-spin-button,
-#weightsCard input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-#weightsCard input[type="number"] {
-    -moz-appearance: textfield;
-}
-
-#weightsCard input {
-    font-size: 0.9rem;
-    padding: .1rem .1rem;
-    width: 3rem;
-    text-align: center;
-    margin-right: 1rem;
-    border-color: lightcoral;
-}
-
-#weightsCard input:focus {
-    border-color: red;
-}
-
-#weightsCard input.text-view {
-    border-color: white;
-    border-bottom: 1px transparent;
-    padding: .1rem .1rem;
-}
-
-#weightsCard input.text-view:hover, #weightsCard input.text-view:focus {
-    border-bottom: 1px solid #CED4DA;
-    padding: .1rem .1rem;
-}
-
-#weightsCard .success {
-    color: lightgreen;
-}
-
-#weightsCard .fail {
-    color: lightcoral;
-}
-
-/* Input Form Styling */
 
 .form-signin .btn {
     background: #BBBBBB;
     color: #333333;
-    font-weight: bold;
-    padding: 0.25rem;
-    width: 90%;
 }
 
 .form-signin .btn:hover {
-    background: none;
     border-color: #BBBBBB;
     color: #BBBBBB;
 }
 
-.form-group input {
+.form-group input{
     background: none !important;
     border-radius: 0;
     border-top: none;
@@ -249,344 +107,103 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
     box-shadow: none;
 }
 
-.form-group:focus-within label {
-    color: #BBBBBB !important;
-}
-
-/* Input Form Background Images */
-
-.form-group .user-bg {
-    background: url(/public/resources/dark_mode/user.png) no-repeat left/23px 27px !important;
-    padding-left: 35px;
+.form-group .email-bg {
+    background: url(/public/resources/dark_mode/email.png) no-repeat left/27px 20px !important;
 }
 
 .form-group .lock-bg {
-    background: url(/public/resources/dark_mode/lock.png) no-repeat left/22px 27px !important;
-    padding-left: 35px;
+    background: url(/public/resources/dark_mode/lock.png)  no-repeat left/22px 27px !important;
 }
 
-.form-group .email-bg {
-    background: url(/public/resources/dark_mode/email.png) no-repeat left/27px 20px !important;
-    padding-left: 35px;
+.form-group .key-bg {
+    background: url(/public/resources/dark_mode/key.png) no-repeat left/26px 22px !important;
 }
 
-.form-group .password-bg {
-    background: url(/public/resources/dark_mode/password.png) no-repeat left/26px 22px !important;
-    padding-left: 35px;
+.form-group .user-bg {
+    background: url(/public/resources/dark_mode/user.png) no-repeat left/23px 27px !important;
 }
 
-.school-username {
-    color: #BBBBBB
+.form-group:focus-within label {
+    font-weight: bold;
 }
 
 .logo {
     content: url(/public/resources/dark_mode/logo.png) !important;
 }
 
-.blurred-background {
-    background-image: url(/public/resources/dark_mode/blur.png) !important;
+.mini:before {
+    background-color: darkgreen;
 }
 
-.nav-item {
-    width: inherit;
+.nav {
+    background-color: #333333;
 }
 
-html {
-    overflow: scroll;
-    overflow-x: hidden;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+.nav .active {
+    background-color: #222222;
+    color: #FFFFFF;
 }
 
-::-webkit-scrollbar {
-    display: none;
-}
-
-.card::-webkit-scrollbar {
-    display: initial;
-    width: 24px;
-}
-
-.card::-webkit-scrollbar-button, .card::-webkit-scrollbar-corner {
-    display: none;
-}
-
-.card::-webkit-scrollbar-thumb {
-    border: 8px solid transparent;
-    border-top: 15px solid rgba(0, 0, 0, 0.1);
-    border-bottom: 15px solid rgba(0, 0, 0, 0.1);
-    background-clip: padding-box;
+.popup .popuptext {
     background-color: #555555;
-    /* box-shadow: inset -1px -1px 0px rgba(0, 0, 0, 0.05), inset 1px 1px 0px rgba(0, 0, 0, 0.05); */
+    color: #FFFFFF;
 }
 
-/* Handle on hover */
-.card::-webkit-scrollbar-thumb:hover {
-    background-color: #777777;
+.school-username {
+    color: #BBBBBB
 }
 
-.nav-item {
-    cursor: pointer;
-    width: inherit;
+.sk-chase-dot:before {
+    background-color: #FFFFFF;
 }
 
-/* Style the tab */
 .tab {
-    vertical-align: top;
-    align-self: center;
-    z-index: 2;
-    overflow: hidden;
     border-top: solid #222222;
     border-bottom: solid #222222;
-    padding: 0.25rem;
     background-color: #333333;
-    cursor: context-menu;
-    width: max-content;
-    margin: auto;
 }
 
-.tablinks {
-    cursor: pointer;
-}
-
-/* Style the buttons that are used to open the tab content */
 .tab btn {
-    background: none;
     color: #888888;
-    float: left;
-    border: none;
-    outline: none;
-    padding: 8px 16px;
-    cursor: pointer;
-    border-radius: 0.5rem;
-    transition: 0.3s;
 }
 
-/* Change background color of buttons on hover */
+.tab btn.active {
+    background-color: #444444;
+    color: #DDDDDD;
+}
+
 .tab btn:hover {
     color: #BBBBBB;
 }
 
-/* Create an active/current tablink class */
-.tab btn.active {
-    background-color: #444444;
-    color: #DDDDDD;
-    font-weight: bold;
+#weightsCard h5 ~ span.collapse-underline {
+    border-bottom: 1px solid #999999;
 }
 
-.btn:hover {
-    background: none;
-    border-color: #BBBBBB;
-    color: #BBBBBB;
+#weightsCard input {
+    border-color: lightcoral;
 }
 
-/* Style the tab content */
-.tabcontent {
-    display: none;
-    padding: 6px 12px;
-    border-top: none;
+#weightsCard input:focus {
+    border-color: red;
 }
 
-.dropdown {
-    text: bold;
-    margin-left: 20px;
-    width: fit-content;
-    border-radius: 1em;
-    text-align-last: center;
-    max-height: 10rem;
-    overflow-y: auto;
+#weightsCard input.text-view {
+    border-color: white;
 }
 
-.collapsed:hover {
-    text: bold;
+#weightsCard input.text-view:hover, #weightsCard input.text-view:focus {
+    border-bottom: 1px solid #CED4DA;
 }
 
-/* Loading Screen Animation */
-.sk-chase {
-    width: 5rem;
-    height: 5rem;
-    position: absolute;
-    margin: auto;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    animation: sk-chase 2.5s infinite linear both;
+#weightsCard .fail {
+    color: lightcoral;
 }
 
-.sk-chase-mini {
-    width: 1rem;
-    height: 1rem;
-    margin-top: 3px;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    animation: sk-chase 2.5s infinite linear both;
+#weightsCard .form-signin .btn {
+    background: #999999;
 }
 
-.sk-chase-dot {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    left: 0;
-    top: 0;
-    animation: sk-chase-dot 2.0s infinite ease-in-out both;
-}
-
-.sk-chase-dot:before {
-    content: "";
-    display: block;
-    width: 25%;
-    height: 25%;
-    background-color: #FFFFFF;
-    border-radius: 100%;
-    animation: sk-chase-dot-before 2.0s infinite ease-in-out both;
-}
-
-.mini:before {
-    background-color: darkgreen;
-    animation: sk-chase-dot-before 2.0s infinite ease-in-out both;
-}
-
-.sk-chase-dot:nth-child(1) {
-    animation-delay: -1.1s;
-}
-
-.sk-chase-dot:nth-child(2) {
-    animation-delay: -1.0s;
-}
-
-.sk-chase-dot:nth-child(3) {
-    animation-delay: -0.9s;
-}
-
-.sk-chase-dot:nth-child(4) {
-    animation-delay: -0.8s;
-}
-
-.sk-chase-dot:nth-child(5) {
-    animation-delay: -0.7s;
-}
-
-.sk-chase-dot:nth-child(6) {
-    animation-delay: -0.6s;
-}
-
-.sk-chase-dot:nth-child(1):before {
-    animation-delay: -1.1s;
-}
-
-.sk-chase-dot:nth-child(2):before {
-    animation-delay: -1.0s;
-}
-
-.sk-chase-dot:nth-child(3):before {
-    animation-delay: -0.9s;
-}
-
-.sk-chase-dot:nth-child(4):before {
-    animation-delay: -0.8s;
-}
-
-.sk-chase-dot:nth-child(5):before {
-    animation-delay: -0.7s;
-}
-
-.sk-chase-dot:nth-child(6):before {
-    animation-delay: -0.6s;
-}
-
-@keyframes sk-chase {
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes sk-chase-dot {
-    80%, 100% {
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes sk-chase-dot-before {
-    50% {
-        transform: scale(0.4);
-    }
-    100%, 0% {
-        transform: scale(1.0);
-    }
-}
-
-.number-input::-webkit-inner-spin-button,
-.number-input::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-.number-input {
-    width: 5rem;
-}
-
-.popup {
-    position: relative;
-    display: inline-block;
-    cursor: pointer;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
-.popup .popuptext {
-    font-family: "Montserrat";
-    font-displat: swap;
-    visibility: hidden;
-    width: 180px;
-    height: fit-content;
-    background-color: #555555;
-    color: #FFFFFF;
-    text-align: center;
-    border-radius: 6px;
-    padding: 8px 8px 8px 8px;
-    position: absolute;
-    z-index: 1;
-    bottom: 150%;
-    left: 50%;
-    margin-left: -90px;
-}
-
-.popup .popuptext::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: #555555 transparent transparent transparent;
-}
-
-.popup:hover .popuptext {
-    visibility: visible;
-    -webkit-animation: fadeIn 1s;
-    animation: fadeIn 1s;
-}
-
-@-webkit-keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+#weightsCard .success {
+    color: lightgreen;
 }
