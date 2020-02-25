@@ -58,6 +58,12 @@ module.exports = function (app, passport) {
         res.redirect("/");
     });
 
+    app.post("/bringAllUpToDate", [isAdmin], function (req, res) {
+        authenticator.bringAllUpToDate();
+        req.flash("adminSuccessMessage", "Brought all users up to date");
+        res.redirect("/admin");
+    });
+
     app.post("/deleteUser", [isAdmin], function (req, res) {
         let username = req.body.deleteUser;
         console.log("Got request to delete: " + username);

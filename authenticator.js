@@ -53,6 +53,13 @@ module.exports = {
     /* user functions
      */
 
+    bringAllUpToDate: function () {
+        let users = db.get("users");
+        for (let i = 0; i < users.length; i++) {
+            this.bringUpToDate(users[i].username);
+        }
+    },
+
     bringUpToDate: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
