@@ -48,10 +48,11 @@
             <table class="table">
                 <thead>
                 <tr>
-                    <th style="width:17%;">Username</th>
+                    <th style="width:15%;">Username</th>
                     <th style="width:15%;">School Email</th>
                     <th style="width:15%;">Last Updated</th>
-                    <th style="width:15%;">Is Admin?</th>
+                    <th style="width:10%;">GradeSync?</th>
+                    <th style="width:10%;">Is Admin?</th>
                     <th style="width:15%;">Render User Site</th>
                     <th style="width:15%;">Delete User</th>
                     <th style="width:15%;">Change Admin Privileges</th>
@@ -64,6 +65,7 @@
                         <td><%= u.schoolUsername %></td>
                         <% let lastUpdated = new Date(u.alerts.lastUpdated); %>
                         <td><%= lastUpdated.toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) %></td>
+                        <td><%= (Object.keys(u).includes("schoolPassword") ? "Enabled" : "Disabled") %></td>
                         <td><%= u.isAdmin %> </td>
                         <td>
                             <form action="/viewuser" method="get">
