@@ -260,13 +260,17 @@
         localStorage.setItem("currentPage", currentPage);
     }
     if (user.alerts.lastUpdated !== "never") {
-        renderAllCharts();
+        try {
+            renderAllCharts();
+        } catch {}
     }
     try {
         showPage(currentPage);
     } catch {
         currentPage = -1;
-        showPage(-1);
+        try {
+            showPage(-1);
+        } catch {}
         localStorage.setItem("currentPage", currentPage);
     }
     if (user.schoolPassword) {
