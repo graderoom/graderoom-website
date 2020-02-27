@@ -66,9 +66,12 @@
     if (defaultAppearance) {
         if (defaultAppearance === "dark") {
             document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+        } else {
+            document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
         }
     } else {
         localStorage.setItem("defaultAppearance", "light");
+        document.getElementById("pageStyle").setAttribute("href", "/public/css/light_mode.css");
     }
 </script>
 </body>

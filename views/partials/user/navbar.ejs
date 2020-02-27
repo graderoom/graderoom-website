@@ -51,7 +51,8 @@
                 </btn>
             </li>
             <li class="nav-item active">
-                <a onclick="window.localStorage.setItem('currentPage','')" href="/logout" class="btn btn-med"> <i class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
+                <a onclick="window.localStorage.setItem('currentPage','')" href="/logout" class="btn btn-med"> <i
+                            class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
             </li>
         </ul>
     </div>
@@ -126,11 +127,6 @@
                     // Show the div.
                     $(formMessagesDiv).css("display", "block");
 
-                    // Clear fields to clear
-                    for (let i = 0; i < fieldIDsToClear.length; i++) {
-                        $(fieldIDsToClear[i]).val("");
-                    }
-
                     // Show correct sync div
                     if (response === "GradeSync Enabled. Updated grades!") {
                         $("#syncGradesDiv").hide();
@@ -145,23 +141,53 @@
                     // Switch mode instantly
                     if (formID === "#chooseTheme") {
                         if (response === "Dark theme enabled!") {
-                            document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
                             let oldDarkMode = darkMode;
                             darkMode = true;
                             theme = "dark";
                             if (darkMode !== oldDarkMode) {
+                                if (changeTransition) {
+                                    clearTimeout(changeTransition);
+                                }
+                                $("<style>").prop("type", "text/css").html(`
+                                * {
+                                    transition: all 1s ease, color 0s ease !important;
+                                }`).appendTo("head");
+                                document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+                                changeTransition = setTimeout(function () {
+                                    $("<style>").prop("type", "text/css").html(`
+                                    * {
+                                        transition: none !important;
+                                    }`).appendTo("head");
+                                }, 1000);
                                 renderAllCharts();
                             }
                         } else if (response === "Light theme enabled!") {
-                            document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+                            $("#autoLimits").hide();
+                            $($(form)[0].elements[7]).hide();
+                            $($(form)[0].elements[0]).prop("checked", true);
                             document.getElementsByName("theme")[0].setAttribute("checked", "checked");
                             let oldDarkMode = darkMode;
                             darkMode = false;
                             theme = "light";
                             if (darkMode !== oldDarkMode) {
+                                if (changeTransition) {
+                                    clearTimeout(changeTransition);
+                                }
+                                $("<style>").prop("type", "text/css").html(`
+                                * {
+                                    transition: all 1s ease, color 0s ease !important;
+                                }`).appendTo("head");
+                                document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+                                changeTransition = setTimeout(function () {
+                                    $("<style>").prop("type", "text/css").html(`
+                                    * {
+                                        transition: none !important;
+                                    }`).appendTo("head");
+                                }, 1000);
                                 renderAllCharts();
                             }
                         } else {
+                            $(form[0].elements[7]).attr("disabled", "disabled");
                             theme = "auto";
                             //console.log("1: ", darkModeStart, darkModeFinish);
                             if ($(form[0].elements.darkModeStartAmPm)[0].selectedOptions[0].value === "PM") {
@@ -215,6 +241,16 @@
                             document.getElementById("darkModeFinish").setAttribute("placeholder", (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString()));
                             checkTime();
                         }
+                        if (darkMode) {
+                            localStorage.setItem("defaultAppearance", "dark");
+                        } else {
+                            localStorage.setItem("defaultAppearance", "light");
+                        }
+                    }
+
+                    // Clear fields to clear
+                    for (let i = 0; i < fieldIDsToClear.length; i++) {
+                        $(fieldIDsToClear[i]).val("");
                     }
                 }
             }).fail(function (data) {
@@ -263,6 +299,19 @@
             for (let i = 0; i < inputFields.length; i++) {
                 inputFields[i].value = "";
             }
+        }
+
+        // Manage theme selection, if it exists
+        try {
+            let themeRadioButtons = document.getElementsByName("theme");
+            if (theme === "auto") {
+                themeRadioButtons[2].checked = true;
+            } else if (theme === "dark") {
+                themeRadioButtons[1].checked = true;
+            } else if (theme === "light") {
+                themeRadioButtons[0].checked = true;
+            }
+        } catch {
         }
 
         // Manage gradeSync checkbox, if it exists

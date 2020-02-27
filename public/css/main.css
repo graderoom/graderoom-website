@@ -49,11 +49,19 @@
     }
 }
 
+hr {
+    height: 1px;
+}
+
 html {
     overflow: scroll;
     overflow-x: hidden;
     scrollbar-width: none;
     -ms-overflow-style: none;
+}
+
+nav {
+    box-shadow: 0 1px 2px;
 }
 
 nav h1 {
@@ -100,14 +108,36 @@ table thead tr th:last-child {
     border-right: none;
 }
 
+:disabled {
+    pointer-events: none;
+}
+
 ::-webkit-scrollbar {
     display: none;
+}
+
+.admin .btn {
+    margin: 0 !important;
+    width: min-content;
+}
+
+.admin:not(.btn) {
+    vertical-align: middle;
+    text-align: center;
+    padding: 0.5rem !important;
 }
 
 .alert .close {
     line-height: 1.5;
     font-size: 1rem;
     color: inherit !important;
+}
+
+.blurred-background {
+    opacity: 0.7;
+    position: fixed;
+    width: 100%;
+    height: 100%;
 }
 
 .btn {
@@ -162,6 +192,11 @@ table thead tr th:last-child {
     padding: 2rem;
 }
 
+.chart {
+    border-radius: 0.5rem;
+    padding: 1rem 1rem 0 1rem;
+}
+
 .collapsed:hover {
     text: bold;
 }
@@ -210,14 +245,18 @@ table thead tr th:last-child {
     padding-left: 35px;
 }
 
-.form-group .password-bg {
+.form-group .key-bg {
     padding-left: 35px;
+}
+
+.logo {
+    content: url(/public/resources/light_mode/logo.png); /* fallback logo */
 }
 
 .nav {
     margin: auto;
     width: fit-content;
-    padding: 0.5rem 1rem 0.5rem 1rem;
+    padding: 0.5rem 1rem 0.5rem 1rem !important;
     margin-top: 0 !important;
     margin-bottom: 1rem;
     border-radius: 0 0 0.5rem 0.5rem;
@@ -384,6 +423,8 @@ table thead tr th:last-child {
     cursor: context-menu;
     width: max-content;
     margin: auto;
+    border-top-style: solid;
+    border-bottom-style: solid;
 }
 
 .tab btn {
@@ -405,6 +446,14 @@ table thead tr th:last-child {
     display: none;
     padding: 6px 12px;
     border-top: none;
+}
+
+.table th {
+    border-top: none;
+}
+
+.table {
+    border-radius: 0.5rem;
 }
 
 .tablinks {
@@ -446,6 +495,7 @@ table thead tr th:last-child {
 #weightsCard input.text-view:hover, #weightsCard input.text-view:focus {
     margin-bottom: -1px;
     padding: .1rem .1rem;
+    border-bottom: 1px solid;
 }
 
 #weightsCard input[type="number"] {
@@ -469,6 +519,10 @@ table thead tr th:last-child {
 #weightsCard .collapse.show, #weightsCard .collapsing {
     display: flex;
     flex-flow: row wrap;
+}
+
+#weightsCard .form-group:focus-within label {
+    font-weight: bolder;
 }
 
 #weightsCard .form-signin .btn {

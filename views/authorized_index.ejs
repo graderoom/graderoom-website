@@ -7,14 +7,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.css">
-    <% if (user.appearance.theme === "dark" ||
-           (user.appearance.theme === "auto" &&
-           ((user.appearance.darkModeStart < user.appearance.darkModeFinish) &&
-            ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) &&
-            ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish)) ||
-           ((user.appearance.darkModeStart > user.appearance.darkModeFinish) &&
-            ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) ||
-             ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish)))) { %>
+    <% if (user.appearance.theme === "dark" || (user.appearance.theme === "auto" && (((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) && ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish)) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish))))) { %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else { %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
@@ -116,7 +109,8 @@
             <table class="table text-center" id="table-1">
                 <thead><tr>
                     <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                        <th class="overview" style="color: <%= user.appearance.classColors[i] %>"><%= JSON.parse(gradeData)[i].class_name %></th>
+                        <th class="overview"
+                            style="color: <%= user.appearance.classColors[i] %>"><%= JSON.parse(gradeData)[i].class_name %></th>
                     <% } %>
                 </tr></thead>
                 <tbody><tr>
@@ -235,8 +229,8 @@
     let maxTab = 4;
 
     let darkMode;
-    let darkModeStart = user.appearance.darkModeStart || 18; // 6PM
-    let darkModeFinish = user.appearance.darkModeFinish || 7; // 7AM
+    let darkModeStart = user.appearance.darkModeStart;
+    let darkModeFinish = user.appearance.darkModeFinish;
 
     let checkingTheme;
 
@@ -245,7 +239,9 @@
     setupOverviewTable();
     updateWeightMessages();
     let theme = user.appearance.theme;
+    let changeTransition;
     if (theme === "auto") {
+        darkMode = (((darkModeStart < darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart) && ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart) || ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish)));
         checkTime();
     } else if (theme === "dark") {
         darkMode = true;
@@ -270,7 +266,8 @@
         showPage(currentPage);
     } catch {
         currentPage = -1;
-        localStorage.setItem("currentPage",currentPage);
+        showPage(-1);
+        localStorage.setItem("currentPage", currentPage);
     }
     if (user.schoolPassword) {
         $("#syncGradesDiv").hide();
@@ -284,42 +281,53 @@
     document.getElementById("darkModeFinish").setAttribute("placeholder", (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString()));
 
     function setAutoTheme() {
+        if (theme !== "auto") {
+            clearInterval(checkingTheme);
+            return;
+        }
         darkModeStart = parseInt(darkModeStart);
         darkModeFinish = parseInt(darkModeFinish);
         //console.log("Start, finish, theme", darkModeStart, darkModeFinish, theme);
         //console.log(((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart);
-        if (theme === "dark" ||
-            (theme === "auto" &&
-             ((darkModeStart < darkModeFinish) &&
-             ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart) &&
-             ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish)) ||
-            ((darkModeStart > darkModeFinish) &&
-             ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart) ||
-              ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish)))) {
-            document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+        if (((darkModeStart < darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart) && ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart) || ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish))) {
             let oldDarkMode = darkMode;
             darkMode = true;
             if (darkMode !== oldDarkMode) {
+                clearTimeout(changeTransition);
+                $("<style>").prop("type", "text/css").html(`
+                * {
+                    transition: all 1s ease, color 0s ease !important;
+                }`).appendTo("head");
+                document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+                changeTransition = setTimeout(function () {
+                    $("<style>").prop("type", "text/css").html(`
+                    * {
+                        transition: none !important;
+                    }`).appendTo("head");
+                }, 1000);
                 renderAllCharts();
-                let localStorage = window.localStorage;
-                if (darkMode) {
-                    localStorage.setItem("defaultAppearance", "dark");
-                } else {
-                    localStorage.setItem("defaultAppearance", "light");
-                }
+                window.localStorage.setItem("defaultAppearance", "dark");
             }
         } else {
-            document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
             let oldDarkMode = darkMode;
             darkMode = false;
             if (darkMode !== oldDarkMode) {
+                if (changeTransition) {
+                    clearTimeout(changeTransition);
+                }
+                $("<style>").prop("type", "text/css").html(`
+                * {
+                    transition: all 1s ease, color 0s ease !important;
+                }`).appendTo("head");
+                document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+                changeTransition = setTimeout(function () {
+                    $("<style>").prop("type", "text/css").html(`
+                    * {
+                        transition: none !important;
+                    }`).appendTo("head");
+                }, 1000);
                 renderAllCharts();
-            }
-            let localStorage = window.localStorage;
-            if (darkMode) {
-                localStorage.setItem("defaultAppearance", "dark");
-            } else {
-                localStorage.setItem("defaultAppearance", "light");
+                window.localStorage.setItem("defaultAppearance", "light");
             }
         }
     }
@@ -329,7 +337,7 @@
         setAutoTheme();
         checkingTheme = window.setInterval(function () {
             setAutoTheme();
-        }, 60000);
+        }, 100);
     }
 
     async function checkUpdateBackground() {

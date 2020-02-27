@@ -1,16 +1,15 @@
 body {
-    background: #EEEEEE;
+    background-color: #EEEEEE;
     color: #222222;
 }
 
 hr {
     background-color: #EEEEEE;
-    height: 1px;
 }
 
 nav {
-    background: #FFFFFF;
-    box-shadow: 0px 1px 2px #999999;
+    background-color: #FFFFFF;
+    color: #999999;
 }
 
 nav h1 {
@@ -36,7 +35,7 @@ nav .navbar-toggler {
 }
 
 nav .navbar-toggler:hover {
-    background: #BBBBBB;
+    background-color: #BBBBBB;
 }
 
 table tbody tr td {
@@ -47,12 +46,16 @@ table thead tr th {
     border-color: #EEEEEE;
 }
 
+:disabled {
+    background-color: #EEEEEE !important;
+}
+
 .blurred-background {
-    background-image: url(/public/resources/light_mode/blur.png) !important;
+    background-color: #FFFFFF !important;
 }
 
 .btn {
-    background: #333333;
+    background-color: #333333;
     color: #BBBBBB;
 }
 
@@ -62,7 +65,7 @@ table thead tr th {
 }
 
 .card {
-    background: #FFFFFF;
+    background-color: #FFFFFF;
 }
 
 .card a {
@@ -78,9 +81,7 @@ table thead tr th {
 }
 
 .chart {
-    border-radius: 0.5rem;
-    background: #FFFFFF;
-    padding: 1rem 1rem 0 1rem;
+    background-color: #FFFFFF;
 }
 
 .form-group input {
@@ -109,7 +110,7 @@ table thead tr th {
 }
 
 .form-signin .btn {
-    background: #444444;
+    background-color: #444444;
     color: #DDDDDD;
 }
 
@@ -150,8 +151,8 @@ table thead tr th {
 }
 
 .tab {
-    border-top: solid #DDDDDD;
-    border-bottom: solid #DDDDDD;
+    border-top-color: #DDDDDD;
+    border-bottom-color: #DDDDDD;
     background-color: #FFFFFF;
 }
 
@@ -169,12 +170,7 @@ table thead tr th {
 }
 
 .table {
-    border-radius: 0.5rem;
     background-color: #FFFFFF;
-}
-
-.table th {
-    border-top: none;
 }
 
 #weightsCard input {
@@ -189,20 +185,12 @@ table thead tr th {
     border-color: white;
 }
 
-#weightsCard input.text-view:hover, #weightsCard input.text-view:focus {
-    border-bottom: 1px solid;
-}
-
 #weightsCard .fail {
     color: lightcoral;
 }
 
-#weightsCard .form-group:focus-within label {
-    font-weight: bolder !important;
-}
-
 #weightsCard .form-signin .btn {
-    background: #CCCCCC;
+    background-color: #CCCCCC;
 }
 
 #weightsCard .success {

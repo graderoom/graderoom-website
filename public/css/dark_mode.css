@@ -1,12 +1,11 @@
 body {
-    background: #222222;
+    background-color: #222222;
     color: #FFFFFF
 }
 
 nav {
-    background: #333333;
-    box-shadow: 0 1px 2px #222222;
-
+    background-color: #333333;
+    color: #222222;
 }
 
 nav h1 {
@@ -28,7 +27,7 @@ nav .btn:hover {
 }
 
 nav .navbar-toggler:hover {
-    background: #444444;
+    background-color: #444444;
 }
 
 td {
@@ -39,12 +38,16 @@ th {
     border-color: #333333 !important;
 }
 
+:disabled {
+    background-color: #222222 !important;
+}
+
 .blurred-background {
-    background-image: url(/public/resources/dark_mode/blur.png) !important;
+    background-color: #000000 !important;
 }
 
 .btn {
-    background: #BBBBBB;
+    background-color: #BBBBBB;
     color: #333333;
 }
 
@@ -54,7 +57,7 @@ th {
 }
 
 .card {
-    background: #333333;
+    background-color: #333333;
 }
 
 .card a {
@@ -79,7 +82,7 @@ th {
 }
 
 .form-signin .btn {
-    background: #BBBBBB;
+    background-color: #BBBBBB;
     color: #333333;
 }
 
@@ -88,19 +91,13 @@ th {
     color: #BBBBBB;
 }
 
-.form-group input{
-    background: none !important;
-    border-radius: 0;
-    border-top: none;
-    border-right: none;
-    border-left: none;
+.form-group input {
     color: white;
 }
 
 .form-group input:focus {
     border-bottom-color: #555555;
     color: white;
-    box-shadow: none;
 }
 
 .form-group .email-bg {
@@ -117,10 +114,6 @@ th {
 
 .form-group .user-bg {
     background: url(/public/resources/dark_mode/user.png) no-repeat left/23px 27px !important;
-}
-
-.form-group:focus-within label {
-    font-weight: bold;
 }
 
 .logo {
@@ -154,8 +147,8 @@ th {
 }
 
 .tab {
-    border-top: solid #222222;
-    border-bottom: solid #222222;
+    border-top-color: #222222;
+    border-bottom-color: #222222;
     background-color: #333333;
 }
 
@@ -184,20 +177,12 @@ th {
     border-color: white;
 }
 
-#weightsCard input.text-view:hover, #weightsCard input.text-view:focus {
-    border-bottom: 1px solid;
-}
-
 #weightsCard .fail {
     color: lightcoral;
 }
 
-#weightsCard .form-group:focus-within label {
-    font-weight: bolder;
-}
-
 #weightsCard .form-signin .btn {
-    background: #999999;
+    background-color: #999999;
 }
 
 #weightsCard .success {
