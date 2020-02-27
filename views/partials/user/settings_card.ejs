@@ -16,9 +16,9 @@
                 <div id="reloadNeeded" style="display: none"></div>
                 <div class="tab">
                     <btn id="btn-1" class="tablinks active" onclick="openTab(1)">Appearance</btn>
-                    <btn id="btn-2" class="tablinks" onclick="openTab(2)">Feedback</btn>
-                    <btn id="btn-3" class="tablinks" onclick="openTab(3)">Account</btn>
-                    <btn id="btn-4" class="tablinks" onclick="openTab(4);">Advanced</btn>
+                    <btn id="btn-2" class="tablinks" onclick="openTab(2)">Account</btn>
+                    <btn id="btn-3" class="tablinks" onclick="openTab(3);">Advanced</btn>
+                    <btn id="btn-4" class="tablinks" onclick="openTab(4)">About</btn>
                 </div>
                 <div id="settings-1" class="tabcontent" style="display: block">
                     <div class="card-body">
@@ -160,14 +160,6 @@
                 </div>
                 <div id="settings-2" class="tabcontent">
                     <div class="card-body">
-                        <iframe style="color: #FFFFFF; height: 50vh; width: 100%;"
-                                src="https://docs.google.com/forms/d/e/1FAIpQLSfBiwyEi3TKH2Kr356ZOtLTUwUml9I9h_bWlOcraVXDyBIzbA/viewform?embedded=true"
-                                frameborder="0" marginheight="0" marginwidth="0">Loading…
-                        </iframe>
-                    </div>
-                </div>
-                <div id="settings-3" class="tabcontent">
-                    <div class="card-body">
                         <div id="accountSettingsMessage" class="alert alert-success alert-dismissible font-weight-bold"
                              style="display:none">
                             <div class="messageTxt"></div>
@@ -207,7 +199,7 @@
                         </form>
                     </div>
                 </div>
-                <div id="settings-4" class="tabcontent" style="display:none">
+                <div id="settings-3" class="tabcontent" style="display:none">
                     <div class="card-body">
                         <div class="card-footer">
                             <h5>Alerts</h5>
@@ -279,6 +271,14 @@
                             <% } %>
                         </form>
                     </div>
+                </div>
+            </div>
+            <div id="settings-4" class="tabcontent">
+                <div class="card-body">
+                    <iframe style="color: #FFFFFF; height: 50vh; width: 100%;"
+                            src="https://docs.google.com/forms/d/e/1FAIpQLSfBiwyEi3TKH2Kr356ZOtLTUwUml9I9h_bWlOcraVXDyBIzbA/viewform?embedded=true"
+                            frameborder="0" marginheight="0" marginwidth="0">Loading…
+                    </iframe>
                 </div>
             </div>
         </div>
