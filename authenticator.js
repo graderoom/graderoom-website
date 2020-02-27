@@ -297,6 +297,9 @@ module.exports = {
                 this.addNewWeightDict(lc_username, i, grade_update_status.new_grades[i].class_name);
             }
         }
+        for (let i = grade_update_status.new_grades.length - 1; i < userRef.value().appearance.classColors.length; i++) {
+            userRef.value().appearance.classColors.pop();
+        }
         userRef.assign({grades: grade_update_status.new_grades}).write();
         userRef.get("alerts").set("lastUpdated", Date.now()).write();
         userRef.set("updatedInBackground", "already done").write();
