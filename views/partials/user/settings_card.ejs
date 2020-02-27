@@ -2,7 +2,7 @@
 <div class="container">
     <div class="blurred-login" id="settingsCardDisplay"
          style="position:fixed; display:none; height: 100%; width: 100%; top: 0; left: 0; z-index: 1">
-        <div class="blurred-background" style="position: fixed; width: 100%; height: 100%; filter: opacity(0.7);"></div>
+        <div class="blurred-background"></div>
         <div class="col-sm-11 col-md-10 col-lg-9 col-xl-6 mx-auto">
             <div id="settingsCard" class="settings card card-signin my-5">
                 <btn class="btn btn-md"
@@ -48,7 +48,8 @@
                             <h5>Theme</h5>
                             <form id="chooseTheme" class="form-signin" action="/updateAppearance" method="post">
                                 <div id="theme">
-                                    <div id="themeMessage" class="alert alert-success alert-dismissible"
+                                    <div id="themeMessage"
+                                         class="alert alert-success alert-dismissible font-weight-bold"
                                          style="display:none">
                                         <div class="messageTxt"></div>
                                         <a class="close" onclick="closeMessage('themeMessage')" aria-label="close">X</a>
@@ -56,73 +57,103 @@
                                     <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
                                                                            value="light"
                                                                            name="theme"
-                                                                           onclick="$('#autoLimits').hide()"
+                                                                           onclick="$('#autoLimits').hide();
+                                                                               $($($(this)[0].form)[0].elements[7]).hide();
+                                                                               ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
+                                                                               $($(this)[0].form).submit();"
                                         <% if (user.appearance.theme === "light") { %> checked
                                                 <% } %>
-                                        > Light Theme</label><br>
+                                        > Light Theme
+                                    </label>
+                                    <br>
                                     <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
                                                                            value="dark"
                                                                            name="theme"
-                                                                           onclick="$('#autoLimits').hide()"
+                                                                           onclick="$('#autoLimits').hide()
+                                                                               $($($(this)[0].form)[0].elements[7]).hide();
+                                                                               ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
+                                                                               $($(this)[0].form).submit();"
                                         <% if (user.appearance.theme === "dark") { %> checked
                                                 <% } %>
-                                        > Dark Theme</label><br>
+                                        > Dark Theme</label>
+                                    <br>
                                     <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
                                                                            value="auto"
                                                                            name="theme"
-                                                                           onclick="$('#autoLimits').show().css('display','flex');"
+                                                                           onclick="$('#autoLimits').show().css('display','flex');
+                                                                               ajaxPostForm('#chooseTheme',['#darkModeStart','darkModeFinish'],'#themeMessage',true);
+                                                                               $($(this)[0].form).submit();
+                                                                               $($($(this)[0].form)[0].elements[7]).show().attr('disabled','disabled')"
                                         <% if (user.appearance.theme === "auto") { %> checked
                                                 <% } %>
                                         > Automatic
                                     </label>
                                 </div>
-                                <label class="form-group" id="autoLimits"
-                                       style="<% if (user.appearance.theme !== 'auto') { %>display: none;<% } else { %>display: inline-flex;<% } %>font-size: 0.9rem; margin-bottom: 0;">
-                                    <label style="vertical-align: center">
-                                        Dark theme from
+                                <div style="display: inline-flex">
+                                    <label class="form-group" id="autoLimits"
+                                           style="<% if (user.appearance.theme !== 'auto') { %>display: none;<% } else { %>display: inline-flex;<% } %>font-size: 0.9rem; margin-bottom: 0;">
+                                        <label style="vertical-align: center">
+                                            Dark theme from
+                                        </label>
+                                        <input id="darkModeStart"
+                                               style="padding: 0 0.75rem 0 0.75rem; width: 3rem !important"
+                                               type="number"
+                                               class="text-center number-input form-control" name="darkModeStart"
+                                               min="1"
+                                               max="12"
+                                               oninput="$($($(this)[0].form)[0].elements[7]).removeAttr('disabled');">
+                                        <select style="margin-left: 0 !important" id="darkModeStartAmPm"
+                                                class="dropdown"
+                                                name="darkModeStartAmPm"
+                                                oninput="$($($(this)[0].form)[0].elements[7]).removeAttr('disabled');">
+                                            <option value="PM"
+                                            <% if (user.appearance.darkModeStart >= 12 && user.appearance.darkModeStart !== 24) { %>
+                                                    selected
+                                                    <% } %>
+                                            >PM
+                                            </option>
+                                            <option value="AM"
+                                            <% if (user.appearance.darkModeStart < 12 || user.appearance.darkModeStart === 24) { %>
+                                                    selected
+                                                    <% } %>
+                                            >AM
+                                            </option>
+                                        </select>
+                                        <label style="margin-left: 0.25rem">
+                                            to
+                                        </label>
+                                        <input id="darkModeFinish"
+                                               style="padding: 0 0.75rem 0 0.75rem; width: 3rem !important"
+                                               type="number"
+                                               class="text-center number-input form-control" name="darkModeFinish"
+                                               min="1"
+                                               max="12"
+                                               oninput="$($($(this)[0].form)[0].elements[7]).removeAttr('disabled');">
+                                        <select style="margin-left: 0 !important" id="darkModeFinishAmPm"
+                                                class="dropdown"
+                                                name="darkModeFinishAmPm"
+                                                oninput="$($($(this)[0].form)[0].elements[7]).removeAttr('disabled');">
+                                            <option value="AM"
+                                            <% if (user.appearance.darkModeFinish < 12 || user.appearance.darkModeFinish === 24) { %>
+                                                    selected
+                                                    <% } %>
+                                            >AM
+                                            </option>
+                                            <option value="PM"
+                                            <% if (user.appearance.darkModeFinish >= 12 && user.appearance.darkModeFinish !== 24) { %>
+                                                    selected
+                                                    <% } %>
+                                            >PM
+                                            </option>
+                                        </select>
                                     </label>
-                                    <input id="darkModeStart"
-                                           style="padding: 0 0.75rem 0 0.75rem; width: 3rem !important" type="number"
-                                           class="text-center number-input form-control" name="darkModeStart" min="1"
-                                           max="12">
-                                    <select style="margin-left: 0 !important" id="darkModeStartAmPm" class="dropdown"
-                                            name="darkModeStartAmPm">
-                                        <option value="PM"
-                                        <% if (user.appearance.darkModeStart >= 12 && user.appearance.darkModeStart !== 24) { %>
-                                                selected
-                                                <% } %>
-                                        >PM
-                                        </option>
-                                        <option value="AM"
-                                        <% if (user.appearance.darkModeStart < 12 || user.appearance.darkModeStart === 24) { %>
-                                                selected
-                                                <% } %>
-                                        >AM
-                                        </option>
-                                    </select>
-                                    <label style="margin-left: 0.25rem">
-                                        to
-                                    </label>
-                                    <input id="darkModeFinish"
-                                           style="padding: 0 0.75rem 0 0.75rem; width: 3rem !important" type="number"
-                                           class="text-center number-input form-control" name="darkModeFinish" min="1"
-                                           max="12">
-                                    <select style="margin-left: 0 !important" id="darkModeFinishAmPm" class="dropdown"
-                                            name="darkModeFinishAmPm">
-                                        <option value="AM"
-                                        <% if (user.appearance.darkModeFinish < 12 || user.appearance.darkModeFinish === 24) { %>
-                                                selected
-                                                <% } %>
-                                        >AM
-                                        </option>
-                                        <option value="PM"
-                                        <% if (user.appearance.darkModeFinish >= 12 && user.appearance.darkModeFinish !== 24) { %>
-                                                selected
-                                                <% } %>
-                                        >PM
-                                        </option>
-                                    </select>
-                                </label>
+                                    <button class="btn-default btn btn-sm" type="submit"
+                                            style="<% if (user.appearance.theme !== 'auto') { %>display: none;<% } %> margin: 0 0 0 1rem !important; width: fit-content !important;"
+                                            onclick="ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);"
+                                            disabled>
+                                        Apply
+                                    </button>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -137,7 +168,7 @@
                 </div>
                 <div id="settings-3" class="tabcontent">
                     <div class="card-body">
-                        <div id="accountSettingsMessage" class="alert alert-success alert-dismissible"
+                        <div id="accountSettingsMessage" class="alert alert-success alert-dismissible font-weight-bold"
                              style="display:none">
                             <div class="messageTxt"></div>
                             <a class="close" onclick="closeMessage('accountSettingsMessage')" aria-label="close">X</a>
@@ -180,7 +211,8 @@
                     <div class="card-body">
                         <div class="card-footer">
                             <h5>Alerts</h5>
-                            <div id="alertSettingsMessage" class="alert alert alert-success alert-dismissible"
+                            <div id="alertSettingsMessage"
+                                 class="alert alert alert-success alert-dismissible font-weight-bold"
                                  style="display:none">
                                 <div class="messageTxt"></div>
                                 <a class="close" onclick="closeMessage('alertSettingsMessage')" aria-label="close">X</a>
@@ -256,32 +288,7 @@
 <!-- Custom JavaScript -->
 <script type="text/javascript">
 
-    let themeForm = $('#chooseTheme');
-
-    $('#theme').on('input', function () {
-        ajaxPostForm('#chooseTheme', [], '#themeMessage', true);
-        themeForm.submit();
-    });
-
-    $('#darkModeStart').on('input', function () {
-        ajaxPostForm('#chooseTheme', [], '#themeMessage', true);
-        themeForm.submit();
-    });
-
-    $('#darkModeStartAmPm').on('input', function () {
-        ajaxPostForm('#chooseTheme', [], '#themeMessage', true);
-        themeForm.submit();
-    });
-
-    $('#darkModeFinish').on('input', function () {
-        ajaxPostForm('#chooseTheme', [], '#themeMessage', true);
-        themeForm.submit();
-    });
-
-    $('#darkModeFinishAmPm').on('input', function () {
-        ajaxPostForm('#chooseTheme', [], '#themeMessage', true);
-        themeForm.submit();
-    });
+    let themeForm = $("#chooseTheme");
 
     function reload() {
         location.reload();

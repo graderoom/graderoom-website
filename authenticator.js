@@ -80,7 +80,7 @@ module.exports = {
     }
 
     //Need to add Try Catches to error check when updating db values
-    ,addNewUser: function (username, password, schoolUsername, isAdmin) {
+    , addNewUser: function (username, password, schoolUsername, isAdmin) {
 
         let lc_username = username.toLowerCase();
         return new Promise((resolve, reject) => {
@@ -196,6 +196,15 @@ module.exports = {
             if (darkModeStart === darkModeFinish) {
                 user.get("appearance").set("theme", "light").write();
                 return {success: true, message: "Light theme enabled!"};
+            }
+            if ((darkModeStart < 0 || darkModeStart > 24) && (darkModeFinish < 0 || darkModeFinish > 24)) {
+                return {success: false, message: "Invalid Start and End Time"}
+            }
+            if (darkModeStart < 0 || darkModeStart > 24) {
+                return {success: false, message: "Invalid Start Time"}
+            }
+            if (darkModeFinish < 0 || darkModeFinish > 24) {
+                return {success: false, message: "Invalid Finish Time"};
             }
             user.get("appearance").set("darkModeStart", parseInt(darkModeStart)).write();
             user.get("appearance").set("darkModeFinish", parseInt(darkModeFinish)).write();

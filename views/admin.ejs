@@ -6,8 +6,14 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
-    <% if (user.appearance.theme === "dark" || (user.appearance.theme === "auto" && ((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) && ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish)) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish)))) { %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+    <% if (user.appearance.theme === "dark" ||
+           (user.appearance.theme === "auto" &&
+            (((user.appearance.darkModeStart < user.appearance.darkModeFinish) &&
+              ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) &&
+              ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish)) ||
+             ((user.appearance.darkModeStart > user.appearance.darkModeFinish) &&
+              ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) ||
+               ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish))))) { %>        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else { %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
     <% } %>
@@ -67,18 +73,18 @@
                         <td><%= lastUpdated.toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) %></td>
                         <td><%= (Object.keys(u).includes("schoolPassword") ? "Enabled" : "Disabled") %></td>
                         <td><%= u.isAdmin %> </td>
-                        <td>
-                            <form action="/viewuser" method="get">
-                                <button type="submit" name="usernameToRender" class="btn btn-sm"
+                        <td class="admin">
+                            <form action="/viewuser" method="get" style="display: inline-block;">
+                                <button type="submit" name="usernameToRender" class="btn btn-sm admin"
                                         value="<%= u.username %>">
                                     Render User Site
                                 </button>
                             </form>
                         </td>
-                        <td>
+                        <td class="admin">
                             <% if (!u.isAdmin) { %>
                                 <form action="/deleteuser" method="post">
-                                    <button type="submit" name="deleteUser" class="btn btn-sm"
+                                    <button type="submit" name="deleteUser" class="btn btn-sm admin"
                                             value="<%= u.username %>">Delete User</button>
                                 </form>
                             <% } else { %>
@@ -86,16 +92,16 @@
                             <% } %>
                         </td>
 
-                        <td>
+                        <td class="admin">
                             <% if (u != user) { %>
                                 <% if (u.isAdmin) { %>
                                     <form action="/removeadmin" method="post">
-                                        <button type="submit" name="removeAdminUser" class="btn btm-sm"
+                                        <button type="submit" name="removeAdminUser" class="btn btm-sm admin"
                                                 value="<%= u.username %>">Remove Admin Privileges</button>
                                     </form>
                                 <% } else { %>
                                     <form action="/makeadmin" method="post">
-                                        <button type="submit" name="newAdminUser" class="btn btn-sm"
+                                        <button type="submit" name="newAdminUser" class="btn btn-sm admin"
                                                 value="<%= u.username %>">Make User Admin</button>
                                     </form>
                                 <% } %>
