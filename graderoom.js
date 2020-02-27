@@ -1,7 +1,7 @@
 const express      = require('express');
 const app          = express();
 const http         = require('http');
-const httpPort     = 5996; //process.env.PORT || 8080;
+const httpPort     = 5998; //process.env.PORT || 8080;
 const flash        = require('connect-flash');
 const morgan       = require('morgan');
 const cookieParser = require('cookie-parser');
@@ -40,7 +40,7 @@ app.set('view engine', 'ejs'); // set up ejs for templating #todo do we want thi
 
 const ADMIN_USERNAME        = 'admin';
 const ADMIN_PASSWORD        = 'password';
-const ADMIN_SCHOOL_USERNAME = 'admin@bcp.org';
+const ADMIN_SCHOOL_USERNAME = 'admin1@bcp.org';
 
 if (!dbConn.userExists(ADMIN_USERNAME)) {
     console.log("Creating admin account.");
@@ -52,7 +52,9 @@ if (!dbConn.userExists(ADMIN_USERNAME)) {
 // required for passport
 app.use(session({
     secret: 'secret', // session secret //TODO CHANGE
-    resave: true, saveUninitialized: true
+    resave: true,
+    saveUninitialized: true,
+    cookie: {maxAge: 4 * 60 * 60 * 1000} //4 hours
 }));
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
