@@ -54,7 +54,7 @@ app.use(session({
     secret: 'secret', // session secret //TODO CHANGE
     resave: true,
     saveUninitialized: true,
-    cookie: {maxAge: 24 * 60 * 60 * 1000}
+    cookie: {maxAge: 4 * 60 * 60 * 1000} //4 hours
 }));
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
