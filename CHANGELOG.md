@@ -8,13 +8,20 @@
 - Support for point-based classes
 
 ## [Known Issues] - Working on it
-- Changelog does not load
+- No way to stop Changelog from showing up every refresh
+
+## [Beta 1.0.2.2] - 2020-02-28
+### Added
+- Changelog displays on login
+
+### Fixed
+- Server crash caused by Changelog Display
 
 ## [Beta 1.0.2.1] - 2020-02-28
 ### Improved
-- Changelog Display
+- Changelog Display UI
 
-### Fixed
+### Removed
 - Background scroll when focused on card
 
 ## [Beta 1.0.2.0] - 2020-02-28
