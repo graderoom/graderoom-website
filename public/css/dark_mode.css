@@ -165,6 +165,10 @@ th {
     color: #BBBBBB;
 }
 
+#changelog-container .type {
+    color: #222222;
+}
+
 #weightsCard input {
     border-color: lightcoral;
 }

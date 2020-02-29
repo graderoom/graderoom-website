@@ -6,6 +6,8 @@ const bcrypt = require("bcryptjs");
 const scraper = require("./scrape");
 const randomColor = require("randomcolor");
 const crypto = require("crypto");
+const readline = require("readline");
+const fs = require("fs");
 
 db.defaults({users: [], keys: []}).write();
 
@@ -198,10 +200,10 @@ module.exports = {
                 return {success: true, message: "Light theme enabled!"};
             }
             if ((darkModeStart < 0 || darkModeStart > 24) && (darkModeFinish < 0 || darkModeFinish > 24)) {
-                return {success: false, message: "Invalid Start and End Time"}
+                return {success: false, message: "Invalid Start and End Time"};
             }
             if (darkModeStart < 0 || darkModeStart > 24) {
-                return {success: false, message: "Invalid Start Time"}
+                return {success: false, message: "Invalid Start Time"};
             }
             if (darkModeFinish < 0 || darkModeFinish > 24) {
                 return {success: false, message: "Invalid Finish Time"};
@@ -438,6 +440,62 @@ module.exports = {
         let decryptedPass = decipher.update(schoolPass, "hex", "utf8");
         decryptedPass += decipher.final("utf8");
         return {success: true, message: decryptedPass};
+    },
+
+    readChangelog: async function (beta, callback) {
+        const readInterface = readline.createInterface(fs.createReadStream("./CHANGELOG.MD"));
+        let resultHTML = "";
+        let items = [];
+        let bodyCount = -1;
+        let item = {title: "", date: "", content: {}};
+        readInterface.on("line", function (line) {
+            if (line.substring(0, 3) === "###") {
+                item.content[line.substring(4)] = [];
+                bodyCount++;
+            } else if (line.substring(0, 2) === "##") {
+                if (item.title !== "") {
+                    items.push(item);
+                    item = {title: "", date: "", content: {}};
+                    bodyCount = -1;
+                }
+                item.title = line.substring(4, line.indexOf("]"));
+                item.date = line.substring(line.indexOf("-") + 2);
+            } else if (line.substring(0, 1) === "-") {
+                if (item.title === "Unreleased") {
+                    if (!item.content["Default"]) {
+                        item.content["Default"] = [];
+                    }
+                    item.content["Default"].push(line.substring(2));
+                } else {
+                    item.content[Object.keys(item.content)[bodyCount]].push(line.substring(2));
+                }
+            }
+        }).on("close", function () {
+            items.push(item);
+            for (let i = 0; i < items.length; i++) {
+                resultHTML += "<div class=\"changelog-item\">";
+                resultHTML += "<div class=\"header\">";
+                resultHTML += "<div class=\"title\">" + items[i].title + "</div>";
+                resultHTML += "<div class=\"date\">" + items[i].date + "</div>";
+                resultHTML += "</div>";
+                resultHTML += "<div class=\"content\">";
+                if (items[i].title !== "Unreleased") {
+                    for (let j = 0; j < Object.keys(items[i].content).length; j++) {
+                        resultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j] + "</div>";
+                        for (let k = 0; k < items[i].content[Object.keys(items[i].content)[j]].length; k++) {
+                            resultHTML += "<ul class=\"body\">" + items[i].content[Object.keys(items[i].content)[j]][k] + "</ul>";
+                        }
+                    }
+                } else {
+                    for (let j = 0; j < items[i].content["Default"].length; j++) {
+                        resultHTML += "<ul class=\"body\">" + items[i].content["Default"][j] + "</ul>";
+                    }
+                }
+                resultHTML += "</div>";
+                resultHTML += "</div>";
+            }
+            return callback(resultHTML);
+        });
     }
 };
 

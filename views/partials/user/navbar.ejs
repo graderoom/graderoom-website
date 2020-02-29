@@ -30,7 +30,7 @@
                     </btn>
                 </li>
                 <li id="syncGrades" class="nav-item">
-                    <btn class="btn btn-med" onclick="$('#updateGradesDisplay').show(); $('#inputPassword').focus()">
+                    <btn class="btn btn-med" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">
                         <i class="fa fa-refresh" aria-hidden="true"></i> Sync
                     </btn>
                 </li>
@@ -46,7 +46,7 @@
                 </li>
             <% } %>
             <li id="settings" class="nav-item">
-                <btn class="btn btn-med" onclick="$('#settingsCardDisplay').show()">
+                <btn class="btn btn-med" onclick="showCard('#settingsCardDisplay')">
                     <i class="fa fa-cog" aria-hidden="true"></i> Settings
                 </btn>
             </li>
@@ -283,6 +283,11 @@
         });
     }
 
+    function showCard(id) {
+        $(id).show();
+        disableScrolling();
+    }
+
     function closeForm(id) {
         let form = document.getElementById(id);
         form.style.display = "none";
@@ -291,6 +296,8 @@
         } else if (id === "updateWeightsDisplay") {
             if (document.getElementById("edited").textContent === "Edited") {
                 window.reload();
+            } else {
+                enableScrolling();
             }
         } else if (id === "settingsCardDisplay" && document.getElementById("reloadNeeded").textContent === "Reload Needed") {
             window.reload();
@@ -299,6 +306,7 @@
             for (let i = 0; i < inputFields.length; i++) {
                 inputFields[i].value = "";
             }
+            enableScrolling();
         }
 
         // Manage theme selection, if it exists

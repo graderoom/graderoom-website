@@ -134,8 +134,13 @@ module.exports = function (app, passport) {
         res.status(200).send(resp.message);
     });
 
+    app.get("/changelog", [isLoggedIn], async (req, res) => {
+        await authenticator.readChangelog(server.needsBetaKeyToSignUp, result => {
+            res.status(200).send(result);
+        });
+    });
+
     app.post("/updateAppearance", [isLoggedIn], (req, res) => {
-        console.log(req.body.theme, req.body.darkModeStart, req.body.darkModeStartAmPm, req.body.darkModeFinish, req.body.darkModeFinishAmPm);
         let resp = authenticator.setTheme(req.user.username, req.body.theme, req.body.darkModeStart, req.body.darkModeStartAmPm, req.body.darkModeFinish, req.body.darkModeFinishAmPm);
         if (resp.success) {
             res.status(200).send(resp.message);

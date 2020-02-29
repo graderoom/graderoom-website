@@ -1,7 +1,6 @@
 <!doctype html>
 <html>
-<head>
-    <title>Graderoom</title>
+<title>Graderoom</title>
     <link rel="icon" href="../public/resources/common/icon.png">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -64,7 +63,7 @@
         <span style="display: none;" id="refresh"> <u style="cursor: pointer"
                                                       onclick="window.reload()">Refresh</u>
              to see new updates or turn on Auto-Refresh in <u style="cursor: pointer"
-                                                              onclick="$('#settingsCardDisplay').show(); openTab(3);">settings</u>.
+                                                              onclick="showCard('#settingsCardDisplay'); openTab(3);">settings</u>.
             <a class="close" data-dismiss="alert"
                aria-label="close">X</a>
         </span>
@@ -72,7 +71,7 @@
     <% var daysSinceUpdated = 0; %>
     <% if (user.alerts.lastUpdated.toString().toLowerCase() == ('never')) { %> <br>
     <div class="alert alert-success">
-        <u style="cursor: pointer" onclick="$('#updateGradesDisplay').show(); $('#inputPassword').focus()">Sync your
+        <u style="cursor: pointer" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">Sync your
             grades</u> now!
     </div>
     <% } else { %>
@@ -87,8 +86,8 @@
                 since you last synced your grades! <span
                         style="float: right; display: flex"><u
                             style="cursor: pointer; margin-right: 10px"
-                            onclick="$('#settingsCardDisplay').show(); openTab(3)">Alert Settings</u><u
-                            style="cursor: pointer" onclick="$('#updateGradesDisplay').show()">Sync Grades</u></span>
+                            onclick="showCard('#settingsCardDisplay'); openTab(3)">Alert Settings</u><u
+                            style="cursor: pointer" onclick="showCard('#updateGradesDisplay')">Sync Grades</u></span>
             </div>
         <% } %>
     <% } %>
@@ -226,7 +225,7 @@
     let currentPage = -1;
     let cardDisplayed = "none";
     let currentTab = 1;
-    let maxTab = 4;
+    let maxTab = 5;
 
     let darkMode;
     let darkModeStart = user.appearance.darkModeStart;
@@ -385,6 +384,14 @@
                 }
             });
         }, 1000);
+    }
+
+    function disableScrolling() {
+        $("body").addClass("no-scroll");
+    }
+
+    function enableScrolling() {
+        $("body").removeClass("no-scroll");
     }
 
     function getTotalWeight(classIndex) {
@@ -871,7 +878,7 @@
             } else if ($("#updateGradesDisplay").css("display") === "block") {
             } else if ($("#updateWeightsDisplay").css("display") === "block") {
             } else {
-                $("#settingsCardDisplay").show();
+                showCard("#settingsCardDisplay");
             }
         } else if (e.keyCode === 87) {
             if ($("#settingsCardDisplay").css("display") === "block") {
