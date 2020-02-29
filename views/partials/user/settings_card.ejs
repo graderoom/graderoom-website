@@ -60,7 +60,7 @@
                                                                            name="theme"
                                                                            onclick="$('#autoLimits').hide();
                                                                                $($($(this)[0].form)[0].elements[7]).hide();
-                                                                               ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
+                                                                               ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
                                                                                $($(this)[0].form).submit();"
                                         <% if (user.appearance.theme === "light") { %> checked
                                                 <% } %>
@@ -72,7 +72,7 @@
                                                                            name="theme"
                                                                            onclick="$('#autoLimits').hide()
                                                                                $($($(this)[0].form)[0].elements[7]).hide();
-                                                                               ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
+                                                                               ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
                                                                                $($(this)[0].form).submit();"
                                         <% if (user.appearance.theme === "dark") { %> checked
                                                 <% } %>
@@ -338,8 +338,6 @@
            }).done(function (response) {
         $("#changelog-container").html(response);
     });
-
-    let themeForm = $("#chooseTheme");
 
     function reload() {
         location.reload();

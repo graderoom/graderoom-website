@@ -8,17 +8,19 @@
 - Support for point-based classes
 
 ## [Known Issues] - Working on it
-- Chart sometimes renders in wrong theme after theme change
+- None
+
+## [Beta 1.0.2.5] - 2020-02-28
+### Fixed
+- Auto theme bounds now clear correctly on form submit
 
 ## [Beta 1.0.2.4] - 2020-02-28
 ### Added
-- Changelog message to help user understand how to disable changelog
-
-### Improved
-- Changelog defaults to showing once a day (can be changed in settings)
+- New changelog message to help user understand how to disable changelog
+- Changelog shows only once a day by default (can be changed in settings)
 
 ### Fixed
-- Alert settings correctly show saved settings
+- Alert settings correctly display previously saved settings
 
 ## [Beta 1.0.2.3] - 2020-02-28
 ### Added
@@ -26,25 +28,23 @@
 
 ## [Beta 1.0.2.2] - 2020-02-28
 ### Added
-- Changelog displays on login
+- Changelog now displays on login
 
 ### Fixed
-- Server crash caused by Changelog Display
+- Solved server crashing caused by changelog
 
 ## [Beta 1.0.2.1] - 2020-02-28
 ### Improved
-- Changelog Display UI
-
-### Removed
-- Background scroll when focused on card
+- New changelog UI
+- Prevent background scroll when focused on card
 
 ## [Beta 1.0.2.0] - 2020-02-28
 ### Added
-- Changelog Display
+- Brand new changelog display
 
 ## [Stable 1.0.1] - 2020-02-27
 ### Fixed
-- Issue where new users could not sync with PowerSchool
+- Solved issue where new users could not sync with PowerSchool
 
 ## [Stable 1.0.0] - 2020-02-27
 ### Added
@@ -55,13 +55,13 @@
 
 ### Improved
 - User Interface/User Experience
-- Chart tooltips to show assignment category and exclusion
+- Updated chart tooltips to show assignment category and exclusion
 
 ### Fixed
-- Lag on overview page initial load
+- Significantly decreased lag on initial load of overview page
 
 ### Removed
-- Beta key requirement
+- Removed beta key requirement
 
 ## [Format] - Release Date
 ### Added
