@@ -443,7 +443,7 @@ module.exports = {
     },
 
     readChangelog: async function (beta, callback) {
-        const readInterface = readline.createInterface({input: fs.createReadStream("CHANGELOG.MD")});
+        const readInterface = readline.createInterface({input: fs.createReadStream("CHANGELOG.md")});
         let resultHTML = "";
         let items = [];
         let bodyCount = -1;
