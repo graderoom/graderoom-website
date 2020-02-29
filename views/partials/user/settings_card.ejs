@@ -82,7 +82,7 @@
                                                                            value="auto"
                                                                            name="theme"
                                                                            onclick="$('#autoLimits').show().css('display','flex');
-                                                                               ajaxPostForm('#chooseTheme',['#darkModeStart','darkModeFinish'],'#themeMessage',true);
+                                                                               ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
                                                                                $($(this)[0].form).submit();
                                                                                $($($(this)[0].form)[0].elements[7]).show().attr('disabled','disabled')"
                                         <% if (user.appearance.theme === "auto") { %> checked
