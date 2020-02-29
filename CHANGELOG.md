@@ -8,6 +8,7 @@
 - Support for point-based classes
 
 ## [Known Issues] - Working on it
+- Chart sometimes renders in wrong theme after theme change
 - No way to stop Changelog from showing up every refresh
 
 ## [Beta 1.0.2.2] - 2020-02-28
