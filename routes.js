@@ -134,7 +134,7 @@ module.exports = function (app, passport) {
         res.status(200).send(resp.message);
     });
 
-    app.get("/changelog", [isLoggedIn], async function (req, res) {
+    app.get("/changelog", [isLoggedIn], async (req, res) => {
         await authenticator.readChangelog(server.needsBetaKeyToSignUp, result => {
             res.status(200).send(result);
         });
@@ -163,7 +163,7 @@ module.exports = function (app, passport) {
         res.redirect("/");
     });
 
-    app.post("/changepassword", [isLoggedIn], async function (req, res) {
+    app.post("/changepassword", [isLoggedIn], async (req, res) => {
 
         let old_pass = req.body.oldPass;
         let new_pass = req.body.password;
@@ -207,7 +207,7 @@ module.exports = function (app, passport) {
     //     failureFlash : true // allow flash messages
     // }));
 
-    app.post("/signup", async function (req, res, next) {
+    app.post("/signup", async (req, res, next) => {
 
         let username = req.body.username;
         let password = req.body.password;
@@ -244,7 +244,7 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.post("/update", [isLoggedIn], async function (req, res) {
+    app.post("/update", [isLoggedIn], async (req, res) => {
 
         let gradeSync = req.body.savePassword === "on";
         let pass = req.body.school_password;
@@ -280,7 +280,7 @@ module.exports = function (app, passport) {
     });
 
     //must be called via client side ajax+js
-    app.post("/updateweights", [isLoggedIn], async function (req, res) {
+    app.post("/updateweights", [isLoggedIn], async (req, res) => {
         console.log(req.body);
         let className = req.body.className;
         let newWeights = JSON.parse(req.body.newWeights);
