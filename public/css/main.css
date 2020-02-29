@@ -475,6 +475,17 @@ table thead tr th:last-child {
     overflow-y: scroll;
 }
 
+#changelog-container .added {
+    background-color: #1C9BDD;
+}
+
+#changelog-container .body {
+    margin: 0 0 0 2rem;
+    padding: 0;
+    display: list-item;
+    font-size: 0.9rem;
+}
+
 #changelog-container .changelog-item {
     padding-top: 0.1rem;
     padding-bottom: 2rem;
@@ -485,14 +496,8 @@ table thead tr th:last-child {
     border-top: none;
 }
 
-#changelog-container .changelog-item:first-child .content {
+#changelog-container .changelog-item:first-child .content, #changelog-container .changelog-item:nth-child(2) .content {
     padding-top: 1rem;
-}
-
-#changelog-container .date {
-    vertical-align: top;
-    border-radius: 50%;
-    opacity: .5;
 }
 
 #changelog-container .content {
@@ -501,10 +506,28 @@ table thead tr th:last-child {
     width: 75%;
 }
 
+#changelog-container .date {
+    vertical-align: top;
+    border-radius: 50%;
+    opacity: .5;
+}
+
+#changelog-container .fixed {
+    background-color: #FFB400;
+}
+
 #changelog-container .header {
     width: 25%;
     display: inline-block;
     vertical-align: top;
+}
+
+#changelog-container .improved {
+    background-color: #2CB967;
+}
+
+#changelog-container .removed {
+    background-color: #DD671C;
 }
 
 #changelog-container .title {
@@ -520,29 +543,6 @@ table thead tr th:last-child {
     padding: 0.1rem 0.5rem 0.1rem 0.5rem;
     margin: 0.9rem 0 0.1rem 1rem;
     border-radius: 1rem;
-}
-
-#changelog-container .added {
-    background-color: #1C9BDD;
-}
-
-#changelog-container .improved {
-    background-color: #2CB967;
-}
-
-#changelog-container .fixed {
-    background-color: #FFB400;
-}
-
-#changelog-container .removed {
-    background-color: #DD671C;
-}
-
-#changelog-container .body {
-    margin: 0 0 0 2rem;
-    padding: 0;
-    display: list-item;
-    font-size: 0.9rem;
 }
 
 #weightsCard h5 {

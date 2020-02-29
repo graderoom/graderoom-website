@@ -443,7 +443,7 @@ module.exports = {
     },
 
     readChangelog: async function (beta, callback) {
-        const readInterface = readline.createInterface(fs.createReadStream("./CHANGELOG.MD"));
+        const readInterface = readline.createInterface({input: fs.createReadStream("CHANGELOG.MD")});
         let resultHTML = "";
         let items = [];
         let bodyCount = -1;
@@ -461,7 +461,7 @@ module.exports = {
                 item.title = line.substring(4, line.indexOf("]"));
                 item.date = line.substring(line.indexOf("-") + 2);
             } else if (line.substring(0, 1) === "-") {
-                if (item.title === "Unreleased") {
+                if (item.title === "Unreleased" || item.title === "Known Issues") {
                     if (!item.content["Default"]) {
                         item.content["Default"] = [];
                     }
@@ -479,7 +479,7 @@ module.exports = {
                 resultHTML += "<div class=\"date\">" + items[i].date + "</div>";
                 resultHTML += "</div>";
                 resultHTML += "<div class=\"content\">";
-                if (items[i].title !== "Unreleased") {
+                if (items[i].title !== "Unreleased" && items[i].title !== "Known Issues") {
                     for (let j = 0; j < Object.keys(items[i].content).length; j++) {
                         resultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j] + "</div>";
                         for (let k = 0; k < items[i].content[Object.keys(items[i].content)[j]].length; k++) {
