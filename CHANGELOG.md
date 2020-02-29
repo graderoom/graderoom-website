@@ -7,6 +7,9 @@
 - GPA Display
 - Support for point-based classes
 
+## [Known Issues] - 2020-02-28
+- Changelog does not load
+
 ## [Beta 1.0.2.1] - 2020-02-28
 ### Improved
 - Changelog Display

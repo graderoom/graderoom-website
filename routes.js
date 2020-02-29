@@ -134,7 +134,7 @@ module.exports = function (app, passport) {
         res.status(200).send(resp.message);
     });
 
-    app.get("/changelog", [isLoggedIn], async (req, res) => {
+    app.get("/changelog", [isLoggedIn], async function (req, res) {
         await authenticator.readChangelog(server.needsBetaKeyToSignUp, result => {
             res.status(200).send(result);
         });
