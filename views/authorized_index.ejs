@@ -1,24 +1,24 @@
 <!doctype html>
 <html>
 <title>Graderoom</title>
-    <link rel="icon" href="../public/resources/common/icon.png">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.css">
-    <% if (user.appearance.theme === "dark" || (user.appearance.theme === "auto" && (((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) && ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish)) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish))))) { %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
-    <% } else { %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
-    <% } %>
-    <link rel="stylesheet" type="text/css" href="public/css/main.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="../public/resources/common/icon.png">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.css">
+<% if (user.appearance.theme === "dark" || (user.appearance.theme === "auto" && (((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) && ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish)) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish))))) { %>
+    <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+<% } else { %>
+    <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
+<% } %>
+<link rel="stylesheet" type="text/css" href="public/css/main.css">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- JavaScript Imports -->
-    <script src="https://cdn.jsdelivr.net/npm/moment@2.24.0/moment.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<!-- JavaScript Imports -->
+<script src="https://cdn.jsdelivr.net/npm/moment@2.24.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </head>
 <body>
 
@@ -237,8 +237,7 @@
     setupWeightsTables();
     setupOverviewTable();
     updateWeightMessages();
-    showCard("#settingsCardDisplay");
-    openTab(4);
+
     let theme = user.appearance.theme;
     let changeTransition;
     if (theme === "auto") {
@@ -263,7 +262,8 @@
     if (user.alerts.lastUpdated !== "never") {
         try {
             renderAllCharts();
-        } catch {}
+        } catch {
+        }
     }
     try {
         showPage(currentPage);
@@ -271,7 +271,8 @@
         currentPage = -1;
         try {
             showPage(-1);
-        } catch {}
+        } catch {
+        }
         localStorage.setItem("currentPage", currentPage);
     }
     if (user.schoolPassword) {
@@ -281,6 +282,22 @@
     } else {
         $("#gradeSyncDiv").hide();
         $("#syncGradesDiv").show();
+        if (user.alerts.lastUpdated !== "never") {
+            if (user.alerts.showChangelog !== "never") {
+                if (user.alerts.changelogLastShown === "never" || user.alerts.showChangelog === "always") {
+                    $("#changelogMessage").show();
+                    showCard("#settingsCardDisplay");
+                    openTab(4);
+                } else {
+                    let daysSinceShown = Math.floor((Date.now() - user.alerts.changelogLastShown) / (1000 * 3600 * 24));
+                    if (user.alerts.showChangelog === "daily" && daysSinceShown >= 1 || user.alerts.showChangelog === "weekly" && daysSinceShown >= 7) {
+                        $("#changelogMessage").show();
+                        showCard("#settingsCardDisplay");
+                        openTab(4);
+                    }
+                }
+            }
+        }
     }
     document.getElementById("darkModeStart").setAttribute("placeholder", (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString()));
     document.getElementById("darkModeFinish").setAttribute("placeholder", (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString()));
@@ -359,6 +376,22 @@
                     clearInterval(checking);
                 } else if (data === "Already Synced!") {
                     clearInterval(checking);
+                    if (user.alerts.lastUpdated !== "never") {
+                        if (user.alerts.showChangelog !== "never") {
+                            if (user.alerts.changelogLastShown === "never" || user.alerts.showChangelog === "always") {
+                                $("#changelogMessage").show();
+                                showCard("#settingsCardDisplay");
+                                openTab(4);
+                            } else {
+                                let daysSinceShown = Math.floor((Date.now() - user.alerts.changelogLastShown) / (1000 * 3600 * 24));
+                                if (user.alerts.showChangelog === "daily" && daysSinceShown >= 1 || user.alerts.showChangelog === "weekly" && daysSinceShown >= 7) {
+                                    $("#changelogMessage").show();
+                                    showCard("#settingsCardDisplay");
+                                    openTab(4);
+                                }
+                            }
+                        }
+                    }
                 } else if (data === "Did not sync") {
                     $("#backgroundRefreshMessage").show();
                     $("#weightmsg-1").hide();

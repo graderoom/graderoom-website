@@ -9,7 +9,16 @@
 
 ## [Known Issues] - Working on it
 - Chart sometimes renders in wrong theme after theme change
-- No way to stop Changelog from showing up every refresh
+
+## [Beta 1.0.2.4] - 2020-02-28
+### Added
+- Changelog message to help user understand how to disable changelog
+
+### Improved
+- Changelog defaults to showing once a day (can be changed in settings)
+
+### Fixed
+- Alert settings correctly show saved settings
 
 ## [Beta 1.0.2.3] - 2020-02-28
 ### Added

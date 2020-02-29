@@ -73,11 +73,19 @@ module.exports = {
         }
 
         // Fix theme for old users
-        if (user.value().appearance.darkMode) {
+        if (Object.keys(user.value().appearance).includes("darkMode")) {
             user.get("appearance").unset("darkMode").write();
             user.value().appearance.theme = "auto";
             user.value().appearance.darkModeStart = 18;
             user.value().appearance.darkModeFinish = 7;
+        }
+
+        // Add show changelog variables for old users
+        if (!Object.keys(user.value().alerts).includes("showChangelog")) {
+            user.value().alerts.showChangelog = "daily";
+        }
+        if (!Object.keys(user.value().alerts).includes("changelogLastShown")) {
+            user.value().alerts.changelogLastShown = "never";
         }
     }
 
@@ -118,7 +126,10 @@ module.exports = {
                                              theme: "auto", accentColor: null, classColors: []
                                          },
                                          alerts: {
-                                             lastUpdated: "never", updateGradesReminder: "daily"
+                                             lastUpdated: "never",
+                                             updateGradesReminder: "daily",
+                                             changelogLastShown: "never",
+                                             showChangelog: "daily"
                                          },
                                          weights: {},
                                          grades: []
@@ -229,14 +240,28 @@ module.exports = {
             message = "Dark theme enabled from " + darkModeStart + " " + darkModeStartAmPm + " to " + darkModeFinish + " " + darkModeFinishAmPm + ".";
         }
         return {success: true, message: message};
-    }, setUpdateGradesReminder: function (username, updateGradesReminder) {
+    }, updateAlerts: function (username, updateGradesReminder, showChangelog) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username}).value();
         user.alerts.updateGradesReminder = updateGradesReminder;
-        if (updateGradesReminder.toLowerCase() === "never") {
-            return {success: true, message: "Grade update alerts disabled."};
+        user.alerts.showChangelog = showChangelog;
+        let message = "";
+        if (showChangelog.toLowerCase() === "never") {
+            message = " Changelog will never be shown.";
+        } else {
+            message = " Changelog will be shown " + showChangelog.toLowerCase() + ".";
         }
-        return {success: true, message: updateGradesReminder + " grade update alerts enabled!"};
+        if (updateGradesReminder.toLowerCase() === "never") {
+            return {success: true, message: "Grade update alerts disabled." + message};
+        }
+        return {
+            success: true,
+            message: updateGradesReminder.charAt(0).toUpperCase() + updateGradesReminder.substring(1) + " grade update alerts enabled!" + message
+        };
+    }, changelogSeen: function (username) {
+        let lc_username = username.toLowerCase();
+        let user = db.get("users").find({username: lc_username}).value();
+        user.alerts.changelogLastShown = Date.now();
     }, getUser: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username}).value();

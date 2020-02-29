@@ -212,21 +212,44 @@
                             </div>
                             <form id="changeAlertSettings" class="form-signin" action="/changealertsettings"
                                   method="post">
-                                <div class="form-group">
+                                <div class="form-group" style="margin: 0">
                                     <label>Grade Update Reminder:</label> <select style="float: right" class="dropdown"
                                                                                   name="updateGradesReminder">
-                                        <option value="Daily"
-                                        <% if (user.alerts.updateGradesReminder == 'Daily') { %> selected
+                                        <option value="daily"
+                                        <% if (user.alerts.updateGradesReminder == 'daily') { %> selected
                                                 <% } %>
                                         >Daily
                                         </option>
-                                        <option value="Weekly"
-                                        <% if (user.alerts.updateGradesReminder == 'Weekly') { %> selected
+                                        <option value="weekly"
+                                        <% if (user.alerts.updateGradesReminder == 'weekly') { %> selected
                                                 <% } %>
                                         >Weekly
                                         </option>
-                                        <option value="Never"
-                                        <% if (user.alerts.updateGradesReminder == 'Never') { %> selected
+                                        <option value="never"
+                                        <% if (user.alerts.updateGradesReminder == 'never') { %> selected
+                                                <% } %>
+                                        >Never
+                                        </option>
+                                    </select>
+                                    <br>
+                                    <label>Show Changelog:</label> <select style="float: right" class="dropdown"
+                                                                           name="showChangelog">
+                                        <option value="always"
+                                        <% if (user.alerts.showChangelog == 'always') { %> selected
+                                                <% } %>
+                                        >Always
+                                        <option value="daily"
+                                        <% if (user.alerts.showChangelog == 'daily') { %> selected
+                                                <% } %>
+                                        >Daily
+                                        </option>
+                                        <option value="weekly"
+                                        <% if (user.alerts.showChangelog == 'weekly') { %> selected
+                                                <% } %>
+                                        >Weekly
+                                        </option>
+                                        <option value="never"
+                                        <% if (user.alerts.showChangelog == 'never') { %> selected
                                                 <% } %>
                                         >Never
                                         </option>
@@ -275,6 +298,14 @@
                 </div>
                 <div id="settings-4" class="tabcontent">
                     <div class="card-body">
+                        <div id="changelogMessage"
+                             class="alert alert alert-info alert-dismissible font-weight-bold"
+                             style="display:none">
+                            <div class="messageTxt">Don't want to see this? Change your <u style="cursor: pointer"
+                                                                                           onclick="openTab(3)">settings</u>
+                            </div>
+                            <a class="close" onclick="closeMessage('changelogMessage')" aria-label="close">X</a>
+                        </div>
                         <div class="card-footer">
                             <div id="changelog-container"></div>
                         </div>
@@ -351,6 +382,11 @@
         document.getElementById(tabName).style.display = "block";
         document.getElementById("btn-" + tabIndex).classList.add("active");
         currentTab = tabIndex;
+        if (currentTab === 4) {
+            $.ajax({
+                       url: "/changelogseen", type: "post", async: true
+                   });
+        }
     }
 
     function closeMessage(id) {

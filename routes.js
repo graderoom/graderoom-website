@@ -294,12 +294,17 @@ module.exports = function (app, passport) {
     });
 
     app.post("/changealertsettings", [isLoggedIn], (req, res) => {
-        let resp = authenticator.setUpdateGradesReminder(req.user.username, req.body.updateGradesReminder);
+        let resp = authenticator.updateAlerts(req.user.username, req.body.updateGradesReminder, req.body.showChangelog);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
             res.status(400).send(resp.message);
         }
+    });
+
+    app.post("/changelogseen", [isLoggedIn], (req, res) => {
+        authenticator.changelogSeen(req.user.username);
+        res.sendStatus(200);
     });
 
     app.post("/randomizeclasscolors", [isLoggedIn], (req, res) => {
