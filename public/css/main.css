@@ -487,8 +487,7 @@ table thead tr th:last-child {
 }
 
 #changelog-container .changelog-item {
-    padding-top: 0.1rem;
-    padding-bottom: 2rem;
+    padding: 0.1rem 0.5rem 2rem 0.5rem;
     border-top: solid;
 }
 
