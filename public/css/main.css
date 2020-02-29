@@ -49,6 +49,10 @@
     }
 }
 
+body {
+    padding-bottom: 10rem;
+}
+
 hr {
     height: 1px;
 }
@@ -458,6 +462,87 @@ table thead tr th:last-child {
 
 .tablinks {
     cursor: pointer;
+}
+
+.no-scroll {
+    position: fixed;
+    width: 100%;
+    overflow: hidden;
+}
+
+#changelog-container {
+    height: 25rem;
+    overflow-y: scroll;
+}
+
+#changelog-container .changelog-item {
+    padding-top: 0.1rem;
+    padding-bottom: 2rem;
+    border-top: solid;
+}
+
+#changelog-container .changelog-item:first-child {
+    border-top: none;
+}
+
+#changelog-container .changelog-item:first-child .content {
+    padding-top: 1rem;
+}
+
+#changelog-container .date {
+    vertical-align: top;
+    border-radius: 50%;
+    opacity: .5;
+}
+
+#changelog-container .content {
+    font-family: "JetBrains Mono", monospace;
+    display: inline-block;
+    width: 75%;
+}
+
+#changelog-container .header {
+    width: 25%;
+    display: inline-block;
+    vertical-align: top;
+}
+
+#changelog-container .title {
+    width: fit-content;
+    margin: 0;
+    font-size: 1.2rem;
+    font-style: oblique;
+}
+
+#changelog-container .type {
+    display: inline-block;
+    font-weight: bold;
+    padding: 0.1rem 0.5rem 0.1rem 0.5rem;
+    margin: 0.9rem 0 0.1rem 1rem;
+    border-radius: 1rem;
+}
+
+#changelog-container .added {
+    background-color: #1C9BDD;
+}
+
+#changelog-container .improved {
+    background-color: #2CB967;
+}
+
+#changelog-container .fixed {
+    background-color: #FFB400;
+}
+
+#changelog-container .removed {
+    background-color: #DD671C;
+}
+
+#changelog-container .body {
+    margin: 0 0 0 2rem;
+    padding: 0;
+    display: list-item;
+    font-size: 0.9rem;
 }
 
 #weightsCard h5 {

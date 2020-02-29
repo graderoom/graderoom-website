@@ -173,6 +173,10 @@ table thead tr th {
     background-color: #FFFFFF;
 }
 
+#changelog-container .type {
+    color: #EEEEEE;
+}
+
 #weightsCard input {
     border-color: lightcoral;
 }
