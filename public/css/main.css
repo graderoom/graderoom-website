@@ -471,7 +471,7 @@ table thead tr th:last-child {
 }
 
 #changelog-container {
-    height: 25rem;
+    height: 22.5rem;
     overflow-y: scroll;
 }
 
