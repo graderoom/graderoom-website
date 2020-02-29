@@ -173,6 +173,10 @@ table thead tr th {
     background-color: #FFFFFF;
 }
 
+#changelog-container .current {
+     background-color: rgba(0, 255, 0, 0.1);
+ }
+
 #changelog-container .type {
     color: #EEEEEE;
 }

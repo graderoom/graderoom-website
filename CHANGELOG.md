@@ -11,6 +11,10 @@
 - Chart sometimes renders in wrong theme after theme change
 - No way to stop Changelog from showing up every refresh
 
+## [Beta 1.0.2.3] - 2020-02-28
+### Added
+- Current version highlighted in green
+
 ## [Beta 1.0.2.2] - 2020-02-28
 ### Added
 - Changelog displays on login

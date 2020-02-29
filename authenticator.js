@@ -472,8 +472,19 @@ module.exports = {
             }
         }).on("close", function () {
             items.push(item);
+            let currentVersionFound = false;
             for (let i = 0; i < items.length; i++) {
-                resultHTML += "<div class=\"changelog-item\">";
+                resultHTML += "<div class=\"changelog-item";
+                if (!currentVersionFound) {
+                    if ((beta && (items[i].title.substring(0, 4) === "Beta")) || (!beta && (items[i].title.substring(0, 6) === "Stable"))) {
+                        resultHTML += " current\">";
+                        currentVersionFound = true;
+                    } else {
+                        resultHTML += "\">";
+                    }
+                } else {
+                    resultHTML += "\">";
+                }
                 resultHTML += "<div class=\"header\">";
                 resultHTML += "<div class=\"title\">" + items[i].title + "</div>";
                 resultHTML += "<div class=\"date\">" + items[i].date + "</div>";
