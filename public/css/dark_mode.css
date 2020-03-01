@@ -105,7 +105,7 @@ th {
 }
 
 .form-group .lock-bg {
-    background: url(/public/resources/dark_mode/lock.png)  no-repeat left/22px 27px !important;
+    background: url(/public/resources/dark_mode/lock.png) no-repeat left/22px 27px !important;
 }
 
 .form-group .key-bg {

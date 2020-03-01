@@ -1,21 +1,20 @@
 <!-- Settings Card -->
-<div class="container">
-    <div class="blurred-login" id="updateWeightsDisplay"
-         style="position:fixed; display:none; height: 100vh; width: 100%; top: 0; left: 0; z-index: 1">
-        <div class="blurred-background"></div>
-        <div class="col-sm-10 col-md-8 col-lg-8 col-xl-7 mx-auto">
-            <div id="weightsCard" class="card card-signin my-5" style="max-height:90%; overflow:scroll;">
-                <btn class="btn btn-md" onclick="closeForm('updateWeightsDisplay')"
-                     style="width: fit-content; margin-bottom:0">
-                    <i class="fa fa-arrow-left" aria-hidden="true"></i> Back
-                </btn>
-                <div class="card-body" style="padding-top: 1em; padding-bottom: 1em;">
-                    <div id="edited" style="display:none"></div>
-                    <h1 class="card-title text-center"><span class="fa fa-pencil"></span> Update Weights</h1>
-                    <span class="accordion" id="accordionForms">
-                        <% for (var i = 0; i < JSON.parse(gradeData).length; i++) {
-                            let grade = JSON.parse(gradeData)[i]; %>
-                        <form id="weights<%= i %>" class="form-ajax form-weights form-signin" action="/updateweights">
+<div class="blurred-login" id="updateWeightsDisplay"
+     style="position:fixed; display:none; height: 100vh; width: 100%; top: 0; left: 0; z-index: 1">
+    <div class="blurred-background"></div>
+    <div class="col-sm-10 col-md-8 col-lg-8 col-xl-7 mx-auto">
+        <div id="weightsCard" class="card card-signin my-5" style="max-height:90%; overflow:scroll;">
+            <btn class="btn btn-md" onclick="closeForm('updateWeightsDisplay')"
+                 style="width: fit-content; margin-bottom:0">
+                <i class="fa fa-close" aria-hidden="true"></i> Close
+            </btn>
+            <div class="card-body" style="padding-top: 1em; padding-bottom: 1em;">
+                <div id="edited" style="display:none"></div>
+                <h1 class="card-title text-center"><span class="fa fa-pencil"></span> Update Weights</h1>
+                <span class="accordion" id="accordionForms">
+                    <% for (var i = 0; i < JSON.parse(gradeData).length; i++) {
+                        let grade = JSON.parse(gradeData)[i]; %>
+                    <form id="weights<%= i %>" class="form-ajax form-weights form-signin" action="/updateweights">
                             <className style="display:none"><%= grade.class_name %></className>
                             <label class="collapsed" data-toggle="collapse" href="#collapse<%= i %>"
                                    style="display: flex; margin: 0; cursor: pointer">
@@ -61,9 +60,8 @@
                                 </div>
                             </span>
                         </form>
-                        <% } %>
-                    </span>
-                </div>
+                    <% } %>
+                </span>
             </div>
         </div>
     </div>
@@ -86,9 +84,19 @@
             defaultId = 0;
             if (!(Object.keys(unobtainedWeights).length === 0)) {
                 let classNameToOpen = Object.keys(unobtainedWeights)[0];
-                for (let i = 0; i < data.length; i++) if (data[i].class_name === classNameToOpen) defaultId = i;
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i].class_name === classNameToOpen) {
+                        defaultId = i;
+                    }
+                }
             }
         }
+        cardsDisplayed.push("updateWeightsDisplay");
+        $(".blurred-background").each(function () {
+            if (cardsDisplayed.includes($($(this).parent())[0].id)) {
+                $(this).parent().css("z-index", cardsDisplayed.indexOf($($(this).parent())[0].id) + 2);
+            }
+        });
         $("#updateWeightsDisplay").show();
         if ($("form.form-weights").length > 0) {
             $("form.form-weights").each(function () {
@@ -146,7 +154,7 @@
                                     $(this).removeClass("text-view");
                                 }
                             });
-                            let id = parseInt($(form).attr('id').replace(/\D/g, ''));
+                            let id = parseInt($(form).attr("id").replace(/\D/g, ""));
                             $(form).find("label").each(function () {
                                 if ($(this)[0].nextElementSibling.value) {
                                     $(this).css("color", user.appearance.classColors[id]);
