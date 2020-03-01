@@ -98,7 +98,7 @@ table thead tr th {
 }
 
 .form-group .lock-bg {
-    background: url(/public/resources/light_mode/lock.png)  no-repeat left/22px 27px !important;
+    background: url(/public/resources/light_mode/lock.png) no-repeat left/22px 27px !important;
 }
 
 .form-group .key-bg {
@@ -174,8 +174,9 @@ table thead tr th {
 }
 
 #changelog-container .current {
-     background-color: rgba(0, 255, 0, 0.1);
- }
+    background-color: rgba(0, 255, 0, 0.1);
+
+}
 
 #changelog-container .type {
     color: #EEEEEE;

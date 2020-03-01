@@ -468,10 +468,11 @@ table thead tr th:last-child {
     position: fixed;
     width: 100%;
     overflow: hidden;
+    padding-bottom: 0;
 }
 
 #changelog-container {
-    height: 22.5rem;
+    height: 30rem;
     overflow-y: scroll;
 }
 

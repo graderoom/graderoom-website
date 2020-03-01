@@ -50,16 +50,16 @@
                     <i class="fa fa-cog" aria-hidden="true"></i> Settings
                 </btn>
             </li>
-            <li class="nav-item active">
-                <a onclick="window.localStorage.setItem('currentPage','')" href="/logout" class="btn btn-med"> <i
-                            class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
-            </li>
+                <li class="nav-item active">
+                    <a onclick="window.localStorage.setItem('currentPage','')" href="/logout" class="btn btn-med"> <i
+                                class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
+                </li>
         </ul>
     </div>
 </nav>
 
 <!-- Cards -->
-<% include settings_card.ejs %> <% include sync_grades_card.ejs %>
+<% include settings_card.ejs %> <% include sync_grades_card.ejs %> <% include edit_weights_card.ejs %> <% include changelog.ejs %>
 
 <!-- Custom JavaScript -->
 <script>
@@ -165,6 +165,10 @@
                             $("#autoLimits").hide();
                             $($(form)[0].elements[7]).hide();
                             $($(form)[0].elements[0]).prop("checked", true);
+                            $("#autoLimits")[0].children[1].value = (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString());
+                            $("#autoLimits")[0].children[2].selectedIndex = (darkModeStart < 12 ? 1 : 0);
+                            $("#autoLimits")[0].children[4].value = (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString());
+                            $("#autoLimits")[0].children[5].selectedIndex = (darkModeFinish === 24 ? 0 : darkModeFinish > 12 ? 1 : 0);
                             document.getElementsByName("theme")[0].setAttribute("checked", "checked");
                             let oldDarkMode = darkMode;
                             darkMode = false;
@@ -284,11 +288,20 @@
     }
 
     function showCard(id) {
+        cardsDisplayed.push(id.substring(1));
+        $(".blurred-background").each(function () {
+            if (cardsDisplayed.includes($($(this).parent())[0].id)) {
+                $(this).parent().css("z-index", cardsDisplayed.indexOf($($(this).parent())[0].id) + 2);
+            }
+        });
         $(id).show();
         disableScrolling();
     }
 
     function closeForm(id) {
+        if (cardsDisplayed.includes(id)) {
+            cardsDisplayed.splice(cardsDisplayed.indexOf(id), 1);
+        }
         let form = document.getElementById(id);
         form.style.display = "none";
         if (id === "updateGradesDisplay" && document.getElementById("synced").textContent === "Synced") {
@@ -306,6 +319,9 @@
             for (let i = 0; i < inputFields.length; i++) {
                 inputFields[i].value = "";
             }
+            closeMessage("accountSettingsMessage");
+            closeMessage("alertSettingsMessage");
+            closeMessage("themeMessage");
             enableScrolling();
         }
 
@@ -346,7 +362,7 @@
     }
 
     // Collapse navbar or card when click outside
-    $(document).click(function (e) {
+    $(document).mousedown(function (e) {
         //Auto hide for any card with blurred-login
         if ($(e.target).closest(".blurred-login").length) {
             if (!$(e.target).closest(".card").length) {
@@ -358,16 +374,14 @@
         }
     });
     // Collapse navbar or card when press escape
-    $(document).keyup(function (e) {
+    $(document).keydown(function (e) {
         if (e.key === "Escape") { // escape key maps to keycode `27`
             try {
                 $(".navbar-collapse").collapse("hide");
                 closeForm("toggle");
             } catch (e) {
             }
-            closeForm("updateGradesDisplay");
-            closeForm("settingsCardDisplay");
-            closeForm("updateWeightsDisplay");
+            closeForm(cardsDisplayed[cardsDisplayed.length - 1]);
         }
     });
 </script>
