@@ -2,7 +2,8 @@
 <nav class="navbar navbar-dark navbar-expand-lg justify-content-center">
     <span class="d-flex w-50 mr-auto">
         <a href="/" class="navbar-brand">
-            <h1> <img src="/public/resources/dark_mode/logo.png" style="width: 3rem" class="d-inline-block logo" alt=""> Graderoom </h1>
+            <h1><img src="/public/resources/dark_mode/logo.png" style="width: 3rem" class="d-inline-block logo" alt="">
+                Graderoom </h1>
         </a>
     </span>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNav"
@@ -45,11 +46,11 @@
                     </a>
                 </li>
             <% } %>
-            <li id="settings" class="nav-item">
-                <btn class="btn btn-med" onclick="showCard('#settingsCardDisplay')">
-                    <i class="fa fa-cog" aria-hidden="true"></i> Settings
-                </btn>
-            </li>
+                <li id="settings" class="nav-item">
+                    <btn class="btn btn-med" onclick="showCard('#settingsCardDisplay')">
+                        <i class="fa fa-cog" aria-hidden="true"></i> Settings
+                    </btn>
+                </li>
                 <li class="nav-item active">
                     <a onclick="window.localStorage.setItem('currentPage','')" href="/logout" class="btn btn-med"> <i
                                 class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
@@ -162,13 +163,14 @@
                                 renderAllCharts();
                             }
                         } else if (response === "Light theme enabled!") {
-                            $("#autoLimits").hide();
+                            let autoLimits = $("#autoLimits");
+                            autoLimits.hide();
                             $($(form)[0].elements[7]).hide();
                             $($(form)[0].elements[0]).prop("checked", true);
-                            $("#autoLimits")[0].children[1].value = (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString());
-                            $("#autoLimits")[0].children[2].selectedIndex = (darkModeStart < 12 ? 1 : 0);
-                            $("#autoLimits")[0].children[4].value = (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString());
-                            $("#autoLimits")[0].children[5].selectedIndex = (darkModeFinish === 24 ? 0 : darkModeFinish > 12 ? 1 : 0);
+                            autoLimits[0].children[1].value = (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString());
+                            autoLimits[0].children[2].selectedIndex = (darkModeStart < 12 ? 1 : 0);
+                            autoLimits[0].children[4].value = (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString());
+                            autoLimits[0].children[5].selectedIndex = (darkModeFinish === 24 ? 0 : darkModeFinish > 12 ? 1 : 0);
                             document.getElementsByName("theme")[0].setAttribute("checked", "checked");
                             let oldDarkMode = darkMode;
                             darkMode = false;
@@ -302,19 +304,30 @@
         if (cardsDisplayed.includes(id)) {
             cardsDisplayed.splice(cardsDisplayed.indexOf(id), 1);
         }
-        let form = document.getElementById(id);
-        form.style.display = "none";
         if (id === "updateGradesDisplay" && document.getElementById("synced").textContent === "Synced") {
             window.reload();
         } else if (id === "updateWeightsDisplay") {
             if (document.getElementById("edited").textContent === "Edited") {
                 window.reload();
             } else {
+                let form = document.getElementById(id);
+                form.style.display = "none";
                 enableScrolling();
             }
         } else if (id === "settingsCardDisplay" && document.getElementById("reloadNeeded").textContent === "Reload Needed") {
             window.reload();
         } else {
+            let form = document.getElementById(id);
+            if (id === "changelogDisplay") {
+                let changelogContainer = $("#changelog-container");
+                changelogContainer.animate({
+                                               scrollTop: $(".changelog-item:first").offset().top - changelogContainer.offset().top
+                                           }, 0, function () {
+                    form.style.display = "none";
+                });
+            } else {
+                form.style.display = "none";
+            }
             let inputFields = form.getElementsByClassName("form-control");
             for (let i = 0; i < inputFields.length; i++) {
                 inputFields[i].value = "";

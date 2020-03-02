@@ -200,9 +200,11 @@
             </div>
             <div id="settings-3" class="tabcontent" style="display:none">
                 <div class="card-body">
-                    <btn class="btn btn-sm" style="margin: 0; float: right">
-                        <span class="fa fa-external-link-square"
-                              onclick="showChangelog(); $('#changelogMessage').hide()"> Open Changelog</span>
+                    <btn class="btn btn-sm" style="margin: 0.1rem; float: right"
+                         onclick="showChangelog(); $('#changelogMessage').hide()">
+                        <label style="margin: 0; display: inline-block; cursor: pointer;">Changelog
+                            <span class="fa fa-external-link-square"></span>
+                        </label>
                     </btn>
                     <div class="card-footer">
                         <h5>Alerts</h5>
@@ -283,9 +285,10 @@
                                             <% } %>
                                     > Auto-Refresh
                                     <i class="fa fa-info-circle popup">
-                                                <span class="popuptext">
-                                                    After GradeSync is complete, Graderoom will refresh automatically to display the most recent data.
-                                                </span>
+                                        <span class="popuptext">
+                                            After GradeSync is complete, Graderoom will refresh automatically to display
+                                            the most recent data.
+                                        </span>
                                     </i>
                                 </label>
                                 <div class="text-center">
