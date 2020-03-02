@@ -11,6 +11,15 @@
 - Support for point-based classes
 - More theming options
 
+## [Beta 1.0.1.7] - 2020-03-01
+### Added
+- Changelog display initially scrolls to current version with a nice animation
+- Added 'current version' buttons when changelog is scrolled
+
+### Improved
+- Better changelog UI
+- Changed keyboard shortcut for changelog to 'Q'
+
 ## [Beta 1.0.1.6] - 2020-02-29
 ### Added
 - Separate changelog card to reduce clutter in settings
@@ -20,7 +29,7 @@
 ### Improved
 - Changelog updates whenever it is opened
 - Increased viewable space on changelog
-- Changed close button text to more closely reflect their purpose
+- Changed close buttons to more closely reflect their purpose
 
 ### Fixed
 - Auto theme would not be selectable in some cases without refresh

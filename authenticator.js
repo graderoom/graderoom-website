@@ -245,19 +245,7 @@ module.exports = {
         let user = db.get("users").find({username: lc_username}).value();
         user.alerts.updateGradesReminder = updateGradesReminder;
         user.alerts.showChangelog = showChangelog;
-        let message = "";
-        if (showChangelog.toLowerCase() === "never") {
-            message = " Changelog will never be shown.";
-        } else {
-            message = " Changelog will be shown " + showChangelog.toLowerCase() + ".";
-        }
-        if (updateGradesReminder.toLowerCase() === "never") {
-            return {success: true, message: "Grade update alerts disabled." + message};
-        }
-        return {
-            success: true,
-            message: updateGradesReminder.charAt(0).toUpperCase() + updateGradesReminder.substring(1) + " grade update alerts enabled!" + message
-        };
+        return {success: true, message: "Alert settings saved!"};
     }, changelogSeen: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username}).value();
