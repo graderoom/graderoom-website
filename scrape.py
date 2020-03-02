@@ -5,6 +5,16 @@ from bs4 import BeautifulSoup as BS
 
 
 def json_format(success, message_or_grades):
+    """Returns a message for errors or grade data in JSON format
+
+    Args:
+        success: boolean if scraping was successful
+        message_or_grades: response or grade data
+
+    Returns:
+        A JSON formatted object containing the response
+    """
+
     if success:
         return json.dumps({'success': True, 'grades': message_or_grades})
 
@@ -12,35 +22,47 @@ def json_format(success, message_or_grades):
 
 
 class ClassGrade:
+    """Contains information and assignments for a PowerSchool class
+    
+    One ClassGrade object is needed for every PowerSchool class scraped
+    from the site. It contains all the information necessary to
+    redisplay a user's grade for a PowerSchool class, such as names,
+    overall grades, and assignments. Each assignment also has necessary
+    attributes.
+
+    Attributes:
+        class_name: string
+        teacher_name: string
+        overall_percent: float
+        overall_letter: string
+        grades: list of dictionaries of individual assignments
+    """
+
     def __init__(self, class_name, teacher_name, overall_percent, overall_letter):
+        """Inits ClassGrade with PowerSchool class information"""
         self.class_name = class_name
         self.teacher_name = teacher_name
-        self.overall_letter = overall_letter
         self.overall_percent = overall_percent
+        self.overall_letter = overall_letter
         self.grades = []
 
     def add_grade(self, assignment_name, date, grade_percent, points_gotten, points_possible, category, exclude):
-        # todo add a case for no grade yet?
-
+        """Adds an assignment with its attributes to grades"""
+        # TODO: Add functionality to add assignment without a grade
         new_grade = {
-            'assignment_name': assignment_name,  # string
-            'date': date,  # string
-            'category': category,  # string
-            'grade_percent': grade_percent,  # double
-            'points_gotten': points_gotten,  # double
-            'points_possible': points_possible,  # double
-            'exclude': exclude  # boolean
+            'assignment_name': assignment_name, # String
+            'date': date, # String
+            'category': category, # String
+            'grade_percent': grade_percent, # Double
+            'points_gotten': points_gotten, # Double
+            'points_possible': points_possible, # Double
+            'exclude': exclude # Boolean
         }
 
         self.grades.append(new_grade)
 
-    def __str__(self):
-        ret = "--------------------" + "\nGrade Object:\n" + "Course Name: " + self.class_name + "\nTeacher: " + \
-              self.teacher_name + "\nOverall Grade: " + self.overall_letter + " " + str(self.overall_percent) + \
-              "\nAssignments:"
-        return ret  # TODO add assignments nicely
-
-    def as_dict(self):  # TODO this might just be the same as attrs
+    def as_dict(self):
+        """Returns ClassGrade object as a formatted dictionary"""
         return {
             'class_name': self.class_name,
             'teacher_name': self.teacher_name,
@@ -60,7 +82,7 @@ class PowerschoolScraper:
 
         # Authenticates via SAML; see https://developers.onelogin.com/saml
 
-        # for logging in
+        # Various headers required for logging in
         headers_1 = {
             'Content-Type': 'application/x-www-form-urlencoded',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
@@ -78,7 +100,6 @@ class PowerschoolScraper:
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36'
         }
 
-        # for logging in part 2
         headers_2 = {
             'Content-Type': 'application/x-www-form-urlencoded',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
@@ -96,7 +117,6 @@ class PowerschoolScraper:
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36'
         }
 
-        # for logging in part 3
         headers_3 = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
             'Accept-Encoding': 'gzip, deflate, br',
@@ -114,9 +134,8 @@ class PowerschoolScraper:
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36'
 
         }
-        # for logging in part 4
-        sso_ping_no_two_headers = {
 
+        sso_ping_no_two_headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
             'Accept-Encoding': 'gzip, deflate, br',
             'Accept-Language': 'en-US,en;q=0.9',
@@ -323,8 +342,10 @@ if __name__ == "__main__":
     try:
         user = sys.argv[1]
         password = sys.argv[2]
+        ### DEBUG ###
         # user = ""
         # password = ""
+        ### DEBUG ###
         ps = PowerschoolScraper(user, password)
         ps.login_and_get_all_class_grades_and_print_resp()
     except Exception:
