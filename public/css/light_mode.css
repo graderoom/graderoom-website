@@ -84,6 +84,16 @@ table thead tr th {
     background-color: #FFFFFF;
 }
 
+.changelog {
+    background-color: #FFFFFF;
+}
+
+.changelog-item {
+    margin-top: 1rem;
+    border-radius: 1rem;
+    background-color: #EEEEEE;
+}
+
 .form-group input {
     color: black;
 }
@@ -144,6 +154,11 @@ table thead tr th {
 
 .school-username {
     color: #444444
+}
+
+.scroll-to {
+    background: #FFFFFF;
+    filter: opacity(0.9);
 }
 
 .sk-chase-dot:before {
