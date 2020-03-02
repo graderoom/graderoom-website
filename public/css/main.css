@@ -60,7 +60,6 @@ hr {
 html {
     overflow: scroll;
     overflow-x: hidden;
-    scrollbar-width: none;
     -ms-overflow-style: none;
 }
 
@@ -69,12 +68,12 @@ nav {
 }
 
 nav h1 {
-    font-family: "Montserrat";
+    font-family: "Montserrat", sans-serif;
     margin-bottom: 0;
 }
 
 nav h5 {
-    font-family: "Montserrat";
+    font-family: "Montserrat", sans-serif;
     margin-bottom: 0;
     font-size: 1.5rem;
     padding: .375rem .75rem;
@@ -163,11 +162,11 @@ table thead tr th:last-child {
 }
 
 .card h1 {
-    font-family: "Montserrat";
+    font-family: "Montserrat", sans-serif;
 }
 
 .card label {
-    font-family: "Montserrat";
+    font-family: "Montserrat", sans-serif;
 }
 
 .card::-webkit-scrollbar {
@@ -201,12 +200,24 @@ table thead tr th:last-child {
     padding: 1rem 1rem 0 1rem;
 }
 
+.changelog {
+    padding: 0;
+    border: none;
+}
+
 .collapsed:hover {
-    text: bold;
+    font-weight: bold;
+}
+
+.down {
+    bottom: 0;
+    left: 50%;
+    margin: 0 0 0 -5rem;
+    border-radius: 0.5rem 0.5rem 0 0;
 }
 
 .dropdown {
-    text: bold;
+    font-weight: bold;
     margin-left: 20px;
     width: fit-content;
     border-radius: 1em;
@@ -276,6 +287,13 @@ table thead tr th:last-child {
     width: inherit;
 }
 
+.no-scroll {
+    position: fixed;
+    width: 100%;
+    overflow: hidden;
+    padding-bottom: 0;
+}
+
 .number-input {
     width: 5rem;
 }
@@ -297,8 +315,7 @@ table thead tr th:last-child {
 }
 
 .popup .popuptext {
-    font-family: "Montserrat";
-    font-displat: swap;
+    font-family: "Montserrat", sans-serif;
     visibility: hidden;
     width: 180px;
     height: fit-content;
@@ -327,6 +344,21 @@ table thead tr th:last-child {
     visibility: visible;
     -webkit-animation: fadeIn 1s;
     animation: fadeIn 1s;
+}
+
+.scroll-to {
+    position: absolute;
+    padding: 0 0.5rem 0.2rem 0.5rem;
+    z-index: 999;
+    height: 1.75rem;
+    width: 10rem;
+    text-align: center;
+    cursor: pointer;
+    transition: filter 500ms;
+}
+
+.scroll-to:hover {
+    filter: opacity(1);
 }
 
 .sk-chase {
@@ -464,14 +496,14 @@ table thead tr th:last-child {
     cursor: pointer;
 }
 
-.no-scroll {
-    position: fixed;
-    width: 100%;
-    overflow: hidden;
-    padding-bottom: 0;
+.up {
+    left: 50%;
+    margin: 0 0 0 -5rem;
+    border-radius: 0 0 0.5rem 0.5rem;
 }
 
 #changelog-container {
+    position: relative;
     height: 30rem;
     overflow-y: scroll;
 }
@@ -489,11 +521,6 @@ table thead tr th:last-child {
 
 #changelog-container .changelog-item {
     padding: 0.1rem 0.5rem 2rem 0.5rem;
-    border-top: solid;
-}
-
-#changelog-container .changelog-item:first-child {
-    border-top: none;
 }
 
 #changelog-container .changelog-item:first-child .content, #changelog-container .changelog-item:nth-child(2) .content {
@@ -546,7 +573,7 @@ table thead tr th:last-child {
 }
 
 #weightsCard h5 {
-    font-family: "Montserrat";
+    font-family: "Montserrat", sans-serif;
     font-size: 1.1rem;
     font-weight: 400;
     padding-top: 8px;

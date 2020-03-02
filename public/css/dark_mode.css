@@ -72,6 +72,16 @@ th {
     background-color: #777777;
 }
 
+.changelog {
+    background-color: #333333;
+}
+
+.changelog-item {
+    margin-top: 1rem;
+    border-radius: 1rem;
+    background-color: #222222;
+}
+
 .form-group input {
     color: white;
 }
@@ -140,6 +150,11 @@ th {
 
 .school-username {
     color: #BBBBBB
+}
+
+.scroll-to {
+    background: #000000;
+    filter: opacity(0.7);
 }
 
 .sk-chase-dot:before {
