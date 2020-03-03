@@ -508,7 +508,7 @@ table thead tr th:last-child {
 
 #changelog-container {
     position: relative;
-    height: 30rem;
+    height: 32rem;
     overflow-y: scroll;
 }
 
@@ -517,7 +517,7 @@ table thead tr th:last-child {
 }
 
 #changelog-container .announcement .content {
-    padding-top: 1rem;
+    padding-top: 1.75rem;
     font-weight: bold;
 }
 
@@ -534,7 +534,7 @@ table thead tr th:last-child {
 
 #changelog-container .changelog-item:first-child .content,
 #changelog-container .changelog-item:nth-child(2) .content {
-    padding-top: 1rem;
+    padding-top: 1.75rem;
 }
 
 #changelog-container .content {
