@@ -56,7 +56,11 @@
             changelogContainer.animate({scrollTop: 0}, 0);
             scrollOffsetAnnouncement = $(".announcement").offset().top - changelogContainer.offset().top;
             scrollOffsetCurrent = $(".current").offset().top - changelogContainer.offset().top;
-            scrollToCurrentAnnouncement();
+            if (scrollOffsetCurrent < scrollOffsetAnnouncement) {
+                scrollToCurrentVersion();
+            } else {
+                scrollToCurrentAnnouncement();
+            }
         });
         $.ajax({
                    url: "/changelogseen", type: "post", async: true
