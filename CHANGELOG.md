@@ -43,11 +43,9 @@
 - Unfortunately, all user accounts created after January 7, 2020 were lost
 - Passwords and personal user data, however, were not compromised
 - If your account still exists, you will be asked to sync your grades with PowerSchool to recover your data
-- You may have to reenter some of your weights and re-enable GradeSync
 - Please inform anyone affected by this issue to create a new account
 - The Graderoom Team apologizes for the great inconvenience this has caused and has taken strict measures to prevent a similar event from occurring again
 - If you were part of the beta testing team, request another beta key by emailing graderoom@gmail.com or asking a developer directly
-- Thank you for using this service
 
 ## [Beta 1.0.1.8] - 2020-03-02
 ### Added
