@@ -914,7 +914,9 @@
                     }
                 }
             } else if (cardsDisplayed.includes("updateGradesDisplay")) {
-                showCard("#settingsCardDisplay");
+                if (!($("#gradeSyncInputUserPassword").is(":focus"))) {
+                    showCard("#settingsCardDisplay");
+                }
             } else if (cardsDisplayed.includes("updateWeightsDisplay")) {
                 showCard("#settingsCardDisplay");
             } else if (cardsDisplayed.includes("changelogDisplay")) {
@@ -935,7 +937,9 @@
                     showUpdateWeights(-1);
                 }
             } else if (cardsDisplayed.includes("updateGradesDisplay")) {
-                showUpdateWeights(-1);
+                if (!($("#gradeSyncInputUserPassword").is(":focus"))) {
+                    showUpdateWeights(-1);
+                }
             } else if (cardsDisplayed.includes("changelogDisplay")) {
                 showUpdateWeights(-1);
             } else {
@@ -956,8 +960,10 @@
                     $("#changelogMessage").hide();
                 }
             } else if (cardsDisplayed.includes("updateGradesDisplay")) {
-                showChangelog();
-                $("#changelogMessage").hide();
+                if (!($("#gradeSyncInputUserPassword").is(":focus"))) {
+                    showChangelog();
+                    $("#changelogMessage").hide();
+                }
             } else if (cardsDisplayed.includes("updateWeightsDisplay")) {
                 showChangelog();
                 $("#changelogMessage").hide();

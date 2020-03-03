@@ -16,6 +16,28 @@
 - Support for point-based classes
 - If there is a feature that you would like to become implemented, send feedback in Settings > Feedback
 
+## [Stable 1.0.1] - 2020-03-02
+### Added
+- Brand new changelog display that, by default, displays once every 24 hours. This can be changed in settings
+- The changelog will be updated anytime a new version (beta or stable) is released
+- The version you are on will be highlighted green, and any announcements will be highlighted red
+- The changelog can be accessed by going to Settings > Advanced > Changelog or with the keyboard shortcut 'Q'
+
+### Improved
+- Prevent background scroll when card is in view
+- Changed close buttons to more accurately reflect their function
+
+### Fixed
+- Auto theme was not selectable without refresh in some cases
+- Cards no longer close if initial click is inside card
+
+## [Beta 1.0.1.9] - 2020-03-02
+### Added
+- Changelog scrolls to most recent announcement on open
+
+### Fixed
+- GradeSync loading screen now always shows correctly
+
 ## [Announcement] - 2020-03-02
 - On March 2, 2020 at about 8 AM PST, Graderoom encountered a server error
 - Unfortunately, all user accounts created after January 7, 2020 were lost
@@ -23,7 +45,7 @@
 - If your account still exists, you will be asked to sync your grades with PowerSchool to recover your data
 - You may have to reenter some of your weights and re-enable GradeSync
 - Please inform anyone affected by this issue to create a new account
-- The Graderoom Team apologizes for the great inconvenience this has caused and are taking immediate measures to prevent a similar event from occurring again
+- The Graderoom Team apologizes for the great inconvenience this has caused and has taken strict measures to prevent a similar event from occurring again
 - If you were part of the beta testing team, request another beta key by emailing graderoom@gmail.com or asking a developer directly
 - Thank you for using this service
 
@@ -35,7 +57,7 @@
 - 'Current Version' buttons only show up after a small amount of scrolling
 
 ### Fixed
-- Keyboard shortcuts are now disabled while typing into the password/email fields in settings
+- Keyboard shortcuts are now disabled while typing into the password/email fields in settings and when syncing grades
 
 ## [Beta 1.0.1.7] - 2020-03-01
 ### Added
