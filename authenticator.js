@@ -13,6 +13,15 @@ db.defaults({users: [], keys: []}).write();
 
 module.exports = {
 
+    backupdb: function () {
+        let today = Date.now();
+        const backupAdapter = new FileSync("user_db_backup" + today + ".json");
+        const backupDb = low(backupAdapter);
+        backupDb.defaults({users: [], keys: []}).write();
+        backupDb.set("users", db.get("users").value()).write();
+        backupDb.set("keys", db.get("keys").value()).write();
+    },
+
     /* beta key functions */
 
     betaAddNewUser: async function (betaKey, username, password, schoolUsername, isAdmin) {
@@ -474,7 +483,7 @@ module.exports = {
                 item.title = line.substring(4, line.indexOf("]"));
                 item.date = line.substring(line.indexOf("-") + 2);
             } else if (line.substring(0, 1) === "-") {
-                if (item.title === "Unreleased" || item.title === "Known Issues") {
+                if (item.title === "Unreleased" || item.title === "Known Issues" || item.title === "Announcement") {
                     if (!item.content["Default"]) {
                         item.content["Default"] = [];
                     }
@@ -489,12 +498,16 @@ module.exports = {
             for (let i = 0; i < items.length; i++) {
                 resultHTML += "<div class=\"changelog-item";
                 if (!currentVersionFound) {
-                    if ((beta && (items[i].title.substring(0, 4) === "Beta")) || (!beta && (items[i].title.substring(0, 6) === "Stable"))) {
+                    if ((beta && (items[i].title.substring(0, 4) === "Beta" || items[i].title.substring(0, 6) === "Stable")) || (!beta && (items[i].title.substring(0, 6) === "Stable"))) {
                         resultHTML += " current\">";
                         currentVersionFound = true;
+                    } else if (items[i].title === "Announcement") {
+                        resultHTML += " announcement\">";
                     } else {
                         resultHTML += "\">";
                     }
+                } else if (items[i].title === "Announcement") {
+                    resultHTML += " announcement\">";
                 } else {
                     resultHTML += "\">";
                 }
@@ -503,7 +516,7 @@ module.exports = {
                 resultHTML += "<div class=\"date\">" + items[i].date + "</div>";
                 resultHTML += "</div>";
                 resultHTML += "<div class=\"content\">";
-                if (items[i].title !== "Unreleased" && items[i].title !== "Known Issues") {
+                if (items[i].title !== "Unreleased" && items[i].title !== "Known Issues" && items[i].title !== "Announcement") {
                     for (let j = 0; j < Object.keys(items[i].content).length; j++) {
                         resultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j] + "</div>";
                         for (let k = 0; k < items[i].content[Object.keys(items[i].content)[j]].length; k++) {

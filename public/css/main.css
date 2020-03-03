@@ -136,6 +136,10 @@ table thead tr th:last-child {
     color: inherit !important;
 }
 
+.announcement {
+    background-color: rgba(255, 0, 0, 0.2) !important;
+}
+
 .blurred-background {
     opacity: 0.7;
     position: fixed;
@@ -512,6 +516,11 @@ table thead tr th:last-child {
     background-color: #1C9BDD;
 }
 
+#changelog-container .announcement .content {
+    padding-top: 1rem;
+    font-weight: bold;
+}
+
 #changelog-container .body {
     margin: 0 0 0 2rem;
     padding: 0;
@@ -523,7 +532,8 @@ table thead tr th:last-child {
     padding: 0.1rem 0.5rem 2rem 0.5rem;
 }
 
-#changelog-container .changelog-item:first-child .content, #changelog-container .changelog-item:nth-child(2) .content {
+#changelog-container .changelog-item:first-child .content,
+#changelog-container .changelog-item:nth-child(2) .content {
     padding-top: 1rem;
 }
 
