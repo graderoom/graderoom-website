@@ -37,7 +37,8 @@
 <script>
 
     let changelogContainer = $("#changelog-container");
-    let scrollOffset;
+    let scrollOffsetAnnouncement;
+    let scrollOffsetCurrent;
 
     function showChangelog() {
         disableScrolling();
@@ -53,8 +54,13 @@
                }).done(function (response) {
             changelogContainer.html(response);
             changelogContainer.animate({scrollTop: 0}, 0);
-            scrollOffset = $(".current").offset().top - changelogContainer.offset().top;
-            scrollToCurrentVersion();
+            scrollOffsetAnnouncement = $(".announcement").offset().top - changelogContainer.offset().top;
+            scrollOffsetCurrent = $(".current").offset().top - changelogContainer.offset().top;
+            if (scrollOffsetAnnouncement > scrollOffsetCurrent) {
+                scrollToCurrentVersion();
+            } else {
+                scrollToCurrentAnnouncement();
+            }
         });
         $.ajax({
                    url: "/changelogseen", type: "post", async: true
@@ -62,20 +68,27 @@
         $;
     }
 
+    function scrollToCurrentAnnouncement() {
+        let offset = $(".current").offset().top - changelogContainer.offset().top;
+        changelogContainer.animate({scrollTop: scrollOffsetAnnouncement}, 1000);
+    }
+
     function scrollToCurrentVersion() {
-        changelogContainer.animate({scrollTop: scrollOffset}, 4 * scrollOffset);
+        let offset = $(".current").offset().top - changelogContainer.offset().top;
+        changelogContainer.animate({scrollTop: scrollOffsetCurrent}, 1000);
     }
 
     changelogContainer.scroll(function () {
         let offset = $(".current").offset().top - changelogContainer.offset().top;
-        if (offset > 0.1875) {
+        if (offset > 100) {
             $(".down").fadeIn(100);
             $(".up").fadeOut(100);
-        } else if (offset < 0.1875) {
+        } else if (offset < -100) {
             $(".up").fadeIn(100);
             $(".down").fadeOut(100);
         } else {
             $(".scroll-to").fadeOut(100);
         }
+        console.log(offset);
     });
 </script>

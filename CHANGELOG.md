@@ -3,13 +3,39 @@
 <!--### Added/Improved/Fixed/Removed **ONLY** -->
 <!--(-) Specifics-->
 
+<!--OR-->
+
+<!--## [Known Issues/Unreleased/Announcement] - Description/Date(YYYY-MM-DD)-->
+<!--(-) Specifics-->
+
 ## [Known Issues] - Nothing Yet
 - If you have an issue, send feedback in Settings > Feedback
 
 ## [Unreleased] - Coming Soon
 - GPA Display
 - Support for point-based classes
-- More theming options
+- If there is a feature that you would like to become implemented, send feedback in Settings > Feedback
+
+## [Announcement] - 2020-03-02
+- On March 2, 2020 at about 8 AM PST, Graderoom encountered a server error
+- Unfortunately, all user accounts created after January 7, 2020 were lost
+- Passwords and personal user data, however, were not compromised
+- If your account still exists, you will be asked to sync your grades with PowerSchool to recover your data
+- You may have to reenter some of your weights and re-enable GradeSync
+- Please inform anyone affected by this issue to create a new account
+- The Graderoom Team apologizes for the great inconvenience this has caused and are taking immediate measures to prevent a similar event from occurring again
+- If you were part of the beta testing team, request another beta key by emailing graderoom@gmail.com or asking a developer directly
+- Thank you for using this service
+
+## [Beta 1.0.1.8] - 2020-03-02
+### Added
+- Announcements
+
+### Improved
+- 'Current Version' buttons only show up after a small amount of scrolling
+
+### Fixed
+- Keyboard shortcuts are now disabled while typing into the password/email fields in settings
 
 ## [Beta 1.0.1.7] - 2020-03-01
 ### Added
