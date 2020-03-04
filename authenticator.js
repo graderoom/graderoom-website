@@ -343,18 +343,18 @@ module.exports = {
 
     addDbClass: function (class_name, teacher_name) {
         let classesRef = db.get("classes");
-        let classes = classesRef.value();
-        if (!classes[class_name]) {
-            classes[class_name] = {};
+        class_name = class_name.replace(/\./g, "\\u002e");
+        if (!classesRef.value()[class_name]) {
+            classesRef.set(class_name, {}).write();
         }
-        classes[class_name][teacher_name] = {
+        classesRef.get(class_name).set(teacher_name, {
             classType: "", //TODO Honors/AP/Non-Academic/etc.
             weights: {}, //TODO Weights
             hasWeights: null, //TODO Has weights
             assignments: {}, //TODO populate assignments by some kind of identifier (points possible + assignment name
                              // should be enough to differentiate assignments)
             overallGrades: [] //TODO populate with overall grades of users (for average) length will give # in class
-        };
+        }).write();
     },
 
     addNewWeightDict: function (username, index, className) {
