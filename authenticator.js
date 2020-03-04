@@ -100,6 +100,7 @@ module.exports = {
         // Add all old user data to classes db
         for (let i = 0; i < user.grades.length; i++) {
             if (!dbContainsClass(user.grades[i].class_name, user.grades[i].teacher_name)) {
+                console.log(user.grades[i].class_name, user.grades[i].teacher_name);
                 this.addDbClass(user.grades[i].class_name, user.grades[i].teacher_name);
             }
         }
@@ -592,10 +593,8 @@ function containsClass(obj, list) {
 
 function dbContainsClass(class_name, teacher_name) {
     let classes = db.get("classes").value();
-    if (classes[class_name]) {
-        if (classes[class_name][teacher_name]) {
-            return true;
-        }
+    if (classes[class_name] && classes[class_name][teacher_name]) {
+        return true;
     }
     return false;
 }
