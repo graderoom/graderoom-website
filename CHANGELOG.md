@@ -16,7 +16,11 @@
 - Support for point-based classes
 - If there is a feature that you would like to become implemented, send feedback in Settings > Feedback
 
-## [Stable 1.0.1] - 2020-03-02
+## [Stable 1.0.1.1] - 2020-03-03
+### Fixed
+- Keyboard shortcuts are correctly disabled in all cases when typing into an input field
+
+## [Stable 1.0.1.0] - 2020-03-02
 ### Added
 - Brand new changelog display that, by default, displays once every 24 hours. This can be changed in settings
 - The changelog will be updated anytime a new version (beta or stable) is released
@@ -31,7 +35,7 @@
 - Auto theme was not selectable without refresh in some cases
 - Cards no longer close if initial click is inside card
 
-## [Beta 1.0.1.9] - 2020-03-02
+## [Beta 1.0.0.10] - 2020-03-02
 ### Added
 - Changelog scrolls to most recent announcement on open
 
@@ -47,7 +51,7 @@
 - The Graderoom Team apologizes for the great inconvenience this has caused and has taken strict measures to prevent a similar event from occurring again
 - If you were part of the beta testing team, request another beta key by emailing graderoom@gmail.com or asking a developer directly
 
-## [Beta 1.0.1.8] - 2020-03-02
+## [Beta 1.0.0.9] - 2020-03-02
 ### Added
 - Announcements
 
@@ -57,7 +61,7 @@
 ### Fixed
 - Keyboard shortcuts are now disabled while typing into the password/email fields in settings and when syncing grades
 
-## [Beta 1.0.1.7] - 2020-03-01
+## [Beta 1.0.0.8] - 2020-03-01
 ### Added
 - Changelog display initially scrolls to current version with a nice animation
 - Added 'current version' buttons when changelog is scrolled
@@ -66,7 +70,7 @@
 - Better changelog UI
 - Changed keyboard shortcut for changelog to 'Q'
 
-## [Beta 1.0.1.6] - 2020-02-29
+## [Beta 1.0.0.7] - 2020-02-29
 ### Added
 - Separate changelog card to reduce clutter in settings
 - Keyboard Shortcut 'C' to view changelog
@@ -82,11 +86,11 @@
 - Changelog message no longer shows if changelog opened manually
 - Cards no longer close if initial click is inside card
 
-## [Beta 1.0.1.5] - 2020-02-28
+## [Beta 1.0.0.6] - 2020-02-28
 ### Fixed
 - Auto theme bounds now clear correctly on apply
 
-## [Beta 1.0.1.4] - 2020-02-28
+## [Beta 1.0.0.5] - 2020-02-28
 ### Added
 - New changelog message to help user understand how to disable changelog
 - Changelog shows only once a day by default (can be changed in settings)
@@ -94,27 +98,27 @@
 ### Fixed
 - Alert settings correctly display previously saved settings
 
-## [Beta 1.0.1.3] - 2020-02-28
+## [Beta 1.0.0.4] - 2020-02-28
 ### Added
 - Current version highlighted in green
 
-## [Beta 1.0.1.2] - 2020-02-28
+## [Beta 1.0.0.3] - 2020-02-28
 ### Added
 - Changelog now displays on login
 
 ### Fixed
 - Solved server crashing caused by changelog
 
-## [Beta 1.0.1.1] - 2020-02-28
+## [Beta 1.0.0.2] - 2020-02-28
 ### Improved
 - New changelog UI
 - Prevent background scroll when focused on card
 
-## [Beta 1.0.1.0] - 2020-02-28
+## [Beta 1.0.0.1] - 2020-02-28
 ### Added
 - Brand new changelog display
 
-## [Stable 1.0.0] - 2020-02-27
+## [Stable 1.0.0.0] - 2020-02-27
 ### Added
 - GradeSync (Sync with PowerSchool on login)
 - Proper Light Theme
