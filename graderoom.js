@@ -25,12 +25,12 @@ if (productionEnv) {
     }));
 }
 
-app.use(morgan('dev')); // log every request to the console
+app.use(morgan("dev")); // log every request to the console
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser.json()); // get information from html forms
 app.use(bodyParser.urlencoded({extended: true}));
 
-app.set('view engine', 'ejs'); // set up ejs for templating #todo do we want this
+app.set("view engine", "ejs"); // set up ejs for templating #todo do we want this
 
 /**
  * FIRSt TIME sETUP: add admin user
@@ -38,30 +38,28 @@ app.set('view engine', 'ejs'); // set up ejs for templating #todo do we want thi
  * also TODO dont hard code this
  */
 
-const ADMIN_USERNAME        = 'admin';
-const ADMIN_PASSWORD        = 'password';
-const ADMIN_SCHOOL_USERNAME = 'admin1@bcp.org';
+const ADMIN_USERNAME = "admin";
+const ADMIN_PASSWORD = "password";
+const ADMIN_SCHOOL_USERNAME = "admin1@bcp.org";
 
 if (!dbConn.userExists(ADMIN_USERNAME)) {
     console.log("Creating admin account.");
     dbConn.addNewUser(ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_SCHOOL_USERNAME, true).then(r => {
         console.log(r);
-    })
+    });
 }
 
 // required for passport
 app.use(session({
-    secret: 'secret', // session secret //TODO CHANGE
-    resave: true,
-    saveUninitialized: true,
-    cookie: {maxAge: 4 * 60 * 60 * 1000} //4 hours
-}));
+                    secret: "secret", // session secret //TODO CHANGE
+                    resave: true, saveUninitialized: true, cookie: {maxAge: 4 * 60 * 60 * 1000} //4 hours
+                }));
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
 // routes ======================================================================
-require('./routes.js')(app, passport); // load our routes and pass in our app and fully configured
+require("./routes.js")(app, passport); // load our routes and pass in our app and fully configured
                                        // passport
 
 // launch ======================================================================
