@@ -343,7 +343,7 @@ module.exports = {
 
     addDbClass: function (class_name, teacher_name) {
         let classesRef = db.get("classes");
-        class_name = class_name.replace(/\./g, "\\u002e");
+        class_name = "[\"" + class_name + "\"]";
         if (!classesRef.value()[class_name]) {
             classesRef.set(class_name, {}).write();
         }
