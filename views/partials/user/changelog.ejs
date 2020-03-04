@@ -69,12 +69,10 @@
     }
 
     function scrollToCurrentAnnouncement() {
-        let offset = $(".current").offset().top - changelogContainer.offset().top;
         changelogContainer.animate({scrollTop: scrollOffsetAnnouncement}, 1000);
     }
 
     function scrollToCurrentVersion() {
-        let offset = $(".current").offset().top - changelogContainer.offset().top;
         changelogContainer.animate({scrollTop: scrollOffsetCurrent}, 1000);
     }
 
@@ -89,6 +87,5 @@
         } else {
             $(".scroll-to").fadeOut(100);
         }
-        console.log(offset);
     });
 </script>
