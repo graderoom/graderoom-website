@@ -62,6 +62,11 @@ module.exports = {
         return {success: true, message: "Removed beta key."};
     },
 
+    /* class database */
+    getAllClassData: function () {
+        return db.get("classes").value();
+    },
+
     /* user functions
      */
 
@@ -345,10 +350,12 @@ module.exports = {
         let classesRef = db.get("classes");
         class_name = "[\"" + class_name + "\"]";
         if (!classesRef.value()[class_name]) {
-            classesRef.set(class_name, {}).write();
+            classesRef.set(class_name, {
+                classType: "" //TODO Honors/AP/Non-Academic/etc.
+            }).write();
         }
+
         classesRef.get(class_name).set(teacher_name, {
-            classType: "", //TODO Honors/AP/Non-Academic/etc.
             weights: {}, //TODO Weights
             hasWeights: null, //TODO Has weights
             assignments: {}, //TODO populate assignments by some kind of identifier (points possible + assignment name

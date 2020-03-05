@@ -2,7 +2,8 @@
 <nav class="navbar navbar-dark navbar-expand-lg justify-content-center">
     <span class="d-flex w-50 mr-auto">
         <a href="/" class="navbar-brand">
-            <h1> <img src="/public/resources/dark_mode/logo.png" style="width: 3rem" class="d-inline-block logo" alt=""> Graderoom </h1>
+            <h1><img src="/public/resources/dark_mode/logo.png" style="width: 3rem" class="d-inline-block logo" alt="">
+                Graderoom </h1>
         </a>
     </span>
     <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#collapsingNav"
@@ -18,6 +19,11 @@
             </ul>
         <% } %>
         <ul class="navbar-nav w-100 justify-content-left">
+            <% if (page != 'classes') { %>
+                <li id="classes" class="nav-item">
+                    <a class="btn btn-md" href="/classes"> <i class="fa fa-address-book" aria-hidden="true"></i> Classes</a>
+                </li>
+            <% } %>
             <% if (page != 'keys') { %>
                 <li id="betakeys" class="nav-item">
                     <a class="btn btn-md" href="/betakeys"> <i class="fa fa-key" aria-hidden="true"></i> Beta Key Panel
@@ -33,13 +39,6 @@
             <li id="toggleAdmin" class="nav-item toggle-admin">
                 <a class="btn btn-med" href="/"> <i class="fa fa-home" aria-hidden="true"></i> Home </a>
             </li>
-            <% if (page != 'admin' && page != 'keys') { %>
-                <li id="settings" class="nav-item">
-                    <btn class="btn btn-med" onclick="$('#settingsCardDisplay').show()">
-                        <i class="fa fa-cog" aria-hidden="true"></i> Settings
-                    </btn>
-                </li>
-            <% } %>
             <li class="nav-item active">
                 <a href="/logout" class="btn btn-med"> <i class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
             </li>
