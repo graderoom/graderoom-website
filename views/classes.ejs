@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+    <title>Graderoom</title>
+    <link rel="icon" href="../public/resources/common/icon.png">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
+    <% if (user.appearance.theme === "dark" || (user.appearance.theme === "auto" && (((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) && ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish)) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish))))) { %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+    <% } else { %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
+    <% } %>
+    <link rel="stylesheet" type="text/css" href="public/css/main.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<!-- Admin Navbar -->
+<% include partials/admin/admin_navbar.ejs %>
+
+<!-- Main Screen -->
+<div class="container">
+    <table>
+        <tbody>
+            <% for (let i = 0; i < Object.keys(classData).length; i++) { %>
+                <tr>
+                    <th><%= Object.keys(classData)[i] %> (<%= classData[Object.keys(classData)[i]]["classType"] %>)</th>
+                    <% for (let j = 1; j < Object.keys(classData[Object.keys(classData)[i]]).length; j++) { %>
+                        <td><%= Object.keys(classData[Object.keys(classData)[i]])[j] %></td>
+                    <% } %>
+                </tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

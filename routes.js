@@ -389,6 +389,12 @@ module.exports = function (app, passport) {
 
     });
 
+    app.get("/classes", [isAdmin], (req, res) => {
+        res.render("classes.ejs", {
+            user: req.user, page: "classes", classData: authenticator.getAllClassData()
+        });
+    });
+
     /**
      * END GENERAL USER MANAGEMENT
      */
