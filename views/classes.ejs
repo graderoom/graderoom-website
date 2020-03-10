@@ -20,19 +20,70 @@
 <% include partials/admin/admin_navbar.ejs %>
 
 <!-- Main Screen -->
-<div class="container">
-    <table>
-        <tbody>
-            <% for (let i = 0; i < Object.keys(classData).length; i++) { %>
-                <tr>
-                    <th><%= Object.keys(classData)[i] %> (<%= classData[Object.keys(classData)[i]]["classType"] %>)</th>
-                    <% for (let j = 1; j < Object.keys(classData[Object.keys(classData)[i]]).length; j++) { %>
-                        <td><%= Object.keys(classData[Object.keys(classData)[i]])[j] %></td>
-                    <% } %>
-                </tr>
+<div id="weightsCard" class="container">
+    <% for (let i = 0; i < Object.keys(classData).length; i++) { %>
+        <h4 style="cursor: pointer;"><%= Object.keys(classData)[i] %>
+            <i class="fa" aria-hidden="true"></i>
+        </h4>
+
+        <span class="accordion" id="accordionForms">
+            <% for (var j = 1; j < Object.keys(classData[Object.keys(classData)[i]]).length; j++) { %>
+                <form id="weights<%= i %><%= j %>" class="form-ajax form-weights form-signin"
+                      action="/updateclassweights">
+                    <label class="collapsed" data-toggle="collapse" href="#collapse<%= i %><%= j %>"
+                           style="display: flex; margin: 0; cursor: pointer">
+                        <h5 style="cursor: pointer; display: inline-block"
+                            id="<%= Object.keys(classData[Object.keys(classData)[i]])[j] %>">
+                            <%= Object.keys(classData[Object.keys(classData)[i]])[j] %>&nbsp;
+                            <i class="fa" aria-hidden="true"></i>
+                        </h5>
+                        <span id="weightMessage<%= i %><%= j %>" class="alert-custom fail"
+                              style="float: right; width: fit-content; display:none; margin-bottom: 8px; padding: 8px 0 0 8px">
+                            <span class="messageTxt">Missing weights</span>
+                        </span>
+                    </label>
+                    <span style="border-radius: 0.25em" class="collapse collapse-underline"
+                          id="collapse<%= i %><%= j %>" data-parent="#accordionForms">
+                        <div class="form-group" style="display: flex; align-items: flex-end;">
+                            <% for (let k = 0; k < Object.keys(classData[Object.keys(classData)[i]][Object.keys(classData[Object.keys(classData)[i]])[j]]["weights"]).length; k++) {
+                                let value = Object.values(classData[Object.keys(classData)[i]][Object.keys(classData[Object.keys(classData)[i]])[j]]["weights"])[k]; %>
+                            <input style="font-size: 0.9rem; margin-right: 0 !important; white-space: nowrap; margin-bottom: 0;"
+                                   value="<%= Object.keys(classData[Object.keys(classData)[i]][Object.keys(classData[Object.keys(classData)[i]])[j]]["weights"])[k] %>"
+                                   class="text-view"
+                            >
+                            :&nbsp</input>
+                            <input style="<% if (!value && value != 0) { %> border-color: lightcoral!important; <% } %>"
+                                   value="<%= value %>"
+                                   type="number"
+                                   min="0"
+                                   step="0.1"
+                                   class="form-control <% if(value || value == 0){ %> text-view <% } %>"
+                                   name="<%= Object.keys(classData[Object.keys(classData)[i]][Object.keys(classData[Object.keys(classData)[i]])[j]]["weights"])[k] %>"
+                                   oninput="this.classList.remove('text-view'); showSubmitButton(this); "
+                            >
+                            <% } %>
+                            <span class="fa fa-plus" onclick="addCategory(<%= i %>,<%= j %>)"
+                                  style="cursor: pointer"></span>
+                        </div>
+                        <div class="formSubmitButton" style="width: 100%; display: none">
+                            <button type="submit" class="btn btn-default btn-med">
+                                <i class="fa fa-refresh" aria-hidden="true"></i>
+                                Update
+                            </button>
+                        </div>
+                    </span>
+                </form>
             <% } %>
-        </tbody>
-    </table>
+        </span>
+        <hr>
+    <% } %>
 </div>
 </body>
-</html>
+
+<script>
+    function addCategory(classIndex, teacherIndex) {
+        let newCategory = $("<input style=\"font-size: 0.9rem; margin-right: 0 !important; color: lightcoral!important; white-space: nowrap; margin-bottom: 0;\" value=\"\">:&nbsp</input>" + "<input style=\"border-color: lightcoral!important;\"value=\"\" type=\"number\" min=\"0\" step=\"0.1\" class=\"form-control\"" + "                           name=\"\"" + "                           oninput=\"this.classList.remove('text-view'); showSubmitButton(this); \">");
+        let classDiv = $("#collapse" + classIndex + teacherIndex);
+        newCategory.insertBefore($(classDiv[0].children[classDiv[0].children.length - 2].children[classDiv[0].children[classDiv[0].children.length - 2].children.length - 1]));
+    }
+</script>
