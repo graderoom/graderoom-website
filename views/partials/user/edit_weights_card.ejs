@@ -15,21 +15,21 @@
                     <% for (var i = 0; i < JSON.parse(gradeData).length; i++) {
                         let grade = JSON.parse(gradeData)[i]; %>
                     <form id="weights<%= i %>" class="form-ajax form-weights form-signin" action="/updateweights">
-                            <className style="display:none"><%= grade.class_name %></className>
-                            <label class="collapsed" data-toggle="collapse" href="#collapse<%= i %>"
-                                   style="display: flex; margin: 0; cursor: pointer">
-                                <h5 style="color:<%= user.appearance.classColors[i] %>; cursor: pointer"
-                                    id="<%= grade.class_name %>" style="display: inline-block">
-                                    <%= grade.class_name %>&nbsp;
-                                    <i class="fa" aria-hidden="true"></i>
-                                </h5>
-                                <span id="weightMessage<%= i %>" class="alert-custom fail"
-                                      style="float: right; width: fit-content; display:none; margin-bottom: 8px; padding: 8px 0 0 8px">
-                                    <span class="messageTxt">Missing weights</span>
-                                </span>
-                            </label>
-                            <span style="border-radius: 0.25em" class="collapse collapse-underline"
-                                  id="collapse<%= i %>" data-parent="#accordionForms">
+                        <className style="display:none"><%= grade.class_name %></className>
+                        <label class="collapsed" data-toggle="collapse" href="#collapse<%= i %>"
+                               style="display: flex; margin: 0; cursor: pointer">
+                            <h5 style="color:<%= user.appearance.classColors[i] %>; cursor: pointer; display: inline-block"
+                                id="<%= grade.class_name %>">
+                                <%= grade.class_name %>&nbsp;
+                                <i class="fa" aria-hidden="true"></i>
+                            </h5>
+                            <span id="weightMessage<%= i %>" class="alert-custom fail"
+                                  style="float: right; width: fit-content; display:none; margin-bottom: 8px; padding: 8px 0 0 8px">
+                                <span class="messageTxt">Missing weights</span>
+                            </span>
+                        </label>
+                        <span style="border-radius: 0.25em" class="collapse collapse-underline"
+                              id="collapse<%= i %>" data-parent="#accordionForms">
                                 <% let weights = [];
                                         for (let assignment of grade.grades) {
                                 if (!(weights.includes(assignment.category))) {

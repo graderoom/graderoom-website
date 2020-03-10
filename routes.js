@@ -6,7 +6,7 @@ module.exports = function (app, passport) {
     // normal routes ===============================================================
 
     // show the home page (will also have our login links)
-    app.get("/", function (req, res) {
+    app.get("/", (req, res) => {
 
         if (req.isAuthenticated()) {
 
@@ -30,17 +30,14 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.get("/viewuser", [isAdmin], function (req, res) {
+    app.get("/viewuser", [isAdmin], (req, res) => {
         if (req.query.usernameToRender) {
             let user = authenticator.getUser(req.query.usernameToRender);
             let weightData = JSON.stringify(user.weights);
             let gradeData = JSON.stringify(user.grades);
 
             res.render("authorized_index.ejs", {
-                user: user,
-                current: "home",
-                userRef: JSON.stringify(user),
-                schoolUsername: user.schoolUsername,
+                user: user, current: "home", userRef: JSON.stringify(user), schoolUsername: user.schoolUsername,
                 gradeData: gradeData,
                 weightData: weightData,
                 updateGradesMessageSuccess: req.flash("updateGradesMessageSuccess"),
@@ -53,18 +50,18 @@ module.exports = function (app, passport) {
         res.redirect("/");
     });
 
-    app.get("/logout", [isLoggedIn], function (req, res) {
+    app.get("/logout", [isLoggedIn], (req, res) => {
         req.logout();
         res.redirect("/");
     });
 
-    app.post("/bringAllUpToDate", [isAdmin], function (req, res) {
+    app.post("/bringAllUpToDate", [isAdmin], (req, res) => {
         authenticator.bringAllUpToDate();
         req.flash("adminSuccessMessage", "Brought all users up to date");
         res.redirect("/admin");
     });
 
-    app.post("/deleteUser", [isAdmin], function (req, res) {
+    app.post("/deleteUser", [isAdmin], (req, res) => {
         let username = req.body.deleteUser;
         console.log("Got request to delete: " + username);
 
@@ -79,7 +76,7 @@ module.exports = function (app, passport) {
         res.redirect("/admin");
     });
 
-    app.post("/makeadmin", [isAdmin], function (req, res) {
+    app.post("/makeadmin", [isAdmin], (req, res) => {
         let username = req.body.newAdminUser;
         console.log("Got request to make admin: " + username);
 
@@ -94,7 +91,7 @@ module.exports = function (app, passport) {
         res.redirect("/admin");
     });
 
-    app.post("/removeadmin", [isAdmin], function (req, res) {
+    app.post("/removeadmin", [isAdmin], (req, res) => {
         let username = req.body.removeAdminUser;
         console.log("Got request to remove admin: " + username);
 
@@ -109,7 +106,7 @@ module.exports = function (app, passport) {
         res.redirect("/admin");
     });
 
-    app.get("/admin", [isAdmin], function (req, res) {
+    app.get("/admin", [isAdmin], (req, res) => {
         // admin panel TODO
         let allUsers = authenticator.getAllUsers();
         res.render("admin.ejs", {
@@ -121,7 +118,7 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.get("/update", [isLoggedIn], function (req, res) {
+    app.get("/update", [isLoggedIn], (req, res) => {
 
         //todo rate limits
         //todo use axios to contact python api and update data.
@@ -129,7 +126,7 @@ module.exports = function (app, passport) {
         res.redirect("/");
     });
 
-    app.get("/checkUpdateBackground", [isLoggedIn], function (req, res) {
+    app.get("/checkUpdateBackground", [isLoggedIn], (req, res) => {
         let resp = authenticator.checkUpdateBackground(req.user.username);
         res.status(200).send(resp.message);
     });
@@ -195,7 +192,7 @@ module.exports = function (app, passport) {
 
     // SIGNUP =================================
     // show the signup form
-    app.get("/signup", function (req, res) {
+    app.get("/signup", (req, res) => {
         res.render("signup.ejs", {
             message: req.flash("signupMessage"), needsBeta: server.needsBetaKeyToSignUp
         });
@@ -291,6 +288,10 @@ module.exports = function (app, passport) {
         } else {
             res.status(400).send(resp.message);
         }
+    });
+
+    app.post("/updateclassweights", [isAdmin], async (req, res) => {
+        console.log(req.body);
     });
 
     app.post("/changealertsettings", [isLoggedIn], (req, res) => {
@@ -400,7 +401,7 @@ module.exports = function (app, passport) {
      */
 
     // general web app
-    app.get("/*", function (req, res) {
+    app.get("/*", (req, res) => {
         res.redirect("/");
     });
 
