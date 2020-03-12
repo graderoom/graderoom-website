@@ -23,6 +23,12 @@
 - Class insights
 - If there is a feature that you would like to become implemented, send feedback in Settings > Feedback
 
+## [Beta 1.1.4] - 2020-03-12
+### Added
+- Auto-population of weights for new and existing users
+- If you know your classes category weights, enter them in the edit weights tab to improve the user experience for everyone else
+- If you find an issue with the auto-populated weights, send feedback
+
 ## [Beta 1.1.3] - 2020-03-12
 ### Fixed
 - Resolved issue where classes with multiple teachers were not supported
