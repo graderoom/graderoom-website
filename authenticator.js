@@ -387,7 +387,7 @@ module.exports = {
     addDbClass: function (class_name, teacher_name) {
         let classesRef = db.get("classes");
         class_name = "[\"" + class_name + "\"]";
-        if (!classesRef.get(class_name)) {
+        if (!Object.keys(classesRef.value()).includes(class_name)) {
             classesRef.set(class_name, {
                 classType: "" //TODO Honors/AP/Non-Academic/etc.
             }).write();
