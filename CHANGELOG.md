@@ -23,6 +23,10 @@
 - Class insights
 - If there is a feature that you would like to become implemented, send feedback in Settings > Feedback
 
+## [Beta 1.1.3] - 2020-03-12
+### Fixed
+- Resolved issue where classes with multiple teachers were not supported
+
 ## [Beta 1.1.2] - 2020-03-12
 ### Added
 - Global analytics database
