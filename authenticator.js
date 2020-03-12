@@ -75,6 +75,20 @@ module.exports = {
         for (let i = 0; i < users.length; i++) {
             this.bringUpToDate(users[i].username);
         }
+
+        // Set hasWeights on all the class weights
+        let classes = db.get("classes").value();
+        for (let i = 0; i < Object.keys(classes).length; i++) {
+            let className = Object.keys(classes)[i];
+            for (let j = 1; j < Object.keys(classes[className]).length; j++) {
+                let teacherName = Object.keys(classes[className])[j];
+                if (Object.keys(classes[className][teacherName]["weights"]).length > 0) {
+                    db.get("classes").get(className).get(teacherName).set("hasWeights", true).write();
+                } else {
+                    db.get("classes").get(className).get(teacherName).set("hasWeights", false).write();
+                }
+            }
+        }
     },
 
     bringUpToDate: function (username) {
@@ -105,9 +119,33 @@ module.exports = {
         // Add all old user data to classes db
         for (let i = 0; i < user.grades.length; i++) {
             if (!dbContainsClass(user.grades[i].class_name, user.grades[i].teacher_name)) {
-                console.log(user.grades[i].class_name, user.grades[i].teacher_name);
                 this.addDbClass(user.grades[i].class_name, user.grades[i].teacher_name);
             }
+
+            // Put weights into class database TODO add admin confirmation requirement
+            let className = user.grades[i].class_name;
+            let teacherName = user.grades[i].teacher_name;
+            let classDb = db.get("classes");
+            let weights = user.weights[className];
+            for (let i = 0; i < Object.keys(weights).length; i++) {
+                if (!classDb.value()[className][teacherName]["weights"][Object.keys(weights)[i]]) {
+                    classDb.get(className).get(teacherName).get("weights").set(Object.keys(weights)[i], Object.values(weights)[i]).write();
+                }
+            }
+        }
+    },
+
+    updateWeightsInClassDb: function (data) {
+        let className = data.className;
+        let teacherName = data.teacherName;
+        let weights = data.weights;
+        let classDb = db.get("classes");
+        if (weights) {
+            classDb.get(className).get(teacherName).set("weights", weights).write();
+            classDb.get(className).get(teacherName).set("hasWeights", true).write();
+        } else {
+            classDb.get(className).get(teacherName).set("weights", {}).write();
+            classDb.get(className).get(teacherName).set("hasWeights", false).write();
         }
     }
 
@@ -431,7 +469,6 @@ module.exports = {
     },
 
     updateWeightsForClass: function (username, className, weights) {
-        //default update, not override
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         console.log(weights);
@@ -443,6 +480,16 @@ module.exports = {
 
         if (!clsRef.value()) {
             return {success: false, message: "Class does not exist."};
+        }
+
+        // Put weights into class database TODO add admin confirmation requirement
+        let teacherName = clsRef.value().teacher_name;
+        let classDb = db.get("classes");
+        for (let i = 0; i < Object.keys(weights).length; i++) {
+            console.log(classDb.value()[className][teacherName]["weights"][Object.keys(weights)[i]]);
+            if (!classDb.value()[className][teacherName]["weights"][Object.keys(weights)[i]]) {
+                classDb.get(className).get(teacherName).get("weights").set(Object.keys(weights)[i], Object.values(weights)[i]).write();
+            }
         }
 
         let weightsRef = userRef.get("weights");

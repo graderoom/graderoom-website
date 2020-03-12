@@ -58,18 +58,9 @@
 <script>
     // Collapse navbar when click outside
     $(document).click(function (e) {
-        if (!$(e.target).closest("#collapsingNav").length && !$(e.target).is("#collapsingNav")) {
+        try {
             $(".navbar-collapse").collapse("hide");
-        }
-        if (!$(e.target).closest("#updateGradesCard").length && !$(e.target).is("#updateGradesCard")) {
-            if (!$(e.target).closest("#updateGrades").length && !$(e.target).is("#updateGrades")) {
-                $("#updateGradesDisplay").hide();
-            }
-        }
-        if (!$(e.target).closest("#settingsCard").length && !$(e.target).is("#settingsCard")) {
-            if (!$(e.target).closest("#settings").length && !$(e.target).is("#settings")) {
-                $("#settingsCardDisplay").hide();
-            }
+        } catch {
         }
     });
     // Collapse navbar when press escape
@@ -80,8 +71,6 @@
                 $("#toggle").hide();
             } catch (e) {
             }
-            $("#updateGradesDisplay").hide();
-            $("#settingsCardDisplay").hide();
         }
     });
 </script>

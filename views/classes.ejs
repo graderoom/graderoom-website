@@ -21,69 +21,204 @@
 
 <!-- Main Screen -->
 <div id="weightsCard" class="container">
-    <% for (let i = 0; i < Object.keys(classData).length; i++) { %>
-        <h4 style="cursor: pointer;"><%= Object.keys(classData)[i] %>
-            <i class="fa" aria-hidden="true"></i>
-        </h4>
+    <span class="accordion" id="bigAccordionForms">
+        <% for (let i = 0; i < Object.keys(classData).length; i++) { %>
+            <label class="" data-toggle="collapse" href="#accordionForms<%= i %>">
+                <h5 style="cursor: pointer; font-size: 1.5rem !important;"><%= Object.keys(classData)[i] %>
+                    <i class="fa" aria-hidden="true"></i>
+                </h5>
+            </label>
 
-        <span class="accordion" id="accordionForms">
-            <% for (var j = 1; j < Object.keys(classData[Object.keys(classData)[i]]).length; j++) { %>
-                <form id="weights<%= i %><%= j %>" class="form-ajax form-weights form-signin"
-                      action="/updateclassweights">
-                    <label class="collapsed" data-toggle="collapse" href="#collapse<%= i %><%= j %>"
-                           style="display: flex; margin: 0; cursor: pointer">
-                        <h5 style="cursor: pointer; display: inline-block"
-                            id="<%= Object.keys(classData[Object.keys(classData)[i]])[j] %>">
-                            <%= Object.keys(classData[Object.keys(classData)[i]])[j] %>&nbsp;
-                            <i class="fa" aria-hidden="true"></i>
-                        </h5>
-                        <span id="weightMessage<%= i %><%= j %>" class="alert-custom fail"
-                              style="float: right; width: fit-content; display:none; margin-bottom: 8px; padding: 8px 0 0 8px">
-                            <span class="messageTxt">Missing weights</span>
+            <span class="accordion collapse show collapse-underline" id="accordionForms<%= i %>"
+                  data-parent="#bigAccordionForms">
+                <% for (var j = 1; j < Object.keys(classData[Object.keys(classData)[i]]).length; j++) { %>
+                    <form id="weights<%= i %><%= j %>" class="form-ajax form-weights form-signin"
+                          action="/updateclassweights" method="post" style="margin: 0 0 1rem 3rem; width: 100%">
+                        <label data-toggle="collapse" href="#collapse<%= i %><%= j %>"
+                               style="display: flex; margin: 0; cursor: pointer">
+                            <h5 style="cursor: pointer"
+                                class="weightname"
+                                id="<%= Object.keys(classData[Object.keys(classData)[i]])[j] %>">
+                                <%= Object.keys(classData[Object.keys(classData)[i]])[j] %>
+                                <i style="text-indent: 0 !important;" class="fa" aria-hidden="true"></i>
+                            </h5>
+                            <span id="weightMessage<%= i %><%= j %>" class="alert alert-success font-weight-bold"
+                                  style="width: fit-content; display:none; justify-content: center; padding: 0.1rem;">
+                                <div style="display: none" class="sk-chase-mini">
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                </div>
+                                <span class="messageTxt"></span>
+                            </span>
+                        </label>
+                        <span style="border-radius: 0.25em; margin-left: 0.5rem;"
+                              class="collapse collapse-underline show"
+                              id="collapse<%= i %><%= j %>" data-parent="#accordionForms<%= i %>">
+                            <div>
+                                <span class="fa fa-plus" onclick="addCategory('<%= i %>','<%= j %>')"
+                                      style="display: inline-flex; cursor: pointer;color: green"></span>
+                                <% for (let k = 0; k < Object.keys(classData[Object.keys(classData)[i]][Object.keys(classData[Object.keys(classData)[i]])[j]]["weights"]).length; k++) {
+                                    let value = Object.values(classData[Object.keys(classData)[i]][Object.keys(classData[Object.keys(classData)[i]])[j]]["weights"])[k]; %>
+
+                                <div class="form-group" id="category<%= i %><%= j %><%= k %>"
+                                     style="text-indent: 3rem; display: <% if (k === 0) { %>inline-flex<% } else { %>flex<% } %>; align-items: flex-end;">
+                                    <input style="font-size: 0.9rem; margin-right: 0 !important; width: fit-content; white-space: nowrap; margin-bottom: 0;"
+                                           value="<%= Object.keys(classData[Object.keys(classData)[i]][Object.keys(classData[Object.keys(classData)[i]])[j]]["weights"])[k] %>"
+                                           class="form-control text-view"
+                                           oninput="this.classList.remove('text-view'); showSubmitButton(this)"
+                                           required
+                                    >
+                                    :&nbsp</input>
+                                    <input style="margin: 0;"
+                                           value="<%= value %>"
+                                           type="number"
+                                           min="0"
+                                           step="0.1"
+                                           class="form-control text-view"
+                                           name="<%= Object.keys(classData[Object.keys(classData)[i]][Object.keys(classData[Object.keys(classData)[i]])[j]]["weights"])[k] %>"
+                                           oninput="this.classList.remove('text-view'); showSubmitButton(this); "
+                                           required
+                                    >
+                                    <span class="fa fa-minus" onclick="removeCategory(this)"
+                                          style="text-indent: 1rem; color: red; cursor: pointer;<% if (k === 0 && Object.keys(classData[Object.keys(classData)[i]][Object.keys(classData[Object.keys(classData)[i]])[j]]["weights"]).length > 1) { %>display: none;<% } %>"></span>
+                                </div>
+                                <% } %>
+                            </div>
+                            <div class="formSubmitButton" style="width: 100%; display: none">
+                                <button type="submit" class="btn btn-default btn-med"
+                                        onclick="ajaxPostWeightsDatabaseForm('<%= i %>','<%= j %>',[],'#weightMessage<%= i %><%= j %>',true);">
+                                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                                    Update
+                                </button>
+                            </div>
                         </span>
-                    </label>
-                    <span style="border-radius: 0.25em" class="collapse collapse-underline"
-                          id="collapse<%= i %><%= j %>" data-parent="#accordionForms">
-                        <div class="form-group" style="display: flex; align-items: flex-end;">
-                            <% for (let k = 0; k < Object.keys(classData[Object.keys(classData)[i]][Object.keys(classData[Object.keys(classData)[i]])[j]]["weights"]).length; k++) {
-                                let value = Object.values(classData[Object.keys(classData)[i]][Object.keys(classData[Object.keys(classData)[i]])[j]]["weights"])[k]; %>
-                            <input style="font-size: 0.9rem; margin-right: 0 !important; white-space: nowrap; margin-bottom: 0;"
-                                   value="<%= Object.keys(classData[Object.keys(classData)[i]][Object.keys(classData[Object.keys(classData)[i]])[j]]["weights"])[k] %>"
-                                   class="text-view"
-                            >
-                            :&nbsp</input>
-                            <input style="<% if (!value && value != 0) { %> border-color: lightcoral!important; <% } %>"
-                                   value="<%= value %>"
-                                   type="number"
-                                   min="0"
-                                   step="0.1"
-                                   class="form-control <% if(value || value == 0){ %> text-view <% } %>"
-                                   name="<%= Object.keys(classData[Object.keys(classData)[i]][Object.keys(classData[Object.keys(classData)[i]])[j]]["weights"])[k] %>"
-                                   oninput="this.classList.remove('text-view'); showSubmitButton(this); "
-                            >
-                            <% } %>
-                            <span class="fa fa-plus" onclick="addCategory(<%= i %>,<%= j %>)"
-                                  style="cursor: pointer"></span>
-                        </div>
-                        <div class="formSubmitButton" style="width: 100%; display: none">
-                            <button type="submit" class="btn btn-default btn-med">
-                                <i class="fa fa-refresh" aria-hidden="true"></i>
-                                Update
-                            </button>
-                        </div>
-                    </span>
-                </form>
-            <% } %>
-        </span>
-        <hr>
-    <% } %>
+                    </form>
+                <% } %>
+            </span>
+            <hr>
+        <% } %>
+    </span>
 </div>
 </body>
 
+<!-- Custom JavaScript -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
-    function addCategory(classIndex, teacherIndex) {
-        let newCategory = $("<input style=\"font-size: 0.9rem; margin-right: 0 !important; color: lightcoral!important; white-space: nowrap; margin-bottom: 0;\" value=\"\">:&nbsp</input>" + "<input style=\"border-color: lightcoral!important;\"value=\"\" type=\"number\" min=\"0\" step=\"0.1\" class=\"form-control\"" + "                           name=\"\"" + "                           oninput=\"this.classList.remove('text-view'); showSubmitButton(this); \">");
-        let classDiv = $("#collapse" + classIndex + teacherIndex);
-        newCategory.insertBefore($(classDiv[0].children[classDiv[0].children.length - 2].children[classDiv[0].children[classDiv[0].children.length - 2].children.length - 1]));
+
+    $(".form-group").each(function () {
+        if (!$($(this)[0].previousElementSibling).hasClass("fa-plus")) {
+            $(this).css("margin-left", $($($(this)[0].parentNode)[0].children)[1].offsetLeft - $($(this)[0].parentNode)[0].offsetLeft);
+        }
+    });
+
+    $(".accordion").each(function () {
+        $(this).removeClass("show");
+    });
+
+    function ajaxPostWeightsDatabaseForm(classIndex, teacherIndex, fieldIDsToClear, messagesDivID, async) {
+        // Get the form.
+        let formID = "#weights" + classIndex + teacherIndex;
+        $(formID).submit(function (event) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+
+            let formData;
+            let message;
+            let formMessagesDiv;
+
+            // Serialize the form data.
+            let className = $($("#weightsCard label h5")[2 * classIndex])[0].innerText.trim();
+            let teacherName = $($(formID)[0].firstElementChild.children)[0].innerText.trim();
+            let inputs = $(formID + " input");
+            let weights = {};
+            for (let i = 0; i < inputs.length; i += 2) {
+                weights[$(inputs[i])[0].value] = $(inputs[i + 1])[0].valueAsNumber;
+            }
+            formData = {
+                className: className, teacherName: teacherName, weights: weights
+            };
+            console.log(formData);
+
+            // Get the messages.
+            formMessagesDiv = $(messagesDivID);
+            message = $(formMessagesDiv).find(".messageTxt");
+            $(formMessagesDiv).find(".sk-chase-mini").show().css('display', 'inline-block');
+
+            // Submit the form using AJAX.
+            $.ajax({
+                       type: "POST", url: $(formID).attr("action"), data: formData, async: async
+                   }).done(function (response) {
+                // Make sure that the formMessages div has the alert-success class.
+                $(formMessagesDiv).removeClass("alert-danger");
+                $(formMessagesDiv).addClass("alert-success");
+
+                // Set the message text.
+                $(message).text(response);
+
+                // Show the div.
+                $(formMessagesDiv).css("display", "block");
+
+                // Clear fields to clear
+                for (let i = 0; i < fieldIDsToClear.length; i++) {
+                    $(fieldIDsToClear[i]).val("");
+                }
+
+                // Fix styling
+                $(formID + " .form-group .form-control").css("border-color", "unset").addClass("text-view");
+                $(formID + " .formSubmitButton").hide();
+            }).fail(function (data) {
+                // Make sure that the formMessages div has the alert-danger class
+                $(formMessagesDiv).removeClass("alert-success");
+                $(formMessagesDiv).addClass("alert-danger");
+
+                // Set the message text.
+                if (data.responseText !== "") {
+                    $(message).text(data.responseText);
+                } else {
+                    $(message).text("Oops! An error occurred and your message could not be sent.");
+                }
+
+                // Show the div.
+                $(formMessagesDiv).css("display", "block");
+            }).always(function () {
+                setTimeout(function () {
+                    $(formMessagesDiv).find(".sk-chase-mini").hide();
+                }, 500);
+            });
+        });
     }
+
+    function showSubmitButton(element) {
+        $(element).parents("form").find(".formSubmitButton").show();
+        $(element).parents("form").find(".alert").removeClass("alert-success").addClass("alert-danger").show().find(".messageTxt").text("Changes not Saved!");
+    }
+
+    function addCategory(classIndex, teacherIndex) {
+        let classDiv = "#collapse" + classIndex + teacherIndex;
+        console.log($($(classDiv)[0].children)[0].children.length);
+        let newCategory = $("<div class=\"form-group\" id=\"category" + classIndex + teacherIndex + ($($(classDiv)[0].children)[0].children.length - 1) + "\"" + "style=\"text-indent: 3rem;" + ($($(classDiv)[0].children)[0].children.length > 1 ? "display: flex;" : "display: inline-flex;") + "align-items: flex-end;" + ($($(classDiv)[0].children)[0].children.length > 1 ? "margin-left: " + ($($($(classDiv)[0].children)[0].children)[1].offsetLeft - $(classDiv)[0].offsetLeft) + "px" : "") + "\">" + "<input style=\"font-size: 0.9rem; margin-right: 0 !important; width: fit-content; white-space: nowrap; margin-bottom: 0;\"" + "class=\"form-control\"" + "oninput=\"this.classList.remove('text-view'); showSubmitButton(this)\"" + "required" + ">" + ":&nbsp</input>" + "<input style=\"margin: 0; border-color: lightcoral!important;\"" + "type=\"number\"" + "min=\"0\"" + "step=\"0.1\"" + "class=\"form-control\"" + "oninput=\"this.classList.remove('text-view'); showSubmitButton(this); \"" + "required" + ">" + "<span class=\"fa fa-minus\" onclick=\"removeCategory(this)\"" + "style=\"text-indent: 1rem; color: red; cursor: pointer;" + ($($(classDiv)[0].children)[0].children.length > 1 ? "display:none;" : "") + "\"></span>" + "</div>");
+        $($($(classDiv)[0].children)[0]).append(newCategory);
+        $(classDiv + " .fa-minus").hide();
+        if ($(classDiv + " .fa-minus").slice(1).length > 0) {
+            $(classDiv + " .fa-minus").slice(1).show();
+        } else {
+            $(classDiv + " .fa-minus").show();
+        }
+        showSubmitButton($(classDiv));
+    }
+
+    function removeCategory(element) {
+        let categoryDiv = $(element).parents(".form-group");
+        let classDiv = $(categoryDiv.parents(".collapse")[0]);
+        categoryDiv.remove();
+        if (classDiv.find(".fa-minus").slice(1).length === 0) {
+            classDiv.find(" .fa-minus").show();
+        }
+        showSubmitButton($(classDiv));
+    }
+
 </script>
