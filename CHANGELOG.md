@@ -20,7 +20,17 @@
 ## [Unreleased] - Coming Soon
 - GPA Display
 - Support for point-based classes
+- Class insights
 - If there is a feature that you would like to become implemented, send feedback in Settings > Feedback
+
+## [Beta 1.1.2] - 2020-03-12
+### Added
+- Global analytics database
+- Will allow for auto-population of weights for new users
+- Will allow for class-wide insights/analytics
+
+### Improved
+- Weights Card
 
 ## [Stable 1.1.1] - 2020-03-03
 ### Fixed

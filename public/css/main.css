@@ -209,8 +209,8 @@ table thead tr th:last-child {
     border: none;
 }
 
-.collapsed:hover {
-    font-weight: bold;
+.collapsed h5:hover {
+    font-weight: bold !important;
 }
 
 .down {

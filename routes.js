@@ -290,8 +290,9 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.post("/updateclassweights", [isAdmin], async (req, res) => {
-        console.log(req.body);
+    app.post("/updateclassweights", [isAdmin], (req, res) => {
+        authenticator.updateWeightsInClassDb(req.body);
+        res.status(200).send("Updated weights for " + req.body.className + " | " + req.body.teacherName);
     });
 
     app.post("/changealertsettings", [isLoggedIn], (req, res) => {
