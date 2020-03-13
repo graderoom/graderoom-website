@@ -1,3 +1,5 @@
+<!-- --------------------------------------------------------------------------------------------------------------- -->
+
 <!--Follow this format-->
 <!--## [Version] - YYYY-MM-DD-->
 <!--### Added/Improved/Fixed/Removed **ONLY** -->
@@ -8,11 +10,20 @@
 <!--## [Known Issues/Unreleased/Announcement] - Description/Date(YYYY-MM-DD)-->
 <!--(-) Specifics-->
 
+<!-- --------------------------------------------------------------------------------------------------------------- -->
+
 <!--Versioning Guide-->
-<!--ALL BETA versions: increase THIRD digit-->
-<!--ALL STABLE versions with SEVEN or FEWER entries: increase THIRD digit-->
-<!--ALL STABLE versions with EIGHT or MORE entries: increase SECOND digit-->
-<!--Increase FIRST digit ONLY in STABLE updates-->
+<!--ALL versions with SEVEN or FEWER entries: increase THIRD digit-->
+<!--ALL versions with EIGHT or MORE entries: increase SECOND digit-->
+<!--Increase FIRST digit when SECOND digit reaches NINE-->
+<!--ALL updates within a day must be in the same version, unless separated by an announcement or stability-->
+
+<!-- --------------------------------------------------------------------------------------------------------------- -->
+
+<!-- Use the following HTML before information specific to beta users (e.g. The Announcement on 2020-03-12) -->
+<!-- <a href="https://beta.graderoom.me/signup" target="_blank" style="display: inline-block; color: #888888">[Beta Users]</a> -->
+
+<!-- --------------------------------------------------------------------------------------------------------------- -->
 
 ## [Known Issues] - Nothing Yet
 - If you have an issue, send feedback in Settings > Feedback
@@ -21,36 +32,45 @@
 - GPA Display
 - Support for point-based classes
 - Class insights
-- If there is a feature that you would like to become implemented, send feedback in Settings > Feedback
+- If you would like a feature to become implemented, send feedback in Settings > Feedback
 
-## [Beta 1.1.5] - 2020-03-12
-### Fixed
-- Resolved issue where user-removed weights would cause server crash
-
-## [Beta 1.1.4] - 2020-03-12
+## [Beta 1.3.3] - 2020-03-12
 ### Added
-- Auto-population of weights for new and existing users
-- If you know your classes category weights, enter them in the edit weights tab to improve the user experience for everyone else
-- If you find an issue with the auto-populated weights, send feedback
-
-## [Beta 1.1.3] - 2020-03-12
-### Fixed
-- Resolved issue where classes with multiple teachers were not supported
-
-## [Beta 1.1.2] - 2020-03-12
-### Added
-- Global analytics database
-- Will allow for auto-population of weights for new users
-- Will allow for class-wide insights/analytics
+- Loading indicators to all messages on settings change and grade update to confirm that new information has been saved
 
 ### Improved
-- Weights Card
+- Messages default to blue while loading before switching to success or failure
+- Changelog Versioning
 
-## [Stable 1.1.1] - 2020-03-03
+### Fixed
+- Inputs deselect on apply to prevent unwanted changes
+- GradeSync Card can no longer be exited with the 'Escape' shortcut while grades are syncing
+
+### Removed
+- Full screen loading indicator when syncing grades
+
+## [Announcement] - 2020-03-12
+- Auto-population of weights is now in beta
+- To prepare for the wide release, if you know the category weights for your classes, please enter them in the edit weights tab to improve the user experience for other users
+- <a href="https://beta.graderoom.me/signup" target="_blank" style="display: inline-block; color: #888888">[Beta Users]</a> If you find an issue with the auto-populated weights, send feedback in Settings > Feedback
+
+## [Beta 1.3.2] - 2020-03-12
+### Added
+- Global analytics database
+- Auto-population of weights for new and existing users
+
+### Improved
+- Weights Card Styling
+
+### Fixed
+- Resolved issue where classes with multiple teachers were not supported
+- Resolved issue where user-removed weights would cause server crash
+
+## [Stable 1.3.1] - 2020-03-03
 ### Fixed
 - Keyboard shortcuts are correctly disabled in all cases when typing into an input field
 
-## [Stable 1.1.0] - 2020-03-02
+## [Stable 1.3.0] - 2020-03-02
 ### Added
 - Brand new changelog display that, by default, displays once every 24 hours. This can be changed in settings
 - The changelog will be updated anytime a new version (beta or stable) is released
@@ -65,7 +85,7 @@
 - Auto theme was not selectable without refresh in some cases
 - Cards no longer close if initial click is inside card
 
-## [Beta 1.0.10] - 2020-03-02
+## [Beta 1.2.3] - 2020-03-02
 ### Added
 - Changelog scrolls to most recent announcement on open
 
@@ -79,9 +99,9 @@
 - If your account still exists, you will be asked to sync your grades with PowerSchool to recover your data
 - Please inform anyone affected by this issue to create a new account
 - The Graderoom Team apologizes for the great inconvenience this has caused and has taken strict measures to prevent a similar event from occurring again
-- If you were part of the beta testing team, request another beta key by emailing graderoom@gmail.com or asking a developer directly
+- <a href="https://beta.graderoom.me/signup" target="_blank" style="display: inline-block; color: #888888">[Beta Users]</a> Request another beta key by emailing graderoom@gmail.com or asking a developer directly
 
-## [Beta 1.0.9] - 2020-03-02
+## [Beta 1.2.2] - 2020-03-02
 ### Added
 - Announcements
 
@@ -91,7 +111,7 @@
 ### Fixed
 - Keyboard shortcuts are now disabled while typing into the password/email fields in settings and when syncing grades
 
-## [Beta 1.0.8] - 2020-03-01
+## [Beta 1.2.1] - 2020-03-01
 ### Added
 - Changelog display initially scrolls to current version with a nice animation
 - Added 'current version' buttons when changelog is scrolled
@@ -100,7 +120,7 @@
 - Better changelog UI
 - Changed keyboard shortcut for changelog to 'Q'
 
-## [Beta 1.0.7] - 2020-02-29
+## [Beta 1.2.0] - 2020-02-29
 ### Added
 - Separate changelog card to reduce clutter in settings
 - Keyboard Shortcut 'C' to view changelog
@@ -116,37 +136,22 @@
 - Changelog message no longer shows if changelog opened manually
 - Cards no longer close if initial click is inside card
 
-## [Beta 1.0.6] - 2020-02-28
-### Fixed
-- Auto theme bounds now clear correctly on apply
-
-## [Beta 1.0.5] - 2020-02-28
+## [Beta 1.1.0] - 2020-02-28
 ### Added
+- Brand new changelog display
+- Changelog now displays on login
+- Current version highlighted in green
 - New changelog message to help user understand how to disable changelog
 - Changelog shows only once a day by default (can be changed in settings)
 
-### Fixed
-- Alert settings correctly display previously saved settings
-
-## [Beta 1.0.4] - 2020-02-28
-### Added
-- Current version highlighted in green
-
-## [Beta 1.0.3] - 2020-02-28
-### Added
-- Changelog now displays on login
-
-### Fixed
-- Solved server crashing caused by changelog
-
-## [Beta 1.0.2] - 2020-02-28
 ### Improved
 - New changelog UI
 - Prevent background scroll when focused on card
 
-## [Beta 1.0.1] - 2020-02-28
-### Added
-- Brand new changelog display
+### Fixed
+- Solved server crashing caused by changelog
+- Alert settings correctly display previously saved settings
+- Auto theme bounds now clear correctly on apply
 
 ## [Stable 1.0.0] - 2020-02-27
 ### Added

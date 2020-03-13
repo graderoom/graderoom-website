@@ -43,20 +43,28 @@
                             </div>
                         </div>
                     <% } %>
-                    <div class="card-footer">
-                        <h5>Theme</h5>
-                        <form id="chooseTheme" class="form-signin" action="/updateAppearance" method="post">
-                            <div id="theme">
-                                <div id="themeMessage"
-                                     class="alert alert-success alert-dismissible font-weight-bold"
-                                     style="display:none">
-                                    <div class="messageTxt"></div>
-                                    <a class="close" onclick="closeMessage('themeMessage')" aria-label="close">X</a>
-                                </div>
-                                <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
-                                                                       value="light"
-                                                                       name="theme"
-                                                                       onclick="$('#autoLimits').hide();
+                        <div class="card-footer">
+                            <h5>Theme</h5>
+                            <form id="chooseTheme" class="form-signin" action="/updateAppearance" method="post">
+                                <div id="theme">
+                                    <div id="themeMessage"
+                                         class="alert alert-success alert-dismissible font-weight-bold"
+                                         style="display:none">
+                                        <div style="display:none" class="sk-chase-mini">
+                                            <div class="sk-chase-dot mini"></div>
+                                            <div class="sk-chase-dot mini"></div>
+                                            <div class="sk-chase-dot mini"></div>
+                                            <div class="sk-chase-dot mini"></div>
+                                            <div class="sk-chase-dot mini"></div>
+                                            <div class="sk-chase-dot mini"></div>
+                                        </div>
+                                        <div class="messageTxt"></div>
+                                        <a class="close" onclick="closeMessage('themeMessage')" aria-label="close">X</a>
+                                    </div>
+                                    <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
+                                                                           value="light"
+                                                                           name="theme"
+                                                                           onclick="$('#autoLimits').hide();
                                                                                $($($(this)[0].form)[0].elements[7]).hide();
                                                                                ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
                                                                                $($(this)[0].form).submit();"
@@ -153,14 +161,22 @@
                                     Apply
                                 </button>
                             </div>
-                        </form>
-                    </div>
+                            </form>
+                        </div>
                 </div>
             </div>
             <div id="settings-2" class="tabcontent">
                 <div class="card-body">
                     <div id="accountSettingsMessage" class="alert alert-success alert-dismissible font-weight-bold"
                          style="display:none">
+                        <div style="display:none" class="sk-chase-mini">
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                        </div>
                         <div class="messageTxt"></div>
                         <a class="close" onclick="closeMessage('accountSettingsMessage')" aria-label="close">X</a>
                     </div>
@@ -211,6 +227,14 @@
                         <div id="alertSettingsMessage"
                              class="alert alert alert-success alert-dismissible font-weight-bold"
                              style="display:none">
+                            <div style="display:none" class="sk-chase-mini">
+                                <div class="sk-chase-dot mini"></div>
+                                <div class="sk-chase-dot mini"></div>
+                                <div class="sk-chase-dot mini"></div>
+                                <div class="sk-chase-dot mini"></div>
+                                <div class="sk-chase-dot mini"></div>
+                                <div class="sk-chase-dot mini"></div>
+                            </div>
                             <div class="messageTxt"></div>
                             <a class="close" onclick="closeMessage('alertSettingsMessage')" aria-label="close">X</a>
                         </div>

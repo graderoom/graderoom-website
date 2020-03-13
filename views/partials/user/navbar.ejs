@@ -76,13 +76,10 @@
             let formMessagesDiv;
 
             if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
+                $("input").blur();
+                $(formMessagesDiv).show();
                 $("#loadingDisplay").show();
-                $("#syncGradesForm").find("input").each(function () {
-                    $(this).blur();
-                });
-                $("#gradeSyncForm").find("input").each(function () {
-                    $(this).blur();
-                });
+                $("#syncFailure").hide();
             }
 
             // Serialize the form data.
@@ -104,7 +101,9 @@
             // Get the messages.
             formMessagesDiv = $(messagesDivID);
             message = $(formMessagesDiv).find(".messageTxt");
-
+            $(message).text("");
+            $(formMessagesDiv).removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
+            $(formMessagesDiv).find(".sk-chase-mini").show().css('display', 'inline-block');
 
             // Submit the form using AJAX.
             $.ajax({
@@ -118,15 +117,17 @@
                     $("#reloadNeeded").text("Reload Needed");
                 } else {
 
-                    // Make sure that the formMessages div has the alert-success class.
-                    $(formMessagesDiv).removeClass("alert-danger");
-                    $(formMessagesDiv).addClass("alert-success");
-
                     // Set the message text.
-                    $(message).text(response);
+                    setTimeout(function () {
+                        $(message).text(response);
+                        $(formMessagesDiv).find(".sk-chase-mini").hide();
+                        // Make sure that the formMessages div has the alert-success class.
+                        $(formMessagesDiv).removeClass("alert-info");
+                        $(formMessagesDiv).addClass("alert-success");
+                    }, 500);
 
                     // Show the div.
-                    $(formMessagesDiv).css("display", "block");
+                    $(formMessagesDiv).show();
 
                     // Show correct sync div
                     if (response === "GradeSync Enabled. Updated grades!") {
@@ -258,10 +259,13 @@
                     for (let i = 0; i < fieldIDsToClear.length; i++) {
                         $(fieldIDsToClear[i]).val("");
                     }
+                    $("input").each(function () {
+                        $(this).blur();
+                    });
                 }
             }).fail(function (data) {
                 // Make sure that the formMessages div has the alert-danger class
-                $(formMessagesDiv).removeClass("alert-success");
+                $(formMessagesDiv).removeClass("alert-info");
                 $(formMessagesDiv).addClass("alert-danger");
 
                 // Set the message text.
@@ -269,13 +273,20 @@
                     if (data.responseText === "Error scraping grades.") {
                         $("#syncFailure").show();
                     }
-                    $(message).text(data.responseText);
+                    if (data.responseText === "Login Failed") {
+                        $(message).text("Invalid Credentials");
+                    } else {
+                        $(message).text(data.responseText);
+                    }
                 } else {
                     $(message).text("Oops! An error occurred and your message could not be sent.");
                 }
 
                 // Show the div.
                 $(formMessagesDiv).css("display", "block");
+
+                // Hide loading
+                $(formMessagesDiv).find(".sk-chase-mini").hide();
 
                 if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
                     $("#inputPassword").focus();
@@ -388,13 +399,15 @@
     });
     // Collapse navbar or card when press escape
     $(document).keydown(function (e) {
-        if (e.key === "Escape") { // escape key maps to keycode `27`
-            try {
-                $(".navbar-collapse").collapse("hide");
-                closeForm("toggle");
-            } catch (e) {
+        if ($("#loadingDisplay").css("display") === "none") {
+            if (e.key === "Escape") { // escape key maps to keycode `27`
+                try {
+                    $(".navbar-collapse").collapse("hide");
+                    closeForm("toggle");
+                } catch (e) {
+                }
+                closeForm(cardsDisplayed[cardsDisplayed.length - 1]);
             }
-            closeForm(cardsDisplayed[cardsDisplayed.length - 1]);
         }
     });
 </script>
