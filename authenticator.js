@@ -126,15 +126,17 @@ module.exports = {
             let className = user.grades[i].class_name;
             let teacherName = user.grades[i].teacher_name;
             let classDb = db.get("classes");
+            let classes = classDb.value();
             let weights = user.weights[className];
             for (let i = 0; i < Object.keys(weights).length; i++) {
-                if (!Object.keys(classDb.value()[className][teacherName]["weights"][Object.keys(weights)[i]]).includes(Object.keys(weights)[i])) {
-                    classDb.get(className).get(teacherName).get("weights").set(Object.keys(weights)[i], Object.values(weights)[i]).write();
+                if (classes[className][teacherName]["weights"][Object.keys(weights)[i]]) {
+                    if (!Object.keys(classes[className][teacherName]["weights"][Object.keys(weights)[i]]).includes(Object.keys(weights)[i])) {
+                        classDb.get(className).get(teacherName).get("weights").set(Object.keys(weights)[i], Object.values(weights)[i]).write();
+                    }
                 }
             }
 
             // Put weights into new user
-            let classes = classDb.value();
             for (let i = 0; i < Object.keys(classes[className][teacherName]["weights"]).length; i++) {
                 let categoryName = Object.keys(classes[className][teacherName]["weights"])[i];
                 if (!Object.keys(weights).includes(categoryName)) {
