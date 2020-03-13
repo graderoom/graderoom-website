@@ -37,13 +37,11 @@
 ## [Beta 1.4.0] - 2020-03-12
 ### Added
 - Loading indicators to all messages on settings change and grade update to confirm that new information has been saved
+- Overview chart hard limits from 70% to 110% to enhance viewing experience
 
 ### Improved
 - Messages default to blue while loading before switching to success or failure
 - Changelog Versioning
-- Overview chart hard limits from 70% to 110% to enhance viewing experience
-- Go to the individual classes to view a full chart
-- A more dynamic solution is being worked on
 
 ### Fixed
 - Inputs deselect on apply to prevent unwanted changes
