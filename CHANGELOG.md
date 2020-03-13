@@ -23,6 +23,10 @@
 - Class insights
 - If there is a feature that you would like to become implemented, send feedback in Settings > Feedback
 
+## [Beta 1.1.5] - 2020-03-12
+### Fixed
+- Resolved issue where user-removed weights would cause server crash
+
 ## [Beta 1.1.4] - 2020-03-12
 ### Added
 - Auto-population of weights for new and existing users
