@@ -25,7 +25,8 @@
 
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
-## [Known Issues] - Nothing Yet
+## [Known Issues] - Working on it
+- Auto Theme does not work correctly because of Daylight Savings Time
 - If you have an issue, send feedback in Settings > Feedback
 
 ## [Unreleased] - Coming Soon
