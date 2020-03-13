@@ -397,13 +397,13 @@ module.exports = {
 
     addDbClass: function (class_name, teacher_name) {
         let classesRef = db.get("classes");
-        class_name = "[\"" + class_name + "\"]";
+        let mod_class_name = "[\"" + class_name + "\"]";
         if (!Object.keys(classesRef.value()).includes(class_name)) {
-            classesRef.set(class_name, {
+            classesRef.set(mod_class_name, {
                 classType: "" //TODO Honors/AP/Non-Academic/etc.
             }).write();
         }
-        classesRef.get(class_name).set(teacher_name, {
+        classesRef.get(mod_class_name).set(teacher_name, {
             weights: {}, //TODO Weights
             hasWeights: null, //TODO Has weights
             assignments: {}, //TODO populate assignments by some kind of identifier (points possible + assignment name
