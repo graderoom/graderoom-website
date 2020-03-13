@@ -34,6 +34,10 @@
 - Class insights
 - If you would like a feature to become implemented, send feedback in Settings > Feedback
 
+## [Beta 1.4.1] - 2020-03-13
+### Fixed
+- Loading message shows correctly when syncing grades
+
 ## [Beta 1.4.0] - 2020-03-12
 ### Added
 - Loading indicators to all messages to confirm that new information has been saved
