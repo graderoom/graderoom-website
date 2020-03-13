@@ -75,13 +75,6 @@
             let message;
             let formMessagesDiv;
 
-            if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
-                $("input").blur();
-                $(formMessagesDiv).show();
-                $("#loadingDisplay").show();
-                $("#syncFailure").hide();
-            }
-
             // Serialize the form data.
             if (formID === "#chooseTheme") {
                 let data = JSON.parse(JSON.stringify($(form).serializeArray()));
@@ -103,7 +96,14 @@
             message = $(formMessagesDiv).find(".messageTxt");
             $(message).text("");
             $(formMessagesDiv).removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
-            $(formMessagesDiv).find(".sk-chase-mini").show().css('display', 'inline-block');
+            $(formMessagesDiv).find(".sk-chase-mini").show().css("display", "inline-block");
+            $(formMessagesDiv).show();
+
+            if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
+                $("input").blur();
+                $("#loadingDisplay").show();
+                $("#syncFailure").hide();
+            }
 
             // Submit the form using AJAX.
             $.ajax({
