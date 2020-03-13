@@ -34,22 +34,18 @@
 - Class insights
 - If you would like a feature to become implemented, send feedback in Settings > Feedback
 
-## [Beta 1.4.0] - 2020-03-12
+## [Beta 1.3.3] - 2020-03-12
 ### Added
 - Loading indicators to all messages on settings change and grade update to confirm that new information has been saved
 - Overview chart hard limits from 70% to 110% to enhance viewing experience
 
 ### Improved
 - Messages default to blue while loading before switching to success or failure
-- Changelog Versioning
 
 ### Fixed
-- Inputs deselect on apply to prevent unwanted changes
+- Inputs deselect on apply to prevent unwanted changes after request is sent
 - GradeSync Card can no longer be exited with the 'Escape' shortcut while grades are syncing
-- Weight auto-population works correctly for new users
-
-### Removed
-- Full screen loading indicator when syncing grades
+- Weight auto-population works correctly for new and existing users
 
 ## [Announcement] - 2020-03-12
 - Auto-population of weights is now in beta
