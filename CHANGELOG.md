@@ -21,7 +21,7 @@
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
 <!-- Use the following HTML before information specific to beta users (e.g. The Announcement on 2020-03-12) -->
-<!-- <a href="https://beta.graderoom.me/signup" target="_blank" style="display: inline-block; color: #888888">[Beta Users]</a> -->
+<!-- <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> -->
 
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
@@ -34,23 +34,25 @@
 - Class insights
 - If you would like a feature to become implemented, send feedback in Settings > Feedback
 
-## [Beta 1.3.3] - 2020-03-12
+## [Beta 1.4.0] - 2020-03-12
 ### Added
-- Loading indicators to all messages on settings change and grade update to confirm that new information has been saved
-- Overview chart hard limits from 70% to 110% to enhance viewing experience
+- Loading indicators to all messages to confirm that new information has been saved
+- Messages default to blue while loading before switching to success or failure
 
 ### Improved
-- Messages default to blue while loading before switching to success or failure
+- Overview chart hard limits from 70% to 110% to enhance viewing experience
+- View class charts to see grades outside those bounds
+- More descriptive messages when sync grades fails
 
 ### Fixed
 - Inputs deselect on apply to prevent unwanted changes after request is sent
-- GradeSync Card can no longer be exited with the 'Escape' shortcut while grades are syncing
+- 'Escape' shortcut correctly disables when grades are syncing
 - Weight auto-population works correctly for new and existing users
 
 ## [Announcement] - 2020-03-12
 - Auto-population of weights is now in beta
 - To prepare for the wide release, if you know the category weights for your classes, please enter them in the edit weights tab to improve the user experience for other users
-- <a href="https://beta.graderoom.me/signup" target="_blank" style="display: inline-block; color: #888888">[Beta Users]</a> If you find an issue with the auto-populated weights, send feedback in Settings > Feedback
+- <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> If you find an issue with the auto-populated weights, send feedback in Settings > Feedback
 
 ## [Beta 1.3.2] - 2020-03-12
 ### Added
