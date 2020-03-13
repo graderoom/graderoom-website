@@ -131,8 +131,8 @@
             let formMessagesDiv;
 
             // Serialize the form data.
-            let className = $($("#weightsCard label h5")[2 * classIndex])[0].innerText.trim();
-            let teacherName = $($(formID)[0].firstElementChild.children)[0].innerText.trim();
+            let teacherName = $(formID).find(".weightname")[0].innerText.trim();
+            let className = $($($(formID).parents(".accordion")[1])[0]).find("label h5").not(".weightname")[classIndex].innerText.trim();
             let inputs = $(formID + " input");
             let weights = {};
             for (let i = 0; i < inputs.length; i += 2) {
