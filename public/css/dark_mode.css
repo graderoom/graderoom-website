@@ -114,11 +114,6 @@ th {
     color: #BBBBBB;
 }
 
-.break {
-    flex-basis: 100%;
-    height: 0;
-}
-
 /* Input Form Background Images */
 
 .form-group .user-bg {
@@ -214,11 +209,6 @@ th {
 
 #weightsCard input.text-view {
     border-color: white;
-}
-
-#weightsCard .disabled {
-    color: #999!important;
-    border-bottom: none!important;
 }
 
 #weightsCard .fail {

@@ -11,7 +11,7 @@
     100% {
         transform: rotate(360deg);
     }
-}
+}`
 
 @keyframes sk-chase-dot {
     80%, 100% {
@@ -250,6 +250,11 @@ table thead tr th:last-child {
 
 .form-group input:focus {
     box-shadow: none;
+}
+
+.break {
+    flex-basis: 100%;
+    height: 0;
 }
 
 .form-group .user-bg {
@@ -599,6 +604,11 @@ table thead tr th:last-child {
 
 #weightsCard h5.collapsed ~ span.collapse-underline {
     border-bottom: none;
+}
+
+#weightsCard .disabled {
+    color: #999!important;
+    border-bottom: none!important;
 }
 
 #weightsCard input {

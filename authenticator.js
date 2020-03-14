@@ -76,8 +76,25 @@ module.exports = {
         let user = db.get("users").find({username: lc_username});
         // Fixes db for all old users
         for (let i = 0; i < user.value().grades.length; i++) {
+            //Add all classes to weights
             if (!(user.value().weights[user.value().grades[i].class_name])) {
                 this.addNewWeightDict(lc_username, i, user.value().grades[i].class_name);
+            }
+            //Move weights to new storage system
+            let weights = Object.assign({},user.value().weights[user.value().grades[i].class_name]); // get weights from old storage
+            let hasWeights = "true";
+            if (weights.hasOwnProperty("hasWeights")) {
+                hasWeights = weights["hasWeights"];
+                delete weights["hasWeights"];
+            }
+            delete weights["weights"];         
+
+            this.updateWeightsForClass(username,user.value().grades[i].class_name,hasWeights,weights); // put weights in new storage
+
+            for (var key in weights) {
+                if (weights.hasOwnProperty(key)) {
+                    delete user.value().weights[user.value().grades[i].class_name][key]; // delete weights in old storage
+                }
             }
         }
 
