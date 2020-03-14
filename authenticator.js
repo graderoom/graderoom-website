@@ -340,7 +340,7 @@ module.exports = {
             if (i < index) {
                 newWeights[Object.keys(weights)[i]] = Object.values(weights)[i];
             } else if (i === index) {
-                newWeights[className] = {};
+                newWeights[className] = {"weights":{},"hasWeights":"true"};
             } else {
                 newWeights[Object.keys(weights)[i - 1]] = Object.values(weights)[i - 1];
             }

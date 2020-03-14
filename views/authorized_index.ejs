@@ -409,9 +409,9 @@
     }
     function getTotalWeight(classIndex) {
         let className = data[classIndex].class_name;
-        let classWeights = Object.values(weights[className]);
+        let classWeights = Object.values(weights[className]["weights"]);
         let totalWeight = 0;
-        let classCategories = Object.keys(weights[className]);
+        let classCategories = Object.keys(weights[className]["weights"]);
         for (let i = 0; i < classWeights.length; i++) {
             if (getCategoryGottenAndPossible(classIndex, classCategories[i]).possible !== 0) {
                 totalWeight += classWeights[i];
@@ -422,14 +422,26 @@
     function getOverallGrade(classIndex) {
         let className = data[classIndex].class_name;
         if (className in weights) {
-            let classCategories = Object.keys(weights[className]);
-            let classWeights = Object.values(weights[className]);
-            let overallGrade = 0;
-            for (let i = 0; i < classCategories.length; i++) {
-                overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i] / 100;
+            let overallGrade;
+            if (weights[className]["hasWeights"]=="false"){
+                let points_earned = 0;
+                let points_total = 0;
+                for (let assignment of data[classIndex]["grades"]) {
+                    points_earned += assignment["points_gotten"];
+                    console.log(assignment);
+                    points_total += assignment["points_possible"];
+                }
+                overallGrade = points_earned/points_total*100;
+            } else {
+                let classCategories = Object.keys(weights[className]["weights"]);
+                let classWeights = Object.values(weights[className]["weights"]);
+                let overallGrade = 0;
+                for (let i = 0; i < classCategories.length; i++) {
+                    overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i] / 100;
+                }
+                let ratio = 100 / getTotalWeight(classIndex);
+                overallGrade *= ratio;
             }
-            let ratio = 100 / getTotalWeight(classIndex);
-            overallGrade *= ratio;
             return overallGrade;
         }
         return 0;
@@ -459,25 +471,28 @@
             return "D";
         } else if (grade >= 59.5) {
             return "D-";
-        }
+        } 
         return "F";
     }
     function setupWeightsTables() {
         for (let i = 0; i < data.length; i++) {
             let className = data[i].class_name;
-            if (weights[className]) {
-                let tableCategories = Object.keys(weights[className]);
-                let tableWeights = Object.values(weights[className]);
-                for (let j = 0; j < tableCategories.length; j++) {
-                    document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
-                    document.getElementById("weightTableWeight" + i + j).textContent = tableWeights[j] + "%";
-                    let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
-                    document.getElementById("weightTablePoints" + i + j).textContent = +(categoryGottenAndPossible.gotten.toFixed(3)) + ((categoryGottenAndPossible.possible !== 0) ? ("/" + +(categoryGottenAndPossible.possible.toFixed(3))) : "");
-                    let categoryGrade = getCategoryGrade(i, tableCategories[j]);
-                    if (categoryGottenAndPossible.possible !== 0) {
-                        document.getElementById("weightTableGrade" + i + j).textContent = categoryGrade + "% (" + getLetterGrade(categoryGrade) + ")";
+            console.log(className + "has unobtained weights: ",unobtainedWeights);
+            if (!unobtainedWeights[className]) {
+                if (weights[className]["hasWeights"]=="true") {
+                    let tableCategories = Object.keys(weights[className]);
+                    let tableWeights = Object.values(weights[className]);
+                    for (let j = 0; j < tableCategories.length; j++) {
+                        document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
+                        document.getElementById("weightTableWeight" + i + j).textContent = tableWeights[j] + "%";
+                        let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
+                        document.getElementById("weightTablePoints" + i + j).textContent = +(categoryGottenAndPossible.gotten.toFixed(3)) + ((categoryGottenAndPossible.possible !== 0) ? ("/" + +(categoryGottenAndPossible.possible.toFixed(3))) : "");
+                        let categoryGrade = getCategoryGrade(i, tableCategories[j]);
+                        if (categoryGottenAndPossible.possible !== 0) {
+                            document.getElementById("weightTableGrade" + i + j).textContent = categoryGrade + "% (" + getLetterGrade(categoryGrade) + ")";
+                        }
                     }
-                }
+                }   
                 let overallGrade = getOverallGrade(i);
                 document.getElementById("weightTableOverallGrade" + i).textContent = (+(overallGrade.toFixed(3))).toString() + "% (" + getLetterGrade(overallGrade) + ")";
             }
@@ -544,16 +559,18 @@
         /*
          WEIGHTS first
          */
+        console.log("parse data");
         for (let classData of data) {
             let className = classData.class_name;
             let needWeights = !(className in weights) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object);
             let localMissingCategories = [];
-            if ((className in weights) && (weights[className].length)) {
+            if ((className in weights) && (weights[className]["hasWeights"]==="false")) {
                 needWeights = false;
             } else {
                 for (let grade of classData.grades) {
-                    // console.log(grade.category)
-                    if (!(grade.category in weights[className])) {
+                    console.log(grade.category + " " + className);
+                    console.log(grade.category + " " + className);
+                    if (!(className in weights) || !(grade.category in weights[className]["weights"])) {
                         if (!localMissingCategories.includes(grade.category)) {
                             localMissingCategories.push(grade.category);
                         }
@@ -561,9 +578,10 @@
                     }
                 }
                 if (needWeights) {
-                    unobtainedWeights[className] = localMissingCategories; //todo here add specific weights (i.e. You don't have the Test category...)
+                    unobtainedWeights[className] = localMissingCategories;
                 }
             }
+
         }
         /**
          * now grades!
@@ -576,7 +594,7 @@
             let totalPossiblesAndGottens = {}; //by category
             let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
             // VERY JANK CHANGE LATER
-            let doesntHaveWeights = className in unobtainedWeights; //Already checked for above: || weights[className].hasWeights === false;
+            let doesntHaveWeights = (className in unobtainedWeights) || (weights[className]["hasWeights"]==="false");
             // console.log(className + " DHW? : " + doesntHaveWeights);
             for (let grade of classData.grades) {
                 let category = grade.category;
@@ -587,7 +605,7 @@
                     if (typeof totalPossiblesAndGottens[category] === "undefined") {
                         let weightVal = 100;
                         if (!doesntHaveWeights) {
-                            weightVal = weights[className][category];
+                            weightVal = weights[className]["weights"][category];
                         }
                         totalPossiblesAndGottens[category] = {
                             totalPossible: 0, totalGotten: 0, weight: weightVal
