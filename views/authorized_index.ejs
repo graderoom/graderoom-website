@@ -151,7 +151,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]).length; j++) { %>
+                        <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]).length; j++) { %>
                             <tr>
                                 <td id="weightTableCategory<%= i %><%= j %>"></td>
                                 <td id="weightTableWeight<%= i %><%= j %>"></td>
@@ -170,9 +170,7 @@
                                 <div style="display:none" colspan="4"
                                      class="alert alert-danger font-weight-bold"
                                      id="weightTablemsg<%= i %>">
-                                    <span id="weightmsg_text<%= i %>"></span><br><u style="cursor: pointer"
-                                                                                    onclick="showUpdateWeights(<%= i %>)">Add
-                                        Weights</u>
+                                    <span id="weightmsg_text<%= i %>"></span><br><u style="cursor: pointer" onclick="showUpdateWeights(<%= i %>)">Add Weights</u>
                                 </div>
                             </th>
                         </tr>
@@ -422,25 +420,24 @@
     function getOverallGrade(classIndex) {
         let className = data[classIndex].class_name;
         if (className in weights) {
-            let overallGrade;
+            let overallGrade = 0;
             if (weights[className]["hasWeights"]=="false"){
                 let points_earned = 0;
                 let points_total = 0;
                 for (let assignment of data[classIndex]["grades"]) {
                     points_earned += assignment["points_gotten"];
-                    console.log(assignment);
                     points_total += assignment["points_possible"];
                 }
                 overallGrade = points_earned/points_total*100;
             } else {
                 let classCategories = Object.keys(weights[className]["weights"]);
                 let classWeights = Object.values(weights[className]["weights"]);
-                let overallGrade = 0;
                 for (let i = 0; i < classCategories.length; i++) {
                     overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i] / 100;
                 }
                 let ratio = 100 / getTotalWeight(classIndex);
                 overallGrade *= ratio;
+                console.log(overallGrade)
             }
             return overallGrade;
         }
@@ -477,11 +474,10 @@
     function setupWeightsTables() {
         for (let i = 0; i < data.length; i++) {
             let className = data[i].class_name;
-            console.log(className + "has unobtained weights: ",unobtainedWeights);
             if (!unobtainedWeights[className]) {
                 if (weights[className]["hasWeights"]=="true") {
-                    let tableCategories = Object.keys(weights[className]);
-                    let tableWeights = Object.values(weights[className]);
+                    let tableCategories = Object.keys(weights[className]["weights"]);
+                    let tableWeights = Object.values(weights[className]["weights"]);
                     for (let j = 0; j < tableCategories.length; j++) {
                         document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
                         document.getElementById("weightTableWeight" + i + j).textContent = tableWeights[j] + "%";
@@ -492,7 +488,7 @@
                             document.getElementById("weightTableGrade" + i + j).textContent = categoryGrade + "% (" + getLetterGrade(categoryGrade) + ")";
                         }
                     }
-                }   
+                }
                 let overallGrade = getOverallGrade(i);
                 document.getElementById("weightTableOverallGrade" + i).textContent = (+(overallGrade.toFixed(3))).toString() + "% (" + getLetterGrade(overallGrade) + ")";
             }
@@ -568,8 +564,6 @@
                 needWeights = false;
             } else {
                 for (let grade of classData.grades) {
-                    console.log(grade.category + " " + className);
-                    console.log(grade.category + " " + className);
                     if (!(className in weights) || !(grade.category in weights[className]["weights"])) {
                         if (!localMissingCategories.includes(grade.category)) {
                             localMissingCategories.push(grade.category);
@@ -580,6 +574,7 @@
                 if (needWeights) {
                     unobtainedWeights[className] = localMissingCategories;
                 }
+                console.log(needWeights);
             }
 
         }
