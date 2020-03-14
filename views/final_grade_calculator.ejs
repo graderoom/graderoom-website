@@ -6,11 +6,18 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
-    <% if (user.appearance.darkMode) { %>
-        <link rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+    <% if (user.appearance.theme === "dark" ||
+           (user.appearance.theme === "auto" &&
+            (((user.appearance.darkModeStart < user.appearance.darkModeFinish) &&
+              ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) &&
+              ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish)) ||
+             ((user.appearance.darkModeStart > user.appearance.darkModeFinish) &&
+              ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) ||
+               ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish))))) { %>        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else { %>
-        <link rel="stylesheet" type="text/css" href="public/css/light_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
     <% } %>
+    <link rel="stylesheet" type="text/css" href="public/css/main.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Javascript imports -->
@@ -114,42 +121,42 @@
     data = <%- gradeData %>;
 
     // Set up input divs
-    let currentGradeDiv = $('#currentGrade');
-    let chooseClassDiv = $('#chooseClass');
-    let goalDiv = $('#goal');
-    let chooseLetterGradeDiv = $('#chooseLetterGrade');
-    let finalWeightDiv = $('#finalWeight');
-    let finalPointsDiv = $('#finalPoints');
-    let chooseWeightDiv = $('#chooseWeight');
-    let form = $('#calculateFinalGrade');
+    let currentGradeDiv = $("#currentGrade");
+    let chooseClassDiv = $("#chooseClass");
+    let goalDiv = $("#goal");
+    let chooseLetterGradeDiv = $("#chooseLetterGrade");
+    let finalWeightDiv = $("#finalWeight");
+    let finalPointsDiv = $("#finalPoints");
+    let chooseWeightDiv = $("#chooseWeight");
+    let form = $("#calculateFinalGrade");
 
     // Messages
-    let feedbackMessageDiv = $('#calculatorMessage');
+    let feedbackMessageDiv = $("#calculatorMessage");
 
     // Manage changes of currentGradeDiv
-    currentGradeDiv.on('input', function () {
+    currentGradeDiv.on("input", function () {
         // Submit the form.
         form.submit();
     });
 
     // Manage changes of chooseClassDiv
-    chooseClassDiv.on('change', function () {
+    chooseClassDiv.on("change", function () {
         if ($(this)[0].selectedIndex === 0) {
-            currentGradeDiv.val('');
-            currentGradeDiv.prop('defaultValue', '');
-            finalWeightDiv.val('');
-            finalWeightDiv.prop('defaultValue', '');
-            document.getElementById('specialFinal').style.display = 'none';
+            currentGradeDiv.val("");
+            currentGradeDiv.prop("defaultValue", "");
+            finalWeightDiv.val("");
+            finalWeightDiv.prop("defaultValue", "");
+            document.getElementById("specialFinal").style.display = "none";
         } else {
             currentGradeDiv.val(+(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
-            currentGradeDiv.prop('defaultValue', +(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
-            document.getElementById('specialFinal').style.display = 'block';
+            currentGradeDiv.prop("defaultValue", +(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
+            document.getElementById("specialFinal").style.display = "block";
         }
         if (finalWeightDiv !== null) {
-            finalWeightDiv.val('');
-            finalWeightDiv.prop('defaultValue', '');
-            finalPointsDiv.val('');
-            finalPointsDiv.prop('defaultValue', '');
+            finalWeightDiv.val("");
+            finalWeightDiv.prop("defaultValue", "");
+            finalPointsDiv.val("");
+            finalPointsDiv.prop("defaultValue", "");
         }
         manageChooseWeight($(this)[0].selectedIndex - 1);
 
@@ -158,44 +165,43 @@
     });
 
     // Manage changes of goalDiv
-    goalDiv.on('input', function () {
+    goalDiv.on("input", function () {
         // Submit the form.
         form.submit();
     });
 
     // Manage changes of chooseLetterGradeDiv
-    chooseLetterGradeDiv.on('change', function () {
-        goalDiv.val(document.getElementById('chooseLetterGrade').options[$(this)[0].selectedIndex].value);
-        goalDiv.prop('defaultValue',
-            document.getElementById('chooseLetterGrade').options[$(this)[0].selectedIndex].value);
+    chooseLetterGradeDiv.on("change", function () {
+        goalDiv.val(document.getElementById("chooseLetterGrade").options[$(this)[0].selectedIndex].value);
+        goalDiv.prop("defaultValue", document.getElementById("chooseLetterGrade").options[$(this)[0].selectedIndex].value);
         form.submit();
     });
 
     // Manage changes of finalWeightDiv
-    finalWeightDiv.on('input', function () {
-        finalPointsDiv.val('');
-        finalPointsDiv.prop('defaultValue', '');
-        $('#chooseWeight')[0].selectedIndex = 0;
+    finalWeightDiv.on("input", function () {
+        finalPointsDiv.val("");
+        finalPointsDiv.prop("defaultValue", "");
+        $("#chooseWeight")[0].selectedIndex = 0;
         // Submit the form.
         form.submit();
     });
 
     // Manage changes of finalPointsDiv
-    finalPointsDiv.on('input', function () {
-        finalWeightDiv.val('');
-        finalWeightDiv.prop('defaultValue', '');
-        let selectedWeight = $('#chooseWeight option:selected');
+    finalPointsDiv.on("input", function () {
+        finalWeightDiv.val("");
+        finalWeightDiv.prop("defaultValue", "");
+        let selectedWeight = $("#chooseWeight option:selected");
         if (chooseClassDiv[0].selectedIndex !== 0) {
-            updateFinalWeight(selectedWeight, 'finalPointsDiv');
+            updateFinalWeight(selectedWeight, "finalPointsDiv");
         }
     });
 
     // Mange changes of chooseWeightDiv
-    chooseWeightDiv.on('change', function () {
-        finalWeightDiv.val('');
-        finalWeightDiv.prop('defaultValue', '');
-        let selectedWeight = $('#chooseWeight option:selected');
-        updateFinalWeight(selectedWeight, 'chooseWeightDiv');
+    chooseWeightDiv.on("change", function () {
+        finalWeightDiv.val("");
+        finalWeightDiv.prop("defaultValue", "");
+        let selectedWeight = $("#chooseWeight option:selected");
+        updateFinalWeight(selectedWeight, "chooseWeightDiv");
     });
 
     function updateFinalWeight(selectedWeight, editedField) {
@@ -206,33 +212,28 @@
         let categoryWeight = selectedWeight[0].value;
 
         console.log(categoryWeight, finalPoints);
-        if (categoryWeight === '' && finalPoints === '') {
-            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').css(
-                'display', 'block').find('.messageTxt').text('Step 3: Complete Final Info');
+        if (categoryWeight === "" && finalPoints === "") {
+            feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 3: Complete Final Info");
             return;
         }
 
-        if (editedField === 'finalPointsDiv') {
-            if (categoryWeight === '') {
-                feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').css(
-                    'display', 'block').find('.messageTxt').text('Step 4: Select a Category');
+        if (editedField === "finalPointsDiv") {
+            if (categoryWeight === "") {
+                feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 4: Select a Category");
                 return;
             }
 
-            if (finalPoints === '') {
-                feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').css(
-                    'display', 'block').find('.messageTxt').text('Step 4: Enter Final Points');
+            if (finalPoints === "") {
+                feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 4: Enter Final Points");
                 return;
             }
-        } else if (editedField === 'chooseWeightDiv') {
-            if (finalPoints === '') {
-                feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').css(
-                    'display', 'block').find('.messageTxt').text('Step 4: Enter Final Points');
+        } else if (editedField === "chooseWeightDiv") {
+            if (finalPoints === "") {
+                feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 4: Enter Final Points");
                 return;
             }
-            if (categoryWeight === '') {
-                feedbackMessageDiv.removeClass('alert-success').removeClass('alert-info').addClass('alert-info').css(
-                    'display', 'block').find('.messageTxt').text('Step 4: Select a Category');
+            if (categoryWeight === "") {
+                feedbackMessageDiv.removeClass("alert-success").removeClass("alert-info").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 4: Select a Category");
                 return;
             }
         }
@@ -254,7 +255,7 @@
         // Get the text field
         let message = finalWeightDiv;
         $(message).val(parseFloat(finalWeight.toFixed(8)));
-        $(message).prop('defaultValue', parseFloat(finalWeight.toFixed(8)));
+        $(message).prop("defaultValue", parseFloat(finalWeight.toFixed(8)));
 
         // Submit the form
         form.submit();
@@ -271,73 +272,67 @@
         let letterGoal;
 
         if (!currentGrade && currentGrade !== 0) {
-            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').find(
-                '.messageTxt').text('Step 1: Enter Current Grade or Select a Class');
+            feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").find(".messageTxt").text("Step 1: Enter Current Grade or Select a Class");
             return;
         }
 
         if (currentGrade < 0) {
-            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-info').addClass('alert-danger').find(
-                '.messageTxt').text('Your Current Grade Should Be a Positive Number');
+            feedbackMessageDiv.removeClass("alert-success").removeClass("alert-info").addClass("alert-danger").find(".messageTxt").text("Your Current Grade Should Be a Positive Number");
             return;
         }
 
         if (goal <= 0) {
-            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-info').addClass('alert-danger').find(
-                '.messageTxt').text('Try aiming higher');
+            feedbackMessageDiv.removeClass("alert-success").removeClass("alert-info").addClass("alert-danger").find(".messageTxt").text("Try aiming higher");
             return;
         }
 
         if (!goal && goal !== 0) {
-            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').find(
-                '.messageTxt').text('Step 2: Enter Your Goal or Select Letter Grade');
+            feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").find(".messageTxt").text("Step 2: Enter Your Goal or Select Letter Grade");
             return;
         }
 
         if (finalWeight <= 0) {
-            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-info').addClass('alert-danger').find(
-                '.messageTxt').text('Your final weight must be positive');
+            feedbackMessageDiv.removeClass("alert-success").removeClass("alert-info").addClass("alert-danger").find(".messageTxt").text("Your final weight must be positive");
             return;
         }
 
         if (!finalWeight) {
-            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').find(
-                '.messageTxt').text('Step 3: Complete Final Info');
+            feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").find(".messageTxt").text("Step 3: Complete Final Info");
             return;
         }
 
         let digitsInGoalMinusOne = Math.floor(Math.log10(goal)),
             firstDigitInGoal = Math.floor(goal / Math.pow(10, digitsInGoalMinusOne));
         if (firstDigitInGoal === 8) {
-            letterGoal = 'an ' + goal + '%';
+            letterGoal = "an " + goal + "%";
         } else {
-            letterGoal = 'a ' + goal + '%';
+            letterGoal = "a " + goal + "%";
         }
 
         if (goal === 97.5) {
-            letterGoal = 'an A+';
+            letterGoal = "an A+";
         } else if (goal === 92.5) {
-            letterGoal = 'an A';
+            letterGoal = "an A";
         } else if (goal === 89.5) {
-            letterGoal = 'an A-';
+            letterGoal = "an A-";
         } else if (goal === 87.5) {
-            letterGoal = 'a B+';
+            letterGoal = "a B+";
         } else if (goal === 82.5) {
-            letterGoal = 'a B';
+            letterGoal = "a B";
         } else if (goal === 79.5) {
-            letterGoal = 'a B-';
+            letterGoal = "a B-";
         } else if (goal === 77.5) {
-            letterGoal = 'a C+';
+            letterGoal = "a C+";
         } else if (goal === 72.5) {
-            letterGoal = 'a C';
+            letterGoal = "a C";
         } else if (goal === 69.5) {
-            letterGoal = 'a C-';
+            letterGoal = "a C-";
         } else if (goal === 67.5) {
-            letterGoal = 'a D+';
+            letterGoal = "a D+";
         } else if (goal === 62.5) {
-            letterGoal = 'a D';
+            letterGoal = "a D";
         } else if (goal === 59.5) {
-            letterGoal = 'a D-';
+            letterGoal = "a D-";
         }
 
         //TODO Finish these messages
@@ -355,7 +350,7 @@
             endMessage = "";
         } else if (grade > 80) {
             startMessage = "";
-            endMessage = ""
+            endMessage = "";
         } else if (grade > 70) {
             startMessage = "";
             endMessage = "";
@@ -378,50 +373,44 @@
 
         let formattedGrade;
         if (firstDigitInGrade === 8) {
-            formattedGrade = 'an ' + grade + '%';
+            formattedGrade = "an " + grade + "%";
         } else {
-            formattedGrade = 'a ' + grade + '%';
+            formattedGrade = "a " + grade + "%";
         }
 
         let gradeMessage = "You need " + formattedGrade + " on the final to get " + letterGoal + " overall.";
         let message = startMessage + " " + gradeMessage + " " + endMessage;
 
         if (grade > 100) {
-            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-info').addClass('alert-danger').css(
-                'display', 'block').find('.messageTxt').text(message);
+            feedbackMessageDiv.removeClass("alert-success").removeClass("alert-info").addClass("alert-danger").css("display", "block").find(".messageTxt").text(message);
         } else if (grade > 80) {
-            feedbackMessageDiv.removeClass('alert-success').removeClass('alert-danger').addClass('alert-info').css(
-                'display', 'block').find('.messageTxt').text(message);
+            feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").css("display", "block").find(".messageTxt").text(message);
         } else {
-            feedbackMessageDiv.removeClass('alert-info').removeClass('alert-danger').addClass('alert-success').css(
-                'display', 'block').find('.messageTxt').text(message);
+            feedbackMessageDiv.removeClass("alert-info").removeClass("alert-danger").addClass("alert-success").css("display", "block").find(".messageTxt").text(message);
         }
 
     });
 
     // Sets up weight dropdown based on selected class
     function manageChooseWeight(classIndex) {
-        let weightDropdown = document.getElementById('chooseWeight');
-        chooseWeightDiv.find('option').remove();
-        let newWeight = document.createElement('option');
-        newWeight.text = '-- Category --';
-        newWeight.value = '';
+        let weightDropdown = document.getElementById("chooseWeight");
+        chooseWeightDiv.find("option").remove();
+        let newWeight = document.createElement("option");
+        newWeight.text = "-- Category --";
+        newWeight.value = "";
         weightDropdown.add(newWeight);
         if (classIndex >= 0) {
-            for (let i = 0; i < Object.keys(
-                user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name]).length; i++) {
-                let newWeight = document.createElement('option');
-                newWeight.text = Object.keys(
-                    user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name])[i];
-                newWeight.value = Object.values(
-                    user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name])[i].toString();
-                weightDropdown.add(newWeight)
+            for (let i = 0; i < Object.keys(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name]).length; i++) {
+                let newWeight = document.createElement("option");
+                newWeight.text = Object.keys(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name])[i];
+                newWeight.value = Object.values(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name])[i].toString();
+                weightDropdown.add(newWeight);
             }
         }
         if (weightDropdown.length === 1) {
-            chooseWeightDiv.find('option').remove();
-            newWeight.text = '-- Select Class --';
-            newWeight.value = '';
+            chooseWeightDiv.find("option").remove();
+            newWeight.text = "-- Select Class --";
+            newWeight.value = "";
             weightDropdown.add(newWeight);
         }
 
@@ -429,7 +418,7 @@
 
     // Hides message
     function closeMessage(id) {
-        document.getElementById(id).style.display = 'none';
+        document.getElementById(id).style.display = "none";
     }
 
     // Returns total weight of class

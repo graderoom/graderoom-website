@@ -10,7 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^3.0.6",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "latest",
     "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.4",
     "ejs": "^2.7.3",
@@ -21,7 +22,6 @@
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
     "python-shell": "^1.0.8",
-    "random-color": "^1.0.1",
-    "body-parser": "latest"
+    "randomcolor": "^0.5.4"
   }
 }
