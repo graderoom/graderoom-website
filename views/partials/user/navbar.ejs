@@ -163,6 +163,7 @@
                                 }, 1000);
                                 renderAllCharts();
                             }
+                            localStorage.setItem("defaultAppearance", "dark");
                         } else if (response === "Light theme enabled!") {
                             let autoLimits = $("#autoLimits");
                             autoLimits.hide();
@@ -193,6 +194,7 @@
                                 }, 1000);
                                 renderAllCharts();
                             }
+                            localStorage.setItem("defaultAppearance", "light");
                         } else {
                             $(form[0].elements[7]).attr("disabled", "disabled");
                             theme = "auto";
@@ -247,11 +249,6 @@
                             document.getElementById("darkModeStart").setAttribute("placeholder", (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString()));
                             document.getElementById("darkModeFinish").setAttribute("placeholder", (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString()));
                             checkTime();
-                        }
-                        if (darkMode) {
-                            localStorage.setItem("defaultAppearance", "dark");
-                        } else {
-                            localStorage.setItem("defaultAppearance", "light");
                         }
                     }
 
