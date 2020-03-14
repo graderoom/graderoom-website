@@ -152,11 +152,22 @@ module.exports = {
         let weights = data.weights;
         let classDb = db.get("classes");
         if (weights) {
+            let modWeights = {};
+            for (let i = 0; i < Object.keys(weights).length; i++) {
+                modWeights[Object.keys(weights)[i]] = parseInt(Object.values(weights)[i]);
+            }
+            weights = modWeights;
             classDb.get(className).get(teacherName).set("weights", weights).write();
             classDb.get(className).get(teacherName).set("hasWeights", true).write();
         } else {
             classDb.get(className).get(teacherName).set("weights", {}).write();
             classDb.get(className).get(teacherName).set("hasWeights", false).write();
+        }
+        let users = db.get("users");
+        for (let i = 0; i < users.value().length; i++) {
+            if (users.value()[i]["weights"][className]) {
+                users.find({username: users.value()[i].username}).set("weights", weights).write();
+            }
         }
     }
 
