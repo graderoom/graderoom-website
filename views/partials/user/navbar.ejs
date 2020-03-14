@@ -301,13 +301,6 @@
     }
 
     function closeForm(id) {
-<<<<<<< HEAD
-        let form           = document.getElementById(id);
-        form.style.display = "none";
-        let inputFields = form.getElementsByClassName('form-control');
-        for (let i = 0; i < inputFields.length; i++) {
-            inputFields[i].value = "";
-=======
         if (cardsDisplayed.includes(id)) {
             cardsDisplayed.splice(cardsDisplayed.indexOf(id), 1);
         }
@@ -343,7 +336,6 @@
             closeMessage("alertSettingsMessage");
             closeMessage("themeMessage");
             enableScrolling();
->>>>>>> master
         }
 
         // Manage theme selection, if it exists

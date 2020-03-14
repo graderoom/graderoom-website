@@ -92,12 +92,10 @@
             </div>
         <% } %>
     <% } %>
-
     <!-- <div class="alert alert-danger alert-dismissible" id="weightmsg" style="display:none">
         <a class="close" data-dismiss="alert" aria-label="close">X</a>
         <span id="weightmsg_text">asdf</span>
     </div> -->
-
     <!-- Overview Section -->
     <% if (user.alerts.lastUpdated.toString().toLowerCase() != 'never') { %>
         <span id="section-1">
@@ -134,7 +132,6 @@
             </table>
         </span>
     <% } %>
-
     <!-- Class Sections -->
     <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
         <span id="section<%= i %>" style="display: none;">
@@ -153,7 +150,6 @@
                             <th>Grade</th>
                         </tr>
                     </thead>
-
                     <tbody>
                         <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]).length; j++) { %>
                             <tr>
@@ -170,7 +166,6 @@
                             <th colspan="4">
                                 <div style="display:none; color: <%= user.appearance.classColors[i] %>"
                                      id="weightTableOverallGrade<%= i %>">
-
                                 </div>
                                 <div style="display:none" colspan="4"
                                      class="alert alert-danger font-weight-bold"
@@ -195,7 +190,6 @@
                         <th style="width:25%;">Score</th>
                     </tr>
                 </thead>
-
                 <tbody>
                     <% for (let grade of JSON.parse(gradeData)[i].grades) { %>
                         <tr>
@@ -219,32 +213,25 @@
         </span>
     <% } %>
 </div>
-
 <!-- Custom JavaScript -->
 <script>
-
     let user = <%- userRef %>;
     let data = <%- gradeData %>;
-    let weights = <%- weightData %>
+    let weights = <%- weightData %>;
         parsedData = [];
     let unobtainedWeights = {};
-
     let currentPage = -1;
     let cardsDisplayed = [];
     let currentTab = 1;
     let maxTab = 4;
-
     let darkMode;
     let darkModeStart = user.appearance.darkModeStart;
     let darkModeFinish = user.appearance.darkModeFinish;
-
     let checkingTheme;
-
     parseData();
     setupWeightsTables();
     setupOverviewTable();
     updateWeightMessages();
-
     let theme = user.appearance.theme;
     let changeTransition;
     if (theme === "auto") {
@@ -302,7 +289,6 @@
     }
     document.getElementById("darkModeStart").setAttribute("placeholder", (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString()));
     document.getElementById("darkModeFinish").setAttribute("placeholder", (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString()));
-
     function setAutoTheme() {
         if (theme !== "auto") {
             clearInterval(checkingTheme);
@@ -354,7 +340,6 @@
             }
         }
     }
-
     async function checkTime() {
         clearInterval(checkingTheme);
         setAutoTheme();
@@ -362,7 +347,6 @@
             setAutoTheme();
         }, 100);
     }
-
     async function checkUpdateBackground() {
         $.get("/checkUpdateBackground", function (data, status) {
             if (status === "success") {
@@ -417,20 +401,17 @@
             });
         }, 1000);
     }
-
     function disableScrolling() {
         $("body").addClass("no-scroll");
     }
-
     function enableScrolling() {
         $("body").removeClass("no-scroll");
     }
-
     function getTotalWeight(classIndex) {
         let className = data[classIndex].class_name;
-        let classWeights = Object.values(weights[className]["weights"]);
+        let classWeights = Object.values(weights[className]);
         let totalWeight = 0;
-        let classCategories = Object.keys(weights[className]["weights"]);
+        let classCategories = Object.keys(weights[className]);
         for (let i = 0; i < classWeights.length; i++) {
             if (getCategoryGottenAndPossible(classIndex, classCategories[i]).possible !== 0) {
                 totalWeight += classWeights[i];
@@ -438,34 +419,21 @@
         }
         return totalWeight;
     }
-
     function getOverallGrade(classIndex) {
         let className = data[classIndex].class_name;
         if (className in weights) {
-            if (weights[className]["hasWeights"]=="false"){
-                let points_earned = 0;
-                let points_total = 0;
-                for (let assignment of data[classIndex]["grades"]) {
-                    points_earned += assignment["points_gotten"];
-                    console.log(assignment);
-                    points_total += assignment["points_possible"];
-                }
-                overallGrade = points_earned/points_total*100;
-            } else {
-                let classCategories = Object.keys(weights[className]["weights"]);
-                let classWeights = Object.values(weights[className]["weights"]);
-                let overallGrade = 0;
-                for (let i = 0; i < classCategories.length; i++) {
-                    overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i] / 100;
-                }
-                let ratio = 100 / getTotalWeight(classIndex);
-                overallGrade *= ratio;
+            let classCategories = Object.keys(weights[className]);
+            let classWeights = Object.values(weights[className]);
+            let overallGrade = 0;
+            for (let i = 0; i < classCategories.length; i++) {
+                overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i] / 100;
             }
+            let ratio = 100 / getTotalWeight(classIndex);
+            overallGrade *= ratio;
             return overallGrade;
         }
         return 0;
     }
-
     function getLetterGrade(grade) {
         if (grade >= 97.5) {
             return "A+";
@@ -494,27 +462,20 @@
         }
         return "F";
     }
-
     function setupWeightsTables() {
         for (let i = 0; i < data.length; i++) {
             let className = data[i].class_name;
-            if (className in weights && weights[className]["hasWeights"]=="true") {
-                if (weights[className]["weights"]) {
-                    let tableCategories = Object.keys(weights[className]["weights"]);
-                    let tableWeights = Object.values(weights[className]["weights"]);
-                    for (let j = 0; j < tableCategories.length; j++) {
-                        document.getElementById('weightTableCategory' + i + j).textContent = tableCategories[j];
-                        document.getElementById('weightTableWeight' + i + j).textContent = tableWeights[j] + '%';
-                        let categoryGottenAndPossible = getCategoryGottenAndPossible(
-                            i, tableCategories[j]);
-                        document.getElementById('weightTablePoints' + i + j).textContent
-                            = +(categoryGottenAndPossible.gotten.toFixed(
-                            3)) + ((categoryGottenAndPossible.possible != 0) ? ('/'
-                            + +(categoryGottenAndPossible.possible.toFixed(
-                                3))) : "");
-                        let categoryGrade = getCategoryGrade(i, tableCategories[j]);
-                        if (categoryGottenAndPossible.possible !== 0) {
-                            document.getElementById("weightTableGrade" + i + j).textContent = categoryGrade + "% (" + getLetterGrade(categoryGrade) + ")";
+            if (weights[className]) {
+                let tableCategories = Object.keys(weights[className]);
+                let tableWeights = Object.values(weights[className]);
+                for (let j = 0; j < tableCategories.length; j++) {
+                    document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
+                    document.getElementById("weightTableWeight" + i + j).textContent = tableWeights[j] + "%";
+                    let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
+                    document.getElementById("weightTablePoints" + i + j).textContent = +(categoryGottenAndPossible.gotten.toFixed(3)) + ((categoryGottenAndPossible.possible !== 0) ? ("/" + +(categoryGottenAndPossible.possible.toFixed(3))) : "");
+                    let categoryGrade = getCategoryGrade(i, tableCategories[j]);
+                    if (categoryGottenAndPossible.possible !== 0) {
+                        document.getElementById("weightTableGrade" + i + j).textContent = categoryGrade + "% (" + getLetterGrade(categoryGrade) + ")";
                     }
                 }
                 let overallGrade = getOverallGrade(i);
@@ -527,7 +488,6 @@
             }
         }
     }
-
     function setupOverviewTable() {
         for (let i = 0; i < data.length; i++) {
             let className = data[i].class_name;
@@ -540,7 +500,6 @@
             }
         }
     }
-
     function getCategoryGottenAndPossible(classIndex, categoryName) {
         let grades = data[classIndex].grades;
         let totalGotten = 0;
@@ -553,7 +512,6 @@
         }
         return {"gotten": totalGotten, "possible": totalPossible};
     }
-
     function getCategoryGrade(classIndex, categoryName) {
         let categoryGottenAndPossible = getCategoryGottenAndPossible(classIndex, categoryName);
         let totalGotten = categoryGottenAndPossible.gotten;
@@ -563,21 +521,18 @@
         }
         return +((totalGotten / totalPossible * 100).toFixed(3));
     }
-
     function showWeightMessage(msg, id) {
         let wmRef = document.getElementById("weightmsg" + id);
         let wmTextRef = document.getElementById("weightmsg_text" + id);
         wmRef.style.display = "block";
         wmTextRef.innerText = msg;
     }
-
     function hideWeightMessage(id) {
         let wmRef = document.getElementById("weightmsg" + id);
         let wmTextRef = document.getElementById("weightmsg_text" + id);
         wmRef.style.display = "none";
         wmTextRef.innerText = "";
     }
-
     function updateWeightMessages() {
         for (let id = 0; id < data.length; id++) {
             if (data[id].class_name in unobtainedWeights) { //TODO idk if this index get is safe
@@ -585,7 +540,6 @@
             }
         }
     }
-
     function parseData() {
         /*
          WEIGHTS first
@@ -594,44 +548,36 @@
             let className = classData.class_name;
             let needWeights = !(className in weights) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object);
             let localMissingCategories = [];
-
-            if ((className in weights) && (weights[className]["hasWeights"]==="false")) {
+            if ((className in weights) && (weights[className].length)) {
                 needWeights = false;
             } else {
                 for (let grade of classData.grades) {
                     // console.log(grade.category)
-                    if (!(className in weights) || !(grade.category in weights[className]["weights"])) {
+                    if (!(grade.category in weights[className])) {
                         if (!localMissingCategories.includes(grade.category)) {
                             localMissingCategories.push(grade.category);
                         }
                         needWeights = true;
                     }
-
                 }
-
                 if (needWeights) {
                     unobtainedWeights[className] = localMissingCategories; //todo here add specific weights (i.e. You don't have the Test category...)
                 }
             }
         }
-
         /**
          * now grades!
          */
-
         //Add array to each object in parsedData: one for weights (not needed?), one for missing weights
         //Get data for one class
-
         for (let classData of data) {
-
             let className = classData.class_name;
             let overallGradeSteps = [];
             let totalPossiblesAndGottens = {}; //by category
             let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
             // VERY JANK CHANGE LATER
-            let doesntHaveWeights = (className in unobtainedWeights) || (weights[className]["hasWeights"]==="false");
+            let doesntHaveWeights = className in unobtainedWeights; //Already checked for above: || weights[className].hasWeights === false;
             // console.log(className + " DHW? : " + doesntHaveWeights);
-
             for (let grade of classData.grades) {
                 let category = grade.category;
                 if (doesntHaveWeights) {
@@ -641,33 +587,29 @@
                     if (typeof totalPossiblesAndGottens[category] === "undefined") {
                         let weightVal = 100;
                         if (!doesntHaveWeights) {
-                            weightVal = weights[className]["weights"][category];
+                            weightVal = weights[className][category];
                         }
                         totalPossiblesAndGottens[category] = {
                             totalPossible: 0, totalGotten: 0, weight: weightVal
                         };
                         totalWeightValue += weightVal;
                     }
-
                     if (!grade.exclude) {
                         totalPossiblesAndGottens[category].totalPossible += grade.points_possible;
                         totalPossiblesAndGottens[category].totalGotten += grade.points_gotten;
                     }
-
                     let overallPercent = 0;
                     for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
                         overallPercent = overallPercent + (value.weight * (value.totalPossible !== 0 ? (value.totalGotten / value.totalPossible) : value.totalGotten));
                     }
                     let total = +(((overallPercent / totalWeightValue) * 100).toFixed(3));
                     //rounds to 3 decimal places (the plus sign drops any trailing zeros)
-
                     overallGradeSteps.push(total);
                 } catch (err) {
                     console.log(err);
                     console.log("bad weight input");
                 }
             }
-
             let assignmentNames = classData.grades.map(x => x.assignment_name);
             let assignmentTimestamps = classData.grades.map(x => new Date(x.date));
             let assignmentPercents = classData.grades.map(x => x.grade_percent);
@@ -677,7 +619,6 @@
             let mixedData = overallGradeSteps.map(function (grade, i) {
                 return {x: assignmentTimestamps[i], y: grade};
             });
-
             parsedData.push({
                                 assignmentNames: assignmentNames,
                                 assignmentTimestamps: assignmentTimestamps,
@@ -689,7 +630,6 @@
                             });
         }
     }
-
     function renderAllCharts() {
         try {
             renderOverviewChart();
@@ -699,9 +639,7 @@
         } catch {
         }
     }
-
     let hoveredDatasetIndex = -1;
-
     function renderOverviewChart() {
         let ctx = document.getElementById("chart-1");
         let id = 0;
@@ -759,7 +697,6 @@
                                 }
                                 chart.update(1000);
                             }
-
                         }, 6000);
                     }
                 }, scales: {
@@ -796,7 +733,6 @@
             }
         });
     }
-
     function renderChart(id) {
         let ctx = document.getElementById("chart" + id);
         let colors = user.appearance.classColors;
@@ -854,7 +790,6 @@
             }
         });
     }
-
     function showPage(id) {
         if (id === -1) {
             renderOverviewChart();
@@ -866,18 +801,14 @@
             document.getElementById("link" + i).classList.remove("active");
         }
         document.getElementById("link" + id).classList.add("active");
-
         for (let i = -1; i < data.length; i++) {
             document.getElementById("section" + i).style.display = "none";
         }
         document.getElementById("section" + id).style.display = "block";
-
         window.localStorage.setItem("currentPage", id);
         currentPage = id;
     }
-
     document.onkeydown = function (e) {
-
         if ($("input").is(":focus")) {
             // Do nothing
         } else if (e.code === "ArrowUp") {
@@ -978,9 +909,7 @@
         } else {
             //console.log(e.code);
         }
-
     };
-
 </script>
 </body>
 </html>
