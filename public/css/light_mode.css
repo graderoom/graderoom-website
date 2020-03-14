@@ -55,13 +55,13 @@ table thead tr th {
 }
 
 .btn {
-    background-color: #333333;
-    color: #BBBBBB;
+    background-color: #444444;
+    color: #DDDDDD;
 }
 
 .btn:hover {
-    border-color: #BBBBBB;
-    color: #BBBBBB;
+    border-color: #444444;
+    color: #444444;
 }
 
 .card {
@@ -117,16 +117,6 @@ table thead tr th {
 
 .form-group .user-bg {
     background: url(/public/resources/light_mode/user.png) no-repeat left/23px 27px !important;
-}
-
-.form-signin .btn {
-    background-color: #444444;
-    color: #DDDDDD;
-}
-
-.form-signin .btn:hover {
-    border-color: #000000;
-    color: #DDDDDD;
 }
 
 .logo {
@@ -211,10 +201,6 @@ table thead tr th {
 
 #weightsCard .fail {
     color: lightcoral;
-}
-
-#weightsCard .form-signin .btn {
-    background-color: #CCCCCC;
 }
 
 #weightsCard .success {
