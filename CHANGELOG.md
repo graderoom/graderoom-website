@@ -36,6 +36,9 @@
 - If you would like a feature to become implemented, send feedback in Settings > Feedback
 
 ## [Beta 1.4.1] - 2020-03-13
+### Improved
+- User weight selection is overridden by admin selection to ensure fairness when comparing grades
+
 ### Fixed
 - Loading message shows correctly when syncing grades
 
