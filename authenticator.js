@@ -166,7 +166,7 @@ module.exports = {
         let users = db.get("users");
         for (let i = 0; i < users.value().length; i++) {
             if (users.value()[i]["weights"][className]) {
-                users.find({username: users.value()[i].username}).set("weights", weights).write();
+                users.find({username: users.value()[i].username}).get("weights").set(className, weights).write();
             }
         }
     }
@@ -337,7 +337,11 @@ module.exports = {
         let user = db.get("users").find({username: lc_username}).value();
         //Parse weights with unicode to dots
         if (user) {
-            user.weights = JSON.parse(JSON.stringify(user.weights).replace(/\\\\u002e/g, "."));
+            if (user.weights) {
+                user.weights = JSON.parse(JSON.stringify(user.weights).replace(/\\\\u002e/g, "."));
+            } else {
+                user.weights = {};
+            }
         }
         return user;
     },
