@@ -216,6 +216,11 @@ th {
     border-color: white;
 }
 
+#weightsCard .disabled {
+    color: #999!important;
+    border-bottom: none!important;
+}
+
 #weightsCard .fail {
     color: lightcoral;
 }
