@@ -35,22 +35,22 @@
                                         weights.push(assignment.category); %>
                                         <div class="form-group" style="display: flex; align-items: flex-end;">
                                             <% let value = null; try {value = JSON.parse(weightData)[grade.class_name]["weights"][assignment.category]} catch {}; %>
-                                            <label class="disableable" style="font-size: 0.9rem; <% if(!value && value != 0){ %> color: lightcoral!important; <% } else { %> color: <%= user.appearance.classColors[i] %>; <% } %> white-space: nowrap; margin-bottom: 0;"><%= assignment.category %>:&nbsp</label>
-                                                    <input style="<% if (!value && value != 0) { %> border-color: lightcoral!important; <% } else { %> border-color: <%= user.appearance.classColors[i] %>!important; <% } %>"
-                                                        value="<%= value %>"
-                                                        type="number"
-                                                        min="0"
-                                                        step="0.1"
-                                                        class="disableable form-control <% if(value || value == 0){ %> text-view <% } %>"
-                                                        name="<%= assignment.category %>"
-                                                        oninput="this.classList.remove('text-view'); showSubmitButton(this); "
-                                                    >
+                                            <label class="disableable" style="font-size: 0.9rem; <% if(!value && value != 0){ %> color: lightcoral; <% } else { %> color: <%= user.appearance.classColors[i] %>; <% } %> white-space: nowrap; margin-bottom: 0;"><%= assignment.category %>:&nbsp</label>
+                                            <input style="<% if (!value && value != 0) { %> border-color: lightcoral; <% } else { %> border-color: <%= user.appearance.classColors[i] %>!important; <% } %>"
+                                                value="<%= value %>"
+                                                type="number"
+                                                min="0"
+                                                step="0.1"
+                                                class="disableable form-control <% if(value || value == 0){ %> text-view <% } %>"
+                                                name="<%= assignment.category %>"
+                                                oninput="this.classList.remove('text-view'); showSubmitButton(this); "
+                                            >
                                         </div>
                                     <% } %>
                                 <% } %>
                                 <div class="break"></div>
                                 <div class="form-group" style="display: flex; align-items: flex-end;">
-                                    <label style="color: white; font-size: 0.9rem; white-space: nowrap; margin-bottom: 0;">Point Based?</label>
+                                    <label style="color: <%= user.appearance.classColors[i] %>; font-size: 0.9rem; white-space: nowrap; margin-bottom: 0;">Point Based?</label>
                                     <input
                                         id="check<%=i%>"
                                         style="margin: auto;"
@@ -66,12 +66,10 @@
                                         function disableInput(checkBoxID, id) {
                                             $('#'+id).find('.disableable').each(function(){
                                                 if ($('#'+checkBoxID).is(":checked")){
-                                                    $(this).css('color','#999');
-                                                    $(this).css('border-bottom','none');
+                                                    $(this).addClass("disabled");
                                                     $(this).attr('disabled','disabled');
                                                 } else {
-                                                    $(this).css('color','');
-                                                    $(this).css('border-bottom','');
+                                                    $(this).removeClass("disabled");
                                                     $(this).removeAttr('disabled');
                                                 } 
                                             })
@@ -167,8 +165,8 @@
                         let message = $(this).find(".messageTxt");
 
                         $.ajax({
-                                   type: "POST", url: $(form).attr("action"), data: formData
-                               }).done(function (response) {
+                            type: "POST", url: $(form).attr("action"), data: formData
+                        }).done(function (response) {
                             // Make sure that the formMessages div has the alert-success class.
                             $(formMessagesDiv).removeClass("fail");
                             $(formMessagesDiv).addClass("success");
