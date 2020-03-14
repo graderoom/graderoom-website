@@ -41,6 +41,7 @@
 
 ### Fixed
 - Loading message shows correctly when syncing grades
+- Issue where changing weights for all users deleted their weights
 
 ## [Beta 1.4.0] - 2020-03-12
 ### Added
