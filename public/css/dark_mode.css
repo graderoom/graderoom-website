@@ -91,16 +91,6 @@ th {
     color: white;
 }
 
-.form-signin .btn {
-    background-color: #BBBBBB;
-    color: #333333;
-}
-
-.form-signin .btn:hover {
-    border-color: #BBBBBB;
-    color: #BBBBBB;
-}
-
 .form-group input {
     color: white;
 }
@@ -213,10 +203,6 @@ th {
 
 #weightsCard .fail {
     color: lightcoral;
-}
-
-#weightsCard .form-signin .btn {
-    background-color: #999999;
 }
 
 #weightsCard .success {

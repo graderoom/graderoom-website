@@ -662,7 +662,3 @@ table thead tr th:last-child {
     padding: .375rem .75rem;
     margin: 0 0 1rem;
 }
-
-#weightsCard .form-signin .btn:hover {
-    background: none;
-}
