@@ -1,0 +1,91 @@
+<!-- Changelog Card -->
+<div class="blurred-login" id="changelogDisplay"
+     style="position:fixed; display:none; height: 100%; width: 100%; top: 0; left: 0; z-index: 1">
+    <div class="blurred-background"></div>
+    <div class="col-sm-11 col-md-10 col-lg-9 col-xl-8 mx-auto">
+        <div id="changelogCard" class="card card-signin my-5">
+            <btn class="btn btn-md"
+                 onclick="closeForm('changelogDisplay'); closeMessage('changelogMessage')"
+                 style="width: fit-content; margin-bottom:0">
+                <i class="fa fa-close" aria-hidden="true"></i> Close
+            </btn>
+            <div class="card-body">
+                <h1 class="card-title text-center"><span class="fa fa-book"></span>
+                    Changelog
+                </h1>
+                <div id="changelogMessage"
+                     class="alert alert alert-info alert-dismissible font-weight-bold">
+                    <div class="messageTxt">Don't want to see this? Change your <u style="cursor: pointer"
+                                                                                   onclick="showCard('#settingsCardDisplay'); openTab(3)">settings</u>
+                    </div>
+                    <a class="close" onclick="closeMessage('changelogMessage')" aria-label="close">X</a>
+                </div>
+                <div class="card changelog">
+                    <div class="scroll-to up" onclick="scrollToCurrentVersion();"><span class="fa fa-arrow-up"> <label
+                                    style="font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; cursor: pointer">Current
+                                Version</label></span></div>
+                    <div id="changelog-container"></div>
+                    <div class="scroll-to down" onclick="scrollToCurrentVersion();"><span class="fa fa-arrow-down">
+                            <label
+                                    style="font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; cursor: pointer">Current
+                                Version</label></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    let changelogContainer = $("#changelog-container");
+    let scrollOffsetAnnouncement;
+    let scrollOffsetCurrent;
+
+    function showChangelog() {
+        disableScrolling();
+        cardsDisplayed.push("changelogDisplay");
+        $(".blurred-background").each(function () {
+            if (cardsDisplayed.includes($($(this).parent())[0].id)) {
+                $(this).parent().css("z-index", cardsDisplayed.indexOf($($(this).parent())) + 2);
+            }
+        });
+        $("#changelogDisplay").show();
+        $.ajax({
+                   url: "/changelog", type: "GET", async: true
+               }).done(function (response) {
+            changelogContainer.html(response);
+            changelogContainer.animate({scrollTop: 0}, 0);
+            scrollOffsetAnnouncement = $(".announcement").offset().top - changelogContainer.offset().top;
+            scrollOffsetCurrent = $(".current").offset().top - changelogContainer.offset().top;
+            if (scrollOffsetCurrent < scrollOffsetAnnouncement) {
+                scrollToCurrentVersion();
+            } else {
+                scrollToCurrentAnnouncement();
+            }
+        });
+        $.ajax({
+                   url: "/changelogseen", type: "post", async: true
+               });
+        $;
+    }
+
+    function scrollToCurrentAnnouncement() {
+        changelogContainer.animate({scrollTop: scrollOffsetAnnouncement}, 1000);
+    }
+
+    function scrollToCurrentVersion() {
+        changelogContainer.animate({scrollTop: scrollOffsetCurrent}, 1000);
+    }
+
+    changelogContainer.scroll(function () {
+        let offset = $(".current").offset().top - changelogContainer.offset().top;
+        if (offset > 100) {
+            $(".down").fadeIn(100);
+            $(".up").fadeOut(100);
+        } else if (offset < -100) {
+            $(".up").fadeIn(100);
+            $(".down").fadeOut(100);
+        } else {
+            $(".scroll-to").fadeOut(100);
+        }
+    });
+</script>

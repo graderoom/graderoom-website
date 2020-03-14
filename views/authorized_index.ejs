@@ -1,37 +1,36 @@
 <!doctype html>
 <html>
-<head>
-    <title>Graderoom</title>
-    <link rel="icon" href="../public/resources/common/icon.png">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.css">
-    <% if (user.appearance.darkMode) { %>
-        <link rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
-    <% } else { %>
-        <link rel="stylesheet" type="text/css" href="public/css/light_mode.css">
-    <% } %>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Graderoom</title>
+<link rel="icon" href="../public/resources/common/icon.png">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.css">
+<% if (user.appearance.theme === "dark" || (user.appearance.theme === "auto" && (((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) && ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish)) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish))))) { %>
+    <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+<% } else { %>
+    <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
+<% } %>
+<link rel="stylesheet" type="text/css" href="public/css/main.css">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- JavaScript Imports -->
-    <script src="https://cdn.jsdelivr.net/npm/moment@2.24.0/moment.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<!-- JavaScript Imports -->
+<script src="https://cdn.jsdelivr.net/npm/moment@2.24.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </head>
 <body>
 
 <!-- Navbar -->
 <% include partials/user/navbar.ejs %>
-<% include partials/user/edit_weights_card.ejs %>
 
 <% let page = -1; %>
 <i id="pageNumber" style="display:none"><%= page %></i>
 
 <!-- Class Links -->
-<ul id="classLinks" class="mx-5 my-3 nav nav-fill" style="border-bottom: 2px solid #969696; color: #BBBBBB;">
-    <li class="nav-item active" id="link-1">
+<ul id="classLinks" class="nav nav-fill" style="color: #BBBBBB;">
+    <li class="nav-item" id="link-1">
         <a class="nav-link" onclick="showPage(-1)">Overview</a>
     </li>
     <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
@@ -45,40 +44,53 @@
 <!-- Main Screen -->
 <div class="container">
     <!-- Messages -->
+    <div style="display: none" id="backgroundRefreshMessage"
+         class="alert alert-success font-weight-bold">
+        <span style="display: flex;" id="preRefresh">
+            Syncing...
+            <div style="float: right" class="container" id="miniLoadingDisplay">
+                <div style="float: left" class="sk-chase-mini">
+                    <div class="sk-chase-dot mini"></div>
+                    <div class="sk-chase-dot mini"></div>
+                    <div class="sk-chase-dot mini"></div>
+                    <div class="sk-chase-dot mini"></div>
+                    <div class="sk-chase-dot mini"></div>
+                    <div class="sk-chase-dot mini"></div>
+                </div>
+            </div>
+        </span>
+        <span style="display: none;" id="refresh"> <u style="cursor: pointer"
+                                                      onclick="window.reload()">Refresh</u>
+            to see new updates or turn on Auto-Refresh in <u style="cursor: pointer"
+                                                             onclick="showCard('#settingsCardDisplay'); openTab(3);">settings</u>.
+            <a class="close" data-dismiss="alert"
+               aria-label="close">X</a>
+        </span>
+    </div>
     <% var daysSinceUpdated = 0; %>
     <% if (user.alerts.lastUpdated.toString().toLowerCase() == ('never')) { %> <br>
     <div class="alert alert-success">
-        <u style="cursor: pointer" onclick="showDiv('updateGradesDisplay')">Sync your grades</u> now!
+        <u style="cursor: pointer" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">Sync
+            your
+            grades</u> now!
     </div>
-    <% } else { %> <% daysSinceUpdated = Math.floor(
-            (Date.now() - user.alerts.lastUpdated) /
-            (1000 * 3600 * 24)); %> <% if ((user.alerts.updateGradesReminder.toLowerCase() == ('daily') &&
-            daysSinceUpdated >= 1) ||
-            (user.alerts.updateGradesReminder.toLowerCase() == 'weekly') && daysSinceUpdated >= 7) { %>
-        <br>
-        <div class="alert alert-danger alert-dismissible font-weight-bold">
-            <a class="close" data-dismiss="alert" aria-label="close">X</a> It's been <%= daysSinceUpdated %>
-            <% if (daysSinceUpdated == 1) { %>
-                day
-            <% } else { %> days
-            <% } %>
-            since you last synced your grades! <span
-                    style="float: right; display: flex"><u
-                        style="cursor: pointer; margin-right: 10px"
-                        onclick="showDiv('settingsCardDisplay'); openTab('Alerts')">Alert Settings</u><u
-                        style="cursor: pointer" onclick="showDiv('updateGradesDisplay')">Sync Grades</u></span>
-        </div>
-    <% } %>
-    <% } %>
-    <% if (updateGradesMessageSuccess.length > 0) { %> <br>
-    <div class="alert alert-success alert-dismissible">
-        <a class="close" data-dismiss="alert" aria-label="close">X</a> <%= updateGradesMessageSuccess %>
-    </div>
-    <% } else if (updateGradesMessageFail.length > 0) { %> <br>
-    <div class="alert alert-danger alert-dismissible font-weight-bold">
-        <a class="close" data-dismiss="alert" aria-label="close">X</a> <%= updateGradesMessageFail %>
-    </div>
-    <% } else { %> <br>
+    <% } else { %>
+        <% daysSinceUpdated = Math.floor((Date.now() - user.alerts.lastUpdated) / (1000 * 3600 * 24)); %>
+        <% if ((user.alerts.updateGradesReminder.toLowerCase() == ('daily') && daysSinceUpdated >= 1) || (user.alerts.updateGradesReminder.toLowerCase() == 'weekly') && daysSinceUpdated >= 7) { %>
+            <div class="alert alert-danger alert-dismissible font-weight-bold">
+                <a class="close" data-dismiss="alert" aria-label="close">X</a> It's been <%= daysSinceUpdated %>
+                <% if (daysSinceUpdated == 1) { %>
+                    day
+                <% } else { %> days
+                <% } %>
+                since you last synced your grades! <span
+                        style="float: right; display: flex"><u
+                            style="cursor: pointer; margin-right: 10px"
+                            onclick="showCard('#settingsCardDisplay'); openTab(3)">Alert Settings</u><u
+                            style="cursor: pointer" onclick="showCard('#updateGradesDisplay')">Sync
+                        Grades</u></span>
+            </div>
+        <% } %>
     <% } %>
 
     <!-- <div class="alert alert-danger alert-dismissible" id="weightmsg" style="display:none">
@@ -87,122 +99,125 @@
     </div> -->
 
     <!-- Overview Section -->
-    <% if (user.alerts.lastUpdated.toString().toLowerCase() != 'never') { %> <span id="section-1">
-                <div class="alert alert-danger alert-dismissible font-weight-bold" id="weightmsg-1" style="display:none">
-                    <a class="close" data-dismiss="alert" aria-label="close">X</a>
-                    <span id="weightmsg_text-1"></span><u style="float: right; cursor: pointer"
-                                                          onclick="showUpdateWeights()">Add Weights</u>
-                </div>
-                <div id="chart-container-1" class="chart-container text-center"
-                     style="position: relative; height:60vh; width: 100%; margin: 0 auto;">
-                    <canvas id="chart-1" class="chart" style="width:50%; margin: 0;"></canvas>
-                </div>
-                <hr>
-                <table class="table text-center" id="table-1">
-                    <thead><tr>
+    <% if (user.alerts.lastUpdated.toString().toLowerCase() != 'never') { %>
+        <span id="section-1">
+            <div id="chart-container-1" class="chart-container text-center"
+                 style="position: relative; height:60vh; width: 100%; margin: 0 auto;">
+                <canvas id="chart-1" class="chart" style="width:50%; margin: 0;"></canvas>
+            </div>
+            <br>
+            <table class="table text-center" id="table-1">
+                <thead>
+                    <tr>
                         <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                            <th style="border:0; color: <%= user.appearance.classColors[i] %>"><%= JSON.parse(
-                                        gradeData)[i].class_name %></th>
+                            <th class="overview"
+                                style="color: <%= user.appearance.classColors[i] %>"><%= JSON.parse(gradeData)[i].class_name %></th>
                         <% } %>
-                    </tr></thead>
-                    <tbody> 
-                        <tr>
-                            <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                                <td id="overviewChart<%= i %>"
-                                    style="border: 0; padding-top: 0; color: <%= user.appearance.classColors[i] %>"></td>
-                            <% } %>
-                        </tr>
-                    </tbody>
-                </table>
-            </span>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
+                            <td class="overview" style="color: <%= user.appearance.classColors[i] %>">
+                                <div id="overviewChart<%= i %>" style="display:none; font-weight:bolder"></div>
+                                <div id="weightmsgcontainer<%= i %>" style="display:none">
+                                    <div class="alert alert-danger font-weight-bold"
+                                         id="weightmsg<%= i %>"><u style="cursor: pointer"
+                                                                   onclick="showUpdateWeights(<%= i %>)">Add
+                                            Weights</u>
+                                    </div>
+                                </div>
+                            </td>
+                        <% } %>
+                    </tr>
+                </tbody>
+            </table>
+        </span>
     <% } %>
 
     <!-- Class Sections -->
-    <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %> <span id="section<%= i %>"
-                                                                         style="display: none;">
-            <div class="alert alert-danger alert-dismissible font-weight-bold" id="weightmsg<%= i %>" style="display:none">
-                <a class="close" data-dismiss="alert" aria-label="close">X</a>
-                <span id="weightmsg_text<%= i %>"></span></span><u style="float: right; cursor: pointer"
-                                                                   onclick="showUpdateWeights()">Add Weights</u>
-</div>
-<div style="display:flex; align-items: center">
-    <% if (JSON.parse(gradeData)[i].class_name in JSON.parse(weightData)) { %>
-        <div class="text-center" style="width: 25%">
-            <div id="overallGrade<%= i %>"
-                 style="font-weight: bolder; font-size: 80px; margin-bottom: 30px; color: <%= user.appearance.classColors[i] %>"></div>
-            <div id="overallLetterGrade<%= i %>"
-                 style="font-weight: bolder; font-size: 80px; margin-bottom: 30px; color: <%= user.appearance.classColors[i] %>"></div>
-        </div>
-    <% } %>
-    <div id="chart-container<%= i %>" class="chart-container"
-         style="position: relative; height:40vh; width:100%;margin: 0 auto;">
-        <canvas id="chart<%= i %>" class="chart" style="margin: auto;"></canvas>
-    </div>
-    <% if ((JSON.parse(gradeData)[i].class_name in JSON.parse(weightData)) && (JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["hasWeights"]==="true")) { %>
-        <table class="table text-center" style="width: 25%; margin: 20px" id="weightsTable<%= i %>">
-            <thead>
-            <tr>
-                <th style="width: 40%">Category</th>
-                <th style="width: 20%">Weight</th>
-                <th style="width: 20%">Points</th>
-                <th style="width: 20%">Grade</th>
-            </tr>
-            </thead>
+    <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
+        <span id="section<%= i %>" style="display: none;">
+            <div style="display:flex; align-items: center">
+                <div id="chart-container<%= i %>" class="chart-container"
+                     style="position: relative; height:40vh; width:100%; margin: 0 auto;">
+                    <canvas id="chart<%= i %>" class="chart" style="margin: auto;"></canvas>
+                </div>
+                <table class="table text-center" style="width: 25%; white-space: nowrap; margin: 20px"
+                       id="weightsTable<%= i %>">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Weight</th>
+                            <th>Points</th>
+                            <th>Grade</th>
+                        </tr>
+                    </thead>
 
-            <tbody>
-            <% for (let j = 0; j < Object.keys(
-                    JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]).length; j++) { %>
-                <tr>
-                    <td id="weightTableCategory<%= i %><%= j %>"></td>
-                    <td id="weightTableWeight<%= i %><%= j %>"></td>
-                    <td id="weightTablePoints<%= i %><%= j %>"></td>
-                    <td id="weightTableGrade<%= i %><%= j %>"></td>
-                </tr>
-            <% } %>
-            </tbody>
+                    <tbody>
+                        <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]).length; j++) { %>
+                            <tr>
+                                <td id="weightTableCategory<%= i %><%= j %>"></td>
+                                <td id="weightTableWeight<%= i %><%= j %>"></td>
+                                <td id="weightTablePoints<%= i %><%= j %>"></td>
+                                <td id="weightTableGrade<%= i %><%= j %>"></td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                    </th>
+                    <tfoot>
+                        <tr>
+                            <th colspan="4">
+                                <div style="display:none; color: <%= user.appearance.classColors[i] %>"
+                                     id="weightTableOverallGrade<%= i %>">
 
-            <tfoot>
-            <tr>
-                <th colspan="4" id="weightTableOverallGrade<%= i %>"></th>
-            </tr>
-            </tfoot>
-        </table>
-    <% } %>
-</div>
-<hr>
-<table class="table text-center" id="table<%= i %>">
-    <thead>
-    <tr>
-        <th style="width:25%;">Assignment Name</th>
-        <th style="width:25%;">Date</th>
-        <th style="width:25%;">Category</th>
-        <th style="width:25%;">Assignment Percent</th>
-        <th style="width:25%;">Score</th>
-    </tr>
-    </thead>
+                                </div>
+                                <div style="display:none" colspan="4"
+                                     class="alert alert-danger font-weight-bold"
+                                     id="weightTablemsg<%= i %>">
+                                    <span id="weightmsg_text<%= i %>"></span><br><u style="cursor: pointer"
+                                                                                    onclick="showUpdateWeights(<%= i %>)">Add
+                                        Weights</u>
+                                </div>
+                            </th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <hr>
+            <table class="table text-center" id="table<%= i %>">
+                <thead>
+                    <tr>
+                        <th style="width:25%;">Assignment Name</th>
+                        <th style="width:25%;">Date</th>
+                        <th style="width:25%;">Category</th>
+                        <th style="width:25%;">Assignment Percent</th>
+                        <th style="width:25%;">Score</th>
+                    </tr>
+                </thead>
 
-    <tbody>
-    <% for (let grade of JSON.parse(gradeData)[i].grades) { %>
-        <tr>
-            <td><%= grade.assignment_name %> </td>
-            <td><%= grade.date %> </td>
-            <td><%= grade.category %> </td>
-            <% if (grade.grade_percent == -1) { %>
-                <td></td>
-            <% } else { %>
-                <td><%= grade.grade_percent %></td>
-            <% } %>
-            <% if (grade.points_possible != 0) { %>
-                <td><%= grade.points_gotten %>/<%= grade.points_possible %></td>
-            <% } else { %>
-                <td><%= grade.points_gotten %></td>
-            <% } %>
-        </tr>
+                <tbody>
+                    <% for (let grade of JSON.parse(gradeData)[i].grades) { %>
+                        <tr>
+                            <td><%= grade.assignment_name %> </td>
+                            <td><%= grade.date %> </td>
+                            <td><%= grade.category + (grade.exclude ? " (EXCLUDED) " : "") %></td>
+                            <% if (grade.grade_percent == -1) { %>
+                                <td></td>
+                            <% } else { %>
+                                <td><%= grade.grade_percent %></td>
+                            <% } %>
+                            <% if (grade.points_possible != 0) { %>
+                                <td><%= grade.points_gotten %>/<%= grade.points_possible %></td>
+                            <% } else { %>
+                                <td><%= grade.points_gotten %></td>
+                            <% } %>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </span>
     <% } %>
-    </tbody>
-</table>
-</span>
-<% } %>
 </div>
 
 <!-- Custom JavaScript -->
@@ -210,28 +225,205 @@
 
     let user = <%- userRef %>;
     let data = <%- gradeData %>;
-    let weights = <%- weightData %>;
-
-    let parsedData = [];
+    let weights = <%- weightData %>
+        parsedData = [];
     let unobtainedWeights = {};
 
     let currentPage = -1;
+    let cardsDisplayed = [];
+    let currentTab = 1;
+    let maxTab = 4;
+
+    let darkMode;
+    let darkModeStart = user.appearance.darkModeStart;
+    let darkModeFinish = user.appearance.darkModeFinish;
+
+    let checkingTheme;
 
     parseData();
-    setupOverallGrades();
     setupWeightsTables();
     setupOverviewTable();
     updateWeightMessages();
-    renderAllCharts();
 
-    function setupOverallGrades() {
-        for (let i = 0; i < data.length; i++) {
-            if (data[i].class_name in weights) {
-                let overallGrade = getOverallGrade(i);
-                document.getElementById('overallLetterGrade' + i).textContent = getLetterGrade(overallGrade);
-                document.getElementById('overallGrade' + i).textContent = (+(overallGrade.toFixed(1))).toString();
+    let theme = user.appearance.theme;
+    let changeTransition;
+    if (theme === "auto") {
+        darkMode = (((darkModeStart < darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart) && ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart) || ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish)));
+        checkTime();
+    } else {
+        darkMode = theme === "dark";
+    }
+    let localStorage = window.localStorage;
+    if (darkMode) {
+        localStorage.setItem("defaultAppearance", "dark");
+    } else {
+        localStorage.setItem("defaultAppearance", "light");
+    }
+    if (localStorage.getItem("currentPage")) {
+        currentPage = parseInt(localStorage.getItem("currentPage"));
+    } else {
+        localStorage.setItem("currentPage", currentPage);
+    }
+    if (user.alerts.lastUpdated !== "never") {
+        try {
+            renderAllCharts();
+        } catch {
+        }
+    }
+    try {
+        showPage(currentPage);
+    } catch {
+        currentPage = -1;
+        try {
+            showPage(-1);
+        } catch {
+        }
+        localStorage.setItem("currentPage", currentPage);
+    }
+    if (user.schoolPassword) {
+        $("#syncGradesDiv").hide();
+        $("#gradeSyncDiv").show();
+        checkUpdateBackground();
+    } else {
+        $("#gradeSyncDiv").hide();
+        $("#syncGradesDiv").show();
+        if (user.alerts.lastUpdated !== "never") {
+            if (user.alerts.showChangelog !== "never") {
+                if (user.alerts.changelogLastShown === "never" || user.alerts.showChangelog === "always") {
+                    showChangelog();
+                } else {
+                    let daysSinceShown = Math.floor((Date.now() - user.alerts.changelogLastShown) / (1000 * 3600 * 24));
+                    if (user.alerts.showChangelog === "daily" && daysSinceShown >= 1 || user.alerts.showChangelog === "weekly" && daysSinceShown >= 7) {
+                        showChangelog();
+                    }
+                }
             }
         }
+    }
+    document.getElementById("darkModeStart").setAttribute("placeholder", (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString()));
+    document.getElementById("darkModeFinish").setAttribute("placeholder", (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString()));
+
+    function setAutoTheme() {
+        if (theme !== "auto") {
+            clearInterval(checkingTheme);
+            return;
+        }
+        darkModeStart = parseInt(darkModeStart);
+        darkModeFinish = parseInt(darkModeFinish);
+        //console.log("Start, finish, theme", darkModeStart, darkModeFinish, theme);
+        //console.log(((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart);
+        if (((darkModeStart < darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart) && ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart) || ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish))) {
+            let oldDarkMode = darkMode;
+            darkMode = true;
+            if (darkMode !== oldDarkMode) {
+                clearTimeout(changeTransition);
+                $("<style>").prop("type", "text/css").html(`
+                * {
+                    transition: all 1s ease, color 0s ease !important;
+                }`).appendTo("head");
+                document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+                changeTransition = setTimeout(function () {
+                    $("<style>").prop("type", "text/css").html(`
+                    * {
+                        transition: none !important;
+                    }`).appendTo("head");
+                }, 1000);
+                renderAllCharts();
+                window.localStorage.setItem("defaultAppearance", "dark");
+            }
+        } else {
+            let oldDarkMode = darkMode;
+            darkMode = false;
+            if (darkMode !== oldDarkMode) {
+                if (changeTransition) {
+                    clearTimeout(changeTransition);
+                }
+                $("<style>").prop("type", "text/css").html(`
+                * {
+                    transition: all 1s ease, color 0s ease !important;
+                }`).appendTo("head");
+                document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+                changeTransition = setTimeout(function () {
+                    $("<style>").prop("type", "text/css").html(`
+                    * {
+                        transition: none !important;
+                    }`).appendTo("head");
+                }, 1000);
+                renderAllCharts();
+                window.localStorage.setItem("defaultAppearance", "light");
+            }
+        }
+    }
+
+    async function checkTime() {
+        clearInterval(checkingTheme);
+        setAutoTheme();
+        checkingTheme = window.setInterval(function () {
+            setAutoTheme();
+        }, 100);
+    }
+
+    async function checkUpdateBackground() {
+        $.get("/checkUpdateBackground", function (data, status) {
+            if (status === "success") {
+                if (data === "Sync Complete!") {
+                    $("#preRefresh").hide();
+                    if (user.autoRefresh) {
+                        $("#backgroundRefreshMessage").hide();
+                        window.reload();
+                    } else {
+                        $("#refresh").show();
+                    }
+                    clearInterval(checking);
+                } else if (data === "Already Synced!") {
+                    clearInterval(checking);
+                    if (user.alerts.lastUpdated !== "never") {
+                        if (user.alerts.showChangelog !== "never") {
+                            if (user.alerts.changelogLastShown === "never" || user.alerts.showChangelog === "always") {
+                                showChangelog();
+                            } else {
+                                let daysSinceShown = Math.floor((Date.now() - user.alerts.changelogLastShown) / (1000 * 3600 * 24));
+                                if (user.alerts.showChangelog === "daily" && daysSinceShown >= 1 || user.alerts.showChangelog === "weekly" && daysSinceShown >= 7) {
+                                    showChangelog();
+                                }
+                            }
+                        }
+                    }
+                } else if (data === "Did not sync") {
+                    $("#backgroundRefreshMessage").show();
+                    $("#weightmsg-1").hide();
+                }
+            }
+        });
+        let checking = window.setInterval(function () {
+            $.get("/checkUpdateBackground", function (data, status) {
+                if (status === "success") {
+                    if (data === "Sync Complete!") {
+                        $("#preRefresh").hide();
+                        if (user.autoRefresh) {
+                            $("#backgroundRefreshMessage").hide();
+                            window.reload();
+                        } else {
+                            $("#refresh").show();
+                        }
+                        clearInterval(checking);
+                    } else if (data === "Already Synced!") {
+                        clearInterval(checking);
+                    } else if (data === "Did not sync") {
+                        $("#backgroundRefreshMessage").show();
+                        $("#weightmsg-1").hide();
+                    }
+                }
+            });
+        }, 1000);
+    }
+
+    function disableScrolling() {
+        $("body").addClass("no-scroll");
+    }
+
+    function enableScrolling() {
+        $("body").removeClass("no-scroll");
     }
 
     function getTotalWeight(classIndex) {
@@ -276,31 +468,31 @@
 
     function getLetterGrade(grade) {
         if (grade >= 97.5) {
-            return 'A+';
+            return "A+";
         } else if (grade >= 92.5) {
-            return 'A';
+            return "A";
         } else if (grade >= 89.5) {
-            return 'A-';
+            return "A-";
         } else if (grade >= 87.5) {
-            return 'B+';
+            return "B+";
         } else if (grade >= 82.5) {
-            return 'B';
+            return "B";
         } else if (grade >= 79.5) {
-            return 'B-';
+            return "B-";
         } else if (grade >= 77.5) {
-            return 'C+';
+            return "C+";
         } else if (grade >= 72.5) {
-            return 'C';
+            return "C";
         } else if (grade >= 69.5) {
-            return 'C-';
+            return "C-";
         } else if (grade >= 67.5) {
-            return 'D+';
+            return "D+";
         } else if (grade >= 62.5) {
-            return 'D';
+            return "D";
         } else if (grade >= 59.5) {
-            return 'D-';
+            return "D-";
         }
-        return 'F';
+        return "F";
     }
 
     function setupWeightsTables() {
@@ -319,23 +511,33 @@
                             = +(categoryGottenAndPossible.gotten.toFixed(
                             3)) + ((categoryGottenAndPossible.possible != 0) ? ('/'
                             + +(categoryGottenAndPossible.possible.toFixed(
-                                3))) : '');
-                        document.getElementById('weightTableGrade' + i + j).textContent = getCategoryGrade(i,
-                            tableCategories[j]);
+                                3))) : "");
+                        let categoryGrade = getCategoryGrade(i, tableCategories[j]);
+                        if (categoryGottenAndPossible.possible !== 0) {
+                            document.getElementById("weightTableGrade" + i + j).textContent = categoryGrade + "% (" + getLetterGrade(categoryGrade) + ")";
                     }
-                    let overallGrade = getOverallGrade(i);
-                    document.getElementById('weightTableOverallGrade' + i).textContent = (+(overallGrade.toFixed(
-                        3))).toString() + '% (' + getLetterGrade(overallGrade) + ')';
                 }
+                let overallGrade = getOverallGrade(i);
+                document.getElementById("weightTableOverallGrade" + i).textContent = (+(overallGrade.toFixed(3))).toString() + "% (" + getLetterGrade(overallGrade) + ")";
+            }
+            if (!unobtainedWeights[className]) {
+                document.getElementById("weightTableOverallGrade" + i).style.display = "block";
+            } else {
+                document.getElementById("weightTablemsg" + i).style.display = "block";
             }
         }
     }
 
     function setupOverviewTable() {
         for (let i = 0; i < data.length; i++) {
-            let overallGrade = getOverallGrade(i);
-            document.getElementById('overviewChart' + i).innerHTML = (+(overallGrade.toFixed(2))).toString() + '% </br>'
-                + getLetterGrade(overallGrade);
+            let className = data[i].class_name;
+            if (!unobtainedWeights[className]) {
+                document.getElementById("overviewChart" + i).style.display = "block";
+                let overallGrade = getOverallGrade(i);
+                document.getElementById("overviewChart" + i).innerHTML = (+(overallGrade.toFixed(2))).toString() + "% </br>" + getLetterGrade(overallGrade);
+            } else {
+                document.getElementById("weightmsgcontainer" + i).style.display = "block";
+            }
         }
     }
 
@@ -356,7 +558,7 @@
         let categoryGottenAndPossible = getCategoryGottenAndPossible(classIndex, categoryName);
         let totalGotten = categoryGottenAndPossible.gotten;
         let totalPossible = categoryGottenAndPossible.possible;
-        if (totalPossible == 0) {
+        if (totalPossible === 0) {
             return 0;
         }
         return +((totalGotten / totalPossible * 100).toFixed(3));
@@ -365,10 +567,8 @@
     function showWeightMessage(msg, id) {
         let wmRef = document.getElementById("weightmsg" + id);
         let wmTextRef = document.getElementById("weightmsg_text" + id);
-        if (msg !== 'Missing Weights: ') {
-            wmRef.style.display = "block";
-            wmTextRef.innerText = msg;
-        }
+        wmRef.style.display = "block";
+        wmTextRef.innerText = msg;
     }
 
     function hideWeightMessage(id) {
@@ -379,16 +579,9 @@
     }
 
     function updateWeightMessages() {
-        if (unobtainedWeights.length > 0) {
-            hideWeightMessage(-1)
-        } else {
-            showWeightMessage("Missing Weights: " + Object.keys(unobtainedWeights).join(", "), -1);
-        }
-        for (var id = 0; id < data.length; id++) {
+        for (let id = 0; id < data.length; id++) {
             if (data[id].class_name in unobtainedWeights) { //TODO idk if this index get is safe
-                showWeightMessage("Missing Weights: " + unobtainedWeights[data[id].class_name].join(", "), id)
-            } else {
-                hideWeightMessage(id)
+                showWeightMessage("Missing Weights: " + unobtainedWeights[data[id].class_name].join(", "), id);
             }
         }
     }
@@ -399,8 +592,7 @@
          */
         for (let classData of data) {
             let className = classData.class_name;
-            let needWeights = !(className in weights) || (Object.entries(weights[className]).length === 0
-                && weights[className].constructor === Object);
+            let needWeights = !(className in weights) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object);
             let localMissingCategories = [];
 
             if ((className in weights) && (weights[className]["hasWeights"]==="false")) {
@@ -414,11 +606,10 @@
                         }
                         needWeights = true;
                     }
-                }
-                // console.log("LMC")
-                // console.log(localMissingCategories)
 
-                if (!(className in unobtainedWeights) && needWeights) {
+                }
+
+                if (needWeights) {
                     unobtainedWeights[className] = localMissingCategories; //todo here add specific weights (i.e. You don't have the Test category...)
                 }
             }
@@ -444,16 +635,16 @@
             for (let grade of classData.grades) {
                 let category = grade.category;
                 if (doesntHaveWeights) {
-                    category = 'default';
+                    category = "default";
                 }
                 try {
-                    if (typeof totalPossiblesAndGottens[category] === 'undefined') {
+                    if (typeof totalPossiblesAndGottens[category] === "undefined") {
                         let weightVal = 100;
                         if (!doesntHaveWeights) {
                             weightVal = weights[className]["weights"][category];
                         }
                         totalPossiblesAndGottens[category] = {
-                            totalPossible: 0, totalGotten: 0, weight: weightVal,
+                            totalPossible: 0, totalGotten: 0, weight: weightVal
                         };
                         totalWeightValue += weightVal;
                     }
@@ -465,12 +656,9 @@
 
                     let overallPercent = 0;
                     for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
-                        overallPercent = overallPercent + (value.weight * (value.totalPossible !== 0
-                            ? (value.totalGotten / value.totalPossible)
-                            : value.totalGotten));
+                        overallPercent = overallPercent + (value.weight * (value.totalPossible !== 0 ? (value.totalGotten / value.totalPossible) : value.totalGotten));
                     }
-                    let total = ((overallPercent / totalWeightValue) * 100).toFixed(3);
-                    total = +total;
+                    let total = +(((overallPercent / totalWeightValue) * 100).toFixed(3));
                     //rounds to 3 decimal places (the plus sign drops any trailing zeros)
 
                     overallGradeSteps.push(total);
@@ -485,61 +673,65 @@
             let assignmentPercents = classData.grades.map(x => x.grade_percent);
             let assignmentScoresParsed = classData.grades.map(x => x.points_gotten + "/" + x.points_possible);
             let assignmentCategories = classData.grades.map(x => x.category);
+            let assignmentExcluded = classData.grades.map(x => x.exclude);
             let mixedData = overallGradeSteps.map(function (grade, i) {
-                return {x: assignmentTimestamps[i], y: grade}
+                return {x: assignmentTimestamps[i], y: grade};
             });
 
             parsedData.push({
-                assignmentNames: assignmentNames,
-                assignmentTimestamps: assignmentTimestamps,
-                assignmentPercents: assignmentPercents,
-                assignmentScoresParsed: assignmentScoresParsed,
-                assignmentCategories: assignmentCategories,
-                mixedData: mixedData,
-            });
-            // console.log(parsedData);
+                                assignmentNames: assignmentNames,
+                                assignmentTimestamps: assignmentTimestamps,
+                                assignmentPercents: assignmentPercents,
+                                assignmentScoresParsed: assignmentScoresParsed,
+                                assignmentCategories: assignmentCategories,
+                                assignmentExcluded: assignmentExcluded,
+                                mixedData: mixedData
+                            });
         }
     }
 
     function renderAllCharts() {
-        renderOverviewChart();
-        for (let i = 0; i < data.length; i++) {
-            renderChart(i)
+        try {
+            renderOverviewChart();
+            for (let i = 0; i < data.length; i++) {
+                renderChart(i);
+            }
+        } catch {
         }
     }
 
     let hoveredDatasetIndex = -1;
 
     function renderOverviewChart() {
-        let ctx = document.getElementById('chart-1');
+        let ctx = document.getElementById("chart-1");
         let id = 0;
         let dataset = [];
         let colors = user.appearance.classColors;
         for (let i = 0; i < data.length; i++) {
             dataset.push({
-                label: data[i].class_name,
-                backgroundColor: 'transparent',
-                pointBackgroundColor: brighten(colors[i], 100),
-                pointBorderColor: 'transparent',
-                borderColor: brighten(colors[i], 100),
-                data: parsedData[i].mixedData,
-                cubicInterpolationMode: 'monotone',
-                spanGaps: false,
-                pointRadius: 3,
-                borderWidth: 3,
-                pointHoverRadius: 7,
-                pointHoverBackgroundColor: brighten(colors[i], -20),
-                pointHoverBorderColor: brighten(colors[i], 10),
-                pointHoverBorderWidth: 2
-            });
+                             label: data[i].class_name,
+                             backgroundColor: "transparent",
+                             pointBackgroundColor: colors[i],
+                             pointBorderColor: "transparent",
+                             borderColor: colors[i],
+                             data: parsedData[i].mixedData,
+                             cubicInterpolationMode: "monotone",
+                             spanGaps: false,
+                             pointRadius: 3,
+                             borderWidth: 3,
+                             pointHoverRadius: 7,
+                             pointHoverBackgroundColor: colors[i],
+                             pointHoverBorderColor: colors[i],
+                             pointHoverBorderWidth: 2
+                         });
         }
         let numRunning = 0;
         let myChart = new Chart(ctx, {
-            type: 'line', data: {
-                datasets: dataset,
+            type: "line", data: {
+                datasets: dataset
             }, options: {
                 hover: {
-                    mode: 'nearest', intersect: false,
+                    mode: "nearest", intersect: false
                 }, onHover: function onHover(evt, activeElements) {
                     if (!activeElements || !activeElements.length) {
                         return;
@@ -551,166 +743,124 @@
                         inactiveDataset.borderWidth = 3;
                         inactiveDataset.pointRadius = 3;
                     }
-                    activeDataset.borderWidth = 5;
-                    activeDataset.pointRadius = 5;
-                    this.update(200);
+                    activeDataset.borderWidth = 6;
+                    activeDataset.pointRadius = 6;
+                    this.update(100);
                     let chart = this;
                     numRunning++;
-                    setTimeout(function () {
-                        numRunning--;
-                        if (numRunning === 0) {
-                            for (let i = 0; i < chart.data.datasets.length; i++) {
-                                let dataset = chart.data.datasets[i];
-                                dataset.borderWidth = 3;
-                                dataset.pointRadius = 3;
+                    if (numRunning === 1) {
+                        setTimeout(function () {
+                            numRunning--;
+                            if (numRunning === 0) {
+                                for (let i = 0; i < chart.data.datasets.length; i++) {
+                                    let dataset = chart.data.datasets[i];
+                                    dataset.borderWidth = 3;
+                                    dataset.pointRadius = 3;
+                                }
+                                chart.update(1000);
                             }
-                            chart.update(2000);
-                        }
 
-                    }, 6000);
+                        }, 6000);
+                    }
                 }, scales: {
                     xAxes: [{
-                        type: 'time', time: {
-                            unit: 'month'
+                        type: "time", time: {
+                            unit: "month"
                         }, ticks: {
-                            fontColor: 'white', fontFamily: 'Verdana', fontSize: '13'
+                            fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "13"
                         }, gridLines: {
-                            color: '#555555',
+                            color: (darkMode ? "#555555" : "#CCCCCC")
                         }
                     }], yAxes: [{
                         ticks: {
-                            fontColor: 'white', fontFamily: 'Verdana', fontSize: '12'
+                            fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "12"
                         }, gridLines: {
-                            color: '#555555', drawBorder: false
+                            color: (darkMode ? "#555555" : "#CCCCCC"), drawBorder: false
                         }
                     }]
                 }, animation: {
-                    easing: 'easeOutCubic'
+                    easing: "easeOutCubic"
                 }, legend: {
-                    display: true, position: 'top', labels: {
-                        fontColor: 'white', fontFamily: 'Verdana', boxWidth: 20, fontSize: 13,
+                    display: true, position: "top", labels: {
+                        fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", boxWidth: 20, fontSize: 13
                     }
                 }, tooltips: {
-                    enabled: true, position: 'nearest', intersect: false, displayColors: true, callbacks: {
-                        title: function (tooltipItems, data) {
-                            return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(
-                                tooltipItems[0].value).toFixed(2) + "%";
-                        }, label: function (tooltipItem, data) {
-                            return ["[" + parsedData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.index]
-                            + "] " + parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + " - "
-                            + (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== -1
-                                ? (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index]
-                                    + "%") : (""))
-                            + ((parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index]
-                                .substring(
-                                    parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length
-                                    - 2)) !== '/0' ? (" ("
-                                + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index]
-                                + ")")
-                                :
-                                (parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(
-                                    0,
-                                    parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length
-                                    - 2)))];
-                        },
+                    enabled: true, position: "nearest", intersect: false, displayColors: true, callbacks: {
+                        title: function (tooltipItems) {
+                            return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
+                        }, label: function (tooltipItem) {
+                            return ["[" + parsedData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.index] + "] " + (parsedData[tooltipItem.datasetIndex].assignmentExcluded[tooltipItem.index] ? "[EXCLUDED] " : "") + parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + " - " + (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== -1 ? (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "%") : ("")) + ((parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? (" (" + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")") : (parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)))];
+                        }
                     }
-                }, responsive: true, maintainAspectRatio: false,
+                }, responsive: true, maintainAspectRatio: false
             }
         });
     }
 
-    function brighten(color, amount) {
-        let hex = color.substring(1);
-        let origR = parseInt(hex.substring(0, 2), 16);
-        let origG = parseInt(hex.substring(2, 4), 16);
-        let origB = parseInt(hex.substring(4), 16);
-        let minAmtR = -100;
-        let maxAmtR = Math.round((255 - origR) / 255 * 100);
-        let minAmtG = -100;
-        let maxAmtG = Math.round((255 - origG) / 255 * 100);
-        let minAmtB = -100;
-        let maxAmtB = Math.round((255 - origB) / 255 * 100);
-        let commonMin = Math.max(minAmtR, minAmtG, minAmtB);
-        let commonMax = Math.min(maxAmtR, maxAmtG, maxAmtB);
-        amount < commonMin ? amount = commonMin : amount;
-        amount > commonMax ? amount = commonMax : amount;
-        let newR = Math.round(origR * (100 + amount) / 100);
-        let newG = Math.round(origG * (100 + amount) / 100);
-        let newB = Math.round(origB * (100 + amount) / 100);
-        newR > 255 ? newR = 255 : newR < 0 ? newR = 0 : newR;
-        newG > 255 ? newG = 255 : newG < 0 ? newG = 0 : newG;
-        newB > 255 ? newB = 255 : newB < 0 ? newB = 0 : newB;
-        return ('#' + newR.toString(16) + newG.toString(16) + newB.toString(16)).toUpperCase();
-    }
-
     function renderChart(id) {
-        let ctx = document.getElementById('chart' + id);
+        let ctx = document.getElementById("chart" + id);
         let colors = user.appearance.classColors;
         let myChart = new Chart(ctx, {
-            type: 'line', data: {
+            type: "line", data: {
                 datasets: [{
-                    label: 'parsedData[id]',
-                    backgroundColor: 'rgba(256,256,256,0.05)',
-                    pointBackgroundColor: brighten(colors[id], 100),
-                    pointBorderColor: brighten(colors[id], 100),
-                    borderColor: brighten(colors[id], 100),
-                    fill: 'start',
+                    label: "parsedData[id]",
+                    backgroundColor: (darkMode ? "rgba(256,256,256,0.05)" : "rgba(0,0,0,0.05)"),
+                    pointBackgroundColor: colors[id],
+                    pointBorderColor: colors[id],
+                    borderColor: colors[id],
+                    fill: "start",
                     data: parsedData[id].mixedData,
-                    cubicInterpolationMode: 'monotone',
+                    cubicInterpolationMode: "monotone",
                     spanGaps: false,
                     pointRadius: 3,
                     borderWidth: 3,
                     pointHoverRadius: 7,
-                    pointHoverBackgroundColor: brighten(colors[id], -20),
-                    pointHoverBorderColor: brighten(colors[id], 10),
+                    pointHoverBackgroundColor: colors[id],
+                    pointHoverBorderColor: colors[id],
                     pointHoverBorderWidth: 2
                 }]
             }, options: {
                 hover: {
-                    mode: 'nearest', intersect: false
+                    mode: "nearest", intersect: false
                 }, scales: {
                     xAxes: [{
-                        type: 'time', time: {
-                            unit: 'month'
+                        type: "time", time: {
+                            unit: "month"
                         }, ticks: {
-                            fontColor: 'white', fontFamily: 'Verdana', fontSize: '13'
+                            fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "13"
                         }, gridLines: {
-                            color: '#555555',
+                            color: (darkMode ? "#555555" : "#CCCCCC")
                         }
                     }], yAxes: [{
                         ticks: {
-                            fontColor: 'white', fontFamily: 'Verdana', fontSize: '12'
+                            fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "12"
                         }, gridLines: {
-                            color: '#555555', drawBorder: false
+                            color: (darkMode ? "#555555" : "#CCCCCC"), drawBorder: false
                         }
                     }]
                 }, animation: {
-                    easing: 'easeOutCubic'
+                    easing: "easeOutCubic"
                 }, legend: {
-                    display: false,
+                    display: false
                 }, tooltips: {
-                    enabled: true, position: 'nearest', intersect: false, displayColors: false, callbacks: {
+                    enabled: true, position: "nearest", intersect: false, displayColors: false, callbacks: {
                         title: function (tooltipItems, data) {
-                            return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(
-                                tooltipItems[0].value).toFixed(2) + "%";
+                            return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
                         }, label: function (tooltipItem, data) {
-                            return ["[" + parsedData[id].assignmentCategories[tooltipItem.index] + "] " +
-                            parsedData[id].assignmentNames[tooltipItem.index] + " - "
-                            + (parsedData[id].assignmentPercents[tooltipItem.index] !== -1
-                                ? (parsedData[id].assignmentPercents[tooltipItem.index] + "%") : (""))
-                            + ((parsedData[id].assignmentScoresParsed[tooltipItem.index]
-                                .substring(parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2))
-                            !== '/0' ? (" (" + parsedData[id].assignmentScoresParsed[tooltipItem.index]
-                                + ")") : (parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(0,
-                                parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)))];
-                        },
+                            return ["[" + parsedData[id].assignmentCategories[tooltipItem.index] + "] " + (parsedData[tooltipItem.datasetIndex].assignmentExcluded[tooltipItem.index] ? "[EXCLUDED]" : "") + parsedData[id].assignmentNames[tooltipItem.index] + " - " + (parsedData[id].assignmentPercents[tooltipItem.index] !== -1 ? (parsedData[id].assignmentPercents[tooltipItem.index] + "%") : ("")) + ((parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? (" (" + parsedData[id].assignmentScoresParsed[tooltipItem.index] + ")") : (parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(0, parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)))];
+                        }
                     }
-                }, responsive: true, maintainAspectRatio: false,
+                }, responsive: true, maintainAspectRatio: false
             }
         });
     }
 
     function showPage(id) {
+        if (id === -1) {
+            renderOverviewChart();
+        } else {
+            renderChart(id);
+        }
         document.getElementById("pageNumber").textContent = id;
         for (let i = -1; i < data.length; i++) {
             document.getElementById("link" + i).classList.remove("active");
@@ -722,40 +872,114 @@
         }
         document.getElementById("section" + id).style.display = "block";
 
-        if (id == -1) {
-            document.getElementById("classLinks").style.borderBottomColor = brighten("#BBBBBB", -20);
-        } else {
-            document.getElementById("classLinks").style.borderBottomColor = brighten(user.appearance.classColors[id],
-                -20);
-        }
+        window.localStorage.setItem("currentPage", id);
         currentPage = id;
     }
 
     document.onkeydown = function (e) {
 
-        e = e || window.event;
-
-        if (e.keyCode === 38) {
+        if ($("input").is(":focus")) {
+            // Do nothing
+        } else if (e.code === "ArrowUp") {
             // up arrow
-        } else if (e.keyCode === 40) {
+        } else if (e.code === "ArrowDown") {
             // down arrow
-        } else if (e.keyCode === 37) {
+        } else if (e.code === "ArrowLeft") {
             // left arrow
-            if (currentPage === -1) {
-                showPage(data.length - 1);
+            if (cardsDisplayed.includes("settingsCardDisplay")) {
+                if (currentTab === 1) {
+                    openTab(maxTab);
+                } else {
+                    openTab(currentTab - 1);
+                }
+            } else if (cardsDisplayed.includes("updateGradesDisplay")) {
+            } else if (cardsDisplayed.includes("updateWeightsDisplay")) {
             } else {
-                showPage(currentPage - 1);
+                if (currentPage === -1) {
+                    showPage(data.length - 1);
+                } else {
+                    showPage(currentPage - 1);
+                }
             }
-        } else if (e.keyCode === 39) {
+        } else if (e.code === "ArrowRight") {
             // right arrow
-            if (currentPage === data.length - 1) {
-                showPage(-1);
+            if (cardsDisplayed.includes("settingsCardDisplay")) {
+                if (currentTab === maxTab) {
+                    openTab(1);
+                } else {
+                    openTab(currentTab + 1);
+                }
+            } else if (cardsDisplayed.includes("updateGradesDisplay")) {
+            } else if (cardsDisplayed.includes("updateWeightsDisplay")) {
+            } else if (cardsDisplayed.includes("changelogDisplay")) {
             } else {
-                showPage(currentPage + 1);
+                if (currentPage === data.length - 1) {
+                    showPage(-1);
+                } else {
+                    showPage(currentPage + 1);
+                }
             }
+        } else if (e.code === "KeyS") {
+            if (cardsDisplayed.includes("settingsCardDisplay")) {
+                if (cardsDisplayed.indexOf("settingsCardDisplay") !== cardsDisplayed.length - 1) {
+                    closeForm("settingsCardDisplay");
+                    showCard("#settingsCardDisplay");
+                } else {
+                    closeForm("settingsCardDisplay");
+                }
+            } else if (cardsDisplayed.includes("updateGradesDisplay")) {
+                showCard("#settingsCardDisplay");
+            } else if (cardsDisplayed.includes("updateWeightsDisplay")) {
+                showCard("#settingsCardDisplay");
+            } else if (cardsDisplayed.includes("changelogDisplay")) {
+                showCard("#settingsCardDisplay");
+            } else {
+                showCard("#settingsCardDisplay");
+            }
+        } else if (e.code === "KeyW") {
+            if (cardsDisplayed.includes("updateWeightsDisplay")) {
+                if (cardsDisplayed.indexOf("updateWeightsDisplay") !== cardsDisplayed.length - 1) {
+                    closeForm("updateWeightsDisplay");
+                    showUpdateWeights(-1);
+                } else {
+                    closeForm("updateWeightsDisplay");
+                }
+            } else if (cardsDisplayed.includes("settingsCardDisplay")) {
+                showUpdateWeights(-1);
+            } else if (cardsDisplayed.includes("updateGradesDisplay")) {
+                showUpdateWeights(-1);
+            } else if (cardsDisplayed.includes("changelogDisplay")) {
+                showUpdateWeights(-1);
+            } else {
+                showUpdateWeights(-1);
+            }
+        } else if (e.code === "KeyQ") {
+            if (cardsDisplayed.includes("changelogDisplay")) {
+                if (cardsDisplayed.indexOf("changelogDisplay") !== cardsDisplayed.length - 1) {
+                    closeForm("changelogDisplay");
+                    showChangelog();
+                    $("#changelogMessage").hide();
+                } else {
+                    closeForm("changelogDisplay");
+                }
+            } else if (cardsDisplayed.includes("settingsCardDisplay")) {
+                showChangelog();
+                $("#changelogMessage").hide();
+            } else if (cardsDisplayed.includes("updateGradesDisplay")) {
+                showChangelog();
+                $("#changelogMessage").hide();
+            } else if (cardsDisplayed.includes("updateWeightsDisplay")) {
+                showChangelog();
+                $("#changelogMessage").hide();
+            } else {
+                showChangelog();
+                $("#changelogMessage").hide();
+            }
+        } else {
+            //console.log(e.code);
         }
 
-    }
+    };
 
 </script>
 </body>

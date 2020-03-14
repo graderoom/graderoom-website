@@ -1,27 +1,89 @@
 <!-- Update Grades Card -->
-<div class="container">
-    <div class="blurred-login" id="updateGradesDisplay"
-         style="position:fixed; display:none; height: 100%; width: 100%; top: 0; left: 0; z-index: 1">
-        <div class="blurred-background" style="position: fixed; width: 100%; height: 100%; filter: opacity(0.7);"></div>
-        <div class="col-sm-8 col-md-7 col-lg-5 mx-auto">
-            <div id="updateGradesCard" class="card card-signin my-5">
-                <btn class="btn btn-md" onclick="closeForm('updateGradesDisplay')"
-                     style="width: fit-content; margin-bottom:0">
-                    <i class="fa fa-arrow-left" aria-hidden="true"></i> Back
-                </btn>
-                <div class="card-body">
-                    <h1 class="card-title text-center">School Login</h1>
-                    <h5 class="text-center">Enter password for: </h5>
+<div class="blurred-login" id="updateGradesDisplay"
+     style="position:fixed; display:none; height: 100%; width: 100%; top: 0; left: 0; z-index: 1">
+    <div class="blurred-background"></div>
+    <div class="col-sm-8 col-md-7 col-lg-5 mx-auto">
+        <div id="updateGradesCard" class="card card-signin my-5">
+            <btn class="btn btn-md" onclick="closeForm('updateGradesDisplay')"
+                 style="width: fit-content; margin-bottom:0">
+                <i class="fa fa-close" aria-hidden="true"></i> Close
+            </btn>
+            <div class="card-body">
+                <div id="updateGradesMessage" class="alert alert-success alert-dismissible"
+                     style="display:none">
+                    <div style="display: flex">
+                        <div class="font-weight-bold messageTxt"></div>
+                        <i class="fa fa-info-circle popup" id="syncFailure"
+                           style="padding-left: 0.2rem; align-self: center; display:none">
+                            <span class="popuptext">
+                                This usually occurs when the PowerSchool website is down.
+                            </span>
+                        </i>
+                    </div>
+                    <a class="close" onclick="closeMessage('updateGradesMessage')" aria-label="close">X</a>
+                </div>
+                <h1 class="card-title text-center">School Login</h1>
+                <div id="synced" style="display: none"></div>
+                <div id="syncGradesDiv" style="display: none">
+                    <h5 class="text-center">Enter password for:</h5>
                     <h5 id="schoolUsernameDisplay" class="school-username text-center"><%= schoolUsername %></h5>
                     <br>
                     <form id="syncGradesForm" class="form-signin" action="/update" method="post">
                         <div class="form-group">
                             <input name="school_password" type="password" id="inputPassword" class="form-control"
-                                   placeholder="Password" required autofocus>
+                                   placeholder="School Password" required>
+                        </div>
+                        <label style="cursor: pointer; float: right; text-align: left" class="popup"
+                               onclick="toggleInputUserPasswordDisplay()">
+                            <input style="cursor: inherit"
+                                   id="savePasswordToggle"
+                                   type="checkbox"
+                                   name="savePassword"
+                            <% if (user.schoolPassword) { %> checked
+                                    <% } %>
+                            > GradeSync
+                            <i class="fa fa-info-circle popup">
+                                    <span class="popuptext">
+                                        <p>Graderoom will sync automatically whenever you login.</p>
+                                        You will still be able to manually sync at any time.
+                                    </span>
+                            </i>
+                        </label>
+                        <br><br>
+                        <div id="userPassword" class="form-group" style="display:none">
+                            <h6>Enter your Graderoom Password to enable GradeSync</h6>
+                            <input name="user_password" type="password" id="inputUserPassword" class="form-control"
+                                   placeholder="Graderoom Password">
                         </div>
                         <div class="text-center">
-                            <button class="btn btn-lg btn-default" type="submit">Sign In</button>
+                            <button class="btn btn-lg btn-default" type="submit"
+                                    onclick="ajaxPostForm('#syncGradesForm',['#inputUserPassword'],'#updateGradesMessage', true)">
+                                Sign In
+                            </button>
                         </div>
+                    </form>
+                </div>
+                <div id="gradeSyncDiv" style="display: none">
+                    <form id="gradeSyncForm" class="form-signin" action="/update" method="post">
+                        <h5>Enter your Graderoom password</h5>
+                        <div class="form-group">
+                            <input name="user_password" type="password" id="gradeSyncInputUserPassword"
+                                   class="form-control"
+                                   placeholder="Graderoom Password" required>
+                        </div>
+                        <label style="float: right" class="popup">
+                            <label class="text-center popup" style="align-self: flex-end">GradeSync Enabled</label>
+                            <i class="fa fa-info-circle popup">
+                            <span class="popuptext">
+                                <p>Graderoom will sync automatically whenever you login.</p>
+                                <p>You can also manually sync with your Graderoom password</p>
+                                You can disable GradeSync in Settings                            </span>
+                            </i>
+                        </label>
+                        <button class="btn btn-lg btn-default" type="submit"
+                                onclick="ajaxPostForm('#gradeSyncForm',['#gradeSyncInputUserPassword'],'#updateGradesMessage', true)">
+                            Log In
+                        </button>
                     </form>
                 </div>
             </div>
@@ -29,10 +91,10 @@
     </div>
 </div>
 
-<!-- Update Grades Card -->
+<!-- Loading Display -->
 <div class="container" id="loadingDisplay" style="display: none;">
-    <div class="blurred-login" style="position:fixed; height: 100%; width: 100%; top: 0; left: 0; z-index: 1">
-        <div class="blurred-background" style="position: fixed; width: 100%; height: 100%; filter: opacity(0.7);"></div>
+    <div class="blurred-login" style="position:fixed; height: 100%; width: 100%; top: 0; left: 0; z-index: 999">
+        <div class="blurred-background"></div>
         <div class="sk-chase" style="position:absolute; margin:auto; top:0; bottom: 0; left: 0; right: 0;">
             <div class="sk-chase-dot"></div>
             <div class="sk-chase-dot"></div>
@@ -44,9 +106,14 @@
     </div>
 </div>
 
-<!-- Custom Java Script -->
 <script>
-    $("#syncGradesForm").submit(function () {
-        showDiv('loadingDisplay');
-    });
+    function toggleInputUserPasswordDisplay() {
+        if ($("#savePasswordToggle").is(":checked")) {
+            $("#userPassword").show();
+            $("#inputUserPassword").attr("required", "required");
+        } else {
+            $("#userPassword").hide();
+            $("#inputUserPassword").removeAttr("required");
+        }
+    }
 </script>
