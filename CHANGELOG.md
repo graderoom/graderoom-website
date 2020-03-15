@@ -37,6 +37,10 @@
 - Class insights
 - If you would like a feature to become implemented, send feedback in Settings > Feedback
 
+## [Beta 1.4.3] - 2020-03-15
+### Fixed
+- Issue where auto theme would sometimes not take effect
+
 ## [Beta 1.4.2] - 2020-03-14 <p style="font-weight: bold; margin: 0">Happy PI Day!</p>
 ### Improved
 - Theme always remains the same after logout
