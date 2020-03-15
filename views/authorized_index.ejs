@@ -313,7 +313,7 @@
         //console.log("Start, finish, theme", darkModeStart, darkModeFinish, theme);
         //console.log(((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart);
         if (theme === "dark" || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart - (Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset() ? (darkModeStart === 0 ? -23 : 1) : 0)) && ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish - (Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset() ? (darkModeFinish === 1 ? -23 : 1) : 0))) || ((darkModeStart > darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart - (Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset() ? (darkModeStart === 0 ? -23 : 1) : 0)) || ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish - (Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset() ? (darkModeFinish === 1 ? -23 : 1) : 0)))))) {
-            let oldDarkMode = darkMode;
+            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
             darkMode = true;
             if (darkMode !== oldDarkMode) {
                 clearTimeout(changeTransition);
@@ -332,7 +332,7 @@
                 window.localStorage.setItem("defaultAppearance", "dark");
             }
         } else {
-            let oldDarkMode = darkMode;
+            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
             darkMode = false;
             if (darkMode !== oldDarkMode) {
                 if (changeTransition) {
