@@ -37,6 +37,10 @@
 - Class insights
 - If you would like a feature to become implemented, send feedback in Settings > Feedback
 
+## [Beta 1.4.4] - 2020-03-16
+### Added
+- Logging in from final grade calculator returns to final grade calculator after login
+
 ## [Beta 1.4.3] - 2020-03-15
 ### Added
 - Class type information to database (AP/Honors) to make GPA calculation possible
