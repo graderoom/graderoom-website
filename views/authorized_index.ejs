@@ -492,7 +492,9 @@
                 let tableWeights = Object.values(weights[className]);
                 for (let j = 0; j < tableCategories.length; j++) {
                     document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
-                    document.getElementById("weightTableWeight" + i + j).textContent = tableWeights[j] + "%";
+                    if (tableWeights[j] || tableWeights[j] === 0) {
+                        document.getElementById("weightTableWeight" + i + j).textContent = tableWeights[j] + "%";
+                    }
                     let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
                     document.getElementById("weightTablePoints" + i + j).textContent = +(categoryGottenAndPossible.gotten.toFixed(3)) + ((categoryGottenAndPossible.possible !== 0) ? ("/" + +(categoryGottenAndPossible.possible.toFixed(3))) : "");
                     let categoryGrade = getCategoryGrade(i, tableCategories[j]);
@@ -563,7 +565,7 @@
 
     function updateWeightMessages() {
         for (let id = 0; id < data.length; id++) {
-            if (data[id].class_name in unobtainedWeights) { //TODO idk if this index get is safe
+            if (unobtainedWeights[data[id].class_name]) { //TODO idk if this index get is safe
                 showWeightMessage("Missing Weights: " + unobtainedWeights[data[id].class_name].join(", "), id);
             }
         }
@@ -577,27 +579,9 @@
 
         for (let classData of data) {
             let className = classData.class_name;
-            let needWeights = !(className in weights) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object);
-            let localMissingCategories = [];
-
-            if ((className in weights) && (weights[className].length)) {
-                needWeights = false;
-            } else {
-                for (let grade of classData.grades) {
-                    // console.log(grade.category)
-
-                    if (!(grade.category in weights[className])) {
-                        if (!localMissingCategories.includes(grade.category)) {
-                            localMissingCategories.push(grade.category);
-                        }
-                        needWeights = true;
-                    }
-
-                }
-
-                if (needWeights) {
-                    unobtainedWeights[className] = localMissingCategories; //todo here add specific weights (i.e. You don't have the Test category...)
-                }
+            let localMissingCategories = Object.keys(weights[className]).filter(category => !weights[className][category] && weights[className][category] !== 0);
+            if (localMissingCategories.length > 0) {
+                unobtainedWeights[className] = localMissingCategories;
             }
         }
 
