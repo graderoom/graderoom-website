@@ -38,6 +38,9 @@
 - If you would like a feature to become implemented, send feedback in Settings > Feedback
 
 ## [Beta 1.4.3] - 2020-03-15
+### Added
+- Class type information to database (AP/Honors) to make GPA calculation possible
+
 ### Fixed
 - Issue where auto theme would sometimes not take effect
 
@@ -86,8 +89,8 @@
 - Weights Card Styling
 
 ### Fixed
-- Resolved issue where classes with multiple teachers were not supported
-- Resolved issue where user-removed weights would cause server crash
+- Issue where classes with multiple teachers were not supported
+- Issue where user-removed weights would cause internal server error
 
 ## [Stable 1.3.1] - 2020-03-03
 ### Fixed
