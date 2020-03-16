@@ -41,6 +41,9 @@
 ### Added
 - Class type information to database (AP/Honors) to make GPA calculation possible
 
+### Improved
+- Category Grades still show even with missing weights
+
 ### Fixed
 - Issue where auto theme would sometimes not take effect
 
