@@ -23,14 +23,56 @@
 <div id="weightsCard" class="container">
     <span class="accordion" id="bigAccordionForms">
         <% for (let i = 0; i < Object.keys(classData).length; i++) { %>
-            <label class="" data-toggle="collapse" href="#accordionForms<%= i %>">
-                <h5 style="cursor: pointer; font-size: 1.5rem !important;"><%= Object.keys(classData)[i] %>
+            <label style="display: flex; cursor: pointer" data-toggle="collapse" href="#accordionForms<%= i %>">
+                <h5 style="font-size: 1.5rem !important;"><%= Object.keys(classData)[i] %>
                     <i class="fa" aria-hidden="true"></i>
                 </h5>
+                <span id="weightMessage<%= i %>" class="alert alert-success font-weight-bold"
+                      style="width: fit-content; display:none; justify-content: center; padding: 0.1rem;">
+                    <div style="display: none" class="sk-chase-mini">
+                        <div class="sk-chase-dot mini"></div>
+                        <div class="sk-chase-dot mini"></div>
+                        <div class="sk-chase-dot mini"></div>
+                        <div class="sk-chase-dot mini"></div>
+                        <div class="sk-chase-dot mini"></div>
+                        <div class="sk-chase-dot mini"></div>
+                    </div>
+                    <span class="messageTxt"></span>
+                </span>
             </label>
 
             <span class="accordion collapse show collapse-underline" id="accordionForms<%= i %>"
                   data-parent="#bigAccordionForms">
+                <form id="weights<%= i %>" class="form-ajax form-weights form-signin" action="/updateclassweights"
+                      method="post" style="display: flex; justify-content: right;">
+                    <div>
+                        <label>Class Type:</label>
+                        <select oninput="ajaxPostWeightsDatabaseForm('<%= i %>',null,[],'#weightMessage<%= i %>',true); $('#weights<%= i %>').submit()"
+                                class="dropdown" style="padding: 0; margin-right: 3rem"
+                                id="classType<%= i %>">
+                            <option value="" disabled hidden
+                            <% if (classData[Object.keys(classData)[i]].classType === "") { %> selected
+                                    <% } %>
+                            >Not Selected
+                            </option>
+                            <option value="none"
+                            <% if (classData[Object.keys(classData)[i]].classType === "none") { %> selected
+                                    <% } %>
+                            >None
+                            </option>
+                            <option value="ap"
+                            <% if (classData[Object.keys(classData)[i]].classType === "ap") { %> selected
+                                    <% } %>
+                            >AP
+                            </option>
+                            <option value="honors"
+                            <% if (classData[Object.keys(classData)[i]].classType === "honors") { %> selected
+                                    <% } %>
+                            >Honors
+                            </option>
+                        </select>
+                    </div>
+                </form>
                 <% for (var j = 1; j < Object.keys(classData[Object.keys(classData)[i]]).length; j++) { %>
                     <form id="weights<%= i %><%= j %>" class="form-ajax form-weights form-signin"
                           action="/updateclassweights" method="post" style="margin: 0 0 1rem 3rem; width: 100%">
@@ -121,7 +163,12 @@
 
     function ajaxPostWeightsDatabaseForm(classIndex, teacherIndex, fieldIDsToClear, messagesDivID, async) {
         // Get the form.
-        let formID = "#weights" + classIndex + teacherIndex;
+        let formID;
+        if (teacherIndex) {
+            formID = "#weights" + classIndex + teacherIndex;
+        } else {
+            formID = "#weights" + classIndex;
+        }
         $(formID).submit(function (event) {
             event.preventDefault();
             event.stopImmediatePropagation();
@@ -131,22 +178,33 @@
             let formMessagesDiv;
 
             // Serialize the form data.
-            let teacherName = $(formID).find(".weightname")[0].innerText.trim();
             let className = $($($(formID).parents(".accordion")[1])[0]).find("label h5").not(".weightname")[classIndex].innerText.trim();
-            let inputs = $(formID + " input");
-            let weights = {};
-            for (let i = 0; i < inputs.length; i += 2) {
-                weights[$(inputs[i])[0].value] = $(inputs[i + 1])[0].valueAsNumber;
+            let teacherName = null;
+            let weights = null;
+            if (teacherIndex) {
+                teacherName = $(formID).find(".weightname")[0].innerText.trim();
+                weights = {};
+                let inputs = $(formID + " input");
+                for (let i = 0; i < inputs.length; i += 2) {
+                    weights[$(inputs[i])[0].value] = $(inputs[i + 1])[0].valueAsNumber;
+                }
+                formData = {
+                    className: className, teacherName: teacherName, weights: weights
+                };
+            } else {
+                let classType = $(formID).find("select")[0].value.trim();
+                formData = {
+                    className: className, classType: classType
+                };
             }
-            formData = {
-                className: className, teacherName: teacherName, weights: weights
-            };
-            console.log(formData);
 
             // Get the messages.
             formMessagesDiv = $(messagesDivID);
             message = $(formMessagesDiv).find(".messageTxt");
-            $(formMessagesDiv).find(".sk-chase-mini").show().css('display', 'inline-block');
+            $(message).text("");
+            $(formMessagesDiv).removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
+            $(formMessagesDiv).find(".sk-chase-mini").show().css("display", "inline-block");
+            $(formMessagesDiv).show();
 
             // Submit the form using AJAX.
             $.ajax({
@@ -157,7 +215,13 @@
                 $(formMessagesDiv).addClass("alert-success");
 
                 // Set the message text.
-                $(message).text(response);
+                setTimeout(function () {
+                    $(message).text(response);
+                    $(formMessagesDiv).find(".sk-chase-mini").hide();
+                    // Make sure that the formMessages div has the alert-success class.
+                    $(formMessagesDiv).removeClass("alert-info");
+                    $(formMessagesDiv).addClass("alert-success");
+                }, 500);
 
                 // Show the div.
                 $(formMessagesDiv).css("display", "block");
@@ -184,6 +248,9 @@
 
                 // Show the div.
                 $(formMessagesDiv).css("display", "block");
+
+                // Hide loading
+                $(formMessagesDiv).find(".sk-chase-mini").hide();
             }).always(function () {
                 setTimeout(function () {
                     $(formMessagesDiv).find(".sk-chase-mini").hide();

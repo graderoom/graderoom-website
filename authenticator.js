@@ -88,7 +88,19 @@ module.exports = {
                     db.get("classes").get(className).get(teacherName).set("hasWeights", false).write();
                 }
             }
+
+            // Set default AP/Honors to classes with names that suggest it
+            if (!classes[className]["classType"]) {
+                if (className.includes("AP")) {
+                    console.log(className + " is AP");
+                    db.get("classes").get(className).set("classType", "ap").write();
+                } else if (className.includes("Honors")) {
+                    console.log(className + " is Honors");
+                    db.get("classes").get(className).set("classType", "honors").write();
+                }
+            }
         }
+
     },
 
     bringUpToDate: function (username) {
@@ -151,23 +163,30 @@ module.exports = {
         let teacherName = data.teacherName;
         let weights = data.weights;
         let classDb = db.get("classes");
-        if (weights) {
-            let modWeights = {};
-            for (let i = 0; i < Object.keys(weights).length; i++) {
-                modWeights[Object.keys(weights)[i]] = parseInt(Object.values(weights)[i]);
+        if (teacherName) {
+            if (weights) {
+                let modWeights = {};
+                for (let i = 0; i < Object.keys(weights).length; i++) {
+                    modWeights[Object.keys(weights)[i]] = parseInt(Object.values(weights)[i]);
+                }
+                weights = modWeights;
+                classDb.get(className).get(teacherName).set("weights", weights).write();
+                classDb.get(className).get(teacherName).set("hasWeights", true).write();
+            } else {
+                classDb.get(className).get(teacherName).set("weights", {}).write();
+                classDb.get(className).get(teacherName).set("hasWeights", false).write();
             }
-            weights = modWeights;
-            classDb.get(className).get(teacherName).set("weights", weights).write();
-            classDb.get(className).get(teacherName).set("hasWeights", true).write();
+            let users = db.get("users");
+            for (let i = 0; i < users.value().length; i++) {
+                if (users.value()[i]["weights"][className]) {
+                    users.find({username: users.value()[i].username}).get("weights").set(className, weights).write();
+                }
+            }
+            return {success: true, message: "Updated weights for " + className + " | " + teacherName};
         } else {
-            classDb.get(className).get(teacherName).set("weights", {}).write();
-            classDb.get(className).get(teacherName).set("hasWeights", false).write();
-        }
-        let users = db.get("users");
-        for (let i = 0; i < users.value().length; i++) {
-            if (users.value()[i]["weights"][className]) {
-                users.find({username: users.value()[i].username}).get("weights").set(className, weights).write();
-            }
+            let classType = data.classType;
+            classDb.get(className).set("classType", classType).write();
+            return {success: true, message: "Set class type of " + className + " to " + classType};
         }
     }
 

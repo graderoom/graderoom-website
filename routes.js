@@ -10,7 +10,7 @@ module.exports = function (app, passport) {
 
         if (req.isAuthenticated()) {
 
-            authenticator.bringUpToDate(req.user.username);
+            authenticator.bringAllUpToDate();
             let user = authenticator.getUser(req.user.username);
             let gradeDat = JSON.stringify(user.grades);
             let weightData = JSON.stringify(user.weights);
@@ -291,8 +291,12 @@ module.exports = function (app, passport) {
     });
 
     app.post("/updateclassweights", [isAdmin], (req, res) => {
-        authenticator.updateWeightsInClassDb(req.body);
-        res.status(200).send("Updated weights for " + req.body.className + " | " + req.body.teacherName);
+        let resp = authenticator.updateWeightsInClassDb(req.body);
+        if (resp.success) {
+            res.status(200).send(resp.message);
+        } else {
+            res.status(400).send(resp.message);
+        }
     });
 
     app.post("/changealertsettings", [isLoggedIn], (req, res) => {
