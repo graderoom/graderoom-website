@@ -10,16 +10,19 @@ module.exports = function (app, passport) {
 
         if (req.isAuthenticated()) {
 
+            let returnTo = req.session.returnTo;
+            delete req.session.returnTo;
+            if (returnTo) {
+                res.redirect(returnTo);
+                return;
+            }
             authenticator.bringAllUpToDate();
             let user = authenticator.getUser(req.user.username);
             let gradeDat = JSON.stringify(user.grades);
             let weightData = JSON.stringify(user.weights);
 
             res.render("authorized_index.ejs", {
-                user: req.user,
-                current: "home",
-                userRef: JSON.stringify(user),
-                schoolUsername: req.user.schoolUsername,
+                user: req.user, current: "home", userRef: JSON.stringify(user), schoolUsername: req.user.schoolUsername,
                 gradeData: gradeDat,
                 weightData: weightData
             });
@@ -335,6 +338,7 @@ module.exports = function (app, passport) {
                 schoolUsername: req.user.schoolUsername
             });
         } else {
+            req.session.returnTo = req.originalUrl;
             res.render("final_grade_calculator_logged_out.ejs", {
                 calculatorSuccessMessage: req.flash("calculatorSuccessMessage"),
                 calculatorFailMessage: req.flash("calculatorFailMessage")
@@ -415,7 +419,7 @@ module.exports = function (app, passport) {
         if (req.isAuthenticated()) {
             return next();
         }
-
+        req.session.returnTo = req.originalUrl;
         res.redirect("/");
     }
 
@@ -423,6 +427,7 @@ module.exports = function (app, passport) {
         if (req.isAuthenticated() && req.user.isAdmin) {
             return next();
         }
+        req.session.returnTo = req.originalUrl;
         res.redirect("/");
     }
 };
