@@ -52,7 +52,7 @@ if (!dbConn.userExists(ADMIN_USERNAME)) {
 // required for passport
 app.use(session({
                     secret: "secret", // session secret //TODO CHANGE
-                    resave: true, saveUninitialized: true, cookie: {maxAge: 1 * 1 * 10 * 1000} //4 hours
+                    resave: true, saveUninitialized: true, cookie: {maxAge: 4 * 60 * 60 * 1000} //4 hours
                 }));
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
