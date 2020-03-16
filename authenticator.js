@@ -134,15 +134,23 @@ module.exports = {
                 this.addDbClass(user.grades[i].class_name, user.grades[i].teacher_name);
             }
 
-            // Put weights into class database TODO add admin confirmation requirement
             let className = user.grades[i].class_name;
             let teacherName = user.grades[i].teacher_name;
             let classDb = db.get("classes");
             let classes = classDb.value();
             let weights = user.weights[className];
+
+            // Put empty weights into class database
+            for (let assignment of user.grades[i]["grades"]) {
+                if (!Object.keys(classes[className][teacherName]["weights"]).includes(assignment.category)) {
+                    classDb.get(className).get(teacherName).get("weights").set(assignment.category, null).write();
+                }
+            }
+
+            // Put weight values into class database TODO add admin confirmation requirement
             for (let i = 0; i < Object.keys(weights).length; i++) {
                 if (classes[className][teacherName]["weights"]) {
-                    if (!Object.keys(classes[className][teacherName]["weights"]).includes(Object.keys(weights)[i])) {
+                    if (!Object.keys(classes[className][teacherName]["weights"]).includes(Object.keys(weights)[i]) || classes[className][teacherName]["weights"][Object.keys(weights)[i]] === null) {
                         classDb.get(className).get(teacherName).get("weights").set(Object.keys(weights)[i], Object.values(weights)[i]).write();
                     }
                 }
