@@ -46,21 +46,25 @@
                     </a>
                 </li>
             <% } %>
+            <% if (current === "home") { %>
                 <li id="settings" class="nav-item">
                     <btn class="btn btn-med" onclick="showCard('#settingsCardDisplay')">
                         <i class="fa fa-cog" aria-hidden="true"></i> Settings
                     </btn>
                 </li>
-                <li class="nav-item active">
-                    <a onclick="window.localStorage.setItem('currentPage','')" href="/logout" class="btn btn-med"> <i
-                                class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
-                </li>
+            <% } %>
+            <li class="nav-item active">
+                <a onclick="window.localStorage.setItem('currentPage','')" href="/logout" class="btn btn-med"> <i
+                            class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
+            </li>
         </ul>
     </div>
 </nav>
 
 <!-- Cards -->
-<% include settings_card.ejs %> <% include sync_grades_card.ejs %> <% include edit_weights_card.ejs %> <% include changelog.ejs %>
+<% if (current === "home") { %>
+    <% include settings_card.ejs %> <% include sync_grades_card.ejs %> <% include edit_weights_card.ejs %> <% include changelog.ejs %>
+<% } %>
 
 <!-- Custom JavaScript -->
 <script>
@@ -143,7 +147,7 @@
                     // Switch mode instantly
                     if (formID === "#chooseTheme") {
                         if (response === "Dark theme enabled!") {
-                            let oldDarkMode = darkMode;
+                            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
                             darkMode = true;
                             theme = "dark";
                             if (darkMode !== oldDarkMode) {
@@ -163,6 +167,7 @@
                                 }, 1000);
                                 renderAllCharts();
                             }
+                            localStorage.setItem("defaultAppearance", "dark");
                         } else if (response === "Light theme enabled!") {
                             let autoLimits = $("#autoLimits");
                             autoLimits.hide();
@@ -173,7 +178,7 @@
                             autoLimits[0].children[4].value = (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString());
                             autoLimits[0].children[5].selectedIndex = (darkModeFinish === 24 ? 0 : darkModeFinish > 12 ? 1 : 0);
                             document.getElementsByName("theme")[0].setAttribute("checked", "checked");
-                            let oldDarkMode = darkMode;
+                            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
                             darkMode = false;
                             theme = "light";
                             if (darkMode !== oldDarkMode) {
@@ -193,6 +198,7 @@
                                 }, 1000);
                                 renderAllCharts();
                             }
+                            localStorage.setItem("defaultAppearance", "light");
                         } else {
                             $(form[0].elements[7]).attr("disabled", "disabled");
                             theme = "auto";
@@ -247,11 +253,6 @@
                             document.getElementById("darkModeStart").setAttribute("placeholder", (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString()));
                             document.getElementById("darkModeFinish").setAttribute("placeholder", (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString()));
                             checkTime();
-                        }
-                        if (darkMode) {
-                            localStorage.setItem("defaultAppearance", "dark");
-                        } else {
-                            localStorage.setItem("defaultAppearance", "light");
                         }
                     }
 
