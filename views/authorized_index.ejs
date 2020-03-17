@@ -150,7 +150,7 @@
                             <th>Grade</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody> 
                         <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]).length; j++) { %>
                             <tr>
                                 <td id="weightTableCategory<%= i %><%= j %>"></td>
@@ -412,7 +412,7 @@
         let classCategories = Object.keys(weights[className]["weights"]);
         for (let i = 0; i < classWeights.length; i++) {
             if (getCategoryGottenAndPossible(classIndex, classCategories[i]).possible !== 0) {
-                totalWeight += classWeights[i];
+                totalWeight += Number(classWeights[i]);
             }
         }
         return totalWeight;
@@ -437,7 +437,6 @@
                 }
                 let ratio = 100 / getTotalWeight(classIndex);
                 overallGrade *= ratio;
-                console.log(overallGrade)
             }
             return overallGrade;
         }
@@ -555,7 +554,6 @@
         /*
          WEIGHTS first
          */
-        console.log("parse data");
         for (let classData of data) {
             let className = classData.class_name;
             let needWeights = !(className in weights) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object);
@@ -574,7 +572,6 @@
                 if (needWeights) {
                     unobtainedWeights[className] = localMissingCategories;
                 }
-                console.log(needWeights);
             }
 
         }
@@ -600,7 +597,7 @@
                     if (typeof totalPossiblesAndGottens[category] === "undefined") {
                         let weightVal = 100;
                         if (!doesntHaveWeights) {
-                            weightVal = weights[className]["weights"][category];
+                            weightVal = Number(weights[className]["weights"][category]);
                         }
                         totalPossiblesAndGottens[category] = {
                             totalPossible: 0, totalGotten: 0, weight: weightVal
