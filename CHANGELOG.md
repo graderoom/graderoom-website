@@ -23,10 +23,12 @@
 <!-- Use the following HTML before information specific to beta users (e.g. The Announcement on 2020-03-12) -->
 <!-- <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> -->
 
+<!-- Use the following HTML to add lines under the date (e.g. PI Day on 2020-03-14) -->
+<!-- <p style="font-weight: bold; margin: 0">[Text here]</p> -->
+
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
 ## [Known Issues] - Working on it
-- Auto Theme does not work correctly because of Daylight Savings Time
 - If you have an issue, send feedback in Settings > Feedback
 
 ## [Unreleased] - Coming Soon
@@ -34,6 +36,28 @@
 - Support for point-based classes
 - Class insights
 - If you would like a feature to become implemented, send feedback in Settings > Feedback
+
+## [Beta 1.4.4] - 2020-03-16
+### Added
+- Logging in from final grade calculator returns to final grade calculator after login
+
+## [Beta 1.4.3] - 2020-03-15
+### Added
+- Class type information to database (AP/Honors) to make GPA calculation possible
+
+### Improved
+- Category Grades still show even with missing weights
+
+### Fixed
+- Issue where auto theme would sometimes not take effect
+
+## [Beta 1.4.2] - 2020-03-14 <p style="font-weight: bold; margin: 0">Happy PI Day!</p>
+### Improved
+- Theme always remains the same after logout
+
+### Fixed
+- Auto Theme now works with Daylight Savings Time
+- Issue for older users where animations between themes would not work
 
 ## [Beta 1.4.1] - 2020-03-13
 ### Improved
@@ -72,8 +96,8 @@
 - Weights Card Styling
 
 ### Fixed
-- Resolved issue where classes with multiple teachers were not supported
-- Resolved issue where user-removed weights would cause server crash
+- Issue where classes with multiple teachers were not supported
+- Issue where user-removed weights would cause internal server error
 
 ## [Stable 1.3.1] - 2020-03-03
 ### Fixed
@@ -120,7 +144,7 @@
 ### Fixed
 - Keyboard shortcuts are now disabled while typing into the password/email fields in settings and when syncing grades
 
-## [Beta 1.2.1] - 2020-03-01
+## [Beta 1.2.1] - 2020-03-01 <p style="font-weight: bold; margin: 0">It's March!</p>
 ### Added
 - Changelog display initially scrolls to current version with a nice animation
 - Added 'current version' buttons when changelog is scrolled
@@ -129,7 +153,7 @@
 - Better changelog UI
 - Changed keyboard shortcut for changelog to 'Q'
 
-## [Beta 1.2.0] - 2020-02-29
+## [Beta 1.2.0] - 2020-02-29 <p style="font-weight: bold; margin: 0">Happy Leap Day!</p>
 ### Added
 - Separate changelog card to reduce clutter in settings
 - Keyboard Shortcut 'C' to view changelog
