@@ -12,6 +12,14 @@
                 <div id="updateGradesMessage" class="alert alert-success alert-dismissible"
                      style="display:none">
                     <div style="display: flex">
+                        <div style="display:none" class="sk-chase-mini">
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                        </div>
                         <div class="font-weight-bold messageTxt"></div>
                         <i class="fa fa-info-circle popup" id="syncFailure"
                            style="padding-left: 0.2rem; align-self: center; display:none">
@@ -94,15 +102,7 @@
 <!-- Loading Display -->
 <div class="container" id="loadingDisplay" style="display: none;">
     <div class="blurred-login" style="position:fixed; height: 100%; width: 100%; top: 0; left: 0; z-index: 999">
-        <div class="blurred-background"></div>
-        <div class="sk-chase" style="position:absolute; margin:auto; top:0; bottom: 0; left: 0; right: 0;">
-            <div class="sk-chase-dot"></div>
-            <div class="sk-chase-dot"></div>
-            <div class="sk-chase-dot"></div>
-            <div class="sk-chase-dot"></div>
-            <div class="sk-chase-dot"></div>
-            <div class="sk-chase-dot"></div>
-        </div>
+        <div class="blurred-background" style="filter: opacity(0.3) !important;"></div>
     </div>
 </div>
 
