@@ -75,20 +75,6 @@ module.exports = {
         for (let i = 0; i < users.length; i++) {
             this.bringUpToDate(users[i].username);
         }
-
-        // Set hasWeights on all the class weights
-        let classes = db.get("classes").value();
-        for (let i = 0; i < Object.keys(classes).length; i++) {
-            let className = Object.keys(classes)[i];
-            for (let j = 1; j < Object.keys(classes[className]).length; j++) {
-                let teacherName = Object.keys(classes[className])[j];
-                if (Object.keys(classes[className][teacherName]["weights"]).length > 0) {
-                    db.get("classes").get(className).get(teacherName).set("hasWeights", true).write();
-                } else {
-                    db.get("classes").get(className).get(teacherName).set("hasWeights", false).write();
-                }
-            }
-        }
     },
 
     bringUpToDate: function (username) {
@@ -101,7 +87,7 @@ module.exports = {
                 this.addNewWeightDict(lc_username, i, user.grades[i].class_name);
             }
             //Move weights to new storage system
-            let weights = Object.assign({},user.value().weights[user.value().grades[i].class_name]); // get weights from old storage
+            let weights = Object.assign({},user.weights[user.grades[i].class_name]); // get weights from old storage
             let hasWeights = "true";
             if (weights.hasOwnProperty("hasWeights")) {
                 hasWeights = weights["hasWeights"];
@@ -109,11 +95,11 @@ module.exports = {
             }
             delete weights["weights"];         
 
-            this.updateWeightsForClass(username,user.value().grades[i].class_name,hasWeights,weights); // put weights in new storage
+            this.updateWeightsForClass(username,user.grades[i].class_name,hasWeights,weights); // put weights in new storage
 
             for (var key in weights) {
                 if (weights.hasOwnProperty(key)) {
-                    delete user.value().weights[user.value().grades[i].class_name][key]; // delete weights in old storage
+                    delete user.weights[user.grades[i].class_name][key]; // delete weights in old storage
                 }
             }
         }
@@ -143,7 +129,7 @@ module.exports = {
             let teacherName = user.grades[i].teacher_name;
             let classDb = db.get("classes");
             let classes = classDb.value();
-            let weights = user.weights[className];
+            let weights = user.weights[className]["weights"];
             for (let i = 0; i < Object.keys(weights).length; i++) {
                 if (classes[className][teacherName]["weights"]) {
                     if (!Object.keys(classes[className][teacherName]["weights"]).includes(Object.keys(weights)[i])) {
@@ -156,7 +142,7 @@ module.exports = {
             for (let i = 0; i < Object.keys(classes[className][teacherName]["weights"]).length; i++) {
                 let categoryName = Object.keys(classes[className][teacherName]["weights"])[i];
                 if (!Object.keys(weights).includes(categoryName)) {
-                    userRef.get("weights").get(className).set(categoryName, classes[className][teacherName]["weights"][categoryName]).write();
+                    userRef.get("weights").get(className).get("weights").set(categoryName, classes[className][teacherName]["weights"][categoryName]).write();
                 }
             }
         }
@@ -174,15 +160,13 @@ module.exports = {
             }
             weights = modWeights;
             classDb.get(className).get(teacherName).set("weights", weights).write();
-            classDb.get(className).get(teacherName).set("hasWeights", true).write();
         } else {
-            classDb.get(className).get(teacherName).set("weights", {}).write();
-            classDb.get(className).get(teacherName).set("hasWeights", false).write();
+            classDb.get(className).get(teacherName).set("weights", {}).write()
         }
         let users = db.get("users");
         for (let i = 0; i < users.value().length; i++) {
             if (users.value()[i]["weights"][className]) {
-                users.find({username: users.value()[i].username}).get("weights").set(className, weights).write();
+                users.find({username: users.value()[i].username}).get("weights").get(className).set("weights", weights).write();
             }
         }
     }
@@ -351,7 +335,10 @@ module.exports = {
     }, getUser: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username}).value();
-        return user;
+        if (user)
+            if (!user.weights)
+                user.weights = {};
+        return user
     },
 
     checkUpdateBackground: function (username) {

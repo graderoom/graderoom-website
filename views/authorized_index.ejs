@@ -556,7 +556,7 @@
          */
         for (let classData of data) {
             let className = classData.class_name;
-            let needWeights = !(className in weights) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object);
+            let needWeights = !(className in weights) || (Object.entries(weights[className]["weights"]).length === 0 && weights[className].constructor === Object);
             let localMissingCategories = [];
             if ((className in weights) && (weights[className]["hasWeights"]==="false")) {
                 needWeights = false;
@@ -720,11 +720,7 @@
                         }
                     }], yAxes: [{
                         ticks: {
-                            min: 70,
-                            max: 110,
-                            fontColor: (darkMode ? "white" : "black"),
-                            fontFamily: "Verdana",
-                            fontSize: "12"
+                            fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "12"
                         }, gridLines: {
                             color: (darkMode ? "#555555" : "#CCCCCC"), drawBorder: false
                         }
