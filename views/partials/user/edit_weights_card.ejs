@@ -14,10 +14,9 @@
                 <span class="accordion" id="accordionForms">
                     <% for (var i = 0; i < JSON.parse(gradeData).length; i++) {
                         let grade = JSON.parse(gradeData)[i]; %>
-                    <form id="weights<%= i %>" class="form-ajax form-weights form-signin" action="/updateweights">
-                        <className style="display:none"><%= grade.class_name %></className>
-                            <label class="collapsed" data-toggle="collapse" href="#collapse<%= i %>"
-                                   style="display: flex; margin: 0; cursor: pointer">
+                        <form id="weights<%= i %>" class="form-ajax form-weights form-signin" action="/updateweights">
+                            <className style="display:none"><%= grade.class_name %></className>
+                            <label class="collapsed" data-toggle="collapse" href="#collapse<%= i %>" style="display: flex; margin: 0; cursor: pointer">
                                 <h5 style="color:<%= user.appearance.classColors[i] %>; cursor: pointer"
                                     id="<%= grade.class_name %>" style="display: inline-block">
                                     <%= grade.class_name %>&nbsp;
@@ -36,7 +35,7 @@
                                 </span>
                             </label>
                             <span style="border-radius: 0.25em" class="collapse collapse-underline" id="collapse<%=i%>" data-parent="#accordionForms">
-                            <%  let weights = []; 
+                                <%  let weights = []; 
                                 for (let assignment of grade.grades) { 
                                     if (!(weights.includes(assignment.category))) {
                                         weights.push(assignment.category); %>
@@ -65,7 +64,7 @@
                                         class="form-control" 
                                         name="hasWeights" 
                                         <% try { if (JSON.parse(weightData)[grade.class_name]["hasWeights"]==="false") { %> 
-                                            checked
+                                                checked
                                         <% }} catch {}%>    
                                         oninput="showSubmitButton(this); disableInput('check<%=i%>','collapse<%=i%>');"
                                         > 
@@ -85,20 +84,13 @@
                                     </script>
                                 </div>                               
                                 <div class="formSubmitButton" style="width: 100%; display: none">
-                                    <button type="submit" class="btn btn-default btn-med">  
+                                    <button type="submit" class="btn btn-default btn-med">
                                         <i class="fa fa-refresh" aria-hidden="true"></i>
                                         Update
                                     </button>
                                 </div>
-                            <% } %>
-                            <div class="formSubmitButton" style="width: 100%; display: none">
-                                <button type="submit" class="btn btn-default btn-med">
-                                    <i class="fa fa-refresh" aria-hidden="true"></i>
-                                    Update
-                                </button>
-                            </div>
-                        </span>
-                    </form>
+                            </span>
+                        </form>
                     <% } %>
                 </span>
             </div>
