@@ -9,7 +9,7 @@ const crypto = require("crypto");
 const readline = require("readline");
 const fs = require("fs");
 
-db.defaults({users: [], keys: []}).write();
+db.defaults({users: [], keys: [], classes: {}}).write();
 
 module.exports = {
 
@@ -17,9 +17,10 @@ module.exports = {
         let today = Date.now();
         const backupAdapter = new FileSync("user_db_backup" + today + ".json");
         const backupDb = low(backupAdapter);
-        backupDb.defaults({users: [], keys: []}).write();
+        backupDb.defaults({users: [], keys: [], classes: {}}).write();
         backupDb.set("users", db.get("users").value()).write();
         backupDb.set("keys", db.get("keys").value()).write();
+        backupDb.set("classes", db.get("classes").value()).write();
     },
 
     /* beta key functions */
@@ -61,6 +62,11 @@ module.exports = {
         return {success: true, message: "Removed beta key."};
     },
 
+    /* class database */
+    getAllClassData: function () {
+        return db.get("classes").value();
+    },
+
     /* user functions
      */
 
@@ -69,16 +75,30 @@ module.exports = {
         for (let i = 0; i < users.length; i++) {
             this.bringUpToDate(users[i].username);
         }
+
+        // Set hasWeights on all the class weights
+        let classes = db.get("classes").value();
+        for (let i = 0; i < Object.keys(classes).length; i++) {
+            let className = Object.keys(classes)[i];
+            for (let j = 1; j < Object.keys(classes[className]).length; j++) {
+                let teacherName = Object.keys(classes[className])[j];
+                if (Object.keys(classes[className][teacherName]["weights"]).length > 0) {
+                    db.get("classes").get(className).get(teacherName).set("hasWeights", true).write();
+                } else {
+                    db.get("classes").get(className).get(teacherName).set("hasWeights", false).write();
+                }
+            }
+        }
     },
 
     bringUpToDate: function (username) {
         let lc_username = username.toLowerCase();
-        let user = db.get("users").find({username: lc_username});
+        let userRef = db.get("users").find({username: lc_username});
+        let user = userRef.value();
         // Fixes db for all old users
-        for (let i = 0; i < user.value().grades.length; i++) {
-            //Add all classes to weights
-            if (!(user.value().weights[user.value().grades[i].class_name])) {
-                this.addNewWeightDict(lc_username, i, user.value().grades[i].class_name);
+        for (let i = 0; i < user.grades.length; i++) {
+            if (!(user.weights[user.grades[i].class_name])) {
+                this.addNewWeightDict(lc_username, i, user.grades[i].class_name);
             }
             //Move weights to new storage system
             let weights = Object.assign({},user.value().weights[user.value().grades[i].class_name]); // get weights from old storage
@@ -99,19 +119,71 @@ module.exports = {
         }
 
         // Fix theme for old users
-        if (Object.keys(user.value().appearance).includes("darkMode")) {
-            user.get("appearance").unset("darkMode").write();
-            user.value().appearance.theme = "auto";
-            user.value().appearance.darkModeStart = 18;
-            user.value().appearance.darkModeFinish = 7;
+        if (Object.keys(user.appearance).includes("darkMode")) {
+            userRef.get("appearance").unset("darkMode").write();
+            this.setTheme(user.username, "auto", 7, "PM", 6, "AM");
         }
 
         // Add show changelog variables for old users
-        if (!Object.keys(user.value().alerts).includes("showChangelog")) {
-            user.value().alerts.showChangelog = "daily";
+        if (!Object.keys(user.alerts).includes("showChangelog")) {
+            this.updateAlerts(user.username, user.alerts.updateGradesReminder, "daily");
         }
-        if (!Object.keys(user.value().alerts).includes("changelogLastShown")) {
-            user.value().alerts.changelogLastShown = "never";
+        if (!Object.keys(userRef.value().alerts).includes("changelogLastShown")) {
+            userRef.get("alerts").set("changelogLastShown", "never");
+        }
+
+        // Add all old user data to classes db
+        for (let i = 0; i < user.grades.length; i++) {
+            if (!dbContainsClass(user.grades[i].class_name, user.grades[i].teacher_name)) {
+                this.addDbClass(user.grades[i].class_name, user.grades[i].teacher_name);
+            }
+
+            // Put weights into class database TODO add admin confirmation requirement
+            let className = user.grades[i].class_name;
+            let teacherName = user.grades[i].teacher_name;
+            let classDb = db.get("classes");
+            let classes = classDb.value();
+            let weights = user.weights[className];
+            for (let i = 0; i < Object.keys(weights).length; i++) {
+                if (classes[className][teacherName]["weights"]) {
+                    if (!Object.keys(classes[className][teacherName]["weights"]).includes(Object.keys(weights)[i])) {
+                        classDb.get(className).get(teacherName).get("weights").set(Object.keys(weights)[i], Object.values(weights)[i]).write();
+                    }
+                }
+            }
+
+            // Put weights into new user and any user who has no weights
+            for (let i = 0; i < Object.keys(classes[className][teacherName]["weights"]).length; i++) {
+                let categoryName = Object.keys(classes[className][teacherName]["weights"])[i];
+                if (!Object.keys(weights).includes(categoryName)) {
+                    userRef.get("weights").get(className).set(categoryName, classes[className][teacherName]["weights"][categoryName]).write();
+                }
+            }
+        }
+    },
+
+    updateWeightsInClassDb: function (data) {
+        let className = data.className;
+        let teacherName = data.teacherName;
+        let weights = data.weights;
+        let classDb = db.get("classes");
+        if (weights) {
+            let modWeights = {};
+            for (let i = 0; i < Object.keys(weights).length; i++) {
+                modWeights[Object.keys(weights)[i]] = parseInt(Object.values(weights)[i]);
+            }
+            weights = modWeights;
+            classDb.get(className).get(teacherName).set("weights", weights).write();
+            classDb.get(className).get(teacherName).set("hasWeights", true).write();
+        } else {
+            classDb.get(className).get(teacherName).set("weights", {}).write();
+            classDb.get(className).get(teacherName).set("hasWeights", false).write();
+        }
+        let users = db.get("users");
+        for (let i = 0; i < users.value().length; i++) {
+            if (users.value()[i]["weights"][className]) {
+                users.find({username: users.value()[i].username}).get("weights").set(className, weights).write();
+            }
         }
     }
 
@@ -279,10 +351,6 @@ module.exports = {
     }, getUser: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username}).value();
-        //Parse weights with unicode to dots
-        if (user) {
-            user.weights = JSON.parse(JSON.stringify(user.weights).replace("*", "."));
-        }
         return user;
     },
 
@@ -337,6 +405,9 @@ module.exports = {
             if (!(userRef.value().weights[grade_update_status.new_grades[i].class_name])) {
                 this.addNewWeightDict(lc_username, i, grade_update_status.new_grades[i].class_name);
             }
+            if (!dbContainsClass(grade_update_status.new_grades[i].class_name, grade_update_status.new_grades[i].teacher_name)) {
+                this.addDbClass(grade_update_status.new_grades[i].class_name, grade_update_status.new_grades[i].teacher_name);
+            }
         }
         for (let i = grade_update_status.new_grades.length; i < userRef.value().appearance.classColors.length; i++) {
             userRef.value().appearance.classColors.pop();
@@ -345,6 +416,23 @@ module.exports = {
         userRef.get("alerts").set("lastUpdated", Date.now()).write();
         userRef.set("updatedInBackground", "already done").write();
         return {success: true, message: "Updated grades!"};
+    },
+
+    addDbClass: function (class_name, teacher_name) {
+        let classesRef = db.get("classes");
+        let mod_class_name = "[\"" + class_name + "\"]";
+        if (!Object.keys(classesRef.value()).includes(class_name)) {
+            classesRef.set(mod_class_name, {
+                classType: "" //TODO Honors/AP/Non-Academic/etc.
+            }).write();
+        }
+        classesRef.get(mod_class_name).set(teacher_name, {
+            weights: {}, //TODO Weights
+            hasWeights: null, //TODO Has weights
+            assignments: {}, //TODO populate assignments by some kind of identifier (points possible + assignment name
+                             // should be enough to differentiate assignments)
+            overallGrades: [] //TODO populate with overall grades of users (for average) length will give # in class
+        }).write();
     },
 
     addNewWeightDict: function (username, index, className) {
@@ -427,8 +515,18 @@ module.exports = {
         if (!clsRef.value()) {
             return {success: false, message: "Class does not exist."};
         }
-        console.log("hasWeights: "+hasWeights);
-        let weightsRef = userRef.get('weights');
+
+        // Put weights into class database TODO add admin confirmation requirement
+        let teacherName = clsRef.value().teacher_name;
+        let classDb = db.get("classes");
+        for (let i = 0; i < Object.keys(weights).length; i++) {
+            console.log(classDb.value()[className][teacherName]["weights"][Object.keys(weights)[i]]);
+            if (!classDb.value()[className][teacherName]["weights"][Object.keys(weights)[i]]) {
+                classDb.get(className).get(teacherName).get("weights").set(Object.keys(weights)[i], Object.values(weights)[i]).write();
+            }
+        }
+
+        let weightsRef = userRef.get("weights");
 
         //Replace dots(.) with unicode escape sequence
         let modClassName = '["' + className + '"]';
@@ -579,6 +677,14 @@ function containsClass(obj, list) {
         if (list[i].class_name === obj.class_name) {
             return true;
         }
+    }
+    return false;
+}
+
+function dbContainsClass(class_name, teacher_name) {
+    let classes = db.get("classes").value();
+    if (classes[class_name] && classes[class_name][teacher_name]) {
+        return true;
     }
     return false;
 }
