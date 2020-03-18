@@ -14,92 +14,89 @@
                 <span class="accordion" id="accordionForms">
                     <% for (var i = 0; i < JSON.parse(gradeData).length; i++) {
                         let grade = JSON.parse(gradeData)[i]; %>
-                        <form id="weights<%= i %>" class="form-ajax form-weights form-signin" action="/updateweights">
-                            <className style="display:none"><%= grade.class_name %></className>
-                            <label class="collapsed" data-toggle="collapse" href="#collapse<%= i %>" style="display: flex; margin: 0; cursor: pointer">
-                                <h5 style="color:<%= user.appearance.classColors[i] %>; cursor: pointer"
-                                    id="<%= grade.class_name %>" style="display: inline-block">
-                                    <%= grade.class_name %>&nbsp;
-                                    <i class="fa" aria-hidden="true"></i>
-                                </h5>
-                                <span id="weightMessage<%= i %>" class="alert-custom fail" style="float: right; width: fit-content; display:none; margin-bottom: 8px; padding: 8px 0 0 8px">
-                                    <div style="display:none" class="sk-chase-mini">
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                    </div>
-                                    <span class="messageTxt">Missing weights</span>
-                                </span>
-                            </label>
-                            <span style="border-radius: 0.25em" class="collapse collapse-underline"
-                                  id="collapse<%= i %>" data-parent="#accordionForms">
-                                <% let weights = [];
-                                        for (let assignment of grade.grades) {
-                                if (!(weights.includes(assignment.category))) {
-                                    weights.push(assignment.category); %>
+                    <form id="weights<%= i %>" class="form-ajax form-weights form-signin" action="/updateweights">
+                        <className style="display:none"><%= grade.class_name %></className>
+                        <label class="collapsed" data-toggle="collapse" href="#collapse<%= i %>"
+                               style="display: flex; margin: 0; cursor: pointer">
+                            <h5 style="color:<%= user.appearance.classColors[i] %>; cursor: pointer"
+                                id="<%= grade.class_name %>" style="display: inline-block">
+                                <%= grade.class_name %>&nbsp;
+                                <i class="fa" aria-hidden="true"></i>
+                            </h5>
+                            <span id="weightMessage<%= i %>" class="alert-custom fail"
+                                  style="float: right; width: fit-content; display:none; margin-bottom: 8px; padding: 8px 0 0 8px">
+                                <div style="display:none" class="sk-chase-mini">
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                </div>
+                                <span class="messageTxt">Missing weights</span>
+                            </span>
+                        </label>
+                        <span style="border-radius: 0.25em" class="collapse collapse-underline"
+                              id="collapse<%= i %>" data-parent="#accordionForms">
+                            <% let weights = JSON.parse(weightData)[grade.class_name]["weights"] %>
+                            <% for (let j = 0; j < Object.keys(weights).length; j++) { %>
                                 <div class="form-group" style="display: flex; align-items: flex-end;">
-                                    <% let value = null; try {
-                                        value = JSON.parse(weightData)[grade.class_name]["weights"][assignment.category]
-                                    } catch {
-                                    } %>
+                                    <% let category = Object.keys(weights)[j]; %>
+                                    <% let value = weights[category] %>
                                     <label class="disableable"
-                                           style="font-size: 0.9rem; <% if(!value && value != 0){ %> color: lightcoral; <% } else { %> color: <%= user.appearance.classColors[i] %>; <% } %> white-space: nowrap; margin-bottom: 0;"><%= assignment.category %>
+                                           style="font-size: 0.9rem; <% if(!value && value != 0){ %> color: lightcoral; <% } else { %> color: <%= user.appearance.classColors[i] %>; <% } %> white-space: nowrap; margin-bottom: 0;"><%= category %>
                                         :&nbsp</label>
                                     <input style="<% if (!value && value != 0) { %> border-color: lightcoral; <% } else { %> border-color: <%= user.appearance.classColors[i] %>!important; <% } %>"
                                            value="<%= value %>"
                                            type="number"
                                            min="0"
                                            step="0.1"
-                                                class="disableable form-control <% if(value || value == 0){ %> text-view <% } %>"
-                                                name="<%= assignment.category %>"
-                                                oninput="this.classList.remove('text-view'); showSubmitButton(this); "
+                                           class="disableable form-control <% if(value || value == 0){ %> text-view <% } %>"
+                                           name="<%= category %>"
+                                           oninput="this.classList.remove('text-view'); showSubmitButton(this); "
                                     >
                                 </div>
-                                <% } %>
-                                <% } %>
-                                <div class="break"></div>
-                                <div class="form-group" style="display: flex; align-items: flex-end;">
-                                    <label style="color: <%= user.appearance.classColors[i] %>; font-size: 0.9rem; white-space: nowrap; margin-bottom: 0;">Point
-                                        Based?</label>
-                                    <input
-                                            id="check<%= i %>"
-                                            style="margin: auto;"
-                                            type="checkbox"
-                                            class="form-control"
-                                            name="hasWeights"
-                                    <% try { if (JSON.parse(weightData)[grade.class_name]["hasWeights"] === "false") { %>
-                                            checked
-                                            <% }} catch {
-                                            } %>
-                                            oninput="showSubmitButton(this); disableInput('check<%= i %>','collapse<%= i %>');"
-                                    >
-                                    <script>
-                                        function disableInput(checkBoxID, id) {
-                                            $('#' + id).find('.disableable').each(function () {
-                                                if ($('#' + checkBoxID).is(":checked")) {
-                                                    $(this).addClass("disabled");
-                                                    $(this).attr('disabled', 'disabled');
-                                                } else {
-                                                    $(this).removeClass("disabled");
-                                                    $(this).removeAttr('disabled');
-                                                }
-                                            })
-                                        }
+                            <% } %>
+                            <div class="break"></div>
+                            <div class="form-group" style="display: flex; align-items: flex-end;">
+                                <label style="color: <%= user.appearance.classColors[i] %>; font-size: 0.9rem; white-space: nowrap; margin-bottom: 0;">Point
+                                    Based?</label>
+                                <input
+                                        id="check<%= i %>"
+                                        style="margin: auto;"
+                                        type="checkbox"
+                                        class="form-control"
+                                        name="hasWeights"
+                                <% try { if (JSON.parse(weightData)[grade.class_name]["hasWeights"] === "false") { %>
+                                        checked
+                                        <% }} catch {
+                                        } %>
+                                        oninput="showSubmitButton(this); disableInput('check<%= i %>','collapse<%= i %>');"
+                                >
+                                <script>
+                                    function disableInput(checkBoxID, id) {
+                                        $('#' + id).find('.disableable').each(function () {
+                                            if ($('#' + checkBoxID).is(":checked")) {
+                                                $(this).addClass("disabled");
+                                                $(this).attr('disabled', 'disabled');
+                                            } else {
+                                                $(this).removeClass("disabled");
+                                                $(this).removeAttr('disabled');
+                                            }
+                                        })
+                                    }
 
-                                        disableInput('check<%=i%>','collapse<%=i%>');
-                                    </script>
-                                </div>
-                                <div class="formSubmitButton" style="width: 100%; display: none">
-                                    <button type="submit" class="btn btn-default btn-med">
-                                        <i class="fa fa-refresh" aria-hidden="true"></i>
-                                        Update
-                                    </button>
-                                </div>
-                            </span>
-                        </form>
+                                    disableInput('check<%= i %>', 'collapse<%= i %>');
+                                </script>
+                            </div>
+                            <div class="formSubmitButton" style="width: 100%; display: none">
+                                <button type="submit" class="btn btn-default btn-med">
+                                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                                    Update
+                                </button>
+                            </div>
+                        </span>
+                    </form>
                     <% } %>
                 </span>
             </div>
@@ -111,6 +108,7 @@
     function showSubmitButton(element) {
         $(element).parents("form").find(".formSubmitButton").css("display", "block");
     }
+
     function showUpdateWeights(defaultId) {
         //Close Mobile navbar
         try {
@@ -174,22 +172,21 @@
                         let weightData = (($(form).serializeArray()));
                         let weightURI = {};
                         jQuery.map(weightData, function (n, i) {
-                            if (n.name != "hasWeights")
-                                weightURI[n.name] = isNaN(parseInt(n.value)) ? n.value : parseInt(n.value);
+                            if (n.name != "hasWeights") weightURI[n.name] = isNaN(parseInt(n.value)) ? n.value : parseInt(n.value);
 
                         });
                         weightURI = encodeURIComponent(JSON.stringify(weightURI));
 
                         let className = encodeURI($(form).find("h5").attr("id"));
                         let hasWeights = encodeURI(!($(form).find('input[name="hasWeights"]')).is(':checked'));
-                        formData = "className="+className+"&hasWeights="+hasWeights+"&newWeights="+weightURI;
+                        formData = "className=" + className + "&hasWeights=" + hasWeights + "&newWeights=" + weightURI;
 
                         let formMessagesDiv = $(this).find(".alert-custom");
                         let message = $(this).find(".messageTxt");
 
                         $.ajax({
-                            type: "POST", url: $(form).attr("action"), data: formData
-                        }).done(function (response) {
+                                   type: "POST", url: $(form).attr("action"), data: formData
+                               }).done(function (response) {
                             // Make sure that the formMessages div has the alert-success class.
                             $(formMessagesDiv).removeClass("fail");
                             $(formMessagesDiv).addClass("success");
