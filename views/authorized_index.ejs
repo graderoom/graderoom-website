@@ -150,7 +150,7 @@
                             <th>Grade</th>
                         </tr>
                     </thead>
-                    <tbody> 
+                    <tbody>
                         <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]).length; j++) { %>
                             <tr>
                                 <td id="weightTableCategory<%= i %><%= j %>"></td>
@@ -167,10 +167,15 @@
                                 <div style="display:none; color: <%= user.appearance.classColors[i] %>"
                                      id="weightTableOverallGrade<%= i %>">
                                 </div>
-                                <div style="display:none" colspan="4"
+                                <div style="display:none; white-space: normal" colspan="4"
                                      class="alert alert-danger font-weight-bold"
                                      id="weightTablemsg<%= i %>">
-                                    <span id="weightmsg_text<%= i %>"></span><br><u style="cursor: pointer" onclick="showUpdateWeights(<%= i %>)">Add Weights</u>
+                                    To view overall grade,<br><u style="cursor: pointer"
+                                                                 onclick="showUpdateWeights(<%= i %>)">Add <span
+                                                id="weightmsg_text<%= i %>"></span></u>
+                                    <br>or<br><u style="cursor: pointer"
+                                                 onclick="makeClassPointBased(<%= i %>)">Click here if your class is
+                                        point-based</u>
                                 </div>
                             </th>
                         </tr>
@@ -216,7 +221,7 @@
     let user = <%- userRef %>;
     let data = <%- gradeData %>;
     let weights = <%- weightData %>;
-        parsedData = [];
+    parsedData = [];
     let unobtainedWeights = {};
     let currentPage = -1;
     let cardsDisplayed = [];
@@ -288,6 +293,7 @@
     }
     document.getElementById("darkModeStart").setAttribute("placeholder", (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString()));
     document.getElementById("darkModeFinish").setAttribute("placeholder", (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString()));
+
     function setAutoTheme() {
         if (theme !== "auto") {
             clearInterval(checkingTheme);
@@ -339,6 +345,7 @@
             }
         }
     }
+
     async function checkTime() {
         clearInterval(checkingTheme);
         setAutoTheme();
@@ -346,6 +353,7 @@
             setAutoTheme();
         }, 100);
     }
+
     async function checkUpdateBackground() {
         $.get("/checkUpdateBackground", function (data, status) {
             if (status === "success") {
@@ -400,12 +408,15 @@
             });
         }, 1000);
     }
+
     function disableScrolling() {
         $("body").addClass("no-scroll");
     }
+
     function enableScrolling() {
         $("body").removeClass("no-scroll");
     }
+
     function getTotalWeight(classIndex) {
         let className = data[classIndex].class_name;
         let classWeights = Object.values(weights[className]["weights"]);
@@ -418,18 +429,19 @@
         }
         return totalWeight;
     }
+
     function getOverallGrade(classIndex) {
         let className = data[classIndex].class_name;
         if (className in weights) {
             let overallGrade = 0;
-            if (weights[className]["hasWeights"]=="false"){
+            if (weights[className]["hasWeights"] === "false") {
                 let points_earned = 0;
                 let points_total = 0;
                 for (let assignment of data[classIndex]["grades"]) {
                     points_earned += assignment["points_gotten"];
                     points_total += assignment["points_possible"];
                 }
-                overallGrade = points_earned/points_total*100;
+                overallGrade = points_earned / points_total * 100;
             } else {
                 let classCategories = Object.keys(weights[className]["weights"]);
                 let classWeights = Object.values(weights[className]["weights"]);
@@ -443,6 +455,7 @@
         }
         return 0;
     }
+
     function getLetterGrade(grade) {
         if (grade >= 97.5) {
             return "A+";
@@ -468,32 +481,29 @@
             return "D";
         } else if (grade >= 59.5) {
             return "D-";
-        } 
+        }
         return "F";
     }
+
     function setupWeightsTables() {
         for (let i = 0; i < data.length; i++) {
             let className = data[i].class_name;
-            if (!unobtainedWeights[className]) {
-                if (weights[className]["hasWeights"]=="true") {
-                    let tableCategories = Object.keys(weights[className]["weights"]);
-                    let tableWeights = Object.values(weights[className]["weights"]);
-                    for (let j = 0; j < tableCategories.length; j++) {
-                        document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
-                        if (tableWeights[j] || tableWeights[j] === 0) {
-                            document.getElementById("weightTableWeight" + i + j).textContent = tableWeights[j] + "%";
-                        }
-                        let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
-                        document.getElementById("weightTablePoints" + i + j).textContent = +(categoryGottenAndPossible.gotten.toFixed(3)) + ((categoryGottenAndPossible.possible !== 0) ? ("/" + +(categoryGottenAndPossible.possible.toFixed(3))) : "");
-                        let categoryGrade = getCategoryGrade(i, tableCategories[j]);
-                        if (categoryGottenAndPossible.possible !== 0) {
-                            document.getElementById("weightTableGrade" + i + j).textContent = categoryGrade + "% (" + getLetterGrade(categoryGrade) + ")";
-                        }
-                    }
+            let tableCategories = Object.keys(weights[className]["weights"]);
+            let tableWeights = Object.values(weights[className]["weights"]);
+            for (let j = 0; j < tableCategories.length; j++) {
+                document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
+                if (tableWeights[j] || tableWeights[j] === 0) {
+                    document.getElementById("weightTableWeight" + i + j).textContent = tableWeights[j] + "%";
                 }
-                let overallGrade = getOverallGrade(i);
-                document.getElementById("weightTableOverallGrade" + i).textContent = (+(overallGrade.toFixed(3))).toString() + "% (" + getLetterGrade(overallGrade) + ")";
+                let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
+                document.getElementById("weightTablePoints" + i + j).textContent = +(categoryGottenAndPossible.gotten.toFixed(3)) + ((categoryGottenAndPossible.possible !== 0) ? ("/" + +(categoryGottenAndPossible.possible.toFixed(3))) : "");
+                let categoryGrade = getCategoryGrade(i, tableCategories[j]);
+                if (categoryGottenAndPossible.possible !== 0) {
+                    document.getElementById("weightTableGrade" + i + j).textContent = categoryGrade + "% (" + getLetterGrade(categoryGrade) + ")";
+                }
             }
+            let overallGrade = getOverallGrade(i);
+            document.getElementById("weightTableOverallGrade" + i).textContent = (+(overallGrade.toFixed(3))).toString() + "% (" + getLetterGrade(overallGrade) + ")";
             if (!unobtainedWeights[className]) {
                 document.getElementById("weightTableOverallGrade" + i).style.display = "block";
             } else {
@@ -501,6 +511,7 @@
             }
         }
     }
+
     function setupOverviewTable() {
         for (let i = 0; i < data.length; i++) {
             let className = data[i].class_name;
@@ -513,6 +524,7 @@
             }
         }
     }
+
     function getCategoryGottenAndPossible(classIndex, categoryName) {
         let grades = data[classIndex].grades;
         let totalGotten = 0;
@@ -525,6 +537,7 @@
         }
         return {"gotten": totalGotten, "possible": totalPossible};
     }
+
     function getCategoryGrade(classIndex, categoryName) {
         let categoryGottenAndPossible = getCategoryGottenAndPossible(classIndex, categoryName);
         let totalGotten = categoryGottenAndPossible.gotten;
@@ -534,18 +547,21 @@
         }
         return +((totalGotten / totalPossible * 100).toFixed(3));
     }
+
     function showWeightMessage(msg, id) {
         let wmRef = document.getElementById("weightmsg" + id);
         let wmTextRef = document.getElementById("weightmsg_text" + id);
         wmRef.style.display = "block";
         wmTextRef.innerText = msg;
     }
+
     function hideWeightMessage(id) {
         let wmRef = document.getElementById("weightmsg" + id);
         let wmTextRef = document.getElementById("weightmsg_text" + id);
         wmRef.style.display = "none";
         wmTextRef.innerText = "";
     }
+
     function updateWeightMessages() {
         for (let id = 0; id < data.length; id++) {
             if (unobtainedWeights[data[id].class_name]) { //TODO idk if this index get is safe
@@ -553,6 +569,7 @@
             }
         }
     }
+
     function parseData() {
         /*
          WEIGHTS first
@@ -560,7 +577,7 @@
         for (let classData of data) {
             let className = classData.class_name;
             let localMissingCategories = Object.keys(weights[className]["weights"]).filter(category => !weights[className]["weights"][category] && weights[className]["weights"][category] !== 0);
-            if (localMissingCategories.length > 0 && weights[className]["hasWeights"]!="false") {
+            if (localMissingCategories.length > 0 && weights[className]["hasWeights"] != "false") {
                 unobtainedWeights[className] = localMissingCategories;
             }
 
@@ -576,7 +593,7 @@
             let totalPossiblesAndGottens = {}; //by category
             let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
             // VERY JANK CHANGE LATER
-            let doesntHaveWeights = (className in unobtainedWeights) || (weights[className]["hasWeights"]==="false");
+            let doesntHaveWeights = (className in unobtainedWeights) || (weights[className]["hasWeights"] === "false");
             // console.log(className + " DHW? : " + doesntHaveWeights);
             for (let grade of classData.grades) {
                 let category = grade.category;
@@ -630,6 +647,7 @@
                             });
         }
     }
+
     function renderAllCharts() {
         try {
             renderOverviewChart();
@@ -639,7 +657,9 @@
         } catch {
         }
     }
+
     let hoveredDatasetIndex = -1;
+
     function renderOverviewChart() {
         let ctx = document.getElementById("chart-1");
         let id = 0;
@@ -710,7 +730,11 @@
                         }
                     }], yAxes: [{
                         ticks: {
-                            fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "12"
+                            max: 110,
+                            min: 70,
+                            fontColor: (darkMode ? "white" : "black"),
+                            fontFamily: "Verdana",
+                            fontSize: "12"
                         }, gridLines: {
                             color: (darkMode ? "#555555" : "#CCCCCC"), drawBorder: false
                         }
@@ -733,6 +757,7 @@
             }
         });
     }
+
     function renderChart(id) {
         let ctx = document.getElementById("chart" + id);
         let colors = user.appearance.classColors;
@@ -790,6 +815,7 @@
             }
         });
     }
+
     function showPage(id) {
         if (id === -1) {
             renderOverviewChart();
@@ -808,6 +834,7 @@
         window.localStorage.setItem("currentPage", id);
         currentPage = id;
     }
+
     document.onkeydown = function (e) {
         if ($("input").is(":focus")) {
             // Do nothing
