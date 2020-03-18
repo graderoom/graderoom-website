@@ -39,6 +39,10 @@
 - Calculated weights of categories in point-based classes will be shown so that you can see how much effect a category has on your overall grade
 - If you would like a feature to become implemented, send feedback in Settings > Feedback
 
+## [Beta 1.4.6] - 2020-03-18
+### Improved
+- Selecting point-based option prevents weight autopopulation
+
 ## [Beta 1.4.5] - 2020-03-17
 ### Added
 - Added support for point-based classes

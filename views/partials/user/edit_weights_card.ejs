@@ -172,7 +172,7 @@
                         let weightData = (($(form).serializeArray()));
                         let weightURI = {};
                         jQuery.map(weightData, function (n, i) {
-                            if (n.name != "hasWeights") weightURI[n.name] = isNaN(parseInt(n.value)) ? n.value : parseInt(n.value);
+                            if (n.name !== "hasWeights") weightURI[n.name] = isNaN(parseInt(n.value)) ? n.value : parseInt(n.value);
 
                         });
                         weightURI = encodeURIComponent(JSON.stringify(weightURI));
@@ -191,6 +191,16 @@
                             $(formMessagesDiv).removeClass("fail");
                             $(formMessagesDiv).addClass("success");
                             $(form).find(".formSubmitButton").css("display", "none");
+
+                            // Delete weights if hasWeighs is false
+                            if (hasWeights === "false") {
+                                $(form).find("input").each(function () {
+                                    if ($(this)[0].id.substring(0, 5) !== "check") {
+                                        $(this).val("");
+                                    }
+                                });
+                            }
+
                             $(form).find("input").each(function () {
                                 $(this).blur();
                                 if ($(this)[0].value) {

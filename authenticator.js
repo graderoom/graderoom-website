@@ -99,19 +99,20 @@ module.exports = {
         let user = userRef.value();
         // Fixes db for all old users
         for (let i = 0; i < user.grades.length; i++) {
-            if (!(user.weights[user.grades[i].class_name])) {
+            if (!(user.weights[user.grades[i].class_name] || Object.keys(user.weights[user.grades[i].class_name]["weights"]).length === 0)) {
                 this.addNewWeightDict(lc_username, i, user.grades[i].class_name);
             }
             //Move weights to new storage system
-            let weights = Object.assign({},user.weights[user.grades[i].class_name]); // get weights from old storage
+            let weights = Object.assign({}, user.weights[user.grades[i].class_name]); // get weights from old storage
             let hasWeights = "true";
             if (weights.hasOwnProperty("hasWeights")) {
                 hasWeights = weights["hasWeights"];
                 delete weights["hasWeights"];
             }
-            delete weights["weights"];         
+            delete weights["weights"];
 
-            this.updateWeightsForClass(username,user.grades[i].class_name,hasWeights,weights); // put weights in new storage
+            this.updateWeightsForClass(username, user.grades[i].class_name, hasWeights, weights); // put weights in new
+                                                                                                  // storage
 
             for (var key in weights) {
                 if (weights.hasOwnProperty(key)) {
@@ -162,11 +163,15 @@ module.exports = {
                 }
             }
 
-            // Put weights into new user and any user who has no weights
+            // Put weights into new user and any user who has no weights unless they've selected point-based
             for (let i = 0; i < Object.keys(classes[className][teacherName]["weights"]).length; i++) {
                 let categoryName = Object.keys(classes[className][teacherName]["weights"])[i];
                 if (!Object.keys(weights).includes(categoryName)) {
-                    userRef.get("weights").get(className).get("weights").set(categoryName, classes[className][teacherName]["weights"][categoryName]).write();
+                    if (user.weights[className]["hasWeights"] === "true") {
+                        userRef.get("weights").get(className).get("weights").set(categoryName, classes[className][teacherName]["weights"][categoryName]).write();
+                    } else {
+                        userRef.get("weights").get(className).get("weights").set(categoryName, null).write();
+                    }
                 }
             }
         }
@@ -185,10 +190,10 @@ module.exports = {
                 }
                 weights = modWeights;
                 classDb.get(className).get(teacherName).set("weights", weights).write();
-                classDb.get(className).get(teacherName).set("hasWeights", true).write();
+                classDb.get(className).get(teacherName).set("hasWeights", "true").write();
             } else {
                 classDb.get(className).get(teacherName).set("weights", {}).write();
-                classDb.get(className).get(teacherName).set("hasWeights", false).write();
+                classDb.get(className).get(teacherName).set("hasWeights", "false").write();
             }
             let users = db.get("users");
             for (let i = 0; i < users.value().length; i++) {
@@ -368,10 +373,12 @@ module.exports = {
     }, getUser: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username}).value();
-        if (user)
-            if (!user.weights)
+        if (user) {
+            if (!user.weights) {
                 user.weights = {};
-        return user
+            }
+        }
+        return user;
     },
 
     checkUpdateBackground: function (username) {
@@ -465,7 +472,7 @@ module.exports = {
             if (i < index) {
                 newWeights[Object.keys(weights)[i]] = Object.values(weights)[i];
             } else if (i === index) {
-                newWeights[className] = {"weights":{},"hasWeights":"true"};
+                newWeights[className] = {"weights": {}, "hasWeights": "true"};
             } else {
                 newWeights[Object.keys(weights)[i - 1]] = Object.values(weights)[i - 1];
             }
@@ -549,12 +556,22 @@ module.exports = {
         let weightsRef = userRef.get("weights");
 
         //Replace dots(.) with unicode escape sequence
-        let modClassName = '["' + className + '"]';
-
+        let modClassName = "[\"" + className + "\"]";
         let currentWeights = weightsRef.get(modClassName).get("weights").value();
         let newWeights = Object.assign({}, currentWeights, weights);
-        weightsRef.set(modClassName+'.weights',newWeights).write(); //Replace weights inside of specific class
-        weightsRef.set(modClassName+'.hasWeights',hasWeights).write();
+        if (hasWeights === "false") {
+            for (let i = 0; i < Object.keys(newWeights).length; i++) {
+                newWeights[Object.keys(newWeights)[i]] = null;
+            }
+        } else {
+            for (let i = 0; i < Object.keys(newWeights).length; i++) {
+                if (newWeights[Object.keys(newWeights)[i]] === "") {
+                    newWeights[Object.keys(newWeights)[i]] = null;
+                }
+            }
+        }
+        weightsRef.set(modClassName + ".weights", newWeights).write(); //Replace weights inside of specific class
+        weightsRef.set(modClassName + ".hasWeights", hasWeights).write();
         return {success: true, message: "Updated weights for " + className + "!"};
     },
 
