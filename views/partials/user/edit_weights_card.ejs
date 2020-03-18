@@ -34,55 +34,64 @@
                                     <span class="messageTxt">Missing weights</span>
                                 </span>
                             </label>
-                            <span style="border-radius: 0.25em" class="collapse collapse-underline" id="collapse<%=i%>" data-parent="#accordionForms">
-                                <%  let weights = []; 
-                                for (let assignment of grade.grades) { 
-                                    if (!(weights.includes(assignment.category))) {
-                                        weights.push(assignment.category); %>
-                                        <div class="form-group" style="display: flex; align-items: flex-end;">
-                                            <% let value = null; try {value = JSON.parse(weightData)[grade.class_name]["weights"][assignment.category]} catch {}; %>
-                                            <label class="disableable" style="font-size: 0.9rem; <% if(!value && value != 0){ %> color: lightcoral; <% } else { %> color: <%= user.appearance.classColors[i] %>; <% } %> white-space: nowrap; margin-bottom: 0;"><%= assignment.category %>:&nbsp</label>
-                                            <input style="<% if (!value && value != 0) { %> border-color: lightcoral; <% } else { %> border-color: <%= user.appearance.classColors[i] %>!important; <% } %>"
-                                                value="<%= value %>"
-                                                type="number"
-                                                min="0"
-                                                step="0.1"
+                            <span style="border-radius: 0.25em" class="collapse collapse-underline"
+                                  id="collapse<%= i %>" data-parent="#accordionForms">
+                                <% let weights = [];
+                                        for (let assignment of grade.grades) {
+                                if (!(weights.includes(assignment.category))) {
+                                    weights.push(assignment.category); %>
+                                <div class="form-group" style="display: flex; align-items: flex-end;">
+                                    <% let value = null; try {
+                                        value = JSON.parse(weightData)[grade.class_name]["weights"][assignment.category]
+                                    } catch {
+                                    } %>
+                                    <label class="disableable"
+                                           style="font-size: 0.9rem; <% if(!value && value != 0){ %> color: lightcoral; <% } else { %> color: <%= user.appearance.classColors[i] %>; <% } %> white-space: nowrap; margin-bottom: 0;"><%= assignment.category %>
+                                        :&nbsp</label>
+                                    <input style="<% if (!value && value != 0) { %> border-color: lightcoral; <% } else { %> border-color: <%= user.appearance.classColors[i] %>!important; <% } %>"
+                                           value="<%= value %>"
+                                           type="number"
+                                           min="0"
+                                           step="0.1"
                                                 class="disableable form-control <% if(value || value == 0){ %> text-view <% } %>"
                                                 name="<%= assignment.category %>"
                                                 oninput="this.classList.remove('text-view'); showSubmitButton(this); "
-                                            >
-                                        </div>
-                                    <% } %>
+                                    >
+                                </div>
+                                <% } %>
                                 <% } %>
                                 <div class="break"></div>
                                 <div class="form-group" style="display: flex; align-items: flex-end;">
-                                    <label style="color: <%= user.appearance.classColors[i] %>; font-size: 0.9rem; white-space: nowrap; margin-bottom: 0;">Point Based?</label>
+                                    <label style="color: <%= user.appearance.classColors[i] %>; font-size: 0.9rem; white-space: nowrap; margin-bottom: 0;">Point
+                                        Based?</label>
                                     <input
-                                        id="check<%=i%>"
-                                        style="margin: auto;"
-                                        type="checkbox" 
-                                        class="form-control" 
-                                        name="hasWeights" 
-                                        <% try { if (JSON.parse(weightData)[grade.class_name]["hasWeights"]==="false") { %> 
-                                                checked
-                                        <% }} catch {}%>    
-                                        oninput="showSubmitButton(this); disableInput('check<%=i%>','collapse<%=i%>');"
-                                        > 
+                                            id="check<%= i %>"
+                                            style="margin: auto;"
+                                            type="checkbox"
+                                            class="form-control"
+                                            name="hasWeights"
+                                    <% try { if (JSON.parse(weightData)[grade.class_name]["hasWeights"] === "false") { %>
+                                            checked
+                                            <% }} catch {
+                                            } %>
+                                            oninput="showSubmitButton(this); disableInput('check<%= i %>','collapse<%= i %>');"
+                                    >
                                     <script>
                                         function disableInput(checkBoxID, id) {
-                                            $('#'+id).find('.disableable').each(function(){
-                                                if ($('#'+checkBoxID).is(":checked")){
+                                            $('#' + id).find('.disableable').each(function () {
+                                                if ($('#' + checkBoxID).is(":checked")) {
                                                     $(this).addClass("disabled");
-                                                    $(this).attr('disabled','disabled');
+                                                    $(this).attr('disabled', 'disabled');
                                                 } else {
                                                     $(this).removeClass("disabled");
                                                     $(this).removeAttr('disabled');
-                                                } 
+                                                }
                                             })
-                                        }                                        
+                                        }
+
                                         disableInput('check<%=i%>','collapse<%=i%>');
                                     </script>
-                                </div>                               
+                                </div>
                                 <div class="formSubmitButton" style="width: 100%; display: none">
                                     <button type="submit" class="btn btn-default btn-med">
                                         <i class="fa fa-refresh" aria-hidden="true"></i>
@@ -145,6 +154,14 @@
         }
         $("#collapse" + defaultId).collapse("show");
         disableScrolling();
+    }
+
+    function makeClassPointBased(id) {
+        showUpdateWeights(id);
+        let checkbox = $("#check" + id);
+        checkbox.trigger("click");
+        let submitButton = $(checkbox).parents("form").find(".formSubmitButton").find("button");
+        submitButton.trigger('click');
     }
 
     $(function initAjaxFormPosts() {

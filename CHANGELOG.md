@@ -30,16 +30,20 @@
 
 ## [Known Issues] - Working on it
 - Point-based classes aren't synced with weights auto-population
+- Final Grade Calculator has not yet been updated to be compatible with the new system that allows for point-based classes
 - If you have an issue, send feedback in Settings > Feedback
 
 ## [Unreleased] - Coming Soon
 - GPA Display
 - Class insights
+- Calculated weights of categories in point-based classes will be shown so that you can see how much effect a category has on your overall grade
 - If you would like a feature to become implemented, send feedback in Settings > Feedback
 
 ## [Beta 1.4.5] - 2020-03-17
 ### Added
 - Added support for point-based classes
+- Choose the point-based checkbox when editing weights to signify a point-based class
+- Categories will still be displayed with your average in that category
 
 ## [Beta 1.4.4] - 2020-03-16
 ### Added
