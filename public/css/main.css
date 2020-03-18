@@ -11,7 +11,7 @@
     100% {
         transform: rotate(360deg);
     }
-}`
+}
 
 @keyframes sk-chase-dot {
     80%, 100% {
