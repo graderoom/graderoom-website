@@ -560,7 +560,7 @@
         for (let classData of data) {
             let className = classData.class_name;
             let localMissingCategories = Object.keys(weights[className]["weights"]).filter(category => !weights[className]["weights"][category] && weights[className]["weights"][category] !== 0);
-            if (localMissingCategories.length > 0) {
+            if (localMissingCategories.length > 0 && weights[className]["hasWeights"]!="false") {
                 unobtainedWeights[className] = localMissingCategories;
             }
 
