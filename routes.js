@@ -283,9 +283,10 @@ module.exports = function (app, passport) {
     app.post("/updateweights", [isLoggedIn], async (req, res) => {
         console.log(req.body);
         let className = req.body.className;
+        let hasWeights = req.body.hasWeights;
         let newWeights = JSON.parse(req.body.newWeights);
 
-        let resp = authenticator.updateWeightsForClass(req.user.username, className, newWeights);
+        let resp = authenticator.updateWeightsForClass(req.user.username, className, hasWeights, newWeights);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
