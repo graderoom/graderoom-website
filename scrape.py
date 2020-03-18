@@ -46,17 +46,28 @@ class ClassGrade:
         self.overall_letter = overall_letter
         self.grades = []
 
-    def add_grade(self, assignment_name, date, grade_percent, points_gotten, points_possible, category, exclude):
-        """Adds an assignment with its attributes to grades"""
+    def add_grade(self, assignment_name, date, grade_percent, points_gotten,
+                  points_possible, category, exclude):
+        """Adds an assignment with its attributes to grades
+
+        Args:
+            assignment_name: String
+            date: String
+            grade_percent: Int
+            points_gotten: Float
+            points_possible: Float
+            category: String
+            exclude: Boolean
+        """
         # TODO: Add functionality to add assignment without a grade
         new_grade = {
-            'assignment_name': assignment_name, # String
-            'date': date, # String
-            'category': category, # String
-            'grade_percent': grade_percent, # Double
-            'points_gotten': points_gotten, # Double
-            'points_possible': points_possible, # Double
-            'exclude': exclude # Boolean
+            'assignment_name': assignment_name,
+            'date': date,
+            'category': category,
+            'grade_percent': grade_percent,
+            'points_gotten': points_gotten,
+            'points_possible': points_possible,
+            'exclude': exclude
         }
 
         self.grades.append(new_grade)
@@ -73,15 +84,30 @@ class ClassGrade:
 
 
 class PowerschoolScraper:
+    """Scrapes grade data from PowerSchool
+
+    Using provided Bellarmine credentials, it logs into
+    PowerSchool and scrapes grade and class data,
+    then prints it in a JSON format.
+
+    Attributes:
+        email: string
+        password: string
+        session: requests session object
+    """
+
     def __init__(self, email, password):
+        """Inits with credentials and creates a session"""
         self.email = email
         self.password = password
-        self.sesh = requests.Session()
+        self.session = requests.Session()
 
     def login_and_get_all_class_grades_and_print_resp(self):
+        """Scrapes grade data from PowerSchool and prints it
 
-        # Authenticates via SAML; see https://developers.onelogin.com/saml
-
+        Authenticates via SAML
+        See https://developers.onelogin.com/saml
+        """
         # Various headers required for logging in
         headers_1 = {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -124,24 +150,6 @@ class PowerschoolScraper:
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Content-Type': 'application/x-www-form-urlencoded',
-            'Host': 'powerschool.bcp.org',
-            'Origin': 'https://federation.bcp.org',
-            'Referer': 'CHANGE_THIS',  # change to the dynamic url
-            'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-Site': 'same-site',
-            'Sec-Fetch-User': '?1',
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36'
-
-        }
-
-        sso_ping_no_two_headers = {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Cache-Control': 'max-age=0',
-            'Connection': 'keep-alive',
-            'Content-Type': 'application/x-www-form-urlencoded',
             'Host': 'federation.bcp.org',
             'Origin': 'https://federation.bcp.org',
             'Referer': 'https://federation.bcp.org/idp/SSO.saml2',
@@ -152,191 +160,199 @@ class PowerschoolScraper:
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36'
         }
 
-        url = "https://powerschool.bcp.org/guardian/home.html"  # get a cookie and intial saml request token
-        resp_1 = self.sesh.get(url, headers=headers_1)
-        soup = BS(resp_1.text, "html.parser")
-        samlr = soup.find("input", {'name': 'SAMLRequest'}).get('value')
-
-        url_2 = "https://federation.bcp.org/idp/SSO.saml2"
-        data = {
-            'RelayState': "/guardian/home.html",
-            'SAMLRequest': samlr,
+        headers_4 = {
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Cache-Control': 'max-age=0',
+            'Connection': 'keep-alive',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Host': 'powerschool.bcp.org',
+            'Origin': 'https://federation.bcp.org',
+            # This will be changed to the dynamic URL
+            'Referer': 'CHANGE_THIS',  
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'same-site',
+            'Sec-Fetch-User': '?1',
+            'Upgrade-Insecure-Requests': '1',
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36'
         }
-        resp_2 = self.sesh.post(url_2, data=data, headers=headers_2)
 
-        soup2 = BS(resp_2.text, "html.parser")
-        dynamic_url_half = soup2.find("form", id='ping-login-form').get('action')
+        # First request
+        url = "https://powerschool.bcp.org/guardian/home.html"  
+        resp_1 = self.session.get(url, headers=headers_1)
+        soup_1 = BS(resp_1.text, "html.parser")
+        samlr_1 = soup_1.find("input", {'name': 'SAMLRequest'}).get('value')
 
-        url_3 = "https://federation.bcp.org" + dynamic_url_half
-
-        dat2 = {
+        # Second request
+        url_2 = "https://federation.bcp.org/idp/SSO.saml2"
+        data_2 = {
+            'RelayState': "/guardian/home.html",
+            'SAMLRequest': samlr_1,
+        }
+        resp_2 = self.session.post(url_2, data=data_2, headers=headers_2)
+        soup_2 = BS(resp_2.text, "html.parser")
+        dynamic_url = soup_2.find("form", id='ping-login-form').get('action')
+        
+        # Third request
+        dynamic_url = "https://federation.bcp.org" + dynamic_url
+        data_3 = {
             'pf.ok': '',
             'pf.cancel': '',
             'pf.username': self.email,
             'pf.pass': self.password,
         }
-        resp_3 = self.sesh.post(url_3, data=dat2, headers=sso_ping_no_two_headers)
-
-        url_4 = 'https://powerschool.bcp.org:443/saml/SSO/alias/pslive'
+        resp_3 = self.session.post(dynamic_url, data=data_3, headers=headers_3)
         soup_3 = BS(resp_3.text, "html.parser")
 
-        # if this is not found, authentication failed (incorrect login)
-        samlr_ref = soup_3.find("input", {'name': 'SAMLResponse'})
-        if samlr_ref is None:
-            # failed login
+        # If response is not found, authentication failed (incorrect login)
+        samlr_3_ref = soup_3.find("input", {'name': 'SAMLResponse'})
+        if samlr_3_ref is None:
             print(json_format(False, "Incorrect login details."))
             return
 
-        samlr = samlr_ref.get('value')
-
-        data = {
-            'SAMLResponse': samlr,
+        # Fourth request
+        url_4 = 'https://powerschool.bcp.org:443/saml/SSO/alias/pslive'
+        samlr_4 = samlr_3_ref.get('value')
+        headers_4['Referer'] = dynamic_url
+        data_4 = {
+            'SAMLResponse': samlr_4,
             'RelayState': "/guardian/home.html",
         }
+        # Manually add cookie
+        jsession = self.session.cookies.get_dict()['JSESSIONID']
+        headers_4['Cookie'] = "JSESSIONID=" + jsession
+        resp_4 = self.session.post(url_4, data=data_4, headers=headers_4)
 
-        headers_3['Referer'] = url_3
-        # manully add cookie
 
-        jsesh = self.sesh.cookies.get_dict()['JSESSIONID']
-        headers_3['Cookie'] = "JSESSIONID=" + jsesh  # todo figure out best way to store this for later use
-        self.resp_4 = self.sesh.post(url_4, data=data, headers=headers_3)
-        #         print("Added resp_4 to class data.")
-
-        # print(self.resp_4.text)
-        # powerschool home page ^!
-        soup_test = BS(self.resp_4.text, "html.parser")
-        table = soup_test.find("table", {'class': 'linkDescList grid'})
-
-        tr_s = table.findChildren("tr", recursive=False)
-        rows = []
-        # print(tr_s)
-        for maybe_row in tr_s:
-            # print(maybe_row.attrs)
-            if maybe_row.has_attr('class') and maybe_row['class'] == ['center']:
-                rows.append(maybe_row)
-        # print('\n' + str(rows))
+        # Begin organizing response data
         final_all_classes = []
 
-        for actual_row in rows:
+        # Main table on PowerSchool Page
+        soup_resp = BS(resp_4.text, "html.parser")
+        main_table = soup_resp.find("table", {'class': 'linkDescList grid'})
 
+        # Get only the rows of classes from the table
+        main_table_rows = main_table.findChildren("tr", recursive=False)
+        class_rows = []
+        for row in main_table_rows:
+            if row.has_attr('class') and row['class'] == ['center']:
+                class_rows.append(row)
+        
+        # Iterate over each row and fetch data for that class
+        for class_row in class_rows:
             local_class = None
-
-            link_to_assignments = None
+            assignments_link = None
             class_name = None
             teacher_name = None
             overall_percent = None
             overall_letter = None
 
-            # find overall grade + link to full assignments page
-            aas = actual_row.findChildren("a", recursive=True)
-            # print('\n' + str(aas))
-            for link in aas:
-                if ((link.has_attr('class') and link['class'] == ['bold']) or link.text == '[ i ]') and link['href'][
-                                                                                                        :5] == 'score':
-                    # todo this is hacky . fix ^ (the last check)
-                    # print(link)
-                    letter_percent_combined = link.text
+            # Get overall grade and the link to assignments page
+            links = class_row.findChildren("a", recursive=True)
+            for link in links:
+                # If an overall grade is present, the link text is bold
+                # If no grade is present, then it is [ i ]
+                # Finally, check if it is actually a class grade link
+                if ((link.has_attr('class') and link['class'] == ['bold'])
+                    or link.text == '[ i ]') and link['href'][:5] == 'score':
 
+                    assignments_link = link['href']
+
+                    # Split combined letter grade and percent text
+                    # into two separate values
+                    letter_and_percent = link.text
                     if link.text == '[ i ]':
                         overall_letter = '-'
                         overall_percent = -1
-
                     else:
-
-                        split_point = None
-                        for indx, charac in enumerate(letter_percent_combined):
+                        for i, charac in enumerate(letter_and_percent):
                             if str.isdigit(charac):
-                                split_point = indx
+                                overall_letter = letter_and_percent[:i]
+                                overall_percent = float(letter_and_percent[i:])
                                 break
 
-                        overall_letter = letter_percent_combined[:split_point]
-                        # print(overall_letter)
-                        overall_percent = float(letter_percent_combined[split_point:])
-                    # print(overall_percent)
+            # Ensure link for assignments exists
+            if assignments_link is None:
+                continue
 
-                    link_to_assignments = link['href']
-                # print(link_to_assignments)
+            # Scrape data from assignments page
+            url = 'https://powerschool.bcp.org/guardian/'
+            grades_resp = self.session.get(url + assignments_link)
 
-            # find class name + teacher name
-            tds = actual_row.findChildren("td", recursive=False)
-            for td in tds:
-                if td.has_attr('align') and td['align'] == 'left':
-                    text_2 = td.text.replace('\xa0', '')  # wacky html character
-                    split_text = text_2.split('Details about ')
-                    class_name = split_text[0]  # will break with classes named Details about :[
-                    teacher_name = (split_text[1]).split('Email')[0]  # will break with teachers named Email :[
-                # print(teacher_name)
-                # print(class_name)
+            grades_soup = BS(grades_resp.text, 'html.parser')
 
-            # dont add stuff (yet) unless all elements are present
-            if class_name and teacher_name and overall_percent and (overall_letter != '-'):
-                local_class = ClassGrade(class_name, teacher_name, overall_percent, overall_letter)
+            # The two tables in the page. info is top, grades is bottom
+            class_tables = grades_soup.findChildren('table')
+            info_table = class_tables[0]
+            grades_table = class_tables[1]
+
+            # Get teacher and class name
+            info_row = info_table.findChildren('tr')[1]
+            info_data = info_row.findChildren('td')
+            class_name = info_data[0].text
+            teacher_name = info_data[1].text
+
+            # Create a ClassGrade object to hold assignment data
+            # Ensure all data is present, otherwise skip the class
+            if (class_name and teacher_name and overall_percent
+                and (overall_letter != '-')):
+                local_class = ClassGrade(class_name, teacher_name,
+                                         overall_percent, overall_letter)
             else:
                 continue
 
-            # add grades
-            if link_to_assignments is None:
-                break  # homeroom triggered this
-            grades_resp = self.sesh.get('https://powerschool.bcp.org/guardian/' + link_to_assignments)
-            # TODO GET grade weights!
+            # Get grade and name data for each assignment
+            grades_rows = grades_table.findChildren('tr')
+            for grade_row in grades_rows:
+                grade_data = grade_row.findChildren('td')
 
-            grades_soup = BS(grades_resp.text, 'html.parser')
-            g_table = grades_soup.find('table', {'border': '0'}, class_=lambda x: x != 'linkDescList')
-            # print(g_table)
-            # for g_row in g
+                # Skip table header
+                if grade_data == [] or len(grade_data) < 10:
+                    continue
 
-            tr_gs = g_table.findChildren('tr')
-            # print(tr_gs)
-
-            for tr in tr_gs:
-                td_gs = tr.findChildren('td')
-                # print(td_gs)
-                if td_gs == [] or len(td_gs) < 10:  # table header
-                    continue  # TODO ensure this cont inner for loop
-
-                # print(td_gs)
-                # for g in td_gs:
-                # todo maybe dont make this hard coded
-                date = td_gs[0].text  # TODO parse date?
-                cat = td_gs[1].text
-                a_n = td_gs[2].text
+                date = grade_data[0].text
+                category = grade_data[1].text
+                assignment_name = grade_data[2].text
                 exclude = False
 
                 # Check if either exclude flag exists
-                if len(td_gs[6]) == 1 or len(td_gs[7]) == 1:
+                if len(grade_data[6]) == 1 or len(grade_data[7]) == 1:
                     exclude = True
 
-                temp = td_gs[8].text
+                score = grade_data[8].text
+                # Check if the score does not have a grade
+                # TODO: dont skip assignments without scores
                 try:
-                    if ('/' not in temp and temp != '--'):
-                        pp = 0
-                        pg = float(temp)
+                    # Check if score is not out of a number
+                    if ('/' not in score and score != '--'):
+                        points_possible = 0
+                        points_gotten = float(score)
                     else:
-                        pp = float(temp.split('/')[1])
-                        pg = float(temp.split('/')[0])
+                        points_possible = float(score.split('/')[1])
+                        points_gotten = float(score.split('/')[0])
                 except:
-                    #                    print(temp)
-                    #                    print('Found empty/non graded assignment. Skipping')
                     continue
-                if (pp != 0):
-                    gp = td_gs[9].text
-                else:
-                    gp = -1
-                local_class.add_grade(a_n, date, gp, pg, pp, cat, exclude)
 
-            # todo check if local_class is good /complete enough
+                # Get the percent for the assignment
+                if (points_possible != 0):
+                    grade_percent = grade_data[9].text
+                else:
+                    grade_percent = -1
+
+                # Add the assignment to the ClassGrade object
+                local_class.add_grade(assignment_name, date, grade_percent,
+                                      points_gotten, points_possible,
+                                      category, exclude)
+
             final_all_classes.append(local_class.as_dict())
 
-        #         print("Found classes for " + self.email + "!")
-        #         for cla in final_all_classes:
-        #             print(cla)
-        #         print('--------------------')
+        # Print out the result
         if final_all_classes == []:
             print(json_format(False, "No class data."))
         else:
-            print(json_format(True, final_all_classes))  # list to send
-    # TODO add more login checks
-
+            pass
+            print(json_format(True, final_all_classes))
 
 if __name__ == "__main__":
     try:
