@@ -252,6 +252,11 @@ table thead tr th:last-child {
     box-shadow: none;
 }
 
+.break {
+    flex-basis: 100%;
+    height: 0;
+}
+
 .form-group .user-bg {
     padding-left: 35px;
 }
@@ -601,6 +606,11 @@ table thead tr th:last-child {
     border-bottom: none;
 }
 
+#weightsCard .disabled {
+    color: #999!important;
+    border-bottom: none!important;
+}
+
 #weightsCard input {
     font-size: 0.9rem;
     padding: .1rem .1rem;
@@ -651,8 +661,4 @@ table thead tr th:last-child {
     width: auto;
     padding: .375rem .75rem;
     margin: 0 0 1rem;
-}
-
-#weightsCard .form-signin .btn:hover {
-    background: none;
 }
