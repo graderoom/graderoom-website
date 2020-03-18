@@ -29,13 +29,17 @@
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
 ## [Known Issues] - Working on it
+- Point-based classes aren't synced with weights auto-population
 - If you have an issue, send feedback in Settings > Feedback
 
 ## [Unreleased] - Coming Soon
 - GPA Display
-- Support for point-based classes
 - Class insights
 - If you would like a feature to become implemented, send feedback in Settings > Feedback
+
+## [Beta 1.4.5] - 2020-03-17
+### Added
+- Added support for point-based classes
 
 ## [Beta 1.4.4] - 2020-03-16
 ### Added
