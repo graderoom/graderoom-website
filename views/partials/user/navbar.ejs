@@ -46,21 +46,25 @@
                     </a>
                 </li>
             <% } %>
+            <% if (current === "home") { %>
                 <li id="settings" class="nav-item">
                     <btn class="btn btn-med" onclick="showCard('#settingsCardDisplay')">
                         <i class="fa fa-cog" aria-hidden="true"></i> Settings
                     </btn>
                 </li>
-                <li class="nav-item active">
-                    <a onclick="window.localStorage.setItem('currentPage','')" href="/logout" class="btn btn-med"> <i
-                                class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
-                </li>
+            <% } %>
+            <li class="nav-item active">
+                <a onclick="window.localStorage.setItem('currentPage','')" href="/logout" class="btn btn-med"> <i
+                            class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
+            </li>
         </ul>
     </div>
 </nav>
 
 <!-- Cards -->
-<% include settings_card.ejs %> <% include sync_grades_card.ejs %> <% include edit_weights_card.ejs %> <% include changelog.ejs %>
+<% if (current === "home") { %>
+    <% include settings_card.ejs %> <% include sync_grades_card.ejs %> <% include edit_weights_card.ejs %> <% include changelog.ejs %>
+<% } %>
 
 <!-- Custom JavaScript -->
 <script>
@@ -74,16 +78,6 @@
             let formData;
             let message;
             let formMessagesDiv;
-
-            if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
-                $("#loadingDisplay").show();
-                $("#syncGradesForm").find("input").each(function () {
-                    $(this).blur();
-                });
-                $("#gradeSyncForm").find("input").each(function () {
-                    $(this).blur();
-                });
-            }
 
             // Serialize the form data.
             if (formID === "#chooseTheme") {
@@ -104,7 +98,16 @@
             // Get the messages.
             formMessagesDiv = $(messagesDivID);
             message = $(formMessagesDiv).find(".messageTxt");
+            $(message).text("");
+            $(formMessagesDiv).removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
+            $(formMessagesDiv).find(".sk-chase-mini").show().css("display", "inline-block");
+            $(formMessagesDiv).show();
 
+            if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
+                $("input").blur();
+                $("#loadingDisplay").show();
+                $("#syncFailure").hide();
+            }
 
             // Submit the form using AJAX.
             $.ajax({
@@ -118,15 +121,17 @@
                     $("#reloadNeeded").text("Reload Needed");
                 } else {
 
-                    // Make sure that the formMessages div has the alert-success class.
-                    $(formMessagesDiv).removeClass("alert-danger");
-                    $(formMessagesDiv).addClass("alert-success");
-
                     // Set the message text.
-                    $(message).text(response);
+                    setTimeout(function () {
+                        $(message).text(response);
+                        $(formMessagesDiv).find(".sk-chase-mini").hide();
+                        // Make sure that the formMessages div has the alert-success class.
+                        $(formMessagesDiv).removeClass("alert-info");
+                        $(formMessagesDiv).addClass("alert-success");
+                    }, 500);
 
                     // Show the div.
-                    $(formMessagesDiv).css("display", "block");
+                    $(formMessagesDiv).show();
 
                     // Show correct sync div
                     if (response === "GradeSync Enabled. Updated grades!") {
@@ -142,7 +147,7 @@
                     // Switch mode instantly
                     if (formID === "#chooseTheme") {
                         if (response === "Dark theme enabled!") {
-                            let oldDarkMode = darkMode;
+                            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
                             darkMode = true;
                             theme = "dark";
                             if (darkMode !== oldDarkMode) {
@@ -162,6 +167,7 @@
                                 }, 1000);
                                 renderAllCharts();
                             }
+                            localStorage.setItem("defaultAppearance", "dark");
                         } else if (response === "Light theme enabled!") {
                             let autoLimits = $("#autoLimits");
                             autoLimits.hide();
@@ -172,7 +178,7 @@
                             autoLimits[0].children[4].value = (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString());
                             autoLimits[0].children[5].selectedIndex = (darkModeFinish === 24 ? 0 : darkModeFinish > 12 ? 1 : 0);
                             document.getElementsByName("theme")[0].setAttribute("checked", "checked");
-                            let oldDarkMode = darkMode;
+                            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
                             darkMode = false;
                             theme = "light";
                             if (darkMode !== oldDarkMode) {
@@ -192,6 +198,7 @@
                                 }, 1000);
                                 renderAllCharts();
                             }
+                            localStorage.setItem("defaultAppearance", "light");
                         } else {
                             $(form[0].elements[7]).attr("disabled", "disabled");
                             theme = "auto";
@@ -247,21 +254,19 @@
                             document.getElementById("darkModeFinish").setAttribute("placeholder", (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString()));
                             checkTime();
                         }
-                        if (darkMode) {
-                            localStorage.setItem("defaultAppearance", "dark");
-                        } else {
-                            localStorage.setItem("defaultAppearance", "light");
-                        }
                     }
 
                     // Clear fields to clear
                     for (let i = 0; i < fieldIDsToClear.length; i++) {
                         $(fieldIDsToClear[i]).val("");
                     }
+                    $("input").each(function () {
+                        $(this).blur();
+                    });
                 }
             }).fail(function (data) {
                 // Make sure that the formMessages div has the alert-danger class
-                $(formMessagesDiv).removeClass("alert-success");
+                $(formMessagesDiv).removeClass("alert-info");
                 $(formMessagesDiv).addClass("alert-danger");
 
                 // Set the message text.
@@ -269,13 +274,20 @@
                     if (data.responseText === "Error scraping grades.") {
                         $("#syncFailure").show();
                     }
-                    $(message).text(data.responseText);
+                    if (data.responseText === "Login Failed") {
+                        $(message).text("Invalid Credentials");
+                    } else {
+                        $(message).text(data.responseText);
+                    }
                 } else {
                     $(message).text("Oops! An error occurred and your message could not be sent.");
                 }
 
                 // Show the div.
                 $(formMessagesDiv).css("display", "block");
+
+                // Hide loading
+                $(formMessagesDiv).find(".sk-chase-mini").hide();
 
                 if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
                     $("#inputPassword").focus();
@@ -388,13 +400,15 @@
     });
     // Collapse navbar or card when press escape
     $(document).keydown(function (e) {
-        if (e.key === "Escape") { // escape key maps to keycode `27`
-            try {
-                $(".navbar-collapse").collapse("hide");
-                closeForm("toggle");
-            } catch (e) {
+        if ($("#loadingDisplay").css("display") === "none") {
+            if (e.key === "Escape") { // escape key maps to keycode `27`
+                try {
+                    $(".navbar-collapse").collapse("hide");
+                    closeForm("toggle");
+                } catch (e) {
+                }
+                closeForm(cardsDisplayed[cardsDisplayed.length - 1]);
             }
-            closeForm(cardsDisplayed[cardsDisplayed.length - 1]);
         }
     });
 </script>

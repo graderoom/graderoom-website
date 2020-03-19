@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.css">
-<% if (user.appearance.theme === "dark" || (user.appearance.theme === "auto" && (((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) && ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish)) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish))))) { %>
+<% if (user.appearance.theme === "dark" || (user.appearance.theme === "auto" && (((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset() ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) && ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset() ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0))) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset() ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset() ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0)))))) { %>
     <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
 <% } else { %>
     <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
@@ -92,12 +92,10 @@
             </div>
         <% } %>
     <% } %>
-
     <!-- <div class="alert alert-danger alert-dismissible" id="weightmsg" style="display:none">
         <a class="close" data-dismiss="alert" aria-label="close">X</a>
         <span id="weightmsg_text">asdf</span>
     </div> -->
-
     <!-- Overview Section -->
     <% if (user.alerts.lastUpdated.toString().toLowerCase() != 'never') { %>
         <span id="section-1">
@@ -134,7 +132,6 @@
             </table>
         </span>
     <% } %>
-
     <!-- Class Sections -->
     <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
         <span id="section<%= i %>" style="display: none;">
@@ -153,9 +150,8 @@
                             <th>Grade</th>
                         </tr>
                     </thead>
-
                     <tbody>
-                        <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]).length; j++) { %>
+                        <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]).length; j++) { %>
                             <tr>
                                 <td id="weightTableCategory<%= i %><%= j %>"></td>
                                 <td id="weightTableWeight<%= i %><%= j %>"></td>
@@ -170,14 +166,16 @@
                             <th colspan="4">
                                 <div style="display:none; color: <%= user.appearance.classColors[i] %>"
                                      id="weightTableOverallGrade<%= i %>">
-
                                 </div>
-                                <div style="display:none" colspan="4"
+                                <div style="display:none; white-space: normal" colspan="4"
                                      class="alert alert-danger font-weight-bold"
                                      id="weightTablemsg<%= i %>">
-                                    <span id="weightmsg_text<%= i %>"></span><br><u style="cursor: pointer"
-                                                                                    onclick="showUpdateWeights(<%= i %>)">Add
-                                        Weights</u>
+                                    To view overall grade,<br><u style="cursor: pointer; white-space: nowrap"
+                                                                 onclick="showUpdateWeights(<%= i %>)">Add <span
+                                                id="weightmsg_text<%= i %>"></span></u>
+                                    <br>or<br><u style="cursor: pointer; white-space: nowrap"
+                                                 onclick="makeClassPointBased(<%= i %>)">Click here if your class is
+                                        point-based</u>
                                 </div>
                             </th>
                         </tr>
@@ -195,7 +193,6 @@
                         <th style="width:25%;">Score</th>
                     </tr>
                 </thead>
-
                 <tbody>
                     <% for (let grade of JSON.parse(gradeData)[i].grades) { %>
                         <tr>
@@ -219,36 +216,30 @@
         </span>
     <% } %>
 </div>
-
 <!-- Custom JavaScript -->
 <script>
-
     let user = <%- userRef %>;
     let data = <%- gradeData %>;
-    let weights = <%- weightData %>
-        parsedData = [];
+    let weights = <%- weightData %>;
+    parsedData = [];
     let unobtainedWeights = {};
-
     let currentPage = -1;
     let cardsDisplayed = [];
     let currentTab = 1;
     let maxTab = 4;
-
     let darkMode;
-    let darkModeStart = user.appearance.darkModeStart;
-    let darkModeFinish = user.appearance.darkModeFinish;
+    let darkModeStart = (user.appearance.darkModeStart || user.appearance.darkModeStart === 0 ? user.appearance.darkModeStart : 18);
+    let darkModeFinish = user.appearance.darkModeFinish || 7;
 
     let checkingTheme;
-
     parseData();
     setupWeightsTables();
     setupOverviewTable();
     updateWeightMessages();
-
     let theme = user.appearance.theme;
     let changeTransition;
     if (theme === "auto") {
-        darkMode = (((darkModeStart < darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart) && ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart) || ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish)));
+        darkMode = (user.appearance.theme === "dark" || (user.appearance.theme === "auto" && (((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset() ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) && ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset() ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0))) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset() ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset() ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0))))));
         checkTime();
     } else {
         darkMode = theme === "dark";
@@ -312,8 +303,8 @@
         darkModeFinish = parseInt(darkModeFinish);
         //console.log("Start, finish, theme", darkModeStart, darkModeFinish, theme);
         //console.log(((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart);
-        if (((darkModeStart < darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart) && ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart) || ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish))) {
-            let oldDarkMode = darkMode;
+        if (theme === "dark" || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart - (Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset() ? (darkModeStart === 0 ? -23 : 1) : 0)) && ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish - (Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset() ? (darkModeFinish === 1 ? -23 : 1) : 0))) || ((darkModeStart > darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart - (Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset() ? (darkModeStart === 0 ? -23 : 1) : 0)) || ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish - (Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset() ? (darkModeFinish === 1 ? -23 : 1) : 0)))))) {
+            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
             darkMode = true;
             if (darkMode !== oldDarkMode) {
                 clearTimeout(changeTransition);
@@ -332,7 +323,7 @@
                 window.localStorage.setItem("defaultAppearance", "dark");
             }
         } else {
-            let oldDarkMode = darkMode;
+            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
             darkMode = false;
             if (darkMode !== oldDarkMode) {
                 if (changeTransition) {
@@ -428,12 +419,12 @@
 
     function getTotalWeight(classIndex) {
         let className = data[classIndex].class_name;
-        let classWeights = Object.values(weights[className]);
+        let classWeights = Object.values(weights[className]["weights"]);
         let totalWeight = 0;
-        let classCategories = Object.keys(weights[className]);
+        let classCategories = Object.keys(weights[className]["weights"]);
         for (let i = 0; i < classWeights.length; i++) {
             if (getCategoryGottenAndPossible(classIndex, classCategories[i]).possible !== 0) {
-                totalWeight += classWeights[i];
+                totalWeight += Number(classWeights[i]);
             }
         }
         return totalWeight;
@@ -442,14 +433,24 @@
     function getOverallGrade(classIndex) {
         let className = data[classIndex].class_name;
         if (className in weights) {
-            let classCategories = Object.keys(weights[className]);
-            let classWeights = Object.values(weights[className]);
             let overallGrade = 0;
-            for (let i = 0; i < classCategories.length; i++) {
-                overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i] / 100;
+            if (weights[className]["hasWeights"] === "false") {
+                let points_earned = 0;
+                let points_total = 0;
+                for (let assignment of data[classIndex]["grades"]) {
+                    points_earned += assignment["points_gotten"];
+                    points_total += assignment["points_possible"];
+                }
+                overallGrade = points_earned / points_total * 100;
+            } else {
+                let classCategories = Object.keys(weights[className]["weights"]);
+                let classWeights = Object.values(weights[className]["weights"]);
+                for (let i = 0; i < classCategories.length; i++) {
+                    overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i] / 100;
+                }
+                let ratio = 100 / getTotalWeight(classIndex);
+                overallGrade *= ratio;
             }
-            let ratio = 100 / getTotalWeight(classIndex);
-            overallGrade *= ratio;
             return overallGrade;
         }
         return 0;
@@ -487,22 +488,22 @@
     function setupWeightsTables() {
         for (let i = 0; i < data.length; i++) {
             let className = data[i].class_name;
-            if (weights[className]) {
-                let tableCategories = Object.keys(weights[className]);
-                let tableWeights = Object.values(weights[className]);
-                for (let j = 0; j < tableCategories.length; j++) {
-                    document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
+            let tableCategories = Object.keys(weights[className]["weights"]);
+            let tableWeights = Object.values(weights[className]["weights"]);
+            for (let j = 0; j < tableCategories.length; j++) {
+                document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
+                if (tableWeights[j] || tableWeights[j] === 0) {
                     document.getElementById("weightTableWeight" + i + j).textContent = tableWeights[j] + "%";
-                    let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
-                    document.getElementById("weightTablePoints" + i + j).textContent = +(categoryGottenAndPossible.gotten.toFixed(3)) + ((categoryGottenAndPossible.possible !== 0) ? ("/" + +(categoryGottenAndPossible.possible.toFixed(3))) : "");
-                    let categoryGrade = getCategoryGrade(i, tableCategories[j]);
-                    if (categoryGottenAndPossible.possible !== 0) {
-                        document.getElementById("weightTableGrade" + i + j).textContent = categoryGrade + "% (" + getLetterGrade(categoryGrade) + ")";
-                    }
                 }
-                let overallGrade = getOverallGrade(i);
-                document.getElementById("weightTableOverallGrade" + i).textContent = (+(overallGrade.toFixed(3))).toString() + "% (" + getLetterGrade(overallGrade) + ")";
+                let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
+                document.getElementById("weightTablePoints" + i + j).textContent = +(categoryGottenAndPossible.gotten.toFixed(3)) + ((categoryGottenAndPossible.possible !== 0) ? ("/" + +(categoryGottenAndPossible.possible.toFixed(3))) : "");
+                let categoryGrade = getCategoryGrade(i, tableCategories[j]);
+                if (categoryGottenAndPossible.possible !== 0) {
+                    document.getElementById("weightTableGrade" + i + j).textContent = categoryGrade + "% (" + getLetterGrade(categoryGrade) + ")";
+                }
             }
+            let overallGrade = getOverallGrade(i);
+            document.getElementById("weightTableOverallGrade" + i).textContent = (+(overallGrade.toFixed(3))).toString() + "% (" + getLetterGrade(overallGrade) + ")";
             if (!unobtainedWeights[className]) {
                 document.getElementById("weightTableOverallGrade" + i).style.display = "block";
             } else {
@@ -563,61 +564,37 @@
 
     function updateWeightMessages() {
         for (let id = 0; id < data.length; id++) {
-            if (data[id].class_name in unobtainedWeights) { //TODO idk if this index get is safe
+            if (unobtainedWeights[data[id].class_name]) { //TODO idk if this index get is safe
                 showWeightMessage("Missing Weights: " + unobtainedWeights[data[id].class_name].join(", "), id);
             }
         }
     }
 
     function parseData() {
-
         /*
          WEIGHTS first
          */
-
         for (let classData of data) {
             let className = classData.class_name;
-            let needWeights = !(className in weights) || (Object.entries(weights[className]).length === 0 && weights[className].constructor === Object);
-            let localMissingCategories = [];
-
-            if ((className in weights) && (weights[className].length)) {
-                needWeights = false;
-            } else {
-                for (let grade of classData.grades) {
-                    // console.log(grade.category)
-
-                    if (!(grade.category in weights[className])) {
-                        if (!localMissingCategories.includes(grade.category)) {
-                            localMissingCategories.push(grade.category);
-                        }
-                        needWeights = true;
-                    }
-
-                }
-
-                if (needWeights) {
-                    unobtainedWeights[className] = localMissingCategories; //todo here add specific weights (i.e. You don't have the Test category...)
-                }
+            let localMissingCategories = Object.keys(weights[className]["weights"]).filter(category => !weights[className]["weights"][category] && weights[className]["weights"][category] !== 0);
+            if (localMissingCategories.length > 0 && weights[className]["hasWeights"] != "false") {
+                unobtainedWeights[className] = localMissingCategories;
             }
-        }
 
+        }
         /**
          * now grades!
          */
-
         //Add array to each object in parsedData: one for weights (not needed?), one for missing weights
         //Get data for one class
-
         for (let classData of data) {
-
             let className = classData.class_name;
             let overallGradeSteps = [];
             let totalPossiblesAndGottens = {}; //by category
             let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
             // VERY JANK CHANGE LATER
-            let doesntHaveWeights = className in unobtainedWeights; //Already checked for above: || weights[className].hasWeights === false;
+            let doesntHaveWeights = (className in unobtainedWeights) || (weights[className]["hasWeights"] === "false");
             // console.log(className + " DHW? : " + doesntHaveWeights);
-
             for (let grade of classData.grades) {
                 let category = grade.category;
                 if (doesntHaveWeights) {
@@ -627,33 +604,29 @@
                     if (typeof totalPossiblesAndGottens[category] === "undefined") {
                         let weightVal = 100;
                         if (!doesntHaveWeights) {
-                            weightVal = weights[className][category];
+                            weightVal = Number(weights[className]["weights"][category]);
                         }
                         totalPossiblesAndGottens[category] = {
                             totalPossible: 0, totalGotten: 0, weight: weightVal
                         };
                         totalWeightValue += weightVal;
                     }
-
                     if (!grade.exclude) {
                         totalPossiblesAndGottens[category].totalPossible += grade.points_possible;
                         totalPossiblesAndGottens[category].totalGotten += grade.points_gotten;
                     }
-
                     let overallPercent = 0;
                     for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
                         overallPercent = overallPercent + (value.weight * (value.totalPossible !== 0 ? (value.totalGotten / value.totalPossible) : value.totalGotten));
                     }
                     let total = +(((overallPercent / totalWeightValue) * 100).toFixed(3));
                     //rounds to 3 decimal places (the plus sign drops any trailing zeros)
-
                     overallGradeSteps.push(total);
                 } catch (err) {
                     console.log(err);
                     console.log("bad weight input");
                 }
             }
-
             let assignmentNames = classData.grades.map(x => x.assignment_name);
             let assignmentTimestamps = classData.grades.map(x => new Date(x.date));
             let assignmentPercents = classData.grades.map(x => x.grade_percent);
@@ -663,7 +636,6 @@
             let mixedData = overallGradeSteps.map(function (grade, i) {
                 return {x: assignmentTimestamps[i], y: grade};
             });
-
             parsedData.push({
                                 assignmentNames: assignmentNames,
                                 assignmentTimestamps: assignmentTimestamps,
@@ -745,7 +717,6 @@
                                 }
                                 chart.update(1000);
                             }
-
                         }, 6000);
                     }
                 }, scales: {
@@ -759,7 +730,11 @@
                         }
                     }], yAxes: [{
                         ticks: {
-                            fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "12"
+                            max: 110,
+                            min: 70,
+                            fontColor: (darkMode ? "white" : "black"),
+                            fontFamily: "Verdana",
+                            fontSize: "12"
                         }, gridLines: {
                             color: (darkMode ? "#555555" : "#CCCCCC"), drawBorder: false
                         }
@@ -852,18 +827,15 @@
             document.getElementById("link" + i).classList.remove("active");
         }
         document.getElementById("link" + id).classList.add("active");
-
         for (let i = -1; i < data.length; i++) {
             document.getElementById("section" + i).style.display = "none";
         }
         document.getElementById("section" + id).style.display = "block";
-
         window.localStorage.setItem("currentPage", id);
         currentPage = id;
     }
 
     document.onkeydown = function (e) {
-
         if ($("input").is(":focus")) {
             // Do nothing
         } else if (e.code === "ArrowUp") {
@@ -964,8 +936,11 @@
         } else {
             //console.log(e.code);
         }
-
     };
+
+    function isDST() {
+        return Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset();
+    }
 
 </script>
 </body>
