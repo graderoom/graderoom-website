@@ -3,6 +3,10 @@ body {
     color: #FFFFFF
 }
 
+hr {
+    background-color: #333333;
+}
+
 nav {
     background-color: #333333;
     color: #222222;
@@ -91,16 +95,6 @@ th {
     color: white;
 }
 
-.form-signin .btn {
-    background-color: #BBBBBB;
-    color: #333333;
-}
-
-.form-signin .btn:hover {
-    border-color: #BBBBBB;
-    color: #BBBBBB;
-}
-
 .form-group input {
     color: white;
 }
@@ -108,6 +102,17 @@ th {
 .form-group input:focus {
     border-bottom-color: #555555;
     color: white;
+}
+
+.form-group:focus-within label {
+    color: #BBBBBB;
+}
+
+/* Input Form Background Images */
+
+.form-group .user-bg {
+    background: url(/public/resources/dark_mode/user.png) no-repeat left/23px 27px !important;
+    padding-left: 35px;
 }
 
 .form-group .email-bg {
@@ -202,10 +207,6 @@ th {
 
 #weightsCard .fail {
     color: lightcoral;
-}
-
-#weightsCard .form-signin .btn {
-    background-color: #999999;
 }
 
 #weightsCard .success {
