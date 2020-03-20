@@ -20,11 +20,16 @@ module.exports = function (app, passport) {
             let user = authenticator.getUser(req.user.username);
             let gradeDat = JSON.stringify(user.grades);
             let weightData = JSON.stringify(user.weights);
+            let relClassData = JSON.stringify(authenticator.getRelClassData(req.user.username));
 
             res.render("authorized_index.ejs", {
-                user: req.user, current: "home", userRef: JSON.stringify(user), schoolUsername: req.user.schoolUsername,
+                user: req.user,
+                current: "home",
+                userRef: JSON.stringify(user),
+                schoolUsername: req.user.schoolUsername,
                 gradeData: gradeDat,
-                weightData: weightData
+                weightData: weightData,
+                relevantClassData: relClassData
             });
             return;
         }
@@ -40,7 +45,10 @@ module.exports = function (app, passport) {
             let gradeData = JSON.stringify(user.grades);
 
             res.render("authorized_index.ejs", {
-                user: user, current: "home", userRef: JSON.stringify(user), schoolUsername: user.schoolUsername,
+                user: user,
+                current: "home",
+                userRef: JSON.stringify(user),
+                schoolUsername: user.schoolUsername,
                 gradeData: gradeData,
                 weightData: weightData,
                 updateGradesMessageSuccess: req.flash("updateGradesMessageSuccess"),

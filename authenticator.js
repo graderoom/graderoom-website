@@ -87,6 +87,9 @@ module.exports = {
                 } else if (className.includes("Honors")) {
                     console.log(className + " is Honors");
                     db.get("classes").get(className).set("classType", "honors").write();
+                } else {
+                    console.log(className + " is none");
+                    db.get("classes").get(className).set("classType", "none").write();
                 }
             }
         }
@@ -148,16 +151,16 @@ module.exports = {
             let weights = user.weights[className]["weights"];
 
             // Put empty weights into class database
-            for (let assignment of user.grades[i]["grades"]) {
-                if (!Object.keys(classes[className][teacherName]["weights"]).includes(assignment.category)) {
-                    classDb.get(className).get(teacherName).get("weights").set(assignment.category, null).write();
+            for (let weight of Object.keys(weights)) {
+                if (!Object.keys(classes[className][teacherName]["weights"]).includes(weight)) {
+                    classDb.get(className).get(teacherName).get("weights").set(weight, null).write();
                 }
             }
 
             // Put weight values into class database TODO add admin confirmation requirement
             for (let i = 0; i < Object.keys(weights).length; i++) {
                 if (classes[className][teacherName]["weights"]) {
-                    if (!Object.keys(classes[className][teacherName]["weights"]).includes(Object.keys(weights)[i]) || classes[className][teacherName]["weights"][Object.keys(weights)[i]] === null) {
+                    if (!classes[className][teacherName]["weights"][Object.keys(weights)[i]] && classes[className][teacherName]["weights"][Object.keys(weights)[i]] !== 0) {
                         classDb.get(className).get(teacherName).get("weights").set(Object.keys(weights)[i], Object.values(weights)[i]).write();
                     }
                 }
@@ -175,6 +178,20 @@ module.exports = {
                 }
             }
         }
+    },
+
+    getRelClassData: function (username) {
+        //TODO
+        let lc_username = username.toLowerCase();
+        let userRef = db.get("users").find({username: lc_username});
+        let userClasses = [];
+        userRef.get("grades").value().forEach(classRef => userClasses.push([classRef.class_name, classRef.teacher_name]));
+        let classes = db.get("classes").value();
+        let relClasses = {};
+        for (let i = 0; i < userClasses.length; i++) {
+            relClasses[userClasses[i][0]] = {"classType": classes[userClasses[i][0]]["classType"]};
+        }
+        return relClasses;
     },
 
     updateWeightsInClassDb: function (data) {

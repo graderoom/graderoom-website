@@ -99,9 +99,20 @@
     <!-- Overview Section -->
     <% if (user.alerts.lastUpdated.toString().toLowerCase() != 'never') { %>
         <span id="section-1">
-            <div id="chart-container-1" class="chart-container text-center"
-                 style="position: relative; height:60vh; width: 100%; margin: 0 auto;">
-                <canvas id="chart-1" class="chart" style="width:50%; margin: 0;"></canvas>
+            <div style="display: flex">
+                <div style="display: flex; flex-flow: column; justify-content: center; align-items: center">
+                    <h5 style="font-size: 2rem" class="text-center">Semester GPA</h5>
+                    <h5 style="font-size: 5rem" id="GPA-display"></h5>
+                    <div id="GPA-message" style="display:none">
+                        <div class="alert alert-danger font-weight-bold text-center">
+                            Enter all weights to enable GPA Display
+                        </div>
+                    </div>
+                </div>
+                <div id="chart-container-1" class="chart-container text-center"
+                     style="position: relative; height:60vh; width: 100%; margin: 0 auto;">
+                    <canvas id="chart-1" class="chart" style="width:50%; margin: 0;"></canvas>
+                </div>
             </div>
             <br>
             <table class="table text-center" id="table-1">
@@ -135,7 +146,7 @@
     <!-- Class Sections -->
     <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
         <span id="section<%= i %>" style="display: none;">
-            <div style="display:flex; align-items: center">
+            <div style="display:flex; justify-content: space-evenly; align-items: center">
                 <div id="chart-container<%= i %>" class="chart-container"
                      style="position: relative; height:40vh; width:100%; margin: 0 auto;">
                     <canvas id="chart<%= i %>" class="chart" style="margin: auto;"></canvas>
@@ -204,7 +215,11 @@
                             <% } else { %>
                                 <td><%= grade.grade_percent %></td>
                             <% } %>
-                            <% if (grade.points_possible != 0) { %>
+                            <% if (grade.points_gotten === false && grade.points_possible === false) { %>
+                                <td>--</td>
+                            <% } else if (grade.points_gotten === false) { %>
+                                <td>--/<%= grade.points_possible %></td>
+                            <% } else if (grade.points_possible != 0) { %>
                                 <td><%= grade.points_gotten %>/<%= grade.points_possible %></td>
                             <% } else { %>
                                 <td><%= grade.points_gotten %></td>
@@ -221,7 +236,8 @@
     let user = <%- userRef %>;
     let data = <%- gradeData %>;
     let weights = <%- weightData %>;
-    parsedData = [];
+    let classData = <%- relevantClassData %>;
+    let parsedData = [];
     let unobtainedWeights = {};
     let currentPage = -1;
     let cardsDisplayed = [];
@@ -236,6 +252,7 @@
     setupWeightsTables();
     setupOverviewTable();
     updateWeightMessages();
+    setupGPADisplay();
     let theme = user.appearance.theme;
     let changeTransition;
     if (theme === "auto") {
@@ -417,6 +434,42 @@
         $("body").removeClass("no-scroll");
     }
 
+    function setupGPADisplay() {
+        if (Object.keys(unobtainedWeights).length > 0) {
+            $("#GPA-message").show();
+        } else {
+            $("#GPA-display").text(getOverallGPA);
+        }
+    }
+
+    function getOverallGPA() {
+        let GPA = 0.0;
+        for (let i = 0; i < data.length; i++) {
+            let className = data[i].class_name;
+            let classType = classData[className]["classType"];
+            GPA += getGPA(getOverallGrade(i));
+            if (classType === "ap" || classType === "honors") {
+                GPA += 1;
+            }
+        }
+        GPA /= data.length;
+        return GPA.toFixed(2);
+    }
+
+    function getGPA(grade) {
+        let letterGrade = getLetterGrade(grade).substring(0, 1);
+        if (letterGrade === "A") {
+            return 4;
+        } else if (letterGrade === "B") {
+            return 3;
+        } else if (letterGrade === "C") {
+            return 2;
+        } else if (letterGrade === "D") {
+            return 1;
+        }
+        return 0;
+    }
+
     function getTotalWeight(classIndex) {
         let className = data[classIndex].class_name;
         let classWeights = Object.values(weights[className]["weights"]);
@@ -438,8 +491,10 @@
                 let points_earned = 0;
                 let points_total = 0;
                 for (let assignment of data[classIndex]["grades"]) {
-                    points_earned += assignment["points_gotten"];
-                    points_total += assignment["points_possible"];
+                    if (assignment["points_gotten"] !== false && assignment["points_possible"] !== false) {
+                        points_earned += assignment["points_gotten"];
+                        points_total += assignment["points_possible"];
+                    }
                 }
                 overallGrade = points_earned / points_total * 100;
             } else {
@@ -531,8 +586,10 @@
         let totalPossible = 0;
         for (let i = 0; i < grades.length; i++) {
             if (!grades[i].exclude && grades[i].category === categoryName) {
-                totalGotten += grades[i].points_gotten;
-                totalPossible += grades[i].points_possible;
+                if (grades[i].points_gotten !== false && grades[i].points_possible !== false) {
+                    totalGotten += grades[i].points_gotten;
+                    totalPossible += grades[i].points_possible;
+                }
             }
         }
         return {"gotten": totalGotten, "possible": totalPossible};
@@ -577,7 +634,7 @@
         for (let classData of data) {
             let className = classData.class_name;
             let localMissingCategories = Object.keys(weights[className]["weights"]).filter(category => !weights[className]["weights"][category] && weights[className]["weights"][category] !== 0);
-            if (localMissingCategories.length > 0 && weights[className]["hasWeights"] != "false") {
+            if (localMissingCategories.length > 0 && weights[className]["hasWeights"] !== "false") {
                 unobtainedWeights[className] = localMissingCategories;
             }
 
@@ -612,27 +669,28 @@
                         totalWeightValue += weightVal;
                     }
                     if (!grade.exclude) {
-                        totalPossiblesAndGottens[category].totalPossible += grade.points_possible;
-                        totalPossiblesAndGottens[category].totalGotten += grade.points_gotten;
+                        if (grade.points_possible !== false && grade.points_gotten !== false) {
+                            totalPossiblesAndGottens[category].totalPossible += grade.points_possible;
+                            totalPossiblesAndGottens[category].totalGotten += grade.points_gotten;
+                        }
+                        let overallPercent = 0;
+                        for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
+                            overallPercent = overallPercent + (value.weight * (value.totalPossible !== 0 ? (value.totalGotten / value.totalPossible) : value.totalGotten));
+                        }
+                        let total = +(((overallPercent / totalWeightValue) * 100).toFixed(3));
+                        //rounds to 3 decimal places (the plus sign drops any trailing zeros)
+                        overallGradeSteps.push(total);
                     }
-                    let overallPercent = 0;
-                    for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
-                        overallPercent = overallPercent + (value.weight * (value.totalPossible !== 0 ? (value.totalGotten / value.totalPossible) : value.totalGotten));
-                    }
-                    let total = +(((overallPercent / totalWeightValue) * 100).toFixed(3));
-                    //rounds to 3 decimal places (the plus sign drops any trailing zeros)
-                    overallGradeSteps.push(total);
                 } catch (err) {
                     console.log(err);
                     console.log("bad weight input");
                 }
             }
-            let assignmentNames = classData.grades.map(x => x.assignment_name);
-            let assignmentTimestamps = classData.grades.map(x => new Date(x.date));
-            let assignmentPercents = classData.grades.map(x => x.grade_percent);
-            let assignmentScoresParsed = classData.grades.map(x => x.points_gotten + "/" + x.points_possible);
-            let assignmentCategories = classData.grades.map(x => x.category);
-            let assignmentExcluded = classData.grades.map(x => x.exclude);
+            let assignmentNames = classData.grades.filter(x => !x.exclude).map(x => x.assignment_name);
+            let assignmentTimestamps = classData.grades.filter(x => !x.exclude).map(x => new Date(x.date));
+            let assignmentPercents = classData.grades.filter(x => !x.exclude).map(x => x.grade_percent);
+            let assignmentScoresParsed = classData.grades.filter(x => !x.exclude).map(x => (x.points_gotten === false ? "--" : x.points_gotten) + (x.points_possible === false ? "" : "/" + x.points_possible));
+            let assignmentCategories = classData.grades.filter(x => !x.exclude).map(x => x.category);
             let mixedData = overallGradeSteps.map(function (grade, i) {
                 return {x: assignmentTimestamps[i], y: grade};
             });
@@ -642,7 +700,6 @@
                                 assignmentPercents: assignmentPercents,
                                 assignmentScoresParsed: assignmentScoresParsed,
                                 assignmentCategories: assignmentCategories,
-                                assignmentExcluded: assignmentExcluded,
                                 mixedData: mixedData
                             });
         }
@@ -750,7 +807,7 @@
                         title: function (tooltipItems) {
                             return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
                         }, label: function (tooltipItem) {
-                            return ["[" + parsedData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.index] + "] " + (parsedData[tooltipItem.datasetIndex].assignmentExcluded[tooltipItem.index] ? "[EXCLUDED] " : "") + parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + " - " + (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== -1 ? (parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "%") : ("")) + ((parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? (" (" + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")") : (parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)))];
+                            return ["[" + parsedData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.index] + "] " + parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + ((parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== -1 && parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, 2) !== "--") ? (" - " + parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "% ") : (" ")) + ((parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? ("(" + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")") : (parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)))];
                         }
                     }
                 }, responsive: true, maintainAspectRatio: false
@@ -808,7 +865,7 @@
                         title: function (tooltipItems, data) {
                             return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + parseFloat(tooltipItems[0].value).toFixed(2) + "%";
                         }, label: function (tooltipItem, data) {
-                            return ["[" + parsedData[id].assignmentCategories[tooltipItem.index] + "] " + (parsedData[tooltipItem.datasetIndex].assignmentExcluded[tooltipItem.index] ? "[EXCLUDED]" : "") + parsedData[id].assignmentNames[tooltipItem.index] + " - " + (parsedData[id].assignmentPercents[tooltipItem.index] !== -1 ? (parsedData[id].assignmentPercents[tooltipItem.index] + "%") : ("")) + ((parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? (" (" + parsedData[id].assignmentScoresParsed[tooltipItem.index] + ")") : (parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(0, parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)))];
+                            return ["[" + parsedData[id].assignmentCategories[tooltipItem.index] + "] " + parsedData[id].assignmentNames[tooltipItem.index] + ((parsedData[id].assignmentPercents[tooltipItem.index] !== -1 && parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(0, 2) !== "--") ? (" - " + parsedData[id].assignmentPercents[tooltipItem.index] + "% ") : (" ")) + ((parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? ("(" + parsedData[id].assignmentScoresParsed[tooltipItem.index] + ")") : (parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(0, parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)))];
                         }
                     }
                 }, responsive: true, maintainAspectRatio: false
