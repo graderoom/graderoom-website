@@ -43,18 +43,16 @@ module.exports = function (app, passport) {
             let user = authenticator.getUser(req.query.usernameToRender);
             let weightData = JSON.stringify(user.weights);
             let gradeData = JSON.stringify(user.grades);
+            let relClassData = JSON.stringify(authenticator.getRelClassData(user.username));
 
             res.render("authorized_index.ejs", {
-                user: user,
+                user: user.username,
                 current: "home",
                 userRef: JSON.stringify(user),
                 schoolUsername: user.schoolUsername,
                 gradeData: gradeData,
                 weightData: weightData,
-                updateGradesMessageSuccess: req.flash("updateGradesMessageSuccess"),
-                updateGradesMessageFail: req.flash("updateGradesMessageFail"),
-                settingsChangeMessageSuccess: req.flash("settingsChangeMessageSuccess"),
-                settingsChangeMessageFail: req.flash("settingsChangeMessageFail")
+                relevantClassData: relClassData
             });
             return;
         }
