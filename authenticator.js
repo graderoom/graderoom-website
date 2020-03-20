@@ -147,31 +147,30 @@ module.exports = {
             let className = user.grades[i].class_name;
             let teacherName = user.grades[i].teacher_name;
             let classDb = db.get("classes");
-            let classes = classDb.value();
             let weights = user.weights[className]["weights"];
 
             // Put empty weights into class database
             for (let weight of Object.keys(weights)) {
-                if (!Object.keys(classes[className][teacherName]["weights"]).includes(weight)) {
+                if (!Object.keys(classDb.value()[className][teacherName]["weights"]).includes(weight)) {
                     classDb.get(className).get(teacherName).get("weights").set(weight, null).write();
                 }
             }
 
             // Put weight values into class database TODO add admin confirmation requirement
             for (let i = 0; i < Object.keys(weights).length; i++) {
-                if (classes[className][teacherName]["weights"]) {
-                    if (!classes[className][teacherName]["weights"][Object.keys(weights)[i]] && classes[className][teacherName]["weights"][Object.keys(weights)[i]] !== 0) {
+                if (classDb.value()[className][teacherName]["weights"]) {
+                    if (!classDb.value()[className][teacherName]["weights"][Object.keys(weights)[i]] && classDb.value()[className][teacherName]["weights"][Object.keys(weights)[i]] !== 0) {
                         classDb.get(className).get(teacherName).get("weights").set(Object.keys(weights)[i], Object.values(weights)[i]).write();
                     }
                 }
             }
 
             // Put weights into new user and any user who has no weights unless they've selected point-based
-            for (let i = 0; i < Object.keys(classes[className][teacherName]["weights"]).length; i++) {
-                let categoryName = Object.keys(classes[className][teacherName]["weights"])[i];
+            for (let i = 0; i < Object.keys(classDb.value()[className][teacherName]["weights"]).length; i++) {
+                let categoryName = Object.keys(classDb.value()[className][teacherName]["weights"])[i];
                 if (!Object.keys(weights).includes(categoryName)) {
                     if (user.weights[className]["hasWeights"] === "true") {
-                        userRef.get("weights").get(className).get("weights").set(categoryName, classes[className][teacherName]["weights"][categoryName]).write();
+                        userRef.get("weights").get(className).get("weights").set(categoryName, classDb.value()[className][teacherName]["weights"][categoryName]).write();
                     } else {
                         userRef.get("weights").get(className).get("weights").set(categoryName, null).write();
                     }
