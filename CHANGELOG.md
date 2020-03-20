@@ -34,10 +34,21 @@
 - If you have an issue, send feedback in Settings > Feedback
 
 ## [Unreleased] - Coming Soon
-- GPA Display
+- Cumulative GPA Display
 - Class insights
 - Calculated weights of categories in point-based classes will be shown so that you can see how much effect a category has on your overall grade
 - If you would like a feature to become implemented, send feedback in Settings > Feedback
+
+## [Beta 1.4.7] - 2020-03-20
+### Added
+- Semester GPA Display
+- Ungraded assignments display in table and graph
+
+### Improved
+- Appearance fixes that improve screen usage on taller screen sizes (Mobile not supported)
+
+### Removed
+- Excluded assignments no longer display in graph
 
 ## [Beta 1.4.6] - 2020-03-18
 ### Improved
