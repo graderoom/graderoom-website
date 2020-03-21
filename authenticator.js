@@ -122,6 +122,12 @@ module.exports = {
                     delete user.weights[user.grades[i].class_name][key]; // delete weights in old storage
                 }
             }
+
+            // Ensure all weights exist
+            if (!(userRef.value().weights[grade_update_status.new_grades[i].class_name])) {
+                this.addNewWeightDict(lc_username, i, grade_update_status.new_grades[i].class_name);
+            }
+
         }
 
         // Fix theme for old users
