@@ -102,9 +102,18 @@ module.exports = {
         let user = userRef.value();
         // Fixes db for all old users
         for (let i = 0; i < user.grades.length; i++) {
+            // Add empty weight dict to all classes
             if (!(user.weights[user.grades[i].class_name] || Object.keys(user.weights[user.grades[i].class_name]["weights"]).length === 0)) {
                 this.addNewWeightDict(lc_username, i, user.grades[i].class_name);
             }
+
+            // Add null weights for all weights
+            for (let j = 0; j < user.grades[i].grades.length; j++) {
+                if (!(Object.keys(user.weights[user.grades[i].class_name]["weights"]).includes(user.grades[i].grades[j].category))) {
+                    userRef.get("weights").get(user.grades[i].class_name).get("weights").set(user.grades[i].grades[j].category, null).write();
+                }
+            }
+
             //Move weights to new storage system
             let weights = Object.assign({}, user.weights[user.grades[i].class_name]); // get weights from old storage
             let hasWeights = "true";
@@ -121,11 +130,6 @@ module.exports = {
                 if (weights.hasOwnProperty(key)) {
                     delete user.weights[user.grades[i].class_name][key]; // delete weights in old storage
                 }
-            }
-
-            // Ensure all weights exist
-            if (!(userRef.value().weights[grade_update_status.new_grades[i].class_name])) {
-                this.addNewWeightDict(lc_username, i, grade_update_status.new_grades[i].class_name);
             }
 
         }
@@ -216,12 +220,12 @@ module.exports = {
                 for (let i = 0; i < Object.keys(weights).length; i++) {
                     modWeights[Object.keys(weights)[i]] = parseInt(Object.values(weights)[i]);
                 }
-                weights = modWeights;
+                // Don't delete any user weights
+                weights = Object.assign(classDb.get(className).get(teacherName).get("weights").value(), modWeights);
                 classDb.get(className).get(teacherName).set("weights", weights).write();
                 classDb.get(className).get(teacherName).set("hasWeights", "true").write();
             } else {
-                classDb.get(className).get(teacherName).set("weights", {}).write();
-                classDb.get(className).get(teacherName).set("hasWeights", "false").write();
+                return {success: false, message: "One weight required!"};
             }
             let users = db.get("users");
             for (let i = 0; i < users.value().length; i++) {
