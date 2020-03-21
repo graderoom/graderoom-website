@@ -48,13 +48,13 @@
         <table class="table" style="width: 100% !important;">
             <thead>
                 <tr>
-                    <th class="admin" style="width:15%;">Username</th>
-                    <th class="admin" style="width:15%;">Name</th>
-                    <th class="admin" style="width:15%;">Last Updated</th>
-                    <th class="admin" style="width:10%;">Attributes</th>
-                    <th class="admin" style="width:15%;">Render User Site</th>
-                    <th class="admin" style="width:15%;">Delete User</th>
-                    <th class="admin" style="width:15%;">Change Admin Privileges</th>
+                    <th class="admin">Username</th>
+                    <th class="admin">Name</th>
+                    <th class="admin">Last Updated</th>
+                    <th class="admin">Attributes</th>
+                    <th class="admin">Render User Site</th>
+                    <th class="admin">Delete User</th>
+                    <th class="admin">Change Admin Privileges</th>
                 </tr>
             </thead>
 
@@ -65,6 +65,8 @@
                     <td class="admin">
                         <% if (new Date(u.alerts.lastUpdated).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
                             Never Updated
+                        <% } else { %>
+                            <%= new Date(u.alerts.lastUpdated).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) %>
                         <% } %>
                     </td>
                     <td class="admin">

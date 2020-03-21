@@ -17,7 +17,7 @@
                 <btn id="btn-1" class="tablinks active" onclick="openTab(1)">Appearance</btn>
                 <btn id="btn-2" class="tablinks" onclick="openTab(2)">Account</btn>
                 <btn id="btn-3" class="tablinks" onclick="openTab(3)">Advanced</btn>
-                <btn id="btn-4" class="tablinks" onclick="openTab(4)">Feedback</btn>
+                <btn id="btn-4" class="tablinks" onclick="openTab(4)">About</btn>
             </div>
             <div id="settings-1" class="tabcontent" style="display: block">
                 <div class="card-body">
@@ -43,32 +43,32 @@
                             </div>
                         </div>
                     <% } %>
-                        <div class="card-footer">
-                            <h5>Theme</h5>
-                            <form id="chooseTheme" class="form-signin" action="/updateAppearance" method="post">
-                                <div id="theme">
-                                    <div id="themeMessage"
-                                         class="alert alert-success alert-dismissible font-weight-bold"
-                                         style="display:none">
-                                        <div style="display:none" class="sk-chase-mini">
-                                            <div class="sk-chase-dot mini"></div>
-                                            <div class="sk-chase-dot mini"></div>
-                                            <div class="sk-chase-dot mini"></div>
-                                            <div class="sk-chase-dot mini"></div>
-                                            <div class="sk-chase-dot mini"></div>
-                                            <div class="sk-chase-dot mini"></div>
-                                        </div>
-                                        <div class="messageTxt"></div>
-                                        <a class="close" onclick="closeMessage('themeMessage')" aria-label="close">X</a>
+                    <div class="card-footer">
+                        <h5>Theme</h5>
+                        <form id="chooseTheme" class="form-signin" action="/updateAppearance" method="post">
+                            <div id="theme">
+                                <div id="themeMessage"
+                                     class="alert alert-success alert-dismissible font-weight-bold"
+                                     style="display:none">
+                                    <div style="display:none" class="sk-chase-mini">
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
                                     </div>
-                                    <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
-                                                                           value="light"
-                                                                           name="theme"
-                                                                           onclick="$('#autoLimits').hide();
+                                    <div class="messageTxt"></div>
+                                    <a class="close" onclick="closeMessage('themeMessage')" aria-label="close">X</a>
+                                </div>
+                                <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
+                                                                       value="light"
+                                                                       name="theme"
+                                                                       onclick="$('#autoLimits').hide();
                                                                                $($($(this)[0].form)[0].elements[7]).hide();
                                                                                ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
                                                                                $($(this)[0].form).submit();"
-                                        <% if (user.appearance.theme === "light") { %> checked
+                                    <% if (user.appearance.theme === "light") { %> checked
                                             <% } %>
                                     > Light Theme
                                 </label>
@@ -161,8 +161,8 @@
                                     Apply
                                 </button>
                             </div>
-                            </form>
-                        </div>
+                        </form>
+                    </div>
                 </div>
             </div>
             <div id="settings-2" class="tabcontent">
@@ -216,24 +216,6 @@
             </div>
             <div id="settings-3" class="tabcontent" style="display:none">
                 <div class="card-body">
-                    <btn class="btn btn-sm" style="margin: 0.1rem; float: right"
-                         onclick="showCard('#termsDisplay')">
-                        <label style="margin: 0; display: inline-block; cursor: pointer;">Terms And Conditions
-                            <span class="fa fa-external-link-square"></span>
-                        </label>
-                    </btn>
-                    <btn class="btn btn-sm" style="margin: 0.1rem; float: right"
-                         onclick="showCard('#privacyDisplay')">
-                        <label style="margin: 0; display: inline-block; cursor: pointer;">Privacy Policy
-                            <span class="fa fa-external-link-square"></span>
-                        </label>
-                    </btn>
-                    <btn class="btn btn-sm" style="margin: 0.1rem; float: right"
-                         onclick="showChangelog(); $('#changelogMessage').hide()">
-                        <label style="margin: 0; display: inline-block; cursor: pointer;">Changelog
-                            <span class="fa fa-external-link-square"></span>
-                        </label>
-                    </btn>
                     <div class="card-footer">
                         <h5>Alerts</h5>
                         <div id="alertSettingsMessage"
@@ -370,10 +352,38 @@
             <div id="settings-4" class="tabcontent">
                 <div class="card-body">
                     <div class="card-footer">
-                        <iframe style="color: #FFFFFF; height: 50vh; width: 100%;"
-                                src="https://docs.google.com/forms/d/e/1FAIpQLSfBiwyEi3TKH2Kr356ZOtLTUwUml9I9h_bWlOcraVXDyBIzbA/viewform?embedded=true"
-                                frameborder="0" marginheight="0" marginwidth="0">Loading…
-                        </iframe>
+                        <h5>Contact Us</h5>
+                        <p>Email: <a href="mailto: graderoom@gmail.com">graderoom@gmail.com</a></p>
+                    </div>
+                    <div class="card-footer">
+                        <h5>Quick Links</h5>
+                        <button class="btn btn-sm" style="margin: 0.1rem"
+                                onclick="showCard('#feedbackDisplay')">
+                            <label style="margin: 0; cursor: pointer">Feedback Form
+                                <span class="fa fa-external-link-square"></span>
+                            </label>
+                        </button>
+                        <br>
+                        <button class="btn btn-sm" style="margin: 0.1rem"
+                                onclick="showCard('#termsDisplay')">
+                            <label style="margin: 0; cursor: pointer;">Terms And Conditions
+                                <span class="fa fa-external-link-square"></span>
+                            </label>
+                        </button>
+                        <br>
+                        <button class="btn btn-sm" style="margin: 0.1rem"
+                                onclick="showCard('#privacyDisplay')">
+                            <label style="margin: 0; cursor: pointer;">Privacy Policy
+                                <span class="fa fa-external-link-square"></span>
+                            </label>
+                        </button>
+                        <br>
+                        <button class="btn btn-sm" style="margin: 0.1rem"
+                                onclick="showChangelog(); $('#changelogMessage').hide()">
+                            <label style="margin: 0; cursor: pointer;">Changelog
+                                <span class="fa fa-external-link-square"></span>
+                            </label>
+                        </button>
                     </div>
                 </div>
             </div>
