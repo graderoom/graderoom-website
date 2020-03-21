@@ -155,7 +155,7 @@ module.exports = {
             let className = user.grades[i].class_name;
             let teacherName = user.grades[i].teacher_name;
             let classDb = db.get("classes");
-            let weights = user.weights[className]["weights"];
+            weights = user.weights[className]["weights"];
 
             // Put empty weights into class database
             for (let weight of Object.keys(weights)) {
