@@ -39,6 +39,10 @@
 - Calculated weights of categories in point-based classes will be shown so that you can see how much effect a category has on your overall grade
 - If you would like a feature to become implemented, send feedback in Settings > Feedback
 
+## [Announcement] - 2020-03-20
+- <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> During testing, some beta user's weights were lost. Although this data could be restored from the database backups, due to the beta nature of this issue and the relatively small inconvenience this will cause, this weight data will not be recovered
+- <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> Send feedback if you have any questions, comments, or concerns
+
 ## [Beta 1.5.0] - 2020-03-20
 ### Added
 - Semester GPA Display
@@ -47,7 +51,7 @@
 ### Improved
 - Appearance fixes that improve screen usage on taller screen sizes (Mobile not supported)
 - Crowd-sourced weights are now prioritized by when the user last synced grades to improve reliability
-- Information displayed on graph tooltip
+- Tooltip has been optimized for all possibilities to show only the most relevant information
 
 ### Fixed
 - Issue where users would be autopopulated with weights from other teachers
