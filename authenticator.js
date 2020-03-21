@@ -103,14 +103,14 @@ module.exports = {
         // Fixes db for all old users
         for (let i = 0; i < user.grades.length; i++) {
             // Add empty weight dict to all classes
-            if (!(user.weights[user.grades[i].class_name] || Object.keys(user.weights[user.grades[i].class_name]["weights"]).length === 0)) {
+            if (!(user.weights[user.grades[i].class_name])) {
                 this.addNewWeightDict(lc_username, i, user.grades[i].class_name);
             }
 
-            // Add null weights for all weights
+            // Remove any weights that don't exist in user grades
             for (let j = 0; j < user.grades[i].grades.length; j++) {
-                if (!(Object.keys(user.weights[user.grades[i].class_name]["weights"]).includes(user.grades[i].grades[j].category))) {
-                    userRef.get("weights").get(user.grades[i].class_name).get("weights").set(user.grades[i].grades[j].category, null).write();
+                if ((Object.keys(user.weights[user.grades[i].class_name]["weights"]).includes(user.grades[i].grades[j].category))) {
+                    userRef.get("weights").get(user.grades[i].class_name).get("weights").get(user.grades[i].grades[j].category, null).unset().write();
                 }
             }
 
