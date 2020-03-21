@@ -39,13 +39,19 @@
 - Calculated weights of categories in point-based classes will be shown so that you can see how much effect a category has on your overall grade
 - If you would like a feature to become implemented, send feedback in Settings > Feedback
 
-## [Beta 1.4.7] - 2020-03-20
+## [Beta 1.5.0] - 2020-03-20
 ### Added
 - Semester GPA Display
 - Ungraded assignments display in table and graph
 
 ### Improved
 - Appearance fixes that improve screen usage on taller screen sizes (Mobile not supported)
+- Crowd-sourced weights are now prioritized by when the user last synced grades to improve reliability
+- Information displayed on graph tooltip
+
+### Fixed
+- Issue where users would be autopopulated with weights from other teachers
+- Issue where some weights that were no longer in user's grades would still be in weight table
 
 ### Removed
 - Excluded assignments no longer display in graph
