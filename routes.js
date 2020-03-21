@@ -46,7 +46,7 @@ module.exports = function (app, passport) {
             let relClassData = JSON.stringify(authenticator.getRelClassData(user.username));
 
             res.render("authorized_index.ejs", {
-                user: user.username,
+                user: user,
                 current: "home",
                 userRef: JSON.stringify(user),
                 schoolUsername: user.schoolUsername,
