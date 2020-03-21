@@ -139,6 +139,7 @@ module.exports = {
         }
 
         // Add all old user data to classes db
+        console.log(user.username);
         for (let i = 0; i < user.grades.length; i++) {
             if (!dbContainsClass(user.grades[i].class_name, user.grades[i].teacher_name)) {
                 this.addDbClass(user.grades[i].class_name, user.grades[i].teacher_name);
@@ -148,8 +149,6 @@ module.exports = {
             let teacherName = user.grades[i].teacher_name;
             let classDb = db.get("classes");
             let weights = user.weights[className]["weights"];
-            console.log("initWeights: " + weights);
-            console.log("0: " + classDb.value());
 
             // Put empty weights into class database
             for (let weight of Object.keys(weights)) {
@@ -157,8 +156,6 @@ module.exports = {
                     classDb.get(className).get(teacherName).get("weights").set(weight, null).write();
                 }
             }
-
-            console.log("1: " + classDb.value());
 
             // Put weight values into class database TODO add admin confirmation requirement
             for (let i = 0; i < Object.keys(weights).length; i++) {
@@ -168,12 +165,8 @@ module.exports = {
                     }
                 }
             }
-
-            console.log("2: " + classDb.value());
-
-            console.log();
-            console.log(user.username);
-            console.log("0 user: " + user.weights);
+            console.log(className);
+            console.table(classDb.value()[className][teacherName]["weights"]);
 
             // Put weights into new user and any user who has no weights unless they've selected point-based
             for (let i = 0; i < Object.keys(classDb.value()[className][teacherName]["weights"]).length; i++) {
@@ -187,7 +180,8 @@ module.exports = {
                 }
             }
 
-            console.log("1 user: " + user.weights);
+            console.table(userRef.get("weights").get(className).get("weights").value());
+
         }
     },
 
