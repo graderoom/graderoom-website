@@ -124,9 +124,15 @@ module.exports = {
             }
 
             // Remove any weights that don't exist in user grades
+            let goodWeights = [];
             for (let j = 0; j < user.grades[i].grades.length; j++) {
-                if ((Object.keys(user.weights[user.grades[i].class_name]["weights"]).includes(user.grades[i].grades[j].category))) {
-                    userRef.get("weights").get(user.grades[i].class_name).get("weights").get(user.grades[i].grades[j].category, null).unset().write();
+                if (!(Object.keys(user.weights[user.grades[i].class_name]["weights"]).includes(user.grades[i].grades[j].category))) {
+                    goodWeights.push(user.grades[i].grades[j].category);
+                }
+            }
+            for (let j = 0; j < Object.keys(user.weights[user.grades[i].class_name]["weights"]).length; j++) {
+                if (!goodWeights.includes(Object.keys(user.weights[user.grades[i].class_name]["weights"])[j])) {
+                    userRef.get("weights").get(user.grades[i].class_name).get("weights").get(user.grades[i].grades[j].category).unset().write();
                 }
             }
 
