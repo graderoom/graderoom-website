@@ -23,8 +23,9 @@
 <div id="weightsCard" class="container">
     <span class="accordion" id="bigAccordionForms">
         <% for (let i = 0; i < Object.keys(classData).length; i++) { %>
+            <% let className = Object.keys(classData)[i]; %>
             <label style="display: flex; cursor: pointer" data-toggle="collapse" href="#accordionForms<%= i %>">
-                <h5 style="font-size: 1.5rem !important;"><%= Object.keys(classData)[i] %>
+                <h5 style="font-size: 1.5rem !important;"><%= className %>
                     <i class="fa" aria-hidden="true"></i>
                 </h5>
                 <span id="weightMessage<%= i %>" class="alert alert-success font-weight-bold"
@@ -51,93 +52,97 @@
                                 class="dropdown" style="padding: 0; margin-right: 3rem"
                                 id="classType<%= i %>">
                             <option value="" disabled hidden
-                            <% if (classData[Object.keys(classData)[i]].classType === "") { %> selected
+                            <% if (classData[className].classType === "") { %> selected
                                     <% } %>
                             >Not Selected
                             </option>
                             <option value="none"
-                            <% if (classData[Object.keys(classData)[i]].classType === "none") { %> selected
+                            <% if (classData[className].classType === "none") { %> selected
                                     <% } %>
                             >None
                             </option>
                             <option value="ap"
-                            <% if (classData[Object.keys(classData)[i]].classType === "ap") { %> selected
+                            <% if (classData[className].classType === "ap") { %> selected
                                     <% } %>
                             >AP
                             </option>
                             <option value="honors"
-                            <% if (classData[Object.keys(classData)[i]].classType === "honors") { %> selected
+                            <% if (classData[className].classType === "honors") { %> selected
                                     <% } %>
                             >Honors
                             </option>
                         </select>
                     </div>
                 </form>
-                <% for (var j = 1; j < Object.keys(classData[Object.keys(classData)[i]]).length; j++) { %>
-                    <form id="weights<%= i %><%= j %>" class="form-ajax form-weights form-signin"
-                          action="/updateclassweights" method="post" style="margin: 0 0 1rem 3rem; width: 100%">
-                        <label data-toggle="collapse" href="#collapse<%= i %><%= j %>"
-                               style="display: flex; margin: 0; cursor: pointer">
-                            <h5 style="cursor: pointer"
-                                class="weightname"
-                                id="<%= Object.keys(classData[Object.keys(classData)[i]])[j] %>">
-                                <%= Object.keys(classData[Object.keys(classData)[i]])[j] %>
-                                <i style="text-indent: 0 !important;" class="fa" aria-hidden="true"></i>
-                            </h5>
-                            <span id="weightMessage<%= i %><%= j %>" class="alert alert-success font-weight-bold"
-                                  style="width: fit-content; display:none; justify-content: center; padding: 0.1rem;">
-                                <div style="display: none" class="sk-chase-mini">
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                </div>
-                                <span class="messageTxt"></span>
-                            </span>
-                        </label>
-                        <span style="border-radius: 0.25em; margin-left: 0.5rem;"
-                              class="collapse collapse-underline show"
-                              id="collapse<%= i %><%= j %>" data-parent="#accordionForms<%= i %>">
-                            <div>
-                                <span class="fa fa-plus" onclick="addCategory('<%= i %>','<%= j %>')"
-                                      style="display: inline-flex; cursor: pointer;color: green"></span>
-                                <% for (let k = 0; k < Object.keys(classData[Object.keys(classData)[i]][Object.keys(classData[Object.keys(classData)[i]])[j]]["weights"]).length; k++) {
-                                    let value = Object.values(classData[Object.keys(classData)[i]][Object.keys(classData[Object.keys(classData)[i]])[j]]["weights"])[k]; %>
+                <% for (let j = 0; j < Object.keys(classData[className]).length; j++) { %>
+                    <% let teacherName = Object.keys(classData[className])[j]; %>
+                    <% if (teacherName != "classType") { %>
+                        <form id="weights<%= i %><%= j %>" class="form-ajax form-weights form-signin"
+                              action="/updateclassweights" method="post" style="margin: 0 0 1rem 3rem; width: 100%">
+                            <label data-toggle="collapse" href="#collapse<%= i %><%= j %>"
+                                   style="display: flex; margin: 0; cursor: pointer">
+                                <h5 style="cursor: pointer"
+                                    class="weightname"
+                                    id="<%= teacherName %>">
+                                    <%= teacherName %>
+                                    <i style="text-indent: 0 !important;" class="fa" aria-hidden="true"></i>
+                                </h5>
+                                <span id="weightMessage<%= i %><%= j %>" class="alert alert-success font-weight-bold"
+                                      style="width: fit-content; display:none; justify-content: center; padding: 0.1rem;">
+                                    <div style="display: none" class="sk-chase-mini">
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                    </div>
+                                    <span class="messageTxt"></span>
+                                </span>
+                            </label>
+                            <span style="border-radius: 0.25em; margin-left: 0.5rem;"
+                                  class="collapse collapse-underline show"
+                                  id="collapse<%= i %><%= j %>" data-parent="#accordionForms<%= i %>">
+                                <div>
+                                    <span class="fa fa-plus" onclick="addCategory('<%= i %>','<%= j %>')"
+                                          style="display: inline-flex; cursor: pointer;color: green"></span>
+                                    <% for (let k = 0; k < Object.keys(classData[className][teacherName]["weights"]).length; k++) {
+                                        let name = Object.keys(classData[className][teacherName]["weights"])[k];
+                                        let value = classData[className][teacherName]["weights"][name] %>
 
-                                <div class="form-group" id="category<%= i %><%= j %><%= k %>"
-                                     style="text-indent: 3rem; display: <% if (k === 0) { %>inline-flex<% } else { %>flex<% } %>; align-items: flex-end;">
-                                    <input style="font-size: 0.9rem; margin-right: 0 !important; width: fit-content; white-space: nowrap; margin-bottom: 0;"
-                                           value="<%= Object.keys(classData[Object.keys(classData)[i]][Object.keys(classData[Object.keys(classData)[i]])[j]]["weights"])[k] %>"
-                                           class="form-control text-view"
-                                           oninput="this.classList.remove('text-view'); showSubmitButton(this)"
-                                           required
-                                    >
-                                    :&nbsp</input>
-                                    <input style="margin: 0;"
-                                           value="<%= value %>"
-                                           type="number"
-                                           min="0"
-                                           step="0.1"
-                                           class="form-control text-view"
-                                           name="<%= Object.keys(classData[Object.keys(classData)[i]][Object.keys(classData[Object.keys(classData)[i]])[j]]["weights"])[k] %>"
-                                           oninput="this.classList.remove('text-view'); showSubmitButton(this); "
-                                    >
-                                    <span class="fa fa-minus" onclick="removeCategory(this)"
-                                          style="text-indent: 1rem; color: red; cursor: pointer;<% if (k === 0 && Object.keys(classData[Object.keys(classData)[i]][Object.keys(classData[Object.keys(classData)[i]])[j]]["weights"]).length > 1) { %>display: none;<% } %>"></span>
+                                    <div class="form-group" id="category<%= i %><%= j %><%= k %>"
+                                         style="text-indent: 3rem; display: <% if (k === 0) { %>inline-flex<% } else { %>flex<% } %>; align-items: flex-end;">
+                                        <input style="font-size: 0.9rem; margin-right: 0 !important; width: fit-content; white-space: nowrap; margin-bottom: 0;"
+                                               value="<%= name %>"
+                                               class="form-control text-view"
+                                               oninput="this.classList.remove('text-view'); showSubmitButton(this)"
+                                               required
+                                        >
+                                        :&nbsp</input>
+                                        <input style="margin: 0;"
+                                               value="<%= value %>"
+                                               type="number"
+                                               min="0"
+                                               step="0.1"
+                                               class="form-control text-view"
+                                               name="<%= name %>"
+                                               oninput="this.classList.remove('text-view'); showSubmitButton(this); "
+                                        >
+                                        <span class="fa fa-minus" onclick="removeCategory(this)"
+                                              style="text-indent: 1rem; color: red; cursor: pointer;<% if (k === 0 && Object.keys(classData[Object.keys(classData)[i]][Object.keys(classData[Object.keys(classData)[i]])[j]]["weights"]).length > 1) { %>display: none;<% } %>"></span>
+                                    </div>
+                                    <% } %>
                                 </div>
-                                <% } %>
-                            </div>
-                            <div class="formSubmitButton" style="width: 100%; display: none">
-                                <button type="submit" class="btn btn-default btn-med"
-                                        onclick="ajaxPostWeightsDatabaseForm('<%= i %>','<%= j %>',[],'#weightMessage<%= i %><%= j %>',true);">
-                                    <i class="fa fa-refresh" aria-hidden="true"></i>
-                                    Update
-                                </button>
-                            </div>
-                        </span>
-                    </form>
+                                <div class="formSubmitButton" style="width: 100%; display: none">
+                                    <button type="submit" class="btn btn-default btn-med"
+                                            onclick="ajaxPostWeightsDatabaseForm('<%= i %>','<%= j %>',[],'#weightMessage<%= i %><%= j %>',true);">
+                                        <i class="fa fa-refresh" aria-hidden="true"></i>
+                                        Update
+                                    </button>
+                                </div>
+                            </span>
+                        </form>
+                    <% } %>
                 <% } %>
             </span>
             <hr>
