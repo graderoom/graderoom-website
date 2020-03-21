@@ -48,32 +48,48 @@
         <table class="table" style="width: 100% !important;">
             <thead>
                 <tr>
-                    <th style="width:15%;">Username</th>
-                    <th style="width:15%;">Name</th>
-                    <th style="width:15%;">Last Updated</th>
-                    <th style="width:10%;">GradeSync?</th>
-                    <th style="width:10%;">Is Admin?</th>
-                    <th style="width:15%;">Render User Site</th>
-                    <th style="width:15%;">Delete User</th>
-                    <th style="width:15%;">Change Admin Privileges</th>
+                    <th class="admin" style="width:15%;">Username</th>
+                    <th class="admin" style="width:15%;">Name</th>
+                    <th class="admin" style="width:15%;">Last Updated</th>
+                    <th class="admin" style="width:10%;">Attributes</th>
+                    <th class="admin" style="width:15%;">Render User Site</th>
+                    <th class="admin" style="width:15%;">Delete User</th>
+                    <th class="admin" style="width:15%;">Change Admin Privileges</th>
                 </tr>
             </thead>
 
             <% for (let u of userList) { %>
                 <tr>
-                    <td><%= u.username %> </td>
-                    <td><%= u.schoolUsername.substring(0, 1).toUpperCase() + u.schoolUsername.substring(1, u.schoolUsername.indexOf('.')) + ' ' + u.schoolUsername.substring(u.schoolUsername.indexOf('.') + 1, u.schoolUsername.indexOf('.') + 2).toUpperCase() + u.schoolUsername.substring(u.schoolUsername.indexOf('.') + 2, u.schoolUsername.indexOf('@') - 2) %></td>
-                    <% let lastUpdated = new Date(u.alerts.lastUpdated); %>
-                    <td><%= lastUpdated.toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) %></td>
-                    <td><%= (Object.keys(u).includes("schoolPassword") ? "Enabled" : "Disabled") %></td>
-                    <td><%= u.isAdmin %> </td>
+                    <td class="admin"><%= u.username %> </td>
+                    <td class="admin"><%= u.schoolUsername.substring(0, 1).toUpperCase() + u.schoolUsername.substring(1, u.schoolUsername.indexOf('.')) + ' ' + u.schoolUsername.substring(u.schoolUsername.indexOf('.') + 1, u.schoolUsername.indexOf('.') + 2).toUpperCase() + u.schoolUsername.substring(u.schoolUsername.indexOf('.') + 2, u.schoolUsername.indexOf('@') - 2) %></td>
                     <td class="admin">
-                        <form action="/viewuser" method="get" style="display: inline-block;">
-                            <button type="submit" name="usernameToRender" class="btn btn-sm admin"
-                                    value="<%= u.username %>">
-                                Render User Site
-                            </button>
-                        </form>
+                        <% if (new Date(u.alerts.lastUpdated).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
+                            Never Updated
+                        <% } %>
+                    </td>
+                    <td class="admin">
+                        <% if (Object.keys(u).includes("schoolPassword")) { %> GradeSync<br>
+                        <% } %>
+                        <% if (u.isAdmin) { %> Admin<br>
+                        <% } %>
+                        <% if (new Date(u.alerts.termsLastSeen).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
+                            Terms not Seen<br>
+                        <% } %>
+                        <% if (new Date(u.alerts.policyLastSeen).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
+                            Policy not Seen<br>
+                        <% } %>
+                    </td>
+                    <td class="admin">
+                        <% if (u.alerts.remoteAccess === "allowed") { %>
+                            <form action="/viewuser" method="get" style="display: inline-block;">
+                                <button type="submit" name="usernameToRender" class="btn btn-sm admin"
+                                        value="<%= u.username %>">
+                                    Render User Site
+                                </button>
+                            </form>
+                        <% } else { %>
+                            Remote Access Denied
+                        <% } %>
                     </td>
                     <td class="admin">
                         <% if (!u.isAdmin) { %>
