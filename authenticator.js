@@ -76,20 +76,20 @@ module.exports = {
             this.bringUpToDate(users[i].username);
         }
 
-        let classes = db.get("classes").value();
-        for (let i = 0; i < Object.keys(classes).length; i++) {
-            let className = Object.keys(classes)[i];
+        let classDb = db.get("classes");
+        for (let i = 0; i < Object.keys(classDb.value()).length; i++) {
+            let className = Object.keys(classDb.value())[i];
             // Set default AP/Honors to classes with names that suggest it
-            if (!classes[className]["classType"]) {
+            if (!classDb.value()[className]["classType"]) {
                 if (className.includes("AP")) {
                     console.log(className + " is AP");
-                    db.get("classes").get(className).set("classType", "ap").write();
+                    classDb.get(className).set("classType", "ap").write();
                 } else if (className.includes("Honors")) {
                     console.log(className + " is Honors");
-                    db.get("classes").get(className).set("classType", "honors").write();
+                    classDb.get(className).set("classType", "honors").write();
                 } else {
                     console.log(className + " is none");
-                    db.get("classes").get(className).set("classType", "none").write();
+                    classDb.get(className).set("classType", "none").write();
                 }
             }
         }
@@ -148,6 +148,8 @@ module.exports = {
             let teacherName = user.grades[i].teacher_name;
             let classDb = db.get("classes");
             let weights = user.weights[className]["weights"];
+            console.log("initWeights: " + weights);
+            console.log("0: " + classDb.value());
 
             // Put empty weights into class database
             for (let weight of Object.keys(weights)) {
@@ -155,6 +157,8 @@ module.exports = {
                     classDb.get(className).get(teacherName).get("weights").set(weight, null).write();
                 }
             }
+
+            console.log("1: " + classDb.value());
 
             // Put weight values into class database TODO add admin confirmation requirement
             for (let i = 0; i < Object.keys(weights).length; i++) {
@@ -164,6 +168,12 @@ module.exports = {
                     }
                 }
             }
+
+            console.log("2: " + classDb.value());
+
+            console.log();
+            console.log(user.username);
+            console.log("0 user: " + user.weights);
 
             // Put weights into new user and any user who has no weights unless they've selected point-based
             for (let i = 0; i < Object.keys(classDb.value()[className][teacherName]["weights"]).length; i++) {
@@ -176,6 +186,8 @@ module.exports = {
                     }
                 }
             }
+
+            console.log("1 user: " + user.weights);
         }
     },
 
