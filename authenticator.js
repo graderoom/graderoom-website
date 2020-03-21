@@ -100,6 +100,22 @@ module.exports = {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
+
+
+        // Fix theme for old users
+        if (Object.keys(user.appearance).includes("darkMode")) {
+            userRef.get("appearance").unset("darkMode").write();
+            this.setTheme(user.username, "auto", 7, "PM", 6, "AM");
+        }
+
+        // Add show changelog variables for old users
+        if (!Object.keys(user.alerts).includes("showChangelog")) {
+            this.updateAlerts(user.username, user.alerts.updateGradesReminder, "daily");
+        }
+        if (!Object.keys(userRef.value().alerts).includes("changelogLastShown")) {
+            userRef.get("alerts").set("changelogLastShown", "never");
+        }
+
         // Fixes db for all old users
         for (let i = 0; i < user.grades.length; i++) {
             // Add empty weight dict to all classes
@@ -132,25 +148,6 @@ module.exports = {
                 }
             }
 
-        }
-
-        // Fix theme for old users
-        if (Object.keys(user.appearance).includes("darkMode")) {
-            userRef.get("appearance").unset("darkMode").write();
-            this.setTheme(user.username, "auto", 7, "PM", 6, "AM");
-        }
-
-        // Add show changelog variables for old users
-        if (!Object.keys(user.alerts).includes("showChangelog")) {
-            this.updateAlerts(user.username, user.alerts.updateGradesReminder, "daily");
-        }
-        if (!Object.keys(userRef.value().alerts).includes("changelogLastShown")) {
-            userRef.get("alerts").set("changelogLastShown", "never");
-        }
-
-        // Add all old user data to classes db
-        console.log(user.username);
-        for (let i = 0; i < user.grades.length; i++) {
             if (!dbContainsClass(user.grades[i].class_name, user.grades[i].teacher_name)) {
                 this.addDbClass(user.grades[i].class_name, user.grades[i].teacher_name);
             }
