@@ -68,7 +68,7 @@
                                                                                $($($(this)[0].form)[0].elements[7]).hide();
                                                                                ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
                                                                                $($(this)[0].form).submit();"
-                                    <% if (user.appearance.theme === "light") { %> checked
+                                        <% if (user.appearance.theme === "light") { %> checked
                                             <% } %>
                                     > Light Theme
                                 </label>
@@ -217,6 +217,18 @@
             <div id="settings-3" class="tabcontent" style="display:none">
                 <div class="card-body">
                     <btn class="btn btn-sm" style="margin: 0.1rem; float: right"
+                         onclick="showCard('#termsDisplay')">
+                        <label style="margin: 0; display: inline-block; cursor: pointer;">Terms And Conditions
+                            <span class="fa fa-external-link-square"></span>
+                        </label>
+                    </btn>
+                    <btn class="btn btn-sm" style="margin: 0.1rem; float: right"
+                         onclick="showCard('#privacyDisplay')">
+                        <label style="margin: 0; display: inline-block; cursor: pointer;">Privacy Policy
+                            <span class="fa fa-external-link-square"></span>
+                        </label>
+                    </btn>
+                    <btn class="btn btn-sm" style="margin: 0.1rem; float: right"
                          onclick="showChangelog(); $('#changelogMessage').hide()">
                         <label style="margin: 0; display: inline-block; cursor: pointer;">Changelog
                             <span class="fa fa-external-link-square"></span>
@@ -322,6 +334,36 @@
                                 </div>
                             </div>
                         <% } %>
+                    </form>
+                    <form id="remoteAccess" class="form-signin" action="/setRemoteAccess" method="post">
+                        <div class="card-footer">
+                            <div id="remoteAccessMessage"
+                                 class="alert alert alert-success alert-dismissible font-weight-bold"
+                                 style="display:none">
+                                <div style="display:none" class="sk-chase-mini">
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                </div>
+                                <div class="messageTxt"></div>
+                                <a class="close" onclick="closeMessage('remoteAccessMessage')" aria-label="close">X</a>
+                            </div>
+                            <label style="cursor: pointer">
+                                <input id="gradeSyncToggle" type="checkbox" name="remoteAccess"
+                                <% if (user.alerts.remoteAccess === "allowed") { %> checked
+                                        <% } %>
+                                > Allow Remote Access
+                            </label>
+                            <div class="text-center">
+                                <button onclick="ajaxPostForm('#remoteAccess',[],'#remoteAccessMessage',true)"
+                                        type="submit" class="btn btn-default btn-med">
+                                    Apply
+                                </button>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>

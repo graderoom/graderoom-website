@@ -41,20 +41,22 @@ module.exports = function (app, passport) {
     app.get("/viewuser", [isAdmin], (req, res) => {
         if (req.query.usernameToRender) {
             let user = authenticator.getUser(req.query.usernameToRender);
-            let weightData = JSON.stringify(user.weights);
-            let gradeData = JSON.stringify(user.grades);
-            let relClassData = JSON.stringify(authenticator.getRelClassData(user.username));
+            if (user.alerts.remoteAccess === "allowed") {
+                let weightData = JSON.stringify(user.weights);
+                let gradeData = JSON.stringify(user.grades);
+                let relClassData = JSON.stringify(authenticator.getRelClassData(user.username));
 
-            res.render("authorized_index.ejs", {
-                user: user,
-                current: "home",
-                userRef: JSON.stringify(user),
-                schoolUsername: user.schoolUsername,
-                gradeData: gradeData,
-                weightData: weightData,
-                relevantClassData: relClassData
-            });
-            return;
+                res.render("authorized_index.ejs", {
+                    user: user,
+                    current: "home",
+                    userRef: JSON.stringify(user),
+                    schoolUsername: user.schoolUsername,
+                    gradeData: gradeData,
+                    weightData: weightData,
+                    relevantClassData: relClassData
+                });
+                return;
+            }
         }
         res.redirect("/");
     });
@@ -404,6 +406,22 @@ module.exports = function (app, passport) {
 
         res.redirect("/betakeys");
 
+    });
+
+    app.post("/acceptTerms", [isLoggedIn], (req, res) => {
+        authenticator.acceptTerms(req.user.username);
+        res.redirect("/");
+    });
+
+    app.post("/acceptprivacypolicy", [isLoggedIn], (req, res) => {
+        authenticator.acceptPrivacyPolicy(req.user.username);
+        res.redirect("/");
+    });
+
+    app.post("/setRemoteAccess", [isLoggedIn], (req, res) => {
+        let remoteAccess = (req.body.remoteAccess === "on" ? "allowed" : "denied");
+        authenticator.setRemoteAccess(req.user.username, remoteAccess);
+        res.status(200).send(remoteAccess.substring(0, 1).toUpperCase() + remoteAccess.substring(1) + " remote access!");
     });
 
     app.get("/classes", [isAdmin], (req, res) => {

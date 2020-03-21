@@ -62,6 +62,24 @@ module.exports = {
         return {success: true, message: "Removed beta key."};
     },
 
+    acceptTerms: function (username) {
+        let lc_username = username.toLowerCase();
+        let userRef = db.get("users").find({username: lc_username});
+        userRef.get("alerts").set("termsLastSeen", Date.now()).write();
+    },
+
+    acceptPrivacyPolicy: function (username) {
+        let lc_username = username.toLowerCase();
+        let userRef = db.get("users").find({username: lc_username});
+        userRef.get("alerts").set("policyLastSeen", Date.now()).write();
+    },
+
+    setRemoteAccess: function (username, allowed) {
+        let lc_username = username.toLowerCase();
+        let userRef = db.get("users").find({username: lc_username});
+        userRef.get("alerts").set("remoteAccess", allowed).write();
+    },
+
     /* class database */
     getAllClassData: function () {
         return db.get("classes").value();
@@ -170,6 +188,16 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
 
+        //Add privacy policy and toc vars
+        if (!Object.keys(user.alerts).includes("policyLastSeen")) {
+            userRef.get("alerts").set("policyLastSeen", "never").write();
+        }
+        if (!Object.keys(userRef.value().alerts).includes("termsLastSeen")) {
+            userRef.get("alerts").set("termsLastSeen", "never").write();
+        }
+        if (!Object.keys(user.alerts).includes("remoteAccess")) {
+            userRef.get("alerts").set("remoteAccess", "denied").write();
+        }
 
         // Fix theme for old users
         if (Object.keys(user.appearance).includes("darkMode")) {
@@ -182,7 +210,7 @@ module.exports = {
             this.updateAlerts(user.username, user.alerts.updateGradesReminder, "daily");
         }
         if (!Object.keys(userRef.value().alerts).includes("changelogLastShown")) {
-            userRef.get("alerts").set("changelogLastShown", "never");
+            userRef.get("alerts").set("changelogLastShown", "never").write();
         }
 
         // Fixes db for all old users

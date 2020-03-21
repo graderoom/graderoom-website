@@ -39,6 +39,14 @@
 - Calculated weights of categories in point-based classes will be shown so that you can see how much effect a category has on your overall grade
 - If you would like a feature to become implemented, send feedback in Settings > Feedback
 
+## [Beta 1.5.1] - 2020-03-21
+### Added
+- Terms and Conditions
+- Privacy Policy
+- Ability to allow remote access in settings (Denied by default)
+- This feature is intended to streamline the debugging process after you report a bug
+- When you submit feedback, a developer will reach out to you and ask you to enable this setting for a short period of time
+
 ## [Announcement] - 2020-03-20
 - <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> During testing, some beta user's weights were lost. Although this data could be restored from the database backups, due to the beta nature of this issue and the relatively small inconvenience this will cause, this weight data will not be recovered
 - <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> Send feedback if you have any questions, comments, or concerns
