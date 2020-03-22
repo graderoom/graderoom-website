@@ -50,11 +50,16 @@
             <li class="nav-item" id="link-1">
                 <a class="nav-link" onclick="showPage(-1)">Overview</a>
             </li>
+            <% let offset = 0; %>
             <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                <li class="nav-item" id="link<%= i %>">
-                    <a style="color: <%= user.appearance.classColors[i] %>" class="nav-link"
-                       onclick="showPage(<%= i %>)"><%= (JSON.parse(gradeData)[i].class_name) %></a>
-                </li>
+                <% if (user.appearance.showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
+                    <li class="nav-item" id="link<%= i + offset %>">
+                        <a style="color: <%= user.appearance.classColors[i] %>" class="nav-link"
+                           onclick="showPage(<%= i + offset %>)"><%= (JSON.parse(gradeData)[i].class_name) %></a>
+                    </li>
+                <% } else {
+                    offset--
+                } %>
             <% } %>
         </ul>
 
@@ -135,25 +140,36 @@
                     <table class="table text-center" id="table-1">
                         <thead>
                             <tr>
+                                <% offset = 0; %>
                                 <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                                    <th class="overview"
-                                        style="color: <%= user.appearance.classColors[i] %>"><%= JSON.parse(gradeData)[i].class_name %></th>
+                                    <% if (user.appearance.showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
+                                        <th class="overview"
+                                            style="color: <%= user.appearance.classColors[i] %>"><%= JSON.parse(gradeData)[i].class_name %></th>
+                                    <% } else {
+                                        offset--;
+                                    } %>
                                 <% } %>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
+                                <% offset = 0; %>
                                 <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                                    <td class="overview" style="color: <%= user.appearance.classColors[i] %>">
-                                        <div id="overviewChart<%= i %>" style="display:none; font-weight:bolder"></div>
-                                        <div id="weightmsgcontainer<%= i %>" style="display:none">
-                                            <div class="alert alert-danger font-weight-bold"
-                                                 id="weightmsg<%= i %>"><u style="cursor: pointer"
-                                                                           onclick="showUpdateWeights(<%= i %>)">Add
-                                                    Weights</u>
+                                    <% if (user.appearance.showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
+                                        <td class="overview" style="color: <%= user.appearance.classColors[i] %>">
+                                            <div id="overviewChart<%= i + offset %>"
+                                                 style="display:none; font-weight:bolder"></div>
+                                            <div id="weightmsgcontainer<%= i + offset %>" style="display:none">
+                                                <div class="alert alert-danger font-weight-bold"
+                                                     id="weightmsg<%= i + offset %>"><u style="cursor: pointer"
+                                                                                        onclick="showUpdateWeights(<%= i + offset %>)">Add
+                                                        Weights</u>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </td>
+                                        </td>
+                                    <% } else {
+                                        offset--;
+                                    } %>
                                 <% } %>
                             </tr>
                         </tbody>
@@ -161,92 +177,108 @@
                 </span>
             <% } %>
             <!-- Class Sections -->
+            <% offset = 0; %>
             <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                <span id="section<%= i %>" style="display: none;">
-                    <div style="display:flex; justify-content: space-evenly; align-items: center">
-                        <div id="chart-container<%= i %>" class="chart-container"
-                             style="position: relative; height:40vh; width:100%; margin: 0 auto;">
-                            <canvas id="chart<%= i %>" class="chart" style="margin: auto;"></canvas>
+                <% if (user.appearance.showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
+                    <span id="section<%= i + offset %>" style="display: none;">
+                        <% if (JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] === "non-academic") { %>
+                            <div style="display:block">
+                                <div class="alert alert-info font-weight-bold"
+                                     id="weightmsg<%= i + offset %>">This class is non-academic. You can stop
+                                    non-academic classes from being displayed in <u style="cursor: pointer"
+                                                                                    onclick="showCard('#settingsCardDisplay');">settings</u>
+                                </div>
+                            </div>
+                        <% } %>
+                        <div style="display:flex; justify-content: space-evenly; align-items: center">
+                            <div id="chart-container<%= i + offset %>" class="chart-container"
+                                 style="position: relative; height:40vh; width:100%; margin: 0 auto;">
+                                <canvas id="chart<%= i + offset %>" class="chart" style="margin: auto;"></canvas>
+                            </div>
+                            <table class="table text-center" style="width: 25%; white-space: nowrap; margin: 20px"
+                                   id="weightsTable<%= i + offset %>">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Weight</th>
+                                        <th>Points</th>
+                                        <th>Grade</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]).length; j++) { %>
+                                        <tr>
+                                            <td id="weightTableCategory<%= i + offset %><%= j %>"></td>
+                                            <td id="weightTableWeight<%= i + offset %><%= j %>"></td>
+                                            <td id="weightTablePoints<%= i + offset %><%= j %>"></td>
+                                            <td id="weightTableGrade<%= i + offset %><%= j %>"></td>
+                                        </tr>
+                                    <% } %>
+                                </tbody>
+                                </th>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="4">
+                                            <div style="display:none; color: <%= user.appearance.classColors[i] %>"
+                                                 id="weightTableOverallGrade<%= i + offset %>">
+                                            </div>
+                                            <div style="display:none; white-space: normal" colspan="4"
+                                                 class="alert alert-danger font-weight-bold"
+                                                 id="weightTablemsg<%= i + offset %>">
+                                                To view overall grade,<br><u
+                                                        style="cursor: pointer; white-space: nowrap"
+                                                        onclick="showUpdateWeights(<%= i + offset %>)">Add <span
+                                                            id="weightmsg_text<%= i + offset %>"></span></u>
+                                                <br>or<br><u style="cursor: pointer; white-space: nowrap"
+                                                             onclick="makeClassPointBased(<%= i + offset %>)">Click here
+                                                    if your
+                                                    class is
+                                                    point-based</u>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </tfoot>
+                            </table>
                         </div>
-                        <table class="table text-center" style="width: 25%; white-space: nowrap; margin: 20px"
-                               id="weightsTable<%= i %>">
+                        <hr>
+                        <table class="table text-center" id="table<%= i %>">
                             <thead>
                                 <tr>
-                                    <th>Category</th>
-                                    <th>Weight</th>
-                                    <th>Points</th>
-                                    <th>Grade</th>
+                                    <th style="width:25%;">Assignment Name</th>
+                                    <th style="width:25%;">Date</th>
+                                    <th style="width:25%;">Category</th>
+                                    <th style="width:25%;">Assignment Percent</th>
+                                    <th style="width:25%;">Score</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]).length; j++) { %>
+                                <% for (let grade of JSON.parse(gradeData)[i].grades) { %>
                                     <tr>
-                                        <td id="weightTableCategory<%= i %><%= j %>"></td>
-                                        <td id="weightTableWeight<%= i %><%= j %>"></td>
-                                        <td id="weightTablePoints<%= i %><%= j %>"></td>
-                                        <td id="weightTableGrade<%= i %><%= j %>"></td>
+                                        <td><%= grade.assignment_name %> </td>
+                                        <td><%= grade.date %> </td>
+                                        <td><%= grade.category + (grade.exclude ? " (EXCLUDED) " : "") %></td>
+                                        <% if (grade.grade_percent == -1) { %>
+                                            <td></td>
+                                        <% } else { %>
+                                            <td><%= grade.grade_percent %></td>
+                                        <% } %>
+                                        <% if (grade.points_gotten === false && grade.points_possible === false) { %>
+                                            <td>--</td>
+                                        <% } else if (grade.points_gotten === false) { %>
+                                            <td>--/<%= grade.points_possible %></td>
+                                        <% } else if (grade.points_possible != 0) { %>
+                                            <td><%= grade.points_gotten %>/<%= grade.points_possible %></td>
+                                        <% } else { %>
+                                            <td><%= grade.points_gotten %></td>
+                                        <% } %>
                                     </tr>
                                 <% } %>
                             </tbody>
-                            </th>
-                            <tfoot>
-                                <tr>
-                                    <th colspan="4">
-                                        <div style="display:none; color: <%= user.appearance.classColors[i] %>"
-                                             id="weightTableOverallGrade<%= i %>">
-                                        </div>
-                                        <div style="display:none; white-space: normal" colspan="4"
-                                             class="alert alert-danger font-weight-bold"
-                                             id="weightTablemsg<%= i %>">
-                                            To view overall grade,<br><u style="cursor: pointer; white-space: nowrap"
-                                                                         onclick="showUpdateWeights(<%= i %>)">Add <span
-                                                        id="weightmsg_text<%= i %>"></span></u>
-                                            <br>or<br><u style="cursor: pointer; white-space: nowrap"
-                                                         onclick="makeClassPointBased(<%= i %>)">Click here if your
-                                                class is
-                                                point-based</u>
-                                        </div>
-                                    </th>
-                                </tr>
-                            </tfoot>
                         </table>
-                    </div>
-                    <hr>
-                    <table class="table text-center" id="table<%= i %>">
-                        <thead>
-                            <tr>
-                                <th style="width:25%;">Assignment Name</th>
-                                <th style="width:25%;">Date</th>
-                                <th style="width:25%;">Category</th>
-                                <th style="width:25%;">Assignment Percent</th>
-                                <th style="width:25%;">Score</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% for (let grade of JSON.parse(gradeData)[i].grades) { %>
-                                <tr>
-                                    <td><%= grade.assignment_name %> </td>
-                                    <td><%= grade.date %> </td>
-                                    <td><%= grade.category + (grade.exclude ? " (EXCLUDED) " : "") %></td>
-                                    <% if (grade.grade_percent == -1) { %>
-                                        <td></td>
-                                    <% } else { %>
-                                        <td><%= grade.grade_percent %></td>
-                                    <% } %>
-                                    <% if (grade.points_gotten === false && grade.points_possible === false) { %>
-                                        <td>--</td>
-                                    <% } else if (grade.points_gotten === false) { %>
-                                        <td>--/<%= grade.points_possible %></td>
-                                    <% } else if (grade.points_possible != 0) { %>
-                                        <td><%= grade.points_gotten %>/<%= grade.points_possible %></td>
-                                    <% } else { %>
-                                        <td><%= grade.points_gotten %></td>
-                                    <% } %>
-                                </tr>
-                            <% } %>
-                        </tbody>
-                    </table>
-                </span>
+                    </span>
+                <% } else {
+                    offset--;
+                } %>
             <% } %>
         </div>
         <!-- Custom JavaScript -->
@@ -254,7 +286,7 @@
             let user = <%- userRef %>;
             let data = <%- gradeData %>;
             let weights = <%- weightData %>;
-            let classData = <%- relevantClassData %>;
+            let relClassData = <%- relevantClassData %>;
             let parsedData = [];
             let unobtainedWeights = {};
             let currentPage = -1;
@@ -262,8 +294,14 @@
             let currentTab = 1;
             let maxTab = 4;
             let darkMode;
+            let colors = user.appearance.classColors;
             let darkModeStart = (user.appearance.darkModeStart || user.appearance.darkModeStart === 0 ? user.appearance.darkModeStart : 18);
             let darkModeFinish = user.appearance.darkModeFinish || 7;
+
+            if (!user.appearance.showNonAcademic) {
+                colors = colors.filter(color => relClassData[data[colors.indexOf(color)].class_name].classType !== "non-academic");
+                data = data.filter(grade => relClassData[grade.class_name].classType !== "non-academic");
+            }
 
             let checkingTheme;
             parseData();
@@ -462,15 +500,20 @@
 
             function getOverallGPA() {
                 let GPA = 0.0;
+                let numClasses = data.length;
                 for (let i = 0; i < data.length; i++) {
                     let className = data[i].class_name;
-                    let classType = classData[className]["classType"];
-                    GPA += getGPA(getOverallGrade(i));
+                    let classType = relClassData[className]["classType"];
                     if (classType === "ap" || classType === "honors") {
                         GPA += 1;
                     }
+                    if (classType !== "non-academic") {
+                        GPA += getGPA(getOverallGrade(i));
+                    } else {
+                        numClasses--;
+                    }
                 }
-                GPA /= data.length;
+                GPA /= numClasses;
                 return GPA.toFixed(2);
             }
 
@@ -721,6 +764,7 @@
                                         mixedData: mixedData
                                     });
                 }
+
             }
 
             function renderAllCharts() {
@@ -739,22 +783,22 @@
                 let ctx = document.getElementById("chart-1");
                 let id = 0;
                 let dataset = [];
-                let colors = user.appearance.classColors;
+                let _colors = colors;
                 for (let i = 0; i < data.length; i++) {
                     dataset.push({
                                      label: data[i].class_name,
                                      backgroundColor: "transparent",
-                                     pointBackgroundColor: colors[i],
+                                     pointBackgroundColor: _colors[i],
                                      pointBorderColor: "transparent",
-                                     borderColor: colors[i],
+                                     borderColor: _colors[i],
                                      data: parsedData[i].mixedData,
                                      cubicInterpolationMode: "monotone",
                                      spanGaps: false,
                                      pointRadius: 3,
                                      borderWidth: 3,
                                      pointHoverRadius: 7,
-                                     pointHoverBackgroundColor: colors[i],
-                                     pointHoverBorderColor: colors[i],
+                                     pointHoverBackgroundColor: _colors[i],
+                                     pointHoverBorderColor: _colors[i],
                                      pointHoverBorderWidth: 2
                                  });
                 }
@@ -838,15 +882,15 @@
 
             function renderChart(id) {
                 let ctx = document.getElementById("chart" + id);
-                let colors = user.appearance.classColors;
+                let _colors = colors;
                 let myChart = new Chart(ctx, {
                     type: "line", data: {
                         datasets: [{
                             label: "parsedData[id]",
                             backgroundColor: (darkMode ? "rgba(256,256,256,0.05)" : "rgba(0,0,0,0.05)"),
-                            pointBackgroundColor: colors[id],
-                            pointBorderColor: colors[id],
-                            borderColor: colors[id],
+                            pointBackgroundColor: _colors[id],
+                            pointBorderColor: _colors[id],
+                            borderColor: _colors[id],
                             fill: "start",
                             data: parsedData[id].mixedData,
                             cubicInterpolationMode: "monotone",
@@ -854,8 +898,8 @@
                             pointRadius: 3,
                             borderWidth: 3,
                             pointHoverRadius: 7,
-                            pointHoverBackgroundColor: colors[id],
-                            pointHoverBorderColor: colors[id],
+                            pointHoverBackgroundColor: _colors[id],
+                            pointHoverBorderColor: _colors[id],
                             pointHoverBorderWidth: 2
                         }]
                     }, options: {

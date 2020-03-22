@@ -48,13 +48,14 @@
 - Ability to allow remote access in settings (Denied by default)
 - This feature is intended to streamline the debugging process after you report a bug
 - When you submit feedback, a developer will reach out to you and ask you to enable this setting for a short period of time
+- Support for non-academic classes. These will not be calculated into GPA. You can elect to hide non-academic classes in Settings.
 
 ### Improved
 - Moved links for Changelog, Terms and Conditions, Privacy Policy, and Feedback Form into About section in Settings
 - Added Contact Us information in Settings > About
 
 ### Fixed
-- User must accept Terms and Conditions and Privacy Policy to use the service
+- Auto theme is set up correctly for new users
 
 ## [Announcement] - 2020-03-20
 - <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> During testing, some beta user's weights were lost. Although this data could be restored from the database backups, due to the beta nature of this issue and the relatively small inconvenience this will cause, this weight data will not be recovered

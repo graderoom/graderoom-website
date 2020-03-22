@@ -163,6 +163,38 @@
                             </div>
                         </form>
                     </div>
+                        <div class="card-footer">
+                            <h5>Advanced</h5>
+                            <div id="advancedMessage"
+                                 class="alert alert-success alert-dismissible font-weight-bold"
+                                 style="display:none">
+                                <div style="display:none" class="sk-chase-mini">
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                </div>
+                                <div class="messageTxt"></div>
+                                <a class="close" onclick="closeMessage('advancedMessage')" aria-label="close">X</a>
+                            </div>
+                            <form id="advancedAppearance" action="/setShowNonacademic" method="post"
+                                  onsubmit="$('#advancedSubmit').attr('disabled','disabled')">
+                                <label style="cursor: pointer">
+                                    <input id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
+                                    <% if (user.appearance.showNonAcademic) { %> checked
+                                            <% } %>
+                                           oninput="$('#advancedSubmit').removeAttr('disabled')"
+                                    > Show Non-Academic Classes
+                                </label>
+                                <button id="advancedSubmit" class="btn-default btn btn-sm" type="submit"
+                                        onclick="$('#reloadNeeded').text('Reload Needed'); ajaxPostForm('#advancedAppearance',[],'#advancedMessage',true)"
+                                        disabled>
+                                    Apply
+                                </button>
+                            </form>
+                        </div>
                 </div>
             </div>
             <div id="settings-2" class="tabcontent">
@@ -334,7 +366,7 @@
                                 <a class="close" onclick="closeMessage('remoteAccessMessage')" aria-label="close">X</a>
                             </div>
                             <label style="cursor: pointer">
-                                <input id="gradeSyncToggle" type="checkbox" name="remoteAccess"
+                                <input id="remoteAccessToggle" type="checkbox" name="remoteAccess"
                                 <% if (user.alerts.remoteAccess === "allowed") { %> checked
                                         <% } %>
                                 > Allow Remote Access

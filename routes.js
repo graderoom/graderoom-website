@@ -424,6 +424,12 @@ module.exports = function (app, passport) {
         res.status(200).send(remoteAccess.substring(0, 1).toUpperCase() + remoteAccess.substring(1) + " remote access!");
     });
 
+    app.post("/setShowNonacademic", [isLoggedIn], (req, res) => {
+        let showNonAcademic = req.body.showNonAcademic === "on";
+        authenticator.setNonAcademic(req.user.username, showNonAcademic);
+        res.status(200).send("Non-academic classes " + (showNonAcademic ? "will be shown" : "will be hidden"));
+    });
+
     app.get("/classes", [isAdmin], (req, res) => {
         res.render("classes.ejs", {
             user: req.user, page: "classes", classData: authenticator.getAllClassData()
