@@ -56,6 +56,11 @@
                                     <% } %>
                             >Not Selected
                             </option>
+                            <option value="non-academic"
+                            <% if (classData[className].classType === "non-academic") { %> selected
+                                    <% } %>
+                            >Non-Academic
+                            </option>
                             <option value="none"
                             <% if (classData[className].classType === "none") { %> selected
                                     <% } %>

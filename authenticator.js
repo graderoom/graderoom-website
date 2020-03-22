@@ -80,6 +80,12 @@ module.exports = {
         userRef.get("alerts").set("remoteAccess", allowed).write();
     },
 
+    setNonAcademic: function (username, value) {
+        let lc_username = username.toLowerCase();
+        let userRef = db.get("users").find({username: lc_username});
+        userRef.get("appearance").set("showNonAcademic", value).write();
+    },
+
     /* class database */
     getAllClassData: function () {
         return db.get("classes").value();
@@ -150,13 +156,15 @@ module.exports = {
             } else {
                 for (let j = 0; j < Object.keys(classDb.value()[className]).length; j++) {
                     let teacherName = Object.keys(classDb.value()[className])[j];
-                    if (!Object.keys(globalWeights[className]).includes(teacherName)) {
-                        delete classDb.value()[className][teacherName];
-                    } else {
-                        for (let k = 0; k < Object.keys(classDb.value()[className][teacherName]).length; k++) {
-                            let categoryName = Object.keys(classDb.value()[className][teacherName])[k];
-                            if (!Object.keys(globalWeights[className][teacherName]).includes(categoryName)) {
-                                delete classDb.value()[className][teacherName][categoryName];
+                    if (teacherName !== "classType") {
+                        if (!Object.keys(globalWeights[className]).includes(teacherName)) {
+                            delete classDb.value()[className][teacherName];
+                        } else {
+                            for (let k = 0; k < Object.keys(classDb.value()[className][teacherName]).length; k++) {
+                                let categoryName = Object.keys(classDb.value()[className][teacherName])[k];
+                                if (!Object.keys(globalWeights[className][teacherName]).includes(categoryName)) {
+                                    delete classDb.value()[className][teacherName][categoryName];
+                                }
                             }
                         }
                     }
@@ -174,6 +182,9 @@ module.exports = {
                 } else if (className.includes("Honors")) {
                     console.log(className + " is Honors");
                     classDb.get(className).set("classType", "honors").write();
+                } else if (className === "Teaching Assistant") {
+                    console.log(className);
+                    classDb.get(className).set("classType", "non-academic").write();
                 } else {
                     console.log(className + " is none");
                     classDb.get(className).set("classType", "none").write();
@@ -188,7 +199,7 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
 
-        //Add privacy policy and toc vars
+        //Add privacy policy and terms vars
         if (!Object.keys(user.alerts).includes("policyLastSeen")) {
             userRef.get("alerts").set("policyLastSeen", "never").write();
         }
@@ -199,9 +210,19 @@ module.exports = {
             userRef.get("alerts").set("remoteAccess", "denied").write();
         }
 
+        // Add nonacademic vars
+        if (!Object.keys(user.appearance).includes("showNonAcademic")) {
+            userRef.get("appearance").set("showNonAcademic", true).write();
+        }
+
         // Fix theme for old users
         if (Object.keys(user.appearance).includes("darkMode")) {
             userRef.get("appearance").unset("darkMode").write();
+            this.setTheme(user.username, "auto", 7, "PM", 6, "AM");
+        }
+
+        // Setup autotheme for new users
+        if (user.appearance.theme === "auto" && !user.appearance.darkModeStart) {
             this.setTheme(user.username, "auto", 7, "PM", 6, "AM");
         }
 
