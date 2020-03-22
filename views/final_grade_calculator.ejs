@@ -80,24 +80,30 @@
                         <div style="display: flex; align-items: center">
                             <label class="form-group" style="display: flex; align-items: flex-end;"> <span
                                         style="text-align: right">Your final is worth</span> <input
-                                        class="number-input form-control" style="margin: 0 1rem 0 1rem;"
+                                        class="number-input form-control" style="width: 8rem; margin: 0 1rem 0 1rem;"
                                         id="finalWeight" type="number" step="0.00000001" required> <span
                                         style="text-align: left">% of your grade.</span> </label>
                         </div>
-                        <div id="specialFinal" style="display:none">
+                        <div id="specialFinal" style="display: none; align-items: center">
                             <h6><strong>or</strong></h6>
-                            <div style="display: flex; align-items: center">
-                                <label class="form-group" style="display: flex; align-items: flex-end;"> <span
-                                            style="text-align: right">Your final is worth</span> <input
-                                            class="number-input form-control" style="margin: 0 1rem 0 1rem;"
-                                            id="finalPoints" type="number" step="0.00000001"> <span
-                                            style="text-align: left">points in </span> </label> <label
-                                        style="display: flex; align-items: flex-end"> <select id="chooseWeight"
-                                                                                              style="float: right"
-                                                                                              class="dropdown">
-                                        <option disabled selected hidden>- - Select Class - -</option>
-                                    </select> </label>
-                            </div>
+                            <label class="form-group" style="display: flex; align-items: flex-end;"> <span
+                                        style="text-align: right">Your final is worth</span> <input
+                                        class="number-input form-control" style="margin: 0 1rem 0 1rem;"
+                                        id="finalPoints" type="number" step="1"> <span
+                                        style="text-align: left">points in </span>
+                                <select id="chooseWeight"
+                                        style="float: right"
+                                        class="dropdown">
+                                    <option disabled selected hidden>- - Select Class - -</option>
+                                </select> </label>
+                        </div>
+                        <div id="pointFinal" style="display:none">
+                            <h6><strong>or</strong></h6>
+                            <label class="form-group" style="display: flex; align-items: flex-end;"> <span
+                                        style="text-align: right">Your final is worth</span> <input
+                                        class="number-input form-control" style="margin: 0 1rem 0 1rem;"
+                                        id="pointFinalPoints" type="number" step="1"> <span
+                                        style="text-align: left">points</span></label>
                         </div>
                     </div>
                 </form>
@@ -122,6 +128,7 @@
     let finalWeightDiv = $("#finalWeight");
     let finalPointsDiv = $("#finalPoints");
     let chooseWeightDiv = $("#chooseWeight");
+    let pointFinalPointsDiv = $("#pointFinalPoints");
     let form = $("#calculateFinalGrade");
 
     // Messages
@@ -140,19 +147,28 @@
             currentGradeDiv.prop("defaultValue", "");
             finalWeightDiv.val("");
             finalWeightDiv.prop("defaultValue", "");
-            document.getElementById("specialFinal").style.display = "none";
+            $("#specialFinal").hide();
+            $("#pointFinal").hide();
+        } else if (user.weights[user.grades[Object.keys(user.grades)[$(this)[0].selectedIndex - 1]].class_name]["hasWeights"] === "false") {
+            currentGradeDiv.val(+(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
+            currentGradeDiv.prop("defaultValue", +(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
+            $("#specialFinal").hide();
+            $("#pointFinal").show();
         } else {
             currentGradeDiv.val(+(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
             currentGradeDiv.prop("defaultValue", +(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
-            document.getElementById("specialFinal").style.display = "block";
+            $("#specialFinal").show();
+            $("#pointFinal").hide();
+            manageChooseWeight($(this)[0].selectedIndex - 1);
         }
         if (finalWeightDiv !== null) {
             finalWeightDiv.val("");
             finalWeightDiv.prop("defaultValue", "");
             finalPointsDiv.val("");
             finalPointsDiv.prop("defaultValue", "");
+            pointFinalPointsDiv.val("");
+            pointFinalPointsDiv.prop("defaultValue", "");
         }
-        manageChooseWeight($(this)[0].selectedIndex - 1);
 
         // Submit the form.
         form.submit();
@@ -175,6 +191,8 @@
     finalWeightDiv.on("input", function () {
         finalPointsDiv.val("");
         finalPointsDiv.prop("defaultValue", "");
+        pointFinalPointsDiv.val("");
+        pointFinalPointsDiv.prop("defaultValue", "");
         $("#chooseWeight")[0].selectedIndex = 0;
         // Submit the form.
         form.submit();
@@ -184,64 +202,78 @@
     finalPointsDiv.on("input", function () {
         finalWeightDiv.val("");
         finalWeightDiv.prop("defaultValue", "");
-        let selectedWeight = $("#chooseWeight option:selected");
-        if (chooseClassDiv[0].selectedIndex !== 0) {
-            updateFinalWeight(selectedWeight, "finalPointsDiv");
-        }
+        updateFinalWeight($("#chooseWeight option:selected"), "finalPointsDiv");
     });
 
     // Mange changes of chooseWeightDiv
     chooseWeightDiv.on("change", function () {
         finalWeightDiv.val("");
         finalWeightDiv.prop("defaultValue", "");
-        let selectedWeight = $("#chooseWeight option:selected");
-        updateFinalWeight(selectedWeight, "chooseWeightDiv");
+        updateFinalWeight($("#chooseWeight option:selected"), "chooseWeightDiv");
+    });
+
+    // Manage changes of pointFinalPointsDiv
+    pointFinalPointsDiv.on("input", function () {
+        updateFinalWeight(null, "pointFinalPointsDiv");
     });
 
     function updateFinalWeight(selectedWeight, editedField) {
 
         let classIndex = chooseClassDiv[0].selectedIndex - 1;
-        let categoryName = selectedWeight.html();
-        let finalPoints = finalPointsDiv.val();
-        let categoryWeight = selectedWeight[0].value;
-
-        console.log(categoryWeight, finalPoints);
-        if (categoryWeight === "" && finalPoints === "") {
-            feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 3: Complete Final Info");
-            return;
-        }
-
-        if (editedField === "finalPointsDiv") {
-            if (categoryWeight === "") {
-                feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 4: Select a Category");
-                return;
-            }
-
-            if (finalPoints === "") {
-                feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 4: Enter Final Points");
-                return;
-            }
-        } else if (editedField === "chooseWeightDiv") {
-            if (finalPoints === "") {
-                feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 4: Enter Final Points");
-                return;
-            }
-            if (categoryWeight === "") {
-                feedbackMessageDiv.removeClass("alert-success").removeClass("alert-info").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 4: Select a Category");
-                return;
-            }
-        }
-
+        let finalPoints;
+        let categoryWeight;
         let grades = data;
         let classGrades = Object.values(grades)[classIndex].grades;
         let numPossible = 0;
-        for (let i = 0; i < classGrades.length; i++) {
-            if (classGrades[i].category === categoryName) {
+        if (selectedWeight) {
+            let categoryName = selectedWeight.html();
+            finalPoints = finalPointsDiv.val();
+            categoryWeight = selectedWeight[0].value;
+
+            if (categoryWeight === "" && finalPoints === "") {
+                feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 3: Complete Final Info");
+                return;
+            }
+
+            switch (editedField) {
+                case "finalPointsDiv":
+                    if (categoryWeight === "") {
+                        feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 4: Select a Category");
+                        return;
+                    }
+                    if (finalPoints === "") {
+                        feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 4: Enter Final Points");
+                        return;
+                    }
+                case "chooseWeightDiv":
+                    if (finalPoints === "") {
+                        feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 4: Enter Final Points");
+                        return;
+                    }
+                    if (categoryWeight === "") {
+                        feedbackMessageDiv.removeClass("alert-success").removeClass("alert-info").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 4: Select a Category");
+                        return;
+                    }
+            }
+            for (let i = 0; i < classGrades.length; i++) {
+                if (classGrades[i].category === categoryName) {
+                    numPossible += classGrades[i].points_possible;
+                }
+            }
+        } else {
+            finalPoints = pointFinalPointsDiv.val();
+            if (editedField === "pointFinalPointsDiv") {
+                if (finalPoints === "") {
+                    feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 4: Enter Final Points");
+                    return;
+                }
+            }
+            for (let i = 0; i < classGrades.length; i++) {
                 numPossible += classGrades[i].points_possible;
             }
+            categoryWeight = 100;
         }
         let finalWeight = 0;
-        console.log(finalPoints, numPossible, categoryWeight);
         if (parseFloat(finalPoints) > 0) {
             finalWeight = parseFloat(finalPoints) / (numPossible + parseFloat(finalPoints)) * categoryWeight;
         }
@@ -394,11 +426,13 @@
         newWeight.value = "";
         weightDropdown.add(newWeight);
         if (classIndex >= 0) {
-            for (let i = 0; i < Object.keys(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name]).length; i++) {
-                let newWeight = document.createElement("option");
-                newWeight.text = Object.keys(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name]["weights"])[i];
-                newWeight.value = Object.values(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name]["weights"])[i].toString();
-                weightDropdown.add(newWeight);
+            for (let i = 0; i < Object.keys(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name]["weights"]).length; i++) {
+                if (Object.values(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name]["weights"])[i]) {
+                    let newWeight = document.createElement("option");
+                    newWeight.text = Object.keys(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name]["weights"])[i];
+                    newWeight.value = Object.values(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name]["weights"])[i].toString();
+                    weightDropdown.add(newWeight);
+                }
             }
         }
         if (weightDropdown.length === 1) {
@@ -407,7 +441,6 @@
             newWeight.value = "";
             weightDropdown.add(newWeight);
         }
-
     }
 
     // Hides message
@@ -436,8 +469,10 @@
         let totalPossible = 0;
         for (let i = 0; i < grades.length; i++) {
             if (!grades[i].exclude && grades[i].category === categoryName) {
-                totalGotten += grades[i].points_gotten;
-                totalPossible += grades[i].points_possible;
+                if (grades[i].points_gotten !== false && grades[i].points_possible !== false) {
+                    totalGotten += grades[i].points_gotten;
+                    totalPossible += grades[i].points_possible;
+                }
             }
         }
         return {"gotten": totalGotten, "possible": totalPossible};
@@ -445,16 +480,29 @@
 
     // Returns overall grade of class
     function getOverallGrade(classIndex) {
-        let className = user.grades[classIndex].class_name;
-        if (className in user.weights) {
-            let classCategories = Object.keys(user.weights[className]["weights"]);
-            let classWeights = Object.values(user.weights[className]["weights"]);
+        let className = data[classIndex].class_name;
+        let weights = user.weights;
+        if (className in weights) {
             let overallGrade = 0;
-            for (let i = 0; i < classCategories.length; i++) {
-                overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i] / 100;
+            if (weights[className]["hasWeights"] === "false") {
+                let points_earned = 0;
+                let points_total = 0;
+                for (let assignment of data[classIndex]["grades"]) {
+                    if (assignment["points_gotten"] !== false && assignment["points_possible"] !== false && assignment["exclude"] !== true) {
+                        points_earned += assignment["points_gotten"];
+                        points_total += assignment["points_possible"];
+                    }
+                }
+                overallGrade = points_earned / points_total * 100;
+            } else {
+                let classCategories = Object.keys(weights[className]["weights"]);
+                let classWeights = Object.values(weights[className]["weights"]);
+                for (let i = 0; i < classCategories.length; i++) {
+                    overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i] / 100;
+                }
+                let ratio = 100 / getTotalWeight(classIndex);
+                overallGrade *= ratio;
             }
-            let ratio = 100 / getTotalWeight(classIndex);
-            overallGrade *= ratio;
             return overallGrade;
         }
         return 0;
@@ -462,15 +510,9 @@
 
     // Returns grade in category of class
     function getCategoryGrade(classIndex, categoryName) {
-        let grades = user.grades[classIndex].grades;
-        let totalGotten = 0;
-        let totalPossible = 0;
-        for (let i = 0; i < grades.length; i++) {
-            if (!grades[i].exclude && grades[i].category === categoryName) {
-                totalGotten += grades[i].points_gotten;
-                totalPossible += grades[i].points_possible;
-            }
-        }
+        let categoryGottenAndPossible = getCategoryGottenAndPossible(classIndex, categoryName);
+        let totalGotten = categoryGottenAndPossible.gotten;
+        let totalPossible = categoryGottenAndPossible.possible;
         if (totalPossible === 0) {
             return 0;
         }
