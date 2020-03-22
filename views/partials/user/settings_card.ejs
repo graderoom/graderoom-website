@@ -163,16 +163,22 @@
                             </div>
                         </form>
                     </div>
-                        <div class="card-footer">
-                            <h5>Advanced</h5>
-                            <div id="advancedMessage"
-                                 class="alert alert-success alert-dismissible font-weight-bold"
-                                 style="display:none">
-                                <div style="display:none" class="sk-chase-mini">
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
+                        <% if (Object.keys(JSON.parse(relevantClassData)).reduce(function (filtered, key) {
+                            if (JSON.parse(relevantClassData)[key]["classType"] === "non-academic") {
+                                filtered[key] = JSON.parse(relevantClassData[key])
+                            }
+                            return filtered;
+                        }, {}).length > 0) { %>
+                            <div class="card-footer">
+                                <h5>Advanced</h5>
+                                <div id="advancedMessage"
+                                     class="alert alert-success alert-dismissible font-weight-bold"
+                                     style="display:none">
+                                    <div style="display:none" class="sk-chase-mini">
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
                                     <div class="sk-chase-dot mini"></div>
                                     <div class="sk-chase-dot mini"></div>
                                 </div>
@@ -195,6 +201,7 @@
                                 </button>
                             </form>
                         </div>
+                        <% } %>
                 </div>
             </div>
             <div id="settings-2" class="tabcontent">
