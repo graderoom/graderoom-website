@@ -49,6 +49,7 @@
 - This feature is intended to streamline the debugging process after you report a bug
 - When you submit feedback, a developer will reach out to you and ask you to enable this setting for a short period of time
 - Support for non-academic classes. These will not be calculated into GPA. You can elect to hide non-academic classes in Settings.
+- Graderoom displays a message when calculated grade does not match actual grade in PowerSchool
 
 ### Improved
 - Moved links for Changelog, Terms and Conditions, Privacy Policy, and Feedback Form into About section in Settings

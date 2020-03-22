@@ -181,6 +181,13 @@
             <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
                 <% if (user.appearance.showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
                     <span id="section<%= i + offset %>" style="display: none;">
+                        <div id="incorrectOverallGrade<%= i + offset %>"
+                             style="display:none; width: fit-content; margin: auto">
+                            <div class="alert alert-danger font-weight-bold text-center">The grade calculated for this
+                                class does not match the grade in PowerSchool!<br>Make sure you entered your weights
+                                correctly!
+                            </div>
+                        </div>
                         <% if (JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] === "non-academic") { %>
                             <div style="display:block">
                                 <div class="alert alert-info font-weight-bold"
@@ -307,6 +314,7 @@
             parseData();
             setupWeightsTables();
             setupOverviewTable();
+            setupIncorrectGradeMessages();
             updateWeightMessages();
             setupGPADisplay();
             let theme = user.appearance.theme;
@@ -496,6 +504,21 @@
                 } else {
                     $("#GPA-display").text(getOverallGPA);
                 }
+            }
+
+            function setupIncorrectGradeMessages() {
+                for (let i = 0; i < data.length; i++) {
+                    let realOverallGrade = data[i].overall_percent;
+                    let calculatedOverallGrade = getOverallGrade(i).toFixed(countDecimals(realOverallGrade));
+                    if (calculatedOverallGrade != realOverallGrade) {
+                        $("#incorrectOverallGrade" + i).show();
+                    }
+                }
+            }
+
+            function countDecimals(value) {
+                if (Math.floor(value) === value) return 0;
+                return value.toString().split('.')[1].length || 0;
             }
 
             function getOverallGPA() {
