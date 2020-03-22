@@ -163,12 +163,7 @@
                             </div>
                         </form>
                     </div>
-                        <% if (Object.keys(JSON.parse(relevantClassData)).reduce(function (filtered, key) {
-                            if (JSON.parse(relevantClassData)[key]["classType"] === "non-academic") {
-                                filtered[key] = JSON.parse(relevantClassData[key])
-                            }
-                            return filtered;
-                        }, {}).length > 0) { %>
+                        <% if (Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
                             <div class="card-footer">
                                 <h5>Advanced</h5>
                                 <div id="advancedMessage"
