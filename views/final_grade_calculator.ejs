@@ -396,8 +396,8 @@
         if (classIndex >= 0) {
             for (let i = 0; i < Object.keys(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name]).length; i++) {
                 let newWeight = document.createElement("option");
-                newWeight.text = Object.keys(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name])[i];
-                newWeight.value = Object.values(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name])[i].toString();
+                newWeight.text = Object.keys(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name]["weights"])[i];
+                newWeight.value = Object.values(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name]["weights"])[i].toString();
                 weightDropdown.add(newWeight);
             }
         }
@@ -418,9 +418,9 @@
     // Returns total weight of class
     function getTotalWeight(classIndex) {
         let className = data[classIndex].class_name;
-        let classWeights = Object.values(user.weights[className]);
+        let classWeights = Object.values(user.weights[className]["weights"]);
         let totalWeight = 0;
-        let classCategories = Object.keys(user.weights[className]);
+        let classCategories = Object.keys(user.weights[className]["weights"]);
         for (let i = 0; i < classWeights.length; i++) {
             if (getCategoryGottenAndPossible(classIndex, classCategories[i]).possible !== 0) {
                 totalWeight += classWeights[i];
@@ -447,8 +447,8 @@
     function getOverallGrade(classIndex) {
         let className = user.grades[classIndex].class_name;
         if (className in user.weights) {
-            let classCategories = Object.keys(user.weights[className]);
-            let classWeights = Object.values(user.weights[className]);
+            let classCategories = Object.keys(user.weights[className]["weights"]);
+            let classWeights = Object.values(user.weights[className]["weights"]);
             let overallGrade = 0;
             for (let i = 0; i < classCategories.length; i++) {
                 overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i] / 100;
