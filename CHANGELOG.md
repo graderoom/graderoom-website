@@ -30,7 +30,6 @@
 
 ## [Known Issues] - Working on it
 - Point-based classes aren't synced with weights auto-population
-- Final Grade Calculator has not yet been updated to be compatible with the new system that allows for point-based classes
 - If you have an issue, send feedback in Settings > Feedback
 - <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> If you have an issue, send feedback in Settings > About > Feedback Form
 
@@ -40,6 +39,13 @@
 - Calculated weights of categories in point-based classes will be shown so that you can see how much effect a category has on your overall grade
 - If you would like a feature to become implemented, send feedback in Settings > Feedback
 - <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> If you would like a feature to become implement, send feedback in Settings > About > Feedback Form
+
+## [Beta 1.6.1] - 2020-03-22
+### Added
+- Final grade calculator now supports all class types, including point-based classes
+
+### Fixed
+- Issue where missing weights would break final grade calculator
 
 ## [Beta 1.6.0] - 2020-03-21
 ### Added
