@@ -56,6 +56,7 @@
 ### Fixed
 - Auto theme is set up correctly for new users
 - Incorrect grade message no longer displays if all weights have not been entered yet
+- Issue where excluded assignments were part of overall grade in point-based classes
 
 ### Removed
 - Setting for showing non-academic classes for users without non-academic classes
