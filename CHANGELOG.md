@@ -45,21 +45,15 @@
 ### Added
 - Terms and Conditions
 - Privacy Policy
+- Contact Us information in Settings > About
+- Quick Links in About section of Settings
 - Ability to allow remote access in settings (Denied by default)
-- Support for non-academic classes. These will not be calculated into GPA. You can elect to hide non-academic classes in Settings.
+- Support for non-academic classes
 - Graderoom displays a message when calculated data does not match actual data in PowerSchool
 
-### Improved
-- Moved links for Changelog, Terms and Conditions, Privacy Policy, and Feedback Form into About section in Settings
-- Added Contact Us information in Settings > About
-
 ### Fixed
-- Auto theme is set up correctly for new users
-- Incorrect grade message no longer displays if all weights have not been entered yet
+- Auto theme is now set up correctly for new users
 - Issue where excluded assignments were part of overall grade in point-based classes
-
-### Removed
-- Setting for showing non-academic classes for users without non-academic classes
 
 ## [Announcement] - 2020-03-20
 - <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> During testing, some beta user's weights were lost. Although this data could be restored from the database backups, due to the beta nature of this issue and the relatively small inconvenience this will cause, this weight data will not be recovered
