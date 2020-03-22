@@ -580,7 +580,7 @@
                         let points_earned = 0;
                         let points_total = 0;
                         for (let assignment of data[classIndex]["grades"]) {
-                            if (assignment["points_gotten"] !== false && assignment["points_possible"] !== false) {
+                            if (assignment["points_gotten"] !== false && assignment["points_possible"] !== false && assignment["exclude"] !== true) {
                                 points_earned += assignment["points_gotten"];
                                 points_total += assignment["points_possible"];
                             }
