@@ -183,9 +183,9 @@
                     <span id="section<%= i + offset %>" style="display: none;">
                         <div id="incorrectOverallGrade<%= i + offset %>"
                              style="display:none; width: fit-content; margin: auto">
-                            <div class="alert alert-danger font-weight-bold text-center">The grade calculated for this
-                                class does not match the grade in PowerSchool!<br>Make sure you entered your weights
-                                correctly!
+                            <div class="alert alert-danger font-weight-bold text-center">Your grade in PowerSchool
+                                is <%= JSON.parse(gradeData)[i].overall_percent %>%
+                                (<%= JSON.parse(gradeData)[i].overall_letter %>)
                             </div>
                         </div>
                         <% if (JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] === "non-academic") { %>
@@ -509,9 +509,14 @@
             function setupIncorrectGradeMessages() {
                 for (let i = 0; i < data.length; i++) {
                     let realOverallGrade = data[i].overall_percent;
-                    let calculatedOverallGrade = getOverallGrade(i).toFixed(countDecimals(realOverallGrade));
-                    if (calculatedOverallGrade != realOverallGrade) {
-                        $("#incorrectOverallGrade" + i).show();
+                    let realOverallLetter = data[i].overall_letter;
+                    let calculatedOverallGrade = getOverallGrade(i);
+                    if (getOverallGrade(i)) {
+                        let correctDecimalPlaces = getOverallGrade(i).toFixed(countDecimals(realOverallGrade));
+                        let calculatedOverallLetter = getLetterGrade(calculatedOverallGrade);
+                        if (correctDecimalPlaces != realOverallGrade || calculatedOverallLetter !== realOverallLetter) {
+                            $("#incorrectOverallGrade" + i).show();
+                        }
                     }
                 }
             }
