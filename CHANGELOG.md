@@ -57,6 +57,9 @@
 ### Fixed
 - Auto theme is set up correctly for new users
 
+### Removed
+- Setting for showing non-academic classes for users without non-academic classes
+
 ## [Announcement] - 2020-03-20
 - <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> During testing, some beta user's weights were lost. Although this data could be restored from the database backups, due to the beta nature of this issue and the relatively small inconvenience this will cause, this weight data will not be recovered
 - <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> Send feedback if you have any questions, comments, or concerns
