@@ -1,4 +1,5 @@
 const low = require("lowdb");
+const _ = require("lodash");
 const FileSync = require("lowdb/adapters/FileSync");
 const adapter = new FileSync("user_db.json");
 const db = low(adapter);
@@ -243,6 +244,11 @@ module.exports = {
                 this.addNewWeightDict(lc_username, i, className);
             }
 
+            //Add custom weight tag
+            if (!("custom" in user.weights[className])){
+                userRef.get("weights").get("className").set("custom",false).write();
+            }
+
             // Remove any weights that don't exist in user grades
             let goodWeights = [];
             for (let j = 0; j < user.grades[i].grades.length; j++) {
@@ -270,10 +276,12 @@ module.exports = {
                 hasWeights = weights["hasWeights"];
                 delete weights["hasWeights"];
             }
+            if (weights.hasOwnProperty("custom")) {
+                delete weights["custom"];
+            }
             delete weights["weights"];
 
-            this.updateWeightsForClass(username, user.grades[i].class_name, hasWeights, weights); // put weights in
-                                                                                                  // new// storage
+            this.updateWeightsForClass(username, user.grades[i].class_name, hasWeights, weights); // put weights in new storage
 
             for (var key in weights) {
                 if (weights.hasOwnProperty(key)) {
@@ -587,7 +595,7 @@ module.exports = {
             if (i < index) {
                 newWeights[Object.keys(weights)[i]] = Object.values(weights)[i];
             } else if (i === index) {
-                newWeights[className] = {"weights": {}, "hasWeights": "true"};
+                newWeights[className] = {"weights": {}, "hasWeights": "true", "custom":false};
             } else {
                 newWeights[Object.keys(weights)[i - 1]] = Object.values(weights)[i - 1];
             }
@@ -657,16 +665,16 @@ module.exports = {
         if (!clsRef.value()) {
             return {success: false, message: "Class does not exist."};
         }
-
-        // Put weights into class database TODO add admin confirmation requirement
         let teacherName = clsRef.value().teacher_name;
         let classDb = db.get("classes");
-        for (let i = 0; i < Object.keys(weights).length; i++) {
-            console.log(classDb.value()[className][teacherName]["weights"][Object.keys(weights)[i]]);
-            if (!classDb.value()[className][teacherName]["weights"][Object.keys(weights)[i]]) {
-                classDb.get(className).get(teacherName).get("weights").set(Object.keys(weights)[i], Object.values(weights)[i]).write();
-            }
-        }
+
+        // TODO: Send to queue 
+        // for (let i = 0; i < Object.keys(weights).length; i++) {
+        //     console.log(classDb.value()[className][teacherName]["weights"][Object.keys(weights)[i]]);
+        //     if (!classDb.value()[className][teacherName]["weights"][Object.keys(weights)[i]]) {
+        //         classDb.get(className).get(teacherName).get("weights").set(Object.keys(weights)[i], Object.values(weights)[i]).write();
+        //     }
+        // }
 
         let weightsRef = userRef.get("weights");
 
@@ -685,8 +693,20 @@ module.exports = {
                 }
             }
         }
+
+        //Set custom to false if it matches class db
+        // console.log(className + " " + clsRef.value()["teacher_name"]);
+        let custom = true;
+        if (dbContainsClass(className,clsRef.value()["teacher_name"])){
+            if (compareWeights(classDb.value()[className][teacherName],{"weights":newWeights,"hasWeights":hasWeights})){
+                custom = false;
+            }
+        }
+
+
         weightsRef.set(modClassName + ".weights", newWeights).write(); //Replace weights inside of specific class
         weightsRef.set(modClassName + ".hasWeights", hasWeights).write();
+        weightsRef.set(modClassName + ".custom",custom).write();
         return {success: true, message: "Updated weights for " + className + "!"};
     },
 
@@ -839,4 +859,21 @@ function dbContainsClass(class_name, teacher_name) {
         return true;
     }
     return false;
+}
+
+function compareWeights(weight1, weight2) {
+    console.log("COMPARING Weights: ");
+    console.log(weight1);
+    console.log(weight2);
+    if (weight1["hasWeights"]!=weight2["hasWeights"]) {
+        console.log("COMPARE: False 1");
+        return false;
+    } else if (weight1["hasWeights"]==weight2["hasWeights"]==false){
+        console.log("COMPARE: True 1");
+        return true;
+    } else {
+        console.log(_.isEqual(weight1["weights"],weight2["weights"]));
+        return _.isEqual(weight1["weights"],weight2["weights"]);
+    }
+    
 }
