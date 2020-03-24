@@ -16,7 +16,7 @@ module.exports = function (app, passport) {
                 res.redirect(returnTo);
                 return;
             }
-            authenticator.bringAllUpToDate();
+            authenticator.bringUpToDate(req.user.username);
             let user = authenticator.getUser(req.user.username);
             let gradeDat = JSON.stringify(user.grades);
             let weightData = JSON.stringify(user.weights);
