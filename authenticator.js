@@ -322,12 +322,17 @@ module.exports = {
         //FIXME make it work with pointbased, always overwrite?????
         let classDb = db.get("classes");
         if (weights) {
+            if (hasWeights === "false") {
+                for (let i = 0; i < Object.keys(weights).length; i++) {
+                    weights[Object.keys(weights)[i]] = null;
+                }
+            }
             let modWeights = {};
             for (let i = 0; i < Object.keys(weights).length; i++) {
                 modWeights[Object.keys(weights)[i]] = parseInt(Object.values(weights)[i]);
             }   
             classDb.get(className).get(teacherName).set("weights", modWeights).write(); //Overwrites existing weights
-            classDb.get(className).get(teacherName).set("hasWeights", "true").write();
+            classDb.get(className).get(teacherName).set("hasWeights", hasWeights).write();
         } else {
             return {success: false, message: "One weight required!"};
         }
