@@ -44,37 +44,27 @@
 
             <span class="accordion collapse show collapse-underline" id="accordionForms<%= i %>"
                   data-parent="#bigAccordionForms">
-                <form id="weights<%= i %>" class="form-ajax form-weights form-signin" action="/updateclassweights"
+                <form id="weights<%= i %>" class="form-ajax form-weights form-signin" action="/updateclasstype"
                       method="post" style="display: flex; justify-content: right;">
                     <div>
                         <label>Class Type:</label>
                         <select oninput="ajaxPostWeightsDatabaseForm('<%= i %>',null,[],'#weightMessage<%= i %>',true); $('#weights<%= i %>').submit()"
                                 class="dropdown" style="padding: 0; margin-right: 3rem"
                                 id="classType<%= i %>">
-                            <option value="" disabled hidden
-                            <% if (classData[className].classType === "") { %> selected
-                                    <% } %>
-                            >Not Selected
+                            <option value="" disabled hidden <% if (classData[className].classType === "") { %> selected<% } %>>
+                                Not Selected
                             </option>
-                            <option value="non-academic"
-                            <% if (classData[className].classType === "non-academic") { %> selected
-                                    <% } %>
-                            >Non-Academic
+                            <option value="non-academic" <% if (classData[className].classType === "non-academic") { %> selected <% } %>>
+                                Non-Academic
                             </option>
-                            <option value="none"
-                            <% if (classData[className].classType === "none") { %> selected
-                                    <% } %>
-                            >None
+                            <option value="none" <% if (classData[className].classType === "none") { %> selected <% } %>>
+                                None
                             </option>
-                            <option value="ap"
-                            <% if (classData[className].classType === "ap") { %> selected
-                                    <% } %>
-                            >AP
+                            <option value="ap" <% if (classData[className].classType === "ap") { %> selected <% } %>>
+                                AP
                             </option>
-                            <option value="honors"
-                            <% if (classData[className].classType === "honors") { %> selected
-                                    <% } %>
-                            >Honors
+                            <option value="honors" <% if (classData[className].classType === "honors") { %> selected <% } %>>
+                                Honors
                             </option>
                         </select>
                     </div>
@@ -190,15 +180,18 @@
             let className = $($($(formID).parents(".accordion")[1])[0]).find("label h5").not(".weightname")[classIndex].innerText.trim();
             let teacherName = null;
             let weights = null;
+            let hasWeights = null;
             if (teacherIndex) {
                 teacherName = $(formID).find(".weightname")[0].innerText.trim();
+                //TODO actually collect has weights
+                hasWeights = true;
                 weights = {};
                 let inputs = $(formID + " input");
                 for (let i = 0; i < inputs.length; i += 2) {
                     weights[$(inputs[i])[0].value] = $(inputs[i + 1])[0].valueAsNumber;
                 }
                 formData = {
-                    className: className, teacherName: teacherName, weights: weights
+                    className: className, teacherName: teacherName, weights: weights, hasWeights: hasWeights
                 };
             } else {
                 let classType = $(formID).find("select")[0].value.trim();
@@ -217,8 +210,8 @@
 
             // Submit the form using AJAX.
             $.ajax({
-                       type: "POST", url: $(formID).attr("action"), data: formData, async: async
-                   }).done(function (response) {
+                type: "POST", url: $(formID).attr("action"), data: formData, async: async
+            }).done(function (response) {
                 // Make sure that the formMessages div has the alert-success class.
                 $(formMessagesDiv).removeClass("alert-danger");
                 $(formMessagesDiv).addClass("alert-success");
