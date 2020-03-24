@@ -326,9 +326,7 @@ module.exports = {
             for (let i = 0; i < Object.keys(weights).length; i++) {
                 modWeights[Object.keys(weights)[i]] = parseInt(Object.values(weights)[i]);
             }   
-            // Don't delete any user weights
-            weights = Object.assign(classDb.get(className).get(teacherName).get("weights").value(), modWeights);
-            classDb.get(className).get(teacherName).set("weights", weights).write();
+            classDb.get(className).get(teacherName).set("weights", modWeights).write(); //Overwrites existing weights
             classDb.get(className).get(teacherName).set("hasWeights", "true").write();
         } else {
             return {success: false, message: "One weight required!"};
