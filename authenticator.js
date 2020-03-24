@@ -102,76 +102,77 @@ module.exports = {
         for (let i = 0; i < users.length; i++) {
             this.bringUpToDate(users[i].username);
         }
-        for (let i = 0; i < users.length; i++) {
-            // Get most up-to-date weight info from users
-            for (let j = 0; j < users[i].grades.length; j++) {
-                let className = users[i].grades[j].class_name;
-                if (!globalLastUpdated[className]) {
-                    globalLastUpdated[className] = {};
-                    globalWeights[className] = {};
-                }
-                let teacherName = users[i].grades[j].teacher_name;
-                if (!globalLastUpdated[className][teacherName]) {
-                    globalLastUpdated[className][teacherName] = users[i].alerts.lastUpdated;
-                    globalWeights[className][teacherName] = {};
-                }
-                if (users[i].alerts.lastUpdated >= globalLastUpdated[className][teacherName]) {
-                    let newWeights = globalWeights[className][teacherName]["weights"] || {};
-                    let hasWeights = globalWeights[className][teacherName]["hasWeights"] || null;
-                    hasWeights = users[i].weights[className]["hasWeights"] || null;
-                    let changed = false;
-                    for (let j = 0; j < Object.keys(users[i].weights[className]["weights"]).length; j++) {
-                        let categoryName = Object.keys(users[i].weights[className]["weights"])[j];
-                        let categoryValue = Object.values(users[i].weights[className]["weights"])[j];
+        //FIXME Add as suggestion
+        // for (let i = 0; i < users.length; i++) {
+        //     // Get most up-to-date weight info from users
+        //     for (let j = 0; j < users[i].grades.length; j++) {
+        //         let className = users[i].grades[j].class_name;
+        //         if (!globalLastUpdated[className]) {
+        //             globalLastUpdated[className] = {};
+        //             globalWeights[className] = {};
+        //         }
+        //         let teacherName = users[i].grades[j].teacher_name;
+        //         if (!globalLastUpdated[className][teacherName]) {
+        //             globalLastUpdated[className][teacherName] = users[i].alerts.lastUpdated;
+        //             globalWeights[className][teacherName] = {};
+        //         }
+        //         if (users[i].alerts.lastUpdated >= globalLastUpdated[className][teacherName]) {
+        //             let newWeights = globalWeights[className][teacherName]["weights"] || {};
+        //             let hasWeights = globalWeights[className][teacherName]["hasWeights"] || null;
+        //             hasWeights = users[i].weights[className]["hasWeights"] || null;
+        //             let changed = false;
+        //             for (let j = 0; j < Object.keys(users[i].weights[className]["weights"]).length; j++) {
+        //                 let categoryName = Object.keys(users[i].weights[className]["weights"])[j];
+        //                 let categoryValue = Object.values(users[i].weights[className]["weights"])[j];
 
-                        // If we have a more recent value or the category doesn't exist yet
-                        if (!Object.keys(newWeights).includes(categoryName) || categoryValue !== null) {
-                            newWeights[categoryName] = categoryValue;
-                            changed = true;
-                        }
-                    }
-                    globalWeights[className][teacherName] = {weights: newWeights, hasWeights: hasWeights};
-                    if (changed) {
-                        globalLastUpdated[className][teacherName] = users[i].alerts.lastUpdated;
-                    }
-                }
-            }
-        }
+        //                 // If we have a more recent value or the category doesn't exist yet
+        //                 if (!Object.keys(newWeights).includes(categoryName) || categoryValue !== null) {
+        //                     newWeights[categoryName] = categoryValue;
+        //                     changed = true;
+        //                 }
+        //             }
+        //             globalWeights[className][teacherName] = {weights: newWeights, hasWeights: hasWeights};
+        //             if (changed) {
+        //                 globalLastUpdated[className][teacherName] = users[i].alerts.lastUpdated;
+        //             }
+        //         }
+        //     }
+        // }
 
         let classDb = db.get("classes");
 
-        // Update class db with most updated info
-        for (let i = 0; i < Object.keys(globalWeights).length; i++) {
-            let className = Object.keys(globalWeights)[i];
-            for (let j = 0; j < Object.keys(globalWeights[className]).length; j++) {
-                let teacherName = Object.keys(globalWeights[className])[j];
-                classDb.get(className).set(teacherName, globalWeights[className][teacherName]).write();
-            }
-        }
+        // // Update class db with most updated info
+        // for (let i = 0; i < Object.keys(globalWeights).length; i++) {
+        //     let className = Object.keys(globalWeights)[i];
+        //     for (let j = 0; j < Object.keys(globalWeights[className]).length; j++) {
+        //         let teacherName = Object.keys(globalWeights[className])[j];
+        //         classDb.get(className).set(teacherName, globalWeights[className][teacherName]).write();
+        //     }
+        // }
 
-        // Delete outdated info from class db
-        for (let i = 0; i < Object.keys(classDb.value()).length; i++) {
-            let className = Object.keys(classDb.value())[i];
-            if (!Object.keys(globalWeights).includes(className)) {
-                delete classDb.value()[className];
-            } else {
-                for (let j = 0; j < Object.keys(classDb.value()[className]).length; j++) {
-                    let teacherName = Object.keys(classDb.value()[className])[j];
-                    if (teacherName !== "classType") {
-                        if (!Object.keys(globalWeights[className]).includes(teacherName)) {
-                            delete classDb.value()[className][teacherName];
-                        } else {
-                            for (let k = 0; k < Object.keys(classDb.value()[className][teacherName]).length; k++) {
-                                let categoryName = Object.keys(classDb.value()[className][teacherName])[k];
-                                if (!Object.keys(globalWeights[className][teacherName]).includes(categoryName)) {
-                                    delete classDb.value()[className][teacherName][categoryName];
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        // // Delete outdated info from class db
+        // for (let i = 0; i < Object.keys(classDb.value()).length; i++) {
+        //     let className = Object.keys(classDb.value())[i];
+        //     if (!Object.keys(globalWeights).includes(className)) {
+        //         delete classDb.value()[className];
+        //     } else {
+        //         for (let j = 0; j < Object.keys(classDb.value()[className]).length; j++) {
+        //             let teacherName = Object.keys(classDb.value()[className])[j];
+        //             if (teacherName !== "classType") {
+        //                 if (!Object.keys(globalWeights[className]).includes(teacherName)) {
+        //                     delete classDb.value()[className][teacherName];
+        //                 } else {
+        //                     for (let k = 0; k < Object.keys(classDb.value()[className][teacherName]).length; k++) {
+        //                         let categoryName = Object.keys(classDb.value()[className][teacherName])[k];
+        //                         if (!Object.keys(globalWeights[className][teacherName]).includes(categoryName)) {
+        //                             delete classDb.value()[className][teacherName][categoryName];
+        //                         }
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
         for (let i = 0; i < Object.keys(classDb.value()).length; i++) {
             let className = Object.keys(classDb.value())[i];
@@ -199,6 +200,8 @@ module.exports = {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
+        let classes = db.get("classes").value();
+
 
         //Add privacy policy and terms vars
         if (!Object.keys(user.alerts).includes("policyLastSeen")) {
@@ -235,9 +238,10 @@ module.exports = {
             userRef.get("alerts").set("changelogLastShown", "never").write();
         }
 
-        // Fixes db for all old users
+        // Fixes weights
         for (let i = 0; i < user.grades.length; i++) {
             let className = user.grades[i].class_name;
+            let teacherName = user.grades[i].teacher_name;
 
             // Add empty weight dict to all classes
             if (!(user.weights[className])) {
@@ -270,23 +274,31 @@ module.exports = {
             }
 
             //Move weights to new storage system
-            let weights = Object.assign({}, user.weights[user.grades[i].class_name]); // get weights from old storage
+            let weights = Object.assign({}, user.weights[className]); // get weights from old storage
             let hasWeights = "true";
+            let custom = false;
             if (weights.hasOwnProperty("hasWeights")) {
                 hasWeights = weights["hasWeights"];
                 delete weights["hasWeights"];
             }
             if (weights.hasOwnProperty("custom")) {
+                custom = weights["custom"];
                 delete weights["custom"];
             }
             delete weights["weights"];
 
-            this.updateWeightsForClass(username, user.grades[i].class_name, hasWeights, weights); // put weights in new storage
+            this.updateWeightsForClass(username, className, hasWeights, weights, custom); // put weights in new storage
 
             for (var key in weights) {
                 if (weights.hasOwnProperty(key)) {
-                    delete user.weights[user.grades[i].class_name][key]; // delete weights in old storage
+                    delete user.weights[className][key]; // delete weights in old storage
                 }
+            }
+
+            //Updates weights from classes db
+            if (user.weights[className]["custom"] == false && dbContainsClass(className,teacherName)){
+                //FIXME get hasWeights from classes db
+                this.updateWeightsForClass(username, className, hasWeights, classes[className][teacherName]["weights"]);
             }
 
         }
@@ -307,6 +319,7 @@ module.exports = {
     },
 
     updateWeightsInClassDb: function (data) {
+        //FIXME make it work with pointbased
         let className = data.className;
         let teacherName = data.teacherName;
         let weights = data.weights;
@@ -555,9 +568,10 @@ module.exports = {
             if (!(userRef.value().weights[grade_update_status.new_grades[i].class_name])) {
                 this.addNewWeightDict(lc_username, i, grade_update_status.new_grades[i].class_name);
             }
-            if (!dbContainsClass(grade_update_status.new_grades[i].class_name, grade_update_status.new_grades[i].teacher_name)) {
-                this.addDbClass(grade_update_status.new_grades[i].class_name, grade_update_status.new_grades[i].teacher_name);
-            }
+            //FIXME Add as suggestions
+            // if (!dbContainsClass(grade_update_status.new_grades[i].class_name, grade_update_status.new_grades[i].teacher_name)) {
+            //     this.addDbClass(grade_update_status.new_grades[i].class_name, grade_update_status.new_grades[i].teacher_name);
+            // }
         }
         for (let i = grade_update_status.new_grades.length; i < userRef.value().appearance.classColors.length; i++) {
             userRef.value().appearance.classColors.pop();
@@ -651,7 +665,7 @@ module.exports = {
         return {success: false, message: "User does not exist."};
     },
 
-    updateWeightsForClass: function (username, className, hasWeights, weights) {
+    updateWeightsForClass: function (username, className, hasWeights, weights, custom=null) {
         //default update, not override
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
@@ -668,7 +682,7 @@ module.exports = {
         let teacherName = clsRef.value().teacher_name;
         let classDb = db.get("classes");
 
-        // TODO: Send to queue 
+        // FIXME: Add as suggestion 
         // for (let i = 0; i < Object.keys(weights).length; i++) {
         //     console.log(classDb.value()[className][teacherName]["weights"][Object.keys(weights)[i]]);
         //     if (!classDb.value()[className][teacherName]["weights"][Object.keys(weights)[i]]) {
@@ -696,10 +710,12 @@ module.exports = {
 
         //Set custom to false if it matches class db
         // console.log(className + " " + clsRef.value()["teacher_name"]);
-        let custom = true;
-        if (dbContainsClass(className,clsRef.value()["teacher_name"])){
-            if (compareWeights(classDb.value()[className][teacherName],{"weights":newWeights,"hasWeights":hasWeights})){
-                custom = false;
+        if (custom == null){
+            custom = true;
+            if (dbContainsClass(className,clsRef.value()["teacher_name"])){
+                if (compareWeights(classDb.value()[className][teacherName],{"weights":newWeights,"hasWeights":hasWeights})){
+                    custom = false;
+                }
             }
         }
 
@@ -862,17 +878,11 @@ function dbContainsClass(class_name, teacher_name) {
 }
 
 function compareWeights(weight1, weight2) {
-    console.log("COMPARING Weights: ");
-    console.log(weight1);
-    console.log(weight2);
     if (weight1["hasWeights"]!=weight2["hasWeights"]) {
-        console.log("COMPARE: False 1");
         return false;
     } else if (weight1["hasWeights"]==weight2["hasWeights"]==false){
-        console.log("COMPARE: True 1");
         return true;
     } else {
-        console.log(_.isEqual(weight1["weights"],weight2["weights"]));
         return _.isEqual(weight1["weights"],weight2["weights"]);
     }
     
