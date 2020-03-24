@@ -140,6 +140,7 @@
                      style="position: relative; height:40vh; width:100%; margin: 0 auto;">
                     <canvas id="chart<%= i %>" class="chart" style="margin: auto;"></canvas>
                 </div>
+                <form id="weights<%= i %>" class="form-ajax form-weights form-signin" action="/updateweights">
                 <table class="table text-center" style="width: 25%; white-space: nowrap; margin: 20px"
                        id="weightsTable<%= i %>">
                     <thead>
@@ -154,10 +155,55 @@
                         <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]).length; j++) { %>
                             <tr>
                                 <td id="weightTableCategory<%= i %><%= j %>"></td>
-                                <td id="weightTableWeight<%= i %><%= j %>"></td>
+                                <% let weights = JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]%>
+                                <% let category = Object.keys(weights)[j]%>
+                                <% let value = weights[category]%>
+                                <td class= "form-group" id="weightTableWeight<%= i %><%= j %>">
+                                    <input class= "number-input" style="<% if (!value && value != 0) { %> border-color: lightcoral; <% } else { %> border-color: <%= user.appearance.classColors[i] %>!important; <% } %>"
+                                           value="<%= value %>"
+                                           type="number"
+                                           min="0"
+                                           step="0.1"
+                                           class="disableable form-control <% if(value || value == 0){ %> text-view <% } %>"
+                                           name="<%= category %>"
+                                           oninput="this.classList.remove('text-view'); showSubmitButton(this); "
+                                    >
+
+                                </td>
                                 <td id="weightTablePoints<%= i %><%= j %>"></td>
                                 <td id="weightTableGrade<%= i %><%= j %>"></td>
+                                <input type="submit" value="Submit">
                             </tr>
+
+                            <label style="color: <%= user.appearance.classColors[i] %>; font-size: 0.9rem; white-space: nowrap; margin-bottom: 0;">Point
+                                Based?</label>
+                            <input
+                                    id="check<%= i %>"
+                                    style="margin: auto;"
+                                    type="checkbox"
+                                    class="form-control"
+                                    name="hasWeights"
+                            <% try { if (JSON.parse(weightData)[grade.class_name]["hasWeights"] === "false") { %>
+                                    checked
+                                    <% }} catch {
+                                    } %>
+                                    oninput="showSubmitButton(this); disableInput('check<%= i %>','collapse<%= i %>');"
+                            >
+                            <script>
+                                function disableInput(checkBoxID, id) {
+                                    $('#' + id).find('.disableable').each(function () {
+                                        if ($('#' + checkBoxID).is(":checked")) {
+                                            $(this).addClass("disabled");
+                                            $(this).attr('disabled', 'disabled');
+                                        } else {
+                                            $(this).removeClass("disabled");
+                                            $(this).removeAttr('disabled');
+                                        }
+                                    })
+                                }
+
+                                disableInput('check<%= i %>', 'collapse<%= i %>');
+                            </script>
                         <% } %>
                     </tbody>
                     </th>
@@ -181,6 +227,7 @@
                         </tr>
                     </tfoot>
                 </table>
+                </form>
             </div>
             <hr>
             <table class="table text-center" id="table<%= i %>">
@@ -941,6 +988,100 @@
     function isDST() {
         return Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset();
     }
+    
+    $("form.form-weights input").on("input", function(){
+        $(this).parents("form").submit();
+    }) 
+
+    $(function initAjaxFormPosts() {
+        if ($("form.form-weights").length > 0) {
+            $("form.form-weights").each(function () {
+                let form = $(this);
+                $(form).submit(function (event) {
+                    event.preventDefault();
+                    if (($(this).find(".formSubmitButton").css("display")) !== "none") {
+                        let weightData = (($(form).serializeArray()));
+                        let weightURI = {};
+                        jQuery.map(weightData, function (n, i) {
+                            if (n.name !== "hasWeights") weightURI[n.name] = isNaN(parseInt(n.value)) ? n.value : parseInt(n.value);
+
+                        });
+                        weightURI = encodeURIComponent(JSON.stringify(weightURI));
+
+                        let className = encodeURI($(form).find("h5").attr("id"));
+                        let hasWeights = encodeURI(!($(form).find('input[name="hasWeights"]')).is(':checked'));
+                        formData = "className=" + className + "&hasWeights=" + hasWeights + "&newWeights=" + weightURI;
+
+                        let formMessagesDiv = $(this).find(".alert-custom");
+                        let message = $(this).find(".messageTxt");
+
+                        $.ajax({
+                                   type: "POST", url: $(form).attr("action"), data: formData
+                               }).done(function (response) {
+                            // Make sure that the formMessages div has the alert-success class.
+                            $(formMessagesDiv).removeClass("fail");
+                            $(formMessagesDiv).addClass("success");
+                            $(form).find(".formSubmitButton").css("display", "none");
+
+                            // Delete weights if hasWeighs is false
+                            if (hasWeights === "false") {
+                                $(form).find("input").each(function () {
+                                    if ($(this)[0].id.substring(0, 5) !== "check") {
+                                        $(this).val("");
+                                    }
+                                });
+                            }
+
+                            $(form).find("input").each(function () {
+                                $(this).blur();
+                                if ($(this)[0].value) {
+                                    $(this).addClass("text-view");
+                                } else {
+                                    $(this).removeClass("text-view");
+                                }
+                            });
+                            let id = parseInt($(form).attr("id").replace(/\D/g, ""));
+                            $(form).find("label").each(function () {
+                                if ($(this)[0].nextElementSibling.value) {
+                                    $(this).css("color", user.appearance.classColors[id]);
+                                    $($(this)[0].nextElementSibling).css("border-color", user.appearance.classColors[id]);
+                                } else {
+                                    $(this).css("color", "lightcoral");
+                                    $($(this)[0].nextElementSibling).css("border-color", "lightcoral");
+                                }
+                            });
+
+                            // Set the message text.
+                            $(message).text(response);
+
+                            // Show the div.
+                            $(formMessagesDiv).css("display", "inline");
+
+                            // Set edited variable
+                            $("#edited").text("Edited");
+
+                            parseData();
+                            updateWeightMessages();
+                        }).fail(function (data) {
+                            //Make sure that the formMessages div has the alert-danger class
+                            $(formMessagesDiv).removeClass("success");
+                            $(formMessagesDiv).addClass("fail");
+
+                            // Set the message text.
+                            if (data.responseText !== "") {
+                                $(message).text(data.responseText);
+                            } else {
+                                $(message).text("Oops! An error occurred and your message could not be sent.");
+                            }
+
+                            // Show the div.
+                            $(formMessagesDiv).css("display", "inline");
+                        });
+                    }
+                });
+            });
+        }
+    });
 
 </script>
 </body>
