@@ -298,7 +298,7 @@ module.exports = {
             //Updates weights from classes db
             if (user.weights[className]["custom"] == false && dbContainsClass(className,teacherName)){
                 //FIXME get hasWeights from classes db
-                this.updateWeightsForClass(username, className, hasWeights, classes[className][teacherName]["weights"]);
+                this.updateWeightsForClass(username, className, classes[className][teacherName]["hasWeights"], classes[className][teacherName]["weights"]);
             }
 
         }
@@ -318,32 +318,28 @@ module.exports = {
         return relClasses;
     },
 
-    updateWeightsInClassDb: function (data) {
-        //FIXME make it work with pointbased
-        let className = data.className;
-        let teacherName = data.teacherName;
-        let weights = data.weights;
+    updateWeightsInClassDb: function (className, teacherName, hasWeights, weights) {
+        //FIXME make it work with pointbased, always overwrite?????
         let classDb = db.get("classes");
-        if (teacherName) {
-            if (weights) {
-                let modWeights = {};
-                for (let i = 0; i < Object.keys(weights).length; i++) {
-                    modWeights[Object.keys(weights)[i]] = parseInt(Object.values(weights)[i]);
-                }
-                // Don't delete any user weights
-                weights = Object.assign(classDb.get(className).get(teacherName).get("weights").value(), modWeights);
-                classDb.get(className).get(teacherName).set("weights", weights).write();
-                classDb.get(className).get(teacherName).set("hasWeights", "true").write();
-            } else {
-                return {success: false, message: "One weight required!"};
-            }
-            return {success: true, message: "Updated weights for " + className + " | " + teacherName};
+        if (weights) {
+            let modWeights = {};
+            for (let i = 0; i < Object.keys(weights).length; i++) {
+                modWeights[Object.keys(weights)[i]] = parseInt(Object.values(weights)[i]);
+            }   
+            // Don't delete any user weights
+            weights = Object.assign(classDb.get(className).get(teacherName).get("weights").value(), modWeights);
+            classDb.get(className).get(teacherName).set("weights", weights).write();
+            classDb.get(className).get(teacherName).set("hasWeights", "true").write();
         } else {
-            let classType = data.classType;
-            classDb.get(className).set("classType", classType).write();
-            return {success: true, message: "Set class type of " + className + " to " + classType};
+            return {success: false, message: "One weight required!"};
         }
-    }
+        return {success: true, message: "Updated weights for " + className + " | " + teacherName};
+    },
+    updateClassTypeInClassDb: function (className,classType) {
+        let classDb = db.get("classes");
+        classDb.get(className).set("classType", classType).write();
+        return {success: true, message: "Set class type of " + className + " to " + classType};
+    }   
 
     //Need to add Try Catches to error check when updating db values
     , addNewUser: function (username, password, schoolUsername, isAdmin) {
@@ -708,8 +704,6 @@ module.exports = {
             }
         }
 
-        //Set custom to false if it matches class db
-        // console.log(className + " " + clsRef.value()["teacher_name"]);
         if (custom == null){
             custom = true;
             if (dbContainsClass(className,clsRef.value()["teacher_name"])){
@@ -718,7 +712,6 @@ module.exports = {
                 }
             }
         }
-
 
         weightsRef.set(modClassName + ".weights", newWeights).write(); //Replace weights inside of specific class
         weightsRef.set(modClassName + ".hasWeights", hasWeights).write();

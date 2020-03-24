@@ -303,7 +303,20 @@ module.exports = function (app, passport) {
     });
 
     app.post("/updateclassweights", [isAdmin], (req, res) => {
-        let resp = authenticator.updateWeightsInClassDb(req.body);
+        let className = req.body.className;
+        let teacherName = req.body.teacherName
+        let hasWeights = req.body.hasWeights;
+        let weights = req.body.weights;
+        let resp = authenticator.updateWeightsInClassDb(className, teacherName, hasWeights, weights);
+        if (resp.success) {
+            res.status(200).send(resp.message);
+        } else {
+            res.status(400).send(resp.message);
+        }
+    });
+
+    app.post("/updateclasstype", [isAdmin], (req, res) => {
+        let resp = authenticator.updateClassTypeInClassDb(req.body.className,req.body.classType);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
