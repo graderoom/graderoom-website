@@ -87,6 +87,19 @@ module.exports = function (app, passport) {
         res.redirect("/admin");
     });
 
+    app.post("/restoreUser", [isAdmin], (req, res) => {
+        let username = req.body.restoreUser;
+        let resp = authenticator.restoreUser(username);
+        if (resp.success) {
+            req.flash("adminSuccessMessage", resp.message);
+        } else {
+            req.flash("adminFailMessage", resp.message);
+        }
+
+        res.redirect("/admin");
+
+    });
+
     app.post("/makeadmin", [isAdmin], (req, res) => {
         let username = req.body.newAdminUser;
         console.log("Got request to make admin: " + username);
@@ -120,10 +133,12 @@ module.exports = function (app, passport) {
     app.get("/admin", [isAdmin], (req, res) => {
         // admin panel TODO
         let allUsers = authenticator.getAllUsers();
+        let deletedUsers = authenticator.getDeletedUsers();
         res.render("admin.ejs", {
             user: req.user,
             page: "admin",
             userList: allUsers,
+            deletedUserList: deletedUsers,
             adminSuccessMessage: req.flash("adminSuccessMessage"),
             adminFailMessage: req.flash("adminFailMessage")
         });
@@ -142,10 +157,19 @@ module.exports = function (app, passport) {
         res.status(200).send(resp.message);
     });
 
-    app.get("/changelog", [isLoggedIn], async (req, res) => {
-        await authenticator.readChangelog(server.needsBetaKeyToSignUp, result => {
-            res.status(200).send(result);
-        });
+    app.get("/changelog", [isLoggedIn], (req, res) => {
+        let result = authenticator.changelog(server.needsBetaKeyToSignUp);
+        res.status(200).send(result);
+    });
+
+    app.get("/latestVersion", [isLoggedIn], (req, res) => {
+        let result = authenticator.latestVersion(server.needsBetaKeyToSignUp);
+        res.status(200).send(result);
+    });
+
+    app.post("/latestVersionSeen", [isLoggedIn], (req, res) => {
+        authenticator.latestVersionSeen(req.user.username, server.needsBetaKeyToSignUp);
+        res.sendStatus(200);
     });
 
     app.post("/updateAppearance", [isLoggedIn], (req, res) => {
@@ -312,7 +336,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/changealertsettings", [isLoggedIn], (req, res) => {
-        let resp = authenticator.updateAlerts(req.user.username, req.body.updateGradesReminder, req.body.showChangelog);
+        let resp = authenticator.updateAlerts(req.user.username, req.body.updateGradesReminder);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
@@ -320,13 +344,8 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.post("/changelogseen", [isLoggedIn], (req, res) => {
-        authenticator.changelogSeen(req.user.username);
-        res.sendStatus(200);
-    });
-
     app.post("/randomizeclasscolors", [isLoggedIn], (req, res) => {
-        let resp = authenticator.setRandomClassColor(req.user.username, req.body.index);
+        let resp = authenticator.randomizeClassColors(req.user.username);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {

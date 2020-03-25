@@ -24,23 +24,23 @@
                     <% if (user.grades.length > 0) { %>
                         <div class="card-footer">
                             <h5>Class Colors</h5>
-                            <h6>Click a color to change it</h6>
-                            <div class="text-center">
-                                <% for (var i = 0; i < user.grades.length; i++) { %>
-                                    <label id="classColor<%= i %>"
-                                           style="margin-bottom: 0; padding: 0 1rem 0 1rem; cursor: pointer; color: <%= user.appearance.classColors[i] %>; font-size: medium; font-weight: bolder;"
-                                           onclick="ajaxPostForm('#randomizeClassColors' + <%= i %>,[],'',true)">
-                                        <form id="randomizeClassColors<%= i %>" class="form-signin"
-                                              action="/randomizeClassColors"
-                                              method="post">
-                                            <button type="submit" style="display: none"></button>
-                                            <input name="index" value="<%= i %>" id="classColor<%= i %>"
-                                                   style="display: none;">
-                                            <%- user.grades[i].class_name %>
-                                        </form>
-                                    </label>
-                                <% } %>
-                            </div>
+                            <form style="display: flex; justify-content: center; align-content: space-evenly"
+                                  action="/randomizeClassColors" id="randomizeClassColors" method="POST"
+                                  class="form-signin">
+                                <button style="width: fit-content"
+                                        onclick="ajaxPostForm('#randomizeClassColors',[],'',true)"
+                                        class="btn btn-med">
+                                    Randomize Palette
+                                </button>
+                                <div class="text-center" id="classColors" style="width: 100%; height: fit-content">
+                                    <% for (var i = 0; i < user.grades.length; i++) { %>
+                                        <label id="classColor<%= i %>"
+                                               style="margin-bottom: 0; padding: 0 1rem 0 1rem; color: <%= user.appearance.classColors[i] %>; font-size: medium; font-weight: bolder; transition: color 1s ease">
+                                            <%= user.grades[i].class_name %>
+                                        </label>
+                                    <% } %>
+                                </div>
+                            </form>
                         </div>
                     <% } %>
                     <div class="card-footer">
@@ -76,7 +76,7 @@
                                 <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
                                                                        value="dark"
                                                                        name="theme"
-                                                                       onclick="$('#autoLimits').hide()
+                                                                       onclick="$('#autoLimits').hide();
                                                                                $($($(this)[0].form)[0].elements[7]).hide();
                                                                                ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
                                                                                $($(this)[0].form).submit();"
@@ -163,17 +163,17 @@
                             </div>
                         </form>
                     </div>
-                        <% if (Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
-                            <div class="card-footer">
-                                <h5>Advanced</h5>
-                                <div id="advancedMessage"
-                                     class="alert alert-success alert-dismissible font-weight-bold"
-                                     style="display:none">
-                                    <div style="display:none" class="sk-chase-mini">
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
+                    <% if (Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
+                        <div class="card-footer">
+                            <h5>Advanced</h5>
+                            <div id="advancedMessage"
+                                 class="alert alert-success alert-dismissible font-weight-bold"
+                                 style="display:none">
+                                <div style="display:none" class="sk-chase-mini">
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
                                     <div class="sk-chase-dot mini"></div>
                                     <div class="sk-chase-dot mini"></div>
                                 </div>
@@ -196,7 +196,7 @@
                                 </button>
                             </form>
                         </div>
-                        <% } %>
+                    <% } %>
                 </div>
             </div>
             <div id="settings-2" class="tabcontent">
@@ -269,29 +269,6 @@
                         <form id="changeAlertSettings" class="form-signin" action="/changealertsettings"
                               method="post">
                             <div class="form-group" style="margin: 0">
-                                <label>Show Changelog:</label> <select style="float: right" class="dropdown"
-                                                                       name="showChangelog">
-                                    <option value="always"
-                                    <% if (user.alerts.showChangelog == 'always') { %> selected
-                                            <% } %>
-                                    >Always
-                                    <option value="daily"
-                                    <% if (user.alerts.showChangelog == 'daily') { %> selected
-                                            <% } %>
-                                    >Daily
-                                    </option>
-                                    <option value="weekly"
-                                    <% if (user.alerts.showChangelog == 'weekly') { %> selected
-                                            <% } %>
-                                    >Weekly
-                                    </option>
-                                    <option value="never"
-                                    <% if (user.alerts.showChangelog == 'never') { %> selected
-                                            <% } %>
-                                    >Never
-                                    </option>
-                                </select>
-                                <br>
                                 <label>Grade Update Reminder:</label> <select style="float: right" class="dropdown"
                                                                               name="updateGradesReminder">
                                     <option value="daily"
@@ -432,10 +409,10 @@
         location.reload();
     }
 
-    function updateClassColors(colorsString) {
-        let colors = colorsString;
+    function updateClassColors(colorArray) {
+        let colors = colorArray;
         for (let i = 0; i < colors.length; i++) {
-            document.getElementById("classColor" + i).style.color = colors[i];
+            $("#classColor" + i).css("color", colors[i]);
         }
     }
 
