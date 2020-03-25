@@ -358,6 +358,12 @@ module.exports = {
                 return resolve({success: false, message: "Username must contain 16 or fewer characters."});
             }
 
+            if (password.length < 6 || password.length > 64) {
+                return resolve({
+                    success: false, message: "Password must be 6 - 64 characters in length."
+                });
+            }
+
             if (!validateEmail(schoolUsername)) {
                 return resolve({success: false, message: "This must be your .bcp email."});
             }
