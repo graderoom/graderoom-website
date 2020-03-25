@@ -1,0 +1,57 @@
+<!-- What's New Card -->
+<div class="blurred-login" id="latestDisplay"
+     style="position:fixed; display:none; height: 100%; width: 100%; top: 0; left: 0; z-index: 1">
+    <div class="blurred-background"></div>
+    <div class="col-sm-11 col-md-10 col-lg-9 col-xl-8 mx-auto">
+        <div id="latestCard" class="card card-signin my-5">
+            <btn class="btn btn-md"
+                 onclick="closeForm('latestDisplay'); closeMessage('latestMessage')"
+                 style="width: fit-content; margin-bottom:0;">
+                <i class="fa fa-close" aria-hidden="true"></i> Close
+            </btn>
+            <btn class="btn btn-med" onclick="showChangelog()"
+                 style="position: absolute; width: fit-content; right: 0; margin-bottom: 0">
+                View Full Changelog <i class="fa fa-external-link-square"></i></btn>
+            <div class="card-body">
+                <h3 class="card-title text-center"><span class="fa fa-arrow-down"></span>
+                    What's New
+                    <span class="fa fa-arrow-down"></span>
+                </h3>
+                <div style="display: flex; flex-flow: column; align-content: space-around">
+                    <div class="card changelog">
+                        <div id="latest-container" class="changelog-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    let latestContainer = $("#latest-container");
+
+    function showLatest(force) {
+        $.ajax({
+            url: "/latestVersion", type: "GET", async: true
+        }).done(function (response) {
+            let versionTitle = $(response)[0].childNodes[0].childNodes[0].innerText;
+            versionTitle = versionTitle.substring(versionTitle.indexOf(" ") + 1);
+            if (versionTitle !== user.alerts.latestSeen || force) {
+                $("#latestDisplay").fadeIn(500);
+                latestContainer.html(response);
+                latestContainer.animate({scrollTop: 0}, 0);
+                disableScrolling();
+                cardsDisplayed.push("latestDisplay");
+                $(".blurred-background").each(function () {
+                    if (cardsDisplayed.includes($($(this).parent())[0].id)) {
+                        $(this).parent().css("z-index", cardsDisplayed.indexOf($($(this).parent())) + 2);
+                    }
+                });
+                $.ajax({
+                    url: "/latestVersionSeen", type: "POST", data: versionTitle, async: true
+                });
+            }
+        });
+
+    }
+</script>

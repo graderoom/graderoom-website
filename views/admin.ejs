@@ -45,17 +45,18 @@
     </form>
     <div id="table-container">
         <hr>
+        <h1>Users</h1>
         <table class="table" style="width: 100% !important;">
             <thead>
-                <tr>
-                    <th class="admin">Username</th>
-                    <th class="admin">Name</th>
-                    <th class="admin">Last Updated</th>
-                    <th class="admin">Attributes</th>
-                    <th class="admin">Render User Site</th>
-                    <th class="admin">Delete User</th>
-                    <th class="admin">Change Admin Privileges</th>
-                </tr>
+            <tr>
+                <th class="admin">Username</th>
+                <th class="admin">Name</th>
+                <th class="admin">Last Updated</th>
+                <th class="admin">Attributes</th>
+                <th class="admin">Render User Site</th>
+                <th class="admin">Delete User</th>
+                <th class="admin">Change Admin Privileges</th>
+            </tr>
             </thead>
 
             <% for (let u of userList) { %>
@@ -123,6 +124,39 @@
                         <% } else { %>
                             Cannot Remove Admin Privileges
                         <% } %>
+                    </td>
+                </tr>
+            <% } %>
+        </table>
+        <hr>
+        <h1>Deleted Users</h1>
+        <table class="table" style="width: 100% !important;">
+            <thead>
+            <tr>
+                <th class="admin">Username</th>
+                <th class="admin">School Username</th>
+                <th class="admin">Restore User</th>
+                <th class="admin">Delete Forever</th>
+            </tr>
+            </thead>
+
+            <% for (let u of deletedUserList) { %>
+                <tr>
+                    <td class="admin"><%= u.username %> </td>
+                    <td class="admin"><%= u.schoolUsername %></td>
+                    <td class="admin">
+                        <form action="/restoreUser" method="post">
+                            <button type="submit" name="restoreUser" class="btn btm-sm admin"
+                                    value="<%= u.username %>">Restore User
+                            </button>
+                        </form>
+                    </td>
+                    <td class="admin">
+                        <form action="/deleteuser" method="post">
+                            <button type="submit" name="deleteUser" class="btn btn-sm admin"
+                                    value="<%= u.username %>">Delete Forever
+                            </button>
+                        </form>
                     </td>
                 </tr>
             <% } %>

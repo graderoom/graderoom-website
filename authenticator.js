@@ -4,12 +4,18 @@ const adapter = new FileSync("user_db.json");
 const db = low(adapter);
 const bcrypt = require("bcryptjs");
 const scraper = require("./scrape");
-const randomColor = require("randomcolor");
+const distinctColors = require("distinct-colors").default;
+const chroma = require("chroma-js");
 const crypto = require("crypto");
 const readline = require("readline");
 const fs = require("fs");
 
-db.defaults({users: [], keys: [], classes: {}}).write();
+db.defaults({versions: {stable: "", beta: ""}, users: [], keys: [], classes: {}, deletedUsers: []}).write();
+
+let changelogHTML = "";
+let betaChangelogHTML = "";
+let latestVersionHTML = "";
+let betaLatestVersionHTML = "";
 
 module.exports = {
 
@@ -46,8 +52,8 @@ module.exports = {
 
     addNewBetaKey: function (betaKey) {
         db.get("keys").push({
-                                betaKey: betaKey, claimed: false, claimedBy: ""
-                            }).write();
+            betaKey: betaKey, claimed: false, claimedBy: ""
+        }).write();
         return {success: true, message: "Added beta key: " + betaKey + "."};
     },
 
@@ -57,8 +63,8 @@ module.exports = {
 
     removeBetaKey: function (betaKey) {
         db.get("keys").remove({
-                                  betaKey: betaKey
-                              }).write();
+            betaKey: betaKey
+        }).write();
         return {success: true, message: "Removed beta key."};
     },
 
@@ -199,7 +205,7 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
 
-        //Add privacy policy and terms vars
+        // Add privacy policy and terms vars
         if (!Object.keys(user.alerts).includes("policyLastSeen")) {
             userRef.get("alerts").set("policyLastSeen", "never").write();
         }
@@ -221,17 +227,18 @@ module.exports = {
             this.setTheme(user.username, "auto", 7, "PM", 6, "AM");
         }
 
-        // Setup autotheme for new users
+        // Setup autotheme for old users
         if (user.appearance.theme === "auto" && !user.appearance.darkModeStart) {
             this.setTheme(user.username, "auto", 7, "PM", 6, "AM");
         }
 
-        // Add show changelog variables for old users
-        if (!Object.keys(user.alerts).includes("showChangelog")) {
-            this.updateAlerts(user.username, user.alerts.updateGradesReminder, "daily");
+        // Remove show changelog variables for old users
+        if (Object.keys(user.alerts).includes("showChangelog")) {
+            delete user.alerts.showChangelog;
         }
-        if (!Object.keys(userRef.value().alerts).includes("changelogLastShown")) {
-            userRef.get("alerts").set("changelogLastShown", "never").write();
+        if (Object.keys(userRef.value().alerts).includes("changelogLastShown")) {
+            delete user.alerts.changelogLastShown;
+            userRef.get("alerts").set("latestSeen", "1.0.0");
         }
 
         // Fixes db for all old users
@@ -334,16 +341,23 @@ module.exports = {
                 return resolve({success: false, message: "Username already in use."});
             }
 
+            if (this.userDeleted(lc_username)) {
+                return resolve({
+                    success: false,
+                    message: "This account has been deleted. Email graderoom@gmail.com to recover your account."
+                });
+            }
+
             if (!isAlphaNumeric(username) || username.length > 16) {
                 return resolve({
-                                   success: false, message: "Username must contain only letters and numbers."
-                               });
+                    success: false, message: "Username must contain only letters and numbers."
+                });
             }
 
             if (password.length < 6 || password.length > 64) {
                 return resolve({
-                                   success: false, message: "Password must be 6 - 64 characters in length."
-                               });
+                    success: false, message: "Password must be 6 - 64 characters in length."
+                });
             }
 
             if (!validateEmail(schoolUsername)) {
@@ -353,22 +367,29 @@ module.exports = {
             const roundsToGenerateSalt = 10;
             bcrypt.hash(password, roundsToGenerateSalt, function (err, hash) {
                 db.get("users").push({
-                                         username: lc_username,
-                                         password: hash,
-                                         schoolUsername: schoolUsername,
-                                         isAdmin: isAdmin,
-                                         appearance: {
-                                             theme: "auto", accentColor: null, classColors: []
-                                         },
-                                         alerts: {
-                                             lastUpdated: "never",
-                                             updateGradesReminder: "daily",
-                                             changelogLastShown: "never",
-                                             showChangelog: "daily"
-                                         },
-                                         weights: {},
-                                         grades: []
-                                     }).write();
+                    username: lc_username,
+                    password: hash,
+                    schoolUsername: schoolUsername,
+                    isAdmin: isAdmin,
+                    appearance: {
+                        theme: "auto",
+                        accentColor: null,
+                        classColors: [],
+                        showNonAcademic: true,
+                        darkModeStart: 19,
+                        darkModeFinish: 6,
+                    },
+                    alerts: {
+                        lastUpdated: "never",
+                        updateGradesReminder: "daily",
+                        latestSeen: "1.0.0",
+                        policyLastSeen: "never",
+                        termsLastSeen: "never",
+                        remoteAccess: "denied"
+                    },
+                    weights: {},
+                    grades: []
+                }).write();
 
                 return resolve({success: true, message: "User Created"});
             });
@@ -410,15 +431,14 @@ module.exports = {
         }
         db.get("users").find({username: lc_username}).assign({schoolUsername: schoolUsername}).write();
         return {success: true, message: "School Email Updated"};
-    }, removeUser: function (username, password) {
-        let lc_username = username.toLowerCase();
-        db.get("users").find({username: lc_username}).remove().write();
-        return {success: true, message: "Account deleted."};
     }, userExists: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username}).value();
         return !!user;
-
+    }, userDeleted: function (username) {
+        let lc_username = username.toLowerCase();
+        let user = db.get("deletedUsers").find({username: lc_username}).value();
+        return !!user;
     }, setTheme: function (username, theme, darkModeStart, darkModeStartAmPm, darkModeFinish, darkModeFinishAmPm) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
@@ -475,16 +495,11 @@ module.exports = {
             message = "Dark theme enabled from " + darkModeStart + " " + darkModeStartAmPm + " to " + darkModeFinish + " " + darkModeFinishAmPm + ".";
         }
         return {success: true, message: message};
-    }, updateAlerts: function (username, updateGradesReminder, showChangelog) {
+    }, updateAlerts: function (username, updateGradesReminder) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username}).value();
         user.alerts.updateGradesReminder = updateGradesReminder;
-        user.alerts.showChangelog = showChangelog;
         return {success: true, message: "Alert settings saved!"};
-    }, changelogSeen: function (username) {
-        let lc_username = username.toLowerCase();
-        let user = db.get("users").find({username: lc_username}).value();
-        user.alerts.changelogLastShown = Date.now();
     }, getUser: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username}).value();
@@ -541,9 +556,6 @@ module.exports = {
             return grade_update_status;
         }
         for (let i = 0; i < grade_update_status.new_grades.length; i++) {
-            if (!(containsClass(grade_update_status.new_grades[i], userRef.value().grades))) {
-                this.setRandomClassColor(lc_username, i, true);
-            }
             if (!(userRef.value().weights[grade_update_status.new_grades[i].class_name])) {
                 this.addNewWeightDict(lc_username, i, grade_update_status.new_grades[i].class_name);
             }
@@ -551,8 +563,8 @@ module.exports = {
                 this.addDbClass(grade_update_status.new_grades[i].class_name, grade_update_status.new_grades[i].teacher_name);
             }
         }
-        for (let i = grade_update_status.new_grades.length; i < userRef.value().appearance.classColors.length; i++) {
-            userRef.value().appearance.classColors.pop();
+        if (userRef.value().appearance.classColors.length !== grade_update_status.new_grades.length) {
+            this.randomizeClassColors(lc_username);
         }
         userRef.assign({grades: grade_update_status.new_grades}).write();
         userRef.get("alerts").set("lastUpdated", Date.now()).write();
@@ -596,18 +608,17 @@ module.exports = {
         return {success: true, message: newWeights};
     },
 
-    setRandomClassColor: function (username, index, isNew) {
+    randomizeClassColors: function (username) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
-        let classColors = userRef.get("appearance").get("classColors").value();
-
-        if (isNew) {
-            let length = classColors.length;
-            for (let i = index; i < length; i++) {
-                classColors[i + 1] = classColors[i];
-            }
-        }
-        classColors[index] = randomColor();
+        let numColors = userRef.get("grades").value().length;
+        let classColors = distinctColors({
+            count: numColors,
+            lightMin: 100,
+            samples: Math.floor(Math.random() * 800)
+        }).map(color => {
+            return chroma(color["_rgb"][0], color["_rgb"][1], color["_rgb"][2]).hex();
+        }).sort(() => Math.random() - 0.5);
         userRef.get("appearance").set("classColors", classColors).write();
         return {success: true, message: classColors};
     },
@@ -616,13 +627,39 @@ module.exports = {
         return db.get("users").value();
     },
 
+    getDeletedUsers: function () {
+        return db.get("deletedUsers").value();
+    },
+
     deleteUser: function (username) {
         let lc_username = username.toLowerCase();
         if (this.userExists(lc_username)) {
+            this.prepForDeletion(lc_username);
+            db.get("deletedUsers").push(db.get("users").find({username: lc_username}).value()).write();
             db.get("users").remove({username: lc_username}).write();
-            return {success: true, message: "Deleted user."};
+            return {success: true, message: "Moved " + lc_username + " to deleted users"};
+        } else if (this.userDeleted(lc_username)) {
+            db.get("deletedUsers").remove({username: lc_username}).write();
+            return {success: true, message: "Deleted " + lc_username + " forever"};
         }
         return {success: false, message: "User does not exist."};
+    },
+
+    prepForDeletion: function (username) {
+        let lc_username = username.toLowerCase();
+        db.get("users").find({username: lc_username}).set("deletedTime", Date.now()).write();
+        //TODO maybe get rid of some info when deleting
+    },
+
+    restoreUser: function (username) {
+        let lc_username = username.toLowerCase();
+        if (this.userDeleted(lc_username)) {
+            //TODO do the inverse of whatever prepForDeletion does
+            db.get("users").push(db.get("deletedUsers").find({username: lc_username}).value()).write();
+            db.get("deletedUsers").remove({username: lc_username}).write();
+            return {success: true, message: "Restored " + lc_username};
+        }
+        return {success: false, message: "User does not exist in deleted users."}
     },
 
     makeAdmin: function (username) {
@@ -733,13 +770,44 @@ module.exports = {
         return {success: true, message: decryptedPass};
     },
 
-    readChangelog: async function (beta, callback) {
-        const readInterface = readline.createInterface({input: fs.createReadStream("CHANGELOG.md")});
+    latestVersion: function (beta) {
+        if (beta) {
+            return betaLatestVersionHTML;
+        } else {
+            return latestVersionHTML;
+        }
+    },
+
+    latestVersionSeen: function (username, beta) {
+        let lc_username = username.toLowerCase();
+        let alertsRef = db.get("users").find({username: lc_username}).get("alerts");
+        if (beta) {
+            let currentVersion = db.get("versions").get("beta").value();
+            alertsRef.set("latestSeen", currentVersion).write();
+        } else {
+            let currentVersion = db.get("versions").get("stable").value();
+            alertsRef.set("latestSeen", currentVersion).write();
+        }
+    },
+
+    changelog: function (beta) {
+        if (beta) {
+            return betaChangelogHTML;
+        } else {
+            return changelogHTML;
+        }
+    },
+
+    readChangelog: async function () {
         let resultHTML = "";
+        let betaResultHTML = "";
         let items = [];
         let bodyCount = -1;
         let item = {title: "", date: "", content: {}};
-        readInterface.on("line", function (line) {
+        let lineReader = readline.createInterface({
+            input: fs.createReadStream("CHANGELOG.md")
+        });
+        lineReader.on("line", (line) => {
             if (line.substring(0, 3) === "###") {
                 item.content[line.substring(4)] = [];
                 bodyCount++;
@@ -761,14 +829,58 @@ module.exports = {
                     item.content[Object.keys(item.content)[bodyCount]].push(line.substring(2));
                 }
             }
-        }).on("close", function () {
+        }).on("close", () => {
             items.push(item);
             let currentVersionFound = false;
+            let betaCurrentVersionFound = false;
             for (let i = 0; i < items.length; i++) {
                 resultHTML += "<div class=\"changelog-item";
+                betaResultHTML += "<div class=\"changelog-item";
+                if (!betaCurrentVersionFound) {
+                    if (items[i].title.substring(0, 4) === "Beta" || items[i].title.substring(0, 6) === "Stable") {
+                        betaResultHTML += " current\">";
+                        db.get("versions").set("beta", items[i].title.substring(items[i].title.indexOf(" ") + 1)).write();
+                        betaLatestVersionHTML += "<div class=\"changelog-item current\">";
+                        betaLatestVersionHTML += "<div class=\"header\">";
+                        betaLatestVersionHTML += "<div class=\"title\">" + items[i].title + "</div>";
+                        betaLatestVersionHTML += "<div class=\"date\">" + items[i].date + "</div>";
+                        betaLatestVersionHTML += "</div>";
+                        betaLatestVersionHTML += "<div class=\"content\">";
+                        for (let j = 0; j < Object.keys(items[i].content).length; j++) {
+                            betaLatestVersionHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
+                            for (let k = 0; k < items[i].content[Object.keys(items[i].content)[j]].length; k++) {
+                                betaLatestVersionHTML += "<ul class=\"body\">" + items[i].content[Object.keys(items[i].content)[j]][k] + "</ul>";
+                            }
+                            betaLatestVersionHTML += "</div>";
+                        }
+                        betaCurrentVersionFound = true;
+                    } else if (items[i].title === "Announcement") {
+                        betaResultHTML += " announcement\">";
+                    } else {
+                        betaResultHTML += "\">";
+                    }
+                } else if (items[i].title === "Announcement") {
+                    betaResultHTML += " announcement\">";
+                } else {
+                    betaResultHTML += "\">";
+                }
                 if (!currentVersionFound) {
-                    if ((beta && (items[i].title.substring(0, 4) === "Beta" || items[i].title.substring(0, 6) === "Stable")) || (!beta && (items[i].title.substring(0, 6) === "Stable"))) {
+                    if (items[i].title.substring(0, 6) === "Stable") {
                         resultHTML += " current\">";
+                        db.get("versions").set("stable", items[i].title.substring(items[i].title.indexOf(" ") + 1)).write();
+                        latestVersionHTML += "<div class=\"changelog-item current\">";
+                        latestVersionHTML += "<div class=\"header\">";
+                        latestVersionHTML += "<div class=\"title\">" + items[i].title + "</div>";
+                        latestVersionHTML += "<div class=\"date\">" + items[i].date + "</div>";
+                        latestVersionHTML += "</div>";
+                        latestVersionHTML += "<div class=\"content\">";
+                        for (let j = 0; j < Object.keys(items[i].content).length; j++) {
+                            latestVersionHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
+                            for (let k = 0; k < items[i].content[Object.keys(items[i].content)[j]].length; k++) {
+                                latestVersionHTML += "<ul class=\"body\">" + items[i].content[Object.keys(items[i].content)[j]][k] + "</ul>";
+                            }
+                            latestVersionHTML += "</div>";
+                        }
                         currentVersionFound = true;
                     } else if (items[i].title === "Announcement") {
                         resultHTML += " announcement\">";
@@ -785,22 +897,35 @@ module.exports = {
                 resultHTML += "<div class=\"date\">" + items[i].date + "</div>";
                 resultHTML += "</div>";
                 resultHTML += "<div class=\"content\">";
+                betaResultHTML += "<div class=\"header\">";
+                betaResultHTML += "<div class=\"title\">" + items[i].title + "</div>";
+                betaResultHTML += "<div class=\"date\">" + items[i].date + "</div>";
+                betaResultHTML += "</div>";
+                betaResultHTML += "<div class=\"content\">";
                 if (items[i].title !== "Unreleased" && items[i].title !== "Known Issues" && items[i].title !== "Announcement") {
                     for (let j = 0; j < Object.keys(items[i].content).length; j++) {
-                        resultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j] + "</div>";
+                        resultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
+                        betaResultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
                         for (let k = 0; k < items[i].content[Object.keys(items[i].content)[j]].length; k++) {
                             resultHTML += "<ul class=\"body\">" + items[i].content[Object.keys(items[i].content)[j]][k] + "</ul>";
+                            betaResultHTML += "<ul class=\"body\">" + items[i].content[Object.keys(items[i].content)[j]][k] + "</ul>";
                         }
+                        resultHTML += "</div>";
+                        betaResultHTML += "</div>";
                     }
                 } else {
                     for (let j = 0; j < items[i].content["Default"].length; j++) {
                         resultHTML += "<ul class=\"body\">" + items[i].content["Default"][j] + "</ul>";
+                        betaResultHTML += "<ul class=\"body\">" + items[i].content["Default"][j] + "</ul>";
                     }
                 }
                 resultHTML += "</div>";
                 resultHTML += "</div>";
+                betaResultHTML += "</div>";
+                betaResultHTML += "</div>";
             }
-            return callback(resultHTML);
+            changelogHTML = resultHTML;
+            betaChangelogHTML = betaResultHTML;
         });
     }
 };

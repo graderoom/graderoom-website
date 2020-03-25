@@ -39,12 +39,15 @@ module.exports = function (passport) {
         // asynchronous
         process.nextTick(function () {
 
-            let user = authent.getUser(username);
             // if no user is found, return the message
-            if (!user) {
+            if (!authent.userExists(username)) {
                 return done(null, false, req.flash("loginMessage", "User Not Found."));
             }
+            if (authent.userDeleted(username)) {
+                return done(null, false, req.flash("loginMessage", "This account has been deleted. Email graderoom@gmail.com to recover your account."))
+            }
 
+            let user = authent.getUser(username);
             if (bcrypt.compareSync(password, user.password)) {
                 if (user.schoolPassword) {
                     let resp = authent.decryptAndGet(user.username, password);

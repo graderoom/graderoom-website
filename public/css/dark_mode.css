@@ -185,12 +185,16 @@ th {
     color: #BBBBBB;
 }
 
-#changelog-container .current {
+.changelog-container .body {
+    color: #EEEEEE;
+}
+
+.changelog-container .current {
     background-color: rgba(0, 255, 0, 0.06);
 }
 
-#changelog-container .type {
-    color: #222222;
+.changelog-container .type {
+    color: #FFFFFF;
 }
 
 #weightsCard input {
