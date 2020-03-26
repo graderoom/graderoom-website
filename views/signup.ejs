@@ -135,6 +135,8 @@
         }
     }
 
+    let checkingUsername;
+
     function checkUsername(inputID, messageDivID) {
         const usernameRegex = new RegExp('^[a-zA-Z0-9]*$');
 
@@ -158,26 +160,31 @@
             return false;
         }
 
-        $.ajax({
-            url: "/usernameAvailable", type: "POST", async: true,
-            data: {username: username}
-        }).done(() => {
-            if (messageDivID) {
-                // Make sure value is still the same
-                if (username === $(inputID)[0].value) {
-                    $(messageDivID).css('color', 'green').text("Valid username!");
+        $(messageDivID).css('color', 'blue').text("Loading...");
+        if (checkingUsername) {
+            clearTimeout(checkingUsername);
+        }
+        checkingUsername = setTimeout(() => {
+            $.ajax({
+                url: "/usernameAvailable", type: "POST", async: false,
+                data: {username: username}
+            }).done(() => {
+                if (messageDivID) {
+                    // Make sure value is still the same
+                    if (username === $(inputID)[0].value) {
+                        $(messageDivID).css('color', 'green').text("Valid username!");
+                        setTimeout(() => validateSignup(), 400);
+                    }
                 }
-            }
-            return true;
-        }).fail(() => {
-            if (messageDivID) {
-                // Make sure value is still the same
-                if (username === $(inputID)[0].value) {
-                    $(messageDivID).css('color', 'red').text("Username already exists!");
+            }).fail(() => {
+                if (messageDivID) {
+                    // Make sure value is still the same
+                    if (username === $(inputID)[0].value) {
+                        $(messageDivID).css('color', 'red').text("Username already exists!");
+                    }
                 }
-            }
-            return false;
-        });
+            });
+        }, 1000);
 
     }
 
@@ -259,6 +266,8 @@
         return true;
     }
 
+    let checkingBetaKey;
+
     function checkBetaKey(inputID, messageDivID) {
         const betakeyRegex = new RegExp('^[a-zA-Z0-9]*$');
 
@@ -268,28 +277,39 @@
             return false;
         }
         if (!betakeyRegex.test(betakey) || betakey.length !== 7) {
-            $(messageDivID).css('color', 'red').text('Invalid Beta Key');
+            $(messageDivID).css('color', 'red').text('Invalid beta key!');
             return false;
         }
-        $.ajax({
-            url: "/betaKeyValid", type: "POST", async: true, data: {betaKey: betakey}
-        }).done(() => {
-            if (messageDivID) {
-                // Make sure value is still the same
-                if (betakey === $(inputID)[0].value) {
-                    $(messageDivID).css('color', 'green').text("Valid betakey!");
+
+        $(messageDivID).css('color', 'blue').text('Loading...');
+        if (checkingBetaKey) {
+            clearTimeout(checkingBetaKey);
+        }
+        checkingBetaKey = setTimeout(() => {
+            $.ajax({
+                url: "/betaKeyValid", type: "POST", async: false, data: {betaKey: betakey}
+            }).done((response) => {
+                if (messageDivID) {
+                    // Make sure value is still the same
+                    if (betakey === $(inputID)[0].value) {
+                        $(messageDivID).css('color', 'green').text(response);
+                        setTimeout(() => validateSignup(), 400);
+                    }
                 }
-            }
+            }).fail((data) => {
+                if (messageDivID) {
+                    // Make sure value is still the same
+                    if (betakey === $(inputID)[0].value) {
+                        $(messageDivID).css('color', 'red').text(data.responseText);
+                    }
+                }
+            });
+        }, 1000);
+        if ($(messageDivID).css('color') === 'green') {
             return true;
-        }).fail(() => {
-            if (messageDivID) {
-                // Make sure value is still the same
-                if (betakey === $(inputID)[0].value) {
-                    $(messageDivID).css('color', 'red').text("Beta key already claimed!");
-                }
-            }
+        } else {
             return false;
-        });
+        }
     }
 
     let userDiv = $("#username");
@@ -306,8 +326,11 @@
     betaDiv.on('input', () => validateSignup());
 
     function validateSignup() {
-        if (checkUsername(userDiv) && checkPasswordConfirm(passwordDiv, confirmDiv) && checkBcpEmail(emailDiv) && (betaDiv ? checkBetaKey(betaDiv) : true)) {
-            $(signupBtn).prop('disabled', '');
+        if (checkPasswordConfirm(passwordDiv, confirmDiv) && checkBcpEmail(emailDiv)) {
+            if ($($(userDiv)[0].previousElementSibling.children[0]).css('color') === 'rgb(0, 128, 0)' &&
+                $($(betaDiv)[0].previousElementSibling.children[0]).css('color') === 'rgb(0, 128, 0)') {
+                $(signupBtn).prop('disabled', '');
+            }
         } else {
             $(signupBtn).prop('disabled', 'disabled');
         }

@@ -423,7 +423,7 @@ module.exports = function (app, passport) {
         if (betakeys.filter(o => o.betaKey === req.body.betaKey).length === 0) {
             res.status(400).send("Invalid beta key!");
         } else if (betakeys.filter(o => o.betaKey === req.body.betaKey && !o.claimed).length === 0) {
-            res.status(400).send("Beta key already claimed!")
+            res.status(400).send("Beta key already claimed!");
         } else {
             res.status(200).send("Valid Key!");
         }
