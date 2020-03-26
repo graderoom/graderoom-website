@@ -172,41 +172,40 @@
                                 </td>
                                 <td id="weightTablePoints<%= i %><%= j %>"></td>
                                 <td id="weightTableGrade<%= i %><%= j %>"></td>
-                                <input type="submit" value="Submit">
                             </tr>
 
-                            <label style="color: <%= user.appearance.classColors[i] %>; font-size: 0.9rem; white-space: nowrap; margin-bottom: 0;">Point
-                                Based?</label>
-                            <input
-                                    id="check<%= i %>"
-                                    style="margin: auto;"
-                                    type="checkbox"
-                                    class="form-control"
-                                    name="hasWeights"
-                            <% try { if (JSON.parse(weightData)[grade.class_name]["hasWeights"] === "false") { %>
-                                    checked
-                                    <% }} catch {
-                                    } %>
-                                    oninput="showSubmitButton(this); disableInput('check<%= i %>','collapse<%= i %>');"
-                            >
-                            <script>
-                                function disableInput(checkBoxID, id) {
-                                    $('#' + id).find('.disableable').each(function () {
-                                        if ($('#' + checkBoxID).is(":checked")) {
-                                            $(this).addClass("disabled");
-                                            $(this).attr('disabled', 'disabled');
-                                        } else {
-                                            $(this).removeClass("disabled");
-                                            $(this).removeAttr('disabled');
-                                        }
-                                    })
-                                }
-
-                                disableInput('check<%= i %>', 'collapse<%= i %>');
-                            </script>
                         <% } %>
+                        <label style="font-size: 0.9rem; white-space: nowrap; margin-bottom: 0;">Point
+                            Based?</label>
+                        <input
+                                id="check<%= i %>"
+                                style="margin: auto;"
+                                type="checkbox"
+                                class="form-control"
+                                name="hasWeights"
+                        <% try { if (JSON.parse(weightData)[grade.class_name]["hasWeights"] === "false") { %>
+                                checked
+                                <% }} catch {
+                                } %>
+                                oninput="showSubmitButton(this); disableInput('check<%= i %>','collapse<%= i %>');"
+                        >
+                        <script>
+                            function disableInput(checkBoxID, id) {
+                                $('#' + id).find('.disableable').each(function () {
+                                    if ($('#' + checkBoxID).is(":checked")) {
+                                        $(this).addClass("disabled");
+                                        $(this).attr('disabled', 'disabled');
+                                    } else {
+                                        $(this).removeClass("disabled");
+                                        $(this).removeAttr('disabled');
+                                    }
+                                })
+                            }
+
+                            disableInput('check<%= i %>', 'collapse<%= i %>');
+                        </script>
+                        <button class="btn btn-med" type="submit">Submit</button>
                     </tbody>
-                    </th>
                     <tfoot>
                         <tr>
                             <th colspan="4">
