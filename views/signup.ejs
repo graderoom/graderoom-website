@@ -33,8 +33,6 @@
                         <input oninput="checkLabel(this); checkUsername(this, '#usernameCheckMessage')" type="text"
                                class="form-control"
                                name="username" id="username">
-                        <i class="fa fa-check-circle" style="color: lightgreen; display: none"></i>
-                        <i class="fa fa-close" style="color: red; display: none"></i>
                     </div>
                     <div class="form-group input-group">
                         <i class="lock-bg"></i>
@@ -44,8 +42,6 @@
                         <input oninput="checkLabel(this); checkPassword(this, '#passwordCheckMessage'); checkPasswordConfirm(this, '#confirmPassword', '#passwordConfirmMessage', '#changePasswordBtn')"
                                id="password"
                                type="password" class="form-control" name="password" required>
-                        <i class="fa fa-check-circle" style="color: lightgreen; display: none"></i>
-                        <i class="fa fa-close" style="color: red; display: none"></i>
                     </div>
                     <div class="form-group input-group">
                         <i class="lock-bg"></i>
@@ -55,8 +51,6 @@
                         <input oninput="checkLabel(this); checkPasswordConfirm('#password', this, '#passwordConfirmMessage', '#signupBtn')"
                                id="confirmPassword" type="password"
                                class="form-control" required>
-                        <i class="fa fa-check-circle" style="color: lightgreen; display: none"></i>
-                        <i class="fa fa-close" style="color: red; display: none"></i>
                     </div>
                     <div class="form-group input-group">
                         <i class="email-bg"></i>
@@ -65,8 +59,6 @@
                                     id="emailCheckMessage"></label></label>
                         <input oninput="checkLabel(this); checkBcpEmail(this, '#emailCheckMessage', '#signupBtn')"
                                type="text" class="form-control" name="school_email" id="schoolEmail">
-                        <i class="fa fa-check-circle" style="color: lightgreen; display: none"></i>
-                        <i class="fa fa-close" style="color: red; display: none"></i>
                     </div>
 
                     <% if (needsBeta) { %>
