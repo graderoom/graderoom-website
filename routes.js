@@ -20,11 +20,16 @@ module.exports = function (app, passport) {
             let user = authenticator.getUser(req.user.username);
             let gradeDat = JSON.stringify(user.grades);
             let weightData = JSON.stringify(user.weights);
+            let relClassData = JSON.stringify(authenticator.getRelClassData(req.user.username));
 
             res.render("authorized_index.ejs", {
-                user: req.user, current: "home", userRef: JSON.stringify(user), schoolUsername: req.user.schoolUsername,
+                user: req.user,
+                current: "home",
+                userRef: JSON.stringify(user),
+                schoolUsername: req.user.schoolUsername,
                 gradeData: gradeDat,
-                weightData: weightData
+                weightData: weightData,
+                relevantClassData: relClassData
             });
             return;
         }
@@ -36,19 +41,22 @@ module.exports = function (app, passport) {
     app.get("/viewuser", [isAdmin], (req, res) => {
         if (req.query.usernameToRender) {
             let user = authenticator.getUser(req.query.usernameToRender);
-            let weightData = JSON.stringify(user.weights);
-            let gradeData = JSON.stringify(user.grades);
+            if (user.alerts.remoteAccess === "allowed") {
+                let weightData = JSON.stringify(user.weights);
+                let gradeData = JSON.stringify(user.grades);
+                let relClassData = JSON.stringify(authenticator.getRelClassData(user.username));
 
-            res.render("authorized_index.ejs", {
-                user: user, current: "home", userRef: JSON.stringify(user), schoolUsername: user.schoolUsername,
-                gradeData: gradeData,
-                weightData: weightData,
-                updateGradesMessageSuccess: req.flash("updateGradesMessageSuccess"),
-                updateGradesMessageFail: req.flash("updateGradesMessageFail"),
-                settingsChangeMessageSuccess: req.flash("settingsChangeMessageSuccess"),
-                settingsChangeMessageFail: req.flash("settingsChangeMessageFail")
-            });
-            return;
+                res.render("authorized_index.ejs", {
+                    user: user,
+                    current: "home",
+                    userRef: JSON.stringify(user),
+                    schoolUsername: user.schoolUsername,
+                    gradeData: gradeData,
+                    weightData: weightData,
+                    relevantClassData: relClassData
+                });
+                return;
+            }
         }
         res.redirect("/");
     });
@@ -77,6 +85,19 @@ module.exports = function (app, passport) {
         }
 
         res.redirect("/admin");
+    });
+
+    app.post("/restoreUser", [isAdmin], (req, res) => {
+        let username = req.body.restoreUser;
+        let resp = authenticator.restoreUser(username);
+        if (resp.success) {
+            req.flash("adminSuccessMessage", resp.message);
+        } else {
+            req.flash("adminFailMessage", resp.message);
+        }
+
+        res.redirect("/admin");
+
     });
 
     app.post("/makeadmin", [isAdmin], (req, res) => {
@@ -112,10 +133,12 @@ module.exports = function (app, passport) {
     app.get("/admin", [isAdmin], (req, res) => {
         // admin panel TODO
         let allUsers = authenticator.getAllUsers();
+        let deletedUsers = authenticator.getDeletedUsers();
         res.render("admin.ejs", {
             user: req.user,
             page: "admin",
             userList: allUsers,
+            deletedUserList: deletedUsers,
             adminSuccessMessage: req.flash("adminSuccessMessage"),
             adminFailMessage: req.flash("adminFailMessage")
         });
@@ -134,10 +157,19 @@ module.exports = function (app, passport) {
         res.status(200).send(resp.message);
     });
 
-    app.get("/changelog", [isLoggedIn], async (req, res) => {
-        await authenticator.readChangelog(server.needsBetaKeyToSignUp, result => {
-            res.status(200).send(result);
-        });
+    app.get("/changelog", [isLoggedIn], (req, res) => {
+        let result = authenticator.changelog(server.needsBetaKeyToSignUp);
+        res.status(200).send(result);
+    });
+
+    app.get("/latestVersion", [isLoggedIn], (req, res) => {
+        let result = authenticator.latestVersion(server.needsBetaKeyToSignUp);
+        res.status(200).send(result);
+    });
+
+    app.post("/latestVersionSeen", [isLoggedIn], (req, res) => {
+        authenticator.latestVersionSeen(req.user.username, server.needsBetaKeyToSignUp);
+        res.sendStatus(200);
     });
 
     app.post("/updateAppearance", [isLoggedIn], (req, res) => {
@@ -197,8 +229,7 @@ module.exports = function (app, passport) {
     // show the signup form
     app.get("/signup", (req, res) => {
         res.render("signup.ejs", {
-            message: req.flash("signupMessage"),
-            needsBeta: server.needsBetaKeyToSignUp
+            message: req.flash("signupMessage"), needsBeta: server.needsBetaKeyToSignUp
         });
     });
 
@@ -305,7 +336,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/changealertsettings", [isLoggedIn], (req, res) => {
-        let resp = authenticator.updateAlerts(req.user.username, req.body.updateGradesReminder, req.body.showChangelog);
+        let resp = authenticator.updateAlerts(req.user.username, req.body.updateGradesReminder);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
@@ -313,13 +344,8 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.post("/changelogseen", [isLoggedIn], (req, res) => {
-        authenticator.changelogSeen(req.user.username);
-        res.sendStatus(200);
-    });
-
     app.post("/randomizeclasscolors", [isLoggedIn], (req, res) => {
-        let resp = authenticator.setRandomClassColor(req.user.username, req.body.index);
+        let resp = authenticator.randomizeClassColors(req.user.username);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
@@ -401,31 +427,32 @@ module.exports = function (app, passport) {
 
     });
 
+    app.post("/acceptTerms", [isLoggedIn], (req, res) => {
+        authenticator.acceptTerms(req.user.username);
+        res.redirect("/");
+    });
+
+    app.post("/acceptprivacypolicy", [isLoggedIn], (req, res) => {
+        authenticator.acceptPrivacyPolicy(req.user.username);
+        res.redirect("/");
+    });
+
+    app.post("/setRemoteAccess", [isLoggedIn], (req, res) => {
+        let remoteAccess = (req.body.remoteAccess === "on" ? "allowed" : "denied");
+        authenticator.setRemoteAccess(req.user.username, remoteAccess);
+        res.status(200).send(remoteAccess.substring(0, 1).toUpperCase() + remoteAccess.substring(1) + " remote access!");
+    });
+
+    app.post("/setShowNonacademic", [isLoggedIn], (req, res) => {
+        let showNonAcademic = req.body.showNonAcademic === "on";
+        authenticator.setNonAcademic(req.user.username, showNonAcademic);
+        res.status(200).send("Non-academic classes " + (showNonAcademic ? "will be shown" : "will be hidden"));
+    });
+
     app.get("/classes", [isAdmin], (req, res) => {
         res.render("classes.ejs", {
             user: req.user, page: "classes", classData: authenticator.getAllClassData()
         });
-    });
-
-    app.post("/usernameAvailable", (req, res) => {
-        let username = req.body.username;
-        let usernames = authenticator.getAllUsernames();
-        if (!usernames.includes(username)) {
-            res.sendStatus(200);
-        } else {
-            res.sendStatus(400);
-        }
-    });
-
-    app.post("/betakeyValid", (req, res) => {
-        let betakeys = authenticator.getAllBetaKeyData();
-        if (!betakeys.find({betaKey: req.body.betaKey})) {
-            res.status(400).send("Invalid beta key!");
-        } else if (betakeys.find({betaKey: req.body.betaKey}).claimed) {
-            res.status(400).send("Beta key already claimed!")
-        } else {
-            res.status(200).send("Valid Key!");
-        }
     });
 
     /**
