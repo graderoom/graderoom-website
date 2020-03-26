@@ -217,16 +217,38 @@
                     <form id="changePassword" class="card-footer form-signin" action="/changepassword"
                           method="post">
                         <div class="form-group">
-                            <label>Change Password</label>
-                            <input id="oldPassword" type="password" class="form-control" name="oldPass"
-                                   placeholder="Old Password" required>
-                            <input id="password" type="password" class="form-control"
-                                   name="password" placeholder="New Password" required>
+                            <h5>Change Password</h5>
+                            <br>
+                            <div class="input-group">
+                                <i class="lock-bg"></i>
+                                <label>Old Password</label>
+                                <input oninput="checkLabel(this); checkPassword('#password', '#passwordCheckMessage', this);"
+                                       id="oldPassword" type="password" class="form-control"
+                                       name="oldPass" required>
+                            </div>
+                            <div class="input-group">
+                                <i class="lock-bg"></i>
+                                <label>New Password<label
+                                            style="margin: 0 0 0 2.9rem; font-weight: bold; font-size: small"
+                                            id="passwordCheckMessage"></label></label>
+                                <input oninput="checkLabel(this); checkPassword(this, '#passwordCheckMessage', '#oldPassword'); checkPasswordConfirm(this, '#confirmPassword', '#passwordConfirmMessage', '#changePasswordBtn')"
+                                       id="password"
+                                       type="password" class="form-control" name="password" required>
+                            </div>
+                            <div class="input-group">
+                                <i class="lock-bg"></i>
+                                <label>Confirm New Password<label
+                                            style="margin: 0 0 0 5.5rem; font-weight: bold; font-size: small"
+                                            id="passwordConfirmMessage"></label></label>
+                                <input oninput="checkLabel(this); checkPasswordConfirm('#password', this, '#passwordConfirmMessage', '#changePasswordBtn')"
+                                       id="confirmPassword" type="password"
+                                       class="form-control" required>
+                            </div>
                         </div>
                         <div class="text-center">
                             <button type="submit"
-                                    onclick="ajaxPostForm('#changePassword',['#oldPassword','#password'],'#accountSettingsMessage', true)"
-                                    class="btn btn-default btn-med">
+                                    onclick="ajaxPostForm('#changePassword',['#oldPassword','#password', '#confirmPassword'],'#accountSettingsMessage', true)"
+                                    class="btn btn-default btn-med" id="changePasswordBtn" disabled>
                                 Change Password
                             </button>
                         </div>
@@ -234,9 +256,14 @@
                     <form id="changeSchoolEmail" class="card-footer form-signin" style="margin-top: 1em"
                           action="/changeschoolemail" method="post">
                         <div class="form-group">
-                            <label>Change School Email</label> <input id="school_email" type="text"
-                                                                      class="form-control" name="school_email"
-                                                                      required>
+                            <h5>Change School Email</h5>
+                            <br>
+                            <div class="input-group">
+                                <i class="email-bg"></i>
+                                <label>School Email</label>
+                                <input oninput="checkLabel(this)" id="school_email" type="text" class="form-control"
+                                       name="school_email" required>
+                            </div>
                         </div>
                         <div class="text-center">
                             <button type="submit"
@@ -446,6 +473,64 @@
         document.getElementById(tabName).style.display = "block";
         document.getElementById("btn-" + tabIndex).classList.add("active");
         currentTab = tabIndex;
+    }
+
+    function checkPassword(inputID, messageDivID, oldPasswordID) {
+        const lowerCaseRegex = new RegExp('^(?=.*[a-z])');
+        const upperCaseRegex = new RegExp('^(?=.*[A-Z])');
+        const specialCharacterRegex = new RegExp('^(?=.*[!@#$%^&*])');
+        const numericRegex = new RegExp('^(?=.*[0-9])');
+
+        let password = $(inputID)[0].value;
+        let message;
+
+        if (oldPasswordID && (password === $(oldPasswordID)[0].value)) {
+            message = "You're supposed to be changing your password...";
+        } else if (password.length === 0) {
+            message = "";
+        } else if (password.length < 6) {
+            message = 'Your password must be at least 6 characters long.';
+        } else if (password.length > 64) {
+            message = 'Your password must be fewer than 64 characters long.';
+        } else if (!lowerCaseRegex.test(password)) {
+            message = 'Your password must include at least one lowercase character.';
+        } else if (!upperCaseRegex.test(password)) {
+            message = 'Your password must include at least one uppercase character.';
+        } else if (!specialCharacterRegex.test(password)) {
+            message = 'Your password must include at least one special character.';
+        } else if (!numericRegex.test(password)) {
+            message = 'Your password must include at least one number.';
+        } else {
+            message = 'Strong password!';
+            if (!messageDivID) {
+                return true;
+            }
+            $(messageDivID).css('color', 'green').text(message);
+            return;
+        }
+
+        if (!messageDivID) {
+            return false;
+        }
+        $(messageDivID).css('color', 'red').text(message);
+    }
+
+    function checkPasswordConfirm(inputID, confirmID, messageDivID, buttonID) {
+        let password = $(inputID)[0].value;
+        let confirm = $(confirmID)[0].value;
+        if (checkPassword(inputID)) {
+            if (password === confirm) {
+                $(messageDivID).css('color', 'green').text('Passwords match!');
+                $(buttonID).prop('disabled', '');
+                return;
+            } else if (confirm !== "") {
+                $(messageDivID).css('color', 'red').text('Passwords do not match!');
+                $(buttonID).prop('disabled', 'disabled');
+                return;
+            }
+        }
+        $(messageDivID).text("");
+        $(buttonID).prop('disabled', 'disabled');
     }
 
     function closeMessage(id) {

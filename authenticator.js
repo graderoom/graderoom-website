@@ -348,16 +348,14 @@ module.exports = {
                 });
             }
 
-            if (!isAlphaNumeric(username) || username.length > 16) {
+            if (!isAlphaNumeric(username)) {
                 return resolve({
                     success: false, message: "Username must contain only letters and numbers."
                 });
             }
 
-            if (password.length < 6 || password.length > 64) {
-                return resolve({
-                    success: false, message: "Password must be 6 - 64 characters in length."
-                });
+            if (username.length > 16) {
+                return resolve({success: false, message: "Username must contain 16 or fewer characters."});
             }
 
             if (!validateEmail(schoolUsername)) {
@@ -404,13 +402,35 @@ module.exports = {
             return {success: false, message: "Login Failed"};
         }
 
-    }, changePassword: async function (username, oldPassword, newPassword) {
+    }, changePassword: async function (username, oldPassword, password) {
         let lc_username = username.toLowerCase();
         if (!this.login(username, oldPassword).success) {
             return {success: false, message: "Old Password is Incorrect"};
         }
-        if (newPassword.length < 6 || newPassword.length > 64) {
-            return {success: false, message: "New Password must be 6 - 64 characters in length."};
+        const lowerCaseRegex = new RegExp('^(?=.*[a-z])');
+        const upperCaseRegex = new RegExp('^(?=.*[A-Z])');
+        const specialCharacterRegex = new RegExp('^(?=.*[!@#$%^&*])');
+        const numericRegex = new RegExp('^(?=.*[0-9])');
+
+        let message;
+        if (password.length < 6) {
+            message = 'Your password must be at least 6 characters long.';
+        } else if (password.length > 64) {
+            message = 'Your password must be fewer than 64 characters long.';
+        } else if (!lowerCaseRegex.test(password)) {
+            message = 'Your password must include at least one lowercase character.';
+        } else if (!upperCaseRegex.test(password)) {
+            message = 'Your password must include at least one uppercase character.';
+        } else if (!specialCharacterRegex.test(password)) {
+            message = 'Your password must include at least one special character.';
+        } else if (!numericRegex.test(password)) {
+            message = 'Your password must include at least one number.';
+        } else {
+            message = 'Strong password!';
+            return {success: true, message: message};
+        }
+        if (message) {
+            return {success: false, message: message};
         }
         let user = db.get("users").find({username: lc_username});
         let schoolPass;
@@ -418,10 +438,10 @@ module.exports = {
             schoolPass = this.decryptAndGet(username, oldPassword).message;
         }
         let roundsToGenerateSalt = 10;
-        let hashedPass = bcrypt.hashSync(newPassword, roundsToGenerateSalt);
+        let hashedPass = bcrypt.hashSync(password, roundsToGenerateSalt);
         user.assign({password: hashedPass}).write();
         if (schoolPass) {
-            this.encryptAndStore(username, schoolPass, newPassword);
+            this.encryptAndStore(username, schoolPass, password);
         }
         return {success: true, message: "Password Updated"};
     }, changeSchoolEmail: function (username, schoolUsername) {
@@ -614,8 +634,10 @@ module.exports = {
         let numColors = userRef.get("grades").value().length;
         let classColors = distinctColors({
             count: numColors,
-            lightMin: 100,
-            samples: Math.floor(Math.random() * 800)
+            lightMin: 70,
+            lightMax: 100,
+            chromaMin: 10,
+            samples: Math.floor(Math.random() * 1000 + 500)
         }).map(color => {
             return chroma(color["_rgb"][0], color["_rgb"][1], color["_rgb"][2]).hex();
         }).sort(() => Math.random() - 0.5);
@@ -927,6 +949,15 @@ module.exports = {
             changelogHTML = resultHTML;
             betaChangelogHTML = betaResultHTML;
         });
+    },
+
+    getAllUsernames: function () {
+        let users = db.get("users").value();
+        let usernames = [];
+        for (let i = 0; i < users.length; i++) {
+            usernames.push(users[i].username);
+        }
+        return usernames;
     }
 };
 
