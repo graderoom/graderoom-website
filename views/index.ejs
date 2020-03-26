@@ -73,6 +73,27 @@
         localStorage.setItem("defaultAppearance", "light");
         document.getElementById("pageStyle").setAttribute("href", "/public/css/light_mode.css");
     }
+
+
+    setTimeout(function () {
+        $('input:-webkit-autofill').each(function () {
+            let input = $(this);
+            let label = $($(input)[0].previousElementSibling);
+            label.addClass("label-active");
+        });
+    }, 250);
+
+    function checkLabel(input) {
+        let label = $($(input)[0].previousElementSibling);
+        input = $(input);
+        if (input[0].value !== "") {
+            if (!label.hasClass("label-active")) {
+                label.addClass("label-active");
+            }
+        } else {
+            label.removeClass("label-active");
+        }
+    }
 </script>
 </body>
 </html>

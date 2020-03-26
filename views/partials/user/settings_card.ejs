@@ -475,6 +475,18 @@
         currentTab = tabIndex;
     }
 
+    function checkLabel(input) {
+        let label = $($(input)[0].previousElementSibling);
+        input = $(input);
+        if (input[0].value !== "") {
+            if (!label.hasClass("label-active")) {
+                label.addClass("label-active");
+            }
+        } else {
+            label.removeClass("label-active");
+        }
+    }
+
     function checkPassword(inputID, messageDivID, oldPasswordID) {
         const lowerCaseRegex = new RegExp('^(?=.*[a-z])');
         const upperCaseRegex = new RegExp('^(?=.*[A-Z])');
@@ -484,10 +496,10 @@
         let password = $(inputID)[0].value;
         let message;
 
-        if (oldPasswordID && (password === $(oldPasswordID)[0].value)) {
-            message = "You're supposed to be changing your password...";
-        } else if (password.length === 0) {
+        if (password.length === 0) {
             message = "";
+        } else if (oldPasswordID && (password === $(oldPasswordID)[0].value)) {
+            message = "You're supposed to be changing your password...";
         } else if (password.length < 6) {
             message = 'Your password must be at least 6 characters long.';
         } else if (password.length > 64) {

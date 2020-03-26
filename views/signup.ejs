@@ -28,7 +28,7 @@
                     <div class="form-group input-group">
                         <i class="user-bg"></i>
                         <label>Username<label
-                                    style="margin: 0 0 0 1.9rem; font-weight: bold; font-size: small"
+                                    style="margin: 0 0 0 1rem; font-weight: bold; font-size: small"
                                     id="usernameCheckMessage"></label></label>
                         <input oninput="checkLabel(this); checkUsername(this, '#usernameCheckMessage')" type="text"
                                class="form-control"
@@ -71,10 +71,10 @@
 
                     <% if (needsBeta) { %>
                         <div class="form-group input-group">
-                            <i class="key-bg"><label
-                                        style="margin: 0 0 0 1.9rem; font-weight: bold; font-size: small"
-                                        id="betakeyCheckMessage"></label></i>
-                            <label>Beta Key</label>
+                            <i class="key-bg"></i>
+                            <label>Beta Key<label
+                                        style="margin: 0 0 0 0.7rem; font-weight: bold; font-size: small"
+                                        id="betakeyCheckMessage"></label></label>
                             <input oninput="checkLabel(this); checkBetaKey(this, '#betakeyCheckMessage')"
                                    class="form-control" type="text" name="beta_key"
                                    id="betaKey">
@@ -135,14 +135,16 @@
         }
     }
 
-    let usernameTest;
-
     function checkUsername(inputID, messageDivID) {
-        clearTimeout(usernameTest);
-        console.log($(messageDivID));
-        const usernameRegex = new RegExp('^(?=.*[a-zA-Z0-9])');
+        const usernameRegex = new RegExp('^[a-zA-Z0-9]*$');
 
         let username = $(inputID)[0].value;
+        if (username.length === 0) {
+            if (messageDivID) {
+                $(messageDivID).text("");
+            }
+            return false;
+        }
         if (!usernameRegex.test(username)) {
             if (messageDivID) {
                 $(messageDivID).css('color', 'red').text("Username must contain only letters and numbers");
@@ -156,22 +158,26 @@
             return false;
         }
 
-        usernameTest = setTimeout(() => {
-            $.ajax({
-                url: "/usernameAvailable", type: "POST", async: true,
-                data: {username: username}
-            }).done(() => {
-                if (messageDivID) {
+        $.ajax({
+            url: "/usernameAvailable", type: "POST", async: true,
+            data: {username: username}
+        }).done(() => {
+            if (messageDivID) {
+                // Make sure value is still the same
+                if (username === $(inputID)[0].value) {
                     $(messageDivID).css('color', 'green').text("Valid username!");
                 }
-                return true;
-            }).fail(() => {
-                if (messageDivID) {
+            }
+            return true;
+        }).fail(() => {
+            if (messageDivID) {
+                // Make sure value is still the same
+                if (username === $(inputID)[0].value) {
                     $(messageDivID).css('color', 'red').text("Username already exists!");
                 }
-                return false;
-            });
-        }, 400);
+            }
+            return false;
+        });
 
     }
 
@@ -253,12 +259,8 @@
         return true;
     }
 
-    let betakeyTest;
-
     function checkBetaKey(inputID, messageDivID) {
-        clearTimeout(betakeyTest);
-
-        const betakeyRegex = new RegExp('^(?=.*[a-zA-Z0-9])');
+        const betakeyRegex = new RegExp('^[a-zA-Z0-9]*$');
 
         let betakey = $(inputID)[0].value;
         if (betakey === "") {
@@ -266,14 +268,28 @@
             return false;
         }
         if (!betakeyRegex.test(betakey) || betakey.length !== 7) {
-            $(messageDivID.css('color', 'red').text('Invalid Beta Key'));
+            $(messageDivID).css('color', 'red').text('Invalid Beta Key');
             return false;
         }
-        betakeyTest = setTimeout(() => {
-            $.ajax({
-                url: "/betaKeyValid", type: "POST", async: true, data: {betaKey: betakey}
-            })
-        }, 400);
+        $.ajax({
+            url: "/betaKeyValid", type: "POST", async: true, data: {betaKey: betakey}
+        }).done(() => {
+            if (messageDivID) {
+                // Make sure value is still the same
+                if (betakey === $(inputID)[0].value) {
+                    $(messageDivID).css('color', 'green').text("Valid betakey!");
+                }
+            }
+            return true;
+        }).fail(() => {
+            if (messageDivID) {
+                // Make sure value is still the same
+                if (betakey === $(inputID)[0].value) {
+                    $(messageDivID).css('color', 'red').text("Beta key already claimed!");
+                }
+            }
+            return false;
+        });
     }
 
     let userDiv = $("#username");
