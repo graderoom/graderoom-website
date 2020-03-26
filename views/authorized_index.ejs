@@ -152,14 +152,15 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]).length; j++) { %>
-                            <tr>
+                    <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]).length; j++) { %>
+                        <tr>
                                 <td id="weightTableCategory<%= i %><%= j %>"></td>
-                                <% let weights = JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]%>
-                                <% let category = Object.keys(weights)[j]%>
-                                <% let value = weights[category]%>
-                                <td class= "form-group" id="weightTableWeight<%= i %><%= j %>">
-                                    <input class= "number-input" style="<% if (!value && value != 0) { %> border-color: lightcoral; <% } else { %> border-color: <%= user.appearance.classColors[i] %>!important; <% } %>"
+                            <% let weights = JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"] %>
+                            <% let category = Object.keys(weights)[j] %>
+                            <% let value = weights[category] %>
+                            <td class="form-group" id="weightTableWeight<%= i %><%= j %>">
+                                    <input class="number-input"
+                                           style="<% if (!value && value != 0) { %> border-color: lightcoral; <% } else { %> border-color: <%= user.appearance.classColors[i] %>!important; <% } %>"
                                            value="<%= value %>"
                                            type="number"
                                            min="0"
@@ -174,21 +175,21 @@
                                 <td id="weightTableGrade<%= i %><%= j %>"></td>
                             </tr>
 
-                        <% } %>
-                        <label style="font-size: 0.9rem; white-space: nowrap; margin-bottom: 0;">Point
-                            Based?</label>
+                    <% } %>
+                    </tbody>
+                        <label style="font-size: 0.9rem; white-space: nowrap; ">Point
+                            Based?
                         <input
                                 id="check<%= i %>"
-                                style="margin: auto;"
                                 type="checkbox"
                                 class="form-control"
                                 name="hasWeights"
-                        <% try { if (JSON.parse(weightData)[grade.class_name]["hasWeights"] === "false") { %>
+                        <% try { if (JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["hasWeights"] === "false") { %>
                                 checked
                                 <% }} catch {
                                 } %>
-                                oninput="showSubmitButton(this); disableInput('check<%= i %>','collapse<%= i %>');"
-                        >
+                                oninput="showSubmitButton(this); disableInput('check<%= i %>','weightsTable<%= i %>');"
+                        ></label>
                         <script>
                             function disableInput(checkBoxID, id) {
                                 $('#' + id).find('.disableable').each(function () {
@@ -205,7 +206,6 @@
                             disableInput('check<%= i %>', 'collapse<%= i %>');
                         </script>
                         <button class="btn btn-med" type="submit">Submit</button>
-                    </tbody>
                     <tfoot>
                         <tr>
                             <th colspan="4">
@@ -240,23 +240,23 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% for (let grade of JSON.parse(gradeData)[i].grades) { %>
-                        <tr>
+                <% for (let grade of JSON.parse(gradeData)[i].grades) { %>
+                    <tr>
                             <td><%= grade.assignment_name %> </td>
                             <td><%= grade.date %> </td>
                             <td><%= grade.category + (grade.exclude ? " (EXCLUDED) " : "") %></td>
-                            <% if (grade.grade_percent == -1) { %>
-                                <td></td>
-                            <% } else { %>
-                                <td><%= grade.grade_percent %></td>
-                            <% } %>
-                            <% if (grade.points_possible != 0) { %>
-                                <td><%= grade.points_gotten %>/<%= grade.points_possible %></td>
-                            <% } else { %>
-                                <td><%= grade.points_gotten %></td>
-                            <% } %>
-                        </tr>
-                    <% } %>
+                        <% if (grade.grade_percent == -1) { %>
+                            <td></td>
+                        <% } else { %>
+                            <td><%= grade.grade_percent %></td>
+                        <% } %>
+                        <% if (grade.points_possible != 0) { %>
+                            <td><%= grade.points_gotten %>/<%= grade.points_possible %></td>
+                        <% } else { %>
+                            <td><%= grade.points_gotten %></td>
+                        <% } %>
+                    </tr>
+                <% } %>
                 </tbody>
             </table>
         </span>
@@ -683,14 +683,14 @@
                 return {x: assignmentTimestamps[i], y: grade};
             });
             parsedData.push({
-                                assignmentNames: assignmentNames,
-                                assignmentTimestamps: assignmentTimestamps,
-                                assignmentPercents: assignmentPercents,
-                                assignmentScoresParsed: assignmentScoresParsed,
-                                assignmentCategories: assignmentCategories,
-                                assignmentExcluded: assignmentExcluded,
-                                mixedData: mixedData
-                            });
+                assignmentNames: assignmentNames,
+                assignmentTimestamps: assignmentTimestamps,
+                assignmentPercents: assignmentPercents,
+                assignmentScoresParsed: assignmentScoresParsed,
+                assignmentCategories: assignmentCategories,
+                assignmentExcluded: assignmentExcluded,
+                mixedData: mixedData
+            });
         }
     }
 
@@ -713,21 +713,21 @@
         let colors = user.appearance.classColors;
         for (let i = 0; i < data.length; i++) {
             dataset.push({
-                             label: data[i].class_name,
-                             backgroundColor: "transparent",
-                             pointBackgroundColor: colors[i],
-                             pointBorderColor: "transparent",
-                             borderColor: colors[i],
-                             data: parsedData[i].mixedData,
-                             cubicInterpolationMode: "monotone",
-                             spanGaps: false,
-                             pointRadius: 3,
-                             borderWidth: 3,
-                             pointHoverRadius: 7,
-                             pointHoverBackgroundColor: colors[i],
-                             pointHoverBorderColor: colors[i],
-                             pointHoverBorderWidth: 2
-                         });
+                label: data[i].class_name,
+                backgroundColor: "transparent",
+                pointBackgroundColor: colors[i],
+                pointBorderColor: "transparent",
+                borderColor: colors[i],
+                data: parsedData[i].mixedData,
+                cubicInterpolationMode: "monotone",
+                spanGaps: false,
+                pointRadius: 3,
+                borderWidth: 3,
+                pointHoverRadius: 7,
+                pointHoverBackgroundColor: colors[i],
+                pointHoverBorderColor: colors[i],
+                pointHoverBorderWidth: 2
+            });
         }
         let numRunning = 0;
         let myChart = new Chart(ctx, {
@@ -987,10 +987,10 @@
     function isDST() {
         return Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset();
     }
-    
-    $("form.form-weights input").on("input", function(){
+
+    $("form.form-weights input").on("input", function () {
         $(this).parents("form").submit();
-    }) 
+    });
 
     $(function initAjaxFormPosts() {
         if ($("form.form-weights").length > 0) {
@@ -1015,8 +1015,8 @@
                         let message = $(this).find(".messageTxt");
 
                         $.ajax({
-                                   type: "POST", url: $(form).attr("action"), data: formData
-                               }).done(function (response) {
+                            type: "POST", url: $(form).attr("action"), data: formData
+                        }).done(function (response) {
                             // Make sure that the formMessages div has the alert-success class.
                             $(formMessagesDiv).removeClass("fail");
                             $(formMessagesDiv).addClass("success");
