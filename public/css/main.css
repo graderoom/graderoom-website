@@ -217,6 +217,82 @@ table thead tr th:last-child {
     border: none;
 }
 
+.changelog-container {
+    position: relative;
+    max-height: 70vh;
+    overflow-y: scroll;
+    font-family: "Quicksand", sans-serif;
+}
+
+.changelog-container .added {
+    background-color: rgba(28, 155, 221, 0.5);
+}
+
+.changelog-container .announcement .content {
+    padding-top: 1.75rem;
+    font-weight: bold;
+}
+
+.changelog-container .body {
+    margin: 0 0 0 2rem;
+    padding: 0;
+    display: list-item;
+    font-size: 1.2rem;
+    font-weight: normal;
+    line-height: 1.5rem;
+}
+
+.changelog-container .changelog-item {
+    border-radius: 0.5rem;
+    padding: 0.1rem 0.5rem 2rem 0.5rem;
+}
+
+.changelog-container .content {
+    display: inline-block;
+    width: 98%;
+    border-radius: 0.5rem;
+}
+
+.changelog-container .date {
+    vertical-align: top;
+    border-radius: 50%;
+    opacity: .5;
+}
+
+.changelog-container .fixed {
+    background-color: rgba(255, 180, 0, 0.5);
+}
+
+.changelog-container .header {
+    width: fit-content;
+    margin: 0.5rem 0.5rem 0 0.5rem;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.changelog-container .improved {
+    background-color: rgba(44, 185, 103, 0.5);
+}
+
+.changelog-container .removed {
+    background-color: rgba(221, 103, 28, 0.5);
+}
+
+.changelog-container .title {
+    width: fit-content;
+    margin: 0;
+    font-size: 1.2rem;
+    font-style: oblique;
+}
+
+.changelog-container .type {
+    font-weight: bold;
+    font-size: 1.2rem;
+    padding: 0.5rem 1rem 1rem 1rem;
+    margin: 0.9rem 0 0.9rem 1rem;
+    border-radius: 0.5rem;
+}
+
 .collapsed h5:hover {
     font-weight: bold !important;
 }
@@ -232,7 +308,7 @@ table thead tr th:last-child {
     font-weight: bold;
     margin-left: 20px;
     width: fit-content;
-    border-radius: 1em;
+    border-radius: 0.5rem;
     text-align-last: center;
     max-height: 10rem;
     overflow-y: auto;
@@ -549,80 +625,9 @@ table thead tr th:last-child {
     border-radius: 0 0 0.5rem 0.5rem;
 }
 
-#changelog-container {
-    position: relative;
-    height: 30rem;
-    overflow-y: scroll;
-}
-
-#changelog-container .added {
-    background-color: #1C9BDD;
-}
-
-#changelog-container .announcement .content {
-    padding-top: 1.75rem;
-    font-weight: bold;
-}
-
-#changelog-container .body {
-    margin: 0 0 0 2rem;
-    padding: 0;
-    display: list-item;
-    font-size: 0.9rem;
-}
-
-#changelog-container .changelog-item {
-    padding: 0.1rem 0.5rem 2rem 0.5rem;
-}
-
 #changelog-container .changelog-item:first-child .content,
 #changelog-container .changelog-item:nth-child(2) .content {
     padding-top: 1.75rem;
-}
-
-#changelog-container .content {
-    font-family: "JetBrains Mono", monospace;
-    display: inline-block;
-    width: 75%;
-}
-
-#changelog-container .date {
-    vertical-align: top;
-    border-radius: 50%;
-    opacity: .5;
-}
-
-#changelog-container .fixed {
-    background-color: #FFB400;
-}
-
-#changelog-container .header {
-    width: 25%;
-    display: inline-block;
-    vertical-align: top;
-}
-
-#changelog-container .improved {
-    background-color: #2CB967;
-}
-
-#changelog-container .removed {
-    background-color: #DD671C;
-}
-
-#changelog-container .title {
-    width: fit-content;
-    margin: 0;
-    font-size: 1.2rem;
-    font-style: oblique;
-}
-
-#changelog-container .type {
-    display: inline-block;
-    font-weight: bold;
-    padding: 0.1rem 0.5rem 0.1rem 0.5rem;
-    margin: 0.9rem 0 0.1rem 1rem;
-    border-radius: 1rem;
 }
 
 #weightsCard h5 {
