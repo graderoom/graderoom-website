@@ -8,7 +8,7 @@
                  style="width: fit-content; margin-bottom:0">
                 <i class="fa fa-close" aria-hidden="true"></i> Close
             </btn>
-            <div class="card-body" style="max-height: 60vh">
+            <div class="card-body" style="max-height: 60vh; transition: 500ms">
                 <div id="updateGradesMessage" class="alert alert-success alert-dismissible"
                      style="display:none">
                     <div style="display: flex">
@@ -37,19 +37,14 @@
                     <h5 id="schoolUsernameDisplay" class="school-username text-center"><%= schoolUsername %></h5>
                     <br>
                     <form id="syncGradesForm" class="form-signin" action="/update" method="post">
-                        <div class="form-group">
-                            <input name="school_password" type="password" id="inputPassword" class="form-control"
-                                   placeholder="School Password" required>
-                        </div>
                         <label style="cursor: pointer; float: right; text-align: left" class="popup"
                                onclick="toggleInputUserPasswordDisplay()">
                             <input style="cursor: inherit"
                                    id="savePasswordToggle"
                                    type="checkbox"
                                    name="savePassword"
-                            <% if (user.schoolPassword) { %> checked
-                                    <% } %>
-                            > GradeSync
+                                   checked
+                            > Sync Grades on Login
                             <i class="fa fa-info-circle popup">
                                     <span class="popuptext">
                                         <p>Graderoom will sync automatically whenever you login.</p>
@@ -57,11 +52,17 @@
                                     </span>
                             </i>
                         </label>
-                        <br><br>
-                        <div id="userPassword" class="form-group" style="display:none">
-                            <h6>Enter your Graderoom Password to enable GradeSync</h6>
-                            <input name="user_password" type="password" id="inputUserPassword" class="form-control"
-                                   placeholder="Graderoom Password">
+                        <div class="form-group input-group">
+                            <i class="lock-bg"></i>
+                            <label>School Password</label>
+                            <input oninput="checkLabel(this)" name="school_password" type="password" id="inputPassword"
+                                   class="form-control" required>
+                        </div>
+                        <div id="userPassword" class="form-group input-group" style="display:none">
+                            <i class="user-bg"></i>
+                            <label>Graderoom Password</label>
+                            <input oninput="checkLabel(this)" name="user_password" type="password"
+                                   id="inputUserPassword" class="form-control" required>
                         </div>
                         <div class="text-center">
                             <button class="btn btn-lg btn-default" type="submit"
@@ -107,6 +108,8 @@
 </div>
 
 <script>
+    toggleInputUserPasswordDisplay();
+
     function toggleInputUserPasswordDisplay() {
         if ($("#savePasswordToggle").is(":checked")) {
             $("#userPassword").show();
