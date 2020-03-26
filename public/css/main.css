@@ -605,6 +605,8 @@ table thead tr th:last-child {
     display: none;
     padding: 6px 12px;
     border-top: none;
+    max-height: 60vh;
+    overflow: scroll;
 }
 
 .table th {
