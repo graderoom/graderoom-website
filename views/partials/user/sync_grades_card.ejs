@@ -9,8 +9,8 @@
                 <i class="fa fa-close" aria-hidden="true"></i> Close
             </btn>
             <div class="card-body" style="max-height: 60vh; transition: 500ms">
-                <div id="updateGradesMessage" class="alert alert-success alert-dismissible"
-                     style="display:none">
+                <div id="updateGradesMessage" class="alert alert-info alert-dismissible"
+                     style="display:block">
                     <div style="display: flex">
                         <div style="display:none" class="sk-chase-mini">
                             <div class="sk-chase-dot mini"></div>
@@ -31,7 +31,6 @@
                     <a class="close" onclick="closeMessage('updateGradesMessage')" aria-label="close">X</a>
                 </div>
                 <h1 class="card-title text-center">School Login</h1>
-                <div id="synced" style="display: none"></div>
                 <div id="syncGradesDiv" style="display: none">
                     <h5 class="text-center">Enter password for:</h5>
                     <h5 id="schoolUsernameDisplay" class="school-username text-center"><%= schoolUsername %></h5>
@@ -117,6 +116,44 @@
         } else {
             $("#userPassword").hide();
             $("#inputUserPassword").removeAttr("required");
+        }
+    }
+
+    let checkLastUpdated;
+
+    function setupLastUpdated() {
+        const SECOND = 1000;
+        const MINUTE = 60 * SECOND;
+        const HOUR = 60 * MINUTE;
+        const DAY = 24 * HOUR;
+
+        let messageDiv = $("#updateGradesMessage");
+        let message = messageDiv.find(".messageTxt");
+        let lastUpdated = user.alerts.lastUpdated;
+        let deltaTime = Date.now() - lastUpdated;
+        if (lastUpdated === "never") {
+            message.text("Never synced");
+        } else {
+            if (checkLastUpdated) {
+                clearInterval(checkLastUpdated);
+            }
+            if (deltaTime < MINUTE) {
+                checkLastUpdated = setInterval(setupLastUpdated, 100);
+                let seconds = Math.floor(deltaTime / SECOND);
+                message.text("Last synced " + seconds + " second" + (seconds > 1 ? "s" : "") + " ago.");
+            } else if (deltaTime < HOUR) {
+                checkLastUpdated = setInterval(setupLastUpdated, 6 * SECOND);
+                let minutes = Math.floor(deltaTime / MINUTE);
+                message.text("Last synced " + minutes + " minute" + (minutes > 1 ? "s" : "") + " ago.");
+            } else if (deltaTime < DAY) {
+                checkLastUpdated = setInterval(setupLastUpdated, 6 * MINUTE);
+                let hours = Math.floor(deltaTime / HOUR);
+                message.text("Last synced " + hours + " hour" + (hours > 1 ? "s" : "") + " ago.");
+            } else {
+                checkLastUpdated = setInterval(setupLastUpdated, 2.4 * HOUR);
+                let days = Math.floor(deltaTime / DAY);
+                message.text("Last synced " + days + " day" + (days > 1 ? "s" : "") + " ago.");
+            }
         }
     }
 </script>

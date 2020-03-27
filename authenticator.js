@@ -238,7 +238,12 @@ module.exports = {
         }
         if (Object.keys(userRef.value().alerts).includes("changelogLastShown")) {
             delete user.alerts.changelogLastShown;
-            userRef.get("alerts").set("latestSeen", "1.0.0");
+            userRef.get("alerts").set("latestSeen", "1.0.0").write();
+        }
+
+        // Remove autorefresh var
+        if (Object.keys(userRef.value()).includes("autoRefresh")) {
+            delete user.autoRefresh;
         }
 
         // Fixes db for all old users
@@ -405,7 +410,7 @@ module.exports = {
         if (bcrypt.compareSync(password, user.password)) {
             return {success: true, message: "Login Successful"};
         } else {
-            return {success: false, message: "Login Failed"};
+            return {success: false, message: "Graderoom Password is incorrect"};
         }
 
     }, changePassword: async function (username, oldPassword, password) {
@@ -431,9 +436,6 @@ module.exports = {
             message = 'Your password must include at least one special character.';
         } else if (!numericRegex.test(password)) {
             message = 'Your password must include at least one number.';
-        } else {
-            message = 'Strong password!';
-            return {success: true, message: message};
         }
         if (message) {
             return {success: false, message: message};
@@ -589,10 +591,11 @@ module.exports = {
                 this.addDbClass(grade_update_status.new_grades[i].class_name, grade_update_status.new_grades[i].teacher_name);
             }
         }
+        console.log(userRef.value().appearance.classColors.length, grade_update_status.new_grades.length);
+        userRef.assign({grades: grade_update_status.new_grades}).write();
         if (userRef.value().appearance.classColors.length !== grade_update_status.new_grades.length) {
             this.randomizeClassColors(lc_username);
         }
-        userRef.assign({grades: grade_update_status.new_grades}).write();
         userRef.get("alerts").set("lastUpdated", Date.now()).write();
         userRef.set("updatedInBackground", "already done").write();
         return {success: true, message: "Updated grades!"};
