@@ -525,6 +525,7 @@ module.exports = {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         if (user.get("updatedInBackground").value() === "complete") {
+            user.set("updatedInBackground", "already done").write();
             return {success: true, message: "Sync Complete!"};
         } else if (user.get("updatedInBackground").value() === "already done") {
             return {success: true, message: "Already Synced!"};
@@ -572,7 +573,6 @@ module.exports = {
                 this.addDbClass(grade_update_status.new_grades[i].class_name, grade_update_status.new_grades[i].teacher_name);
             }
         }
-        console.log(userRef.value().appearance.classColors.length, grade_update_status.new_grades.length);
         userRef.assign({grades: grade_update_status.new_grades}).write();
         if (userRef.value().appearance.classColors.length !== grade_update_status.new_grades.length) {
             this.randomizeClassColors(lc_username);

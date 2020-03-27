@@ -436,7 +436,6 @@
             async function checkUpdateBackground() {
                 $.get("/checkUpdateBackground", function (data, status) {
                     if (status === "success") {
-                        console.log(data);
                         if (data === "Sync Complete!") {
                             $("#preRefresh").hide();
                             $("#backgroundRefreshMessage").hide();
@@ -453,7 +452,7 @@
                 let checking = window.setInterval(function () {
                     $.get("/checkUpdateBackground", function (data, status) {
                         if (status === "success") {
-                            console.log(data);
+                            console.log(data, status);
                             if (data === "Sync Complete!") {
                                 $("#preRefresh").hide();
                                 $("#backgroundRefreshMessage").hide();
