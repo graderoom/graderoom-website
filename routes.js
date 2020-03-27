@@ -139,6 +139,7 @@ module.exports = function (app, passport) {
 
     app.get("/checkUpdateBackground", [isLoggedIn], (req, res) => {
         let resp = authenticator.checkUpdateBackground(req.user.username);
+        console.log(req.user.username, resp);
         res.status(200).send(resp.message);
     });
 
