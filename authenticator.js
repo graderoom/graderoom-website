@@ -205,6 +205,11 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
 
+        // Add loggedIn vars
+        if (!Object.keys(user).includes("loggedIn")) {
+            userRef.set("loggedIn", "never").write();
+        }
+
         // Add privacy policy and terms vars
         if (!Object.keys(user.alerts).includes("policyLastSeen")) {
             userRef.get("alerts").set("policyLastSeen", "never").write();
@@ -782,7 +787,7 @@ module.exports = {
         return {success: true, message: decryptedPass};
     },
 
-    latestVersion: function (beta) {
+    whatsNew: function (username, beta) {
         if (beta) {
             return betaLatestVersionHTML;
         } else {
@@ -948,6 +953,12 @@ module.exports = {
             usernames.push(users[i].username);
         }
         return usernames;
+    },
+
+    setLoggedIn: function (username) {
+        console.log(username);
+        let userRef = db.get("users").find({username: username.toLowerCase()});
+        userRef.set("loggedIn", Date.now()).write();
     }
 };
 

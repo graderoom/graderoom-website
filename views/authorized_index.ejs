@@ -161,11 +161,12 @@
                                 <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
                                     <% if (user.appearance.showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
                                         <td class="overview"
-                                            style="padding-top: 0; cursor: pointer; color: <%= user.appearance.classColors[i] %>"
+                                            style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= user.appearance.classColors[i] %>"
                                             onclick="showPage(<%= i + offset %>)">
                                             <div id="overviewChart<%= i + offset %>"
                                                  style="display:none; font-weight:bolder"></div>
-                                            <div id="weightmsgcontainer<%= i + offset %>" style="display:none">
+                                            <div id="weightmsgcontainer<%= i + offset %>"
+                                                 style="margin: 0.5rem; display:none">
                                                 <div class="alert alert-danger font-weight-bold"
                                                      id="weightmsg<%= i + offset %>"><u style="cursor: pointer"
                                                                                         onclick="showUpdateWeights(<%= i + offset %>)">Add
@@ -726,7 +727,7 @@
                         }
                         delta = (delta ? (" <div style=\"display: inline-block; font-size: smaller; color: " + color + "\">" + delta + "</div>") : "");
                         document.getElementById("overviewChart" + i).innerHTML =
-                            delta + "<br>" + (+(overallGrade.toFixed(4))).toString() + "%" + "<br>" + getLetterGrade(overallGrade);
+                            (+(overallGrade.toFixed(4))).toString() + "%" + "<br>" + getLetterGrade(overallGrade) + "<br>" + delta;
                         document.getElementById("overviewChart" + i).parentElement.style.backgroundColor = bgColor;
                         document.getElementById("overview" + i).style.backgroundColor = bgColor;
                     } else {

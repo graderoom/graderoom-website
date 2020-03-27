@@ -41,7 +41,7 @@ module.exports = function (passport) {
 
             // if no user is found, return the message
             if (!authent.userExists(username)) {
-                return done(null, false, req.flash("loginMessage", "User Not Found."));
+                return done(null, false, req.flash("loginMessage", "Invalid Credentials"));
             }
             if (authent.userDeleted(username)) {
                 return done(null, false, req.flash("loginMessage", "This account has been deleted. Email graderoom@gmail.com to recover your account."))
@@ -49,6 +49,7 @@ module.exports = function (passport) {
 
             let user = authent.getUser(username);
             if (bcrypt.compareSync(password, user.password)) {
+                authent.setLoggedIn(user.username);
                 if (user.schoolPassword) {
                     let resp = authent.decryptAndGet(user.username, password);
                     let schoolPass = resp.message;
@@ -56,7 +57,7 @@ module.exports = function (passport) {
                 }
                 return done(null, user);
             }
-            return done(null, false, req.flash("loginMessage", "Incorrect Password."));
+            return done(null, false, req.flash("loginMessage", "Invalid Credentials"));
         });
     }));
 };
