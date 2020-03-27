@@ -44,6 +44,7 @@
 ### Fixed
 - Background color of class gain/loss on overview page
 - What's new display correctly shows on new updates
+- Sizing issue for sync grades card
 
 ## [Beta 1.8.0] - 2020-03-26
 ### Added
