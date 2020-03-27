@@ -601,12 +601,12 @@ table thead tr th:last-child {
     overflow: scroll;
 }
 
-.table th {
-    border-top: none;
+.table {
+    border-radius: 1rem;
 }
 
-.table {
-    border-radius: 0.5rem;
+.table th {
+    border-top: none;
 }
 
 .tablinks {

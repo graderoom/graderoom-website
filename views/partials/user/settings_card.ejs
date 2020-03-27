@@ -201,23 +201,25 @@
             </div>
             <div id="settings-2" class="tabcontent">
                 <div class="card-body">
-                    <div id="accountSettingsMessage" class="alert alert-success alert-dismissible font-weight-bold"
-                         style="display:none">
-                        <div style="display:none" class="sk-chase-mini">
-                            <div class="sk-chase-dot mini"></div>
-                            <div class="sk-chase-dot mini"></div>
-                            <div class="sk-chase-dot mini"></div>
-                            <div class="sk-chase-dot mini"></div>
-                            <div class="sk-chase-dot mini"></div>
-                            <div class="sk-chase-dot mini"></div>
-                        </div>
-                        <div class="messageTxt"></div>
-                        <a class="close" onclick="closeMessage('accountSettingsMessage')" aria-label="close">X</a>
-                    </div>
                     <form id="changePassword" class="card-footer form-signin" action="/changepassword"
                           method="post">
                         <div class="form-group">
                             <h5>Change Password</h5>
+                            <div id="passwordChangeMessage"
+                                 class="alert alert-success alert-dismissible font-weight-bold"
+                                 style="display:none">
+                                <div style="display:none" class="sk-chase-mini">
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                </div>
+                                <div class="messageTxt"></div>
+                                <a class="close" onclick="closeMessage('passwordChangeMessage')"
+                                   aria-label="close">X</a>
+                            </div>
                             <br>
                             <div class="input-group">
                                 <i class="lock-bg"></i>
@@ -247,7 +249,7 @@
                         </div>
                         <div class="text-center">
                             <button type="submit"
-                                    onclick="ajaxPostForm('#changePassword',['#oldPassword','#password', '#confirmPassword'],'#accountSettingsMessage', true)"
+                                    onclick="ajaxPostForm('#changePassword',['#oldPassword','#password', '#confirmPassword'],'#passwordChangeMessage', true)"
                                     class="btn btn-default btn-med" id="changePasswordBtn" disabled>
                                 Change Password
                             </button>
@@ -257,6 +259,19 @@
                           action="/changeschoolemail" method="post">
                         <div class="form-group">
                             <h5>Change School Email</h5>
+                            <div id="emailChangeMessage" class="alert alert-success alert-dismissible font-weight-bold"
+                                 style="display:none">
+                                <div style="display:none" class="sk-chase-mini">
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                </div>
+                                <div class="messageTxt"></div>
+                                <a class="close" onclick="closeMessage('emailChangeMessage')" aria-label="close">X</a>
+                            </div>
                             <br>
                             <div class="input-group">
                                 <i class="email-bg"></i>
@@ -267,7 +282,7 @@
                         </div>
                         <div class="text-center">
                             <button type="submit"
-                                    onclick=" updateSchoolUsernameDisplay(); ajaxPostForm('#changeSchoolEmail',['#school_email'],'#accountSettingsMessage', true);"
+                                    onclick=" updateSchoolUsernameDisplay(); ajaxPostForm('#changeSchoolEmail',['#school_email'],'#emailChangeMessage', true);"
                                     class="btn btn-default btn-med">
                                 Change School Email
                             </button>
@@ -333,19 +348,6 @@
                                     <% if (user.schoolPassword) { %> checked
                                             <% } %>
                                     > Enable
-                                </label>
-                                <br>
-                                <label style="cursor: pointer; text-align: left" class="popup">
-                                    <input id="autoRefreshToggle" type="checkbox" name="autoRefresh"
-                                    <% if (user.autoRefresh) { %> checked
-                                            <% } %>
-                                    > Auto-Refresh
-                                    <i class="fa fa-info-circle popup">
-                                        <span class="popuptext">
-                                            After GradeSync is complete, Graderoom will refresh automatically to display
-                                            the most recent data.
-                                        </span>
-                                    </i>
                                 </label>
                                 <div class="text-center">
                                     <button type="submit" class="btn btn-default btn-med">

@@ -20,11 +20,13 @@ module.exports = function (app, passport) {
             let user = authenticator.getUser(req.user.username);
             let gradeDat = JSON.stringify(user.grades);
             let weightData = JSON.stringify(user.weights);
+            let relClassData = JSON.stringify(authenticator.getRelClassData(req.user.username));
 
             res.render("authorized_index.ejs", {
                 user: req.user, current: "home", userRef: JSON.stringify(user), schoolUsername: req.user.schoolUsername,
                 gradeData: gradeDat,
-                weightData: weightData
+                weightData: weightData,
+                relevantClassData: relClassData
             });
             return;
         }
@@ -112,10 +114,12 @@ module.exports = function (app, passport) {
     app.get("/admin", [isAdmin], (req, res) => {
         // admin panel TODO
         let allUsers = authenticator.getAllUsers();
+        let deletedUsers = authenticator.getDeletedUsers();
         res.render("admin.ejs", {
             user: req.user,
             page: "admin",
             userList: allUsers,
+            deletedUserList: deletedUsers,
             adminSuccessMessage: req.flash("adminSuccessMessage"),
             adminFailMessage: req.flash("adminFailMessage")
         });
@@ -135,9 +139,8 @@ module.exports = function (app, passport) {
     });
 
     app.get("/changelog", [isLoggedIn], async (req, res) => {
-        await authenticator.readChangelog(server.needsBetaKeyToSignUp, result => {
-            res.status(200).send(result);
-        });
+        let result = authenticator.changelog(server.needsBetaKeyToSignUp);
+        res.status(200).send(result);
     });
 
     app.post("/updateAppearance", [isLoggedIn], (req, res) => {
@@ -147,6 +150,16 @@ module.exports = function (app, passport) {
         } else {
             res.status(400).send(resp.message);
         }
+    });
+
+    app.post("/acceptPrivacyPolicy", [isLoggedIn], (req, res) => {
+        authenticator.acceptPrivacyPolicy(req.user.username);
+        res.redirect("/");
+    });
+
+    app.post("/acceptTerms", [isLoggedIn], (req, res) => {
+        authenticator.acceptTerms(req.user.username);
+        res.redirect("/");
     });
 
     app.post("/updateGradeSync", [isLoggedIn], (req, res) => {
@@ -165,6 +178,7 @@ module.exports = function (app, passport) {
 
     app.post("/changepassword", [isLoggedIn], async (req, res) => {
 
+        console.table(req.body);
         let old_pass = req.body.oldPass;
         let new_pass = req.body.password;
         let resp = await authenticator.changePassword(req.user.username, old_pass, new_pass);
@@ -305,7 +319,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/changealertsettings", [isLoggedIn], (req, res) => {
-        let resp = authenticator.updateAlerts(req.user.username, req.body.updateGradesReminder, req.body.showChangelog);
+        let resp = authenticator.updateAlerts(req.user.username, req.body.updateGradesReminder);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
@@ -313,13 +327,8 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.post("/changelogseen", [isLoggedIn], (req, res) => {
-        authenticator.changelogSeen(req.user.username);
-        res.sendStatus(200);
-    });
-
     app.post("/randomizeclasscolors", [isLoggedIn], (req, res) => {
-        let resp = authenticator.setRandomClassColor(req.user.username, req.body.index);
+        let resp = authenticator.randomizeClassColors(req.user.username);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
@@ -368,6 +377,15 @@ module.exports = function (app, passport) {
             page: "keys"
         });
 
+    });
+
+    app.get("/latestVersion", [isLoggedIn], (req, res) => {
+        res.status(200).send(authenticator.latestVersion(server.needsBetaKeyToSignUp));
+    });
+
+    app.post("/latestVersionSeen", [isLoggedIn], (req, res) => {
+        authenticator.latestVersionSeen(req.user.username, server.needsBetaKeyToSignUp);
+        res.sendStatus(200);
     });
 
     app.post("/newbetakey", [isAdmin], (req, res) => {

@@ -82,13 +82,6 @@
                         </div>
                     </div>
                 </span>
-                <span style="display: none;" id="refresh"> <u style="cursor: pointer"
-                                                              onclick="window.reload()">Refresh</u>
-                    to see new updates or turn on Auto-Refresh in <u style="cursor: pointer"
-                                                                     onclick="showCard('#settingsCardDisplay'); openTab(3);">settings</u>.
-                    <a class="close" data-dismiss="alert"
-                       aria-label="close">X</a>
-                </span>
             </div>
             <% var daysSinceUpdated = 0; %>
             <% if (user.alerts.lastUpdated.toString().toLowerCase() == ('never')) { %> <br>
@@ -168,7 +161,7 @@
                                 <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
                                     <% if (user.appearance.showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
                                         <td class="overview"
-                                            style="cursor: pointer; color: <%= user.appearance.classColors[i] %>"
+                                            style="padding-top: 0; cursor: pointer; color: <%= user.appearance.classColors[i] %>"
                                             onclick="showPage(<%= i + offset %>)">
                                             <div id="overviewChart<%= i + offset %>"
                                                  style="display:none; font-weight:bolder"></div>
@@ -260,27 +253,34 @@
                             </table>
                         </div>
                         <hr>
-                        <table class="table text-center" id="table<%= i %>">
+                        <table class="table text-center" id="table<%= i + offset %>">
                             <thead>
                                 <tr>
-                                    <th style="width:25%;">Assignment Name</th>
-                                    <th style="width:25%;">Date</th>
-                                    <th style="width:25%;">Category</th>
-                                    <th style="width:25%;">Assignment Percent</th>
-                                    <th style="width:25%;">Score</th>
+                                    <th>Date</th>
+                                    <th>Assignment Name</th>
+                                    <th>Category</th>
+                                    <th>Score</th>
+                                    <th>Assignment Percent</th>
+                                    <th>Overall Grade</th>
                                 </tr>
                             </thead>
                             <tbody>
-                            <% for (let grade of JSON.parse(gradeData)[i].grades) { %>
-                                <tr>
-                                        <td><%= grade.assignment_name %> </td>
+                            <% let jOffset = 0; %>
+                            <% for (let j = 0; j < JSON.parse(gradeData)[i + offset].grades.length; j++) { %>
+                                <% grade = JSON.parse(gradeData)[i + offset].grades[j] %>
+                                <tr
+                                <% if (!grade.exclude) { %> id="classTable<%= i %><%= j + jOffset %>"
+                                        <% } else {
+                                            jOffset-- %>
+                                                            id="excluded<%= i + offset %><%= j + jOffset + 1 %>"
+                                        <% } %>
+                                >
                                         <td><%= grade.date %> </td>
+                                        <td <% if (!grade.exclude) { %>id="assignmentName<%= i + offset %><%= j + jOffset %>"
+                                            <% } else { %>id="excludedAssignmentName<%= i + offset %><%= j + jOffset + 1 %>"
+                                                <% } %>
+                                        ><%= grade.assignment_name %> </td>
                                         <td><%= grade.category + (grade.exclude ? " (EXCLUDED) " : "") %></td>
-                                    <% if (grade.grade_percent == -1) { %>
-                                        <td></td>
-                                    <% } else { %>
-                                        <td><%= grade.grade_percent %></td>
-                                    <% } %>
                                     <% if (grade.points_gotten === false && grade.points_possible === false) { %>
                                         <td>--</td>
                                     <% } else if (grade.points_gotten === false) { %>
@@ -290,6 +290,15 @@
                                     <% } else { %>
                                         <td><%= grade.points_gotten %></td>
                                     <% } %>
+                                    <% if (grade.grade_percent == -1) { %>
+                                        <td></td>
+                                    <% } else { %>
+                                        <td><%= grade.grade_percent %></td>
+                                    <% } %>
+                                    <td
+                                    <% if (!grade.exclude) { %> id="assignment<%= i + offset %><%= j + jOffset %>"
+                                            <% } else { %>
+                                                                class="excludedAssignment<%= i + offset %><%= j + jOffset + 1 %><% } %>"></td>
                                 </tr>
                             <% } %>
                             </tbody>
@@ -326,6 +335,7 @@
             parseData();
             setupWeightsTables();
             setupOverviewTable();
+            setupClassTables();
             setupIncorrectGradeMessages();
             updateWeightMessages();
             setupGPADisplay();
@@ -428,12 +438,8 @@
                     if (status === "success") {
                         if (data === "Sync Complete!") {
                             $("#preRefresh").hide();
-                            if (user.autoRefresh) {
-                                $("#backgroundRefreshMessage").hide();
-                                window.reload();
-                            } else {
-                                $("#refresh").show();
-                            }
+                            $("#backgroundRefreshMessage").hide();
+                            setTimeout(() => window.reload(), 400);
                             clearInterval(checking);
                         } else if (data === "Already Synced!") {
                             clearInterval(checking);
@@ -449,12 +455,8 @@
                         if (status === "success") {
                             if (data === "Sync Complete!") {
                                 $("#preRefresh").hide();
-                                if (user.autoRefresh) {
-                                    $("#backgroundRefreshMessage").hide();
-                                    window.reload();
-                                } else {
-                                    $("#refresh").show();
-                                }
+                                $("#backgroundRefreshMessage").hide();
+                                setTimeout(() => window.reload(), 400);
                                 clearInterval(checking);
                             } else if (data === "Already Synced!") {
                                 clearInterval(checking);
@@ -625,12 +627,67 @@
                         }
                     }
                     let overallGrade = getOverallGrade(i);
-                    document.getElementById("weightTableOverallGrade" + i).textContent = (+(overallGrade.toFixed(4))).toString() + "% (" + getLetterGrade(overallGrade) + ")";
+                    let assignmentData = parsedData[i].mixedData.map(o => o.y);
+                    let lastIndex = assignmentData.length - 1;
+                    let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(2);
+                    let color;
+                    if (delta > 0) {
+                        delta = "<i class=\"fa fa-caret-up\"></i>" + delta + "%";
+                        color = "green";
+                    } else if (delta < 0) {
+                        delta = "<i class=\"fa fa-caret-down\"></i>" + delta + "%";
+                        color = "red";
+                    }
+                    delta = (delta ? (" <div style=\"display: inline-block; margin-left: 1rem; color: " + color + "\">" + delta + "</div>") : "");
+                    document.getElementById("weightTableOverallGrade" + i).innerHTML =
+                        (+(overallGrade.toFixed(4))).toString() + "% (" + getLetterGrade(overallGrade) + ")" + delta;
                     if (!unobtainedWeights[className]) {
                         document.getElementById("weightTableOverallGrade" + i).style.display = "block";
                     } else {
                         document.getElementById("weightTablemsg" + i).style.display = "block";
                     }
+                }
+            }
+
+            function setupClassTables() {
+                for (let i = 0; i < data.length; i++) {
+                    let assignmentData = parsedData[i].mixedData.map(o => o.y);
+                    for (let j = 0; j < Object.keys(data[i].grades).length; j++) {
+                        let display = +isNaN(parseFloat(assignmentData[j]).toFixed(2)) ? +parseFloat(assignmentData[assignmentData.length - 1]).toFixed(2) : parseFloat(assignmentData[j]).toFixed(2);
+                        let delta = (assignmentData[j] - assignmentData[j - 1]).toFixed(2);
+                        let deltaValue = assignmentData[j] - assignmentData[j - 1];
+                        let color;
+                        let bgColor;
+                        if (delta > 0) {
+                            if (assignmentData[j] <= 100) {
+                                bgColor = "rgba(0, 255, 0, " + (Math.sqrt(Math.min(delta, 100)) / 10 * 0.5) + ")";
+                            }
+                            delta = "(+" + delta + "%) <i class=\"fa fa-long-arrow-up\"></i>";
+                            color = "green";
+                        } else if (delta < 0) {
+                            if (assignmentData[j - 1] <= 100) {
+                                bgColor = "rgba(255, 0, 0, " + (Math.sqrt(Math.min(-delta, 100)) / 10 * 0.5) + ")";
+                            }
+                            delta = "(" + delta + "%) <i class=\"fa fa-long-arrow-down\"></i>";
+                            color = "red";
+                        } else {
+                            bgColor = "rgba(0, 0, 255, " + (delta / 100) + ")";
+                            delta = "(±0.00%) <i class=\"fa fa-arrows-v\"></i>";
+                        }
+                        let excludedDisplay = display + "% " + "<div style=\"display: inline-block; font-weight: normal; font-size: smaller\">(±0.00%) " + "<i class=\"fa fa-arrows-v\"></i>" + "</div>";
+                        display = display + "% " + "<div style=\"display: inline-block; font-weight: normal; font-size: smaller\">" + delta + "</div>";
+                        $("#assignment" + i + j).css('color', color).html(display);
+                        if (color) {
+                            $("#assignment" + i + j).css('font-weight', 'bold');
+                        }
+                        console.log(deltaValue);
+                        $("#classTable" + i + j).css('background-color', bgColor);
+                        let excluded = $(".excludedAssignment" + i + j);
+                        if (excluded.length) {
+                            excluded.html(excludedDisplay);
+                        }
+                    }
+
                 }
             }
 
@@ -640,7 +697,21 @@
                     if (!unobtainedWeights[className]) {
                         document.getElementById("overviewChart" + i).style.display = "block";
                         let overallGrade = getOverallGrade(i);
-                        document.getElementById("overviewChart" + i).innerHTML = (+(overallGrade.toFixed(countDecimals(data[i].overall_percent)))).toString() + "% </br>" + getLetterGrade(overallGrade);
+                        let assignmentData = parsedData[i].mixedData.map(o => o.y);
+                        let lastIndex = assignmentData.length - 1;
+                        let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(2);
+                        let color;
+                        if (delta > 0) {
+                            delta = "<i class=\"fa fa-caret-up\"></i>" + delta + "%";
+                            color = "green";
+                        } else if (delta < 0) {
+                            delta = "<i class=\"fa fa-caret-down\"></i>" + delta + "%";
+                            color = "red";
+                        }
+                        delta = (delta ? (" <div style=\"display: inline-block; font-size: smaller; color: " + color + "\">" + delta + "</div>") : "");
+                        document.getElementById("overviewChart" + i).innerHTML =
+                            delta + "<br>" + (+(overallGrade.toFixed(4))).toString() + "%" + "<br>" + getLetterGrade(overallGrade);
+                        // document.getElementById("overviewChart" + i).innerHTML = (+(overallGrade.toFixed(countDecimals(data[i].overall_percent)))).toString() + "% </br>" + getLetterGrade(overallGrade);
                     } else {
                         document.getElementById("weightmsgcontainer" + i).style.display = "block";
                     }
@@ -745,7 +816,7 @@
                                     overallPercent = overallPercent + (value.weight * (value.totalPossible !== 0 ? (value.totalGotten / value.totalPossible) : value.totalGotten));
                                 }
                                 let total = +(((overallPercent / totalWeightValue) * 100).toFixed(4));
-                                //rounds to 3 decimal places (the plus sign drops any trailing zeros)
+                                //rounds to 4 decimal places (the plus sign drops any trailing zeros)
                                 overallGradeSteps.push(total);
                             }
                         } catch (err) {
@@ -787,6 +858,7 @@
 
             function renderOverviewChart() {
                 let ctx = document.getElementById("chart-1");
+                ctx.innerHTML = "";
                 let id = 0;
                 let dataset = [];
                 let _colors = colors;
@@ -889,6 +961,7 @@
 
             function renderChart(id) {
                 let ctx = document.getElementById("chart" + id);
+                ctx.innerHTML = "";
                 let _colors = colors;
                 let myChart = new Chart(ctx, {
                     type: "line", data: {
