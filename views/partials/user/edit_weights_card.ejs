@@ -179,14 +179,14 @@
 
                         let className = encodeURI($(form).find("h5").attr("id"));
                         let hasWeights = encodeURI(!($(form).find('input[name="hasWeights"]')).is(':checked'));
-                        formData = "className=" + className + "&hasWeights=" + hasWeights + "&newWeights=" + weightURI;
+                        let formData = "className=" + className + "&hasWeights=" + hasWeights + "&newWeights=" + weightURI;
 
                         let formMessagesDiv = $(this).find(".alert-custom");
                         let message = $(this).find(".messageTxt");
 
                         $.ajax({
-                                   type: "POST", url: $(form).attr("action"), data: formData
-                               }).done(function (response) {
+                            type: "POST", url: $(form).attr("action"), data: formData
+                        }).done(function (response) {
                             // Make sure that the formMessages div has the alert-success class.
                             $(formMessagesDiv).removeClass("fail");
                             $(formMessagesDiv).addClass("success");

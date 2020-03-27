@@ -85,6 +85,18 @@ module.exports = function (app, passport) {
         res.redirect("/admin");
     });
 
+    app.post("/restoreUser", [isAdmin], (req, res) => {
+        let username = req.body.restoreUser;
+        let resp = authenticator.restoreUser(username);
+        if (resp.success) {
+            req.flash("adminSuccessMessage", resp.message);
+        } else {
+            req.flash("adminFailMessage", resp.message);
+        }
+
+        res.redirect("/admin");
+    });
+
     app.post("/makeadmin", [isAdmin], (req, res) => {
         let username = req.body.newAdminUser;
         console.log("Got request to make admin: " + username);
@@ -385,7 +397,7 @@ module.exports = function (app, passport) {
     });
 
     app.get("/latestVersion", [isLoggedIn], (req, res) => {
-        res.status(200).send(authenticator.latestVersion(server.needsBetaKeyToSignUp));
+        res.status(200).send(authenticator.whatsNew(req.user.username, server.needsBetaKeyToSignUp));
     });
 
     app.post("/latestVersionSeen", [isLoggedIn], (req, res) => {

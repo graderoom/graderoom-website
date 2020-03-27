@@ -52,6 +52,7 @@
                 <th class="admin">Username</th>
                 <th class="admin">Name</th>
                 <th class="admin">Last Updated</th>
+                <th class="admin">Last Logged In</th>
                 <th class="admin">Attributes</th>
                 <th class="admin">Render User Site</th>
                 <th class="admin">Delete User</th>
@@ -68,6 +69,13 @@
                             Never Updated
                         <% } else { %>
                             <%= new Date(u.alerts.lastUpdated).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) %>
+                        <% } %>
+                    </td>
+                    <td class="admin">
+                        <% if (new Date(u.loggedIn).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
+                            Never Logged In
+                        <% } else { %>
+                            <%= new Date(u.loggedIn).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) %>
                         <% } %>
                     </td>
                     <td class="admin">
