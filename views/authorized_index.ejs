@@ -182,9 +182,6 @@
                         <input
                                 id="check<%= i %>"
                                 style="margin: auto; display: inline-block;" 
-
-
-
                                 type="checkbox"
                                 class="form-control"
                                 name="hasWeights"
@@ -210,10 +207,7 @@
 
                             disableInput('check<%= i %>', 'collapse<%= i %>');
                         </script>
-                        <br>
-                        <br>
-                        <br>
-                        <br>
+                     
                         <button style="display: none;" class="btn btn-med formSubmitButton" type="submit">Apply</button>
                     </tbody>
                     <tfoot>
@@ -548,9 +542,9 @@
             let tableWeights = Object.values(weights[className]["weights"]);
             for (let j = 0; j < tableCategories.length; j++) {
                 document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
-                if (tableWeights[j] || tableWeights[j] === 0) {
-                    document.getElementById("weightTableWeight" + i + j).textContent = tableWeights[j] + "%";
-                }
+                // if (tableWeights[j] || tableWeights[j] === 0) {
+                //     document.getElementById("weightTableWeight" + i + j).textContent = tableWeights[j] + "%";
+                // }
                 let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
                 document.getElementById("weightTablePoints" + i + j).textContent = +(categoryGottenAndPossible.gotten.toFixed(3)) + ((categoryGottenAndPossible.possible !== 0) ? ("/" + +(categoryGottenAndPossible.possible.toFixed(3))) : "");
                 let categoryGrade = getCategoryGrade(i, tableCategories[j]);
@@ -1037,6 +1031,7 @@
                                 });
                             }
 
+
                             $(form).find("input").each(function () {
                                 $(this).blur();
                                 if ($(this)[0].value) {
@@ -1055,24 +1050,11 @@
                                 } else {
                                     $(this).css("color", "lightcoral");
                                     $($(this)[0].nextElementSibling).css("border-color", "lightcoral");
+
                                 }
                             });
-
-                            // Set the message text.
-                            $(message).text(response);
-
-                            parseData();
-                            updateWeightMessages();
-                        }).fail(function (data) {
-
-                            // Set the message text.
-                            if (data.responseText !== "") {
-                                $(message).text(data.responseText);
-                            } else {
-                                $(message).text("Oops! An error occurred and your message could not be sent.");
-                            }
-
-                        });
+                            window.reload();
+                        });            
                     }
                 });
             });
