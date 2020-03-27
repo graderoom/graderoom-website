@@ -434,22 +434,6 @@
             }
 
             async function checkUpdateBackground() {
-                $.get("/checkUpdateBackground", function (data, status) {
-                    if (status === "success") {
-                        if (data === "Sync Complete!") {
-                            $("#preRefresh").hide();
-                            $("#backgroundRefreshMessage").hide();
-                            setTimeout(() => window.reload(), 400);
-                            clearInterval(checking);
-                        } else if (data === "Already Synced!") {
-                            clearInterval(checking);
-                            showLatest(false);
-                        } else if (data === "Did not sync") {
-                            $("#backgroundRefreshMessage").show();
-                            $("#weightmsg-1").hide();
-                        }
-                    }
-                });
                 let checking = window.setInterval(function () {
                     $.get("/checkUpdateBackground", function (data, status) {
                         if (status === "success") {
