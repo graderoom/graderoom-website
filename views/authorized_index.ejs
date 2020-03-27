@@ -456,8 +456,8 @@
                             if (data === "Sync Complete!") {
                                 $("#preRefresh").hide();
                                 $("#backgroundRefreshMessage").hide();
-                                setTimeout(() => window.reload(), 400);
                                 clearInterval(checking);
+                                setTimeout(() => window.reload(), 400);
                             } else if (data === "Already Synced!") {
                                 clearInterval(checking);
                             } else if (data === "Did not sync") {
