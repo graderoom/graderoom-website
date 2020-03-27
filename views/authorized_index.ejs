@@ -657,7 +657,6 @@
                     for (let j = 0; j < Object.keys(data[i].grades).length; j++) {
                         let display = +isNaN(parseFloat(assignmentData[j]).toFixed(2)) ? +parseFloat(assignmentData[assignmentData.length - 1]).toFixed(2) : parseFloat(assignmentData[j]).toFixed(2);
                         let delta = (assignmentData[j] - assignmentData[j - 1]).toFixed(2);
-                        let deltaValue = assignmentData[j] - assignmentData[j - 1];
                         let color;
                         let bgColor;
 
@@ -710,7 +709,7 @@
 
                         const colorAlphaFunction = (delta) => {
                             let abs = Math.abs(delta);
-                            let max = 0.4;
+                            let max = 0.2;
                             let maxInput = 10;
                             let cutoff = Math.min(abs, maxInput);
                             return max * Math.pow(cutoff / maxInput, 1 / 2.5);
