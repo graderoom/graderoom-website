@@ -152,6 +152,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <h5 style="display: none;"><%=JSON.parse(gradeData)[i].class_name%></h5>
                         <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]).length; j++) { %>
                             <tr>
                                 <td id="weightTableCategory<%= i %><%= j %>"></td>
@@ -176,10 +177,10 @@
 
                         <% } %>
                         <label style="font-size: 0.9rem; white-space: nowrap; margin-bottom: 0;">Point
-                            Based?</label>
+                            Based 
                         <input
                                 id="check<%= i %>"
-                                style="margin: auto;"
+                                style="margin: auto; display: inline-block;" 
                                 type="checkbox"
                                 class="form-control"
                                 name="hasWeights"
@@ -189,6 +190,7 @@
                                 } %>
                                 oninput="showSubmitButton(this); disableInput('check<%= i %>','collapse<%= i %>');"
                         >
+                        </label>
                         <script>
                             function disableInput(checkBoxID, id) {
                                 $('#' + id).find('.disableable').each(function () {
@@ -204,7 +206,11 @@
 
                             disableInput('check<%= i %>', 'collapse<%= i %>');
                         </script>
-                        <button class="btn btn-med" type="submit">Submit</button>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                        <button style="display: none;" class="btn btn-med formSubmitButton" type="submit">Apply</button>
                     </tbody>
                     <tfoot>
                         <tr>
@@ -984,6 +990,10 @@
         }
     };
 
+    function showSubmitButton(element) {
+        $(element).parents("form").find(".formSubmitButton").show();
+    }
+
     function isDST() {
         return Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset();
     }
@@ -1007,7 +1017,7 @@
                         });
                         weightURI = encodeURIComponent(JSON.stringify(weightURI));
 
-                        let className = encodeURI($(form).find("h5").attr("id"));
+                        let className = encodeURI($(form).find("h5")[0].innerText);
                         let hasWeights = encodeURI(!($(form).find('input[name="hasWeights"]')).is(':checked'));
                         formData = "className=" + className + "&hasWeights=" + hasWeights + "&newWeights=" + weightURI;
 
