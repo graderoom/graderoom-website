@@ -183,7 +183,6 @@
     function checkPassword(inputID, messageDivID, oldPasswordID) {
         const lowerCaseRegex = new RegExp('^(?=.*[a-z])');
         const upperCaseRegex = new RegExp('^(?=.*[A-Z])');
-        const specialCharacterRegex = new RegExp('^(?=.*[!@#$%^&*])');
         const numericRegex = new RegExp('^(?=.*[0-9])');
 
         let password = $(inputID)[0].value;
@@ -201,8 +200,6 @@
             message = 'Your password must include at least one lowercase character.';
         } else if (!upperCaseRegex.test(password)) {
             message = 'Your password must include at least one uppercase character.';
-        } else if (!specialCharacterRegex.test(password)) {
-            message = 'Your password must include at least one special character.';
         } else if (!numericRegex.test(password)) {
             message = 'Your password must include at least one number.';
         } else {
