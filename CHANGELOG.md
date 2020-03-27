@@ -43,6 +43,7 @@
 ## [Beta 1.8.1] - 2020-03-26
 ### Fixed
 - Background color of class gain/loss on overview page
+- What's new display correctly shows on new updates
 
 ## [Beta 1.8.0] - 2020-03-26
 ### Added

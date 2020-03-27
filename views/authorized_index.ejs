@@ -443,6 +443,7 @@
                             setTimeout(() => window.reload(), 400);
                         } else if (data === "Already Synced!") {
                             clearInterval(checking);
+                            showLatest(false);
                         } else if (data === "Did not sync") {
                             $("#backgroundRefreshMessage").show();
                             $("#weightmsg-1").hide();
@@ -460,6 +461,7 @@
                                 setTimeout(() => window.reload(), 400);
                             } else if (data === "Already Synced!") {
                                 clearInterval(checking);
+                                showLatest(false);
                             } else if (data === "Did not sync") {
                                 $("#backgroundRefreshMessage").show();
                                 $("#weightmsg-1").hide();
