@@ -35,12 +35,18 @@ module.exports = function (app, passport) {
         });
     });
 
+    app.post("/setShowNonAcademic", [isLoggedIn], (req, res) => {
+        let show = req.body.showNonAcademic === "on";
+        authenticator.setNonAcademic(req.user.username, show);
+        res.status(200).send("Non-academic classes will be " + (show ? "shown" : "hidden"));
+    });
+
     app.get("/viewuser", [isAdmin], (req, res) => {
         if (req.query.usernameToRender) {
             let user = authenticator.getUser(req.query.usernameToRender);
             let weightData = JSON.stringify(user.weights);
             let gradeData = JSON.stringify(user.grades);
-            let relClassData = authenticator.getRelClassData(req.query.usernameToRender);
+            let relClassData = JSON.stringify(authenticator.getRelClassData(req.query.usernameToRender));
 
             res.render("authorized_index.ejs", {
                 user: user, current: "home", userRef: JSON.stringify(user), schoolUsername: user.schoolUsername,
@@ -339,8 +345,6 @@ module.exports = function (app, passport) {
         if (req.isAuthenticated()) {
             res.render("final_grade_calculator.ejs", {
                 current: "calc",
-                calculatorSuccessMessage: req.flash("calculatorSuccessMessage"),
-                calculatorFailMessage: req.flash("calculatorFailMessage"),
                 user: req.user,
                 gradeData: JSON.stringify(req.user.grades),
                 userRef: JSON.stringify(req.user),
@@ -348,12 +352,15 @@ module.exports = function (app, passport) {
             });
         } else {
             req.session.returnTo = req.originalUrl;
-            res.render("final_grade_calculator_logged_out.ejs", {
-                calculatorSuccessMessage: req.flash("calculatorSuccessMessage"),
-                calculatorFailMessage: req.flash("calculatorFailMessage")
-            });
+            res.render("final_grade_calculator_logged_out.ejs");
         }
 
+    });
+
+    app.post("/setRemoteAccess", [isLoggedIn], (req, res) => {
+        let allowed = req.body.remoteAccess === "on" ? "allowed" : "denied";
+        authenticator.setRemoteAccess(req.user.username, allowed);
+        res.status(200).send(allowed.substring(0, 1).toUpperCase() + allowed.substring(1) + " remote access.");
     });
 
     app.post("/calculate", [isLoggedIn], (req, res) => {
