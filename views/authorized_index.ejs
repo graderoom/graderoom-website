@@ -137,7 +137,7 @@
                                 <% offset = 0; %>
                                 <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
                                     <% if (user.appearance.showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
-                                        <th class="overview"
+                                        <th id="overview<%= i + offset %>" class="overview"
                                             style="cursor: pointer; color: <%= user.appearance.classColors[i] %>"
                                             onclick="showPage(<%= i + offset %>)">
                                             <%= JSON.parse(gradeData)[i].class_name %>
@@ -658,20 +658,24 @@
                         let deltaValue = assignmentData[j] - assignmentData[j - 1];
                         let color;
                         let bgColor;
+
+                        const colorAlphaFunction = (delta) => {
+                            let abs = Math.abs(delta);
+                            let max = 0.2;
+                            let maxInput = 10;
+                            let cutoff = Math.min(abs, maxInput);
+                            return max * Math.pow(cutoff / maxInput, 1 / 2.5);
+                        };
+
                         if (delta > 0) {
-                            if (assignmentData[j] <= 100) {
-                                bgColor = "rgba(0, 255, 0, " + (Math.sqrt(Math.min(delta, 100)) / 10 * 0.5) + ")";
-                            }
+                            bgColor = "rgba(0, 255, 0, " + colorAlphaFunction(delta) + ")";
                             delta = "(+" + delta + "%) <i class=\"fa fa-long-arrow-up\"></i>";
                             color = "green";
                         } else if (delta < 0) {
-                            if (assignmentData[j - 1] <= 100) {
-                                bgColor = "rgba(255, 0, 0, " + (Math.sqrt(Math.min(-delta, 100)) / 10 * 0.5) + ")";
-                            }
+                            bgColor = "rgba(255, 0, 0, " + colorAlphaFunction(delta) + ")";
                             delta = "(" + delta + "%) <i class=\"fa fa-long-arrow-down\"></i>";
                             color = "red";
                         } else {
-                            bgColor = "rgba(0, 0, 255, " + (delta / 100) + ")";
                             delta = "(±0.00%) <i class=\"fa fa-arrows-v\"></i>";
                         }
                         let excludedDisplay = display + "% " + "<div style=\"display: inline-block; font-weight: normal; font-size: smaller\">(±0.00%) " + "<i class=\"fa fa-arrows-v\"></i>" + "</div>";
@@ -701,17 +705,30 @@
                         let lastIndex = assignmentData.length - 1;
                         let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(2);
                         let color;
+                        let bgColor;
+
+                        const colorAlphaFunction = (delta) => {
+                            let abs = Math.abs(delta);
+                            let max = 0.4;
+                            let maxInput = 10;
+                            let cutoff = Math.min(abs, maxInput);
+                            return max * Math.pow(cutoff / maxInput, 1 / 2.5);
+                        };
+
                         if (delta > 0) {
+                            bgColor = "rgba(0, 255, 0, " + colorAlphaFunction(delta) + ")";
                             delta = "<i class=\"fa fa-caret-up\"></i>" + delta + "%";
                             color = "green";
                         } else if (delta < 0) {
+                            bgColor = "rgba(0, 255, 0, " + colorAlphaFunction(delta) + ")";
                             delta = "<i class=\"fa fa-caret-down\"></i>" + delta + "%";
                             color = "red";
                         }
                         delta = (delta ? (" <div style=\"display: inline-block; font-size: smaller; color: " + color + "\">" + delta + "</div>") : "");
                         document.getElementById("overviewChart" + i).innerHTML =
                             delta + "<br>" + (+(overallGrade.toFixed(4))).toString() + "%" + "<br>" + getLetterGrade(overallGrade);
-                        // document.getElementById("overviewChart" + i).innerHTML = (+(overallGrade.toFixed(countDecimals(data[i].overall_percent)))).toString() + "% </br>" + getLetterGrade(overallGrade);
+                        document.getElementById("overviewChart" + i).parentElement.style.backgroundColor = bgColor;
+                        document.getElementById("overview" + i).style.backgroundColor = bgColor;
                     } else {
                         document.getElementById("weightmsgcontainer" + i).style.display = "block";
                     }

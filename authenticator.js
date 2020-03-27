@@ -363,10 +363,9 @@ module.exports = {
                 return resolve({success: false, message: "Username must contain 16 or fewer characters."});
             }
 
-            if (password.length < 6 || password.length > 64) {
-                return resolve({
-                    success: false, message: "Password must be 6 - 64 characters in length."
-                });
+            let message = validatePassword(password);
+            if (message) {
+                return {success: false, message: message};
             }
 
             if (!validateEmail(schoolUsername)) {
@@ -418,25 +417,8 @@ module.exports = {
         if (!this.login(username, oldPassword).success) {
             return {success: false, message: "Old Password is Incorrect"};
         }
-        const lowerCaseRegex = new RegExp('^(?=.*[a-z])');
-        const upperCaseRegex = new RegExp('^(?=.*[A-Z])');
-        const specialCharacterRegex = new RegExp('^(?=.*[!@#$%^&*])');
-        const numericRegex = new RegExp('^(?=.*[0-9])');
 
-        let message;
-        if (password.length < 6) {
-            message = 'Your password must be at least 6 characters long.';
-        } else if (password.length > 64) {
-            message = 'Your password must be fewer than 64 characters long.';
-        } else if (!lowerCaseRegex.test(password)) {
-            message = 'Your password must include at least one lowercase character.';
-        } else if (!upperCaseRegex.test(password)) {
-            message = 'Your password must include at least one uppercase character.';
-        } else if (!specialCharacterRegex.test(password)) {
-            message = 'Your password must include at least one special character.';
-        } else if (!numericRegex.test(password)) {
-            message = 'Your password must include at least one number.';
-        }
+        let message = validatePassword(password);
         if (message) {
             return {success: false, message: message};
         }
@@ -543,7 +525,6 @@ module.exports = {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         if (user.get("updatedInBackground").value() === "complete") {
-            user.set("updatedInBackground", "already done").write();
             return {success: true, message: "Sync Complete!"};
         } else if (user.get("updatedInBackground").value() === "already done") {
             return {success: true, message: "Already Synced!"};
@@ -1004,4 +985,23 @@ function dbContainsClass(class_name, teacher_name) {
         return true;
     }
     return false;
+}
+
+function validatePassword(password) {
+    const lowerCaseRegex = new RegExp('^(?=.*[a-z])');
+    const upperCaseRegex = new RegExp('^(?=.*[A-Z])');
+    const numericRegex = new RegExp('^(?=.*[0-9])');
+    let message;
+    if (password.length < 6) {
+        message = 'Your password must be at least 6 characters long.';
+    } else if (password.length > 64) {
+        message = 'Your password must be fewer than 64 characters long.';
+    } else if (!lowerCaseRegex.test(password)) {
+        message = 'Your password must include at least one lowercase character.';
+    } else if (!upperCaseRegex.test(password)) {
+        message = 'Your password must include at least one uppercase character.';
+    } else if (!numericRegex.test(password)) {
+        message = 'Your password must include at least one number.';
+    }
+    return message;
 }
