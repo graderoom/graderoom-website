@@ -40,6 +40,25 @@
 - If you would like a feature to become implemented, send feedback in Settings > Feedback
 - <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> If you would like a feature to become implement, send feedback in Settings > About > Feedback Form
 
+## [Beta 1.8.0] - 2020-03-26
+### Added
+- Input validation when changing password or making a new account
+- Confirmation for new password
+- Last synced info on sync card
+- Gain and loss per assignment in class tables
+- Most recent gain or loss on overview page
+
+### Improved
+- Animation on input fields
+- Graderoom refreshes automatically after a small delay when grades are updated
+- Syncing grades defaults to GradeSync
+
+### Fixed
+- Color palette generator now works
+
+### Removed
+- Auto-refresh setting
+
 ## [Beta 1.7.0] - 2020-03-24
 ### Added
 - What's New card
@@ -50,6 +69,7 @@
 - Random colors are now always easily distinguishable. Randomize your color palette in settings.
 - Incorrect grade alerts are more clear and now also show on overview page
 - Smoother animation when opening/closing cards
+- Better changelog display
 
 ### Fixed
 - Issue where changelog would sometimes show up behind another card
@@ -57,7 +77,7 @@
 
 ### Removed
 - Changelog no longer shows on login. You can still view the changelog through Settings > About > Changelog
-- Keyboard shortcut for edit weights
+- Removed keyboard shortcut for edit weights
 
 ## [Beta 1.6.1] - 2020-03-22
 ### Added
