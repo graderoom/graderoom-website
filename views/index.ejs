@@ -29,12 +29,16 @@
                 <% } %>
                 <br>
                 <form class="form-signin" action="/login" method="post">
-                    <div class="form-group">
-                        <label>Username</label> <input type="text" class="form-control user-bg" name="username"
-                                                       autofocus>
+                    <div class="input-group form-group">
+                        <i class="user-bg"></i>
+                        <label>Username</label>
+                        <input oninput="checkLabel(this)" type="text" class="form-control" name="username"
+                               autofocus>
                     </div>
-                    <div class="form-group">
-                        <label>Password</label> <input type="password" class="form-control lock-bg" name="password">
+                    <div class="input-group form-group">
+                        <i class="lock-bg"></i>
+                        <label>Password</label>
+                        <input oninput="checkLabel(this)" type="password" class="form-control" name="password">
                     </div>
                     <br>
                     <div class="text-center">
@@ -72,6 +76,27 @@
     } else {
         localStorage.setItem("defaultAppearance", "light");
         document.getElementById("pageStyle").setAttribute("href", "/public/css/light_mode.css");
+    }
+
+
+    setTimeout(function () {
+        $('input:-webkit-autofill').each(function () {
+            let input = $(this);
+            let label = $($(input)[0].previousElementSibling);
+            label.addClass("label-active");
+        });
+    }, 250);
+
+    function checkLabel(input) {
+        let label = $($(input)[0].previousElementSibling);
+        input = $(input);
+        if (input[0].value !== "") {
+            if (!label.hasClass("label-active")) {
+                label.addClass("label-active");
+            }
+        } else {
+            label.removeClass("label-active");
+        }
     }
 </script>
 </body>

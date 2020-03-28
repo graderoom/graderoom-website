@@ -17,54 +17,54 @@
                 <btn id="btn-1" class="tablinks active" onclick="openTab(1)">Appearance</btn>
                 <btn id="btn-2" class="tablinks" onclick="openTab(2)">Account</btn>
                 <btn id="btn-3" class="tablinks" onclick="openTab(3)">Advanced</btn>
-                <btn id="btn-4" class="tablinks" onclick="openTab(4)">Feedback</btn>
+                <btn id="btn-4" class="tablinks" onclick="openTab(4)">About</btn>
             </div>
             <div id="settings-1" class="tabcontent" style="display: block">
                 <div class="card-body">
                     <% if (user.grades.length > 0) { %>
                         <div class="card-footer">
                             <h5>Class Colors</h5>
-                            <h6>Click a color to change it</h6>
-                            <div class="text-center">
-                                <% for (var i = 0; i < user.grades.length; i++) { %>
-                                    <label id="classColor<%= i %>"
-                                           style="margin-bottom: 0; padding: 0 1rem 0 1rem; cursor: pointer; color: <%= user.appearance.classColors[i] %>; font-size: medium; font-weight: bolder;"
-                                           onclick="ajaxPostForm('#randomizeClassColors' + <%= i %>,[],'',true)">
-                                        <form id="randomizeClassColors<%= i %>" class="form-signin"
-                                              action="/randomizeClassColors"
-                                              method="post">
-                                            <button type="submit" style="display: none"></button>
-                                            <input name="index" value="<%= i %>" id="classColor<%= i %>"
-                                                   style="display: none;">
-                                            <%- user.grades[i].class_name %>
-                                        </form>
-                                    </label>
-                                <% } %>
-                            </div>
+                            <form style="display: flex; justify-content: center; align-content: space-evenly"
+                                  action="/randomizeClassColors" id="randomizeClassColors" method="POST"
+                                  class="form-signin">
+                                <button style="width: fit-content"
+                                        onclick="ajaxPostForm('#randomizeClassColors',[],'',true)"
+                                        class="btn btn-med">
+                                    Randomize Palette
+                                </button>
+                                <div class="text-center" id="classColors" style="width: 100%; height: fit-content">
+                                    <% for (var i = 0; i < user.grades.length; i++) { %>
+                                        <label id="classColor<%= i %>"
+                                               style="margin-bottom: 0; padding: 0 1rem 0 1rem; color: <%= user.appearance.classColors[i] %>; font-size: medium; font-weight: bolder; transition: color 1s ease">
+                                            <%= user.grades[i].class_name %>
+                                        </label>
+                                    <% } %>
+                                </div>
+                            </form>
                         </div>
                     <% } %>
-                        <div class="card-footer">
-                            <h5>Theme</h5>
-                            <form id="chooseTheme" class="form-signin" action="/updateAppearance" method="post">
-                                <div id="theme">
-                                    <div id="themeMessage"
-                                         class="alert alert-success alert-dismissible font-weight-bold"
-                                         style="display:none">
-                                        <div style="display:none" class="sk-chase-mini">
-                                            <div class="sk-chase-dot mini"></div>
-                                            <div class="sk-chase-dot mini"></div>
-                                            <div class="sk-chase-dot mini"></div>
-                                            <div class="sk-chase-dot mini"></div>
-                                            <div class="sk-chase-dot mini"></div>
-                                            <div class="sk-chase-dot mini"></div>
-                                        </div>
-                                        <div class="messageTxt"></div>
-                                        <a class="close" onclick="closeMessage('themeMessage')" aria-label="close">X</a>
+                    <div class="card-footer">
+                        <h5>Theme</h5>
+                        <form id="chooseTheme" class="form-signin" action="/updateAppearance" method="post">
+                            <div id="theme">
+                                <div id="themeMessage"
+                                     class="alert alert-success alert-dismissible font-weight-bold"
+                                     style="display:none">
+                                    <div style="display:none" class="sk-chase-mini">
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
                                     </div>
-                                    <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
-                                                                           value="light"
-                                                                           name="theme"
-                                                                           onclick="$('#autoLimits').hide();
+                                    <div class="messageTxt"></div>
+                                    <a class="close" onclick="closeMessage('themeMessage')" aria-label="close">X</a>
+                                </div>
+                                <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
+                                                                       value="light"
+                                                                       name="theme"
+                                                                       onclick="$('#autoLimits').hide();
                                                                                $($($(this)[0].form)[0].elements[7]).hide();
                                                                                ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
                                                                                $($(this)[0].form).submit();"
@@ -76,7 +76,7 @@
                                 <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
                                                                        value="dark"
                                                                        name="theme"
-                                                                       onclick="$('#autoLimits').hide()
+                                                                       onclick="$('#autoLimits').hide();
                                                                                $($($(this)[0].form)[0].elements[7]).hide();
                                                                                ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
                                                                                $($(this)[0].form).submit();"
@@ -161,38 +161,96 @@
                                     Apply
                                 </button>
                             </div>
+                        </form>
+                    </div>
+                    <% if (Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
+                        <div class="card-footer">
+                            <h5>Advanced</h5>
+                            <div id="advancedMessage"
+                                 class="alert alert-success alert-dismissible font-weight-bold"
+                                 style="display:none">
+                                <div style="display:none" class="sk-chase-mini">
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                </div>
+                                <div class="messageTxt"></div>
+                                <a class="close" onclick="closeMessage('advancedMessage')" aria-label="close">X</a>
+                            </div>
+                            <form id="advancedAppearance" action="/setShowNonacademic" method="post"
+                                  onsubmit="$('#advancedSubmit').attr('disabled','disabled')">
+                                <label style="cursor: pointer">
+                                    <input id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
+                                    <% if (user.appearance.showNonAcademic) { %> checked
+                                            <% } %>
+                                           oninput="$('#advancedSubmit').removeAttr('disabled')"
+                                    > Show Non-Academic Classes
+                                </label>
+                                <button id="advancedSubmit" class="btn-default btn btn-sm" type="submit"
+                                        onclick="$('#reloadNeeded').text('Reload Needed'); ajaxPostForm('#advancedAppearance',[],'#advancedMessage',true)"
+                                        disabled>
+                                    Apply
+                                </button>
                             </form>
                         </div>
+                    <% } %>
                 </div>
             </div>
             <div id="settings-2" class="tabcontent">
                 <div class="card-body">
-                    <div id="accountSettingsMessage" class="alert alert-success alert-dismissible font-weight-bold"
-                         style="display:none">
-                        <div style="display:none" class="sk-chase-mini">
-                            <div class="sk-chase-dot mini"></div>
-                            <div class="sk-chase-dot mini"></div>
-                            <div class="sk-chase-dot mini"></div>
-                            <div class="sk-chase-dot mini"></div>
-                            <div class="sk-chase-dot mini"></div>
-                            <div class="sk-chase-dot mini"></div>
-                        </div>
-                        <div class="messageTxt"></div>
-                        <a class="close" onclick="closeMessage('accountSettingsMessage')" aria-label="close">X</a>
-                    </div>
                     <form id="changePassword" class="card-footer form-signin" action="/changepassword"
                           method="post">
                         <div class="form-group">
-                            <label>Change Password</label>
-                            <input id="oldPassword" type="password" class="form-control" name="oldPass"
-                                   placeholder="Old Password" required>
-                            <input id="password" type="password" class="form-control"
-                                   name="password" placeholder="New Password" required>
+                            <h5>Change Password</h5>
+                            <div id="passwordChangeMessage"
+                                 class="alert alert-success alert-dismissible font-weight-bold"
+                                 style="display:none">
+                                <div style="display:none" class="sk-chase-mini">
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                </div>
+                                <div class="messageTxt"></div>
+                                <a class="close" onclick="closeMessage('passwordChangeMessage')"
+                                   aria-label="close">X</a>
+                            </div>
+                            <br>
+                            <div class="input-group">
+                                <i class="lock-bg"></i>
+                                <label>Old Password</label>
+                                <input oninput="checkLabel(this); checkPassword('#password', '#passwordCheckMessage', this);"
+                                       id="oldPassword" type="password" class="form-control"
+                                       name="oldPass" required>
+                            </div>
+                            <div class="input-group">
+                                <i class="lock-bg"></i>
+                                <label>New Password<label
+                                            style="margin: 0 0 0 2.9rem; font-weight: bold; font-size: small"
+                                            id="passwordCheckMessage"></label></label>
+                                <input oninput="checkLabel(this); checkPassword(this, '#passwordCheckMessage', '#oldPassword'); checkPasswordConfirm(this, '#confirmPassword', '#passwordConfirmMessage', '#changePasswordBtn')"
+                                       id="password"
+                                       type="password" class="form-control" name="password" required>
+                            </div>
+                            <div class="input-group">
+                                <i class="lock-bg"></i>
+                                <label>Confirm New Password<label
+                                            style="margin: 0 0 0 5.5rem; font-weight: bold; font-size: small"
+                                            id="passwordConfirmMessage"></label></label>
+                                <input oninput="checkLabel(this); checkPasswordConfirm('#password', this, '#passwordConfirmMessage', '#changePasswordBtn')"
+                                       id="confirmPassword" type="password"
+                                       class="form-control" required>
+                            </div>
                         </div>
                         <div class="text-center">
                             <button type="submit"
-                                    onclick="ajaxPostForm('#changePassword',['#oldPassword','#password'],'#accountSettingsMessage', true)"
-                                    class="btn btn-default btn-med">
+                                    onclick="ajaxPostForm('#changePassword',['#oldPassword','#password', '#confirmPassword'],'#passwordChangeMessage', true)"
+                                    class="btn btn-default btn-med" id="changePasswordBtn" disabled>
                                 Change Password
                             </button>
                         </div>
@@ -200,13 +258,31 @@
                     <form id="changeSchoolEmail" class="card-footer form-signin" style="margin-top: 1em"
                           action="/changeschoolemail" method="post">
                         <div class="form-group">
-                            <label>Change School Email</label> <input id="school_email" type="text"
-                                                                      class="form-control" name="school_email"
-                                                                      required>
+                            <h5>Change School Email</h5>
+                            <div id="emailChangeMessage" class="alert alert-success alert-dismissible font-weight-bold"
+                                 style="display:none">
+                                <div style="display:none" class="sk-chase-mini">
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                </div>
+                                <div class="messageTxt"></div>
+                                <a class="close" onclick="closeMessage('emailChangeMessage')" aria-label="close">X</a>
+                            </div>
+                            <br>
+                            <div class="input-group">
+                                <i class="email-bg"></i>
+                                <label>School Email</label>
+                                <input oninput="checkLabel(this)" id="school_email" type="text" class="form-control"
+                                       name="school_email" required>
+                            </div>
                         </div>
                         <div class="text-center">
                             <button type="submit"
-                                    onclick=" updateSchoolUsernameDisplay(); ajaxPostForm('#changeSchoolEmail',['#school_email'],'#accountSettingsMessage', true);"
+                                    onclick=" updateSchoolUsernameDisplay(); ajaxPostForm('#changeSchoolEmail',['#school_email'],'#emailChangeMessage', true);"
                                     class="btn btn-default btn-med">
                                 Change School Email
                             </button>
@@ -216,12 +292,6 @@
             </div>
             <div id="settings-3" class="tabcontent" style="display:none">
                 <div class="card-body">
-                    <btn class="btn btn-sm" style="margin: 0.1rem; float: right"
-                         onclick="showChangelog(); $('#changelogMessage').hide()">
-                        <label style="margin: 0; display: inline-block; cursor: pointer;">Changelog
-                            <span class="fa fa-external-link-square"></span>
-                        </label>
-                    </btn>
                     <div class="card-footer">
                         <h5>Alerts</h5>
                         <div id="alertSettingsMessage"
@@ -241,29 +311,6 @@
                         <form id="changeAlertSettings" class="form-signin" action="/changealertsettings"
                               method="post">
                             <div class="form-group" style="margin: 0">
-                                <label>Show Changelog:</label> <select style="float: right" class="dropdown"
-                                                                       name="showChangelog">
-                                    <option value="always"
-                                    <% if (user.alerts.showChangelog == 'always') { %> selected
-                                            <% } %>
-                                    >Always
-                                    <option value="daily"
-                                    <% if (user.alerts.showChangelog == 'daily') { %> selected
-                                            <% } %>
-                                    >Daily
-                                    </option>
-                                    <option value="weekly"
-                                    <% if (user.alerts.showChangelog == 'weekly') { %> selected
-                                            <% } %>
-                                    >Weekly
-                                    </option>
-                                    <option value="never"
-                                    <% if (user.alerts.showChangelog == 'never') { %> selected
-                                            <% } %>
-                                    >Never
-                                    </option>
-                                </select>
-                                <br>
                                 <label>Grade Update Reminder:</label> <select style="float: right" class="dropdown"
                                                                               name="updateGradesReminder">
                                     <option value="daily"
@@ -302,19 +349,6 @@
                                             <% } %>
                                     > Enable
                                 </label>
-                                <br>
-                                <label style="cursor: pointer; text-align: left" class="popup">
-                                    <input id="autoRefreshToggle" type="checkbox" name="autoRefresh"
-                                    <% if (user.autoRefresh) { %> checked
-                                            <% } %>
-                                    > Auto-Refresh
-                                    <i class="fa fa-info-circle popup">
-                                        <span class="popuptext">
-                                            After GradeSync is complete, Graderoom will refresh automatically to display
-                                            the most recent data.
-                                        </span>
-                                    </i>
-                                </label>
                                 <div class="text-center">
                                     <button type="submit" class="btn btn-default btn-med">
                                         Apply
@@ -323,15 +357,73 @@
                             </div>
                         <% } %>
                     </form>
+                    <form id="remoteAccess" class="form-signin" action="/setRemoteAccess" method="post">
+                        <div class="card-footer">
+                            <div id="remoteAccessMessage"
+                                 class="alert alert alert-success alert-dismissible font-weight-bold"
+                                 style="display:none">
+                                <div style="display:none" class="sk-chase-mini">
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                </div>
+                                <div class="messageTxt"></div>
+                                <a class="close" onclick="closeMessage('remoteAccessMessage')" aria-label="close">X</a>
+                            </div>
+                            <label style="cursor: pointer">
+                                <input id="remoteAccessToggle" type="checkbox" name="remoteAccess"
+                                <% if (user.alerts.remoteAccess === "allowed") { %> checked
+                                        <% } %>
+                                > Allow Remote Access
+                            </label>
+                            <div class="text-center">
+                                <button onclick="ajaxPostForm('#remoteAccess',[],'#remoteAccessMessage',true)"
+                                        type="submit" class="btn btn-default btn-med">
+                                    Apply
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
             <div id="settings-4" class="tabcontent">
                 <div class="card-body">
                     <div class="card-footer">
-                        <iframe style="color: #FFFFFF; height: 50vh; width: 100%;"
-                                src="https://docs.google.com/forms/d/e/1FAIpQLSfBiwyEi3TKH2Kr356ZOtLTUwUml9I9h_bWlOcraVXDyBIzbA/viewform?embedded=true"
-                                frameborder="0" marginheight="0" marginwidth="0">Loading…
-                        </iframe>
+                        <h5>Contact Us</h5>
+                        <p>Email: <a href="mailto: graderoom@gmail.com">graderoom@gmail.com</a></p>
+                    </div>
+                    <div class="card-footer">
+                        <h5>Quick Links</h5>
+                        <button class="btn btn-sm" style="margin: 0.1rem"
+                                onclick="showCard('#feedbackDisplay')">
+                            <label style="margin: 0; cursor: pointer">Feedback Form
+                                <span class="fa fa-external-link-square"></span>
+                            </label>
+                        </button>
+                        <br>
+                        <button class="btn btn-sm" style="margin: 0.1rem"
+                                onclick="showCard('#termsDisplay')">
+                            <label style="margin: 0; cursor: pointer;">Terms And Conditions
+                                <span class="fa fa-external-link-square"></span>
+                            </label>
+                        </button>
+                        <br>
+                        <button class="btn btn-sm" style="margin: 0.1rem"
+                                onclick="showCard('#privacyDisplay')">
+                            <label style="margin: 0; cursor: pointer;">Privacy Policy
+                                <span class="fa fa-external-link-square"></span>
+                            </label>
+                        </button>
+                        <br>
+                        <button class="btn btn-sm" style="margin: 0.1rem"
+                                onclick="showChangelog(); $('#changelogMessage').hide()">
+                            <label style="margin: 0; cursor: pointer;">Changelog
+                                <span class="fa fa-external-link-square"></span>
+                            </label>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -346,10 +438,10 @@
         location.reload();
     }
 
-    function updateClassColors(colorsString) {
-        let colors = colorsString;
+    function updateClassColors(colorArray) {
+        let colors = colorArray;
         for (let i = 0; i < colors.length; i++) {
-            document.getElementById("classColor" + i).style.color = colors[i];
+            $("#classColor" + i).css("color", colors[i]);
         }
     }
 
@@ -383,6 +475,73 @@
         document.getElementById(tabName).style.display = "block";
         document.getElementById("btn-" + tabIndex).classList.add("active");
         currentTab = tabIndex;
+    }
+
+    function checkLabel(input) {
+        let label = $($(input)[0].previousElementSibling);
+        input = $(input);
+        if (input[0].value !== "") {
+            if (!label.hasClass("label-active")) {
+                label.addClass("label-active");
+            }
+        } else {
+            label.removeClass("label-active");
+        }
+    }
+
+    function checkPassword(inputID, messageDivID, oldPasswordID) {
+        const lowerCaseRegex = new RegExp('^(?=.*[a-z])');
+        const upperCaseRegex = new RegExp('^(?=.*[A-Z])');
+        const numericRegex = new RegExp('^(?=.*[0-9])');
+
+        let password = $(inputID)[0].value;
+        let message;
+
+        if (password.length === 0) {
+            message = "";
+        } else if (oldPasswordID && (password === $(oldPasswordID)[0].value)) {
+            message = "You're supposed to be changing your password...";
+        } else if (password.length < 6) {
+            message = 'Your password must be at least 6 characters long.';
+        } else if (password.length > 64) {
+            message = 'Your password must be fewer than 64 characters long.';
+        } else if (!lowerCaseRegex.test(password)) {
+            message = 'Your password must include at least one lowercase character.';
+        } else if (!upperCaseRegex.test(password)) {
+            message = 'Your password must include at least one uppercase character.';
+        } else if (!numericRegex.test(password)) {
+            message = 'Your password must include at least one number.';
+        } else {
+            message = 'Strong password!';
+            if (!messageDivID) {
+                return true;
+            }
+            $(messageDivID).css('color', 'green').text(message);
+            return;
+        }
+
+        if (!messageDivID) {
+            return false;
+        }
+        $(messageDivID).css('color', 'red').text(message);
+    }
+
+    function checkPasswordConfirm(inputID, confirmID, messageDivID, buttonID) {
+        let password = $(inputID)[0].value;
+        let confirm = $(confirmID)[0].value;
+        if (checkPassword(inputID)) {
+            if (password === confirm) {
+                $(messageDivID).css('color', 'green').text('Passwords match!');
+                $(buttonID).prop('disabled', '');
+                return;
+            } else if (confirm !== "") {
+                $(messageDivID).css('color', 'red').text('Passwords do not match!');
+                $(buttonID).prop('disabled', 'disabled');
+                return;
+            }
+        }
+        $(messageDivID).text("");
+        $(buttonID).prop('disabled', 'disabled');
     }
 
     function closeMessage(id) {

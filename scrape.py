@@ -288,17 +288,18 @@ class PowerschoolScraper:
                     exclude = True
 
                 temp = td_gs[8].text
-                try:
-                    if ('/' not in temp and temp != '--'):
-                        pp = 0
-                        pg = float(temp)
-                    else:
-                        pp = float(temp.split('/')[1])
-                        pg = float(temp.split('/')[0])
-                except:
-                    #                    print(temp)
-                    #                    print('Found empty/non graded assignment. Skipping')
-                    continue
+                if ('/' not in temp and temp != '--'):
+                    pp = 0
+                    pg = float(temp)
+                elif (temp == '--'):
+                    pp = False
+                    pg = False
+                elif (temp.split('/')[0] == '--'):
+                    pp = float(temp.split('/')[1])
+                    pg = False
+                else:
+                    pp = float(temp.split('/')[1])
+                    pg = float(temp.split('/')[0])
                 if (pp != 0):
                     gp = td_gs[9].text
                 else:

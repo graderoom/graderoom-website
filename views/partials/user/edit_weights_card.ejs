@@ -1,14 +1,14 @@
 <!-- Weights Card -->
 <div class="blurred-login" id="updateWeightsDisplay"
-     style="position:fixed; display:none; height: 100vh; width: 100%; top: 0; left: 0; z-index: 1">
+     style="position:fixed; display:none; height: 100%; width: 100%; top: 0; left: 0; z-index: 1">
     <div class="blurred-background"></div>
     <div class="col-sm-10 col-md-8 col-lg-8 col-xl-7 mx-auto">
-        <div id="weightsCard" class="card card-signin my-5" style="max-height:90%; overflow:scroll;">
+        <div id="weightsCard" class="card card-signin my-5" style="overflow:scroll;">
             <btn class="btn btn-md" onclick="closeForm('updateWeightsDisplay')"
                  style="width: fit-content; margin-bottom:0">
                 <i class="fa fa-close" aria-hidden="true"></i> Close
             </btn>
-            <div class="card-body" style="padding-top: 1em; padding-bottom: 1em;">
+            <div class="card-body" style="padding-top: 1em; padding-bottom: 1em">
                 <div id="edited" style="display:none"></div>
                 <h1 class="card-title text-center"><span class="fa fa-pencil"></span> Update Weights</h1>
                 <span class="accordion" id="accordionForms">
@@ -179,14 +179,14 @@
 
                         let className = encodeURI($(form).find("h5").attr("id"));
                         let hasWeights = encodeURI(!($(form).find('input[name="hasWeights"]')).is(':checked'));
-                        formData = "className=" + className + "&hasWeights=" + hasWeights + "&newWeights=" + weightURI;
+                        let formData = "className=" + className + "&hasWeights=" + hasWeights + "&newWeights=" + weightURI;
 
                         let formMessagesDiv = $(this).find(".alert-custom");
                         let message = $(this).find(".messageTxt");
 
                         $.ajax({
-                                   type: "POST", url: $(form).attr("action"), data: formData
-                               }).done(function (response) {
+                            type: "POST", url: $(form).attr("action"), data: formData
+                        }).done(function (response) {
                             // Make sure that the formMessages div has the alert-success class.
                             $(formMessagesDiv).removeClass("fail");
                             $(formMessagesDiv).addClass("success");
