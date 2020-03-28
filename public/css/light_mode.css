@@ -88,6 +88,19 @@ table thead tr th {
     background-color: #FFFFFF;
 }
 
+.changelog-container .body {
+    color: #222222;
+}
+
+.changelog-container .current {
+    background-color: rgba(0, 255, 0, 0.1);
+
+}
+
+.changelog-container .type {
+    color: #000000;
+}
+
 .changelog-item {
     margin-top: 1rem;
     border-radius: 1rem;
@@ -176,15 +189,6 @@ table thead tr th {
 
 .table {
     background-color: #FFFFFF;
-}
-
-#changelog-container .current {
-    background-color: rgba(0, 255, 0, 0.1);
-
-}
-
-#changelog-container .type {
-    color: #EEEEEE;
 }
 
 #weightsCard input {

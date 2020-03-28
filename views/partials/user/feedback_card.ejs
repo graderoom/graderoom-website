@@ -1,0 +1,25 @@
+<!-- Feedback Card -->
+<div class="blurred-login" id="feedbackDisplay"
+     style="position:fixed; display:none; height: 100%; width: 100%; top: 0; left: 0; z-index: 1">
+    <div class="blurred-background"></div>
+    <div class="col-sm-9 col-md-8 col-lg-7 col-xl-6 mx-auto">
+        <div id="feedbackCard" class="card card-signin my-5">
+            <btn class="btn btn-md"
+                 onclick="closeForm('feedbackDisplay');"
+                 style="width: fit-content; margin-bottom:0">
+                <i class="fa fa-close" aria-hidden="true"></i> Close
+            </btn>
+            <div class="card-body">
+                <h1 class="card-title text-center">
+                    <i class="fa fa-address-book"></i> Feedback
+                </h1>
+                <div class="card-footer">
+                    <iframe style="color: #FFFFFF; height: 50vh; width: 100%;"
+                            src="https://docs.google.com/forms/d/e/1FAIpQLSfBiwyEi3TKH2Kr356ZOtLTUwUml9I9h_bWlOcraVXDyBIzbA/viewform?embedded=true"
+                            frameborder="0" marginheight="0" marginwidth="0">Loading…
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

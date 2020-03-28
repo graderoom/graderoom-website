@@ -30,14 +30,102 @@
 
 ## [Known Issues] - Working on it
 - Point-based classes aren't synced with weights auto-population
-- Final Grade Calculator has not yet been updated to be compatible with the new system that allows for point-based classes
 - If you have an issue, send feedback in Settings > Feedback
+- <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> If you have an issue, send feedback in Settings > About > Feedback Form
 
 ## [Unreleased] - Coming Soon
-- GPA Display
+- Cumulative GPA Display
 - Class insights
 - Calculated weights of categories in point-based classes will be shown so that you can see how much effect a category has on your overall grade
 - If you would like a feature to become implemented, send feedback in Settings > Feedback
+- <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> If you would like a feature to become implement, send feedback in Settings > About > Feedback Form
+
+## [Beta 1.8.1] - 2020-03-26
+### Fixed
+- Background color of class gain/loss on overview page
+- What's new display correctly shows on new updates
+- Sizing issue for sync grades card
+
+## [Beta 1.8.0] - 2020-03-26
+### Added
+- Input validation when changing password or making a new account
+- Confirmation for new password
+- Last synced info on sync card
+- Gain and loss per assignment in class tables
+- Most recent gain or loss on overview page
+
+### Improved
+- Animation on input fields
+- Graderoom refreshes automatically after a small delay when grades are updated
+- Syncing grades defaults to GradeSync
+
+### Fixed
+- Color palette generator now works
+
+### Removed
+- Auto-refresh setting
+
+## [Beta 1.7.0] - 2020-03-24
+### Added
+- What's New card
+- Clicking on a class in the overview table opens the class page
+- Keyboard shortcut 'W' to see the What's New page after it is closed
+
+### Improved
+- Random colors are now always easily distinguishable. Randomize your color palette in settings.
+- Incorrect grade alerts are more clear and now also show on overview page
+- Smoother animation when opening/closing cards
+- Better changelog display
+
+### Fixed
+- Issue where changelog would sometimes show up behind another card
+- All transitions were disabled after theme change without reload
+
+### Removed
+- Changelog no longer shows on login. You can still view the changelog through Settings > About > Changelog
+- Removed keyboard shortcut for edit weights
+
+## [Beta 1.6.1] - 2020-03-22
+### Added
+- Final grade calculator now supports all class types, including point-based classes
+
+### Fixed
+- Issue where missing weights would break final grade calculator
+
+## [Beta 1.6.0] - 2020-03-21
+### Added
+- Terms and Conditions
+- Privacy Policy
+- Contact Us information in Settings > About
+- Quick Links in About section of Settings
+- Ability to allow remote access in settings (Denied by default)
+- Support for non-academic classes
+- Graderoom displays a message when calculated data does not match actual data in PowerSchool
+
+### Fixed
+- Auto theme is now set up correctly for new users
+- Issue where excluded assignments were part of overall grade in point-based classes
+
+## [Announcement] - 2020-03-20
+- <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> During testing, some beta user's weights were lost. Although this data could be restored from the database backups, due to the beta nature of this issue and the relatively small inconvenience this will cause, this weight data will not be recovered
+- <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> Send feedback if you have any questions, comments, or concerns
+
+## [Beta 1.5.0] - 2020-03-20
+### Added
+- Semester GPA Display
+- Ungraded assignments display in table and graph
+
+### Improved
+- Appearance fixes that improve screen usage on taller screen sizes (Mobile not supported)
+- Crowd-sourced weights are now prioritized by when the user last synced grades to improve reliability
+- Tooltip has been optimized for all possibilities to show only the most relevant information
+
+### Fixed
+- Issue where users would be autopopulated with weights from other teachers
+- Issue where some weights that were no longer in user's grades would still be in weight table
+
+### Removed
+- Excluded assignments no longer display in graph
 
 ## [Beta 1.4.6] - 2020-03-18
 ### Improved
@@ -97,7 +185,7 @@
 ## [Announcement] - 2020-03-12
 - Auto-population of weights is now in beta
 - To prepare for the wide release, if you know the category weights for your classes, please enter them in the edit weights tab to improve the user experience for other users
-- <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> If you find an issue with the auto-populated weights, send feedback in Settings > Feedback
+- <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> If you find an issue with the auto-populated weights, send feedback in Settings > About > Feedback Form
 
 ## [Beta 1.3.2] - 2020-03-12
 ### Added
@@ -215,10 +303,3 @@
 
 ### Removed
 - Removed beta key requirement
-
-## [Format] - Release Date
-### Added
-### Improved
-### Fixed
-### Removed
-- Features that were added, improved, fixed, or removed
