@@ -2,12 +2,12 @@
 <html>
 <head>
     <title>Graderoom</title>
-    <link rel="icon" href="../public/resources/common/icon.png">
+    <link rel="icon" href="../../public/resources/common/icon.png">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
-    <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css.css">
-    <link rel="stylesheet" type="text/css" href="public/css/main.css">
+    <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/light_mode.css">
+    <link rel="stylesheet" type="text/css" href="../../public/css/main.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Javascript imports -->
@@ -16,7 +16,7 @@
 </head>
 <body>
 
-<% include partials/viewer/viewer_navbar.ejs %>
+<% include ../partials/viewer/viewer_navbar.ejs %>
 <div class="container h-100 d-flex justify-content-center">
     <div class="col-sm-10 col-md-9 col-lg-8 col-xl-7">
         <div class="card card-signin my-5">
@@ -65,19 +65,6 @@
 </html>
 
 <script>
-
-    let localStorage = window.localStorage;
-    let defaultAppearance = localStorage.getItem("defaultAppearance");
-    if (defaultAppearance) {
-        if (defaultAppearance === "dark") {
-            document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
-        } else {
-            document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
-        }
-    } else {
-        localStorage.setItem("defaultAppearance", "light");
-        document.getElementById("pageStyle").setAttribute("href", "/public/css/light_mode.css");
-    }
 
     // Set up input divs
     let currentGradeDiv = $('#currentGrade');

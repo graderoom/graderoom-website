@@ -21,12 +21,14 @@ module.exports = function (app, passport) {
             let gradeDat = JSON.stringify(user.grades);
             let weightData = JSON.stringify(user.weights);
             let relClassData = JSON.stringify(authenticator.getRelClassData(req.user.username));
+            let dst = Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset();
 
             res.render("authorized_index.ejs", {
                 user: req.user, current: "home", userRef: JSON.stringify(user), schoolUsername: req.user.schoolUsername,
                 gradeData: gradeDat,
                 weightData: weightData,
-                relevantClassData: relClassData
+                relevantClassData: relClassData,
+                dst: dst
             });
             return;
         }
@@ -216,15 +218,15 @@ module.exports = function (app, passport) {
         }
     });
 
-    // process the login form
+// process the login form
     app.post("/login", passport.authenticate("local-login", {
         successRedirect: "/", // redirect to the secure profile section
         failureRedirect: "/", // redirect back to the signup page if there is an error
         failureFlash: true // allow flash messages
     }));
 
-    // SIGNUP =================================
-    // show the signup form
+// SIGNUP =================================
+// show the signup form
     app.get("/signup", (req, res) => {
         res.render("signup.ejs", {
             message: req.flash("signupMessage"),
@@ -232,11 +234,11 @@ module.exports = function (app, passport) {
         });
     });
 
-    // app.post('/signup', isAdmin, passport.authenticate('local-signup', {
-    //     successRedirect : '/', // redirect to the secure profile section
-    //     failureRedirect : '/signup', // redirect back to the signup page if there is an error
-    //     failureFlash : true // allow flash messages
-    // }));
+// app.post('/signup', isAdmin, passport.authenticate('local-signup', {
+//     successRedirect : '/', // redirect to the secure profile section
+//     failureRedirect : '/signup', // redirect back to the signup page if there is an error
+//     failureFlash : true // allow flash messages
+// }));
 
     app.post("/signup", async (req, res, next) => {
 
@@ -310,7 +312,7 @@ module.exports = function (app, passport) {
 
     });
 
-    //must be called via client side ajax+js
+//must be called via client side ajax+js
     app.post("/updateweights", [isLoggedIn], async (req, res) => {
         let className = req.body.className;
         let hasWeights = req.body.hasWeights;
@@ -467,12 +469,12 @@ module.exports = function (app, passport) {
      * END GENERAL USER MANAGEMENT
      */
 
-    // general web app
+// general web app
     app.get("/*", (req, res) => {
         res.redirect("/");
     });
 
-    // route middleware to ensure user is logged in
+// route middleware to ensure user is logged in
     function isLoggedIn(req, res, next) {
         if (req.isAuthenticated()) {
             return next();
@@ -488,7 +490,8 @@ module.exports = function (app, passport) {
         req.session.returnTo = req.originalUrl;
         res.redirect("/");
     }
-};
+}
+;
 
 
 function makeKey(length) {
