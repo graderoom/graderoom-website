@@ -36,7 +36,6 @@
 ## [Unreleased] - Coming Soon
 - Cumulative GPA Display
 - Class insights
-- Calculated weights of categories in point-based classes will be shown so that you can see how much effect a category has on your overall grade
 - If you would like a feature to become implemented, send feedback in Settings > Feedback
 - <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> If you would like a feature to become implement, send feedback in Settings > About > Feedback Form
 
@@ -44,6 +43,7 @@
 ### Added
 - New way to edit weights from class page
 - New slider control for point based option
+- Calculated weights are shown for point-based classes
 
 ### Improved
 - Grades show without inputted weights
