@@ -220,3 +220,23 @@ input:checked + .slider {
 input:checked + .slider:before {
     background-color: #FFFFFF;
 }
+
+#weightsCard input {
+    border-color: lightcoral;
+}
+
+#weightsCard input:focus {
+    border-color: red;
+}
+
+#weightsCard input.text-view {
+    border-color: white;
+}
+
+#weightsCard .fail {
+    color: lightcoral;
+}
+
+#weightsCard .success {
+    color: lightgreen;
+}
