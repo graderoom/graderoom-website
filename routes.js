@@ -16,7 +16,7 @@ module.exports = function (app, passport) {
                 res.redirect(returnTo);
                 return;
             }
-            authenticator.bringAllUpToDate();
+            authenticator.bringUpToDate(req.user.username);
             let user = authenticator.getUser(req.user.username);
             let gradeDat = JSON.stringify(user.grades);
             let weightData = JSON.stringify(user.weights);
@@ -66,7 +66,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/bringAllUpToDate", [isAdmin], (req, res) => {
-        authenticator.bringAllUpToDate();
+        authenticator.updateAllDB();
         req.flash("adminSuccessMessage", "Brought all users up to date");
         res.redirect("/admin");
     });
@@ -330,7 +330,20 @@ module.exports = function (app, passport) {
     });
 
     app.post("/updateclassweights", [isAdmin], (req, res) => {
-        let resp = authenticator.updateWeightsInClassDb(req.body);
+        let className = req.body.className;
+        let teacherName = req.body.teacherName
+        let hasWeights = req.body.hasWeights;
+        let weights = req.body.weights;
+        let resp = authenticator.updateWeightsInClassDb(className, teacherName, hasWeights, weights);
+        if (resp.success) {
+            res.status(200).send(resp.message);
+        } else {
+            res.status(400).send(resp.message);
+        }
+    });
+
+    app.post("/updateclasstype", [isAdmin], (req, res) => {
+        let resp = authenticator.updateClassTypeInClassDb(req.body.className,req.body.classType);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
@@ -446,8 +459,9 @@ module.exports = function (app, passport) {
     });
 
     app.get("/classes", [isAdmin], (req, res) => {
+        let user = authenticator.getUser(req.user.username);
         res.render("classes.ejs", {
-            user: req.user, page: "classes", classData: authenticator.getAllClassData(),
+            user: req.user, userRef: JSON.stringify(user), page: "classes", classData: authenticator.getAllClassData(),
             theme: JSON.stringify(authenticator.getUser(req.user.username).appearance.theme),
             darkModeStart: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeStart),
             darkModeFinish: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeFinish),
