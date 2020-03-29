@@ -459,8 +459,9 @@ module.exports = function (app, passport) {
     });
 
     app.get("/classes", [isAdmin], (req, res) => {
+        let user = authenticator.getUser(req.user.username);
         res.render("classes.ejs", {
-            user: req.user, page: "classes", classData: authenticator.getAllClassData(),
+            user: req.user, userRef: JSON.stringify(user), page: "classes", classData: authenticator.getAllClassData(),
             theme: JSON.stringify(authenticator.getUser(req.user.username).appearance.theme),
             darkModeStart: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeStart),
             darkModeFinish: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeFinish),
