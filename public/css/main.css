@@ -427,6 +427,7 @@ table thead tr th:last-child {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    white-space: normal;
 }
 
 .popup .popuptext {
@@ -624,77 +625,110 @@ table thead tr th:last-child {
     padding-top: 1.75rem;
 }
 
-#weightsCard h5 {
-    font-family: "Montserrat", sans-serif;
-    font-size: 1.1rem;
-    font-weight: 400;
-    padding-top: 8px;
-}
-
-#weightsCard h5.class {
-    padding-top: 0.5rem;
-}
-
-#weightsCard h5.collapsed {
-    border-top: none;
-}
-
-#weightsCard h5.collapsed ~ span.collapse-underline {
-    border-bottom: none;
-}
-
-#weightsCard .disabled {
-    color: #999!important;
-    border-bottom: none!important;
-}
-
-#weightsCard input {
-    font-size: 0.9rem;
-    padding: .1rem .1rem;
-    width: 3rem;
+.switch {
+    position: relative;
+    display: block;
+    width: 1.9rem;
+    margin: 0 0 0 0.5rem;
     text-align: center;
-    margin-right: 1rem;
+    white-space: nowrap;
 }
 
-#weightsCard input.text-view {
+.switch:before {
+    content: "";
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    margin-right: -0.25em;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    display: inline-block;
+    cursor: pointer;
+    vertical-align: middle;
+    height: 1.2rem;
+    width: 2.4rem;
+    top: 0.24rem;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 0.6rem;
+    transition: 0.4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 0.96rem;
+    width: 0.96rem;
+    top: 0.12rem;
+    left: 0.15rem;
+    border-radius: 0.48rem;
+    transition: 0.4s;
+    transform: translateX(0);
+}
+
+input:checked + .slider:before {
+    transform: translateX(1.14rem);
+}
+
+.form-weights .disableable {
+    padding: 0;
+}
+
+.form-weights .disabled {
+    color: #999999 !important;
+    border-bottom: none !important;
+}
+
+.form-weights input[type="checkbox"] {
+    vertical-align: middle;
+}
+
+.form-weights input:not([type="checkbox"]) {
+    font-size: 0.9rem;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    margin: 0 !important;
+}
+
+.form-weights input.text-view {
     border-bottom: 1px transparent;
-    padding: .1rem .1rem;
 }
 
-#weightsCard input.text-view:hover, #weightsCard input.text-view:focus {
-    margin-bottom: -1px;
-    padding: .1rem .1rem;
+.form-weights input:not([type="checkbox"]).text-view:hover, .form-weights input.text-view:focus {
+    margin-bottom: -1px !important;
+    padding: 0;
     border-bottom: 1px solid;
 }
 
-#weightsCard input[type="number"] {
+.form-weights input:focus::placeholder {
+    color: transparent;
+}
+
+.form-weights input[type="number"] {
     -moz-appearance: textfield;
 }
 
-#weightsCard input[type="number"]::-webkit-outer-spin-button,
-#weightsCard input[type="number"]::-webkit-inner-spin-button {
+.form-weights input[type="number"]::-webkit-outer-spin-button,
+.form-weights input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
 
-#weightsCard label h5 i::after {
-    content: "\f107"; /*Arrow Icon Toggling*/
-}
-
-#weightsCard label.collapsed h5 i::after {
-    content: "\f105"; /*Arrow Icon Toggling*/
-}
-
-#weightsCard .collapse.show, #weightsCard .collapsing {
-    display: flex;
-    flex-flow: row wrap;
-}
-
-#weightsCard .form-group:focus-within label {
+.form-weights .form-group:focus-within label {
     font-weight: bolder;
 }
 
-#weightsCard .form-signin .btn {
+.form-weights .form-signin .btn {
     width: auto;
     padding: .375rem .75rem;
     margin: 0 0 1rem;

@@ -183,16 +183,12 @@ module.exports = {
             // Set default AP/Honors to classes with names that suggest it
             if (!classDb.value()[className]["classType"]) {
                 if (className.includes("AP")) {
-                    console.log(className + " is AP");
                     classDb.get(className).set("classType", "ap").write();
                 } else if (className.includes("Honors")) {
-                    console.log(className + " is Honors");
                     classDb.get(className).set("classType", "honors").write();
                 } else if (className === "Teaching Assistant") {
-                    console.log(className);
                     classDb.get(className).set("classType", "non-academic").write();
                 } else {
-                    console.log(className + " is none");
                     classDb.get(className).set("classType", "none").write();
                 }
             }
@@ -358,23 +354,26 @@ module.exports = {
                 });
             }
 
-            if (!isAlphaNumeric(username)) {
-                return resolve({
-                    success: false, message: "Username must contain only letters and numbers."
-                });
-            }
+            // Don't check when creating an admin acc
+            if (!isAdmin) {
+                if (!isAlphaNumeric(username)) {
+                    return resolve({
+                        success: false, message: "Username must contain only letters and numbers."
+                    });
+                }
 
-            if (username.length > 16) {
-                return resolve({success: false, message: "Username must contain 16 or fewer characters."});
-            }
+                if (username.length > 16) {
+                    return resolve({success: false, message: "Username must contain 16 or fewer characters."});
+                }
 
-            let message = validatePassword(password);
-            if (message) {
-                return {success: false, message: message};
-            }
+                let message = validatePassword(password);
+                if (message) {
+                    return {success: false, message: message};
+                }
 
-            if (!validateEmail(schoolUsername)) {
-                return resolve({success: false, message: "This must be your .bcp email."});
+                if (!validateEmail(schoolUsername)) {
+                    return resolve({success: false, message: "This must be your .bcp email."});
+                }
             }
 
             const roundsToGenerateSalt = 10;
@@ -631,7 +630,7 @@ module.exports = {
             count: numColors,
             lightMin: 70,
             lightMax: 100,
-            chromaMin: 10,
+            chromaMin: 25,
             samples: Math.floor(Math.random() * 1000 + 500)
         }).map(color => {
             return chroma(color["_rgb"][0], color["_rgb"][1], color["_rgb"][2]).hex();
@@ -701,7 +700,7 @@ module.exports = {
         //default update, not override
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
-        console.log(weights);
+        //console.log(weights);
         if (!userRef.value()) {
             return {success: false, message: "User does not exist."};
         }
@@ -716,7 +715,7 @@ module.exports = {
         let teacherName = clsRef.value().teacher_name;
         let classDb = db.get("classes");
         for (let i = 0; i < Object.keys(weights).length; i++) {
-            console.log(classDb.value()[className][teacherName]["weights"][Object.keys(weights)[i]]);
+            //console.log(classDb.value()[className][teacherName]["weights"][Object.keys(weights)[i]]);
             if (!classDb.value()[className][teacherName]["weights"][Object.keys(weights)[i]]) {
                 classDb.get(className).get(teacherName).get("weights").set(Object.keys(weights)[i], Object.values(weights)[i]).write();
             }
@@ -956,7 +955,6 @@ module.exports = {
     },
 
     setLoggedIn: function (username) {
-        console.log(username);
         let userRef = db.get("users").find({username: username.toLowerCase()});
         userRef.set("loggedIn", Date.now()).write();
     }

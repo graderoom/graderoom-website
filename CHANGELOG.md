@@ -40,6 +40,23 @@
 - If you would like a feature to become implemented, send feedback in Settings > Feedback
 - <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> If you would like a feature to become implement, send feedback in Settings > About > Feedback Form
 
+## [Beta 1.9.0] - 2020-03-28
+### Added
+- New way to edit weights from class page
+- New slider control for point based option
+
+### Improved
+- Grades show without inputted weights
+- Incorrect grade messages are more intuitively and unobstructively placed
+- Editing weights no longer requires refresh
+
+### Fixed
+- Issue where chart update would slow down after several page changes
+- Issue where chart would switch between light and dark mode randomly
+
+### Removed
+- Edit Weights Card
+
 ## [Beta 1.8.1] - 2020-03-26
 ### Fixed
 - Background color of class gain/loss on overview page
