@@ -2,26 +2,26 @@
 <html>
 <head>
     <title>Graderoom</title>
-    <link rel="icon" href="../../public/resources/common/icon.png">
+    <link rel="icon" href="../public/resources/common/icon.png">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
     <% if (user.appearance.theme === "dark") { %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../public/css/dark_mode.css">
     <% } else if (user.appearance.theme === "light") { %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/light_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../public/css/light_mode.css">
     <% } else if ((((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (dst ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) && ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (dst ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0))) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (dst ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (dst ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0))))) { %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../public/css/dark_mode.css">
     <% } else { %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/light_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../public/css/light_mode.css">
     <% } %>
-    <link rel="stylesheet" type="text/css" href="../../public/css/main.css">
+    <link rel="stylesheet" type="text/css" href="../public/css/main.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
 
 <!-- Admin Navbar -->
-<% include ../partials/admin/admin_navbar.ejs %>
+<% include partials/admin/admin_navbar.ejs %>
 
 <!-- Main Screen -->
 <div id="weightsCard" class="container">
