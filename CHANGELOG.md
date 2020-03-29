@@ -39,6 +39,15 @@
 - If you would like a feature to become implemented, send feedback in Settings > Feedback
 - <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> If you would like a feature to become implement, send feedback in Settings > About > Feedback Form
 
+## [Beta 1.9.1] - 2020-03-29
+### Added
+- Incorrect GPA message
+
+### Fixed
+- Chart issues
+- Site remains on page after refresh
+- Broken auto theme settings
+
 ## [Beta 1.9.0] - 2020-03-28
 ### Added
 - New way to edit weights from class page

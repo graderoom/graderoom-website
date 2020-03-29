@@ -54,6 +54,7 @@ module.exports = function (app, passport) {
                 gradeData: gradeData,
                 weightData: weightData,
                 relevantClassData: relClassData,
+                dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
             });
             return;
         }
