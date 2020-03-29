@@ -95,13 +95,14 @@ module.exports = {
     /* user functions
      */
 
-    bringAllUpToDate: function () {
+    updateAllDB: function () {
         let users = db.get("users").value();
         let globalLastUpdated = {};
         let globalWeights = {};
         for (let i = 0; i < users.length; i++) {
-            this.bringUpToDate(users[i].username);
+            this.updateDB(users[i].username);
         }
+
         //FIXME Add as suggestion
         // for (let i = 0; i < users.length; i++) {
         //     // Get most up-to-date weight info from users
@@ -139,8 +140,6 @@ module.exports = {
         //     }
         // }
 
-        let classDb = db.get("classes");
-
         // // Update class db with most updated info
         // for (let i = 0; i < Object.keys(globalWeights).length; i++) {
         //     let className = Object.keys(globalWeights)[i];
@@ -173,35 +172,12 @@ module.exports = {
         //         }
         //     }
         // }
-
-        for (let i = 0; i < Object.keys(classDb.value()).length; i++) {
-            let className = Object.keys(classDb.value())[i];
-            // Set default AP/Honors to classes with names that suggest it
-            if (!classDb.value()[className]["classType"]) {
-                if (className.includes("AP")) {
-                    console.log(className + " is AP");
-                    classDb.get(className).set("classType", "ap").write();
-                } else if (className.includes("Honors")) {
-                    console.log(className + " is Honors");
-                    classDb.get(className).set("classType", "honors").write();
-                } else if (className === "Teaching Assistant") {
-                    console.log(className);
-                    classDb.get(className).set("classType", "non-academic").write();
-                } else {
-                    console.log(className + " is none");
-                    classDb.get(className).set("classType", "none").write();
-                }
-            }
-        }
-
     },
-
-    bringUpToDate: function (username) {
+    updateDB: function (username) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
         let classes = db.get("classes").value();
-
 
         //Add privacy policy and terms vars
         if (!Object.keys(user.alerts).includes("policyLastSeen")) {
@@ -243,14 +219,47 @@ module.exports = {
             let className = user.grades[i].class_name;
             let teacherName = user.grades[i].teacher_name;
 
-            // Add empty weight dict to all classes
-            if (!(user.weights[className])) {
-                this.addNewWeightDict(lc_username, i, className);
-            }
-
             //Add custom weight tag
             if (!("custom" in user.weights[className])){
                 userRef.get("weights").get("className").set("custom",false).write();
+            }
+
+            //Move weights to new storage system
+            let weights = Object.assign({}, user.weights[className]); // get weights from old storage
+            let hasWeights = "true";
+            let custom = false;
+            if (weights.hasOwnProperty("hasWeights")) {
+                hasWeights = weights["hasWeights"];
+                delete weights["hasWeights"];
+            }
+            if (weights.hasOwnProperty("custom")) {
+                custom = weights["custom"];
+                delete weights["custom"];
+            }
+            delete weights["weights"];
+
+            this.updateWeightsForClass(username, className, hasWeights, weights, custom, false); // put weights in new storage
+
+            for (var key in weights) {
+                if (weights.hasOwnProperty(key)) {
+                    delete user.weights[className][key]; // delete weights in old storage
+                }
+            }
+        }
+    },
+    bringUpToDate: function (username) {
+        let lc_username = username.toLowerCase();
+        let userRef = db.get("users").find({username: lc_username});
+        let user = userRef.value();
+        let classes = db.get("classes").value();
+
+        for (let i = 0; i < user.grades.length; i++) {
+            let className = user.grades[i].class_name;
+            let teacherName = user.grades[i].teacher_name;
+
+            // Add empty weight dict to all classes
+            if (!(user.weights[className])) {
+                this.addNewWeightDict(lc_username, i, className);
             }
 
             // Remove any weights that don't exist in user grades
@@ -273,34 +282,10 @@ module.exports = {
                 }
             }
 
-            //Move weights to new storage system
-            let weights = Object.assign({}, user.weights[className]); // get weights from old storage
-            let hasWeights = "true";
-            let custom = false;
-            if (weights.hasOwnProperty("hasWeights")) {
-                hasWeights = weights["hasWeights"];
-                delete weights["hasWeights"];
-            }
-            if (weights.hasOwnProperty("custom")) {
-                custom = weights["custom"];
-                delete weights["custom"];
-            }
-            delete weights["weights"];
-
-            this.updateWeightsForClass(username, className, hasWeights, weights, custom); // put weights in new storage
-
-            for (var key in weights) {
-                if (weights.hasOwnProperty(key)) {
-                    delete user.weights[className][key]; // delete weights in old storage
-                }
-            }
-
             //Updates weights from classes db
             if (user.weights[className]["custom"] == false && dbContainsClass(className,teacherName)){
-                //FIXME get hasWeights from classes db
-                this.updateWeightsForClass(username, className, classes[className][teacherName]["hasWeights"], classes[className][teacherName]["weights"]);
-            }
-
+                this.updateWeightsForClass(username, className, classes[className][teacherName]["hasWeights"], classes[className][teacherName]["weights"], false, false);
+            }           
         }
     },
 
@@ -319,7 +304,6 @@ module.exports = {
     },
 
     updateWeightsInClassDb: function (className, teacherName, hasWeights, weights) {
-        //FIXME make it work with pointbased, always overwrite?????
         let classDb = db.get("classes");
         if (weights) {
             if (hasWeights === "false") {
@@ -337,6 +321,34 @@ module.exports = {
             return {success: false, message: "One weight required!"};
         }
         return {success: true, message: "Updated weights for " + className + " | " + teacherName};
+    },
+    addWeightsSuggestion: function (className, teacherName, hasWeights, weights) {
+        let classDb = db.get("classes");
+        let classes = db.get("classes").value();
+        //Add Class and suggestions if doesn't exist
+        if (!dbContainsClass(className, teacherName)) {
+            this.addDbClass(className, teacherName);
+        }
+        if (!("suggestions" in classes[className][teacherName])) {
+            classDb.get(className).get(teacherName).set("suggestions", []).write();
+        }
+        //Add suggestion if same one doesn't exist
+        if (!dbContainsSuggestion(className, teacherName, { "weights": weights, "hasWeights": hasWeights })) {
+            //Add suggestion
+            if (hasWeights === "false") {
+                for (let i = 0; i < Object.keys(weights).length; i++) {
+                    weights[Object.keys(weights)[i]] = null;
+                }
+            }
+            let modWeights = {};
+            for (let i = 0; i < Object.keys(weights).length; i++) {
+                modWeights[Object.keys(weights)[i]] = parseInt(Object.values(weights)[i]);
+            }
+            classDb.get(className).get(teacherName).get("suggestions").push({ "weights": modWeights, "hasWeights": hasWeights }).write();
+            console.log("Added Suggestion");
+        } else {
+            console.log("Suggestion Already Exists");
+        }
     },
     updateClassTypeInClassDb: function (className,classType) {
         let classDb = db.get("classes");
@@ -567,10 +579,6 @@ module.exports = {
             if (!(userRef.value().weights[grade_update_status.new_grades[i].class_name])) {
                 this.addNewWeightDict(lc_username, i, grade_update_status.new_grades[i].class_name);
             }
-            //FIXME Add as suggestions
-            // if (!dbContainsClass(grade_update_status.new_grades[i].class_name, grade_update_status.new_grades[i].teacher_name)) {
-            //     this.addDbClass(grade_update_status.new_grades[i].class_name, grade_update_status.new_grades[i].teacher_name);
-            // }
         }
         for (let i = grade_update_status.new_grades.length; i < userRef.value().appearance.classColors.length; i++) {
             userRef.value().appearance.classColors.pop();
@@ -584,9 +592,20 @@ module.exports = {
     addDbClass: function (class_name, teacher_name) {
         let classesRef = db.get("classes");
         let mod_class_name = "[\"" + class_name + "\"]";
+        
         if (!Object.keys(classesRef.value()).includes(class_name)) {
+            // Set default AP/Honors to classes with names that suggest it
+            let classtype = "none"
+            if (className.includes("AP")) {
+                classtype = "ap";
+            } else if (className.includes("Honors")) {
+                classType = "honors";
+            } else if (className === "Teaching Assistant") {
+                classType = "non-academic";
+            }
+
             classesRef.set(mod_class_name, {
-                classType: "" //TODO Honors/AP/Non-Academic/etc.
+                classType: classtype
             }).write();
         }
         classesRef.get(mod_class_name).set(teacher_name, {
@@ -664,7 +683,7 @@ module.exports = {
         return {success: false, message: "User does not exist."};
     },
 
-    updateWeightsForClass: function (username, className, hasWeights, weights, custom=null) {
+    updateWeightsForClass: function (username, className, hasWeights, weights, custom=true, addSuggestion=true) {
         //default update, not override
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
@@ -674,20 +693,15 @@ module.exports = {
         }
 
         let clsRef = userRef.get("grades").find({class_name: className});
-
         if (!clsRef.value()) {
             return {success: false, message: "Class does not exist."};
         }
         let teacherName = clsRef.value().teacher_name;
         let classDb = db.get("classes");
 
-        // FIXME: Add as suggestion 
-        // for (let i = 0; i < Object.keys(weights).length; i++) {
-        //     console.log(classDb.value()[className][teacherName]["weights"][Object.keys(weights)[i]]);
-        //     if (!classDb.value()[className][teacherName]["weights"][Object.keys(weights)[i]]) {
-        //         classDb.get(className).get(teacherName).get("weights").set(Object.keys(weights)[i], Object.values(weights)[i]).write();
-        //     }
-        // }
+        if (addSuggestion) {
+            this.addWeightsSuggestion(className, teacherName, hasWeights, weights);
+        }
 
         let weightsRef = userRef.get("weights");
 
@@ -703,15 +717,6 @@ module.exports = {
             for (let i = 0; i < Object.keys(newWeights).length; i++) {
                 if (newWeights[Object.keys(newWeights)[i]] === "") {
                     newWeights[Object.keys(newWeights)[i]] = null;
-                }
-            }
-        }
-
-        if (custom == null){
-            custom = true;
-            if (dbContainsClass(className,clsRef.value()["teacher_name"])){
-                if (compareWeights(classDb.value()[className][teacherName],{"weights":newWeights,"hasWeights":hasWeights})){
-                    custom = false;
                 }
             }
         }
@@ -869,6 +874,18 @@ function dbContainsClass(class_name, teacher_name) {
     let classes = db.get("classes").value();
     if (classes[class_name] && classes[class_name][teacher_name]) {
         return true;
+    }
+    return false;
+}
+
+function dbContainsSuggestion(class_name, teacher_name, weight)
+{
+    let classes = db.get("classes").value();
+    if ("suggestions" in classes[class_name][teacher_name]){
+        for (let db_weight of classes[class_name][teacher_name]["suggestions"]){
+            if (compareWeights(weight,db_weight))
+                return true;
+        }
     }
     return false;
 }
