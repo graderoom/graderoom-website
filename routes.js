@@ -21,14 +21,13 @@ module.exports = function (app, passport) {
             let gradeDat = JSON.stringify(user.grades);
             let weightData = JSON.stringify(user.weights);
             let relClassData = JSON.stringify(authenticator.getRelClassData(req.user.username));
-            let dst = Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset();
 
             res.render("authorized_index.ejs", {
                 user: req.user, current: "home", userRef: JSON.stringify(user), schoolUsername: req.user.schoolUsername,
                 gradeData: gradeDat,
                 weightData: weightData,
                 relevantClassData: relClassData,
-                dst: dst
+                dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
             });
             return;
         }
@@ -135,11 +134,15 @@ module.exports = function (app, passport) {
         let deletedUsers = authenticator.getDeletedUsers();
         res.render("admin.ejs", {
             user: req.user,
+            theme: JSON.stringify(authenticator.getUser(req.user.username).appearance.theme),
+            darkModeStart: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeStart),
+            darkModeFinish: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeFinish),
             page: "admin",
             userList: allUsers,
             deletedUserList: deletedUsers,
             adminSuccessMessage: req.flash("adminSuccessMessage"),
-            adminFailMessage: req.flash("adminFailMessage")
+            adminFailMessage: req.flash("adminFailMessage"),
+            dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
         });
     });
 
@@ -361,7 +364,8 @@ module.exports = function (app, passport) {
                 user: req.user,
                 gradeData: JSON.stringify(req.user.grades),
                 userRef: JSON.stringify(req.user),
-                schoolUsername: req.user.schoolUsername
+                schoolUsername: req.user.schoolUsername,
+                dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
             });
         } else {
             req.session.returnTo = req.originalUrl;
@@ -392,7 +396,11 @@ module.exports = function (app, passport) {
             betaKeySuccessMessage: req.flash("betaKeySuccessMessage"),
             betaKeyFailMessage: req.flash("betaKeyFailMessage"),
             user: req.user,
-            page: "keys"
+            theme: JSON.stringify(authenticator.getUser(req.user.username).appearance.theme),
+            darkModeStart: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeStart),
+            darkModeFinish: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeFinish),
+            page: "keys",
+            dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
         });
 
     });
@@ -439,7 +447,11 @@ module.exports = function (app, passport) {
 
     app.get("/classes", [isAdmin], (req, res) => {
         res.render("classes.ejs", {
-            user: req.user, page: "classes", classData: authenticator.getAllClassData()
+            user: req.user, page: "classes", classData: authenticator.getAllClassData(),
+            theme: JSON.stringify(authenticator.getUser(req.user.username).appearance.theme),
+            darkModeStart: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeStart),
+            darkModeFinish: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeFinish),
+            dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
         });
     });
 
