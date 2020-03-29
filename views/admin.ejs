@@ -6,12 +6,16 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
-    <% if (user.appearance.theme === "dark" || (user.appearance.theme === "auto" && (((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset() ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) && ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset() ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0))) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset() ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset() ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0)))))) { %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+    <% if (user.appearance.theme === "dark") { %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../public/css/dark_mode.css">
+    <% } else if (user.appearance.theme === "light") { %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../public/css/light_mode.css">
+    <% } else if ((((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (dst ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) && ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (dst ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0))) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (dst ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (dst ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0))))) { %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../public/css/dark_mode.css">
     <% } else { %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../public/css/light_mode.css">
     <% } %>
-    <link rel="stylesheet" type="text/css" href="public/css/main.css">
+    <link rel="stylesheet" type="text/css" href="../public/css/main.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -45,12 +49,14 @@
     </form>
     <div id="table-container">
         <hr>
+        <h1>Users</h1>
         <table class="table" style="width: 100% !important;">
             <thead>
                 <tr>
                     <th class="admin">Username</th>
                     <th class="admin">Name</th>
                     <th class="admin">Last Updated</th>
+                    <th class="admin">Last Logged In</th>
                     <th class="admin">Attributes</th>
                     <th class="admin">Render User Site</th>
                     <th class="admin">Delete User</th>
@@ -67,6 +73,13 @@
                             Never Updated
                         <% } else { %>
                             <%= new Date(u.alerts.lastUpdated).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) %>
+                        <% } %>
+                    </td>
+                    <td class="admin">
+                        <% if (new Date(u.loggedIn).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
+                            Never Logged In
+                        <% } else { %>
+                            <%= new Date(u.loggedIn).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) %>
                         <% } %>
                     </td>
                     <td class="admin">
@@ -127,7 +140,92 @@
                 </tr>
             <% } %>
         </table>
+        <hr>
+        <h1>Deleted Users</h1>
+        <table class="table" style="width: 100% !important;">
+            <thead>
+                <tr>
+                    <th class="admin">Username</th>
+                    <th class="admin">School Username</th>
+                    <th class="admin">Restore User</th>
+                    <th class="admin">Delete Forever</th>
+                </tr>
+            </thead>
+
+            <% for (let u of deletedUserList) { %>
+                <tr>
+                    <td class="admin"><%= u.username %> </td>
+                    <td class="admin"><%= u.schoolUsername %></td>
+                    <td class="admin">
+                        <form action="/restoreUser" method="post">
+                            <button type="submit" name="restoreUser" class="btn btm-sm admin"
+                                    value="<%= u.username %>">Restore User
+                            </button>
+                        </form>
+                    </td>
+                    <td class="admin">
+                        <form action="/deleteuser" method="post">
+                            <button type="submit" name="deleteUser" class="btn btn-sm admin"
+                                    value="<%= u.username %>">Delete Forever
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            <% } %>
+        </table>
     </div>
 </div>
+<script>
+    function isDST() {
+        return Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset();
+    }
+
+    let checkingTheme;
+    let theme = <%- theme %>;
+    let darkModeStart = <%- darkModeStart %>;
+    let darkModeFinish = <%- darkModeFinish %>;
+
+    function setAutoTheme() {
+        if (theme !== "auto") {
+            clearInterval(checkingTheme);
+            return;
+        }
+        darkModeStart = parseInt(darkModeStart);
+        darkModeFinish = parseInt(darkModeFinish);
+        if (theme === "dark" || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart - (isDST() ? (darkModeStart === 0 ? -23 : 1) : 0)) && ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish - (isDST() ? (darkModeFinish === 1 ? -23 : 1) : 0))) || ((darkModeStart > darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart - (isDST() ? (darkModeStart === 0 ? -23 : 1) : 0)) || ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish - (isDST() ? (darkModeFinish === 1 ? -23 : 1) : 0)))))) {
+            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
+            darkMode = true;
+            if (darkMode !== oldDarkMode) {
+                clearTimeout(changeTransition);
+                document.getElementById("fade").disabled = false;
+                document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+                setTimeout(() => {
+                    document.getElementById("fade").disabled = true;
+                }, 1000);
+                renderAllCharts();
+            }
+        } else {
+            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
+            darkMode = false;
+            if (darkMode !== oldDarkMode) {
+                clearTimeout(changeTransition);
+                document.getElementById("fade").disabled = false;
+                document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+                setTimeout(() => {
+                    document.getElementById("fade").disabled = true;
+                }, 1000);
+                renderAllCharts();
+            }
+        }
+    }
+
+    async function checkTime() {
+        clearInterval(checkingTheme);
+        setAutoTheme();
+        checkingTheme = window.setInterval(function () {
+            setAutoTheme();
+        }, 100);
+    }
+</script>
 </body>
 </html>

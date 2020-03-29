@@ -36,9 +36,71 @@
 ## [Unreleased] - Coming Soon
 - Cumulative GPA Display
 - Class insights
-- Calculated weights of categories in point-based classes will be shown so that you can see how much effect a category has on your overall grade
 - If you would like a feature to become implemented, send feedback in Settings > Feedback
 - <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> If you would like a feature to become implement, send feedback in Settings > About > Feedback Form
+
+## [Beta 1.9.0] - 2020-03-28
+### Added
+- New way to edit weights from class page
+- New slider control for point based option
+- Calculated weights are shown for point-based classes
+
+### Improved
+- Grades show without inputted weights
+- Incorrect grade messages are more intuitively and unobstructively placed
+- Editing weights no longer requires refresh
+
+### Fixed
+- Issue where chart update would slow down after several page changes
+- Issue where chart would switch between light and dark mode randomly
+
+### Removed
+- Edit Weights Card
+
+## [Beta 1.8.1] - 2020-03-26
+### Fixed
+- Background color of class gain/loss on overview page
+- What's new display correctly shows on new updates
+- Sizing issue for sync grades card
+
+## [Beta 1.8.0] - 2020-03-26
+### Added
+- Input validation when changing password or making a new account
+- Confirmation for new password
+- Last synced info on sync card
+- Gain and loss per assignment in class tables
+- Most recent gain or loss on overview page
+
+### Improved
+- Animation on input fields
+- Graderoom refreshes automatically after a small delay when grades are updated
+- Syncing grades defaults to GradeSync
+
+### Fixed
+- Color palette generator now works
+
+### Removed
+- Auto-refresh setting
+
+## [Beta 1.7.0] - 2020-03-24
+### Added
+- What's New card
+- Clicking on a class in the overview table opens the class page
+- Keyboard shortcut 'W' to see the What's New page after it is closed
+
+### Improved
+- Random colors are now always easily distinguishable. Randomize your color palette in settings.
+- Incorrect grade alerts are more clear and now also show on overview page
+- Smoother animation when opening/closing cards
+- Better changelog display
+
+### Fixed
+- Issue where changelog would sometimes show up behind another card
+- All transitions were disabled after theme change without reload
+
+### Removed
+- Changelog no longer shows on login. You can still view the changelog through Settings > About > Changelog
+- Removed keyboard shortcut for edit weights
 
 ## [Beta 1.6.1] - 2020-03-22
 ### Added
@@ -258,10 +320,3 @@
 
 ### Removed
 - Removed beta key requirement
-
-## [Format] - Release Date
-### Added
-### Improved
-### Fixed
-### Removed
-- Features that were added, improved, fixed, or removed

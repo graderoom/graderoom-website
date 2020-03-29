@@ -95,7 +95,7 @@
                 <form action="/acceptTerms" method="post">
                     <button class="btn btn-md"
                             type="submit"
-                            onclick="closeForm('termsDisplay')"
+                            onclick="try {closeForm('termsDisplay')} catch {}"
                             style="width: fit-content; float: right; margin-bottom:0">
                         <i class="fa fa-check" aria-hidden="true"></i> Accept
                     </button>

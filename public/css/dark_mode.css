@@ -185,30 +185,38 @@ th {
     color: #BBBBBB;
 }
 
-#changelog-container .current {
+.changelog-container .body {
+    color: #EEEEEE;
+}
+
+.changelog-container .current {
     background-color: rgba(0, 255, 0, 0.06);
 }
 
-#changelog-container .type {
-    color: #222222;
+.changelog-container .type {
+    color: #FFFFFF;
 }
 
-#weightsCard input {
+.weightsTable input {
     border-color: lightcoral;
 }
 
-#weightsCard input:focus {
-    border-color: red;
+.form-weights input::placeholder {
+    color: #666666;
 }
 
-#weightsCard input.text-view {
-    border-color: white;
+.slider {
+    background-color: #444444;
 }
 
-#weightsCard .fail {
-    color: lightcoral;
+.slider:before {
+    background-color: #222222;
 }
 
-#weightsCard .success {
-    color: lightgreen;
+input:checked + .slider {
+    background-color: currentColor;
+}
+
+input:checked + .slider:before {
+    background-color: #FFFFFF;
 }

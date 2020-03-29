@@ -6,8 +6,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
-    <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
-    <link rel="stylesheet" type="text/css" href="public/css/main.css">
+    <link id="pageStyle" rel="stylesheet" type="text/css" href="../public/css/light_mode.css">
+    <link rel="stylesheet" type="text/css" href="../public/css/main.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="wot-verification" content="5c773c9acca0afa3e00e"/>
     <meta name="google-site-verification" content="V1uOTCUT5-IUFr-emEfyIvawYTz3DklEqorkkO5-nF8"/>
@@ -29,12 +29,16 @@
                 <% } %>
                 <br>
                 <form class="form-signin" action="/login" method="post">
-                    <div class="form-group">
-                        <label>Username</label> <input type="text" class="form-control user-bg" name="username"
-                                                       autofocus>
+                    <div class="input-group form-group">
+                        <i class="user-bg"></i>
+                        <label>Username</label>
+                        <input oninput="checkLabel(this)" type="text" class="form-control" name="username"
+                               autofocus>
                     </div>
-                    <div class="form-group">
-                        <label>Password</label> <input type="password" class="form-control lock-bg" name="password">
+                    <div class="input-group form-group">
+                        <i class="lock-bg"></i>
+                        <label>Password</label>
+                        <input oninput="checkLabel(this)" type="password" class="form-control" name="password">
                     </div>
                     <br>
                     <div class="text-center">
@@ -61,17 +65,25 @@
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
 <script>
-    let localStorage = window.localStorage;
-    let defaultAppearance = localStorage.getItem("defaultAppearance");
-    if (defaultAppearance) {
-        if (defaultAppearance === "dark") {
-            document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+
+    setTimeout(function () {
+        $('input:-webkit-autofill').each(function () {
+            let input = $(this);
+            let label = $($(input)[0].previousElementSibling);
+            label.addClass("label-active");
+        });
+    }, 250);
+
+    function checkLabel(input) {
+        let label = $($(input)[0].previousElementSibling);
+        input = $(input);
+        if (input[0].value !== "") {
+            if (!label.hasClass("label-active")) {
+                label.addClass("label-active");
+            }
         } else {
-            document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+            label.removeClass("label-active");
         }
-    } else {
-        localStorage.setItem("defaultAppearance", "light");
-        document.getElementById("pageStyle").setAttribute("href", "/public/css/light_mode.css");
     }
 </script>
 </body>

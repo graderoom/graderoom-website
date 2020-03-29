@@ -88,6 +88,19 @@ table thead tr th {
     background-color: #FFFFFF;
 }
 
+.changelog-container .body {
+    color: #222222;
+}
+
+.changelog-container .current {
+    background-color: rgba(0, 255, 0, 0.1);
+
+}
+
+.changelog-container .type {
+    color: #000000;
+}
+
 .changelog-item {
     margin-top: 1rem;
     border-radius: 1rem;
@@ -155,6 +168,22 @@ table thead tr th {
     background-color: #000000;
 }
 
+.slider {
+    background-color: #EEEEEE;
+}
+
+.slider:before {
+    background-color: #DDDDDD;
+}
+
+input:checked + .slider {
+    background-color: currentColor;
+}
+
+input:checked + .slider:before {
+    background-color: #444444;
+}
+
 .tab {
     border-top-color: #DDDDDD;
     border-bottom-color: #DDDDDD;
@@ -178,31 +207,14 @@ table thead tr th {
     background-color: #FFFFFF;
 }
 
-#changelog-container .current {
-    background-color: rgba(0, 255, 0, 0.1);
-
-}
-
-#changelog-container .type {
-    color: #EEEEEE;
-}
-
-#weightsCard input {
+.weightsTable input {
     border-color: lightcoral;
 }
 
-#weightsCard input:focus {
-    border-color: red;
-}
-
-#weightsCard input.text-view {
+.weightsTable input.text-view {
     border-color: white;
 }
 
-#weightsCard .fail {
-    color: lightcoral;
-}
-
-#weightsCard .success {
-    color: lightgreen;
+.form-weights input::placeholder {
+    color: #DDDDDD;
 }
