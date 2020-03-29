@@ -221,8 +221,8 @@
 
             // Submit the form using AJAX.
             $.ajax({
-                       type: "POST", url: $(formID).attr("action"), data: formData, async: async
-                   }).done(function (response) {
+                type: "POST", url: $(formID).attr("action"), data: formData, async: async
+            }).done(function (response) {
                 // Make sure that the formMessages div has the alert-success class.
                 $(formMessagesDiv).removeClass("alert-danger");
                 $(formMessagesDiv).addClass("alert-success");
@@ -299,6 +299,57 @@
             classDiv.find(" .fa-minus").show();
         }
         showSubmitButton($(classDiv));
+    }
+
+    function isDST() {
+        return Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset();
+    }
+
+    let checkingTheme;
+    let theme = user.appearance.theme;
+    let darkModeStart = user.appearance.darkModeStart;
+    let darkModeFinish = user.appearance.darkModeFinish;
+
+    function setAutoTheme() {
+        if (theme !== "auto") {
+            clearInterval(checkingTheme);
+            return;
+        }
+        darkModeStart = parseInt(darkModeStart);
+        darkModeFinish = parseInt(darkModeFinish);
+        if (theme === "dark" || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart - (isDST() ? (darkModeStart === 0 ? -23 : 1) : 0)) && ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish - (isDST() ? (darkModeFinish === 1 ? -23 : 1) : 0))) || ((darkModeStart > darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart - (isDST() ? (darkModeStart === 0 ? -23 : 1) : 0)) || ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish - (isDST() ? (darkModeFinish === 1 ? -23 : 1) : 0)))))) {
+            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
+            darkMode = true;
+            if (darkMode !== oldDarkMode) {
+                clearTimeout(changeTransition);
+                document.getElementById("fade").disabled = false;
+                document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+                setTimeout(() => {
+                    document.getElementById("fade").disabled = true;
+                }, 1000);
+                renderAllCharts();
+            }
+        } else {
+            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
+            darkMode = false;
+            if (darkMode !== oldDarkMode) {
+                clearTimeout(changeTransition);
+                document.getElementById("fade").disabled = false;
+                document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+                setTimeout(() => {
+                    document.getElementById("fade").disabled = true;
+                }, 1000);
+                renderAllCharts();
+            }
+        }
+    }
+
+    async function checkTime() {
+        clearInterval(checkingTheme);
+        setAutoTheme();
+        checkingTheme = window.setInterval(function () {
+            setAutoTheme();
+        }, 100);
     }
 
 </script>
