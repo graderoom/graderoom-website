@@ -67,7 +67,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/bringAllUpToDate", [isAdmin], (req, res) => {
-        authenticator.bringAllUpToDate();
+        authenticator.updateAllDB();
         req.flash("adminSuccessMessage", "Brought all users up to date");
         res.redirect("/admin");
     });
