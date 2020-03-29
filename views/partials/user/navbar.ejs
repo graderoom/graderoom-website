@@ -24,12 +24,6 @@
                     <a class="btn btn-med" href="/finalgradecalculator"> <i class="fa fa-calculator"
                                                                             aria-hidden="true"></i> Calculator </a>
                 </li>
-                <li id="editWeights" class="nav-item">
-                    <btn class="btn btn-med"
-                         onclick="showUpdateWeights(document.getElementById('pageNumber').textContent)">
-                        <i class="fa fa-pencil" aria-hidden="true"></i> Weights
-                    </btn>
-                </li>
                 <li id="syncGrades" class="nav-item">
                     <btn class="btn btn-med" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">
                         <i class="fa fa-refresh" aria-hidden="true"></i> Sync
@@ -63,7 +57,7 @@
 
 <!-- Cards -->
 <% if (current === "home") { %>
-    <% include settings_card.ejs %> <% include terms_and_conditions.ejs %> <% include privacy_policy.ejs %> <% include sync_grades_card.ejs %> <% include edit_weights_card.ejs %> <% include changelog.ejs %> <% include feedback_card.ejs %>
+    <% include settings_card.ejs %> <% include sync_grades_card.ejs %> <% include changelog.ejs %> <% include privacy_policy.ejs %> <% include terms_and_conditions.ejs %> <% include feedback_card.ejs %> <% include whats_new.ejs %>
 <% } %>
 
 <!-- Custom JavaScript -->
@@ -100,35 +94,47 @@
             message = $(formMessagesDiv).find(".messageTxt");
             $(message).text("");
             $(formMessagesDiv).removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
-            $(formMessagesDiv).find(".sk-chase-mini").show().css("display", "inline-block");
             $(formMessagesDiv).show();
+            $(formMessagesDiv).find(".sk-chase-mini").css("display", "inline-block");
+            if (formID === "#randomizeClassColors") {
+                $("#classColors").find("label").css("color", $(formID).parents(".card-footer").css("background-color"));
+            }
 
             if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
                 $("input").blur();
                 $("#loadingDisplay").show();
                 $("#syncFailure").hide();
+                clearInterval(checkLastUpdated);
             }
 
             // Submit the form using AJAX.
             $.ajax({
-                       type: "POST", url: $(form).attr("action"), data: formData, async: async
-                   }).done(function (response) {
+                type: "POST", url: $(form).attr("action"), data: formData, async: async
+            }).done(function (response) {
                 // Special behavior for class colors.
-                if (formID.substring(0, 10) === "#randomize") {
+                if (formID === "#randomizeClassColors") {
                     // numClasses is contained in messagesDivID
                     // colors come from response
-                    updateClassColors(response);
+                    setTimeout(() => {
+                        updateClassColors(response);
+                    }, 500);
                     $("#reloadNeeded").text("Reload Needed");
                 } else {
 
-                    // Set the message text.
-                    setTimeout(function () {
-                        $(message).text(response);
+                    // Set synced variable
+                    if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
                         $(formMessagesDiv).find(".sk-chase-mini").hide();
-                        // Make sure that the formMessages div has the alert-success class.
-                        $(formMessagesDiv).removeClass("alert-info");
-                        $(formMessagesDiv).addClass("alert-success");
-                    }, 500);
+                        $(message).text("Last synced 0 seconds ago");
+                        setTimeout(() => window.reload(), 400);
+                    } else {
+                        setTimeout(function () {
+                            $(message).text(response), 200;
+                            $(formMessagesDiv).find(".sk-chase-mini").hide();
+                            // Make sure that the formMessages div has the alert-success class.
+                            $(formMessagesDiv).removeClass("alert-info");
+                            $(formMessagesDiv).addClass("alert-success");
+                        }, 500);
+                    }
 
                     // Show the div.
                     $(formMessagesDiv).show();
@@ -137,11 +143,7 @@
                     if (response === "GradeSync Enabled. Updated grades!") {
                         $("#syncGradesDiv").hide();
                         $("#gradeSyncDiv").show();
-                    }
-
-                    // Set synced variable
-                    if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
-                        $("#synced").text("Synced");
+                        setTimeout(() => window.reload(), 1400);
                     }
 
                     // Switch mode instantly
@@ -151,19 +153,11 @@
                             darkMode = true;
                             theme = "dark";
                             if (darkMode !== oldDarkMode) {
-                                if (changeTransition) {
-                                    clearTimeout(changeTransition);
-                                }
-                                $("<style>").prop("type", "text/css").html(`
-                                * {
-                                    transition: all 1s ease, color 0s ease !important;
-                                }`).appendTo("head");
+                                clearTimeout(changeTransition);
+                                document.getElementById("fade").disabled = false;
                                 document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
-                                changeTransition = setTimeout(function () {
-                                    $("<style>").prop("type", "text/css").html(`
-                                    * {
-                                        transition: none !important;
-                                    }`).appendTo("head");
+                                setTimeout(() => {
+                                    document.getElementById("fade").disabled = true;
                                 }, 1000);
                                 renderAllCharts();
                             }
@@ -182,19 +176,11 @@
                             darkMode = false;
                             theme = "light";
                             if (darkMode !== oldDarkMode) {
-                                if (changeTransition) {
-                                    clearTimeout(changeTransition);
-                                }
-                                $("<style>").prop("type", "text/css").html(`
-                                * {
-                                    transition: all 1s ease, color 0s ease !important;
-                                }`).appendTo("head");
+                                clearTimeout(changeTransition);
+                                document.getElementById("fade").disabled = false;
                                 document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
-                                changeTransition = setTimeout(function () {
-                                    $("<style>").prop("type", "text/css").html(`
-                                    * {
-                                        transition: none !important;
-                                    }`).appendTo("head");
+                                setTimeout(() => {
+                                    document.getElementById("fade").disabled = true;
                                 }, 1000);
                                 renderAllCharts();
                             }
@@ -259,6 +245,12 @@
                     // Clear fields to clear
                     for (let i = 0; i < fieldIDsToClear.length; i++) {
                         $(fieldIDsToClear[i]).val("");
+                        if (formID === "#changePassword") {
+                            $($(fieldIDsToClear[i])[0].previousElementSibling).removeClass("label-active");
+                            if ($($(fieldIDsToClear[i])[0].previousElementSibling.children[0])) {
+                                $($(fieldIDsToClear[i])[0].previousElementSibling.children[0]).text("");
+                            }
+                        }
                     }
                     $("input").each(function () {
                         $(this).blur();
@@ -275,7 +267,7 @@
                         $("#syncFailure").show();
                     }
                     if (data.responseText === "Login Failed") {
-                        $(message).text("Invalid Credentials");
+                        $(message).text("School Password is incorrect");
                     } else {
                         $(message).text(data.responseText);
                     }
@@ -308,7 +300,10 @@
                 $(this).parent().css("z-index", cardsDisplayed.indexOf($($(this).parent())[0].id) + 2);
             }
         });
-        $(id).show();
+        if (id === "#updateGradesDisplay") {
+            setupLastUpdated();
+        }
+        $(id).fadeIn(100);
         disableScrolling();
     }
 
@@ -316,9 +311,10 @@
         if (cardsDisplayed.includes(id)) {
             cardsDisplayed.splice(cardsDisplayed.indexOf(id), 1);
         }
-        if (id === "updateGradesDisplay" && document.getElementById("synced").textContent === "Synced") {
-            window.reload();
-        } else if (id === "updateWeightsDisplay") {
+        if (id === "updateGradesDisplay") {
+            clearInterval(checkLastUpdated);
+        }
+        if (id === "updateWeightsDisplay") {
             if (document.getElementById("edited").textContent === "Edited") {
                 window.reload();
             } else {
@@ -329,24 +325,19 @@
         } else if (id === "settingsCardDisplay" && document.getElementById("reloadNeeded").textContent === "Reload Needed") {
             window.reload();
         } else {
-            let form = document.getElementById(id);
-            if (id === "changelogDisplay") {
-                let changelogContainer = $("#changelog-container");
-                changelogContainer.animate({
-                                               scrollTop: $(".changelog-item:first").offset().top - changelogContainer.offset().top
-                                           }, 0, function () {
-                    form.style.display = "none";
-                });
-            } else {
-                form.style.display = "none";
-            }
-            let inputFields = form.getElementsByClassName("form-control");
+            let form = $("#" + id);
+            form.fadeOut(100);
+            let inputFields = $("#" + id + " .form-control");
             for (let i = 0; i < inputFields.length; i++) {
                 inputFields[i].value = "";
+                $(inputFields[i]).trigger("input");
             }
-            closeMessage("accountSettingsMessage");
-            closeMessage("alertSettingsMessage");
-            closeMessage("themeMessage");
+            if (id === "settingsCardDisplay") {
+                closeMessage("passwordChangeMessage");
+                closeMessage("emailChangeMessage");
+                closeMessage("alertSettingsMessage");
+                closeMessage("themeMessage");
+            }
             enableScrolling();
         }
 
