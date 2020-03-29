@@ -218,3 +218,23 @@ input:checked + .slider:before {
 .form-weights input::placeholder {
     color: #DDDDDD;
 }
+
+#weightsCard input {
+    border-color: lightcoral;
+}
+
+#weightsCard input:focus {
+    border-color: red;
+}
+
+#weightsCard input.text-view {
+    border-color: white;
+}
+
+#weightsCard .fail {
+    color: lightcoral;
+}
+
+#weightsCard .success {
+    color: lightgreen;
+}

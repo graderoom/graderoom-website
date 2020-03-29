@@ -733,3 +733,79 @@ input:checked + .slider:before {
     padding: .375rem .75rem;
     margin: 0 0 1rem;
 }
+
+#weightsCard h5 {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    padding-top: 8px;
+}
+
+#weightsCard h5.class {
+    padding-top: 0.5rem;
+}
+
+#weightsCard h5.collapsed {
+    border-top: none;
+}
+
+#weightsCard h5.collapsed ~ span.collapse-underline {
+    border-bottom: none;
+}
+
+#weightsCard .disabled {
+    color: #999 !important;
+    border-bottom: none !important;
+}
+
+#weightsCard input {
+    font-size: 0.9rem;
+    padding: .1rem .1rem;
+    width: 3rem;
+    text-align: center;
+    margin-right: 1rem;
+}
+
+#weightsCard input.text-view {
+    border-bottom: 1px transparent;
+    padding: .1rem .1rem;
+}
+
+#weightsCard input.text-view:hover, #weightsCard input.text-view:focus {
+    margin-bottom: -1px;
+    padding: .1rem .1rem;
+    border-bottom: 1px solid;
+}
+
+#weightsCard input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+#weightsCard input[type="number"]::-webkit-outer-spin-button,
+#weightsCard input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#weightsCard label h5 i::after {
+    content: "\f107"; /*Arrow Icon Toggling*/
+}
+
+#weightsCard label.collapsed h5 i::after {
+    content: "\f105"; /*Arrow Icon Toggling*/
+}
+
+#weightsCard .collapse.show, #weightsCard .collapsing {
+    display: flex;
+    flex-flow: row wrap;
+}
+
+#weightsCard .form-group:focus-within label {
+    font-weight: bolder;
+}
+
+#weightsCard .form-signin .btn {
+    width: auto;
+    padding: .375rem .75rem;
+    margin: 0 0 1rem;
+}
