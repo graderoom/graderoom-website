@@ -102,6 +102,21 @@ module.exports = {
         for (let i = 0; i < users.length; i++) {
             this.updateDB(users[i].username);
         }
+        //Update classes to include suggestions key
+        let classRef = db.get("classes");
+        let classes = db.get("classes").value();
+        for (let i = 0; i < Object.keys(classes).length; i++) {
+            let className = Object.keys(classes)[i];
+            for (let j = 0; j < Object.keys(classes[className]).length; j++) {
+                let teacherName = Object.keys((classes)[className])[j];
+                if (teacherName!=="classType"){
+                    console.log(classes[className][teacherName]);
+                    if (!("suggestions" in classes[className][teacherName])) {
+                        classRef.get(className).get(teacherName).set("suggestions", []).write();
+                    }
+                }
+            }
+        }
 
         //FIXME Add as suggestion
         // for (let i = 0; i < users.length; i++) {
@@ -282,8 +297,14 @@ module.exports = {
                 }
             }
 
+            //Add all classes to db
+            if (!dbContainsClass(className,teacherName)){
+                this.addDbClass(className,teacherName)
+            }
+
             //Updates weights from classes db
             if (user.weights[className]["custom"] == false && dbContainsClass(className,teacherName)){
+                if (classes[className][teacherName]["hasWeights"]==true || Object.keys(classes[className][teacherName]["weights"]).length>0)
                 this.updateWeightsForClass(username, className, classes[className][teacherName]["hasWeights"], classes[className][teacherName]["weights"], false, false);
             }           
         }
@@ -325,13 +346,6 @@ module.exports = {
     addWeightsSuggestion: function (className, teacherName, hasWeights, weights) {
         let classDb = db.get("classes");
         let classes = db.get("classes").value();
-        //Add Class and suggestions if doesn't exist
-        if (!dbContainsClass(className, teacherName)) {
-            this.addDbClass(className, teacherName);
-        }
-        if (!("suggestions" in classes[className][teacherName])) {
-            classDb.get(className).get(teacherName).set("suggestions", []).write();
-        }
         //Add suggestion if same one doesn't exist
         if (!dbContainsSuggestion(className, teacherName, { "weights": weights, "hasWeights": hasWeights })) {
             //Add suggestion
@@ -579,21 +593,28 @@ module.exports = {
             if (!(userRef.value().weights[grade_update_status.new_grades[i].class_name])) {
                 this.addNewWeightDict(lc_username, i, grade_update_status.new_grades[i].class_name);
             }
+            //Add class to classes db
+            if (!dbContainsClass(grade_update_status.new_grades[i].class_name,grade_update_status.new_grades[i].teacher_name)){
+                this.addDbClass(grade_update_status.new_grades[i].class_name,grade_update_status.new_grades[i].teacher_name);
+            }
         }
         for (let i = grade_update_status.new_grades.length; i < userRef.value().appearance.classColors.length; i++) {
             userRef.value().appearance.classColors.pop();
         }
+        
+
+
         userRef.assign({grades: grade_update_status.new_grades}).write();
         userRef.get("alerts").set("lastUpdated", Date.now()).write();
         userRef.set("updatedInBackground", "already done").write();
         return {success: true, message: "Updated grades!"};
     },
 
-    addDbClass: function (class_name, teacher_name) {
+    addDbClass: function (className, teacherName) {
         let classesRef = db.get("classes");
-        let mod_class_name = "[\"" + class_name + "\"]";
+        let modClassName = "[\"" + className + "\"]";
         
-        if (!Object.keys(classesRef.value()).includes(class_name)) {
+        if (!Object.keys(classesRef.value()).includes(className)) {
             // Set default AP/Honors to classes with names that suggest it
             let classtype = "none"
             if (className.includes("AP")) {
@@ -604,16 +625,17 @@ module.exports = {
                 classType = "non-academic";
             }
 
-            classesRef.set(mod_class_name, {
+            classesRef.set(modClassName, {
                 classType: classtype
             }).write();
         }
-        classesRef.get(mod_class_name).set(teacher_name, {
+        classesRef.get(modClassName).set(teacherName, {
             weights: {}, //TODO Weights
             hasWeights: null, //TODO Has weights
-            assignments: {}, //TODO populate assignments by some kind of identifier (points possible + assignment name
+            suggestions: [],
+            // assignments: {}, //TODO populate assignments by some kind of identifier (points possible + assignment name
                              // should be enough to differentiate assignments)
-            overallGrades: [] //TODO populate with overall grades of users (for average) length will give # in class
+            // overallGrades: [] //TODO populate with overall grades of users (for average) length will give # in class
         }).write();
     },
 
