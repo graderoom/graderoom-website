@@ -312,7 +312,6 @@ module.exports = function (app, passport) {
 
     //must be called via client side ajax+js
     app.post("/updateweights", [isLoggedIn], async (req, res) => {
-        console.log(req.body);
         let className = req.body.className;
         let hasWeights = req.body.hasWeights;
         let newWeights = JSON.parse(req.body.newWeights);

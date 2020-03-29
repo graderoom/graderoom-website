@@ -24,12 +24,6 @@
                     <a class="btn btn-med" href="/finalgradecalculator"> <i class="fa fa-calculator"
                                                                             aria-hidden="true"></i> Calculator </a>
                 </li>
-                <li id="editWeights" class="nav-item">
-                    <btn class="btn btn-med"
-                         onclick="showUpdateWeights(document.getElementById('pageNumber').textContent)">
-                        <i class="fa fa-pencil" aria-hidden="true"></i> Weights
-                    </btn>
-                </li>
                 <li id="syncGrades" class="nav-item">
                     <btn class="btn btn-med" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">
                         <i class="fa fa-refresh" aria-hidden="true"></i> Sync
@@ -63,7 +57,7 @@
 
 <!-- Cards -->
 <% if (current === "home") { %>
-    <% include settings_card.ejs %> <% include sync_grades_card.ejs %> <% include changelog.ejs %>
+    <% include settings_card.ejs %> <% include sync_grades_card.ejs %> <% include changelog.ejs %> <% include privacy_policy.ejs %> <% include terms_and_conditions.ejs %> <% include feedback_card.ejs %> <% include whats_new.ejs %>
 <% } %>
 
 <!-- Custom JavaScript -->
