@@ -250,17 +250,17 @@
                                                        step="0.1"
                                                        class="number-input disableable form-control <% if(value || value == 0){ %> text-view <% } %>"
                                                        name="<%= category %>"
-                                                       oninput="this.classList.remove('text-view');"
                                                 >
                                             </td>
                                             <td id="weightTablePoints<%= i + offset %><%= j %>"></td>
                                             <td id="weightTableGrade<%= i + offset %><%= j %>"></td>
                                         </tr>
                                     <% } %>
-                                    <script>
+                                        <script>
                                     function disableInput(checkBoxID, id) {
                                         $('#' + id).find('.disableable').each(function () {
                                             if ($('#' + checkBoxID).is(":checked")) {
+                                                $(this).val("");
                                                 $(this).addClass("disabled");
                                                 $(this).attr('disabled', 'disabled');
                                             } else {
@@ -347,6 +347,7 @@
     let parsedData = [];
     let excludedData = [];
     let unobtainedWeights = {};
+    let tempWeights = {};
     let currentPage = localStorage.getItem("currentPage") || -1;
     let cardsDisplayed = [];
     let currentTab = 1;
@@ -663,16 +664,24 @@
         return "F";
     }
 
+    let submittingWeights;
+
     function setupWeightsTables() {
         for (let i = 0; i < data.length; i++) {
             let className = data[i].class_name;
             let tableCategories = Object.keys(weights[className]["weights"]);
             for (let j = 0; j < tableCategories.length; j++) {
                 document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
-                $("#weightTableWeight" + i + j).on("keyup", (e) => {
+                $("#weightTableWeight" + i + j + " input").blur(() => {
+                    clearTimeout(submittingWeights);
+                    submittingWeights = setTimeout(() => {
+                        $("#weightTableWeight" + i + j).parents("form").submit()
+                    }, 400);
+                }).on("keyup", (e) => {
                     e = e || window.event;
                     let keyCode = e.code;
                     if (keyCode === 'Enter') {
+                        clearTimeout(submittingWeights);
                         $("#weightTableWeight" + i + j).parents("form").submit();
                     }
                 });
@@ -1239,6 +1248,31 @@
 
     let refresh;
 
+    function isEqual(a, b) {
+        let aProps = Object.getOwnPropertyNames(a);
+        let bProps = Object.getOwnPropertyNames(b);
+
+        // If number of properties is different,
+        // objects are not equivalent
+        if (aProps.length != bProps.length) {
+            return false;
+        }
+
+        for (let i = 0; i < aProps.length; i++) {
+            let propName = aProps[i];
+
+            // If values of same property are not equal,
+            // objects are not equivalent
+            if (a[propName] !== b[propName]) {
+                return false;
+            }
+        }
+
+        // If we made it this far, objects
+        // are considered equivalent
+        return true;
+    }
+
     $(function initAjaxFormPosts() {
         if ($("form.form-weights").length > 0) {
             $("form.form-weights").each(function () {
@@ -1246,16 +1280,30 @@
                 $(form).submit(function (event) {
                     event.preventDefault();
                     event.stopImmediatePropagation();
-                    let weightData = (($(form).serializeArray()));
+                    let hasWeights = !($(form).find('input[name="hasWeights"]')).is(':checked');
+                    let className = data[$(form)[0].id.substring(7)].class_name;
+                    if (weights[className]["hasWeights"] === "true" != hasWeights) {
+                        if (!hasWeights) {
+                            // Don't copy reference
+                            tempWeights[className] = Object.assign({}, weights[className]["weights"]);
+                        } else if (tempWeights[className]) {
+                            for (let i = 0; i < Object.keys(weights[className]["weights"]).length; i++) {
+                                let weight = $("#weightTableWeight" + $(form)[0].id.substring(7) + i + " input");
+                                weight.val(tempWeights[className][Object.keys(tempWeights[className])[i]]);
+                            }
+                        }
+                    }
+                    let weightData = $(form).serializeArray();
                     let weightURI = {};
                     jQuery.map(weightData, function (n, i) {
-                        if (n.name !== "hasWeights") weightURI[n.name] = isNaN(parseInt(n.value)) ? n.value : parseInt(n.value);
-
+                        if (n.name !== "hasWeights") weightURI[n.name] = isNaN(parseInt(n.value)) ? null : parseInt(n.value);
                     });
+                    if (isEqual(weights[className]["weights"], weightURI) && weights[className]["hasWeights"] === "true" == hasWeights) {
+                        return;
+                    }
                     weightURI = encodeURIComponent(JSON.stringify(weightURI));
-
-                    let className = encodeURI(data[$(form)[0].id.substring(7)].class_name);
-                    let hasWeights = encodeURI(!($(form).find('input[name="hasWeights"]')).is(':checked'));
+                    className = encodeURI(className);
+                    hasWeights = encodeURI(hasWeights);
                     let formData = "className=" + className + "&hasWeights=" + hasWeights + "&newWeights=" + weightURI;
 
                     $.ajax({
@@ -1263,24 +1311,25 @@
                     }).done(() => {
                         // Make sure that the formMessages div has the alert-success class.
 
-
-                        $(form).find("input").each(function () {
-                            $(this).blur();
-                            if ($(this)[0].value) {
-                                $(this).addClass("text-view");
-                                $(this).css('border-color', 'unset');
-                            } else {
-                                $(this).removeClass("text-view");
-                            }
-                        });
                         className = decodeURI(className);
+                        for (let i = 0; i < Object.keys(weights[className]["weights"]).length; i++) {
+                            let weight = $("#weightTableWeight" + $(form)[0].id.substring(7) + i + " input");
+                            if (weight[0].value) {
+                                weight.addClass("text-view");
+                                weight.css('border-color', 'unset');
+                            } else {
+                                weight.removeClass("text-view");
+                                weight.css('border-color', 'lightcoral');
+                            }
+                        }
                         if (weightData[0].value === "on") {
                             weights[className]["hasWeights"] = "false";
                             setPointBasedWeights();
                         } else {
                             weights[className]["hasWeights"] = "true";
+                            console.log(weightData);
                             for (let weight of weightData) {
-                                weights[className]["weights"][weight.name] = weight.value;
+                                weights[className]["weights"][weight.name] = parseInt(weight.value);
                             }
                         }
                         // Run asynchronously
