@@ -339,54 +339,48 @@
                             </div>
                         </form>
                     </div>
-                    <form id="gradeSync" class="form-signin" action="/updateGradeSync" method="post">
-                        <% if (user.schoolPassword) { %>
-                            <div class="card-footer">
-                                <h5>GradeSync</h5>
-                                <label style="cursor: pointer">
-                                    <input id="gradeSyncToggle" type="checkbox" name="gradeSync"
-                                    <% if (user.schoolPassword) { %> checked
+                    <div class="card-footer">
+                        <h5>Miscellaneous</h5>
+                        <form id="gradeSync" class="form-signin" action="/disableGradeSync" method="post">
+                            <label style="white-space: nowrap; display: flex; font-size: 1rem; justify-content: flex-start; align-items: center">
+                                <label class="switch">
+                                    <input
+                                            id="gradeSyncToggle"
+                                            style="margin: 0; display: flex"
+                                            type="checkbox"
+                                            name="gradeSync"
+                                    <% if (user.schoolPassword) { %>
+                                            checked
                                             <% } %>
-                                    > Enable
+                                            oninput="manageGradeSyncCheckbox()"
+                                    >
+                                    <span style="color: #888888" class="slider"></span>
                                 </label>
-                                <div class="text-center">
-                                    <button type="submit" class="btn btn-default btn-med">
-                                        Apply
-                                    </button>
-                                </div>
-                            </div>
-                        <% } %>
-                    </form>
-                    <form id="remoteAccess" class="form-signin" action="/setRemoteAccess" method="post">
-                        <div class="card-footer">
-                            <div id="remoteAccessMessage"
-                                 class="alert alert alert-success alert-dismissible font-weight-bold"
-                                 style="display:none">
-                                <div style="display:none" class="sk-chase-mini">
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                </div>
-                                <div class="messageTxt"></div>
-                                <a class="close" onclick="closeMessage('remoteAccessMessage')" aria-label="close">X</a>
-                            </div>
-                            <label style="cursor: pointer">
-                                <input id="remoteAccessToggle" type="checkbox" name="remoteAccess"
-                                <% if (user.alerts.remoteAccess === "allowed") { %> checked
-                                        <% } %>
-                                > Allow Remote Access
+                                <label style="margin: 0 0 0 1rem; justify-content: center; align-items: center; cursor: pointer"
+                                       onclick="$('#gradeSyncToggle').trigger('input')">GradeSync</label>
                             </label>
-                            <div class="text-center">
-                                <button onclick="ajaxPostForm('#remoteAccess',[],'#remoteAccessMessage',true)"
-                                        type="submit" class="btn btn-default btn-med">
-                                    Apply
-                                </button>
-                            </div>
-                        </div>
-                    </form>
+                        </form>
+                        <form id="remoteAccess" class="form-signin" action="/setRemoteAccess" method="post">
+                            <label style="display: flex; font-size: 1rem; justify-content: flex-start; align-items: center">
+                                <label class="switch">
+                                    <input
+                                            id="remoteAccessToggle"
+                                            style="margin: 0; display: flex"
+                                            type="checkbox"
+                                            name="remoteAccess"
+                                    <% if (user.alerts.remoteAccess === "allowed") { %>
+                                            checked
+                                            <% } %>
+                                            oninput="ajaxPostForm('#remoteAccess',[],'',true); $('#remoteAccess').submit();"
+                                    >
+                                    <span style="color: #888888" class="slider"></span>
+                                </label>
+                                <label style="margin: 0 0 0 1rem; justify-content: center; align-items: center; cursor: pointer"
+                                       onclick="$('#remoteAccessToggle').trigger('click')">Allow
+                                    Remote Access</label>
+                            </label>
+                        </form>
+                    </div>
                 </div>
             </div>
             <div id="settings-4" class="tabcontent">
@@ -433,6 +427,20 @@
 
 <!-- Custom JavaScript -->
 <script type="text/javascript">
+
+    function manageGradeSyncCheckbox() {
+        console.log($('#gradeSyncDiv').css('display'));
+        console.log($('#gradeSyncToggle').prop('checked'));
+        if ($('#gradeSyncDiv').css('display') === 'block' && !$('#gradeSyncToggle').prop('checked')) {
+            delete user.schoolPassword;
+            ajaxPostForm('#gradeSync', [], '', true);
+            $('#gradeSync').submit();
+            $('#gradeSyncDiv').hide();
+            $("#syncGradesDiv").show();
+        } else {
+            showCard('#updateGradesDisplay');
+        }
+    }
 
     function reload() {
         location.reload();

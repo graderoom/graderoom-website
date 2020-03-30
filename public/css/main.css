@@ -650,7 +650,6 @@ table thead tr th:last-child {
 
 .slider {
     position: absolute;
-    display: inline-block;
     cursor: pointer;
     vertical-align: middle;
     height: 1.2rem;

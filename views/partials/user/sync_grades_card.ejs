@@ -8,7 +8,7 @@
                  style="width: fit-content; margin-bottom:0">
                 <i class="fa fa-close" aria-hidden="true"></i> Close
             </btn>
-            <div class="card-body" style="max-height: 70vh; overflow: scroll; transition: 500ms">
+            <div class="card-body" style="max-height: 70vh; overflow-y: scroll; overflow-x: hidden; transition: 500ms">
                 <div id="updateGradesMessage" class="alert alert-info alert-dismissible"
                      style="display:block">
                     <div style="display: flex">
@@ -36,7 +36,19 @@
                     <h5 id="schoolUsernameDisplay" class="school-username text-center"><%= schoolUsername %></h5>
                     <br>
                     <form id="syncGradesForm" class="form-signin" action="/update" method="post">
-                        <label style="cursor: pointer; float: right; text-align: left" class="popup"
+                        <div class="form-group input-group">
+                            <i class="lock-bg"></i>
+                            <label>School Password</label>
+                            <input oninput="checkLabel(this)" name="school_password" type="password" id="inputPassword"
+                                   class="form-control" required>
+                        </div>
+                        <div id="userPassword" class="form-group input-group" style="display:none">
+                            <i class="user-bg"></i>
+                            <label>Graderoom Password</label>
+                            <input oninput="checkLabel(this)" name="user_password" type="password"
+                                   id="inputUserPassword" class="form-control" required>
+                        </div>
+                        <label style="cursor: pointer; float: left; text-align: right" class="popup"
                                onclick="toggleInputUserPasswordDisplay()">
                             <input style="cursor: inherit"
                                    id="savePasswordToggle"
@@ -51,18 +63,6 @@
                                     </span>
                             </i>
                         </label>
-                        <div class="form-group input-group">
-                            <i class="lock-bg"></i>
-                            <label>School Password</label>
-                            <input oninput="checkLabel(this)" name="school_password" type="password" id="inputPassword"
-                                   class="form-control" required>
-                        </div>
-                        <div id="userPassword" class="form-group input-group" style="display:none">
-                            <i class="user-bg"></i>
-                            <label>Graderoom Password</label>
-                            <input oninput="checkLabel(this)" name="user_password" type="password"
-                                   id="inputUserPassword" class="form-control" required>
-                        </div>
                         <div class="text-center">
                             <button class="btn btn-lg btn-default" type="submit"
                                     onclick="ajaxPostForm('#syncGradesForm',['#inputUserPassword'],'#updateGradesMessage', true)">
@@ -74,19 +74,14 @@
                 <div id="gradeSyncDiv" style="display: none">
                     <form id="gradeSyncForm" class="form-signin" action="/update" method="post">
                         <h5>Enter your Graderoom password</h5>
-                        <div class="form-group">
-                            <input name="user_password" type="password" id="gradeSyncInputUserPassword"
-                                   class="form-control"
-                                   placeholder="Graderoom Password" required>
+                        <br>
+                        <div class="input-group form-group">
+                            <i class="lock-bg"></i>
+                            <label>Graderoom Password</label>
+                            <input oninput="checkLabel(this)" name="user_password" type="password"
+                                   id="gradeSyncInputUserPassword"
+                                   class="form-control" required>
                         </div>
-                        <label style="float: right" class="popup">
-                            <label class="text-center popup" style="align-self: flex-end">GradeSync Enabled</label>
-                            <i class="fa fa-info-circle popup">
-                            <span class="popuptext">
-                                <p>Graderoom will sync automatically whenever you login.</p>
-                                <p>You can also manually sync with your Graderoom password</p>
-                                You can disable GradeSync in Settings                            </span>
-                            </i>
                         </label>
                         <button class="btn btn-lg btn-default" type="submit"
                                 onclick="ajaxPostForm('#gradeSyncForm',['#gradeSyncInputUserPassword'],'#updateGradesMessage', true)">
