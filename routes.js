@@ -184,18 +184,13 @@ module.exports = function (app, passport) {
         res.redirect("/");
     });
 
-    app.post("/updateGradeSync", [isLoggedIn], (req, res) => {
-        let gradeSync;
-        gradeSync = req.body.gradeSync === "on";
-        if (!gradeSync) {
+    app.post("/disableGradeSync", [isLoggedIn], (req, res) => {
+        try {
             authenticator.disableGradeSync(req.user.username);
+            res.sendStatus(200);
+        } catch {
+            res.sendStatus(400);
         }
-        let autoRefresh;
-        autoRefresh = req.body.autoRefresh === "on";
-        if (autoRefresh !== null) {
-            authenticator.setAutoRefresh(req.user.username, autoRefresh);
-        }
-        res.redirect("/");
     });
 
     app.post("/changepassword", [isLoggedIn], async (req, res) => {
@@ -332,7 +327,7 @@ module.exports = function (app, passport) {
 
     app.post("/updateclassweights", [isAdmin], (req, res) => {
         let className = req.body.className;
-        let teacherName = req.body.teacherName
+        let teacherName = req.body.teacherName;
         let hasWeights = req.body.hasWeights;
         let weights = req.body.weights;
         let resp = authenticator.updateWeightsInClassDb(className, teacherName, hasWeights, weights);
