@@ -52,7 +52,7 @@
                       method="post" style="display: flex; justify-content: right;">
                     <div>
                         <label>Class Type:</label>
-                        <select oninput="ajaxPostWeightsDatabaseForm('<%= i %>',null,[],'#weightMessage<%= i %>',true); $('#weights<%= i %>').submit()"
+                        <select oninput="ajaxPostWeightsDatabaseForm('<%= i %>',null,null,[],'#weightMessage<%= i %>',true); $('#weights<%= i %>').submit()"
                                 class="dropdown" style="padding: 0; margin-right: 3rem"
                                 id="classType<%= i %>">
                             <option value="" disabled hidden <% if (classData[className].classType === "") { %> selected<% } %>>
@@ -76,101 +76,115 @@
                 <% for (let j = 0; j < Object.keys(classData[className]).length; j++) { %>
                     <% let teacherName = Object.keys(classData[className])[j]; %>
                     <% if (teacherName != "classType") { %>
-                        <form id="weights<%= i %><%= j %>" class="form-ajax form-weights form-signin"
-                              action="/updateclassweights" method="post" style="margin: 0 0 1rem 3rem; width: 100%">
-                            <label data-toggle="collapse" href="#collapse<%= i %><%= j %>" style="display: flex; margin: 0; cursor: pointer">
-                                <h5 style="cursor: pointer" class="weightname" id="<%= teacherName %>">
-                                    <%= teacherName %>
-                                    <i style="text-indent: 0 !important;" class="fa" aria-hidden="true"></i>
-                                </h5>
-                                <span id="weightMessage<%= i %><%= j %>" class="alert alert-success font-weight-bold"
-                                      style="width: fit-content; display:none; justify-content: center; padding: 0.1rem;">
-                                    <div style="display: none" class="sk-chase-mini">
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                    </div>
-                                    <span class="messageTxt"></span>
-                                </span>
-                            </label>
-                            <span style="border-radius: 0.25em; margin-left: 0.5rem;" class="collapse collapse-underline show"
-                                  id="collapse<%= i %><%= j %>" data-parent="#accordionForms<%= i %>">
-                                <div>
-                                    <span class="fa fa-plus disableable" onclick="addCategory(this,'<%= i %>','<%= j %>')"
-                                          style="display: inline-flex; cursor: pointer;color: green"></span>
-
-                                    <% for (let k = 0; k < Object.keys(classData[className][teacherName]["weights"]).length; k++) {
-                                        let name = Object.keys(classData[className][teacherName]["weights"])[k];
-                                        let value = classData[className][teacherName]["weights"][name] %>
-
-                                        <div class="form-group" id="category<%= i %><%= j %><%= k %>" style="text-indent: 3rem; display:inline-flex; align-items: flex-end;">
-                                            <input style="font-size: 0.9rem; margin-right: 0 !important; width: auto; white-space: nowrap; margin-bottom: 0;"
-                                                value="<%=name%>"
-                                                class="form-control text-view disableable"
-                                                size = "<%=Math.max(2,name.length+1)%>"
-                                                oninput="this.classList.remove('text-view'); showSubmitButton(this); resizeInput(this)"
-                                                required
-                                            >
-                                            :&nbsp</input>
-                                            <input style="margin: 0;"
-                                                <%if(!isNaN(value)) {%>
-                                                    value="<%=value%>"
-                                                <% } %>
-                                                type="number"
-                                                min="0"
-                                                step="0.1"
-                                                class="form-control text-view disableable"
-                                                name="<%= name %>"
-                                                oninput="this.classList.remove('text-view'); showSubmitButton(this); "
-                                            >
-                                            <span class="fa fa-minus disableable" onclick="removeCategory(this)" style="text-indent: 1rem; color: red; cursor: pointer;"></span>
-                                        </div>
-                                    <% } %>
+                        <div class="break"></div>
+                        <label data-toggle="collapse" href="#collapse<%= i %><%= j %>" style="display: flex; margin: 0 0 0 2rem; cursor: pointer">
+                            <h5 style="cursor: pointer" class="weightname" id="<%= teacherName %>">
+                                <%= teacherName %>
+                                <i style="text-indent: 0 !important;" class="fa" aria-hidden="true"></i>
+                            </h5>
+                            <span id="weightMessage<%= i %><%= j %>" class="alert alert-success font-weight-bold"
+                                style="width: fit-content; display:none; justify-content: center; padding: 0.1rem;">
+                                <div style="display: none" class="sk-chase-mini">
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
                                 </div>
-                                <div class="break"></div>
-                                <div class="form-group" style="display: flex; align-items: flex-end;">
-                                    <label style="font-size: 0.9rem; white-space: nowrap; margin-bottom: 0;">
-                                        Point Based?
-                                    </label>
-                                    <input
-                                        id="check<%= i %><%= j %>"
-                                        style="margin: auto;"
-                                        type="checkbox"
-                                        class="form-control"
-                                        name="hasWeights"
-                                        <% try { if (classData[className][teacherName]["hasWeights"] == "false") { %>
-                                            checked
-                                        <% }} catch {} %>
-                                        oninput="showSubmitButton(this); disableInput('check<%= i %><%= j %>','collapse<%= i %><%= j %>');"
-                                    >
-                                    <script>
-                                        function disableInput(checkBoxID, id) {
-                                            $('#' + id).find('.disableable').each(function () {
-                                                if ($('#' + checkBoxID).is(":checked")) {
-                                                    $(this).addClass("disabled");
-                                                    $(this).attr('disabled', 'disabled');
-                                                } else {
-                                                    $(this).removeClass("disabled");
-                                                    $(this).removeAttr('disabled');
-                                                }
-                                            })
-                                        }
-                                        disableInput('check<%= i %><%= j %>', 'collapse<%= i %><%= j %>');
-                                    </script>
-                                </div>
-
-                                <div class="formSubmitButton" style="width: 100%; display: none">
-                                    <button type="submit" class="btn btn-default btn-med"
-                                            onclick="ajaxPostWeightsDatabaseForm('<%= i %>','<%= j %>',[],'#weightMessage<%= i %><%= j %>',true);">
-                                        <i class="fa fa-refresh" aria-hidden="true"></i>
-                                        Update
-                                    </button>
-                                </div>
+                                <span class="messageTxt"></span>
                             </span>
-                        </form>
+                        </label>
+                        <div class="break"></div>
+                        <span class="collapse collapse-underline show" id="collapse<%= i %><%= j %>" data-parent="#accordionForms<%= i %>">
+                            <!-- Loops through all suggestions + 1 for the actual weights -->
+                            <% for (let z=-1; z<classData[className][teacherName]["suggestions"].length; z++ ) {
+                                let weights;
+                                let hasWeights;
+                                let marginLeft;
+                                if (z==-1) {
+                                    weights = classData[className][teacherName]["weights"];
+                                    hasWeights = classData[className][teacherName]["hasWeights"];
+                                    marginLeft = 4;
+                                } else {
+                                    weights = classData[className][teacherName]["suggestions"][z]["weights"];
+                                    hasWeights = classData[className][teacherName]["suggestions"][z]["hasWeights"];
+                                    marginLeft = 6;
+                                }
+                                if (z==0) { %>
+                                    <h5 style="margin: 0 0 0.5rem 4rem;">Suggestions:</h5>
+                                <% } %>
+                                <form id="weights<%= i %><%= j %><%= z %>" class="form-ajax form-weights form-signin" action="/updateclassweights" method="post" style="margin: 0 0 0 <%=marginLeft%>rem; width: 100%">
+                                    <div>
+                                        <span class="fa fa-plus disableable" onclick="addCategory(this,'<%= i %>','<%= j %>','<%= z %>')" style="display: inline-flex; cursor: pointer;color: green"></span>
+                                        <% for (let k = 0; k < Object.keys(weights).length; k++) {
+                                            let name = Object.keys(weights)[k];
+                                            let value = weights[name] %>
+
+                                            <div class="form-group" id="category<%= i %><%= j %><%= z %><%= k %>" style="text-indent: 3rem; display:inline-flex; align-items: flex-end;">
+                                                <input style="font-size: 0.9rem; margin-right: 0 !important; width: auto; white-space: nowrap; margin-bottom: 0;"
+                                                    value="<%=name%>"
+                                                    class="form-control text-view disableable"
+                                                    size = "<%=Math.max(2,name.length+1)%>"
+                                                    oninput="this.classList.remove('text-view'); showSubmitButton(this); resizeInput(this)"
+                                                    required>
+                                                :&nbsp
+                                                <input style="margin: 0;"
+                                                    <%if(!isNaN(value)) {%>
+                                                        value="<%=value%>"
+                                                    <% } %>
+                                                    type="number"
+                                                    min="0"
+                                                    step="0.1"
+                                                    class="form-control text-view disableable"
+                                                    name="<%= name %>"
+                                                    oninput="this.classList.remove('text-view'); showSubmitButton(this); ">
+                                                <span class="fa fa-minus disableable" onclick="removeCategory(this)" style="text-indent: 1rem; color: red; cursor: pointer;"></span>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                    <div class="break"></div>
+                                    <div class="form-group" style="display: flex; align-items: flex-end;">
+                                        <label style="font-size: 0.9rem; white-space: nowrap; margin-bottom: 0;">
+                                            Point Based?
+                                        </label>
+                                        <input
+                                            id="check<%= i %><%= j %><%= z %>"
+                                            style="margin-top: auto; margin-bottom: auto;"
+                                            type="checkbox"
+                                            class="form-control"
+                                            name="hasWeights"
+                                            <% try { if (hasWeights == "false") { %>
+                                                checked
+                                            <% }} catch {} %>
+                                            oninput="showSubmitButton(this); disableInput('check<%= i %><%= j %><%= z %>','collapse<%= i %><%= j %><%= z %>');"
+                                        >
+                                        <script>
+                                            function disableInput(checkBoxID, id) {
+                                                $('#' + id).find('.disableable').each(function () {
+                                                    if ($('#' + checkBoxID).is(":checked")) {
+                                                        $(this).addClass("disabled");
+                                                        $(this).attr('disabled', 'disabled');
+                                                    } else {
+                                                        $(this).removeClass("disabled");
+                                                        $(this).removeAttr('disabled');
+                                                    }
+                                                })
+                                            }
+                                            disableInput('check<%= i %><%= j %><%= z %>', 'collapse<%= i %><%= j %><%= z %>');
+                                        </script>
+                                    </div>
+
+                                    <div class="formSubmitButton" style="width: 100%; display: none">
+                                        <button type="submit" class="btn btn-default btn-med"
+                                                onclick="ajaxPostWeightsDatabaseForm('<%= i %>','<%= j %>','<%= z %>',[],'#weightMessage<%= i %><%= j %>',true);">
+                                            <i class="fa fa-refresh" aria-hidden="true"></i>
+                                            Update
+                                        </button>
+                                    </div>
+                                </form>
+                            <% } %>
+                        </span>
                     <% } %>
                 <% } %>
             </span>
@@ -194,11 +208,11 @@
         $(this).removeClass("show");
     });
 
-    function ajaxPostWeightsDatabaseForm(classIndex, teacherIndex, fieldIDsToClear, messagesDivID, async) {
+    function ajaxPostWeightsDatabaseForm(classIndex, teacherIndex, suggestionIndex, fieldIDsToClear, messagesDivID, async) {
         // Get the form.
         let formID;
-        if (teacherIndex) {
-            formID = "#weights" + classIndex + teacherIndex;
+        if (suggestionIndex) {
+            formID = "#weights" + classIndex + teacherIndex + suggestionIndex;
         } else {
             formID = "#weights" + classIndex;
         }
@@ -216,7 +230,7 @@
             let weights = null;
             let hasWeights = null;
             if (teacherIndex) {
-                teacherName = $(formID).find(".weightname")[0].innerText.trim();
+                teacherName = $(formID).parent().parent().find(".weightname")[0].innerText.trim();
                 //TODO actually collect has weights
                 hasWeights = true;
                 weights = {};
@@ -306,11 +320,10 @@
         $(element).parents("form").find(".alert").removeClass("alert-success").addClass("alert-danger").show().find(".messageTxt").text("Changes not Saved!");
     }
 
-    function addCategory(element, classIndex, teacherIndex) {
+    function addCategory(element, classIndex, teacherIndex, suggestionIndex) {
         if (!(element).hasAttribute("disabled")){
-            let classDiv = "#collapse" + classIndex + teacherIndex;
-            console.log($($(classDiv)[0].children)[0].children.length);
-            let newCategory = $("<div class=\"form-group\" id=\"category" + classIndex + teacherIndex + ($($(classDiv)[0].children)[0].children.length - 1) + "\"" + "style=\"text-indent: 3rem; display: inline-flex;" + "align-items: flex-end;" + ($($(classDiv)[0].children)[0].children.length > 1 ? "margin-left: " + ($($($(classDiv)[0].children)[0].children)[1].offsetLeft - $(classDiv)[0].offsetLeft) + "px" : "") + "\">" + "<input size=\"2\" style=\"font-size: 0.9rem; margin-right: 0 !important; width: fit-content; white-space: nowrap; margin-bottom: 0;\"" + "class=\" disableable form-control\"" + "oninput=\"this.classList.remove('text-view'); showSubmitButton(this); resizeInput(this);\"" + "required" + ">" + ":&nbsp</input>" + "<input style=\"margin: 0; border-color: lightcoral!important;\"" + "type=\"number\"" + "min=\"0\"" + "step=\"0.1\"" + "class=\"form-control disableable\"" + "oninput=\"this.classList.remove('text-view'); showSubmitButton(this); \">" + "<span class=\"fa fa-minus disableable\" onclick=\"removeCategory(this)\"" + "style=\"text-indent: 1rem; color: red; cursor: pointer;\"></span>" + "</div>");
+            let classDiv = "#weights" + classIndex + teacherIndex + suggestionIndex;
+            let newCategory = $("<div class=\"form-group\" id=\"category" + classIndex + teacherIndex + suggestionIndex + ($($(classDiv)[0].children)[0].children.length - 1) + "\"" + "style=\"text-indent: 3rem; display: inline-flex;" + "align-items: flex-end;" + ($($(classDiv)[0].children)[0].children.length > 1 ? "margin-left: " + ($($($(classDiv)[0].children)[0].children)[1].offsetLeft - $(classDiv)[0].offsetLeft) + "px" : "") + "\">" + "<input size=\"2\" style=\"font-size: 0.9rem; margin-right: 0 !important; width: fit-content; white-space: nowrap; margin-bottom: 0;\"" + "class=\" disableable form-control\"" + "oninput=\"this.classList.remove('text-view'); showSubmitButton(this); resizeInput(this);\"" + "required" + ">" + ":&nbsp</input>" + "<input style=\"margin: 0; border-color: lightcoral!important;\"" + "type=\"number\"" + "min=\"0\"" + "step=\"0.1\"" + "class=\"form-control disableable\"" + "oninput=\"this.classList.remove('text-view'); showSubmitButton(this); \">" + "<span class=\"fa fa-minus disableable\" onclick=\"removeCategory(this)\"" + "style=\"text-indent: 1rem; color: red; cursor: pointer;\"></span>" + "</div>");
             $($($(classDiv)[0].children)[0]).append(newCategory);
             showSubmitButton($(classDiv));
         }
