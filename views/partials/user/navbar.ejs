@@ -359,19 +359,8 @@
             let gradeSync = document.getElementById("gradeSyncToggle");
             if (user.schoolPassword && !gradeSync.checked) {
                 gradeSync.checked = true;
-            } else if (!uesr.schoolPassword && gradeSync.checked) {
+            } else if (!user.schoolPassword && gradeSync.checked) {
                 gradeSync.checked = false;
-            }
-        } catch {
-        }
-
-        // Manage autoRefresh checkbox, if it exists
-        try {
-            let autoRefresh = document.getElementById("autoRefreshToggle");
-            if (user.autoRefresh && !autoRefresh.checked) {
-                autoRefresh.checked = true;
-            } else if (!user.autoRefresh && autoRefresh.checked) {
-                autoRefresh.checked = false;
             }
         } catch {
         }

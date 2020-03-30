@@ -43,10 +43,15 @@
 ### Added
 - Incorrect GPA message
 
+### Improved
+- Weights save when click outside input
+- All checkboxes are sliders
+
 ### Fixed
 - Chart issues
 - Site remains on page after refresh
 - Broken auto theme settings
+- Missing weights show up red
 
 ## [Beta 1.9.0] - 2020-03-28
 ### Added

@@ -610,12 +610,6 @@ module.exports = {
         user.unset("schoolPassword").write();
     },
 
-    setAutoRefresh: function (username, autoRefresh) {
-        let lc_username = username.toLowerCase();
-        let user = db.get("users").find({username: lc_username});
-        user.set("autoRefresh", autoRefresh).write();
-    },
-
     updateGradesBackground: function (acc_username, school_password) {
         let lc_username = acc_username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
@@ -663,7 +657,7 @@ module.exports = {
         
         if (!Object.keys(classesRef.value()).includes(className)) {
             // Set default AP/Honors to classes with names that suggest it
-            let classtype = "none"
+            let classtype = "none";
             if (className.includes("AP")) {
                 classtype = "ap";
             } else if (className.includes("Honors")) {
