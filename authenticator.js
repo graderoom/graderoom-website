@@ -115,14 +115,21 @@ module.exports = {
             let className = Object.keys(classes)[i];
             for (let j = 0; j < Object.keys(classes[className]).length; j++) {
                 let teacherName = Object.keys((classes)[className])[j];
-                if (teacherName!=="classType"){
-                    console.log(classes[className][teacherName]);
+                if (teacherName!=="classType"){ //one of the keys is classtype, so ignore that
                     if (!("suggestions" in classes[className][teacherName])) {
                         classRef.get(className).get(teacherName).set("suggestions", []).write();
+                    }
+                    for (let k = 0; k < classes[className][teacherName]["suggestions"].length; k++) {
+                        console.log(classes[className][teacherName]["suggestions"][k]);
+                        if (!("username" in classes[className][teacherName]["suggestions"][k])){
+                            classRef.get(className).get(teacherName).get("suggestions").pullAt(k).write();
+                        }
                     }
                 }
             }
         }
+
+        console.log("Database Updated");
 
         //FIXME Add as suggestion
         // for (let i = 0; i < users.length; i++) {
@@ -360,22 +367,28 @@ module.exports = {
         }
         return {success: true, message: "Updated weights for " + className + " | " + teacherName};
     },
-    addWeightsSuggestion: function (className, teacherName, hasWeights, weights) {
+    addWeightsSuggestion: function (username, className, teacherName, hasWeights, weights) {
+        let lc_username = username.toLowerCase();
+
         let classDb = db.get("classes");
         let classes = db.get("classes").value();
-        //Add suggestion if same one doesn't exist
-        if (!dbContainsSuggestion(className, teacherName, { "weights": weights, "hasWeights": hasWeights })) {
-            //Add suggestion
-            if (hasWeights === "false") {
-                for (let i = 0; i < Object.keys(weights).length; i++) {
-                    weights[Object.keys(weights)[i]] = null;
-                }
-            }
-            let modWeights = {};
+
+        //Process weights
+        if (hasWeights === "false") {
             for (let i = 0; i < Object.keys(weights).length; i++) {
-                modWeights[Object.keys(weights)[i]] = parseInt(Object.values(weights)[i]);
+                weights[Object.keys(weights)[i]] = null;
             }
-            classDb.get(className).get(teacherName).get("suggestions").push({ "weights": modWeights, "hasWeights": hasWeights }).write();
+        }
+        let modWeights = {};
+        for (let i = 0; i < Object.keys(weights).length; i++) {
+            modWeights[Object.keys(weights)[i]] = parseInt(Object.values(weights)[i]);
+        }
+
+        //Add suggestion if doesn't already exist
+        if (!dbContainsSuggestion(className, teacherName, { "weights": modWeights, "hasWeights": hasWeights })) {
+            //delete any old suggestions for user
+            deleteUserSuggestion(lc_username, className, teacherName);
+            classDb.get(className).get(teacherName).get("suggestions").push({ "username":lc_username,"weights": modWeights,"hasWeights": hasWeights }).write();
             console.log("Added Suggestion");
         } else {
             console.log("Suggestion Already Exists");
@@ -764,6 +777,7 @@ module.exports = {
     },
 
     updateWeightsForClass: function (username, className, hasWeights, weights, custom=true, addSuggestion=true) {
+        
         //default update, not override
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
@@ -780,7 +794,7 @@ module.exports = {
         let classDb = db.get("classes");
 
         if (addSuggestion) {
-            this.addWeightsSuggestion(className, teacherName, hasWeights, weights);
+            this.addWeightsSuggestion(username, className, teacherName, hasWeights, weights);
         }
 
         let weightsRef = userRef.get("weights");
@@ -1060,16 +1074,23 @@ function dbContainsClass(class_name, teacher_name) {
     return false;
 }
 
-function dbContainsSuggestion(class_name, teacher_name, weight)
-{
+function dbContainsSuggestion(class_name, teacher_name, weight){
     let classes = db.get("classes").value();
-    if ("suggestions" in classes[class_name][teacher_name]){
-        for (let db_weight of classes[class_name][teacher_name]["suggestions"]){
-            if (compareWeights(weight,db_weight))
-                return true;
-        }
+    for (let db_weight of classes[class_name][teacher_name]["suggestions"]){
+        if (compareWeights(weight,db_weight))
+            return true;
     }
     return false;
+}
+
+function deleteUserSuggestion(username,class_name,teacher_name) {
+    let lc_username = username.toLowerCase();
+    let classes = db.get("classes").value();        
+    for (let db_weight of classes[class_name][teacher_name]["suggestions"]){
+        if (db_weight["username"]==lc_username){
+            db.get("classes").get(class_name).get(teacher_name).get("suggestions").remove({username: lc_username}).write();
+        }
+    }
 }
 
 function compareWeights(weight1, weight2) {
