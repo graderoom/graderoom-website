@@ -120,11 +120,7 @@ module.exports = {
                         classRef.get(className).get(teacherName).set("suggestions", []).write();
                     }
                     //Remove suggestions without a username
-                    for (let k = 0; k < classes[className][teacherName]["suggestions"].length; k++) {
-                        if (!("usernames" in classes[className][teacherName]["suggestions"][k])){
-                            classRef.get(className).get(teacherName).get("suggestions").pullAt(k).write();
-                        }
-                    }
+                    classRef.get(className).get(teacherName).get("suggestions").remove(k => !("usernames" in k)).write();
                 }
             }
         }
@@ -387,7 +383,10 @@ module.exports = {
          //delete any old suggestions for user
         deleteUserSuggestion(lc_username, className, teacherName);
 
-        let suggestionIndex = getSuggestionIndex(className, teacherName, { "weights": modWeights, "hasWeights": hasWeights })
+        let suggestionIndex = getSuggestionIndex(className, teacherName, {
+            "weights": modWeights,
+            "hasWeights": hasWeights
+        });
         if (suggestionIndex!=-1) {
             //Add username to existing suggestion
             classDb.get(className).get(teacherName).get("suggestions").nth(suggestionIndex).get("usernames").push(lc_username).write();
