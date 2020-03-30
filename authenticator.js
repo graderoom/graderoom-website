@@ -119,9 +119,9 @@ module.exports = {
                     if (!("suggestions" in classes[className][teacherName])) {
                         classRef.get(className).get(teacherName).set("suggestions", []).write();
                     }
+                    //Remove suggestions without a username
                     for (let k = 0; k < classes[className][teacherName]["suggestions"].length; k++) {
-                        console.log(classes[className][teacherName]["suggestions"][k]);
-                        if (!("username" in classes[className][teacherName]["suggestions"][k])){
+                        if (!("usernames" in classes[className][teacherName]["suggestions"][k])){
                             classRef.get(className).get(teacherName).get("suggestions").pullAt(k).write();
                         }
                     }
@@ -384,14 +384,17 @@ module.exports = {
             modWeights[Object.keys(weights)[i]] = parseInt(Object.values(weights)[i]);
         }
 
-        //Add suggestion if doesn't already exist
-        if (!dbContainsSuggestion(className, teacherName, { "weights": modWeights, "hasWeights": hasWeights })) {
-            //delete any old suggestions for user
-            deleteUserSuggestion(lc_username, className, teacherName);
-            classDb.get(className).get(teacherName).get("suggestions").push({ "username":lc_username,"weights": modWeights,"hasWeights": hasWeights }).write();
-            console.log("Added Suggestion");
+         //delete any old suggestions for user
+        deleteUserSuggestion(lc_username, className, teacherName);
+
+        let suggestionIndex = getSuggestionIndex(className, teacherName, { "weights": modWeights, "hasWeights": hasWeights })
+        if (suggestionIndex!=-1) {
+            //Add username to existing suggestion
+            classDb.get(className).get(teacherName).get("suggestions").nth(suggestionIndex).get("usernames").push(lc_username).write();
         } else {
-            console.log("Suggestion Already Exists");
+            //Add suggestion if doesn't already exist
+            classDb.get(className).get(teacherName).get("suggestions").push({ "usernames":[lc_username],"weights": modWeights,"hasWeights": hasWeights }).write();
+            console.log("Added Suggestion");
         }
     },
     updateClassTypeInClassDb: function (className,classType) {
@@ -1074,21 +1077,32 @@ function dbContainsClass(class_name, teacher_name) {
     return false;
 }
 
-function dbContainsSuggestion(class_name, teacher_name, weight){
+function getSuggestionIndex(class_name, teacher_name, weight){
+    // Returns index if suggestion with same weight found, else returns -1
     let classes = db.get("classes").value();
-    for (let db_weight of classes[class_name][teacher_name]["suggestions"]){
-        if (compareWeights(weight,db_weight))
-            return true;
+    for (let i = 0; i < classes[class_name][teacher_name]["suggestions"].length; i++) {
+        if (compareWeights(weight,classes[class_name][teacher_name]["suggestions"][i]))
+        return i;
     }
-    return false;
+    return -1;
 }
 
 function deleteUserSuggestion(username,class_name,teacher_name) {
     let lc_username = username.toLowerCase();
-    let classes = db.get("classes").value();        
-    for (let db_weight of classes[class_name][teacher_name]["suggestions"]){
-        if (db_weight["username"]==lc_username){
-            db.get("classes").get(class_name).get(teacher_name).get("suggestions").remove({username: lc_username}).write();
+    let classes = db.get("classes").value();  
+    let classRef = db.get("classes");   
+    console.log("THIS IS RUNNING");
+    for (let i = 0; i < classes[class_name][teacher_name]["suggestions"].length; i++) {
+        let usernames = classes[class_name][teacher_name]["suggestions"][i].usernames;
+        //remove user from list of usernames
+        console.log(usernames);
+        if (usernames.includes(lc_username)){
+            console.log("removing");
+            classRef.get(class_name).get(teacher_name).get("suggestions").nth(i).get("usernames").pull(lc_username).write();
+        }
+        //remove suggestions if no other users suggested it
+        if (usernames.length<1) {
+            classRef.get(class_name).get(teacher_name).get("suggestions").pullAt(i).write();
         }
     }
 }
