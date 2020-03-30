@@ -119,8 +119,10 @@ module.exports = {
                     if (!("suggestions" in classes[className][teacherName])) {
                         classRef.get(className).get(teacherName).set("suggestions", []).write();
                     }
-                    //Remove suggestions without a username
-                    classRef.get(className).get(teacherName).get("suggestions").remove(k => !("usernames" in k)).write();
+                    // Remove suggestions without usernames
+                    classRef.get(className).get(teacherName).get("suggestions").remove(function (e) {
+                        return !("usernames" in e);
+                    }).write();
                 }
             }
         }
