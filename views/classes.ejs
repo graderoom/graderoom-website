@@ -235,15 +235,15 @@
                 hasWeights = true;
                 weights = {};
                 let inputs = $(formID + " input");
-                console.log(inputs);
+                // console.log(inputs);
                 for (let i = 0; i < inputs.length; i += 2) {
-                    if (inputs[i].name=="hasWeights")
+                    if (inputs[i].name == "hasWeights")
                         hasWeights = inputs[i].checked ? false : true;
                     else
                         weights[$(inputs[i])[0].value] = $(inputs[i + 1])[0].valueAsNumber;
                 }
-                console.log(weights);
-                console.log(hasWeights);
+                // console.log(weights);
+                // console.log(hasWeights);
                 formData = {
                     className: className, teacherName: teacherName, weights: weights, hasWeights: hasWeights
                 };
