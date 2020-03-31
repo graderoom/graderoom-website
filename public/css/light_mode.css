@@ -181,7 +181,7 @@ input:checked + .slider {
 }
 
 input:checked + .slider:before {
-    background-color: #444444;
+    background-color: #000000;
 }
 
 .tab {

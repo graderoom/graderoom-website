@@ -1,22 +1,22 @@
 <!doctype html>
 <html>
 <title>Graderoom</title>
-<link rel="icon" href="../public/resources/common/icon.png">
+<link rel="icon" href="public/resources/common/icon.png">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.css">
 <% if (user.appearance.theme === "dark") { %>
-    <link id="pageStyle" rel="stylesheet" type="text/css" href="../public/css/dark_mode.css">
+    <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
 <% } else if (user.appearance.theme === "light") { %>
-    <link id="pageStyle" rel="stylesheet" type="text/css" href="../public/css/light_mode.css">
+    <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
 <% } else if ((((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (dst ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) && ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (dst ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0))) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (dst ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (dst ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0))))) { %>
-    <link id="pageStyle" rel="stylesheet" type="text/css" href="../public/css/dark_mode.css">
+    <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
 <% } else { %>
-    <link id="pageStyle" rel="stylesheet" type="text/css" href="../public/css/light_mode.css">
+    <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
 <% } %>
-<link rel="stylesheet" type="text/css" href="../public/css/main.css">
-<link id="fade" rel="stylesheet" type="text/css" href="../public/css/fade.css" disabled>
+<link rel="stylesheet" type="text/css" href="public/css/main.css">
+<link id="fade" rel="stylesheet" type="text/css" href="public/css/fade.css" disabled>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- JavaScript Imports -->
@@ -704,8 +704,6 @@
             let assignmentData = parsedData[i].mixedData.map(o => o.y);
             let lastIndex = assignmentData.length - 1;
             let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(2);
-            console.log(delta);
-            console.log(colorAlphaFunction(delta));
             let color;
             let bgColor;
             if (delta > 0) {
