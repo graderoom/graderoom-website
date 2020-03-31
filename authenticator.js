@@ -662,9 +662,9 @@ module.exports = {
             if (className.includes("AP")) {
                 classtype = "ap";
             } else if (className.includes("Honors")) {
-                classType = "honors";
+                classtype = "honors";
             } else if (className === "Teaching Assistant") {
-                classType = "non-academic";
+                classtype = "non-academic";
             }
 
             classesRef.set(modClassName, {
