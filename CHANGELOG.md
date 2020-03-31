@@ -44,6 +44,7 @@
 
 ### Fixed
 - Theme issues
+- Point-based weight calculation
 
 ## [Beta 1.9.2] - 2020-03-30
 ### Added
