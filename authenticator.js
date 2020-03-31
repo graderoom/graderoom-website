@@ -103,8 +103,8 @@ module.exports = {
 
     updateAllDB: function () {
         let users = db.get("users").value();
-        let globalLastUpdated = {};
-        let globalWeights = {};
+        // let globalLastUpdated = {};
+        // let globalWeights = {};
         for (let i = 0; i < users.length; i++) {
             this.updateDB(users[i].username);
         }
@@ -203,7 +203,6 @@ module.exports = {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
-        let classes = db.get("classes").value();
 
         // Add loggedIn vars
         if (!Object.keys(user).includes("loggedIn")) {
@@ -254,7 +253,6 @@ module.exports = {
         // Fixes weights
         for (let i = 0; i < user.grades.length; i++) {
             let className = user.grades[i].class_name;
-            let teacherName = user.grades[i].teacher_name;
 
             //Add custom weight tag
             if (!("custom" in user.weights[className])){
@@ -325,9 +323,10 @@ module.exports = {
             }
 
             //Updates weights from classes db
-            if (user.weights[className]["custom"] == false && dbContainsClass(className,teacherName)){
-                if (classes[className][teacherName]["hasWeights"]==true || Object.keys(classes[className][teacherName]["weights"]).length>0)
-                this.updateWeightsForClass(username, className, classes[className][teacherName]["hasWeights"], classes[className][teacherName]["weights"], false, false);
+            if (user.weights[className]["custom"] == false && dbContainsClass(className,teacherName)) {
+                if (classes[className][teacherName]["hasWeights"] == true || Object.keys(classes[className][teacherName]["weights"]).length > 0) {
+                    this.updateWeightsForClass(username, className, classes[className][teacherName]["hasWeights"], classes[className][teacherName]["weights"], false, false);
+                }
             }           
         }
     },
@@ -369,7 +368,6 @@ module.exports = {
         let lc_username = username.toLowerCase();
 
         let classDb = db.get("classes");
-        let classes = db.get("classes").value();
 
         //Process weights
         if (hasWeights === "false") {
@@ -616,8 +614,8 @@ module.exports = {
         let user = db.get("users").find({username: lc_username});
         user.set("updatedInBackground", "").write();
         this.updateGrades(acc_username, school_password).then(function () {
-            let lc_username = acc_username.toLowerCase();
-            let user = db.get("users").find({username: lc_username});
+            lc_username = acc_username.toLowerCase();
+            user = db.get("users").find({username: lc_username});
             user.set("updatedInBackground", "complete").write();
         });
     },
@@ -789,7 +787,6 @@ module.exports = {
             return {success: false, message: "Class does not exist."};
         }
         let teacherName = clsRef.value().teacher_name;
-        let classDb = db.get("classes");
 
         if (addSuggestion) {
             this.addWeightsSuggestion(username, className, teacherName, hasWeights, weights);
@@ -1076,8 +1073,9 @@ function getSuggestionIndex(class_name, teacher_name, weight){
     // Returns index if suggestion with same weight found, else returns -1
     let classes = db.get("classes").value();
     for (let i = 0; i < classes[class_name][teacher_name]["suggestions"].length; i++) {
-        if (compareWeights(weight,classes[class_name][teacher_name]["suggestions"][i]))
-        return i;
+        if (compareWeights(weight, classes[class_name][teacher_name]["suggestions"][i])) {
+            return i;
+        }
     }
     return -1;
 }
