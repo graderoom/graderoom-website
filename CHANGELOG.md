@@ -29,15 +29,86 @@
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
 ## [Known Issues] - Working on it
-- Point-based classes aren't synced with weights auto-population
-- If you have an issue, send feedback in Settings > Feedback
-- <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> If you have an issue, send feedback in Settings > About > Feedback Form
+- If you have an issue, send feedback in Settings > Help > Feedback Form
 
 ## [Unreleased] - Coming Soon
 - Cumulative GPA Display
 - Class insights
-- If you would like a feature to become implemented, send feedback in Settings > Feedback
-- <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> If you would like a feature to become implement, send feedback in Settings > About > Feedback Form
+- If you would like a feature to become implemented, send feedback in Settings > Help > Feedback Form
+
+## [Stable 2.0.0] - 2020-03-31
+### Added
+- Support for point-based classes
+- Support for non-academic classes
+- Crowd-sourced weight population
+- Weights can be edited from main page
+- Help tab in settings
+- Quick Links
+- What's New Card that displays after every significant update
+- Alerts any time calculated grades don't match grades in PowerSchool
+- Input validation when changing password or making a new account
+- Last synced info on sync card
+- Gain and loss per assignment in class tables
+- Most recent gain or loss on overview page
+- Terms and Conditions
+- Privacy Policy
+- Ability to allow remote access in settings (Denied by default)
+- Logging in from final grade calculator returns to final grade calculator after login
+- Semester GPA Display
+- Clicking on a class in the overview table opens the class page
+- Ungraded assignments display in table and graph
+- Final grade calculator now supports all class types, including point-based classes
+- Loading indicators to all messages to confirm that new information has been saved
+- Added help tab to settings
+
+### Improved
+- More intuitive UI
+- Overview table has hard limits on y-axis from 70% to 110%
+- More descriptive messages when sync grades fails
+- All checkboxes are sliders
+- Editing weights no longer requires refresh
+- Grades show without inputted weights
+- Animation on input fields
+- Graderoom refreshes automatically after a small delay when grades are updated
+- Syncing grades defaults to GradeSync
+- Random colors are now always easily distinguishable. Randomize your color palette in settings.
+- Smoother animation when opening/closing cards
+- Better changelog display
+- Appearance fixes that improve screen usage on taller screen sizes (Mobile not supported)
+- Tooltip has been optimized for all possibilities to show only the most relevant information
+
+### Fixed
+- Inputs deselect on apply to prevent unwanted changes after request is sent
+- 'Escape' shortcut correctly disables when grades are syncing
+- Issue where auto theme would sometimes not take effect
+- Issue where some weights that were no longer in user's grades would still be in weight table
+- Auto theme is now set up correctly for new users
+- Issue where changelog would sometimes show up behind another card
+- Issue where all transitions were disabled after theme change without reload
+- Issue where missing weights would break final grade calculator
+- Chart issues
+- Class table appearance
+- Arrow key shortcuts only enable on main page and settings page
+- Issue where chart update would slow down after several page changes
+- Issue where chart would switch between light and dark mode randomly
+
+### Removed
+- Edit Weights Card
+- Auto-refresh setting
+- Changelog no longer shows on login. You can still view the changelog through Settings > Help > Changelog
+- Removed keyboard shortcut for edit weights
+- Excluded assignments no longer display in graph
+
+## [Beta 1.9.2] - 2020-03-30
+### Added
+- Keyboard shortcuts card
+
+### Improved
+- Changed About tab to Help tab
+
+### Fixed
+- Class table appearance
+- Arrow key shortcuts only enable on main page and settings page
 
 ## [Beta 1.9.1] - 2020-03-29
 ### Added

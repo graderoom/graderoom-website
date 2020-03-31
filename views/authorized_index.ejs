@@ -130,11 +130,11 @@
                                                 </span>
                                             </i>
                             <h5 style="font-size: 2rem" class="text-center">Semester GPA</h5>
-                            <h5 style="font-size: 5rem" id="GPA-display"></h5>
+                            <h5 style="font-size: 5rem" id="GPA-display">--</h5>
                         </div>
                         <div id="chart-container-1" class="chart-container text-center"
                              style="position: relative; height:60vh; width: 100%; margin: 0 auto;">
-                            <canvas id="chart-1" class="chart"></canvas>
+                            <canvas id="chart-1" class="chart" style="height: 60vh; width: 60vw;"></canvas>
                         </div>
                     </div>
                     <br>
@@ -171,7 +171,7 @@
                                             style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= user.appearance.classColors[i] %>"
                                             onclick="showPage(<%= i + offset %>)">
                                             <div id="overviewChart<%= i + offset %>"
-                                                 style="display:block; font-weight:bolder"></div>
+                                                 style="display:block; font-weight:bolder">--<br>--<br>--</div>
                                         </td>
                                     <% } else {
                                         offset--;
@@ -229,7 +229,7 @@
                                 </tr>
                                     <tr>
                                         <th>Category</th>
-                                        <th style="width: 1rem">Weight</th>
+                                        <th>Weight</th>
                                         <th>Points</th>
                                         <th>Grade</th>
                                     </tr>
@@ -664,6 +664,14 @@
         return "F";
     }
 
+    function colorAlphaFunction(delta) {
+        let abs = Math.abs(delta);
+        let max = 0.2;
+        let maxInput = 10;
+        let cutoff = Math.min(abs, maxInput);
+        return max * Math.pow(cutoff / maxInput, 1 / 2.5);
+    }
+
     let submittingWeights;
 
     function setupWeightsTables() {
@@ -696,22 +704,31 @@
             let assignmentData = parsedData[i].mixedData.map(o => o.y);
             let lastIndex = assignmentData.length - 1;
             let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(2);
+            console.log(delta);
+            console.log(colorAlphaFunction(delta));
             let color;
+            let bgColor;
             if (delta > 0) {
+                bgColor = "rgba(0, 255, 0, " + colorAlphaFunction(delta) + ")";
                 delta = "<i class=\"fa fa-caret-up\"></i>" + delta + "%";
                 color = "green";
             } else if (delta < 0) {
+                bgColor = "rgba(255, 0, 0, " + colorAlphaFunction(delta) + ")";
                 delta = "<i class=\"fa fa-caret-down\"></i>" + delta + "%";
                 color = "red";
+            } else {
+                bgColor = "unset";
             }
             delta = (delta ? (" <div style=\"display: inline-block; margin-left: 1rem; color: " + color + "\">" + delta + "</div>") : "");
             if (overallGrade) {
                 document.getElementById("weightTableOverallGrade" + i).innerHTML =
                     (+(overallGrade.toFixed(4))).toString() + "% (" + getLetterGrade(overallGrade) + ")" + delta;
+                $("#weightTableOverallGrade" + i).parents("th").css('background-color', bgColor);
             } else {
                 document.getElementById("weightTableOverallGrade" + i).innerHTML = "Missing Weights";
             }
             document.getElementById("weightTableOverallGrade" + i).style.display = "inline";
+
         }
     }
 
@@ -749,14 +766,6 @@
                 let color;
                 let bgColor;
 
-                const colorAlphaFunction = (delta) => {
-                    let abs = Math.abs(delta);
-                    let max = 0.2;
-                    let maxInput = 10;
-                    let cutoff = Math.min(abs, maxInput);
-                    return max * Math.pow(cutoff / maxInput, 1 / 2.5);
-                };
-
                 if (delta > 0) {
                     bgColor = "rgba(0, 255, 0, " + colorAlphaFunction(delta) + ")";
                     delta = "(+" + delta + "%) <i class=\"fa fa-long-arrow-up\"></i>";
@@ -768,6 +777,7 @@
                 } else {
                     delta = "(±0.00%) <i class=\"fa fa-arrows-v\"></i>";
                     bgColor = "unset";
+                    color = "unset";
                 }
                 let excludedDisplay = display + "% " + "<div style=\"display: inline-block; font-weight: normal; font-size: smaller\">(±0.00%) " + "<i class=\"fa fa-arrows-v\"></i>" + "</div>";
                 display = display + "% " + "<div style=\"display: inline-block; font-weight: normal; font-size: smaller\">" + delta + "</div>";
@@ -817,14 +827,6 @@
             let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(2);
             let color;
             let bgColor;
-
-            const colorAlphaFunction = (delta) => {
-                let abs = Math.abs(delta);
-                let max = 0.2;
-                let maxInput = 10;
-                let cutoff = Math.min(abs, maxInput);
-                return max * Math.pow(cutoff / maxInput, 1 / 2.5);
-            };
 
             if (delta > 0) {
                 bgColor = "rgba(0, 255, 0, " + colorAlphaFunction(delta) + ")";
@@ -1181,9 +1183,7 @@
                 } else {
                     openTab(currentTab - 1);
                 }
-            } else if (cardsDisplayed.includes("updateGradesDisplay")) {
-            } else if (cardsDisplayed.includes("updateWeightsDisplay")) {
-            } else {
+            } else if (cardsDisplayed.length === 0) {
                 if (currentPage === -1) {
                     showPage(data.length - 1);
                 } else {
@@ -1198,11 +1198,8 @@
                 } else {
                     openTab(currentTab + 1);
                 }
-            } else if (cardsDisplayed.includes("updateGradesDisplay")) {
-            } else if (cardsDisplayed.includes("updateWeightsDisplay")) {
-            } else if (cardsDisplayed.includes("changelogDisplay")) {
-            } else {
-                if (currentPage === data.length - 1) {
+            } else if (cardsDisplayed.length === 0) {
+                if (currentPage == data.length - 1) {
                     showPage(-1);
                 } else {
                     showPage(currentPage + 1);
@@ -1240,6 +1237,17 @@
                 }
             } else {
                 showChangelog();
+            }
+        } else if (e.code === "KeyK") {
+            if (cardsDisplayed.includes("shortcutsDisplay")) {
+                if (cardsDisplayed.indexOf("shortcutsDisplay") !== cardsDisplayed.length - 1) {
+                    closeForm("shortcutsDisplay");
+                    showCard("#shortcutsDisplay");
+                } else {
+                    closeForm("shortcutsDisplay");
+                }
+            } else {
+                showCard("#shortcutsDisplay");
             }
         } else {
             //console.log(e.code);
@@ -1327,7 +1335,7 @@
                             setPointBasedWeights();
                         } else {
                             weights[className]["hasWeights"] = "true";
-                            console.log(weightData);
+                            if (weightData.length === 0) return;
                             for (let weight of weightData) {
                                 weights[className]["weights"][weight.name] = parseInt(weight.value);
                             }

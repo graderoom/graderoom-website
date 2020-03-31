@@ -610,6 +610,26 @@ table thead tr th:last-child {
     border-top: none;
 }
 
+.table thead th:first-child {
+    border-radius: 1rem 0 0 0;
+}
+
+.table thead th:last-child {
+    border-radius: 0 1rem 0 0;
+}
+
+.table tfoot th {
+    border-radius: 0 0 1rem 1rem;
+}
+
+.table tr:last-child td:first-child {
+    border-radius: 0 0 0 1rem;
+}
+
+.table tr:last-child td:last-child {
+    border-radius: 0 0 1rem 0;
+}
+
 .tablinks {
     cursor: pointer;
 }
@@ -731,6 +751,17 @@ input:checked + .slider:before {
     width: auto;
     padding: .375rem .75rem;
     margin: 0 0 1rem;
+}
+
+.key-display {
+    font-size: 0.75rem;
+    display: inline-flex;
+    border: 1px solid;
+    border-radius: 0.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    justify-content: center;
+    align-items: center;
 }
 
 #weightsCard h5 {
