@@ -1,22 +1,22 @@
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
-<!--Follow this format-->
-<!--## [Version] - YYYY-MM-DD-->
-<!--### Added/Improved/Fixed/Removed **ONLY** -->
-<!--(-) Specifics-->
+<!-- Follow this format -->
+<!-- ## [Version] - YYYY-MM-DD -->
+<!-- ### Added/Improved/Fixed/Removed **ONLY** -->
+<!-- - Specifics -->
 
-<!--OR-->
+<!-- OR -->
 
-<!--## [Known Issues/Unreleased/Announcement] - Description/Date(YYYY-MM-DD)-->
-<!--(-) Specifics-->
+<!-- ## [Known Issues/Unreleased/Announcement] - Description/Date(YYYY-MM-DD) -->
+<!-- - Specifics -->
 
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
-<!--Versioning Guide-->
-<!--ALL versions with SEVEN or FEWER entries: increase THIRD digit-->
-<!--ALL versions with EIGHT or MORE entries: increase SECOND digit-->
-<!--Increase FIRST digit when SECOND digit reaches NINE-->
-<!--ALL updates within a day must be in the same version, unless separated by an announcement or stability-->
+<!-- Versioning Guide -->
+<!-- ALL versions with SEVEN or FEWER entries: increase THIRD digit -->
+<!-- ALL versions with EIGHT or MORE entries: increase SECOND digit -->
+<!-- Increase FIRST digit when SECOND digit reaches NINE -->
+<!-- ALL updates within a day must be in the same version, unless separated by an announcement or stability -->
 
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
@@ -26,18 +26,18 @@
 <!-- Use the following HTML to add lines under the date (e.g. PI Day on 2020-03-14) -->
 <!-- <p style="font-weight: bold; margin: 0">[Text here]</p> -->
 
+<!-- Format for Unreleased Versions -->
+<!-- ## [Unreleased] - [Stable X.X.X] - Target Release Date: YYYY-MM-DD -->
+<!-- - <strong>Added/Improved/Fixed/Removed</strong><ul> -->
+<!-- - Specifics</ul><br><br> -->
+
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
-## [Known Issues] - Working on it
+## [Known Issues] - None
 - If you have an issue, send feedback in Settings > Help > Feedback Form
 
-## [Unreleased] - Coming Soon
-- Cumulative GPA Display
-- Class insights
-- If you would like a feature to become implemented, send feedback in Settings > Help > Feedback Form
-
-## [Stable 2.0.0] - 2020-03-31
-### Added
+## [Unreleased] - [Stable 2.0.0] - Target Release Date: 2020-04-01
+- <strong>Added</strong><ul>
 - Support for point-based classes
 - Support for non-academic classes
 - Ability to pan and zoom all charts
@@ -61,8 +61,9 @@
 - Final grade calculator now supports all class types, including point-based classes
 - Loading indicators to all messages to confirm that new information has been saved
 - Added help tab to settings
+- Added scroll to announcement buttons in changelog</ul><br><br>
 
-### Improved
+- <strong>Improved</strong><ul>
 - More intuitive UI
 - Overview table has hard limits on y-axis from 70% to 110%
 - More descriptive messages when sync grades fails
@@ -77,8 +78,9 @@
 - Better changelog display
 - Appearance fixes that improve screen usage on taller screen sizes (Mobile not supported)
 - Tooltip has been optimized to show only the most relevant information
+- Better blurred background behind cards</ul><br><br>
 
-### Fixed
+- <strong>Fixed</strong><ul>
 - Inputs deselect on apply to prevent unwanted changes after request is sent
 - 'Escape' shortcut correctly disables when grades are syncing
 - Issue where auto theme would sometimes not take effect
@@ -91,21 +93,23 @@
 - Class table appearance
 - Arrow key shortcuts only enable on main page and settings page
 - Issue where chart update would slow down after several page changes
-- Issue where chart would switch between light and dark mode randomly
+- Issue where chart would switch between light and dark mode randomly</ul><br><br>
 
-### Removed
+- <strong>Removed</strong><ul>
 - Edit Weights Card
 - Auto-refresh setting
 - Changelog no longer shows on login. You can still view the changelog through Settings > Help > Changelog
 - Removed keyboard shortcut for edit weights
-- Excluded assignments no longer display in graph
+- Excluded assignments no longer display in graph</ul>
 
 ## [Beta 1.9.3] - 2020-03-31
 ### Added
 - Ability to pan and zoom all charts
+- Added scroll to announcement buttons in changelog
 
 ### Improved
 - Slider styling
+- Better blurred background behind cards
 
 ### Fixed
 - Theme issues

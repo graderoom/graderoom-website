@@ -14,14 +14,26 @@
                     Changelog
                 </h1>
                 <div class="card changelog">
-                    <div class="scroll-to up" onclick="scrollToCurrentVersion();"><span class="fa fa-arrow-up"> <label
-                                    style="font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; cursor: pointer">Current
-                                Version</label></span></div>
+                    <div style="display: none" id="announcement-up" class="scroll-to up"
+                         onclick="scrollToCurrentAnnouncement();"><span
+                                class="fa fa-arrow-up"><label
+                                    style="font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; cursor: pointer; margin-left: 0.5rem">Announcement</label></span>
+                    </div>
+                    <div style="display: none" id="version-up" class="scroll-to up" onclick="scrollToCurrentVersion();"><span
+                                class="fa fa-arrow-up"> <label
+                                    style="font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; cursor: pointer; margin-left: 0.5rem">Current Version</label></span>
+                    </div>
                     <div id="changelog-container" class="changelog-container"></div>
-                    <div class="scroll-to down" onclick="scrollToCurrentVersion();"><span class="fa fa-arrow-down">
+                    <div style="display: none" id="version-down" class="scroll-to down"
+                         onclick="scrollToCurrentVersion();"><span class="fa fa-arrow-down">
                             <label
-                                    style="font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; cursor: pointer">Current
-                                Version</label></span></div>
+                                    style="font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; cursor: pointer; margin-left: 0.5rem">Current Version</label></span>
+                    </div>
+                    <div style="display: none" id="announcement-down" class="scroll-to down"
+                         onclick="scrollToCurrentAnnouncement();"><span
+                                class="fa fa-arrow-down"><label
+                                    style="font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; cursor: pointer; margin-left: 0.5rem">Announcement</label></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -49,12 +61,8 @@
             changelogContainer.animate({scrollTop: 0}, 0, () => {
                 scrollOffsetAnnouncement = $(".announcement").offset().top - changelogContainer.offset().top;
                 scrollOffsetCurrent = $(".current").offset().top - changelogContainer.offset().top;
-                if (scrollOffsetCurrent < scrollOffsetAnnouncement) {
-                    scrollToCurrentVersion();
-                } else {
-                    scrollToCurrentAnnouncement();
-                }
             });
+            manageScrollers();
         });
     }
 
@@ -67,15 +75,55 @@
     }
 
     changelogContainer.scroll(function () {
-        let offset = $(".current").offset().top - changelogContainer.offset().top;
-        if (offset > 100) {
-            $(".down").fadeIn(100);
-            $(".up").fadeOut(100);
-        } else if (offset < -100) {
-            $(".up").fadeIn(100);
-            $(".down").fadeOut(100);
-        } else {
-            $(".scroll-to").fadeOut(100);
-        }
+        manageScrollers();
     });
+
+    function manageScrollers() {
+        const gracePeriod = 100;
+
+        let offset = $(".current").offset().top - changelogContainer.offset().top;
+        let announcementOffset = $(".announcement").offset().top - changelogContainer.offset().top;
+        console.log(offset, announcementOffset);
+        if (Math.abs(offset) < Math.abs(announcementOffset)) {
+            if (offset > gracePeriod) { // Version gets priority because it's closer
+                $("#announcement-down").fadeOut(100);
+                $("#version-up").fadeOut(100);
+                $("#version-down").fadeIn(100);
+            } else if (announcementOffset > gracePeriod) {
+                $("#version-down").fadeOut(100);
+                $("#announcement-up").fadeOut(100);
+                $("#announcement-down").fadeIn(100);
+            } else if (offset < -gracePeriod) { // Version gets priority because it's closer
+                $("#announcement-up").fadeOut(100);
+                $("#version-down").fadeOut(100);
+                $("#version-up").fadeIn(100);
+            } else if (announcementOffset < -gracePeriod) {
+                $("#version-up").fadeOut(100);
+                $("#announcement-down").fadeOut(100);
+                $("#announcement-up").fadeIn(100);
+            } else {
+                $(".scroll-to").fadeOut(100);
+            }
+        } else {
+            if (announcementOffset > gracePeriod) { // Announcement gets priority because it's closer
+                $("#version-down").fadeOut(100);
+                $("#announcement-up").fadeOut(100);
+                $("#announcement-down").fadeIn(100);
+            } else if (offset > gracePeriod) {
+                $("#announcement-down").fadeOut(100);
+                $("#version-up").fadeOut(100);
+                $("#version-down").fadeIn(100);
+            } else if (announcementOffset < -gracePeriod) { // Announcement gets priority because it's closer
+                $("#version-up").fadeOut(100);
+                $("#announcement-down").fadeOut(100);
+                $("#announcement-up").fadeIn(100);
+            } else if (offset < -gracePeriod) {
+                $("#announcement-up").fadeOut(100);
+                $("#version-down").fadeOut(100);
+                $("#version-up").fadeIn(100);
+            } else {
+                $(".scroll-to").fadeOut(100);
+            }
+        }
+    }
 </script>
