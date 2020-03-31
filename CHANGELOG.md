@@ -29,15 +29,32 @@
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
 ## [Known Issues] - Working on it
-- Point-based classes aren't synced with weights auto-population
 - If you have an issue, send feedback in Settings > Feedback
-- <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> If you have an issue, send feedback in Settings > About > Feedback Form
+- <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> If you have an issue, send feedback in Settings > Help > Feedback Form
 
 ## [Unreleased] - Coming Soon
 - Cumulative GPA Display
 - Class insights
 - If you would like a feature to become implemented, send feedback in Settings > Feedback
-- <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> If you would like a feature to become implement, send feedback in Settings > About > Feedback Form
+- <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> If you would like a feature to become implement, send feedback in Settings > Help > Feedback Form
+
+## [Beta 1.9.3] - 2020-03-31
+### Improved
+- Slider styling
+
+### Fixed
+- Theme issues
+
+## [Beta 1.9.2] - 2020-03-30
+### Added
+- Keyboard shortcuts card
+
+### Improved
+- Changed About tab to Help tab
+
+### Fixed
+- Class table appearance
+- Arrow key shortcuts only enable on main page and settings page
 
 ## [Beta 1.9.1] - 2020-03-29
 ### Added
