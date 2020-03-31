@@ -218,7 +218,7 @@ input:checked + .slider {
 }
 
 input:checked + .slider:before {
-    background-color: #FFFFFF;
+    background-color: #EEEEEE;
 }
 
 #weightsCard input {

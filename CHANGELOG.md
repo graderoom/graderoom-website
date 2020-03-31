@@ -84,7 +84,7 @@
 - Issue where some weights that were no longer in user's grades would still be in weight table
 - Auto theme is now set up correctly for new users
 - Issue where changelog would sometimes show up behind another card
-- Issue where all transitions were disabled after theme change without reload
+- Issue where all transitions were disabled after theme change without refresh
 - Issue where missing weights would break final grade calculator
 - Chart issues
 - Class table appearance
@@ -98,6 +98,13 @@
 - Changelog no longer shows on login. You can still view the changelog through Settings > Help > Changelog
 - Removed keyboard shortcut for edit weights
 - Excluded assignments no longer display in graph
+
+## [Beta 1.9.3] - 2020-03-31
+### Improved
+- Slider styling
+
+### Fixed
+- Theme issues
 
 ## [Beta 1.9.2] - 2020-03-30
 ### Added
