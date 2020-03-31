@@ -40,6 +40,7 @@
 ### Added
 - Support for point-based classes
 - Support for non-academic classes
+- Ability to pan and zoom all charts
 - Crowd-sourced weight population
 - Weights can be edited from main page
 - Help tab in settings
@@ -100,6 +101,9 @@
 - Excluded assignments no longer display in graph
 
 ## [Beta 1.9.3] - 2020-03-31
+### Added
+- Ability to pan and zoom all charts
+
 ### Improved
 - Slider styling
 
