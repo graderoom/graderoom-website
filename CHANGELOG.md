@@ -75,7 +75,7 @@
 - Smoother animation when opening/closing cards
 - Better changelog display
 - Appearance fixes that improve screen usage on taller screen sizes (Mobile not supported)
-- Tooltip has been optimized for all possibilities to show only the most relevant information
+- Tooltip has been optimized to show only the most relevant information
 
 ### Fixed
 - Inputs deselect on apply to prevent unwanted changes after request is sent
