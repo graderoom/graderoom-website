@@ -438,8 +438,6 @@
 <script type="text/javascript">
 
     function manageGradeSyncCheckbox() {
-        console.log($('#gradeSyncDiv').css('display'));
-        console.log($('#gradeSyncToggle').prop('checked'));
         if ($('#gradeSyncDiv').css('display') === 'block' && !$('#gradeSyncToggle').prop('checked')) {
             delete user.schoolPassword;
             ajaxPostForm('#gradeSync', [], '', true);
