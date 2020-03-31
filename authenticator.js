@@ -704,10 +704,10 @@ module.exports = {
         let numColors = userRef.get("grades").value().length;
         let classColors = distinctColors({
             count: numColors,
-            lightMin: 70,
+            lightMin: 25,
             lightMax: 100,
             chromaMin: 25,
-            samples: Math.floor(Math.random() * 1000 + 500)
+            samples: Math.floor(Math.random() * 10000 + numColors)
         }).map(color => {
             return chroma(color["_rgb"][0], color["_rgb"][1], color["_rgb"][2]).hex();
         }).sort(() => Math.random() - 0.5);
