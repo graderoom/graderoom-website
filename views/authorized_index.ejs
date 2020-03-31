@@ -712,7 +712,7 @@
             let overallGrade = getOverallGrade(i);
             let assignmentData = parsedData[i].mixedData.map(o => o.y);
             let lastIndex = assignmentData.length - 1;
-            let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(2);
+            let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(5);
             let color;
             let bgColor;
             if (delta > 0) {
@@ -769,7 +769,7 @@
 
                 // Set up coloring and gain/loss
                 let display = +isNaN(parseFloat(assignmentData[j]).toFixed(2)) ? +parseFloat(assignmentData[assignmentData.length - 1]).toFixed(2) : parseFloat(assignmentData[j]).toFixed(2);
-                let delta = (assignmentData[j] - assignmentData[j - 1]).toFixed(2);
+                let delta = (assignmentData[j] - assignmentData[j - 1]).toFixed(3);
                 let color;
                 let bgColor;
 
@@ -782,7 +782,7 @@
                     delta = "(" + delta + "%) <i class=\"fa fa-long-arrow-down\"></i>";
                     color = "red";
                 } else {
-                    delta = "(±0.00%) <i class=\"fa fa-arrows-v\"></i>";
+                    delta = "(±0.000%) <i class=\"fa fa-arrows-v\"></i>";
                     bgColor = "unset";
                     color = "unset";
                 }
@@ -831,7 +831,7 @@
             let overallGrade = getOverallGrade(i);
             let assignmentData = parsedData[i].mixedData.map(o => o.y);
             let lastIndex = assignmentData.length - 1;
-            let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(2);
+            let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(5);
             let color;
             let bgColor;
 
@@ -1238,11 +1238,6 @@
     }
 
     function showPage(id) {
-        if (id === -1) {
-            renderOverviewChart();
-        } else {
-            renderChart(id);
-        }
         document.getElementById("pageNumber").textContent = id;
         for (let i = -1; i < data.length; i++) {
             document.getElementById("link" + i).classList.remove("active");
