@@ -18,13 +18,13 @@
     "ejs": "^2.7.3",
     "express": "^4.17.1",
     "express-session": "^1.17.0",
+    "lodash": "latest",
     "lowdb": "^1.0.0",
     "morgan": "^1.9.1",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
     "python-shell": "^1.0.8",
     "random-color": "^1.0.1",
-    "randomcolor": "^0.5.4",
-    "lodash": "latest"
+    "randomcolor": "^0.5.4"
   }
 }

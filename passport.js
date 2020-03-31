@@ -17,7 +17,7 @@ module.exports = function (passport) {
 
     // used to deserialize the user
     passport.deserializeUser(function (username, done) {
-        usr = authent.getUser(username);
+        let usr = authent.getUser(username);
         return done(null, usr);
     });
 
