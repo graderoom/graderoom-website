@@ -62,7 +62,8 @@
 - Final grade calculator now supports all class types, including point-based classes
 - Loading indicators to all messages to confirm that new information has been saved
 - Added help tab to settings
-- Added scroll to announcement buttons in changelog</ul><br><br>
+- Added scroll to announcement buttons in changelog
+- Redirect to login on session timeout</ul><br><br>
 
 - <strong>Improved</strong><ul>
 - More intuitive UI
@@ -94,7 +95,8 @@
 - Class table appearance
 - Arrow key shortcuts only enable on main page and settings page
 - Issue where chart update would slow down after several page changes
-- Issue where chart would switch between light and dark mode randomly</ul><br><br>
+- Issue where chart would switch between light and dark mode randomly
+- Issues with arrow key shortcuts</ul><br><br>
 
 - <strong>Removed</strong><ul>
 - Edit Weights Card
@@ -102,6 +104,13 @@
 - Changelog no longer shows on login. You can still view the changelog through Settings > Help > Changelog
 - Removed keyboard shortcut for edit weights
 - Excluded assignments no longer display in graph</ul>
+
+## [Beta 1.9.4] - 2020-04-01
+### Added
+- Redirect to login on session timeout
+
+### Fixed
+- Issues with arrow key shortcuts
 
 ## [Beta 1.9.3] - 2020-03-31
 ### Added

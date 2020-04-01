@@ -36,15 +36,17 @@
                     </a>
                 </li>
             <% } %>
-            <li id="toggleAdmin" class="nav-item toggle-admin">
-                <a class="btn btn-med" href="/"> <i class="fa fa-home" aria-hidden="true"></i> Home </a>
-            </li>
-            <li class="nav-item active">
-                <a href="/logout" class="btn btn-med"> <i class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
-            </li>
+                <li id="toggleAdmin" class="nav-item toggle-admin">
+                    <a class="btn btn-med" href="/"> <i class="fa fa-home" aria-hidden="true"></i> Home </a>
+                </li>
+                <li class="nav-item active">
+                    <a href="/logout" class="btn btn-med"> <i class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
+                </li>
         </ul>
     </div>
 </nav>
+
+<% include ../user/logged_out.ejs %>
 
 <!-- JavaScript Imports -->
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
