@@ -347,9 +347,20 @@ module.exports = {
 
             //Updates weights from classes db
             if (user.weights[className]["custom"] == false && dbContainsClass(className, teacherName)) {
-                if (classes[className][teacherName]["hasWeights"] == true || Object.keys(classes[className][teacherName]["weights"]).length > 0) {
+                if (classes[className][teacherName]["hasWeights"] == "false" || Object.keys(classes[className][teacherName]["weights"]).length > 0) {
                     this.updateWeightsForClass(username, className, classes[className][teacherName]["hasWeights"], classes[className][teacherName]["weights"], false, false);
                 }
+            }
+
+            // Set custom to not custom if it is same as classes db
+            if (user.weights[className]["custom"] && dbContainsClass(className, teacherName)) {
+                user.weights[className]["custom"] = !compareWeights({
+                    "weights": user.weights[className]["weights"],
+                    "hasWeights": user.weights[className]["hasWeights"]
+                }, {
+                    "weights": classes[className][teacherName]["weights"],
+                    "hasWeights": classes[className][teacherName]["hasWeights"]
+                });
             }
         }
     },
@@ -372,8 +383,11 @@ module.exports = {
 
     updateWeightsInClassDb: function (className, teacherName, hasWeights, weights) {
         let classDb = db.get("classes");
-        if (weights) {
+        if (weights || hasWeights==="false") {
             if (hasWeights === "false") {
+                if (!weights){
+                    weights = {};
+                }
                 for (let i = 0; i < Object.keys(weights).length; i++) {
                     weights[Object.keys(weights)[i]] = null;
                 }
@@ -1121,13 +1135,10 @@ function deleteUserSuggestion(username, class_name, teacher_name) {
     let lc_username = username.toLowerCase();
     let classes = db.get("classes").value();
     let classRef = db.get("classes");
-    console.log("THIS IS RUNNING");
     for (let i = 0; i < classes[class_name][teacher_name]["suggestions"].length; i++) {
         let usernames = classes[class_name][teacher_name]["suggestions"][i].usernames;
         //remove user from list of usernames
-        console.log(usernames);
         if (usernames.includes(lc_username)) {
-            console.log("removing");
             classRef.get(class_name).get(teacher_name).get("suggestions").nth(i).get("usernames").pull(lc_username).write();
         }
         //remove suggestions if no other users suggested it
@@ -1140,7 +1151,7 @@ function deleteUserSuggestion(username, class_name, teacher_name) {
 function compareWeights(weight1, weight2) {
     if (weight1["hasWeights"] != weight2["hasWeights"]) {
         return false;
-    } else if (weight1["hasWeights"] == weight2["hasWeights"] == false) {
+    } else if ((eval(weight1["hasWeights"]) == eval(weight2["hasWeights"])) && (eval(weight2["hasWeights"]) == false)) {
         return true;
     } else {
         return _.isEqual(weight1["weights"], weight2["weights"]);
