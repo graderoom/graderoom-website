@@ -115,7 +115,7 @@
             <% } %>
             <!-- <div class="alert alert-danger alert-dismissible" id="weightmsg" style="display:none">
                 <a class="close" data-dismiss="alert" aria-label="close">X</a>
-                <span id="weightmsg_text">asdf</span>
+                <span id="weightmsg_text"></span>
             </div> -->
             <!-- Overview Section -->
             <% if (user.alerts.lastUpdated.toString().toLowerCase() != 'never') { %>
@@ -209,95 +209,102 @@
                                         onclick="resetZoom(<%= i + offset %>); $(this).hide()">Reset</button>
                                 <canvas id="chart<%= i + offset %>" class="chart"></canvas>
                             </div>
-                            <form id="weights<%= i + offset %>" class="form-ajax form-weights form-signin"
-                                  action="/updateweights">
-                            <table class="table text-center weights"
-                                   style="width: 25%; white-space: nowrap; margin: 20px"
-                                   id="weightsTable<%= i + offset %>">
-                                <thead>
-                                <tr>
-                                    <th colspan="4" style="padding: 0.3rem 0">
-                                        <label style="display: flex; font-size: 1rem; justify-content: center; margin: 0; align-items: center">Point Based&nbsp
-                                            <label class="switch">
-                                                <input
-                                                        id="check<%= i + offset %>"
-                                                        style="margin: 0; display: flex"
-                                                        type="checkbox"
-                                                        name="hasWeights"
-                                                <% if (JSON.parse(weightData)[JSON.parse(gradeData)[i + offset].class_name]["hasWeights"] === "false") { %>
-                                                        checked
-                                                        <% } %>
-                                                        oninput="disableInput('check<%= i + offset %>','weightsTable<%= i + offset %>'); $('#weights<%= i + offset %>').submit();"
-                                                >
-                                                <span style="color: <%= user.appearance.classColors[i + offset] %>"
-                                                      class="slider"></span>
+                            <form id="weights<%= i + offset %>" class="form-ajax form-weights form-signin" action="/updateweights">
+                                <table class="table text-center weights"
+                                    style="width: 25%; white-space: nowrap; margin: 20px"
+                                    id="weightsTable<%= i + offset %>">
+                                    <thead>
+                                    <tr>
+                                        <th colspan="4" style="padding: 0.3rem 0">
+                                            <label style="display: flex; font-size: 1rem; justify-content: center; margin: 0; align-items: center">Point Based&nbsp
+                                                <label class="switch">
+                                                    <input
+                                                            id="check<%= i + offset %>"
+                                                            style="margin: 0; display: flex"
+                                                            type="checkbox"
+                                                            name="hasWeights"
+                                                    <% if (JSON.parse(weightData)[JSON.parse(gradeData)[i + offset].class_name]["hasWeights"] === "false") { %>
+                                                            checked
+                                                            <% } %>
+                                                            oninput="disableInput('check<%= i + offset %>','weightsTable<%= i + offset %>'); $('#weights<%= i + offset %>').submit();"
+                                                    >
+                                                    <span style="color: <%= user.appearance.classColors[i + offset] %>"
+                                                        class="slider"></span>
+                                                </label>
+                                                <!-- asdfghjlk -->
+                                                <button 
+                                                    id="reset<%= i + offset %>" 
+                                                    style="margin: 0 0 0 1.5rem; width:fit-content; height: fit-content; display:block;" 
+                                                    class="btn btn-sm"
+                                                    onclick="resetWeights(<%= i + offset %>); $('#weights<%= i + offset %>').submit();">
+                                                    Reset
+                                                </button>                                                
                                             </label>
-                                        </label>
-                                    </th>
-                                </tr>
-                                    <tr>
-                                        <th>Category</th>
-                                        <th>Weight</th>
-                                        <th>Points</th>
-                                        <th>Grade</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-
-                                    <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]).length; j++) { %>
-                                        <tr>
-                                            <td id="weightTableCategory<%= i + offset %><%= j %>"></td>
-                                            <% let weights = JSON.parse(weightData)[JSON.parse(gradeData)[i + offset].class_name]["weights"] %>
-                                            <% let category = Object.keys(weights)[j] %>
-                                            <% let value = weights[category] %>
-                                            <td id="weightTableWeight<%= i + offset %><%= j %>" class="form-group">
-                                                <input style="<% if (!value && value != 0) { %> border-color: lightcoral !important; <% } %>"
-                                                       value="<%= value %>"
-                                                       type="number"
-                                                       min="0"
-                                                       step="0.1"
-                                                       class="number-input disableable form-control <% if(value || value == 0){ %> text-view <% } %>"
-                                                       name="<%= category %>"
-                                                >
-                                            </td>
-                                            <td id="weightTablePoints<%= i + offset %><%= j %>"></td>
-                                            <td id="weightTableGrade<%= i + offset %><%= j %>"></td>
-                                        </tr>
-                                    <% } %>
-                                        <script>
-                                    function disableInput(checkBoxID, id) {
-                                        $('#' + id).find('.disableable').each(function () {
-                                            if ($('#' + checkBoxID).is(":checked")) {
-                                                $(this).val("");
-                                                $(this).addClass("disabled");
-                                                $(this).attr('disabled', 'disabled');
-                                            } else {
-                                                $(this).removeClass("disabled");
-                                                $(this).removeAttr('disabled');
-                                            }
-                                        })
-                                    }
-
-                                    disableInput('check<%= i + offset %>', 'weightsTable<%= i + offset %>');
-                                </script>
-                                <tfoot>
-                                    <tr>
-                                        <th colspan="4">
-                                            <div style="display:none; color: <%= user.appearance.classColors[i] %>"
-                                                 id="weightTableOverallGrade<%= i + offset %>">
-                                            </div>
-                                            <i id="incorrectOverallGrade<%= i + offset %>"
-                                               class="fa fa-exclamation-circle popup"
-                                               style="display: none; color: red; margin-left: 0.2rem; vertical-align: middle">
-                                                <span class="popuptext">
-                                                    WARNING: Your grade in PowerSchool, <%= JSON.parse(gradeData)[i].overall_percent %>%
-                                (<%= JSON.parse(gradeData)[i].overall_letter %>) does not match the calculated grade. Enter all weights or choose the point-based option.
-                                                </span>
-                                            </i>
                                         </th>
                                     </tr>
-                                </tfoot>
-                            </table>
+                                        <tr>
+                                            <th>Category</th>
+                                            <th id="weight-header<%= i + offset %>">Weight</th>
+                                            <th>Points</th>
+                                            <th>Grade</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]).length; j++) { %>
+                                            <tr>
+                                                <td id="weightTableCategory<%= i + offset %><%= j %>"></td>
+                                                <% let weights = JSON.parse(weightData)[JSON.parse(gradeData)[i + offset].class_name]["weights"] %>
+                                                <% let category = Object.keys(weights)[j] %>
+                                                <% let value = weights[category] %>
+                                                <td id="weightTableWeight<%= i + offset %><%= j %>" class="form-group">
+                                                    <input style="<% if (!value && value != 0) { %> border-color: lightcoral !important; <% } %>"
+                                                        value="<%= value %>"
+                                                        type="number"
+                                                        min="0"
+                                                        step="0.1"
+                                                        class="number-input disableable form-control <% if(value || value == 0){ %> text-view <% } %>"
+                                                        name="<%= category %>"
+                                                    >
+                                                </td>
+                                                <td id="weightTablePoints<%= i + offset %><%= j %>"></td>
+                                                <td id="weightTableGrade<%= i + offset %><%= j %>"></td>
+                                            </tr>
+                                        <% } %>
+                                            <script>
+                                        function disableInput(checkBoxID, id) {
+                                            $('#' + id).find('.disableable').each(function () {
+                                                if ($('#' + checkBoxID).is(":checked")) {
+                                                    $(this).val("");
+                                                    $(this).addClass("disabled");
+                                                    $(this).attr('disabled', 'disabled');
+                                                } else {
+                                                    $(this).removeClass("disabled");
+                                                    $(this).removeAttr('disabled');
+                                                }
+                                            })
+                                        }
+
+                                        disableInput('check<%= i + offset %>', 'weightsTable<%= i + offset %>');
+                                    </script>
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="4">
+                                                <div style="display:none; color: <%= user.appearance.classColors[i] %>"
+                                                    id="weightTableOverallGrade<%= i + offset %>">
+                                                </div>
+                                                <i id="incorrectOverallGrade<%= i + offset %>"
+                                                class="fa fa-exclamation-circle popup"
+                                                style="display: none; color: red; margin-left: 0.2rem; vertical-align: middle">
+                                                    <span class="popuptext">
+                                                        WARNING: Your grade in PowerSchool, <%= JSON.parse(gradeData)[i].overall_percent %>%
+                                    (<%= JSON.parse(gradeData)[i].overall_letter %>) does not match the calculated grade. Enter all weights or choose the point-based option.
+                                                    </span>
+                                                </i>
+                                            </th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
                             </form>
                         </div>
                         <hr>
@@ -687,7 +694,23 @@
         for (let i = 0; i < data.length; i++) {
             let className = data[i].class_name;
             let tableCategories = Object.keys(weights[className]["weights"]);
+            //asdfghjkl
+            //Hide or Show Reset Button
+            if (weights[className]["custom"]==true && (relClassData[className]["hasWeights"]==true || Object.keys(relClassData[className]["weights"]).length>0 )) {
+                $('#reset'+i).show();
+                $("#weight-header" + i).css("font-style","italic");
+            } else {
+                $('#reset'+i).hide();
+                $("#weight-header" + i).css("font-style","normal");
+            }
             for (let j = 0; j < tableCategories.length; j++) {
+                //Set italics of weights
+                if (weights[className]["custom"]==true && (relClassData[className]["hasWeights"]==true || Object.keys(relClassData[className]["weights"]).length>0 )) {
+                    $("#weightTableWeight" + i + j).children().css("font-style","italic");
+                } else {
+                    $("#weightTableWeight" + i + j).children().css("font-style","normal");
+                }
+
                 document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
                 $("#weightTableWeight" + i + j + " input").blur(() => {
                     clearTimeout(submittingWeights);
@@ -702,6 +725,8 @@
                         $("#weightTableWeight" + i + j).parents("form").submit();
                     }
                 });
+
+
                 let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
                 document.getElementById("weightTablePoints" + i + j).textContent = +categoryGottenAndPossible.gotten.toFixed(4) + ((categoryGottenAndPossible.possible !== 0) ? ("/" + +(categoryGottenAndPossible.possible.toFixed(4))) : "");
                 let categoryGrade = getCategoryGrade(i, tableCategories[j]);
@@ -1368,6 +1393,19 @@
         // are considered equivalent
         return true;
     }
+// asdfghjkl
+    function resetWeights(index) {
+        let className = data[index].class_name;
+        if (relClassData[className]["hasWeights"]==true || Object.keys(relClassData[className]["weights"]).length>0) {
+            weights[className]["weights"] = Object.assign({},relClassData[className]["weights"]);
+            weights[className]["hasWeights"] = Object.assign({},relClassData[className]["hasWeights"]);
+            $('#check'+index).prop("checked",!weights[className]["hasWeights"]);
+            disableInput('check'+index,'weightsTable'+index);
+            for (let i = 0; i<Object.keys(weights[className]["weights"]).length; i++) {
+                $("#weightTableWeight" + index + i + " input").val(weights[className]["weights"][Object.keys(weights[className]["weights"])[i]]);
+            }
+        }
+    }
 
     $(function initAjaxFormPosts() {
         if ($("form.form-weights").length > 0) {
@@ -1404,10 +1442,11 @@
 
                     $.ajax({
                         type: "POST", url: $(form).attr("action"), data: formData
-                    }).done(() => {
+                    }).done((data) => {
                         // Make sure that the formMessages div has the alert-success class.
-
                         className = decodeURI(className);
+                        console.log(data);
+                        weights[className]["custom"] = data.includes("Custom");
                         for (let i = 0; i < Object.keys(weights[className]["weights"]).length; i++) {
                             let weight = $("#weightTableWeight" + $(form)[0].id.substring(7) + i + " input");
                             if (weight[0].value) {

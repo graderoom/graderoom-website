@@ -107,6 +107,7 @@ module.exports = {
         // let globalWeights = {};
         for (let i = 0; i < users.length; i++) {
             this.updateDB(users[i].username);
+            this.bringUpToDate(users[i].username);
         }
         //Update classes to include suggestions key
         let classRef = db.get("classes");
@@ -327,7 +328,7 @@ module.exports = {
                 if (classes[className][teacherName]["hasWeights"] == true || Object.keys(classes[className][teacherName]["weights"]).length > 0) {
                     this.updateWeightsForClass(username, className, classes[className][teacherName]["hasWeights"], classes[className][teacherName]["weights"], false, false);
                 }
-            }           
+            }
         }
     },
 
@@ -340,7 +341,9 @@ module.exports = {
         let classes = db.get("classes").value();
         let relClasses = {};
         for (let i = 0; i < userClasses.length; i++) {
-            relClasses[userClasses[i][0]] = {"classType": classes[userClasses[i][0]]["classType"]};
+            relClasses[userClasses[i][0]] = {"classType": classes[userClasses[i][0]]["classType"],
+                                            "weights": classes[userClasses[i][0]][userClasses[i][1]]["weights"],
+                                            "hasWeights":classes[userClasses[i][0]][userClasses[i][1]]["hasWeights"] };
         }
         return relClasses;
     },
@@ -772,11 +775,12 @@ module.exports = {
         return {success: false, message: "User does not exist."};
     },
 
-    updateWeightsForClass: function (username, className, hasWeights, weights, custom=true, addSuggestion=true) {
+    updateWeightsForClass: function (username, className, hasWeights, weights, custom=null, addSuggestion=true) {
         
         //default update, not override
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
+        let classes = db.get("classes").value();
         //console.log(weights);
         if (!userRef.value()) {
             return {success: false, message: "User does not exist."};
@@ -790,6 +794,14 @@ module.exports = {
 
         if (addSuggestion) {
             this.addWeightsSuggestion(username, className, teacherName, hasWeights, weights);
+        }
+
+        if (custom == null){
+            if (dbContainsClass(className, teacherName)) {
+                custom = !compareWeights({"weights":weights,"hasWeights":hasWeights},{"weights":classes[className][teacherName]["weights"],"hasWeights":classes[className][teacherName]["hasWeights"]});
+            } else {
+                custom = true;
+            }
         }
 
         let weightsRef = userRef.get("weights");
@@ -813,7 +825,10 @@ module.exports = {
         weightsRef.set(modClassName + ".weights", newWeights).write(); //Replace weights inside of specific class
         weightsRef.set(modClassName + ".hasWeights", hasWeights).write();
         weightsRef.set(modClassName + ".custom",custom).write();
-        return {success: true, message: "Updated weights for " + className + "!"};
+        if (custom)
+            return {success: true, message: "Custom weight set for " + className + "."};
+        return {success: true, message: "Reset weight for " + className + "."};
+        //Important: Do not change first word of message. It is used in frontend to determine if it is custom.
     },
 
     encryptAndStore: function (username, schoolPass, userPass) {
