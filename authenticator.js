@@ -1135,13 +1135,10 @@ function deleteUserSuggestion(username, class_name, teacher_name) {
     let lc_username = username.toLowerCase();
     let classes = db.get("classes").value();
     let classRef = db.get("classes");
-    console.log("THIS IS RUNNING");
     for (let i = 0; i < classes[class_name][teacher_name]["suggestions"].length; i++) {
         let usernames = classes[class_name][teacher_name]["suggestions"][i].usernames;
         //remove user from list of usernames
-        console.log(usernames);
         if (usernames.includes(lc_username)) {
-            console.log("removing");
             classRef.get(class_name).get(teacher_name).get("suggestions").nth(i).get("usernames").pull(lc_username).write();
         }
         //remove suggestions if no other users suggested it
@@ -1154,7 +1151,7 @@ function deleteUserSuggestion(username, class_name, teacher_name) {
 function compareWeights(weight1, weight2) {
     if (weight1["hasWeights"] != weight2["hasWeights"]) {
         return false;
-    } else if (weight1["hasWeights"] == weight2["hasWeights"] == false) {
+    } else if ((eval(weight1["hasWeights"]) == eval(weight2["hasWeights"])) && (eval(weight2["hasWeights"]) == false)) {
         return true;
     } else {
         return _.isEqual(weight1["weights"], weight2["weights"]);

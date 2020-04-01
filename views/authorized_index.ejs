@@ -1391,8 +1391,8 @@
         let className = data[index].class_name;
         if (relClassData[className]["hasWeights"]=="false" || Object.keys(relClassData[className]["weights"]).length>0) {
             weights[className]["weights"] = Object.assign({},relClassData[className]["weights"]);
-            weights[className]["hasWeights"] = Object.assign({},relClassData[className]["hasWeights"]);
-            $('#check'+index).prop("checked",!weights[className]["hasWeights"]);
+            weights[className]["hasWeights"] = relClassData[className]["hasWeights"];
+            $('#check'+index).prop("checked",weights[className]["hasWeights"]=="false");
             disableInput('check'+index,'weightsTable'+index);
             for (let i = 0; i<Object.keys(weights[className]["weights"]).length; i++) {
                 $("#weightTableWeight" + index + i + " input").val(weights[className]["weights"][Object.keys(weights[className]["weights"])[i]]);
