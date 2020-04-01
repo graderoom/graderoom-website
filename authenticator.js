@@ -351,6 +351,17 @@ module.exports = {
                     this.updateWeightsForClass(username, className, classes[className][teacherName]["hasWeights"], classes[className][teacherName]["weights"], false, false);
                 }
             }
+
+            // Set custom to not custom if it is same as classes db
+            if (user.weights[className]["custom"] && dbContainsClass(className, teacherName)) {
+                user.weights[className]["custom"] = !compareWeights({
+                    "weights": user.weights[className]["weights"],
+                    "hasWeights": user.weights[className]["hasWeights"]
+                }, {
+                    "weights": classes[className][teacherName]["weights"],
+                    "hasWeights": classes[className][teacherName]["hasWeights"]
+                });
+            }
         }
     },
 
