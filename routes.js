@@ -27,6 +27,7 @@ module.exports = function (app, passport) {
                 gradeData: gradeDat,
                 weightData: weightData,
                 relevantClassData: relClassData,
+                sessionTimeout: Date.parse(req.session.cookie._expires),
                 dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
             });
             return;
@@ -54,6 +55,7 @@ module.exports = function (app, passport) {
                 gradeData: gradeData,
                 weightData: weightData,
                 relevantClassData: relClassData,
+                sessionTimeout: Date.parse(req.session.cookie._expires),
                 dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
             });
             return;
@@ -143,6 +145,7 @@ module.exports = function (app, passport) {
             deletedUserList: deletedUsers,
             adminSuccessMessage: req.flash("adminSuccessMessage"),
             adminFailMessage: req.flash("adminFailMessage"),
+            sessionTimeout: Date.parse(req.session.cookie._expires),
             dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
         });
     });
@@ -374,6 +377,7 @@ module.exports = function (app, passport) {
                 gradeData: JSON.stringify(req.user.grades),
                 userRef: JSON.stringify(req.user),
                 schoolUsername: req.user.schoolUsername,
+                sessionTimeout: Date.parse(req.session.cookie._expires),
                 dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
             });
         } else {
@@ -409,6 +413,7 @@ module.exports = function (app, passport) {
             darkModeStart: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeStart),
             darkModeFinish: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeFinish),
             page: "keys",
+            sessionTimeout: Date.parse(req.session.cookie._expires),
             dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
         });
 
@@ -461,6 +466,7 @@ module.exports = function (app, passport) {
             theme: JSON.stringify(authenticator.getUser(req.user.username).appearance.theme),
             darkModeStart: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeStart),
             darkModeFinish: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeFinish),
+            sessionTimeout: Date.parse(req.session.cookie._expires),
             dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
         });
     });
