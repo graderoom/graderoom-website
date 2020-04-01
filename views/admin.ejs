@@ -42,12 +42,14 @@
         <br>
     <% } %>
 
-    <form action="/bringAllUpToDate" method="post">
-        <button class="btn btn-sm" type="submit">
-            Bring All Users Up To Date
-        </button>
-    </form>
     <div id="table-container">
+        <h6><%= userList.length %> Total Users,
+            <%= [...new Set(userList.map(u => u.schoolUsername))].length %> Unique Users,
+            <%= userList.filter(u => [...new Set(userList.map(u => u.schoolUsername))].includes(u.schoolUsername)).filter(u => (u.loggedIn !== "never" && u.loggedIn > Date.parse(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())))).length %>
+            Logged In Today,
+            <%= userList.filter(u => [...new Set(userList.map(u => u.schoolUsername))].includes(u.schoolUsername)).filter(u => (u.loggedIn !== "never" && u.loggedIn > Date.parse(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())) - 7 * 24 * 60 * 60 * 1000)).length %>
+            Logged In This Week
+        </h6>
         <hr>
         <h1>Users</h1>
         <table class="table" style="width: 100% !important;">
