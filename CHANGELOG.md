@@ -40,6 +40,7 @@
 - <strong>Added</strong><ul>
 - Support for point-based classes
 - Support for non-academic classes
+- Support for decimal weights
 - Ability to pan and zoom all charts
 - Crowd-sourced weight population
 - Weights can be edited from main page
@@ -106,6 +107,7 @@
 ### Added
 - Ability to pan and zoom all charts
 - Added scroll to announcement buttons in changelog
+- Support for decimal weights
 
 ### Improved
 - Slider styling

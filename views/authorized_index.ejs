@@ -1426,7 +1426,7 @@
                     let weightData = $(form).serializeArray();
                     let weightURI = {};
                     jQuery.map(weightData, function (n, i) {
-                        if (n.name !== "hasWeights") weightURI[n.name] = isNaN(parseInt(n.value)) ? null : parseInt(n.value);
+                        if (n.name !== "hasWeights") weightURI[n.name] = isNaN(parseFloat(n.value)) ? null : parseFloat(n.value);
                     });
                     if (isEqual(weights[className]["weights"], weightURI) && weights[className]["hasWeights"] === "true" == hasWeights) {
                         return;
@@ -1459,7 +1459,7 @@
                             weights[className]["hasWeights"] = "true";
                             if (weightData.length === 0) return;
                             for (let weight of weightData) {
-                                weights[className]["weights"][weight.name] = parseInt(weight.value);
+                                weights[className]["weights"][weight.name] = parseFloat(weight.value);
                             }
                         }
                         // Run asynchronously
