@@ -226,7 +226,7 @@
                                                     <% if (JSON.parse(weightData)[JSON.parse(gradeData)[i + offset].class_name]["hasWeights"] === "false") { %>
                                                             checked
                                                             <% } %>
-                                                            oninput="disableInput('check<%= i + offset %>','weightsTable<%= i + offset %>'); $('#weights<%= i + offset %>').submit();"
+                                                            oninput="disableInput('check<%= i + offset %>','weightsTable<%= i + offset %>'); resetInputs('#weights<%= i + offset %>'); $('#weights<%= i + offset %>').submit();"
                                                     >
                                                     <span style="color: <%= user.appearance.classColors[i + offset] %>"
                                                         class="slider"></span>
@@ -714,14 +714,15 @@
                 $("#weightTableWeight" + i + j + " input").blur(() => {
                     clearTimeout(submittingWeights);
                     submittingWeights = setTimeout(() => {
-                        $("#weightTableWeight" + i + j).parents("form").submit()
+                        resetInputs('#weights'+i);
+                        $("#weightTableWeight" + i + j).parents("form").submit();
                     }, 400);
                 }).on("keyup", (e) => {
                     e = e || window.event;
                     let keyCode = e.code;
                     if (keyCode === 'Enter') {
                         clearTimeout(submittingWeights);
-                        $("#weightTableWeight" + i + j).parents("form").submit();
+                        $("#weightTableWeight" + i + j + " input").blur();
                     }
                 });
 
@@ -1389,17 +1390,31 @@
     }
     function resetWeights(index) {
         let className = data[index].class_name;
-        if (relClassData[className]["hasWeights"]=="false" || Object.keys(relClassData[className]["weights"]).length>0) {
-            weights[className]["weights"] = Object.assign({},relClassData[className]["weights"]);
-            weights[className]["hasWeights"] = relClassData[className]["hasWeights"];
-            $('#check'+index).prop("checked",weights[className]["hasWeights"]=="false");
-            disableInput('check'+index,'weightsTable'+index);
-            for (let i = 0; i<Object.keys(weights[className]["weights"]).length; i++) {
-                $("#weightTableWeight" + index + i + " input").val(weights[className]["weights"][Object.keys(weights[className]["weights"])[i]]);
+        $('#check'+index).prop("checked",relClassData[className]["hasWeights"]=="false");
+        disableInput('check'+index,'weightsTable'+index);   
+        let keys = Object.keys(weights[className]["weights"]);
+        for (let i = 0; i<keys.length; i++) {
+            if (keys[i] in relClassData[className]["weights"]) {
+                $("#weightTableWeight" + index + i + " input").val(relClassData[className]["weights"][keys[i]]);
             }
         }
     }
 
+    //Resets inputs to old weight value when exiting point based
+    function resetInputs(form) {
+        let hasWeights = !($(form).find('input[name="hasWeights"]')).is(':checked');
+        let className = data[$(form)[0].id.substring(7)].class_name;
+        if (eval(weights[className]["hasWeights"])!= eval(hasWeights)) {
+            if (!hasWeights) {
+                tempWeights[className] = Object.assign({}, weights[className]["weights"]);
+            } else if (tempWeights[className]) {
+                for (let i = 0; i < Object.keys(weights[className]["weights"]).length; i++) {
+                    let weight = $("#weightTableWeight" + $(form)[0].id.substring(7) + i + " input");
+                    weight.val(tempWeights[className][Object.keys(tempWeights[className])[i]]);
+                }
+            }
+        }
+    }
     $(function initAjaxFormPosts() {
         if ($("form.form-weights").length > 0) {
             $("form.form-weights").each(function () {
@@ -1407,19 +1422,10 @@
                 $(form).submit(function (event) {
                     event.preventDefault();
                     event.stopImmediatePropagation();
+                    console.log("running");
                     let hasWeights = !($(form).find('input[name="hasWeights"]')).is(':checked');
                     let className = data[$(form)[0].id.substring(7)].class_name;
-                    if (weights[className]["hasWeights"] === "true" != hasWeights) {
-                        if (!hasWeights) {
-                            // Don't copy reference
-                            tempWeights[className] = Object.assign({}, weights[className]["weights"]);
-                        } else if (tempWeights[className]) {
-                            for (let i = 0; i < Object.keys(weights[className]["weights"]).length; i++) {
-                                let weight = $("#weightTableWeight" + $(form)[0].id.substring(7) + i + " input");
-                                weight.val(tempWeights[className][Object.keys(tempWeights[className])[i]]);
-                            }
-                        }
-                    }
+
                     let weightData = $(form).serializeArray();
                     let weightURI = {};
                     jQuery.map(weightData, function (n, i) {
