@@ -802,10 +802,10 @@ module.exports = {
         if (!userRef.value()) {
             return {success: false, message: "User does not exist."};
         }
-
+        let teacherName;
         let clsRef = userRef.get("grades").find({class_name: className});
         if (clsRef.value()) {
-            let teacherName = clsRef.value().teacher_name;
+            teacherName = clsRef.value().teacher_name;
 
             if (addSuggestion && teacherName) {
                 this.addWeightsSuggestion(username, className, teacherName, hasWeights, weights);
@@ -813,7 +813,7 @@ module.exports = {
         }
 
         if (custom == null){
-            if (dbContainsClass(className, teacherName)) {
+            if (teacherName && dbContainsClass(className, teacherName)) {
                 custom = !compareWeights({"weights":weights,"hasWeights":hasWeights},{"weights":classes[className][teacherName]["weights"],"hasWeights":classes[className][teacherName]["hasWeights"]});
             } else {
                 custom = true;
