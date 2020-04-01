@@ -813,8 +813,14 @@ module.exports = {
         }
 
         if (custom == null){
-            if (teacherName && dbContainsClass(className, teacherName)) {
-                custom = !compareWeights({"weights":weights,"hasWeights":hasWeights},{"weights":classes[className][teacherName]["weights"],"hasWeights":classes[className][teacherName]["hasWeights"]});
+            if (teacherName != null && dbContainsClass(className, teacherName)) {
+                custom = !compareWeights({
+                    "weights": weights,
+                    "hasWeights": hasWeights
+                }, {
+                    "weights": classes[className][teacherName]["weights"],
+                    "hasWeights": classes[className][teacherName]["hasWeights"]
+                });
             } else {
                 custom = true;
             }
