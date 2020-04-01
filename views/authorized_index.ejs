@@ -231,7 +231,6 @@
                                                     <span style="color: <%= user.appearance.classColors[i + offset] %>"
                                                         class="slider"></span>
                                                 </label>
-                                                <!-- asdfghjlk -->
                                                 <button 
                                                     id="reset<%= i + offset %>" 
                                                     type="button"
@@ -695,9 +694,8 @@
         for (let i = 0; i < data.length; i++) {
             let className = data[i].class_name;
             let tableCategories = Object.keys(weights[className]["weights"]);
-            //asdfghjkl
             //Hide or Show Reset Button
-            if (weights[className]["custom"]==true && (relClassData[className]["hasWeights"]==true || Object.keys(relClassData[className]["weights"]).length>0 )) {
+            if (weights[className]["custom"]==true && (relClassData[className]["hasWeights"]=="false" || Object.keys(relClassData[className]["weights"]).length>0 )) {
                 $('#reset'+i).show();
                 $("#weight-header" + i).css("font-style","italic");
             } else {
@@ -706,7 +704,7 @@
             }
             for (let j = 0; j < tableCategories.length; j++) {
                 //Set italics of weights
-                if (weights[className]["custom"]==true && (relClassData[className]["hasWeights"]==true || Object.keys(relClassData[className]["weights"]).length>0 )) {
+                if (weights[className]["custom"]==true && (relClassData[className]["hasWeights"]=="false" || Object.keys(relClassData[className]["weights"]).length>0 )) {
                     $("#weightTableWeight" + i + j).children().css("font-style","italic");
                 } else {
                     $("#weightTableWeight" + i + j).children().css("font-style","normal");
@@ -1389,10 +1387,9 @@
         // are considered equivalent
         return true;
     }
-// asdfghjkl
     function resetWeights(index) {
         let className = data[index].class_name;
-        if (relClassData[className]["hasWeights"]==true || Object.keys(relClassData[className]["weights"]).length>0) {
+        if (relClassData[className]["hasWeights"]=="false" || Object.keys(relClassData[className]["weights"]).length>0) {
             weights[className]["weights"] = Object.assign({},relClassData[className]["weights"]);
             weights[className]["hasWeights"] = Object.assign({},relClassData[className]["hasWeights"]);
             $('#check'+index).prop("checked",!weights[className]["hasWeights"]);
@@ -1440,6 +1437,7 @@
                         type: "POST", url: $(form).attr("action"), data: formData
                     }).done((data) => {
                         // Make sure that the formMessages div has the alert-success class.
+                        console.log(data);
                         className = decodeURI(className);
                         weights[className]["custom"] = data.includes("Custom");
                         for (let i = 0; i < Object.keys(weights[className]["weights"]).length; i++) {

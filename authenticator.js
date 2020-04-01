@@ -347,7 +347,7 @@ module.exports = {
 
             //Updates weights from classes db
             if (user.weights[className]["custom"] == false && dbContainsClass(className, teacherName)) {
-                if (classes[className][teacherName]["hasWeights"] == true || Object.keys(classes[className][teacherName]["weights"]).length > 0) {
+                if (classes[className][teacherName]["hasWeights"] == "false" || Object.keys(classes[className][teacherName]["weights"]).length > 0) {
                     this.updateWeightsForClass(username, className, classes[className][teacherName]["hasWeights"], classes[className][teacherName]["weights"], false, false);
                 }
             }
@@ -372,8 +372,11 @@ module.exports = {
 
     updateWeightsInClassDb: function (className, teacherName, hasWeights, weights) {
         let classDb = db.get("classes");
-        if (weights) {
+        if (weights || hasWeights==="false") {
             if (hasWeights === "false") {
+                if (!weights){
+                    weights = {};
+                }
                 for (let i = 0; i < Object.keys(weights).length; i++) {
                     weights[Object.keys(weights)[i]] = null;
                 }
