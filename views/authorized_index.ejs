@@ -234,6 +234,7 @@
                                                 <!-- asdfghjlk -->
                                                 <button 
                                                     id="reset<%= i + offset %>" 
+                                                    type="button"
                                                     style="margin: 0 0 0 1.5rem; width:fit-content; height: fit-content; display:block;" 
                                                     class="btn btn-sm"
                                                     onclick="resetWeights(<%= i + offset %>); $('#weights<%= i + offset %>').submit();">
@@ -1440,7 +1441,6 @@
                     }).done((data) => {
                         // Make sure that the formMessages div has the alert-success class.
                         className = decodeURI(className);
-                        console.log(data);
                         weights[className]["custom"] = data.includes("Custom");
                         for (let i = 0; i < Object.keys(weights[className]["weights"]).length; i++) {
                             let weight = $("#weightTableWeight" + $(form)[0].id.substring(7) + i + " input");
