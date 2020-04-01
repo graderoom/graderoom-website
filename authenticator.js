@@ -320,16 +320,11 @@ module.exports = {
                 this.addNewWeightDict(lc_username, i, className);
             }
 
-            // Remove any weights that don't exist in user grades
+            // Determine needed weights
             let goodWeights = [];
             for (let j = 0; j < user.grades[i].grades.length; j++) {
                 if (!goodWeights.includes(user.grades[i].grades[j].category)) {
                     goodWeights.push(user.grades[i].grades[j].category);
-                }
-            }
-            for (let j = 0; j < Object.keys(user.weights[className]["weights"]).length; j++) {
-                if (!goodWeights.includes(Object.keys(user.weights[className]["weights"])[j])) {
-                    delete user.weights[className]["weights"][Object.keys(user.weights[className]["weights"])[j]];
                 }
             }
 
@@ -352,9 +347,16 @@ module.exports = {
                 }
             }
 
+            // Remove any weights that don't exist in user grades
+            for (let j = 0; j < Object.keys(user.weights[className]["weights"]).length; j++) {
+                if (!goodWeights.includes(Object.keys(user.weights[className]["weights"])[j])) {
+                    delete user.weights[className]["weights"][Object.keys(user.weights[className]["weights"])[j]];
+                }
+            }
+
             // Set custom to not custom if it is same as classes db
             if (user.weights[className]["custom"] && dbContainsClass(className, teacherName)) {
-                user.weights[className]["custom"] = !compareWeights({
+                user.weights[className]["custom"] = isCustom({
                     "weights": user.weights[className]["weights"],
                     "hasWeights": user.weights[className]["hasWeights"]
                 }, {
@@ -828,7 +830,7 @@ module.exports = {
 
         if (custom == null){
             if (teacherName != null && dbContainsClass(className, teacherName)) {
-                custom = !compareWeights({
+                custom = isCustom({
                     "weights": weights,
                     "hasWeights": hasWeights
                 }, {
@@ -1156,6 +1158,24 @@ function compareWeights(weight1, weight2) {
     } else {
         return _.isEqual(weight1["weights"], weight2["weights"]);
     }
+}
+
+function isCustom(weight, defWeight) {
+    //Only checks if weight 2 has the same values for all keys in weight 1
+    //Returns true even if weight 2 has extra weights
+    if (weight["hasWeights"] != defWeight["hasWeights"]) {
+        return true;
+    } else if ((eval(weight["hasWeights"]) == eval(defWeight["hasWeights"])) && (eval(defWeight["hasWeights"]) == false)) {
+        return false;
+    } else {
+        let keys = Object.keys(weight["weights"]);
+        for (let i = 0; i < keys.length; i++) {
+            if ((!keys[i] in defWeight["weights"]) || weight["weights"][keys[i]] != defWeight["weights"][keys[i]]) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 function validatePassword(password) {
