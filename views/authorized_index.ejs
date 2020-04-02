@@ -730,11 +730,14 @@
             let enableReset = weights[className]["custom"];
             //if custom and both haveWeights, enable reset only if db had diff value to give to user's weights
             //stop reset from showing if custom is due to user having more categories than classes db
-            if (weights[className]["custom"] && weights[className]["hasWeights"] == "true" && relClassData[className]["hasWeights"] != "false") {
+            if (enableReset && relClassData[className]["hasWeights"] != "false") {
                 enableReset = false;
+                console.log(className);
                 let keys = Object.keys(weights[className]["weights"]);
                 for (let i = 0; i < keys.length; i++) {
-                    if ((keys[i] in relClassData[className]["weights"]) && weights[className]["weights"][keys[i]] != relClassData[className]["weights"][keys[i]]) {
+                    if (weights[className]["hasWeights"]=="false" && keys[i] in relClassData[className]["weights"]) {
+                        enableReset = true;
+                    } else if ((keys[i] in relClassData[className]["weights"]) && weights[className]["weights"][keys[i]] != relClassData[className]["weights"][keys[i]]) {
                         enableReset = true;
                     }
                 }
