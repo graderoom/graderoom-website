@@ -118,7 +118,7 @@
     let checkingUsername;
 
     function checkUsername(inputID, messageDivID) {
-        const usernameRegex = new RegExp('^[a-z0-9]*$');
+        const usernameRegex = new RegExp('^[a-zA-Z0-9]*$');
 
         let username = $(inputID)[0].value;
         if (username.length === 0) {

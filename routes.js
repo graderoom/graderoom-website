@@ -397,15 +397,6 @@ module.exports = function (app, passport) {
         res.status(200).send(allowed.substring(0, 1).toUpperCase() + allowed.substring(1) + " remote access.");
     });
 
-    app.post("/calculate", [isLoggedIn], (req, res) => {
-        let resp = authenticator.calculate(req.user.username, req.body.currentGrade, req.body.classIndex, req.body.categoryName, req.body.categoryWeight, req.body.goal);
-        if (resp.success) {
-            res.status(200).send(resp.message);
-        } else {
-            res.status(400).send(resp.message);
-        }
-    });
-
     app.get("/betakeys", [isAdmin], (req, res) => {
 
         res.render("betakeys.ejs", {
@@ -476,7 +467,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/usernameAvailable", (req, res) => {
-        let username = req.body.username;
+        let username = req.body.username.toLowerCase();
         let usernames = authenticator.getAllUsernames();
         if (!usernames.includes(username)) {
             res.sendStatus(200);
