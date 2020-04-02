@@ -839,3 +839,8 @@ input:checked + .slider:before {
     padding: .375rem .75rem;
     margin: 0 0 1rem;
 }
+
+.ignored {
+    text-decoration: line-through;
+    opacity: 0.5;
+}

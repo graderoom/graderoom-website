@@ -209,10 +209,11 @@
                                         onclick="resetZoom(<%= i + offset %>); $(this).hide()">Reset</button>
                                 <canvas id="chart<%= i + offset %>" class="chart"></canvas>
                             </div>
-                            <form id="weights<%= i + offset %>" class="form-ajax form-weights form-signin" action="/updateweights">
+                            <form id="weights<%= i + offset %>" class="form-ajax form-weights form-signin"
+                                  action="/updateweights">
                                 <table class="table text-center weights"
-                                    style="width: 25%; white-space: nowrap; margin: 20px"
-                                    id="weightsTable<%= i + offset %>">
+                                       style="width: 25%; white-space: nowrap; margin: 20px"
+                                       id="weightsTable<%= i + offset %>">
                                     <thead>
                                     <tr>
                                         <th colspan="4" style="padding: 0.3rem 0">
@@ -229,23 +230,31 @@
                                                             oninput="disableInput('check<%= i + offset %>','weightsTable<%= i + offset %>'); resetInputs('#weights<%= i + offset %>'); $('#weights<%= i + offset %>').submit();"
                                                     >
                                                     <span style="color: <%= user.appearance.classColors[i + offset] %>"
-                                                        class="slider"></span>
+                                                          class="slider"></span>
                                                 </label>
-                                                <button 
-                                                    id="reset<%= i + offset %>" 
-                                                    type="button"
-                                                    style="margin: 0 0 0 1.5rem; width:fit-content; height: fit-content; display:block;" 
-                                                    class="btn btn-sm"
-                                                    onclick="resetWeights(<%= i + offset %>); $('#weights<%= i + offset %>').submit();">
-                                                    Reset
-                                                </button>                                                
                                             </label>
                                         </th>
                                     </tr>
                                         <tr>
                                             <th>Category</th>
-                                            <th id="weight-header<%= i + offset %>">Weight</th>
-                                            <th>Points</th>
+                                            <th style="width: 10rem !important" id="weight-header<%= i + offset %>">Weights
+                                                <i
+                                                        id="reset<%= i + offset %>"
+                                                        type="button"
+                                                        style="color: #888888; margin: 0; cursor: pointer; display:inline-block;"
+                                                        class="fa fa-undo popup"
+                                                        onclick="resetWeights(<%= i + offset %>); $('#weights<%= i + offset %>').submit();">
+                                                    <span style="width: 5rem; margin-left: -2.5rem;" class="popuptext">Revert to Default</span>
+                                                </i>
+                                                <i style="color: red; display: inline-block"
+                                                   id="ignoringWeights<%= i + offset %>"
+                                                   class="fa fa-exclamation-circle popup">
+                                                    <span class="popuptext">
+                                                        Enter all weights to enable weighted overall grade calculation.
+                                                    </span>
+                                                </i>
+                                            </th>
+                                            <th>Score</th>
                                             <th>Grade</th>
                                         </tr>
                                     </thead>
@@ -259,19 +268,19 @@
                                                 <% let value = weights[category] %>
                                                 <td id="weightTableWeight<%= i + offset %><%= j %>" class="form-group">
                                                     <input style="<% if (!value && value != 0) { %> border-color: lightcoral !important; <% } %>"
-                                                        value="<%= value %>"
-                                                        type="number"
-                                                        min="0"
-                                                        step="0.1"
-                                                        class="number-input disableable form-control <% if(value || value == 0){ %> text-view <% } %>"
-                                                        name="<%= category %>"
+                                                           value="<%= value %>"
+                                                           type="number"
+                                                           min="0"
+                                                           step="0.1"
+                                                           class="number-input disableable form-control <% if(value || value == 0){ %> text-view <% } %>"
+                                                           name="<%= category %>"
                                                     >
                                                 </td>
                                                 <td id="weightTablePoints<%= i + offset %><%= j %>"></td>
                                                 <td id="weightTableGrade<%= i + offset %><%= j %>"></td>
                                             </tr>
                                         <% } %>
-                                            <script>
+                                        <script>
                                         function disableInput(checkBoxID, id) {
                                             $('#' + id).find('.disableable').each(function () {
                                                 if ($('#' + checkBoxID).is(":checked")) {
@@ -291,14 +300,14 @@
                                         <tr>
                                             <th colspan="4">
                                                 <div style="display:none; color: <%= user.appearance.classColors[i] %>"
-                                                    id="weightTableOverallGrade<%= i + offset %>">
+                                                     id="weightTableOverallGrade<%= i + offset %>">
                                                 </div>
                                                 <i id="incorrectOverallGrade<%= i + offset %>"
-                                                class="fa fa-exclamation-circle popup"
-                                                style="display: none; color: red; margin-left: 0.2rem; vertical-align: middle">
+                                                   class="fa fa-exclamation-circle popup"
+                                                   style="display: none; color: red; margin-left: 0.2rem; vertical-align: middle">
                                                     <span class="popuptext">
                                                         WARNING: Your grade in PowerSchool, <%= JSON.parse(gradeData)[i].overall_percent %>%
-                                    (<%= JSON.parse(gradeData)[i].overall_letter %>) does not match the calculated grade. Enter all weights or choose the point-based option.
+                                    (<%= JSON.parse(gradeData)[i].overall_letter %>) does not match the calculated grade.
                                                     </span>
                                                 </i>
                                             </th>
@@ -692,11 +701,11 @@
         for (let i = 0; i < data.length; i++) {
             let className = data[i].class_name;
             let tableCategories = Object.keys(weights[className]["weights"]);
-            
-            let enableReset =  weights[className]["custom"];
+
+            let enableReset = weights[className]["custom"];
             //if custom and both haveWeights, enable reset only if db had diff value to give to user's weights
             //stop reset from showing if custom is due to user having more categories than classes db
-            if (weights[className]["custom"] && weights[className]["hasWeights"]=="true" && relClassData[className]["hasWeights"]!="false") {
+            if (weights[className]["custom"] && weights[className]["hasWeights"] == "true" && relClassData[className]["hasWeights"] != "false") {
                 enableReset = false;
                 let keys = Object.keys(weights[className]["weights"]);
                 for (let i = 0; i < keys.length; i++) {
@@ -708,23 +717,39 @@
 
             //Hide or Show Reset Button
             if (enableReset) {
-                $('#reset'+i).show();
-                $("#weight-header" + i).css("font-style","italic");
+                $('#reset' + i).show();
+                $("#weight-header" + i).css("font-style", "italic");
             } else {
-                $('#reset'+i).hide();
-                $("#weight-header" + i).css("font-style","normal");
+                $('#reset' + i).hide();
+                $("#weight-header" + i).css("font-style", "normal");
             }
+
+            //Hide or Show Ignoring weights
+            if (unobtainedWeights[className]) {
+                $('#ignoringWeights' + i).show();
+            } else {
+                $('#ignoringWeights' + i).hide();
+            }
+
             for (let j = 0; j < tableCategories.length; j++) {
                 //Set italics of weights
                 if (enableReset) {
-                    $("#weightTableWeight" + i + j).children().css("font-style","italic");
+                    $("#weightTableWeight" + i + j).children().css("font-style", "italic");
                 } else {
-                    $("#weightTableWeight" + i + j).children().css("font-style","normal");
+                    $("#weightTableWeight" + i + j).children().css("font-style", "normal");
+                }
+
+                //Strikethrough weights if any are missing
+                let input = $("#weightTableWeight" + i + j + " input");
+                if (unobtainedWeights[className] && (!isNaN(parseFloat(input[0].valueAsNumber)))) {
+                    input.addClass("ignored");
+                } else {
+                    input.removeClass("ignored");
                 }
 
                 document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
                 $("#weightTableWeight" + i + j + " input").blur(() => {
-                    resetInputs('#weights'+i);
+                    resetInputs('#weights' + i);
                     $("#weightTableWeight" + i + j).parents("form").submit();
                 }).on("keyup", (e) => {
                     e = e || window.event;
@@ -764,8 +789,6 @@
                 document.getElementById("weightTableOverallGrade" + i).innerHTML =
                     (+(overallGrade.toFixed(4))).toString() + "% (" + getLetterGrade(overallGrade) + ")" + delta;
                 $("#weightTableOverallGrade" + i).parents("th").css('background-color', bgColor);
-            } else {
-                document.getElementById("weightTableOverallGrade" + i).innerHTML = "Missing Weights";
             }
             document.getElementById("weightTableOverallGrade" + i).style.display = "inline";
 
@@ -1396,12 +1419,13 @@
         // are considered equivalent
         return true;
     }
+
     function resetWeights(index) {
         let className = data[index].class_name;
-        $('#check'+index).prop("checked",relClassData[className]["hasWeights"]=="false");
-        disableInput('check'+index,'weightsTable'+index);   
+        $('#check' + index).prop("checked", relClassData[className]["hasWeights"] == "false");
+        disableInput('check' + index, 'weightsTable' + index);
         let keys = Object.keys(weights[className]["weights"]);
-        for (let i = 0; i<keys.length; i++) {
+        for (let i = 0; i < keys.length; i++) {
             if (keys[i] in relClassData[className]["weights"]) {
                 $("#weightTableWeight" + index + i + " input").val(relClassData[className]["weights"][keys[i]]);
             } else if (tempWeights[className]) {
@@ -1410,7 +1434,7 @@
         }
 
         let hasWeights = eval(relClassData[className]["hasWeights"]);
-        if (eval(weights[className]["hasWeights"])!= eval(hasWeights)) {
+        if (eval(weights[className]["hasWeights"]) != eval(hasWeights)) {
             if (!hasWeights) {
                 tempWeights[className] = Object.assign({}, weights[className]["weights"]);
             }
@@ -1421,7 +1445,7 @@
     function resetInputs(form) {
         let hasWeights = !($(form).find('input[name="hasWeights"]')).is(':checked');
         let className = data[$(form)[0].id.substring(7)].class_name;
-        if (eval(weights[className]["hasWeights"])!= eval(hasWeights)) {
+        if (eval(weights[className]["hasWeights"]) != eval(hasWeights)) {
             if (!hasWeights) {
                 tempWeights[className] = Object.assign({}, weights[className]["weights"]);
             } else if (tempWeights[className]) {
@@ -1432,6 +1456,7 @@
             }
         }
     }
+
     $(function initAjaxFormPosts() {
         if ($("form.form-weights").length > 0) {
             $("form.form-weights").each(function () {
