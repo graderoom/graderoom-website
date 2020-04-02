@@ -36,8 +36,11 @@
 ## [Known Issues] - None
 - If you have an issue, send feedback in Settings > Help > Feedback Form
 
-## [Unreleased] - [Stable 2.0.0] - Target Release Date: 2020-04-01
-- <strong>Added</strong><ul>
+## [Unreleased] - A new version was just released!
+- Send feature requests in Settings > Help > Feedback Form
+
+## [Stable 2.0.0] - 2020-04-01
+### Added
 - Support for point-based classes
 - Support for non-academic classes
 - Support for decimal weights
@@ -63,9 +66,11 @@
 - Loading indicators to all messages to confirm that new information has been saved
 - Added help tab to settings
 - Added scroll to announcement buttons in changelog
-- Redirect to login on session timeout</ul><br><br>
+- Redirect to login on session timeout
+- Revert to default button on weights table
+- Message and strikethrough when weights are ignored
 
-- <strong>Improved</strong><ul>
+### Improved
 - More intuitive UI
 - Overview table has hard limits on y-axis from 70% to 110%
 - More descriptive messages when sync grades fails
@@ -80,9 +85,9 @@
 - Better changelog display
 - Appearance fixes that improve screen usage on taller screen sizes (Mobile not supported)
 - Tooltip has been optimized to show only the most relevant information
-- Better blurred background behind cards</ul><br><br>
+- Better blurred background behind cards
 
-- <strong>Fixed</strong><ul>
+### Fixed
 - Inputs deselect on apply to prevent unwanted changes after request is sent
 - 'Escape' shortcut correctly disables when grades are syncing
 - Issue where auto theme would sometimes not take effect
@@ -96,21 +101,24 @@
 - Arrow key shortcuts only enable on main page and settings page
 - Issue where chart update would slow down after several page changes
 - Issue where chart would switch between light and dark mode randomly
-- Issues with arrow key shortcuts</ul><br><br>
+- Issues with arrow key shortcuts
 
-- <strong>Removed</strong><ul>
+### Removed
 - Edit Weights Card
 - Auto-refresh setting
 - Changelog no longer shows on login. You can still view the changelog through Settings > Help > Changelog
 - Removed keyboard shortcut for edit weights
-- Excluded assignments no longer display in graph</ul>
+- Excluded assignments no longer display in graph
 
 ## [Beta 1.9.4] - 2020-04-01
 ### Added
 - Redirect to login on session timeout
+- Revert to default button on weights table
+- Message and strikethrough when weights are ignored
 
 ### Fixed
 - Issues with arrow key shortcuts
+- Issue with changelog display
 
 ## [Beta 1.9.3] - 2020-03-31
 ### Added
