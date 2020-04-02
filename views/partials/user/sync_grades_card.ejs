@@ -125,7 +125,7 @@
         let message = messageDiv.find(".messageTxt");
         let lastUpdated = user.alerts.lastUpdated.slice(-1)[0];
         let deltaTime = Date.now() - lastUpdated;
-        if (lastUpdated === "never") {
+        if (lastUpdated === undefined) {
             message.text("Never synced");
         } else {
             if (checkLastUpdated) {
