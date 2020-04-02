@@ -197,6 +197,7 @@
 <!-- Custom JavaScript -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
+    let classes = <%- JSON.stringify(classData) %>;
 
     $(".form-group").each(function () {
         if (!$($(this)[0].previousElementSibling).hasClass("fa-plus")) {
@@ -225,12 +226,12 @@
             let formMessagesDiv;
 
             // Serialize the form data.
-            let className = $($($(formID).parents(".accordion")[1])[0]).find("label h5").not(".weightname")[classIndex].innerText.trim();
+            let className = Object.keys(classes)[classIndex];
             let teacherName = null;
             let weights = null;
             let hasWeights = null;
             if (teacherIndex) {
-                teacherName = $(formID).parent().parent().find(".weightname")[0].innerText.trim();
+                teacherName = Object.keys(classes[className])[teacherIndex];
                 //TODO actually collect has weights
                 hasWeights = true;
                 weights = {};
