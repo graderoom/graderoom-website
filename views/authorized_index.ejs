@@ -688,6 +688,8 @@
         return max * Math.pow(cutoff / maxInput, 1 / 2.5);
     }
 
+    let submittingWeights;
+
     function setupWeightsTables() {
         for (let i = 0; i < data.length; i++) {
             let className = data[i].class_name;
@@ -724,8 +726,11 @@
 
                 document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
                 $("#weightTableWeight" + i + j + " input").blur(() => {
-                    resetInputs('#weights'+i);
-                    $("#weightTableWeight" + i + j).parents("form").submit();
+                    clearTimeout(submittingWeights);
+                    submittingWeights = setTimeout(() => {
+                        resetInputs('#weights'+i);
+                        $("#weightTableWeight" + i + j).parents("form").submit();
+                    }, 0);
                 }).on("keyup", (e) => {
                     e = e || window.event;
                     let keyCode = e.code;
