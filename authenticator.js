@@ -317,7 +317,7 @@ module.exports = {
 
             // Add empty weight dict to all classes
             if (!(user.weights[className])) {
-                this.addNewWeightDict(lc_username, i, className);
+                this.addNewWeightDict(lc_username, className);
             }
 
             // Determine needed weights
@@ -675,7 +675,7 @@ module.exports = {
         }
         for (let i = 0; i < grade_update_status.new_grades.length; i++) {
             if (!(userRef.value().weights[grade_update_status.new_grades[i].class_name])) {
-                this.addNewWeightDict(lc_username, i, grade_update_status.new_grades[i].class_name);
+                this.addNewWeightDict(lc_username, grade_update_status.new_grades[i].class_name);
             }
             //Add class to classes db
             if (!dbContainsClass(grade_update_status.new_grades[i].class_name, grade_update_status.new_grades[i].teacher_name)) {
