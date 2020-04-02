@@ -389,6 +389,7 @@
 
     parseData();
     setupWeightsTables();
+    setupWeightsTableListeners();
     setupOverviewTable();
     setupClassTables();
     setupIncorrectGradeMessages();
@@ -697,6 +698,25 @@
         return max * Math.pow(cutoff / maxInput, 1 / 2.5);
     }
 
+    function setupWeightsTableListeners(){
+        for (let i = 0; i < data.length; i++) {
+            let className = data[i].class_name;
+            let tableCategories = Object.keys(weights[className]["weights"]);
+            for (let j = 0; j < tableCategories.length; j++) {
+                $("#weightTableWeight" + i + j + " input").blur(() => {
+                    resetInputs('#weights'+i);
+                    $("#weightTableWeight" + i + j).parents("form").submit();
+                }).on("keyup", (e) => {
+                    e = e || window.event;
+                    let keyCode = e.code;
+                    if (keyCode === 'Enter') {
+                        $("#weightTableWeight" + i + j + " input").blur();
+                    }
+                });
+            }
+        }
+    }
+
     function setupWeightsTables() {
         for (let i = 0; i < data.length; i++) {
             let className = data[i].class_name;
@@ -748,18 +768,6 @@
                 }
 
                 document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
-                $("#weightTableWeight" + i + j + " input").blur(() => {
-                    resetInputs('#weights' + i);
-                    $("#weightTableWeight" + i + j).parents("form").submit();
-                }).on("keyup", (e) => {
-                    e = e || window.event;
-                    let keyCode = e.code;
-                    if (keyCode === 'Enter') {
-                        $("#weightTableWeight" + i + j + " input").blur();
-                    }
-                });
-
-
                 let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
                 document.getElementById("weightTablePoints" + i + j).textContent = +categoryGottenAndPossible.gotten.toFixed(4) + ((categoryGottenAndPossible.possible !== 0) ? ("/" + +(categoryGottenAndPossible.possible.toFixed(4))) : "");
                 let categoryGrade = getCategoryGrade(i, tableCategories[j]);
