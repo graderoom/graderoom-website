@@ -46,9 +46,9 @@
         <h6><%= userList.length %> Total Users,
             <% let uniqueUsers = userList.filter((u, i, a) => i === a.indexOf(a.find(d => u.schoolUsername === d.schoolUsername))) %>
             <%= uniqueUsers.length %> Unique Users,
-            <%= uniqueUsers.filter(u => (u.loggedIn.slice(-1)[0] !== undefined && u.loggedIn.slice(-1)[0] > Date.parse(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())))).length %>
+            <%= uniqueUsers.filter(u => (u.loggedIn.length !== 0 && u.loggedIn.slice(-1)[0] > Date.parse(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())))).length %>
             Logged In Today,
-            <%= uniqueUsers.filter(u => (u.loggedIn.slice(-1)[0] !== undefined && u.loggedIn.slice(-1)[0] > Date.parse(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())) - 7 * 24 * 60 * 60 * 1000)).length %>
+            <%= uniqueUsers.filter(u => (u.loggedIn.length !== 0 && u.loggedIn.slice(-1)[0] > Date.parse(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())) - 7 * 24 * 60 * 60 * 1000)).length %>
             Logged In This Week
         </h6>
         <hr>
