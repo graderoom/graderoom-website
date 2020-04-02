@@ -688,14 +688,26 @@
         return max * Math.pow(cutoff / maxInput, 1 / 2.5);
     }
 
-    let submittingWeights;
-
     function setupWeightsTables() {
         for (let i = 0; i < data.length; i++) {
             let className = data[i].class_name;
             let tableCategories = Object.keys(weights[className]["weights"]);
+            
+            let enableReset =  weights[className]["custom"];
+            //if custom and both haveWeights, enable reset only if db had diff value to give to user's weights
+            //stop reset from showing if custom is due to user having more categories than classes db
+            if (weights[className]["custom"] && weights[className]["hasWeights"]=="true" && relClassData[className]["hasWeights"]!="false") {
+                enableReset = false;
+                let keys = Object.keys(weights[className]["weights"]);
+                for (let i = 0; i < keys.length; i++) {
+                    if ((keys[i] in relClassData[className]["weights"]) && weights[className]["weights"][keys[i]] != relClassData[className]["weights"][keys[i]]) {
+                        enableReset = true;
+                    }
+                }
+            }
+
             //Hide or Show Reset Button
-            if (weights[className]["custom"]==true && (relClassData[className]["hasWeights"]=="false" || Object.keys(relClassData[className]["weights"]).length>0 )) {
+            if (enableReset) {
                 $('#reset'+i).show();
                 $("#weight-header" + i).css("font-style","italic");
             } else {
@@ -704,7 +716,7 @@
             }
             for (let j = 0; j < tableCategories.length; j++) {
                 //Set italics of weights
-                if (weights[className]["custom"]==true && (relClassData[className]["hasWeights"]=="false" || Object.keys(relClassData[className]["weights"]).length>0 )) {
+                if (enableReset) {
                     $("#weightTableWeight" + i + j).children().css("font-style","italic");
                 } else {
                     $("#weightTableWeight" + i + j).children().css("font-style","normal");
@@ -712,16 +724,12 @@
 
                 document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
                 $("#weightTableWeight" + i + j + " input").blur(() => {
-                    clearTimeout(submittingWeights);
-                    submittingWeights = setTimeout(() => {
-                        resetInputs('#weights'+i);
-                        $("#weightTableWeight" + i + j).parents("form").submit();
-                    }, 400);
+                    resetInputs('#weights'+i);
+                    $("#weightTableWeight" + i + j).parents("form").submit();
                 }).on("keyup", (e) => {
                     e = e || window.event;
                     let keyCode = e.code;
                     if (keyCode === 'Enter') {
-                        clearTimeout(submittingWeights);
                         $("#weightTableWeight" + i + j + " input").blur();
                     }
                 });
@@ -1396,6 +1404,15 @@
         for (let i = 0; i<keys.length; i++) {
             if (keys[i] in relClassData[className]["weights"]) {
                 $("#weightTableWeight" + index + i + " input").val(relClassData[className]["weights"][keys[i]]);
+            } else if (tempWeights[className]) {
+                $("#weightTableWeight" + index + i + " input").val(tempWeights[className][keys[i]]);
+            }
+        }
+
+        let hasWeights = eval(relClassData[className]["hasWeights"]);
+        if (eval(weights[className]["hasWeights"])!= eval(hasWeights)) {
+            if (!hasWeights) {
+                tempWeights[className] = Object.assign({}, weights[className]["weights"]);
             }
         }
     }
@@ -1443,7 +1460,6 @@
                         type: "POST", url: $(form).attr("action"), data: formData
                     }).done((data) => {
                         // Make sure that the formMessages div has the alert-success class.
-                        console.log(data);
                         className = decodeURI(className);
                         weights[className]["custom"] = data.includes("Custom");
                         for (let i = 0; i < Object.keys(weights[className]["weights"]).length; i++) {
