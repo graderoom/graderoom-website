@@ -515,7 +515,7 @@ module.exports = {
                         darkModeFinish: 6,
                     },
                     alerts: {
-                        lastUpdated: "never",
+                        lastUpdated: [],
                         updateGradesReminder: "daily",
                         latestSeen: "1.0.0",
                         policyLastSeen: "never",
@@ -523,7 +523,8 @@ module.exports = {
                         remoteAccess: "denied"
                     },
                     weights: {},
-                    grades: []
+                    grades: [],
+                    loggedIn: []
                 }).write();
 
                 return resolve({success: true, message: "User Created"});
