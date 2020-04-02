@@ -8,10 +8,18 @@
                  style="width: fit-content; margin-bottom:0">
                 <i class="fa fa-close" aria-hidden="true"></i> Close
             </btn>
-            <div class="card-body">
-                <div id="updateGradesMessage" class="alert alert-success alert-dismissible"
-                     style="display:none">
+            <div class="card-body" style="max-height: 70vh; overflow-y: scroll; overflow-x: hidden; transition: 500ms">
+                <div id="updateGradesMessage" class="alert alert-info"
+                     style="display:block">
                     <div style="display: flex">
+                        <div style="display:none" class="sk-chase-mini">
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                        </div>
                         <div class="font-weight-bold messageTxt"></div>
                         <i class="fa fa-info-circle popup" id="syncFailure"
                            style="padding-left: 0.2rem; align-self: center; display:none">
@@ -20,28 +28,33 @@
                             </span>
                         </i>
                     </div>
-                    <a class="close" onclick="closeMessage('updateGradesMessage')" aria-label="close">X</a>
                 </div>
                 <h1 class="card-title text-center">School Login</h1>
-                <div id="synced" style="display: none"></div>
                 <div id="syncGradesDiv" style="display: none">
                     <h5 class="text-center">Enter password for:</h5>
                     <h5 id="schoolUsernameDisplay" class="school-username text-center"><%= schoolUsername %></h5>
                     <br>
                     <form id="syncGradesForm" class="form-signin" action="/update" method="post">
-                        <div class="form-group">
-                            <input name="school_password" type="password" id="inputPassword" class="form-control"
-                                   placeholder="School Password" required>
+                        <div class="form-group input-group">
+                            <i class="lock-bg"></i>
+                            <label>School Password</label>
+                            <input oninput="checkLabel(this)" name="school_password" type="password" id="inputPassword"
+                                   class="form-control" required>
                         </div>
-                        <label style="cursor: pointer; float: right; text-align: left" class="popup"
+                        <div id="userPassword" class="form-group input-group" style="display:none">
+                            <i class="user-bg"></i>
+                            <label>Graderoom Password</label>
+                            <input oninput="checkLabel(this)" name="user_password" type="password"
+                                   id="inputUserPassword" class="form-control" required>
+                        </div>
+                        <label style="cursor: pointer; float: left; text-align: right" class="popup"
                                onclick="toggleInputUserPasswordDisplay()">
                             <input style="cursor: inherit"
                                    id="savePasswordToggle"
                                    type="checkbox"
                                    name="savePassword"
-                            <% if (user.schoolPassword) { %> checked
-                                    <% } %>
-                            > GradeSync
+                                   checked
+                            > Sync Grades on Login
                             <i class="fa fa-info-circle popup">
                                     <span class="popuptext">
                                         <p>Graderoom will sync automatically whenever you login.</p>
@@ -49,12 +62,6 @@
                                     </span>
                             </i>
                         </label>
-                        <br><br>
-                        <div id="userPassword" class="form-group" style="display:none">
-                            <h6>Enter your Graderoom Password to enable GradeSync</h6>
-                            <input name="user_password" type="password" id="inputUserPassword" class="form-control"
-                                   placeholder="Graderoom Password">
-                        </div>
                         <div class="text-center">
                             <button class="btn btn-lg btn-default" type="submit"
                                     onclick="ajaxPostForm('#syncGradesForm',['#inputUserPassword'],'#updateGradesMessage', true)">
@@ -66,19 +73,14 @@
                 <div id="gradeSyncDiv" style="display: none">
                     <form id="gradeSyncForm" class="form-signin" action="/update" method="post">
                         <h5>Enter your Graderoom password</h5>
-                        <div class="form-group">
-                            <input name="user_password" type="password" id="gradeSyncInputUserPassword"
-                                   class="form-control"
-                                   placeholder="Graderoom Password" required>
+                        <br>
+                        <div class="input-group form-group">
+                            <i class="lock-bg"></i>
+                            <label>Graderoom Password</label>
+                            <input oninput="checkLabel(this)" name="user_password" type="password"
+                                   id="gradeSyncInputUserPassword"
+                                   class="form-control" required>
                         </div>
-                        <label style="float: right" class="popup">
-                            <label class="text-center popup" style="align-self: flex-end">GradeSync Enabled</label>
-                            <i class="fa fa-info-circle popup">
-                            <span class="popuptext">
-                                <p>Graderoom will sync automatically whenever you login.</p>
-                                <p>You can also manually sync with your Graderoom password</p>
-                                You can disable GradeSync in Settings                            </span>
-                            </i>
                         </label>
                         <button class="btn btn-lg btn-default" type="submit"
                                 onclick="ajaxPostForm('#gradeSyncForm',['#gradeSyncInputUserPassword'],'#updateGradesMessage', true)">
@@ -94,19 +96,13 @@
 <!-- Loading Display -->
 <div class="container" id="loadingDisplay" style="display: none;">
     <div class="blurred-login" style="position:fixed; height: 100%; width: 100%; top: 0; left: 0; z-index: 999">
-        <div class="blurred-background"></div>
-        <div class="sk-chase" style="position:absolute; margin:auto; top:0; bottom: 0; left: 0; right: 0;">
-            <div class="sk-chase-dot"></div>
-            <div class="sk-chase-dot"></div>
-            <div class="sk-chase-dot"></div>
-            <div class="sk-chase-dot"></div>
-            <div class="sk-chase-dot"></div>
-            <div class="sk-chase-dot"></div>
-        </div>
+        <div class="blurred-background" style="filter: opacity(0.3) !important;"></div>
     </div>
 </div>
 
 <script>
+    toggleInputUserPasswordDisplay();
+
     function toggleInputUserPasswordDisplay() {
         if ($("#savePasswordToggle").is(":checked")) {
             $("#userPassword").show();
@@ -114,6 +110,44 @@
         } else {
             $("#userPassword").hide();
             $("#inputUserPassword").removeAttr("required");
+        }
+    }
+
+    let checkLastUpdated;
+
+    function setupLastUpdated() {
+        const SECOND = 1000;
+        const MINUTE = 60 * SECOND;
+        const HOUR = 60 * MINUTE;
+        const DAY = 24 * HOUR;
+
+        let messageDiv = $("#updateGradesMessage");
+        let message = messageDiv.find(".messageTxt");
+        let lastUpdated = user.alerts.lastUpdated;
+        let deltaTime = Date.now() - lastUpdated;
+        if (lastUpdated === "never") {
+            message.text("Never synced");
+        } else {
+            if (checkLastUpdated) {
+                clearInterval(checkLastUpdated);
+            }
+            if (deltaTime < MINUTE) {
+                checkLastUpdated = setInterval(setupLastUpdated, 100);
+                let seconds = Math.floor(deltaTime / SECOND);
+                message.text("Last synced " + seconds + " second" + (seconds > 1 ? "s" : "") + " ago.");
+            } else if (deltaTime < HOUR) {
+                checkLastUpdated = setInterval(setupLastUpdated, 6 * SECOND);
+                let minutes = Math.floor(deltaTime / MINUTE);
+                message.text("Last synced " + minutes + " minute" + (minutes > 1 ? "s" : "") + " ago.");
+            } else if (deltaTime < DAY) {
+                checkLastUpdated = setInterval(setupLastUpdated, 6 * MINUTE);
+                let hours = Math.floor(deltaTime / HOUR);
+                message.text("Last synced " + hours + " hour" + (hours > 1 ? "s" : "") + " ago.");
+            } else {
+                checkLastUpdated = setInterval(setupLastUpdated, 2.4 * HOUR);
+                let days = Math.floor(deltaTime / DAY);
+                message.text("Last synced " + days + " day" + (days > 1 ? "s" : "") + " ago.");
+            }
         }
     }
 </script>

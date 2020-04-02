@@ -1,0 +1,399 @@
+<!doctype html>
+<html>
+<head>
+    <title>Graderoom</title>
+    <link rel="icon" href="public/resources/common/icon.png">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
+    <% if (user.appearance.theme === "dark") { %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+    <% } else if (user.appearance.theme === "light") { %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
+    <% } else if ((((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (dst ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) && ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (dst ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0))) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (dst ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (dst ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0))))) { %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+    <% } else { %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
+    <% } %>
+    <link rel="stylesheet" type="text/css" href="public/css/main.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<!-- Admin Navbar -->
+<% include partials/admin/admin_navbar.ejs %>
+
+<!-- Main Screen -->
+<div id="weightsCard" class="container">
+    <span class="accordion" id="bigAccordionForms">
+        <% for (let i = 0; i < Object.keys(classData).length; i++) { %>
+            <% let className = Object.keys(classData)[i]; %>
+            <label style="display: flex; cursor: pointer" data-toggle="collapse" href="#accordionForms<%= i %>">
+                <h5 style="font-size: 1.5rem !important;"><%= className %>
+                    <i class="fa" aria-hidden="true"></i>
+                </h5>
+                <span id="weightMessage<%= i %>" class="alert alert-success font-weight-bold"
+                      style="width: fit-content; display:none; justify-content: center; padding: 0.1rem;">
+                    <div style="display: none" class="sk-chase-mini">
+                        <div class="sk-chase-dot mini"></div>
+                        <div class="sk-chase-dot mini"></div>
+                        <div class="sk-chase-dot mini"></div>
+                        <div class="sk-chase-dot mini"></div>
+                        <div class="sk-chase-dot mini"></div>
+                        <div class="sk-chase-dot mini"></div>
+                    </div>
+                    <span class="messageTxt"></span>
+                </span>
+            </label>
+
+            <span class="accordion collapse show collapse-underline" id="accordionForms<%= i %>"
+                  data-parent="#bigAccordionForms">
+                <form id="weights<%= i %>" class="form-ajax form-weights form-signin" action="/updateclasstype"
+                      method="post" style="display: flex; justify-content: right;">
+                    <div>
+                        <label>Class Type:</label>
+                        <select oninput="ajaxPostWeightsDatabaseForm('<%= i %>',null,null,[],'#weightMessage<%= i %>',true); $('#weights<%= i %>').submit()"
+                                class="dropdown" style="padding: 0; margin-right: 3rem"
+                                id="classType<%= i %>">
+                            <option value="" disabled hidden <% if (classData[className].classType === "") { %> selected<% } %>>
+                                Not Selected
+                            </option>
+                            <option value="non-academic" <% if (classData[className].classType === "non-academic") { %> selected <% } %>>
+                                Non-Academic
+                            </option>
+                            <option value="none" <% if (classData[className].classType === "none") { %> selected <% } %>>
+                                None
+                            </option>
+                            <option value="ap" <% if (classData[className].classType === "ap") { %> selected <% } %>>
+                                AP
+                            </option>
+                            <option value="honors" <% if (classData[className].classType === "honors") { %> selected <% } %>>
+                                Honors
+                            </option>
+                        </select>
+                    </div>
+                </form>
+                <% for (let j = 0; j < Object.keys(classData[className]).length; j++) { %>
+                    <% let teacherName = Object.keys(classData[className])[j]; %>
+                    <% if (teacherName != "classType") { %>
+                        <div class="break"></div>
+                        <label data-toggle="collapse" href="#collapse<%= i %><%= j %>" style="display: flex; margin: 0 0 0 2rem; cursor: pointer">
+                            <h5 style="cursor: pointer" class="weightname" id="<%= teacherName %>">
+                                <%= teacherName %>
+                                <i style="text-indent: 0 !important;" class="fa" aria-hidden="true"></i>
+                            </h5>
+                            <span id="weightMessage<%= i %><%= j %>" class="alert alert-success font-weight-bold"
+                                style="width: fit-content; display:none; justify-content: center; padding: 0.1rem;">
+                                <div style="display: none" class="sk-chase-mini">
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                </div>
+                                <span class="messageTxt"></span>
+                            </span>
+                        </label>
+                        <div class="break"></div>
+                        <span class="collapse collapse-underline show" id="collapse<%= i %><%= j %>" data-parent="#accordionForms<%= i %>">
+                            <!-- Loops through all suggestions + 1 for the actual weights -->
+                            <% for (let z=-1; z<classData[className][teacherName]["suggestions"].length; z++ ) {
+                                let weights;
+                                let hasWeights;
+                                let marginLeft;
+                                if (z==-1) {
+                                    weights = classData[className][teacherName]["weights"];
+                                    hasWeights = classData[className][teacherName]["hasWeights"];
+                                    marginLeft = 4;
+                                } else {
+                                    weights = classData[className][teacherName]["suggestions"][z]["weights"];
+                                    hasWeights = classData[className][teacherName]["suggestions"][z]["hasWeights"];
+                                    marginLeft = 6;
+                                }
+                                if (z==0) { %>
+                                    <h5 style="margin: 0 0 0.5rem 4rem;">Suggestions:</h5>
+                                <% } %>
+                                <form id="weights<%= i %><%= j %><%= z %>" class="form-ajax form-weights form-signin" action="/updateclassweights" method="post" style="margin: 0 0 0 <%=marginLeft%>rem; width: 100%">
+                                    <div>
+                                        <span class="fa fa-plus disableable" onclick="addCategory(this,'<%= i %>','<%= j %>','<%= z %>')" style="display: inline-flex; cursor: pointer;color: green"></span>
+                                        <% for (let k = 0; k < Object.keys(weights).length; k++) {
+                                            let name = Object.keys(weights)[k];
+                                            let value = weights[name] %>
+
+                                            <div class="form-group" id="category<%= i %><%= j %><%= z %><%= k %>" style="text-indent: 3rem; display:inline-flex; align-items: flex-end;">
+                                                <input style="font-size: 0.9rem; margin-right: 0 !important; width: auto; white-space: nowrap; margin-bottom: 0;"
+                                                    value="<%=name%>"
+                                                    class="form-control text-view disableable"
+                                                    size = "<%=Math.max(2,name.length+1)%>"
+                                                    oninput="this.classList.remove('text-view'); showSubmitButton(this); resizeInput(this)"
+                                                    required>
+                                                :&nbsp
+                                                <input style="margin: 0;"
+                                                    <%if(!isNaN(value)) {%>
+                                                        value="<%=value%>"
+                                                    <% } %>
+                                                    type="number"
+                                                    min="0"
+                                                    step="0.1"
+                                                    class="form-control text-view disableable"
+                                                    name="<%= name %>"
+                                                    oninput="this.classList.remove('text-view'); showSubmitButton(this); ">
+                                                <span class="fa fa-minus disableable" onclick="removeCategory(this)" style="text-indent: 1rem; color: red; cursor: pointer;"></span>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                    <div class="break"></div>
+                                    <div class="form-group" style="display: flex; align-items: flex-end;">
+                                        <label style="font-size: 0.9rem; white-space: nowrap; margin-bottom: 0;">
+                                            Point Based?
+                                        </label>
+                                        <input
+                                            id="check<%= i %><%= j %><%= z %>"
+                                            style="margin-top: auto; margin-bottom: auto;"
+                                            type="checkbox"
+                                            class="form-control"
+                                            name="hasWeights"
+                                            <% try { if (hasWeights == "false") { %>
+                                                checked
+                                            <% }} catch {} %>
+                                            oninput="showSubmitButton(this); disableInput('check<%= i %><%= j %><%= z %>','collapse<%= i %><%= j %><%= z %>');"
+                                        >
+                                        <script>
+                                            function disableInput(checkBoxID, id) {
+                                                $('#' + id).find('.disableable').each(function () {
+                                                    if ($('#' + checkBoxID).is(":checked")) {
+                                                        $(this).addClass("disabled");
+                                                        $(this).attr('disabled', 'disabled');
+                                                    } else {
+                                                        $(this).removeClass("disabled");
+                                                        $(this).removeAttr('disabled');
+                                                    }
+                                                })
+                                            }
+                                            disableInput('check<%= i %><%= j %><%= z %>', 'collapse<%= i %><%= j %><%= z %>');
+                                        </script>
+                                    </div>
+
+                                    <div class="formSubmitButton" style="width: 100%; display: none">
+                                        <button type="submit" class="btn btn-default btn-med"
+                                                onclick="ajaxPostWeightsDatabaseForm('<%= i %>','<%= j %>','<%= z %>',[],'#weightMessage<%= i %><%= j %>',true);">
+                                            <i class="fa fa-refresh" aria-hidden="true"></i>
+                                            Update
+                                        </button>
+                                    </div>
+                                </form>
+                            <% } %>
+                        </span>
+                    <% } %>
+                <% } %>
+            </span>
+            <hr>
+        <% } %>
+    </span>
+</div>
+</body>
+
+<!-- Custom JavaScript -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+    let classes = <%- JSON.stringify(classData) %>;
+
+    $(".form-group").each(function () {
+        if (!$($(this)[0].previousElementSibling).hasClass("fa-plus")) {
+            $(this).css("margin-left", $($($(this)[0].parentNode)[0].children)[1].offsetLeft - $($(this)[0].parentNode)[0].offsetLeft);
+        }
+    });
+
+    $(".accordion").each(function () {
+        $(this).removeClass("show");
+    });
+
+    function ajaxPostWeightsDatabaseForm(classIndex, teacherIndex, suggestionIndex, fieldIDsToClear, messagesDivID, async) {
+        // Get the form.
+        let formID;
+        if (suggestionIndex) {
+            formID = "#weights" + classIndex + teacherIndex + suggestionIndex;
+        } else {
+            formID = "#weights" + classIndex;
+        }
+        $(formID).submit(function (event) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+
+            let formData;
+            let message;
+            let formMessagesDiv;
+
+            // Serialize the form data.
+            let className = Object.keys(classes)[classIndex];
+            let teacherName = null;
+            let weights = null;
+            let hasWeights = null;
+            if (teacherIndex) {
+                teacherName = Object.keys(classes[className])[teacherIndex];
+                //TODO actually collect has weights
+                hasWeights = true;
+                weights = {};
+                let inputs = $(formID + " input");
+                // console.log(inputs);
+                for (let i = 0; i < inputs.length; i += 2) {
+                    if (inputs[i].name == "hasWeights")
+                        hasWeights = inputs[i].checked ? false : true;
+                    else
+                        weights[$(inputs[i])[0].value] = $(inputs[i + 1])[0].valueAsNumber;
+                }
+                // console.log(weights);
+                // console.log(hasWeights);
+                formData = {
+                    className: className, teacherName: teacherName, weights: weights, hasWeights: hasWeights
+                };
+            } else {
+                let classType = $(formID).find("select")[0].value.trim();
+                formData = {
+                    className: className, classType: classType
+                };
+            }
+
+            // Get the messages.
+            formMessagesDiv = $(messagesDivID);
+            message = $(formMessagesDiv).find(".messageTxt");
+            $(message).text("");
+            $(formMessagesDiv).removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
+            $(formMessagesDiv).find(".sk-chase-mini").show().css("display", "inline-block");
+            $(formMessagesDiv).show();
+
+            // Submit the form using AJAX.
+            $.ajax({
+                type: "POST", url: $(formID).attr("action"), data: formData, async: async
+            }).done(function (response) {
+                // Make sure that the formMessages div has the alert-success class.
+                $(formMessagesDiv).removeClass("alert-danger");
+                $(formMessagesDiv).addClass("alert-success");
+
+                // Set the message text.
+                setTimeout(function () {
+                    $(message).text(response);
+                    $(formMessagesDiv).find(".sk-chase-mini").hide();
+                    // Make sure that the formMessages div has the alert-success class.
+                    $(formMessagesDiv).removeClass("alert-info");
+                    $(formMessagesDiv).addClass("alert-success");
+                }, 500);
+
+                // Show the div.
+                $(formMessagesDiv).css("display", "block");
+
+                // Clear fields to clear
+                for (let i = 0; i < fieldIDsToClear.length; i++) {
+                    $(fieldIDsToClear[i]).val("");
+                }
+
+                // Fix styling
+                $(formID + " .form-group .form-control").css("border-color", "unset").addClass("text-view");
+                $(formID + " .formSubmitButton").hide();
+            }).fail(function (data) {
+                // Make sure that the formMessages div has the alert-danger class
+                $(formMessagesDiv).removeClass("alert-success");
+                $(formMessagesDiv).addClass("alert-danger");
+
+                // Set the message text.
+                if (data.responseText !== "") {
+                    $(message).text(data.responseText);
+                } else {
+                    $(message).text("Oops! An error occurred and your message could not be sent.");
+                }
+
+                // Show the div.
+                $(formMessagesDiv).css("display", "block");
+
+                // Hide loading
+                $(formMessagesDiv).find(".sk-chase-mini").hide();
+            }).always(function () {
+                setTimeout(function () {
+                    $(formMessagesDiv).find(".sk-chase-mini").hide();
+                }, 500);
+            });
+        });
+    }
+
+    function showSubmitButton(element) {
+        $(element).parents("form").find(".formSubmitButton").show();
+        $(element).parents("form").find(".alert").removeClass("alert-success").addClass("alert-danger").show().find(".messageTxt").text("Changes not Saved!");
+    }
+
+    function addCategory(element, classIndex, teacherIndex, suggestionIndex) {
+        if (!(element).hasAttribute("disabled")){
+            let classDiv = "#weights" + classIndex + teacherIndex + suggestionIndex;
+            let newCategory = $("<div class=\"form-group\" id=\"category" + classIndex + teacherIndex + suggestionIndex + ($($(classDiv)[0].children)[0].children.length - 1) + "\"" + "style=\"text-indent: 3rem; display: inline-flex;" + "align-items: flex-end;" + ($($(classDiv)[0].children)[0].children.length > 1 ? "margin-left: " + ($($($(classDiv)[0].children)[0].children)[1].offsetLeft - $(classDiv)[0].offsetLeft) + "px" : "") + "\">" + "<input size=\"2\" style=\"font-size: 0.9rem; margin-right: 0 !important; width: fit-content; white-space: nowrap; margin-bottom: 0;\"" + "class=\" disableable form-control\"" + "oninput=\"this.classList.remove('text-view'); showSubmitButton(this); resizeInput(this);\"" + "required" + ">" + ":&nbsp</input>" + "<input style=\"margin: 0; border-color: lightcoral!important;\"" + "type=\"number\"" + "min=\"0\"" + "step=\"0.1\"" + "class=\"form-control disableable\"" + "oninput=\"this.classList.remove('text-view'); showSubmitButton(this); \">" + "<span class=\"fa fa-minus disableable\" onclick=\"removeCategory(this)\"" + "style=\"text-indent: 1rem; color: red; cursor: pointer;\"></span>" + "</div>");
+            $($($(classDiv)[0].children)[0]).append(newCategory);
+            showSubmitButton($(classDiv));
+        }
+    }
+
+    function removeCategory(element) {
+        if (!(element).hasAttribute("disabled")){
+            let categoryDiv = $(element).parents(".form-group");
+            let classDiv = $(categoryDiv.parents(".collapse")[0]);
+            categoryDiv.remove();
+            showSubmitButton($(classDiv));
+        }
+    }
+
+    function resizeInput(element) {
+        let size = Math.max(2,$(element).val().length+1);
+        $(element).attr('size', size);
+    }
+
+    function isDST() {
+        return Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset();
+    }
+
+    let user = <%- userRef %>;
+    let checkingTheme;
+    let theme = user.appearance.theme;
+    let darkModeStart = user.appearance.darkModeStart;
+    let darkModeFinish = user.appearance.darkModeFinish;
+
+    function setAutoTheme() {
+        if (theme !== "auto") {
+            clearInterval(checkingTheme);
+            return;
+        }
+        darkModeStart = parseInt(darkModeStart);
+        darkModeFinish = parseInt(darkModeFinish);
+        if (theme === "dark" || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart - (isDST() ? (darkModeStart === 0 ? -23 : 1) : 0)) && ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish - (isDST() ? (darkModeFinish === 1 ? -23 : 1) : 0))) || ((darkModeStart > darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart - (isDST() ? (darkModeStart === 0 ? -23 : 1) : 0)) || ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish - (isDST() ? (darkModeFinish === 1 ? -23 : 1) : 0)))))) {
+            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
+            darkMode = true;
+            if (darkMode !== oldDarkMode) {
+                clearTimeout(changeTransition);
+                document.getElementById("fade").disabled = false;
+                document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+                setTimeout(() => {
+                    document.getElementById("fade").disabled = true;
+                }, 1000);
+                renderAllCharts();
+            }
+        } else {
+            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
+            darkMode = false;
+            if (darkMode !== oldDarkMode) {
+                clearTimeout(changeTransition);
+                document.getElementById("fade").disabled = false;
+                document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+                setTimeout(() => {
+                    document.getElementById("fade").disabled = true;
+                }, 1000);
+                renderAllCharts();
+            }
+        }
+    }
+
+    async function checkTime() {
+        clearInterval(checkingTheme);
+        setAutoTheme();
+        checkingTheme = window.setInterval(function () {
+            setAutoTheme();
+        }, 100);
+    }
+
+</script>

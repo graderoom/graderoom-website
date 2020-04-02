@@ -3,6 +3,10 @@ body {
     color: #FFFFFF
 }
 
+hr {
+    background-color: #333333;
+}
+
 nav {
     background-color: #333333;
     color: #222222;
@@ -91,16 +95,6 @@ th {
     color: white;
 }
 
-.form-signin .btn {
-    background-color: #BBBBBB;
-    color: #333333;
-}
-
-.form-signin .btn:hover {
-    border-color: #BBBBBB;
-    color: #BBBBBB;
-}
-
 .form-group input {
     color: white;
 }
@@ -108,6 +102,17 @@ th {
 .form-group input:focus {
     border-bottom-color: #555555;
     color: white;
+}
+
+.form-group:focus-within label {
+    color: #BBBBBB;
+}
+
+/* Input Form Background Images */
+
+.form-group .user-bg {
+    background: url(/public/resources/dark_mode/user.png) no-repeat left/23px 27px !important;
+    padding-left: 35px;
 }
 
 .form-group .email-bg {
@@ -180,12 +185,40 @@ th {
     color: #BBBBBB;
 }
 
-#changelog-container .current {
+.changelog-container .body {
+    color: #EEEEEE;
+}
+
+.changelog-container .current {
     background-color: rgba(0, 255, 0, 0.06);
 }
 
-#changelog-container .type {
-    color: #222222;
+.changelog-container .type {
+    color: #FFFFFF;
+}
+
+.weightsTable input {
+    border-color: lightcoral;
+}
+
+.form-weights input::placeholder {
+    color: #666666;
+}
+
+.slider {
+    background-color: #444444;
+}
+
+.slider:before {
+    background-color: #222222;
+}
+
+input:checked + .slider {
+    background-color: currentColor;
+}
+
+input:checked + .slider:before {
+    background-color: #EEEEEE;
 }
 
 #weightsCard input {
@@ -202,10 +235,6 @@ th {
 
 #weightsCard .fail {
     color: lightcoral;
-}
-
-#weightsCard .form-signin .btn {
-    background-color: #999999;
 }
 
 #weightsCard .success {

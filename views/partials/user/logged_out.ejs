@@ -1,0 +1,28 @@
+<!-- Session timeout dialog -->
+<div class="session-timeout"
+     style="position:fixed; display:none; height: 100%; width: 100%; top: 0; left: 0; z-index: 999">
+    <div class="blurred-background session-timeout" style="background-color: #888888; opacity: 0.5"></div>
+    <div class="col-sm-11 col-md-10 col-lg-9 col-xl-8 mx-auto session-timeout">
+        <div id="privacyCard" class="card card-signin my-5 session-timeout">
+            <div class="card-body session-timeout">
+                <h4 class="card-title text-center session-timeout">Your Session Timed Out</h4>
+                <h5 class="card-title text-center session-timeout">You've been logged out</h5>
+                <div class="text-center session-timeout">
+                    <button class="btn btn-sm session-timeout" onclick="window.location.reload()">Return to Login
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Show user when session ends
+    setInterval(function () {
+
+        if (Date.now() > <%= sessionTimeout %>) {
+            $(".session-timeout").show();
+            $("body").find('*').not(".session-timeout").remove();
+        }
+
+    }, 10000);
+</script>
