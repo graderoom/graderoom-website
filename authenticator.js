@@ -220,12 +220,25 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
 
-        // Add loggedIn vars
-        if (!Object.keys(user).includes("loggedIn")) {
-            userRef.set("loggedIn", "never").write();
+        // Make lastupdated an array
+        if (!Array.isArray(user.alerts.lastUpdated)) {
+            if (user.alerts.lastUpdated === "never") {
+                userRef.get("alerts").set("lastUpdated", []).write();
+            } else {
+                userRef.get("alerts").set("lastUpdated", [user.alerts.lastUpdated]).write();
+            }
         }
-        if (user.alerts.lastUpdated !== "never" && userRef.get("loggedIn").value() === "never") {
-            userRef.set("loggedIn", user.alerts.lastUpdated).write();
+
+        // Add loggedIn vars
+        if (!Object.keys(user).includes("loggedIn") || userRef.get("loggedIn").value() === "never") {
+            userRef.set("loggedIn", []).write();
+        }
+        // Make loggedIn an array
+        if (!Array.isArray(user.loggedIn)) {
+            userRef.set("loggedIn", [user.loggedIn]).write();
+        }
+        if (user.alerts.lastUpdated.length !== 0 && userRef.get("loggedIn").value().length === 0) {
+            userRef.set("loggedIn", [user.alerts.lastUpdated.slice(-1)[0]]).write();
         }
 
         // Add privacy policy and terms vars
@@ -690,7 +703,7 @@ module.exports = {
         if (userRef.value().appearance.classColors.length !== grade_update_status.new_grades.length) {
             this.randomizeClassColors(lc_username);
         }
-        userRef.get("alerts").set("lastUpdated", Date.now()).write();
+        userRef.get("alerts").get("lastUpdated").push(Date.now()).write();
         userRef.set("updatedInBackground", "already done").write();
         return {success: true, message: "Updated grades!"};
     },
@@ -1082,7 +1095,7 @@ module.exports = {
 
     setLoggedIn: function (username) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
-        userRef.set("loggedIn", Date.now()).write();
+        userRef.get("loggedIn").push(Date.now()).write();
     }
 };
 

@@ -89,14 +89,14 @@
                 </span>
             </div>
             <% var daysSinceUpdated = 0; %>
-            <% if (user.alerts.lastUpdated.toString().toLowerCase() == ('never')) { %> <br>
+            <% if (user.alerts.lastUpdated.length === 0) { %> <br>
             <div class="alert alert-success">
                 <u style="cursor: pointer" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">Sync
                     your
                     grades</u> now!
             </div>
             <% } else { %>
-                <% daysSinceUpdated = Math.floor((Date.now() - user.alerts.lastUpdated) / (1000 * 3600 * 24)); %>
+                <% daysSinceUpdated = Math.floor((Date.now() - user.alerts.lastUpdated.slice(-1)[0]) / (1000 * 3600 * 24)); %>
                 <% if ((user.alerts.updateGradesReminder.toLowerCase() == ('daily') && daysSinceUpdated >= 1) || (user.alerts.updateGradesReminder.toLowerCase() == 'weekly') && daysSinceUpdated >= 7) { %>
                     <div class="alert alert-danger alert-dismissible font-weight-bold">
                         <a class="close" data-dismiss="alert" aria-label="close">X</a> It's been <%= daysSinceUpdated %>
@@ -118,7 +118,7 @@
                 <span id="weightmsg_text"></span>
             </div> -->
             <!-- Overview Section -->
-            <% if (user.alerts.lastUpdated.toString().toLowerCase() != 'never') { %>
+            <% if (user.alerts.lastUpdated.length !== 0) { %>
                 <span id="section-1">
                     <div style="display: flex">
                         <div style="display: flex; flex-flow: column; justify-content: center; align-items: center; padding-right: 1rem;">
@@ -405,7 +405,7 @@
     } else {
         darkMode = theme === "dark";
     }
-    if (user.alerts.lastUpdated !== "never") {
+    if (user.alerts.lastUpdated.length !== 0) {
         try {
             renderAllCharts();
         } catch {
