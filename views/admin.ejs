@@ -44,10 +44,11 @@
 
     <div id="table-container">
         <h6><%= userList.length %> Total Users,
-            <%= [...new Set(userList.map(u => u.schoolUsername))].length %> Unique Users,
-            <%= userList.filter(u => [...new Set(userList.map(u => u.schoolUsername))].includes(u.schoolUsername)).filter(u => (u.loggedIn !== "never" && u.loggedIn > Date.parse(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())))).length %>
+            <% let uniqueUsers = userList.filter((u, i, a) => i === a.indexOf(a.find(d => u.schoolUsername === d.schoolUsername))) %>
+            <%= uniqueUsers.length %> Unique Users,
+            <%= uniqueUsers.filter(u => (u.loggedIn.slice(-1)[0] !== undefined && u.loggedIn.slice(-1)[0] > Date.parse(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())))).length %>
             Logged In Today,
-            <%= userList.filter(u => [...new Set(userList.map(u => u.schoolUsername))].includes(u.schoolUsername)).filter(u => (u.loggedIn !== "never" && u.loggedIn > Date.parse(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())) - 7 * 24 * 60 * 60 * 1000)).length %>
+            <%= uniqueUsers.filter(u => (u.loggedIn.slice(-1)[0] !== undefined && u.loggedIn.slice(-1)[0] > Date.parse(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())) - 7 * 24 * 60 * 60 * 1000)).length %>
             Logged In This Week
         </h6>
         <hr>
@@ -71,17 +72,17 @@
                     <td class="admin"><%= u.username %> </td>
                     <td class="admin"><%= u.schoolUsername.substring(0, 1).toUpperCase() + u.schoolUsername.substring(1, u.schoolUsername.indexOf('.')) + ' ' + u.schoolUsername.substring(u.schoolUsername.indexOf('.') + 1, u.schoolUsername.indexOf('.') + 2).toUpperCase() + u.schoolUsername.substring(u.schoolUsername.indexOf('.') + 2, u.schoolUsername.indexOf('@') - 2) %></td>
                     <td class="admin">
-                        <% if (new Date(u.alerts.lastUpdated).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
+                        <% if (new Date(u.alerts.lastUpdated.slice(-1)[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
                             Never Updated
                         <% } else { %>
-                            <%= new Date(u.alerts.lastUpdated).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) %>
+                            <%= new Date(u.alerts.lastUpdated.slice(-1)[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) %>
                         <% } %>
                     </td>
                     <td class="admin">
-                        <% if (new Date(u.loggedIn).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
+                        <% if (new Date(u.loggedIn.slice(-1)[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
                             Never Logged In
                         <% } else { %>
-                            <%= new Date(u.loggedIn).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) %>
+                            <%= new Date(u.loggedIn.slice(-1)[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) %>
                         <% } %>
                     </td>
                     <td class="admin">
