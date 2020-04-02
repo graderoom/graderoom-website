@@ -119,6 +119,7 @@
 ### Fixed
 - Issues with arrow key shortcuts
 - Issue with changelog display
+- Issue where refreshing from first class would show overview page
 
 ## [Beta 1.9.3] - 2020-03-31
 ### Added

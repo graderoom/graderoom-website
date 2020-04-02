@@ -372,7 +372,7 @@
     let excludedData = [];
     let unobtainedWeights = {};
     let tempWeights = {};
-    let currentPage = parseInt(localStorage.getItem("currentPage")) || -1;
+    let currentPage = (isNaN(parseInt(localStorage.getItem("currentPage"))) ? -1 : parseInt(localStorage.getItem("currentPage")));
     let cardsDisplayed = [];
     let charts = [];
     let currentTab = 1;
