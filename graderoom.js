@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const http = require("http");
-const httpPort = 5996; //process.env.PORT || 8080;
+const httpPort = 5998; //process.env.PORT || 8080;
 const flash = require("connect-flash");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
@@ -13,7 +13,7 @@ const fs = require("fs");
 
 const productionEnv = process.argv[2] === undefined ? false : process.argv[2];
 
-module.exports.needsBetaKeyToSignUp = false; //todo
+module.exports.needsBetaKeyToSignUp = true; //todo
 
 app.use("/public/", express.static("./public"));
 require("./passport")(passport); // pass passport for configuration
@@ -65,7 +65,11 @@ require("./routes.js")(app, passport); // load our routes and pass in our app an
 // launch ======================================================================
 
 dbConn.backupdb();
-const httpServer = http.createServer(app);
-httpServer.listen(httpPort, () => {
-    console.log("HTTP Server running on port " + httpPort);
+dbConn.updateAllDB();
+dbConn.backupdb();
+dbConn.readChangelog().then(() => {
+    const httpServer = http.createServer(app);
+    httpServer.listen(httpPort, () => {
+        console.log("HTTP Server running on port " + httpPort);
+    });
 });
