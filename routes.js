@@ -46,6 +46,10 @@ module.exports = function (app, passport) {
     app.get("/viewuser", [isAdmin], (req, res) => {
         if (req.query.usernameToRender) {
             let user = authenticator.getUser(req.query.usernameToRender);
+            if (user.alerts.remoteAccess === "denied") {
+                res.redirect("/");
+                return;
+            }
             let weightData = JSON.stringify(user.weights);
             let gradeData = JSON.stringify(user.grades);
             let relClassData = JSON.stringify(authenticator.getRelClassData(req.query.usernameToRender));

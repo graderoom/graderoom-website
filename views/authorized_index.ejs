@@ -250,7 +250,7 @@
                                                    id="ignoringWeights<%= i + offset %>"
                                                    class="fa fa-exclamation-circle popup">
                                                     <span class="popuptext">
-                                                        Enter all weights to enable weighted overall grade calculation.
+                                                        Enter all weights to enable weighted overall grade calculation or choose the point-based option.
                                                     </span>
                                                 </i>
                                             </th>
@@ -698,14 +698,19 @@
         return max * Math.pow(cutoff / maxInput, 1 / 2.5);
     }
 
-    function setupWeightsTableListeners(){
+    let submittingWeights;
+
+    function setupWeightsTableListeners() {
         for (let i = 0; i < data.length; i++) {
             let className = data[i].class_name;
             let tableCategories = Object.keys(weights[className]["weights"]);
             for (let j = 0; j < tableCategories.length; j++) {
                 $("#weightTableWeight" + i + j + " input").blur(() => {
-                    resetInputs('#weights'+i);
-                    $("#weightTableWeight" + i + j).parents("form").submit();
+                    clearTimeout(submittingWeights);
+                    submittingWeights = setTimeout(() => {
+                        resetInputs('#weights' + i);
+                        $("#weightTableWeight" + i + j).parents("form").submit();
+                    }, 400);
                 }).on("keyup", (e) => {
                     e = e || window.event;
                     let keyCode = e.code;
