@@ -300,12 +300,14 @@
     passwordDiv.on('input', () => validateSignup());
     confirmDiv.on('input', () => validateSignup());
     emailDiv.on('input', () => validateSignup());
-    betaDiv.on('input', () => validateSignup());
+    if ($(betaDiv)[0]) {
+        betaDiv.on('input', () => validateSignup());
+    }
 
     function validateSignup() {
         if (checkPasswordConfirm(passwordDiv, confirmDiv) && checkBcpEmail(emailDiv)) {
             if ($($(userDiv)[0].previousElementSibling.children[0]).css('color') === 'rgb(0, 128, 0)' &&
-                $($(betaDiv)[0].previousElementSibling.children[0]).css('color') === 'rgb(0, 128, 0)') {
+                (!$(betaDiv)[0] || $($(betaDiv)[0].previousElementSibling.children[0]).css('color') === 'rgb(0, 128, 0)')) {
                 $(signupBtn).prop('disabled', '');
             }
         } else {
