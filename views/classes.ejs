@@ -230,7 +230,7 @@
             let weights = null;
             let hasWeights = null;
             if (teacherIndex) {
-                teacherName = $(formID).parent().parent().find(".weightname")[0].innerText.trim();
+                teacherName = $(formID).parent().parent().find(".weightname")[teacherIndex-1].innerText.trim();
                 //TODO actually collect has weights
                 hasWeights = true;
                 weights = {};
