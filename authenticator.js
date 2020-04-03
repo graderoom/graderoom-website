@@ -409,7 +409,7 @@ module.exports = {
             }
             let modWeights = {};
             for (let i = 0; i < Object.keys(weights).length; i++) {
-                modWeights[Object.keys(weights)[i]] = parseInt(Object.values(weights)[i]);
+                modWeights[Object.keys(weights)[i]] = parseFloat(Object.values(weights)[i]);
             }
             classDb.get(className).get(teacherName).set("weights", modWeights).write(); //Overwrites existing weights
             classDb.get(className).get(teacherName).set("hasWeights", hasWeights).write();
@@ -431,7 +431,7 @@ module.exports = {
         }
         let modWeights = {};
         for (let i = 0; i < Object.keys(weights).length; i++) {
-            modWeights[Object.keys(weights)[i]] = parseInt(Object.values(weights)[i]);
+            modWeights[Object.keys(weights)[i]] = parseFloat(Object.values(weights)[i]);
         }
 
         //delete any old suggestions for user
