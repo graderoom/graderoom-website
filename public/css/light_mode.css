@@ -64,6 +64,19 @@ table thead tr th {
     color: #444444;
 }
 
+.approve_btn {
+    background-color: #6ca66c;
+}
+.approve_btn:hover {
+    color: #6ca66c; border-color: #6ca66c;
+}
+.deny_btn{
+    background-color: #f57171;
+}
+.deny_btn:hover{
+    color: #f57171; border-color: #f57171;
+}
+
 .card {
     background-color: #FFFFFF;
 }

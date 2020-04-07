@@ -160,6 +160,11 @@ table thead tr th:last-child {
     box-shadow: none;
 }
 
+.approve_btn, .deny_btn {
+    font-size: 0.9rem;
+    padding:.2rem .2rem !important;
+}
+
 .card-no-bg {
     background: none !important;
     box-shadow: none !important;
