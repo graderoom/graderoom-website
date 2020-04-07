@@ -341,7 +341,6 @@ module.exports = {
     },
     updateWeightsInClassDb: function (className, teacherName, hasWeights, weights) {
         let classDb = db.get("classes");
-        this.deleteSuggestionInClassDb(className,teacherName,hasWeights,weights);
         if (weights || hasWeights==="false") {
             if (hasWeights === "false") {
                 if (!weights){
@@ -360,6 +359,7 @@ module.exports = {
         } else {
             return {success: false, message: "One weight required!"};
         }
+        this.deleteSuggestionInClassDb(className,teacherName,hasWeights,weights);
         return {success: true, message: "Updated weights for " + className + " | " + teacherName};
     },
     deleteSuggestionInClassDb: function (className, teacherName, hasWeights, weights) {
