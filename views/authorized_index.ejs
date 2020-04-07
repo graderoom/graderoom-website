@@ -732,7 +732,6 @@
             //stop reset from showing if custom is due to user having more categories than classes db
             if (enableReset && relClassData[className]["hasWeights"] != "false") {
                 enableReset = false;
-                console.log(className);
                 let keys = Object.keys(weights[className]["weights"]);
                 for (let i = 0; i < keys.length; i++) {
                     if (weights[className]["hasWeights"]=="false" && keys[i] in relClassData[className]["weights"]) {
@@ -991,7 +990,7 @@
                     category = "default";
                 }
                 try {
-                    if (typeof totalPossiblesAndGottens[category] === "undefined") {
+                    if (typeof totalPossiblesAndGottens[category] === "undefined" && !grade.exclude && grade.points_possible !== false && grade.points_gotten !== false) {
                         let weightVal = 100;
                         if (!doesntHaveWeights) {
                             weightVal = Number(weights[className]["weights"][category]);
