@@ -311,6 +311,13 @@ module.exports = {
                 }
             }
 
+            //Set to point-based if only one category exists (& category is null)
+            if (Object.keys(user.weights[className]["weights"]).length == 1) {
+                if (user.weights[className]["weights"][Object.keys(user.weights[className]["weights"])[0]] == null) {
+                    user.weights[className]["hasWeights"] = "false";
+                }
+            }
+
             // Set custom to not custom if it is same as classes db
             if (user.weights[className]["custom"] && dbContainsClass(className, teacherName)) {
                 user.weights[className]["custom"] = isCustom({
