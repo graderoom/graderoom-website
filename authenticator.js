@@ -119,7 +119,6 @@ module.exports = {
         for (let i = 0; i < users.length; i++) {
             console.log('' + Date.now() + ' | Updating User: ' + (i + 1) + ' of ' + users.length);
             this.updateDB(users[i].username);
-            this.bringUpToDate(users[i].username);
         }
 
         //Update classes to include suggestions key
@@ -304,7 +303,7 @@ module.exports = {
                 }
             }
 
-            // Remove any weights that don't exist in user grades
+            //Remove any weights that don't exist in user grades
             for (let j = 0; j < Object.keys(user.weights[className]["weights"]).length; j++) {
                 if (!goodWeights.includes(Object.keys(user.weights[className]["weights"])[j])) {
                     delete user.weights[className]["weights"][Object.keys(user.weights[className]["weights"])[j]];
@@ -318,7 +317,10 @@ module.exports = {
                 }
             }
 
-            // Set custom to not custom if it is same as classes db
+            //Add user's weights as suggestions
+            this.addWeightsSuggestion(lc_username,className,teacherName, user.weights[className]["hasWeights"], user.weights[className]["weights"]);
+
+            //Set custom to not custom if it is same as classes db
             if (user.weights[className]["custom"] && dbContainsClass(className, teacherName)) {
                 user.weights[className]["custom"] = isCustom({
                     "weights": user.weights[className]["weights"],
