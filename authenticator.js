@@ -422,12 +422,15 @@ module.exports = {
             classDb.get(className).get(teacherName).get("suggestions").nth(suggestionIndex).get("usernames").push(lc_username).write();
         } else {
             //Add suggestion if doesn't already exist
-            classDb.get(className).get(teacherName).get("suggestions").push({
-                "usernames": [lc_username],
-                "weights": modWeights,
-                "hasWeights": hasWeights
-            }).write();
-            console.log("Added Suggestion");
+            let classWeights = classDb.get(className).get(teacherName).get("weights");
+            let classHasWeights = classDb.get(className).get(teacherName).get("hasWeights");
+            if (!compareWeights({"weights":classWeights,"hasWeights":classHasWeights},{"weights":modWeights,"hasWeights":hasWeights})) {
+                classDb.get(className).get(teacherName).get("suggestions").push({
+                    "usernames": [lc_username],
+                    "weights": modWeights,
+                    "hasWeights": hasWeights
+                }).write();
+            }
         }
     },
     updateClassTypeInClassDb: function (className, classType) {
