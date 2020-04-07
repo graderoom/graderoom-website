@@ -186,18 +186,9 @@
                                     <% } else { %>
                                         <div class="formSubmitButton" style="width: 100%; display: block;">
                                             <button type="submit" class="btn btn-default btn-med approve_btn"
-                                                onclick="   
-                                                        ajaxPostWeightsDatabaseForm('<%= i %>','<%= j %>','<%= z %>',[],'#weightMessage<%= i %><%= j %>',true,'/updateclassweights');
-                                                    ">
+                                                onclick="ajaxPostWeightsDatabaseForm('<%= i %>','<%= j %>','<%= z %>',[],'#weightMessage<%= i %><%= j %>',true);">
                                                 <i class="fa fa-check" aria-hidden="true"></i>
                                                 Approve
-                                            </button>
-                                            <button type="submit" class="btn btn-default btn-med deny_btn"
-                                                    onclick="   
-                                                        ajaxPostWeightsDatabaseForm('<%= i %>','<%= j %>','<%= z %>',[],'#weightMessage<%= i %><%= j %>',true,'/deleteclasssuggestion');
-                                                    ">
-                                                <i class="fa fa-times" aria-hidden="true"></i>
-                                                Deny
                                             </button>
                                             <i style="display:inline-block; vertical-align: middle; padding:.2rem .2rem; margin: 0 0 1rem;">
                                                 <%=classData[className][teacherName]["suggestions"][z]["usernames"].length %> user(s)
@@ -231,16 +222,13 @@
         $(this).removeClass("show");
     });
 
-    function ajaxPostWeightsDatabaseForm(classIndex, teacherIndex, suggestionIndex, fieldIDsToClear, messagesDivID, async, url) {
+    function ajaxPostWeightsDatabaseForm(classIndex, teacherIndex, suggestionIndex, fieldIDsToClear, messagesDivID, async) {
         // Get the form.
         let formID;
         if (suggestionIndex) {
             formID = "#weights" + classIndex + teacherIndex + suggestionIndex;
         } else {
             formID = "#weights" + classIndex;
-        }
-        if (url !== undefined) {
-            $(formID).attr('action',url);
         }
         $(formID).submit(function (event) {
             event.preventDefault();
