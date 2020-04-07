@@ -174,14 +174,32 @@
                                             disableInput('check<%= i %><%= j %><%= z %>', 'collapse<%= i %><%= j %><%= z %>');
                                         </script>
                                     </div>
-
-                                    <div class="formSubmitButton" style="width: 100%; display: none">
-                                        <button type="submit" class="btn btn-default btn-med"
-                                                onclick="ajaxPostWeightsDatabaseForm('<%= i %>','<%= j %>','<%= z %>',[],'#weightMessage<%= i %><%= j %>',true);">
-                                            <i class="fa fa-refresh" aria-hidden="true"></i>
-                                            Update
-                                        </button>
-                                    </div>
+                                    <% if (z==-1) { %>
+                                        <div class="formSubmitButton" style="width: 100%; display: none">
+                                            <button type="submit" class="btn btn-default btn-med"
+                                                    onclick="ajaxPostWeightsDatabaseForm('<%= i %>','<%= j %>','<%= z %>',[],'#weightMessage<%= i %><%= j %>',true);">
+                                                <i class="fa fa-refresh" aria-hidden="true"></i>
+                                                Update
+                                            </button>
+                                        </div>
+                                    <% } else { %>
+                                        <div class="formSubmitButton" style="width: 100%; display: block;">
+                                            <button type="submit" class="btn btn-default btn-med approve_btn"
+                                                onclick="   
+                                                        ajaxPostWeightsDatabaseForm('<%= i %>','<%= j %>','<%= z %>',[],'#weightMessage<%= i %><%= j %>',true,'/updateclassweights');
+                                                    ">
+                                                <i class="fa fa-check" aria-hidden="true"></i>
+                                                Approve
+                                            </button>
+                                            <button type="submit" class="btn btn-default btn-med deny_btn"
+                                                    onclick="   
+                                                        ajaxPostWeightsDatabaseForm('<%= i %>','<%= j %>','<%= z %>',[],'#weightMessage<%= i %><%= j %>',true,'/deleteclasssuggestion');
+                                                    ">
+                                                <i class="fa fa-times" aria-hidden="true"></i>
+                                                Deny
+                                            </button>
+                                        </div>
+                                    <% } %>
                                 </form>
                             <% } %>
                         </span>
@@ -209,13 +227,16 @@
         $(this).removeClass("show");
     });
 
-    function ajaxPostWeightsDatabaseForm(classIndex, teacherIndex, suggestionIndex, fieldIDsToClear, messagesDivID, async) {
+    function ajaxPostWeightsDatabaseForm(classIndex, teacherIndex, suggestionIndex, fieldIDsToClear, messagesDivID, async, url) {
         // Get the form.
         let formID;
         if (suggestionIndex) {
             formID = "#weights" + classIndex + teacherIndex + suggestionIndex;
         } else {
             formID = "#weights" + classIndex;
+        }
+        if (url !== undefined) {
+            $(formID).attr('action',url);
         }
         $(formID).submit(function (event) {
             event.preventDefault();
