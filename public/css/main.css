@@ -640,11 +640,6 @@ table thead tr th:last-child {
     border-radius: 0 0 0.5rem 0.5rem;
 }
 
-#changelog-container .changelog-item:first-child .content,
-#changelog-container .changelog-item:nth-child(2) .content {
-    padding-top: 1.75rem;
-}
-
 .switch {
     position: relative;
     display: block;

@@ -1,13 +1,23 @@
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
-<!-- Follow this format -->
-<!-- ## [Version] - YYYY-MM-DD -->
-<!-- ### Added/Improved/Fixed/Removed **ONLY** -->
-<!-- - Specifics -->
+<!-- ---------------------------------------- Format for Unreleased Versions --------------------------------------- -->
+<!-- ## [Unreleased] - Send feature requests in Settings > Help > Feedback Form<br><strong>[Stable X.X.X] - Target Release Date: YYYY-MM-DD</strong><br><strong>This list will be periodically updated to reflect changes made in beta versions</strong> -->
+<!-- - <strong>Added</strong><ul> -->
+<!-- - Specifics</ul> -->
+<!-- - <strong>Improved</strong><ul> -->
+<!-- - Specifics</ul> -->
+<!-- - <strong>Fixed</strong><ul> -->
+<!-- - Specifics</ul> -->
+<!-- - <strong>Removed</strong><ul> -->
+<!-- - Specifics</ul> -->
 
-<!-- OR -->
+<!-- ------------------------------------------- Format for Known Issues ------------------------------------------- -->
+<!-- ## [Known Issues] - Send bug reports in Settings > Help > Feedback Form -->
+<!-- - Incorrect grade step calculation with ungraded assignments <strong>[Fixed in Beta X.X.X]</strong> -->
 
-<!-- ## [Known Issues/Unreleased/Announcement] - Description/Date(YYYY-MM-DD) -->
+<!-- ----------------------------------------- Format for Released Versions ---------------------------------------- -->
+<!-- ## [Stable/Beta X.X.X] - YYYY-MM-DD -->
+<!-- ### Added/Improved/Fixed/Removed -->
 <!-- - Specifics -->
 
 <!-- --------------------------------------------------------------------------------------------------------------- -->
@@ -24,22 +34,25 @@
 <!-- <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> -->
 
 <!-- Use the following HTML to add lines under the date (e.g. PI Day on 2020-03-14) -->
-<!-- <p style="font-weight: bold; margin: 0">[Text here]</p> -->
-
-<!-- Format for Unreleased Versions -->
-<!-- ## [Unreleased] - [Stable X.X.X] - Target Release Date: YYYY-MM-DD -->
-<!-- - <strong>Added/Improved/Fixed/Removed</strong><ul> -->
-<!-- - Specifics</ul><br><br> -->
+<!-- <br><strong>[Text here]</strong> -->
 
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
-## [Known Issues] - None
-- If you have an issue, send feedback in Settings > Help > Feedback Form
+## [Unreleased] - Send feature requests in Settings > Help > Feedback Form<br><strong>[Stable 3.0.0] - Target Release Date: 2020-04-20</strong><br><strong>This list will be periodically updated to reflect changes made in beta versions</strong>
+- <strong>Added</strong><ul></ul>
+- <strong>Improved</strong><ul></ul>
+- <strong>Fixed</strong><ul>
+- Incorrect grade step calculation with ungraded assignments</ul>
+- <strong>Removed</strong><ul></ul>
 
-## [Unreleased] - A new version was just released!
-- Send feature requests in Settings > Help > Feedback Form
+## [Known Issues] - Send bug reports in Settings > Help > Feedback Form
+- Incorrect grade step calculation with ungraded assignments <strong>[Fixed in Beta 2.0.1]</strong>
 
-## [Stable 2.0.0] - 2020-04-01
+## [Beta 2.0.1] - 2020-04-08
+### Fixed
+- Incorrect grade step calculation with ungraded assignments
+
+## [Stable 2.0.0] - 2020-04-01<br><strong>It's April!</strong>
 ### Added
 - Support for point-based classes
 - Support for non-academic classes
@@ -289,7 +302,7 @@
 ### Fixed
 - Issue where auto theme would sometimes not take effect
 
-## [Beta 1.4.2] - 2020-03-14 <p style="font-weight: bold; margin: 0">Happy PI Day!</p>
+## [Beta 1.4.2] - 2020-03-14<br><strong>Happy PI Day!</strong>
 ### Improved
 - Theme always remains the same after logout
 
@@ -382,7 +395,7 @@
 ### Fixed
 - Keyboard shortcuts are now disabled while typing into the password/email fields in settings and when syncing grades
 
-## [Beta 1.2.1] - 2020-03-01 <p style="font-weight: bold; margin: 0">It's March!</p>
+## [Beta 1.2.1] - 2020-03-01<br><strong>It's March!</strong>
 ### Added
 - Changelog display initially scrolls to current version with a nice animation
 - Added 'current version' buttons when changelog is scrolled
@@ -391,7 +404,7 @@
 - Better changelog UI
 - Changed keyboard shortcut for changelog to 'Q'
 
-## [Beta 1.2.0] - 2020-02-29 <p style="font-weight: bold; margin: 0">Happy Leap Day!</p>
+## [Beta 1.2.0] - 2020-02-29<br><strong>Happy Leap Day!</strong>
 ### Added
 - Separate changelog card to reduce clutter in settings
 - Keyboard Shortcut 'C' to view changelog

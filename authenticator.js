@@ -26,12 +26,8 @@ module.exports = {
         const backupAdapter = new FileSync(filename);
         const backupDb = low(backupAdapter);
         backupDb.defaults({
-            versions: {stable: "", beta: ""},
-            users: [],
-            keys: [],
-            classes: {},
-            deletedUsers: []
-        }).write();
+                              versions: {stable: "", beta: ""}, users: [], keys: [], classes: {}, deletedUsers: []
+                          }).write();
         backupDb.set("versions", db.get("versions").value()).write();
         backupDb.set("users", db.get("users").value()).write();
         backupDb.set("keys", db.get("keys").value()).write();
@@ -63,8 +59,8 @@ module.exports = {
 
     addNewBetaKey: function (betaKey) {
         db.get("keys").push({
-            betaKey: betaKey, claimed: false, claimedBy: ""
-        }).write();
+                                betaKey: betaKey, claimed: false, claimedBy: ""
+                            }).write();
         return {success: true, message: "Added beta key: " + betaKey + "."};
     },
 
@@ -74,8 +70,8 @@ module.exports = {
 
     removeBetaKey: function (betaKey) {
         db.get("keys").remove({
-            betaKey: betaKey
-        }).write();
+                                  betaKey: betaKey
+                              }).write();
         return {success: true, message: "Removed beta key."};
     },
 
@@ -113,12 +109,12 @@ module.exports = {
 
     updateAllDB: function () {
         let startTime = Date.now();
-        console.log('' + startTime + ' | Started Database Update');
+        console.log("" + startTime + " | Started Database Update");
         let users = db.get("users").value();
         // let globalLastUpdated = {};
         // let globalWeights = {};
         for (let i = 0; i < users.length; i++) {
-            console.log('' + Date.now() + ' | Updating User: ' + (i + 1) + ' of ' + users.length);
+            console.log("" + Date.now() + " | Updating User: " + (i + 1) + " of " + users.length);
             this.updateDB(users[i].username);
             this.bringUpToDate(users[i].username);
         }
@@ -126,7 +122,7 @@ module.exports = {
         let classRef = db.get("classes");
         let classes = db.get("classes").value();
         for (let i = 0; i < Object.keys(classes).length; i++) {
-            console.log('' + Date.now() + ' | Updating Class: ' + (i + 1) + ' of ' + Object.keys(classes).length);
+            console.log("" + Date.now() + " | Updating Class: " + (i + 1) + " of " + Object.keys(classes).length);
             let className = Object.keys(classes)[i];
             for (let j = 0; j < Object.keys(classes[className]).length; j++) {
                 let teacherName = Object.keys((classes)[className])[j];
@@ -143,7 +139,7 @@ module.exports = {
         }
 
         let endTime = Date.now();
-        console.log('' + endTime + " | Database Updated in " + (endTime - startTime) + "ms");
+        console.log("" + endTime + " | Database Updated in " + (endTime - startTime) + "ms");
 
         //FIXME Add as suggestion
         // for (let i = 0; i < users.length; i++) {
@@ -214,8 +210,7 @@ module.exports = {
         //         }
         //     }
         // }
-    },
-    updateDB: function (username) {
+    }, updateDB: function (username) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
@@ -284,7 +279,7 @@ module.exports = {
 
         // Fixes weights
         for (let i = 0; i < Object.keys(user.weights).length; i++) {
-            console.log('' + Date.now() + ' | Updating weight: ' + (i + 1) + ' of ' + Object.keys(user.weights).length);
+            console.log("" + Date.now() + " | Updating weight: " + (i + 1) + " of " + Object.keys(user.weights).length);
             let className = Object.keys(user.weights)[i];
             //Add custom weight tag
             if (!("custom" in user.weights[className])) {
@@ -305,7 +300,8 @@ module.exports = {
             }
             delete weights["weights"];
 
-            this.updateWeightsForClass(username, className, hasWeights, weights, custom, false); // put weights in new storage
+            this.updateWeightsForClass(username, className, hasWeights, weights, custom, false); // put weights in new
+                                                                                                 // storage
 
             for (var key in weights) {
                 if (weights.hasOwnProperty(key)) {
@@ -316,15 +312,14 @@ module.exports = {
 
         // After all db stuff is done
         this.bringUpToDate(username);
-    },
-    bringUpToDate: function (username) {
+    }, bringUpToDate: function (username) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
         let classes = db.get("classes").value();
 
         for (let i = 0; i < user.grades.length; i++) {
-            console.log('' + Date.now() + ' | Bringing class up to date: ' + (i + 1) + ' of ' + user.grades.length);
+            console.log("" + Date.now() + " | Bringing class up to date: " + (i + 1) + " of " + user.grades.length);
             let className = user.grades[i].class_name;
             let teacherName = user.grades[i].teacher_name;
 
@@ -350,7 +345,7 @@ module.exports = {
 
             //Add all classes to db
             if (!dbContainsClass(className, teacherName)) {
-                this.addDbClass(className, teacherName)
+                this.addDbClass(className, teacherName);
             }
 
             //Updates weights from classes db
@@ -370,12 +365,12 @@ module.exports = {
             // Set custom to not custom if it is same as classes db
             if (user.weights[className]["custom"] && dbContainsClass(className, teacherName)) {
                 user.weights[className]["custom"] = isCustom({
-                    "weights": user.weights[className]["weights"],
-                    "hasWeights": user.weights[className]["hasWeights"]
-                }, {
-                    "weights": classes[className][teacherName]["weights"],
-                    "hasWeights": classes[className][teacherName]["hasWeights"]
-                });
+                                                                 "weights": user.weights[className]["weights"],
+                                                                 "hasWeights": user.weights[className]["hasWeights"]
+                                                             }, {
+                                                                 "weights": classes[className][teacherName]["weights"],
+                                                                 "hasWeights": classes[className][teacherName]["hasWeights"]
+                                                             });
             }
         }
     },
@@ -389,18 +384,20 @@ module.exports = {
         let classes = db.get("classes").value();
         let relClasses = {};
         for (let i = 0; i < userClasses.length; i++) {
-            relClasses[userClasses[i][0]] = {"classType": classes[userClasses[i][0]]["classType"],
-                                            "weights": classes[userClasses[i][0]][userClasses[i][1]]["weights"],
-                                            "hasWeights":classes[userClasses[i][0]][userClasses[i][1]]["hasWeights"] };
+            relClasses[userClasses[i][0]] = {
+                "classType": classes[userClasses[i][0]]["classType"],
+                "weights": classes[userClasses[i][0]][userClasses[i][1]]["weights"],
+                "hasWeights": classes[userClasses[i][0]][userClasses[i][1]]["hasWeights"]
+            };
         }
         return relClasses;
     },
 
     updateWeightsInClassDb: function (className, teacherName, hasWeights, weights) {
         let classDb = db.get("classes");
-        if (weights || hasWeights==="false") {
+        if (weights || hasWeights === "false") {
             if (hasWeights === "false") {
-                if (!weights){
+                if (!weights) {
                     weights = {};
                 }
                 for (let i = 0; i < Object.keys(weights).length; i++) {
@@ -417,8 +414,7 @@ module.exports = {
             return {success: false, message: "One weight required!"};
         }
         return {success: true, message: "Updated weights for " + className + " | " + teacherName};
-    },
-    addWeightsSuggestion: function (username, className, teacherName, hasWeights, weights) {
+    }, addWeightsSuggestion: function (username, className, teacherName, hasWeights, weights) {
         let lc_username = username.toLowerCase();
 
         let classDb = db.get("classes");
@@ -438,8 +434,7 @@ module.exports = {
         deleteUserSuggestion(lc_username, className, teacherName);
 
         let suggestionIndex = getSuggestionIndex(className, teacherName, {
-            "weights": modWeights,
-            "hasWeights": hasWeights
+            "weights": modWeights, "hasWeights": hasWeights
         });
         if (suggestionIndex != -1) {
             //Add username to existing suggestion
@@ -447,14 +442,13 @@ module.exports = {
         } else {
             //Add suggestion if doesn't already exist
             classDb.get(className).get(teacherName).get("suggestions").push({
-                "usernames": [lc_username],
-                "weights": modWeights,
-                "hasWeights": hasWeights
-            }).write();
+                                                                                "usernames": [lc_username],
+                                                                                "weights": modWeights,
+                                                                                "hasWeights": hasWeights
+                                                                            }).write();
             console.log("Added Suggestion");
         }
-    },
-    updateClassTypeInClassDb: function (className, classType) {
+    }, updateClassTypeInClassDb: function (className, classType) {
         let classDb = db.get("classes");
         classDb.get(className).set("classType", classType).write();
         return {success: true, message: "Set class type of " + className + " to " + classType};
@@ -472,17 +466,18 @@ module.exports = {
 
             if (this.userDeleted(lc_username)) {
                 return resolve({
-                    success: false,
-                    message: "This account has been deleted. Email graderoom@gmail.com to recover your account."
-                });
+                                   success: false,
+                                   message: "This account has been deleted. Email graderoom@gmail.com to recover your account."
+                               });
             }
 
             // Don't check when creating an admin acc
             if (!isAdmin) {
                 if (!isAlphaNumeric(username)) {
                     return resolve({
-                        success: false, message: "Username must contain only lowercase letters and numbers."
-                    });
+                                       success: false,
+                                       message: "Username must contain only lowercase letters and numbers."
+                                   });
                 }
 
                 if (username.length > 16) {
@@ -502,30 +497,30 @@ module.exports = {
             const roundsToGenerateSalt = 10;
             bcrypt.hash(password, roundsToGenerateSalt, function (err, hash) {
                 db.get("users").push({
-                    username: lc_username,
-                    password: hash,
-                    schoolUsername: schoolUsername,
-                    isAdmin: isAdmin,
-                    appearance: {
-                        theme: "auto",
-                        accentColor: null,
-                        classColors: [],
-                        showNonAcademic: true,
-                        darkModeStart: 19,
-                        darkModeFinish: 6,
-                    },
-                    alerts: {
-                        lastUpdated: [],
-                        updateGradesReminder: "daily",
-                        latestSeen: "1.0.0",
-                        policyLastSeen: "never",
-                        termsLastSeen: "never",
-                        remoteAccess: "denied"
-                    },
-                    weights: {},
-                    grades: [],
-                    loggedIn: []
-                }).write();
+                                         username: lc_username,
+                                         password: hash,
+                                         schoolUsername: schoolUsername,
+                                         isAdmin: isAdmin,
+                                         appearance: {
+                                             theme: "auto",
+                                             accentColor: null,
+                                             classColors: [],
+                                             showNonAcademic: true,
+                                             darkModeStart: 19,
+                                             darkModeFinish: 6
+                                         },
+                                         alerts: {
+                                             lastUpdated: [],
+                                             updateGradesReminder: "daily",
+                                             latestSeen: "1.0.0",
+                                             policyLastSeen: "never",
+                                             termsLastSeen: "never",
+                                             remoteAccess: "denied"
+                                         },
+                                         weights: {},
+                                         grades: [],
+                                         loggedIn: []
+                                     }).write();
 
                 return resolve({success: true, message: "User Created"});
             });
@@ -731,8 +726,8 @@ module.exports = {
         classesRef.get(modClassName).set(teacherName, {
             weights: {}, //TODO Weights
             hasWeights: null, //TODO Has weights
-            suggestions: [],
-            // assignments: {}, //TODO populate assignments by some kind of identifier (points possible + assignment name
+            suggestions: [] // assignments: {}, //TODO populate assignments by some kind of identifier (points
+            // possible + assignment name
             // should be enough to differentiate assignments)
             // overallGrades: [] //TODO populate with overall grades of users (for average) length will give # in class
         }).write();
@@ -753,12 +748,12 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         let numColors = userRef.get("grades").value().length;
         let classColors = distinctColors({
-            count: numColors,
-            lightMin: 25,
-            lightMax: 100,
-            chromaMin: 25,
-            samples: Math.floor(Math.random() * 10000 + numColors)
-        }).map(color => {
+                                             count: numColors,
+                                             lightMin: 25,
+                                             lightMax: 100,
+                                             chromaMin: 25,
+                                             samples: Math.floor(Math.random() * 10000 + numColors)
+                                         }).map(color => {
             return chroma(color["_rgb"][0], color["_rgb"][1], color["_rgb"][2]).hex();
         }).sort(() => Math.random() - 0.5);
         userRef.get("appearance").set("classColors", classColors).write();
@@ -801,7 +796,7 @@ module.exports = {
             db.get("deletedUsers").remove({username: lc_username}).write();
             return {success: true, message: "Restored " + lc_username};
         }
-        return {success: false, message: "User does not exist in deleted users."}
+        return {success: false, message: "User does not exist in deleted users."};
     },
 
     makeAdmin: function (username) {
@@ -822,8 +817,8 @@ module.exports = {
         return {success: false, message: "User does not exist."};
     },
 
-    updateWeightsForClass: function (username, className, hasWeights, weights, custom=null, addSuggestion=true) {
-        
+    updateWeightsForClass: function (username, className, hasWeights, weights, custom = null, addSuggestion = true) {
+
         //default update, not override
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
@@ -842,15 +837,14 @@ module.exports = {
             }
         }
 
-        if (custom == null){
+        if (custom == null) {
             if (teacherName != null && dbContainsClass(className, teacherName)) {
                 custom = isCustom({
-                    "weights": weights,
-                    "hasWeights": hasWeights
-                }, {
-                    "weights": classes[className][teacherName]["weights"],
-                    "hasWeights": classes[className][teacherName]["hasWeights"]
-                });
+                                      "weights": weights, "hasWeights": hasWeights
+                                  }, {
+                                      "weights": classes[className][teacherName]["weights"],
+                                      "hasWeights": classes[className][teacherName]["hasWeights"]
+                                  });
             } else {
                 custom = true;
             }
@@ -876,9 +870,10 @@ module.exports = {
 
         weightsRef.set(modClassName + ".weights", newWeights).write(); //Replace weights inside of specific class
         weightsRef.set(modClassName + ".hasWeights", hasWeights).write();
-        weightsRef.set(modClassName + ".custom",custom).write();
-        if (custom)
+        weightsRef.set(modClassName + ".custom", custom).write();
+        if (custom) {
             return {success: true, message: "Custom weight set for " + className + "."};
+        }
         return {success: true, message: "Reset weight for " + className + "."};
         //Important: Do not change first word of message. It is used in frontend to determine if it is custom.
     },
@@ -954,15 +949,34 @@ module.exports = {
         }
     },
 
+    watchChangelog: function () {
+        // Check for changelog updates every second (This should be light)
+        let lastUpdated = Date.now();
+        const checking = () => {
+            let _lastUpdated = Date.parse(fs.statSync("CHANGELOG.md").mtime);
+            if (lastUpdated < _lastUpdated) {
+                lastUpdated = _lastUpdated;
+                console.log("Updating changelog.");
+                this.readChangelog();
+            }
+        };
+        // Do it once
+        this.readChangelog().then(() => {
+            setInterval(checking, 1000);
+        });
+    },
+
     readChangelog: async function () {
         let resultHTML = "";
         let betaResultHTML = "";
+        latestVersionHTML = "";
+        betaLatestVersionHTML = "";
         let items = [];
         let bodyCount = -1;
         let item = {title: "", date: "", content: {}};
         let lineReader = readline.createInterface({
-            input: fs.createReadStream("CHANGELOG.md")
-        });
+                                                      input: fs.createReadStream("CHANGELOG.md")
+                                                  });
         lineReader.on("line", (line) => {
             if (line.substring(0, 3) === "###") {
                 item.content[line.substring(4)] = [];
@@ -1193,20 +1207,20 @@ function isCustom(weight, defWeight) {
 }
 
 function validatePassword(password) {
-    const lowerCaseRegex = new RegExp('^(?=.*[a-z])');
-    const upperCaseRegex = new RegExp('^(?=.*[A-Z])');
-    const numericRegex = new RegExp('^(?=.*[0-9])');
+    const lowerCaseRegex = new RegExp("^(?=.*[a-z])");
+    const upperCaseRegex = new RegExp("^(?=.*[A-Z])");
+    const numericRegex = new RegExp("^(?=.*[0-9])");
     let message;
     if (password.length < 6) {
-        message = 'Your password must be at least 6 characters long.';
+        message = "Your password must be at least 6 characters long.";
     } else if (password.length > 64) {
-        message = 'Your password must be fewer than 64 characters long.';
+        message = "Your password must be fewer than 64 characters long.";
     } else if (!lowerCaseRegex.test(password)) {
-        message = 'Your password must include at least one lowercase character.';
+        message = "Your password must include at least one lowercase character.";
     } else if (!upperCaseRegex.test(password)) {
-        message = 'Your password must include at least one uppercase character.';
+        message = "Your password must include at least one uppercase character.";
     } else if (!numericRegex.test(password)) {
-        message = 'Your password must include at least one number.';
+        message = "Your password must include at least one number.";
     }
     return message;
 }

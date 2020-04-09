@@ -732,7 +732,6 @@
             //stop reset from showing if custom is due to user having more categories than classes db
             if (enableReset && relClassData[className]["hasWeights"] != "false") {
                 enableReset = false;
-                console.log(className);
                 let keys = Object.keys(weights[className]["weights"]);
                 for (let i = 0; i < keys.length; i++) {
                     if (weights[className]["hasWeights"]=="false" && keys[i] in relClassData[className]["weights"]) {
@@ -997,7 +996,7 @@
                             weightVal = Number(weights[className]["weights"][category]);
                         }
                         totalPossiblesAndGottens[category] = {
-                            totalPossible: 0, totalGotten: 0, weight: weightVal
+                            totalPossible: false, totalGotten: false, weight: weightVal
                         };
                         totalWeightValue += weightVal;
                     }
@@ -1005,14 +1004,21 @@
                         if (grade.points_possible !== false && grade.points_gotten !== false) {
                             totalPossiblesAndGottens[category].totalPossible += grade.points_possible;
                             totalPossiblesAndGottens[category].totalGotten += grade.points_gotten;
+                            let overallPercent = 0;
+                            for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
+                                if (value.totalGotten === false || value.totalPossible === false) {
+                                    totalWeightValue -= value.weight;
+                                    value.weight = 0;
+                                    continue;
+                                }
+                                overallPercent += ((value.weight * (value.totalPossible !== 0 ? (value.totalGotten / value.totalPossible) : value.totalGotten)));
+                            }
+                            let total = +(((overallPercent / totalWeightValue) * 100).toFixed(4));
+                            //rounds to 4 decimal places (the plus sign drops any trailing zeros)
+                            overallGradeSteps.push(total);
+                        } else {
+                            overallGradeSteps.push(overallGradeSteps[overallGradeSteps.length - 1]);
                         }
-                        let overallPercent = 0;
-                        for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
-                            overallPercent = overallPercent + (value.weight * (value.totalPossible !== 0 ? (value.totalGotten / value.totalPossible) : value.totalGotten));
-                        }
-                        let total = +(((overallPercent / totalWeightValue) * 100).toFixed(4));
-                        //rounds to 4 decimal places (the plus sign drops any trailing zeros)
-                        overallGradeSteps.push(total);
                     }
                 } catch (err) {
                     // console.log(err);
