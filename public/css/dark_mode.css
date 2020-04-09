@@ -60,6 +60,24 @@ th {
     color: #BBBBBB;
 }
 
+.approve_btn {
+    background-color: #95AD95;
+}
+
+.approve_btn:hover {
+    color: #95AD95;
+    border-color: #95AD95;
+}
+
+.deny_btn {
+    background-color: #D6A1A1;
+}
+
+.deny_btn:hover {
+    color: #D6A1A1;
+    border-color: #D6A1A1;
+}
+
 .card {
     background-color: #333333;
 }

@@ -111,13 +111,12 @@ module.exports = {
         let startTime = Date.now();
         console.log("" + startTime + " | Started Database Update");
         let users = db.get("users").value();
-        // let globalLastUpdated = {};
-        // let globalWeights = {};
+
         for (let i = 0; i < users.length; i++) {
             console.log("" + Date.now() + " | Updating User: " + (i + 1) + " of " + users.length);
             this.updateDB(users[i].username);
-            this.bringUpToDate(users[i].username);
         }
+
         //Update classes to include suggestions key
         let classRef = db.get("classes");
         let classes = db.get("classes").value();
@@ -138,78 +137,22 @@ module.exports = {
             }
         }
 
-        let endTime = Date.now();
-        console.log("" + endTime + " | Database Updated in " + (endTime - startTime) + "ms");
-
-        //FIXME Add as suggestion
+        // Add suggestions for classes without weights #FIXME - check if weight is actually a weight
         // for (let i = 0; i < users.length; i++) {
-        //     // Get most up-to-date weight info from users
+        //     let username = users[i].username;
         //     for (let j = 0; j < users[i].grades.length; j++) {
         //         let className = users[i].grades[j].class_name;
-        //         if (!globalLastUpdated[className]) {
-        //             globalLastUpdated[className] = {};
-        //             globalWeights[className] = {};
-        //         }
         //         let teacherName = users[i].grades[j].teacher_name;
-        //         if (!globalLastUpdated[className][teacherName]) {
-        //             globalLastUpdated[className][teacherName] = users[i].alerts.lastUpdated;
-        //             globalWeights[className][teacherName] = {};
-        //         }
-        //         if (users[i].alerts.lastUpdated >= globalLastUpdated[className][teacherName]) {
-        //             let newWeights = globalWeights[className][teacherName]["weights"] || {};
-        //             let hasWeights = globalWeights[className][teacherName]["hasWeights"] || null;
-        //             hasWeights = users[i].weights[className]["hasWeights"] || null;
-        //             let changed = false;
-        //             for (let j = 0; j < Object.keys(users[i].weights[className]["weights"]).length; j++) {
-        //                 let categoryName = Object.keys(users[i].weights[className]["weights"])[j];
-        //                 let categoryValue = Object.values(users[i].weights[className]["weights"])[j];
-
-        //                 // If we have a more recent value or the category doesn't exist yet
-        //                 if (!Object.keys(newWeights).includes(categoryName) || categoryValue !== null) {
-        //                     newWeights[categoryName] = categoryValue;
-        //                     changed = true;
-        //                 }
-        //             }
-        //             globalWeights[className][teacherName] = {weights: newWeights, hasWeights: hasWeights};
-        //             if (changed) {
-        //                 globalLastUpdated[className][teacherName] = users[i].alerts.lastUpdated;
-        //             }
+        //         if (!dbContainsClass(className,teacherName)) {
+        //             let hasWeights = users[i].weights[className]["hasWeights"] || null;
+        //             let newWeights = users[i].weights[className]["weights"] || null;
+        //             this.addWeightsSuggestion(username, className, teacherName, hasWeights, newWeights);
         //         }
         //     }
         // }
 
-        // // Update class db with most updated info
-        // for (let i = 0; i < Object.keys(globalWeights).length; i++) {
-        //     let className = Object.keys(globalWeights)[i];
-        //     for (let j = 0; j < Object.keys(globalWeights[className]).length; j++) {
-        //         let teacherName = Object.keys(globalWeights[className])[j];
-        //         classDb.get(className).set(teacherName, globalWeights[className][teacherName]).write();
-        //     }
-        // }
-
-        // // Delete outdated info from class db
-        // for (let i = 0; i < Object.keys(classDb.value()).length; i++) {
-        //     let className = Object.keys(classDb.value())[i];
-        //     if (!Object.keys(globalWeights).includes(className)) {
-        //         delete classDb.value()[className];
-        //     } else {
-        //         for (let j = 0; j < Object.keys(classDb.value()[className]).length; j++) {
-        //             let teacherName = Object.keys(classDb.value()[className])[j];
-        //             if (teacherName !== "classType") {
-        //                 if (!Object.keys(globalWeights[className]).includes(teacherName)) {
-        //                     delete classDb.value()[className][teacherName];
-        //                 } else {
-        //                     for (let k = 0; k < Object.keys(classDb.value()[className][teacherName]).length; k++) {
-        //                         let categoryName = Object.keys(classDb.value()[className][teacherName])[k];
-        //                         if (!Object.keys(globalWeights[className][teacherName]).includes(categoryName)) {
-        //                             delete classDb.value()[className][teacherName][categoryName];
-        //                         }
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+        let endTime = Date.now();
+        console.log("" + endTime + " | Database Updated in " + (endTime - startTime) + "ms");
     }, updateDB: function (username) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
@@ -355,14 +298,24 @@ module.exports = {
                 }
             }
 
-            // Remove any weights that don't exist in user grades
+            //Remove any weights that don't exist in user grades
             for (let j = 0; j < Object.keys(user.weights[className]["weights"]).length; j++) {
                 if (!goodWeights.includes(Object.keys(user.weights[className]["weights"])[j])) {
                     delete user.weights[className]["weights"][Object.keys(user.weights[className]["weights"])[j]];
                 }
             }
 
-            // Set custom to not custom if it is same as classes db
+            //Set to point-based if only one category exists (& category is null)
+            if (Object.keys(user.weights[className]["weights"]).length == 1) {
+                if (user.weights[className]["weights"][Object.keys(user.weights[className]["weights"])[0]] == null) {
+                    user.weights[className]["hasWeights"] = "false";
+                }
+            }
+
+            //Add user's weights as suggestions
+            this.addWeightsSuggestion(lc_username, className, teacherName, user.weights[className]["hasWeights"], user.weights[className]["weights"]);
+
+            //Set custom to not custom if it is same as classes db
             if (user.weights[className]["custom"] && dbContainsClass(className, teacherName)) {
                 user.weights[className]["custom"] = isCustom({
                                                                  "weights": user.weights[className]["weights"],
@@ -392,7 +345,6 @@ module.exports = {
         }
         return relClasses;
     },
-
     updateWeightsInClassDb: function (className, teacherName, hasWeights, weights) {
         let classDb = db.get("classes");
         if (weights || hasWeights === "false") {
@@ -406,14 +358,49 @@ module.exports = {
             }
             let modWeights = {};
             for (let i = 0; i < Object.keys(weights).length; i++) {
-                modWeights[Object.keys(weights)[i]] = parseInt(Object.values(weights)[i]);
+                modWeights[Object.keys(weights)[i]] = parseFloat(Object.values(weights)[i]);
             }
             classDb.get(className).get(teacherName).set("weights", modWeights).write(); //Overwrites existing weights
             classDb.get(className).get(teacherName).set("hasWeights", hasWeights).write();
         } else {
             return {success: false, message: "One weight required!"};
         }
+        this.deleteSuggestionInClassDb(className, teacherName, hasWeights, weights);
         return {success: true, message: "Updated weights for " + className + " | " + teacherName};
+    }, deleteSuggestionInClassDb: function (className, teacherName, hasWeights, weights) {
+        let deleted = false;
+        let classRef = db.get("classes");
+
+        if (!weights) {
+            weights = {};
+        }
+        if (hasWeights === "false") {
+
+            for (let i = 0; i < Object.keys(weights).length; i++) {
+                weights[Object.keys(weights)[i]] = null;
+            }
+        }
+        let modWeights = {};
+        for (let i = 0; i < Object.keys(weights).length; i++) {
+            modWeights[Object.keys(weights)[i]] = isNaN(parseFloat(Object.values(weights)[i])) ? null : parseFloat(Object.values(weights)[i]);
+        }
+
+        classRef.get(className).get(teacherName).get("suggestions").remove(function (e) {
+            let shouldDelete = compareWeights({
+                                                  "weights": e.weights,
+                                                  "hasWeights": e.hasWeights
+                                              }, {"weights": modWeights, "hasWeights": hasWeights});
+            console.log(e.weights);
+            console.log(e.hasWeights);
+            console.log(weights);
+            console.log(hasWeights);
+            deleted = deleted || shouldDelete;
+            return shouldDelete;
+        }).write();
+        if (deleted) {
+            return {success: true, message: "Suggestion deleted for " + className + " | " + teacherName};
+        }
+        return {success: false, message: "Suggestion not found!"};
     }, addWeightsSuggestion: function (username, className, teacherName, hasWeights, weights) {
         let lc_username = username.toLowerCase();
 
@@ -427,7 +414,7 @@ module.exports = {
         }
         let modWeights = {};
         for (let i = 0; i < Object.keys(weights).length; i++) {
-            modWeights[Object.keys(weights)[i]] = parseInt(Object.values(weights)[i]);
+            modWeights[Object.keys(weights)[i]] = parseFloat(Object.values(weights)[i]);
         }
 
         //delete any old suggestions for user
@@ -441,12 +428,18 @@ module.exports = {
             classDb.get(className).get(teacherName).get("suggestions").nth(suggestionIndex).get("usernames").push(lc_username).write();
         } else {
             //Add suggestion if doesn't already exist
-            classDb.get(className).get(teacherName).get("suggestions").push({
-                                                                                "usernames": [lc_username],
-                                                                                "weights": modWeights,
-                                                                                "hasWeights": hasWeights
-                                                                            }).write();
-            console.log("Added Suggestion");
+            let classWeights = classDb.get(className).get(teacherName).get("weights");
+            let classHasWeights = classDb.get(className).get(teacherName).get("hasWeights");
+            if (!compareWeights({"weights": classWeights, "hasWeights": classHasWeights}, {
+                "weights": modWeights,
+                "hasWeights": hasWeights
+            })) {
+                classDb.get(className).get(teacherName).get("suggestions").push({
+                                                                                    "usernames": [lc_username],
+                                                                                    "weights": modWeights,
+                                                                                    "hasWeights": hasWeights
+                                                                                }).write();
+            }
         }
     }, updateClassTypeInClassDb: function (className, classType) {
         let classDb = db.get("classes");
