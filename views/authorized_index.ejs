@@ -271,7 +271,7 @@
                                                            value="<%= value %>"
                                                            type="number"
                                                            min="0"
-                                                           step="0.1"
+                                                           step="0.01"
                                                            class="number-input disableable form-control <% if(value || value == 0){ %> text-view <% } %>"
                                                            name="<%= category %>"
                                                     >
@@ -990,7 +990,7 @@
                     category = "default";
                 }
                 try {
-                    if (typeof totalPossiblesAndGottens[category] === "undefined") {
+                    if (typeof totalPossiblesAndGottens[category] === "undefined" && !grade.exclude && grade.points_possible !== false && grade.points_gotten !== false) {
                         let weightVal = 100;
                         if (!doesntHaveWeights) {
                             weightVal = Number(weights[className]["weights"][category]);
