@@ -28,7 +28,7 @@
     <span class="accordion" id="bigAccordionForms">
         <% for (let i = 0; i < Object.keys(classData).length; i++) { %>
             <% let className = Object.keys(classData)[i]; %>
-            <label style="display: flex; cursor: pointer" data-toggle="collapse" href="#accordionForms<%= i %>">
+            <label style="display: flex; cursor: pointer" class="collapsed" data-toggle="collapse" href="#accordionForms<%= i %>">
                 <h5 style="font-size: 1.5rem !important;"><%= className %>
                     <i class="fa" aria-hidden="true"></i>
                 </h5>
@@ -46,7 +46,7 @@
                 </span>
             </label>
 
-            <span class="accordion collapse show collapse-underline" id="accordionForms<%= i %>"
+            <span class="accordion collapse collapse-underline" id="accordionForms<%= i %>"
                   data-parent="#bigAccordionForms">
                 <form id="weights<%= i %>" class="form-ajax form-weights form-signin" action="/updateclasstype"
                       method="post" style="display: flex; justify-content: right;">
@@ -224,10 +224,6 @@
         if (!$($(this)[0].previousElementSibling).hasClass("fa-plus")) {
             $(this).css("margin-left", $($($(this)[0].parentNode)[0].children)[1].offsetLeft - $($(this)[0].parentNode)[0].offsetLeft);
         }
-    });
-
-    $(".accordion").each(function () {
-        $(this).removeClass("show");
     });
 
     function ajaxPostWeightsDatabaseForm(classIndex, teacherIndex, suggestionIndex, fieldIDsToClear, messagesDivID, async) {
