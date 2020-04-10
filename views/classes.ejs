@@ -294,7 +294,7 @@
 
                 // Set the message text.
                 setTimeout(function () {
-                    $(message).text(response);
+                    $(message).text(response.message);
                     $(formMessagesDiv).find(".sk-chase-mini").hide();
                     // Make sure that the formMessages div has the alert-success class.
                     $(formMessagesDiv).removeClass("alert-info");
@@ -311,7 +311,6 @@
 
                 //Fix Styling
                 $(formID + " .form-group .form-control").css("border-color", "unset").addClass("text-view");
-                $(formID + " .formSubmitButton").hide();
 
                 //Additional updates for approved suggestions
                 if (parseInt($(formID).find("suggestionindex").html()) != -1) {
@@ -326,20 +325,31 @@
                     $("#weights" + classIndex + teacherIndex + "-1" + " .form-group .form-control").css("border-color", "unset").addClass("text-view");
                     $("#weights" + classIndex + teacherIndex + "-1" + " .formSubmitButton").hide();
                     
-                    //Remove suggestion
-                    // $(formID).remove(); 
-                    if ($("#collapse" + classIndex + teacherIndex).find("form").length <= 1) {
-                        $("#suggestion-header" + classIndex + teacherIndex).remove();
+                    if (response.suggestion != null) {
+                        try {
+                            //remove suggestion (suggestionIndex to delete passed form backend)
+                            $("#weights" + classIndex + teacherIndex + response.suggestion).remove();
+                            //remove Suggestion header if no more suggestions
+                            if ($("#collapse" + classIndex + teacherIndex).find("form").length <= 1) {
+                                $("#suggestion-header" + classIndex + teacherIndex).remove();
+                            }
+                        } catch (error) {
+                            console.error(error);
+                        }
                     }
+                    
+
+                } else {
+                    $(formID + " .formSubmitButton").hide();
                 }
-            }).fail(function (data) {
+            }).fail(function (response) {
                 // Make sure that the formMessages div has the alert-danger class
                 $(formMessagesDiv).removeClass("alert-success");
                 $(formMessagesDiv).addClass("alert-danger");
 
                 // Set the message text.
-                if (data.responseText !== "") {
-                    $(message).text(data.responseText);
+                if (response.message !== "") {
+                    $(message).text(response.message);
                 } else {
                     $(message).text("Oops! An error occurred and your message could not be sent.");
                 }

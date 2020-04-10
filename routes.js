@@ -339,9 +339,9 @@ module.exports = function (app, passport) {
         let weights = req.body.weights;
         let resp = authenticator.updateWeightsInClassDb(className, teacherName, hasWeights, weights);
         if (resp.success) {
-            res.status(200).send(resp.message);
+            res.status(200).send(resp);
         } else {
-            res.status(400).send(resp.message);
+            res.status(400).send(resp);
         }
     });
 

@@ -351,11 +351,12 @@ module.exports = {
         } else {
             return {success: false, message: "One weight required!"};
         }
-        this.deleteSuggestionInClassDb(className, teacherName, hasWeights, weights);
-        return {success: true, message: "Updated weights for " + className + " | " + teacherName};
+        let suggestionNum = this.deleteSuggestionInClassDb(className, teacherName, hasWeights, weights).suggestion; 
+        return {success: true, message: "Updated weights for " + className + " | " + teacherName, suggestion: suggestionNum};
     }, deleteSuggestionInClassDb: function (className, teacherName, hasWeights, weights) {
         let deleted = false;
         let classRef = db.get("classes");
+        let suggestionNum = 0;
 
         //Process Weights
         if (!weights) {
@@ -375,12 +376,14 @@ module.exports = {
         classRef.get(className).get(teacherName).get("suggestions").remove(function (e) {
             let shouldDelete = compareWeights({"weights": e.weights,"hasWeights": e.hasWeights}, {"weights": modWeights, "hasWeights": hasWeights});
             deleted = deleted || shouldDelete;
+            if (!deleted)
+                suggestionNum++;
             return shouldDelete;
         }).write();
         if (deleted) {
-            return {success: true, message: "Suggestion deleted for " + className + " | " + teacherName};
+            return {success: true, suggestion: suggestionNum};
         }
-        return {success: false, message: "Suggestion not found!"};
+        return {success: false, suggestion: null};
     }, addWeightsSuggestion: function (username, className, teacherName, hasWeights, weights) {
         let lc_username = username.toLowerCase();
         let classDb = db.get("classes");
