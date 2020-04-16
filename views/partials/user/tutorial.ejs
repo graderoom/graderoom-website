@@ -1,0 +1,34 @@
+   
+<div class="blurred-login" id="tutorialDisplay"
+        style="position:fixed; display:block; height: 100%; width: 100%; top: 0; left: 0; z-index: 1">
+    <div class="blurred-background"></div>
+        <div class="col-sm-11 col-md-10 col-lg-9 col-xl-8 mx-auto">
+            <div class="card-body" style="margin-top:150px">
+                <h1 class="card-title text-center">
+                    Tutorial
+                </h1>
+                    <div class="card-footer" style="max-height: 60vh; overflow-y: scroll; overflow-x: hidden; display: block; text-align: center;">
+                            <p>Start syncing grades with PowerSchool by clicking the "Sync" button</p>
+                        <div class="popup" onclick="showCard('#updateGradesDisplay')" style="font-size: 17px; position:relative; display:block; text-align:center; margin-top:80px;"><strong>&#8594; Sync &larr;</strong>
+                            <span style=" border: 2px solid  green; background: white; color: green;" class="popuptext" id="thePopup">Proceed to enter credentials</span>
+                        </div>
+                            <p>Never synced: This box will display when Graderoom has last successfully synced with PowerSchool</p>
+                            <p>Classes: Classes can be cycled through by clicking here</p>
+                            <p>Weights table: One can edit weights to fit their desired class requirements by clicking here</p>
+                            <p>Help (in settings): Here you can find contact information and quick links to important parts of the site. Ask any further questions by emailing <strong><a href="https://outlook.office.com/mail/inbox">graderoom@gmail.com<a></strong></p>
+                        <btn class="btn btn-mid"
+                            onclick="closeForm('tutorialDisplay');"
+                            style="width: fit-content; margin-bottom: 0;">
+                        <i class="fa fa-close" aria-hidden="true"></i> Exit
+                        </btn>
+                    </div>
+            </div>
+        </div>
+</div>
+<div class="popup" onclick="showCard('#updateGradesDisplay')" style="font-size: 17px; position:relative; display:block; text-align:center; margin-top:80px; margin-left:68%;"><strong>&#8594; Sync &larr;</strong>
+    <span style=" border: 2px solid  green; background: white; color: green;" class="popuptext" id="thePopup">Proceed to enter credentials</span>
+</div>
+
+
+
+

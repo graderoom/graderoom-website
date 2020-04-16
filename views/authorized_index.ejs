@@ -90,11 +90,6 @@
             </div>
             <% var daysSinceUpdated = 0; %>
             <% if (user.alerts.lastUpdated.length === 0) { %> <br>
-            <div class="alert alert-success">
-                <u style="cursor: pointer" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">Sync
-                    your
-                    grades</u> now!
-            </div>
             <% } else { %>
                 <% daysSinceUpdated = Math.floor((Date.now() - user.alerts.lastUpdated.slice(-1)[0]) / (1000 * 3600 * 24)); %>
                 <% if ((user.alerts.updateGradesReminder.toLowerCase() == ('daily') && daysSinceUpdated >= 1) || (user.alerts.updateGradesReminder.toLowerCase() == 'weekly') && daysSinceUpdated >= 7) { %>
