@@ -21,8 +21,12 @@
         <ul class="navbar-nav w-100 justify-content-end align-items-end ml-auto">
             <% if (current == 'home') { %>
                 <li id="finalGradeCalculator" class="nav-item">
-                    <a class="btn btn-med" href="/finalgradecalculator"> <i class="fa fa-calculator"
-                                                                            aria-hidden="true"></i> Calculator </a>
+                    <a class="btn btn-med" href="/finalgradecalculator"> <i class="fa fa-calculator" aria-hidden="true"></i> 
+                        <div class="popup" href="/finalgradecalculator">Calculator
+                            <span style="border: 2px solid green; background: white; color: green; margin-bottom: -10vw;" class="popuptext" id="thePopup">
+                                Stressed about finals? Find out how much they matter by clicking here</span>
+                        </div>
+                    </a>
                 </li>
                 <li id="editWeights" class="nav-item">
                     <btn class="btn btn-med"
@@ -34,7 +38,7 @@
                     <btn class="btn btn-med" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">
                         <i class="fa fa-refresh" aria-hidden="true"></i> 
                         <div class="popup" onclick="showCard('#updateGradesDisplay')">Sync
-                            <span style="border: 2px solid green; background: white; color: green; margin-bottom: -10vw;" class="popuptext" id="thePopup">
+                            <span style= "border: 2px solid green; background: white; color: green; margin-bottom: -10vw;" class="popuptext" id="thePopup">
                                 Start syncing grades with PowerSchool by clicking the "Sync" button</span>
                         </div>
                     </btn>
