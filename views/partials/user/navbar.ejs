@@ -32,7 +32,11 @@
                 </li>
                 <li id="syncGrades" class="nav-item">
                     <btn class="btn btn-med" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">
-                        <i class="fa fa-refresh" aria-hidden="true"></i> Sync
+                        <i class="fa fa-refresh" aria-hidden="true"></i> 
+                        <div class="popup" onclick="showCard('#updateGradesDisplay')">Sync
+                            <span style="border: 2px solid green; background: white; color: green; margin-bottom: -10vw;" class="popuptext" id="thePopup">
+                                Start syncing grades with PowerSchool by clicking the "Sync" button</span>
+                        </div>
                     </btn>
                 </li>
             <% } else { %>
