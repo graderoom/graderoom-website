@@ -59,7 +59,7 @@ class ClassGrade:
             category: String
             exclude: Boolean
         """
-        # TODO: Add functionality to add assignment without a grade
+
         new_grade = {
             'assignment_name': assignment_name,
             'date': date,
@@ -321,18 +321,19 @@ class PowerschoolScraper:
                     exclude = True
 
                 score = grade_data[8].text
-                # Check if the score does not have a grade
-                # TODO: dont skip assignments without scores
-                try:
-                    # Check if score is not out of a number
-                    if ('/' not in score and score != '--'):
-                        points_possible = 0
-                        points_gotten = float(score)
-                    else:
-                        points_possible = float(score.split('/')[1])
-                        points_gotten = float(score.split('/')[0])
-                except:
-                    continue
+                # Check cases for if the score does not have a grade
+                if ('/' not in score and score != '--'):
+                    points_possible = 0
+                    points_gotten = float(score)
+                elif (score == '--'):
+                    points_possible = False
+                    points_gotten = False
+                elif (score.split('/')[0] == '--'):
+                    points_possible = float(score.split('/')[1])
+                    points_gotten = False
+                else:
+                    points_possible = float(score.split('/')[1])
+                    points_gotten = float(score.split('/')[0])
 
                 # Get the percent for the assignment
                 if (points_possible != 0):
