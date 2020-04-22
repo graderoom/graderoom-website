@@ -55,13 +55,31 @@ table thead tr th {
 }
 
 .btn {
-    background-color: #333333;
-    color: #BBBBBB;
+    background-color: #444444;
+    color: #DDDDDD;
 }
 
 .btn:hover {
-    border-color: #BBBBBB;
-    color: #BBBBBB;
+    border-color: #444444;
+    color: #444444;
+}
+
+.approve_btn {
+    background-color: #6CA66C;
+}
+
+.approve_btn:hover {
+    color: #6CA66C;
+    border-color: #6CA66C;
+}
+
+.deny_btn {
+    background-color: #F57171;
+}
+
+.deny_btn:hover {
+    color: #F57171;
+    border-color: #F57171;
 }
 
 .card {
@@ -84,6 +102,29 @@ table thead tr th {
     background-color: #FFFFFF;
 }
 
+.changelog {
+    background-color: #FFFFFF;
+}
+
+.changelog-container .body {
+    color: #222222;
+}
+
+.changelog-container .current {
+    background-color: rgba(0, 255, 0, 0.1);
+
+}
+
+.changelog-container .type {
+    color: #000000;
+}
+
+.changelog-item {
+    margin-top: 1rem;
+    border-radius: 1rem;
+    background-color: #EEEEEE;
+}
+
 .form-group input {
     color: black;
 }
@@ -98,7 +139,7 @@ table thead tr th {
 }
 
 .form-group .lock-bg {
-    background: url(/public/resources/light_mode/lock.png)  no-repeat left/22px 27px !important;
+    background: url(/public/resources/light_mode/lock.png) no-repeat left/22px 27px !important;
 }
 
 .form-group .key-bg {
@@ -107,16 +148,6 @@ table thead tr th {
 
 .form-group .user-bg {
     background: url(/public/resources/light_mode/user.png) no-repeat left/23px 27px !important;
-}
-
-.form-signin .btn {
-    background-color: #444444;
-    color: #DDDDDD;
-}
-
-.form-signin .btn:hover {
-    border-color: #000000;
-    color: #DDDDDD;
 }
 
 .logo {
@@ -146,7 +177,28 @@ table thead tr th {
     color: #444444
 }
 
+.scroll-to {
+    background: #FFFFFF;
+    filter: opacity(0.9);
+}
+
 .sk-chase-dot:before {
+    background-color: #000000;
+}
+
+.slider {
+    background-color: #EEEEEE;
+}
+
+.slider:before {
+    background-color: #DDDDDD;
+}
+
+input:checked + .slider {
+    background-color: currentColor;
+}
+
+input:checked + .slider:before {
     background-color: #000000;
 }
 
@@ -173,6 +225,18 @@ table thead tr th {
     background-color: #FFFFFF;
 }
 
+.weightsTable input {
+    border-color: lightcoral;
+}
+
+.weightsTable input.text-view {
+    border-color: white;
+}
+
+.form-weights input::placeholder {
+    color: #DDDDDD;
+}
+
 #weightsCard input {
     border-color: lightcoral;
 }
@@ -187,10 +251,6 @@ table thead tr th {
 
 #weightsCard .fail {
     color: lightcoral;
-}
-
-#weightsCard .form-signin .btn {
-    background-color: #CCCCCC;
 }
 
 #weightsCard .success {

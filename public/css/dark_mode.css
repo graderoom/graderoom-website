@@ -3,6 +3,10 @@ body {
     color: #FFFFFF
 }
 
+hr {
+    background-color: #333333;
+}
+
 nav {
     background-color: #333333;
     color: #222222;
@@ -56,6 +60,24 @@ th {
     color: #BBBBBB;
 }
 
+.approve_btn {
+    background-color: #95AD95;
+}
+
+.approve_btn:hover {
+    color: #95AD95;
+    border-color: #95AD95;
+}
+
+.deny_btn {
+    background-color: #D6A1A1;
+}
+
+.deny_btn:hover {
+    color: #D6A1A1;
+    border-color: #D6A1A1;
+}
+
 .card {
     background-color: #333333;
 }
@@ -72,6 +94,16 @@ th {
     background-color: #777777;
 }
 
+.changelog {
+    background-color: #333333;
+}
+
+.changelog-item {
+    margin-top: 1rem;
+    border-radius: 1rem;
+    background-color: #222222;
+}
+
 .form-group input {
     color: white;
 }
@@ -81,23 +113,24 @@ th {
     color: white;
 }
 
-.form-signin .btn {
-    background-color: #BBBBBB;
-    color: #333333;
+.form-group input {
+    color: white;
 }
 
-.form-signin .btn:hover {
-    border-color: #BBBBBB;
+.form-group input:focus {
+    border-bottom-color: #555555;
+    color: white;
+}
+
+.form-group:focus-within label {
     color: #BBBBBB;
 }
 
-.form-group input {
-    color: white;
-}
+/* Input Form Background Images */
 
-.form-group input:focus {
-    border-bottom-color: #555555;
-    color: white;
+.form-group .user-bg {
+    background: url(/public/resources/dark_mode/user.png) no-repeat left/23px 27px !important;
+    padding-left: 35px;
 }
 
 .form-group .email-bg {
@@ -105,7 +138,7 @@ th {
 }
 
 .form-group .lock-bg {
-    background: url(/public/resources/dark_mode/lock.png)  no-repeat left/22px 27px !important;
+    background: url(/public/resources/dark_mode/lock.png) no-repeat left/22px 27px !important;
 }
 
 .form-group .key-bg {
@@ -142,6 +175,11 @@ th {
     color: #BBBBBB
 }
 
+.scroll-to {
+    background: #000000;
+    filter: opacity(0.7);
+}
+
 .sk-chase-dot:before {
     background-color: #FFFFFF;
 }
@@ -165,6 +203,42 @@ th {
     color: #BBBBBB;
 }
 
+.changelog-container .body {
+    color: #EEEEEE;
+}
+
+.changelog-container .current {
+    background-color: rgba(0, 255, 0, 0.06);
+}
+
+.changelog-container .type {
+    color: #FFFFFF;
+}
+
+.weightsTable input {
+    border-color: lightcoral;
+}
+
+.form-weights input::placeholder {
+    color: #666666;
+}
+
+.slider {
+    background-color: #444444;
+}
+
+.slider:before {
+    background-color: #222222;
+}
+
+input:checked + .slider {
+    background-color: currentColor;
+}
+
+input:checked + .slider:before {
+    background-color: #EEEEEE;
+}
+
 #weightsCard input {
     border-color: lightcoral;
 }
@@ -179,10 +253,6 @@ th {
 
 #weightsCard .fail {
     color: lightcoral;
-}
-
-#weightsCard .form-signin .btn {
-    background-color: #999999;
 }
 
 #weightsCard .success {

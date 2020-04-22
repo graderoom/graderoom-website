@@ -49,6 +49,10 @@
     }
 }
 
+body {
+    padding-bottom: 10rem;
+}
+
 hr {
     height: 1px;
 }
@@ -56,7 +60,6 @@ hr {
 html {
     overflow: scroll;
     overflow-x: hidden;
-    scrollbar-width: none;
     -ms-overflow-style: none;
 }
 
@@ -65,12 +68,12 @@ nav {
 }
 
 nav h1 {
-    font-family: "Montserrat";
+    font-family: "Montserrat", sans-serif;
     margin-bottom: 0;
 }
 
 nav h5 {
-    font-family: "Montserrat";
+    font-family: "Montserrat", sans-serif;
     margin-bottom: 0;
     font-size: 1.5rem;
     padding: .375rem .75rem;
@@ -133,8 +136,12 @@ table thead tr th:last-child {
     color: inherit !important;
 }
 
+.announcement {
+    background-color: rgba(255, 0, 0, 0.2) !important;
+}
+
 .blurred-background {
-    opacity: 0.7;
+    opacity: 0.5;
     position: fixed;
     width: 100%;
     height: 100%;
@@ -153,17 +160,22 @@ table thead tr th:last-child {
     box-shadow: none;
 }
 
+.approve_btn, .deny_btn {
+    font-size: 0.9rem;
+    padding: .2rem .2rem !important;
+}
+
 .card-no-bg {
     background: none !important;
     box-shadow: none !important;
 }
 
 .card h1 {
-    font-family: "Montserrat";
+    font-family: "Montserrat", sans-serif;
 }
 
 .card label {
-    font-family: "Montserrat";
+    font-family: "Montserrat", sans-serif;
 }
 
 .card::-webkit-scrollbar {
@@ -197,15 +209,103 @@ table thead tr th:last-child {
     padding: 1rem 1rem 0 1rem;
 }
 
-.collapsed:hover {
-    text: bold;
+.changelog {
+    padding: 0;
+    border: none;
+}
+
+.changelog-container {
+    position: relative;
+    max-height: 70vh;
+    overflow-y: scroll;
+    font-family: "Quicksand", sans-serif;
+}
+
+.changelog-container .added {
+    background-color: rgba(28, 155, 221, 0.5);
+}
+
+.changelog-container .announcement .content {
+    padding-top: 1.75rem;
+    font-weight: bold;
+}
+
+.changelog-container .body {
+    margin: 0 0 0 2rem;
+    padding: 0;
+    display: list-item;
+    font-size: 1.2rem;
+    font-weight: normal;
+    line-height: 1.5rem;
+}
+
+.changelog-container .changelog-item {
+    border-radius: 0.5rem;
+    padding: 0.1rem 0.5rem 2rem 0.5rem;
+}
+
+.changelog-container .content {
+    display: inline-block;
+    width: 98%;
+    border-radius: 0.5rem;
+}
+
+.changelog-container .date {
+    vertical-align: top;
+    border-radius: 50%;
+    opacity: .5;
+}
+
+.changelog-container .fixed {
+    background-color: rgba(255, 180, 0, 0.5);
+}
+
+.changelog-container .header {
+    width: fit-content;
+    margin: 0.5rem 0.5rem 0 0.5rem;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.changelog-container .improved {
+    background-color: rgba(44, 185, 103, 0.5);
+}
+
+.changelog-container .removed {
+    background-color: rgba(221, 103, 28, 0.5);
+}
+
+.changelog-container .title {
+    width: fit-content;
+    margin: 0;
+    font-size: 1.2rem;
+    font-style: oblique;
+}
+
+.changelog-container .type {
+    font-weight: bold;
+    font-size: 1.2rem;
+    padding: 0.5rem 1rem 1rem 1rem;
+    margin: 0.9rem 0 0.9rem 1rem;
+    border-radius: 0.5rem;
+}
+
+.collapsed h5:hover {
+    font-weight: bold !important;
+}
+
+.down {
+    bottom: 0;
+    left: 50%;
+    margin: 0 0 0 -5rem;
+    border-radius: 0.5rem 0.5rem 0 0;
 }
 
 .dropdown {
-    text: bold;
+    font-weight: bold;
     margin-left: 20px;
     width: fit-content;
-    border-radius: 1em;
+    border-radius: 0.5rem;
     text-align-last: center;
     max-height: 10rem;
     overflow-y: auto;
@@ -233,6 +333,11 @@ table thead tr th:last-child {
     box-shadow: none;
 }
 
+.break {
+    flex-basis: 100%;
+    height: 0;
+}
+
 .form-group .user-bg {
     padding-left: 35px;
 }
@@ -247,6 +352,36 @@ table thead tr th:last-child {
 
 .form-group .key-bg {
     padding-left: 35px;
+}
+
+.input-group {
+    position: relative;
+    margin-bottom: 2rem;
+    height: calc(150%);
+}
+
+.input-group input {
+    width: 100%;
+    padding-left: 0.3rem;
+    transition: 240ms ease;
+}
+
+.input-group label {
+    filter: opacity(0.4);
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    left: 2.5rem;
+    transform: translateY(-50%);
+    pointer-events: none;
+    transition: 180ms ease;
+}
+
+.label-active {
+    filter: opacity(1) !important;
+    top: -0.5rem !important;
+    left: 2.2rem !important;
+    font-size: xx-small !important;
 }
 
 .logo {
@@ -272,6 +407,13 @@ table thead tr th:last-child {
     width: inherit;
 }
 
+.no-scroll {
+    position: fixed;
+    width: 100%;
+    overflow: hidden;
+    padding-bottom: 0;
+}
+
 .number-input {
     width: 5rem;
 }
@@ -290,11 +432,11 @@ table thead tr th:last-child {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    white-space: normal;
 }
 
 .popup .popuptext {
-    font-family: "Montserrat";
-    font-displat: swap;
+    font-family: "Montserrat", sans-serif;
     visibility: hidden;
     width: 180px;
     height: fit-content;
@@ -323,6 +465,21 @@ table thead tr th:last-child {
     visibility: visible;
     -webkit-animation: fadeIn 1s;
     animation: fadeIn 1s;
+}
+
+.scroll-to {
+    position: absolute;
+    padding: 0 0.5rem 0.2rem 0.5rem;
+    z-index: 999;
+    height: 1.75rem;
+    width: 10rem;
+    text-align: center;
+    cursor: pointer;
+    transition: filter 500ms;
+}
+
+.scroll-to:hover {
+    filter: opacity(1);
 }
 
 .sk-chase {
@@ -446,22 +603,169 @@ table thead tr th:last-child {
     display: none;
     padding: 6px 12px;
     border-top: none;
+    max-height: 60vh;
+    overflow: scroll;
+}
+
+.table {
+    border-radius: 1rem;
 }
 
 .table th {
     border-top: none;
 }
 
-.table {
-    border-radius: 0.5rem;
+.table thead th:first-child {
+    border-radius: 1rem 0 0 0;
+}
+
+.table thead th:last-child {
+    border-radius: 0 1rem 0 0;
+}
+
+.table tfoot th {
+    border-radius: 0 0 1rem 1rem;
+}
+
+.table tr:last-child td:first-child {
+    border-radius: 0 0 0 1rem;
+}
+
+.table tr:last-child td:last-child {
+    border-radius: 0 0 1rem 0;
 }
 
 .tablinks {
     cursor: pointer;
 }
 
+.up {
+    left: 50%;
+    margin: 0 0 0 -5rem;
+    border-radius: 0 0 0.5rem 0.5rem;
+}
+
+.switch {
+    position: relative;
+    display: block;
+    width: 1.9rem;
+    margin: 0 0 0 0.5rem;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.switch:before {
+    content: "";
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    margin-right: -0.25em;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    vertical-align: middle;
+    height: 1.2rem;
+    width: 2.4rem;
+    top: 0.24rem;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 0.6rem;
+    transition: 0.4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 0.96rem;
+    width: 0.96rem;
+    top: 0.12rem;
+    left: 0.15rem;
+    border-radius: 0.48rem;
+    transition: 0.4s;
+    transform: translateX(0);
+}
+
+input:checked + .slider:before {
+    transform: translateX(1.14rem);
+}
+
+.form-weights .disableable {
+    padding: 0;
+}
+
+.form-weights .disabled {
+    color: #999999 !important;
+    border-bottom: none !important;
+}
+
+.form-weights input[type="checkbox"] {
+    vertical-align: middle;
+}
+
+.form-weights input:not([type="checkbox"]) {
+    font-size: 0.9rem;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    margin: 0 !important;
+}
+
+.form-weights input.text-view {
+    border-bottom: 1px transparent;
+}
+
+.form-weights input:not([type="checkbox"]).text-view:hover, .form-weights input.text-view:focus {
+    margin-bottom: -1px !important;
+    padding: 0;
+    border-bottom: 1px solid;
+}
+
+.form-weights input:focus::placeholder {
+    color: transparent;
+}
+
+.form-weights input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.form-weights input[type="number"]::-webkit-outer-spin-button,
+.form-weights input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.form-weights .form-group:focus-within label {
+    font-weight: bolder;
+}
+
+.form-weights .form-signin .btn {
+    width: auto;
+    padding: .375rem .75rem;
+    margin: 0 0 1rem;
+}
+
+.key-display {
+    font-size: 0.75rem;
+    display: inline-flex;
+    border: 1px solid;
+    border-radius: 0.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    justify-content: center;
+    align-items: center;
+}
+
 #weightsCard h5 {
-    font-family: "Montserrat";
+    font-family: "Montserrat", sans-serif;
     font-size: 1.1rem;
     font-weight: 400;
     padding-top: 8px;
@@ -477,6 +781,11 @@ table thead tr th:last-child {
 
 #weightsCard h5.collapsed ~ span.collapse-underline {
     border-bottom: none;
+}
+
+#weightsCard .disabled {
+    color: #999 !important;
+    border-bottom: none !important;
 }
 
 #weightsCard input {
@@ -531,6 +840,7 @@ table thead tr th:last-child {
     margin: 0 0 1rem;
 }
 
-#weightsCard .form-signin .btn:hover {
-    background: none;
+.ignored {
+    text-decoration: line-through;
+    opacity: 0.5;
 }

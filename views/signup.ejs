@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Graderoom</title>
-    <link rel="icon" href="../public/resources/common/icon.png">
+    <link rel="icon" href="public/resources/common/icon.png">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
@@ -12,10 +12,10 @@
 </head>
 <body>
 <div class="container h-100 d-flex justify-content-center ">
-    <div class="col-sm-10 col-md-8 col-lg-6 col-xl-5">
+    <div class="col-sm-12 col-md-10 col-lg-8 col-xl-7">
         <div class="card card-signin my-5">
             <div class="card-body">
-                <h1 class="text-center card-title">
+                <h1 class="text-center card-title" style="margin-bottom: 2rem">
                     <i class="fa fa-plus-circle" aria-hidden="true"></i> Sign Up
                 </h1>
                 <% if (message.length > 0) { %>
@@ -25,25 +25,56 @@
                     </div>
                 <% } %>
                 <form class="form-signin" action="/signup" method="post">
-                    <div class="form-group">
-                        <label>Username *</label> <input type="text" class="form-control user-bg" name="username">
+                    <div class="form-group input-group">
+                        <i class="user-bg"></i>
+                        <label>Username<label
+                                    style="margin: 0 0 0 1rem; font-weight: bold; font-size: small"
+                                    id="usernameCheckMessage"></label></label>
+                        <input oninput="checkLabel(this); checkUsername(this, '#usernameCheckMessage')" type="text"
+                               class="form-control"
+                               name="username" id="username">
                     </div>
-                    <div class="form-group">
-                        <label>Password *</label> <input type="password" class="form-control lock-bg" name="password">
+                    <div class="form-group input-group">
+                        <i class="lock-bg"></i>
+                        <label>Password<label
+                                    style="margin: 0 0 0 0.9rem; font-weight: bold; font-size: small"
+                                    id="passwordCheckMessage"></label></label>
+                        <input oninput="checkLabel(this); checkPassword(this, '#passwordCheckMessage'); checkPasswordConfirm(this, '#confirmPassword', '#passwordConfirmMessage', '#changePasswordBtn')"
+                               id="password"
+                               type="password" class="form-control" name="password" required>
                     </div>
-                    <div class="form-group">
-                        <label>School Email *</label> <input type="text" class="form-control email-bg"
-                                                             name="school_email">
+                    <div class="form-group input-group">
+                        <i class="lock-bg"></i>
+                        <label>Confirm Password<label
+                                    style="margin: 0 0 0 3.5rem; font-weight: bold; font-size: small"
+                                    id="passwordConfirmMessage"></label></label>
+                        <input oninput="checkLabel(this); checkPasswordConfirm('#password', this, '#passwordConfirmMessage', '#signupBtn')"
+                               id="confirmPassword" type="password"
+                               class="form-control" required>
+                    </div>
+                    <div class="form-group input-group">
+                        <i class="email-bg"></i>
+                        <label>School Email<label
+                                    style="margin: 0 0 0 1.9rem; font-weight: bold; font-size: small"
+                                    id="emailCheckMessage"></label></label>
+                        <input oninput="checkLabel(this); checkBcpEmail(this, '#emailCheckMessage', '#signupBtn')"
+                               type="text" class="form-control" name="school_email" id="schoolEmail">
                     </div>
 
-                    <% if (needsBeta) {%>
-                    <div class="form-group">
-                        <label>Beta Key *</label> <input type="text" class="form-control key-bg" name="beta_key">
-                    </div>
+                    <% if (needsBeta) { %>
+                        <div class="form-group input-group">
+                            <i class="key-bg"></i>
+                            <label>Beta Key<label
+                                        style="margin: 0 0 0 0.7rem; font-weight: bold; font-size: small"
+                                        id="betakeyCheckMessage"></label></label>
+                            <input oninput="checkLabel(this); checkBetaKey(this, '#betakeyCheckMessage')"
+                                   class="form-control" type="text" name="beta_key"
+                                   id="betaKey">
+                        </div>
                     <% } %>
                     <br>
                     <div class="text-center">
-                        <button type="submit" class="btn btn-default btn-lg">Signup</button>
+                        <button id="signupBtn" type="submit" class="btn btn-default btn-lg" disabled>Signup</button>
                     </div>
                 </form>
             </div>
@@ -61,19 +92,229 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
-    let localStorage = window.localStorage;
-    let defaultAppearance = localStorage.getItem("defaultAppearance");
-    if (defaultAppearance) {
-        if (defaultAppearance === "dark") {
-            document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+
+    setTimeout(function () {
+        $('input:-webkit-autofill').each(function () {
+            let input = $(this);
+            let label = $($(input)[0].previousElementSibling);
+            label.addClass("label-active");
+        });
+    }, 250);
+
+    function checkLabel(input) {
+        let label = $($(input)[0].previousElementSibling);
+        input = $(input);
+        if (input[0].value !== "") {
+            if (!label.hasClass("label-active")) {
+                label.addClass("label-active");
+            }
         } else {
-            document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+            label.removeClass("label-active");
         }
-    } else {
-        localStorage.setItem("defaultAppearance", "light");
-        document.getElementById("pageStyle").setAttribute("href", "/public/css/light_mode.css");
     }
+
+    let checkingUsername;
+
+    function checkUsername(inputID, messageDivID) {
+        const usernameRegex = new RegExp('^[a-zA-Z0-9]*$');
+
+        let username = $(inputID)[0].value;
+        if (username.length === 0) {
+            if (messageDivID) {
+                $(messageDivID).text("");
+            }
+            return false;
+        }
+        if (!usernameRegex.test(username)) {
+            if (messageDivID) {
+                $(messageDivID).css('color', 'red').text("Username must contain only lowercase letters and numbers");
+            }
+            return false;
+        }
+        if (username.length > 16) {
+            if (messageDivID) {
+                $(messageDivID).css('color', 'red').text("Username must contain 16 or fewer characters.");
+            }
+            return false;
+        }
+
+        $(messageDivID).css('color', 'blue').text("Loading...");
+        if (checkingUsername) {
+            clearTimeout(checkingUsername);
+        }
+        checkingUsername = setTimeout(() => {
+            $.ajax({
+                url: "/usernameAvailable", type: "POST", async: false,
+                data: {username: username}
+            }).done(() => {
+                if (messageDivID) {
+                    // Make sure value is still the same
+                    if (username === $(inputID)[0].value) {
+                        $(messageDivID).css('color', 'green').text("Valid username!");
+                        setTimeout(() => validateSignup(), 400);
+                    }
+                }
+            }).fail(() => {
+                if (messageDivID) {
+                    // Make sure value is still the same
+                    if (username === $(inputID)[0].value) {
+                        $(messageDivID).css('color', 'red').text("Username already exists!");
+                    }
+                }
+            });
+        }, 1000);
+
+    }
+
+    function checkPassword(inputID, messageDivID, oldPasswordID) {
+        const lowerCaseRegex = new RegExp('^(?=.*[a-z])');
+        const upperCaseRegex = new RegExp('^(?=.*[A-Z])');
+        const numericRegex = new RegExp('^(?=.*[0-9])');
+
+        let password = $(inputID)[0].value;
+        let message;
+
+        if (oldPasswordID && (password === $(oldPasswordID)[0].value)) {
+            message = "You're supposed to be changing your password...";
+        } else if (password.length === 0) {
+            message = "";
+        } else if (password.length < 6) {
+            message = 'Your password must be at least 6 characters long.';
+        } else if (password.length > 64) {
+            message = 'Your password must be fewer than 64 characters long.';
+        } else if (!lowerCaseRegex.test(password)) {
+            message = 'Your password must include at least one lowercase character.';
+        } else if (!upperCaseRegex.test(password)) {
+            message = 'Your password must include at least one uppercase character.';
+        } else if (!numericRegex.test(password)) {
+            message = 'Your password must include at least one number.';
+        } else {
+            message = 'Strong password!';
+            if (!messageDivID) {
+                return true;
+            }
+            $(messageDivID).css('color', 'green').text(message);
+            return;
+        }
+
+        if (!messageDivID) {
+            return false;
+        }
+        $(messageDivID).css('color', 'red').text(message);
+    }
+
+    function checkPasswordConfirm(inputID, confirmID, messageDivID) {
+        let password = $(inputID)[0].value;
+        let confirm = $(confirmID)[0].value;
+        if (checkPassword(inputID)) {
+            if (password === confirm) {
+                if (messageDivID) {
+                    $(messageDivID).css('color', 'green').text('Passwords match!');
+                }
+                return true;
+            } else if (confirm !== "") {
+                if (messageDivID) {
+                    $(messageDivID).css('color', 'red').text('Passwords do not match!');
+                }
+                return false;
+            }
+        }
+        if (messageDivID) {
+            $(messageDivID).text("");
+        }
+        return false;
+    }
+
+    function checkBcpEmail(inputID, messageDivID) {
+        const bcpEmailRegex = /\S\d+@bcp+\.org+/;
+
+        let bcpEmail = $(inputID)[0].value;
+        if (bcpEmail === "") {
+            $(messageDivID).text("");
+            return false;
+        }
+        if (!bcpEmailRegex.test(bcpEmail)) {
+            $(messageDivID).css('color', 'red').text('This must be a .bcp email.');
+            return false;
+        }
+        $(messageDivID).css('color', 'green').text('Valid email!');
+        return true;
+    }
+
+    let checkingBetaKey;
+
+    function checkBetaKey(inputID, messageDivID) {
+        const betakeyRegex = new RegExp('^[a-zA-Z0-9]*$');
+
+        let betakey = $(inputID)[0].value;
+        if (betakey === "") {
+            $(messageDivID).text("");
+            return false;
+        }
+        if (!betakeyRegex.test(betakey) || betakey.length !== 7) {
+            $(messageDivID).css('color', 'red').text('Invalid beta key!');
+            return false;
+        }
+
+        $(messageDivID).css('color', 'blue').text('Loading...');
+        if (checkingBetaKey) {
+            clearTimeout(checkingBetaKey);
+        }
+        checkingBetaKey = setTimeout(() => {
+            $.ajax({
+                url: "/betaKeyValid", type: "POST", async: false, data: {betaKey: betakey}
+            }).done((response) => {
+                if (messageDivID) {
+                    // Make sure value is still the same
+                    if (betakey === $(inputID)[0].value) {
+                        $(messageDivID).css('color', 'green').text(response);
+                        setTimeout(() => validateSignup(), 400);
+                    }
+                }
+            }).fail((data) => {
+                if (messageDivID) {
+                    // Make sure value is still the same
+                    if (betakey === $(inputID)[0].value) {
+                        $(messageDivID).css('color', 'red').text(data.responseText);
+                    }
+                }
+            });
+        }, 1000);
+        if ($(messageDivID).css('color') === 'green') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    let userDiv = $("#username");
+    let passwordDiv = $("#password");
+    let confirmDiv = $("#confirmPassword");
+    let emailDiv = $("#schoolEmail");
+    let betaDiv = $("#betaKey");
+    let signupBtn = $("#signupBtn");
+
+    userDiv.on('input', () => validateSignup());
+    passwordDiv.on('input', () => validateSignup());
+    confirmDiv.on('input', () => validateSignup());
+    emailDiv.on('input', () => validateSignup());
+    if ($(betaDiv)[0]) {
+        betaDiv.on('input', () => validateSignup());
+    }
+
+    function validateSignup() {
+        if (checkPasswordConfirm(passwordDiv, confirmDiv) && checkBcpEmail(emailDiv)) {
+            if ($($(userDiv)[0].previousElementSibling.children[0]).css('color') === 'rgb(0, 128, 0)' &&
+                (!$(betaDiv)[0] || $($(betaDiv)[0].previousElementSibling.children[0]).css('color') === 'rgb(0, 128, 0)')) {
+                $(signupBtn).prop('disabled', '');
+            }
+        } else {
+            $(signupBtn).prop('disabled', 'disabled');
+        }
+    }
+
 </script>
 </body>
 </html>
