@@ -14,14 +14,17 @@
     "body-parser": "latest",
     "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.4",
+    "distinct-colors": "^2.1.0",
     "ejs": "^2.7.3",
     "express": "^4.17.1",
     "express-session": "^1.17.0",
+    "lodash": "latest",
     "lowdb": "^1.0.0",
     "morgan": "^1.9.1",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
     "python-shell": "^1.0.8",
+    "random-color": "^1.0.1",
     "randomcolor": "^0.5.4"
   }
 }
