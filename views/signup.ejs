@@ -24,57 +24,95 @@
                         <%= message %>
                     </div>
                 <% } %>
-                <form class="form-signin" action="/signup" method="post">
+                <form class="form-signin" action="/signup" method="post" spellcheck="false">
                     <div class="form-group input-group">
                         <i class="user-bg"></i>
-                        <label>Username<label
-                                    style="margin: 0 0 0 1rem; font-weight: bold; font-size: small"
-                                    id="usernameCheckMessage"></label></label>
+                        <label>Username</label>
                         <input oninput="checkLabel(this); checkUsername(this, '#usernameCheckMessage')" type="text"
                                class="form-control"
                                name="username" id="username">
+                        <span class="popup">
+                            <i>
+                                <span class="popup-right dont-show" id="usernameCheckMessage"></span></i>
+                        </span>
                     </div>
                     <div class="form-group input-group">
                         <i class="lock-bg"></i>
-                        <label>Password<label
-                                    style="margin: 0 0 0 0.9rem; font-weight: bold; font-size: small"
-                                    id="passwordCheckMessage"></label></label>
-                        <input oninput="checkLabel(this); checkPassword(this, '#passwordCheckMessage'); checkPasswordConfirm(this, '#confirmPassword', '#passwordConfirmMessage', '#changePasswordBtn')"
+                        <label>Password</label>
+                        <input oninput="checkLabel(this); checkPassword(this, '#passwordCheckMessage'); checkPasswordConfirm(this, '#confirmPassword', '#passwordConfirmMessage')"
                                id="password"
                                type="password" class="form-control" name="password" required>
+                        <span class="popup">
+                            <i><span class="popup-right dont-show" id="passwordCheckMessage"></span></i>
+                        </span>
                     </div>
                     <div class="form-group input-group">
                         <i class="lock-bg"></i>
-                        <label>Confirm Password<label
-                                    style="margin: 0 0 0 3.5rem; font-weight: bold; font-size: small"
-                                    id="passwordConfirmMessage"></label></label>
-                        <input oninput="checkLabel(this); checkPasswordConfirm('#password', this, '#passwordConfirmMessage', '#signupBtn')"
+                        <label>Confirm Password</label>
+                        <input oninput="checkLabel(this); checkPasswordConfirm('#password', this, '#passwordConfirmMessage')"
                                id="confirmPassword" type="password"
                                class="form-control" required>
+                        <span class="popup">
+                            <i>
+                                <span class="popup-right dont-show" id="passwordConfirmMessage"></span></i>
+                        </span>
                     </div>
                     <div class="form-group input-group">
                         <i class="email-bg"></i>
-                        <label>School Email<label
-                                    style="margin: 0 0 0 1.9rem; font-weight: bold; font-size: small"
-                                    id="emailCheckMessage"></label></label>
-                        <input oninput="checkLabel(this); checkBcpEmail(this, '#emailCheckMessage', '#signupBtn')"
+                        <label>School Email</label>
+                        <input oninput="checkLabel(this); checkBcpEmail(this, '#emailCheckMessage')"
                                type="text" class="form-control" name="school_email" id="schoolEmail">
+                        <span class="popup">
+                            <i>
+                                <span class="popup-right dont-show" id="emailCheckMessage"></span></i>
+                        </span>
+                    </div>
+
+                    <!-- TODO implement this in backend -->
+                    <div style="display: none; align-items: center; flex-basis: content" id="personalInfo">
+                        <div class="form-group input-group" style="filter: opacity(0.2)">
+                            <i class="user-bg"></i>
+                            <label>First Name</label>
+                            <input oninput="checkLabel(this); checkFirstName(this, '#firstNameCheckMessage')"
+                                   type="text" class="form-control" name="first_name" id="firstName" disabled>
+                        </div>
+                        <div class="form-group input-group" style="filter: opacity(0.2)">
+                            <i class="user-bg"></i>
+                            <label>Last Name</label>
+                            <input oninput="checkLabel(this); checkLastName(this, '#lastNameCheckMessage')"
+                                   type="text" class="form-control" name="last_name" id="lastName" disabled>
+                        </div>
+                        <div class="form-group input-group" style="filter: opacity(0.2)">
+                            <i class="user-bg"></i>
+                            <label>Graduation Year</label>
+                            <input oninput="checkLabel(this); checkLastName(this, '#lastNameCheckMessage')"
+                                   type="text" class="form-control" name="graduation_year" id="graduationYear" disabled>
+                        </div>
+                        <div style="margin-bottom: 2rem">
+                            <span class="popup">
+                                <i class="fa fa-question-circle">
+                                    <span class="popup-right">This information can be changed later</span>
+                                </i>
+                            </span>
+                        </div>
                     </div>
 
                     <% if (needsBeta) { %>
                         <div class="form-group input-group">
                             <i class="key-bg"></i>
-                            <label>Beta Key<label
-                                        style="margin: 0 0 0 0.7rem; font-weight: bold; font-size: small"
-                                        id="betakeyCheckMessage"></label></label>
-                            <input oninput="checkLabel(this); checkBetaKey(this, '#betakeyCheckMessage')"
-                                   class="form-control" type="text" name="beta_key"
+                            <label>Beta Key</label>
+                            <input oninput="checkLabel(this); checkBetaKey(this, '#betakeyMessage')"
+                                   class="form-control input-validator" type="text" name="beta_key"
                                    id="betaKey">
+                            <span class="popup">
+                                <i>
+                                    <span class="popup-right dont-show" id="betakeyMessage"></span></i>
+                            </span>
                         </div>
                     <% } %>
-                    <br>
                     <div class="text-center">
-                        <button id="signupBtn" type="submit" class="btn btn-default btn-lg" disabled>Signup</button>
+                        <button id="signupBtn" type="submit" class="btn btn-default btn-lg" disabled>Signup
+                        </button>
                     </div>
                 </form>
             </div>
@@ -95,8 +133,8 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
 
-    setTimeout(function () {
-        $('input:-webkit-autofill').each(function () {
+    setTimeout(() => {
+        $("input:-webkit-autofill").each(function () {
             let input = $(this);
             let label = $($(input)[0].previousElementSibling);
             label.addClass("label-active");
@@ -118,174 +156,312 @@
     let checkingUsername;
 
     function checkUsername(inputID, messageDivID) {
-        const usernameRegex = new RegExp('^[a-zA-Z0-9]*$');
+        const usernameRegex = new RegExp("^[a-zA-Z0-9]*$");
 
         let username = $(inputID)[0].value;
-        if (username.length === 0) {
-            if (messageDivID) {
-                $(messageDivID).text("");
-            }
-            return false;
-        }
-        if (!usernameRegex.test(username)) {
-            if (messageDivID) {
-                $(messageDivID).css('color', 'red').text("Username must contain only lowercase letters and numbers");
-            }
-            return false;
-        }
-        if (username.length > 16) {
-            if (messageDivID) {
-                $(messageDivID).css('color', 'red').text("Username must contain 16 or fewer characters.");
-            }
-            return false;
-        }
+        let icon = $($($(inputID)[0].nextElementSibling)[0].firstElementChild);
 
-        $(messageDivID).css('color', 'blue').text("Loading...");
-        if (checkingUsername) {
-            clearTimeout(checkingUsername);
-        }
-        checkingUsername = setTimeout(() => {
-            $.ajax({
-                url: "/usernameAvailable", type: "POST", async: false,
-                data: {username: username}
-            }).done(() => {
-                if (messageDivID) {
-                    // Make sure value is still the same
-                    if (username === $(inputID)[0].value) {
-                        $(messageDivID).css('color', 'green').text("Valid username!");
-                        setTimeout(() => validateSignup(), 400);
-                    }
-                }
-            }).fail(() => {
-                if (messageDivID) {
-                    // Make sure value is still the same
-                    if (username === $(inputID)[0].value) {
-                        $(messageDivID).css('color', 'red').text("Username already exists!");
-                    }
-                }
-            });
-        }, 1000);
+        if (messageDivID) {
+            $(messageDivID).addClass("dont-show").removeClass("always-show");
+            icon.attr("class", "fa fa-pulse fa-spinner");
+            $(inputID).css("border-bottom-color", "blue");
+            if (checkingUsername) {
+                clearTimeout(checkingUsername);
+            }
 
+            if (username.length === 0) {
+                if (messageDivID) {
+                    $(messageDivID).addClass("dont-show").removeClass("always-show");
+                    icon.attr("class", "");
+                    $(inputID).css("border-bottom-color", "");
+                }
+                return;
+            }
+
+            checkingUsername = setTimeout(() => {
+                if (!usernameRegex.test(username)) {
+                    if (messageDivID) {
+                        $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Username must contain only letters and numbers");
+                        icon.attr("class", "fa fa-exclamation-circle");
+                        $(inputID).css("border-bottom-color", "red");
+                        invalidateSignup();
+                    }
+                    return;
+                }
+                if (username.length > 16) {
+                    if (messageDivID) {
+                        $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Username must contain 16 or fewer characters");
+                        icon.attr("class", "fa fa-exclamation-circle");
+                        $(inputID).css("border-bottom-color", "red");
+                        invalidateSignup();
+                    }
+                    return;
+                }
+                $.ajax({
+                           url: "/usernameAvailable", type: "POST", async: false, data: {username: username}
+                       }).done((response) => {
+                    if (messageDivID) {
+                        // Make sure value is still the same
+                        if (username === $(inputID)[0].value) {
+                            $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text(response);
+                            icon.attr("class", "fa fa-check-circle");
+                            $(inputID).css("border-bottom-color", "");
+                            validateSignup();
+                        }
+                    }
+                }).fail((data) => {
+                    if (messageDivID) {
+                        // Make sure value is still the same
+                        if (username === $(inputID)[0].value) {
+                            $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text(data.responseText);
+                            icon.attr("class", "fa fa-exclamation-circle");
+                            $(inputID).css("border-bottom-color", "red");
+                            invalidateSignup();
+                        }
+                    }
+                });
+            }, 400);
+        } else {
+            return icon.attr("class") === "fa fa-check-circle";
+        }
     }
 
-    function checkPassword(inputID, messageDivID, oldPasswordID) {
-        const lowerCaseRegex = new RegExp('^(?=.*[a-z])');
-        const upperCaseRegex = new RegExp('^(?=.*[A-Z])');
-        const numericRegex = new RegExp('^(?=.*[0-9])');
+    let checkingPassword;
+
+    function checkPassword(inputID, messageDivID) {
+        const lowerCaseRegex = new RegExp("^(?=.*[a-z])");
+        const upperCaseRegex = new RegExp("^(?=.*[A-Z])");
+        const numericRegex = new RegExp("^(?=.*[0-9])");
 
         let password = $(inputID)[0].value;
-        let message;
-
-        if (oldPasswordID && (password === $(oldPasswordID)[0].value)) {
-            message = "You're supposed to be changing your password...";
-        } else if (password.length === 0) {
-            message = "";
-        } else if (password.length < 6) {
-            message = 'Your password must be at least 6 characters long.';
-        } else if (password.length > 64) {
-            message = 'Your password must be fewer than 64 characters long.';
-        } else if (!lowerCaseRegex.test(password)) {
-            message = 'Your password must include at least one lowercase character.';
-        } else if (!upperCaseRegex.test(password)) {
-            message = 'Your password must include at least one uppercase character.';
-        } else if (!numericRegex.test(password)) {
-            message = 'Your password must include at least one number.';
-        } else {
-            message = 'Strong password!';
-            if (!messageDivID) {
-                return true;
+        let icon = $($($(inputID)[0].nextElementSibling)[0].firstElementChild);
+        if (messageDivID) {
+            $(messageDivID).addClass("dont-show").removeClass("always-show");
+            icon.attr("class", "fa fa-pulse fa-spinner");
+            $(inputID).css("border-bottom-color", "blue");
+            if (checkingPassword) {
+                clearTimeout(checkingPassword);
             }
-            $(messageDivID).css('color', 'green').text(message);
-            return;
-        }
 
-        if (!messageDivID) {
-            return false;
+            if (password === "") {
+                $(messageDivID).addClass("dont-show").removeClass("always-show");
+                icon.attr("class", "");
+                $(inputID).css("border-bottom-color", "");
+                return;
+            }
+            checkingPassword = setTimeout(() => {
+                let message;
+                if (password.length < 6) {
+                    message = "Your password must be at least 6 characters long";
+                } else if (password.length > 64) {
+                    message = "Your password must be fewer than 64 characters long";
+                } else if (!lowerCaseRegex.test(password)) {
+                    message = "Your password must include at least one lowercase character";
+                } else if (!upperCaseRegex.test(password)) {
+                    message = "Your password must include at least one uppercase character";
+                } else if (!numericRegex.test(password)) {
+                    message = "Your password must include at least one number";
+                } else {
+                    message = "Strong password";
+                    $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text(message);
+                    icon.attr("class", "fa fa-check-circle");
+                    $(inputID).css("border-bottom-color", "");
+                    validateSignup();
+                    return;
+                }
+                if (message) {
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text(message);
+                    icon.attr("class", "fa fa-exclamation-circle");
+                    $(inputID).css("border-bottom-color", "red");
+                    invalidateSignup();
+                } else {
+                    $(messageDivID).addClass("dont-show").removeClass("always-show");
+                    icon.attr("class", "");
+                    $(inputID).css("border-bottom-color", "");
+                }
+            }, 400);
+        } else {
+            return !((password.length < 6) || (password.length > 64) || (!lowerCaseRegex.test(password)) || (!upperCaseRegex.test(password)) || (!numericRegex.test(password)));
         }
-        $(messageDivID).css('color', 'red').text(message);
     }
+
+    let checkingPasswordConfirm;
 
     function checkPasswordConfirm(inputID, confirmID, messageDivID) {
         let password = $(inputID)[0].value;
         let confirm = $(confirmID)[0].value;
-        if (checkPassword(inputID)) {
-            if (password === confirm) {
-                if (messageDivID) {
-                    $(messageDivID).css('color', 'green').text('Passwords match!');
-                }
-                return true;
-            } else if (confirm !== "") {
-                if (messageDivID) {
-                    $(messageDivID).css('color', 'red').text('Passwords do not match!');
-                }
-                return false;
-            }
-        }
+        let icon = $($($(confirmID)[0].nextElementSibling)[0].firstElementChild);
         if (messageDivID) {
-            $(messageDivID).text("");
+            $(messageDivID).addClass("dont-show").removeClass("always-show");
+            icon.attr("class", "fa fa-pulse fa-spinner");
+            $(confirmID).css("border-bottom-color", "blue");
+            if (checkingPasswordConfirm) {
+                clearTimeout(checkingPasswordConfirm);
+            }
+
+            if (confirm === "") {
+                $(messageDivID).addClass("dont-show").removeClass("always-show");
+                icon.attr("class", "");
+                $(confirmID).css("border-bottom-color", "");
+                return;
+            }
+            checkingPasswordConfirm = setTimeout(() => {
+                if (checkPassword(inputID)) {
+                    if (password === confirm) {
+                        $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text("Passwords match");
+                        icon.attr("class", "fa fa-check-circle");
+                        $(confirmID).css("color", "").css("border-bottom-color", "");
+                        validateSignup();
+                    } else {
+                        $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Passwords do not match");
+                        icon.attr("class", "fa fa-exclamation-circle");
+                        $(confirmID).css("border-bottom-color", "red");
+                        invalidateSignup();
+                    }
+                } else {
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Enter a valid password first");
+                    icon.attr("class", "fa fa-exclamation-circle");
+                    $(confirmID).css("border-bottom-color", "red");
+                    invalidateSignup();
+                }
+            }, 400);
+        } else {
+            return checkPassword(inputID) && password === confirm;
         }
-        return false;
     }
 
+    let checkingBcpEmail;
+
     function checkBcpEmail(inputID, messageDivID) {
-        const bcpEmailRegex = /\S\d+@bcp+\.org+/;
+        const bcpEmailRegex = /^[a-z]+\.[a-z]+[0-9]{2}@bcp.org$/i;
 
         let bcpEmail = $(inputID)[0].value;
-        if (bcpEmail === "") {
-            $(messageDivID).text("");
-            return false;
+        let icon = $($($(inputID)[0].nextElementSibling)[0].firstElementChild);
+
+        // First Name
+        let firstName = bcpEmail.indexOf(".") === -1 ? bcpEmail : bcpEmail.substring(0, bcpEmail.indexOf("."));
+        firstName = firstName.substring(0, 1).toUpperCase() + firstName.substring(1).toLowerCase();
+        $("#firstName").val(firstName);
+        checkLabel("#firstName");
+
+        // Last Name
+        let lastName = bcpEmail.indexOf(".") === -1 ? "" : bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? bcpEmail.substring(bcpEmail.indexOf(".") + 1) : bcpEmail.substring(bcpEmail.indexOf(".") + 1, bcpEmail.indexOf(bcpEmail.match(/\d/)));
+        lastName = lastName.substring(0, 1).toUpperCase() + lastName.substring(1).toLowerCase();
+        $("#lastName").val(lastName);
+        checkLabel("#lastName");
+
+        // Graduation Year
+        let graduationYear = bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? "" : bcpEmail.indexOf("@") === -1 ? bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/))) : bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/)), bcpEmail.indexOf("@"));
+        if (graduationYear) {
+            graduationYear = parseInt(graduationYear);
+            graduationYear += 2000;
         }
-        if (!bcpEmailRegex.test(bcpEmail)) {
-            $(messageDivID).css('color', 'red').text('This must be a .bcp email.');
-            return false;
+        $("#graduationYear").val(graduationYear);
+        checkLabel("#graduationYear");
+
+        if (messageDivID) {
+            $(messageDivID).addClass("dont-show").removeClass("always-show");
+            icon.attr("class", "fa fa-pulse fa-spinner");
+            $(inputID).css("border-bottom-color", "blue");
+            if (checkingBcpEmail) {
+                clearTimeout(checkingBcpEmail);
+            }
+
+            let personalInfo = $("#personalInfo");
+            if (bcpEmail === "") {
+                $(messageDivID).addClass("dont-show").removeClass("always-show");
+                icon.attr("class", "");
+                $(inputID).css("border-bottom-color", "");
+                personalInfo.hide();
+                return false;
+            }
+            personalInfo.css("display", "flex");
+            checkingBcpEmail = setTimeout(() => {
+                if (!bcpEmailRegex.test(bcpEmail)) {
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("This must be your Bellarmine school email");
+                    icon.attr("class", "fa fa-exclamation-circle");
+                    $(inputID).css("border-bottom-color", "red");
+                    invalidateSignup();
+                    return;
+                }
+                $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text("Valid email");
+                icon.attr("class", "fa fa-check-circle");
+                $(inputID).css("border-bottom-color", "");
+                validateSignup();
+            }, 400);
+        } else {
+            return bcpEmailRegex.test(bcpEmail);
         }
-        $(messageDivID).css('color', 'green').text('Valid email!');
-        return true;
+    }
+
+    function checkFirstName(inputID, messageDivID) {
+
+    }
+
+    function checkLastName(inputID, messageDivID) {
+
     }
 
     let checkingBetaKey;
 
     function checkBetaKey(inputID, messageDivID) {
-        const betakeyRegex = new RegExp('^[a-zA-Z0-9]*$');
+        const betakeyRegex = new RegExp("^[a-zA-Z0-9]*$");
 
         let betakey = $(inputID)[0].value;
-        if (betakey === "") {
-            $(messageDivID).text("");
-            return false;
-        }
-        if (!betakeyRegex.test(betakey) || betakey.length !== 7) {
-            $(messageDivID).css('color', 'red').text('Invalid beta key!');
-            return false;
-        }
+        let icon = $($($(inputID)[0].nextElementSibling)[0].firstElementChild);
 
-        $(messageDivID).css('color', 'blue').text('Loading...');
-        if (checkingBetaKey) {
-            clearTimeout(checkingBetaKey);
-        }
-        checkingBetaKey = setTimeout(() => {
-            $.ajax({
-                url: "/betaKeyValid", type: "POST", async: false, data: {betaKey: betakey}
-            }).done((response) => {
-                if (messageDivID) {
-                    // Make sure value is still the same
-                    if (betakey === $(inputID)[0].value) {
-                        $(messageDivID).css('color', 'green').text(response);
-                        setTimeout(() => validateSignup(), 400);
-                    }
-                }
-            }).fail((data) => {
-                if (messageDivID) {
-                    // Make sure value is still the same
-                    if (betakey === $(inputID)[0].value) {
-                        $(messageDivID).css('color', 'red').text(data.responseText);
-                    }
-                }
-            });
-        }, 1000);
-        if ($(messageDivID).css('color') === 'green') {
+        if (!inputID) {
             return true;
+        }
+        if (messageDivID) {
+            $(messageDivID).addClass("dont-show").removeClass("always-show");
+            icon.attr("class", "fa fa-pulse fa-spinner");
+            $(inputID).css("border-bottom-color", "blue");
+            if (checkingBetaKey) {
+                clearTimeout(checkingBetaKey);
+            }
+
+            if (betakey === "") {
+                $(messageDivID).addClass("dont-show").removeClass("always-show");
+                icon.attr("class", "");
+                $(inputID).css("border-bottom-color", "");
+                return;
+            }
+            checkingBetaKey = setTimeout(() => {
+                if (!betakeyRegex.test(betakey) || betakey.length !== 7) {
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Invalid beta key");
+                    icon.attr("class", "fa fa-exclamation-circle");
+                    $(inputID).css("border-bottom-color", "red");
+                    invalidateSignup();
+                    return;
+                }
+
+                $.ajax({
+                           url: "/betaKeyValid", type: "POST", async: false, data: {betaKey: betakey}
+                       }).done((response) => {
+                    if (messageDivID) {
+                        // Make sure value is still the same
+                        if (betakey === $(inputID)[0].value) {
+                            $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text(response);
+                            icon.attr("class", "fa fa-check-circle");
+                            $(inputID).css("border-bottom-color", "");
+                            validateSignup();
+                        }
+                    }
+                }).fail((data) => {
+                    if (messageDivID) {
+                        // Make sure value is still the same
+                        if (betakey === $(inputID)[0].value) {
+                            $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text(data.responseText);
+                            icon.attr("class", "fa fa-exclamation-circle");
+                            $(inputID).css("border-bottom-color", "red");
+                            invalidateSignup();
+                        }
+                    }
+                });
+            }, 400);
         } else {
-            return false;
+            return icon.attr("class") === "fa fa-check-circle";
         }
     }
 
@@ -296,23 +472,28 @@
     let betaDiv = $("#betaKey");
     let signupBtn = $("#signupBtn");
 
-    userDiv.on('input', () => validateSignup());
-    passwordDiv.on('input', () => validateSignup());
-    confirmDiv.on('input', () => validateSignup());
-    emailDiv.on('input', () => validateSignup());
-    if ($(betaDiv)[0]) {
-        betaDiv.on('input', () => validateSignup());
+    function validateSignup() {
+        if (!checkUsername(userDiv)) { // Invalid Username
+            invalidateSignup();
+            return;
+        }
+        if (!checkPasswordConfirm(passwordDiv, confirmDiv)) { // Invalid or Unconfirmed Password
+            invalidateSignup();
+            return;
+        }
+        if (!checkBcpEmail(emailDiv)) { // Invalid Bcp Email
+            invalidateSignup();
+            return;
+        }
+        if (!checkBetaKey(betaDiv)) { // Invalid Beta Key
+            invalidateSignup();
+            return;
+        }
+        signupBtn.prop("disabled", "");
     }
 
-    function validateSignup() {
-        if (checkPasswordConfirm(passwordDiv, confirmDiv) && checkBcpEmail(emailDiv)) {
-            if ($($(userDiv)[0].previousElementSibling.children[0]).css('color') === 'rgb(0, 128, 0)' &&
-                (!$(betaDiv)[0] || $($(betaDiv)[0].previousElementSibling.children[0]).css('color') === 'rgb(0, 128, 0)')) {
-                $(signupBtn).prop('disabled', '');
-            }
-        } else {
-            $(signupBtn).prop('disabled', 'disabled');
-        }
+    function invalidateSignup() {
+        signupBtn.prop("disabled", "disabled");
     }
 
 </script>

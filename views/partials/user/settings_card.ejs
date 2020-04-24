@@ -288,6 +288,61 @@
                             </button>
                         </div>
                     </form>
+                    <form id="changePersonalInfo" class="card-footer form-signin" style="margin-top: 1em">
+                        <div class="form-group">
+                            <h5>Personal Info
+                                <span class="popup">
+                                    <i class="fa fa-question-circle">
+                                        <span class="popup-right">Editing personal info is not yet supported</span>
+                                    </i>
+                                </span>
+                            </h5>
+                            <div id="personalInfoChangeMessage"
+                                 class="alert alert-success alert-dismissible font-weight-bold"
+                                 style="display:none">
+                                <div style="display:none" class="sk-chase-mini">
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                </div>
+                                <div class="messageTxt"></div>
+                                <a class="close" onclick="closeMessage('personalInfoChangeMessage')" aria-label="close">X</a>
+                            </div>
+                            <br>
+                            <div style="display: flex; align-items: center; flex-basis: content" id="personalInfo">
+                                <div class="form-group input-group" style="filter: opacity(0.5)">
+                                    <i class="user-bg"></i>
+                                    <label>First Name</label>
+                                    <input oninput="checkLabel(this); checkFirstName(this, '#firstNameCheckMessage')"
+                                           type="text" class="form-control" name="first_name" id="firstName" disabled>
+                                </div>
+                                <div class="form-group input-group" style="filter: opacity(0.5)">
+                                    <i class="user-bg"></i>
+                                    <label>Last Name</label>
+                                    <input oninput="checkLabel(this); checkLastName(this, '#lastNameCheckMessage')"
+                                           type="text" class="form-control" name="last_name" id="lastName" disabled>
+                                </div>
+                                <div class="form-group input-group" style="filter: opacity(0.5)">
+                                    <i class="user-bg"></i>
+                                    <label>Graduation Year</label>
+                                    <input oninput="checkLabel(this); checkLastName(this, '#lastNameCheckMessage')"
+                                           type="text" class="form-control" name="graduation_year" id="graduationYear"
+                                           disabled>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit"
+                                    onclick=""
+                                    style="margin-top: -2rem"
+                                    class="btn btn-default btn-med" disabled>
+                                Update
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
             <div id="settings-3" class="tabcontent" style="display:none">
@@ -437,15 +492,42 @@
 <!-- Custom JavaScript -->
 <script type="text/javascript">
 
+    setupPersonalInfo();
+
+    function setupPersonalInfo() {
+        let bcpEmail = $("#schoolUsernameDisplay")[0].innerText;
+
+        // First Name
+        let firstName = bcpEmail.indexOf(".") === -1 ? bcpEmail : bcpEmail.substring(0, bcpEmail.indexOf("."));
+        firstName = firstName.substring(0, 1).toUpperCase() + firstName.substring(1).toLowerCase();
+        $("#firstName").val(firstName);
+        checkLabel("#firstName");
+
+        // Last Name
+        let lastName = bcpEmail.indexOf(".") === -1 ? "" : bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? bcpEmail.substring(bcpEmail.indexOf(".") + 1) : bcpEmail.substring(bcpEmail.indexOf(".") + 1, bcpEmail.indexOf(bcpEmail.match(/\d/)));
+        lastName = lastName.substring(0, 1).toUpperCase() + lastName.substring(1).toLowerCase();
+        $("#lastName").val(lastName);
+        checkLabel("#lastName");
+
+        // Graduation Year
+        let graduationYear = bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? "" : bcpEmail.indexOf("@") === -1 ? bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/))) : bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/)), bcpEmail.indexOf("@"));
+        if (graduationYear) {
+            graduationYear = parseInt(graduationYear);
+            graduationYear += 2000;
+        }
+        $("#graduationYear").val(graduationYear);
+        checkLabel("#graduationYear");
+    }
+
     function manageGradeSyncCheckbox() {
-        if ($('#gradeSyncDiv').css('display') === 'block' && !$('#gradeSyncToggle').prop('checked')) {
+        if ($("#gradeSyncDiv").css("display") === "block" && !$("#gradeSyncToggle").prop("checked")) {
             delete user.schoolPassword;
-            ajaxPostForm('#gradeSync', [], '', true);
-            $('#gradeSync').submit();
-            $('#gradeSyncDiv').hide();
+            ajaxPostForm("#gradeSync", [], "", true);
+            $("#gradeSync").submit();
+            $("#gradeSyncDiv").hide();
             $("#syncGradesDiv").show();
         } else {
-            showCard('#updateGradesDisplay');
+            showCard("#updateGradesDisplay");
         }
     }
 
@@ -505,9 +587,9 @@
     }
 
     function checkPassword(inputID, messageDivID, oldPasswordID) {
-        const lowerCaseRegex = new RegExp('^(?=.*[a-z])');
-        const upperCaseRegex = new RegExp('^(?=.*[A-Z])');
-        const numericRegex = new RegExp('^(?=.*[0-9])');
+        const lowerCaseRegex = new RegExp("^(?=.*[a-z])");
+        const upperCaseRegex = new RegExp("^(?=.*[A-Z])");
+        const numericRegex = new RegExp("^(?=.*[0-9])");
 
         let password = $(inputID)[0].value;
         let message;
@@ -517,28 +599,28 @@
         } else if (oldPasswordID && (password === $(oldPasswordID)[0].value)) {
             message = "You're supposed to be changing your password...";
         } else if (password.length < 6) {
-            message = 'Your password must be at least 6 characters long.';
+            message = "Your password must be at least 6 characters long.";
         } else if (password.length > 64) {
-            message = 'Your password must be fewer than 64 characters long.';
+            message = "Your password must be fewer than 64 characters long.";
         } else if (!lowerCaseRegex.test(password)) {
-            message = 'Your password must include at least one lowercase character.';
+            message = "Your password must include at least one lowercase character.";
         } else if (!upperCaseRegex.test(password)) {
-            message = 'Your password must include at least one uppercase character.';
+            message = "Your password must include at least one uppercase character.";
         } else if (!numericRegex.test(password)) {
-            message = 'Your password must include at least one number.';
+            message = "Your password must include at least one number.";
         } else {
-            message = 'Strong password!';
+            message = "Strong password!";
             if (!messageDivID) {
                 return true;
             }
-            $(messageDivID).css('color', 'green').text(message);
+            $(messageDivID).css("color", "green").text(message);
             return;
         }
 
         if (!messageDivID) {
             return false;
         }
-        $(messageDivID).css('color', 'red').text(message);
+        $(messageDivID).css("color", "red").text(message);
     }
 
     function checkPasswordConfirm(inputID, confirmID, messageDivID, buttonID) {
@@ -546,17 +628,17 @@
         let confirm = $(confirmID)[0].value;
         if (checkPassword(inputID)) {
             if (password === confirm) {
-                $(messageDivID).css('color', 'green').text('Passwords match!');
-                $(buttonID).prop('disabled', '');
+                $(messageDivID).css("color", "green").text("Passwords match!");
+                $(buttonID).prop("disabled", "");
                 return;
             } else if (confirm !== "") {
-                $(messageDivID).css('color', 'red').text('Passwords do not match!');
-                $(buttonID).prop('disabled', 'disabled');
+                $(messageDivID).css("color", "red").text("Passwords do not match!");
+                $(buttonID).prop("disabled", "disabled");
                 return;
             }
         }
         $(messageDivID).text("");
-        $(buttonID).prop('disabled', 'disabled');
+        $(buttonID).prop("disabled", "disabled");
     }
 
     function closeMessage(id) {

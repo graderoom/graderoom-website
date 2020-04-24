@@ -57,8 +57,8 @@
 
 <!-- Cards -->
 <% if (current === "home") { %>
+    <% include sync_grades_card.ejs %>
     <% include settings_card.ejs %>
-        <% include sync_grades_card.ejs %>
             <% include changelog.ejs %>
                 <% include privacy_policy.ejs %>
                     <% include terms_and_conditions.ejs %>

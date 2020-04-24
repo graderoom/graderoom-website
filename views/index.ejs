@@ -22,25 +22,24 @@
                     <img src="/public/resources/dark_mode/logo.png" class="logo" width=60rem> Graderoom
                 </h1>
                 <% if (message.length > 0) { %>
-                    <div class="alert alert-danger alert-dismissible">
-                        <a class="close" data-dismiss="alert" aria-label="close">X</a>
-                        <%= message %>
-                    </div>
+                    <span class="popup"><span
+                                style="max-width: 25rem !important; width: fit-content; position: relative; color: red; right: -50%; transform: translateX(-50%)"
+                                class="<% if (message.length > 0) { %> always-show<% } else { %> dont-show<% } %>"><%= message %></span></span>
+                <% } else { %><br>
                 <% } %>
                 <br>
-                <form class="form-signin" action="/login" method="post">
+                <form id="login" class="form-signin" action="/login" method="post">
                     <div class="input-group form-group">
                         <i class="user-bg"></i>
                         <label>Username</label>
                         <input oninput="checkLabel(this)" type="text" class="form-control" name="username"
-                               autofocus>
+                               autofocus id="usernameInput">
                     </div>
                     <div class="input-group form-group">
                         <i class="lock-bg"></i>
                         <label>Password</label>
                         <input oninput="checkLabel(this)" type="password" class="form-control" name="password">
                     </div>
-                    <br>
                     <div class="text-center">
                         <button type="submit" class="btn btn-default btn-lg">
                             <i class="fa fa-sign-in" aria-hidden="true"></i> Login
@@ -64,6 +63,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
 
     setTimeout(function () {

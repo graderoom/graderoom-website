@@ -351,7 +351,7 @@ module.exports = {
         } else {
             return {success: false, message: "One weight required!"};
         }
-        let suggestionNum = this.deleteSuggestionInClassDb(className, teacherName, hasWeights, weights).suggestion; 
+        let suggestionNum = this.deleteSuggestionInClassDb(className, teacherName, hasWeights, weights).suggestion;
         return {success: true, message: "Updated weights for " + className + " | " + teacherName, suggestion: suggestionNum};
     }, deleteSuggestionInClassDb: function (className, teacherName, hasWeights, weights) {
         let deleted = false;
@@ -466,7 +466,7 @@ module.exports = {
                 }
 
                 if (!validateEmail(schoolUsername)) {
-                    return resolve({success: false, message: "This must be your .bcp email."});
+                    return resolve({success: false, message: "This must be your Bellarmine school email."});
                 }
             }
 
@@ -536,7 +536,7 @@ module.exports = {
     }, changeSchoolEmail: function (username, schoolUsername) {
         let lc_username = username.toLowerCase();
         if (!validateEmail(schoolUsername)) {
-            return {success: false, message: "This must be your .bcp email."};
+            return {success: false, message: "This must be your Bellarmine College Preparatory school email."};
         }
         db.get("users").find({username: lc_username}).assign({schoolUsername: schoolUsername}).write();
         return {success: true, message: "School Email Updated"};
@@ -1075,13 +1075,16 @@ module.exports = {
         });
     },
 
-    getAllUsernames: function () {
-        let users = db.get("users").value();
-        let usernames = [];
-        for (let i = 0; i < users.length; i++) {
-            usernames.push(users[i].username);
+    usernameAvailable: function (username) {
+        if (!!db.get("users").find({username: username.toLowerCase()}).value()) {
+            return {success: false, message: "This username is already taken!"};
+        } else if (!!db.get("deletedUsers").find({username: username.toLowerCase()}).value()) {
+            return {
+                success: false,
+                message: "This account has been deleted! Email graderoom@gmail.com to recover your account."
+            };
         }
-        return usernames;
+        return {success: true, message: "Valid Username!"};
     },
 
     setLoggedIn: function (username) {
@@ -1105,7 +1108,7 @@ function isAlphaNumeric(str) {
 }
 
 function validateEmail(email) {
-    let re = /\S+\d+@bcp+\.org+/;
+    let re = /^[a-z]+\.[a-z]+[0-9]{2}@bcp.org$/i;
     return re.test(email);
 }
 
