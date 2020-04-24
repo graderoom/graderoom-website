@@ -168,9 +168,8 @@ table thead tr th {
     background-color: #EEEEEE;
 }
 
-.popup .popuptext {
-    background-color: #555555;
-    color: #FFFFFF;
+.popup span {
+    background-color: #FFFFFF;
 }
 
 .school-username {

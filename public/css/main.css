@@ -357,7 +357,6 @@ table thead tr th:last-child {
 .input-group {
     position: relative;
     margin-bottom: 2rem;
-    height: calc(150%);
 }
 
 .input-group input {
@@ -375,6 +374,147 @@ table thead tr th:last-child {
     transform: translateY(-50%);
     pointer-events: none;
     transition: 180ms ease;
+}
+
+.fa-close {
+    cursor: pointer;
+}
+
+.popup {
+    z-index: 3;
+}
+
+.popup .fa-close {
+    position: absolute;
+    top: 0.2rem;
+    right: 0.2rem;
+    height: 0.5rem;
+    width: 0.5rem;
+    font-size: 1rem;
+    transform: translateX(-50%) translateY(-50%);
+}
+
+.popup span {
+    position: absolute;
+    font-size: small;
+    font-family: "Montserrat", sans-serif;
+    text-align: center;
+    border-radius: 0.2rem;
+    padding: 0.5rem 0.6rem 0.5rem 0.6rem;
+    border: currentColor solid;
+    display: none;
+    white-space: normal;
+    animation: fadeIn 400ms ease;
+    min-width: 10rem;
+    max-width: 15rem;
+}
+
+.popup i, .popup button {
+    position: relative;
+}
+
+.popup i:hover span, input:focus + .popup i span {
+    display: block;
+    animation: fadeIn 400ms;
+}
+
+.dont-show {
+    display: none !important;
+}
+
+.always-show {
+    display: block !important;
+}
+
+.input-group .popup i {
+    position: absolute;
+    right: 0.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.popup .popup-top {
+    transform: translateX(-50%);
+    left: 50%;
+    bottom: 150%;
+}
+
+.popup .popup-top::after {
+    content: "";
+    position: absolute;
+    right: 50%;
+    transform: translateX(50%);
+    top: 100%;
+    border-left: 0.25rem solid transparent;
+    border-top: 0.5rem solid currentColor;
+    border-right: 0.25rem solid transparent;
+}
+
+.popup .popup-left {
+    transform: translateY(-50%);
+    top: 50%;
+    right: 150%;
+}
+
+.popup .popup-left::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 100%;
+    border-top: 0.25rem solid transparent;
+    border-left: 0.5rem solid currentColor;
+    border-bottom: 0.25rem solid transparent;
+}
+
+.popup .popup-bottom {
+    transform: translateX(-50%);
+    left: 50%;
+    top: 150%;
+}
+
+.popup .popup-bottom::after {
+    content: "";
+    position: absolute;
+    right: 50%;
+    transform: translateX(50%);
+    bottom: 100%;
+    border-left: 0.25rem solid transparent;
+    border-bottom: 0.5rem solid currentColor;
+    border-right: 0.25rem solid transparent;
+}
+
+.popup .popup-right {
+    transform: translateY(-50%);
+    top: 50%;
+    left: 150%;
+}
+
+.popup .popup-right::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 100%;
+    border-top: 0.25rem solid transparent;
+    border-right: 0.5rem solid currentColor;
+    border-bottom: 0.25rem solid transparent;
+}
+
+.fa-check-circle {
+    color: green;
+}
+
+.fa-exclamation-circle {
+    color: red;
+}
+
+.fa-spinner {
+    color: blue;
+}
+
+.fa-pulse, fa-spin {
+    top: 25% !important; /* Vertically centers spinning icons */
 }
 
 .label-active {
@@ -424,53 +564,9 @@ table thead tr th:last-child {
     margin: 0;
 }
 
-.popup {
-    position: relative;
-    display: inline-block;
-    cursor: pointer;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    white-space: normal;
-}
-
-.popup .popuptext {
-    font-family: "Montserrat", sans-serif;
-    visibility: hidden;
-    width: 180px;
-    height: fit-content;
-    text-align: center;
-    border-radius: 6px;
-    padding: 8px 8px 8px 8px;
-    position: absolute;
-    z-index: 1;
-    bottom: 150%;
-    left: 50%;
-    margin-left: -90px;
-}
-
-.popup .popuptext::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: #555555 transparent transparent transparent;
-}
-
-.popup:hover .popuptext {
-    visibility: visible;
-    -webkit-animation: fadeIn 1s;
-    animation: fadeIn 1s;
-}
-
 .scroll-to {
     position: absolute;
     padding: 0 0.5rem 0.2rem 0.5rem;
-    z-index: 999;
     height: 1.75rem;
     width: 10rem;
     text-align: center;
@@ -609,6 +705,10 @@ table thead tr th:last-child {
 
 .table {
     border-radius: 1rem;
+}
+
+th {
+    vertical-align: middle !important;
 }
 
 .table th {
@@ -784,7 +884,7 @@ input:checked + .slider:before {
 }
 
 #weightsCard .disabled {
-    color: #999 !important;
+    color: #999999 !important;
     border-bottom: none !important;
 }
 

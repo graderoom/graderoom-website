@@ -114,30 +114,33 @@
                 <% } %>
             <% } %>
             <!-- <div class="alert alert-danger alert-dismissible" id="weightmsg" style="display:none">
-                <a class="close" data-dismiss="alert" aria-label="close">X</a>
-                <span id="weightmsg_text"></span>
-            </div> -->
+                        <a class="close" data-dismiss="alert" aria-label="close">X</a>
+                        <span id="weightmsg_text"></span>
+                    </div> -->
             <!-- Overview Section -->
             <% if (user.alerts.lastUpdated.length !== 0) { %>
                 <span id="section-1">
                     <div style="display: flex">
                         <div style="display: flex; flex-flow: column; justify-content: center; align-items: center; padding-right: 1rem;">
-                            <i id="incorrectGPA"
-                               class="fa fa-5x fa-exclamation-circle popup"
-                               style="display: none; color: red; margin-left: 0.2rem; vertical-align: middle">
-                                                <span class="popuptext" style="font-size: 1rem; bottom: 5rem">
-                                                    Your GPA is incorrect. Please fix all issues marked with <i
-                                                            class="fa fa-exclamation-circle"></i> to resolve.
-                                                </span>
-                                            </i>
                             <h5 style="font-size: 2rem" class="text-center">Semester GPA</h5>
                             <h5 style="font-size: 5rem" id="GPA-display">--</h5>
+                            <span class="popup">
+                                <i id="incorrectGPA"
+                                   class="fa fa-2x fa-exclamation-circle"
+                                   style="display: none; margin-left: 0.2rem; vertical-align: middle">
+                                    <span class="popup-top">
+                                        Your GPA is incorrect. Please fix all issues marked with <i
+                                                class="fa fa-exclamation-circle"></i> to resolve.
+                                    </span>
+                                </i>
+                            </span>
                         </div>
                         <div id="chart-container-1" class="chart-container text-center"
                              style="position: relative; height:60vh; width: 100%; margin: 0 auto;">
                             <button id="reset-zoom-1"
                                     style="position: absolute; top: 0; right: 0; height: fit-content; display:none"
-                                    class="btn btn-sm" onclick="resetZoom(-1); $(this).hide()">Reset</button>
+                                    class="btn btn-sm" onclick="resetZoom(-1); $(this).hide()">Reset
+                            </button>
                             <canvas id="chart-1" class="chart" style="height: 60vh; width: 60vw;"></canvas>
                         </div>
                     </div>
@@ -149,17 +152,21 @@
                                 <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
                                     <% if (user.appearance.showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
                                         <th id="overview<%= i + offset %>" class="overview"
-                                            style="cursor: pointer; color: <%= user.appearance.classColors[i] %>"
+                                            style="cursor: pointer; color: <%= user.appearance.classColors[i] %>; text-align: center"
                                             onclick="showPage(<%= i + offset %>)">
                                             <%= JSON.parse(gradeData)[i].class_name %>
-                                            <i id="incorrectOverviewGrade<%= i + offset %>"
-                                               class="fa fa-exclamation-circle popup"
-                                               style="display: none; color: red; margin-left: 0.2rem; vertical-align: middle">
-                                                <span class="popuptext">
-                                                    WARNING: Your grade in PowerSchool, <%= JSON.parse(gradeData)[i].overall_percent %>%
-                                (<%= JSON.parse(gradeData)[i].overall_letter %>) does not match the calculated grade. Make sure your weights are entered correctly.
-                                                </span>
-                                            </i></th>
+                                            <span class="popup">
+                                                <i id="incorrectOverviewGrade<%= i + offset %>"
+                                                   class="fa fa-exclamation-circle"
+                                                   style="display: none; margin-left: 0.2rem">
+                                                    <span class="popup-top">
+                                                        WARNING: Your grade in
+                                                        PowerSchool, <%= JSON.parse(gradeData)[i].overall_percent %>%
+                                                        (<%= JSON.parse(gradeData)[i].overall_letter %>) does not match
+                                                        the
+                                                        calculated grade. Make sure your weights are entered correctly.
+                                                    </span>
+                                                </i></span></th>
                                     <% } else {
                                         offset--;
                                     } %>
@@ -175,7 +182,8 @@
                                             style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= user.appearance.classColors[i] %>"
                                             onclick="showPage(<%= i + offset %>)">
                                             <div id="overviewChart<%= i + offset %>"
-                                                 style="display:block; font-weight:bolder">--<br>--<br>--</div>
+                                                 style="display:block; font-weight:bolder">--<br>--<br>--
+                                            </div>
                                         </td>
                                     <% } else {
                                         offset--;
@@ -206,7 +214,8 @@
                                 <button id="reset-zoom<%= i + offset %>"
                                         style="position: absolute; top: 0; right: 0; height: fit-content; display:none"
                                         class="btn btn-sm"
-                                        onclick="resetZoom(<%= i + offset %>); $(this).hide()">Reset</button>
+                                        onclick="resetZoom(<%= i + offset %>); $(this).hide()">Reset
+                                </button>
                                 <canvas id="chart<%= i + offset %>" class="chart"></canvas>
                             </div>
                             <form id="weights<%= i + offset %>" class="form-ajax form-weights form-signin"
@@ -215,44 +224,52 @@
                                        style="width: 25%; white-space: nowrap; margin: 20px"
                                        id="weightsTable<%= i + offset %>">
                                     <thead>
-                                    <tr>
-                                        <th colspan="4" style="padding: 0.3rem 0">
-                                            <label style="display: flex; font-size: 1rem; justify-content: center; margin: 0; align-items: center">Point Based&nbsp
-                                                <label class="switch">
-                                                    <input
-                                                            id="check<%= i + offset %>"
-                                                            style="margin: 0; display: flex"
-                                                            type="checkbox"
-                                                            name="hasWeights"
-                                                    <% if (JSON.parse(weightData)[JSON.parse(gradeData)[i + offset].class_name]["hasWeights"] === "false") { %>
-                                                            checked
-                                                            <% } %>
-                                                            oninput="disableInput('check<%= i + offset %>','weightsTable<%= i + offset %>'); resetInputs('#weights<%= i + offset %>'); $('#weights<%= i + offset %>').submit();"
-                                                    >
-                                                    <span style="color: <%= user.appearance.classColors[i + offset] %>"
-                                                          class="slider"></span>
+                                        <tr>
+                                            <th colspan="4" style="padding: 0.3rem 0">
+                                                <label style="display: flex; font-size: 1rem; justify-content: center; margin: 0; align-items: center">Point
+                                                    Based&nbsp
+                                                    <label class="switch">
+                                                        <input
+                                                                id="check<%= i + offset %>"
+                                                                style="margin: 0; display: flex"
+                                                                type="checkbox"
+                                                                name="hasWeights"
+                                                        <% if (JSON.parse(weightData)[JSON.parse(gradeData)[i + offset].class_name]["hasWeights"] === "false") { %>
+                                                                checked
+                                                                <% } %>
+                                                                oninput="disableInput('check<%= i + offset %>','weightsTable<%= i + offset %>'); resetInputs('#weights<%= i + offset %>'); $('#weights<%= i + offset %>').submit();"
+                                                        >
+                                                        <span style="color: <%= user.appearance.classColors[i + offset] %>"
+                                                              class="slider"></span>
+                                                    </label>
                                                 </label>
-                                            </label>
-                                        </th>
-                                    </tr>
+                                            </th>
+                                        </tr>
                                         <tr>
                                             <th>Category</th>
-                                            <th style="width: 10rem !important" id="weight-header<%= i + offset %>">Weights
-                                                <i
-                                                        id="reset<%= i + offset %>"
-                                                        type="button"
-                                                        style="color: #888888; margin: 0; cursor: pointer; display:inline-block;"
-                                                        class="fa fa-undo popup"
-                                                        onclick="resetWeights(<%= i + offset %>); $('#weights<%= i + offset %>').submit();">
-                                                    <span style="width: 5rem; margin-left: -2.5rem;" class="popuptext">Revert to Default</span>
-                                                </i>
-                                                <i style="color: red; display: inline-block"
-                                                   id="ignoringWeights<%= i + offset %>"
-                                                   class="fa fa-exclamation-circle popup">
-                                                    <span class="popuptext">
-                                                        Enter all weights to enable weighted overall grade calculation or choose the point-based option.
-                                                    </span>
-                                                </i>
+                                            <th style="width: 10rem !important" id="weight-header<%= i + offset %>">
+                                                Weights
+                                                <span class="popup">
+                                                    <i
+                                                            id="reset<%= i + offset %>"
+                                                            style="color: #888888; margin: 0; cursor: pointer; display:inline-block"
+                                                            class="fa fa-undo"
+                                                            onclick="resetWeights(<%= i + offset %>); $('#weights<%= i + offset %>').submit();">
+                                                        <span class="popup-top">Revert
+                                                            to Default</span>
+                                                    </i>
+                                                </span>
+                                                <span class="popup">
+                                                    <i style="display: inline-block"
+                                                       id="ignoringWeights<%= i + offset %>"
+                                                       class="fa fa-exclamation-circle">
+                                                        <span class="popup-top">
+                                                            Enter all weights to enable weighted overall grade
+                                                            calculation
+                                                            or choose the point-based option.
+                                                        </span>
+                                                    </i>
+                                                </span>
                                             </th>
                                             <th>Score</th>
                                             <th>Grade</th>
@@ -281,35 +298,41 @@
                                             </tr>
                                         <% } %>
                                         <script>
-                                        function disableInput(checkBoxID, id) {
-                                            $('#' + id).find('.disableable').each(function () {
-                                                if ($('#' + checkBoxID).is(":checked")) {
-                                                    $(this).val("");
-                                                    $(this).addClass("disabled");
-                                                    $(this).attr('disabled', 'disabled');
-                                                } else {
-                                                    $(this).removeClass("disabled");
-                                                    $(this).removeAttr('disabled');
-                                                }
-                                            })
-                                        }
+                                            function disableInput(checkBoxID, id) {
+                                                $("#" + id).find(".disableable").each(function () {
+                                                    if ($("#" + checkBoxID).is(":checked")) {
+                                                        $(this).val("");
+                                                        $(this).addClass("disabled");
+                                                        $(this).attr("disabled", "disabled");
+                                                    } else {
+                                                        $(this).removeClass("disabled");
+                                                        $(this).removeAttr("disabled");
+                                                    }
+                                                });
+                                            }
 
-                                        disableInput('check<%= i + offset %>', 'weightsTable<%= i + offset %>');
-                                    </script>
+                                            disableInput('check<%= i + offset %>', 'weightsTable<%= i + offset %>');
+                                        </script>
                                     <tfoot>
                                         <tr>
                                             <th colspan="4">
                                                 <div style="display:none; color: <%= user.appearance.classColors[i] %>"
                                                      id="weightTableOverallGrade<%= i + offset %>">
                                                 </div>
-                                                <i id="incorrectOverallGrade<%= i + offset %>"
-                                                   class="fa fa-exclamation-circle popup"
-                                                   style="display: none; color: red; margin-left: 0.2rem; vertical-align: middle">
-                                                    <span class="popuptext">
-                                                        WARNING: Your grade in PowerSchool, <%= JSON.parse(gradeData)[i].overall_percent %>%
-                                    (<%= JSON.parse(gradeData)[i].overall_letter %>) does not match the calculated grade.
-                                                    </span>
-                                                </i>
+                                                <span class="popup">
+                                                    <i id="incorrectOverallGrade<%= i + offset %>"
+                                                       class="fa fa-exclamation-circle"
+                                                       style="margin-left: 0.2rem; vertical-align: middle">
+                                                        <span class="popup-top">
+                                                            WARNING: Your grade in
+                                                            PowerSchool, <%= JSON.parse(gradeData)[i].overall_percent %>
+                                                            %
+                                                            (<%= JSON.parse(gradeData)[i].overall_letter %>) does not
+                                                            match
+                                                            the calculated grade.
+                                                        </span>
+                                                    </i>
+                                                </span>
                                             </th>
                                         </tr>
                                     </tfoot>
@@ -344,13 +367,13 @@
                                         </tr>
                                     <% } else { %>
                                         <tr id="classTable<%= i + offset %><%= j + jOffset %>">
-                                        <td id="assignmentDate<%= i + offset %><%= j + jOffset %>"></td>
-                                        <td id="assignmentName<%= i + offset %><%= j + jOffset %>"></td>
-                                        <td id="assignmentCategory<%= i + offset %><%= j + jOffset %>"></td>
+                                            <td id="assignmentDate<%= i + offset %><%= j + jOffset %>"></td>
+                                            <td id="assignmentName<%= i + offset %><%= j + jOffset %>"></td>
+                                            <td id="assignmentCategory<%= i + offset %><%= j + jOffset %>"></td>
                                             <td id="assignmentScore<%= i + offset %><%= j + jOffset %>"></td>
-                                                <td id="assignmentPercent<%= i + offset %><%= j + jOffset %>"></td>
+                                            <td id="assignmentPercent<%= i + offset %><%= j + jOffset %>"></td>
                                             <td id="assignment<%= i + offset %><%= j + jOffset %>"></td>
-                                    </tr>
+                                        </tr>
                                     <% } %>
                                 <% } %>
                             </tbody>
@@ -537,6 +560,7 @@
 
     function setupIncorrectGradeMessages() {
         $("#incorrectGPA").hide();
+        $("#GPA-display").removeClass("ignored");
         for (let i = 0; i < data.length; i++) {
             let realOverallGrade = data[i].overall_percent;
             let realOverallLetter = data[i].overall_letter;
@@ -546,9 +570,11 @@
             if (correctDecimalPlaces != realOverallGrade || calculatedOverallLetter !== realOverallLetter) {
                 $("#incorrectOverviewGrade" + i).css("display", "inline");
                 $("#incorrectOverallGrade" + i).css("display", "inline");
+                $("#overviewChart" + i).addClass("ignored");
             } else {
                 $("#incorrectOverviewGrade" + i).hide();
                 $("#incorrectOverallGrade" + i).hide();
+                $("#overviewChart" + i).removeClass("ignored");
             }
 
             // GPA will only be different if the actual letter is different
@@ -556,13 +582,16 @@
             let strippedRealLetter = realOverallLetter.substring(0, 1);
             if (strippedCalculatedLetter !== strippedRealLetter) {
                 $("#incorrectGPA").css("display", "inline");
+                $("#GPA-display").addClass("ignored");
             }
         }
     }
 
     function countDecimals(value) {
-        if (Math.floor(value) === value) return 0;
-        return value.toString().split('.')[1].length || 0;
+        if (Math.floor(value) === value) {
+            return 0;
+        }
+        return value.toString().split(".")[1].length || 0;
     }
 
     function getOverallGPA() {
@@ -708,13 +737,13 @@
                 $("#weightTableWeight" + i + j + " input").blur(() => {
                     clearTimeout(submittingWeights);
                     submittingWeights = setTimeout(() => {
-                        resetInputs('#weights' + i);
+                        resetInputs("#weights" + i);
                         $("#weightTableWeight" + i + j).parents("form").submit();
                     }, 400);
                 }).on("keyup", (e) => {
                     e = e || window.event;
                     let keyCode = e.code;
-                    if (keyCode === 'Enter') {
+                    if (keyCode === "Enter") {
                         $("#weightTableWeight" + i + j + " input").blur();
                     }
                 });
@@ -734,7 +763,7 @@
                 enableReset = false;
                 let keys = Object.keys(weights[className]["weights"]);
                 for (let i = 0; i < keys.length; i++) {
-                    if (weights[className]["hasWeights"]=="false" && keys[i] in relClassData[className]["weights"]) {
+                    if (weights[className]["hasWeights"] == "false" && keys[i] in relClassData[className]["weights"]) {
                         enableReset = true;
                     } else if ((keys[i] in relClassData[className]["weights"]) && weights[className]["weights"][keys[i]] != relClassData[className]["weights"][keys[i]]) {
                         enableReset = true;
@@ -744,18 +773,18 @@
 
             //Hide or Show Reset Button
             if (enableReset) {
-                $('#reset' + i).show();
+                $("#reset" + i).show();
                 $("#weight-header" + i).css("font-style", "italic");
             } else {
-                $('#reset' + i).hide();
+                $("#reset" + i).hide();
                 $("#weight-header" + i).css("font-style", "normal");
             }
 
             //Hide or Show Ignoring weights
             if (unobtainedWeights[className]) {
-                $('#ignoringWeights' + i).show();
+                $("#ignoringWeights" + i).show();
             } else {
-                $('#ignoringWeights' + i).hide();
+                $("#ignoringWeights" + i).hide();
             }
 
             for (let j = 0; j < tableCategories.length; j++) {
@@ -801,9 +830,8 @@
             }
             delta = (delta ? (" <div style=\"display: inline-block; margin-left: 1rem; color: " + color + "\">" + delta + "</div>") : "");
             if (overallGrade) {
-                document.getElementById("weightTableOverallGrade" + i).innerHTML =
-                    (+(overallGrade.toFixed(4))).toString() + "% (" + getLetterGrade(overallGrade) + ")" + delta;
-                $("#weightTableOverallGrade" + i).parents("th").css('background-color', bgColor);
+                document.getElementById("weightTableOverallGrade" + i).innerHTML = (+(overallGrade.toFixed(4))).toString() + "% (" + getLetterGrade(overallGrade) + ")" + delta;
+                $("#weightTableOverallGrade" + i).parents("th").css("background-color", bgColor);
             }
             document.getElementById("weightTableOverallGrade" + i).style.display = "inline";
 
@@ -830,12 +858,16 @@
 
                 // Set up scores
                 let score = assignmentScoresParsed[j];
-                if (score.substring(score.length - 2) === "/0") score = score.substring(0, score.length - 2);
+                if (score.substring(score.length - 2) === "/0") {
+                    score = score.substring(0, score.length - 2);
+                }
                 $("#assignmentScore" + i + j).text(score);
 
                 // Set up percents
                 let percent = assignmentPercents[j];
-                if (percent === -1 || isNaN(parseFloat(percent))) percent = "--";
+                if (percent === -1 || isNaN(parseFloat(percent))) {
+                    percent = "--";
+                }
                 $("#assignmentPercent" + i + j).text(percent);
 
                 // Set up coloring and gain/loss
@@ -859,11 +891,11 @@
                 }
                 let excludedDisplay = display + "% " + "<div style=\"display: inline-block; font-weight: normal; font-size: smaller\">(±0.00%) " + "<i class=\"fa fa-arrows-v\"></i>" + "</div>";
                 display = display + "% " + "<div style=\"display: inline-block; font-weight: normal; font-size: smaller\">" + delta + "</div>";
-                $("#assignment" + i + j).css('color', color).html(display);
+                $("#assignment" + i + j).css("color", color).html(display);
                 if (color) {
-                    $("#assignment" + i + j).css('font-weight', 'bold');
+                    $("#assignment" + i + j).css("font-weight", "bold");
                 }
-                $("#classTable" + i + j).css('background-color', bgColor);
+                $("#classTable" + i + j).css("background-color", bgColor);
                 let excluded = $(".excludedAssignment" + i + j);
                 if (excluded.length) {
                     excluded.html(excludedDisplay);
@@ -886,12 +918,16 @@
 
                 // Set upf scores
                 let score = assignmentScoresParsed[j];
-                if (score.substring(score.length - 2) === "/0") score = score.substring(0, score.length - 2);
+                if (score.substring(score.length - 2) === "/0") {
+                    score = score.substring(0, score.length - 2);
+                }
                 $("#excludedAssignmentScore" + i + j).text(score);
 
                 // Set up percents
                 let percent = assignmentPercents[j];
-                if (percent === -1 || isNaN(parseFloat(percent))) percent = "--";
+                if (percent === -1 || isNaN(parseFloat(percent))) {
+                    percent = "--";
+                }
                 $("#excludedAssignmentPercent" + i + j).text(percent);
             }
         }
@@ -919,8 +955,7 @@
             }
             delta = (delta ? (" <div style=\"display: inline-block; font-size: smaller; color: " + color + "\">" + delta + "</div>") : "");
             if (getOverallGrade(i)) {
-                document.getElementById("overviewChart" + i).innerHTML =
-                    (+(overallGrade.toFixed(4))).toString() + "%" + "<br>" + getLetterGrade(overallGrade) + "<br>" + delta;
+                document.getElementById("overviewChart" + i).innerHTML = (+(overallGrade.toFixed(4))).toString() + "%" + "<br>" + getLetterGrade(overallGrade) + "<br>" + delta;
                 document.getElementById("overviewChart" + i).parentElement.style.backgroundColor = bgColor;
                 document.getElementById("overview" + i).style.backgroundColor = bgColor;
             } else {
@@ -1035,26 +1070,26 @@
                 return {x: assignmentTimestamps[i], y: grade};
             });
             parsedData.push({
-                assignmentNames: assignmentNames,
-                assignmentDates: assignmentDates,
-                assignmentTimestamps: assignmentTimestamps,
-                assignmentPercents: assignmentPercents,
-                assignmentScoresParsed: assignmentScoresParsed,
-                assignmentCategories: assignmentCategories,
-                mixedData: mixedData
-            });
+                                assignmentNames: assignmentNames,
+                                assignmentDates: assignmentDates,
+                                assignmentTimestamps: assignmentTimestamps,
+                                assignmentPercents: assignmentPercents,
+                                assignmentScoresParsed: assignmentScoresParsed,
+                                assignmentCategories: assignmentCategories,
+                                mixedData: mixedData
+                            });
             assignmentNames = classData.grades.filter(x => x.exclude).map(x => x.assignment_name);
             assignmentDates = classData.grades.filter(x => x.exclude).map(x => x.date);
             assignmentPercents = classData.grades.filter(x => x.exclude).map(x => x.grade_percent);
             assignmentScoresParsed = classData.grades.filter(x => x.exclude).map(x => (x.points_gotten === false ? "--" : x.points_gotten) + (x.points_possible === false ? "" : "/" + x.points_possible));
             assignmentCategories = classData.grades.filter(x => x.exclude).map(x => x.category);
             excludedData.push({
-                assignmentNames: assignmentNames,
-                assignmentDates: assignmentDates,
-                assignmentPercents: assignmentPercents,
-                assignmentScoresParsed: assignmentScoresParsed,
-                assignmentCategories: assignmentCategories
-            });
+                                  assignmentNames: assignmentNames,
+                                  assignmentDates: assignmentDates,
+                                  assignmentPercents: assignmentPercents,
+                                  assignmentScoresParsed: assignmentScoresParsed,
+                                  assignmentCategories: assignmentCategories
+                              });
         }
 
     }
@@ -1084,27 +1119,27 @@
 
     function renderOverviewChart() {
         $("#chart-1").remove();
-        $("#chart-container-1").append('<canvas id="chart-1" class="chart"></canvas>');
+        $("#chart-container-1").append("<canvas id=\"chart-1\" class=\"chart\"></canvas>");
         let ctx = document.getElementById("chart-1");
         let dataset = [];
         let _colors = colors;
         for (let i = 0; i < data.length; i++) {
             dataset.push({
-                label: data[i].class_name,
-                backgroundColor: "transparent",
-                pointBackgroundColor: _colors[i],
-                pointBorderColor: "transparent",
-                borderColor: _colors[i],
-                data: parsedData[i].mixedData,
-                cubicInterpolationMode: "monotone",
-                spanGaps: false,
-                pointRadius: 3,
-                borderWidth: 3,
-                pointHoverRadius: 7,
-                pointHoverBackgroundColor: _colors[i],
-                pointHoverBorderColor: _colors[i],
-                pointHoverBorderWidth: 2
-            });
+                             label: data[i].class_name,
+                             backgroundColor: "transparent",
+                             pointBackgroundColor: _colors[i],
+                             pointBorderColor: "transparent",
+                             borderColor: _colors[i],
+                             data: parsedData[i].mixedData,
+                             cubicInterpolationMode: "monotone",
+                             spanGaps: false,
+                             pointRadius: 3,
+                             borderWidth: 3,
+                             pointHoverRadius: 7,
+                             pointHoverBackgroundColor: _colors[i],
+                             pointHoverBorderColor: _colors[i],
+                             pointHoverBorderWidth: 2
+                         });
         }
         let numRunning = 0;
         charts[0] = new Chart(ctx, {
@@ -1154,9 +1189,7 @@
                         ticks: {
                             max: 110,
                             min: 70,
-                            fontColor: (darkMode ? "white" : "black"),
-                            fontFamily: "Verdana",
-                            fontSize: "12"
+                            fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "12"
                         }, gridLines: {
                             color: (darkMode ? "#555555" : "#CCCCCC"), drawBorder: false
                         }
@@ -1165,10 +1198,7 @@
                     easing: "easeOutCubic"
                 }, legend: {
                     display: true, position: "top", labels: {
-                        fontColor: (darkMode ? "white" : "black"),
-                        fontFamily: "Verdana",
-                        boxWidth: 20,
-                        fontSize: 13
+                        fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", boxWidth: 20, fontSize: 13
                     }
                 }, tooltips: {
                     enabled: true, position: "nearest", intersect: false, displayColors: true, callbacks: {
@@ -1178,38 +1208,28 @@
                             return ["[" + parsedData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.index] + "] " + parsedData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + ((parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== -1 && parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, 2) !== "--") ? (" - " + parsedData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "% ") : (" ")) + ((parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? ("(" + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")") : ("(" + parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, parsedData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2) + ")"))];
                         }
                     }
-                }, responsive: true, maintainAspectRatio: false,
-                plugins: {
+                }, responsive: true, maintainAspectRatio: false, plugins: {
                     zoom: {
                         zoom: {
-                            enabled: true,
-                            mode: 'y',
-                            speed: 0.05,
-                            onZoom: ({chart}) => {
-                                $('#reset-zoom-1').show();
+                            enabled: true, mode: "y", speed: 0.05, onZoom: ({chart}) => {
+                                $("#reset-zoom-1").show();
 
                                 // Disable hovering and tooltips to make animation smoother
                                 chart.options.hover.mode = null;
                                 chart.options.tooltips.enabled = false;
-                            },
-                            onZoomComplete: ({chart}) => {
-                                chart.options.hover.mode = 'nearest';
+                            }, onZoomComplete: ({chart}) => {
+                                chart.options.hover.mode = "nearest";
                                 chart.options.tooltips.enabled = true;
                             }
-                        },
-                        pan: {
-                            enabled: true,
-                            mode: 'y',
-                            speed: 0.05,
-                            onPan: ({chart}) => {
-                                $('#reset-zoom-1').show();
+                        }, pan: {
+                            enabled: true, mode: "y", speed: 0.05, onPan: ({chart}) => {
+                                $("#reset-zoom-1").show();
 
                                 // Disable hovering and tooltips to make animation smoother
                                 chart.options.hover.mode = null;
                                 chart.options.tooltips.enabled = false;
-                            },
-                            onPanComplete: ({chart}) => {
-                                chart.options.hover.mode = 'nearest';
+                            }, onPanComplete: ({chart}) => {
+                                chart.options.hover.mode = "nearest";
                                 chart.options.tooltips.enabled = true;
                             }
                         }
@@ -1221,7 +1241,7 @@
 
     function renderChart(id) {
         $("#chart" + id).remove();
-        $("#chart-container" + id).append('<canvas id="chart' + id + '" class="chart"></canvas>');
+        $("#chart-container" + id).append("<canvas id=\"chart" + id + "\" class=\"chart\"></canvas>");
         let ctx = document.getElementById("chart" + id);
         let _colors = colors;
         charts[id + 1] = new Chart(ctx, {
@@ -1274,38 +1294,28 @@
                             return ["[" + parsedData[id].assignmentCategories[tooltipItem.index] + "] " + parsedData[id].assignmentNames[tooltipItem.index] + ((parsedData[id].assignmentPercents[tooltipItem.index] !== -1 && parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(0, 2) !== "--") ? (" - " + parsedData[id].assignmentPercents[tooltipItem.index] + "% ") : (" ")) + ((parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? ("(" + parsedData[id].assignmentScoresParsed[tooltipItem.index] + ")") : ("(" + parsedData[id].assignmentScoresParsed[tooltipItem.index].substring(0, parsedData[id].assignmentScoresParsed[tooltipItem.index].length - 2) + ")"))];
                         }
                     }
-                }, responsive: true, maintainAspectRatio: false,
-                plugins: {
+                }, responsive: true, maintainAspectRatio: false, plugins: {
                     zoom: {
                         zoom: {
-                            enabled: true,
-                            mode: 'y',
-                            speed: 0.05,
-                            onZoom: ({chart}) => {
-                                $('#reset-zoom' + id).show();
+                            enabled: true, mode: "y", speed: 0.05, onZoom: ({chart}) => {
+                                $("#reset-zoom" + id).show();
 
                                 // Disable hovering and tooltips to make animation smoother
                                 chart.options.hover.mode = null;
                                 chart.options.tooltips.enabled = false;
-                            },
-                            onZoomComplete: ({chart}) => {
-                                chart.options.hover.mode = 'nearest';
+                            }, onZoomComplete: ({chart}) => {
+                                chart.options.hover.mode = "nearest";
                                 chart.options.tooltips.enabled = true;
                             }
-                        },
-                        pan: {
-                            enabled: true,
-                            mode: 'y',
-                            speed: 0.05,
-                            onPan: ({chart}) => {
-                                $('#reset-zoom' + id).show();
+                        }, pan: {
+                            enabled: true, mode: "y", speed: 0.05, onPan: ({chart}) => {
+                                $("#reset-zoom" + id).show();
 
                                 // Disable hovering and tooltips to make animation smoother
                                 chart.options.hover.mode = null;
                                 chart.options.tooltips.enabled = false;
-                            },
-                            onPanComplete: ({chart}) => {
-                                chart.options.hover.mode = 'nearest';
+                            }, onPanComplete: ({chart}) => {
+                                chart.options.hover.mode = "nearest";
                                 chart.options.tooltips.enabled = true;
                             }
                         }
@@ -1444,8 +1454,8 @@
 
     function resetWeights(index) {
         let className = data[index].class_name;
-        $('#check' + index).prop("checked", relClassData[className]["hasWeights"] == "false");
-        disableInput('check' + index, 'weightsTable' + index);
+        $("#check" + index).prop("checked", relClassData[className]["hasWeights"] == "false");
+        disableInput("check" + index, "weightsTable" + index);
         let keys = Object.keys(weights[className]["weights"]);
         for (let i = 0; i < keys.length; i++) {
             if (keys[i] in relClassData[className]["weights"]) {
@@ -1465,7 +1475,7 @@
 
     //Resets inputs to old weight value when exiting point based
     function resetInputs(form) {
-        let hasWeights = !($(form).find('input[name="hasWeights"]')).is(':checked');
+        let hasWeights = !($(form).find("input[name=\"hasWeights\"]")).is(":checked");
         let className = data[$(form)[0].id.substring(7)].class_name;
         if (eval(weights[className]["hasWeights"]) != eval(hasWeights)) {
             if (!hasWeights) {
@@ -1487,13 +1497,15 @@
                     event.preventDefault();
                     event.stopImmediatePropagation();
                     console.log("running");
-                    let hasWeights = !($(form).find('input[name="hasWeights"]')).is(':checked');
+                    let hasWeights = !($(form).find("input[name=\"hasWeights\"]")).is(":checked");
                     let className = data[$(form)[0].id.substring(7)].class_name;
 
                     let weightData = $(form).serializeArray();
                     let weightURI = {};
                     jQuery.map(weightData, function (n, i) {
-                        if (n.name !== "hasWeights") weightURI[n.name] = isNaN(parseFloat(n.value)) ? null : parseFloat(n.value);
+                        if (n.name !== "hasWeights") {
+                            weightURI[n.name] = isNaN(parseFloat(n.value)) ? null : parseFloat(n.value);
+                        }
                     });
                     if (isEqual(weights[className]["weights"], weightURI) && weights[className]["hasWeights"] === "true" == hasWeights) {
                         return;
@@ -1504,8 +1516,8 @@
                     let formData = "className=" + className + "&hasWeights=" + hasWeights + "&newWeights=" + weightURI;
 
                     $.ajax({
-                        type: "POST", url: $(form).attr("action"), data: formData
-                    }).done((data) => {
+                               type: "POST", url: $(form).attr("action"), data: formData
+                           }).done((data) => {
                         // Make sure that the formMessages div has the alert-success class.
                         className = decodeURI(className);
                         weights[className]["custom"] = data.includes("Custom");
@@ -1513,10 +1525,10 @@
                             let weight = $("#weightTableWeight" + $(form)[0].id.substring(7) + i + " input");
                             if (weight[0].value) {
                                 weight.addClass("text-view");
-                                weight.css('border-color', 'unset');
+                                weight.css("border-color", "unset");
                             } else {
                                 weight.removeClass("text-view");
-                                weight.css('border-color', 'lightcoral');
+                                weight.css("border-color", "lightcoral");
                             }
                         }
                         if (weightData[0].value === "on") {
@@ -1524,7 +1536,9 @@
                             setPointBasedWeights();
                         } else {
                             weights[className]["hasWeights"] = "true";
-                            if (weightData.length === 0) return;
+                            if (weightData.length === 0) {
+                                return;
+                            }
                             for (let weight of weightData) {
                                 weights[className]["weights"][weight.name] = parseFloat(weight.value);
                             }
