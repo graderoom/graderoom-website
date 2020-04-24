@@ -38,7 +38,7 @@
 
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
-## [Unreleased] - Send feature requests in Settings > Help > Feedback Form<br><strong>[Stable 3.0.0] - Target Release Date: 2020-04-20</strong><br><strong>This list will be periodically updated to reflect changes made in beta versions</strong>
+## [Unreleased] - Send feature requests in Settings > Help > Feedback Form<br><strong>[Stable 3.0.0]</strong><br><strong>This list will be periodically updated to reflect changes made in beta versions</strong>
 - <strong>Added</strong><ul>
 - Personal Info in Account Settings</ul>
 - <strong>Improved</strong><ul>
