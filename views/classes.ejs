@@ -28,7 +28,7 @@
     <span class="accordion" id="bigAccordionForms">
         <% for (let i = 0; i < Object.keys(classData).length; i++) { %>
             <% let className = Object.keys(classData)[i]; %>
-            <label style="display: flex; cursor: pointer" data-toggle="collapse" href="#accordionForms<%= i %>">
+            <label style="display: flex; cursor: pointer" class="collapsed" data-toggle="collapse" href="#accordionForms<%= i %>">
                 <h5 style="font-size: 1.5rem !important;"><%= className %>
                     <i class="fa" aria-hidden="true"></i>
                 </h5>
@@ -46,7 +46,7 @@
                 </span>
             </label>
 
-            <span class="accordion collapse show collapse-underline" id="accordionForms<%= i %>"
+            <span class="accordion collapse collapse-underline" id="accordionForms<%= i %>"
                   data-parent="#bigAccordionForms">
                 <form id="weights<%= i %>" class="form-ajax form-weights form-signin" action="/updateclasstype"
                       method="post" style="display: flex; justify-content: right;">
@@ -157,7 +157,7 @@
                                         </label>
                                         <input
                                             id="check<%= i %><%= j %><%= z %>"
-                                            style="margin-top: auto; margin-bottom: auto;"
+                                            style="margin-top: auto; margin-bottom: auto!important;"
                                             type="checkbox"
                                             class="form-control"
                                             name="hasWeights"
@@ -226,10 +226,6 @@
         }
     });
 
-    $(".accordion").each(function () {
-        $(this).removeClass("show");
-    });
-
     function ajaxPostWeightsDatabaseForm(classIndex, teacherIndex, suggestionIndex, fieldIDsToClear, messagesDivID, async) {
         // Get the form.
         let formID;
@@ -294,7 +290,7 @@
 
                 // Set the message text.
                 setTimeout(function () {
-                    $(message).text(response);
+                    $(message).text(response.message);
                     $(formMessagesDiv).find(".sk-chase-mini").hide();
                     // Make sure that the formMessages div has the alert-success class.
                     $(formMessagesDiv).removeClass("alert-info");
@@ -309,25 +305,47 @@
                     $(fieldIDsToClear[i]).val("");
                 }
 
-                //Remove suggestions
+                //Fix Styling
+                $(formID + " .form-group .form-control").css("border-color", "unset").addClass("text-view");
+
+                //Additional updates for approved suggestions
                 if (parseInt($(formID).find("suggestionindex").html()) != -1) {
-                    $(formID).remove();
-                    if ($("#collapse" + classIndex + teacherIndex).find("form").length <= 1) {
-                        $("#suggestion-header" + classIndex + teacherIndex).remove();
+                    //Update class weights
+                    $("#weights" + classIndex + teacherIndex + "-1").find(".form-group").slice(0,-1).remove(); //Remove all categories
+                    $("#check" + classIndex + teacherIndex + "-1").prop("checked",!hasWeights) //Update hasWeights
+                    for (let i = 0; i < Object.keys(weights).length; i++) {
+                        addCategory(document.createElement("dummy"),classIndex,teacherIndex,"-1");
+                        $($("#category" + classIndex + teacherIndex + "-1" + i).find("input")[0]).val(Object.keys(weights)[i]); //Add Category names
+                        $($("#category" + classIndex + teacherIndex + "-1" + i).find("input")[1]).val(Object.values(weights)[i]); //Add category weights
                     }
-                    //Fix Styling
+                    $("#weights" + classIndex + teacherIndex + "-1" + " .form-group .form-control").css("border-color", "unset").addClass("text-view");
+                    $("#weights" + classIndex + teacherIndex + "-1" + " .formSubmitButton").hide();
+                    
+                    if (response.suggestion != null) {
+                        try {
+                            //remove suggestion (suggestionIndex to delete passed form backend)
+                            $("#weights" + classIndex + teacherIndex + response.suggestion).remove();
+                            //remove Suggestion header if no more suggestions
+                            if ($("#collapse" + classIndex + teacherIndex).find("form").length <= 1) {
+                                $("#suggestion-header" + classIndex + teacherIndex).remove();
+                            }
+                        } catch (error) {
+                            console.error(error);
+                        }
+                    }
+                    
+
                 } else {
-                    $(formID + " .form-group .form-control").css("border-color", "unset").addClass("text-view");
                     $(formID + " .formSubmitButton").hide();
                 }
-            }).fail(function (data) {
+            }).fail(function (response) {
                 // Make sure that the formMessages div has the alert-danger class
                 $(formMessagesDiv).removeClass("alert-success");
                 $(formMessagesDiv).addClass("alert-danger");
 
                 // Set the message text.
-                if (data.responseText !== "") {
-                    $(message).text(data.responseText);
+                if (response.message !== "") {
+                    $(message).text(response.message);
                 } else {
                     $(message).text("Oops! An error occurred and your message could not be sent.");
                 }
@@ -353,8 +371,8 @@
     function addCategory(element, classIndex, teacherIndex, suggestionIndex) {
         if (!(element).hasAttribute("disabled")){
             let classDiv = "#weights" + classIndex + teacherIndex + suggestionIndex;
-            let newCategory = $("<div class=\"form-group\" id=\"category" + classIndex + teacherIndex + suggestionIndex + ($($(classDiv)[0].children)[0].children.length - 1) + "\"" + "style=\"text-indent: 3rem; display: inline-flex;" + "align-items: flex-end;" + ($($(classDiv)[0].children)[0].children.length > 1 ? "margin-left: " + ($($($(classDiv)[0].children)[0].children)[1].offsetLeft - $(classDiv)[0].offsetLeft) + "px" : "") + "\">" + "<input size=\"2\" style=\"font-size: 0.9rem; margin-right: 0 !important; width: fit-content; white-space: nowrap; margin-bottom: 0;\"" + "class=\" disableable form-control\"" + "oninput=\"this.classList.remove('text-view'); showSubmitButton(this); resizeInput(this);\"" + "required" + ">" + ":&nbsp</input>" + "<input style=\"margin: 0; border-color: lightcoral!important;\"" + "type=\"number\"" + "min=\"0\"" + "step=\"0.1\"" + "class=\"form-control disableable\"" + "oninput=\"this.classList.remove('text-view'); showSubmitButton(this); \">" + "<span class=\"fa fa-minus disableable\" onclick=\"removeCategory(this)\"" + "style=\"text-indent: 1rem; color: red; cursor: pointer;\"></span>" + "</div>");
-            $($($(classDiv)[0].children)[0]).append(newCategory);
+            let newCategory = $("<div class=\"form-group\" id=\"category" + classIndex + teacherIndex + suggestionIndex + ($($(classDiv)[0].children)[1].children.length - 1) + "\"" + "style=\"text-indent: 3rem; display: inline-flex;" + "align-items: flex-end;" + ($($(classDiv)[0].children)[1].children.length > 1 ? "margin-left: " + ($($($(classDiv)[0].children)[1].children)[1].offsetLeft - $(classDiv)[0].offsetLeft) + "px" : "") + "\">" + "<input size=\"2\" style=\"font-size: 0.9rem; margin-right: 0 !important; width: fit-content; white-space: nowrap; margin-bottom: 0;\"" + "class=\" disableable form-control\"" + "oninput=\"this.classList.remove('text-view'); showSubmitButton(this); resizeInput(this);\"" + "required" + ">" + ":&nbsp</input>" + "<input style=\"margin: 0; border-color: lightcoral!important;\"" + "type=\"number\"" + "min=\"0\"" + "step=\"0.1\"" + "class=\"form-control disableable\"" + "oninput=\"this.classList.remove('text-view'); showSubmitButton(this); \">" + "<span class=\"fa fa-minus disableable\" onclick=\"removeCategory(this)\"" + "style=\"text-indent: 1rem; color: red; cursor: pointer;\"></span>" + "</div>");
+            $($($(classDiv)[0].children)[1]).append(newCategory);
             showSubmitButton($(classDiv));
         }
     }
