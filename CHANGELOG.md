@@ -38,15 +38,26 @@
 
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
-## [Unreleased] - Send feature requests in Settings > Help > Feedback Form<br><strong>[Stable 3.0.0] - Target Release Date: 2020-04-20</strong><br><strong>This list will be periodically updated to reflect changes made in beta versions</strong>
-- <strong>Added</strong><ul></ul>
-- <strong>Improved</strong><ul></ul>
+## [Unreleased] - Send feature requests in Settings > Help > Feedback Form<br><strong>[Stable 3.0.0]</strong><br><strong>This list will be periodically updated to reflect changes made in beta versions</strong>
+- <strong>Added</strong><ul>
+- Personal Info in Account Settings</ul>
+- <strong>Improved</strong><ul>
+- Better Popups
+- Input validation on login and signup pages</ul>
 - <strong>Fixed</strong><ul>
 - Incorrect grade step calculation with ungraded assignments</ul>
 - <strong>Removed</strong><ul></ul>
 
 ## [Known Issues] - Send bug reports in Settings > Help > Feedback Form
 - Incorrect grade step calculation with ungraded assignments <strong>[Fixed in Beta 2.0.1]</strong>
+
+## [Beta 2.0.2] - 2020-04-24
+### Added
+- Personal Info in Account Settings
+
+### Improved
+- Better popups
+- Input validation on login and signup pages
 
 ## [Beta 2.0.1] - 2020-04-08
 ### Fixed

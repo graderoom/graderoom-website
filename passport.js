@@ -40,11 +40,11 @@ module.exports = function (passport) {
         process.nextTick(function () {
 
             // if no user is found, return the message
+            if (authent.userDeleted(username)) {
+                return done(null, false, req.flash("loginMessage", "The account, " + username + ", has been deleted. Email graderoom@gmail.com to recover your account."));
+            }
             if (!authent.userExists(username)) {
                 return done(null, false, req.flash("loginMessage", "Invalid Credentials"));
-            }
-            if (authent.userDeleted(username)) {
-                return done(null, false, req.flash("loginMessage", "This account has been deleted. Email graderoom@gmail.com to recover your account."))
             }
 
             let user = authent.getUser(username);
