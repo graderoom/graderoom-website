@@ -401,7 +401,7 @@ table thead tr th:last-child {
     text-align: center;
     border-radius: 0.2rem;
     padding: 0.5rem 0.6rem 0.5rem 0.6rem;
-    border: currentColor solid;
+    border: 2px currentColor solid;
     display: none;
     white-space: normal;
     animation: fadeIn 400ms ease;
@@ -409,7 +409,7 @@ table thead tr th:last-child {
     max-width: 15rem;
 }
 
-.popup i, .popup button {
+.popup i, .popup button, .popup btn {
     position: relative;
 }
 
