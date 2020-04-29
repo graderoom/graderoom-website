@@ -20,13 +20,15 @@
         <% } %>
         <ul class="navbar-nav w-100 justify-content-end align-items-end ml-auto">
             <% if (current == 'home') { %>
-                <li id="finalGradeCalculator" class="nav-item">
-                    <a class="btn btn-med" href="/finalgradecalculator"> <i class="fa fa-calculator" aria-hidden="true"></i> 
-                        <div class="popup" href="/finalgradecalculator">Calculator
-                            <span style="border: 2px solid green; background: white; color: green; margin-bottom: -10rem; right: 30rem; width: 10rem" class="popuptext always-show" id="thePopup">
-                                Stressed about finals? Find out how much they matter by clicking the "Calculator" button</span>
-                        </div>
-                    </a>
+                <li id="finalGradeCalculator" class="nav-item popup">
+                    <btn class="btn btn-med" href="/finalgradecalculator"> <i class="fa fa-calculator" aria-hidden="true"></i> 
+                        Calculator
+                        <div href="/finalgradecalculator">
+                            <span style="background: white; color: hsl(210, 48%, 48%);" class="popup-bottom always-show" id="thePopup">
+                                Stressed about finals? Find out how much they matter by clicking the "Calculator" button
+                            </span>  
+                        </div>              
+                    </btn>
                 </li>
                 <li id="editWeights" class="nav-item">
                     <btn class="btn btn-med"
@@ -34,13 +36,13 @@
                         <i class="fa fa-pencil" aria-hidden="true"></i> Weights
                     </btn>
                 </li>
-                <li id="syncGrades" class="nav-item">
+                <li id="syncGrades" class="nav-item popup">
                     <btn class="btn btn-med" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">
                         <i class="fa fa-refresh" aria-hidden="true"></i> 
-                        <div class="popup" onclick="showCard('#updateGradesDisplay')">Sync
-                            <span style= "border: 2px solid green; background: white; color: green; margin-bottom: -10vw; right: 14.6rem; width: 10rem;" class="popuptext always-show" id="thePopup">
-                                Start syncing grades with PowerSchool by clicking the "Sync" button</span>
-                        </div>
+                        Sync
+                            <span style= "background: white; color: hsl(210, 48%, 48%);" class="popup-bottom always-show" id="thePopup">
+                                Start syncing grades with PowerSchool by clicking the "Sync" button
+                            </span>   
                     </btn>
                 </li>
             <% } else { %>
@@ -68,9 +70,6 @@
         </ul>
     </div>
 </nav>
-
-<!-- Tutorial -->
-<% include tutorial.ejs %>
 
 <!-- Cards -->
 <% if (current === "home") { %>

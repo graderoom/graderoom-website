@@ -9,17 +9,17 @@
                  style="width: fit-content; margin-bottom:0">
                 <i class="fa fa-close" aria-hidden="true"></i> Close
             </btn>
-            <div class="card-body" id="thePopup">
-                <h1 class="card-title text-center"><span class="fa fa-cog"></span> 
-                    <div class="popup" onclick="closeMessage('thePopup')">Settings
-                        <span style="width: 140%; font-size: 15px; border: 2px solid green; background: white; color: green; margin-left: 60%; margin-top: -18%;" class="popuptext always-show" id="thePopup">
-                            Here you can find contact information and quick links to important parts of the site. You can also reset account information and 
-                            personalize you themes! Ask any further questions by emailing <strong><a href="mailto: graderoom@gmail.com">graderoom@gmail.com</a></strong></span>
-                    </div>
+            <div class="card-body popup" id="thePopup">
+                <h1 class="card-title text-center popup" style="margin: 0;"><i class="fa fa-cog"></i>
+                    Settings
+                    <span style="background: white; color: hsl(210, 48%, 48%); left: 76%; top: 31%" class="popup-right always-show" id="thePopup">
+                        Here you can find contact information and quick links to important parts of the site.
+                        Ask any further questions by emailing <strong><a href="mailto: graderoom@gmail.com">graderoom@gmail.com</a></strong>
+                    </span>
                 </h1>
             </div>
 
-            <div id="reloadNeeded" style="display: none"></div>
+            <div id="reloadNeeded" style="display: none;"></div>
             <div class="tab">
                 <btn id="btn-1" class="tablinks active" onclick="openTab(1)">Appearance</btn>
                 <btn id="btn-2" class="tablinks" onclick="openTab(2)">Account</btn>
