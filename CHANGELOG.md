@@ -1,33 +1,33 @@
 <!-- --------------------------------------------------------------------------------------------------------------- -->
-
-<!-- ---------------------------------------- Format for Unreleased Versions --------------------------------------- -->
-<!-- ## [Unreleased] - Send feature requests in Settings > Help > Feedback Form<br><strong>[Stable X.X.X] - Target Release Date: YYYY-MM-DD</strong><br><strong>This list will be periodically updated to reflect changes made in beta versions</strong> -->
-<!-- - <strong>Added</strong><ul> -->
-<!-- - Specifics</ul> -->
-<!-- - <strong>Improved</strong><ul> -->
-<!-- - Specifics</ul> -->
-<!-- - <strong>Fixed</strong><ul> -->
-<!-- - Specifics</ul> -->
-<!-- - <strong>Removed</strong><ul> -->
-<!-- - Specifics</ul> -->
-
+<!-- --------------------------------------------------------------------------------------------------------------- -->
 <!-- ------------------------------------------- Format for Known Issues ------------------------------------------- -->
+<!-- --------------------------------------------------------------------------------------------------------------- -->
+
 <!-- ## [Known Issues] - Send bug reports in Settings > Help > Feedback Form -->
 <!-- - Incorrect grade step calculation with ungraded assignments <strong>[Fixed in Beta X.X.X]</strong> -->
 
+
+<!-- --------------------------------------------------------------------------------------------------------------- -->
 <!-- ----------------------------------------- Format for Released Versions ---------------------------------------- -->
+<!-- --------------------------------------------------------------------------------------------------------------- -->
+
 <!-- ## [Stable/Beta X.X.X] - YYYY-MM-DD -->
 <!-- ### Added/Improved/Fixed/Removed -->
 <!-- - Specifics -->
 
+
+<!-- --------------------------------------------------------------------------------------------------------------- -->
+<!-- ---------------------------------------------- Versioning Guide ----------------------------------------------- -->
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
-<!-- Versioning Guide -->
 <!-- ALL versions with SEVEN or FEWER entries: increase THIRD digit -->
 <!-- ALL versions with EIGHT or MORE entries: increase SECOND digit -->
 <!-- Increase FIRST digit when SECOND digit reaches NINE -->
 <!-- ALL updates within a day must be in the same version, unless separated by an announcement or stability -->
 
+
+<!-- --------------------------------------------------------------------------------------------------------------- -->
+<!-- ------------------------------------------------ Special HTML ------------------------------------------------- -->
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
 <!-- Use the following HTML before information specific to beta users (e.g. The Announcement on 2020-03-12) -->
@@ -36,17 +36,9 @@
 <!-- Use the following HTML to add lines under the date (e.g. PI Day on 2020-03-14) -->
 <!-- <br><strong>[Text here]</strong> -->
 
-<!-- --------------------------------------------------------------------------------------------------------------- -->
 
-## [Unreleased] - Send feature requests in Settings > Help > Feedback Form<br><strong>[Stable 3.0.0]</strong><br><strong>This list will be periodically updated to reflect changes made in beta versions</strong>
-- <strong>Added</strong><ul>
-- Personal Info in Account Settings</ul>
-- <strong>Improved</strong><ul>
-- Better Popups
-- Input validation on login and signup pages</ul>
-- <strong>Fixed</strong><ul>
-- Incorrect grade step calculation with ungraded assignments</ul>
-- <strong>Removed</strong><ul></ul>
+<!-- --------------------------------------------------------------------------------------------------------------- -->
+<!-- --------------------------------------------------------------------------------------------------------------- -->
 
 ## [Known Issues] - Send bug reports in Settings > Help > Feedback Form
 - Incorrect grade step calculation with ungraded assignments <strong>[Fixed in Beta 2.0.1]</strong>
