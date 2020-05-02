@@ -966,7 +966,7 @@ module.exports = {
                 item.title = line.substring(4, line.indexOf("]"));
                 item.date = line.substring(line.indexOf("-") + 2);
             } else if (line.substring(0, 1) === "-") {
-                if (item.title === "Unreleased" || item.title === "Known Issues" || item.title === "Announcement") {
+                if (item.title === "Known Issues" || item.title === "Announcement") {
                     if (!item.content["Default"]) {
                         item.content["Default"] = [];
                     }
@@ -1048,7 +1048,7 @@ module.exports = {
                 betaResultHTML += "<div class=\"date\">" + items[i].date + "</div>";
                 betaResultHTML += "</div>";
                 betaResultHTML += "<div class=\"content\">";
-                if (items[i].title !== "Unreleased" && items[i].title !== "Known Issues" && items[i].title !== "Announcement") {
+                if (items[i].title !== "Known Issues" && items[i].title !== "Announcement") {
                     for (let j = 0; j < Object.keys(items[i].content).length; j++) {
                         resultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
                         betaResultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
