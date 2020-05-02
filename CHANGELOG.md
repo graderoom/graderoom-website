@@ -40,8 +40,16 @@
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
-## [Known Issues] - Send bug reports in Settings > Help > Feedback Form
+## [Known Issues] - Send bug reports in Settings > Help > Feedback Form<br>Only issues in the stable version will be listed here
 - Incorrect grade step calculation with ungraded assignments <strong>[Fixed in Beta 2.0.1]</strong>
+
+## [Beta 2.0.3] - 2020-05-01<br><strong>It's May!</strong>
+### Added
+- Most assignment scores are now editable on class pages. See the effects of different scores on your overall grade!
+
+### Fixed
+- Issue with current version scroll up button in changelog display
+- Issue where personal info disappeared after opening Settings multiple times
 
 ## [Beta 2.0.2] - 2020-04-24
 ### Added

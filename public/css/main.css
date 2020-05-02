@@ -98,6 +98,10 @@ table tbody tr td {
     border-left: none;
 }
 
+tr {
+    transition: 400ms background-color ease;
+}
+
 table tbody tr td:last-child {
     border-right: none;
 }
@@ -109,6 +113,10 @@ table thead tr th {
 
 table thead tr th:last-child {
     border-right: none;
+}
+
+.table:not(#table-1) td {
+    vertical-align: middle !important;
 }
 
 :disabled {
@@ -240,7 +248,6 @@ table thead tr th:last-child {
 }
 
 .changelog-container .changelog-item {
-    border-radius: 0.5rem;
     padding: 0.1rem 0.5rem 2rem 0.5rem;
 }
 
@@ -572,6 +579,7 @@ table thead tr th:last-child {
     text-align: center;
     cursor: pointer;
     transition: filter 500ms;
+    z-index: 2;
 }
 
 .scroll-to:hover {
