@@ -381,7 +381,7 @@ table thead tr th:last-child {
 }
 
 .popup {
-    z-index: 3;
+    z-index: 2;
 }
 
 .popup .fa-close {
@@ -431,6 +431,10 @@ table thead tr th:last-child {
     right: 0.2rem;
     top: 50%;
     transform: translateY(-50%);
+}
+
+.input-group .popup {
+    z-index: 3 !important;
 }
 
 .popup .popup-top {
