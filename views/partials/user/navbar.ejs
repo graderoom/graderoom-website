@@ -24,7 +24,7 @@
                     <btn class="btn btn-med" href="/finalgradecalculator"> <i class="fa fa-calculator" aria-hidden="true"></i> 
                         Calculator
                         <div href="/finalgradecalculator">
-                            <span style="background: white; color: hsl(210, 48%, 48%);" class="popup-bottom always-show" id="thePopup">
+                            <span style="background: white; color: hsl(210, 48%, 48%);" class="nav-popups popup-bottom always-show" id="thePopup">
                                 Stressed about finals? Find out how much they matter by clicking the "Calculator" button
                             </span>  
                         </div>              
@@ -40,7 +40,7 @@
                     <btn class="btn btn-med" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">
                         <i class="fa fa-refresh" aria-hidden="true"></i> 
                         Sync
-                            <span style= "background: white; color: hsl(210, 48%, 48%);" class="popup-bottom always-show" id="thePopup">
+                            <span style= "background: white; color: hsl(210, 48%, 48%);" class="nav-popups popup-bottom always-show" id="thePopup">
                                 Start syncing grades with PowerSchool by clicking the "Sync" button
                             </span>   
                     </btn>
@@ -427,5 +427,19 @@
                 closeForm(cardsDisplayed[cardsDisplayed.length - 1]);
             }
         }
+    });
+    //ToDo -> Adding mobile size of popups in navbar
+    $(window).on('resize',function() {
+        if($(window).width() > 991) {
+            var k = $(".nav-popups");
+            k.addClass("popup-bottom");
+            k.removeClass("popup-right");
+        }
+        else {
+            var k = $(".nav-popups");
+            k.removeClass("popup-bottom");
+            k.addClass("popup-right");
+        }
+        console.log($(window).width());
     });
 </script>
