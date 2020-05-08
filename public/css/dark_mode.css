@@ -20,6 +20,14 @@ nav h5 {
     color: #CCCCCC;
 }
 
+nav label {
+    color: #666666;
+}
+
+.sticky {
+    box-shadow: 2px 1px 20px #111111;
+}
+
 nav .btn {
     color: white;
     background-color: transparent;
@@ -30,16 +38,16 @@ nav .btn:hover {
     background-color: #BBBBBB;
 }
 
-nav .navbar-toggler:hover {
-    background-color: #444444;
-}
-
 td {
     border-color: #333333 !important;
 }
 
 th {
     border-color: #333333 !important;
+}
+
+::placeholder {
+    color: #999999 !important;
 }
 
 :disabled {

@@ -20,6 +20,14 @@ nav h5 {
     color: #555555;
 }
 
+nav label {
+    color: #BBBBBB;
+}
+
+.sticky {
+    box-shadow: 2px 1px 20px #999999;
+}
+
 nav .btn {
     color: black;
     background-color: transparent;
@@ -31,11 +39,7 @@ nav .btn:hover {
 }
 
 nav .navbar-toggler {
-    background-color: #AAAAAA;
-}
-
-nav .navbar-toggler:hover {
-    background-color: #BBBBBB;
+    background-color: #FFFFFF;
 }
 
 table tbody tr td {
@@ -66,6 +70,10 @@ table thead tr th {
 
 .approve_btn {
     background-color: #6CA66C;
+}
+
+::placeholder {
+    color: #AAAAAA !important;
 }
 
 .approve_btn:hover {

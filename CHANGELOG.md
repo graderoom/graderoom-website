@@ -43,6 +43,38 @@
 ## [Known Issues] - Send bug reports in Settings > Help > Feedback Form<br>Only issues in the stable version will be listed here
 - Incorrect grade step calculation with ungraded assignments <strong>[Fixed in Beta 2.0.1]</strong>
 
+## [Beta 2.1.0] - 2020-05-08
+### Added
+- Added a dedicated help button to main navbar
+- You can now change your first name in settings
+- Your name and graduation year show up under your username in the top navigation bar
+- Syncing Status is now on main navbar
+- Class navbar now stays on screen when scrolling down
+- New types of popups
+- There is now a help button on the navbar to find useful information quickly
+- Clicking on your username now opens account settings
+- All non-excluded assignment scores are now editable including extra credit assignments
+- Eight new popup types to fit in more situations
+
+### Improved
+- Smoother, faster transition between themes
+- Better spacing on main navbar
+- Placement of popups
+- Spacing in account settings has been improved so that content does not flow off screen
+- Improved feedback when updating grades to quickly display which password was incorrect
+- Decreased time before giving incorrect password feedback while attempting to sync grades
+
+### Fixed
+- Overview tab no longer shows until grades are successfully synced
+- Issue where scores displayed incorrectly on popups
+- Issue with editing grades that continuously bound new listeners to inputs resulting in a poor user experience
+- Warning with unparsable scores
+- Updated some remaining popups to new system
+
+### Removed
+- Alerts have been replaced by a more intuitive syncing status display
+- Graderoom no longer automatically refreshes if you are focused on a card during syncing (except the sync grades card)
+
 ## [Beta 2.0.3] - 2020-05-01<br><strong>It's May!</strong>
 ### Added
 - Most assignment scores are now editable on class pages. See the effects of different scores on your overall grade!

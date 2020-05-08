@@ -298,6 +298,12 @@ module.exports = function (app, passport) {
                     res.status(400).send(resp.message);
                     return;
                 }
+            } else {
+                let resp = authenticator.login(user, userPass);
+                if (!resp.success) {
+                    res.status(400).send(resp.message);
+                    return;
+                }
             }
         }
         let resp = await authenticator.updateGrades(req.user.username, pass);
@@ -354,15 +360,6 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.post("/changealertsettings", [isLoggedIn], (req, res) => {
-        let resp = authenticator.updateAlerts(req.user.username, req.body.updateGradesReminder);
-        if (resp.success) {
-            res.status(200).send(resp.message);
-        } else {
-            res.status(400).send(resp.message);
-        }
-    });
-
     app.post("/randomizeclasscolors", [isLoggedIn], (req, res) => {
         let resp = authenticator.randomizeClassColors(req.user.username);
         if (resp.success) {
@@ -395,6 +392,11 @@ module.exports = function (app, passport) {
         let allowed = req.body.remoteAccess === "on" ? "allowed" : "denied";
         authenticator.setRemoteAccess(req.user.username, allowed);
         res.status(200).send(allowed.substring(0, 1).toUpperCase() + allowed.substring(1) + " remote access.");
+    });
+
+    app.post("/setFirstName", [isLoggedIn], (req, res) => {
+        let resp = authenticator.setFirstName(req.user.username, req.body.firstName);
+        res.status(resp.success ? 200 : 400).send(resp.message);
     });
 
     app.get("/betakeys", [isAdmin], (req, res) => {
@@ -502,7 +504,6 @@ module.exports = function (app, passport) {
         if (req.isAuthenticated()) {
             return next();
         }
-        req.session.returnTo = req.originalUrl;
         res.redirect("/");
     }
 
@@ -510,7 +511,6 @@ module.exports = function (app, passport) {
         if (req.isAuthenticated() && req.user.isAdmin) {
             return next();
         }
-        req.session.returnTo = req.originalUrl;
         res.redirect("/");
     }
 }

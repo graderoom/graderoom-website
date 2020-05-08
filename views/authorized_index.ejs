@@ -52,66 +52,36 @@
         <i id="pageNumber" style="display:none"><%= page %></i>
 
         <!-- Class Links -->
-        <ul id="classLinks" class="nav nav-fill" style="color: #BBBBBB;">
-            <li class="nav-item" id="link-1">
-                <a class="nav-link" onclick="showPage(-1)">Overview</a>
-            </li>
-            <% let offset = 0; %>
-            <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                <% if (user.appearance.showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
-                    <li class="nav-item" id="link<%= i + offset %>">
-                        <a style="color: <%= user.appearance.classColors[i] %>" class="nav-link"
-                           onclick="showPage(<%= i + offset %>)"><%= (JSON.parse(gradeData)[i].class_name) %></a>
-                    </li>
-                <% } else {
-                    offset--;
-                } %>
-            <% } %>
-        </ul>
+        <% if (JSON.parse(gradeData).length > 0) { %>
+            <ul id="classLinks" class="nav nav-fill" style="color: #BBBBBB">
+                <li class="nav-item" id="link-1">
+                    <a class="nav-link" onclick="showPage(-1)">Overview</a>
+                </li>
+                <% let offset = 0; %>
+                <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
+                    <% if (user.appearance.showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
+                        <li class="nav-item" id="link<%= i + offset %>">
+                            <a style="color: <%= user.appearance.classColors[i] %>" class="nav-link"
+                               onclick="showPage(<%= i + offset %>)"><%= (JSON.parse(gradeData)[i].class_name) %></a>
+                        </li>
+                    <% } else {
+                        offset--;
+                    } %>
+                <% } %>
+            </ul>
+        <% } %>
+
 
         <!-- Main Screen -->
         <div class="container">
             <!-- Messages -->
-            <div style="display: none" id="backgroundRefreshMessage"
-                 class="alert alert-success font-weight-bold">
-                <span style="display: flex;" id="preRefresh">
-                    Syncing...
-                    <div style="float: right" class="container" id="miniLoadingDisplay">
-                        <div style="float: left" class="sk-chase-mini">
-                            <div class="sk-chase-dot mini"></div>
-                            <div class="sk-chase-dot mini"></div>
-                            <div class="sk-chase-dot mini"></div>
-                            <div class="sk-chase-dot mini"></div>
-                            <div class="sk-chase-dot mini"></div>
-                            <div class="sk-chase-dot mini"></div>
-                        </div>
-                    </div>
-                </span>
-            </div>
             <% var daysSinceUpdated = 0; %>
             <% if (user.alerts.lastUpdated.length === 0) { %> <br>
-            <div class="alert alert-success">
+            <div class="alert alert-success font-weight-bold">
                 <u style="cursor: pointer" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">Sync
                     your
                     grades</u> now!
             </div>
-            <% } else { %>
-                <% daysSinceUpdated = Math.floor((Date.now() - user.alerts.lastUpdated.slice(-1)[0]) / (1000 * 3600 * 24)); %>
-                <% if ((user.alerts.updateGradesReminder.toLowerCase() == ('daily') && daysSinceUpdated >= 1) || (user.alerts.updateGradesReminder.toLowerCase() == 'weekly') && daysSinceUpdated >= 7) { %>
-                    <div class="alert alert-danger alert-dismissible font-weight-bold">
-                        <a class="close" data-dismiss="alert" aria-label="close">X</a> It's been <%= daysSinceUpdated %>
-                        <% if (daysSinceUpdated == 1) { %>
-                            day
-                        <% } else { %> days
-                        <% } %>
-                        since you last synced your grades! <span
-                                style="float: right; display: flex"><u
-                                    style="cursor: pointer; margin-right: 10px"
-                                    onclick="showCard('#settingsCardDisplay'); openTab(3)">Alert Settings</u><u
-                                    style="cursor: pointer" onclick="showCard('#updateGradesDisplay')">Sync
-                                Grades</u></span>
-                    </div>
-                <% } %>
             <% } %>
             <!-- <div class="alert alert-danger alert-dismissible" id="weightmsg" style="display:none">
                                 <a class="close" data-dismiss="alert" aria-label="close">X</a>
@@ -160,9 +130,11 @@
                                                    class="fa fa-exclamation-circle"
                                                    style="display: none; margin-left: 0.2rem">
                                                     <span class="popup-top">
+                                                        <% let grade = JSON.parse(gradeData)[i].overall_percent + "%"; %>
                                                         WARNING: Your grade in
-                                                        PowerSchool, <%= JSON.parse(gradeData)[i].overall_percent + "%" %>
-                                                        (<%= JSON.parse(gradeData)[i].overall_letter %>) does not match
+                                                        PowerSchool,
+                                                        <nobr><%= grade + " (" + JSON.parse(gradeData)[i].overall_letter + ")" %></nobr>
+                                                        does not match
                                                         the
                                                         calculated grade. Make sure your weights are entered correctly.
                                                     </span>
@@ -324,12 +296,14 @@
                                                        class="fa fa-exclamation-circle"
                                                        style="margin-left: 0.2rem; vertical-align: middle">
                                                         <span class="popup-top">
+                                                            <% let grade = JSON.parse(gradeData)[i].overall_percent + "%"; %>
                                                             WARNING: Your grade in
-                                                            PowerSchool, <%= JSON.parse(gradeData)[i].overall_percent %>
-                                                            %
-                                                            (<%= JSON.parse(gradeData)[i].overall_letter %>) does not
-                                                            match
-                                                            the calculated grade.
+                                                            PowerSchool,
+                                                            <nobr><%= grade + " (" + JSON.parse(gradeData)[i].overall_letter + ")" %></nobr>
+                                                            does not match
+                                                            the
+                                                            calculated grade. Make sure your weights are entered
+                                                            correctly.
                                                         </span>
                                                     </i>
                                                 </span>
@@ -339,7 +313,7 @@
                                 </table>
                             </form>
                         </div>
-                        <hr>
+                            <hr>
                         <table class="table text-center" id="table<%= i + offset %>">
                             <thead>
                                 <tr>
@@ -370,7 +344,20 @@
                                             <td id="assignmentDate<%= i + offset %><%= j + jOffset %>"></td>
                                             <td id="assignmentName<%= i + offset %><%= j + jOffset %>"></td>
                                             <td id="assignmentCategory<%= i + offset %><%= j + jOffset %>"></td>
-                                            <td id="assignmentScore<%= i + offset %><%= j + jOffset %>"></td>
+                                            <td class="form-weights form-signin form-group"
+                                                id="assignmentScore<%= i + offset %><%= j + jOffset %>">
+                                                <div style="display: flex; justify-content: center; align-items: center">
+                                                    <input type="number" step="0.001"
+                                                           style="padding: 0; width: 0 !important; "
+                                                           class="form-control text-view dynamic-input"
+                                                           placeholder="--"
+                                                           onblur="{updatePointsGotten(this,<%= i %>,<%= j %>); refreshWithoutReload()}">
+                                                    /<input style="padding: 0; width: 0 !important; "
+                                                            class="form-control text-view dynamic-input"
+                                                            placeholder="--"
+                                                            onblur="{updatePointsPossible(this,<%= i %>,<%= j %>); refreshWithoutReload()}">
+                                                </div>
+                                            </td>
                                             <td id="assignmentPercent<%= i + offset %><%= j + jOffset %>"></td>
                                             <td id="assignment<%= i + offset %><%= j + jOffset %>"></td>
                                         </tr>
@@ -441,7 +428,10 @@
         data = data.filter(grade => relClassData[grade.class_name].classType !== "non-academic");
     }
 
+    // This should only happen once
     refreshWithoutReload(true);
+    setupWeightsTableListeners();
+    setupInputListeners();
 
     let changeTransition;
     let theme = user.appearance.theme;
@@ -477,6 +467,7 @@
         $("#gradeSyncDiv").hide();
         $("#syncGradesDiv").show();
         showLatest(false);
+        setupLastUpdated();
     }
     document.getElementById("darkModeStart").setAttribute("placeholder", (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString()));
     document.getElementById("darkModeFinish").setAttribute("placeholder", (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString()));
@@ -505,8 +496,7 @@
                 document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
-                }, 1000);
-                renderAllCharts();
+                }, 2000);
             }
         } else {
             let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
@@ -517,8 +507,7 @@
                 document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
-                }, 1000);
-                renderAllCharts();
+                }, 2000);
             }
         }
     }
@@ -534,36 +523,26 @@
     }
 
     async function checkUpdateBackground() {
-        $.get("/checkUpdateBackground", function (data, status) {
-            if (status === "success") {
-                if (data === "Sync Complete!") {
-                    $("#preRefresh").hide();
-                    $("#backgroundRefreshMessage").hide();
-                    clearInterval(checking);
-                    setTimeout(() => window.reload(), 400);
-                } else if (data === "Already Synced!") {
-                    clearInterval(checking);
-                    showLatest(false);
-                } else if (data === "Did not sync") {
-                    $("#backgroundRefreshMessage").show();
-                    $("#weightmsg-1").hide();
-                }
-            }
-        });
         let checking = window.setInterval(function () {
             $.get("/checkUpdateBackground", function (data, status) {
                 if (status === "success") {
                     if (data === "Sync Complete!") {
-                        $("#preRefresh").hide();
-                        $("#backgroundRefreshMessage").hide();
                         clearInterval(checking);
-                        setTimeout(() => window.reload(), 400);
+                        if (cardsDisplayed.length === 0 || cardsDisplayed[cardsDisplayed.length - 1] === "updateGradesDisplay") {
+                            $($(".updateGradesMessage")[0]).text("Refreshing...");
+                            $($(".updateGradesMessage")[1]).find(".messageTxt").text("Refreshing...");
+                            setTimeout(() => window.reload(), 400);
+                        } else {
+                            $($(".updateGradesMessage")[0]).text("Click here to refresh").attr('onclick', 'window.reload()');
+                            $($(".updateGradesMessage")[1]).show().css('cursor', 'pointer').attr('onclick', 'window.reload()').find(".messageTxt").text("Click here to refresh");
+                        }
                     } else if (data === "Already Synced!") {
                         clearInterval(checking);
                         showLatest(false);
+                        setupLastUpdated();
                     } else if (data === "Did not sync") {
-                        $("#backgroundRefreshMessage").show();
-                        $("#weightmsg-1").hide();
+                        $($(".updateGradesMessage")[0]).text("Syncing...");
+                        $($(".updateGradesMessage")[1]).find(".messageTxt").text("Syncing...");
                     }
                 }
             });
@@ -860,7 +839,6 @@
             document.getElementById("weightTableOverallGrade" + i).style.display = "inline";
 
         }
-        setupWeightsTableListeners();
     }
 
     function adjust(elements, offset, min, max) {
@@ -912,13 +890,50 @@
     const updatePointsGotten = (element, classIndex, assignmentIndex) => {
         let assignment = data[classIndex]["grades"][assignmentIndex];
         assignment.points_gotten = parseFloat($(element)[0].value);
-        assignment.grade_percent = +parseFloat(assignment.points_gotten / assignment.points_possible * 100).toFixed(2);
+        if (isNaN(assignment.points_gotten)) {
+            assignment.points_gotten = false;
+        }
+        if ((assignment.points_gotten || assignment.points_gotten === 0) && assignment.points_possible) {
+            assignment.grade_percent = +(parseFloat(assignment.points_gotten / assignment.points_possible * 100)).toFixed(2);
+        } else {
+            assignment.grade_percent = -1;
+        }
     };
     const updatePointsPossible = (element, classIndex, assignmentIndex) => {
         let assignment = data[classIndex]["grades"][assignmentIndex];
         assignment.points_possible = parseFloat($(element)[0].value);
-        assignment.grade_percent = +parseFloat(assignment.points_gotten / assignment.points_possible * 100).toFixed(2);
+        if (isNaN(assignment.points_possible)) {
+            assignment.points_possible = false;
+        }
+        if (assignment.points_possible) {
+            assignment.grade_percent = +parseFloat(assignment.points_gotten / assignment.points_possible * 100).toFixed(2);
+        } else {
+            assignment.grade_percent = -1;
+        }
     };
+
+    function setupInputListeners() {
+        for (let i = 0; i < parsedData.length; i++) {
+            for (let j = 0; j < parsedData[i].assignmentNames.length; j++) {
+                let inputs = $("#assignmentScore" + i + j).find(".dynamic-input");
+                $(inputs[0]).on("keyup", (e) => {
+                    e = e || window.event;
+                    let keyCode = e.code;
+                    if (keyCode === "Enter") {
+                        $(inputs[0]).blur();
+                    }
+                });
+                $(inputs[1]).on("keyup", (e) => {
+                    e = e || window.event;
+                    let keyCode = e.code;
+                    if (keyCode === "Enter") {
+                        $(inputs[1]).blur();
+                    }
+                });
+                adjust(inputs, 0, remToPixels(2), remToPixels(4));
+            }
+        }
+    }
 
     function setupClassTables() {
         for (let i = 0; i < parsedData.length; i++) {
@@ -939,30 +954,28 @@
                 $("#assignmentCategory" + i + j).text(assignmentCategories[j]);
 
                 // Set up scores
-                let exclusionOffset = 0; // This is necessary because excluded assignments still exist in the data array but not in parsedData. We are changing data.
-                let k;
-                for (k = 0; k < j + exclusionOffset + 1; k++) {
-                    if (data[i].grades[k].exclude) {
-                        exclusionOffset++;
-                    }
-                }
                 let scoreDiv = $("#assignmentScore" + i + j);
                 let score = assignmentScoresParsed[j];
-                if (score.substring(score.length - 2) === "/0") {
+                if (score.substring(score.length - 2, score.length) === "--") {
                     score = score.substring(0, score.length - 2);
                 }
-                scoreDiv.text(score);
-                if (score.indexOf("/") !== -1) {
-                    score = score.split("/");
-                    let displayedScore = ["", ""];
-                    try {
-                        displayedScore = [scoreDiv.find(".dynamic-input")[0].value, scoreDiv.find(".dynamic-input")[1].value];
-                    } catch {
-                    }
-                    if (displayedScore[0] !== score[0] || displayedScore[1] !== score[1]) {
-                        scoreDiv.addClass("form-weights form-signin form-group").html("<div style=\"display: flex; justify-content: center; align-items: center\">" + "<input type=\"number\" step=\"0.001\" style=\"padding: 0; width: 0 !important; \" class=\"form-control text-view dynamic-input\" value=\"" + score[0] + "\" oninput=\"updatePointsGotten(this," + i + "," + (j + exclusionOffset) + ")\" onblur=\"{refreshWithoutReload()}\">" + "/" + "<input style=\"padding: 0; width: 0 !important; \" class=\"form-control text-view dynamic-input\" value=\"" + score[1] + "\" oninput=\"updatePointsPossible(this," + i + "," + (j + exclusionOffset) + ")\" onblur=\"refreshWithoutReload()\">" + "</div>");
-                        adjust($("#assignmentScore" + i + j + " .dynamic-input"), 0, remToPixels(1), remToPixels(4));
-                    }
+                if (score.substring(0, 2) === "--") {
+                    score = score.substring(2);
+                }
+                if (score.indexOf("/") === -1) {
+                    score += "/0";
+                }
+                score = score.split("/");
+                let displayedScore = ["", ""];
+                let inputs = scoreDiv.find(".dynamic-input");
+                try {
+                    displayedScore = [inputs[0].value, inputs[1].value];
+                } catch {
+                }
+                if (displayedScore[0] === score[0] && score[0] && displayedScore[1] === score[1] && score[1]) {
+                } else {
+                    $(inputs[0]).val(score[0]);
+                    $(inputs[1]).val(score[1]);
                 }
                 // Set up percents
                 let percent = assignmentPercents[j];
@@ -1032,6 +1045,7 @@
                 $("#excludedAssignmentPercent" + i + j).text(percent);
             }
         }
+
     }
 
     function setupOverviewTable() {
@@ -1165,7 +1179,7 @@
             let assignmentDates = classData.grades.filter(x => !x.exclude).map(x => x.date);
             let assignmentTimestamps = classData.grades.filter(x => !x.exclude).map(x => new Date(x.date));
             let assignmentPercents = classData.grades.filter(x => !x.exclude).map(x => x.grade_percent);
-            let assignmentScoresParsed = classData.grades.filter(x => !x.exclude).map(x => (x.points_gotten === false ? "--" : x.points_gotten) + (x.points_possible === false ? "" : "/" + x.points_possible));
+            let assignmentScoresParsed = classData.grades.filter(x => !x.exclude).map(x => (x.points_gotten === false ? "--" : x.points_gotten) + "/" + (x.points_possible === false ? "--" : x.points_possible));
             let assignmentCategories = classData.grades.filter(x => !x.exclude).map(x => x.category);
             let mixedData = overallGradeSteps.map(function (grade, i) {
                 return {x: assignmentTimestamps[i], y: grade};
@@ -1651,6 +1665,25 @@
             });
         }
     });
+
+    { //TODO see if this is ok
+        // Get the navbar
+        let navbar = document.getElementById("classLinks");
+
+        // Get the offset position of the navbar
+        let sticky = navbar.offsetTop - $(".navbar")[0].offsetTop;
+
+        // When the user scrolls the page
+        window.onscroll = function () {
+            if (window.pageYOffset >= sticky) {
+                $(".container").css("padding-top", sticky);
+                navbar.classList.add("sticky");
+            } else {
+                navbar.classList.remove("sticky");
+                $(".container").css("padding-top", "unset");
+            }
+        };
+    }
 
 </script>
 </body>
