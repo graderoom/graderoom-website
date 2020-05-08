@@ -54,11 +54,10 @@
 - There is now a help button on the navbar to find useful information quickly
 - Clicking on your username now opens account settings
 - All non-excluded assignment scores are now editable including extra credit assignments
-- Eight new popup types to fit in more situations
 
 ### Improved
 - Smoother, faster transition between themes
-- Better spacing on main navbar
+- Better spacing and styling on main navbar
 - Placement of popups
 - Spacing in account settings has been improved so that content does not flow off screen
 - Improved feedback when updating grades to quickly display which password was incorrect
