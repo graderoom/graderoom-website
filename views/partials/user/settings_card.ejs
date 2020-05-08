@@ -3,7 +3,7 @@
      style="position:fixed; display:none; height: 100%; width: 100%; top: 0; left: 0; z-index: 1">
     <div class="blurred-background"></div>
     <div class="col-sm-11 col-md-10 col-lg-9 col-xl-6 mx-auto">
-        <div id="settingsCard" class="card card-signin my-5">
+        <div id="settingsCard" class="card card-signin my-5" style="padding-bottom: 1rem">
             <btn class="btn btn-md"
                  onclick="closeForm('settingsCardDisplay')"
                  style="width: fit-content; margin-bottom:0">
@@ -13,7 +13,7 @@
                 <h1 class="card-title text-center"><span class="fa fa-cog"></span> Settings</h1>
             </div>
             <div id="reloadNeeded" style="display: none"></div>
-            <div class="tab">
+            <div class="tab" style="margin-bottom: 1rem">
                 <btn id="btn-1" class="tablinks active" onclick="openTab(1)">Appearance</btn>
                 <btn id="btn-2" class="tablinks" onclick="openTab(2)">Account</btn>
                 <btn id="btn-3" class="tablinks" onclick="openTab(3)">Advanced</btn>
@@ -201,7 +201,74 @@
             </div>
             <div id="settings-2" class="tabcontent">
                 <div class="card-body">
-                    <form id="changePassword" class="card-footer form-signin" action="/changepassword"
+                    <form id="changePersonalInfo" class="card-footer form-signin" autocomplete="off">
+                        <div class="form-group">
+                            <h5>Personal Info
+                                <span class="popup">
+                                    <i class="fa fa-question-circle">
+                                        <span class="popup-right">Only editing your first name is supported. All edits
+                                            are saved automatically.</span>
+                                    </i>
+                                </span>
+                            </h5>
+                            <div id="personalInfoChangeMessage"
+                                 class="alert alert-success alert-dismissible font-weight-bold"
+                                 style="display:none">
+                                <div style="display:none" class="sk-chase-mini">
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                </div>
+                                <div class="messageTxt"></div>
+                                <a class="close" onclick="closeMessage('personalInfoChangeMessage')" aria-label="close">X</a>
+                            </div>
+                            <br>
+                            <div style="display: flex; align-items: center; flex-basis: content; flex-wrap: wrap"
+                                 id="personalInfo">
+                                <div class="form-group input-group">
+                                    <i class="user-bg"></i>
+                                    <label class="label-active">First Name</label>
+                                    <input oninput="checkLabel(this); checkFirstName(this, '#firstNameCheckMessage')"
+                                           type="text" class="form-control dont-clear" name="first_name" id="firstName"
+                                           value="<%= user.personalInfo.firstName %>">
+                                    <span class="popup">
+                                        <i>
+                                            <span class="popup-top-left dont-show"
+                                                  id="firstNameCheckMessage"></span></i>
+                                    </span>
+                                </div>
+                                <div class="form-group input-group">
+                                    <i style="filter: opacity(0.5)" class="user-bg"></i>
+                                    <label style="filter: opacity(0.5)" class="label-active">Last Name</label>
+                                    <input oninput="checkLabel(this);" style="filter: opacity(0.5)"
+                                           type="text" class="form-control" name="last_name" id="lastName"
+                                           value="<%= user.personalInfo.lastName %>" disabled>
+                                    <span class="popup">
+                                        <i class="fa fa-question-circle">
+                                            <span class="popup-top-left">Changing your Last Name is not supported</span></i>
+                                    </span>
+                                </div>
+                                <div class="form-group input-group">
+                                    <i style="filter: opacity(0.5)" class="user-bg"></i>
+                                    <label style="filter: opacity(0.5)" class="label-active">Graduation Year</label>
+                                    <input oninput="checkLabel(this);" style="filter: opacity(0.5)"
+                                           type="number" class="form-control" name="graduation_year" id="graduationYear"
+                                           value="<%= user.personalInfo.graduationYear %>"
+                                           disabled>
+                                    <span class="popup">
+                                        <i class="fa fa-question-circle">
+                                            <span class="popup-top-left">Changing your Graduation Year is not
+                                                supported</span></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <form id="changePassword" style="margin-top: 1em" class="card-footer form-signin"
+                          action="/changepassword"
                           method="post">
                         <div class="form-group">
                             <h5>Change Password</h5>
@@ -288,112 +355,10 @@
                             </button>
                         </div>
                     </form>
-                    <form id="changePersonalInfo" class="card-footer form-signin" style="margin-top: 1em">
-                        <div class="form-group">
-                            <h5>Personal Info
-                                <span class="popup">
-                                    <i class="fa fa-question-circle">
-                                        <span class="popup-right">Editing personal info is not yet supported</span>
-                                    </i>
-                                </span>
-                            </h5>
-                            <div id="personalInfoChangeMessage"
-                                 class="alert alert-success alert-dismissible font-weight-bold"
-                                 style="display:none">
-                                <div style="display:none" class="sk-chase-mini">
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                </div>
-                                <div class="messageTxt"></div>
-                                <a class="close" onclick="closeMessage('personalInfoChangeMessage')" aria-label="close">X</a>
-                            </div>
-                            <br>
-                            <div style="display: flex; align-items: center; flex-basis: content" id="personalInfo">
-                                <div class="form-group input-group" style="filter: opacity(0.5)">
-                                    <i class="user-bg"></i>
-                                    <label>First Name</label>
-                                    <input oninput="checkLabel(this); <!-- Todo checkFirstName(this, '#firstNameCheckMessage')-->"
-                                           type="text" class="form-control" name="first_name" id="firstName" disabled>
-                                </div>
-                                <div class="form-group input-group" style="filter: opacity(0.5)">
-                                    <i class="user-bg"></i>
-                                    <label>Last Name</label>
-                                    <input oninput="checkLabel(this); <!-- Todo checkLastName(this, '#lastNameCheckMessage')-->"
-                                           type="text" class="form-control" name="last_name" id="lastName" disabled>
-                                </div>
-                                <div class="form-group input-group" style="filter: opacity(0.5)">
-                                    <i class="user-bg"></i>
-                                    <label>Graduation Year</label>
-                                    <input oninput="checkLabel(this);"
-                                           type="text" class="form-control" name="graduation_year" id="graduationYear"
-                                           disabled>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="text-center">
-                            <button type="submit"
-                                    onclick=""
-                                    style="margin-top: -2rem"
-                                    class="btn btn-default btn-med" disabled>
-                                Update
-                            </button>
-                        </div>
-                    </form>
                 </div>
             </div>
             <div id="settings-3" class="tabcontent" style="display:none">
                 <div class="card-body">
-                    <div class="card-footer">
-                        <h5>Alerts</h5>
-                        <div id="alertSettingsMessage"
-                             class="alert alert alert-success alert-dismissible font-weight-bold"
-                             style="display:none">
-                            <div style="display:none" class="sk-chase-mini">
-                                <div class="sk-chase-dot mini"></div>
-                                <div class="sk-chase-dot mini"></div>
-                                <div class="sk-chase-dot mini"></div>
-                                <div class="sk-chase-dot mini"></div>
-                                <div class="sk-chase-dot mini"></div>
-                                <div class="sk-chase-dot mini"></div>
-                            </div>
-                            <div class="messageTxt"></div>
-                            <a class="close" onclick="closeMessage('alertSettingsMessage')" aria-label="close">X</a>
-                        </div>
-                        <form id="changeAlertSettings" class="form-signin" action="/changealertsettings"
-                              method="post">
-                            <div class="form-group" style="margin: 0">
-                                <label>Grade Update Reminder:</label> <select style="float: right" class="dropdown"
-                                                                              name="updateGradesReminder">
-                                    <option value="daily"
-                                    <% if (user.alerts.updateGradesReminder == 'daily') { %> selected
-                                            <% } %>
-                                    >Daily
-                                    </option>
-                                    <option value="weekly"
-                                    <% if (user.alerts.updateGradesReminder == 'weekly') { %> selected
-                                            <% } %>
-                                    >Weekly
-                                    </option>
-                                    <option value="never"
-                                    <% if (user.alerts.updateGradesReminder == 'never') { %> selected
-                                            <% } %>
-                                    >Never
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="text-center">
-                                <button type="submit"
-                                        onclick="ajaxPostForm('#changeAlertSettings',[],'#alertSettingsMessage', true); updateSchoolUsernameDisplay()"
-                                        class="btn btn-default btn-med">
-                                    Save
-                                </button>
-                            </div>
-                        </form>
-                    </div>
                     <div class="card-footer">
                         <h5>Miscellaneous</h5>
                         <form id="gradeSync" class="form-signin" action="/disableGradeSync" method="post">
@@ -492,22 +457,83 @@
 <!-- Custom JavaScript -->
 <script type="text/javascript">
 
-    setupPersonalInfo();
+    let checkingFirstName;
 
-    function setupPersonalInfo() {
-        let bcpEmail = $("#schoolUsernameDisplay")[0].innerText;
+    function checkFirstName(inputID, messageDivID) {
+        const firstNameRegex = new RegExp("^[a-zA-Z]*$");
 
+        let firstName = $(inputID)[0].value;
+        let icon = $($($(inputID)[0].nextElementSibling)[0].firstElementChild);
+
+        $(messageDivID).addClass("dont-show").removeClass("always-show");
+        icon.attr("class", "fa fa-pulse fa-spinner");
+        $(inputID).css("border-bottom-color", "blue");
+        if (checkingFirstName) {
+            clearTimeout(checkingFirstName);
+        }
+
+        if (firstName.length === 0) {
+            firstName = getPersonalInfo(user.schoolUsername).firstName;
+            $(messageDivID).addClass("always-show").removeClass("dont-show").css("color", "red").text("Your name will be set back to " + firstName + " when you click outside of the input field");
+            icon.attr("class", "fa fa-exclamation-circle");
+            $(inputID).css("border-bottom-color", "red").blur(() => {
+                $(inputID).val(firstName);
+                $(inputID).trigger("input");
+                $(inputID).unbind("blur");
+            });
+            return;
+        }
+
+        checkingFirstName = setTimeout(() => {
+            if (!firstNameRegex.test(firstName)) {
+                $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("First name must contain only letters");
+                icon.attr("class", "fa fa-exclamation-circle");
+                $(inputID).css("border-bottom-color", "red");
+                invalidateSignup();
+                return;
+            }
+            $.ajax({
+                       url: "/setFirstName", type: "POST", async: true, data: {firstName: firstName}
+                   }).done((response) => {
+                // Make sure value is still the same
+                if (firstName === $(inputID)[0].value) {
+                    $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text(response);
+                    icon.attr("class", "fa fa-check-circle");
+                    $(inputID).css("border-bottom-color", "");
+                    updateNameDisplay(firstName);
+                }
+            }).fail((data) => {
+                // Make sure value is still the same
+                if (firstName === $(inputID)[0].value) {
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").html(data.responseText);
+                    icon.attr("class", "fa fa-exclamation-circle");
+                    $(inputID).css("border-bottom-color", "red");
+                }
+            });
+        }, 400);
+    }
+
+    function updateNameDisplay(firstName, schoolUsername) {
+        if (firstName) {
+            let {temp, lastName, graduationYear} = getPersonalInfo(user.schoolUsername);
+            $("#nameDisplay").text(firstName + " " + lastName + " '" + (graduationYear - 2000));
+        } else if (schoolUsername) {
+            let {firstName, lastName, graduationYear} = getPersonalInfo(schoolUsername);
+            $("#nameDisplay").text(firstName + " " + lastName + " '" + (graduationYear - 2000));
+            $("#firstName").val(firstName);
+            $("#lastName").val(lastName);
+            $("#graduationYear").val(graduationYear);
+        }
+    }
+
+    function getPersonalInfo(bcpEmail) {
         // First Name
         let firstName = bcpEmail.indexOf(".") === -1 ? bcpEmail : bcpEmail.substring(0, bcpEmail.indexOf("."));
         firstName = firstName.substring(0, 1).toUpperCase() + firstName.substring(1).toLowerCase();
-        $("#firstName").val(firstName);
-        checkLabel("#firstName");
 
         // Last Name
         let lastName = bcpEmail.indexOf(".") === -1 ? "" : bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? bcpEmail.substring(bcpEmail.indexOf(".") + 1) : bcpEmail.substring(bcpEmail.indexOf(".") + 1, bcpEmail.indexOf(bcpEmail.match(/\d/)));
         lastName = lastName.substring(0, 1).toUpperCase() + lastName.substring(1).toLowerCase();
-        $("#lastName").val(lastName);
-        checkLabel("#lastName");
 
         // Graduation Year
         let graduationYear = bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? "" : bcpEmail.indexOf("@") === -1 ? bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/))) : bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/)), bcpEmail.indexOf("@"));
@@ -515,8 +541,8 @@
             graduationYear = parseInt(graduationYear);
             graduationYear += 2000;
         }
-        $("#graduationYear").val(graduationYear);
-        checkLabel("#graduationYear");
+
+        return {firstName, lastName, graduationYear};
     }
 
     function manageGradeSyncCheckbox() {

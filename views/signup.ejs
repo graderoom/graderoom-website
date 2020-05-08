@@ -73,13 +73,13 @@
                         <div class="form-group input-group" style="filter: opacity(0.2)">
                             <i class="user-bg"></i>
                             <label>First Name</label>
-                            <input oninput="checkLabel(this); checkFirstName(this, '#firstNameCheckMessage')"
+                            <input oninput="checkLabel(this)"
                                    type="text" class="form-control" name="first_name" id="firstName" disabled>
                         </div>
                         <div class="form-group input-group" style="filter: opacity(0.2)">
                             <i class="user-bg"></i>
                             <label>Last Name</label>
-                            <input oninput="checkLabel(this); checkLastName(this, '#lastNameCheckMessage')"
+                            <input oninput="checkLabel(this)"
                                    type="text" class="form-control" name="last_name" id="lastName" disabled>
                         </div>
                         <div class="form-group input-group" style="filter: opacity(0.2)">
@@ -392,14 +392,6 @@
         } else {
             return bcpEmailRegex.test(bcpEmail);
         }
-    }
-
-    function checkFirstName(inputID, messageDivID) {
-
-    }
-
-    function checkLastName(inputID, messageDivID) {
-
     }
 
     let checkingBetaKey;

@@ -23,7 +23,7 @@ def json_format(success, message_or_grades):
 
 class ClassGrade:
     """Contains information and assignments for a PowerSchool class
-    
+
     One ClassGrade object is needed for every PowerSchool class scraped
     from the site. It contains all the information necessary to
     redisplay a user's grade for a PowerSchool class, such as names,
@@ -170,7 +170,7 @@ class PowerschoolScraper:
             'Host': 'powerschool.bcp.org',
             'Origin': 'https://federation.bcp.org',
             # This will be changed to the dynamic URL
-            'Referer': 'CHANGE_THIS',  
+            'Referer': 'CHANGE_THIS',
             'Sec-Fetch-Mode': 'navigate',
             'Sec-Fetch-Site': 'same-site',
             'Sec-Fetch-User': '?1',
@@ -179,7 +179,7 @@ class PowerschoolScraper:
         }
 
         # First request
-        url = "https://powerschool.bcp.org/guardian/home.html"  
+        url = "https://powerschool.bcp.org/guardian/home.html"
         resp_1 = self.session.get(url, headers=headers_1)
         soup_1 = BS(resp_1.text, "html.parser")
         samlr_1 = soup_1.find("input", {'name': 'SAMLRequest'}).get('value')
@@ -193,7 +193,7 @@ class PowerschoolScraper:
         resp_2 = self.session.post(url_2, data=data_2, headers=headers_2)
         soup_2 = BS(resp_2.text, "html.parser")
         dynamic_url = soup_2.find("form", id='ping-login-form').get('action')
-        
+
         # Third request
         dynamic_url = "https://federation.bcp.org" + dynamic_url
         data_3 = {
@@ -238,7 +238,7 @@ class PowerschoolScraper:
         for row in main_table_rows:
             if row.has_attr('class') and row['class'] == ['center']:
                 class_rows.append(row)
-        
+
         # Iterate over each row and fetch data for that class
         for class_row in class_rows:
             local_class = None
@@ -336,7 +336,7 @@ class PowerschoolScraper:
                     points_gotten = float(score.split('/')[0])
 
                 # Get the percent for the assignment
-                if (points_possible != 0):
+                if (points_possible != 0 and points_possible != False and points_gotten != False):
                     grade_percent = grade_data[9].text
                 else:
                     grade_percent = -1

@@ -70,7 +70,7 @@
             <% for (let u of userList) { %>
                 <tr>
                     <td class="admin"><%= u.username %> </td>
-                    <td class="admin"><%= u.schoolUsername.substring(0, 1).toUpperCase() + u.schoolUsername.substring(1, u.schoolUsername.indexOf('.')) + ' ' + u.schoolUsername.substring(u.schoolUsername.indexOf('.') + 1, u.schoolUsername.indexOf('.') + 2).toUpperCase() + u.schoolUsername.substring(u.schoolUsername.indexOf('.') + 2, u.schoolUsername.indexOf('@') - 2) %></td>
+                    <td class="admin"><%= u.personalInfo.firstName + " " + u.personalInfo.lastName + " '" + (u.personalInfo.graduationYear - 2000) %></td>
                     <td class="admin">
                         <% if (new Date(u.alerts.lastUpdated.slice(-1)[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
                             Never Updated
@@ -205,7 +205,6 @@
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
                 }, 1000);
-                renderAllCharts();
             }
         } else {
             let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
@@ -217,7 +216,6 @@
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
                 }, 1000);
-                renderAllCharts();
             }
         }
     }

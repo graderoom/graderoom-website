@@ -320,7 +320,7 @@
                     }
                     $("#weights" + classIndex + teacherIndex + "-1" + " .form-group .form-control").css("border-color", "unset").addClass("text-view");
                     $("#weights" + classIndex + teacherIndex + "-1" + " .formSubmitButton").hide();
-                    
+
                     if (response.suggestion != null) {
                         try {
                             //remove suggestion (suggestionIndex to delete passed form backend)
@@ -333,7 +333,7 @@
                             console.error(error);
                         }
                     }
-                    
+
 
                 } else {
                     $(formID + " .formSubmitButton").hide();
@@ -418,7 +418,6 @@
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
                 }, 1000);
-                renderAllCharts();
             }
         } else {
             let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
@@ -430,7 +429,6 @@
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
                 }, 1000);
-                renderAllCharts();
             }
         }
     }

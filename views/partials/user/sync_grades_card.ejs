@@ -9,7 +9,7 @@
                 <i class="fa fa-close" aria-hidden="true"></i> Close
             </btn>
             <div class="card-body" style="max-height: 70vh; overflow-y: scroll; overflow-x: hidden; transition: 500ms">
-                <div id="updateGradesMessage" class="alert alert-info"
+                <div class="updateGradesMessage alert alert-info"
                      style="display:block">
                     <div style="display: flex">
                         <div style="display:none" class="sk-chase-mini">
@@ -20,13 +20,15 @@
                             <div class="sk-chase-dot mini"></div>
                             <div class="sk-chase-dot mini"></div>
                         </div>
-                        <div class="font-weight-bold messageTxt"></div>
-                        <i class="fa fa-info-circle popup" id="syncFailure"
-                           style="padding-left: 0.2rem; align-self: center; display:none">
-                            <span class="popuptext">
-                                This usually occurs when the PowerSchool website is down.
-                            </span>
-                        </i>
+                        <div class="font-weight-bold messageTxt">Loading Sync Data...</div>
+                        <span class="popup">
+                            <i class="fa fa-info-circle" id="syncFailure"
+                               style="padding-left: 0.2rem; align-self: center; display:none">
+                                <span class="popup-bottom">
+                                    This usually occurs when the PowerSchool website is down.
+                                </span>
+                            </i>
+                        </span>
                     </div>
                 </div>
                 <h1 class="card-title text-center">School Login</h1>
@@ -47,7 +49,7 @@
                             <input oninput="checkLabel(this)" name="user_password" type="password"
                                    id="inputUserPassword" class="form-control" required>
                         </div>
-                        <label style="cursor: pointer; float: left; text-align: right" class="popup"
+                        <label style="cursor: pointer; float: left; text-align: right"
                                onclick="toggleInputUserPasswordDisplay()">
                             <input style="cursor: inherit"
                                    id="savePasswordToggle"
@@ -55,16 +57,18 @@
                                    name="savePassword"
                                    checked
                             > Sync Grades on Login
-                            <i class="fa fa-info-circle popup">
-                                    <span class="popuptext">
+                            <span class="popup">
+                                <i class="fa fa-info-circle">
+                                    <span class="popup-right-top">
                                         <p>Graderoom will sync automatically whenever you login.</p>
                                         You will still be able to manually sync at any time.
                                     </span>
-                            </i>
+                                </i>
+                            </span>
                         </label>
                         <div class="text-center">
                             <button class="btn btn-lg btn-default" type="submit"
-                                    onclick="ajaxPostForm('#syncGradesForm',['#inputUserPassword'],'#updateGradesMessage', true)">
+                                    onclick="ajaxPostForm('#syncGradesForm',['#inputUserPassword'],'.updateGradesMessage', true)">
                                 Sign In
                             </button>
                         </div>
@@ -83,7 +87,7 @@
                         </div>
                         </label>
                         <button class="btn btn-lg btn-default" type="submit"
-                                onclick="ajaxPostForm('#gradeSyncForm',['#gradeSyncInputUserPassword'],'#updateGradesMessage', true)">
+                                onclick="ajaxPostForm('#gradeSyncForm',['#gradeSyncInputUserPassword'],'.updateGradesMessage', true)">
                             Log In
                         </button>
                     </form>
@@ -121,7 +125,7 @@
         const HOUR = 60 * MINUTE;
         const DAY = 24 * HOUR;
 
-        let messageDiv = $("#updateGradesMessage");
+        let messageDiv = $(".updateGradesMessage");
         let message = messageDiv.find(".messageTxt");
         let lastUpdated = user.alerts.lastUpdated.slice(-1)[0];
         let deltaTime = Date.now() - lastUpdated;
@@ -134,19 +138,19 @@
             if (deltaTime < MINUTE) {
                 checkLastUpdated = setInterval(setupLastUpdated, 100);
                 let seconds = Math.floor(deltaTime / SECOND);
-                message.text("Last synced " + seconds + " second" + (seconds > 1 ? "s" : "") + " ago.");
+                message.text("Last synced " + seconds + " second" + (seconds > 1 ? "s" : "") + " ago");
             } else if (deltaTime < HOUR) {
                 checkLastUpdated = setInterval(setupLastUpdated, 6 * SECOND);
                 let minutes = Math.floor(deltaTime / MINUTE);
-                message.text("Last synced " + minutes + " minute" + (minutes > 1 ? "s" : "") + " ago.");
+                message.text("Last synced " + minutes + " minute" + (minutes > 1 ? "s" : "") + " ago");
             } else if (deltaTime < DAY) {
                 checkLastUpdated = setInterval(setupLastUpdated, 6 * MINUTE);
                 let hours = Math.floor(deltaTime / HOUR);
-                message.text("Last synced " + hours + " hour" + (hours > 1 ? "s" : "") + " ago.");
+                message.text("Last synced " + hours + " hour" + (hours > 1 ? "s" : "") + " ago");
             } else {
                 checkLastUpdated = setInterval(setupLastUpdated, 2.4 * HOUR);
                 let days = Math.floor(deltaTime / DAY);
-                message.text("Last synced " + days + " day" + (days > 1 ? "s" : "") + " ago.");
+                message.text("Last synced " + days + " day" + (days > 1 ? "s" : "") + " ago");
             }
         }
     }

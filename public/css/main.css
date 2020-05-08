@@ -34,10 +34,8 @@
     }
 }
 
-@media (max-width: 991px) {
-    nav .navbar-collapse li, nav .navbar-collapse .btn {
-        margin: 0.1rem 0;
-    }
+nav .navbar-collapse li, nav .navbar-collapse .btn {
+    margin: 0.1rem 0;
 }
 
 @-webkit-keyframes fadeIn {
@@ -75,8 +73,14 @@ nav h1 {
 nav h5 {
     font-family: "Montserrat", sans-serif;
     margin-bottom: 0;
-    font-size: 1.5rem;
-    padding: .375rem .75rem;
+    font-size: 1.25rem;
+    padding: .375rem .75rem 0 .75rem;
+}
+
+nav label {
+    font-size: 0.6rem;
+    display: block;
+    margin: 0;
 }
 
 nav .btn {
@@ -92,14 +96,19 @@ nav .navbar-toggler:focus {
     outline: none;
 }
 
+nav .navbar-toggler {
+    border: none;
+    filter: opacity(0.6);
+}
+
+nav .navbar-toggler:hover {
+    filter: opacity(1);
+}
+
 table tbody tr td {
     border-style: solid;
     border-bottom: none;
     border-left: none;
-}
-
-tr {
-    transition: 400ms background-color ease;
 }
 
 table tbody tr td:last-child {
@@ -274,6 +283,15 @@ table thead tr th:last-child {
     vertical-align: top;
 }
 
+.sticky {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999;
+    top: 0;
+    transition: box-shadow 100ms;
+}
+
 .changelog-container .improved {
     background-color: rgba(44, 185, 103, 0.5);
 }
@@ -369,7 +387,7 @@ table thead tr th:last-child {
 .input-group input {
     width: 100%;
     padding-left: 0.3rem;
-    transition: 240ms ease;
+    transition: width 240ms ease;
 }
 
 .input-group label {
@@ -408,12 +426,13 @@ table thead tr th:last-child {
     text-align: center;
     border-radius: 0.2rem;
     padding: 0.5rem 0.6rem 0.5rem 0.6rem;
-    border: currentColor solid;
+    border: currentColor solid 2px;
     display: none;
     white-space: normal;
     animation: fadeIn 400ms ease;
     min-width: 10rem;
     max-width: 15rem;
+    z-index: 2;
 }
 
 .popup i, .popup button {
@@ -440,6 +459,23 @@ table thead tr th:last-child {
     transform: translateY(-50%);
 }
 
+.popup .popup-top-right {
+    transform: translateX(-25%);
+    left: 50%;
+    bottom: 150%;
+}
+
+.popup .popup-top-right::after {
+    content: "";
+    position: absolute;
+    right: 75%;
+    transform: translateX(50%);
+    top: 100%;
+    border-left: 0.25rem solid transparent;
+    border-top: 0.5rem solid currentColor;
+    border-right: 0.25rem solid transparent;
+}
+
 .popup .popup-top {
     transform: translateX(-50%);
     left: 50%;
@@ -455,6 +491,40 @@ table thead tr th:last-child {
     border-left: 0.25rem solid transparent;
     border-top: 0.5rem solid currentColor;
     border-right: 0.25rem solid transparent;
+}
+
+.popup .popup-top-left {
+    transform: translateX(-75%);
+    left: 50%;
+    bottom: 150%;
+}
+
+.popup .popup-top-left::after {
+    content: "";
+    position: absolute;
+    right: 25%;
+    transform: translateX(50%);
+    top: 100%;
+    border-left: 0.25rem solid transparent;
+    border-top: 0.5rem solid currentColor;
+    border-right: 0.25rem solid transparent;
+}
+
+.popup .popup-left-top {
+    transform: translateY(-75%);
+    top: 50%;
+    right: 150%;
+}
+
+.popup .popup-left-top::after {
+    content: "";
+    position: absolute;
+    top: 75%;
+    transform: translateY(-50%);
+    left: 100%;
+    border-top: 0.25rem solid transparent;
+    border-left: 0.5rem solid currentColor;
+    border-bottom: 0.25rem solid transparent;
 }
 
 .popup .popup-left {
@@ -474,6 +544,40 @@ table thead tr th:last-child {
     border-bottom: 0.25rem solid transparent;
 }
 
+.popup .popup-left-bottom {
+    transform: translateY(-25%);
+    top: 50%;
+    right: 150%;
+}
+
+.popup .popup-left-bottom::after {
+    content: "";
+    position: absolute;
+    top: 25%;
+    transform: translateY(-50%);
+    left: 100%;
+    border-top: 0.25rem solid transparent;
+    border-left: 0.5rem solid currentColor;
+    border-bottom: 0.25rem solid transparent;
+}
+
+.popup .popup-bottom-left {
+    transform: translateX(-75%);
+    left: 50%;
+    top: 150%;
+}
+
+.popup .popup-bottom-left::after {
+    content: "";
+    position: absolute;
+    right: 25%;
+    transform: translateX(50%);
+    bottom: 100%;
+    border-left: 0.25rem solid transparent;
+    border-bottom: 0.5rem solid currentColor;
+    border-right: 0.25rem solid transparent;
+}
+
 .popup .popup-bottom {
     transform: translateX(-50%);
     left: 50%;
@@ -491,6 +595,40 @@ table thead tr th:last-child {
     border-right: 0.25rem solid transparent;
 }
 
+.popup .popup-bottom-right {
+    transform: translateX(-25%);
+    left: 50%;
+    top: 150%;
+}
+
+.popup .popup-bottom-right::after {
+    content: "";
+    position: absolute;
+    right: 75%;
+    transform: translateX(50%);
+    bottom: 100%;
+    border-left: 0.25rem solid transparent;
+    border-bottom: 0.5rem solid currentColor;
+    border-right: 0.25rem solid transparent;
+}
+
+.popup .popup-right-bottom {
+    transform: translateY(-25%);
+    top: 50%;
+    left: 150%;
+}
+
+.popup .popup-right-bottom::after {
+    content: "";
+    position: absolute;
+    top: 25%;
+    transform: translateY(-50%);
+    right: 100%;
+    border-top: 0.25rem solid transparent;
+    border-right: 0.5rem solid currentColor;
+    border-bottom: 0.25rem solid transparent;
+}
+
 .popup .popup-right {
     transform: translateY(-50%);
     top: 50%;
@@ -501,6 +639,23 @@ table thead tr th:last-child {
     content: "";
     position: absolute;
     top: 50%;
+    transform: translateY(-50%);
+    right: 100%;
+    border-top: 0.25rem solid transparent;
+    border-right: 0.5rem solid currentColor;
+    border-bottom: 0.25rem solid transparent;
+}
+
+.popup .popup-right-top {
+    transform: translateY(-75%);
+    top: 50%;
+    left: 150%;
+}
+
+.popup .popup-right-top::after {
+    content: "";
+    position: absolute;
+    top: 75%;
     transform: translateY(-50%);
     right: 100%;
     border-top: 0.25rem solid transparent;
