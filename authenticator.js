@@ -823,7 +823,7 @@ module.exports = {
     },
 
     updateWeightsForClass: function (username, className, hasWeights, weights, custom=null, addSuggestion=true) {
-        
+
         //default update, not override
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
@@ -954,6 +954,23 @@ module.exports = {
         }
     },
 
+    watchChangelog: function () {
+        // Check for changelog updates every second (This should be light)
+        let lastUpdated = Date.now();
+        const checking = () => {
+            let _lastUpdated = Date.parse(fs.statSync("CHANGELOG.md").mtime);
+            if (lastUpdated < _lastUpdated) {
+                lastUpdated = _lastUpdated;
+                console.log("Updating changelog.");
+                this.readChangelog();
+            }
+        };
+        // Do it once
+        this.readChangelog().then(() => {
+            setInterval(checking, 1000);
+        });
+    },
+
     readChangelog: async function () {
         let resultHTML = "";
         let betaResultHTML = "";
@@ -961,8 +978,8 @@ module.exports = {
         let bodyCount = -1;
         let item = {title: "", date: "", content: {}};
         let lineReader = readline.createInterface({
-            input: fs.createReadStream("CHANGELOG.md")
-        });
+                                                      input: fs.createReadStream("CHANGELOG.md")
+                                                  });
         lineReader.on("line", (line) => {
             if (line.substring(0, 3) === "###") {
                 item.content[line.substring(4)] = [];
