@@ -42,6 +42,7 @@
 
 ## [Known Issues] - Send bug reports in Settings > Help > Feedback Form<br>Only issues in the stable version will be listed here
 - Incorrect grade step calculation with ungraded assignments <strong>[Fixed in Beta 2.0.1]</strong>
+- Rounding errors with incorrect grade warning messages <strong></strong>
 
 ## [Beta 2.1.0] - 2020-05-08
 ### Added
