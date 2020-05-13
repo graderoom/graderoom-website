@@ -42,7 +42,14 @@
 
 ## [Known Issues] - Send bug reports in Settings > Help > Feedback Form<br>Only issues in the stable version will be listed here
 - Incorrect grade step calculation with ungraded assignments <strong>[Fixed in Beta 2.0.1]</strong>
-- Rounding errors with incorrect grade warning messages <strong></strong>
+- Rounding errors with incorrect grade warning messages <strong>[Fixed in Beta 2.1.1]</strong>
+
+## [Beta 2.1.1] - 2020-05-13
+### Improved
+- Editing a score field no longer impacts other inputs
+
+### Fixed
+- Rounding errors with incorrect grade warning message
 
 ## [Beta 2.1.0] - 2020-05-08
 ### Added
@@ -61,7 +68,6 @@
 - Better spacing and styling on main navbar
 - Placement of popups
 - Spacing in account settings has been improved so that content does not flow off screen
-- Improved feedback when updating grades to quickly display which password was incorrect
 - Decreased time before giving incorrect password feedback while attempting to sync grades
 
 ### Fixed
@@ -70,10 +76,10 @@
 - Issue with editing grades that continuously bound new listeners to inputs resulting in a poor user experience
 - Warning with unparsable scores
 - Updated some remaining popups to new system
+- Graderoom no longer automatically refreshes if you are focused on a card during syncing (except the sync grades card)
 
 ### Removed
 - Alerts have been replaced by a more intuitive syncing status display
-- Graderoom no longer automatically refreshes if you are focused on a card during syncing (except the sync grades card)
 
 ## [Beta 2.0.3] - 2020-05-01<br><strong>It's May!</strong>
 ### Added

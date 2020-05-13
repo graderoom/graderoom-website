@@ -351,11 +351,11 @@
                                                            style="padding: 0; width: 0 !important; "
                                                            class="form-control text-view dynamic-input"
                                                            placeholder="--"
-                                                           onblur="{updatePointsGotten(this,<%= i %>,<%= j %>); refreshWithoutReload()}">
+                                                           onblur="{updatePointsGotten(this,<%= i %>,<%= j %>); refreshWithoutReload(true, <%= i + offset %>, <%= j + jOffset %>,'gotten')}">
                                                     /<input style="padding: 0; width: 0 !important; "
                                                             class="form-control text-view dynamic-input"
                                                             placeholder="--"
-                                                            onblur="{updatePointsPossible(this,<%= i %>,<%= j %>); refreshWithoutReload()}">
+                                                            onblur="{updatePointsPossible(this,<%= i %>,<%= j %>); refreshWithoutReload(true, <%= i + offset %>, <%= j + jOffset %>,'possible')}">
                                                 </div>
                                             </td>
                                             <td id="assignmentPercent<%= i + offset %><%= j + jOffset %>"></td>
@@ -377,13 +377,13 @@
 
     let refreshing;
 
-    function refreshWithoutReload(doItNow = false) {
+    function refreshWithoutReload(doItNow = false, changedClassIndex, changedElementIndex, possibleOrGotten) {
         if (doItNow) {
             clearTimeout(refreshing);
             parseData();
             setupWeightsTables();
             setupOverviewTable();
-            setupClassTables();
+            setupClassTables(changedClassIndex, changedElementIndex, possibleOrGotten);
             setupGPADisplay();
             setupIncorrectGradeMessages();
             setPointBasedWeights();
@@ -397,7 +397,7 @@
             parseData();
             setupWeightsTables();
             setupOverviewTable();
-            setupClassTables();
+            setupClassTables(changedClassIndex, changedElementIndex, possibleOrGotten);
             setupGPADisplay();
             setupIncorrectGradeMessages();
             setPointBasedWeights();
@@ -809,7 +809,7 @@
                 document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
                 let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
                 document.getElementById("weightTablePoints" + i + j).textContent = +categoryGottenAndPossible.gotten.toFixed(4) + ((categoryGottenAndPossible.possible !== 0) ? ("/" + +(categoryGottenAndPossible.possible.toFixed(4))) : "");
-                let categoryGrade = getCategoryGrade(i, tableCategories[j]);
+                let categoryGrade = +(+getCategoryGrade(i, tableCategories[j])).toFixed(4);
                 if (categoryGottenAndPossible.possible !== 0) {
                     document.getElementById("weightTableGrade" + i + j).textContent = categoryGrade + "% (" + getLetterGrade(categoryGrade) + ")";
                 }
@@ -935,117 +935,180 @@
         }
     }
 
-    function setupClassTables() {
-        for (let i = 0; i < parsedData.length; i++) {
-            let assignmentData = parsedData[i].mixedData.map(o => o.y);
-            let assignmentDates = parsedData[i].assignmentDates;
-            let assignmentNames = parsedData[i].assignmentNames;
-            let assignmentCategories = parsedData[i].assignmentCategories;
-            let assignmentScoresParsed = parsedData[i].assignmentScoresParsed;
-            let assignmentPercents = parsedData[i].assignmentPercents;
-            for (let j = 0; j < assignmentData.length; j++) {
-                // Set up dates
-                $("#assignmentDate" + i + j).text(assignmentDates[j]);
+    function setupClassTables(classIndex, assignmentIndex, possibleOrGotten) {
+        if (classIndex && assignmentIndex) { //Only change this item
+            // Set up dates
+            $("#assignmentDate" + classIndex + assignmentIndex).text(parsedData[classIndex].assignmentDates[assignmentIndex]);
 
-                // Set up names
-                $("#assignmentName" + i + j).text(assignmentNames[j]);
+            // Set up names
+            $("#assignmentName" + classIndex + assignmentIndex).text(parsedData[classIndex].assignmentNames[assignmentIndex]);
 
-                // Set up categories
-                $("#assignmentCategory" + i + j).text(assignmentCategories[j]);
+            // Set up categories
+            $("#assignmentCategory" + classIndex + assignmentIndex).text(parsedData[classIndex].assignmentCategories[assignmentIndex]);
 
-                // Set up scores
-                let scoreDiv = $("#assignmentScore" + i + j);
-                let score = assignmentScoresParsed[j];
-                if (score.substring(score.length - 2, score.length) === "--") {
-                    score = score.substring(0, score.length - 2);
-                }
-                if (score.substring(0, 2) === "--") {
-                    score = score.substring(2);
-                }
-                if (score.indexOf("/") === -1) {
-                    score += "/0";
-                }
-                score = score.split("/");
-                let displayedScore = ["", ""];
-                let inputs = scoreDiv.find(".dynamic-input");
-                try {
-                    displayedScore = [inputs[0].value, inputs[1].value];
-                } catch {
-                }
-                if (displayedScore[0] === score[0] && score[0] && displayedScore[1] === score[1] && score[1]) {
-                } else {
+            // Set up scores
+            let scoreDiv = $("#assignmentScore" + classIndex + assignmentIndex);
+            let score = parsedData[classIndex].assignmentScoresParsed[assignmentIndex];
+            if (score.substring(score.length - 2, score.length) === "--") {
+                score = score.substring(0, score.length - 2);
+            }
+            if (score.substring(0, 2) === "--") {
+                score = score.substring(2);
+            }
+            if (score.indexOf("/") === -1) {
+                score += "/0";
+            }
+            score = score.split("/");
+            let inputs = scoreDiv.find(".dynamic-input");
+            if (possibleOrGotten === "gotten") {
+                $(inputs[0]).val(score[0]);
+            } else if (possibleOrGotten === "possible") {
+                $(inputs[1]).val(score[1]);
+            }
+
+            // Set up percents
+            let percent = parsedData[classIndex].assignmentPercents[assignmentIndex];
+            if (percent === -1 || isNaN(parseFloat(percent))) {
+                percent = "--";
+            }
+            $("#assignmentPercent" + classIndex + assignmentIndex).text(percent);
+
+            // Set up coloring and gain/loss
+            let assignmentData = parsedData[classIndex].mixedData.map(o => o.y);
+            let display = +isNaN(parseFloat(assignmentData[assignmentIndex]).toFixed(2)) ? +parseFloat(assignmentData[assignmentData.length - 1]).toFixed(2) : parseFloat(assignmentData[assignmentIndex]).toFixed(2);
+            let delta = (assignmentData[assignmentIndex] - assignmentData[assignmentIndex - 1]).toFixed(3);
+            let color;
+            let bgColor;
+
+            if (delta > 0) {
+                bgColor = "rgba(0, 255, 0, " + colorAlphaFunction(delta) + ")";
+                delta = "(+" + delta + "%) <i class=\"fa fa-long-arrow-up\"></i>";
+                color = "green";
+            } else if (delta < 0) {
+                bgColor = "rgba(255, 0, 0, " + colorAlphaFunction(delta) + ")";
+                delta = "(" + delta + "%) <i class=\"fa fa-long-arrow-down\"></i>";
+                color = "red";
+            } else {
+                delta = "(±0.000%) <i class=\"fa fa-arrows-v\"></i>";
+                bgColor = "unset";
+                color = "unset";
+            }
+            let excludedDisplay = display + "% " + "<div style=\"display: inline-block; font-weight: normal; font-size: smaller\">(±0.00%) " + "<i class=\"fa fa-arrows-v\"></i>" + "</div>";
+            display = display + "% " + "<div style=\"display: inline-block; font-weight: normal; font-size: smaller\">" + delta + "</div>";
+            $("#assignment" + classIndex + assignmentIndex).css("color", color).html(display);
+            if (color) {
+                $("#assignment" + classIndex + assignmentIndex).css("font-weight", "bold");
+            }
+            $("#classTable" + classIndex + assignmentIndex).css("background-color", bgColor);
+            let excluded = $(".excludedAssignment" + classIndex + assignmentIndex);
+            if (excluded.length) {
+                excluded.html(excludedDisplay);
+            }
+
+        } else {
+            for (let i = 0; i < parsedData.length; i++) {
+                let assignmentData = parsedData[i].mixedData.map(o => o.y);
+                let assignmentDates = parsedData[i].assignmentDates;
+                let assignmentNames = parsedData[i].assignmentNames;
+                let assignmentCategories = parsedData[i].assignmentCategories;
+                let assignmentScoresParsed = parsedData[i].assignmentScoresParsed;
+                let assignmentPercents = parsedData[i].assignmentPercents;
+                for (let j = 0; j < assignmentData.length; j++) {
+                    // Set up dates
+                    $("#assignmentDate" + i + j).text(assignmentDates[j]);
+
+                    // Set up names
+                    $("#assignmentName" + i + j).text(assignmentNames[j]);
+
+                    // Set up categories
+                    $("#assignmentCategory" + i + j).text(assignmentCategories[j]);
+
+                    // Set up scores
+                    let scoreDiv = $("#assignmentScore" + i + j);
+                    let score = assignmentScoresParsed[j];
+                    if (score.substring(score.length - 2, score.length) === "--") {
+                        score = score.substring(0, score.length - 2);
+                    }
+                    if (score.substring(0, 2) === "--") {
+                        score = score.substring(2);
+                    }
+                    if (score.indexOf("/") === -1) {
+                        score += "/0";
+                    }
+                    score = score.split("/");
+                    let inputs = scoreDiv.find(".dynamic-input");
                     $(inputs[0]).val(score[0]);
                     $(inputs[1]).val(score[1]);
-                }
-                // Set up percents
-                let percent = assignmentPercents[j];
-                if (percent === -1 || isNaN(parseFloat(percent))) {
-                    percent = "--";
-                }
-                $("#assignmentPercent" + i + j).text(percent);
 
-                // Set up coloring and gain/loss
-                let display = +isNaN(parseFloat(assignmentData[j]).toFixed(2)) ? +parseFloat(assignmentData[assignmentData.length - 1]).toFixed(2) : parseFloat(assignmentData[j]).toFixed(2);
-                let delta = (assignmentData[j] - assignmentData[j - 1]).toFixed(3);
-                let color;
-                let bgColor;
+                    // Set up percents
+                    let percent = assignmentPercents[j];
+                    if (percent === -1 || isNaN(parseFloat(percent))) {
+                        percent = "--";
+                    }
+                    $("#assignmentPercent" + i + j).text(percent);
 
-                if (delta > 0) {
-                    bgColor = "rgba(0, 255, 0, " + colorAlphaFunction(delta) + ")";
-                    delta = "(+" + delta + "%) <i class=\"fa fa-long-arrow-up\"></i>";
-                    color = "green";
-                } else if (delta < 0) {
-                    bgColor = "rgba(255, 0, 0, " + colorAlphaFunction(delta) + ")";
-                    delta = "(" + delta + "%) <i class=\"fa fa-long-arrow-down\"></i>";
-                    color = "red";
-                } else {
-                    delta = "(±0.000%) <i class=\"fa fa-arrows-v\"></i>";
-                    bgColor = "unset";
-                    color = "unset";
-                }
-                let excludedDisplay = display + "% " + "<div style=\"display: inline-block; font-weight: normal; font-size: smaller\">(±0.00%) " + "<i class=\"fa fa-arrows-v\"></i>" + "</div>";
-                display = display + "% " + "<div style=\"display: inline-block; font-weight: normal; font-size: smaller\">" + delta + "</div>";
-                $("#assignment" + i + j).css("color", color).html(display);
-                if (color) {
-                    $("#assignment" + i + j).css("font-weight", "bold");
-                }
-                $("#classTable" + i + j).css("background-color", bgColor);
-                let excluded = $(".excludedAssignment" + i + j);
-                if (excluded.length) {
-                    excluded.html(excludedDisplay);
-                }
-            }
-            assignmentDates = excludedData[i].assignmentDates;
-            assignmentNames = excludedData[i].assignmentNames;
-            assignmentCategories = excludedData[i].assignmentCategories;
-            assignmentScoresParsed = excludedData[i].assignmentScoresParsed;
-            assignmentPercents = excludedData[i].assignmentPercents;
-            for (let j = 0; j < assignmentDates.length; j++) {
-                // Set up dates
-                $("#excludedAssignmentDate" + i + j).text(assignmentDates[j]);
+                    // Set up coloring and gain/loss
+                    let display = +isNaN(parseFloat(assignmentData[j]).toFixed(2)) ? +parseFloat(assignmentData[assignmentData.length - 1]).toFixed(2) : parseFloat(assignmentData[j]).toFixed(2);
+                    let delta = (assignmentData[j] - assignmentData[j - 1]).toFixed(3);
+                    let color;
+                    let bgColor;
 
-                // Set up names
-                $("#excludedAssignmentName" + i + j).text(assignmentNames[j]);
-
-                // Set up categories
-                $("#excludedAssignmentCategory" + i + j).text(assignmentCategories[j] + " (EXCLUDED)");
-
-                // Set up scores
-                let score = assignmentScoresParsed[j];
-                if (score.substring(score.length - 2) === "/0") {
-                    score = score.substring(0, score.length - 2);
+                    if (delta > 0) {
+                        bgColor = "rgba(0, 255, 0, " + colorAlphaFunction(delta) + ")";
+                        delta = "(+" + delta + "%) <i class=\"fa fa-long-arrow-up\"></i>";
+                        color = "green";
+                    } else if (delta < 0) {
+                        bgColor = "rgba(255, 0, 0, " + colorAlphaFunction(delta) + ")";
+                        delta = "(" + delta + "%) <i class=\"fa fa-long-arrow-down\"></i>";
+                        color = "red";
+                    } else {
+                        delta = "(±0.000%) <i class=\"fa fa-arrows-v\"></i>";
+                        bgColor = "unset";
+                        color = "unset";
+                    }
+                    let excludedDisplay = display + "% " + "<div style=\"display: inline-block; font-weight: normal; font-size: smaller\">(±0.00%) " + "<i class=\"fa fa-arrows-v\"></i>" + "</div>";
+                    display = display + "% " + "<div style=\"display: inline-block; font-weight: normal; font-size: smaller\">" + delta + "</div>";
+                    $("#assignment" + i + j).css("color", color).html(display);
+                    if (color) {
+                        $("#assignment" + i + j).css("font-weight", "bold");
+                    }
+                    $("#classTable" + i + j).css("background-color", bgColor);
+                    let excluded = $(".excludedAssignment" + i + j);
+                    if (excluded.length) {
+                        excluded.html(excludedDisplay);
+                    }
                 }
-                $("#excludedAssignmentScore" + i + j).text(score);
+                assignmentDates = excludedData[i].assignmentDates;
+                assignmentNames = excludedData[i].assignmentNames;
+                assignmentCategories = excludedData[i].assignmentCategories;
+                assignmentScoresParsed = excludedData[i].assignmentScoresParsed;
+                assignmentPercents = excludedData[i].assignmentPercents;
+                for (let j = 0; j < assignmentDates.length; j++) {
+                    // Set up dates
+                    $("#excludedAssignmentDate" + i + j).text(assignmentDates[j]);
 
-                // Set up percents
-                let percent = assignmentPercents[j];
-                if (percent === -1 || isNaN(parseFloat(percent))) {
-                    percent = "--";
+                    // Set up names
+                    $("#excludedAssignmentName" + i + j).text(assignmentNames[j]);
+
+                    // Set up categories
+                    $("#excludedAssignmentCategory" + i + j).text(assignmentCategories[j] + " (EXCLUDED)");
+
+                    // Set up scores
+                    let score = assignmentScoresParsed[j];
+                    if (score.substring(score.length - 2) === "/0") {
+                        score = score.substring(0, score.length - 2);
+                    }
+                    $("#excludedAssignmentScore" + i + j).text(score);
+
+                    // Set up percents
+                    let percent = assignmentPercents[j];
+                    if (percent === -1 || isNaN(parseFloat(percent))) {
+                        percent = "--";
+                    }
+                    $("#excludedAssignmentPercent" + i + j).text(percent);
                 }
-                $("#excludedAssignmentPercent" + i + j).text(percent);
             }
         }
-
     }
 
     function setupOverviewTable() {
@@ -1101,9 +1164,9 @@
         let totalGotten = categoryGottenAndPossible.gotten;
         let totalPossible = categoryGottenAndPossible.possible;
         if (totalPossible === 0) {
-            return 0;
+            return null;
         }
-        return +((totalGotten / totalPossible * 100).toFixed(4));
+        return totalGotten / totalPossible * 100;
     }
 
     function parseData() {
@@ -1163,8 +1226,7 @@
                                 }
                                 overallPercent += ((value.weight * (value.totalPossible !== 0 ? (value.totalGotten / value.totalPossible) : value.totalGotten)));
                             }
-                            let total = +(((overallPercent / totalWeightValue) * 100).toFixed(4));
-                            //rounds to 4 decimal places (the plus sign drops any trailing zeros)
+                            let total = (((overallPercent / totalWeightValue) * 100));
                             overallGradeSteps.push(total);
                         } else {
                             overallGradeSteps.push(overallGradeSteps[overallGradeSteps.length - 1]);
