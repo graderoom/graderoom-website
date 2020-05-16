@@ -671,10 +671,10 @@
                         totalPossible += assignment["points_possible"];
                     }
                 }
-                for (let i = 0; i < Object.keys(result).length; i++) {
-                    let weight = Object.keys(result)[i];
+                for (let j = 0; j < Object.keys(result).length; j++) {
+                    let weight = Object.keys(result)[j];
                     result[weight] = +(result[weight] / totalPossible * 100).toFixed(4) || 0;
-                    $("#weightTableWeight" + i + i + " input").attr("placeholder", result[weight]);
+                    $("#weightTableWeight" + i + j + " input").attr("placeholder", result[weight]);
                 }
             }
         }
