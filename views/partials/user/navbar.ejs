@@ -1,5 +1,5 @@
 <!-- Nav Bar -->
-<nav class="navbar navbar-light navbar-expand-lg justify-content-center">
+<nav class="navbar <% if (theme) { %>navbar-dark<% } else { %>navbar-light<% } %> navbar-expand-lg justify-content-center">
     <span class="d-flex w-50 mr-auto">
         <a href="/" class="navbar-brand" style="margin: 0;">
             <h1><img src="/public/resources/dark_mode/logo.png" style="width: 3rem" class="d-inline-block logo" alt="">
@@ -112,28 +112,27 @@
 
             // Get the messages.
             formMessagesDiv = $(messagesDivID);
+            $(formMessagesDiv).find(".sk-chase-mini").css("display", "inline-block");
             if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
                 $($(formMessagesDiv)[1]).removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
                 $($(formMessagesDiv)[1]).show();
                 message = $($(formMessagesDiv)[1]).find(".messageTxt");
                 $(message).text("");
-                $(formMessagesDiv).find(".sk-chase-mini").css("display", "inline-block");
             } else {
                 message = $(formMessagesDiv).find(".messageTxt");
                 $(message).text("");
                 $(formMessagesDiv).removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
                 $(formMessagesDiv).show();
-                $(formMessagesDiv).find(".sk-chase-mini").css("display", "inline-block");
                 if (formID === "#randomizeClassColors") {
                     $("#classColors").find("label").css("color", $(formID).parents(".card-footer").css("background-color"));
                 }
             }
 
             if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
-                $("input").blur();
+                $("#updateGradesDisplay input").blur();
+                shortcutsEnabled = false;
                 $("#loadingDisplay").show();
                 $("#syncFailure").hide();
-                clearInterval(checkLastUpdated);
             }
 
             // Submit the form using AJAX.
@@ -152,6 +151,7 @@
 
                     if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
                         $(formMessagesDiv).find(".sk-chase-mini").hide();
+                        clearTimeout(checkLastUpdated);
                         $(formMessagesDiv).find(".messageTxt").text("Refresh to see the latest updates.");
                         setTimeout(() => window.reload(), 400);
                     } else {
@@ -189,6 +189,7 @@
                                 clearTimeout(changeTransition);
                                 document.getElementById("fade").disabled = false;
                                 document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+                                $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
                                 setTimeout(() => {
                                     document.getElementById("fade").disabled = true;
                                 }, 500);
@@ -211,6 +212,7 @@
                                 clearTimeout(changeTransition);
                                 document.getElementById("fade").disabled = false;
                                 document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+                                $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
                                 setTimeout(() => {
                                     document.getElementById("fade").disabled = true;
                                 }, 500);
@@ -299,7 +301,13 @@
                     }
                     if (data.responseText === "Incorrect login details.") {
                         $(message).text("School Password is incorrect");
+                        $("#inputPassword").focus();
                     } else {
+                        if (formID === "#syncGradesForm") {
+                            $("#inputUserPassword").focus();
+                        } else if (formID === "#gradeSyncForm") {
+                            $("#gradeSyncInputUserPassword").focus();
+                        }
                         $(message).text(data.responseText);
                     }
                 } else {
@@ -313,12 +321,13 @@
                 $(formMessagesDiv).find(".sk-chase-mini").hide();
 
                 if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
-                    $("#inputPassword").focus();
+                    clearTimeout(checkLastUpdated);
                 }
 
             }).always(function () {
                 if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
                     $("#loadingDisplay").hide();
+                    shortcutsEnabled = true;
                 }
             });
         });
@@ -340,7 +349,7 @@
             cardsDisplayed.splice(cardsDisplayed.indexOf(id), 1);
         }
         if (id === "updateGradesDisplay") {
-            clearInterval(checkLastUpdated);
+            setupLastUpdated();
         }
         if (id === "updateWeightsDisplay") {
             if (document.getElementById("edited").textContent === "Edited") {

@@ -5,13 +5,18 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
+<% let theme; %>
 <% if (user.appearance.theme === "dark") { %>
+    <% theme = true; %>
     <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
 <% } else if (user.appearance.theme === "light") { %>
+    <% theme = false; %>
     <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
 <% } else if ((((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (dst ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) && ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (dst ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0))) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (dst ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (dst ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0))))) { %>
+    <% theme = true; %>
     <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
 <% } else { %>
+    <% theme = false; %>
     <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
 <% } %>
 <link rel="stylesheet" type="text/css" href="public/css/main.css">
@@ -131,12 +136,8 @@
                                                    style="display: none; margin-left: 0.2rem">
                                                     <span class="popup-top">
                                                         <% let grade = JSON.parse(gradeData)[i].overall_percent + "%"; %>
-                                                        WARNING: Your grade in
-                                                        PowerSchool,
+                                                        Grade in PowerSchool:
                                                         <nobr><%= grade + " (" + JSON.parse(gradeData)[i].overall_letter + ")" %></nobr>
-                                                        does not match
-                                                        the
-                                                        calculated grade. Make sure your weights are entered correctly.
                                                     </span>
                                                 </i></span></th>
                                     <% } else {
@@ -228,7 +229,7 @@
                                                             class="fa fa-undo"
                                                             onclick="resetWeights(<%= i + offset %>); $('#weights<%= i + offset %>').submit();">
                                                         <span class="popup-top">Revert
-                                                            to Default</span>
+                                                            to Original</span>
                                                     </i>
                                                 </span>
                                                 <span class="popup">
@@ -288,25 +289,20 @@
                                     <tfoot>
                                         <tr>
                                             <th colspan="4">
-                                                <div style="display:none; color: <%= user.appearance.classColors[i] %>"
-                                                     id="weightTableOverallGrade<%= i + offset %>">
-                                                </div>
                                                 <span class="popup">
                                                     <i id="incorrectOverallGrade<%= i + offset %>"
                                                        class="fa fa-exclamation-circle"
                                                        style="margin-left: 0.2rem; vertical-align: middle">
                                                         <span class="popup-top">
                                                             <% let grade = JSON.parse(gradeData)[i].overall_percent + "%"; %>
-                                                            WARNING: Your grade in
-                                                            PowerSchool,
+                                                            Grade in PowerSchool:
                                                             <nobr><%= grade + " (" + JSON.parse(gradeData)[i].overall_letter + ")" %></nobr>
-                                                            does not match
-                                                            the
-                                                            calculated grade. Make sure your weights are entered
-                                                            correctly.
                                                         </span>
                                                     </i>
                                                 </span>
+                                                <div style="display:none; color: <%= user.appearance.classColors[i] %>"
+                                                     id="weightTableOverallGrade<%= i + offset %>">
+                                                </div>
                                             </th>
                                         </tr>
                                     </tfoot>
@@ -314,9 +310,9 @@
                             </form>
                         </div>
                             <hr>
-                        <table class="table text-center" id="table<%= i + offset %>">
-                            <thead>
-                                <tr>
+                            <table class="table text-center" id="table<%= i + offset %>">
+                                <thead>
+                                    <tr>
                                     <th>Date</th>
                                     <th>Assignment Name</th>
                                     <th>Category</th>
@@ -351,11 +347,22 @@
                                                            style="padding: 0; width: 0 !important; "
                                                            class="form-control text-view dynamic-input"
                                                            placeholder="--"
-                                                           onblur="{updatePointsGotten(this,<%= i %>,<%= j %>); refreshWithoutReload(true, <%= i + offset %>, <%= j + jOffset %>,'gotten')}">
+                                                           onblur="{updatePointsGotten(this,<%= i %>,<%= j %>); refreshWithoutReload(false, <%= i + offset %>, <%= j + jOffset %>)}">
                                                     /<input style="padding: 0; width: 0 !important; "
                                                             class="form-control text-view dynamic-input"
                                                             placeholder="--"
-                                                            onblur="{updatePointsPossible(this,<%= i %>,<%= j %>); refreshWithoutReload(true, <%= i + offset %>, <%= j + jOffset %>,'possible')}">
+                                                            onblur="{updatePointsPossible(this,<%= i %>,<%= j %>); refreshWithoutReload(false, <%= i + offset %>, <%= j + jOffset %>)}">
+                                                    <span class="popup">
+                                                        <i id="resetRow<%= i %><%= j %>"
+                                                           class="fa fa-undo"
+                                                           style="color: #888888; margin: 0; cursor: pointer; display:inline-block"
+                                                           onclick="{resetRow(<%= i %>,<%= j %>); refreshWithoutReload(false, <%= i + offset %>, <%= j + jOffset %>)}"
+                                                        >
+                                                            <span class="popup-top">
+                                                                Revert to Original
+                                                            </span>
+                                                        </i>
+                                                    </span>
                                                 </div>
                                             </td>
                                             <td id="assignmentPercent<%= i + offset %><%= j + jOffset %>"></td>
@@ -364,7 +371,7 @@
                                     <% } %>
                                 <% } %>
                             </tbody>
-                        </table>
+                            </table>
                     </span>
                 <% } else {
                     offset--;
@@ -376,33 +383,35 @@
 <script>
 
     let refreshing;
+    let shortcutsEnabled = true;
 
-    function refreshWithoutReload(doItNow = false, changedClassIndex, changedElementIndex, possibleOrGotten) {
+    function refreshWithoutReload(doItNow = false, changedClassIndex, changedElementIndex) {
+        const refresh = () => {
+            // Trying to be efficient and only change affected data
+            clearTimeout(refreshing);
+            parseData(changedClassIndex);
+            setupWeightsTables(changedClassIndex);
+            setupOverviewTable(changedClassIndex);
+            setupClassTables(changedClassIndex, changedElementIndex);
+            setupGPADisplay();
+            setupIncorrectGradeMessages(changedClassIndex);
+            setPointBasedWeights(changedClassIndex);
+            if (changedClassIndex) {
+                renderChart(changedClassIndex);
+            } else {
+                renderAllCharts();
+            }
+        }
         if (doItNow) {
-            clearTimeout(refreshing);
-            parseData();
-            setupWeightsTables();
-            setupOverviewTable();
-            setupClassTables(changedClassIndex, changedElementIndex, possibleOrGotten);
-            setupGPADisplay();
-            setupIncorrectGradeMessages();
-            setPointBasedWeights();
-            renderAllCharts();
-            return;
+            refresh();
+        } else {
+            if (refreshing) {
+                clearTimeout(refreshing);
+            }
+            refreshing = setTimeout(() => {
+                refresh();
+            }, 400);
         }
-        if (refreshing) {
-            clearTimeout(refreshing);
-        }
-        refreshing = setTimeout(() => {
-            parseData();
-            setupWeightsTables();
-            setupOverviewTable();
-            setupClassTables(changedClassIndex, changedElementIndex, possibleOrGotten);
-            setupGPADisplay();
-            setupIncorrectGradeMessages();
-            setPointBasedWeights();
-            renderAllCharts();
-        }, 400);
     }
 
     let user = <%- userRef %>;
@@ -411,6 +420,7 @@
     let relClassData = <%- relevantClassData %>;
     let parsedData = [];
     let excludedData = [];
+    let tempData = {};
     let unobtainedWeights = {};
     let tempWeights = {};
     let currentPage = (isNaN(parseInt(localStorage.getItem("currentPage"))) ? -1 : parseInt(localStorage.getItem("currentPage")));
@@ -494,6 +504,7 @@
                 clearTimeout(changeTransition);
                 document.getElementById("fade").disabled = false;
                 document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+                $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
                 }, 2000);
@@ -505,6 +516,7 @@
                 clearTimeout(changeTransition);
                 document.getElementById("fade").disabled = false;
                 document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+                $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
                 }, 2000);
@@ -533,8 +545,8 @@
                             $($(".updateGradesMessage")[1]).find(".messageTxt").text("Refreshing...");
                             setTimeout(() => window.reload(), 400);
                         } else {
-                            $($(".updateGradesMessage")[0]).text("Click here to refresh").attr('onclick', 'window.reload()');
-                            $($(".updateGradesMessage")[1]).show().css('cursor', 'pointer').attr('onclick', 'window.reload()').find(".messageTxt").text("Click here to refresh");
+                            $($(".updateGradesMessage")[0]).text("Click here to refresh").attr("onclick", "window.reload()");
+                            $($(".updateGradesMessage")[1]).show().css("cursor", "pointer").attr("onclick", "window.reload()").find(".messageTxt").text("Click here to refresh");
                         }
                     } else if (data === "Already Synced!") {
                         clearInterval(checking);
@@ -561,31 +573,33 @@
         $("#GPA-display").text(getOverallGPA);
     }
 
-    function setupIncorrectGradeMessages() {
+    function setupIncorrectGradeMessages(classIndex) {
         $("#incorrectGPA").hide();
         $("#GPA-display").removeClass("ignored");
         for (let i = 0; i < data.length; i++) {
-            let realOverallGrade = data[i].overall_percent;
-            let realOverallLetter = data[i].overall_letter;
-            let calculatedOverallGrade = getOverallGrade(i);
-            let correctDecimalPlaces = getOverallGrade(i).toFixed(countDecimals(realOverallGrade));
-            let calculatedOverallLetter = getLetterGrade(calculatedOverallGrade);
-            if (correctDecimalPlaces != realOverallGrade || calculatedOverallLetter !== realOverallLetter) {
-                $("#incorrectOverviewGrade" + i).css("display", "inline");
-                $("#incorrectOverallGrade" + i).css("display", "inline");
-                $("#overviewChart" + i).addClass("ignored");
-            } else {
-                $("#incorrectOverviewGrade" + i).hide();
-                $("#incorrectOverallGrade" + i).hide();
-                $("#overviewChart" + i).removeClass("ignored");
-            }
+            if (!classIndex || classIndex === i) {
+                let realOverallGrade = data[i].overall_percent;
+                let realOverallLetter = data[i].overall_letter;
+                let calculatedOverallGrade = getOverallGrade(i);
+                let correctDecimalPlaces = getOverallGrade(i).toFixed(countDecimals(realOverallGrade));
+                let calculatedOverallLetter = getLetterGrade(calculatedOverallGrade);
+                if (correctDecimalPlaces != realOverallGrade || calculatedOverallLetter !== realOverallLetter) {
+                    $("#incorrectOverviewGrade" + i).css("display", "inline");
+                    $("#incorrectOverallGrade" + i).css("display", "inline");
+                    $("#overviewChart" + i).addClass("ignored");
+                } else {
+                    $("#incorrectOverviewGrade" + i).hide();
+                    $("#incorrectOverallGrade" + i).hide();
+                    $("#overviewChart" + i).removeClass("ignored");
+                }
 
-            // GPA will only be different if the actual letter is different
-            let strippedCalculatedLetter = calculatedOverallLetter.substring(0, 1);
-            let strippedRealLetter = realOverallLetter.substring(0, 1);
-            if (strippedCalculatedLetter !== strippedRealLetter) {
-                $("#incorrectGPA").css("display", "inline");
-                $("#GPA-display").addClass("ignored");
+                // GPA will only be different if the actual letter is different
+                let strippedCalculatedLetter = calculatedOverallLetter.substring(0, 1);
+                let strippedRealLetter = realOverallLetter.substring(0, 1);
+                if (strippedCalculatedLetter !== strippedRealLetter) {
+                    $("#incorrectGPA").css("display", "inline");
+                    $("#GPA-display").addClass("ignored");
+                }
             }
         }
     }
@@ -643,24 +657,25 @@
         return totalWeight;
     }
 
-    function setPointBasedWeights() {
-        for (let classIndex = 0; classIndex < data.length; classIndex++) {
-            let className = data[classIndex].class_name;
-            let totalPossible = 0;
-            let result = {};
-            for (let assignment of data[classIndex]["grades"]) {
-                if (assignment["points_gotten"] !== false && assignment["points_possible"] !== false && assignment["exclude"] !== true) {
-                    if (!result[assignment.category]) {
-                        result[assignment.category] = 0;
+    function setPointBasedWeights(classIndex) {
+        for (let i = 0; i < data.length; i++) {
+            if (!classIndex || classIndex === i) {
+                let totalPossible = 0;
+                let result = {};
+                for (let assignment of data[i]["grades"]) {
+                    if (assignment["points_gotten"] !== false && assignment["points_possible"] !== false && assignment["exclude"] !== true) {
+                        if (!result[assignment.category]) {
+                            result[assignment.category] = 0;
+                        }
+                        result[assignment.category] += assignment["points_possible"];
+                        totalPossible += assignment["points_possible"];
                     }
-                    result[assignment.category] += assignment["points_possible"];
-                    totalPossible += assignment["points_possible"];
                 }
-            }
-            for (let i = 0; i < Object.keys(result).length; i++) {
-                let weight = Object.keys(result)[i];
-                result[weight] = +(result[weight] / totalPossible * 100).toFixed(4) || 0;
-                $("#weightTableWeight" + classIndex + i + " input").attr("placeholder", result[weight]);
+                for (let i = 0; i < Object.keys(result).length; i++) {
+                    let weight = Object.keys(result)[i];
+                    result[weight] = +(result[weight] / totalPossible * 100).toFixed(4) || 0;
+                    $("#weightTableWeight" + i + i + " input").attr("placeholder", result[weight]);
+                }
             }
         }
     }
@@ -754,90 +769,92 @@
         }
     }
 
-    function setupWeightsTables() {
+    function setupWeightsTables(classIndex) {
         for (let i = 0; i < data.length; i++) {
-            let className = data[i].class_name;
-            let tableCategories = Object.keys(weights[className]["weights"]);
+            if (!classIndex || classIndex === i) {
+                let className = data[i].class_name;
+                let tableCategories = Object.keys(weights[className]["weights"]);
 
-            let enableReset = weights[className]["custom"];
-            //if custom and both haveWeights, enable reset only if db had diff value to give to user's weights
-            //stop reset from showing if custom is due to user having more categories than classes db
-            if (enableReset && relClassData[className]["hasWeights"] != "false") {
-                enableReset = false;
-                let keys = Object.keys(weights[className]["weights"]);
-                for (let i = 0; i < keys.length; i++) {
-                    if (weights[className]["hasWeights"] == "false" && keys[i] in relClassData[className]["weights"]) {
-                        enableReset = true;
-                    } else if ((keys[i] in relClassData[className]["weights"]) && weights[className]["weights"][keys[i]] != relClassData[className]["weights"][keys[i]]) {
-                        enableReset = true;
+                let enableReset = weights[className]["custom"];
+                //if custom and both haveWeights, enable reset only if db had diff value to give to user's weights
+                //stop reset from showing if custom is due to user having more categories than classes db
+                if (enableReset && relClassData[className]["hasWeights"] != "false") {
+                    enableReset = false;
+                    let keys = Object.keys(weights[className]["weights"]);
+                    for (let i = 0; i < keys.length; i++) {
+                        if (weights[className]["hasWeights"] == "false" && keys[i] in relClassData[className]["weights"]) {
+                            enableReset = true;
+                        } else if ((keys[i] in relClassData[className]["weights"]) && weights[className]["weights"][keys[i]] != relClassData[className]["weights"][keys[i]]) {
+                            enableReset = true;
+                        }
                     }
                 }
-            }
 
-            //Hide or Show Reset Button
-            if (enableReset) {
-                $("#reset" + i).show();
-                $("#weight-header" + i).css("font-style", "italic");
-            } else {
-                $("#reset" + i).hide();
-                $("#weight-header" + i).css("font-style", "normal");
-            }
-
-            //Hide or Show Ignoring weights
-            if (unobtainedWeights[className]) {
-                $("#ignoringWeights" + i).show();
-            } else {
-                $("#ignoringWeights" + i).hide();
-            }
-
-            for (let j = 0; j < tableCategories.length; j++) {
-                //Set italics of weights
+                //Hide or Show Reset Button
                 if (enableReset) {
-                    $("#weightTableWeight" + i + j).children().css("font-style", "italic");
+                    $("#reset" + i).show();
+                    $("#weight-header" + i).css("font-style", "italic");
                 } else {
-                    $("#weightTableWeight" + i + j).children().css("font-style", "normal");
+                    $("#reset" + i).hide();
+                    $("#weight-header" + i).css("font-style", "normal");
                 }
 
-                //Strikethrough weights if any are missing
-                let input = $("#weightTableWeight" + i + j + " input");
-                if (unobtainedWeights[className] && (!isNaN(parseFloat(input[0].valueAsNumber)))) {
-                    input.addClass("ignored");
+                //Hide or Show Ignoring weights
+                if (unobtainedWeights[className]) {
+                    $("#ignoringWeights" + i).show();
                 } else {
-                    input.removeClass("ignored");
+                    $("#ignoringWeights" + i).hide();
                 }
 
-                document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
-                let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
-                document.getElementById("weightTablePoints" + i + j).textContent = +categoryGottenAndPossible.gotten.toFixed(4) + ((categoryGottenAndPossible.possible !== 0) ? ("/" + +(categoryGottenAndPossible.possible.toFixed(4))) : "");
-                let categoryGrade = +(+getCategoryGrade(i, tableCategories[j])).toFixed(4);
-                if (categoryGottenAndPossible.possible !== 0) {
-                    document.getElementById("weightTableGrade" + i + j).textContent = categoryGrade + "% (" + getLetterGrade(categoryGrade) + ")";
-                }
-            }
-            let overallGrade = getOverallGrade(i);
-            let assignmentData = parsedData[i].mixedData.map(o => o.y);
-            let lastIndex = assignmentData.length - 1;
-            let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(5);
-            let color;
-            let bgColor;
-            if (delta > 0) {
-                bgColor = "rgba(0, 255, 0, " + colorAlphaFunction(delta) + ")";
-                delta = "<i class=\"fa fa-caret-up\"></i>" + delta + "%";
-                color = "green";
-            } else if (delta < 0) {
-                bgColor = "rgba(255, 0, 0, " + colorAlphaFunction(delta) + ")";
-                delta = "<i class=\"fa fa-caret-down\"></i>" + delta + "%";
-                color = "red";
-            } else {
-                bgColor = "unset";
-            }
-            delta = (delta ? (" <div style=\"display: inline-block; margin-left: 1rem; color: " + color + "\">" + delta + "</div>") : "");
-            if (overallGrade) {
-                document.getElementById("weightTableOverallGrade" + i).innerHTML = (+(overallGrade.toFixed(4))).toString() + "% (" + getLetterGrade(overallGrade) + ")" + delta;
-                $("#weightTableOverallGrade" + i).parents("th").css("background-color", bgColor);
-            }
-            document.getElementById("weightTableOverallGrade" + i).style.display = "inline";
+                for (let j = 0; j < tableCategories.length; j++) {
+                    //Set italics of weights
+                    if (enableReset) {
+                        $("#weightTableWeight" + i + j).children().css("font-style", "italic");
+                    } else {
+                        $("#weightTableWeight" + i + j).children().css("font-style", "normal");
+                    }
 
+                    //Strikethrough weights if any are missing
+                    let input = $("#weightTableWeight" + i + j + " input");
+                    if (unobtainedWeights[className] && (!isNaN(parseFloat(input[0].valueAsNumber)))) {
+                        input.addClass("ignored");
+                    } else {
+                        input.removeClass("ignored");
+                    }
+
+                    document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
+                    let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
+                    document.getElementById("weightTablePoints" + i + j).textContent = +categoryGottenAndPossible.gotten.toFixed(4) + ((categoryGottenAndPossible.possible !== 0) ? ("/" + +(categoryGottenAndPossible.possible.toFixed(4))) : "");
+                    let categoryGrade = +(+getCategoryGrade(i, tableCategories[j])).toFixed(4);
+                    if (categoryGottenAndPossible.possible !== 0) {
+                        document.getElementById("weightTableGrade" + i + j).textContent = categoryGrade + "% (" + getLetterGrade(categoryGrade) + ")";
+                    }
+                }
+                let overallGrade = getOverallGrade(i);
+                let assignmentData = parsedData[i].mixedData.map(o => o.y);
+                let lastIndex = assignmentData.length - 1;
+                let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(5);
+                let color;
+                let bgColor;
+                if (delta > 0) {
+                    bgColor = "rgba(0, 255, 0, " + colorAlphaFunction(delta) + ")";
+                    delta = "<i class=\"fa fa-caret-up\"></i>" + delta + "%";
+                    color = "green";
+                } else if (delta < 0) {
+                    bgColor = "rgba(255, 0, 0, " + colorAlphaFunction(delta) + ")";
+                    delta = "<i class=\"fa fa-caret-down\"></i>" + delta + "%";
+                    color = "red";
+                } else {
+                    bgColor = "unset";
+                }
+                delta = (delta ? (" <div style=\"display: inline-block; margin-left: 1rem; color: " + color + "\">" + delta + "</div>") : "");
+                if (overallGrade) {
+                    document.getElementById("weightTableOverallGrade" + i).innerHTML = (+(overallGrade.toFixed(4))).toString() + "% (" + getLetterGrade(overallGrade) + ")" + delta;
+                    $("#weightTableOverallGrade" + i).parents("th").css("background-color", bgColor);
+                }
+                document.getElementById("weightTableOverallGrade" + i).style.display = "inline";
+
+            }
         }
     }
 
@@ -889,6 +906,14 @@
 
     const updatePointsGotten = (element, classIndex, assignmentIndex) => {
         let assignment = data[classIndex]["grades"][assignmentIndex];
+
+        // Copy without reference
+        if (!tempData[classIndex]) tempData[classIndex] = {};
+        if (!tempData[classIndex][assignmentIndex]) tempData[classIndex][assignmentIndex] = {};
+        for (let key of Object.keys(assignment)) {
+            tempData[classIndex][assignmentIndex][key] = assignment[key];
+        }
+
         assignment.points_gotten = parseFloat($(element)[0].value);
         if (isNaN(assignment.points_gotten)) {
             assignment.points_gotten = false;
@@ -901,6 +926,14 @@
     };
     const updatePointsPossible = (element, classIndex, assignmentIndex) => {
         let assignment = data[classIndex]["grades"][assignmentIndex];
+
+        // Copy without reference
+        if (!tempData[classIndex]) tempData[classIndex] = {};
+        if (!tempData[classIndex][assignmentIndex]) tempData[classIndex][assignmentIndex] = {};
+        for (let key of Object.keys(assignment)) {
+            tempData[classIndex][assignmentIndex][key] = assignment[key];
+        }
+
         assignment.points_possible = parseFloat($(element)[0].value);
         if (isNaN(assignment.points_possible)) {
             assignment.points_possible = false;
@@ -911,6 +944,23 @@
             assignment.grade_percent = -1;
         }
     };
+
+    const resetRow = (classIndex, assignmentIndex) => {
+        // This means that the row was never changed
+        if (!tempData[classIndex] || !tempData[classIndex][assignmentIndex]) {
+            $("#resetRow" + classIndex + assignmentIndex).hide();
+            return;
+        }
+
+        // Copy without reference
+        for (let key of Object.keys(data[classIndex]["grades"][assignmentIndex])) {
+            console.log(key, data[classIndex]["grades"][assignmentIndex][key], tempData[classIndex][assignmentIndex][key]);
+            data[classIndex]["grades"][assignmentIndex][key] = tempData[classIndex][assignmentIndex][key];
+            console.log(key, data[classIndex]["grades"][assignmentIndex][key], tempData[classIndex][assignmentIndex][key]);
+        }
+
+        delete tempData[classIndex][assignmentIndex];
+    }
 
     function setupInputListeners() {
         for (let i = 0; i < parsedData.length; i++) {
@@ -935,85 +985,16 @@
         }
     }
 
-    function setupClassTables(classIndex, assignmentIndex, possibleOrGotten) {
-        if (classIndex && assignmentIndex) { //Only change this item
-            // Set up dates
-            $("#assignmentDate" + classIndex + assignmentIndex).text(parsedData[classIndex].assignmentDates[assignmentIndex]);
-
-            // Set up names
-            $("#assignmentName" + classIndex + assignmentIndex).text(parsedData[classIndex].assignmentNames[assignmentIndex]);
-
-            // Set up categories
-            $("#assignmentCategory" + classIndex + assignmentIndex).text(parsedData[classIndex].assignmentCategories[assignmentIndex]);
-
-            // Set up scores
-            let scoreDiv = $("#assignmentScore" + classIndex + assignmentIndex);
-            let score = parsedData[classIndex].assignmentScoresParsed[assignmentIndex];
-            if (score.substring(score.length - 2, score.length) === "--") {
-                score = score.substring(0, score.length - 2);
-            }
-            if (score.substring(0, 2) === "--") {
-                score = score.substring(2);
-            }
-            if (score.indexOf("/") === -1) {
-                score += "/0";
-            }
-            score = score.split("/");
-            let inputs = scoreDiv.find(".dynamic-input");
-            if (possibleOrGotten === "gotten") {
-                $(inputs[0]).val(score[0]);
-            } else if (possibleOrGotten === "possible") {
-                $(inputs[1]).val(score[1]);
-            }
-
-            // Set up percents
-            let percent = parsedData[classIndex].assignmentPercents[assignmentIndex];
-            if (percent === -1 || isNaN(parseFloat(percent))) {
-                percent = "--";
-            }
-            $("#assignmentPercent" + classIndex + assignmentIndex).text(percent);
-
-            // Set up coloring and gain/loss
-            let assignmentData = parsedData[classIndex].mixedData.map(o => o.y);
-            let display = +isNaN(parseFloat(assignmentData[assignmentIndex]).toFixed(2)) ? +parseFloat(assignmentData[assignmentData.length - 1]).toFixed(2) : parseFloat(assignmentData[assignmentIndex]).toFixed(2);
-            let delta = (assignmentData[assignmentIndex] - assignmentData[assignmentIndex - 1]).toFixed(3);
-            let color;
-            let bgColor;
-
-            if (delta > 0) {
-                bgColor = "rgba(0, 255, 0, " + colorAlphaFunction(delta) + ")";
-                delta = "(+" + delta + "%) <i class=\"fa fa-long-arrow-up\"></i>";
-                color = "green";
-            } else if (delta < 0) {
-                bgColor = "rgba(255, 0, 0, " + colorAlphaFunction(delta) + ")";
-                delta = "(" + delta + "%) <i class=\"fa fa-long-arrow-down\"></i>";
-                color = "red";
-            } else {
-                delta = "(±0.000%) <i class=\"fa fa-arrows-v\"></i>";
-                bgColor = "unset";
-                color = "unset";
-            }
-            let excludedDisplay = display + "% " + "<div style=\"display: inline-block; font-weight: normal; font-size: smaller\">(±0.00%) " + "<i class=\"fa fa-arrows-v\"></i>" + "</div>";
-            display = display + "% " + "<div style=\"display: inline-block; font-weight: normal; font-size: smaller\">" + delta + "</div>";
-            $("#assignment" + classIndex + assignmentIndex).css("color", color).html(display);
-            if (color) {
-                $("#assignment" + classIndex + assignmentIndex).css("font-weight", "bold");
-            }
-            $("#classTable" + classIndex + assignmentIndex).css("background-color", bgColor);
-            let excluded = $(".excludedAssignment" + classIndex + assignmentIndex);
-            if (excluded.length) {
-                excluded.html(excludedDisplay);
-            }
-
-        } else {
-            for (let i = 0; i < parsedData.length; i++) {
+    function setupClassTables(classIndex, assignmentIndex) {
+        for (let i = 0; i < parsedData.length; i++) {
+            if (!classIndex || classIndex === i) {
                 let assignmentData = parsedData[i].mixedData.map(o => o.y);
                 let assignmentDates = parsedData[i].assignmentDates;
                 let assignmentNames = parsedData[i].assignmentNames;
                 let assignmentCategories = parsedData[i].assignmentCategories;
                 let assignmentScoresParsed = parsedData[i].assignmentScoresParsed;
                 let assignmentPercents = parsedData[i].assignmentPercents;
-                for (let j = 0; j < assignmentData.length; j++) {
+                for (let j = (assignmentIndex || 0); j < assignmentData.length; j++) {
                     // Set up dates
                     $("#assignmentDate" + i + j).text(assignmentDates[j]);
 
@@ -1040,10 +1021,20 @@
                     $(inputs[0]).val(score[0]);
                     $(inputs[1]).val(score[1]);
 
+                    // Set up reset buttons
+                    let resetButton = $("#resetRow" + i + j);
+                    if (tempData[i] && tempData[i][j]) {
+                        resetButton.show();
+                    } else {
+                        resetButton.hide();
+                    }
+
                     // Set up percents
                     let percent = assignmentPercents[j];
                     if (percent === -1 || isNaN(parseFloat(percent))) {
                         percent = "--";
+                    } else {
+                        percent += "%";
                     }
                     $("#assignmentPercent" + i + j).text(percent);
 
@@ -1169,16 +1160,19 @@
         return totalGotten / totalPossible * 100;
     }
 
-    function parseData() {
+    function parseData(classIndex) {
         /*
          WEIGHTS first
          */
-        for (let classData of data) {
-            let className = classData.class_name;
-            let localMissingCategories = Object.keys(weights[className]["weights"]).filter(category => !weights[className]["weights"][category] && weights[className]["weights"][category] !== 0);
-            delete unobtainedWeights[className];
-            if (localMissingCategories.length > 0 && weights[className]["hasWeights"] !== "false") {
-                unobtainedWeights[className] = localMissingCategories;
+        for (let i = 0; i < data.length; i++) {
+            if (!classIndex || classIndex === i) {
+                classData = data[i];
+                let className = classData.class_name;
+                let localMissingCategories = Object.keys(weights[className]["weights"]).filter(category => !weights[className]["weights"][category] && weights[className]["weights"][category] !== 0);
+                delete unobtainedWeights[className];
+                if (localMissingCategories.length > 0 && weights[className]["hasWeights"] !== "false") {
+                    unobtainedWeights[className] = localMissingCategories;
+                }
             }
 
         }
@@ -1187,86 +1181,87 @@
          */
         //Add array to each object in parsedData: one for weights (not needed?), one for missing weights
         //Get data for one class
-        parsedData = [];
-        excludedData = [];
-        for (let classData of data) {
-            let className = classData.class_name;
-            let overallGradeSteps = [];
-            let totalPossiblesAndGottens = {}; //by category
-            let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
-            // VERY JANK CHANGE LATER
-            let doesntHaveWeights = (className in unobtainedWeights) || (weights[className]["hasWeights"] === "false");
-            // console.log(className + " DHW? : " + doesntHaveWeights);
-            for (let grade of classData.grades) {
-                let category = grade.category;
-                if (doesntHaveWeights) {
-                    category = "default";
-                }
-                try {
-                    if (typeof totalPossiblesAndGottens[category] === "undefined" && !grade.exclude && grade.points_possible !== false && grade.points_gotten !== false) {
-                        let weightVal = 100;
-                        if (!doesntHaveWeights) {
-                            weightVal = Number(weights[className]["weights"][category]);
-                        }
-                        totalPossiblesAndGottens[category] = {
-                            totalPossible: false, totalGotten: false, weight: weightVal
-                        };
-                        totalWeightValue += weightVal;
+        for (let i = 0; i < data.length; i++) {
+            if (!classIndex || classIndex === i) {
+                let classData = data[i];
+                let className = classData.class_name;
+                let overallGradeSteps = [];
+                let totalPossiblesAndGottens = {}; //by category
+                let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
+                // VERY JANK CHANGE LATER
+                let doesntHaveWeights = (className in unobtainedWeights) || (weights[className]["hasWeights"] === "false");
+                // console.log(className + " DHW? : " + doesntHaveWeights);
+                for (let grade of classData.grades) {
+                    let category = grade.category;
+                    if (doesntHaveWeights) {
+                        category = "default";
                     }
-                    if (!grade.exclude) {
-                        if (grade.points_possible !== false && grade.points_gotten !== false) {
-                            totalPossiblesAndGottens[category].totalPossible += grade.points_possible;
-                            totalPossiblesAndGottens[category].totalGotten += grade.points_gotten;
-                            let overallPercent = 0;
-                            for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
-                                if (value.totalGotten === false || value.totalPossible === false) {
-                                    totalWeightValue -= value.weight;
-                                    value.weight = 0;
-                                    continue;
-                                }
-                                overallPercent += ((value.weight * (value.totalPossible !== 0 ? (value.totalGotten / value.totalPossible) : value.totalGotten)));
+                    try {
+                        if (typeof totalPossiblesAndGottens[category] === "undefined" && !grade.exclude && grade.points_possible !== false && grade.points_gotten !== false) {
+                            let weightVal = 100;
+                            if (!doesntHaveWeights) {
+                                weightVal = Number(weights[className]["weights"][category]);
                             }
-                            let total = (((overallPercent / totalWeightValue) * 100));
-                            overallGradeSteps.push(total);
-                        } else {
-                            overallGradeSteps.push(overallGradeSteps[overallGradeSteps.length - 1]);
+                            totalPossiblesAndGottens[category] = {
+                                totalPossible: false, totalGotten: false, weight: weightVal
+                            };
+                            totalWeightValue += weightVal;
                         }
+                        if (!grade.exclude) {
+                            if (grade.points_possible !== false && grade.points_gotten !== false) {
+                                totalPossiblesAndGottens[category].totalPossible += grade.points_possible;
+                                totalPossiblesAndGottens[category].totalGotten += grade.points_gotten;
+                                let overallPercent = 0;
+                                for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
+                                    if (value.totalGotten === false || value.totalPossible === false) {
+                                        totalWeightValue -= value.weight;
+                                        value.weight = 0;
+                                        continue;
+                                    }
+                                    overallPercent += ((value.weight * (value.totalPossible !== 0 ? (value.totalGotten / value.totalPossible) : value.totalGotten)));
+                                }
+                                let total = (((overallPercent / totalWeightValue) * 100));
+                                overallGradeSteps.push(total);
+                            } else {
+                                overallGradeSteps.push(overallGradeSteps[overallGradeSteps.length - 1]);
+                            }
+                        }
+                    } catch (err) {
+                        // console.log(err);
+                        // console.log("bad weight input");
                     }
-                } catch (err) {
-                    // console.log(err);
-                    // console.log("bad weight input");
                 }
+                let assignmentNames = classData.grades.filter(x => !x.exclude).map(x => x.assignment_name);
+                let assignmentDates = classData.grades.filter(x => !x.exclude).map(x => x.date);
+                let assignmentTimestamps = classData.grades.filter(x => !x.exclude).map(x => new Date(x.date));
+                let assignmentPercents = classData.grades.filter(x => !x.exclude).map(x => x.grade_percent);
+                let assignmentScoresParsed = classData.grades.filter(x => !x.exclude).map(x => (x.points_gotten === false ? "--" : x.points_gotten) + "/" + (x.points_possible === false ? "--" : x.points_possible));
+                let assignmentCategories = classData.grades.filter(x => !x.exclude).map(x => x.category);
+                let mixedData = overallGradeSteps.map(function (grade, i) {
+                    return {x: assignmentTimestamps[i], y: grade};
+                });
+                parsedData[i] = {
+                    assignmentNames: assignmentNames,
+                    assignmentDates: assignmentDates,
+                    assignmentTimestamps: assignmentTimestamps,
+                    assignmentPercents: assignmentPercents,
+                    assignmentScoresParsed: assignmentScoresParsed,
+                    assignmentCategories: assignmentCategories,
+                    mixedData: mixedData
+                };
+                assignmentNames = classData.grades.filter(x => x.exclude).map(x => x.assignment_name);
+                assignmentDates = classData.grades.filter(x => x.exclude).map(x => x.date);
+                assignmentPercents = classData.grades.filter(x => x.exclude).map(x => x.grade_percent);
+                assignmentScoresParsed = classData.grades.filter(x => x.exclude).map(x => (x.points_gotten === false ? "--" : x.points_gotten) + (x.points_possible === false ? "" : "/" + x.points_possible));
+                assignmentCategories = classData.grades.filter(x => x.exclude).map(x => x.category);
+                excludedData[i] = {
+                    assignmentNames: assignmentNames,
+                    assignmentDates: assignmentDates,
+                    assignmentPercents: assignmentPercents,
+                    assignmentScoresParsed: assignmentScoresParsed,
+                    assignmentCategories: assignmentCategories
+                };
             }
-            let assignmentNames = classData.grades.filter(x => !x.exclude).map(x => x.assignment_name);
-            let assignmentDates = classData.grades.filter(x => !x.exclude).map(x => x.date);
-            let assignmentTimestamps = classData.grades.filter(x => !x.exclude).map(x => new Date(x.date));
-            let assignmentPercents = classData.grades.filter(x => !x.exclude).map(x => x.grade_percent);
-            let assignmentScoresParsed = classData.grades.filter(x => !x.exclude).map(x => (x.points_gotten === false ? "--" : x.points_gotten) + "/" + (x.points_possible === false ? "--" : x.points_possible));
-            let assignmentCategories = classData.grades.filter(x => !x.exclude).map(x => x.category);
-            let mixedData = overallGradeSteps.map(function (grade, i) {
-                return {x: assignmentTimestamps[i], y: grade};
-            });
-            parsedData.push({
-                                assignmentNames: assignmentNames,
-                                assignmentDates: assignmentDates,
-                                assignmentTimestamps: assignmentTimestamps,
-                                assignmentPercents: assignmentPercents,
-                                assignmentScoresParsed: assignmentScoresParsed,
-                                assignmentCategories: assignmentCategories,
-                                mixedData: mixedData
-                            });
-            assignmentNames = classData.grades.filter(x => x.exclude).map(x => x.assignment_name);
-            assignmentDates = classData.grades.filter(x => x.exclude).map(x => x.date);
-            assignmentPercents = classData.grades.filter(x => x.exclude).map(x => x.grade_percent);
-            assignmentScoresParsed = classData.grades.filter(x => x.exclude).map(x => (x.points_gotten === false ? "--" : x.points_gotten) + (x.points_possible === false ? "" : "/" + x.points_possible));
-            assignmentCategories = classData.grades.filter(x => x.exclude).map(x => x.category);
-            excludedData.push({
-                                  assignmentNames: assignmentNames,
-                                  assignmentDates: assignmentDates,
-                                  assignmentPercents: assignmentPercents,
-                                  assignmentScoresParsed: assignmentScoresParsed,
-                                  assignmentCategories: assignmentCategories
-                              });
         }
 
     }
@@ -1519,7 +1514,7 @@
     }
 
     document.onkeydown = function (e) {
-        if ($("input").is(":focus")) {
+        if ($("input").is(":focus") || !shortcutsEnabled) {
             // Do nothing
         } else if (e.code === "ArrowUp") {
             // up arrow
@@ -1735,8 +1730,7 @@
         // Get the offset position of the navbar
         let sticky = navbar.offsetTop - $(".navbar")[0].offsetTop;
 
-        // When the user scrolls the page
-        window.onscroll = function () {
+        const stickyNavbar = () => {
             if (window.pageYOffset >= sticky) {
                 $(".container").css("padding-top", sticky);
                 navbar.classList.add("sticky");
@@ -1744,7 +1738,12 @@
                 navbar.classList.remove("sticky");
                 $(".container").css("padding-top", "unset");
             }
-        };
+        }
+
+        // Do it once on load
+        stickyNavbar();
+        // When the user scrolls the page
+        window.onscroll = stickyNavbar;
     }
 
 </script>

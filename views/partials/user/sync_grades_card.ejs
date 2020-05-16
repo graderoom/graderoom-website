@@ -126,6 +126,7 @@
         const DAY = 24 * HOUR;
 
         let messageDiv = $(".updateGradesMessage");
+        $(messageDiv[1]).removeClass("alert-danger").addClass("alert-info");
         let message = messageDiv.find(".messageTxt");
         let lastUpdated = user.alerts.lastUpdated.slice(-1)[0];
         let deltaTime = Date.now() - lastUpdated;
@@ -133,24 +134,29 @@
             message.text("Never synced");
         } else {
             if (checkLastUpdated) {
-                clearInterval(checkLastUpdated);
+                clearTimeout(checkLastUpdated);
             }
+            let seconds = Math.floor(deltaTime / SECOND) % 60;
+            // (1 + seconds - (deltaTime / SECOND) % 60) * SECOND);
             if (deltaTime < MINUTE) {
-                checkLastUpdated = setInterval(setupLastUpdated, 100);
-                let seconds = Math.floor(deltaTime / SECOND);
-                message.text("Last synced " + seconds + " second" + (seconds > 1 ? "s" : "") + " ago");
-            } else if (deltaTime < HOUR) {
-                checkLastUpdated = setInterval(setupLastUpdated, 6 * SECOND);
-                let minutes = Math.floor(deltaTime / MINUTE);
-                message.text("Last synced " + minutes + " minute" + (minutes > 1 ? "s" : "") + " ago");
-            } else if (deltaTime < DAY) {
-                checkLastUpdated = setInterval(setupLastUpdated, 6 * MINUTE);
-                let hours = Math.floor(deltaTime / HOUR);
-                message.text("Last synced " + hours + " hour" + (hours > 1 ? "s" : "") + " ago");
+                message.text("Last synced " + seconds + "s ago");
+                checkLastUpdated = setTimeout(setupLastUpdated, (1 + seconds - (deltaTime / SECOND) % 60) * SECOND);
+                return;
+            }
+            let minutes = Math.floor(deltaTime / MINUTE) % 60;
+            if (deltaTime < HOUR) {
+                message.text("Last synced " + minutes + "m " + seconds + "s ago");
+                checkLastUpdated = setTimeout(setupLastUpdated, (1 + seconds - (deltaTime / SECOND) % 60) * SECOND);
+                return;
+            }
+            let hours = Math.floor(deltaTime / HOUR) % 24;
+            let days = Math.floor(deltaTime / DAY);
+            if (deltaTime < DAY) {
+                message.text("Last synced " + hours + "h " + minutes + "m ago");
+                checkLastUpdated = setTimeout(setupLastUpdated, (1 + minutes - (deltaTime / MINUTE) % 60) * MINUTE);
             } else {
-                checkLastUpdated = setInterval(setupLastUpdated, 2.4 * HOUR);
-                let days = Math.floor(deltaTime / DAY);
-                message.text("Last synced " + days + " day" + (days > 1 ? "s" : "") + " ago");
+                message.text("Last synced " + days + "d " + hours + "h ago");
+                checkLastUpdated = setTimeout(setupLastUpdated, (1 + hours - (deltaTime / HOUR) % 24) * HOUR);
             }
         }
     }
