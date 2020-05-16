@@ -44,6 +44,22 @@
 - Incorrect grade step calculation with ungraded assignments <strong>[Fixed in Beta 2.0.1]</strong>
 - Rounding errors with incorrect grade warning messages <strong>[Fixed in Beta 2.1.1]</strong>
 
+## [Beta 2.2.0] - 2020-05-16
+### Added
+- Ability to revert scores to original
+
+### Improved
+- Sync status is more accurate
+- Disabled keyboard shortcuts while grades are syncing
+- Effects of edited scores now occur much more quickly
+
+### Fixed
+- Issue where editing a row wouldn't change the subsequent rows
+- Issue where main navigation bar toggle icon would sometimes disappear on theme change
+- Issue where sync status would freeze after closing sync grades card
+- Unnecessary re-rendering
+- Issue where page would hang when attempting to manually sync grades
+
 ## [Beta 2.1.1] - 2020-05-13
 ### Improved
 - Editing a score field no longer impacts other inputs
