@@ -46,12 +46,13 @@
 
 ## [Beta 2.2.0] - 2020-05-16
 ### Added
-- Ability to revert scores to original
+- Ability to revert edited scores to original
 
 ### Improved
 - Sync status is more accurate
-- Disabled keyboard shortcuts while grades are syncing
+- Disabled keyboard shortcuts while grades are manually syncing
 - Effects of edited scores now occur much more quickly
+- Focus incorrect password after manually syncing grades fails
 
 ### Fixed
 - Issue where editing a row wouldn't change the subsequent rows
