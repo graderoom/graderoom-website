@@ -46,7 +46,7 @@
 
 ## [Beta 2.2.0] - 2020-05-16
 ### Added
-- Ability to revert scores to original
+- Ability to revert edited scores to original
 
 ### Improved
 - Sync status is more accurate
