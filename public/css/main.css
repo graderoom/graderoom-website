@@ -668,7 +668,7 @@ table thead tr th:last-child {
 }
 
 .fa-exclamation-circle {
-    color: red;
+    color: red !important;
 }
 
 .fa-spinner {
