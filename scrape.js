@@ -31,11 +31,12 @@ module.exports = {
                 let resp = results[0];
 
                 if (err) {
-                    // console.error("ERROR:"  + err);
+                    console.error("ERROR:" + err);
                     resolve({success: false, message: "Error getting grades."});
                 } else if (resp.success === true) {
                     resolve({success: true, new_grades: resp.grades})
                 } else {
+                    console.error("ERROR:" + resp.message);
                     return resolve({success: false, message: resp.message})
                 }
                 // console.log(results);

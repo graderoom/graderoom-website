@@ -358,12 +358,25 @@ class PowerschoolScraper:
 if __name__ == "__main__":
     try:
         user = sys.argv[1]
+    except Exception:
+        print(json_format(False, "Error with username"))
+
+    try:
         password = sys.argv[2]
+    except Exception:
+        print(json_format(False, "Error with password"))
+
         ### DEBUG ###
         # user = ""
         # password = ""
         ### DEBUG ###
+
+    try:
         ps = PowerschoolScraper(user, password)
+    except Exception:
+        print(json_format(False, "Error with creating scraper"))
+
+    try:
         ps.login_and_get_all_class_grades_and_print_resp()
     except Exception:
         print(json_format(False, "Error scraping grades."))
