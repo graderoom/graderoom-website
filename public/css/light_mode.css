@@ -175,8 +175,20 @@ table thead tr th {
     background-color: #EEEEEE;
 }
 
+.excluded {
+    color: #D3D3D3 !important;
+}
+
 .popup span {
     background-color: #FFFFFF;
+}
+
+.resetTab:not(th) {
+    border-top: 1px #EEEEEE solid !important;
+}
+
+.resetTab:not(td) {
+    border-bottom: 2px #EEEEEE solid !important;
 }
 
 .school-username {
@@ -228,6 +240,10 @@ input:checked + .slider:before {
 }
 
 .table {
+    background-color: transparent;
+}
+
+.table thead th, .table tbody td, .table tfoot th {
     background-color: #FFFFFF;
 }
 

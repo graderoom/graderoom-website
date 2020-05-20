@@ -32,7 +32,7 @@
                                                                             aria-hidden="true"></i> Calculator </a>
                 </li>
                 <li id="syncGrades" class="nav-item">
-                    <btn style="width: 5rem" class="btn btn-med"
+                    <btn class="btn btn-med"
                          onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">
                         <i class="fa fa-refresh" aria-hidden="true"></i> Sync
                     </btn>
@@ -189,6 +189,7 @@
                                 clearTimeout(changeTransition);
                                 document.getElementById("fade").disabled = false;
                                 document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+                                renderAllCharts();
                                 $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
                                 setTimeout(() => {
                                     document.getElementById("fade").disabled = true;
@@ -212,6 +213,7 @@
                                 clearTimeout(changeTransition);
                                 document.getElementById("fade").disabled = false;
                                 document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+                                renderAllCharts();
                                 $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
                                 setTimeout(() => {
                                     document.getElementById("fade").disabled = true;

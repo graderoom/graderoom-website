@@ -124,6 +124,14 @@ table thead tr th:last-child {
     border-right: none;
 }
 
+.table:not(.weights):not(#table-1) thead tr th:nth-last-child(2) {
+    border-right: none;
+}
+
+.table:not(.weights):not(#table-1) tbody tr td:nth-last-child(2) {
+    border-right: none;
+}
+
 .table:not(#table-1) td {
     vertical-align: middle !important;
 }
@@ -866,36 +874,22 @@ table thead tr th:last-child {
     overflow: scroll;
 }
 
-.table {
-    border-radius: 1rem;
-}
-
 th {
     vertical-align: middle !important;
 }
 
+.resetTab {
+    border-radius: 0 1rem 1rem 0 !important;
+    position: absolute;
+    z-index: 1 !important;
+}
+
+tbody tr {
+    height: 100%;
+}
+
 .table th {
     border-top: none;
-}
-
-.table thead th:first-child {
-    border-radius: 1rem 0 0 0;
-}
-
-.table thead th:last-child {
-    border-radius: 0 1rem 0 0;
-}
-
-.table tfoot th {
-    border-radius: 0 0 1rem 1rem;
-}
-
-.table tr:last-child td:first-child {
-    border-radius: 0 0 0 1rem;
-}
-
-.table tr:last-child td:last-child {
-    border-radius: 0 0 1rem 0;
 }
 
 .tablinks {

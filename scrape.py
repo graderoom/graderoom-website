@@ -1,10 +1,11 @@
 import json
 import requests
 import sys
+import random
 from bs4 import BeautifulSoup as BS
 
 
-def json_format(success, message_or_grades):
+def json_format(success, message_or_grades, fail_grades=[]):
     """Returns a message for errors or grade data in JSON format
 
     Args:
@@ -18,7 +19,7 @@ def json_format(success, message_or_grades):
     if success:
         return json.dumps({'success': True, 'grades': message_or_grades})
 
-    return json.dumps({'success': False, 'message': message_or_grades})
+    return json.dumps({'success': False, 'message': message_or_grades, 'grades': fail_grades})
 
 
 class ClassGrade:
@@ -101,6 +102,7 @@ class PowerschoolScraper:
         self.email = email
         self.password = password
         self.session = requests.Session()
+        self.intermediate_class_data = []
 
     def login_and_get_all_class_grades_and_print_resp(self):
         """Scrapes grade data from PowerSchool and prints it
@@ -302,6 +304,8 @@ class PowerschoolScraper:
             else:
                 continue
 
+            self.intermediate_class_data.append('CLASS_NAME ' + class_name)
+
             # Get grade and name data for each assignment
             grades_rows = grades_table.findChildren('tr')
             for grade_row in grades_rows:
@@ -345,6 +349,7 @@ class PowerschoolScraper:
                 local_class.add_grade(assignment_name, date, grade_percent,
                                       points_gotten, points_possible,
                                       category, exclude)
+                self.intermediate_class_data.append(assignment_name)
 
             final_all_classes.append(local_class.as_dict())
 
@@ -355,15 +360,21 @@ class PowerschoolScraper:
             pass
             print(json_format(True, final_all_classes))
 
+
+    def intermediate_class_data(self):
+        return self.intermediate_class_data
+
+
 if __name__ == "__main__":
+    user = sys.argv[1]
+    password = sys.argv[2]
+    ps = PowerschoolScraper(user, password)
+    ### DEBUG ###
+    # user = ""
+    # password = ""
+    ### DEBUG ###
     try:
-        user = sys.argv[1]
-        password = sys.argv[2]
-        ### DEBUG ###
-        # user = ""
-        # password = ""
-        ### DEBUG ###
-        ps = PowerschoolScraper(user, password)
         ps.login_and_get_all_class_grades_and_print_resp()
     except Exception:
-        print(json_format(False, "Error scraping grades."))
+        # send class data in the event of something in Powerschool breaking scraper
+        print(json_format(False, "Error scraping grades.", ps.intermediate_class_data))
