@@ -30,7 +30,6 @@ module.exports = {
 
                 let resp = results[0];
 
-                console.log(results);
                 if (err) {
                     console.error("ERROR:" + err);
                     resolve({success: false, message: "Error getting grades."});
@@ -38,7 +37,9 @@ module.exports = {
                     resolve({success: true, new_grades: resp.grades})
                 } else {
                     console.error("ERROR:" + resp.message);
-                    return resolve({success: false, message: resp.message})
+                    // Log grades scraped in event of error
+                    console.log(results);
+                    return resolve({success: false, message: resp.message});
                 }
                 // console.log(results);
             })
