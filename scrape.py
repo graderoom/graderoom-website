@@ -5,11 +5,11 @@ from bs4 import BeautifulSoup as BS
 
 
 def json_format(success, message_or_grades, fail_grades=[]):
-    """Returns a message for errors or grade data in JSON format
-
+    """
     Args:
-        success: boolean if scraping was successful
-        message_or_grades: response or grade data
+        :param success: boolean if scraping was successful
+        :param message_or_grades: a message for errors or grade data in JSON format
+        :param fail_grades: partial grades if error while scraping grades
 
     Returns:
         A JSON formatted object containing the response
@@ -242,10 +242,7 @@ class PowerschoolScraper:
 
         # Iterate over each row and fetch data for that class
         for class_row in class_rows:
-            local_class = None
             assignments_link = None
-            class_name = None
-            teacher_name = None
             overall_percent = None
             overall_letter = None
 
@@ -303,6 +300,7 @@ class PowerschoolScraper:
             else:
                 continue
 
+            # Add class name to intermediate_class_data
             self.intermediate_class_data.append('CLASS_NAME ' + class_name)
 
             # Get grade and name data for each assignment
@@ -325,13 +323,13 @@ class PowerschoolScraper:
 
                 score = grade_data[8].text
                 # Check cases for if the score does not have a grade
-                if ('/' not in score and score != '--'):
+                if isinstance(score,float):
                     points_possible = 0
                     points_gotten = float(score)
-                elif (score == '--'):
+                elif score.find('/') == -1:
                     points_possible = False
                     points_gotten = False
-                elif (score.split('/')[0] == '--'):
+                elif score.split('/')[0] == '--':
                     points_possible = float(score.split('/')[1])
                     points_gotten = False
                 else:
@@ -339,7 +337,7 @@ class PowerschoolScraper:
                     points_gotten = float(score.split('/')[0])
 
                 # Get the percent for the assignment
-                if (points_possible != 0 and points_possible != False and points_gotten != False):
+                if points_possible != 0 and points_possible != False and points_gotten != False:
                     grade_percent = grade_data[9].text
                 else:
                     grade_percent = -1
@@ -348,12 +346,14 @@ class PowerschoolScraper:
                 local_class.add_grade(assignment_name, date, grade_percent,
                                       points_gotten, points_possible,
                                       category, exclude)
+
+                # Add assignment name to intermediate_class_data
                 self.intermediate_class_data.append(assignment_name)
 
             final_all_classes.append(local_class.as_dict())
 
         # Print out the result
-        if final_all_classes == []:
+        if not final_all_classes:
             print(json_format(False, "No class data."))
         else:
             pass
