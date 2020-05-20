@@ -1,7 +1,6 @@
 import json
 import requests
 import sys
-import random
 from bs4 import BeautifulSoup as BS
 
 
@@ -359,11 +358,6 @@ class PowerschoolScraper:
         else:
             pass
             print(json_format(True, final_all_classes))
-
-
-    def intermediate_class_data(self):
-        return self.intermediate_class_data
-
 
 if __name__ == "__main__":
     user = sys.argv[1]
