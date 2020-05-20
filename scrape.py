@@ -323,18 +323,19 @@ class PowerschoolScraper:
 
                 score = grade_data[8].text
                 # Check cases for if the score does not have a grade
-                if isinstance(score,float):
+                try:
                     points_possible = 0
                     points_gotten = float(score)
-                elif score.find('/') == -1:
-                    points_possible = False
-                    points_gotten = False
-                elif score.split('/')[0] == '--':
-                    points_possible = float(score.split('/')[1])
-                    points_gotten = False
-                else:
-                    points_possible = float(score.split('/')[1])
-                    points_gotten = float(score.split('/')[0])
+                except Exception:
+                    if score.find('/') == -1:
+                        points_possible = False
+                        points_gotten = False
+                    elif score.split('/')[0] == '--':
+                        points_possible = float(score.split('/')[1])
+                        points_gotten = False
+                    else:
+                        points_possible = float(score.split('/')[1])
+                        points_gotten = float(score.split('/')[0])
 
                 # Get the percent for the assignment
                 if points_possible != 0 and points_possible != False and points_gotten != False:
