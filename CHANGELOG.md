@@ -44,6 +44,28 @@
 - Incorrect grade step calculation with ungraded assignments <strong>[Fixed in Beta 2.0.1]</strong>
 - Rounding errors with incorrect grade warning messages <strong>[Fixed in Beta 2.1.1]</strong>
 
+## [Beta 2.2.1] - 2020-05-19
+### Added
+- Flags column in class data table
+- Made assignment exclusion toggleable
+- Ability to revert all edited rows at once
+- Letter grade to individual assignment grades and overall grade steps
+
+### Improved
+- Better display of excluded assignments
+- Popups with correct grade from PowerSchool now always show when calculated grade is incorrect
+- Improved revert grade button placement
+- Charts rerender when page is resized
+
+### Fixed
+- Issues in editing grades in classes with excluded assignments
+- Issues in weight tables when non-academic classes were hidden
+- Issues in class tables when non-academic classes were hidden
+- Issue where chart wouldn't change color on theme change
+
+### Removed
+- Removed background coloring on class tables
+
 ## [Beta 2.2.0] - 2020-05-16
 ### Added
 - Ability to revert edited scores to original

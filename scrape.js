@@ -30,6 +30,7 @@ module.exports = {
 
                 let resp = results[0];
 
+                console.log(results);
                 if (err) {
                     // console.error("ERROR:"  + err);
                     resolve({success: false, message: "Error getting grades."});

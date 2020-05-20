@@ -230,6 +230,22 @@ th {
     color: #666666;
 }
 
+.excluded {
+    color: #4F4F4F !important;
+}
+
+.resetTab {
+    background-image: linear-gradient(to right, #222222, #333333);
+}
+
+.resetTab:not(th) {
+    border-top: 1px transparent solid !important;
+}
+
+.resetTab:not(td) {
+    border-bottom: 2px transparent solid !important;
+}
+
 .slider {
     background-color: #444444;
 }
