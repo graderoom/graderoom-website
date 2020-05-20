@@ -43,7 +43,10 @@
 ## [Known Issues] - Send bug reports in Settings > Help > Feedback Form<br>Only issues in the stable version will be listed here
 - Incorrect grade step calculation with ungraded assignments <strong>[Fixed in Beta 2.0.1]</strong>
 - Rounding errors with incorrect grade warning messages <strong>[Fixed in Beta 2.1.1]</strong>
-- Existence of unpublished scores in PowerSchool prevents grades from syncing <strong>[Fixed in Beta 2.2.2]</strong>
+
+## [Stable 2.2.3] - 2020-05-20
+### Fixed
+- Issue where existence of unpublished scores in Powerschool prevented grades from being synced
 
 ## [Beta 2.2.2] - 2020-05-20
 ### Fixed
