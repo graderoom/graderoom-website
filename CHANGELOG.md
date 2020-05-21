@@ -44,6 +44,18 @@
 - Incorrect grade step calculation with ungraded assignments <strong>[Fixed in Beta 2.0.1]</strong>
 - Rounding errors with incorrect grade warning messages <strong>[Fixed in Beta 2.1.1]</strong>
 
+## [Beta 2.2.3] - 2020-05-20
+### Added
+- Ability to edit categories of assignments
+
+### Improved
+- Animation on showing cards
+- Styling of dropdowns globally
+
+### Fixed
+- Issues with sticky navbar on resize
+- Issue with unnecessary refreshing
+
 ## [Stable 2.2.2] - 2020-05-20
 ### Fixed
 - Issue where existence of unpublished scores in PowerSchool prevented grades from syncing
