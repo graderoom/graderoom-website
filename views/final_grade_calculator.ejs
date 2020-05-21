@@ -46,16 +46,15 @@
                 <form id="calculateFinalGrade" class="form-signin">
                     <div class="card-footer">
                         <h5>Current Info</h5>
-                        <div style="display: flex; justify-content: space-evenly; align-items: center">
-                            <label style="display: flex; align-items: flex-end; width: 50%"> <select id="chooseClass"
-                                                                                                     style="float: right;"
-                                                                                                     class="dropdown">
+                        <div style="display: flex; justify-content: space-between; align-items: center">
+                            <label style="display: flex; align-items: flex-end"> <select class="classic"
+                                                                                         id="chooseClass">
                                     <option selected>- - Select Class - -</option>
                                     <% for (let i = 0; i < user.grades.length; i++) { %>
                                         <option><%= user.grades[Object.keys(user.grades)[i]].class_name %></option>
                                     <% } %>
-                                </select> </label> <label style="display: flex; align-items: flex-end; width: 50%">
-                                <select id="chooseLetterGrade" style="float: right" class="dropdown">
+                                </select> </label> <label style="display: flex; align-items: flex-end;">
+                                <select class="classic" id="chooseLetterGrade" style="float: right">
                                     <option disabled selected hidden>- - Grade - -</option>
                                     <option value="97.5">A+</option>
                                     <option value="92.5">A</option>
@@ -95,14 +94,13 @@
                         </div>
                         <div id="specialFinal" style="display: none; align-items: center">
                             <h6><strong>or</strong></h6>
-                            <label class="form-group" style="display: flex; align-items: flex-end;"> <span
+                            <label class="form-group"
+                                   style="align-items: center; display: flex; align-items: flex-end;"> <span
                                         style="text-align: right">Your final is worth</span> <input
                                         class="number-input form-control" style="margin: 0 1rem 0 1rem;"
                                         id="finalPoints" type="number" step="1"> <span
                                         style="text-align: left">points in </span>
-                                <select id="chooseWeight"
-                                        style="float: right"
-                                        class="dropdown">
+                                <select style="margin-left: 1rem" class="classic" id="chooseWeight">
                                     <option disabled selected hidden>- - Select Class - -</option>
                                 </select> </label>
                         </div>
