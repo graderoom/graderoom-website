@@ -257,9 +257,7 @@
 
                                         <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]).length; j++) { %>
                                             <tr>
-                                                <td id="weightTableCategory<%= i + offset %><%= j %>">
-                                                    <hr>
-                                                </td>
+                                                <td id="weightTableCategory<%= i + offset %><%= j %>"></td>
                                                 <% let weights = JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"] %>
                                                 <% let category = Object.keys(weights)[j] %>
                                                 <% let value = weights[category] %>
@@ -331,7 +329,7 @@
                                         <i id="resetAll<%= i + offset %>"
                                            class="fa fa-undo"
                                            style="color: #888888; margin: 0; cursor: pointer; visibility:hidden"
-                                           onclick="{resetAll(<%= i + offset %>); refreshWithoutReload(false, <%= i + offset %>);}"
+                                           onclick="{resetAll(<%= i + offset %>);}"
                                         >
                                             <span class="popup-top">
                                                 Revert All
@@ -345,11 +343,14 @@
                                     <tr id="classTable<%= i + offset %><%= j %>">
                                         <td id="assignmentDate<%= i + offset %><%= j %>"></td>
                                         <td id="assignmentName<%= i + offset %><%= j %>"></td>
-                                        <td id="assignmentCategory<%= i + offset %><%= j %>"></td>
+                                        <td id="assignmentCategory<%= i + offset %><%= j %>">
+                                            <select id="category<%= i + offset %><%= j %>" class="minimal"
+                                                    style="margin: 0"></select>
+                                        </td>
                                         <td>
                                             <div style="display: flex; justify-content: center; flex-flow: column; align-items: center">
                                                 <input id="exclude<%= i + offset %><%= j %>" type="checkbox"
-                                                       oninput="toggleExclude(<%= i + offset %>,<%= j %>); refreshWithoutReload(true, <%= i + offset %>)">
+                                                       oninput="toggleExclude(<%= i + offset %>,<%= j %>);">
                                                 <label style="margin: 0; display: block; font-weight: bolder; font-size: 0.5rem"
                                                        for="exclude<%= i + offset %><%= j %>">Exclude</label>
                                             </div>
@@ -362,12 +363,12 @@
                                                        style="padding: 0; width: 0 !important; "
                                                        class="form-control text-view dynamic-input"
                                                        placeholder="--"
-                                                       onblur="{updatePointsGotten(<%= i + offset %>,<%= j %>); refreshWithoutReload(false, <%= i + offset %>)}">
+                                                       onblur="{updatePointsGotten(<%= i + offset %>,<%= j %>);}">
                                                 /<input id="possible<%= i + offset %><%= j %>"
                                                         style="padding: 0; width: 0 !important; "
                                                         class="form-control text-view dynamic-input"
                                                         placeholder="--"
-                                                        onblur="{updatePointsPossible(<%= i + offset %>,<%= j %>); refreshWithoutReload(false, <%= i + offset %>)}">
+                                                        onblur="{updatePointsPossible(<%= i + offset %>,<%= j %>);}">
                                             </div>
                                         </td>
                                         <td id="assignmentPercent<%= i + offset %><%= j %>"></td>
@@ -376,7 +377,7 @@
                                             <i id="resetRow<%= i + offset %><%= j %>"
                                                class="fa fa-undo"
                                                style="color: #888888; margin: 0; cursor: pointer; visibility:hidden"
-                                               onclick="{resetRow(<%= i + offset %>,<%= j %>); refreshWithoutReload(false, <%= i + offset %>)}"
+                                               onclick="{resetRow(<%= i + offset %>,<%= j %>);}"
                                             >
                                                 <span class="popup-top">
                                                     Revert to Original
@@ -928,6 +929,10 @@
             tempData[classIndex][assignmentIndex].points_gotten = assignment.points_gotten;
         }
 
+        let doRefresh = false;
+        if (assignment.points_gotten !== parseFloat($(element)[0].value)) {
+            doRefresh = true;
+        }
         assignment.points_gotten = parseFloat($(element)[0].value);
         if (isNaN(assignment.points_gotten)) {
             assignment.points_gotten = false;
@@ -940,6 +945,9 @@
 
         if (tempData[classIndex][assignmentIndex].points_gotten === assignment.points_gotten) {
             delete tempData[classIndex][assignmentIndex].points_gotten;
+        }
+        if (doRefresh) {
+            refreshWithoutReload(true, classIndex)
         }
     }
 
@@ -958,6 +966,10 @@
             tempData[classIndex][assignmentIndex].points_possible = assignment.points_possible;
         }
 
+        let doRefresh = false;
+        if (assignment.points_possible !== parseFloat($(element)[0].value)) {
+            doRefresh = true;
+        }
         assignment.points_possible = parseFloat($(element)[0].value);
         if (isNaN(assignment.points_possible)) {
             assignment.points_possible = false;
@@ -971,12 +983,38 @@
         if (tempData[classIndex][assignmentIndex].points_possible === assignment.points_possible) {
             delete tempData[classIndex][assignmentIndex].points_possible;
         }
+        if (doRefresh) {
+            refreshWithoutReload(true, classIndex);
+        }
+    }
+
+    function updateCategory(classIndex, assignmentIndex) {
+        let element = "#category" + classIndex + assignmentIndex;
+        let assignment = data[classIndex]["grades"][assignmentIndex];
+
+        // Copy without reference ONLY if it hasn't already been edited
+        if (!tempData[classIndex]) {
+            tempData[classIndex] = {};
+        }
+        if (!tempData[classIndex][assignmentIndex]) {
+            tempData[classIndex][assignmentIndex] = {};
+        }
+        if (!tempData[classIndex][assignmentIndex].category && tempData[classIndex][assignmentIndex].category !== false) {
+            tempData[classIndex][assignmentIndex].category = assignment.category;
+        }
+
+        assignment.category = $(element + " option:selected").text();
+
+        if (tempData[classIndex][assignmentIndex].category === assignment.category) {
+            delete tempData[classIndex][assignmentIndex].category;
+        }
     }
 
     function resetAll(classIndex) {
         for (let i = 0; i < parsedData[classIndex].assignmentNames.length; i++) {
             resetRow(classIndex, i);
         }
+        refreshWithoutReload(false, classIndex)
     }
 
     function resetRow(classIndex, assignmentIndex) {
@@ -1003,6 +1041,7 @@
         }
 
         delete tempData[classIndex][assignmentIndex];
+        refreshWithoutReload(false, classIndex)
     }
 
     function toggleExclude(classIndex, assignmentIndex) {
@@ -1020,9 +1059,16 @@
             tempData[classIndex][assignmentIndex].exclude = assignment.exclude;
         }
 
+        let doRefresh = false;
+        if (assignment.exclude !== element.checked) {
+            doRefresh = true;
+        }
         assignment.exclude = element.checked;
         if (tempData[classIndex][assignmentIndex].exclude === assignment.exclude) {
             delete tempData[classIndex][assignmentIndex].exclude;
+        }
+        if (doRefresh) {
+            refreshWithoutReload(true, classIndex)
         }
     }
 
@@ -1068,7 +1114,20 @@
                     $("#assignmentName" + i + j).text(assignmentNames[j]);
 
                     // Set up categories
-                    $("#assignmentCategory" + i + j).text(assignmentCategories[j]);
+                    let dropdown = $("#assignmentCategory" + i + j).children("select");
+                    let weightNames = Object.keys(weights[Object.keys(weights)[i]]["weights"]);
+
+                    // Bind listeners only once
+                    if (!dropdown.find("option").length) {
+                        for (let k = 0; k < weightNames.length; k++) {
+                            dropdown.append($('<option>').text(weightNames[k]).prop("selected", weightNames[k] === assignmentCategories[j]));
+                            dropdown.on('change', () => {
+                                updateCategory(i, j);
+                                refreshWithoutReload(true, i);
+                                dropdown.blur();
+                            });
+                        }
+                    }
 
                     // Set up excludes
                     $("#exclude" + i + j).prop("checked", assignmentExcludes[j]);
@@ -1564,7 +1623,7 @@
             // down arrow
         } else if (e.code === "ArrowLeft") {
             // left arrow
-            if (cardsDisplayed.includes("settingsCardDisplay")) {
+            if (cardsDisplayed.slice(-1)[0] === "settingsCardDisplay") {
                 if (currentTab === 1) {
                     openTab(maxTab);
                 } else {
@@ -1579,7 +1638,7 @@
             }
         } else if (e.code === "ArrowRight") {
             // right arrow
-            if (cardsDisplayed.includes("settingsCardDisplay")) {
+            if (cardsDisplayed.slice(-1)[0] === "settingsCardDisplay") {
                 if (currentTab === maxTab) {
                     openTab(1);
                 } else {
@@ -1763,31 +1822,43 @@
         }
     });
 
-    { //TODO see if this is ok
-        // Get the navbar
-        let navbar = document.getElementById("classLinks");
+    // Get the navbar
+    let navbar = document.getElementById("classLinks");
 
-        // Get the offset position of the navbar
-        let sticky = navbar.offsetTop - $(".navbar")[0].offsetTop;
+    // Get the offset position of the navbar
+    let sticky = navbar.offsetTop - $(".navbar")[0].offsetTop;
 
-        function stickyNavbar() {
-            if (window.pageYOffset >= sticky) {
-                $(".container").css("padding-top", sticky);
-                navbar.classList.add("sticky");
-            } else {
-                navbar.classList.remove("sticky");
-                $(".container").css("padding-top", "unset");
-            }
+    // Get the height of the navbar
+    let height = navbar.offsetHeight + parseInt(getComputedStyle(navbar).marginBottom)
+
+    function stickyNavbar() {
+        if (window.pageYOffset >= sticky) {
+            $(".container").css("padding-top", height);
+            navbar.classList.add("sticky");
+        } else {
+            navbar.classList.remove("sticky");
+            $(".container").css("padding-top", "unset");
         }
-
-        // Do it once on load
-        stickyNavbar();
-        // When the user scrolls the page
-        window.onscroll = stickyNavbar;
     }
+
+    // Do it once on load
+    stickyNavbar();
+    // When the user scrolls the page
+    window.onscroll = stickyNavbar;
 
     window.onresize = () => {
         renderAllCharts();
+
+        navbar.classList.remove("sticky");
+        disableScrolling();
+
+        // Get the offset position of the navbar
+        sticky = navbar.offsetTop - $(".navbar")[0].offsetTop;
+
+        enableScrolling();
+
+        // Get the height of the navbar
+        height = navbar.offsetHeight + parseInt(getComputedStyle(navbar).marginBottom);
     };
 
 </script>

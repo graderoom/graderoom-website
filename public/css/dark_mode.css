@@ -281,3 +281,32 @@ input:checked + .slider:before {
 #weightsCard .success {
     color: lightgreen;
 }
+
+select {
+    background-color: #333333;
+    color: #FFFFFF;
+}
+
+select.classic {
+    background-image: linear-gradient(45deg, transparent 50%, lightgray 50%), linear-gradient(135deg, lightgray 50%, transparent 50%), linear-gradient(to right, gray, gray);
+}
+
+select.classic:focus {
+    background-image: linear-gradient(45deg, lightgray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, lightgray 50%), linear-gradient(to right, gray, gray);
+}
+
+select.round {
+    background-image: linear-gradient(45deg, transparent 50%, lightgray 50%), linear-gradient(135deg, lightgray 50%, transparent 50%), radial-gradient(gray 60%, transparent 60%);
+}
+
+select.round:focus {
+    background-image: linear-gradient(45deg, lightgray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, lightgray 50%), radial-gradient(gray 60%, transparent 60%);
+}
+
+select.minimal {
+    background-image: linear-gradient(45deg, transparent 50%, lightgray 50%), linear-gradient(135deg, lightgray 50%, transparent 50%), linear-gradient(to right, gray, gray);
+}
+
+select.minimal:focus {
+    background-image: linear-gradient(45deg, lightgray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, lightgray 50%), linear-gradient(to right, gray, gray);
+}

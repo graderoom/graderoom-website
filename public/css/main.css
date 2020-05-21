@@ -334,15 +334,6 @@ table thead tr th:last-child {
     border-radius: 0.5rem 0.5rem 0 0;
 }
 
-.dropdown {
-    font-weight: bold;
-    margin-left: 20px;
-    width: fit-content;
-    border-radius: 0.5rem;
-    text-align-last: center;
-    max-height: 10rem;
-    overflow-y: auto;
-}
 
 .form-signin .btn {
     font-weight: bold;
@@ -1100,4 +1091,59 @@ input:checked + .slider:before {
 .ignored {
     text-decoration: line-through;
     opacity: 0.5;
+}
+
+select {
+    border-radius: 0.2rem;
+    border: none;
+    display: inline-block;
+    font: inherit;
+    padding: 0.2rem 1.7rem 0.2rem 0.5rem;
+    margin: 0;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-align: center;
+    text-align-last: center;
+}
+
+select.classic {
+    background-position: calc(100% - 0.6rem) 50%, calc(100% - 0.28rem) 50%, 100% 0;
+    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1.2rem 100%;
+    background-repeat: no-repeat;
+}
+
+select.classic:focus {
+    background-position: calc(100% - 0.28rem) 50%, calc(100% - 0.6rem) 50%, 100% 0;
+    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1.2rem 100%;
+    background-repeat: no-repeat;
+    border-color: grey;
+    outline: 0;
+}
+
+select.round {
+    background-position: calc(100% - 0.6rem) 55%, calc(100% - 0.28rem) 55%, 100% 50%;
+    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1.2rem 1.2rem;
+    background-repeat: no-repeat;
+}
+
+select.round:focus {
+    background-position: calc(100% - 0.28rem) 50%, calc(100% - 0.6rem) 50%, 100% 50%;
+    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1.2rem 1.2rem;
+    background-repeat: no-repeat;
+}
+
+
+select.minimal {
+    background-position: calc(100% - 0.6rem) 55%, calc(100% - 0.28rem) 55%, calc(100% - 1.2rem) 50%;
+    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1px 65%;
+    background-repeat: no-repeat;
+}
+
+select.minimal:focus {
+    background-position: calc(100% - 0.28rem) 50%, calc(100% - 0.6rem) 50%, calc(100% - 1.2rem) 50%;
+    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1px 65%;
+    background-repeat: no-repeat;
 }
