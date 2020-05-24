@@ -1147,3 +1147,11 @@ select.minimal:focus {
     background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1px 65%;
     background-repeat: no-repeat;
 }
+
+select:focus {
+    outline-width: 4px;
+}
+
+.excluded select {
+    outline: none;
+}

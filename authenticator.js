@@ -161,9 +161,7 @@ module.exports = {
         if (!user.personalInfo) {
             let {firstName, lastName, graduationYear} = getPersonalInfo(user.schoolUsername);
             userRef.set("personalInfo", {
-                firstName: firstName,
-                lastName: lastName,
-                graduationYear: graduationYear
+                firstName: firstName, lastName: lastName, graduationYear: graduationYear
             }).write();
         }
 
@@ -547,7 +545,7 @@ module.exports = {
         if (bcrypt.compareSync(password, user.password)) {
             return {success: true, message: "Login Successful"};
         } else {
-            return {success: false, message: "Graderoom Password is incorrect"};
+            return {success: false, message: "Incorrect Graderoom password."};
         }
 
     }, changePassword: async function (username, oldPassword, password) {
@@ -662,11 +660,16 @@ module.exports = {
     checkUpdateBackground: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
-        if (user.get("updatedInBackground").value() === "complete") {
+        let syncStatus = user.get("updatedInBackground").value();
+        if (syncStatus === "complete") {
             user.set("updatedInBackground", "already done").write();
             return {success: true, message: "Sync Complete!"};
-        } else if (user.get("updatedInBackground").value() === "already done") {
+        } else if (syncStatus === "already done") {
             return {success: true, message: "Already Synced!"};
+        } else if (syncStatus === "no data") {
+            return {success: false, message: "Cannot access grades."};
+        } else if (syncStatus === "failed") {
+            return {success: false, message: "Sync Failed."};
         } else {
             return {success: false, message: "Did not sync"};
         }
@@ -682,10 +685,16 @@ module.exports = {
         let lc_username = acc_username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         user.set("updatedInBackground", "").write();
-        this.updateGrades(acc_username, school_password).then(function () {
+        this.updateGrades(acc_username, school_password).then(function (resp) {
             lc_username = acc_username.toLowerCase();
             user = db.get("users").find({username: lc_username});
-            user.set("updatedInBackground", "complete").write();
+            if (resp.success) {
+                user.set("updatedInBackground", "complete").write();
+            } else if (resp.message === "No class data.") {
+                user.set("updatedInBackground", "no data").write();
+            } else {
+                user.set("updatedInBackground", "failed").write();
+            }
         });
     },
 
