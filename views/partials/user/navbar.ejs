@@ -20,7 +20,7 @@
                 <% if (current == "home") { %>
                     <label style="cursor: pointer; color: green;" onclick="showCard('#updateGradesDisplay');"
                            class="updateGradesMessage">
-                        <div class="messageTxt">Loading Sync Data...</div>
+                        <div class="messageTxt">Loading Sync Status...</div>
                     </label>
                 <% } %>
             </li>
@@ -133,6 +133,7 @@
                 shortcutsEnabled = false;
                 $("#loadingDisplay").show();
                 $("#syncFailure").hide();
+                $("#syncNoData").hide();
             }
 
             // Submit the form using AJAX.
@@ -148,19 +149,34 @@
                     }, 500);
                     $("#reloadNeeded").text("Reload Needed");
                 } else {
-
-                    if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
+                    if (response.substring(0, 19) === "GradeSync Enabled. ") {
+                        response = response.substring(19);
+                        $("#syncGradesDiv").hide();
+                        $("#gradeSyncDiv").show();
+                    }
+                    if (response === "No class data.") {
+                        $("#syncNoData").show();
+                        $(formMessagesDiv).find(".sk-chase-mini").hide();
+                        $(formMessagesDiv).find(".messageTxt").text("Cannot access grades.");
+                        $($(formMessagesDiv)[1]).removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
+                    } else if (response === "Error scraping grades.") {
+                        $("#syncFailure").show();
+                        $(formMessagesDiv).find(".sk-chase-mini").hide();
+                        $(formMessagesDiv).find(".messageTxt").text("Sync Failed.");
+                        $($(formMessagesDiv)[1]).removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
+                    } else if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
                         $(formMessagesDiv).find(".sk-chase-mini").hide();
                         clearTimeout(checkLastUpdated);
+                        $(formMessagesDiv).find(".dateTxt").text("");
                         $(formMessagesDiv).find(".messageTxt").text("Refresh to see the latest updates.");
+                        $($(formMessagesDiv)[1]).removeClass("alert-info").removeClass("alert-danger").addClass("alert-success");
                         setTimeout(() => window.reload(), 400);
                     } else {
                         setTimeout(function () {
-                            $(message).text(response), 200;
+                            $(message).text(response);
                             $(formMessagesDiv).find(".sk-chase-mini").hide();
                             // Make sure that the formMessages div has the alert-success class.
-                            $(formMessagesDiv).removeClass("alert-info");
-                            $(formMessagesDiv).addClass("alert-success");
+                            $(formMessagesDiv).removeClass("alert-info").removeClass("alert-danger").addClass("alert-success");
                         }, 500);
                     }
 
@@ -298,11 +314,8 @@
 
                 // Set the message text.
                 if (data.responseText !== "") {
-                    if (data.responseText === "Error scraping grades.") {
-                        $("#syncFailure").show();
-                    }
                     if (data.responseText === "Incorrect login details.") {
-                        $(message).text("School Password is incorrect");
+                        $(message).text("Incorrect school password.");
                         $("#inputPassword").focus();
                     } else {
                         if (formID === "#syncGradesForm") {

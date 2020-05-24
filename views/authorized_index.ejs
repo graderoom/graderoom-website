@@ -487,6 +487,7 @@
         } catch {
         }
     }
+    setupLastUpdated();
     if (user.schoolPassword) {
         $("#syncGradesDiv").hide();
         $("#gradeSyncDiv").show();
@@ -495,7 +496,6 @@
         $("#gradeSyncDiv").hide();
         $("#syncGradesDiv").show();
         showLatest(false);
-        setupLastUpdated();
     }
     document.getElementById("darkModeStart").setAttribute("placeholder", (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString()));
     document.getElementById("darkModeFinish").setAttribute("placeholder", (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString()));
@@ -561,20 +561,25 @@
                     if (data === "Sync Complete!") {
                         clearInterval(checking);
                         if (cardsDisplayed.length === 0 || cardsDisplayed[cardsDisplayed.length - 1] === "updateGradesDisplay") {
-                            $($(".updateGradesMessage")[0]).text("Refreshing...");
-                            $($(".updateGradesMessage")[1]).find(".messageTxt").text("Refreshing...");
+                            $(".updateGradesMessage").find(".messageTxt").text("Refreshing...");
                             setTimeout(() => window.reload(), 400);
                         } else {
-                            $($(".updateGradesMessage")[0]).text("Click here to refresh").attr("onclick", "window.reload()");
-                            $($(".updateGradesMessage")[1]).show().css("cursor", "pointer").attr("onclick", "window.reload()").find(".messageTxt").text("Click here to refresh");
+                            $(".updateGradesMessage").find(".messageTxt").css("cursor", "pointer").attr("onclick", "window.reload()").find(".messageTxt").text("Click here to refresh");
                         }
                     } else if (data === "Already Synced!") {
                         clearInterval(checking);
                         showLatest(false);
-                        setupLastUpdated();
+                        $(".updateGradesMessage").find(".messageTxt").text("Synced successfully.");
                     } else if (data === "Did not sync") {
-                        $($(".updateGradesMessage")[0]).text("Syncing...");
-                        $($(".updateGradesMessage")[1]).find(".messageTxt").text("Syncing...");
+                        $(".updateGradesMessage").find(".messageTxt").text("Syncing...");
+                    } else if (data === "Cannot access grades.") {
+                        $("#syncNoData").show();
+                        clearInterval(checking);
+                        $(".updateGradesMessage").find(".messageTxt").text(data);
+                    } else if (data === "Sync Failed.") {
+                        $("#syncFailure").show();
+                        clearInterval(checking);
+                        $(".updateGradesMessage").find(".messageTxt").text(data);
                     }
                 }
             });

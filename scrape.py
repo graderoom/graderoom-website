@@ -1,6 +1,7 @@
 import json
 import requests
 import sys
+import random
 from bs4 import BeautifulSoup as BS
 
 
@@ -351,14 +352,24 @@ class PowerschoolScraper:
                 # Add assignment name to intermediate_class_data
                 self.intermediate_class_data.append(assignment_name)
 
+                # Uncomment the next line to randomly_break_scraper
+                # randomly_break_scraper()
+
             final_all_classes.append(local_class.as_dict())
 
         # Print out the result
         if not final_all_classes:
+            # Uncomment the next line to randomly_break_scraper
+            # randomly_break_scraper(True)
             print(json_format(False, "No class data."))
         else:
-            pass
+            # Uncomment the next line to randomly_break_scraper
+            # randomly_break_scraper(True)
             print(json_format(True, final_all_classes))
+
+    def randomly_break_scraper(self,force=False):
+        if random.random() > 0.5 or force: raise Exception()
+
 
 if __name__ == "__main__":
     user = sys.argv[1]

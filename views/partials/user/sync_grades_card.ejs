@@ -11,7 +11,7 @@
             <div class="card-body" style="max-height: 70vh; overflow-y: scroll; overflow-x: hidden; transition: 500ms">
                 <div class="updateGradesMessage alert alert-info"
                      style="display:block">
-                    <div style="display: flex">
+                    <div style="display: flex; justify-content: flex-start; align-items: flex-start">
                         <div style="display:none" class="sk-chase-mini">
                             <div class="sk-chase-dot mini"></div>
                             <div class="sk-chase-dot mini"></div>
@@ -20,15 +20,24 @@
                             <div class="sk-chase-dot mini"></div>
                             <div class="sk-chase-dot mini"></div>
                         </div>
-                        <div class="font-weight-bold messageTxt">Loading Sync Data...</div>
+                        <div class="font-weight-bold messageTxt">Loading Sync Status...</div>
                         <span class="popup">
                             <i class="fa fa-info-circle" id="syncFailure"
                                style="padding-left: 0.2rem; align-self: center; display:none">
                                 <span class="popup-bottom">
-                                    This usually occurs when the PowerSchool website is down.
+                                    An error occurred while collecting grade data
                                 </span>
                             </i>
                         </span>
+                        <span class="popup">
+                            <i class="fa fa-info-circle" id="syncNoData"
+                               style="padding-left: 0.2rem; align-self: center; display:none">
+                                <span class="popup-bottom">
+                                    No grade data was found
+                                </span>
+                            </i>
+                        </span>
+                        <div style="margin-left: 0.4rem" class="font-weight-bold dateTxt"></div>
                     </div>
                 </div>
                 <h1 class="card-title text-center">School Login</h1>
@@ -40,13 +49,15 @@
                         <div class="form-group input-group">
                             <i class="lock-bg"></i>
                             <label>School Password</label>
-                            <input oninput="checkLabel(this)" name="school_password" type="password" id="inputPassword"
+                            <input oninput="checkLabel(this)" onblur="checkLabel(this)" name="school_password"
+                                   type="password" id="inputPassword"
                                    class="form-control" required>
                         </div>
                         <div id="userPassword" class="form-group input-group" style="display:none">
                             <i class="user-bg"></i>
                             <label>Graderoom Password</label>
-                            <input oninput="checkLabel(this)" name="user_password" type="password"
+                            <input oninput="checkLabel(this)" onblur="checkLabel(this)" name="user_password"
+                                   type="password"
                                    id="inputUserPassword" class="form-control" required>
                         </div>
                         <label style="cursor: pointer; float: left; text-align: right"
@@ -81,7 +92,8 @@
                         <div class="input-group form-group">
                             <i class="lock-bg"></i>
                             <label>Graderoom Password</label>
-                            <input oninput="checkLabel(this)" name="user_password" type="password"
+                            <input oninput="checkLabel(this)" onblur="checkLabel(this)" name="user_password"
+                                   type="password"
                                    id="gradeSyncInputUserPassword"
                                    class="form-control" required>
                         </div>
@@ -127,7 +139,7 @@
 
         let messageDiv = $(".updateGradesMessage");
         $(messageDiv[1]).removeClass("alert-danger").addClass("alert-info");
-        let message = messageDiv.find(".messageTxt");
+        let message = messageDiv.find(".dateTxt");
         let lastUpdated = user.alerts.lastUpdated.slice(-1)[0];
         let deltaTime = Date.now() - lastUpdated;
         if (lastUpdated === undefined) {

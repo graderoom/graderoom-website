@@ -43,6 +43,16 @@
 ## [Known Issues] - Send bug reports in Settings > Help > Feedback Form<br>Only issues in the stable version will be listed here
 - Incorrect grade step calculation with ungraded assignments <strong>[Fixed in Beta 2.0.1]</strong>
 - Rounding errors with incorrect grade warning messages <strong>[Fixed in Beta 2.1.1]</strong>
+- GradeSync cannot be enabled when grades are locked in PowerSchool <strong>[Fixed in Beta 2.2.4]</strong>
+
+## [Beta 2.2.4] - 2020-05-24
+### Improved
+- Improved dropdown styling in dark mode
+- More informative sync status messages
+- Improved dropdown styling on excluded assignments
+
+### Fixed
+- Issue where GradeSync could not be enabled when grades were locked in PowerSchool
 
 ## [Beta 2.2.3] - 2020-05-20
 ### Added
