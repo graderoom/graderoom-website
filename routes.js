@@ -359,9 +359,9 @@ module.exports = function (app, passport) {
     app.post("/updateclasstype", [isAdmin], (req, res) => {
         let resp = authenticator.updateClassTypeInClassDb(req.body.className, req.body.classType);
         if (resp.success) {
-            res.status(200).send(resp.message);
+            res.status(200).send(resp);
         } else {
-            res.status(400).send(resp.message);
+            res.status(400).send(resp);
         }
     });
 

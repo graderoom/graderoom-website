@@ -323,7 +323,7 @@ table thead tr th:last-child {
     border-radius: 0.5rem;
 }
 
-.collapsed h5:hover {
+.accordian-label h5:hover {
     font-weight: bold !important;
 }
 
@@ -991,10 +991,6 @@ input:checked + .slider:before {
     margin: 0;
 }
 
-.form-weights .form-group:focus-within label {
-    font-weight: bolder;
-}
-
 .form-weights .form-signin .btn {
     width: auto;
     padding: .375rem .75rem;
@@ -1076,10 +1072,6 @@ input:checked + .slider:before {
 #weightsCard .collapse.show, #weightsCard .collapsing {
     display: flex;
     flex-flow: row wrap;
-}
-
-#weightsCard .form-group:focus-within label {
-    font-weight: bolder;
 }
 
 #weightsCard .form-signin .btn {
