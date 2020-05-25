@@ -130,10 +130,6 @@ th {
     color: white;
 }
 
-.form-group:focus-within label {
-    color: #BBBBBB;
-}
-
 /* Input Form Background Images */
 
 .form-group .user-bg {

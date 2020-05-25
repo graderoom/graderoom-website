@@ -31,14 +31,15 @@
 <!-- Main Screen -->
 <div id="weightsCard" class="container">
     <span class="accordion" id="bigAccordionForms">
+        <hr>
         <% for (let i = 0; i < Object.keys(classData).length; i++) { %>
             <% let className = Object.keys(classData)[i]; %>
-            <label style="display: flex; cursor: pointer" class="collapsed" data-toggle="collapse" href="#accordionForms<%= i %>">
+            <label style="display: flex; cursor: pointer" class="accordian-label collapsed" data-toggle="collapse" href="#accordionForms<%= i %>">
                 <h5 style="font-size: 1.5rem !important;"><%= className %>
                     <i class="fa" aria-hidden="true"></i>
                 </h5>
                 <span id="weightMessage<%= i %>" class="alert alert-success font-weight-bold"
-                      style="width: fit-content; display:none; justify-content: center; padding: 0.1rem;">
+                      style="margin: auto 0 auto 0.75rem; width: fit-content; display:none; justify-content: center; padding: 0.1rem;">
                     <div style="display: none" class="sk-chase-mini">
                         <div class="sk-chase-dot mini"></div>
                         <div class="sk-chase-dot mini"></div>
@@ -58,7 +59,7 @@
                     <div>
                         <label>Class Type:</label>
                         <select oninput="ajaxPostWeightsDatabaseForm('<%= i %>',null,null,[],'#weightMessage<%= i %>',true); $('#weights<%= i %>').submit()"
-                                class="dropdown" style="padding: 0; margin-right: 3rem"
+                                class="minimal" style="margin: 0; padding: 0 1.7rem 0 0.5rem"
                                 id="classType<%= i %>">
                             <option value="" disabled hidden <% if (classData[className].classType === "") { %> selected<% } %>>
                                 Not Selected
@@ -82,13 +83,13 @@
                     <% let teacherName = Object.keys(classData[className])[j]; %>
                     <% if (teacherName != "classType") { %>
                         <div class="break"></div>
-                        <label data-toggle="collapse" href="#collapse<%= i %><%= j %>" style="display: flex; margin: 0 0 0 2rem; cursor: pointer">
+                        <label class="accordian-label" data-toggle="collapse" href="#collapse<%= i %><%= j %>" style="display: flex; margin: 0 0 0 2rem; cursor: pointer">
                             <h5 style="cursor: pointer" class="weightname" id="<%= teacherName %>">
                                 <%= teacherName %>
                                 <i style="text-indent: 0 !important;" class="fa" aria-hidden="true"></i>
                             </h5>
                             <span id="weightMessage<%= i %><%= j %>" class="alert alert-success font-weight-bold"
-                                style="width: fit-content; display:none; justify-content: center; padding: 0.1rem;">
+                                style="margin: auto 0 auto 0.75rem; width: fit-content; display:none; justify-content: center; padding: 0.1rem;">
                                 <div style="display: none" class="sk-chase-mini">
                                     <div class="sk-chase-dot mini"></div>
                                     <div class="sk-chase-dot mini"></div>
@@ -135,7 +136,7 @@
                                             let value = weights[name] %>
 
                                             <div class="form-group" id="category<%= i %><%= j %><%= z %><%= k %>"
-                                                style="text-indent: 3rem; display:inline-flex; align-items: flex-end;">
+                                                style="margin-bottom: 0.5rem; text-indent: 3rem; display:inline-flex; align-items: flex-end;">
                                                 <input style="font-size: 0.9rem; margin-right: 0 !important; width: auto; white-space: nowrap; margin-bottom: 0;"
                                                     value="<%= name %>"
                                                     class="form-control text-view disableable"
@@ -158,14 +159,14 @@
                                                     <% if (z!=-1) {%> disabled <% } %>
                                                 >
                                                 <% if (z==-1) {%>
-                                                    <span class="fa fa-minus disableable" onclick="removeCategory(this)" style="text-indent: 1rem; color: red; cursor: pointer;"></span>
+                                                    <span class="fa fa-minus disableable" onclick="removeCategory(this)" style="text-indent: 1rem; color: red; cursor: pointer; margin-bottom: 2px"></span>
                                                 <% } %>
                                             </div>
                                         <% } %>
                                     </div>
                                     <div class="break"></div>
-                                    <div class="form-group" style="display: flex; align-items: flex-end;">
-                                        <label style="font-size: 0.9rem; white-space: nowrap; margin-bottom: 0;">
+                                    <div class="form-group" style="margin-bottom: 0.5rem; display: flex; align-items: flex-end;">
+                                        <label class="checkbox-label"style="font-size: 0.9rem; white-space: nowrap; margin-bottom: 0;">
                                             Point Based?
                                         </label>
                                         <input
@@ -323,7 +324,7 @@
                 $(formID + " .form-group .form-control").css("border-color", "unset").addClass("text-view");
 
                 //Update class weight for approved suggestions
-                if (parseInt($(formID).find("suggestionindex").html()) != -1) {
+                if (teacherIndex && parseInt($(formID).find("suggestionindex").html()) != -1) {
                     $("#weights" + classIndex + teacherIndex + "-1").find(".form-group").slice(0,-1).remove(); //Remove all categories
                     $("#check" + classIndex + teacherIndex + "-1").prop("checked",!hasWeights) //Update hasWeights
                     for (let i = 0; i < Object.keys(weights).length; i++) {
