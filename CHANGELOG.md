@@ -46,8 +46,15 @@
 - GradeSync cannot be enabled when grades are locked in PowerSchool <strong>[Fixed in Beta 2.2.4]</strong>
 
 ## [Beta 2.2.5] - 2020-05-26
+### Added
+- Ability to display class grades from newest to oldest
+
 ### Improved
 - Exclusion toggle now shows only when hovering on assignment name
+
+### Fixed
+- Issue where categories would not reset when the row was reset
+- Issue where theme change wouldn't animate
 
 ## [Beta 2.2.4] - 2020-05-24
 ### Improved
