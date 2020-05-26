@@ -1210,7 +1210,7 @@
                     }
 
                     // Set up percents
-                    let percent = assignmentPercents[j];
+                    let percent = assignmentPercents[assignmentIndex];
                     let letterGrade = "";
                     if (percent === -1 || isNaN(parseFloat(percent))) {
                         percent = "--";
@@ -1235,7 +1235,7 @@
                         delta = "±0.000% <i class=\"fa fa-arrows-v\"></i>";
                         color = "unset";
                     }
-                    display = "<div style=\"display: flex; justify-content: space-around; align-items: flex-end;\"><div style=\"display: flex; flex-flow: row; justify-content: center; align-items: center\"><div>" + display + "%" + "</div><div style=\"margin-left: 0.4rem; font-size: small\">(" + getLetterGrade(display) + ")</div></div><div style=\"font-size: x-small; font-family: 'Maison Mono',monospace\">" + delta + "</div></div>";
+                    display = "<div style=\"display: flex; justify-content: space-around; align-items: flex-end;\"><div style=\"display: flex; flex-flow: row; justify-content: center; align-items: center\"><div>" + display + "%" + "</div><div style=\"margin-left: 0.4rem; font-size: small\">(" + getLetterGrade(display) + ")</div></div><div style=\"font-size: small; font-family: 'Maison Mono',monospace\">" + delta + "</div></div>";
                     $("#assignment" + i + j).css("color", color).html(display);
                     $("#assignment" + i + j).css("font-weight", "bold");
                     if (assignmentExcludes[j]) {
