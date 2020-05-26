@@ -372,12 +372,12 @@
                                     <% if (user.schoolPassword) { %>
                                             checked
                                             <% } %>
-                                            oninput="manageGradeSyncCheckbox()"
+                                            onchange="manageGradeSyncCheckbox()"
                                     >
                                     <span style="color: #888888" class="slider"></span>
                                 </label>
                                 <label style="margin: 0 0 0 1rem; justify-content: center; align-items: center; cursor: pointer"
-                                       onclick="$('#gradeSyncToggle').trigger('input')">GradeSync</label>
+                                       onclick="$('#gradeSyncToggle').trigger('click')">GradeSync</label>
                             </label>
                         </form>
                         <form id="remoteAccess" class="form-signin" action="/setRemoteAccess" method="post">
@@ -391,7 +391,7 @@
                                     <% if (user.alerts.remoteAccess === "allowed") { %>
                                             checked
                                             <% } %>
-                                            oninput="ajaxPostForm('#remoteAccess',[],'',true); $('#remoteAccess').submit();"
+                                            onchange="ajaxPostForm('#remoteAccess',[],'',true); $('#remoteAccess').submit();"
                                     >
                                     <span style="color: #888888" class="slider"></span>
                                 </label>

@@ -138,8 +138,8 @@
 
             // Submit the form using AJAX.
             $.ajax({
-                       type: "POST", url: $(form).attr("action"), data: formData, async: async
-                   }).done(function (response) {
+                type: "POST", url: $(form).attr("action"), data: formData, async: async
+            }).done(function (response) {
                 // Special behavior for class colors.
                 if (formID === "#randomizeClassColors") {
                     // numClasses is contained in messagesDivID
