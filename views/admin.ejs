@@ -130,7 +130,7 @@
                         <% if (u != user) { %>
                             <% if (u.isAdmin) { %>
                                 <form action="/removeadmin" method="post">
-                                    <button type="submit" name="removeAdminUser" class="btn btm-sm admin"
+                                    <button type="submit" name="removeAdminUser" class="btn btn-sm admin"
                                             value="<%= u.username %>">Remove Admin Privileges
                                     </button>
                                 </form>
@@ -166,7 +166,7 @@
                     <td class="admin"><%= u.schoolUsername %></td>
                     <td class="admin">
                         <form action="/restoreUser" method="post">
-                            <button type="submit" name="restoreUser" class="btn btm-sm admin"
+                            <button type="submit" name="restoreUser" class="btn btn-sm admin"
                                     value="<%= u.username %>">Restore User
                             </button>
                         </form>
