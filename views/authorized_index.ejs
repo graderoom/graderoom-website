@@ -215,7 +215,7 @@
                                                         <% if (JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["hasWeights"] === "false") { %>
                                                                 checked
                                                                 <% } %>
-                                                                oninput="disableInput('check<%= i + offset %>','weightsTable<%= i + offset %>'); resetInputs('#weights<%= i + offset %>'); $('#weights<%= i + offset %>').submit();"
+                                                                onchange="disableInput('check<%= i + offset %>','weightsTable<%= i + offset %>'); resetInputs('#weights<%= i + offset %>'); $('#weights<%= i + offset %>').submit();"
                                                         >
                                                         <span style="color: <%= user.appearance.classColors[i + offset] %>"
                                                               class="slider"></span>
