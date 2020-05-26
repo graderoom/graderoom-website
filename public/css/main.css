@@ -685,10 +685,6 @@ table thead tr th:last-child {
     font-size: xx-small !important;
 }
 
-.logo {
-    content: url(/public/resources/light_mode/logo.png); /* fallback logo */
-}
-
 .nav {
     margin: auto;
     width: fit-content;
