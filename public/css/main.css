@@ -960,7 +960,7 @@ input:checked + .slider:before {
 }
 
 .form-weights input:not([type="checkbox"]) {
-    font-size: 0.9rem;
+    font-size: 1rem;
     width: 100%;
     box-sizing: border-box;
     text-align: center;
@@ -1146,4 +1146,17 @@ select:focus {
 
 .excluded select {
     outline: none;
+}
+
+.excludeToggle .fa-ban {
+    visibility: hidden;
+}
+
+.excludeToggle label {
+    font-family: "SansSerif", sans-serif;
+    font-size: 0.4rem !important;
+}
+
+td:hover .excludeToggle .fa-ban {
+    visibility: visible;
 }
