@@ -1,15 +1,16 @@
 import json
 import requests
 import sys
+import random
 from bs4 import BeautifulSoup as BS
 
 
-def json_format(success, message_or_grades):
-    """Returns a message for errors or grade data in JSON format
-
+def json_format(success, message_or_grades, fail_grades=[]):
+    """
     Args:
-        success: boolean if scraping was successful
-        message_or_grades: response or grade data
+        :param success: boolean if scraping was successful
+        :param message_or_grades: a message for errors or grade data in JSON format
+        :param fail_grades: partial grades if error while scraping grades
 
     Returns:
         A JSON formatted object containing the response
@@ -18,12 +19,12 @@ def json_format(success, message_or_grades):
     if success:
         return json.dumps({'success': True, 'grades': message_or_grades})
 
-    return json.dumps({'success': False, 'message': message_or_grades})
+    return json.dumps({'success': False, 'message': message_or_grades, 'grades': fail_grades})
 
 
 class ClassGrade:
     """Contains information and assignments for a PowerSchool class
-    
+
     One ClassGrade object is needed for every PowerSchool class scraped
     from the site. It contains all the information necessary to
     redisplay a user's grade for a PowerSchool class, such as names,
@@ -101,6 +102,7 @@ class PowerschoolScraper:
         self.email = email
         self.password = password
         self.session = requests.Session()
+        self.intermediate_class_data = []
 
     def login_and_get_all_class_grades_and_print_resp(self):
         """Scrapes grade data from PowerSchool and prints it
@@ -170,7 +172,7 @@ class PowerschoolScraper:
             'Host': 'powerschool.bcp.org',
             'Origin': 'https://federation.bcp.org',
             # This will be changed to the dynamic URL
-            'Referer': 'CHANGE_THIS',  
+            'Referer': 'CHANGE_THIS',
             'Sec-Fetch-Mode': 'navigate',
             'Sec-Fetch-Site': 'same-site',
             'Sec-Fetch-User': '?1',
@@ -179,7 +181,7 @@ class PowerschoolScraper:
         }
 
         # First request
-        url = "https://powerschool.bcp.org/guardian/home.html"  
+        url = "https://powerschool.bcp.org/guardian/home.html"
         resp_1 = self.session.get(url, headers=headers_1)
         soup_1 = BS(resp_1.text, "html.parser")
         samlr_1 = soup_1.find("input", {'name': 'SAMLRequest'}).get('value')
@@ -193,7 +195,7 @@ class PowerschoolScraper:
         resp_2 = self.session.post(url_2, data=data_2, headers=headers_2)
         soup_2 = BS(resp_2.text, "html.parser")
         dynamic_url = soup_2.find("form", id='ping-login-form').get('action')
-        
+
         # Third request
         dynamic_url = "https://federation.bcp.org" + dynamic_url
         data_3 = {
@@ -238,13 +240,10 @@ class PowerschoolScraper:
         for row in main_table_rows:
             if row.has_attr('class') and row['class'] == ['center']:
                 class_rows.append(row)
-        
+
         # Iterate over each row and fetch data for that class
         for class_row in class_rows:
-            local_class = None
             assignments_link = None
-            class_name = None
-            teacher_name = None
             overall_percent = None
             overall_letter = None
 
@@ -302,6 +301,9 @@ class PowerschoolScraper:
             else:
                 continue
 
+            # Add class name to intermediate_class_data
+            self.intermediate_class_data.append('CLASS_NAME ' + class_name)
+
             # Get grade and name data for each assignment
             grades_rows = grades_table.findChildren('tr')
             for grade_row in grades_rows:
@@ -322,21 +324,22 @@ class PowerschoolScraper:
 
                 score = grade_data[8].text
                 # Check cases for if the score does not have a grade
-                if ('/' not in score and score != '--'):
+                try:
                     points_possible = 0
                     points_gotten = float(score)
-                elif (score == '--'):
-                    points_possible = False
-                    points_gotten = False
-                elif (score.split('/')[0] == '--'):
-                    points_possible = float(score.split('/')[1])
-                    points_gotten = False
-                else:
-                    points_possible = float(score.split('/')[1])
-                    points_gotten = float(score.split('/')[0])
+                except Exception:
+                    if score.find('/') == -1:
+                        points_possible = False
+                        points_gotten = False
+                    elif score.split('/')[0] == '--':
+                        points_possible = float(score.split('/')[1])
+                        points_gotten = False
+                    else:
+                        points_possible = float(score.split('/')[1])
+                        points_gotten = float(score.split('/')[0])
 
                 # Get the percent for the assignment
-                if (points_possible != 0):
+                if points_possible != 0 and points_possible != False and points_gotten != False:
                     grade_percent = grade_data[9].text
                 else:
                     grade_percent = -1
@@ -346,24 +349,38 @@ class PowerschoolScraper:
                                       points_gotten, points_possible,
                                       category, exclude)
 
+                # Add assignment name to intermediate_class_data
+                self.intermediate_class_data.append(assignment_name)
+
+                # Uncomment the next line to randomly_break_scraper
+                # randomly_break_scraper()
+
             final_all_classes.append(local_class.as_dict())
 
         # Print out the result
-        if final_all_classes == []:
+        if not final_all_classes:
+            # Uncomment the next line to randomly_break_scraper
+            # randomly_break_scraper(True)
             print(json_format(False, "No class data."))
         else:
-            pass
+            # Uncomment the next line to randomly_break_scraper
+            # randomly_break_scraper(True)
             print(json_format(True, final_all_classes))
 
+    def randomly_break_scraper(self,force=False):
+        if random.random() > 0.5 or force: raise Exception()
+
+
 if __name__ == "__main__":
+    user = sys.argv[1]
+    password = sys.argv[2]
+    ps = PowerschoolScraper(user, password)
+    ### DEBUG ###
+    # user = ""
+    # password = ""
+    ### DEBUG ###
     try:
-        user = sys.argv[1]
-        password = sys.argv[2]
-        ### DEBUG ###
-        # user = ""
-        # password = ""
-        ### DEBUG ###
-        ps = PowerschoolScraper(user, password)
         ps.login_and_get_all_class_grades_and_print_resp()
     except Exception:
-        print(json_format(False, "Error scraping grades."))
+        # send class data in the event of something in Powerschool breaking scraper
+        print(json_format(False, "Error scraping grades.", ps.intermediate_class_data))

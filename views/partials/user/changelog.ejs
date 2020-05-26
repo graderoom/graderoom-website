@@ -19,15 +19,18 @@
                                 class="fa fa-arrow-up"><label
                                     style="font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; cursor: pointer; margin-left: 0.5rem">Announcement</label></span>
                     </div>
-                    <div style="display: none" id="version-up" class="scroll-to up" onclick="scrollToCurrentVersion();"><span
+                    <div style="display: none" id="version-up" class="scroll-to up" onclick="scrollToCurrentVersion();">
+                        <span
                                 class="fa fa-arrow-up"> <label
-                                    style="font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; cursor: pointer; margin-left: 0.5rem">Current Version</label></span>
+                                    style="font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; cursor: pointer; margin-left: 0.5rem">Current
+                                Version</label></span>
                     </div>
                     <div id="changelog-container" class="changelog-container"></div>
                     <div style="display: none" id="version-down" class="scroll-to down"
                          onclick="scrollToCurrentVersion();"><span class="fa fa-arrow-down">
                             <label
-                                    style="font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; cursor: pointer; margin-left: 0.5rem">Current Version</label></span>
+                                    style="font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; cursor: pointer; margin-left: 0.5rem">Current
+                                Version</label></span>
                     </div>
                     <div style="display: none" id="announcement-down" class="scroll-to down"
                          onclick="scrollToCurrentAnnouncement();"><span
@@ -47,8 +50,8 @@
 
     function showChangelog() {
         $.ajax({
-            url: "/changelog", type: "GET", async: true
-        }).done(function (response) {
+                   url: "/changelog", type: "GET", async: true
+               }).done(function (response) {
             $("#changelogDisplay").fadeIn(500);
             disableScrolling();
             cardsDisplayed.push("changelogDisplay");

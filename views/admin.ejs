@@ -6,13 +6,18 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
+    <% let theme; %>
     <% if (user.appearance.theme === "dark") { %>
+        <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else if (user.appearance.theme === "light") { %>
+        <% theme = false; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
     <% } else if ((((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (dst ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) && ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (dst ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0))) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (dst ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (dst ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0))))) { %>
+        <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else { %>
+        <% theme = false; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
     <% } %>
     <link rel="stylesheet" type="text/css" href="public/css/main.css">
@@ -53,7 +58,7 @@
         </h6>
         <hr>
         <h1>Users</h1>
-        <table class="table" style="width: 100% !important;">
+        <table class="table rounded-table" style="width: 100% !important;">
             <thead>
                 <tr>
                     <th class="admin">Username</th>
@@ -70,7 +75,7 @@
             <% for (let u of userList) { %>
                 <tr>
                     <td class="admin"><%= u.username %> </td>
-                    <td class="admin"><%= u.schoolUsername.substring(0, 1).toUpperCase() + u.schoolUsername.substring(1, u.schoolUsername.indexOf('.')) + ' ' + u.schoolUsername.substring(u.schoolUsername.indexOf('.') + 1, u.schoolUsername.indexOf('.') + 2).toUpperCase() + u.schoolUsername.substring(u.schoolUsername.indexOf('.') + 2, u.schoolUsername.indexOf('@') - 2) %></td>
+                    <td class="admin"><%= u.personalInfo.firstName + " " + u.personalInfo.lastName + " '" + (u.personalInfo.graduationYear - 2000) %></td>
                     <td class="admin">
                         <% if (new Date(u.alerts.lastUpdated.slice(-1)[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
                             Never Updated
@@ -125,7 +130,7 @@
                         <% if (u != user) { %>
                             <% if (u.isAdmin) { %>
                                 <form action="/removeadmin" method="post">
-                                    <button type="submit" name="removeAdminUser" class="btn btm-sm admin"
+                                    <button type="submit" name="removeAdminUser" class="btn btn-sm admin"
                                             value="<%= u.username %>">Remove Admin Privileges
                                     </button>
                                 </form>
@@ -145,7 +150,7 @@
         </table>
         <hr>
         <h1>Deleted Users</h1>
-        <table class="table" style="width: 100% !important;">
+        <table class="table rounded-table" style="width: 100% !important;">
             <thead>
                 <tr>
                     <th class="admin">Username</th>
@@ -161,7 +166,7 @@
                     <td class="admin"><%= u.schoolUsername %></td>
                     <td class="admin">
                         <form action="/restoreUser" method="post">
-                            <button type="submit" name="restoreUser" class="btn btm-sm admin"
+                            <button type="submit" name="restoreUser" class="btn btn-sm admin"
                                     value="<%= u.username %>">Restore User
                             </button>
                         </form>
@@ -205,7 +210,6 @@
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
                 }, 1000);
-                renderAllCharts();
             }
         } else {
             let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
@@ -217,7 +221,6 @@
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
                 }, 1000);
-                renderAllCharts();
             }
         }
     }
