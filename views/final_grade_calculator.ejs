@@ -6,13 +6,18 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
+    <% let theme; %>
     <% if (user.appearance.theme === "dark") { %>
+        <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else if (user.appearance.theme === "light") { %>
+        <% theme = false; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
     <% } else if ((((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (dst ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) && ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (dst ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0))) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (dst ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (dst ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0))))) { %>
+        <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else { %>
+        <% theme = false; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
     <% } %>
     <link rel="stylesheet" type="text/css" href="public/css/main.css">
@@ -41,16 +46,15 @@
                 <form id="calculateFinalGrade" class="form-signin">
                     <div class="card-footer">
                         <h5>Current Info</h5>
-                        <div style="display: flex; justify-content: space-evenly; align-items: center">
-                            <label style="display: flex; align-items: flex-end; width: 50%"> <select id="chooseClass"
-                                                                                                     style="float: right;"
-                                                                                                     class="dropdown">
+                        <div style="display: flex; justify-content: space-between; align-items: center">
+                            <label style="display: flex; align-items: flex-end"> <select class="classic"
+                                                                                         id="chooseClass">
                                     <option selected>- - Select Class - -</option>
                                     <% for (let i = 0; i < user.grades.length; i++) { %>
                                         <option><%= user.grades[Object.keys(user.grades)[i]].class_name %></option>
                                     <% } %>
-                                </select> </label> <label style="display: flex; align-items: flex-end; width: 50%">
-                                <select id="chooseLetterGrade" style="float: right" class="dropdown">
+                                </select> </label> <label style="display: flex; align-items: flex-end;">
+                                <select class="classic" id="chooseLetterGrade" style="float: right">
                                     <option disabled selected hidden>- - Grade - -</option>
                                     <option value="97.5">A+</option>
                                     <option value="92.5">A</option>
@@ -90,14 +94,13 @@
                         </div>
                         <div id="specialFinal" style="display: none; align-items: center">
                             <h6><strong>or</strong></h6>
-                            <label class="form-group" style="display: flex; align-items: flex-end;"> <span
+                            <label class="form-group"
+                                   style="align-items: center; display: flex; align-items: flex-end;"> <span
                                         style="text-align: right">Your final is worth</span> <input
                                         class="number-input form-control" style="margin: 0 1rem 0 1rem;"
                                         id="finalPoints" type="number" step="1"> <span
                                         style="text-align: left">points in </span>
-                                <select id="chooseWeight"
-                                        style="float: right"
-                                        class="dropdown">
+                                <select style="margin-left: 1rem" class="classic" id="chooseWeight">
                                     <option disabled selected hidden>- - Select Class - -</option>
                                 </select> </label>
                         </div>
@@ -550,7 +553,6 @@
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
                 }, 1000);
-                renderAllCharts();
             }
         } else {
             let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
@@ -562,7 +564,6 @@
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
                 }, 1000);
-                renderAllCharts();
             }
         }
     }

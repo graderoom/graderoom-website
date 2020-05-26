@@ -20,6 +20,14 @@ nav h5 {
     color: #CCCCCC;
 }
 
+nav label {
+    color: #666666;
+}
+
+.sticky {
+    box-shadow: 2px 1px 20px #111111;
+}
+
 nav .btn {
     color: white;
     background-color: transparent;
@@ -30,16 +38,16 @@ nav .btn:hover {
     background-color: #BBBBBB;
 }
 
-nav .navbar-toggler:hover {
-    background-color: #444444;
-}
-
 td {
     border-color: #333333 !important;
 }
 
 th {
     border-color: #333333 !important;
+}
+
+::placeholder {
+    color: #999999 !important;
 }
 
 :disabled {
@@ -226,6 +234,22 @@ th {
     color: #666666;
 }
 
+.excluded {
+    color: #4F4F4F !important;
+}
+
+.resetTab {
+    background-image: linear-gradient(to right, #222222, #333333);
+}
+
+.resetTab:not(th) {
+    border-top: 1px transparent solid !important;
+}
+
+.resetTab:not(td) {
+    border-bottom: 2px transparent solid !important;
+}
+
 .slider {
     background-color: #444444;
 }
@@ -260,4 +284,50 @@ input:checked + .slider:before {
 
 #weightsCard .success {
     color: lightgreen;
+}
+
+select {
+    background-color: #444444;
+    color: #FFFFFF;
+}
+
+select.classic {
+    background-image: linear-gradient(45deg, transparent 50%, lightgray 50%), linear-gradient(135deg, lightgray 50%, transparent 50%), linear-gradient(to right, #555555, #555555);
+}
+
+select.classic:focus {
+    background-image: linear-gradient(45deg, lightgray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, lightgray 50%), linear-gradient(to right, #555555, #555555);
+}
+
+select.round {
+    background-image: linear-gradient(45deg, transparent 50%, lightgray 50%), linear-gradient(135deg, lightgray 50%, transparent 50%), radial-gradient(#555555 60%, transparent 60%);
+}
+
+select.round:focus {
+    background-image: linear-gradient(45deg, lightgray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, lightgray 50%), radial-gradient(#555555 60%, transparent 60%);
+}
+
+select.minimal {
+    background-image: linear-gradient(45deg, transparent 50%, lightgray 50%), linear-gradient(135deg, lightgray 50%, transparent 50%), linear-gradient(to right, #555555, #555555);
+}
+
+.excluded select.minimal {
+    background-image: linear-gradient(45deg, transparent 50%, gray 50%), linear-gradient(135deg, gray 50%, transparent 50%), linear-gradient(to right, #555555, #555555);
+}
+
+select.minimal:focus {
+    background-image: linear-gradient(45deg, lightgray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, lightgray 50%), linear-gradient(to right, #555555, #555555);
+}
+
+.excluded select.minimal:focus {
+    background-image: linear-gradient(45deg, gray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, gray 50%), linear-gradient(to right, #555555, #555555);
+}
+
+select:focus {
+    outline-color: black;
+}
+
+.excluded select {
+    background-color: #222222;
+    color: #4F4F4F;
 }

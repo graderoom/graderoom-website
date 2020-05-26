@@ -23,7 +23,10 @@ module.exports = function (app, passport) {
             let relClassData = JSON.stringify(authenticator.getRelClassData(req.user.username));
 
             res.render("authorized_index.ejs", {
-                user: req.user, current: "home", userRef: JSON.stringify(user), schoolUsername: req.user.schoolUsername,
+                user: req.user,
+                current: "home",
+                userRef: JSON.stringify(user),
+                schoolUsername: req.user.schoolUsername,
                 gradeData: gradeDat,
                 weightData: weightData,
                 relevantClassData: relClassData,
@@ -55,7 +58,10 @@ module.exports = function (app, passport) {
             let relClassData = JSON.stringify(authenticator.getRelClassData(req.query.usernameToRender));
 
             res.render("authorized_index.ejs", {
-                user: user, current: "home", userRef: JSON.stringify(user), schoolUsername: user.schoolUsername,
+                user: user,
+                current: "home",
+                userRef: JSON.stringify(user),
+                schoolUsername: user.schoolUsername,
                 gradeData: gradeData,
                 weightData: weightData,
                 relevantClassData: relClassData,
@@ -224,27 +230,26 @@ module.exports = function (app, passport) {
         }
     });
 
-// process the login form
+    // process the login form
     app.post("/login", passport.authenticate("local-login", {
         successRedirect: "/", // redirect to the secure profile section
         failureRedirect: "/", // redirect back to the signup page if there is an error
         failureFlash: true // allow flash messages
     }));
 
-// SIGNUP =================================
-// show the signup form
+    // SIGNUP =================================
+    // show the signup form
     app.get("/signup", (req, res) => {
         res.render("signup.ejs", {
-            message: req.flash("signupMessage"),
-            needsBeta: server.needsBetaKeyToSignUp
+            message: req.flash("signupMessage"), needsBeta: server.needsBetaKeyToSignUp
         });
     });
 
-// app.post('/signup', isAdmin, passport.authenticate('local-signup', {
-//     successRedirect : '/', // redirect to the secure profile section
-//     failureRedirect : '/signup', // redirect back to the signup page if there is an error
-//     failureFlash : true // allow flash messages
-// }));
+    // app.post('/signup', isAdmin, passport.authenticate('local-signup', {
+    //     successRedirect : '/', // redirect to the secure profile section
+    //     failureRedirect : '/signup', // redirect back to the signup page if there is an error
+    //     failureFlash : true // allow flash messages
+    // }));
 
     app.post("/signup", async (req, res, next) => {
 
@@ -298,10 +303,16 @@ module.exports = function (app, passport) {
                     res.status(400).send(resp.message);
                     return;
                 }
+            } else {
+                let resp = authenticator.login(user, userPass);
+                if (!resp.success) {
+                    res.status(400).send(resp.message);
+                    return;
+                }
             }
         }
         let resp = await authenticator.updateGrades(req.user.username, pass);
-        if (resp.success) {
+        if (resp.success || resp.message === "No class data." || resp.message === "Error scraping grades.") {
             if (gradeSync) {
                 let encryptResp = authenticator.encryptAndStore(user, pass, userPass);
                 if (!encryptResp.success) {
@@ -318,7 +329,7 @@ module.exports = function (app, passport) {
 
     });
 
-//must be called via client side ajax+js
+    //must be called via client side ajax+js
     app.post("/updateweights", [isLoggedIn], async (req, res) => {
         let className = req.body.className;
         let hasWeights = req.body.hasWeights;
@@ -346,20 +357,11 @@ module.exports = function (app, passport) {
     });
 
     app.post("/updateclasstype", [isAdmin], (req, res) => {
-        let resp = authenticator.updateClassTypeInClassDb(req.body.className,req.body.classType);
+        let resp = authenticator.updateClassTypeInClassDb(req.body.className, req.body.classType);
         if (resp.success) {
-            res.status(200).send(resp.message);
+            res.status(200).send(resp);
         } else {
-            res.status(400).send(resp.message);
-        }
-    });
-
-    app.post("/changealertsettings", [isLoggedIn], (req, res) => {
-        let resp = authenticator.updateAlerts(req.user.username, req.body.updateGradesReminder);
-        if (resp.success) {
-            res.status(200).send(resp.message);
-        } else {
-            res.status(400).send(resp.message);
+            res.status(400).send(resp);
         }
     });
 
@@ -395,6 +397,11 @@ module.exports = function (app, passport) {
         let allowed = req.body.remoteAccess === "on" ? "allowed" : "denied";
         authenticator.setRemoteAccess(req.user.username, allowed);
         res.status(200).send(allowed.substring(0, 1).toUpperCase() + allowed.substring(1) + " remote access.");
+    });
+
+    app.post("/setFirstName", [isLoggedIn], (req, res) => {
+        let resp = authenticator.setFirstName(req.user.username, req.body.firstName);
+        res.status(resp.success ? 200 : 400).send(resp.message);
     });
 
     app.get("/betakeys", [isAdmin], (req, res) => {
@@ -457,7 +464,10 @@ module.exports = function (app, passport) {
     app.get("/classes", [isAdmin], (req, res) => {
         let user = authenticator.getUser(req.user.username);
         res.render("classes.ejs", {
-            user: req.user, userRef: JSON.stringify(user), page: "classes", classData: authenticator.getAllClassData(),
+            user: req.user,
+            userRef: JSON.stringify(user),
+            page: "classes",
+            classData: authenticator.getAllClassData(),
             theme: JSON.stringify(authenticator.getUser(req.user.username).appearance.theme),
             darkModeStart: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeStart),
             darkModeFinish: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeFinish),
@@ -492,17 +502,16 @@ module.exports = function (app, passport) {
      * END GENERAL USER MANAGEMENT
      */
 
-// general web app
+    // general web app
     app.get("/*", (req, res) => {
         res.redirect("/");
     });
 
-// route middleware to ensure user is logged in
+    // route middleware to ensure user is logged in
     function isLoggedIn(req, res, next) {
         if (req.isAuthenticated()) {
             return next();
         }
-        req.session.returnTo = req.originalUrl;
         res.redirect("/");
     }
 
@@ -510,11 +519,9 @@ module.exports = function (app, passport) {
         if (req.isAuthenticated() && req.user.isAdmin) {
             return next();
         }
-        req.session.returnTo = req.originalUrl;
         res.redirect("/");
     }
-}
-;
+};
 
 
 function makeKey(length) {

@@ -1,33 +1,33 @@
 <!-- --------------------------------------------------------------------------------------------------------------- -->
-
-<!-- ---------------------------------------- Format for Unreleased Versions --------------------------------------- -->
-<!-- ## [Unreleased] - Send feature requests in Settings > Help > Feedback Form<br><strong>[Stable X.X.X] - Target Release Date: YYYY-MM-DD</strong><br><strong>This list will be periodically updated to reflect changes made in beta versions</strong> -->
-<!-- - <strong>Added</strong><ul> -->
-<!-- - Specifics</ul> -->
-<!-- - <strong>Improved</strong><ul> -->
-<!-- - Specifics</ul> -->
-<!-- - <strong>Fixed</strong><ul> -->
-<!-- - Specifics</ul> -->
-<!-- - <strong>Removed</strong><ul> -->
-<!-- - Specifics</ul> -->
-
+<!-- --------------------------------------------------------------------------------------------------------------- -->
 <!-- ------------------------------------------- Format for Known Issues ------------------------------------------- -->
+<!-- --------------------------------------------------------------------------------------------------------------- -->
+
 <!-- ## [Known Issues] - Send bug reports in Settings > Help > Feedback Form -->
 <!-- - Incorrect grade step calculation with ungraded assignments <strong>[Fixed in Beta X.X.X]</strong> -->
 
+
+<!-- --------------------------------------------------------------------------------------------------------------- -->
 <!-- ----------------------------------------- Format for Released Versions ---------------------------------------- -->
+<!-- --------------------------------------------------------------------------------------------------------------- -->
+
 <!-- ## [Stable/Beta X.X.X] - YYYY-MM-DD -->
 <!-- ### Added/Improved/Fixed/Removed -->
 <!-- - Specifics -->
 
+
+<!-- --------------------------------------------------------------------------------------------------------------- -->
+<!-- ---------------------------------------------- Versioning Guide ----------------------------------------------- -->
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
-<!-- Versioning Guide -->
 <!-- ALL versions with SEVEN or FEWER entries: increase THIRD digit -->
 <!-- ALL versions with EIGHT or MORE entries: increase SECOND digit -->
 <!-- Increase FIRST digit when SECOND digit reaches NINE -->
 <!-- ALL updates within a day must be in the same version, unless separated by an announcement or stability -->
 
+
+<!-- --------------------------------------------------------------------------------------------------------------- -->
+<!-- ------------------------------------------------ Special HTML ------------------------------------------------- -->
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
 <!-- Use the following HTML before information specific to beta users (e.g. The Announcement on 2020-03-12) -->
@@ -36,20 +36,127 @@
 <!-- Use the following HTML to add lines under the date (e.g. PI Day on 2020-03-14) -->
 <!-- <br><strong>[Text here]</strong> -->
 
+
+<!-- --------------------------------------------------------------------------------------------------------------- -->
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
-## [Unreleased] - Send feature requests in Settings > Help > Feedback Form<br><strong>[Stable 3.0.0]</strong><br><strong>This list will be periodically updated to reflect changes made in beta versions</strong>
-- <strong>Added</strong><ul>
-- Personal Info in Account Settings</ul>
-- <strong>Improved</strong><ul>
-- Better Popups
-- Input validation on login and signup pages</ul>
-- <strong>Fixed</strong><ul>
-- Incorrect grade step calculation with ungraded assignments</ul>
-- <strong>Removed</strong><ul></ul>
-
-## [Known Issues] - Send bug reports in Settings > Help > Feedback Form
+## [Known Issues] - Send bug reports in Settings > Help > Feedback Form<br>Only issues in the stable version will be listed here
 - Incorrect grade step calculation with ungraded assignments <strong>[Fixed in Beta 2.0.1]</strong>
+- Rounding errors with incorrect grade warning messages <strong>[Fixed in Beta 2.1.1]</strong>
+- GradeSync cannot be enabled when grades are locked in PowerSchool <strong>[Fixed in Beta 2.2.4]</strong>
+
+## [Beta 2.2.5] - 2020-05-26
+### Improved
+- Exclusion toggle now shows only when hovering on assignment name
+
+## [Beta 2.2.4] - 2020-05-24
+### Improved
+- Improved dropdown styling in dark mode
+- More informative sync status messages
+- Improved dropdown styling on excluded assignments
+
+### Fixed
+- Issue where GradeSync could not be enabled when grades were locked in PowerSchool
+
+## [Beta 2.2.3] - 2020-05-20
+### Added
+- Ability to edit categories of assignments
+
+### Improved
+- Animation on showing cards
+- Styling of dropdowns globally
+
+### Fixed
+- Issues with sticky navbar on resize
+- Issue with unnecessary refreshing
+
+## [Stable 2.2.2] - 2020-05-20
+### Fixed
+- Issue where existence of unpublished scores in PowerSchool prevented grades from syncing
+
+## [Beta 2.2.1] - 2020-05-19
+### Added
+- Flags column in class data table
+- Made assignment exclusion toggleable
+- Ability to revert all edited rows at once
+- Letter grade to individual assignment grades and overall grade steps
+
+### Improved
+- Better display of excluded assignments
+- Popups with correct grade from PowerSchool now always show when calculated grade is incorrect
+- Improved revert grade button placement
+- Charts rerender when page is resized
+
+### Fixed
+- Issues in editing grades in classes with excluded assignments
+- Issues in weight tables when non-academic classes were hidden
+- Issues in class tables when non-academic classes were hidden
+- Issue where chart wouldn't change color on theme change
+
+### Removed
+- Removed background coloring on class tables
+
+## [Beta 2.2.0] - 2020-05-16
+### Added
+- Ability to revert edited scores to original
+
+### Improved
+- Sync status is more accurate
+- Disabled keyboard shortcuts while grades are manually syncing
+- Effects of edited scores now occur much more quickly
+- Focus incorrect password after manually syncing grades fails
+
+### Fixed
+- Issue where editing a row wouldn't change the subsequent rows
+- Issue where main navigation bar toggle icon would sometimes disappear on theme change
+- Issue where sync status would freeze after closing sync grades card
+- Unnecessary re-rendering
+- Issue where page would hang when attempting to manually sync grades
+
+## [Beta 2.1.1] - 2020-05-13
+### Improved
+- Editing a score field no longer impacts other inputs
+
+### Fixed
+- Rounding errors with incorrect grade warning message
+
+## [Beta 2.1.0] - 2020-05-08
+### Added
+- Added a dedicated help button to main navbar
+- You can now change your first name in settings
+- Your name and graduation year show up under your username in the top navigation bar
+- Syncing Status is now on main navbar
+- Class navbar now stays on screen when scrolling down
+- New types of popups
+- There is now a help button on the navbar to find useful information quickly
+- Clicking on your username now opens account settings
+- All non-excluded assignment scores are now editable including extra credit assignments
+
+### Improved
+- Smoother, faster transition between themes
+- Better spacing and styling on main navbar
+- Placement of popups
+- Spacing in account settings has been improved so that content does not flow off screen
+- Decreased time before giving incorrect password feedback while attempting to sync grades
+
+### Fixed
+- Overview tab no longer shows until grades are successfully synced
+- Issue where scores displayed incorrectly on popups
+- Issue with editing grades that continuously bound new listeners to inputs resulting in a poor user experience
+- Warning with unparsable scores
+- Updated some remaining popups to new system
+- Graderoom no longer automatically refreshes if you are focused on a card during syncing (except the sync grades card)
+
+### Removed
+- Alerts have been replaced by a more intuitive syncing status display
+
+## [Beta 2.0.3] - 2020-05-01<br><strong>It's May!</strong>
+### Added
+- Most assignment scores are now editable on class pages. See the effects of different scores on your overall grade!
+
+### Fixed
+- Issue with current version scroll up button in changelog display
+- Issue where personal info disappeared after opening Settings multiple times
 
 ## [Beta 2.0.2] - 2020-04-24
 ### Added

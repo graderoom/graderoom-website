@@ -20,6 +20,14 @@ nav h5 {
     color: #555555;
 }
 
+nav label {
+    color: #BBBBBB;
+}
+
+.sticky {
+    box-shadow: 2px 1px 20px #999999;
+}
+
 nav .btn {
     color: black;
     background-color: transparent;
@@ -31,11 +39,7 @@ nav .btn:hover {
 }
 
 nav .navbar-toggler {
-    background-color: #AAAAAA;
-}
-
-nav .navbar-toggler:hover {
-    background-color: #BBBBBB;
+    background-color: #FFFFFF;
 }
 
 table tbody tr td {
@@ -66,6 +70,10 @@ table thead tr th {
 
 .approve_btn {
     background-color: #6CA66C;
+}
+
+::placeholder {
+    color: #AAAAAA !important;
 }
 
 .approve_btn:hover {
@@ -122,7 +130,6 @@ table thead tr th {
 .changelog-item {
     margin-top: 1rem;
     border-radius: 1rem;
-    background-color: #EEEEEE;
 }
 
 .form-group input {
@@ -173,8 +180,20 @@ table thead tr th {
     background-color: #EEEEEE;
 }
 
+.excluded {
+    color: #D3D3D3 !important;
+}
+
 .popup span {
     background-color: #FFFFFF;
+}
+
+.resetTab:not(th) {
+    border-top: 1px #EEEEEE solid !important;
+}
+
+.resetTab:not(td) {
+    border-bottom: 2px #EEEEEE solid !important;
 }
 
 .school-username {
@@ -226,6 +245,15 @@ input:checked + .slider:before {
 }
 
 .table {
+    background-color: transparent;
+}
+
+.rounded-table {
+    overflow: hidden;
+    border-radius: 0.5rem;
+}
+
+.table thead th, .table tbody td, .table tfoot th {
     background-color: #FFFFFF;
 }
 
@@ -241,9 +269,14 @@ input:checked + .slider:before {
     color: #DDDDDD;
 }
 
+#weightsCard {
+    background-color: #FFFFFF;
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
 #weightsCard input {
     border-color: lightcoral;
-}
+}   
 
 #weightsCard input:focus {
     border-color: red;
@@ -259,4 +292,50 @@ input:checked + .slider:before {
 
 #weightsCard .success {
     color: lightgreen;
+}
+
+select {
+    background-color: #EEEEEE;
+    color: #000000;
+}
+
+select.classic {
+    background-image: linear-gradient(45deg, transparent 50%, gray 50%), linear-gradient(135deg, gray 50%, transparent 50%), linear-gradient(to right, lightgray, lightgray);
+}
+
+select.classic:focus {
+    background-image: linear-gradient(45deg, gray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, gray 50%), linear-gradient(to right, lightgray, lightgray);
+}
+
+select.round {
+    background-image: linear-gradient(45deg, transparent 50%, gray 50%), linear-gradient(135deg, gray 50%, transparent 50%), radial-gradient(lightgray 60%, transparent 60%);
+}
+
+select.round:focus {
+    background-image: linear-gradient(45deg, gray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, gray 50%), radial-gradient(lightgray 60%, transparent 60%);
+}
+
+select.minimal {
+    background-image: linear-gradient(45deg, transparent 50%, gray 50%), linear-gradient(135deg, gray 50%, transparent 50%), linear-gradient(to right, lightgray, lightgray);
+}
+
+.excluded select.minimal {
+    background-image: linear-gradient(45deg, transparent 50%, lightgray 50%), linear-gradient(135deg, lightgray 50%, transparent 50%), linear-gradient(to right, lightgray, lightgray);
+}
+
+select.minimal:focus {
+    background-image: linear-gradient(45deg, gray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, gray 50%), linear-gradient(to right, lightgray, lightgray);
+}
+
+.excluded select.minimal:focus {
+    background-image: linear-gradient(45deg, lightgray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, lightgray 50%), linear-gradient(to right, lightgray, lightgray);
+}
+
+select:focus {
+    outline-color: lightgray;
+}
+
+.excluded select {
+    background-color: #FFFFFF;
+    color: #D3D3D3;
 }

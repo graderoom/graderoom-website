@@ -93,6 +93,19 @@ module.exports = {
         userRef.get("alerts").set("remoteAccess", allowed).write();
     },
 
+    setFirstName: function (username, firstName) {
+        // Test it
+        let firstNameRegex = new RegExp("^[a-zA-Z]*$");
+        if (firstNameRegex.test(firstName)) {
+            let lc_username = username.toLowerCase();
+            let userRef = db.get("users").find({username: lc_username});
+            userRef.get("personalInfo").set("firstName", firstName).write();
+            return {success: true, message: "Updated first name"};
+        } else {
+            return {success: false, message: "First name must contain only letters"};
+        }
+    },
+
     setNonAcademic: function (username, value) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
@@ -143,6 +156,19 @@ module.exports = {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
+
+        // Add personal info
+        if (!user.personalInfo) {
+            let {firstName, lastName, graduationYear} = getPersonalInfo(user.schoolUsername);
+            userRef.set("personalInfo", {
+                firstName: firstName, lastName: lastName, graduationYear: graduationYear
+            }).write();
+        }
+
+        // Remove grade update reminder
+        if (user.alerts.updateGradesReminder) {
+            delete user.alerts.updateGradesReminder;
+        }
 
         // Make lastupdated an array
         if (!Array.isArray(user.alerts.lastUpdated)) {
@@ -330,8 +356,7 @@ module.exports = {
             };
         }
         return relClasses;
-    },
-    updateWeightsInClassDb: function (className, teacherName, hasWeights, weights) {
+    }, updateWeightsInClassDb: function (className, teacherName, hasWeights, weights) {
         let classDb = db.get("classes");
         if (weights || hasWeights === "false") {
             if (hasWeights === "false") {
@@ -352,7 +377,9 @@ module.exports = {
             return {success: false, message: "One weight required!"};
         }
         let suggestionNum = this.deleteSuggestionInClassDb(className, teacherName, hasWeights, weights).suggestion;
-        return {success: true, message: "Updated weights for " + className + " | " + teacherName, suggestion: suggestionNum};
+        return {
+            success: true, message: "Updated weights for " + className + " | " + teacherName, suggestion: suggestionNum
+        };
     }, deleteSuggestionInClassDb: function (className, teacherName, hasWeights, weights) {
         let deleted = false;
         let classRef = db.get("classes");
@@ -374,10 +401,13 @@ module.exports = {
         }
 
         classRef.get(className).get(teacherName).get("suggestions").remove(function (e) {
-            let shouldDelete = compareWeights({"weights": e.weights,"hasWeights": e.hasWeights}, {"weights": modWeights, "hasWeights": hasWeights});
+            let shouldDelete = compareWeights({
+                                                  "weights": e.weights, "hasWeights": e.hasWeights
+                                              }, {"weights": modWeights, "hasWeights": hasWeights});
             deleted = deleted || shouldDelete;
-            if (!deleted)
+            if (!deleted) {
                 suggestionNum++;
+            }
             return shouldDelete;
         }).write();
         if (deleted) {
@@ -413,14 +443,16 @@ module.exports = {
             let classWeights = classDb.get(className).get(teacherName).get("weights").value();
             let classHasWeights = classDb.get(className).get(teacherName).get("hasWeights").value();
             //Test if same as class weights
-            if (!compareWeights({"weights": classWeights, "hasWeights": classHasWeights}, {"weights": modWeights,"hasWeights": hasWeights}) ) {
+            if (!compareWeights({"weights": classWeights, "hasWeights": classHasWeights}, {
+                "weights": modWeights, "hasWeights": hasWeights
+            })) {
                 //Test if all weights are null
                 if (!Object.values(modWeights).every(x => x === null) || hasWeights == "false") {
                     classDb.get(className).get(teacherName).get("suggestions").push({
-                        "usernames": [lc_username],
-                        "weights": modWeights,
-                        "hasWeights": hasWeights
-                    }).write();
+                                                                                        "usernames": [lc_username],
+                                                                                        "weights": modWeights,
+                                                                                        "hasWeights": hasWeights
+                                                                                    }).write();
                 }
             }
         }
@@ -469,6 +501,8 @@ module.exports = {
                     return resolve({success: false, message: "This must be your Bellarmine school email."});
                 }
             }
+            // Set up personal info with EXACT same algorithm as on signup page
+            let {firstName, lastName, graduationYear} = getPersonalInfo(schoolUsername);
 
             const roundsToGenerateSalt = 10;
             bcrypt.hash(password, roundsToGenerateSalt, function (err, hash) {
@@ -476,6 +510,9 @@ module.exports = {
                                          username: lc_username,
                                          password: hash,
                                          schoolUsername: schoolUsername,
+                                         personalInfo: {
+                                             firstName: firstName, lastName: lastName, graduationYear: graduationYear
+                                         },
                                          isAdmin: isAdmin,
                                          appearance: {
                                              theme: "auto",
@@ -508,7 +545,7 @@ module.exports = {
         if (bcrypt.compareSync(password, user.password)) {
             return {success: true, message: "Login Successful"};
         } else {
-            return {success: false, message: "Graderoom Password is incorrect"};
+            return {success: false, message: "Incorrect Graderoom password."};
         }
 
     }, changePassword: async function (username, oldPassword, password) {
@@ -538,7 +575,12 @@ module.exports = {
         if (!validateEmail(schoolUsername)) {
             return {success: false, message: "This must be your Bellarmine College Preparatory school email."};
         }
-        db.get("users").find({username: lc_username}).assign({schoolUsername: schoolUsername}).write();
+        let userRef = db.get("users").find({username: lc_username});
+        userRef.assign({schoolUsername: schoolUsername}).write();
+        let {firstName, lastName, graduationYear} = getPersonalInfo(schoolUsername);
+        userRef.get("personalInfo").set("firstName", firstName).write();
+        userRef.get("personalInfo").set("lastName", lastName).write();
+        userRef.get("personalInfo").set("graduationYear", graduationYear).write();
         return {success: true, message: "School Email Updated"};
     }, userExists: function (username) {
         let lc_username = username.toLowerCase();
@@ -604,11 +646,6 @@ module.exports = {
             message = "Dark theme enabled from " + darkModeStart + " " + darkModeStartAmPm + " to " + darkModeFinish + " " + darkModeFinishAmPm + ".";
         }
         return {success: true, message: message};
-    }, updateAlerts: function (username, updateGradesReminder) {
-        let lc_username = username.toLowerCase();
-        let user = db.get("users").find({username: lc_username}).value();
-        user.alerts.updateGradesReminder = updateGradesReminder;
-        return {success: true, message: "Alert settings saved!"};
     }, getUser: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username}).value();
@@ -623,11 +660,16 @@ module.exports = {
     checkUpdateBackground: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
-        if (user.get("updatedInBackground").value() === "complete") {
+        let syncStatus = user.get("updatedInBackground").value();
+        if (syncStatus === "complete") {
             user.set("updatedInBackground", "already done").write();
             return {success: true, message: "Sync Complete!"};
-        } else if (user.get("updatedInBackground").value() === "already done") {
+        } else if (syncStatus === "already done") {
             return {success: true, message: "Already Synced!"};
+        } else if (syncStatus === "no data") {
+            return {success: false, message: "Cannot access grades."};
+        } else if (syncStatus === "failed") {
+            return {success: false, message: "Sync Failed."};
         } else {
             return {success: false, message: "Did not sync"};
         }
@@ -643,10 +685,16 @@ module.exports = {
         let lc_username = acc_username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         user.set("updatedInBackground", "").write();
-        this.updateGrades(acc_username, school_password).then(function () {
+        this.updateGrades(acc_username, school_password).then(function (resp) {
             lc_username = acc_username.toLowerCase();
             user = db.get("users").find({username: lc_username});
-            user.set("updatedInBackground", "complete").write();
+            if (resp.success) {
+                user.set("updatedInBackground", "complete").write();
+            } else if (resp.message === "No class data.") {
+                user.set("updatedInBackground", "no data").write();
+            } else {
+                user.set("updatedInBackground", "failed").write();
+            }
         });
     },
 
@@ -950,10 +998,11 @@ module.exports = {
         let items = [];
         let bodyCount = -1;
         let item = {title: "", date: "", content: {}};
+        const line_counter = ((i = 0) => () => ++i)();
         let lineReader = readline.createInterface({
                                                       input: fs.createReadStream("CHANGELOG.md")
                                                   });
-        lineReader.on("line", (line) => {
+        lineReader.on("line", (line, lineno = line_counter()) => {
             if (line.substring(0, 3) === "###") {
                 item.content[line.substring(4)] = [];
                 bodyCount++;
@@ -966,13 +1015,20 @@ module.exports = {
                 item.title = line.substring(4, line.indexOf("]"));
                 item.date = line.substring(line.indexOf("-") + 2);
             } else if (line.substring(0, 1) === "-") {
-                if (item.title === "Unreleased" || item.title === "Known Issues" || item.title === "Announcement") {
+                if (item.title === "Known Issues" || item.title === "Announcement") {
                     if (!item.content["Default"]) {
                         item.content["Default"] = [];
                     }
                     item.content["Default"].push(line.substring(2));
-                } else {
+                } else if (item.content[Object.keys(item.content)[bodyCount]]) {
                     item.content[Object.keys(item.content)[bodyCount]].push(line.substring(2));
+                } else {
+                    // Prevents changelog file errors from crashing server
+                    if (!item.content["Unfiled"]) {
+                        item.title = "This shouldn't have happened. Send a bug report in Settings > Help > Feedback Form. ERR #" + lineno;
+                        item.content["Unfiled"] = [];
+                    }
+                    item.content["Unfiled"].push(line.substring(2));
                 }
             }
         }).on("close", () => {
@@ -1048,7 +1104,7 @@ module.exports = {
                 betaResultHTML += "<div class=\"date\">" + items[i].date + "</div>";
                 betaResultHTML += "</div>";
                 betaResultHTML += "<div class=\"content\">";
-                if (items[i].title !== "Unreleased" && items[i].title !== "Known Issues" && items[i].title !== "Announcement") {
+                if (items[i].title !== "Known Issues" && items[i].title !== "Announcement") {
                     for (let j = 0; j < Object.keys(items[i].content).length; j++) {
                         resultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
                         betaResultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
@@ -1202,4 +1258,23 @@ function validatePassword(password) {
         message = "Your password must include at least one number.";
     }
     return message;
+}
+
+function getPersonalInfo(bcpEmail) {
+    // First Name
+    let firstName = bcpEmail.indexOf(".") === -1 ? bcpEmail : bcpEmail.substring(0, bcpEmail.indexOf("."));
+    firstName = firstName.substring(0, 1).toUpperCase() + firstName.substring(1).toLowerCase();
+
+    // Last Name
+    let lastName = bcpEmail.indexOf(".") === -1 ? "" : bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? bcpEmail.substring(bcpEmail.indexOf(".") + 1) : bcpEmail.substring(bcpEmail.indexOf(".") + 1, bcpEmail.indexOf(bcpEmail.match(/\d/)));
+    lastName = lastName.substring(0, 1).toUpperCase() + lastName.substring(1).toLowerCase();
+
+    // Graduation Year
+    let graduationYear = bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? "" : bcpEmail.indexOf("@") === -1 ? bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/))) : bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/)), bcpEmail.indexOf("@"));
+    if (graduationYear) {
+        graduationYear = parseInt(graduationYear);
+        graduationYear += 2000;
+    }
+
+    return {firstName, lastName, graduationYear};
 }
