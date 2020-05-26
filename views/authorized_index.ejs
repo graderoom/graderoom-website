@@ -321,7 +321,6 @@
                                     <th>Date</th>
                                     <th>Assignment Name</th>
                                     <th>Category</th>
-                                    <th>Flags</th>
                                     <th>Score</th>
                                     <th>Assignment Percent</th>
                                     <th>Overall Grade</th>
@@ -342,18 +341,22 @@
                                 <% for (let j = 0; j < JSON.parse(gradeData)[i].grades.length; j++) { %>
                                     <tr id="classTable<%= i + offset %><%= j %>">
                                         <td id="assignmentDate<%= i + offset %><%= j %>"></td>
-                                        <td id="assignmentName<%= i + offset %><%= j %>"></td>
+                                        <td>
+                                            <div class="excludeToggle"
+                                                 style="display: flex; justify-content: space-between; align-items: center">
+                                                <div id="assignmentName<%= i + offset %><%= j %>"></div>
+                                                <div style="display: flex; justify-content: center; flex-flow: column; align-items: center">
+                                                    <i id="exclude<%= i + offset %><%= j %>" class="fa fa-ban"
+                                                       style="cursor: pointer"
+                                                       onclick="toggleExclude(<%= i + offset %>,<%= j %>);">
+                                                        <label style="cursor: pointer !important; margin: 0; display: block; font-weight: bolder; font-size: 0.5rem">Exclude</label>
+                                                    </i>
+                                                </div>
+                                            </div>
+                                        </td>
                                         <td id="assignmentCategory<%= i + offset %><%= j %>">
                                             <select id="category<%= i + offset %><%= j %>" class="minimal"
                                                     style="margin: 0"></select>
-                                        </td>
-                                        <td>
-                                            <div style="display: flex; justify-content: center; flex-flow: column; align-items: center">
-                                                <input id="exclude<%= i + offset %><%= j %>" type="checkbox"
-                                                       oninput="toggleExclude(<%= i + offset %>,<%= j %>);">
-                                                <label style="margin: 0; display: block; font-weight: bolder; font-size: 0.5rem"
-                                                       for="exclude<%= i + offset %><%= j %>">Exclude</label>
-                                            </div>
                                         </td>
                                         <td class="form-weights form-signin form-group"
                                             id="assignmentScore<%= i + offset %><%= j %>">
@@ -1051,7 +1054,6 @@
     }
 
     function toggleExclude(classIndex, assignmentIndex) {
-        let element = $("#exclude" + classIndex + assignmentIndex)[0];
         let assignment = data[classIndex]["grades"][assignmentIndex];
 
         // Copy without reference ONLY if it hasn't already been edited
@@ -1065,17 +1067,11 @@
             tempData[classIndex][assignmentIndex].exclude = assignment.exclude;
         }
 
-        let doRefresh = false;
-        if (assignment.exclude !== element.checked) {
-            doRefresh = true;
-        }
-        assignment.exclude = element.checked;
+        assignment.exclude = !assignment.exclude;
         if (tempData[classIndex][assignmentIndex].exclude === assignment.exclude) {
             delete tempData[classIndex][assignmentIndex].exclude;
         }
-        if (doRefresh) {
-            refreshWithoutReload(true, classIndex)
-        }
+        refreshWithoutReload(true, classIndex)
     }
 
     function setupInputListeners() {
@@ -1136,7 +1132,11 @@
                     }
 
                     // Set up excludes
-                    $("#exclude" + i + j).prop("checked", assignmentExcludes[j]);
+                    if (assignmentExcludes[j]) {
+                        $("#exclude" + i + j).find("label").text("Unexclude").addClass("always-show");
+                    } else {
+                        $("#exclude" + i + j).find("label").text("Exclude").removeClass("always-show");
+                    }
 
                     // Set up scores
                     let scoreDiv = $("#assignmentScore" + i + j);
