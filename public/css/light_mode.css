@@ -134,6 +134,11 @@ table thead tr th {
     border-bottom-color: #BBBBBB;
 }
 
+.coloration {
+    background: white; 
+    color: hsl(210, 48%, 48%);
+}
+
 .form-group .email-bg {
     background: url(/public/resources/light_mode/email.png) no-repeat left/27px 20px !important;
 }
