@@ -951,6 +951,10 @@
 
     function updatePointsGotten(classIndex, assignmentIndex) {
         let element = "#gotten" + classIndex + assignmentIndex;
+        if (!dateSort[classIndex]) {
+            assignmentIndex = data[classIndex]["grades"].length - assignmentIndex - 1;
+        }
+
         let assignment = data[classIndex]["grades"][assignmentIndex];
 
         // Copy without reference ONLY if it hasn't already been edited
@@ -988,6 +992,10 @@
 
     function updatePointsPossible(classIndex, assignmentIndex) {
         let element = "#possible" + classIndex + assignmentIndex;
+        if (!dateSort[classIndex]) {
+            assignmentIndex = data[classIndex]["grades"].length - assignmentIndex - 1;
+        }
+
         let assignment = data[classIndex]["grades"][assignmentIndex];
 
         // Copy without reference ONLY if it hasn't already been edited
@@ -1025,6 +1033,10 @@
 
     function updateCategory(classIndex, assignmentIndex) {
         let element = "#category" + classIndex + assignmentIndex;
+        if (!dateSort[classIndex]) {
+            assignmentIndex = data[classIndex]["grades"].length - assignmentIndex - 1;
+        }
+
         let assignment = data[classIndex]["grades"][assignmentIndex];
 
         // Copy without reference ONLY if it hasn't already been edited
@@ -1053,6 +1065,10 @@
     }
 
     function resetRow(classIndex, assignmentIndex) {
+        if (!dateSort[classIndex]) {
+            assignmentIndex = data[classIndex]["grades"].length - assignmentIndex - 1;
+        }
+
         // This means that the row was never changed
         if (!tempData[classIndex] || !tempData[classIndex][assignmentIndex]) {
             $("#resetRow" + classIndex + assignmentIndex).css("visibility", "hidden");
@@ -1080,6 +1096,9 @@
     }
 
     function toggleExclude(classIndex, assignmentIndex) {
+        if (!dateSort[classIndex]) {
+            assignmentIndex = data[classIndex]["grades"].length - assignmentIndex - 1;
+        }
         let assignment = data[classIndex]["grades"][assignmentIndex];
 
         // Copy without reference ONLY if it hasn't already been edited
@@ -1166,7 +1185,7 @@
                         for (let k = 0; k < weightNames.length; k++) {
                             dropdown.append($('<option>').text(weightNames[k]));
                             dropdown.on('change', () => {
-                                updateCategory(i, assignmentIndex);
+                                updateCategory(i, j);
                                 refreshWithoutReload(true, i);
                                 dropdown.blur();
                             });
@@ -1177,7 +1196,7 @@
                     $(dropdown.find("option")[weightNames.indexOf(assignmentCategories[assignmentIndex])]).prop("selected", true);
 
                     // Set up excludes
-                    if (assignmentExcludes[j]) {
+                    if (assignmentExcludes[assignmentIndex]) {
                         $("#exclude" + i + j).find("label").text("Unexclude").addClass("always-show");
                     } else {
                         $("#exclude" + i + j).find("label").text("Exclude").removeClass("always-show");
@@ -1238,7 +1257,7 @@
                     display = "<div style=\"display: flex; justify-content: space-around; align-items: flex-end;\"><div style=\"display: flex; flex-flow: row; justify-content: center; align-items: center\"><div>" + display + "%" + "</div><div style=\"margin-left: 0.4rem; font-size: small\">(" + getLetterGrade(display) + ")</div></div><div style=\"font-size: small; font-family: 'Maison Mono',monospace\">" + delta + "</div></div>";
                     $("#assignment" + i + j).css("color", color).html(display);
                     $("#assignment" + i + j).css("font-weight", "bold");
-                    if (assignmentExcludes[j]) {
+                    if (assignmentExcludes[assignmentIndex]) {
                         // Change styling when excluded
                         $("#classTable" + i + j).addClass("excluded");
                         $("#classTable" + i + j).find(".dynamic-input").addClass("excluded");
