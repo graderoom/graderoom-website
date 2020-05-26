@@ -153,10 +153,6 @@ th {
     background: url(/public/resources/dark_mode/user.png) no-repeat left/23px 27px !important;
 }
 
-.logo {
-    content: url(/public/resources/dark_mode/logo.png) !important;
-}
-
 .mini:before {
     background-color: darkgreen !important;
 }
