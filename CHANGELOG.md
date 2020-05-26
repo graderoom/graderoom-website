@@ -51,6 +51,7 @@
 
 ### Improved
 - Exclusion toggle now shows only when hovering on assignment name
+- Made grade deltas slightly larger
 
 ### Fixed
 - Issue where categories would not reset when the row was reset
