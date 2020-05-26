@@ -178,7 +178,7 @@
                                             name="hasWeights"
                                             <% try { if (hasWeights == "false") { %>
                                                 checked
-                                            <% }} catch {} %>
+                                            <% }} catch (e) {} %>
                                             <% if (z==-1) {%> oninput="showSubmitButton(this); disableInput('check<%= i %><%= j %><%= z %>','collapse<%= i %><%= j %><%= z %>');" <% } %>
                                             <% if (z!=-1) {%> disabled <% } %>
                                         >

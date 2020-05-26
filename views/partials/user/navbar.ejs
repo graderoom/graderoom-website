@@ -402,7 +402,7 @@
             } else if (theme === "light") {
                 themeRadioButtons[0].checked = true;
             }
-        } catch {
+        } catch (e){
         }
 
         // Manage gradeSync checkbox, if it exists
@@ -413,7 +413,7 @@
             } else if (!user.schoolPassword && gradeSync.checked) {
                 gradeSync.checked = false;
             }
-        } catch {
+        } catch (e){
         }
     }
 
