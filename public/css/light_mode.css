@@ -243,6 +243,11 @@ input:checked + .slider:before {
     background-color: transparent;
 }
 
+.rounded-table {
+    overflow: hidden;
+    border-radius: 0.5rem;
+}
+
 .table thead th, .table tbody td, .table tfoot th {
     background-color: #FFFFFF;
 }

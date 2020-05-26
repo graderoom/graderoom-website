@@ -120,7 +120,7 @@
                         </div>
                     </div>
                     <br>
-                    <table class="table text-center" id="table-1">
+                    <table class="table rounded-table text-center" id="table-1">
                         <thead>
                             <tr>
                                 <% offset = 0; %>
@@ -198,12 +198,12 @@
                             </div>
                             <form id="weights<%= i + offset %>" class="form-ajax form-weights form-signin"
                                   action="/updateweights" style="padding-left: 1rem;">
-                                <table class="table text-center weights"
+                                <table class="table text-center weights rounded-table"
                                        style="white-space: nowrap; margin-top: 1rem; margin-bottom: 1rem;"
                                        id="weightsTable<%= i + offset %>">
                                     <thead>
                                         <tr>
-                                            <th colspan="4" style="padding: 0.3rem 0; border-radius: 1rem 1rem 0 0">
+                                            <th colspan="4" style="padding: 0.3rem 0;">
                                                 <label style="display: flex; font-size: 1rem; justify-content: center; margin: 0; align-items: center">Point
                                                     Based&nbsp
                                                     <label class="switch">
@@ -293,7 +293,7 @@
                                         </script>
                                     <tfoot>
                                         <tr>
-                                            <th colspan="4" style="border-radius: 0 0 1rem 1rem">
+                                            <th colspan="4">
                                                 <span class="popup">
                                                     <i id="incorrectOverallGrade<%= i + offset %>"
                                                        class="fa fa-exclamation-circle"
@@ -315,7 +315,7 @@
                             </form>
                         </div>
                         <hr>
-                        <table class="table class-table text-center" id="table<%= i + offset %>">
+                        <table class="table rounded-table class-table text-center" id="table<%= i + offset %>">
                             <thead>
                                 <tr>
                                     <th>Date</th>
