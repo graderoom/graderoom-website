@@ -271,7 +271,7 @@ input:checked + .slider:before {
 }
 #weightsCard input {
     border-color: lightcoral;
-}   
+}
 
 #weightsCard input:focus {
     border-color: red;
@@ -333,4 +333,8 @@ select:focus {
 .excluded select {
     background-color: #FFFFFF;
     color: #D3D3D3;
+}
+
+.addAssignment, .tableOptions {
+    background-color: #FFFFFF;
 }

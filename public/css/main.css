@@ -1160,3 +1160,29 @@ select:focus {
 td:hover .excludeToggle .fa-ban {
     visibility: visible;
 }
+
+.addAssignment {
+    width: fit-content;
+    margin-bottom: 0.5rem;
+    margin-right: 0.5rem;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.tableOptions {
+    width: fit-content;
+    padding: 0.1rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center
+}
+
+.tableOptions select {
+    margin: 0 1rem;
+}

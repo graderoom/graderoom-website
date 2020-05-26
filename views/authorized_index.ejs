@@ -314,17 +314,43 @@
                                 </table>
                             </form>
                         </div>
-                        <hr>
-                        <table class="table rounded-table class-table text-center" id="table<%= i + offset %>">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Assignment Name</th>
-                                    <th>Category</th>
-                                    <th>Score</th>
-                                    <th>Assignment Percent</th>
-                                    <th>Overall Grade</th>
-                                    <th class="popup resetTab">
+                            <hr>
+                            <div style="display:flex; justify-content: flex-end; align-items: stretch">
+                                <div class="addAssignment">
+                                    <span class="popup">
+                                        <i class="fa fa-plus">
+                                            <span class="popup-left">
+                                                This button doesn't do anything yet
+                                            </span>
+                                        </i>
+                                    </span>
+                                </div>
+                                <div class="tableOptions">
+                                    <div>Sort By</div>
+                                    <select class="classic">
+                                        <option value="date">Date</option>
+                                        <option value="category" disabled>Category</option>
+                                    </select>
+                                    <span class="popup">
+                                        <i style="cursor: pointer; margin: 1rem 0" class="fa fa-sort-amount-asc"
+                                           onclick="toggleSortDirection(<%= i + offset %>)">
+                                            <span class="popup-top">
+                                                Oldest to Newest
+                                            </span>
+                                        </i>
+                                    </span>
+                                </div>
+                            </div>
+                            <table class="table rounded-table class-table text-center" id="table<%= i + offset %>">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Assignment Name</th>
+                                        <th>Category</th>
+                                        <th>Score</th>
+                                        <th>Assignment Percent</th>
+                                        <th>Overall Grade</th>
+                                        <th class="popup resetTab">
                                         <i id="resetAll<%= i + offset %>"
                                            class="fa fa-undo"
                                            style="color: #888888; margin: 0; cursor: pointer; visibility:hidden"
@@ -414,15 +440,14 @@
         setupGPADisplay();
         setupIncorrectGradeMessages(changedClassIndex);
         setPointBasedWeights(changedClassIndex);
-        if (changedClassIndex) {
-            renderChart(changedClassIndex);
-        } else {
-            renderAllCharts();
-        }
+        renderAllCharts(changedClassIndex);
     }
 
     function refreshWithoutReload(doItNow = false, changedClassIndex) {
         if (doItNow) {
+            if (refreshing) {
+                clearTimeout(refreshing);
+            }
             refresh(changedClassIndex);
         } else {
             if (refreshing) {
@@ -460,6 +485,7 @@
     }
 
     // This should only happen once
+    let dateSort = [];
     refreshWithoutReload(true);
     setupWeightsTableListeners();
     setupInputListeners();
@@ -1097,6 +1123,20 @@
         }
     }
 
+    function toggleSortDirection(classIndex) {
+        let icon = $($("#section" + classIndex).find(".tableOptions").find("i")[0]);
+        if (icon.hasClass('fa-sort-amount-asc')) {
+            dateSort[classIndex] = false;
+            icon.removeClass('fa-sort-amount-asc').addClass('fa-sort-amount-desc');
+            $(icon.find("span")[0]).text("Newest to Oldest");
+        } else {
+            dateSort[classIndex] = true;
+            icon.removeClass('fa-sort-amount-desc').addClass('fa-sort-amount-asc');
+            $(icon.find("span")[0]).text("Oldest to Newest");
+        }
+        setupClassTables(classIndex);
+    }
+
     function setupClassTables(classIndex) {
         for (let i = 0; i < parsedData.length; i++) {
             if (!classIndex || classIndex === i) {
@@ -1109,11 +1149,13 @@
                 let assignmentExcludes = parsedData[i].assignmentExcludes;
                 $("#resetAll" + i).css("visibility", "hidden").parents(".resetTab").hide();
                 for (let j = 0; j < assignmentData.length; j++) {
+                    let assignmentIndex;
+                    assignmentIndex = dateSort[i] ? j : assignmentData.length - 1 - j;
                     // Set up dates
-                    $("#assignmentDate" + i + j).text(assignmentDates[j]);
+                    $("#assignmentDate" + i + j).text(assignmentDates[assignmentIndex]);
 
                     // Set up names
-                    $("#assignmentName" + i + j).text(assignmentNames[j]);
+                    $("#assignmentName" + i + j).text(assignmentNames[assignmentIndex]);
 
                     // Set up categories
                     let dropdown = $("#assignmentCategory" + i + j).children("select");
@@ -1122,14 +1164,17 @@
                     // Bind listeners only once
                     if (!dropdown.find("option").length) {
                         for (let k = 0; k < weightNames.length; k++) {
-                            dropdown.append($('<option>').text(weightNames[k]).prop("selected", weightNames[k] === assignmentCategories[j]));
+                            dropdown.append($('<option>').text(weightNames[k]));
                             dropdown.on('change', () => {
-                                updateCategory(i, j);
+                                updateCategory(i, assignmentIndex);
                                 refreshWithoutReload(true, i);
                                 dropdown.blur();
                             });
                         }
                     }
+
+                    // Select assignment category
+                    $(dropdown.find("option")[weightNames.indexOf(assignmentCategories[assignmentIndex])]).prop("selected", true);
 
                     // Set up excludes
                     if (assignmentExcludes[j]) {
@@ -1140,7 +1185,7 @@
 
                     // Set up scores
                     let scoreDiv = $("#assignmentScore" + i + j);
-                    let score = assignmentScoresParsed[j];
+                    let score = assignmentScoresParsed[assignmentIndex];
                     if (score.substring(score.length - 2, score.length) === "--") {
                         score = score.substring(0, score.length - 2);
                     }
@@ -1157,7 +1202,7 @@
 
                     // Set up reset buttons
                     let resetButton = $("#resetRow" + i + j);
-                    if (tempData[i] && tempData[i][j] && Object.keys(tempData[i][j]).length) {
+                    if (tempData[i] && tempData[i][assignmentIndex] && Object.keys(tempData[i][assignmentIndex]).length) {
                         resetButton.css("visibility", "visible").parents(".resetTab").show();
                         $("#resetAll" + i).css("visibility", "visible").parents(".resetTab").show();
                     } else {
@@ -1176,8 +1221,8 @@
                     $("#assignmentPercent" + i + j).html("<div style=\"display: flex; align-items: center; justify-content: center;\"><div>" + percent + "</div><div style=\"margin-left: 0.4rem; font-size: small\">" + letterGrade + "</div></div>");
 
                     // Set up coloring and gain/loss
-                    let display = +isNaN(parseFloat(assignmentData[j]).toFixed(2)) ? +parseFloat(assignmentData[assignmentData.length - 1]).toFixed(2) : parseFloat(assignmentData[j]).toFixed(2);
-                    let delta = (assignmentData[j] - assignmentData[j - 1]).toFixed(3);
+                    let display = +isNaN(parseFloat(assignmentData[assignmentIndex]).toFixed(2)) ? +parseFloat(assignmentData[assignmentData.length - 1]).toFixed(2) : parseFloat(assignmentData[assignmentIndex]).toFixed(2);
+                    let delta = (assignmentData[assignmentIndex] - assignmentData[assignmentIndex - 1]).toFixed(3);
                     let color;
 
                     if (delta > 0) {
@@ -1278,6 +1323,11 @@
         //Get data for one class
         for (let i = 0; i < data.length; i++) {
             if (!classIndex || classIndex === i) {
+                //Add sorting vars
+                if (!dateSort[i] && dateSort[i] !== false) {
+                    dateSort[i] = true;
+                }
+
                 let classData = data[i];
                 let className = classData.class_name;
                 let overallGradeSteps = [];
@@ -1369,11 +1419,13 @@
 
     }
 
-    function renderAllCharts() {
+    function renderAllCharts(classIndex) {
         try {
             renderOverviewChart();
             for (let i = 0; i < data.length; i++) {
-                renderChart(i);
+                if (!classIndex || classIndex === i) {
+                    renderChart(i);
+                }
             }
         } catch {
         }

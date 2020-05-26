@@ -323,3 +323,7 @@ select:focus {
     background-color: #222222;
     color: #4F4F4F;
 }
+
+.addAssignment, .tableOptions {
+    background-color: #222222;
+}
