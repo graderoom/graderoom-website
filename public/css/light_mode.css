@@ -259,9 +259,14 @@ input:checked + .slider:before {
     color: #DDDDDD;
 }
 
+#weightsCard {
+    background-color: #FFFFFF;
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
 #weightsCard input {
     border-color: lightcoral;
-}
+}   
 
 #weightsCard input:focus {
     border-color: red;
