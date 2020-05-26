@@ -57,9 +57,13 @@
                     </a>
                 </li>
             <% } else { %>
-                <li id="help" class="nav-item">
+                <li id="help" class="nav-item popup">
                     <btn class="btn btn-med" onclick="showCard('#settingsCardDisplay'); openTab(4)">
                         <i class="fa fa-info-circle" aria-hidden="true"></i> Help
+                            <span class="nav-popups popup-bottom always-show coloration">
+                                Here you can find contact information and quick links to important parts of the site.
+                                Ask any further questions by emailing <strong><a href="mailto: graderoom@gmail.com">graderoom@gmail.com</a></strong>
+                            </span>
                     </btn>
                 </li>
             <% } %>
