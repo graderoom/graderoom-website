@@ -205,7 +205,7 @@
                                         <tr>
                                             <th colspan="4" style="padding: 0.3rem 0;">
                                                 <label style="display: flex; font-size: 1rem; justify-content: center; margin: 0; align-items: center">Point
-                                                    Based&nbsp
+                                                    Based&nbsp;
                                                     <label class="switch">
                                                         <input
                                                                 id="check<%= i + offset %>"
@@ -476,18 +476,18 @@
     if (user.alerts.lastUpdated.length !== 0) {
         try {
             renderAllCharts();
-        } catch {
+        } catch (e) {
         }
     }
     try {
         showPage(currentPage);
         localStorage.setItem("currentPage", currentPage);
-    } catch {
+    } catch (e) {
         currentPage = -1;
         try {
             showPage(-1);
             localStorage.setItem("currentPage", currentPage);
-        } catch {
+        } catch (e) {
         }
     }
     setupLastUpdated();
@@ -900,7 +900,7 @@
                 setTimeout(function () {
 
                     // Prevent whitespace from being collapsed
-                    tag.html(element.val().replace(/ /g, "&nbsp"));
+                    tag.html(element.val().replace(/ /g, "&nbsp;"));
 
                     // Clamp length and prevent text from scrolling
                     let size = Math.max(min, Math.min(max, tag.width() + offset));
@@ -1375,7 +1375,7 @@
             for (let i = 0; i < data.length; i++) {
                 renderChart(i);
             }
-        } catch {
+        } catch (e) {
         }
     }
 
