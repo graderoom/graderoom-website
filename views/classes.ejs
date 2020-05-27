@@ -59,7 +59,7 @@
                       method="post" style="display: flex; justify-content: right;">
                     <div>
                         <label>Class Type:</label>
-                        <select oninput="ajaxPostWeightsDatabaseForm('<%= i %>',null,null,[],'#weightMessage<%= i %>',true); $('#weights<%= i %>').submit()"
+                        <select onchange="ajaxPostWeightsDatabaseForm('<%= i %>',null,null,[],'#weightMessage<%= i %>',true); $('#weights<%= i %>').submit()"
                                 class="minimal" style="margin: 0; padding: 0 1.7rem 0 0.5rem"
                                 id="classType<%= i %>">
                             <option value="" disabled hidden <% if (classData[className].classType === "") { %> selected<% } %>>
@@ -137,7 +137,7 @@
                                             let value = weights[name] %>
 
                                             <div class="form-group" id="category<%= i %><%= j %><%= z %><%= k %>"
-                                                style="margin-bottom: 0.5rem; text-indent: 3rem; display:inline-flex; align-items: flex-end;">
+                                                style="margin-bottom: 0.5rem; display:inline-flex; align-items: flex-end;">
                                                 <input style="font-size: 0.9rem; margin-right: 0 !important; width: auto; white-space: nowrap; margin-bottom: 0;"
                                                     value="<%= name %>"
                                                     class="form-control text-view disableable"
@@ -146,7 +146,7 @@
                                                     required
                                                     <% if (z!=-1) {%> disabled <% } %>
                                                 >
-                                                :&nbsp;
+                                                :
                                                 <input style="margin: 0;"
                                                     <%if(!isNaN(value)) {%>
                                                         value="<%=value%>"
