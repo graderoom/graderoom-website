@@ -54,6 +54,7 @@
 ### Fixed
 - Issue where some cards incorrectly show over other cards
 - Issue where some icons incorrectly appeared above cards
+- Issue where what's new card wouldn't show if grade syncing was unsuccessful
 
 ## [Beta 2.2.5] - 2020-05-26
 ### Added
