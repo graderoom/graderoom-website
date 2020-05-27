@@ -6,7 +6,7 @@
         <div id="settingsCard" class="card card-signin my-5" style="padding-bottom: 1rem">
             <btn class="btn btn-md"
                  onclick="closeForm('settingsCardDisplay')"
-                 style="width: fit-content; margin-bottom:0">
+                 style="display: table; width: fit-content; width: -moz-fit-content; margin-bottom:0">
                 <i class="fa fa-close" aria-hidden="true"></i> Close
             </btn>
             <div class="card-body">
@@ -27,7 +27,7 @@
                             <form style="display: flex; justify-content: center; align-content: space-evenly"
                                   action="/randomizeClassColors" id="randomizeClassColors" method="POST"
                                   class="form-signin">
-                                <button style="width: fit-content"
+                                <button style="width: fit-content; width: -moz-fit-content; flex-shrink: 2;"
                                         onclick="ajaxPostForm('#randomizeClassColors',[],'',true)"
                                         class="btn btn-med">
                                     Randomize Palette
