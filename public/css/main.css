@@ -1180,7 +1180,8 @@ td:hover .excludeToggle .fa-ban {
     border-radius: 0.5rem;
     display: flex;
     justify-content: center;
-    align-items: center
+    align-items: center;
+    z-index: 1;
 }
 
 .tableOptions select {

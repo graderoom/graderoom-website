@@ -49,6 +49,7 @@
     let scrollOffsetCurrent;
 
     function showChangelog() {
+        closeForm("changelogDisplay");
         $.ajax({
                    url: "/changelog", type: "GET", async: true
                }).done(function (response) {
@@ -66,6 +67,7 @@
                 scrollOffsetCurrent = $(".current").offset().top - changelogContainer.offset().top;
             });
             manageScrollers();
+            console.log(cardsDisplayed);
         });
     }
 
