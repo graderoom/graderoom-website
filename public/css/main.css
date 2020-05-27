@@ -692,6 +692,7 @@ table thead tr th:last-child {
 .nav {
     margin: auto;
     width: fit-content;
+    width: -moz-fit-content;
     padding: 0.5rem 1rem 0.5rem 1rem !important;
     margin-top: 0 !important;
     margin-bottom: 1rem;
