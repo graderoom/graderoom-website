@@ -2,8 +2,18 @@
 <nav class="navbar <% if (theme) { %>navbar-dark<% } else { %>navbar-light<% } %> navbar-expand-lg justify-content-center">
     <span class="d-flex w-50 mr-auto">
         <a href="/" class="navbar-brand">
-            <h1><img src="/public/resources/dark_mode/logo.png" style="width: 3rem" class="d-inline-block logo" alt="">
-                Graderoom </h1>
+            <h1>
+                <img 
+                    <% if (theme) { %>
+                        src="/public/resources/dark_mode/logo.png" 
+                    <% } else { %>
+                        src="/public/resources/light_mode/logo.png" 
+                    <% } %>
+                    style="width: 3rem" 
+                    class="d-inline-block" 
+                    alt="">
+                Graderoom 
+            </h1>
         </a>
     </span>
     <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#collapsingNav"
@@ -62,7 +72,7 @@
     $(document).click(function (e) {
         try {
             $(".navbar-collapse").collapse("hide");
-        } catch {
+        } catch (e) {
         }
     });
     // Collapse navbar when press escape

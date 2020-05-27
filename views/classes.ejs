@@ -59,7 +59,7 @@
                       method="post" style="display: flex; justify-content: right;">
                     <div>
                         <label>Class Type:</label>
-                        <select oninput="ajaxPostWeightsDatabaseForm('<%= i %>',null,null,[],'#weightMessage<%= i %>',true); $('#weights<%= i %>').submit()"
+                        <select onchange="ajaxPostWeightsDatabaseForm('<%= i %>',null,null,[],'#weightMessage<%= i %>',true); $('#weights<%= i %>').submit()"
                                 class="minimal" style="margin: 0; padding: 0 1.7rem 0 0.5rem"
                                 id="classType<%= i %>">
                             <option value="" disabled hidden <% if (classData[className].classType === "") { %> selected<% } %>>
@@ -137,7 +137,7 @@
                                             let value = weights[name] %>
 
                                             <div class="form-group" id="category<%= i %><%= j %><%= z %><%= k %>"
-                                                style="margin-bottom: 0.5rem; text-indent: 3rem; display:inline-flex; align-items: flex-end;">
+                                                style="margin-bottom: 0.5rem; display:inline-flex; align-items: flex-end;">
                                                 <input style="font-size: 0.9rem; margin-right: 0 !important; width: auto; white-space: nowrap; margin-bottom: 0;"
                                                     value="<%= name %>"
                                                     class="form-control text-view disableable"
@@ -146,7 +146,7 @@
                                                     required
                                                     <% if (z!=-1) {%> disabled <% } %>
                                                 >
-                                                :&nbsp
+                                                :
                                                 <input style="margin: 0;"
                                                     <%if(!isNaN(value)) {%>
                                                         value="<%=value%>"
@@ -167,7 +167,7 @@
                                     </div>
                                     <div class="break"></div>
                                     <div class="form-group" style="margin-bottom: 0.5rem; display: flex; align-items: flex-end;">
-                                        <label class="checkbox-label"style="font-size: 0.9rem; white-space: nowrap; margin-bottom: 0;">
+                                        <label class="checkbox-label" style="font-size: 0.9rem; white-space: nowrap; margin-bottom: 0;">
                                             Point Based?
                                         </label>
                                         <input
@@ -178,8 +178,8 @@
                                             name="hasWeights"
                                             <% try { if (hasWeights == "false") { %>
                                                 checked
-                                            <% }} catch {} %>
-                                            <% if (z==-1) {%> oninput="showSubmitButton(this); disableInput('check<%= i %><%= j %><%= z %>','collapse<%= i %><%= j %><%= z %>');" <% } %>
+                                            <% }} catch (e) {} %>
+                                            <% if (z==-1) {%> onchange="showSubmitButton(this); disableInput('check<%= i %><%= j %><%= z %>','collapse<%= i %><%= j %><%= z %>');" <% } %>
                                             <% if (z!=-1) {%> disabled <% } %>
                                         >
                                         <script>
@@ -385,7 +385,7 @@
     function addCategory(element, classIndex, teacherIndex, suggestionIndex) {
         if (!(element).hasAttribute("disabled")){
             let classDiv = "#weights" + classIndex + teacherIndex + suggestionIndex;
-            let newCategory = $("<div class=\"form-group\" id=\"category" + classIndex + teacherIndex + suggestionIndex + ($($(classDiv)[0].children)[1].children.length - 1) + "\"" + "style=\"text-indent: 3rem; display: inline-flex;" + "align-items: flex-end;" + ($($(classDiv)[0].children)[1].children.length > 1 ? "margin-left: " + ($($($(classDiv)[0].children)[1].children)[1].offsetLeft - $(classDiv)[0].offsetLeft) + "px" : "") + "\">" + "<input size=\"2\" style=\"font-size: 0.9rem; margin-right: 0 !important; width: fit-content; white-space: nowrap; margin-bottom: 0;\"" + "class=\" disableable form-control\"" + "oninput=\"this.classList.remove('text-view'); showSubmitButton(this); resizeInput(this);\"" + "required" + ">" + ":&nbsp</input>" + "<input style=\"margin: 0; border-color: lightcoral!important;\"" + "type=\"number\"" + "min=\"0\"" + "step=\"0.1\"" + "class=\"form-control disableable\"" + "oninput=\"this.classList.remove('text-view'); showSubmitButton(this); \">" + "<span class=\"fa fa-minus disableable\" onclick=\"removeCategory(this)\"" + "style=\"text-indent: 1rem; color: red; cursor: pointer;\"></span>" + "</div>");
+            let newCategory = $("<div class=\"form-group\" id=\"category" + classIndex + teacherIndex + suggestionIndex + ($($(classDiv)[0].children)[1].children.length - 1) + "\"" + "style=\"text-indent: 3rem; display: inline-flex;" + "align-items: flex-end;" + ($($(classDiv)[0].children)[1].children.length > 1 ? "margin-left: " + ($($($(classDiv)[0].children)[1].children)[1].offsetLeft - $(classDiv)[0].offsetLeft) + "px" : "") + "\">" + "<input size=\"2\" style=\"font-size: 0.9rem; margin-right: 0 !important; width: fit-content; white-space: nowrap; margin-bottom: 0;\"" + "class=\" disableable form-control\"" + "oninput=\"this.classList.remove('text-view'); showSubmitButton(this); resizeInput(this);\"" + "required" + ">" + ":&nbsp;</input>" + "<input style=\"margin: 0; border-color: lightcoral!important;\"" + "type=\"number\"" + "min=\"0\"" + "step=\"0.1\"" + "class=\"form-control disableable\"" + "oninput=\"this.classList.remove('text-view'); showSubmitButton(this); \">" + "<span class=\"fa fa-minus disableable\" onclick=\"removeCategory(this)\"" + "style=\"text-indent: 1rem; color: red; cursor: pointer;\"></span>" + "</div>");
             $($($(classDiv)[0].children)[1]).append(newCategory);
             showSubmitButton($(classDiv));
         }
@@ -428,6 +428,7 @@
             if (darkMode !== oldDarkMode) {
                 clearTimeout(changeTransition);
                 document.getElementById("fade").disabled = false;
+                $(".navbar-brand img").attr("src","/public/resources/dark_mode/logo.png");
                 document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
@@ -439,6 +440,7 @@
             if (darkMode !== oldDarkMode) {
                 clearTimeout(changeTransition);
                 document.getElementById("fade").disabled = false;
+                $(".navbar-brand img").attr("src","/public/resources/light_mode/logo.png");
                 document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
@@ -454,5 +456,4 @@
             setAutoTheme();
         }, 100);
     }
-
 </script>
