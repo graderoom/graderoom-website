@@ -527,6 +527,7 @@
                 document.getElementById("fade").disabled = false;
                 document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
                 renderAllCharts();
+                $(".navbar-brand img").attr("src","/public/resources/dark_mode/logo.png");
                 $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
@@ -540,6 +541,7 @@
                 document.getElementById("fade").disabled = false;
                 document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
                 renderAllCharts();
+                $(".navbar-brand img").attr("src","/public/resources/light_mode/logo.png");
                 $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
