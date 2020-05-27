@@ -295,7 +295,12 @@ table thead tr th:last-child {
     vertical-align: top;
 }
 
+.sticky > .nav-item {
+    width: auto;
+}
 .sticky {
+    width: 100%;
+    flex-direction: row;;
     position: fixed;
     left: 50%;
     transform: translateX(-50%);
