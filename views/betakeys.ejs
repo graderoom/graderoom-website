@@ -112,6 +112,7 @@
             if (darkMode !== oldDarkMode) {
                 clearTimeout(changeTransition);
                 document.getElementById("fade").disabled = false;
+                $(".navbar-brand img").attr("src","/public/resources/dark_mode/logo.png");
                 document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
@@ -123,6 +124,7 @@
             if (darkMode !== oldDarkMode) {
                 clearTimeout(changeTransition);
                 document.getElementById("fade").disabled = false;
+                $(".navbar-brand img").attr("src","/public/resources/light_mode/logo.png");
                 document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;

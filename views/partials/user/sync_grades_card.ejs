@@ -5,7 +5,7 @@
     <div class="col-sm-8 col-md-7 col-lg-5 mx-auto">
         <div id="updateGradesCard" class="card card-signin my-5">
             <btn class="btn btn-md" onclick="closeForm('updateGradesDisplay')"
-                 style="width: fit-content; margin-bottom:0">
+                 style="display:table; width: fit-content; width: -moz-fit-content; margin-bottom:0">
                 <i class="fa fa-close" aria-hidden="true"></i> Close
             </btn>
             <div class="card-body" style="max-height: 70vh; overflow-y: scroll; overflow-x: hidden; transition: 500ms">
@@ -97,7 +97,6 @@
                                    id="gradeSyncInputUserPassword"
                                    class="form-control" required>
                         </div>
-                        </label>
                         <button class="btn btn-lg btn-default" type="submit"
                                 onclick="ajaxPostForm('#gradeSyncForm',['#gradeSyncInputUserPassword'],'.updateGradesMessage', true)">
                             Log In
