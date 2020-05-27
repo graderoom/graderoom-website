@@ -157,10 +157,6 @@ table thead tr th {
     background: url(/public/resources/light_mode/user.png) no-repeat left/23px 27px !important;
 }
 
-.logo {
-    content: url(/public/resources/light_mode/logo.png) !important;
-}
-
 .mini:before {
     background-color: darkgreen !important;
 }
