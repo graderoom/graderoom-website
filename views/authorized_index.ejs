@@ -607,11 +607,13 @@
                     } else if (data === "Cannot access grades.") {
                         $("#syncNoData").show();
                         clearInterval(checking);
+                        showLatest(false);
                         $(".updateGradesMessage").find(".messageTxt").text(data);
                     } else if (data === "Sync Failed.") {
                         $("#syncFailure").show();
                         clearInterval(checking);
                         $(".updateGradesMessage").find(".messageTxt").text(data);
+                        showLatest(false);
                     }
                 }
             });
