@@ -245,7 +245,7 @@ input:checked + .slider:before {
 }
 .rounded-table :first-child tr:first-child th:last-child,
 .rounded-table :first-child tr:first-child td:last-child,
-.rounded-table.class-table :first-child tr:first-child th:nth-last-child(2) {
+.rounded-table.class-table:not(.unround-top-right) :first-child tr:first-child th:nth-last-child(2) {
     border-top-right-radius: 0.5rem;
 }
 .rounded-table :last-child tr:last-child th:first-child,
