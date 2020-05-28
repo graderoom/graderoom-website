@@ -358,6 +358,7 @@
     }
 
     function showCard(id) {
+        closeForm(id.substring(1));
         cardsDisplayed.push(id.substring(1));
         $(".blurred-background").each(function () {
             if (cardsDisplayed.includes($($(this).parent())[0].id)) {

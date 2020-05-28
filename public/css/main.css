@@ -683,7 +683,7 @@ table thead tr th:last-child {
     color: blue;
 }
 
-.fa-pulse, fa-spin {
+.fa-pulse, .fa-spin {
     top: 25% !important; /* Vertically centers spinning icons */
 }
 
@@ -1177,6 +1177,7 @@ td:hover .excludeToggle .fa-ban {
     justify-content: center;
     align-items: center;
     cursor: pointer;
+    z-index: 1;
 }
 
 .tableOptions {
@@ -1186,7 +1187,8 @@ td:hover .excludeToggle .fa-ban {
     border-radius: 0.5rem;
     display: flex;
     justify-content: center;
-    align-items: center
+    align-items: center;
+    z-index: 1;
 }
 
 .tableOptions select {

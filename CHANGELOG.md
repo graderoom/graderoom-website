@@ -44,6 +44,17 @@
 - Incorrect grade step calculation with ungraded assignments <strong>[Fixed in Beta 2.0.1]</strong>
 - Rounding errors with incorrect grade warning messages <strong>[Fixed in Beta 2.1.1]</strong>
 - GradeSync cannot be enabled when grades are locked in PowerSchool <strong>[Fixed in Beta 2.2.4]</strong>
+- Lack of support for Microsoft Edge (non-Chromium) <strong>[Fixed in Beta 2.2.6]</strong>
+- Some cards incorrectly show over other cards when using keyboard shortcuts <strong>[Fixed in Beta 2.2.6]</strong>
+
+## [Beta 2.2.6] - 2020-05-27
+### Added
+- Support for Microsoft Edge (non-Chromium) and Firefox
+
+### Fixed
+- Issue where some cards incorrectly show over other cards
+- Issue where some icons incorrectly appeared above cards
+- Issue where what's new card wouldn't show if grade syncing was unsuccessful
 
 ## [Beta 2.2.5] - 2020-05-26
 ### Added

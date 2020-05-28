@@ -297,7 +297,7 @@
                                                 <span class="popup">
                                                     <i id="incorrectOverallGrade<%= i + offset %>"
                                                        class="fa fa-exclamation-circle"
-                                                       style="margin-left: 0.2rem; vertical-align: middle; z-index: 1 !important">
+                                                       style="margin-left: 0.2rem; vertical-align: middle">
                                                         <span class="popup-left always-show">
                                                             <% let grade = JSON.parse(gradeData)[i].overall_percent + "%"; %>
                                                             Grade in PowerSchool:
@@ -315,11 +315,11 @@
                             </form>
                         </div>
                             <hr>
-                            <div style="display:flex; justify-content: flex-end; align-items: stretch">
+                            <div style="display:flex; justify-content: space-between; align-items: stretch">
                                 <div class="addAssignment">
                                     <span class="popup">
                                         <i class="fa fa-plus">
-                                            <span class="popup-left">
+                                            <span class="popup-right">
                                                 This button doesn't do anything yet
                                             </span>
                                         </i>
@@ -607,11 +607,13 @@
                     } else if (data === "Cannot access grades.") {
                         $("#syncNoData").show();
                         clearInterval(checking);
+                        showLatest(false);
                         $(".updateGradesMessage").find(".messageTxt").text(data);
                     } else if (data === "Sync Failed.") {
                         $("#syncFailure").show();
                         clearInterval(checking);
                         $(".updateGradesMessage").find(".messageTxt").text(data);
+                        showLatest(false);
                     }
                 }
             });
@@ -1733,7 +1735,6 @@
         } else if (e.key === "s") {
             if (cardsDisplayed.includes("settingsCardDisplay")) {
                 if (cardsDisplayed.indexOf("settingsCardDisplay") !== cardsDisplayed.length - 1) {
-                    closeForm("settingsCardDisplay");
                     showCard("#settingsCardDisplay");
                 } else {
                     closeForm("settingsCardDisplay");
@@ -1744,7 +1745,6 @@
         } else if (e.key === "w") {
             if (cardsDisplayed.includes("latestDisplay")) {
                 if (cardsDisplayed.indexOf("latestDisplay") !== cardsDisplayed.length - 1) {
-                    closeForm("latestDisplay");
                     showLatest(true);
                 } else {
                     closeForm("latestDisplay");
@@ -1755,7 +1755,6 @@
         } else if (e.key === "q") {
             if (cardsDisplayed.includes("changelogDisplay")) {
                 if (cardsDisplayed.indexOf("changelogDisplay") !== cardsDisplayed.length - 1) {
-                    closeForm("changelogDisplay");
                     showChangelog();
                 } else {
                     closeForm("changelogDisplay");
@@ -1766,7 +1765,6 @@
         } else if (e.key === "k") {
             if (cardsDisplayed.includes("shortcutsDisplay")) {
                 if (cardsDisplayed.indexOf("shortcutsDisplay") !== cardsDisplayed.length - 1) {
-                    closeForm("shortcutsDisplay");
                     showCard("#shortcutsDisplay");
                 } else {
                     closeForm("shortcutsDisplay");
