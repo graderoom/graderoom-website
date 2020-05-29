@@ -175,8 +175,8 @@ th {
 }
 
 .scroll-to {
-    background: #000000;
-    filter: opacity(0.7);
+    background: #111111;
+    filter: opacity(0.6);
 }
 
 .sk-chase-dot:before {

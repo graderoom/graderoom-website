@@ -259,6 +259,14 @@ table thead tr th:last-child {
     font-weight: bold;
 }
 
+.changelog-container strong {
+    cursor: pointer;
+}
+
+.changelog-container strong:hover {
+    text-decoration: underline;
+}
+
 .changelog-container .body {
     margin: 0 0 0 2rem;
     padding: 0;
@@ -740,6 +748,10 @@ table thead tr th:last-child {
     cursor: pointer;
     transition: filter 500ms;
     z-index: 2;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .scroll-to:hover {
