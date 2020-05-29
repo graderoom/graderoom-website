@@ -239,9 +239,23 @@ input:checked + .slider:before {
     background-color: transparent;
 }
 
-.rounded-table {
-    overflow: hidden;
-    border-radius: 0.5rem;
+.rounded-table :first-child tr:first-child th:first-child,
+.rounded-table :first-child tr:first-child td:first-child {
+    border-top-left-radius: 0.5rem;
+}
+.rounded-table :first-child tr:first-child th:last-child,
+.rounded-table :first-child tr:first-child td:last-child,
+.rounded-table.class-table:not(.unround-top-right) :first-child tr:first-child th:nth-last-child(2) {
+    border-top-right-radius: 0.5rem;
+}
+.rounded-table :last-child tr:last-child th:first-child,
+.rounded-table :last-child tr:last-child td:first-child {
+    border-bottom-left-radius: 0.5rem;
+}
+.rounded-table :last-child tr:last-child th:last-child,
+.rounded-table :last-child tr:last-child td:last-child,
+.rounded-table.class-table :last-child tr:last-child td:nth-last-child(2) {
+    border-bottom-right-radius: 0.5rem;
 }
 
 .table thead th, .table tbody td, .table tfoot th {

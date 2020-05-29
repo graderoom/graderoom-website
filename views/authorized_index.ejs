@@ -1171,6 +1171,7 @@
                 let assignmentPercents = parsedData[i].assignmentPercents;
                 let assignmentExcludes = parsedData[i].assignmentExcludes;
                 $("#resetAll" + i).css("visibility", "hidden").parents(".resetTab").hide();
+                $("#table" + i).removeClass("unround-top-right");
                 for (let j = 0; j < assignmentData.length; j++) {
                     let assignmentIndex;
                     assignmentIndex = dateSort[i] ? j : assignmentData.length - 1 - j;
@@ -1228,6 +1229,7 @@
                     if (tempData[i] && tempData[i][assignmentIndex] && Object.keys(tempData[i][assignmentIndex]).length) {
                         resetButton.css("visibility", "visible").parents(".resetTab").show();
                         $("#resetAll" + i).css("visibility", "visible").parents(".resetTab").show();
+                        $("#table" + i).addClass("unround-top-right");
                     } else {
                         resetButton.css("visibility", "hidden").parents(".resetTab").hide();
                     }
