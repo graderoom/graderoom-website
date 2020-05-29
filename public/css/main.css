@@ -277,7 +277,13 @@ table thead tr th:last-child {
 }
 
 .changelog-container .changelog-item {
+    margin-top: 1rem;
+    border-radius: 1rem;
     padding: 0.1rem 0.5rem 2rem 0.5rem;
+}
+
+.changelog-container .changelog-item:first-child {
+    margin-top: 0;
 }
 
 .changelog-container .content {
