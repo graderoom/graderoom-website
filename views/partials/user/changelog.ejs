@@ -14,28 +14,16 @@
                     Changelog
                 </h1>
                 <div class="card changelog">
-                    <div style="display: none" id="announcement-up" class="scroll-to up"
-                         onclick="scrollToCurrentAnnouncement();"><span
+                    <div style="display: none" id="version-up" class="scroll-to up"
+                         onclick="scrollToNextVersion();"><span
                                 class="fa fa-arrow-up"><label
-                                    style="font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; cursor: pointer; margin-left: 0.5rem">Announcement</label></span>
-                    </div>
-                    <div style="display: none" id="version-up" class="scroll-to up" onclick="scrollToCurrentVersion();">
-                        <span
-                                class="fa fa-arrow-up"> <label
-                                    style="font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; cursor: pointer; margin-left: 0.5rem">Current
-                                Version</label></span>
+                                    style="font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; cursor: pointer; margin-left: 0.5rem"></label></span>
                     </div>
                     <div id="changelog-container" class="changelog-container"></div>
                     <div style="display: none" id="version-down" class="scroll-to down"
-                         onclick="scrollToCurrentVersion();"><span class="fa fa-arrow-down">
-                            <label
-                                    style="font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; cursor: pointer; margin-left: 0.5rem">Current
-                                Version</label></span>
-                    </div>
-                    <div style="display: none" id="announcement-down" class="scroll-to down"
-                         onclick="scrollToCurrentAnnouncement();"><span
+                         onclick="scrollToPreviousVersion();"><span
                                 class="fa fa-arrow-down"><label
-                                    style="font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; cursor: pointer; margin-left: 0.5rem">Announcement</label></span>
+                                    style="font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; cursor: pointer; margin-left: 0.5rem"></label></span>
                     </div>
                 </div>
             </div>
@@ -45,8 +33,12 @@
 <script>
 
     let changelogContainer = $("#changelog-container");
-    let scrollOffsetAnnouncement;
-    let scrollOffsetCurrent;
+    let versionOffsets = {};
+    let versionNames = [];
+    let stableVersionNames = [];
+    let versionDisplayed;
+    let nextVersion;
+    let previousVersion;
 
     function showChangelog() {
         closeForm("changelogDisplay");
@@ -62,21 +54,46 @@
                 }
             });
             changelogContainer.html(response);
+            let versions = $(".changelog-item").not(".announcement");
             changelogContainer.animate({scrollTop: 0}, 0, () => {
-                scrollOffsetAnnouncement = $(".announcement").offset().top - changelogContainer.offset().top;
-                scrollOffsetCurrent = $(".current").offset().top - changelogContainer.offset().top;
+                versionNames = [];
+                versionOffsets = {};
+                for (let version of versions) {
+                    let title = $(version).find(".header")[0].innerText;
+                    versionNames.push(title.substring(0, title.indexOf("\n")));
+                    versionOffsets[versionNames.slice(-1)[0]] = $(version).offset().top - changelogContainer.offset().top;
+                }
+                stableVersionNames = versionNames.filter(n => n.substring(0, 6) === "Stable" || n === "Known Issues");
+                manageScrollers();
             });
-            manageScrollers();
-            console.log(cardsDisplayed);
+            let fixedIn = versions.find(".content").children(".body").children("strong");
+            for (let i = 0; i < fixedIn.length; i++) {
+                let link = $(fixedIn[i]);
+                link.click(() => {
+                    scrollToVersion(link[0].innerText.substring(10, link[0].innerText.length - 1));
+                });
+            }
         });
     }
 
-    function scrollToCurrentAnnouncement() {
-        changelogContainer.animate({scrollTop: scrollOffsetAnnouncement}, 1000);
+    function scrollToNextVersion() {
+        scrollToVersion(nextVersion);
     }
 
-    function scrollToCurrentVersion() {
-        changelogContainer.animate({scrollTop: scrollOffsetCurrent}, 1000);
+    function scrollToPreviousVersion() {
+        scrollToVersion(previousVersion);
+    }
+
+    let scrolling = false;
+
+    function scrollToVersion(version) {
+        if (scrolling) {
+            changelogContainer.stop();
+        }
+        scrolling = true;
+        changelogContainer.animate({scrollTop: versionOffsets[version]}, 1000, () => {
+            scrolling = false;
+        });
     }
 
     changelogContainer.scroll(function () {
@@ -84,56 +101,38 @@
     });
 
     function manageScrollers() {
-        const gracePeriod = 100;
-
-        let offset = $(".current").offset().top - changelogContainer.offset().top;
-        let announcementOffset = $(".announcement").offset().top - changelogContainer.offset().top;
-        if (Math.abs(offset) < Math.abs(announcementOffset)) {
-            if (offset > gracePeriod) { // Version gets priority because it's closer
-                $("#announcement-down").fadeOut(100);
-                $("#version-up").fadeOut(100);
-                $("#version-down").fadeIn(100);
-            } else if (announcementOffset > gracePeriod) {
-                $("#version-down").fadeOut(100);
-                $("#announcement-up").fadeOut(100);
-                $("#announcement-down").fadeIn(100);
-            } else {
-                $(".down").fadeOut(100);
+        let versions = $('.changelog-item').not(".announcement");
+        let onScreenVersion;
+        let onScreenOffset;
+        for (let i = 0; i < versions.length; i++) {
+            if (onScreenOffset === undefined || Math.abs($(versions[i]).offset().top - changelogContainer.offset().top) < onScreenOffset) {
+                onScreenOffset = Math.abs($(versions[i]).offset().top - changelogContainer.offset().top);
+                onScreenVersion = i;
             }
-            if (offset < -gracePeriod) { // Version gets priority because it's closer
-                $("#announcement-up").fadeOut(100);
-                $("#version-down").fadeOut(100);
-                $("#version-up").fadeIn(100);
-            } else if (announcementOffset < -gracePeriod) {
-                $("#version-up").fadeOut(100);
-                $("#announcement-down").fadeOut(100);
-                $("#announcement-up").fadeIn(100);
-            } else {
-                $(".up").fadeOut(100);
+        }
+        versionDisplayed = versionNames[onScreenVersion] || "Known Issues";
+        let index;
+        for (index = versionNames.indexOf(versionDisplayed) - 1; index > -1; index--) {
+            if (stableVersionNames.includes(versionNames[index])) {
+                nextVersion = versionNames[index];
+                break;
             }
+        }
+        for (index = versionNames.indexOf(versionDisplayed) + 1; index < versionNames.length; index++) {
+            if (stableVersionNames.includes(versionNames[index])) {
+                previousVersion = versionNames[index];
+                break;
+            }
+        }
+        if (versionNames.indexOf(versionDisplayed) <= 0) {
+            $(".down").fadeIn(100).find("label").text(previousVersion);
+            $(".up").fadeOut(100);
+        } else if (versionNames.indexOf(versionDisplayed) === versionNames.length - 1) {
+            $(".up").fadeIn(100).find("label").text(nextVersion);
+            $(".down").fadeOut(100);
         } else {
-            if (announcementOffset > gracePeriod) { // Announcement gets priority because it's closer
-                $("#version-down").fadeOut(100);
-                $("#announcement-up").fadeOut(100);
-                $("#announcement-down").fadeIn(100);
-            } else if (offset > gracePeriod) {
-                $("#announcement-down").fadeOut(100);
-                $("#version-up").fadeOut(100);
-                $("#version-down").fadeIn(100);
-            } else {
-                $(".down").fadeOut(100);
-            }
-            if (announcementOffset < -gracePeriod) { // Announcement gets priority because it's closer
-                $("#version-up").fadeOut(100);
-                $("#announcement-down").fadeOut(100);
-                $("#announcement-up").fadeIn(100);
-            } else if (offset < -gracePeriod) {
-                $("#announcement-up").fadeOut(100);
-                $("#version-down").fadeOut(100);
-                $("#version-up").fadeIn(100);
-            } else {
-                $(".up").fadeOut(100);
-            }
+            $(".down").fadeIn(100).find("label").text(previousVersion);
+            $(".up").fadeIn(100).find("label").text(nextVersion);
         }
     }
 </script>

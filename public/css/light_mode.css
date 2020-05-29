@@ -192,8 +192,8 @@ table thead tr th {
 }
 
 .scroll-to {
-    background: #FFFFFF;
-    filter: opacity(0.9);
+    background: #EEEEEE;
+    filter: opacity(0.6);
 }
 
 .sk-chase-dot:before {

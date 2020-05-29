@@ -43,20 +43,27 @@
 ## [Known Issues] - Send bug reports in Settings > Help > Feedback Form<br>Only issues in the stable version will be listed here
 - Incorrect grade step calculation with ungraded assignments <strong>[Fixed in Beta 2.0.1]</strong>
 - Rounding errors with incorrect grade warning messages <strong>[Fixed in Beta 2.1.1]</strong>
-- GradeSync cannot be enabled when grades are locked in PowerSchool <strong>[Fixed in Beta 2.2.4]</strong>
-- Lack of support for Microsoft Edge (non-Chromium) <strong>[Fixed in Beta 2.2.6]</strong>
-- Some cards incorrectly show over other cards when using keyboard shortcuts <strong>[Fixed in Beta 2.2.6]</strong>
+- GradeSync cannot be enabled when grades are locked in PowerSchool <strong>[Fixed in Beta 2.3.3]</strong>
+- Lack of support for Microsoft Edge (non-Chromium) <strong>[Fixed in Beta 2.3.5]</strong>
+- Some cards incorrectly show over other cards when using keyboard shortcuts <strong>[Fixed in Beta 2.3.5]</strong>
 
-## [Beta 2.2.6] - 2020-05-27
+## [Beta 2.3.6] - 2020-05-28
+### Improved
+- Changelog Display
+
+## [Beta 2.3.5] - 2020-05-27
 ### Added
-- Support for Microsoft Edge (non-Chromium) and Firefox
+- Support for Microsoft Edge (non-Chromium)
+
+### Improved
+- Support for Firefox
 
 ### Fixed
 - Issue where some cards incorrectly show over other cards
 - Issue where some icons incorrectly appeared above cards
 - Issue where what's new card wouldn't show if grade syncing was unsuccessful
 
-## [Beta 2.2.5] - 2020-05-26
+## [Beta 2.3.4] - 2020-05-26
 ### Added
 - Ability to display class grades from newest to oldest
 
@@ -68,7 +75,7 @@
 - Issue where categories would not reset when the row was reset
 - Issue where theme change wouldn't animate
 
-## [Beta 2.2.4] - 2020-05-24
+## [Beta 2.3.3] - 2020-05-24
 ### Improved
 - Improved dropdown styling in dark mode
 - More informative sync status messages
@@ -77,7 +84,7 @@
 ### Fixed
 - Issue where GradeSync could not be enabled when grades were locked in PowerSchool
 
-## [Beta 2.2.3] - 2020-05-20
+## [Beta 2.3.2] - 2020-05-20
 ### Added
 - Ability to edit categories of assignments
 
@@ -89,11 +96,11 @@
 - Issues with sticky navbar on resize
 - Issue with unnecessary refreshing
 
-## [Stable 2.2.2] - 2020-05-20
+## [Stable 2.3.1] - 2020-05-20
 ### Fixed
 - Issue where existence of unpublished scores in PowerSchool prevented grades from syncing
 
-## [Beta 2.2.1] - 2020-05-19
+## [Beta 2.3.0] - 2020-05-19
 ### Added
 - Flags column in class data table
 - Made assignment exclusion toggleable
