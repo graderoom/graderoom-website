@@ -13,10 +13,9 @@ const fs = require("fs");
 
 db.defaults({versions: {stable: "", beta: ""}, users: [], keys: [], classes: {}, deletedUsers: []}).write();
 
-let changelogHTML = "";
-let betaChangelogHTML = "";
-let latestVersionHTML = "";
-let betaLatestVersionHTML = "";
+let changelogArray = "";
+let betaChangelogArray = "";
+let versionNameArray = [];
 
 module.exports = {
 
@@ -946,10 +945,25 @@ module.exports = {
     },
 
     whatsNew: function (username, beta) {
+        let lc_username = username.toLowerCase();
+        let user = db.get("users").find({username: lc_username}).value();
+        let end = versionNameArray.indexOf(versionNameArray.find(v => v[1] === user.alerts.latestSeen));
+        if (end === -1) {
+            end = 1;
+        }
         if (beta) {
-            return betaLatestVersionHTML;
+            return betaChangelogArray.slice(1, end + 1).join("");
         } else {
-            return latestVersionHTML;
+            let result = "";
+            for (let i = 1; i < versionNameArray.length; i++) {
+                if (versionNameArray[i][0] !== "Beta") {
+                    result += changelogArray[i];
+                    if (i > end) {
+                        break;
+                    }
+                }
+            }
+            return result;
         }
     },
 
@@ -957,19 +971,17 @@ module.exports = {
         let lc_username = username.toLowerCase();
         let alertsRef = db.get("users").find({username: lc_username}).get("alerts");
         if (beta) {
-            let currentVersion = db.get("versions").get("beta").value();
-            alertsRef.set("latestSeen", currentVersion).write();
+            alertsRef.set("latestSeen", versionNameArray[1][1]).write();
         } else {
-            let currentVersion = db.get("versions").get("stable").value();
-            alertsRef.set("latestSeen", currentVersion).write();
+            alertsRef.set("latestSeen", versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1]).write();
         }
     },
 
     changelog: function (beta) {
         if (beta) {
-            return betaChangelogHTML;
+            return betaChangelogArray.join("");
         } else {
-            return changelogHTML;
+            return changelogArray.join("");
         }
     },
 
@@ -993,8 +1005,6 @@ module.exports = {
     readChangelog: async function () {
         let resultHTML = "";
         let betaResultHTML = "";
-        latestVersionHTML = "";
-        betaLatestVersionHTML = "";
         let items = [];
         let bodyCount = -1;
         let item = {title: "", date: "", content: {}};
@@ -1008,6 +1018,11 @@ module.exports = {
                 bodyCount++;
             } else if (line.substring(0, 2) === "##") {
                 if (item.title !== "") {
+                    if (item.title !== "Known Issues") {
+                        versionNameArray.push(item.title.split(" "));
+                    } else {
+                        versionNameArray.push(["Known Issues", ""]);
+                    }
                     items.push(item);
                     item = {title: "", date: "", content: {}};
                     bodyCount = -1;
@@ -1015,7 +1030,7 @@ module.exports = {
                 item.title = line.substring(4, line.indexOf("]"));
                 item.date = line.substring(line.indexOf("-") + 2);
             } else if (line.substring(0, 1) === "-") {
-                if (item.title === "Known Issues" || item.title === "Announcement") {
+                if (item.title === "Known Issues" || item.title.substring(0, 12) === "Announcement") {
                     if (!item.content["Default"]) {
                         item.content["Default"] = [];
                     }
@@ -1042,26 +1057,13 @@ module.exports = {
                     if (items[i].title.substring(0, 4) === "Beta" || items[i].title.substring(0, 6) === "Stable") {
                         betaResultHTML += " current\">";
                         db.get("versions").set("beta", items[i].title.substring(items[i].title.indexOf(" ") + 1)).write();
-                        betaLatestVersionHTML += "<div class=\"changelog-item current\">";
-                        betaLatestVersionHTML += "<div class=\"header\">";
-                        betaLatestVersionHTML += "<div class=\"title\">" + items[i].title + "</div>";
-                        betaLatestVersionHTML += "<div class=\"date\">" + items[i].date + "</div>";
-                        betaLatestVersionHTML += "</div>";
-                        betaLatestVersionHTML += "<div class=\"content\">";
-                        for (let j = 0; j < Object.keys(items[i].content).length; j++) {
-                            betaLatestVersionHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
-                            for (let k = 0; k < items[i].content[Object.keys(items[i].content)[j]].length; k++) {
-                                betaLatestVersionHTML += "<ul class=\"body\">" + items[i].content[Object.keys(items[i].content)[j]][k] + "</ul>";
-                            }
-                            betaLatestVersionHTML += "</div>";
-                        }
                         betaCurrentVersionFound = true;
-                    } else if (items[i].title === "Announcement") {
+                    } else if (items[i].title.substring(0, 12) === "Announcement") {
                         betaResultHTML += " announcement\">";
                     } else {
                         betaResultHTML += "\">";
                     }
-                } else if (items[i].title === "Announcement") {
+                } else if (items[i].title.substring(0, 12) === "Announcement") {
                     betaResultHTML += " announcement\">";
                 } else {
                     betaResultHTML += "\">";
@@ -1070,26 +1072,13 @@ module.exports = {
                     if (items[i].title.substring(0, 6) === "Stable") {
                         resultHTML += " current\">";
                         db.get("versions").set("stable", items[i].title.substring(items[i].title.indexOf(" ") + 1)).write();
-                        latestVersionHTML += "<div class=\"changelog-item current\">";
-                        latestVersionHTML += "<div class=\"header\">";
-                        latestVersionHTML += "<div class=\"title\">" + items[i].title + "</div>";
-                        latestVersionHTML += "<div class=\"date\">" + items[i].date + "</div>";
-                        latestVersionHTML += "</div>";
-                        latestVersionHTML += "<div class=\"content\">";
-                        for (let j = 0; j < Object.keys(items[i].content).length; j++) {
-                            latestVersionHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
-                            for (let k = 0; k < items[i].content[Object.keys(items[i].content)[j]].length; k++) {
-                                latestVersionHTML += "<ul class=\"body\">" + items[i].content[Object.keys(items[i].content)[j]][k] + "</ul>";
-                            }
-                            latestVersionHTML += "</div>";
-                        }
                         currentVersionFound = true;
-                    } else if (items[i].title === "Announcement") {
+                    } else if (items[i].title.substring(0, 12) === "Announcement") {
                         resultHTML += " announcement\">";
                     } else {
                         resultHTML += "\">";
                     }
-                } else if (items[i].title === "Announcement") {
+                } else if (items[i].title.substring(0, 12) === "Announcement") {
                     resultHTML += " announcement\">";
                 } else {
                     resultHTML += "\">";
@@ -1104,7 +1093,7 @@ module.exports = {
                 betaResultHTML += "<div class=\"date\">" + items[i].date + "</div>";
                 betaResultHTML += "</div>";
                 betaResultHTML += "<div class=\"content\">";
-                if (items[i].title !== "Known Issues" && items[i].title !== "Announcement") {
+                if (items[i].title !== "Known Issues" && items[i].title.substring(0, 12) !== "Announcement") {
                     for (let j = 0; j < Object.keys(items[i].content).length; j++) {
                         resultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
                         betaResultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
@@ -1122,12 +1111,12 @@ module.exports = {
                     }
                 }
                 resultHTML += "</div>";
-                resultHTML += "</div>";
+                resultHTML += "</div>|";
                 betaResultHTML += "</div>";
-                betaResultHTML += "</div>";
+                betaResultHTML += "</div>|";
             }
-            changelogHTML = resultHTML;
-            betaChangelogHTML = betaResultHTML;
+            changelogArray = resultHTML.split("|");
+            betaChangelogArray = betaResultHTML.split("|");
         });
     },
 

@@ -54,7 +54,7 @@
                 }
             });
             changelogContainer.html(response);
-            let versions = $(".changelog-item").not(".announcement");
+            let versions = $("#changelogDisplay .changelog-item").not(".announcement");
             changelogContainer.animate({scrollTop: 0}, 0, () => {
                 versionNames = [];
                 versionOffsets = {};
@@ -101,7 +101,7 @@
     });
 
     function manageScrollers() {
-        let versions = $('.changelog-item').not(".announcement");
+        let versions = $("#changelogDisplay .changelog-item").not(".announcement");
         let onScreenVersion;
         let onScreenOffset;
         for (let i = 0; i < versions.length; i++) {

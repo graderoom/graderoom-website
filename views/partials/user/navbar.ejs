@@ -3,16 +3,16 @@
     <span class="d-flex w-50 mr-auto">
         <a href="/" class="navbar-brand" style="margin: 0;">
             <h1>
-                <img 
-                    <% if (theme) { %>
-                        src="/public/resources/dark_mode/logo.png" 
-                    <% } else { %>
-                        src="/public/resources/light_mode/logo.png" 
-                    <% } %>
-                    style="width: 3rem" 
-                    class="d-inline-block" 
+                <img
+                <% if (theme) { %>
+                    src="/public/resources/dark_mode/logo.png"
+                <% } else { %>
+                    src="/public/resources/light_mode/logo.png"
+                        <% } %>
+                    style="width: 3rem"
+                    class="d-inline-block"
                     alt="">
-                Graderoom 
+                Graderoom
             </h1>
         </a>
     </span>
@@ -370,8 +370,11 @@
     }
 
     function closeForm(id) {
-        if (cardsDisplayed.includes(id)) {
-            cardsDisplayed.splice(cardsDisplayed.indexOf(id), 1);
+        if (cardsDisplayed && cardsDisplayed.includes(id)) {
+            cardsDisplayed = cardsDisplayed.filter(c => c !== id);
+        }
+        for (let i = 0; i < cardsDisplayed.length; i++) {
+            $("#" + cardsDisplayed[i]).finish();
         }
         if (id === "updateGradesDisplay") {
             setupLastUpdated();
