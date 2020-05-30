@@ -351,16 +351,16 @@
                                         <th>Assignment Percent</th>
                                         <th>Overall Grade</th>
                                         <th class="popup resetTab">
-                                        <i id="resetAll<%= i + offset %>"
-                                           class="fa fa-undo"
-                                           style="color: #888888; margin: 0; cursor: pointer; visibility:hidden"
-                                           onclick="{resetAll(<%= i + offset %>);}"
-                                        >
-                                            <span class="popup-top">
-                                                Revert All
-                                            </span>
-                                        </i>
-                                    </th>
+                                            <i id="resetAll<%= i + offset %>"
+                                               class="fa fa-undo"
+                                               style="color: #888888; margin: 0; cursor: pointer; visibility:hidden"
+                                               onclick="{resetAll(<%= i + offset %>);}"
+                                            >
+                                                <span class="popup-top">
+                                                    Revert All
+                                                </span>
+                                            </i>
+                                        </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -553,7 +553,7 @@
                 document.getElementById("fade").disabled = false;
                 document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
                 renderAllCharts();
-                $(".navbar-brand img").attr("src","/public/resources/dark_mode/logo.png");
+                $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
                 $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
@@ -567,7 +567,7 @@
                 document.getElementById("fade").disabled = false;
                 document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
                 renderAllCharts();
-                $(".navbar-brand img").attr("src","/public/resources/light_mode/logo.png");
+                $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
                 $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
@@ -1697,7 +1697,7 @@
         currentPage = id;
     }
 
-    document.onkeydown = function (e) {
+    document.onkeyup = function (e) {
         if ($("input").is(":focus") || !shortcutsEnabled) {
             // Do nothing
         } else if (e.key === "ArrowUp") {
@@ -1755,6 +1755,7 @@
                 showLatest(true);
             }
         } else if (e.key === "q") {
+            console.log(cardsDisplayed);
             if (cardsDisplayed.includes("changelogDisplay")) {
                 if (cardsDisplayed.indexOf("changelogDisplay") !== cardsDisplayed.length - 1) {
                     showChangelog();
@@ -1938,6 +1939,18 @@
 
         // Get the height of the navbar
         height = navbar.offsetHeight + parseInt(getComputedStyle(navbar).marginBottom);
+
+        // Reopen all cards
+        let temp = cardsDisplayed;
+        temp.forEach(card => {
+            if (card === "changelogDisplay") {
+                showChangelog();
+            } else if (card === "latestDisplay") {
+                showLatest(true);
+            } else {
+                showCard("#" + card);
+            }
+        });
     };
 
 </script>

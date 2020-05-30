@@ -46,6 +46,23 @@
 - GradeSync cannot be enabled when grades are locked in PowerSchool <strong>[Fixed in Beta 2.3.3]</strong>
 - Lack of support for Microsoft Edge (non-Chromium) <strong>[Fixed in Beta 2.3.5]</strong>
 - Some cards incorrectly show over other cards when using keyboard shortcuts <strong>[Fixed in Beta 2.3.5]</strong>
+- Card Animations last very long if keyboard shortcuts are spammed <strong>[Fixed in Beta 2.3.8]</strong>
+- Cards can sometimes not be closed with keyboard shortcuts <strong>[Fixed in Beta 2.3.8]</strong>
+- Changelog display buttons work incorrectly after page resize <strong>[Fixed in Beta 2.3.8]</strong>
+
+## [Beta 2.3.8] - 2020-05-30
+### Improved
+- Whats New display now shows announcements
+- Whats New display can display multiple missed versions
+
+### Fixed
+- Issue where card animations would last very long if keyboard shortcuts were spammed
+- Issue where cards could sometimes not be closed with keyboard shortcuts
+- Issue where changelog display buttons would work incorrectly after page resize
+
+## [Announcement 2.3.7] - 2020-05-29
+- Our Privacy Policy has been updated
+- Our Terms and Conditions have been updated
 
 ## [Beta 2.3.6] - 2020-05-28
 ### Improved
@@ -401,7 +418,7 @@
 - Auto theme is now set up correctly for new users
 - Issue where excluded assignments were part of overall grade in point-based classes
 
-## [Announcement] - 2020-03-20
+## [Announcement 1.5.1] - 2020-03-20
 - <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> During testing, some beta user's weights were lost. Although this data could be restored from the database backups, due to the beta nature of this issue and the relatively small inconvenience this will cause, this weight data will not be recovered
 - <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> Send feedback if you have any questions, comments, or concerns
 
@@ -477,7 +494,7 @@
 - 'Escape' shortcut correctly disables when grades are syncing
 - Weight auto-population works correctly for new and existing users
 
-## [Announcement] - 2020-03-12
+## [Announcement 1.3.3] - 2020-03-12
 - Auto-population of weights is now in beta
 - To prepare for the wide release, if you know the category weights for your classes, please enter them in the edit weights tab to improve the user experience for other users
 - <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> If you find an issue with the auto-populated weights, send feedback in Settings > About > Feedback Form
@@ -513,14 +530,14 @@
 - Auto theme was not selectable without refresh in some cases
 - Cards no longer close if initial click is inside card
 
-## [Beta 1.2.3] - 2020-03-02
+## [Beta 1.2.4] - 2020-03-02
 ### Added
 - Changelog scrolls to most recent announcement on open
 
 ### Fixed
 - GradeSync loading screen now always shows correctly
 
-## [Announcement] - 2020-03-02
+## [Announcement 1.2.3] - 2020-03-02
 - On March 2, 2020 at about 8 AM PST, Graderoom encountered a server error
 - Unfortunately, all user accounts created after January 7, 2020 were lost
 - Passwords and personal user data, however, were not compromised
