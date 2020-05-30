@@ -46,6 +46,23 @@
 - GradeSync cannot be enabled when grades are locked in PowerSchool <strong>[Fixed in Beta 2.3.3]</strong>
 - Lack of support for Microsoft Edge (non-Chromium) <strong>[Fixed in Beta 2.3.5]</strong>
 - Some cards incorrectly show over other cards when using keyboard shortcuts <strong>[Fixed in Beta 2.3.5]</strong>
+- Card Animations last very long if keyboard shortcuts are spammed <strong>[Fixed in Beta 2.3.8]</strong>
+- Cards can sometimes not be closed with keyboard shortcuts <strong>[Fixed in Beta 2.3.8]</strong>
+- Changelog display buttons work incorrectly after page resize <strong>[Fixed in Beta 2.3.8]</strong>
+
+## [Beta 2.3.8] - 2020-05-30
+### Improved
+- Whats New display now shows announcements
+- Whats New display can display multiple missed versions
+
+### Fixed
+- Issue where card animations would last very long if keyboard shortcuts were spammed
+- Issue where cards could sometimes not be closed with keyboard shortcuts
+- Issue where changelog display buttons would work incorrectly after page resize
+
+## [Announcement] - 2020-05-29
+- Our Privacy Policy has been updated
+- Our Terms and Conditions have been updated
 
 ## [Beta 2.3.6] - 2020-05-28
 ### Improved
@@ -513,7 +530,7 @@
 - Auto theme was not selectable without refresh in some cases
 - Cards no longer close if initial click is inside card
 
-## [Beta 1.2.3] - 2020-03-02
+## [Beta 1.2.4] - 2020-03-02
 ### Added
 - Changelog scrolls to most recent announcement on open
 
