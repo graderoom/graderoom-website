@@ -57,8 +57,8 @@ hr {
 
 html {
     overflow: scroll;
-    overflow-x: hidden;
     -ms-overflow-style: none;
+    overflow-x: hidden;
 }
 
 html *, html {
@@ -76,14 +76,14 @@ nav h1 {
 
 nav h5 {
     font-family: "Montserrat", sans-serif;
-    margin-bottom: 0;
     font-size: 1.25rem;
+    margin-bottom: 0;
     padding: .375rem .75rem 0 .75rem;
 }
 
 nav label {
-    font-size: 0.6rem;
     display: block;
+    font-size: 0.6rem;
     margin: 0;
 }
 
@@ -92,8 +92,8 @@ nav .btn {
 }
 
 nav .navbar-collapse li, nav .navbar-collapse .btn {
-    width: 100%;
     text-align: center;
+    width: 100%;
 }
 
 nav .navbar-toggler:focus {
@@ -110,9 +110,9 @@ nav .navbar-toggler:hover {
 }
 
 table tbody tr td {
-    border-style: solid;
     border-bottom: none;
     border-left: none;
+    border-style: solid;
 }
 
 table tbody tr td:last-child {
@@ -120,8 +120,8 @@ table tbody tr td:last-child {
 }
 
 table thead tr th {
-    border-style: solid;
     border-left: none;
+    border-style: solid;
 }
 
 table thead tr th:last-child {
@@ -154,15 +154,15 @@ table thead tr th:last-child {
 }
 
 .admin:not(.btn) {
-    vertical-align: middle;
-    text-align: center;
     padding: 0.5rem !important;
+    text-align: center;
+    vertical-align: middle;
 }
 
 .alert .close {
-    line-height: 1.5;
-    font-size: 1rem;
     color: inherit !important;
+    font-size: 1rem;
+    line-height: 1.5;
 }
 
 .announcement {
@@ -170,10 +170,10 @@ table thead tr th:last-child {
 }
 
 .blurred-background {
+    height: 100%;
     opacity: 0.5;
     position: fixed;
     width: 100%;
-    height: 100%;
 }
 
 .btn {
@@ -217,10 +217,10 @@ table thead tr th:last-child {
 }
 
 .card::-webkit-scrollbar-thumb {
-    border: 8px solid transparent;
-    border-top: 15px solid rgba(0, 0, 0, 0.1);
-    border-bottom: 15px solid rgba(0, 0, 0, 0.1);
     background-clip: padding-box;
+    border: 8px solid transparent;
+    border-bottom: 15px solid rgba(0, 0, 0, 0.1);
+    border-top: 15px solid rgba(0, 0, 0, 0.1);
 }
 
 .card-signin {
@@ -239,15 +239,15 @@ table thead tr th:last-child {
 }
 
 .changelog {
-    padding: 0;
     border: none;
+    padding: 0;
 }
 
 .changelog-container {
-    position: relative;
+    font-family: "Quicksand", sans-serif;
     max-height: 70vh;
     overflow-y: scroll;
-    font-family: "Quicksand", sans-serif;
+    position: relative;
 }
 
 .changelog-container .added {
@@ -267,17 +267,17 @@ table thead tr th:last-child {
 }
 
 .changelog-container .body {
-    margin: 0 0 0 2rem;
-    padding: 0;
     display: list-item;
     font-size: 1.2rem;
     font-weight: normal;
     line-height: 1.5rem;
+    margin: 0 0 0 2rem;
+    padding: 0;
 }
 
 .changelog-container .changelog-item {
-    margin-top: 1rem;
     border-radius: 1rem;
+    margin-top: 1rem;
     padding: 0.1rem 0.5rem 2rem 0.5rem;
 }
 
@@ -286,15 +286,15 @@ table thead tr th:last-child {
 }
 
 .changelog-container .content {
+    border-radius: 0.5rem;
     display: inline-block;
     width: 98%;
-    border-radius: 0.5rem;
 }
 
 .changelog-container .date {
-    vertical-align: top;
     border-radius: 50%;
     opacity: .5;
+    vertical-align: top;
 }
 
 .changelog-container .fixed {
@@ -302,24 +302,25 @@ table thead tr th:last-child {
 }
 
 .changelog-container .header {
-    width: fit-content;
-    margin: 0.5rem 0.5rem 0 0.5rem;
     display: inline-block;
+    margin: 0.5rem 0.5rem 0 0.5rem;
     vertical-align: top;
+    width: fit-content;
 }
 
 .sticky > .nav-item {
     width: auto;
 }
+
 .sticky {
-    width: 100%;
     flex-direction: row;;
-    position: fixed;
     left: 50%;
-    transform: translateX(-50%);
-    z-index: 999;
+    position: fixed;
     top: 0;
+    transform: translateX(-50%);
     transition: box-shadow 100ms;
+    width: 100%;
+    z-index: 999;
 }
 
 .changelog-container .improved {
@@ -331,18 +332,18 @@ table thead tr th:last-child {
 }
 
 .changelog-container .title {
-    width: fit-content;
-    margin: 0;
     font-size: 1.2rem;
     font-style: oblique;
+    margin: 0;
+    width: fit-content;
 }
 
 .changelog-container .type {
-    font-weight: bold;
-    font-size: 1.2rem;
-    padding: 0.5rem 1rem 1rem 1rem;
-    margin: 0.9rem 0 0.9rem 1rem;
     border-radius: 0.5rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 0.9rem 0 0.9rem 1rem;
+    padding: 0.5rem 1rem 1rem 1rem;
 }
 
 .accordian-label h5:hover {
@@ -350,10 +351,10 @@ table thead tr th:last-child {
 }
 
 .down {
+    border-radius: 0.5rem 0.5rem 0 0;
     bottom: 0;
     left: 50%;
     margin: 0 0 0 -5rem;
-    border-radius: 0.5rem 0.5rem 0 0;
 }
 
 
@@ -369,10 +370,10 @@ table thead tr th:last-child {
 
 .form-group input {
     background: none !important;
-    border-radius: 0;
-    border-top: none;
-    border-right: none;
     border-left: none;
+    border-radius: 0;
+    border-right: none;
+    border-top: none;
 }
 
 .form-group input:focus {
@@ -401,25 +402,25 @@ table thead tr th:last-child {
 }
 
 .input-group {
-    position: relative;
     margin-bottom: 2rem;
+    position: relative;
 }
 
 .input-group input {
-    width: 100%;
     padding-left: 0.3rem;
     transition: width 240ms ease;
+    width: 100%;
 }
 
 .input-group label {
     filter: opacity(0.4);
+    left: 2.5rem;
+    pointer-events: none;
     position: absolute;
     top: 50%;
-    width: 100%;
-    left: 2.5rem;
     transform: translateY(-50%);
-    pointer-events: none;
     transition: 180ms ease;
+    width: 100%;
 }
 
 .fa-close {
@@ -431,28 +432,28 @@ table thead tr th:last-child {
 }
 
 .popup .fa-close {
-    position: absolute;
-    top: 0.2rem;
-    right: 0.2rem;
-    height: 0.5rem;
-    width: 0.5rem;
     font-size: 1rem;
+    height: 0.5rem;
+    position: absolute;
+    right: 0.2rem;
+    top: 0.2rem;
     transform: translateX(-50%) translateY(-50%);
+    width: 0.5rem;
 }
 
 .popup span {
-    position: absolute;
-    font-size: small;
-    font-family: "Montserrat", sans-serif;
-    text-align: center;
-    border-radius: 0.2rem;
-    padding: 0.5rem 0.6rem 0.5rem 0.6rem;
-    border: currentColor solid 2px;
-    display: none;
-    white-space: normal;
     animation: fadeIn 400ms ease;
-    min-width: 10rem;
+    border: currentColor solid 2px;
+    border-radius: 0.2rem;
+    display: none;
+    font-family: "Montserrat", sans-serif;
+    font-size: small;
     max-width: 15rem;
+    min-width: 10rem;
+    padding: 0.5rem 0.6rem 0.5rem 0.6rem;
+    position: absolute;
+    text-align: center;
+    white-space: normal;
     z-index: 2;
 }
 
@@ -461,8 +462,8 @@ table thead tr th:last-child {
 }
 
 .popup i:hover span, input:focus + .popup i span {
-    display: block;
     animation: fadeIn 400ms;
+    display: block;
 }
 
 .dont-show {
@@ -481,207 +482,207 @@ table thead tr th:last-child {
 }
 
 .popup .popup-top-right {
-    transform: translateX(-25%);
-    left: 50%;
     bottom: 150%;
+    left: 50%;
+    transform: translateX(-25%);
 }
 
 .popup .popup-top-right::after {
+    border-left: 0.25rem solid transparent;
+    border-right: 0.25rem solid transparent;
+    border-top: 0.5rem solid currentColor;
     content: "";
     position: absolute;
     right: 75%;
-    transform: translateX(50%);
     top: 100%;
-    border-left: 0.25rem solid transparent;
-    border-top: 0.5rem solid currentColor;
-    border-right: 0.25rem solid transparent;
+    transform: translateX(50%);
 }
 
 .popup .popup-top {
-    transform: translateX(-50%);
-    left: 50%;
     bottom: 150%;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .popup .popup-top::after {
+    border-left: 0.25rem solid transparent;
+    border-right: 0.25rem solid transparent;
+    border-top: 0.5rem solid currentColor;
     content: "";
     position: absolute;
     right: 50%;
-    transform: translateX(50%);
     top: 100%;
-    border-left: 0.25rem solid transparent;
-    border-top: 0.5rem solid currentColor;
-    border-right: 0.25rem solid transparent;
+    transform: translateX(50%);
 }
 
 .popup .popup-top-left {
-    transform: translateX(-75%);
-    left: 50%;
     bottom: 150%;
+    left: 50%;
+    transform: translateX(-75%);
 }
 
 .popup .popup-top-left::after {
+    border-left: 0.25rem solid transparent;
+    border-right: 0.25rem solid transparent;
+    border-top: 0.5rem solid currentColor;
     content: "";
     position: absolute;
     right: 25%;
-    transform: translateX(50%);
     top: 100%;
-    border-left: 0.25rem solid transparent;
-    border-top: 0.5rem solid currentColor;
-    border-right: 0.25rem solid transparent;
+    transform: translateX(50%);
 }
 
 .popup .popup-left-top {
-    transform: translateY(-75%);
-    top: 50%;
     right: 150%;
+    top: 50%;
+    transform: translateY(-75%);
 }
 
 .popup .popup-left-top::after {
+    border-bottom: 0.25rem solid transparent;
+    border-left: 0.5rem solid currentColor;
+    border-top: 0.25rem solid transparent;
     content: "";
+    left: 100%;
     position: absolute;
     top: 75%;
     transform: translateY(-50%);
-    left: 100%;
-    border-top: 0.25rem solid transparent;
-    border-left: 0.5rem solid currentColor;
-    border-bottom: 0.25rem solid transparent;
 }
 
 .popup .popup-left {
-    transform: translateY(-50%);
-    top: 50%;
     right: 150%;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .popup .popup-left::after {
+    border-bottom: 0.25rem solid transparent;
+    border-left: 0.5rem solid currentColor;
+    border-top: 0.25rem solid transparent;
     content: "";
+    left: 100%;
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    left: 100%;
-    border-top: 0.25rem solid transparent;
-    border-left: 0.5rem solid currentColor;
-    border-bottom: 0.25rem solid transparent;
 }
 
 .popup .popup-left-bottom {
-    transform: translateY(-25%);
-    top: 50%;
     right: 150%;
+    top: 50%;
+    transform: translateY(-25%);
 }
 
 .popup .popup-left-bottom::after {
+    border-bottom: 0.25rem solid transparent;
+    border-left: 0.5rem solid currentColor;
+    border-top: 0.25rem solid transparent;
     content: "";
+    left: 100%;
     position: absolute;
     top: 25%;
     transform: translateY(-50%);
-    left: 100%;
-    border-top: 0.25rem solid transparent;
-    border-left: 0.5rem solid currentColor;
-    border-bottom: 0.25rem solid transparent;
 }
 
 .popup .popup-bottom-left {
-    transform: translateX(-75%);
     left: 50%;
     top: 150%;
+    transform: translateX(-75%);
 }
 
 .popup .popup-bottom-left::after {
+    border-bottom: 0.5rem solid currentColor;
+    border-left: 0.25rem solid transparent;
+    border-right: 0.25rem solid transparent;
+    bottom: 100%;
     content: "";
     position: absolute;
     right: 25%;
     transform: translateX(50%);
-    bottom: 100%;
-    border-left: 0.25rem solid transparent;
-    border-bottom: 0.5rem solid currentColor;
-    border-right: 0.25rem solid transparent;
 }
 
 .popup .popup-bottom {
-    transform: translateX(-50%);
     left: 50%;
     top: 150%;
+    transform: translateX(-50%);
 }
 
 .popup .popup-bottom::after {
+    border-bottom: 0.5rem solid currentColor;
+    border-left: 0.25rem solid transparent;
+    border-right: 0.25rem solid transparent;
+    bottom: 100%;
     content: "";
     position: absolute;
     right: 50%;
     transform: translateX(50%);
-    bottom: 100%;
-    border-left: 0.25rem solid transparent;
-    border-bottom: 0.5rem solid currentColor;
-    border-right: 0.25rem solid transparent;
 }
 
 .popup .popup-bottom-right {
-    transform: translateX(-25%);
     left: 50%;
     top: 150%;
+    transform: translateX(-25%);
 }
 
 .popup .popup-bottom-right::after {
+    border-bottom: 0.5rem solid currentColor;
+    border-left: 0.25rem solid transparent;
+    border-right: 0.25rem solid transparent;
+    bottom: 100%;
     content: "";
     position: absolute;
     right: 75%;
     transform: translateX(50%);
-    bottom: 100%;
-    border-left: 0.25rem solid transparent;
-    border-bottom: 0.5rem solid currentColor;
-    border-right: 0.25rem solid transparent;
 }
 
 .popup .popup-right-bottom {
-    transform: translateY(-25%);
-    top: 50%;
     left: 150%;
+    top: 50%;
+    transform: translateY(-25%);
 }
 
 .popup .popup-right-bottom::after {
+    border-bottom: 0.25rem solid transparent;
+    border-right: 0.5rem solid currentColor;
+    border-top: 0.25rem solid transparent;
     content: "";
     position: absolute;
+    right: 100%;
     top: 25%;
     transform: translateY(-50%);
-    right: 100%;
-    border-top: 0.25rem solid transparent;
-    border-right: 0.5rem solid currentColor;
-    border-bottom: 0.25rem solid transparent;
 }
 
 .popup .popup-right {
-    transform: translateY(-50%);
-    top: 50%;
     left: 150%;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .popup .popup-right::after {
+    border-bottom: 0.25rem solid transparent;
+    border-right: 0.5rem solid currentColor;
+    border-top: 0.25rem solid transparent;
     content: "";
     position: absolute;
+    right: 100%;
     top: 50%;
     transform: translateY(-50%);
-    right: 100%;
-    border-top: 0.25rem solid transparent;
-    border-right: 0.5rem solid currentColor;
-    border-bottom: 0.25rem solid transparent;
 }
 
 .popup .popup-right-top {
-    transform: translateY(-75%);
-    top: 50%;
     left: 150%;
+    top: 50%;
+    transform: translateY(-75%);
 }
 
 .popup .popup-right-top::after {
+    border-bottom: 0.25rem solid transparent;
+    border-right: 0.5rem solid currentColor;
+    border-top: 0.25rem solid transparent;
     content: "";
     position: absolute;
+    right: 100%;
     top: 75%;
     transform: translateY(-50%);
-    right: 100%;
-    border-top: 0.25rem solid transparent;
-    border-right: 0.5rem solid currentColor;
-    border-bottom: 0.25rem solid transparent;
 }
 
 .fa-check-circle {
@@ -702,24 +703,24 @@ table thead tr th:last-child {
 
 .label-active {
     filter: opacity(1) !important;
-    top: -0.5rem !important;
-    left: 2.2rem !important;
     font-size: xx-small !important;
+    left: 2.2rem !important;
+    top: -0.5rem !important;
 }
 
 .nav {
+    border-radius: 0 0 0.5rem 0.5rem;
     margin: auto;
+    margin-bottom: 1rem;
+    margin-top: 0 !important;
+    padding: 0.5rem 1rem 0.5rem 1rem !important;
     width: fit-content;
     width: -moz-fit-content;
-    padding: 0.5rem 1rem 0.5rem 1rem !important;
-    margin-top: 0 !important;
-    margin-bottom: 1rem;
-    border-radius: 0 0 0.5rem 0.5rem;
 }
 
 .nav .active {
-    font-weight: bolder;
     border-radius: 0.5rem;
+    font-weight: bolder;
 }
 
 .nav-item {
@@ -728,10 +729,10 @@ table thead tr th:last-child {
 }
 
 .no-scroll {
-    position: fixed;
-    width: 100%;
     overflow: hidden;
     padding-bottom: 0;
+    position: fixed;
+    width: 100%;
 }
 
 .number-input {
@@ -745,18 +746,18 @@ table thead tr th:last-child {
 }
 
 .scroll-to {
-    position: absolute;
-    padding: 0 0.5rem 0.2rem 0.5rem;
-    height: 1.75rem;
-    width: 10rem;
-    text-align: center;
     cursor: pointer;
+    height: 1.75rem;
+    padding: 0 0.5rem 0.2rem 0.5rem;
+    position: absolute;
+    text-align: center;
     transition: filter 500ms;
-    z-index: 2;
-    user-select: none;
-    -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+    width: 10rem;
+    z-index: 2;
 }
 
 .scroll-to:hover {
@@ -764,33 +765,33 @@ table thead tr th:last-child {
 }
 
 .sk-chase {
-    width: 5rem;
-    height: 5rem;
-    position: absolute;
-    margin: auto;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
     animation: sk-chase 2.5s infinite linear both;
+    bottom: 0;
+    height: 5rem;
+    left: 0;
+    margin: auto;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 5rem;
 }
 
 .sk-chase-dot {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    left: 0;
-    top: 0;
     animation: sk-chase-dot 2.0s infinite ease-in-out both;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
 }
 
 .sk-chase-dot:before {
+    animation: sk-chase-dot-before 2.0s infinite ease-in-out both;
+    border-radius: 100%;
     content: "";
     display: block;
-    width: 25%;
     height: 25%;
-    border-radius: 100%;
-    animation: sk-chase-dot-before 2.0s infinite ease-in-out both;
+    width: 25%;
 }
 
 .sk-chase-dot:nth-child(1) {
@@ -842,37 +843,37 @@ table thead tr th:last-child {
 }
 
 .sk-chase-mini {
-    width: 1rem;
-    height: 1rem;
-    margin-top: 3px;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
     animation: sk-chase 2.5s infinite linear both;
+    bottom: 0;
+    height: 1rem;
+    left: 0;
+    margin-top: 3px;
+    right: 0;
+    top: 0;
+    width: 1rem;
 }
 
 .tab {
-    vertical-align: top;
     align-self: center;
-    z-index: 2;
+    border-bottom-style: solid;
+    border-top-style: solid;
+    cursor: context-menu;
+    margin: auto;
     overflow: hidden;
     padding: 0.25rem;
-    cursor: context-menu;
+    vertical-align: top;
     width: max-content;
-    margin: auto;
-    border-top-style: solid;
-    border-bottom-style: solid;
+    z-index: 2;
 }
 
 .tab btn {
     background: none;
-    float: left;
     border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    float: left;
     outline: none;
     padding: 8px 16px;
-    cursor: pointer;
-    border-radius: 0.5rem;
     transition: 0.3s;
 }
 
@@ -881,11 +882,11 @@ table thead tr th:last-child {
 }
 
 .tabcontent {
-    display: none;
-    padding: 6px 12px;
     border-top: none;
+    display: none;
     max-height: 60vh;
     overflow: scroll;
+    padding: 6px 12px;
 }
 
 th {
@@ -911,58 +912,58 @@ tbody tr {
 }
 
 .up {
+    border-radius: 0 0 0.5rem 0.5rem;
     left: 50%;
     margin: 0 0 0 -5rem;
-    border-radius: 0 0 0.5rem 0.5rem;
 }
 
 .switch {
-    position: relative;
     display: block;
-    width: 1.9rem;
     margin: 0 0 0 0.5rem;
+    position: relative;
     text-align: center;
     white-space: nowrap;
+    width: 1.9rem;
 }
 
 .switch:before {
     content: "";
     display: inline-block;
     height: 100%;
-    vertical-align: middle;
     margin-right: -0.25em;
+    vertical-align: middle;
 }
 
 .switch input {
+    height: 0;
     opacity: 0;
     width: 0;
-    height: 0;
 }
 
 .slider {
-    position: absolute;
-    cursor: pointer;
-    vertical-align: middle;
-    height: 1.2rem;
-    width: 2.4rem;
-    top: 0.24rem;
-    left: 0;
-    right: 0;
-    bottom: 0;
     border-radius: 0.6rem;
+    bottom: 0;
+    cursor: pointer;
+    height: 1.2rem;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0.24rem;
     transition: 0.4s;
+    vertical-align: middle;
+    width: 2.4rem;
 }
 
 .slider:before {
-    position: absolute;
+    border-radius: 0.48rem;
     content: "";
     height: 0.96rem;
-    width: 0.96rem;
-    top: 0.12rem;
     left: 0.15rem;
-    border-radius: 0.48rem;
-    transition: 0.4s;
+    position: absolute;
+    top: 0.12rem;
     transform: translateX(0);
+    transition: 0.4s;
+    width: 0.96rem;
 }
 
 input:checked + .slider:before {
@@ -974,8 +975,8 @@ input:checked + .slider:before {
 }
 
 .form-weights .disabled {
-    color: #999999 !important;
     border-bottom: none !important;
+    color: #999999 !important;
 }
 
 .form-weights input[type="checkbox"] {
@@ -983,11 +984,11 @@ input:checked + .slider:before {
 }
 
 .form-weights input:not([type="checkbox"]) {
-    font-size: 1rem;
-    width: 100%;
     box-sizing: border-box;
-    text-align: center;
+    font-size: 1rem;
     margin: 0 !important;
+    text-align: center;
+    width: 100%;
 }
 
 .form-weights input.text-view {
@@ -995,9 +996,9 @@ input:checked + .slider:before {
 }
 
 .form-weights input:not([type="checkbox"]).text-view:hover, .form-weights input.text-view:focus {
+    border-bottom: 1px solid;
     margin-bottom: -1px !important;
     padding: 0;
-    border-bottom: 1px solid;
 }
 
 .form-weights input:focus::placeholder {
@@ -1015,20 +1016,20 @@ input:checked + .slider:before {
 }
 
 .form-weights .form-signin .btn {
-    width: auto;
-    padding: .375rem .75rem;
     margin: 0 0 1rem;
+    padding: .375rem .75rem;
+    width: auto;
 }
 
 .key-display {
-    font-size: 0.75rem;
-    display: inline-flex;
+    align-items: center;
     border: 1px solid;
     border-radius: 0.5rem;
-    width: 1.5rem;
+    display: inline-flex;
+    font-size: 0.75rem;
     height: 1.5rem;
     justify-content: center;
-    align-items: center;
+    width: 1.5rem;
 }
 
 #weightsCard h5 {
@@ -1051,16 +1052,16 @@ input:checked + .slider:before {
 }
 
 #weightsCard .disabled {
-    color: #999999 !important;
     border-bottom: none !important;
+    color: #999999 !important;
 }
 
 #weightsCard input {
     font-size: 0.9rem;
-    padding: .1rem .1rem;
-    width: 3rem;
-    text-align: center;
     margin-right: 1rem;
+    padding: .1rem .1rem;
+    text-align: center;
+    width: 3rem;
 }
 
 #weightsCard input.text-view {
@@ -1069,9 +1070,9 @@ input:checked + .slider:before {
 }
 
 #weightsCard input.text-view:hover, #weightsCard input.text-view:focus {
+    border-bottom: 1px solid;
     margin-bottom: -1px;
     padding: .1rem .1rem;
-    border-bottom: 1px solid;
 }
 
 #weightsCard input[type="number"] {
@@ -1098,69 +1099,69 @@ input:checked + .slider:before {
 }
 
 #weightsCard .form-signin .btn {
-    width: auto;
-    padding: .375rem .75rem;
     margin: 0 0 1rem;
+    padding: .375rem .75rem;
+    width: auto;
 }
 
 .ignored {
-    text-decoration: line-through;
     opacity: 0.5;
+    text-decoration: line-through;
 }
 
 select {
-    border-radius: 0.2rem;
+    -moz-appearance: none;
+    -webkit-appearance: none;
     border: none;
+    border-radius: 0.2rem;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
     display: inline-block;
     font: inherit;
-    padding: 0.2rem 1.7rem 0.2rem 0.5rem;
     margin: 0;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    -webkit-appearance: none;
-    -moz-appearance: none;
+    padding: 0.2rem 1.7rem 0.2rem 0.5rem;
     text-align: center;
     text-align-last: center;
 }
 
 select.classic {
     background-position: calc(100% - 0.6rem) 50%, calc(100% - 0.28rem) 50%, 100% 0;
-    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1.2rem 100%;
     background-repeat: no-repeat;
+    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1.2rem 100%;
 }
 
 select.classic:focus {
     background-position: calc(100% - 0.28rem) 50%, calc(100% - 0.6rem) 50%, 100% 0;
-    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1.2rem 100%;
     background-repeat: no-repeat;
+    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1.2rem 100%;
     border-color: grey;
     outline: 0;
 }
 
 select.round {
     background-position: calc(100% - 0.6rem) 55%, calc(100% - 0.28rem) 55%, 100% 50%;
-    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1.2rem 1.2rem;
     background-repeat: no-repeat;
+    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1.2rem 1.2rem;
 }
 
 select.round:focus {
     background-position: calc(100% - 0.28rem) 50%, calc(100% - 0.6rem) 50%, 100% 50%;
-    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1.2rem 1.2rem;
     background-repeat: no-repeat;
+    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1.2rem 1.2rem;
 }
 
 
 select.minimal {
     background-position: calc(100% - 0.6rem) 55%, calc(100% - 0.28rem) 55%, calc(100% - 1.2rem) 50%;
-    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1px 65%;
     background-repeat: no-repeat;
+    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1px 65%;
 }
 
 select.minimal:focus {
     background-position: calc(100% - 0.28rem) 50%, calc(100% - 0.6rem) 50%, calc(100% - 1.2rem) 50%;
-    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1px 65%;
     background-repeat: no-repeat;
+    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1px 65%;
 }
 
 select:focus {
@@ -1185,26 +1186,26 @@ td:hover .excludeToggle .fa-ban {
 }
 
 .addAssignment {
-    width: fit-content;
-    margin-bottom: 0.5rem;
-    margin-right: 0.5rem;
+    align-items: center;
     border-radius: 0.5rem;
-    padding: 1rem;
+    cursor: pointer;
     display: flex;
     justify-content: center;
-    align-items: center;
-    cursor: pointer;
+    margin-bottom: 0.5rem;
+    margin-right: 0.5rem;
+    padding: 1rem;
+    width: fit-content;
     z-index: 1;
 }
 
 .tableOptions {
-    width: fit-content;
-    padding: 0.1rem 1rem;
-    margin-bottom: 0.5rem;
+    align-items: center;
     border-radius: 0.5rem;
     display: flex;
     justify-content: center;
-    align-items: center;
+    margin-bottom: 0.5rem;
+    padding: 0.1rem 1rem;
+    width: fit-content;
     z-index: 1;
 }
 

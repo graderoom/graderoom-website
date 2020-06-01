@@ -79,7 +79,8 @@
                                                                                           style="display: flex; align-items: flex-end">
                                 <span style="text-align: right">You want at least a</span> <input
                                         class="number-input form-control" style="margin: 0 1rem 0 1rem;"
-                                        id="goal" type="number" step="0.01" required> <span style="text-align: left">% in the class.</span>
+                                        id="goal" type="number" step="0.01" required> <span style="text-align: left">%
+                                    in the class.</span>
                             </label>
                         </div>
                     </div>
@@ -549,7 +550,7 @@
             if (darkMode !== oldDarkMode) {
                 clearTimeout(changeTransition);
                 document.getElementById("fade").disabled = false;
-                $(".navbar-brand img").attr("src","/public/resources/dark_mode/logo.png");
+                $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
                 document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
@@ -561,7 +562,7 @@
             if (darkMode !== oldDarkMode) {
                 clearTimeout(changeTransition);
                 document.getElementById("fade").disabled = false;
-                $(".navbar-brand img").attr("src","/public/resources/light_mode/logo.png");
+                $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
                 document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;

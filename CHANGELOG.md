@@ -50,6 +50,10 @@
 - Cards can sometimes not be closed with keyboard shortcuts <strong>[Fixed in Beta 2.3.8]</strong>
 - Changelog display buttons work incorrectly after page resize <strong>[Fixed in Beta 2.3.8]</strong>
 
+## [Beta 2.3.9] - 2020-06-01
+### Added
+- Custom error pages when server error occurs
+
 ## [Beta 2.3.8] - 2020-05-30
 ### Improved
 - Whats New display now shows announcements
