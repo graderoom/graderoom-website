@@ -361,16 +361,16 @@
                                                 </span>
                                             </i>
                                         </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% for (let j = 0; j < JSON.parse(gradeData)[i].grades.length; j++) { %>
-                                    <tr id="classTable<%= i + offset %><%= j %>">
-                                        <td id="assignmentDate<%= i + offset %><%= j %>"></td>
-                                        <td>
-                                            <div class="excludeToggle"
-                                                 style="display: flex; justify-content: space-between; align-items: center">
-                                                <div id="assignmentName<%= i + offset %><%= j %>"></div>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% for (let j = 0; j < JSON.parse(gradeData)[i].grades.length; j++) { %>
+                                        <tr id="classTable<%= i + offset %><%= j %>">
+                                            <td id="assignmentDate<%= i + offset %><%= j %>"></td>
+                                            <td>
+                                                <div class="excludeToggle"
+                                                     style="display: flex; justify-content: space-between; align-items: center">
+                                                    <div id="assignmentName<%= i + offset %><%= j %>"></div>
                                                 <div style="display: flex; justify-content: center; flex-flow: column; align-items: center">
                                                     <i id="exclude<%= i + offset %><%= j %>" class="fa fa-ban"
                                                        style="cursor: pointer"
@@ -990,7 +990,7 @@
             delete tempData[classIndex][assignmentIndex].points_gotten;
         }
         if (doRefresh) {
-            refreshWithoutReload(true, classIndex)
+            refreshWithoutReload(true, classIndex);
         }
     }
 
@@ -1065,7 +1065,7 @@
         for (let i = 0; i < parsedData[classIndex].assignmentNames.length; i++) {
             resetRow(classIndex, i);
         }
-        refreshWithoutReload(false, classIndex)
+        refreshWithoutReload(false, classIndex);
     }
 
     function resetRow(classIndex, assignmentIndex) {
@@ -1096,7 +1096,7 @@
         }
 
         delete tempData[classIndex][assignmentIndex];
-        refreshWithoutReload(false, classIndex)
+        refreshWithoutReload(false, classIndex);
     }
 
     function toggleExclude(classIndex, assignmentIndex) {
@@ -1120,7 +1120,7 @@
         if (tempData[classIndex][assignmentIndex].exclude === assignment.exclude) {
             delete tempData[classIndex][assignmentIndex].exclude;
         }
-        refreshWithoutReload(true, classIndex)
+        refreshWithoutReload(true, classIndex);
     }
 
     function setupInputListeners() {
@@ -1148,13 +1148,13 @@
 
     function toggleSortDirection(classIndex) {
         let icon = $($("#section" + classIndex).find(".tableOptions").find("i")[0]);
-        if (icon.hasClass('fa-sort-amount-asc')) {
+        if (icon.hasClass("fa-sort-amount-asc")) {
             dateSort[classIndex] = false;
-            icon.removeClass('fa-sort-amount-asc').addClass('fa-sort-amount-desc');
+            icon.removeClass("fa-sort-amount-asc").addClass("fa-sort-amount-desc");
             $(icon.find("span")[0]).text("Newest to Oldest");
         } else {
             dateSort[classIndex] = true;
-            icon.removeClass('fa-sort-amount-desc').addClass('fa-sort-amount-asc');
+            icon.removeClass("fa-sort-amount-desc").addClass("fa-sort-amount-asc");
             $(icon.find("span")[0]).text("Oldest to Newest");
         }
         setupClassTables(classIndex);
@@ -1188,8 +1188,8 @@
                     // Bind listeners only once
                     if (!dropdown.find("option").length) {
                         for (let k = 0; k < weightNames.length; k++) {
-                            dropdown.append($('<option>').text(weightNames[k]));
-                            dropdown.on('change', () => {
+                            dropdown.append($("<option>").text(weightNames[k]));
+                            dropdown.on("change", () => {
                                 updateCategory(i, j);
                                 refreshWithoutReload(true, i);
                                 dropdown.blur();
@@ -1909,7 +1909,7 @@
     let sticky = navbar.offsetTop - $(".navbar")[0].offsetTop;
 
     // Get the height of the navbar
-    let height = navbar.offsetHeight + parseInt(getComputedStyle(navbar).marginBottom)
+    let height = navbar.offsetHeight + parseInt(getComputedStyle(navbar).marginBottom);
 
     function stickyNavbar() {
         if (window.pageYOffset >= sticky) {

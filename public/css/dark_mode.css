@@ -29,13 +29,13 @@ nav label {
 }
 
 nav .btn {
-    color: white;
     background-color: transparent;
+    color: white;
 }
 
 nav .btn:hover {
-    color: #333333;
     background-color: #BBBBBB;
+    color: #333333;
 }
 
 td {
@@ -73,8 +73,8 @@ th {
 }
 
 .approve_btn:hover {
-    color: #95AD95;
     border-color: #95AD95;
+    color: #95AD95;
 }
 
 .deny_btn {
@@ -82,8 +82,8 @@ th {
 }
 
 .deny_btn:hover {
-    color: #D6A1A1;
     border-color: #D6A1A1;
+    color: #D6A1A1;
 }
 
 .card {
@@ -182,9 +182,9 @@ th {
 }
 
 .tab {
-    border-top-color: #222222;
-    border-bottom-color: #222222;
     background-color: #333333;
+    border-bottom-color: #222222;
+    border-top-color: #222222;
 }
 
 .tab btn {

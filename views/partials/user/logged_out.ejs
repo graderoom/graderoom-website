@@ -21,7 +21,7 @@
 
         if (Date.now() > <%= sessionTimeout %>) {
             $(".session-timeout").show();
-            $("body").find('*').not(".session-timeout").remove();
+            $("body").find("*").not(".session-timeout").remove();
         }
 
     }, 10000);

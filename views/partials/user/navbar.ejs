@@ -148,8 +148,8 @@
 
             // Submit the form using AJAX.
             $.ajax({
-                type: "POST", url: $(form).attr("action"), data: formData, async: async
-            }).done(function (response) {
+                       type: "POST", url: $(form).attr("action"), data: formData, async: async
+                   }).done(function (response) {
                 // Special behavior for class colors.
                 if (formID === "#randomizeClassColors") {
                     // numClasses is contained in messagesDivID
@@ -191,8 +191,8 @@
                     }
 
                     if (formID === "#changeSchoolEmail") {
-                        console.log($('#school_email')[0].value);
-                        updateNameDisplay(undefined, $('#school_email')[0].value);
+                        console.log($("#school_email")[0].value);
+                        updateNameDisplay(undefined, $("#school_email")[0].value);
                     }
 
                     // Show the div.
@@ -216,7 +216,7 @@
                                 document.getElementById("fade").disabled = false;
                                 document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
                                 renderAllCharts();
-                                $(".navbar-brand img").attr("src","/public/resources/dark_mode/logo.png");
+                                $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
                                 $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
                                 setTimeout(() => {
                                     document.getElementById("fade").disabled = true;
@@ -241,7 +241,7 @@
                                 document.getElementById("fade").disabled = false;
                                 document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
                                 renderAllCharts();
-                                $(".navbar-brand img").attr("src","/public/resources/light_mode/logo.png");
+                                $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
                                 $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
                                 setTimeout(() => {
                                     document.getElementById("fade").disabled = true;
@@ -415,7 +415,7 @@
             } else if (theme === "light") {
                 themeRadioButtons[0].checked = true;
             }
-        } catch (e){
+        } catch (e) {
         }
 
         // Manage gradeSync checkbox, if it exists
@@ -426,7 +426,7 @@
             } else if (!user.schoolPassword && gradeSync.checked) {
                 gradeSync.checked = false;
             }
-        } catch (e){
+        } catch (e) {
         }
     }
 
@@ -451,7 +451,9 @@
                     closeForm("toggle");
                 } catch (e) {
                 }
-                if (cardsDisplayed.length === 0) return;
+                if (cardsDisplayed.length === 0) {
+                    return;
+                }
                 closeForm(cardsDisplayed[cardsDisplayed.length - 1]);
             }
         }

@@ -3,16 +3,16 @@
     <span class="d-flex w-50 mr-auto">
         <a href="/" class="navbar-brand">
             <h1>
-                <img 
-                    <% if (theme) { %>
-                        src="/public/resources/dark_mode/logo.png" 
-                    <% } else { %>
-                        src="/public/resources/light_mode/logo.png" 
-                    <% } %>
-                    style="width: 3rem" 
-                    class="d-inline-block" 
+                <img
+                <% if (theme) { %>
+                    src="/public/resources/dark_mode/logo.png"
+                <% } else { %>
+                    src="/public/resources/light_mode/logo.png"
+                        <% } %>
+                    style="width: 3rem"
+                    class="d-inline-block"
                     alt="">
-                Graderoom 
+                Graderoom
             </h1>
         </a>
     </span>
@@ -46,12 +46,12 @@
                     </a>
                 </li>
             <% } %>
-                <li id="toggleAdmin" class="nav-item toggle-admin">
-                    <a class="btn btn-med" href="/"> <i class="fa fa-home" aria-hidden="true"></i> Home </a>
-                </li>
-                <li class="nav-item active">
-                    <a href="/logout" class="btn btn-med"> <i class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
-                </li>
+            <li id="toggleAdmin" class="nav-item toggle-admin">
+                <a class="btn btn-med" href="/"> <i class="fa fa-home" aria-hidden="true"></i> Home </a>
+            </li>
+            <li class="nav-item active">
+                <a href="/logout" class="btn btn-med"> <i class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
+            </li>
         </ul>
     </div>
 </nav>

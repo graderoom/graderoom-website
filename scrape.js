@@ -1,4 +1,4 @@
-let {PythonShell} = require('python-shell');
+let {PythonShell} = require("python-shell");
 
 module.exports = {
 
@@ -7,14 +7,14 @@ module.exports = {
 
         let pythonPath;
 
-        if (process.platform == 'win32') {
-            pythonPath = 'py';
+        if (process.platform == "win32") {
+            pythonPath = "py";
         } else {
-            pythonPath = 'python3';
+            pythonPath = "python3";
         }
 
         let options = {
-            mode: 'json', // pythonPath: 'path/to/python',
+            mode: "json", // pythonPath: 'path/to/python',
             // pythonOptions: ['-u'], // get print results in real-time
             // // scriptPath: 'path/to/my/scripts',
             // // scriptPath: 'path/to/my/scripts',
@@ -23,7 +23,7 @@ module.exports = {
 
         return new Promise(function (resolve) {
 
-            PythonShell.run('./scrape.py', options, (err, results) => {
+            PythonShell.run("./scrape.py", options, (err, results) => {
 
                 // console.log("results");
                 // console.log(results);
@@ -34,7 +34,7 @@ module.exports = {
                     console.error("ERROR:" + err);
                     resolve({success: false, message: "Error getting grades."});
                 } else if (resp.success === true) {
-                    resolve({success: true, new_grades: resp.grades})
+                    resolve({success: true, new_grades: resp.grades});
                 } else {
                     console.error("ERROR:" + resp.message);
                     // Log grades scraped in event of error
@@ -42,11 +42,11 @@ module.exports = {
                     return resolve({success: false, message: resp.message});
                 }
                 // console.log(results);
-            })
+            });
 
         });
 
-    },
+    }
 
 };
 
