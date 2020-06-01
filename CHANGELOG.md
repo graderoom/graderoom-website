@@ -52,7 +52,7 @@
 
 ## [Stable 2.3.9] - 2020-06-01
 ### Added
-- Custom error pages when server error occurs
+- Custom error pages when server is down
 
 ## [Beta 2.3.8] - 2020-05-30
 ### Improved
