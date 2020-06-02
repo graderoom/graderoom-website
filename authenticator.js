@@ -974,6 +974,8 @@ module.exports = {
     readChangelog: async function () {
         let resultHTML = "";
         let betaResultHTML = "";
+        latestVersionHTML = "";
+        betaLatestVersionHTML = "";
         let items = [];
         let bodyCount = -1;
         let item = {title: "", date: "", content: {}};
