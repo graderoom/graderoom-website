@@ -128,6 +128,14 @@ th {
     color: white;
 }
 
+.coloration {
+    color: hsl(210, 48%, 48%);
+}
+
+.form-group:focus-within label {
+    color: #BBBBBB;
+}
+
 /* Input Form Background Images */
 
 .form-group .user-bg {

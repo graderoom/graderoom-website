@@ -1805,6 +1805,8 @@
         return true;
     }
 
+
+    //TODO I'm pretty sure the following two functions do the same thing but I'm not sure so I'll keep them for now -- Joel
     function resetWeights(index) {
         let className = data[index].class_name;
         $("#check" + index).prop("checked", relClassData[className]["hasWeights"] === "false");

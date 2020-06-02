@@ -37,14 +37,23 @@
         </ul>
         <ul class="navbar-nav w-100 justify-content-end align-items-end ml-auto">
             <% if (current == 'home') { %>
-                <li id="finalGradeCalculator" class="nav-item">
-                    <a class="btn btn-med" href="/finalgradecalculator"> <i class="fa fa-calculator"
-                                                                            aria-hidden="true"></i> Calculator </a>
+                <li id="finalGradeCalculator" class="nav-item popup">
+                    <btn class="btn btn-med" href="/finalgradecalculator" onclick="updateTutorial('calc');"> <i class="fa fa-calculator" aria-hidden="true"></i> 
+                        Calculator
+                        <div href="/finalgradecalculator">
+                            <span class="nav-popups popup-bottom <% if (user.alerts.tutorialStatus.calcSeen || (user.alerts.lastUpdated.length === 0 && !user.schoolPassword)) { %> dont-show <% } else { %>  always-show <% } %> coloration">
+                                Stressed about finals? Find out how much they matter by clicking the "Calculator" button
+                            </span>  
+                        </div>              
+                    </btn>
                 </li>
-                <li id="syncGrades" class="nav-item">
-                    <btn class="btn btn-med"
-                         onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">
-                        <i class="fa fa-refresh" aria-hidden="true"></i> Sync
+                <li id="syncGrades" class="nav-item popup">
+                    <btn class="btn btn-med" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">
+                        <i class="fa fa-refresh" aria-hidden="true"></i> 
+                        Sync
+                            <span class="nav-popups popup-bottom <% if (user.alerts.lastUpdated.length > 0 || user.schoolPassword) { %> dont-show <% } else { %>  always-show <% } %> coloration">
+                                Start syncing grades with PowerSchool by clicking the "Sync" button
+                            </span>   
                     </btn>
                 </li>
             <% } else { %>
@@ -58,9 +67,13 @@
                     </a>
                 </li>
             <% } else { %>
-                <li id="help" class="nav-item">
-                    <btn class="btn btn-med" onclick="showCard('#settingsCardDisplay'); openTab(4)">
+                <li id="help" class="nav-item popup">
+                    <btn class="btn btn-med" onclick="showCard('#settingsCardDisplay'); openTab(4); updateTutorial('help');">
                         <i class="fa fa-info-circle" aria-hidden="true"></i> Help
+                    <span class="nav-popups popup-bottom <% if (user.alerts.tutorialStatus.helpSeen || (user.alerts.lastUpdated.length === 0 && !user.schoolPassword)) { %> dont-show <% } else { %>  always-show <% } %> coloration">
+                                Here you can find contact information and quick links to important parts of the site.
+                                Ask any further questions by emailing <strong><a href="mailto: graderoom@gmail.com">graderoom@gmail.com</a></strong>
+                            </span>
                     </btn>
                 </li>
             <% } %>
@@ -155,11 +168,12 @@
                     // numClasses is contained in messagesDivID
                     // colors come from response
                     setTimeout(() => {
-                        updateClassColors(response);
-                    }, 500);
+                    updateClassColors(response);
+                }, 500);
                     $("#reloadNeeded").text("Reload Needed");
                 } else {
                     if (response.substring(0, 19) === "GradeSync Enabled. ") {
+                        $("#sync").find("span").removeClass("always-show").addClass("dont-show");
                         response = response.substring(19);
                         $("#syncGradesDiv").hide();
                         $("#gradeSyncDiv").show();
@@ -212,8 +226,8 @@
                             darkMode = true;
                             theme = "dark";
                             if (darkMode !== oldDarkMode) {
-                                clearTimeout(changeTransition);
-                                document.getElementById("fade").disabled = false;
+                                    clearTimeout(changeTransition);
+                                    document.getElementById("fade").disabled = false;
                                 document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
                                 renderAllCharts();
                                 $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
@@ -356,6 +370,15 @@
             });
         });
     }
+    function updateTutorial(action) {
+        $.ajax({
+                url: "/UpdateTutorialStatus", type: "POST", async: true, data: {action: action}       
+            }).done((reponse) => {
+                if ( action === "help" ) {
+                    $("#help").find("span").removeClass("always-show");
+                }
+            });
+        }
 
     function showCard(id) {
         closeForm(id.substring(1));
@@ -456,6 +479,15 @@
                 }
                 closeForm(cardsDisplayed[cardsDisplayed.length - 1]);
             }
+        }
+    });
+    //ToDo -> Adding mobile size of popups in navbar
+    $(window).on('resize',function() {
+        if($(window).width() > 991) {
+            //Big Screen
+        }
+        else {
+            //Small Screen
         }
     });
 </script>

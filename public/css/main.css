@@ -428,7 +428,7 @@ table thead tr th:last-child {
 }
 
 .popup {
-    z-index: 3;
+    z-index: 2;
 }
 
 .popup .fa-close {
@@ -457,7 +457,7 @@ table thead tr th:last-child {
     z-index: 2;
 }
 
-.popup i, .popup button {
+.popup i, .popup button, .popup btn {
     position: relative;
 }
 
@@ -497,6 +497,9 @@ table thead tr th:last-child {
     top: 100%;
     transform: translateX(50%);
 }
+
+.input-group .popup {
+    z-index: 3 !important;
 
 .popup .popup-top {
     bottom: 150%;
