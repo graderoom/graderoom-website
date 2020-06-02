@@ -554,6 +554,16 @@
             $("#gradeSync").submit();
             $("#gradeSyncDiv").hide();
             $("#syncGradesDiv").show();
+            if (user.alerts.lastUpdated.length === 0 && !user.schoolPassword) {
+                $("#syncGrades").find("span").addClass("always-show").removeClass("dont-show");
+            } else {
+                if (!user.alerts.tutorialStatus.calcSeen) {
+                    $("#finalGradeCalculator").find("span").addClass("always-show").removeClass("dont-show");
+                }
+                if (!user.alerts.tutorialStatus.helpSeen) {
+                    $("#help").find("span").addClass("always-show").removeClass("dont-show");
+                }
+            }
         } else {
             showCard("#updateGradesDisplay");
         }

@@ -79,19 +79,6 @@
 
         <!-- Main Screen -->
         <div class="container">
-            <!-- Messages -->
-            <% var daysSinceUpdated = 0; %>
-            <% if (user.alerts.lastUpdated.length === 0) { %> <br>
-            <div class="alert alert-success font-weight-bold">
-                <u style="cursor: pointer" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">Sync
-                    your
-                    grades</u> now!
-            </div>
-            <% } %>
-            <!-- <div class="alert alert-danger alert-dismissible" id="weightmsg" style="display:none">
-                                <a class="close" data-dismiss="alert" aria-label="close">X</a>
-                                <span id="weightmsg_text"></span>
-                            </div> -->
             <!-- Overview Section -->
             <% if (user.alerts.lastUpdated.length !== 0) { %>
                 <span id="section-1">
@@ -516,7 +503,6 @@
         } catch (e) {
         }
     }
-    setupLastUpdated();
     if (user.schoolPassword) {
         $("#syncGradesDiv").hide();
         $("#gradeSyncDiv").show();
@@ -524,7 +510,7 @@
     } else {
         $("#gradeSyncDiv").hide();
         $("#syncGradesDiv").show();
-        $(".updateGradesMessage").find(".messageTxt").text("");
+        $(".updateGradesMessage").find(".messageTxt").text("Gradesync is not enabled");
         showLatest(false);
     }
     document.getElementById("darkModeStart").setAttribute("placeholder", (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString()));
@@ -589,6 +575,7 @@
     async function checkUpdateBackground() {
         let checking = window.setInterval(function () {
             $.get("/checkUpdateBackground", function (data, status) {
+                console.log("sent. RECEIVED: ", status, "Data: ", data);
                 if (status === "success") {
                     if (data === "Sync Complete!") {
                         clearInterval(checking);
@@ -602,6 +589,7 @@
                         clearInterval(checking);
                         showLatest(false);
                         $(".updateGradesMessage").find(".messageTxt").text("Synced successfully.");
+                        setupLastUpdated();
                     } else if (data === "Did not sync") {
                         $(".updateGradesMessage").find(".messageTxt").text("Syncing...");
                     } else if (data === "Cannot access grades.") {
@@ -614,6 +602,9 @@
                         clearInterval(checking);
                         $(".updateGradesMessage").find(".messageTxt").text(data);
                         showLatest(false);
+                    } else if (data === "Not syncing") {
+                        $(".updateGradesMessage").find(".messageTxt").text("Never Synced");
+                        clearInterval(checking);
                     }
                 }
             });

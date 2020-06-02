@@ -11,7 +11,7 @@ const crypto = require("crypto");
 const readline = require("readline");
 const fs = require("fs");
 
-db.defaults({versions: {stable: "", beta: ""}, users: [], keys: [], classes: {}, deletedUsers: []}).write();
+db.defaults({users: [], keys: [], classes: {}, deletedUsers: []}).write();
 
 let changelogArray = "";
 let betaChangelogArray = "";
@@ -25,9 +25,8 @@ module.exports = {
         const backupAdapter = new FileSync(filename);
         const backupDb = low(backupAdapter);
         backupDb.defaults({
-                              versions: {stable: "", beta: ""}, users: [], keys: [], classes: {}, deletedUsers: []
+                              users: [], keys: [], classes: {}, deletedUsers: []
                           }).write();
-        backupDb.set("versions", db.get("versions").value()).write();
         backupDb.set("users", db.get("users").value()).write();
         backupDb.set("keys", db.get("keys").value()).write();
         backupDb.set("classes", db.get("classes").value()).write();
@@ -45,7 +44,7 @@ module.exports = {
                 return {success: false, message: "Beta key already claimed."};
             }
 
-            let r = await this.addNewUser(username, password, schoolUsername, isAdmin);
+            let r = await this.addNewUser(username, password, schoolUsername, isAdmin, true);
             if (r.success === true) {
                 db.get("keys").find({betaKey: betaKey}).set("claimed", true).write();
                 db.get("keys").find({betaKey: betaKey}).set("claimedBy", username).write();
@@ -122,6 +121,12 @@ module.exports = {
     updateAllDB: function () {
         let startTime = Date.now();
         console.log("" + startTime + " | Started Database Update");
+
+        // Remove version object
+        if (db.get("versions").value()) {
+            db.unset("versions").write();
+        }
+
         let users = db.get("users").value();
 
         for (let i = 0; i < users.length; i++) {
@@ -469,7 +474,7 @@ module.exports = {
     }
 
     //Need to add Try Catches to error check when updating db values
-    , addNewUser: function (username, password, schoolUsername, isAdmin) {
+    , addNewUser: function (username, password, schoolUsername, isAdmin, beta = false) {
 
         let lc_username = username.toLowerCase();
         return new Promise((resolve, reject) => {
@@ -531,13 +536,12 @@ module.exports = {
                                          alerts: {
                                              lastUpdated: [],
                                              updateGradesReminder: "daily",
-                                             latestSeen: "1.0.0",
+                                             latestSeen: beta ? versionNameArray[1][1] : versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1],
                                              policyLastSeen: "never",
                                              termsLastSeen: "never",
                                              remoteAccess: "denied",
                                              tutorialStatus: {
-                                                 helpSeen: false,
-                                                 calcSeen: false
+                                                 helpSeen: false, calcSeen: false
                                              }
                                          },
                                          weights: {},
@@ -680,8 +684,10 @@ module.exports = {
             return {success: false, message: "Cannot access grades."};
         } else if (syncStatus === "failed") {
             return {success: false, message: "Sync Failed."};
-        } else {
+        } else if (syncStatus === "updating") {
             return {success: false, message: "Did not sync"};
+        } else {
+            return {success: false, message: "Not syncing"};
         }
     },
 
@@ -694,7 +700,7 @@ module.exports = {
     updateGradesBackground: function (acc_username, school_password) {
         let lc_username = acc_username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
-        user.set("updatedInBackground", "").write();
+        user.set("updatedInBackground", "updating").write();
         this.updateGrades(acc_username, school_password).then(function (resp) {
             lc_username = acc_username.toLowerCase();
             user = db.get("users").find({username: lc_username});
@@ -1059,6 +1065,7 @@ module.exports = {
             }
         }).on("close", () => {
             items.push(item);
+            versionNameArray.push(item.title.split(" "));
             let currentVersionFound = false;
             let betaCurrentVersionFound = false;
             for (let i = 0; i < items.length; i++) {
@@ -1067,7 +1074,6 @@ module.exports = {
                 if (!betaCurrentVersionFound) {
                     if (items[i].title.substring(0, 4) === "Beta" || items[i].title.substring(0, 6) === "Stable") {
                         betaResultHTML += " current\">";
-                        db.get("versions").set("beta", items[i].title.substring(items[i].title.indexOf(" ") + 1)).write();
                         betaCurrentVersionFound = true;
                     } else if (items[i].title.substring(0, 12) === "Announcement") {
                         betaResultHTML += " announcement\">";
@@ -1082,7 +1088,6 @@ module.exports = {
                 if (!currentVersionFound) {
                     if (items[i].title.substring(0, 6) === "Stable") {
                         resultHTML += " current\">";
-                        db.get("versions").set("stable", items[i].title.substring(items[i].title.indexOf(" ") + 1)).write();
                         currentVersionFound = true;
                     } else if (items[i].title.substring(0, 12) === "Announcement") {
                         resultHTML += " announcement\">";
@@ -1150,12 +1155,10 @@ module.exports = {
 
     tutorialPops: function (username, action) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
-        if ( action === "help" ) {
-            userRef.get("alerts").get("tutorialStatus").set("helpSeen", true).write()
-        }
-
-        else if ( action === "calc" ) {
-            userRef.get("alerts").get("tutorialStatus").set("calcSeen", true).write()
+        if (action === "help") {
+            userRef.get("alerts").get("tutorialStatus").set("helpSeen", true).write();
+        } else if (action === "calc") {
+            userRef.get("alerts").get("tutorialStatus").set("calcSeen", true).write();
         }
     }
 };

@@ -110,9 +110,9 @@ nav .navbar-toggler:hover {
 }
 
 table tbody tr td {
+    border-style: solid;
     border-bottom: none;
     border-left: none;
-    border-style: solid;
 }
 
 table tbody tr td:last-child {
@@ -120,8 +120,8 @@ table tbody tr td:last-child {
 }
 
 table thead tr th {
-    border-left: none;
     border-style: solid;
+    border-left: none;
 }
 
 table thead tr th:last-child {
@@ -457,13 +457,13 @@ table thead tr th:last-child {
     z-index: 2;
 }
 
-.popup i, .popup button, .popup btn {
+.popup i, .popup button, .popup btn, .popup a {
     position: relative;
 }
 
-.popup i:hover span, input:focus + .popup i span {
-    animation: fadeIn 400ms;
+.popup i:hover span, input:focus + .popup i span, .popup btn:hover span, .popup a:hover span {
     display: block;
+    animation: fadeIn 400ms;
 }
 
 .dont-show {
@@ -500,6 +500,7 @@ table thead tr th:last-child {
 
 .input-group .popup {
     z-index: 3 !important;
+}
 
 .popup .popup-top {
     bottom: 150%;
@@ -732,10 +733,11 @@ table thead tr th:last-child {
 }
 
 .no-scroll {
-    overflow: hidden;
-    padding-bottom: 0;
     position: fixed;
+    overflow: hidden;
     width: 100%;
+    height: 100%;
+    padding-bottom: 0;
 }
 
 .number-input {
