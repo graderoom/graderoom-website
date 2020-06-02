@@ -24,7 +24,7 @@
                         <span class="popup">
                             <i class="fa fa-info-circle" id="syncFailure"
                                style="padding-left: 0.2rem; align-self: center; display:none">
-                                <span class="popup-bottom">
+                                <span class="popup-bottom-left">
                                     An error occurred while collecting grade data
                                 </span>
                             </i>
@@ -32,12 +32,11 @@
                         <span class="popup">
                             <i class="fa fa-info-circle" id="syncNoData"
                                style="padding-left: 0.2rem; align-self: center; display:none">
-                                <span class="popup-bottom">
+                                <span class="popup-bottom-left">
                                     No grade data was found
                                 </span>
                             </i>
                         </span>
-                        <div style="margin-left: 0.4rem" class="font-weight-bold dateTxt"></div>
                     </div>
                 </div>
                 <h1 class="card-title text-center">School Login</h1>
@@ -138,7 +137,7 @@
 
         let messageDiv = $(".updateGradesMessage");
         $(messageDiv[1]).removeClass("alert-danger").addClass("alert-info");
-        let message = messageDiv.find(".dateTxt");
+        let message = messageDiv.find(".messageTxt");
         let lastUpdated = user.alerts.lastUpdated.slice(-1)[0];
         let deltaTime = Date.now() - lastUpdated;
         if (lastUpdated === undefined) {

@@ -23,7 +23,8 @@
     <div class="navbar-collapse collapse w-100" id="collapsingNav">
         <ul class="navbar-nav w-100 justify-content-center">
             <li style="cursor: pointer" class="nav-item">
-                <h5 onclick="showCard('#settingsCardDisplay'); openTab(2)"><%= user.username %></h5>
+                <h5 style="padding-top: 0"
+                    onclick="showCard('#settingsCardDisplay'); openTab(2)"><%= user.username %></h5>
                 <label onclick="showCard('#settingsCardDisplay'); openTab(2)" id="nameDisplay"
                        style="cursor: pointer; margin: 0; display: block"><%= user.personalInfo.firstName %> <%= user.personalInfo.lastName %>
                     '<%= user.personalInfo.graduationYear - 2000 %></label>
@@ -38,22 +39,22 @@
         <ul class="navbar-nav w-100 justify-content-end align-items-end ml-auto">
             <% if (current == 'home') { %>
                 <li id="finalGradeCalculator" class="nav-item popup">
-                    <btn class="btn btn-med" href="/finalgradecalculator" onclick="updateTutorial('calc');"> <i class="fa fa-calculator" aria-hidden="true"></i> 
+                    <a class="btn btn-med" href="/finalgradecalculator" onclick="updateTutorial('calc');"><i
+                                class="fa fa-calculator" aria-hidden="true"></i>
                         Calculator
-                        <div href="/finalgradecalculator">
-                            <span class="nav-popups popup-bottom <% if (user.alerts.tutorialStatus.calcSeen || (user.alerts.lastUpdated.length === 0 && !user.schoolPassword)) { %> dont-show <% } else { %>  always-show <% } %> coloration">
-                                Stressed about finals? Find out how much they matter by clicking the "Calculator" button
-                            </span>  
-                        </div>              
-                    </btn>
+                        <span onclick="updateTutorial('calc')"
+                              class="nav-popups popup-bottom <% if (!user.alerts.tutorialStatus.calcSeen && (user.alerts.lastUpdated.length > 0 || user.schoolPassword)) { %>  always-show <% } else { %> dont-show <% } %> coloration">
+                            Stressed about finals? Find out how much they matter.
+                        </span>
+                    </a>
                 </li>
                 <li id="syncGrades" class="nav-item popup">
                     <btn class="btn btn-med" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">
-                        <i class="fa fa-refresh" aria-hidden="true"></i> 
+                        <i class="fa fa-refresh" aria-hidden="true"></i>
                         Sync
-                            <span class="nav-popups popup-bottom <% if (user.alerts.lastUpdated.length > 0 || user.schoolPassword) { %> dont-show <% } else { %>  always-show <% } %> coloration">
-                                Start syncing grades with PowerSchool by clicking the "Sync" button
-                            </span>   
+                        <span class="nav-popups popup-bottom <% if (user.alerts.lastUpdated.length === 0 && !user.schoolPassword) { %>  always-show <% } else { %> dont-show <% } %> coloration">
+                            Sync your grades with PowerSchool
+                        </span>
                     </btn>
                 </li>
             <% } else { %>
@@ -66,14 +67,14 @@
                     <a class="btn btn-med" href="/admin"> <i class="fa fa-fighter-jet" aria-hidden="true"></i> Admin
                     </a>
                 </li>
-            <% } else { %>
+            <% } else if (current === "home") { %>
                 <li id="help" class="nav-item popup">
-                    <btn class="btn btn-med" onclick="showCard('#settingsCardDisplay'); openTab(4); updateTutorial('help');">
+                    <btn class="btn btn-med"
+                         onclick="showCard('#settingsCardDisplay'); openTab(4); updateTutorial('help');">
                         <i class="fa fa-info-circle" aria-hidden="true"></i> Help
-                    <span class="nav-popups popup-bottom <% if (user.alerts.tutorialStatus.helpSeen || (user.alerts.lastUpdated.length === 0 && !user.schoolPassword)) { %> dont-show <% } else { %>  always-show <% } %> coloration">
-                                Here you can find contact information and quick links to important parts of the site.
-                                Ask any further questions by emailing <strong><a href="mailto: graderoom@gmail.com">graderoom@gmail.com</a></strong>
-                            </span>
+                        <span class="nav-popups popup-bottom <% if (!user.alerts.tutorialStatus.helpSeen && (user.alerts.lastUpdated.length > 0 || user.schoolPassword)) { %>  always-show <% } else { %> dont-show <% } %> coloration">
+                            Here you can find contact information and quick links to important parts of the site.
+                        </span>
                     </btn>
                 </li>
             <% } %>
@@ -168,31 +169,40 @@
                     // numClasses is contained in messagesDivID
                     // colors come from response
                     setTimeout(() => {
-                    updateClassColors(response);
-                }, 500);
+                        updateClassColors(response);
+                    }, 500);
                     $("#reloadNeeded").text("Reload Needed");
                 } else {
+                    let msg = "";
                     if (response.substring(0, 19) === "GradeSync Enabled. ") {
-                        $("#sync").find("span").removeClass("always-show").addClass("dont-show");
+                        $("#syncGrades").find("span").removeClass("always-show").addClass("dont-show");
+                        msg = response.substring(0, 19);
                         response = response.substring(19);
                         $("#syncGradesDiv").hide();
                         $("#gradeSyncDiv").show();
+                        user.schoolPassword = true;
+                        if (!user.alerts.tutorialStatus.calcSeen && (user.alerts.lastUpdated.length > 0 || user.schoolPassword)) {
+                            $("#finalGradeCalculator").find("span").addClass("always-show").removeClass("dont-show");
+                        }
+                        if (!user.alerts.tutorialStatus.helpSeen && (user.alerts.lastUpdated.length > 0 || user.schoolPassword)) {
+                            $("#help").find("span").addClass("always-show").removeClass("dont-show");
+                        }
+
                     }
                     if (response === "No class data.") {
                         $("#syncNoData").show();
                         $(formMessagesDiv).find(".sk-chase-mini").hide();
-                        $(formMessagesDiv).find(".messageTxt").text("Cannot access grades.");
+                        $(formMessagesDiv).find(".messageTxt").text(msg + "Cannot access grades.");
                         $($(formMessagesDiv)[1]).removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
                     } else if (response === "Error scraping grades.") {
                         $("#syncFailure").show();
                         $(formMessagesDiv).find(".sk-chase-mini").hide();
-                        $(formMessagesDiv).find(".messageTxt").text("Sync Failed.");
+                        $(formMessagesDiv).find(".messageTxt").text(msg + "Sync Failed.");
                         $($(formMessagesDiv)[1]).removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
                     } else if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
                         $(formMessagesDiv).find(".sk-chase-mini").hide();
                         clearTimeout(checkLastUpdated);
-                        $(formMessagesDiv).find(".dateTxt").text("");
-                        $(formMessagesDiv).find(".messageTxt").text("Refresh to see the latest updates.");
+                        $(formMessagesDiv).find(".messageTxt").text(msg + "Refresh to see the latest updates.");
                         $($(formMessagesDiv)[1]).removeClass("alert-info").removeClass("alert-danger").addClass("alert-success");
                         setTimeout(() => window.reload(), 400);
                     } else {
@@ -226,8 +236,8 @@
                             darkMode = true;
                             theme = "dark";
                             if (darkMode !== oldDarkMode) {
-                                    clearTimeout(changeTransition);
-                                    document.getElementById("fade").disabled = false;
+                                clearTimeout(changeTransition);
+                                document.getElementById("fade").disabled = false;
                                 document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
                                 renderAllCharts();
                                 $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
@@ -370,15 +380,18 @@
             });
         });
     }
+
     function updateTutorial(action) {
         $.ajax({
-                url: "/UpdateTutorialStatus", type: "POST", async: true, data: {action: action}       
-            }).done((reponse) => {
-                if ( action === "help" ) {
-                    $("#help").find("span").removeClass("always-show");
-                }
-            });
-        }
+                   url: "/UpdateTutorialStatus", type: "POST", async: true, data: {action: action}
+               }).done(() => {
+            if (action === "help") {
+                $("#help").find("span").removeClass("always-show").addClass("dont-show");
+            } else if (action === "calc") {
+                $("#finalGradeCalculator").find("span").removeClass("always-show").addClass("dont-show");
+            }
+        });
+    }
 
     function showCard(id) {
         closeForm(id.substring(1));
@@ -398,9 +411,6 @@
         }
         for (let i = 0; i < cardsDisplayed.length; i++) {
             $("#" + cardsDisplayed[i]).finish();
-        }
-        if (id === "updateGradesDisplay") {
-            setupLastUpdated();
         }
         if (id === "updateWeightsDisplay") {
             if (document.getElementById("edited").textContent === "Edited") {
@@ -482,11 +492,10 @@
         }
     });
     //ToDo -> Adding mobile size of popups in navbar
-    $(window).on('resize',function() {
-        if($(window).width() > 991) {
+    $(window).on("resize", function () {
+        if ($(window).width() > 991) {
             //Big Screen
-        }
-        else {
+        } else {
             //Small Screen
         }
     });
