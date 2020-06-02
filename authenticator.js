@@ -157,6 +157,13 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
 
+        // Add tutorial status
+        if (!user.alerts.tutorialStatus) {
+            userRef.get("alerts").set("tutorialStatus", {
+                helpSeen: false, calcSeen: false
+            }).write();
+        }
+
         // Add personal info
         if (!user.personalInfo) {
             let {firstName, lastName, graduationYear} = getPersonalInfo(user.schoolUsername);
@@ -528,7 +535,11 @@ module.exports = {
                                              latestSeen: "1.0.0",
                                              policyLastSeen: "never",
                                              termsLastSeen: "never",
-                                             remoteAccess: "denied"
+                                             remoteAccess: "denied",
+                                             tutorialStatus: {
+                                                 helpSeen: false,
+                                                 calcSeen: false
+                                             }
                                          },
                                          weights: {},
                                          grades: [],
@@ -1146,8 +1157,20 @@ module.exports = {
     setLoggedIn: function (username) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
         userRef.get("loggedIn").push(Date.now()).write();
+    },
+
+    tutorialPops: function (username, action) {
+        let userRef = db.get("users").find({username: username.toLowerCase()});
+        if ( action === "help" ) {
+            userRef.get("alerts").get("tutorialStatus").set("helpSeen", true).write()
+        }
+
+        else if ( action === "calc" ) {
+            userRef.get("alerts").get("tutorialStatus").set("calcSeen", true).write()
+        }
     }
 };
+
 
 function isAlphaNumeric(str) {
     let code, i, len;

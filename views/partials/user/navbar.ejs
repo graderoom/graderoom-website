@@ -28,10 +28,10 @@
         <ul class="navbar-nav w-100 justify-content-end align-items-end ml-auto">
             <% if (current == 'home') { %>
                 <li id="finalGradeCalculator" class="nav-item popup">
-                    <btn class="btn btn-med" href="/finalgradecalculator"> <i class="fa fa-calculator" aria-hidden="true"></i> 
+                    <btn class="btn btn-med" href="/finalgradecalculator" onclick="updateTutorial('calc');"> <i class="fa fa-calculator" aria-hidden="true"></i> 
                         Calculator
                         <div href="/finalgradecalculator">
-                            <span class="nav-popups popup-bottom always-show coloration" id="thePopup">
+                            <span class="nav-popups popup-bottom <% if (user.alerts.tutorialStatus.calcSeen || (user.alerts.lastUpdated.length === 0 && !user.schoolPassword)) { %> dont-show <% } else { %>  always-show <% } %> coloration">
                                 Stressed about finals? Find out how much they matter by clicking the "Calculator" button
                             </span>  
                         </div>              
@@ -41,7 +41,7 @@
                     <btn class="btn btn-med" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">
                         <i class="fa fa-refresh" aria-hidden="true"></i> 
                         Sync
-                            <span class="nav-popups popup-bottom always-show coloration" id="thePopup">
+                            <span class="nav-popups popup-bottom <% if (user.alerts.lastUpdated.length > 0 || user.schoolPassword) { %> dont-show <% } else { %>  always-show <% } %> coloration">
                                 Start syncing grades with PowerSchool by clicking the "Sync" button
                             </span>   
                     </btn>
@@ -58,9 +58,9 @@
                 </li>
             <% } else { %>
                 <li id="help" class="nav-item popup">
-                    <btn class="btn btn-med" onclick="showCard('#settingsCardDisplay'); openTab(4)">
+                    <btn class="btn btn-med" onclick="showCard('#settingsCardDisplay'); openTab(4); updateTutorial('help');">
                         <i class="fa fa-info-circle" aria-hidden="true"></i> Help
-                            <span class="nav-popups popup-bottom always-show coloration">
+                    <span class="nav-popups popup-bottom <% if (user.alerts.tutorialStatus.helpSeen || (user.alerts.lastUpdated.length === 0 && !user.schoolPassword)) { %> dont-show <% } else { %>  always-show <% } %> coloration">
                                 Here you can find contact information and quick links to important parts of the site.
                                 Ask any further questions by emailing <strong><a href="mailto: graderoom@gmail.com">graderoom@gmail.com</a></strong>
                             </span>
@@ -163,6 +163,7 @@
                     $("#reloadNeeded").text("Reload Needed");
                 } else {
                     if (response.substring(0, 19) === "GradeSync Enabled. ") {
+                        $("#sync").find("span").removeClass("always-show").addClass("dont-show");
                         response = response.substring(19);
                         $("#syncGradesDiv").hide();
                         $("#gradeSyncDiv").show();
@@ -360,6 +361,15 @@
             });
         });
     }
+    function updateTutorial(action) {
+        $.ajax({
+                url: "/UpdateTutorialStatus", type: "POST", async: true, data: {action: action}       
+            }).done((reponse) => {
+                if ( action === "help" ) {
+                    $("#help").find("span").removeClass("always-show");
+                }
+            });
+        }
 
     function showCard(id) {
         cardsDisplayed.push(id.substring(1));
