@@ -50,6 +50,17 @@
 - Cards can sometimes not be closed with keyboard shortcuts <strong>[Fixed in Beta 2.3.8]</strong>
 - Changelog display buttons work incorrectly after page resize <strong>[Fixed in Beta 2.3.8]</strong>
 
+## [Stable 2.3.10] - 2020-06-01
+### Added
+- New tutorial and help messages
+
+### Improved
+- Gradesync is more clear when enabled
+- Last synced display only show when recently synced
+
+### Fixed
+- Squashed several small bugs
+
 ## [Stable 2.3.9] - 2020-06-01
 ### Added
 - Custom error pages when server is down
