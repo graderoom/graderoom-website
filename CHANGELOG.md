@@ -50,7 +50,7 @@
 - Cards can sometimes not be closed with keyboard shortcuts <strong>[Fixed in Beta 2.3.8]</strong>
 - Changelog display buttons work incorrectly after page resize <strong>[Fixed in Beta 2.3.8]</strong>
 
-## [Stable 2.3.10] - 2020-06-01
+## [Beta 2.3.10] - 2020-06-01
 ### Added
 - New tutorial and help messages
 
