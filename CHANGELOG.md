@@ -50,6 +50,25 @@
 - Cards can sometimes not be closed with keyboard shortcuts <strong>[Fixed in Beta 2.3.8]</strong>
 - Changelog display buttons work incorrectly after page resize <strong>[Fixed in Beta 2.3.8]</strong>
 
+## [Beta 2.4.0] - 2020-06-04
+### Added
+- Ability to sort grades by category
+- Completion status of tutorial
+- Button to reset tutorial
+- See contributors to this site in the Help Tab of settings
+
+### Improved
+- Responsiveness when editing grades
+- Positioning of some popups
+- Popups now disappear when hovered over to show what's behind them
+- Redesigned settings
+- Sync status display size
+
+### Fixed
+- Issue where what's new display showed versions that were already seen
+- Issue where popups would show over first card
+- Issue where ungraded first assignment in any class would cause incorrect grade step calculation
+
 ## [Beta 2.3.10] - 2020-06-01
 ### Added
 - New tutorial and help messages
