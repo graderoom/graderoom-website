@@ -18,21 +18,28 @@
             <div class="tab" style="margin-bottom: 1rem">
                 <btn id="btn-1" class="tablinks active" onclick="openTab(1)">Appearance</btn>
                 <btn id="btn-2" class="tablinks" onclick="openTab(2)">Account</btn>
-                <btn id="btn-3" class="tablinks" onclick="openTab(3)">Advanced</btn>
-                <btn id="btn-4" class="tablinks" onclick="openTab(4)">Help</btn>
+                <btn id="btn-3" class="tablinks" onclick="openTab(3)">Help</btn>
             </div>
             <div id="settings-1" class="tabcontent" style="display: block">
                 <div class="card-body">
                     <% if (user.grades.length > 0) { %>
                         <div class="card-footer">
-                            <h5>Class Colors</h5>
+                            <h5>Class Colors
+                                <span class="popup">
+                                    <i class="fa fa-question-circle">
+                                        <span class="popup-right">Only random colors are currently supported. These
+                                            colors are generated to be as distinct as possible in both light and dark
+                                            themes.</span>
+                                    </i>
+                                </span>
+                            </h5>
                             <form style="display: flex; justify-content: center; align-content: space-evenly"
                                   action="/randomizeClassColors" id="randomizeClassColors" method="POST"
                                   class="form-signin">
                                 <button style="width: fit-content; width: -moz-fit-content; flex-shrink: 2;"
                                         onclick="ajaxPostForm('#randomizeClassColors',[],'',true)"
                                         class="btn btn-med">
-                                    Randomize Palette
+                                    Randomize Colors
                                 </button>
                                 <div class="text-center" id="classColors" style="width: 100%; height: fit-content">
                                     <% for (var i = 0; i < user.grades.length; i++) { %>
@@ -203,13 +210,74 @@
             </div>
             <div id="settings-2" class="tabcontent">
                 <div class="card-body">
+                    <div class="card-footer">
+                        <h5>PowerSchool Sync Settings</h5>
+                        <form id="changeSchoolEmail" class="form-signin"
+                              action="/changeschoolemail" method="post">
+                            <div class="form-group">
+                                <div id="emailChangeMessage"
+                                     class="alert alert-success alert-dismissible font-weight-bold"
+                                     style="display:none">
+                                    <div style="display:none" class="sk-chase-mini">
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                    </div>
+                                    <div class="messageTxt"></div>
+                                    <a class="close" onclick="closeMessage('emailChangeMessage')"
+                                       aria-label="close">X</a>
+                                </div>
+                                <div style="display: flex; flex-flow: row; justify-content: flex-start; align-items: center">
+                                    <div class="input-group" style="margin-bottom: 0">
+                                        <i class="email-bg"></i>
+                                        <label>School Email</label>
+                                        <input oninput="checkLabel(this)" id="school_email" type="text"
+                                               class="form-control"
+                                               name="school_email" required>
+                                    </div>
+                                    <button type="submit"
+                                            onclick="updateSchoolUsernameDisplay(); ajaxPostForm('#changeSchoolEmail',[],'#emailChangeMessage', true);"
+                                            class="btn btn-default btn-med" style="width: fit-content">
+                                        Apply
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        <form id="gradeSync" class="form-signin" action="/disableGradeSync" method="post">
+                            <label style="white-space: nowrap; display: flex; font-size: 1rem; justify-content: flex-start; align-items: center">
+                                <label class="switch">
+                                    <input
+                                            id="gradeSyncToggle"
+                                            style="margin: 0; display: flex"
+                                            type="checkbox"
+                                            name="gradeSync"
+                                    <% if (user.schoolPassword) { %>
+                                            checked
+                                            <% } %>
+                                            onchange="manageGradeSyncCheckbox()"
+                                    >
+                                    <span style="color: #888888" class="slider"></span>
+                                </label>
+                                <label style="margin: 0 0 0 1rem; justify-content: center; align-items: center; cursor: pointer"
+                                       onclick="$('#gradeSyncToggle').trigger('click')">GradeSync<span
+                                            class="popup"><i class="fa fa-question-circle"
+                                                             style="margin-left: 0.4rem"><span
+                                                    class="popup-right-top">When enabled, Graderoom syncs with
+                                                PowerSchool whenever you login to
+                                                Gradroom</span></i></span></label>
+                            </label>
+                        </form>
+                    </div>
                     <form id="changePersonalInfo" class="card-footer form-signin" autocomplete="off">
                         <div class="form-group">
                             <h5>Personal Info
                                 <span class="popup">
                                     <i class="fa fa-question-circle">
-                                        <span class="popup-right">Only editing your first name is supported. All edits
-                                            are saved automatically.</span>
+                                        <span class="popup-right">This information is derived from your school email.
+                                            You can edit your first name.</span>
                                     </i>
                                 </span>
                             </h5>
@@ -269,7 +337,7 @@
                             </div>
                         </div>
                     </form>
-                    <form id="changePassword" style="margin-top: 1em" class="card-footer form-signin"
+                    <form id="changePassword" class="card-footer form-signin"
                           action="/changepassword"
                           method="post">
                         <div class="form-group">
@@ -324,64 +392,12 @@
                             </button>
                         </div>
                     </form>
-                    <form id="changeSchoolEmail" class="card-footer form-signin" style="margin-top: 1em"
-                          action="/changeschoolemail" method="post">
-                        <div class="form-group">
-                            <h5>Change School Email</h5>
-                            <div id="emailChangeMessage" class="alert alert-success alert-dismissible font-weight-bold"
-                                 style="display:none">
-                                <div style="display:none" class="sk-chase-mini">
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                </div>
-                                <div class="messageTxt"></div>
-                                <a class="close" onclick="closeMessage('emailChangeMessage')" aria-label="close">X</a>
-                            </div>
-                            <br>
-                            <div class="input-group">
-                                <i class="email-bg"></i>
-                                <label>School Email</label>
-                                <input oninput="checkLabel(this)" id="school_email" type="text" class="form-control"
-                                       name="school_email" required>
-                            </div>
-                        </div>
-                        <div class="text-center">
-                            <button type="submit"
-                                    onclick=" updateSchoolUsernameDisplay(); ajaxPostForm('#changeSchoolEmail',['#school_email'],'#emailChangeMessage', true);"
-                                    class="btn btn-default btn-med">
-                                Change School Email
-                            </button>
-                        </div>
-                    </form>
                 </div>
             </div>
-            <div id="settings-3" class="tabcontent" style="display:none">
+            <div id="settings-3" class="tabcontent">
                 <div class="card-body">
                     <div class="card-footer">
-                        <h5>Miscellaneous</h5>
-                        <form id="gradeSync" class="form-signin" action="/disableGradeSync" method="post">
-                            <label style="white-space: nowrap; display: flex; font-size: 1rem; justify-content: flex-start; align-items: center">
-                                <label class="switch">
-                                    <input
-                                            id="gradeSyncToggle"
-                                            style="margin: 0; display: flex"
-                                            type="checkbox"
-                                            name="gradeSync"
-                                    <% if (user.schoolPassword) { %>
-                                            checked
-                                            <% } %>
-                                            onchange="manageGradeSyncCheckbox()"
-                                    >
-                                    <span style="color: #888888" class="slider"></span>
-                                </label>
-                                <label style="margin: 0 0 0 1rem; justify-content: center; align-items: center; cursor: pointer"
-                                       onclick="$('#gradeSyncToggle').trigger('click')">GradeSync</label>
-                            </label>
-                        </form>
+                        <h5>Troubleshooting</h5>
                         <form id="remoteAccess" class="form-signin" action="/setRemoteAccess" method="post">
                             <label style="display: flex; font-size: 1rem; justify-content: flex-start; align-items: center">
                                 <label class="switch">
@@ -399,17 +415,14 @@
                                 </label>
                                 <label style="margin: 0 0 0 1rem; justify-content: center; align-items: center; cursor: pointer"
                                        onclick="$('#remoteAccessToggle').trigger('click')">Allow
-                                    Remote Access</label>
+                                    Remote Access<span
+                                            class="popup"><i class="fa fa-question-circle"
+                                                             style="margin-left: 0.4rem"><span
+                                                    class="popup-right-top">When enabled, developers can view your
+                                                personal home page to help with
+                                                troubleshooting.</span></i></span></label>
                             </label>
                         </form>
-                    </div>
-                </div>
-            </div>
-            <div id="settings-4" class="tabcontent">
-                <div class="card-body">
-                    <div class="card-footer">
-                        <h5>Contact Us</h5>
-                        <p>Email: <u><a href="mailto: graderoom@gmail.com">graderoom@gmail.com</a></u></p>
                     </div>
                     <div class="card-footer">
                         <h5>Quick Links</h5>
@@ -450,6 +463,31 @@
                             </label>
                         </button>
                     </div>
+                    <div class="card-footer">
+                        <h5>Tutorial
+                            <span class="popup">
+                                <i class="fa fa-question-circle">
+                                    <span class="popup-right-top">Explore parts of Graderoom with blue popups to
+                                        complete the tutorial</span>
+                                </i>
+                            </span></h5>
+                        <label id="tutorialStatus">Loading...</label>
+                        <button class="btn btn-sm" style="margin: 0.1rem; width: fit-content" type="submit"
+                                onclick="resetTutorial()">Reset Tutorial
+                        </button>
+                    </div>
+                    <div class="card-footer">
+                        <h5>Contributors</h5>
+                        <h6>Joel Jothiprakasam '21</h6>
+                        <h6>Abhinav Nallapa '21</h6>
+                        <h6>Robert Ganino '20</h6>
+                        <h6>Krish Pandit '21</h6>
+                        <h6>Bryce Hackel '21</h6>
+                    </div>
+                    <div class="card-footer">
+                        <h5>Contact Us</h5>
+                        <p>Email: <u><a href="mailto: graderoom@gmail.com">graderoom@gmail.com</a></u></p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -488,7 +526,7 @@
 
         checkingFirstName = setTimeout(() => {
             if (!firstNameRegex.test(firstName)) {
-                $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("First name must contain only letters");
+                $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("First name must contain only letters...You're name isn't X Æ A-12, is it?");
                 icon.attr("class", "fa fa-exclamation-circle");
                 $(inputID).css("border-bottom-color", "red");
                 invalidateSignup();
@@ -564,6 +602,8 @@
                     $("#help").find("span").addClass("always-show").removeClass("dont-show");
                 }
             }
+            clearTimeout(checkLastUpdated);
+            $(".updateGradesMessage .messageTxt").text("GradeSync is not enabled");
         } else {
             showCard("#updateGradesDisplay");
         }
@@ -610,6 +650,9 @@
         document.getElementById(tabName).style.display = "block";
         document.getElementById("btn-" + tabIndex).classList.add("active");
         currentTab = tabIndex;
+        if (currentTab === 3) {
+            updateTutorial('help');
+        }
     }
 
     function checkLabel(input) {
@@ -682,4 +725,21 @@
     function closeMessage(id) {
         document.getElementById(id).style.display = "none";
     }
+
+    function resetTutorial() {
+        $.ajax({
+                   url: "/resetTutorial", type: "POST", async: true
+               }).done((response) => {
+            user.alerts.tutorialStatus = JSON.parse(response);
+            $("#help").find("span").removeClass("dont-show").addClass("always-show");
+            $("#finalGradeCalculator").find("span").removeClass("dont-show").addClass("always-show");
+            updateTutorialProgress();
+            setupPopups();
+        });
+    }
+
+    function updateTutorialProgress() {
+        $("#tutorialStatus").text(Math.round(Object.values(user.alerts.tutorialStatus).filter(x => x).length / Object.values(user.alerts.tutorialStatus).length * 100) + "% Complete")
+    }
+
 </script>

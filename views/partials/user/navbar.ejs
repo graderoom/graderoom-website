@@ -215,7 +215,6 @@
                     }
 
                     if (formID === "#changeSchoolEmail") {
-                        console.log($("#school_email")[0].value);
                         updateNameDisplay(undefined, $("#school_email")[0].value);
                     }
 
@@ -384,12 +383,15 @@
     function updateTutorial(action) {
         $.ajax({
                    url: "/UpdateTutorialStatus", type: "POST", async: true, data: {action: action}
-               }).done(() => {
+               }).done((response) => {
+            user.alerts.tutorialStatus = JSON.parse(response);
             if (action === "help") {
                 $("#help").find("span").removeClass("always-show").addClass("dont-show");
             } else if (action === "calc") {
                 $("#finalGradeCalculator").find("span").removeClass("always-show").addClass("dont-show");
             }
+            updateTutorialProgress();
+            setupPopups();
         });
     }
 
@@ -403,6 +405,11 @@
         });
         $(id).fadeIn(500);
         disableScrolling();
+        if (id === "#settingsCardDisplay") {
+            $("#school_email").val(user.schoolUsername);
+            checkLabel($("#school_email"));
+            updateTutorialProgress();
+        }
     }
 
     function closeForm(id) {

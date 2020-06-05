@@ -965,11 +965,11 @@ module.exports = {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username}).value();
         let end = versionNameArray.indexOf(versionNameArray.find(v => v[1] === user.alerts.latestSeen));
-        if (end === -1) {
-            end = 1;
+        if (end < 2) {
+            end = 2;
         }
         if (beta) {
-            return betaChangelogArray.slice(1, end + 1).join("");
+            return betaChangelogArray.slice(1, end).join("");
         } else {
             let result = "";
             for (let i = 1; i < versionNameArray.length; i++) {
@@ -1025,6 +1025,7 @@ module.exports = {
         let items = [];
         let bodyCount = -1;
         let item = {title: "", date: "", content: {}};
+        versionNameArray = [];
         const line_counter = ((i = 0) => () => ++i)();
         let lineReader = readline.createInterface({
                                                       input: fs.createReadStream("CHANGELOG.md")
@@ -1153,14 +1154,21 @@ module.exports = {
         userRef.get("loggedIn").push(Date.now()).write();
     },
 
-    tutorialPops: function (username, action) {
+    updateTutorial: function (username, action) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
-        if (action === "help") {
-            userRef.get("alerts").get("tutorialStatus").set("helpSeen", true).write();
-        } else if (action === "calc") {
-            userRef.get("alerts").get("tutorialStatus").set("calcSeen", true).write();
+        userRef.get("alerts").get("tutorialStatus").set(action + "Seen", true).write();
+        return userRef.get("alerts").get("tutorialStatus").value();
+    },
+
+    resetTutorial: function (username) {
+        let userRef = db.get("users").find({username: username.toLowerCase()});
+        let tutorialStatus = userRef.get("alerts").get("tutorialStatus").value();
+        for (let key of Object.keys(tutorialStatus)) {
+            tutorialStatus[key] = false;
         }
+        return userRef.get("alerts").get("tutorialStatus").value();
     }
+
 };
 
 

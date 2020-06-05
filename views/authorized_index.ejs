@@ -121,7 +121,7 @@
                                                 <i id="incorrectOverviewGrade<%= i + offset %>"
                                                    class="fa fa-exclamation-circle"
                                                    style="display: none; margin-left: 0.2rem">
-                                                    <span class="popup-top always-show">
+                                                    <span class="popup-top-left always-show">
                                                         <% let grade = JSON.parse(gradeData)[i].overall_percent + "%"; %>
                                                         Grade in PowerSchool:
                                                         <nobr><%= grade + " (" + JSON.parse(gradeData)[i].overall_letter + ")" %></nobr>
@@ -285,7 +285,7 @@
                                                     <i id="incorrectOverallGrade<%= i + offset %>"
                                                        class="fa fa-exclamation-circle"
                                                        style="margin-left: 0.2rem; vertical-align: middle">
-                                                        <span class="popup-left always-show">
+                                                        <span class="popup-bottom-left always-show">
                                                             <% let grade = JSON.parse(gradeData)[i].overall_percent + "%"; %>
                                                             Grade in PowerSchool:
                                                             <nobr><%= grade + " (" + JSON.parse(gradeData)[i].overall_letter + ")" %></nobr>
@@ -314,9 +314,9 @@
                                 </div>
                                 <div class="tableOptions">
                                     <div>Sort By</div>
-                                    <select class="classic">
+                                    <select id="sortBy<%= i + offset %>" class="classic" onchange="setSortMethod(this)">
                                         <option value="date">Date</option>
-                                        <option value="category" disabled>Category</option>
+                                        <option value="category">Category</option>
                                     </select>
                                     <span class="popup">
                                         <i style="cursor: pointer; margin: 1rem 0" class="fa fa-sort-amount-asc"
@@ -341,7 +341,7 @@
                                             <i id="resetAll<%= i + offset %>"
                                                class="fa fa-undo"
                                                style="color: #888888; margin: 0; cursor: pointer; visibility:hidden"
-                                               onclick="{resetAll(<%= i + offset %>);}"
+                                               onclick="{resetAll(this);}"
                                             >
                                                 <span class="popup-top">
                                                     Revert All
@@ -352,58 +352,187 @@
                                 </thead>
                                 <tbody>
                                     <% for (let j = 0; j < JSON.parse(gradeData)[i].grades.length; j++) { %>
-                                        <tr id="classTable<%= i + offset %><%= j %>">
-                                            <td id="assignmentDate<%= i + offset %><%= j %>"></td>
+                                        <tr class="classTableRow<%= i + offset %>">
+                                            <td class="assignmentDate<%= i + offset %>"></td>
                                             <td>
                                                 <div class="excludeToggle"
                                                      style="display: flex; justify-content: space-between; align-items: center">
-                                                    <div id="assignmentName<%= i + offset %><%= j %>"></div>
-                                                <div style="display: flex; justify-content: center; flex-flow: column; align-items: center">
-                                                    <i id="exclude<%= i + offset %><%= j %>" class="fa fa-ban"
-                                                       style="cursor: pointer"
-                                                       onclick="toggleExclude(<%= i + offset %>,<%= j %>);">
-                                                        <label style="cursor: pointer !important; margin: 0; display: block; font-weight: bolder; font-size: 0.5rem">Exclude</label>
-                                                    </i>
+                                                    <div class="assignmentName<%= i + offset %>"></div>
+                                                    <div style="display: flex; justify-content: center; flex-flow: column; align-items: center">
+                                                        <i class="fa fa-ban exclude<%= i + offset %>"
+                                                           style="cursor: pointer"
+                                                           onclick="toggleExclude(this);">
+                                                            <label style="cursor: pointer !important; margin: 0; display: block; font-weight: bolder; font-size: 0.5rem">Exclude</label>
+                                                        </i>
+                                                    </div>
                                                 </div>
+                                            </td>
+                                            <td class="assignmentCategory<%= i + offset %>">
+                                                <select class="minimal category<%= i + offset %>"
+                                                        style="margin: 0"></select>
+                                            </td>
+                                            <td class="form-weights form-signin form-group assignmentScore<%= i + offset %>">
+                                                <div style="display: flex; justify-content: center; align-items: center">
+                                                    <input class="form-control text-view dynamic-input gotten<%= i + offset %>"
+                                                           type="number" step="0.001"
+                                                           style="padding: 0; width: 0 !important; "
+                                                           placeholder="--"
+                                                           onblur="{updatePointsGotten(this);}">
+                                                    /<input style="padding: 0; width: 0 !important; "
+                                                            class="form-control text-view dynamic-input possible<%= i + offset %>"
+                                                            placeholder="--"
+                                                            onblur="{updatePointsPossible(this);}">
+                                                </div>
+                                            </td>
+                                            <td class="assignmentPercent<%= i + offset %>"></td>
+                                            <td class="assignment<%= i + offset %>"></td>
+                                            <td class="popup resetTab">
+                                                <i class="fa fa-undo resetRow<%= i + offset %>"
+                                                   style="color: #888888; margin: 0; cursor: pointer; visibility:hidden"
+                                                   onclick="{resetRow(this);}"
+                                                >
+                                                    <span class="popup-top">
+                                                        Revert to Original
+                                                    </span>
+                                                </i>
+                                            </td>
+                                        </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                            <table>
+                                <!-- This is a sample row to be copied and create category tables -->
+                                <tr class="sample categoryClassTableRow<%= i + offset %>">
+                                    <td class="categoryAssignmentDate<%= i + offset %>"></td>
+                                    <td>
+                                        <div class="excludeToggle"
+                                             style="display: flex; justify-content: space-between; align-items: center">
+                                            <div class="categoryAssignmentName<%= i + offset %>"></div>
+                                            <div style="display: flex; justify-content: center; flex-flow: column; align-items: center">
+                                                <i class="fa fa-ban categoryExclude<%= i + offset %>"
+                                                   style="cursor: pointer"
+                                                   onclick="toggleExclude(this);">
+                                                    <label style="cursor: pointer !important; margin: 0; display: block; font-weight: bolder; font-size: 0.5rem">Exclude</label>
+                                                </i>
                                             </div>
-                                        </td>
-                                        <td id="assignmentCategory<%= i + offset %><%= j %>">
-                                            <select id="category<%= i + offset %><%= j %>" class="minimal"
-                                                    style="margin: 0"></select>
-                                        </td>
-                                        <td class="form-weights form-signin form-group"
-                                            id="assignmentScore<%= i + offset %><%= j %>">
-                                            <div style="display: flex; justify-content: center; align-items: center">
-                                                <input id="gotten<%= i + offset %><%= j %>"
-                                                       type="number" step="0.001"
-                                                       style="padding: 0; width: 0 !important; "
-                                                       class="form-control text-view dynamic-input"
-                                                       placeholder="--"
-                                                       onblur="{updatePointsGotten(<%= i + offset %>,<%= j %>);}">
-                                                /<input id="possible<%= i + offset %><%= j %>"
-                                                        style="padding: 0; width: 0 !important; "
-                                                        class="form-control text-view dynamic-input"
-                                                        placeholder="--"
-                                                        onblur="{updatePointsPossible(<%= i + offset %>,<%= j %>);}">
-                                            </div>
-                                        </td>
-                                        <td id="assignmentPercent<%= i + offset %><%= j %>"></td>
-                                        <td id="assignment<%= i + offset %><%= j %>"></td>
-                                        <td class="popup resetTab">
-                                            <i id="resetRow<%= i + offset %><%= j %>"
-                                               class="fa fa-undo"
-                                               style="color: #888888; margin: 0; cursor: pointer; visibility:hidden"
-                                               onclick="{resetRow(<%= i + offset %>,<%= j %>);}"
-                                            >
-                                                <span class="popup-top">
-                                                    Revert to Original
-                                                </span>
-                                            </i>
-                                        </td>
-                                    </tr>
-                                <% } %>
-                            </tbody>
-                        </table>
+                                        </div>
+                                    </td>
+                                    <td class="categoryAssignmentCategory<%= i + offset %>">
+                                        <select class="minimal categoryCategory<%= i + offset %>"
+                                                style="margin: 0"></select>
+                                    </td>
+                                    <td class="form-weights form-signin form-group categoryAssignmentScore<%= i + offset %>">
+                                        <div style="display: flex; justify-content: center; align-items: center">
+                                            <input class="form-control text-view dynamic-input categoryGotten<%= i + offset %>"
+                                                   type="number" step="0.001"
+                                                   style="padding: 0; width: 0 !important; "
+                                                   placeholder="--"
+                                                   onblur="{updatePointsGotten(this);}">
+                                            /<input style="padding: 0; width: 0 !important; "
+                                                    class="form-control text-view dynamic-input categoryPossible<%= i + offset %>"
+                                                    placeholder="--"
+                                                    onblur="{updatePointsPossible(this);}">
+                                        </div>
+                                    </td>
+                                    <td class="categoryAssignmentPercent<%= i + offset %>"></td>
+                                    <td class="categoryAssignment<%= i + offset %>"></td>
+                                    <td class="popup resetTab">
+                                        <i class="fa fa-undo categoryResetRow<%= i + offset %>"
+                                           style="color: #888888; margin: 0; cursor: pointer; visibility:hidden"
+                                           onclick="{resetRow(this);}"
+                                        >
+                                            <span class="popup-top">
+                                                Revert to Original
+                                            </span>
+                                        </i>
+                                    </td>
+                                </tr>
+                            </table>
+                            <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].weights).length; j++) { %>
+                                <% let category = Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].weights)[j] %>
+                                <table class="table rounded-table class-table text-center categoryTable<%= i + offset %>">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="6"><%= category %></th>
+                                            <th class="popup resetTab">
+                                                <i class="resetCategory<%= i + offset %> fa fa-undo"
+                                                   style="color: #888888; margin: 0; cursor: pointer; visibility:hidden"
+                                                   onclick="{resetCategory(this);}"
+                                                >
+                                                    <span class="popup-top">
+                                                        Revert Category
+                                                    </span>
+                                                </i>
+                                            </th>
+                                        </tr>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Assignment Name</th>
+                                            <th>Category
+                                                <span class="popup">
+                                                    <i class="fa fa-question-circle">
+                                                        <span class="popup-right">Editing categories is not yet
+                                                            supported in
+                                                            this sorting mode.</span>
+                                                    </i>
+                                                </span></th>
+                                            <th>Score</th>
+                                            <th>Assignment Percent</th>
+                                            <th>Category Grade</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% let categoryGrades = JSON.parse(gradeData)[i].grades.filter(g => g.category === category); %>
+                                        <% for (let k = 0; k < categoryGrades.length; k++) { %>
+                                            <tr class="categoryClassTableRow<%= i + offset %>">
+                                                <td class="categoryAssignmentDate<%= i + offset %>"></td>
+                                                <td>
+                                                    <div class="excludeToggle"
+                                                         style="display: flex; justify-content: space-between; align-items: center">
+                                                        <div class="categoryAssignmentName<%= i + offset %>"></div>
+                                                        <div style="display: flex; justify-content: center; flex-flow: column; align-items: center">
+                                                            <i class="fa fa-ban categoryExclude<%= i + offset %>"
+                                                               style="cursor: pointer"
+                                                               onclick="toggleExclude(this);">
+                                                                <label style="cursor: pointer !important; margin: 0; display: block; font-weight: bolder; font-size: 0.5rem">Exclude</label>
+                                                            </i>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="categoryAssignmentCategory<%= i + offset %>">
+                                                    <select class="minimal categoryCategory<%= i + offset %>"
+                                                            style="margin: 0"></select>
+                                                </td>
+                                                <td class="form-weights form-signin form-group categoryAssignmentScore<%= i + offset %>">
+                                                    <div style="display: flex; justify-content: center; align-items: center">
+                                                        <input class="form-control text-view dynamic-input categoryGotten<%= i + offset %>"
+                                                               type="number" step="0.001"
+                                                               style="padding: 0; width: 0 !important; "
+                                                               placeholder="--"
+                                                               onblur="{updatePointsGotten(this);}">
+                                                        /<input style="padding: 0; width: 0 !important; "
+                                                                class="form-control text-view dynamic-input categoryPossible<%= i + offset %>"
+                                                                placeholder="--"
+                                                                onblur="{updatePointsPossible(this);}">
+                                                    </div>
+                                                </td>
+                                                <td class="categoryAssignmentPercent<%= i + offset %>"></td>
+                                                <td class="categoryAssignment<%= i + offset %>"></td>
+                                                <td class="popup resetTab">
+                                                    <i class="fa fa-undo categoryResetRow<%= i + offset %>"
+                                                       style="color: #888888; margin: 0; cursor: pointer; visibility:hidden"
+                                                       onclick="{resetRow(this);}"
+                                                    >
+                                                        <span class="popup-top">
+                                                            Revert to Original
+                                                        </span>
+                                                    </i>
+                                                </td>
+                                            </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            <% } %>
                     </span>
                 <% } else {
                     offset--;
@@ -413,6 +542,17 @@
 <% } %>
 <!-- Custom JavaScript -->
 <script>
+
+    // Hide always-shown popups on mouseover
+    function setupPopups() {
+        $(".bound:not(.always-show)").removeClass('bound').off('hover');
+        $(".always-show:not(.bound)").addClass('bound').hover(function () {
+            $(this).css("pointer-events", "none").css('display', 'block').removeClass("always-show").fadeOut(200, () => {
+                $(this).css('display', '').css("pointer-events", '');
+            });
+            setTimeout(() => $(this).addClass("always-show"), 2000);
+        });
+    }
 
     let refreshing;
     let shortcutsEnabled = true;
@@ -452,6 +592,7 @@
     let relClassData = <%- relevantClassData %>;
     let chartData = [];
     let parsedData = [];
+    let categorySortedData = [];
     let tempData = {};
     let unobtainedWeights = {};
     let tempWeights = {};
@@ -473,9 +614,11 @@
 
     // This should only happen once
     let dateSort = [];
+    let categorySort = [];
     refreshWithoutReload(true);
     setupWeightsTableListeners();
     setupInputListeners();
+    setupPopups();
 
     let changeTransition;
     let theme = user.appearance.theme;
@@ -510,7 +653,7 @@
     } else {
         $("#gradeSyncDiv").hide();
         $("#syncGradesDiv").show();
-        $(".updateGradesMessage").find(".messageTxt").text("Gradesync is not enabled");
+        $(".updateGradesMessage").find(".messageTxt").text("GradeSync is not enabled");
         showLatest(false);
     }
     document.getElementById("darkModeStart").setAttribute("placeholder", (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString()));
@@ -575,7 +718,6 @@
     async function checkUpdateBackground() {
         let checking = window.setInterval(function () {
             $.get("/checkUpdateBackground", function (data, status) {
-                console.log("sent. RECEIVED: ", status, "Data: ", data);
                 if (status === "success") {
                     if (data === "Sync Complete!") {
                         clearInterval(checking);
@@ -944,10 +1086,34 @@
         return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
     }
 
-    function updatePointsGotten(classIndex, assignmentIndex) {
-        let element = "#gotten" + classIndex + assignmentIndex;
-        if (!dateSort[classIndex]) {
-            assignmentIndex = data[classIndex]["grades"].length - assignmentIndex - 1;
+    function setSortMethod(element) {
+        let classIndex = parseFloat($(element)[0].id.substring(6));
+        let method = $(element)[0].selectedOptions[0].value;
+        $(element).blur();
+        if (method === "category") {
+            $($(element)[0].nextElementSibling.children[0]).removeClass('fa-sort-amount-desc').addClass('fa-sort-amount-asc').addClass('disabled').find("span").text("Oldest to Newest");
+        } else {
+            $($(element)[0].nextElementSibling.children[0]).removeClass(dateSort[classIndex] ? 'fa-sort-amount-desc' : 'fa-sort-amount-asc').addClass(dateSort[classIndex] ? 'fa-sort-amount-asc' : 'fa-sort-amount-desc').removeClass('disabled').find("span").text(dateSort[classIndex] ? 'Oldest to Newest' : 'Newest to Oldest');
+        }
+        categorySort[classIndex] = method === "category";
+        refreshWithoutReload(true, classIndex);
+    }
+
+    function updatePointsGotten(element) {
+        let classes = $(element)[0].className.split(" ");
+        let classIndex;
+        let assignmentIndex;
+        let test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "gotten");
+        if (test.length) {
+            classIndex = parseFloat(test[0].match(/\d+$/)[0]);
+            assignmentIndex = $.makeArray($(".gotten" + classIndex)).indexOf(element);
+            if (!dateSort[classIndex]) {
+                assignmentIndex = data[classIndex]["grades"].length - assignmentIndex - 1;
+            }
+        } else {
+            test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "categoryGotten");
+            classIndex = parseFloat(test[0].match(/\d+$/)[0]);
+            assignmentIndex = categorySortedData[classIndex].originalIndices[$.makeArray($(".categoryGotten" + classIndex)).indexOf(element) - 1];
         }
 
         let assignment = data[classIndex]["grades"][assignmentIndex];
@@ -985,10 +1151,21 @@
         }
     }
 
-    function updatePointsPossible(classIndex, assignmentIndex) {
-        let element = "#possible" + classIndex + assignmentIndex;
-        if (!dateSort[classIndex]) {
-            assignmentIndex = data[classIndex]["grades"].length - assignmentIndex - 1;
+    function updatePointsPossible(element) {
+        let classes = $(element)[0].className.split(" ");
+        let classIndex;
+        let assignmentIndex;
+        let test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "possible");
+        if (test.length) {
+            classIndex = parseFloat(test[0].match(/\d+$/)[0]);
+            assignmentIndex = $.makeArray($(".possible" + classIndex)).indexOf(element);
+            if (!dateSort[classIndex]) {
+                assignmentIndex = data[classIndex]["grades"].length - assignmentIndex - 1;
+            }
+        } else {
+            test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "categoryPossible");
+            classIndex = parseFloat(test[0].match(/\d+$/)[0]);
+            assignmentIndex = categorySortedData[classIndex].originalIndices[$.makeArray($(".categoryPossible" + classIndex)).indexOf(element) - 1];
         }
 
         let assignment = data[classIndex]["grades"][assignmentIndex];
@@ -1026,10 +1203,21 @@
         }
     }
 
-    function updateCategory(classIndex, assignmentIndex) {
-        let element = "#category" + classIndex + assignmentIndex;
-        if (!dateSort[classIndex]) {
-            assignmentIndex = data[classIndex]["grades"].length - assignmentIndex - 1;
+    function updateCategory(element) {
+        let classes = $(element)[0].className.split(" ");
+        let classIndex;
+        let assignmentIndex;
+        let test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "category");
+        if (test.length) {
+            classIndex = parseFloat(test[0].match(/\d+$/)[0]);
+            assignmentIndex = $.makeArray($(".category" + classIndex)).indexOf(element[0]);
+            if (!dateSort[classIndex]) {
+                assignmentIndex = data[classIndex]["grades"].length - assignmentIndex - 1;
+            }
+        } else {
+            test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "categoryCategory");
+            classIndex = parseFloat(test[0].match(/\d+$/)[0]);
+            assignmentIndex = categorySortedData[classIndex].originalIndices[$.makeArray($(".categoryCategory" + classIndex)).indexOf(element[0]) - 1];
         }
 
         let assignment = data[classIndex]["grades"][assignmentIndex];
@@ -1045,29 +1233,65 @@
             tempData[classIndex][assignmentIndex].category = assignment.category;
         }
 
-        assignment.category = $(element + " option:selected").text();
+        assignment.category = $(element).find("option:selected").text();
 
         if (tempData[classIndex][assignmentIndex].category === assignment.category) {
             delete tempData[classIndex][assignmentIndex].category;
         }
     }
 
-    function resetAll(classIndex) {
-        for (let i = 0; i < parsedData[classIndex].assignmentNames.length; i++) {
-            resetRow(classIndex, i);
+    function resetAll(element) {
+        let classIndex = parseFloat($(element)[0].id.substring(8));
+        let resetButtons = $(".resetRow" + classIndex);
+        for (let i = 0; i < resetButtons.length; i++) {
+            resetRow(resetButtons[i], false);
         }
         refreshWithoutReload(false, classIndex);
     }
 
-    function resetRow(classIndex, assignmentIndex) {
-        if (!dateSort[classIndex]) {
-            assignmentIndex = data[classIndex]["grades"].length - assignmentIndex - 1;
+    function resetCategory(element) {
+        let classes = $(element)[0].className.split(" ");
+        let classIndex = parseFloat(classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "resetCategory")[0].match(/\d+$/)[0]);
+        let categories = Object.keys(weights[Object.keys(weights)[classIndex]]["weights"]);
+        let categoryIndex = $.makeArray($(".resetCategory" + classIndex)).indexOf(element);
+        $($(".categoryTable" + classIndex)[categoryIndex]).removeClass("unround-top-right");
+        let category = categories[categoryIndex];
+        let startIndex = categorySortedData[classIndex].assignmentCategories.indexOf(category);
+        let numOfCategory = categorySortedData[classIndex].assignmentCategories.filter(x => x === category).length;
+        let resetButtons = $(".categoryResetRow" + classIndex);
+        for (let i = startIndex + 1; i < startIndex + numOfCategory + 1; i++) {
+            resetRow(resetButtons[i], false);
         }
+        refreshWithoutReload(false, classIndex);
+    }
 
-        // This means that the row was never changed
-        if (!tempData[classIndex] || !tempData[classIndex][assignmentIndex]) {
-            $("#resetRow" + classIndex + assignmentIndex).css("visibility", "hidden");
-            return;
+    function resetRow(element, refresh = true) {
+        let classes = $(element)[0].className.split(" ");
+        let classIndex;
+        let assignmentIndex;
+        let test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "resetRow");
+        if (test.length) {
+            classIndex = parseFloat(test[0].match(/\d+$/)[0]);
+            assignmentIndex = $.makeArray($(".resetRow" + classIndex)).indexOf(element);
+            if (!dateSort[classIndex]) {
+                assignmentIndex = data[classIndex]["grades"].length - assignmentIndex - 1;
+            }
+
+            // This means that the row was never changed
+            if (!tempData[classIndex] || !tempData[classIndex][assignmentIndex]) {
+                $($(".resetRow" + classIndex)[assignmentIndex]).css("visibility", "hidden");
+                return;
+            }
+        } else {
+            test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "categoryResetRow");
+            classIndex = parseFloat(test[0].match(/\d+$/)[0]);
+            assignmentIndex = categorySortedData[classIndex].originalIndices[$.makeArray($(".categoryResetRow" + classIndex)).indexOf(element) - 1];
+
+            // This means that the row was never changed
+            if (!tempData[classIndex] || !tempData[classIndex][assignmentIndex]) {
+                $($(".categoryResetRow" + classIndex)[assignmentIndex]).css("visibility", "hidden");
+                return;
+            }
         }
 
         let assignment = data[classIndex]["grades"][assignmentIndex];
@@ -1087,13 +1311,28 @@
         }
 
         delete tempData[classIndex][assignmentIndex];
-        refreshWithoutReload(false, classIndex);
+        if (refresh) {
+            refreshWithoutReload(false, classIndex);
+        }
     }
 
-    function toggleExclude(classIndex, assignmentIndex) {
-        if (!dateSort[classIndex]) {
-            assignmentIndex = data[classIndex]["grades"].length - assignmentIndex - 1;
+    function toggleExclude(element) {
+        let classes = $(element)[0].className.split(" ");
+        let classIndex;
+        let assignmentIndex;
+        let test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "exclude");
+        if (test.length) {
+            classIndex = parseFloat(test[0].match(/\d+$/)[0]);
+            assignmentIndex = $.makeArray($(".exclude" + classIndex)).indexOf(element);
+            if (!dateSort[classIndex]) {
+                assignmentIndex = data[classIndex]["grades"].length - assignmentIndex - 1;
+            }
+        } else {
+            test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "categoryExclude");
+            classIndex = parseFloat(test[0].match(/\d+$/)[0]);
+            assignmentIndex = categorySortedData[classIndex].originalIndices[$.makeArray($(".categoryExclude" + classIndex)).indexOf(element) - 1];
         }
+
         let assignment = data[classIndex]["grades"][assignmentIndex];
 
         // Copy without reference ONLY if it hasn't already been edited
@@ -1116,8 +1355,28 @@
 
     function setupInputListeners() {
         for (let i = 0; i < parsedData.length; i++) {
+            let classScores = $(".assignmentScore" + i);
             for (let j = 0; j < parsedData[i].assignmentNames.length; j++) {
-                let inputs = $("#assignmentScore" + i + j).find(".dynamic-input");
+                let inputs = $(classScores[j]).find(".dynamic-input");
+                $(inputs[0]).on("keyup", (e) => {
+                    e = e || window.event;
+                    let keyCode = e.code;
+                    if (keyCode === "Enter") {
+                        $(inputs[0]).blur();
+                    }
+                });
+                $(inputs[1]).on("keyup", (e) => {
+                    e = e || window.event;
+                    let keyCode = e.code;
+                    if (keyCode === "Enter") {
+                        $(inputs[1]).blur();
+                    }
+                });
+                adjust(inputs, 0, remToPixels(2), remToPixels(4));
+            }
+            classScores = $(".categoryAssignmentScore" + i);
+            for (let j = 1; j < categorySortedData[i].assignmentNames.length + 1; j++) {
+                let inputs = $(classScores[j]).find(".dynamic-input");
                 $(inputs[0]).on("keyup", (e) => {
                     e = e || window.event;
                     let keyCode = e.code;
@@ -1154,113 +1413,265 @@
     function setupClassTables(classIndex) {
         for (let i = 0; i < parsedData.length; i++) {
             if (!classIndex || classIndex === i) {
-                let assignmentData = parsedData[i].rawData;
-                let assignmentDates = parsedData[i].assignmentDates;
-                let assignmentNames = parsedData[i].assignmentNames;
-                let assignmentCategories = parsedData[i].assignmentCategories;
-                let assignmentScoresParsed = parsedData[i].assignmentScoresParsed;
-                let assignmentPercents = parsedData[i].assignmentPercents;
-                let assignmentExcludes = parsedData[i].assignmentExcludes;
-                $("#resetAll" + i).css("visibility", "hidden").parents(".resetTab").hide();
-                $("#table" + i).removeClass("unround-top-right");
-                for (let j = 0; j < assignmentData.length; j++) {
-                    let assignmentIndex;
-                    assignmentIndex = dateSort[i] ? j : assignmentData.length - 1 - j;
-                    // Set up dates
-                    $("#assignmentDate" + i + j).text(assignmentDates[assignmentIndex]);
+                let categories = Object.keys(weights[Object.keys(weights)[i]]["weights"]);
+                if (categorySort[i]) {
+                    // Data
+                    let assignmentData = categorySortedData[i].rawData;
+                    let assignmentDates = categorySortedData[i].assignmentDates;
+                    let assignmentNames = categorySortedData[i].assignmentNames;
+                    let assignmentCategories = categorySortedData[i].assignmentCategories;
+                    let assignmentScoresParsed = categorySortedData[i].assignmentScoresParsed;
+                    let assignmentPercents = categorySortedData[i].assignmentPercents;
+                    let assignmentExcludes = categorySortedData[i].assignmentExcludes;
+                    let modTempData = Object.fromEntries(Object.entries(tempData[i] || {}).map(([key, value]) => [categorySortedData[i].originalIndices.indexOf(parseFloat(key)), value]));
 
-                    // Set up names
-                    $("#assignmentName" + i + j).text(assignmentNames[assignmentIndex]);
+                    // Div References
+                    let assignmentDateDivs = $(".categoryAssignmentDate" + i);
+                    let assignmentNameDivs = $(".categoryAssignmentName" + i);
+                    let assignmentCategoryDivs = $(".categoryAssignmentCategory" + i);
+                    let excludeDivs = $(".categoryExclude" + i);
+                    let assignmentScoreDivs = $(".categoryAssignmentScore" + i);
+                    let resetRowDivs = $(".categoryResetRow" + i);
+                    let assignmentPercentDivs = $(".categoryAssignmentPercent" + i);
+                    let assignmentOverallDivs = $(".categoryAssignment" + i);
+                    let rowDivs = $(".categoryClassTableRow" + i);
 
-                    // Set up categories
-                    let dropdown = $("#assignmentCategory" + i + j).children("select");
-                    let weightNames = Object.keys(weights[Object.keys(weights)[i]]["weights"]);
+                    // Set up visuals
+                    let resetCategoryDivs = $(".resetCategory" + i);
+                    resetCategoryDivs.css("visibility", "hidden").parents(".resetTab").hide();
+                    $("#table" + i).hide();
+                    $(".categoryTable" + i).show();
 
-                    // Bind listeners only once
-                    if (!dropdown.find("option").length) {
-                        for (let k = 0; k < weightNames.length; k++) {
-                            dropdown.append($("<option>").text(weightNames[k]));
+                    // Rows
+                    for (let j = 0; j < assignmentData.length; j++) {
+                        let assignmentIndex = j + 1; // Plus 1 because of the sample
+
+                        // Set up dates
+                        if (!assignmentDateDivs[assignmentIndex]) {
+
+                        }
+                        $(assignmentDateDivs[assignmentIndex]).text(assignmentDates[j]);
+
+                        // Set up names
+                        $(assignmentNameDivs[assignmentIndex]).text(assignmentNames[j]);
+
+                        // Set up categories
+                        let dropdown = $(assignmentCategoryDivs[assignmentIndex]).children("select");
+
+                        // Bind listeners only once
+                        if (!$(dropdown).find("option").length) {
+                            for (let k = 0; k < categories.length; k++) {
+                                dropdown.append($("<option>").text(categories[k]).prop('disabled', true));
+                            }
+                            // dropdown.on("change", () => {
+                            //     updateCategory(dropdown);
+                            //     refreshWithoutReload(true, i);
+                            //     dropdown.blur();
+                            // });
+                        }
+
+                        // Select assignment category
+                        $(dropdown.find("option")[categories.indexOf(assignmentCategories[j])]).prop("selected", true).prop('disabled', false);
+
+                        // Set up excludes
+                        if (assignmentExcludes[j]) {
+                            $(excludeDivs[assignmentIndex]).find("label").text("Unexclude").addClass("always-show");
+                        } else {
+                            $(excludeDivs[assignmentIndex]).find("label").text("Exclude").removeClass("always-show");
+                        }
+
+                        // Set up scores
+                        let scoreDiv = $(assignmentScoreDivs[assignmentIndex]);
+                        let score = assignmentScoresParsed[j];
+                        if (score.substring(score.length - 2, score.length) === "--") {
+                            score = score.substring(0, score.length - 2);
+                        }
+                        if (score.substring(0, 2) === "--") {
+                            score = score.substring(2);
+                        }
+                        if (score && score.indexOf("/") === -1) {
+                            score += "/0";
+                        }
+                        score = score.split("/");
+                        let inputs = scoreDiv.find(".dynamic-input");
+                        $(inputs[0]).val(score[0]);
+                        $(inputs[1]).val(score[1]);
+
+                        // Set up reset buttons
+                        let resetButton = $(resetRowDivs[assignmentIndex]);
+                        if (modTempData[j] && Object.keys(modTempData[j]).length) {
+                            $($(".resetCategory" + i)[categories.indexOf(assignmentCategories[j])]).css('visibility', 'visible').parents(".resetTab").show();
+                            resetButton.css("visibility", "visible").parents(".resetTab").show();
+                            $($(".categoryTable" + i)[categories.indexOf(assignmentCategories[j])]).addClass("unround-top-right");
+                        } else {
+                            resetButton.css("visibility", "hidden").parents(".resetTab").hide();
+                        }
+
+                        // Set up percents
+                        let percent = assignmentPercents[j];
+                        let letterGrade = "";
+                        if (percent === -1 || isNaN(parseFloat(percent))) {
+                            percent = "--";
+                        } else {
+                            letterGrade = " (" + getLetterGrade(percent) + ")";
+                            percent += "%";
+                        }
+                        $(assignmentPercentDivs[assignmentIndex]).html("<div style=\"display: flex; align-items: center; justify-content: center;\"><div>" + percent + "</div><div style=\"margin-left: 0.4rem; font-size: small\">" + letterGrade + "</div></div>");
+
+                        // Set up coloring and gain/loss
+                        let display = +isNaN(parseFloat(assignmentData[j]).toFixed(2)) ? +parseFloat(assignmentData[assignmentData.length - 1]).toFixed(2) : parseFloat(assignmentData[j]).toFixed(2);
+                        let delta = assignmentCategories[j] === assignmentCategories[j - 1] ? (assignmentData[j] - assignmentData[j - 1]).toFixed(3) : 0;
+                        let color;
+
+                        if (delta > 0) {
+                            delta = "+" + delta + "% <i class=\"fa fa-long-arrow-up\"></i>";
+                            color = "green";
+                        } else if (delta < 0) {
+                            delta = delta + "% <i class=\"fa fa-long-arrow-down\"></i>";
+                            color = "red";
+                        } else {
+                            delta = "±0.000% <i class=\"fa fa-arrows-v\"></i>";
+                            color = "unset";
+                        }
+                        display = "<div style=\"display: flex; justify-content: space-around; align-items: flex-end;\"><div style=\"display: flex; flex-flow: row; justify-content: center; align-items: center\"><div>" + display + "%" + "</div><div style=\"margin-left: 0.4rem; font-size: small\">(" + getLetterGrade(display) + ")</div></div><div style=\"font-size: small; font-family: 'Maison Mono',monospace\">" + delta + "</div></div>";
+                        $(assignmentOverallDivs[assignmentIndex]).css("color", color).html(display);
+                        $(assignmentOverallDivs[assignmentIndex]).css("font-weight", "bold");
+
+                        // Set up exclusion
+                        if (assignmentExcludes[j]) {
+                            $(rowDivs[assignmentIndex]).addClass("excluded");
+                            $(rowDivs[assignmentIndex]).find(".dynamic-input").addClass("excluded");
+                        } else {
+                            $(rowDivs[assignmentIndex]).removeClass("excluded");
+                            $(rowDivs[assignmentIndex]).find(".dynamic-input").removeClass("excluded");
+                        }
+                    }
+                } else {
+                    // Data
+                    let assignmentData = parsedData[i].rawData;
+                    let assignmentDates = parsedData[i].assignmentDates;
+                    let assignmentNames = parsedData[i].assignmentNames;
+                    let assignmentCategories = parsedData[i].assignmentCategories;
+                    let assignmentScoresParsed = parsedData[i].assignmentScoresParsed;
+                    let assignmentPercents = parsedData[i].assignmentPercents;
+                    let assignmentExcludes = parsedData[i].assignmentExcludes;
+
+                    // Div References
+                    let assignmentDateDivs = $(".assignmentDate" + i);
+                    let assignmentNameDivs = $(".assignmentName" + i);
+                    let assignmentCategoryDivs = $(".assignmentCategory" + i);
+                    let excludeDivs = $(".exclude" + i);
+                    let assignmentScoreDivs = $(".assignmentScore" + i);
+                    let resetRowDivs = $(".resetRow" + i);
+                    let assignmentPercentDivs = $(".assignmentPercent" + i);
+                    let assignmentOverallDivs = $(".assignment" + i);
+                    let rowDivs = $(".classTableRow" + i);
+
+                    // Set up visuals
+                    $("#resetAll" + i).css("visibility", "hidden").parents(".resetTab").hide();
+                    $(".categoryTable" + i).hide();
+                    $("#table" + i).removeClass("unround-top-right").show();
+
+                    // Rows
+                    for (let j = 0; j < assignmentData.length; j++) {
+                        let assignmentIndex = dateSort[i] ? j : assignmentData.length - 1 - j;
+
+                        // Set up dates
+                        $(assignmentDateDivs[assignmentIndex]).text(assignmentDates[j]);
+
+                        // Set up names
+                        $(assignmentNameDivs[assignmentIndex]).text(assignmentNames[j]);
+
+                        // Set up categories
+                        let dropdown = $(assignmentCategoryDivs[assignmentIndex]).children("select");
+
+                        // Bind listeners only once
+                        if (!$(dropdown).find("option").length) {
+                            for (let k = 0; k < categories.length; k++) {
+                                dropdown.append($("<option>").text(categories[k]));
+                            }
                             dropdown.on("change", () => {
-                                updateCategory(i, j);
+                                updateCategory(dropdown);
                                 refreshWithoutReload(true, i);
                                 dropdown.blur();
                             });
                         }
-                    }
 
-                    // Select assignment category
-                    $(dropdown.find("option")[weightNames.indexOf(assignmentCategories[assignmentIndex])]).prop("selected", true);
+                        // Select assignment category
+                        $(dropdown.find("option")[categories.indexOf(assignmentCategories[j])]).prop("selected", true);
 
-                    // Set up excludes
-                    if (assignmentExcludes[assignmentIndex]) {
-                        $("#exclude" + i + j).find("label").text("Unexclude").addClass("always-show");
-                    } else {
-                        $("#exclude" + i + j).find("label").text("Exclude").removeClass("always-show");
-                    }
+                        // Set up excludes
+                        if (assignmentExcludes[j]) {
+                            $(excludeDivs[assignmentIndex]).find("label").text("Unexclude").addClass("always-show");
+                        } else {
+                            $(excludeDivs[assignmentIndex]).find("label").text("Exclude").removeClass("always-show");
+                        }
 
-                    // Set up scores
-                    let scoreDiv = $("#assignmentScore" + i + j);
-                    let score = assignmentScoresParsed[assignmentIndex];
-                    if (score.substring(score.length - 2, score.length) === "--") {
-                        score = score.substring(0, score.length - 2);
-                    }
-                    if (score.substring(0, 2) === "--") {
-                        score = score.substring(2);
-                    }
-                    if (score && score.indexOf("/") === -1) {
-                        score += "/0";
-                    }
-                    score = score.split("/");
-                    let inputs = scoreDiv.find(".dynamic-input");
-                    $(inputs[0]).val(score[0]);
-                    $(inputs[1]).val(score[1]);
+                        // Set up scores
+                        let scoreDiv = $(assignmentScoreDivs[assignmentIndex]);
+                        let score = assignmentScoresParsed[j];
+                        if (score.substring(score.length - 2, score.length) === "--") {
+                            score = score.substring(0, score.length - 2);
+                        }
+                        if (score.substring(0, 2) === "--") {
+                            score = score.substring(2);
+                        }
+                        if (score && score.indexOf("/") === -1) {
+                            score += "/0";
+                        }
+                        score = score.split("/");
+                        let inputs = scoreDiv.find(".dynamic-input");
+                        $(inputs[0]).val(score[0]);
+                        $(inputs[1]).val(score[1]);
 
-                    // Set up reset buttons
-                    let resetButton = $("#resetRow" + i + j);
-                    if (tempData[i] && tempData[i][assignmentIndex] && Object.keys(tempData[i][assignmentIndex]).length) {
-                        resetButton.css("visibility", "visible").parents(".resetTab").show();
-                        $("#resetAll" + i).css("visibility", "visible").parents(".resetTab").show();
-                        $("#table" + i).addClass("unround-top-right");
-                    } else {
-                        resetButton.css("visibility", "hidden").parents(".resetTab").hide();
-                    }
+                        // Set up reset buttons
+                        let resetButton = $(resetRowDivs[assignmentIndex]);
+                        if (tempData[i] && tempData[i][j] && Object.keys(tempData[i][j]).length) {
+                            resetButton.css("visibility", "visible").parents(".resetTab").show();
+                            $("#resetAll" + i).css("visibility", "visible").parents(".resetTab").show();
+                            $("#table" + i).addClass("unround-top-right");
+                        } else {
+                            resetButton.css("visibility", "hidden").parents(".resetTab").hide();
+                        }
 
-                    // Set up percents
-                    let percent = assignmentPercents[assignmentIndex];
-                    let letterGrade = "";
-                    if (percent === -1 || isNaN(parseFloat(percent))) {
-                        percent = "--";
-                    } else {
-                        letterGrade = " (" + getLetterGrade(percent) + ")";
-                        percent += "%";
-                    }
-                    $("#assignmentPercent" + i + j).html("<div style=\"display: flex; align-items: center; justify-content: center;\"><div>" + percent + "</div><div style=\"margin-left: 0.4rem; font-size: small\">" + letterGrade + "</div></div>");
+                        // Set up percents
+                        let percent = assignmentPercents[j];
+                        let letterGrade = "";
+                        if (percent === -1 || isNaN(parseFloat(percent))) {
+                            percent = "--";
+                        } else {
+                            letterGrade = " (" + getLetterGrade(percent) + ")";
+                            percent += "%";
+                        }
+                        $(assignmentPercentDivs[assignmentIndex]).html("<div style=\"display: flex; align-items: center; justify-content: center;\"><div>" + percent + "</div><div style=\"margin-left: 0.4rem; font-size: small\">" + letterGrade + "</div></div>");
 
-                    // Set up coloring and gain/loss
-                    let display = +isNaN(parseFloat(assignmentData[assignmentIndex]).toFixed(2)) ? +parseFloat(assignmentData[assignmentData.length - 1]).toFixed(2) : parseFloat(assignmentData[assignmentIndex]).toFixed(2);
-                    let delta = (assignmentData[assignmentIndex] - assignmentData[assignmentIndex - 1]).toFixed(3);
-                    let color;
+                        // Set up coloring and gain/loss
+                        let display = +isNaN(parseFloat(assignmentData[j]).toFixed(2)) ? +parseFloat(assignmentData[assignmentData.length - 1]).toFixed(2) : parseFloat(assignmentData[j]).toFixed(2);
+                        let delta = (assignmentData[j] - assignmentData[j - 1]).toFixed(3);
+                        let color;
 
-                    if (delta > 0) {
-                        delta = "+" + delta + "% <i class=\"fa fa-long-arrow-up\"></i>";
-                        color = "green";
-                    } else if (delta < 0) {
-                        delta = delta + "% <i class=\"fa fa-long-arrow-down\"></i>";
-                        color = "red";
-                    } else {
-                        delta = "±0.000% <i class=\"fa fa-arrows-v\"></i>";
-                        color = "unset";
-                    }
-                    display = "<div style=\"display: flex; justify-content: space-around; align-items: flex-end;\"><div style=\"display: flex; flex-flow: row; justify-content: center; align-items: center\"><div>" + display + "%" + "</div><div style=\"margin-left: 0.4rem; font-size: small\">(" + getLetterGrade(display) + ")</div></div><div style=\"font-size: small; font-family: 'Maison Mono',monospace\">" + delta + "</div></div>";
-                    $("#assignment" + i + j).css("color", color).html(display);
-                    $("#assignment" + i + j).css("font-weight", "bold");
-                    if (assignmentExcludes[assignmentIndex]) {
-                        // Change styling when excluded
-                        $("#classTable" + i + j).addClass("excluded");
-                        $("#classTable" + i + j).find(".dynamic-input").addClass("excluded");
-                    } else {
-                        $("#classTable" + i + j).removeClass("excluded");
-                        $("#classTable" + i + j).find(".dynamic-input").removeClass("excluded");
+                        if (delta > 0) {
+                            delta = "+" + delta + "% <i class=\"fa fa-long-arrow-up\"></i>";
+                            color = "green";
+                        } else if (delta < 0) {
+                            delta = delta + "% <i class=\"fa fa-long-arrow-down\"></i>";
+                            color = "red";
+                        } else {
+                            delta = "±0.000% <i class=\"fa fa-arrows-v\"></i>";
+                            color = "unset";
+                        }
+                        display = "<div style=\"display: flex; justify-content: space-around; align-items: flex-end;\"><div style=\"display: flex; flex-flow: row; justify-content: center; align-items: center\"><div>" + display + "%" + "</div><div style=\"margin-left: 0.4rem; font-size: small\">(" + getLetterGrade(display) + ")</div></div><div style=\"font-size: small; font-family: 'Maison Mono',monospace\">" + delta + "</div></div>";
+                        $(assignmentOverallDivs[assignmentIndex]).css("color", color).html(display);
+                        $(assignmentOverallDivs[assignmentIndex]).css("font-weight", "bold");
+
+                        // Set up exclusion
+                        if (assignmentExcludes[j]) {
+                            $(rowDivs[assignmentIndex]).addClass("excluded");
+                            $(rowDivs[assignmentIndex]).find(".dynamic-input").addClass("excluded");
+                        } else {
+                            $(rowDivs[assignmentIndex]).removeClass("excluded");
+                            $(rowDivs[assignmentIndex]).find(".dynamic-input").removeClass("excluded");
+                        }
                     }
                 }
             }
@@ -1338,16 +1749,22 @@
         //Add array to each object in parsedData: one for weights (not needed?), one for missing weights
         //Get data for one class
         for (let i = 0; i < data.length; i++) {
+            let categories = Object.keys(weights[Object.keys(weights)[i]]["weights"]);
             if (!classIndex || classIndex === i) {
                 //Add sorting vars
                 if (!dateSort[i] && dateSort[i] !== false) {
                     dateSort[i] = true;
+                }
+                if (!categorySort[i] && categorySort[i] !== false) {
+                    categorySort[i] = false;
                 }
 
                 let classData = data[i];
                 let className = classData.class_name;
                 let overallGradeSteps = [];
                 let excludedGradeSteps = [];
+                let categoryGradeSteps = [];
+                let categoryGrades = {}; // If category is default
                 let totalPossiblesAndGottens = {}; //by category
                 let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
                 // VERY JANK CHANGE LATER
@@ -1357,6 +1774,11 @@
                     let category = grade.category;
                     if (doesntHaveWeights) {
                         category = "default";
+                        if (!categoryGrades[grade.category]) {
+                            categoryGrades[grade.category] = {
+                                totalPossible: false, totalGotten: false
+                            }
+                        }
                     }
                     try {
                         if (typeof totalPossiblesAndGottens[category] === "undefined" && !grade.exclude && grade.points_possible !== false && grade.points_gotten !== false) {
@@ -1373,6 +1795,10 @@
                             if (grade.points_possible !== false && grade.points_gotten !== false) {
                                 totalPossiblesAndGottens[category].totalPossible += grade.points_possible;
                                 totalPossiblesAndGottens[category].totalGotten += grade.points_gotten;
+                                if (doesntHaveWeights) {
+                                    categoryGrades[grade.category].totalPossible += grade.points_possible;
+                                    categoryGrades[grade.category].totalGotten += grade.points_gotten;
+                                }
                                 let overallPercent = 0;
                                 for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
                                     if (value.totalGotten === false || value.totalPossible === false) {
@@ -1384,12 +1810,19 @@
                                 }
                                 let total = (((overallPercent / totalWeightValue) * 100));
                                 overallGradeSteps.push(total);
+                                if (doesntHaveWeights) {
+                                    categoryGradeSteps.push(categoryGrades[grade.category].totalGotten / categoryGrades[grade.category].totalPossible * 100);
+                                } else {
+                                    categoryGradeSteps.push(totalPossiblesAndGottens[category].totalGotten / totalPossiblesAndGottens[category].totalPossible * 100);
+                                }
                             } else {
-                                overallGradeSteps.push(overallGradeSteps.filter(x => x).slice(-1)[0]);
+                                overallGradeSteps.push(overallGradeSteps.filter(x => x).slice(-1)[0] || 100);
+                                categoryGradeSteps.push(categoryGradeSteps.slice(-1)[0] || 100);
                             }
                         } else {
                             overallGradeSteps.push(false);
                             excludedGradeSteps.push(overallGradeSteps.filter(x => x).slice(-1)[0] || 100);
+                            categoryGradeSteps.push(categoryGradeSteps.slice(-1)[0] || 100);
                         }
                     } catch (err) {
                         // console.log(err);
@@ -1430,9 +1863,21 @@
                     assignmentExcludes: assignmentExcludes,
                     rawData: rawData
                 };
+
+                // This took forever...I am so proud of it - Joel 06/03/20 10:25PM
+                let sortHelper = Array.apply(null, Array(assignmentCategories.length)).map((x, index) => index).sort((a, b) => categories.indexOf(assignmentCategories[a]) - categories.indexOf(assignmentCategories[b]));
+                categorySortedData[i] = {
+                    assignmentNames: assignmentNames.map((x, index) => assignmentNames[sortHelper[index]]),
+                    assignmentDates: assignmentDates.map((x, index) => assignmentDates[sortHelper[index]]),
+                    assignmentPercents: assignmentPercents.map((x, index) => assignmentPercents[sortHelper[index]]),
+                    assignmentScoresParsed: assignmentScoresParsed.map((x, index) => assignmentScoresParsed[sortHelper[index]]),
+                    assignmentCategories: assignmentCategories.map((x, index) => assignmentCategories[sortHelper[index]]),
+                    assignmentExcludes: assignmentExcludes.map((x, index) => assignmentExcludes[sortHelper[index]]),
+                    rawData: categoryGradeSteps.map((x, index) => categoryGradeSteps[sortHelper[index]]),
+                    originalIndices: sortHelper
+                };
             }
         }
-
     }
 
     function renderAllCharts(classIndex) {
@@ -1746,7 +2191,6 @@
                 showLatest(true);
             }
         } else if (e.key === "q") {
-            console.log(cardsDisplayed);
             if (cardsDisplayed.includes("changelogDisplay")) {
                 if (cardsDisplayed.indexOf("changelogDisplay") !== cardsDisplayed.length - 1) {
                     showChangelog();

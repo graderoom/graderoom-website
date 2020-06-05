@@ -82,8 +82,8 @@ nav h5 {
 }
 
 nav label {
+    font-size: 0.7rem;
     display: block;
-    font-size: 0.6rem;
     margin: 0;
 }
 
@@ -128,7 +128,7 @@ table thead tr th:last-child {
     border-right: none;
 }
 
-.class-table:not(#table-1) thead tr th:nth-last-child(2) {
+.class-table:not(#table-1) thead tr:first-child th:nth-last-child(2) {
     border-right: none;
 }
 
@@ -141,6 +141,7 @@ table thead tr th:last-child {
 }
 
 :disabled {
+    cursor: not-allowed !important;
     pointer-events: none;
 }
 
@@ -442,19 +443,19 @@ table thead tr th:last-child {
 }
 
 .popup span {
-    animation: fadeIn 400ms ease;
-    border: currentColor solid 2px;
-    border-radius: 0.2rem;
-    display: none;
     font-family: "Montserrat", sans-serif;
     font-size: small;
-    max-width: 15rem;
-    min-width: 10rem;
-    padding: 0.5rem 0.6rem 0.5rem 0.6rem;
     position: absolute;
+    z-index: 1;
+    display: none;
+    min-width: 10rem;
+    max-width: 15rem;
+    padding: 0.5rem 0.6rem 0.5rem 0.6rem;
+    animation: fadeIn 400ms ease;
     text-align: center;
     white-space: normal;
-    z-index: 2;
+    border: currentColor solid 2px;
+    border-radius: 0.2rem;
 }
 
 .popup i, .popup button, .popup btn, .popup a {
@@ -464,14 +465,6 @@ table thead tr th:last-child {
 .popup i:hover span, input:focus + .popup i span, .popup btn:hover span, .popup a:hover span {
     display: block;
     animation: fadeIn 400ms;
-}
-
-.dont-show {
-    display: none !important;
-}
-
-.always-show {
-    display: block !important;
 }
 
 .input-group .popup i {
@@ -687,6 +680,28 @@ table thead tr th:last-child {
     right: 100%;
     top: 75%;
     transform: translateY(-50%);
+}
+
+.dont-show {
+    display: none !important;
+}
+
+.always-show {
+    display: block !important;
+    transition: opacity 400ms ease;
+}
+
+.tabcontent .card-footer:not(:first-child) {
+    margin-top: 1em;
+}
+
+.fa.disabled {
+    cursor: not-allowed !important;
+    opacity: 0.5;
+}
+
+.fa.disabled:active {
+    pointer-events: none;
 }
 
 .fa-check-circle {
@@ -1109,9 +1124,9 @@ input:checked + .slider:before {
     width: auto;
 }
 
-.ignored {
-    opacity: 0.5;
+.ignored, .ignored * {
     text-decoration: line-through;
+    opacity: 0.5;
 }
 
 select {
@@ -1188,6 +1203,10 @@ select:focus {
 
 td:hover .excludeToggle .fa-ban {
     visibility: visible;
+}
+
+.sample {
+    display: none;
 }
 
 .addAssignment {
