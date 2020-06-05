@@ -188,8 +188,11 @@ module.exports = function (app, passport) {
     });
 
     app.post("/updateTutorialStatus", [isLoggedIn], (req, res) => {
-        authenticator.tutorialPops(req.user.username, req.body.action);
-        res.sendStatus(200);
+        res.status(200).send(JSON.stringify(authenticator.updateTutorial(req.user.username, req.body.action)));
+    });
+
+    app.post("/resetTutorial", [isLoggedIn], (req, res) => {
+        res.status(200).send(JSON.stringify(authenticator.resetTutorial(req.user.username)));
     });
 
     app.post("/acceptPrivacyPolicy", [isLoggedIn], (req, res) => {
