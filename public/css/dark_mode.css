@@ -173,7 +173,7 @@ th {
 }
 
 .popup span {
-    background-color: #000000;
+    background-color: #222222;
 }
 
 .school-username {
@@ -328,4 +328,9 @@ select:focus {
 
 .addAssignment, .tableOptions {
     background-color: #222222;
+}
+
+.progress-bar {
+    color: #222222;
+    background-color: hsl(210, 48%, 48%);
 }

@@ -14,11 +14,11 @@
                     Settings
                 </h1>
             </div>
-            <div id="reloadNeeded" style="display: none"></div>
             <div class="tab" style="margin-bottom: 1rem">
                 <btn id="btn-1" class="tablinks active" onclick="openTab(1)">Appearance</btn>
                 <btn id="btn-2" class="tablinks" onclick="openTab(2)">Account</btn>
                 <btn id="btn-3" class="tablinks" onclick="openTab(3)">Help</btn>
+                <btn id="btn-4" class="tablinks" onclick="openTab(4)">About</btn>
             </div>
             <div id="settings-1" class="tabcontent" style="display: block">
                 <div class="card-body">
@@ -103,6 +103,13 @@
                                     <% if (user.appearance.theme === "auto") { %> checked
                                             <% } %>
                                     > Automatic
+                                    <span class="popup">
+                                        <i class="fa fa-question-circle">
+                                            <span class="popup-right-top">Graderoom will automatically switch between
+                                                light and dark theme based on the times you set, even while you're using
+                                                the website</span>
+                                        </i>
+                                    </span>
                                 </label>
                             </div>
                             <div style="display: inline-flex">
@@ -234,13 +241,14 @@
                                     <div class="input-group" style="margin-bottom: 0">
                                         <i class="email-bg"></i>
                                         <label>School Email</label>
-                                        <input oninput="checkLabel(this)" id="school_email" type="text"
+                                        <input oninput="checkLabel(this); $($(this).parents('.input-group')[0].nextElementSibling).prop('disabled',false)"
+                                               id="school_email" type="text"
                                                class="form-control"
                                                name="school_email" required>
                                     </div>
                                     <button type="submit"
-                                            onclick="updateSchoolUsernameDisplay(); ajaxPostForm('#changeSchoolEmail',[],'#emailChangeMessage', true);"
-                                            class="btn btn-default btn-med" style="width: fit-content">
+                                            onclick="updateSchoolUsernameDisplay(); ajaxPostForm('#changeSchoolEmail',[],'#emailChangeMessage', true)"
+                                            class="btn btn-default btn-med" style="width: fit-content" disabled>
                                         Apply
                                     </button>
                                 </div>
@@ -265,9 +273,8 @@
                                        onclick="$('#gradeSyncToggle').trigger('click')">GradeSync<span
                                             class="popup"><i class="fa fa-question-circle"
                                                              style="margin-left: 0.4rem"><span
-                                                    class="popup-right-top">When enabled, Graderoom syncs with
-                                                PowerSchool whenever you login to
-                                                Gradroom</span></i></span></label>
+                                                    class="popup-right-top">When enabled, Graderoom syncs whenever you
+                                                login</span></i></span></label>
                             </label>
                         </form>
                     </div>
@@ -361,27 +368,31 @@
                             <div class="input-group">
                                 <i class="lock-bg"></i>
                                 <label>Old Password</label>
-                                <input oninput="checkLabel(this); checkPassword('#password', '#passwordCheckMessage', this);"
+                                <input oninput="checkLabel(this); checkPassword('#password',this,'#passwordCheckMessage'); checkPasswordConfirm('#password', this, '#confirmPassword', '#passwordConfirmMessage')"
                                        id="oldPassword" type="password" class="form-control"
                                        name="oldPass" required>
                             </div>
                             <div class="input-group">
                                 <i class="lock-bg"></i>
-                                <label>New Password<label
-                                            style="margin: 0 0 0 2.9rem; font-weight: bold; font-size: small"
-                                            id="passwordCheckMessage"></label></label>
-                                <input oninput="checkLabel(this); checkPassword(this, '#passwordCheckMessage', '#oldPassword'); checkPasswordConfirm(this, '#confirmPassword', '#passwordConfirmMessage', '#changePasswordBtn')"
+                                <label>New Password</label>
+                                <input oninput="checkLabel(this); checkPassword(this,'#oldPassword', '#passwordCheckMessage'); checkPasswordConfirm(this, '#oldPassword', '#confirmPassword', '#passwordConfirmMessage')"
                                        id="password"
                                        type="password" class="form-control" name="password" required>
+                                <span class="popup">
+                                    <i>
+                                        <span class="popup-top-left dont-show" id="passwordCheckMessage"></span></i>
+                                </span>
                             </div>
                             <div class="input-group">
                                 <i class="lock-bg"></i>
-                                <label>Confirm New Password<label
-                                            style="margin: 0 0 0 5.5rem; font-weight: bold; font-size: small"
-                                            id="passwordConfirmMessage"></label></label>
-                                <input oninput="checkLabel(this); checkPasswordConfirm('#password', this, '#passwordConfirmMessage', '#changePasswordBtn')"
+                                <label>Confirm New Password</label>
+                                <input oninput="checkLabel(this); checkPasswordConfirm('#password', '#oldPassword', this, '#passwordConfirmMessage')"
                                        id="confirmPassword" type="password"
                                        class="form-control" required>
+                                <span class="popup">
+                                    <i>
+                                        <span class="popup-top-left dont-show" id="passwordConfirmMessage"></span></i>
+                                </span>
                             </div>
                         </div>
                         <div class="text-center">
@@ -471,22 +482,47 @@
                                         complete the tutorial</span>
                                 </i>
                             </span></h5>
-                        <label id="tutorialStatus">Loading...</label>
-                        <button class="btn btn-sm" style="margin: 0.1rem; width: fit-content" type="submit"
-                                onclick="resetTutorial()">Reset Tutorial
-                        </button>
-                    </div>
-                    <div class="card-footer">
-                        <h5>Contributors</h5>
-                        <h6>Joel Jothiprakasam '21</h6>
-                        <h6>Abhinav Nallapa '21</h6>
-                        <h6>Robert Ganino '20</h6>
-                        <h6>Krish Pandit '21</h6>
-                        <h6>Bryce Hackel '21</h6>
+                        <div style="display:flex; flex-flow: column; align-items: flex-start; justify-content: flex-start;">
+                            <div class="progress" style="width: 100%">
+                                <div class="progress-bar progress-bar-success" role="progressbar" style="width:100%"
+                                     id="tutorialStatus">
+                                    Loading...
+                                </div>
+                            </div>
+                            <button class="btn btn-sm" style="margin: 0.1rem; width: fit-content" type="submit"
+                                    onclick="resetTutorial()">Reset Tutorial
+                            </button>
+                        </div>
                     </div>
                     <div class="card-footer">
                         <h5>Contact Us</h5>
                         <p>Email: <u><a href="mailto: graderoom@gmail.com">graderoom@gmail.com</a></u></p>
+                    </div>
+                </div>
+            </div>
+            <div id="settings-4" class="tabcontent">
+                <div class="card-body">
+                    <div class="card-footer">
+                        <h5>Description</h5>
+                        <p>Graderoom is an advanced grade visualizer designed to help students better understand their
+                            grades. Graderoom was created by students at Bellarmine College Preparatory in San Jose, CA,
+                            but is in no way affiliated with the school or it's faculty and staff. We welcome feedback
+                            from our users and are actively working on features and improvements.
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <h5>Contributors</h5>
+                        <h6>Joel Jothiprakasam BCP '21</h6>
+                        <h6>Abhinav Nallapa BCP '21</h6>
+                        <h6>Robert Ganino BCP '20</h6>
+                        <h6>Krish Pandit BCP '21</h6>
+                        <h6>Bryce Hackel BCP '21</h6>
+                    </div>
+                    <div class="card-footer">
+                        <h5>History</h5>
+                        <h6>First Commit: September 17, 2019</h6>
+                        <h6>First Beta Release: October 2, 2019</h6>
+                        <h6>First Stable Release: February 27, 2020</h6>
                     </div>
                 </div>
             </div>
@@ -529,7 +565,6 @@
                 $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("First name must contain only letters...You're name isn't X Æ A-12, is it?");
                 icon.attr("class", "fa fa-exclamation-circle");
                 $(inputID).css("border-bottom-color", "red");
-                invalidateSignup();
                 return;
             }
             $.ajax({
@@ -605,6 +640,7 @@
             clearTimeout(checkLastUpdated);
             $(".updateGradesMessage .messageTxt").text("GradeSync is not enabled");
         } else {
+            $("#savePasswordToggle:not(:checked)").trigger('click');
             showCard("#updateGradesDisplay");
         }
     }
@@ -614,10 +650,12 @@
     }
 
     function updateClassColors(colorArray) {
-        let colors = colorArray;
-        for (let i = 0; i < colors.length; i++) {
-            $("#classColor" + i).css("color", colors[i]);
+        let _colors = colorArray;
+        for (let i = 0; i < _colors.length; i++) {
+            $("#classColor" + i).css("color", _colors[i]);
         }
+        colors = colorArray;
+        setupColorStuff();
     }
 
     function updateSchoolUsernameDisplay() {
@@ -667,59 +705,143 @@
         }
     }
 
-    function checkPassword(inputID, messageDivID, oldPasswordID) {
+    let checkingPassword;
+
+    function checkPassword(inputID, oldID, messageDivID) {
         const lowerCaseRegex = new RegExp("^(?=.*[a-z])");
         const upperCaseRegex = new RegExp("^(?=.*[A-Z])");
         const numericRegex = new RegExp("^(?=.*[0-9])");
 
         let password = $(inputID)[0].value;
-        let message;
-
-        if (password.length === 0) {
-            message = "";
-        } else if (oldPasswordID && (password === $(oldPasswordID)[0].value)) {
-            message = "You're supposed to be changing your password...";
-        } else if (password.length < 6) {
-            message = "Your password must be at least 6 characters long.";
-        } else if (password.length > 64) {
-            message = "Your password must be fewer than 64 characters long.";
-        } else if (!lowerCaseRegex.test(password)) {
-            message = "Your password must include at least one lowercase character.";
-        } else if (!upperCaseRegex.test(password)) {
-            message = "Your password must include at least one uppercase character.";
-        } else if (!numericRegex.test(password)) {
-            message = "Your password must include at least one number.";
-        } else {
-            message = "Strong password!";
-            if (!messageDivID) {
-                return true;
+        let oldPassword = $(oldID)[0].value;
+        let icon = $($($(inputID)[0].nextElementSibling)[0].firstElementChild);
+        if (messageDivID) {
+            $(messageDivID).addClass("dont-show").removeClass("always-show");
+            icon.attr("class", "fa fa-pulse fa-spinner");
+            $(inputID).css("border-bottom-color", "blue");
+            if (checkingPassword) {
+                clearTimeout(checkingPassword);
             }
-            $(messageDivID).css("color", "green").text(message);
-            return;
-        }
 
-        if (!messageDivID) {
-            return false;
+            if (password === "") {
+                $(messageDivID).addClass("dont-show").removeClass("always-show");
+                icon.attr("class", "");
+                $(inputID).css("border-bottom-color", "");
+                invalidate();
+                return;
+            }
+            checkingPassword = setTimeout(() => {
+                if (oldPassword === "") {
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Enter your old password first");
+                    icon.attr("class", "fa fa-exclamation-circle");
+                    $(inputID).css("border-bottom-color", "red");
+                    invalidate();
+                    return;
+                }
+                if (password === oldPassword) {
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Your new password should be different from your old password");
+                    icon.attr("class", "fa fa-exclamation-circle");
+                    $(inputID).css("border-bottom-color", "red");
+                    invalidate();
+                    return;
+                }
+                let message;
+                if (password.length < 6) {
+                    message = "Your password must be at least 6 characters long";
+                } else if (password.length > 64) {
+                    message = "Your password must be fewer than 64 characters long";
+                } else if (!lowerCaseRegex.test(password)) {
+                    message = "Your password must include at least one lowercase character";
+                } else if (!upperCaseRegex.test(password)) {
+                    message = "Your password must include at least one uppercase character";
+                } else if (!numericRegex.test(password)) {
+                    message = "Your password must include at least one number";
+                } else {
+                    message = "Strong password";
+                    $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text(message);
+                    icon.attr("class", "fa fa-check-circle");
+                    $(inputID).css("border-bottom-color", "");
+                    validate();
+                    return;
+                }
+                if (message) {
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text(message);
+                    icon.attr("class", "fa fa-exclamation-circle");
+                    $(inputID).css("border-bottom-color", "red");
+                    invalidate();
+                } else {
+                    $(messageDivID).addClass("dont-show").removeClass("always-show");
+                    icon.attr("class", "");
+                    $(inputID).css("border-bottom-color", "");
+                }
+            }, 400);
+        } else {
+            return !((password.length < 6) || (password.length > 64) || (!lowerCaseRegex.test(password)) || (!upperCaseRegex.test(password)) || (!numericRegex.test(password)));
         }
-        $(messageDivID).css("color", "red").text(message);
     }
 
-    function checkPasswordConfirm(inputID, confirmID, messageDivID, buttonID) {
+    let checkingPasswordConfirm;
+
+    function checkPasswordConfirm(inputID, oldID, confirmID, messageDivID) {
         let password = $(inputID)[0].value;
         let confirm = $(confirmID)[0].value;
-        if (checkPassword(inputID)) {
-            if (password === confirm) {
-                $(messageDivID).css("color", "green").text("Passwords match!");
-                $(buttonID).prop("disabled", "");
-                return;
-            } else if (confirm !== "") {
-                $(messageDivID).css("color", "red").text("Passwords do not match!");
-                $(buttonID).prop("disabled", "disabled");
+        let icon = $($($(confirmID)[0].nextElementSibling)[0].firstElementChild);
+        if (messageDivID) {
+            $(messageDivID).addClass("dont-show").removeClass("always-show");
+            icon.attr("class", "fa fa-pulse fa-spinner");
+            $(confirmID).css("border-bottom-color", "blue");
+            if (checkingPasswordConfirm) {
+                clearTimeout(checkingPasswordConfirm);
+            }
+
+            if (confirm === "") {
+                $(messageDivID).addClass("dont-show").removeClass("always-show");
+                icon.attr("class", "");
+                $(confirmID).css("border-bottom-color", "");
+                invalidate();
                 return;
             }
+            checkingPasswordConfirm = setTimeout(() => {
+                if (checkPassword(inputID, oldID)) {
+                    if (password === confirm) {
+                        $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text("Passwords match");
+                        icon.attr("class", "fa fa-check-circle");
+                        $(confirmID).css("color", "").css("border-bottom-color", "");
+                        validate();
+                    } else {
+                        $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Passwords do not match");
+                        icon.attr("class", "fa fa-exclamation-circle");
+                        $(confirmID).css("border-bottom-color", "red");
+                        invalidate();
+                    }
+                } else {
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Enter a valid password first");
+                    icon.attr("class", "fa fa-exclamation-circle");
+                    $(confirmID).css("border-bottom-color", "red");
+                    invalidate();
+                }
+            }, 400);
+        } else {
+            invalidate();
+            return checkPassword(inputID, oldID) && password === confirm;
         }
-        $(messageDivID).text("");
-        $(buttonID).prop("disabled", "disabled");
+    }
+
+    let passwordDiv = $("#password");
+    let oldPasswordDiv = $("#oldPassword");
+    let confirmDiv = $("#confirmPassword");
+    let signupBtn = $("#changePasswordBtn")
+
+    function validate() {
+        if (!checkPasswordConfirm(passwordDiv, oldPasswordDiv, confirmDiv)) { // Invalid or Unconfirmed Password
+            invalidate();
+            return;
+        }
+        signupBtn.prop("disabled", "");
+    }
+
+    function invalidate() {
+        signupBtn.prop("disabled", "disabled");
     }
 
     function closeMessage(id) {
@@ -730,16 +852,15 @@
         $.ajax({
                    url: "/resetTutorial", type: "POST", async: true
                }).done((response) => {
+            Object.keys(user.alerts.tutorialStatus).forEach(action => $("#" + action.substring(0, action.length - 4)).find("span").removeClass("dont-show").addClass("always-show"));
             user.alerts.tutorialStatus = JSON.parse(response);
-            $("#help").find("span").removeClass("dont-show").addClass("always-show");
-            $("#finalGradeCalculator").find("span").removeClass("dont-show").addClass("always-show");
             updateTutorialProgress();
-            setupPopups();
         });
     }
 
     function updateTutorialProgress() {
-        $("#tutorialStatus").text(Math.round(Object.values(user.alerts.tutorialStatus).filter(x => x).length / Object.values(user.alerts.tutorialStatus).length * 100) + "% Complete")
+        let progress = Math.round(Object.values(user.alerts.tutorialStatus).filter(x => x).length / Object.values(user.alerts.tutorialStatus).length * 100) + "%";
+        $("#tutorialStatus").text(progress !== "0%" ? progress + " Complete" : "").css("width", progress);
     }
 
 </script>
