@@ -1201,7 +1201,7 @@ select:focus {
     font-size: 0.4rem !important;
 }
 
-td:hover .excludeToggle .fa-ban {
+tr:hover .excludeToggle .fa-ban {
     visibility: visible;
 }
 
@@ -1235,4 +1235,36 @@ td:hover .excludeToggle .fa-ban {
 
 .tableOptions select {
     margin: 0 1rem;
+}
+
+.popup-holder span {
+    font-family: "Montserrat", sans-serif;
+    font-weight: bold;
+    cursor: context-menu;
+}
+
+.gotIt {
+    font-size: 0.5rem;
+    float: right !important;
+    cursor: pointer;
+    pointer-events: all;
+    color: black;
+}
+
+.gotIt:before {
+    content: "Got It!"
+}
+
+.popup-holder {
+    position: relative;
+    width: 100%;
+    height: 0;
+}
+
+.progress {
+    border-radius: 1rem;
+}
+
+.progress-bar {
+    font-weight: bold;
 }

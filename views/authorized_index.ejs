@@ -1,10 +1,11 @@
 <!doctype html>
-<html>
-<title>Graderoom</title>
-<link rel="icon" href="public/resources/common/icon.png">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
+<html lang="en-US">
+<head>
+    <title>Graderoom</title>
+    <link rel="icon" href="public/resources/common/icon.png">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
 <% let theme; %>
 <% if (user.appearance.theme === "dark") { %>
     <% theme = true; %>
@@ -66,7 +67,7 @@
                 <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
                     <% if (user.appearance.showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
                         <li class="nav-item" id="link<%= i + offset %>">
-                            <a style="color: <%= user.appearance.classColors[i] %>" class="nav-link"
+                            <a class="nav-link" style="color: <%= user.appearance.classColors[i] %>"
                                onclick="showPage(<%= i + offset %>)"><%= (JSON.parse(gradeData)[i].class_name) %></a>
                         </li>
                     <% } else {
@@ -114,7 +115,7 @@
                                 <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
                                     <% if (user.appearance.showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
                                         <th id="overview<%= i + offset %>" class="overview"
-                                            style="cursor: pointer; color: <%= user.appearance.classColors[i] %>; text-align: center"
+                                            style="cursor: pointer; text-align: center; color: <%= user.appearance.classColors[i] %>"
                                             onclick="showPage(<%= i + offset %>)">
                                             <%= JSON.parse(gradeData)[i].class_name %>
                                             <span class="popup">
@@ -205,7 +206,7 @@
                                                                 onchange="disableInput('check<%= i + offset %>','weightsTable<%= i + offset %>'); resetInputs('#weights<%= i + offset %>'); $('#weights<%= i + offset %>').submit();"
                                                         >
                                                         <span style="color: <%= user.appearance.classColors[i + offset] %>"
-                                                              class="slider"></span>
+                                                              class="classSlider slider"></span>
                                                     </label>
                                                 </label>
                                             </th>
@@ -292,8 +293,9 @@
                                                         </span>
                                                     </i>
                                                 </span>
-                                                <div style="display:none; color: <%= user.appearance.classColors[i] %>"
-                                                     id="weightTableOverallGrade<%= i + offset %>">
+                                                <div style="display:none; color: <%= user.appearance.classColors[i + offset] %>"
+                                                     id="weightTableOverallGrade<%= i + offset %>"
+                                                     class="weightOverall">
                                                 </div>
                                             </th>
                                         </tr>
@@ -543,19 +545,25 @@
 <!-- Custom JavaScript -->
 <script>
 
-    // Hide always-shown popups on mouseover
-    function setupPopups() {
-        $(".bound:not(.always-show)").removeClass('bound').off('hover');
-        $(".always-show:not(.bound)").addClass('bound').hover(function () {
-            $(this).css("pointer-events", "none").css('display', 'block').removeClass("always-show").fadeOut(200, () => {
-                $(this).css('display', '').css("pointer-events", '');
-            });
-            setTimeout(() => $(this).addClass("always-show"), 2000);
-        });
-    }
-
     let refreshing;
     let shortcutsEnabled = true;
+
+    function setupColorStuff() {
+        // Class links
+        $.makeArray($(".nav-link")).slice(1).forEach((x, i) => $(x).css('color', colors[i]));
+
+        // Overview Chart
+        $.makeArray($(".overview")).forEach((x, i) => $(x).css('color', colors[i % colors.length]));
+
+        // Sliders
+        $.makeArray($(".classSlider")).forEach((x, i) => $(x).css('color', colors[i]));
+
+        // Overall Grades in Weight Tables
+        $.makeArray($(".weightOverall")).forEach((x, i) => $(x).css('color', colors[i]));
+
+        // Render all charts
+        renderAllCharts();
+    }
 
     function refresh(changedClassIndex) {
         // Trying to be efficient and only change affected data
@@ -596,11 +604,11 @@
     let tempData = {};
     let unobtainedWeights = {};
     let tempWeights = {};
-    let currentPage = (isNaN(parseInt(localStorage.getItem("currentPage"))) ? -1 : parseInt(localStorage.getItem("currentPage")));
+    let currentPage = (isNaN(parseInt(sessionStorage.getItem("currentPage"))) ? -1 : parseInt(sessionStorage.getItem("currentPage")));
     let cardsDisplayed = [];
     let charts = [];
     let currentTab = 1;
-    let maxTab = 4;
+    let maxTab = $(".tabcontent").length;
     let darkMode;
     let colors = user.appearance.classColors;
     let darkModeStart = user.appearance.darkModeStart || 18;
@@ -618,7 +626,7 @@
     refreshWithoutReload(true);
     setupWeightsTableListeners();
     setupInputListeners();
-    setupPopups();
+    // setupPopups();
 
     let changeTransition;
     let theme = user.appearance.theme;
@@ -637,12 +645,12 @@
     }
     try {
         showPage(currentPage);
-        localStorage.setItem("currentPage", currentPage);
+        sessionStorage.setItem("currentPage", currentPage);
     } catch (e) {
         currentPage = -1;
         try {
             showPage(-1);
-            localStorage.setItem("currentPage", currentPage);
+            sessionStorage.setItem("currentPage", currentPage);
         } catch (e) {
         }
     }
@@ -1810,19 +1818,17 @@
                                 }
                                 let total = (((overallPercent / totalWeightValue) * 100));
                                 overallGradeSteps.push(total);
-                                if (doesntHaveWeights) {
-                                    categoryGradeSteps.push(categoryGrades[grade.category].totalGotten / categoryGrades[grade.category].totalPossible * 100);
-                                } else {
-                                    categoryGradeSteps.push(totalPossiblesAndGottens[category].totalGotten / totalPossiblesAndGottens[category].totalPossible * 100);
-                                }
                             } else {
                                 overallGradeSteps.push(overallGradeSteps.filter(x => x).slice(-1)[0] || 100);
-                                categoryGradeSteps.push(categoryGradeSteps.slice(-1)[0] || 100);
                             }
                         } else {
                             overallGradeSteps.push(false);
                             excludedGradeSteps.push(overallGradeSteps.filter(x => x).slice(-1)[0] || 100);
-                            categoryGradeSteps.push(categoryGradeSteps.slice(-1)[0] || 100);
+                        }
+                        if (doesntHaveWeights) {
+                            categoryGradeSteps.push((categoryGrades[grade.category].totalGotten / categoryGrades[grade.category].totalPossible * 100) || 100);
+                        } else {
+                            categoryGradeSteps.push((totalPossiblesAndGottens[category].totalGotten / totalPossiblesAndGottens[category].totalPossible * 100) || 100);
                         }
                     } catch (err) {
                         // console.log(err);
@@ -1881,14 +1887,13 @@
     }
 
     function renderAllCharts(classIndex) {
-        try {
+        if (data && data.length) {
             renderOverviewChart();
             for (let i = 0; i < data.length; i++) {
                 if (!classIndex || classIndex === i) {
                     renderChart(i);
                 }
             }
-        } catch (e) {
         }
     }
 
@@ -1911,6 +1916,7 @@
         let ctx = document.getElementById("chart-1");
         let dataset = [];
         let _colors = colors;
+        if (!data) return;
         for (let i = 0; i < data.length; i++) {
             dataset.push({
                              label: data[i].class_name,
@@ -2129,7 +2135,7 @@
             document.getElementById("section" + i).style.display = "none";
         }
         document.getElementById("section" + id).style.display = "block";
-        window.localStorage.setItem("currentPage", id);
+        sessionStorage.setItem("currentPage", id);
         currentPage = id;
     }
 
@@ -2341,41 +2347,46 @@
 
     // Get the navbar
     let navbar = document.getElementById("classLinks");
+    let sticky, height;
 
-    // Get the offset position of the navbar
-    let sticky = navbar.offsetTop - $(".navbar")[0].offsetTop;
+    if (navbar) {
+        // Get the offset position of the navbar
+        sticky = navbar.offsetTop - $(".navbar")[0].offsetTop;
 
-    // Get the height of the navbar
-    let height = navbar.offsetHeight + parseInt(getComputedStyle(navbar).marginBottom);
+        // Get the height of the navbar
+        height = navbar.offsetHeight + parseInt(getComputedStyle(navbar).marginBottom);
 
-    function stickyNavbar() {
-        if (window.pageYOffset >= sticky) {
-            $(".container").css("padding-top", height);
-            navbar.classList.add("sticky");
-        } else {
-            navbar.classList.remove("sticky");
-            $(".container").css("padding-top", "unset");
+        function stickyNavbar() {
+            if (window.pageYOffset >= sticky) {
+                $(".container").css("padding-top", height);
+                navbar.classList.add("sticky");
+            } else {
+                navbar.classList.remove("sticky");
+                $(".container").css("padding-top", "unset");
+            }
         }
-    }
 
-    // Do it once on load
-    stickyNavbar();
-    // When the user scrolls the page
-    window.onscroll = stickyNavbar;
+        // Do it once on load
+        stickyNavbar();
+        // When the user scrolls the page
+        window.onscroll = stickyNavbar;
+    }
 
     window.onresize = () => {
         renderAllCharts();
 
-        navbar.classList.remove("sticky");
-        disableScrolling();
+        if (navbar) {
+            navbar.classList.remove("sticky");
+            disableScrolling();
 
-        // Get the offset position of the navbar
-        sticky = navbar.offsetTop - $(".navbar")[0].offsetTop;
+            // Get the offset position of the navbar
+            sticky = navbar.offsetTop - $(".navbar")[0].offsetTop;
 
-        enableScrolling();
+            enableScrolling();
 
-        // Get the height of the navbar
-        height = navbar.offsetHeight + parseInt(getComputedStyle(navbar).marginBottom);
+            // Get the height of the navbar
+            height = navbar.offsetHeight + parseInt(getComputedStyle(navbar).marginBottom);
+        }
 
         // Reopen all cards
         let temp = cardsDisplayed;

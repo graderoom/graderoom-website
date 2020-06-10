@@ -137,8 +137,8 @@ table thead tr th {
 }
 
 .coloration {
-    background: white; 
     color: hsl(210, 48%, 48%);
+    background: #FFFFFF;
 }
 
 .form-group .email-bg {
@@ -351,4 +351,9 @@ select:focus {
 
 .addAssignment, .tableOptions {
     background-color: #FFFFFF;
+}
+
+.progress-bar {
+    color: #FFFFFF;
+    background-color: hsl(210, 48%, 48%);
 }
