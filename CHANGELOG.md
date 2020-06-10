@@ -49,6 +49,31 @@
 - Card Animations last very long if keyboard shortcuts are spammed <strong>[Fixed in Beta 2.3.8]</strong>
 - Cards can sometimes not be closed with keyboard shortcuts <strong>[Fixed in Beta 2.3.8]</strong>
 - Changelog display buttons work incorrectly after page resize <strong>[Fixed in Beta 2.3.8]</strong>
+- Grades sometimes do not sync when autofill is enabled and GradeSync is disabled <strong>[Fixed in Beta 2.5.0]</strong>
+
+## [Beta 2.5.0] - 2020-06-10
+### Added
+- You can now click the "Got It!" button on any tutorial popup to close it
+- Brought back 'About' section, now with a history and description
+- Updated help messages on various settings
+
+### Improved
+- Class colors can be changed without refreshing the page
+- Tutorial progress is now in the form of a progressbar
+- Overview page now always shows on login, even if last page viewed before logout was different
+- Better visibility of popups in dark mode
+- Exclude toggle now shows on hover of any row, not just the assignment name
+- Updated change password and school email sections in settings to match overall style
+- Minor stability improvements
+
+### Fixed
+- Help button in main navigation bar links to correct page
+- Issue where grades sometimes did not sync when autofill was enabled and GradeSync was disabled
+- Issue where category grade steps were sometimes incorrect
+- Minor bug fixes
+
+### Removed
+- Popups no longer disappear on mouseover
 
 ## [Beta 2.4.0] - 2020-06-04
 ### Added
