@@ -51,6 +51,19 @@
 - Changelog display buttons work incorrectly after page resize <strong>[Fixed in Beta 2.3.8]</strong>
 - Grades sometimes do not sync when autofill is enabled and GradeSync is disabled <strong>[Fixed in Beta 2.5.0]</strong>
 
+## [Beta 2.5.1] - 2020-06-11
+### Added
+- Initial support for mobile website with limited features. Use Graderoom on your large screen device to access all features.
+
+### Improved
+- Changes caused by resize now only occur when window resizing is complete
+- Updated UI for tutorial progress bar
+- Fixed tutorial popups and progress bar styling in dark mode
+
+### Fixed
+- All cards now display over all page elements
+- Tutorial popups do not display in mobile mode
+
 ## [Beta 2.5.0] - 2020-06-10
 ### Added
 - You can now click the "Got It!" button on any tutorial popup to close it
