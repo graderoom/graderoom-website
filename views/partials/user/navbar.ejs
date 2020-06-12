@@ -9,10 +9,12 @@
                 <% } else { %>
                     src="/public/resources/light_mode/logo.png"
                         <% } %>
-                    style="width: 3rem"
-                    class="d-inline-block"
-                    alt="">
-                Graderoom
+                        style="width: 3rem"
+                        class="d-inline-block"
+                        alt="">
+                <div class="brand-label">
+                    Graderoom
+                </div>
             </h1>
         </a>
     </span>
@@ -406,7 +408,7 @@
         cardsDisplayed.push(id.substring(1));
         $(".blurred-background").each(function () {
             if (cardsDisplayed.includes($($(this).parent())[0].id)) {
-                $(this).parent().css("z-index", cardsDisplayed.indexOf($($(this).parent())[0].id) + 2);
+                $(this).parent().css("z-index", cardsDisplayed.indexOf($($(this).parent())[0].id) + minCardZIndex);
             }
         });
         $(id).fadeIn(500);

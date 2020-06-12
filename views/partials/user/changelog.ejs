@@ -50,7 +50,7 @@
             cardsDisplayed.push("changelogDisplay");
             $(".blurred-background").each(function () {
                 if (cardsDisplayed.includes($($(this).parent())[0].id)) {
-                    $(this).parent().css("z-index", cardsDisplayed.indexOf($($(this).parent())[0].id) + 2);
+                    $(this).parent().css("z-index", cardsDisplayed.indexOf($($(this).parent())[0].id) + minCardZIndex);
                 }
             });
             changelogContainer.html(response);
