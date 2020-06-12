@@ -185,10 +185,6 @@ th {
     filter: opacity(0.6);
 }
 
-.sk-chase-dot:before {
-    background-color: #FFFFFF;
-}
-
 .tab {
     background-color: #333333;
     border-bottom-color: #222222;
@@ -326,11 +322,25 @@ select:focus {
     color: #4F4F4F;
 }
 
-.addAssignment, .tableOptions {
+.switchDisplayMode, .addAssignment, .tableOptions {
     background-color: #222222;
 }
 
+.gotIt {
+    color: white;
+}
+
+.progress {
+    border: 1px #333333 solid;
+    background-color: #444444;
+}
+
 .progress-bar {
-    color: #222222;
-    background-color: hsl(210, 48%, 48%);
+    color: #333333;
+    background-color: hsl(210, 48%, 48%);;
+}
+
+.empty-progress {
+    color: #333333;
+    border-left: 1px solid #333333;
 }

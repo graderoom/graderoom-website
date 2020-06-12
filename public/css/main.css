@@ -458,11 +458,11 @@ table thead tr th:last-child {
     border-radius: 0.2rem;
 }
 
-.popup i, .popup button, .popup btn, .popup a {
+.popup i {
     position: relative;
 }
 
-.popup i:hover span, input:focus + .popup i span, .popup btn:hover span, .popup a:hover span {
+.popup i:hover span, input:focus + .popup i span {
     display: block;
     animation: fadeIn 400ms;
 }
@@ -806,12 +806,13 @@ table thead tr th:last-child {
 }
 
 .sk-chase-dot:before {
+    display: block;
+    width: 25%;
+    height: 25%;
+    content: "";
     animation: sk-chase-dot-before 2.0s infinite ease-in-out both;
     border-radius: 100%;
-    content: "";
-    display: block;
-    height: 25%;
-    width: 25%;
+    background-color: blue;
 }
 
 .sk-chase-dot:nth-child(1) {
@@ -874,27 +875,33 @@ table thead tr th:last-child {
 }
 
 .tab {
-    align-self: center;
-    border-bottom-style: solid;
-    border-top-style: solid;
-    cursor: context-menu;
-    margin: auto;
-    overflow: hidden;
-    padding: 0.25rem;
-    vertical-align: top;
-    width: max-content;
     z-index: 2;
+    display: flex;
+    overflow: hidden;
+    align-items: stretch;
+    align-self: center;
+    flex-flow: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: max-content;
+    height: fit-content;
+    margin: 0;
+    padding-bottom: 0.25rem;
+    cursor: context-menu;
+    border-top-style: solid;
+    border-bottom-style: solid;
 }
 
 .tab btn {
-    background: none;
+    display: inline-block;
+    height: 2rem;
+    padding: 0.2rem 0.5rem;
+    cursor: pointer;
+    transition: 0.3s;
     border: none;
     border-radius: 0.5rem;
-    cursor: pointer;
-    float: left;
     outline: none;
-    padding: 8px 16px;
-    transition: 0.3s;
+    background: none;
 }
 
 .tab btn.active {
@@ -1209,17 +1216,82 @@ tr:hover .excludeToggle .fa-ban {
     display: none;
 }
 
-.addAssignment {
-    align-items: center;
-    border-radius: 0.5rem;
-    cursor: pointer;
+.switchDisplayMode, .addAssignment {
+    z-index: 2;
     display: flex;
-    justify-content: center;
-    margin-bottom: 0.5rem;
-    margin-right: 0.5rem;
-    padding: 1rem;
+    align-items: center;
+    flex-flow: row;
+    justify-content: space-between;
     width: fit-content;
-    z-index: 1;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding: 1rem;
+    cursor: pointer;
+    border-radius: 0.5rem;
+}
+
+.addAssignment i {
+    -moz-transition: -moz-transform 100ms linear;
+    -o-transition: -o-transform 100ms linear;
+    -webkit-transition: -webkit-transform 100ms linear;
+    transition: transform 100ms linear;
+}
+
+.addAssignment span {
+    line-height: 0;
+    width: 0;
+    height: 0;
+    -moz-transition: all 250ms linear;
+    -o-transition: all 250ms linear;
+    -webkit-transition: all 250ms linear;
+    transition: all 250ms linear;
+    text-align: center;
+    opacity: 0;
+}
+
+.addAssignment:hover i {
+    transform: scale(1.25) rotate(90deg);
+}
+
+@keyframes expand-button {
+    0% {
+        width: 0;
+        margin-left: 0;
+        opacity: 0;
+    }
+    25% {
+        width: 8rem;
+        margin-left: 0.5rem;
+        opacity: 0;
+    }
+    50% {
+        width: 8rem;
+        margin-left: 0.5rem;
+        opacity: 0.5;
+    }
+    75% {
+        width: 8rem;
+        margin-left: 0.5rem;
+        opacity: 0.75;
+    }
+    100% {
+        width: 8rem;
+        margin-left: 0.5rem;
+        opacity: 1;
+        font-weight: 500;
+    }
+}
+
+.addAssignment:hover span {
+    font-weight: 500;
+    width: 8rem;
+    margin-left: 0.5rem;
+    animation: expand-button 400ms;
+    opacity: 1;
+}
+
+.addAssignment:active span {
+    opacity: 1;
 }
 
 .tableOptions {
@@ -1248,7 +1320,6 @@ tr:hover .excludeToggle .fa-ban {
     float: right !important;
     cursor: pointer;
     pointer-events: all;
-    color: black;
 }
 
 .gotIt:before {
@@ -1262,9 +1333,191 @@ tr:hover .excludeToggle .fa-ban {
 }
 
 .progress {
-    border-radius: 1rem;
+    height: 1rem;
+    margin-right: 1rem;
+    border-radius: 0.5rem;
 }
 
 .progress-bar {
     font-weight: bold;
+}
+
+.empty-progress {
+    background-color: transparent;
+}
+
+.chart-container {
+    position: relative;
+    align-self: stretch;
+    width: 40%;
+    margin: 0;
+}
+
+.weights {
+    align-self: stretch;
+    width: fit-content;
+}
+
+.weights-container {
+    align-self: stretch;
+}
+
+.chartAndWeights {
+    display: flex;
+    align-items: stretch;
+    flex-flow: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    max-height: 60vh;
+}
+
+#GPA-container {
+    display: flex;
+    align-items: center;
+    flex-flow: column;
+    justify-content: center;
+    padding-right: 1rem;
+}
+
+.brand-label {
+    display: inline;
+}
+
+.excludeToggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.excludeToggle div:nth-child(2) {
+    display: flex;
+    align-items: center;
+    flex-flow: column;
+    justify-content: center;
+}
+
+/* Mobile Stuff */
+@media only screen and (max-width: 991px) {
+    th.compact, td.compact {
+        display: none;
+    }
+
+    td, th, .table div {
+        font-size: 0.6rem;
+    }
+
+    td, th {
+        padding: 0.5rem !important;
+        pointer-events: none;
+    }
+
+    .excludeToggle {
+        justify-content: center;
+    }
+
+    .excludeToggle div:nth-child(2) {
+        display: none;
+    }
+
+    td *, th * {
+        font-size: 0.6rem !important;
+    }
+
+    td {
+        overflow: hidden;
+        max-width: 3rem;
+    }
+
+    .table input:not(.weights), .popup span, .popup span * {
+        font-size: 0.6rem !important;
+        pointer-events: none;
+    }
+
+    .popup span {
+        min-width: 5rem !important;
+        max-width: 10rem !important;
+    }
+
+    i {
+        font-size: initial;
+    }
+
+    .chart-container {
+        display: block;
+        width: 100%;
+        height: 40vh;
+        pointer-events: none;
+    }
+
+    .chartAndWeights {
+        display: block;
+        max-height: unset;
+    }
+
+    .weights * {
+        font-size: 0.6rem;
+    }
+
+    .weights {
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .weights-container {
+        display: block;
+    }
+
+    #GPA-container, #table-1 {
+        display: none;
+    }
+
+    .addAssignment, .tableOptions {
+        display: none;
+    }
+
+    .brand-label {
+        display: none;
+    }
+
+    .card {
+        max-height: 80vh !important;
+    }
+
+    .changelog-container {
+        max-height: 50vh !important;
+    }
+
+    .card-title {
+        font-size: 2rem;
+    }
+
+    #privacyCard .card-footer, #termsCard .card-footer {
+        overflow: scroll;
+        max-height: 30vh !important;
+    }
+
+    h3 {
+        font-size: 1rem;
+    }
+
+    h4 {
+        font-size: 0.8rem;
+    }
+
+    p, li {
+        font-size: 0.5rem;
+    }
+
+    .tab {
+        height: fit-content;
+    }
+
+    .nav-popups {
+        display: none !important;
+    }
+
+    .tab {
+        align-items: center;
+        height: 4rem;
+    }
 }

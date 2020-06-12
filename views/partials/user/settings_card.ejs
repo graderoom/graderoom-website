@@ -14,7 +14,7 @@
                     Settings
                 </h1>
             </div>
-            <div class="tab" style="margin-bottom: 1rem">
+            <div class="tab">
                 <btn id="btn-1" class="tablinks active" onclick="openTab(1)">Appearance</btn>
                 <btn id="btn-2" class="tablinks" onclick="openTab(2)">Account</btn>
                 <btn id="btn-3" class="tablinks" onclick="openTab(3)">Help</btn>
@@ -475,14 +475,14 @@
                         </button>
                     </div>
                     <div class="card-footer">
-                        <h5>Tutorial
+                        <h5>Tutorial Progress
                             <span class="popup">
                                 <i class="fa fa-question-circle">
                                     <span class="popup-right-top">Explore parts of Graderoom with blue popups to
                                         complete the tutorial</span>
                                 </i>
                             </span></h5>
-                        <div style="display:flex; flex-flow: column; align-items: flex-start; justify-content: flex-start;">
+                        <div style="display:flex; flex-flow: row; align-items: center; justify-content: stretch;">
                             <div class="progress" style="width: 100%">
                                 <div class="progress-bar progress-bar-success" role="progressbar" style="width:100%"
                                      id="tutorialStatus">
@@ -490,7 +490,7 @@
                                 </div>
                             </div>
                             <button class="btn btn-sm" style="margin: 0.1rem; width: fit-content" type="submit"
-                                    onclick="resetTutorial()">Reset Tutorial
+                                    onclick="resetTutorial()">Reset
                             </button>
                         </div>
                     </div>
@@ -859,8 +859,22 @@
     }
 
     function updateTutorialProgress() {
-        let progress = Math.round(Object.values(user.alerts.tutorialStatus).filter(x => x).length / Object.values(user.alerts.tutorialStatus).length * 100) + "%";
-        $("#tutorialStatus").text(progress !== "0%" ? progress + " Complete" : "").css("width", progress);
+        let numGotten = Object.values(user.alerts.tutorialStatus).filter(x => x).length;
+        let numTotal = Object.values(user.alerts.tutorialStatus).length;
+        let progress = numGotten / numTotal * 100;
+        let bar = $("#tutorialStatus").text(progress !== 0 ? Math.round(progress) + "%" : "").css("width", progress + "%").parents(".progress");
+        let emptyBars = $(".empty-progress");
+        let i;
+        for (i = 0; i < numTotal - numGotten; i++) {
+            if (i >= emptyBars.length) {
+                bar.append("<div class=\"progress-bar empty-progress\" role=\"progressbar\" style=\"width: " + (100 / numTotal) + "%\"></div>");
+            } else {
+                $(emptyBars[i]).css('width', (100 / numTotal) + "%");
+            }
+        }
+        for (i; i < emptyBars.length; i++) {
+            $(emptyBars[i]).remove();
+        }
     }
 
 </script>

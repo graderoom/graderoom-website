@@ -196,10 +196,6 @@ table thead tr th {
     filter: opacity(0.6);
 }
 
-.sk-chase-dot:before {
-    background-color: #000000;
-}
-
 .slider {
     background-color: #EEEEEE;
 }
@@ -349,11 +345,29 @@ select:focus {
     color: #D3D3D3;
 }
 
-.addAssignment, .tableOptions {
+.switchDisplayMode, .addAssignment, .tableOptions {
     background-color: #FFFFFF;
 }
 
 .progress-bar {
     color: #FFFFFF;
     background-color: hsl(210, 48%, 48%);
+}
+
+.gotIt {
+    color: black;
+}
+
+.progress {
+    border: 1px #FFFFFF solid;
+}
+
+.progress-bar {
+    color: #FFFFFF;
+    background-color: hsl(210, 48%, 48%);;
+}
+
+.empty-progress {
+    color: #FFFFFF;
+    border-left: 1px solid #FFFFFF;
 }
