@@ -80,8 +80,9 @@
 
         <!-- Main Screen -->
         <div class="container">
-            <div style="display:none;" class="alert alert-info font-weight-bold text-center"
-                 id="mobilePopup">You can enjoy all of Graderoom's features on a larger screen.
+            <div class="backToHome" style="display: none" onclick="showPage(-1)">
+                <i class="fa fa-arrow-left"></i>
+                <span>Home</span>
             </div>
             <!-- Overview Section -->
             <% if (user.alerts.lastUpdated.length !== 0) { %>
@@ -101,8 +102,7 @@
                                 </i>
                             </span>
                         </div>
-                        <div id="chart-container-1" class="chart-container text-center"
-                             style="position: relative; height:60vh; width: 100%; margin: 0 auto;">
+                        <div id="chart-container-1" class="chart-container text-center">
                             <button id="reset-zoom-1"
                                     style="position: absolute; top: 0; right: 0; height: fit-content; display:none"
                                     class="btn btn-sm" onclick="resetZoom(-1); $(this).hide()">Reset
@@ -111,12 +111,12 @@
                         </div>
                     </div>
                     <br>
-                    <table class="table rounded-table text-center" id="table-1">
-                        <thead>
-                            <tr>
-                                <% offset = 0; %>
-                                <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                                    <% if (user.appearance.showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
+                    <div class="table" id="table-1">
+                        <% offset = 0; %>
+                        <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
+                            <% if (user.appearance.showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
+                                <table class="rounded-table text-center">
+                                    <thead>
                                         <th id="overview<%= i + offset %>" class="overview"
                                             style="cursor: pointer; text-align: center; color: <%= user.appearance.classColors[i] %>"
                                             onclick="showPage(<%= i + offset %>)">
@@ -126,22 +126,11 @@
                                                    class="fa fa-exclamation-circle"
                                                    style="display: none; margin-left: 0.2rem">
                                                     <span class="popup-top-left always-show">
-                                                        <% let grade = JSON.parse(gradeData)[i].overall_percent + "%"; %>
-                                                        Grade in PowerSchool:
-                                                        <nobr><%= grade + " (" + JSON.parse(gradeData)[i].overall_letter + ")" %></nobr>
+                                                        Does not match calculated grade
                                                     </span>
                                                 </i></span></th>
-                                    <% } else {
-                                        offset--;
-                                    } %>
-                                <% } %>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <% offset = 0; %>
-                                <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                                    <% if (user.appearance.showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
+                                    </thead>
+                                    <tbody>
                                         <td class="overview"
                                             style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= user.appearance.classColors[i] %>"
                                             onclick="showPage(<%= i + offset %>)">
@@ -149,13 +138,14 @@
                                                  style="display:block; font-weight:bolder">--<br>--<br>--
                                             </div>
                                         </td>
-                                    <% } else {
-                                        offset--;
-                                    } %>
-                                <% } %>
-                            </tr>
-                        </tbody>
-                    </table>
+                                    </tbody>
+                                </table>
+                            <% } else {
+                                offset--;
+                            } %>
+                        <% } %>
+                        </tr>
+                    </div>
                 </span>
             <% } %>
             <!-- Class Sections -->
@@ -188,7 +178,7 @@
                             </div>
                             <div class="weights-container">
                                 <form id="weights<%= i + offset %>" class="form-ajax form-weights form-signin"
-                                      action="/updateweights" style="padding-left: 1rem;">
+                                      action="/updateweights">
                                     <table class="table text-center weights rounded-table"
                                            style="white-space: nowrap; margin-top: 1rem; margin-bottom: 1rem;"
                                            id="weightsTable<%= i + offset %>">
@@ -329,125 +319,127 @@
                                 </div>
                             </div>
                         </div>
-                        <table class="table rounded-table class-table text-center" id="table<%= i + offset %>">
-                            <thead>
-                                <tr>
-                                    <th class="compact">Date</th>
-                                    <th>Assignment Name</th>
-                                    <th class="compact">Category</th>
-                                    <th>Score</th>
-                                    <th class="compact">Assignment Percent</th>
-                                    <th>Overall Grade</th>
-                                    <th class="popup resetTab">
-                                        <i id="resetAll<%= i + offset %>"
-                                           class="fa fa-undo"
-                                           style="color: #888888; margin: 0; cursor: pointer; visibility:hidden"
-                                           onclick="{resetAll(this);}"
-                                        >
-                                            <span class="popup-top">
-                                                Revert All
-                                            </span>
-                                        </i>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% for (let j = 0; j < JSON.parse(gradeData)[i].grades.length; j++) { %>
-                                    <tr class="classTableRow<%= i + offset %>">
-                                        <td class="compact assignmentDate<%= i + offset %>"></td>
-                                        <td>
-                                            <div class="excludeToggle">
-                                                <div class="assignmentName<%= i + offset %>"></div>
-                                                <div>
-                                                    <i class="fa fa-ban exclude<%= i + offset %>"
-                                                       style="cursor: pointer"
-                                                       onclick="toggleExclude(this);">
-                                                        <label style="cursor: pointer !important; margin: 0; display: block; font-weight: bolder; font-size: 0.5rem">Exclude</label>
-                                                    </i>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="compact assignmentCategory<%= i + offset %>">
-                                            <select class="minimal category<%= i + offset %>"
-                                                    style="margin: 0"></select>
-                                        </td>
-                                        <td class="form-weights form-signin form-group assignmentScore<%= i + offset %>">
-                                            <div style="display: flex; justify-content: center; align-items: center">
-                                                <input class="form-control text-view dynamic-input gotten<%= i + offset %>"
-                                                       type="number" step="0.001"
-                                                       style="padding: 0; width: 0 !important; "
-                                                       placeholder="--"
-                                                       onblur="{updatePointsGotten(this);}">
-                                                /<input style="padding: 0; width: 0 !important; "
-                                                        class="form-control text-view dynamic-input possible<%= i + offset %>"
-                                                        placeholder="--"
-                                                        onblur="{updatePointsPossible(this);}">
-                                            </div>
-                                        </td>
-                                        <td class="compact assignmentPercent<%= i + offset %>"></td>
-                                        <td class="assignment<%= i + offset %>"></td>
-                                        <td class="popup resetTab">
-                                            <i class="fa fa-undo resetRow<%= i + offset %>"
+                        <div class="table-container">
+                            <table class="table rounded-table class-table text-center" id="table<%= i + offset %>">
+                                <thead>
+                                    <tr>
+                                        <th class="compact">Date</th>
+                                        <th>Assignment Name</th>
+                                        <th class="compact">Category</th>
+                                        <th>Score</th>
+                                        <th class="compact">Assignment Percent</th>
+                                        <th>Overall Grade</th>
+                                        <th class="popup resetTab">
+                                            <i id="resetAll<%= i + offset %>"
+                                               class="fa fa-undo"
                                                style="color: #888888; margin: 0; cursor: pointer; visibility:hidden"
-                                               onclick="{resetRow(this);}"
+                                               onclick="{resetAll(this);}"
                                             >
                                                 <span class="popup-top">
-                                                    Revert to Original
+                                                    Revert All
                                                 </span>
                                             </i>
-                                        </td>
+                                        </th>
                                     </tr>
-                                <% } %>
-                            </tbody>
-                        </table>
-                        <table>
-                            <!-- This is a sample row to be copied and create category tables -->
-                            <tr class="sample categoryClassTableRow<%= i + offset %>">
-                                <td class="categoryAssignmentDate<%= i + offset %>"></td>
-                                <td>
-                                    <div class="excludeToggle"
-                                         style="display: flex; justify-content: space-between; align-items: center">
-                                        <div class="categoryAssignmentName<%= i + offset %>"></div>
-                                        <div style="display: flex; justify-content: center; flex-flow: column; align-items: center">
-                                            <i class="fa fa-ban categoryExclude<%= i + offset %>"
-                                               style="cursor: pointer"
-                                               onclick="toggleExclude(this);">
-                                                <label style="cursor: pointer !important; margin: 0; display: block; font-weight: bolder; font-size: 0.5rem">Exclude</label>
-                                            </i>
+                                </thead>
+                                <tbody>
+                                    <% for (let j = 0; j < JSON.parse(gradeData)[i].grades.length; j++) { %>
+                                        <tr class="classTableRow<%= i + offset %>">
+                                            <td class="compact assignmentDate<%= i + offset %>"></td>
+                                            <td>
+                                                <div class="excludeToggle">
+                                                    <div class="assignmentName<%= i + offset %>"></div>
+                                                    <div>
+                                                        <i class="fa fa-ban exclude<%= i + offset %>"
+                                                           style="cursor: pointer"
+                                                           onclick="toggleExclude(this);">
+                                                            <label style="cursor: pointer !important; margin: 0; display: block; font-weight: bolder; font-size: 0.5rem">Exclude</label>
+                                                        </i>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="compact assignmentCategory<%= i + offset %>">
+                                                <select class="minimal category<%= i + offset %>"
+                                                        style="margin: 0"></select>
+                                            </td>
+                                            <td class="form-weights form-signin form-group assignmentScore<%= i + offset %>">
+                                                <div style="display: flex; justify-content: center; align-items: center">
+                                                    <input class="form-control text-view dynamic-input gotten<%= i + offset %>"
+                                                           type="number" step="0.001"
+                                                           style="padding: 0; width: 0 !important; "
+                                                           placeholder="--"
+                                                           onblur="{updatePointsGotten(this);}">
+                                                    /<input style="padding: 0; width: 0 !important; "
+                                                            class="form-control text-view dynamic-input possible<%= i + offset %>"
+                                                            placeholder="--"
+                                                            onblur="{updatePointsPossible(this);}">
+                                                </div>
+                                            </td>
+                                            <td class="compact assignmentPercent<%= i + offset %>"></td>
+                                            <td class="assignment<%= i + offset %>"></td>
+                                            <td class="popup resetTab">
+                                                <i class="fa fa-undo resetRow<%= i + offset %>"
+                                                   style="color: #888888; margin: 0; cursor: pointer; visibility:hidden"
+                                                   onclick="{resetRow(this);}"
+                                                >
+                                                    <span class="popup-top">
+                                                        Revert to Original
+                                                    </span>
+                                                </i>
+                                            </td>
+                                        </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                            <table>
+                                <!-- This is a sample row to be copied and create category tables -->
+                                <tr class="sample categoryClassTableRow<%= i + offset %>">
+                                    <td class="categoryAssignmentDate<%= i + offset %>"></td>
+                                    <td>
+                                        <div class="excludeToggle"
+                                             style="display: flex; justify-content: space-between; align-items: center">
+                                            <div class="categoryAssignmentName<%= i + offset %>"></div>
+                                            <div style="display: flex; justify-content: center; flex-flow: column; align-items: center">
+                                                <i class="fa fa-ban categoryExclude<%= i + offset %>"
+                                                   style="cursor: pointer"
+                                                   onclick="toggleExclude(this);">
+                                                    <label style="cursor: pointer !important; margin: 0; display: block; font-weight: bolder; font-size: 0.5rem">Exclude</label>
+                                                </i>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
-                                <td class="categoryAssignmentCategory<%= i + offset %>">
-                                    <select class="minimal categoryCategory<%= i + offset %>"
-                                            style="margin: 0"></select>
-                                </td>
-                                <td class="form-weights form-signin form-group categoryAssignmentScore<%= i + offset %>">
-                                    <div style="display: flex; justify-content: center; align-items: center">
-                                        <input class="form-control text-view dynamic-input categoryGotten<%= i + offset %>"
-                                               type="number" step="0.001"
-                                               style="padding: 0; width: 0 !important; "
-                                               placeholder="--"
-                                               onblur="{updatePointsGotten(this);}">
-                                        /<input style="padding: 0; width: 0 !important; "
-                                                class="form-control text-view dynamic-input categoryPossible<%= i + offset %>"
-                                                placeholder="--"
-                                                onblur="{updatePointsPossible(this);}">
-                                    </div>
-                                </td>
-                                <td class="categoryAssignmentPercent<%= i + offset %>"></td>
-                                <td class="categoryAssignment<%= i + offset %>"></td>
-                                <td class="popup resetTab">
-                                    <i class="fa fa-undo categoryResetRow<%= i + offset %>"
-                                       style="color: #888888; margin: 0; cursor: pointer; visibility:hidden"
-                                       onclick="{resetRow(this);}"
-                                    >
-                                        <span class="popup-top">
-                                            Revert to Original
-                                        </span>
-                                    </i>
-                                </td>
-                            </tr>
-                        </table>
+                                    </td>
+                                    <td class="categoryAssignmentCategory<%= i + offset %>">
+                                        <select class="minimal categoryCategory<%= i + offset %>"
+                                                style="margin: 0"></select>
+                                    </td>
+                                    <td class="form-weights form-signin form-group categoryAssignmentScore<%= i + offset %>">
+                                        <div style="display: flex; justify-content: center; align-items: center">
+                                            <input class="form-control text-view dynamic-input categoryGotten<%= i + offset %>"
+                                                   type="number" step="0.001"
+                                                   style="padding: 0; width: 0 !important; "
+                                                   placeholder="--"
+                                                   onblur="{updatePointsGotten(this);}">
+                                            /<input style="padding: 0; width: 0 !important; "
+                                                    class="form-control text-view dynamic-input categoryPossible<%= i + offset %>"
+                                                    placeholder="--"
+                                                    onblur="{updatePointsPossible(this);}">
+                                        </div>
+                                    </td>
+                                    <td class="categoryAssignmentPercent<%= i + offset %>"></td>
+                                    <td class="categoryAssignment<%= i + offset %>"></td>
+                                    <td class="popup resetTab">
+                                        <i class="fa fa-undo categoryResetRow<%= i + offset %>"
+                                           style="color: #888888; margin: 0; cursor: pointer; visibility:hidden"
+                                           onclick="{resetRow(this);}"
+                                        >
+                                            <span class="popup-top">
+                                                Revert to Original
+                                            </span>
+                                        </i>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
                         <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].weights).length; j++) { %>
                             <% let category = Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].weights)[j] %>
                             <table class="table rounded-table class-table text-center categoryTable<%= i + offset %>">
@@ -538,6 +530,9 @@
                     offset--;
                 } %>
             <% } %>
+            <div style="display:none;" class="alert alert-info font-weight-bold text-center"
+                 id="mobilePopup">You can enjoy all of Graderoom's features on a larger screen.
+            </div>
         </div>
 <% } %>
 <!-- Custom JavaScript -->
@@ -548,16 +543,16 @@
 
     function setupColorStuff() {
         // Class links
-        $.makeArray($(".nav-link")).slice(1).forEach((x, i) => $(x).css('color', colors[i]));
+        $.makeArray($(".nav-link")).slice(1).forEach((x, i) => $(x).css("color", colors[i]));
 
         // Overview Chart
-        $.makeArray($(".overview")).forEach((x, i) => $(x).css('color', colors[i % colors.length]));
+        $.makeArray($(".overview")).forEach((x, i) => $(x).css("color", colors[i % colors.length]));
 
         // Sliders
-        $.makeArray($(".classSlider")).forEach((x, i) => $(x).css('color', colors[i]));
+        $.makeArray($(".classSlider")).forEach((x, i) => $(x).css("color", colors[i]));
 
         // Overall Grades in Weight Tables
-        $.makeArray($(".weightOverall")).forEach((x, i) => $(x).css('color', colors[i]));
+        $.makeArray($(".weightOverall")).forEach((x, i) => $(x).css("color", colors[i]));
 
         // Render all charts
         renderAllCharts();
@@ -785,11 +780,9 @@
                 if (correctDecimalPlaces != realOverallGrade || calculatedOverallLetter !== realOverallLetter) {
                     $("#incorrectOverviewGrade" + i).css("display", "inline");
                     $("#incorrectOverallGrade" + i).css("display", "inline");
-                    $("#overviewChart" + i).addClass("ignored");
                 } else {
                     $("#incorrectOverviewGrade" + i).hide();
                     $("#incorrectOverallGrade" + i).hide();
-                    $("#overviewChart" + i).removeClass("ignored");
                 }
 
                 // GPA will only be different if the actual letter is different
@@ -1098,9 +1091,9 @@
         let method = $(element)[0].selectedOptions[0].value;
         $(element).blur();
         if (method === "category") {
-            $($(element)[0].nextElementSibling.children[0]).removeClass('fa-sort-amount-desc').addClass('fa-sort-amount-asc').addClass('disabled').find("span").text("Oldest to Newest");
+            $($(element)[0].nextElementSibling.children[0]).removeClass("fa-sort-amount-desc").addClass("fa-sort-amount-asc").addClass("disabled").find("span").text("Oldest to Newest");
         } else {
-            $($(element)[0].nextElementSibling.children[0]).removeClass(dateSort[classIndex] ? 'fa-sort-amount-desc' : 'fa-sort-amount-asc').addClass(dateSort[classIndex] ? 'fa-sort-amount-asc' : 'fa-sort-amount-desc').removeClass('disabled').find("span").text(dateSort[classIndex] ? 'Oldest to Newest' : 'Newest to Oldest');
+            $($(element)[0].nextElementSibling.children[0]).removeClass(dateSort[classIndex] ? "fa-sort-amount-desc" : "fa-sort-amount-asc").addClass(dateSort[classIndex] ? "fa-sort-amount-asc" : "fa-sort-amount-desc").removeClass("disabled").find("span").text(dateSort[classIndex] ? "Oldest to Newest" : "Newest to Oldest");
         }
         categorySort[classIndex] = method === "category";
         refreshWithoutReload(true, classIndex);
@@ -1468,7 +1461,7 @@
                         // Bind listeners only once
                         if (!$(dropdown).find("option").length) {
                             for (let k = 0; k < categories.length; k++) {
-                                dropdown.append($("<option>").text(categories[k]).prop('disabled', true));
+                                dropdown.append($("<option>").text(categories[k]).prop("disabled", true));
                             }
                             // dropdown.on("change", () => {
                             //     updateCategory(dropdown);
@@ -1478,7 +1471,7 @@
                         }
 
                         // Select assignment category
-                        $(dropdown.find("option")[categories.indexOf(assignmentCategories[j])]).prop("selected", true).prop('disabled', false);
+                        $(dropdown.find("option")[categories.indexOf(assignmentCategories[j])]).prop("selected", true).prop("disabled", false);
 
                         // Set up excludes
                         if (assignmentExcludes[j]) {
@@ -1507,7 +1500,7 @@
                         // Set up reset buttons
                         let resetButton = $(resetRowDivs[assignmentIndex]);
                         if (modTempData[j] && Object.keys(modTempData[j]).length) {
-                            $($(".resetCategory" + i)[categories.indexOf(assignmentCategories[j])]).css('visibility', 'visible').parents(".resetTab").show();
+                            $($(".resetCategory" + i)[categories.indexOf(assignmentCategories[j])]).css("visibility", "visible").parents(".resetTab").show();
                             resetButton.css("visibility", "visible").parents(".resetTab").show();
                             $($(".categoryTable" + i)[categories.indexOf(assignmentCategories[j])]).addClass("unround-top-right");
                         } else {
@@ -1687,7 +1680,7 @@
 
     function setupOverviewTable() {
         for (let i = 0; i < parsedData.length; i++) {
-            let overallGrade = getOverallGrade(i);
+            let overallGrade = data[i].overall_percent;
             let assignmentData = parsedData[i].rawData;
             let lastIndex = assignmentData.length - 1;
             let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(5);
@@ -1700,9 +1693,9 @@
                 delta = "<i class=\"fa fa-caret-down\"></i>" + delta + "%";
                 color = "red";
             }
-            delta = (delta ? (" <div style=\"display: inline-block; font-size: smaller; color: " + color + "\">" + delta + "</div>") : "");
+            delta = (delta ? (" <div class=\"delta\" style=\"color: " + color + "\">" + delta + "</div>") : "");
             if (getOverallGrade(i)) {
-                document.getElementById("overviewChart" + i).innerHTML = (+(overallGrade.toFixed(4))).toString() + "%" + "<br>" + getLetterGrade(overallGrade) + "<br>" + delta;
+                document.getElementById("overviewChart" + i).innerHTML = "<div class=\"overallGrade\">" + (+(overallGrade.toFixed(4))).toString() + "%" + "</div><div class=\"overallLetter\">" + data[i].overall_letter + "</div>" + delta;
             } else {
                 document.getElementById("overviewChart" + i).innerHTML = "N/A";
             }
@@ -1784,7 +1777,7 @@
                         if (!categoryGrades[grade.category]) {
                             categoryGrades[grade.category] = {
                                 totalPossible: false, totalGotten: false
-                            }
+                            };
                         }
                     }
                     try {
@@ -1919,7 +1912,9 @@
         let ctx = document.getElementById("chart-1");
         let dataset = [];
         let _colors = colors;
-        if (!data) return;
+        if (!data) {
+            return;
+        }
         for (let i = 0; i < data.length; i++) {
             dataset.push({
                              label: data[i].class_name,
@@ -2138,6 +2133,13 @@
             document.getElementById("section" + i).style.display = "none";
         }
         document.getElementById("section" + id).style.display = "block";
+
+        if (id !== -1 && window.innerWidth <= 991) {
+            $(".backToHome").show();
+        } else {
+            $(".backToHome").hide();
+        }
+
         sessionStorage.setItem("currentPage", id);
         currentPage = id;
     }
@@ -2372,7 +2374,15 @@
         // Do it once on load
         stickyNavbar();
         // When the user scrolls the page
-        window.onscroll = stickyNavbar;
+        let hidingBack;
+        window.onscroll = () => {
+            stickyNavbar();
+            clearTimeout(hidingBack);
+            $(".backToHome").removeClass("showDetails");
+            hidingBack = setTimeout(() => {
+                $(".backToHome").addClass("showDetails");
+            }, 400);
+        };
     }
 
     document.onload = disableMobileGraphFeatures();
@@ -2426,6 +2436,12 @@
 
                 // Get the height of the navbar
                 height = navbar.offsetHeight + parseInt(getComputedStyle(navbar).marginBottom);
+            }
+
+            if (currentPage !== -1 && window.innerWidth <= 991) {
+                $(".backToHome").show();
+            } else {
+                $(".backToHome").hide();
             }
 
             // Reopen all cards

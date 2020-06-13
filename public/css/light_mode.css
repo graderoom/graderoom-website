@@ -273,32 +273,6 @@ input:checked + .slider:before {
     color: #DDDDDD;
 }
 
-#weightsCard {
-    background-color: #FFFFFF;
-    padding-bottom: 1px;
-    padding-top: 1px;
-}
-
-#weightsCard input {
-    border-color: lightcoral;
-}
-
-#weightsCard input:focus {
-    border-color: red;
-}
-
-#weightsCard input.text-view {
-    border-color: white;
-}
-
-#weightsCard .fail {
-    color: lightcoral;
-}
-
-#weightsCard .success {
-    color: lightgreen;
-}
-
 select {
     background-color: #EEEEEE;
     color: #000000;
@@ -370,4 +344,29 @@ select:focus {
 .empty-progress {
     color: #FFFFFF;
     border-left: 1px solid #FFFFFF;
+}
+
+.weights-container {
+    background-color: #FFFFFF;
+}
+
+.table-container {
+    background: #FFFFFF;
+}
+
+#table-1 {
+    border-radius: 0.5rem;
+    background-color: white;
+}
+
+/* Mobile Stuff */
+@media only screen and (max-width: 991px) {
+    #table-1 {
+        background-color: transparent;
+    }
+
+    .backToHome {
+        background-color: #FFFFFF;
+        box-shadow: 0 0 2px #000000;
+    }
 }

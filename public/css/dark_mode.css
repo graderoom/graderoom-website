@@ -256,26 +256,6 @@ input:checked + .slider:before {
     background-color: #EEEEEE;
 }
 
-#weightsCard input {
-    border-color: lightcoral;
-}
-
-#weightsCard input:focus {
-    border-color: red;
-}
-
-#weightsCard input.text-view {
-    border-color: white;
-}
-
-#weightsCard .fail {
-    color: lightcoral;
-}
-
-#weightsCard .success {
-    color: lightgreen;
-}
-
 select {
     background-color: #444444;
     color: #FFFFFF;
@@ -343,4 +323,16 @@ select:focus {
 .empty-progress {
     color: #333333;
     border-left: 1px solid #333333;
+}
+
+/* Mobile Stuff */
+@media only screen and (max-width: 991px) {
+    #table-1 table {
+        border-radius: 0.5rem;
+        background-color: #111111;
+    }
+
+    .backToHome {
+        background-color: #000000;
+    }
 }
