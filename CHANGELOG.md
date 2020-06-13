@@ -51,6 +51,18 @@
 - Changelog display buttons work incorrectly after page resize <strong>[Fixed in Beta 2.3.8]</strong>
 - Grades sometimes do not sync when autofill is enabled and GradeSync is disabled <strong>[Fixed in Beta 2.5.0]</strong>
 
+## [Beta 2.5.2] - 2020-06-12
+### Added
+- New back to home button on mobile site
+
+### Improved
+- Mobile Homepage is much more useful and less cluttered. Click on a class to view its page
+- Mobile navbar now has important information such as sync status and user name easily visible
+- Incorrect grades no longer show in overview table
+
+### Removed
+- Removed all charts from mobile site
+
 ## [Beta 2.5.1] - 2020-06-11
 ### Added
 - Initial support for mobile website with limited features. Use Graderoom on your large screen device to access all features.

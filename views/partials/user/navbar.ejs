@@ -1,6 +1,6 @@
 <!-- Nav Bar -->
 <nav class="navbar <% if (theme) { %>navbar-dark<% } else { %>navbar-light<% } %> navbar-expand-lg justify-content-center">
-    <span class="d-flex w-50 mr-auto">
+    <span class="d-flex w-100">
         <a href="/" class="navbar-brand" style="margin: 0;">
             <h1>
                 <img
@@ -9,35 +9,33 @@
                 <% } else { %>
                     src="/public/resources/light_mode/logo.png"
                         <% } %>
-                        style="width: 3rem"
-                        class="d-inline-block"
-                        alt="">
+                    style="width: 3rem"
+                    alt="logo">
                 <div class="brand-label">
                     Graderoom
                 </div>
             </h1>
         </a>
+        <div style="cursor: pointer; display: block; margin: 0 auto; width: available" class="text-center">
+            <h5 style="padding-top: 0; white-space: nowrap"
+                onclick="showCard('#settingsCardDisplay'); openTab(2)"><%= user.username %></h5>
+            <label onclick="showCard('#settingsCardDisplay'); openTab(2)" id="nameDisplay"
+                   style="white-space: nowrap; cursor: pointer; margin: 0; display: block"><%= user.personalInfo.firstName %> <%= user.personalInfo.lastName %>
+                '<%= user.personalInfo.graduationYear - 2000 %></label>
+            <% if (current == "home") { %>
+                <label style="white-space: nowrap; cursor: pointer; color: green;"
+                       onclick="showCard('#updateGradesDisplay');"
+                       class="updateGradesMessage">
+                    <div class="messageTxt">Loading Sync Status...</div>
+                </label>
+            <% } %>
+        </div>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNav"
+                aria-controls="collapsingNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
     </span>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNav"
-            aria-controls="collapsingNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
     <div class="navbar-collapse collapse w-100" id="collapsingNav">
-        <ul class="navbar-nav w-100 justify-content-center">
-            <li style="cursor: pointer" class="nav-item">
-                <h5 style="padding-top: 0"
-                    onclick="showCard('#settingsCardDisplay'); openTab(2)"><%= user.username %></h5>
-                <label onclick="showCard('#settingsCardDisplay'); openTab(2)" id="nameDisplay"
-                       style="cursor: pointer; margin: 0; display: block"><%= user.personalInfo.firstName %> <%= user.personalInfo.lastName %>
-                    '<%= user.personalInfo.graduationYear - 2000 %></label>
-                <% if (current == "home") { %>
-                    <label style="cursor: pointer; color: green;" onclick="showCard('#updateGradesDisplay');"
-                           class="updateGradesMessage">
-                        <div class="messageTxt">Loading Sync Status...</div>
-                    </label>
-                <% } %>
-            </li>
-        </ul>
         <ul class="navbar-nav w-100 justify-content-end align-items-end ml-auto">
             <% if (current == 'home') { %>
                 <li id="calc" class="nav-item popup">
@@ -116,10 +114,10 @@
 
 <!-- Custom JavaScript -->
 <script>
-    $(".gotIt").on('click', function (e) {
+    $(".gotIt").on("click", function (e) {
         e.preventDefault();
         e.stopPropagation();
-        updateTutorial($(this).attr('action'));
+        updateTutorial($(this).attr("action"));
     });
 
     function ajaxPostForm(formID, fieldIDsToClear, messagesDivID, async) {
@@ -230,7 +228,7 @@
 
                     if (formID === "#changeSchoolEmail") {
                         updateNameDisplay(undefined, $("#school_email")[0].value);
-                        $("#school_email").prop('disabled', true)
+                        $("#school_email").prop("disabled", true);
                     }
 
                     // Show the div.
@@ -414,7 +412,7 @@
         $(id).fadeIn(500);
         disableScrolling();
         if (id === "#settingsCardDisplay") {
-            $($("#school_email").val(user.schoolUsername).parents(".input-group")[0].nextElementSibling).prop('disabled', true);
+            $($("#school_email").val(user.schoolUsername).parents(".input-group")[0].nextElementSibling).prop("disabled", true);
             checkLabel($("#school_email"));
             openTab(currentTab);
             updateTutorialProgress();
