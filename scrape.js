@@ -2,8 +2,7 @@ let {PythonShell} = require("python-shell");
 
 module.exports = {
 
-    loginAndScrapeGrades: function (email, password) {
-        //TODO return {success: true, message: "Done!"} etc
+    loginAndScrapeGrades: function (email, password, get_history=false) {
 
         let pythonPath;
 
@@ -18,7 +17,7 @@ module.exports = {
             // pythonOptions: ['-u'], // get print results in real-time
             // // scriptPath: 'path/to/my/scripts',
             // // scriptPath: 'path/to/my/scripts',
-            pythonPath: pythonPath, args: [email, password]
+            pythonPath: pythonPath, args: [email, password, get_history]
         };
 
         return new Promise(function (resolve) {
@@ -31,17 +30,17 @@ module.exports = {
                 let resp = results[0];
 
                 if (err) {
+                    // Error for when the python process fails
                     console.error("ERROR:" + err);
                     resolve({success: false, message: "Error getting grades."});
                 } else if (resp.success === true) {
                     resolve({success: true, new_grades: resp.grades});
                 } else {
+                    // Error when scraping PowerSchool
                     console.error("ERROR:" + resp.message);
-                    // Log grades scraped in event of error
-                    console.log(results);
                     return resolve({success: false, message: resp.message});
                 }
-                // console.log(results);
+
             });
 
         });
