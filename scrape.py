@@ -112,7 +112,7 @@ class PowerschoolScraper:
         n = n.strip()
         if str.isdigit(n):
             return float(n)
-        return -1
+        return False
 
     def login(self, email, password):
         """Logs into PowerSchool with credentials, then prints grades
@@ -358,7 +358,7 @@ class PowerschoolScraper:
                     letter_and_percent = link.text
                     if link.text == '[ i ]':
                         overall_letter = '-'
-                        overall_percent = -1
+                        overall_percent = False
                     else:
                         for i, charac in enumerate(letter_and_percent):
                             if str.isdigit(charac):
@@ -455,7 +455,7 @@ class PowerschoolScraper:
                 grade_percent = grade_data[9].text
                 grade_percent = self.clean_number(grade_percent)
             else:
-                grade_percent = -1
+                grade_percent = False
 
             # Add the assignment to the ClassGrade object
             local_class.add_grade(assignment_name, date, grade_percent,
