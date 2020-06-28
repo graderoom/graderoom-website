@@ -54,7 +54,7 @@
 - Changelog display buttons work incorrectly after page resize <strong>[Fixed in Beta 2.3.8]</strong>
 - Grades sometimes do not sync when autofill is enabled and GradeSync is disabled <strong>[Fixed in Beta 2.5.0]</strong>
 
-## [Beta 2.6.0] - 2020-06-27
+## [Beta 2.6.0] - 2020-06-28
 ### Added
 - Ability to add assignments
 - New custom scrollbars
