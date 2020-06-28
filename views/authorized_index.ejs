@@ -1813,7 +1813,7 @@
                         category = "default";
                         if (!categoryGrades[grade.category]) {
                             categoryGrades[grade.category] = {
-                                totalPossible: false, totalGotten: false
+                                totalPossible: 0, totalGotten: 0
                             };
                         }
                     }
@@ -1824,7 +1824,7 @@
                                 weightVal = Number(weights[className]["weights"][category]);
                             }
                             totalPossiblesAndGottens[category] = {
-                                totalPossible: false, totalGotten: false, weight: weightVal
+                                totalPossible: 0, totalGotten: 0, weight: weightVal
                             };
                             totalWeightValue += weightVal;
                         }
