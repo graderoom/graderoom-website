@@ -94,16 +94,12 @@ th {
     color: #BBBBBB;
 }
 
-.card::-webkit-scrollbar-thumb {
-    background-color: #555555;
-}
-
-.card::-webkit-scrollbar-thumb:hover {
-    background-color: #777777;
-}
-
-.changelog {
+.changelog, .changelog-legend {
     background-color: #333333;
+}
+
+.changelog-legend {
+    box-shadow: 0 0 5px 1px black;
 }
 
 .changelog-item {
@@ -209,7 +205,15 @@ th {
 }
 
 .changelog-container .current {
-    background-color: rgba(0, 255, 0, 0.06);
+    background-color: rgba(0, 255, 0, 0.1);
+}
+
+.changelog-container .known-issues {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.changelog-container .stable {
+    background-color: rgba(0, 0, 255, 0.1);
 }
 
 .changelog-container .type {
@@ -293,13 +297,13 @@ select.minimal:focus {
     background-image: linear-gradient(45deg, gray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, gray 50%), linear-gradient(to right, #555555, #555555);
 }
 
-select:focus {
-    outline-color: black;
-}
-
 .excluded select {
     background-color: #222222;
     color: #4F4F4F;
+}
+
+.class-table select {
+    box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
 .switchDisplayMode, .addAssignment, .tableOptions {
@@ -325,6 +329,58 @@ select:focus {
     border-left: 1px solid #333333;
 }
 
+::-webkit-scrollbar-thumb {
+    background-color: #2F2F2F;
+}
+
+::-webkit-scrollbar-thumb:vertical:hover {
+    background-color: #333333;
+}
+
+::-webkit-scrollbar-thumb:vertical:active {
+    background-color: #444444;
+}
+
+:not(body)::-webkit-scrollbar-thumb:vertical:hover {
+    background-color: #555555;
+}
+
+:not(body)::-webkit-scrollbar-thumb:vertical:active {
+    background-color: #666666;
+}
+
+:not(body)::-webkit-scrollbar-thumb {
+    background-color: #444444;
+}
+
+.addAssignment, .add-assignment-container, .tableOptions {
+    background-color: #333333;
+}
+
+.add-assignment-container.active {
+    box-shadow: 0 0 10px 1px #000000;
+}
+
+.class-table th, .class-table td {
+    border-color: transparent !important;
+}
+
+.class-table td, .class-table th {
+    box-shadow: inset 0 0 2px 1px rgba(50, 50, 50, 0.5);
+}
+
+.separator td {
+    box-shadow: none;
+}
+
+.improve {
+    color: rgba(50, 200, 50, 1);
+}
+
+.deprove {
+    color: rgba(255, 100, 100, 1);
+}
+
 /* Mobile Stuff */
 @media only screen and (max-width: 991px) {
     #table-1 table {
@@ -334,5 +390,11 @@ select:focus {
 
     .backToHome {
         background-color: #000000;
+        box-shadow: 0 0 10px 1px rgba(0, 0, 0, 1);
+    }
+
+    .backToHome:active, .backToHome:hover {
+        color: rgb(138.5, 138.5, 138.5);
+        background-color: #111111;
     }
 }

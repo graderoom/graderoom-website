@@ -6,11 +6,11 @@
         <div id="latestCard" class="card card-signin my-5">
             <btn class="btn btn-md"
                  onclick="closeForm('latestDisplay')"
-                 style="width: fit-content; margin-bottom:0;">
+                 style="width: fit-content; width: -moz-fit-content; margin-bottom:0;">
                 <i class="fa fa-close" aria-hidden="true"></i> Close
             </btn>
             <btn class="btn btn-med" onclick="showChangelog()"
-                 style="position: absolute; width: fit-content; right: 0; margin-bottom: 0">
+                 style="position: absolute; width: fit-content; width: -moz-fit-content; right: 0; margin-bottom: 0">
                 View Full Changelog <i class="fa fa-external-link-square"></i></btn>
             <div class="card-body">
                 <h3 class="card-title text-center"><span class="fa fa-arrow-down"></span>
@@ -41,7 +41,6 @@
                 $("#latestDisplay").fadeIn(500);
                 latestContainer.html(response);
                 latestContainer.animate({scrollTop: 0}, 0);
-                disableScrolling();
                 cardsDisplayed.push("latestDisplay");
                 $(".blurred-background").each(function () {
                     if (cardsDisplayed.includes($($(this).parent())[0].id)) {

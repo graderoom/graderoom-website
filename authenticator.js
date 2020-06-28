@@ -996,9 +996,9 @@ module.exports = {
 
     changelog: function (beta) {
         if (beta) {
-            return betaChangelogArray.join("");
+            return betaChangelogArray;
         } else {
-            return changelogArray.join("");
+            return changelogArray;
         }
     },
 
@@ -1072,33 +1072,31 @@ module.exports = {
             for (let i = 0; i < items.length; i++) {
                 resultHTML += "<div class=\"changelog-item";
                 betaResultHTML += "<div class=\"changelog-item";
-                if (!betaCurrentVersionFound) {
-                    if (items[i].title.substring(0, 4) === "Beta" || items[i].title.substring(0, 6) === "Stable") {
+                if (items[i].title.substring(0, 4) === "Beta") {
+                    if (!betaCurrentVersionFound) {
+                        betaResultHTML += " current";
+                        betaCurrentVersionFound = true;
+                    }
+                    betaResultHTML += "\">";
+                } else if (items[i].title.substring(0, 6) === "Stable") {
+                    if (!currentVersionFound) {
+                        resultHTML += " current\">";
+                        currentVersionFound = true;
+                    } else {
+                        resultHTML += " stable\">";
+                    }
+                    if (!betaCurrentVersionFound) {
                         betaResultHTML += " current\">";
                         betaCurrentVersionFound = true;
-                    } else if (items[i].title.substring(0, 12) === "Announcement") {
-                        betaResultHTML += " announcement\">";
                     } else {
-                        betaResultHTML += "\">";
+                        betaResultHTML += " stable\">";
                     }
                 } else if (items[i].title.substring(0, 12) === "Announcement") {
                     betaResultHTML += " announcement\">";
+                } else if (items[i].title.substring(0, 12) === "Known Issues") {
+                    betaResultHTML += " known-issues\">";
                 } else {
                     betaResultHTML += "\">";
-                }
-                if (!currentVersionFound) {
-                    if (items[i].title.substring(0, 6) === "Stable") {
-                        resultHTML += " current\">";
-                        currentVersionFound = true;
-                    } else if (items[i].title.substring(0, 12) === "Announcement") {
-                        resultHTML += " announcement\">";
-                    } else {
-                        resultHTML += "\">";
-                    }
-                } else if (items[i].title.substring(0, 12) === "Announcement") {
-                    resultHTML += " announcement\">";
-                } else {
-                    resultHTML += "\">";
                 }
                 resultHTML += "<div class=\"header\">";
                 resultHTML += "<div class=\"title\">" + items[i].title + "</div>";

@@ -16,7 +16,7 @@
 <body>
 <div class="container h-100 d-flex justify-content-center ">
     <div class="col-sm-10 col-md-8 col-lg-6 col-xl-5">
-        <div class="card card-signin my-5" id="signin">
+        <div class="card card-signin my-5 non-responsive" id="signin">
             <div class="card-body">
                 <h1 class="text-center card-title">
                     <img src="/public/resources/light_mode/logo.png" width=60rem> Graderoom
@@ -66,11 +66,12 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
 
-    setTimeout(function () {
-        $("input:-webkit-autofill").each(function () {
+    setTimeout(() => {
+        $("input").each(function () {
             let input = $(this);
-            let label = $($(input)[0].previousElementSibling);
-            label.addClass("label-active");
+            if (input[0].value) {
+                input.trigger('input');
+            }
         });
     }, 250);
 

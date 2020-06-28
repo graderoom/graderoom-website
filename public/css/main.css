@@ -28,10 +28,40 @@
     }
 }
 
-@media only screen and (max-width: 768px) {
-    nav h1 {
-        font-size: 2rem;
-    }
+::-webkit-scrollbar {
+    display: block;
+    width: 0.8rem;
+    height: 18px;
+}
+
+:not(body)::-webkit-scrollbar-thumb {
+    border: 0.1rem solid rgba(0, 0, 0, 0);
+    -webkit-border-radius: 0.4rem;
+    background-clip: padding-box;
+}
+
+body::-webkit-scrollbar-thumb {
+    border: 0.2rem solid rgba(0, 0, 0, 0);
+    -webkit-border-radius: 0.4rem;
+    background-clip: padding-box;
+}
+
+::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+::-webkit-scrollbar-track {
+    -webkit-border-radius: 1rem;
+}
+
+::-webkit-scrollbar-corner {
+    background-color: transparent;
+}
+
+.blurred-background::-webkit-scrollbar {
+    display: none;
 }
 
 nav .navbar-collapse li, nav .navbar-collapse .btn {
@@ -48,7 +78,7 @@ nav .navbar-collapse li, nav .navbar-collapse .btn {
 }
 
 body {
-    padding-bottom: 10rem;
+    padding: 0 0 10rem 0;
 }
 
 hr {
@@ -145,10 +175,6 @@ table thead tr th:last-child {
     pointer-events: none;
 }
 
-::-webkit-scrollbar {
-    display: none;
-}
-
 .admin .btn {
     margin: 0 !important;
     width: min-content;
@@ -166,7 +192,7 @@ table thead tr th:last-child {
     line-height: 1.5;
 }
 
-.announcement {
+.changelog-container .announcement {
     background-color: rgba(255, 0, 0, 0.2) !important;
 }
 
@@ -271,7 +297,6 @@ table thead tr th:last-child {
     display: list-item;
     font-size: 1.2rem;
     font-weight: normal;
-    line-height: 1.5rem;
     margin: 0 0 0 2rem;
     padding: 0;
 }
@@ -302,6 +327,60 @@ table thead tr th:last-child {
     background-color: rgba(255, 180, 0, 0.5);
 }
 
+.changelog-container .known-issues * {
+    font-size: 0.6rem;
+}
+
+.changelog-container em {
+    font-weight: bold;
+}
+
+.changelog-legend {
+    position: absolute;
+    z-index: 2;
+    top: 10rem;
+    right: 4rem;
+    display: flex;
+    overflow: hidden;
+    align-items: flex-start;
+    flex-flow: column;
+    justify-content: space-between;
+    width: fit-content;
+    width: -moz-fit-content;
+    margin-left: auto;
+    padding: 1rem;
+    transition: opacity 400ms ease;
+    pointer-events: none;
+    opacity: 1;
+    border-radius: 0.5rem;
+}
+
+.changelog-legend > span {
+    font-size: 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-right: 1rem;
+    margin-bottom: 0.3rem;
+    white-space: nowrap;
+}
+
+changelog-legend span {
+    margin-left: 1rem;
+}
+
+.square {
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.5rem;
+    border: 1px black solid;
+    border-radius: 0.3rem;
+}
+
+.square ~ span {
+    font-weight: bold;
+}
+
 .changelog-container .header {
     display: inline-block;
     margin: 0.5rem 0.5rem 0 0.5rem;
@@ -314,14 +393,14 @@ table thead tr th:last-child {
 }
 
 .sticky {
-    flex-direction: row;;
-    left: 50%;
     position: fixed;
-    top: 0;
-    transform: translateX(-50%);
-    transition: box-shadow 100ms;
-    width: 100%;
     z-index: 999;
+    top: 0;
+    left: 50%;
+    flex-direction: row;
+    width: 100%;
+    transition: box-shadow 100ms;
+    transform: translateX(-50%);
 }
 
 .changelog-container .improved {
@@ -476,7 +555,7 @@ table thead tr th:last-child {
 
 .popup .popup-top-right {
     bottom: 150%;
-    left: 50%;
+    left: calc(50% - 0.0625rem);
     transform: translateX(-25%);
 }
 
@@ -514,7 +593,7 @@ table thead tr th:last-child {
 
 .popup .popup-top-left {
     bottom: 150%;
-    left: 50%;
+    left: calc(50% + 0.0625rem);
     transform: translateX(-75%);
 }
 
@@ -530,8 +609,8 @@ table thead tr th:last-child {
 }
 
 .popup .popup-left-top {
+    top: calc(50% - 0.0625rem);
     right: 150%;
-    top: 50%;
     transform: translateY(-75%);
 }
 
@@ -564,8 +643,8 @@ table thead tr th:last-child {
 }
 
 .popup .popup-left-bottom {
+    top: calc(50% - 0.0625rem);
     right: 150%;
-    top: 50%;
     transform: translateY(-25%);
 }
 
@@ -581,8 +660,8 @@ table thead tr th:last-child {
 }
 
 .popup .popup-bottom-left {
-    left: 50%;
     top: 150%;
+    left: calc(50% + 0.0625rem);
     transform: translateX(-75%);
 }
 
@@ -615,8 +694,8 @@ table thead tr th:last-child {
 }
 
 .popup .popup-bottom-right {
-    left: 50%;
     top: 150%;
+    left: calc(50% - 0.0625rem);
     transform: translateX(-25%);
 }
 
@@ -632,8 +711,8 @@ table thead tr th:last-child {
 }
 
 .popup .popup-right-bottom {
+    top: calc(50% - 0.0625rem);
     left: 150%;
-    top: 50%;
     transform: translateY(-25%);
 }
 
@@ -666,8 +745,8 @@ table thead tr th:last-child {
 }
 
 .popup .popup-right-top {
+    top: calc(50% + 0.0625rem);
     left: 150%;
-    top: 50%;
     transform: translateY(-75%);
 }
 
@@ -712,6 +791,10 @@ table thead tr th:last-child {
     color: red !important;
 }
 
+.fa-exclamation-triangle {
+    color: #EED202 !important;
+}
+
 .fa-spinner {
     color: blue;
 }
@@ -720,21 +803,21 @@ table thead tr th:last-child {
     top: 25% !important; /* Vertically centers spinning icons */
 }
 
-.label-active {
-    filter: opacity(1) !important;
-    font-size: xx-small !important;
-    left: 2.2rem !important;
-    top: -0.5rem !important;
+label.label-active {
+    font-size: xx-small;
+    top: -0.5rem;
+    left: 2.2rem;
+    filter: opacity(1);
 }
 
 .nav {
-    border-radius: 0 0 0.5rem 0.5rem;
-    margin: auto;
-    margin-bottom: 1rem;
-    margin-top: 0 !important;
-    padding: 0.5rem 1rem 0.5rem 1rem !important;
     width: fit-content;
-    width: -moz-fit-content;
+    width: -moz-max-content;
+    margin: auto;
+    margin-top: 0 !important;
+    margin-bottom: 1rem;
+    padding: 0.5rem 1rem 0.5rem 1rem !important;
+    border-radius: 0 0 0.5rem 0.5rem;
 }
 
 .nav .active {
@@ -752,11 +835,13 @@ table thead tr th:last-child {
     overflow: hidden;
     width: 100%;
     height: 100%;
+    padding-right: 13px;
     padding-bottom: 0;
 }
 
 .number-input {
     width: 5rem;
+    -moz-appearance: textfield;
 }
 
 .number-input::-webkit-inner-spin-button,
@@ -886,7 +971,7 @@ table thead tr th:last-child {
     width: max-content;
     height: fit-content;
     margin: 0;
-    padding-bottom: 0.25rem;
+    padding: 0.25rem;
     cursor: context-menu;
     border-top-style: solid;
     border-bottom-style: solid;
@@ -909,11 +994,11 @@ table thead tr th:last-child {
 }
 
 .tabcontent {
-    border-top: none;
     display: none;
+    overflow-x: hidden;
     max-height: 60vh;
-    overflow: scroll;
-    padding: 6px 12px;
+    margin: 6px 12px;
+    border-top: none;
 }
 
 th {
@@ -923,7 +1008,6 @@ th {
 .resetTab {
     border-radius: 0 1rem 1rem 0 !important;
     position: absolute;
-    z-index: 1 !important;
 }
 
 tbody tr {
@@ -932,10 +1016,6 @@ tbody tr {
 
 .table th {
     border-top: none;
-}
-
-.tablinks {
-    cursor: pointer;
 }
 
 .up {
@@ -1049,14 +1129,15 @@ input:checked + .slider:before {
 }
 
 .key-display {
-    align-items: center;
-    border: 1px solid;
-    border-radius: 0.5rem;
-    display: inline-flex;
     font-size: 0.75rem;
-    height: 1.5rem;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
     width: 1.5rem;
+    height: 1.5rem;
+    margin-bottom: 0;
+    border: 1px solid;
+    border-radius: 0.5rem;
 }
 
 #weightsCard h5 {
@@ -1192,7 +1273,7 @@ select.minimal:focus {
 }
 
 select:focus {
-    outline-width: 4px;
+    outline: none;
 }
 
 .excluded select {
@@ -1200,12 +1281,17 @@ select:focus {
 }
 
 .excludeToggle .fa-ban {
+    display: flex;
     visibility: hidden;
+    align-items: center;
+    flex-flow: column;
+    justify-content: center;
+    cursor: pointer;
 }
 
 .excludeToggle label {
     font-family: "SansSerif", sans-serif;
-    font-size: 0.4rem !important;
+    font-size: 0.4rem;
 }
 
 tr:hover .excludeToggle .fa-ban {
@@ -1216,13 +1302,109 @@ tr:hover .excludeToggle .fa-ban {
     display: none;
 }
 
-.switchDisplayMode, .addAssignment {
+.add-assignment-container {
+    z-index: 3;
+    margin-bottom: 0.5rem;
+    transition: all 400ms ease;
+    border-radius: 0.5rem;
+}
+
+.add-assignment-container.active {
+    position: fixed;
+    width: fit-content;
+    width: -moz-fit-content;
+}
+
+.add-assignment-container td {
+    padding: 0.5rem;
+    border: none;
+}
+
+.add-assignment-container .excludeToggle input:not([type="checkbox"]) {
+    min-width: 11rem;
+}
+
+.add-assignment-container .input-group {
+    margin-bottom: 0;
+}
+
+.add-assignment-container .input-group label {
+    font-size: 1rem;
+    font-style: unset;
+}
+
+.add-assignment-container .addExclude {
+    margin-left: 1rem;
+}
+
+.options-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.tableOptionsContainer {
+    display: flex;
+    align-self: flex-start;
+}
+
+.options-container.keep-right {
+    display: block;
+}
+
+.options-container.keep-right .tableOptions {
+    margin-left: auto;
+}
+
+.addAssignment {
+    position: relative;
     z-index: 2;
     display: flex;
     align-items: center;
     flex-flow: row;
     justify-content: space-between;
     width: fit-content;
+    width: -moz-fit-content;
+    margin: auto 0;
+    padding: 1rem;
+    cursor: pointer;
+    border-radius: 0.5rem;
+}
+
+.add-assignment-header button {
+    position: relative;
+    display: none;
+    margin: 0.5rem 0.5rem 0;
+}
+
+.add-assignment-container.active .add-assignment-header button {
+    display: block;
+}
+
+.add-assignment-header {
+    display: flex;
+    align-items: center;
+    flex-flow: row;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.assignmentWizard input:not([type="checkbox"]) {
+    height: 2.5rem;
+}
+
+.addAssignmentDate {
+    width: 13rem;
+    padding: 0;
+}
+
+.switchDisplayMode {
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    flex-flow: row;
+    justify-content: space-between;
+    width: fit-content;
+    width: -moz-fit-content;
     margin-right: 0.5rem;
     margin-bottom: 0.5rem;
     padding: 1rem;
@@ -1230,11 +1412,40 @@ tr:hover .excludeToggle .fa-ban {
     border-radius: 0.5rem;
 }
 
-.addAssignment i {
+.assignmentWizard {
+    display: flex;
+    flex-flow: row;
+    width: 0;
+    height: 0;
+    margin-bottom: 0;
+    transition: all 250ms ease;
+    opacity: 0;
+}
+
+.assignmentWizard .input-group {
+    align-items: center;
+}
+
+.assignmentWizard .input-group input {
+    text-align: left;
+}
+
+.assignmentWizard .input-group label {
+    left: 0.5rem;
+}
+
+.assignmentWizard .input-group label.label-active {
+    font-size: xx-small;
+    top: 0;
+    left: 0.5rem;
+}
+
+.addAssignment .fa-plus {
     -moz-transition: -moz-transform 100ms linear;
     -o-transition: -o-transform 100ms linear;
     -webkit-transition: -webkit-transform 100ms linear;
     transition: transform 100ms linear;
+    vertical-align: middle;
 }
 
 .addAssignment span {
@@ -1249,8 +1460,46 @@ tr:hover .excludeToggle .fa-ban {
     opacity: 0;
 }
 
-.addAssignment:hover i {
-    transform: scale(1.25) rotate(90deg);
+.add-assignment-container.active .addAssignment {
+    transform: none;
+}
+
+.add-assignment-container.active .addAssignment .fa-plus {
+    transform: scale(1.25) rotate(45deg);
+}
+
+.add-assignment-container td {
+    margin: 0;
+}
+
+td.addAssignmentCategory {
+    display: flex;
+    flex-flow: column;
+    width: fit-content;
+    width: -moz-fit-content;
+}
+
+td.addAssignmentScore {
+    display: flex;
+    flex-flow: column;
+    width: fit-content;
+    width: -moz-fit-content;
+    margin-right: 0;
+}
+
+.addAssignmentCategory label {
+    font-size: 0.6rem;
+    margin-top: -0.5rem;
+}
+
+.addAssignmentScore label {
+    font-size: 0.6rem;
+    position: absolute;
+    transform: translateY(-0.5rem);
+}
+
+.addAssignmentScore input {
+    height: 0.8rem;
 }
 
 @keyframes expand-add-assignment {
@@ -1282,7 +1531,7 @@ tr:hover .excludeToggle .fa-ban {
     }
 }
 
-.addAssignment:hover span {
+.add-assignment-container:hover .addAssignment span, .add-assignment-container.active .addAssignment span {
     font-weight: 500;
     width: 8rem;
     margin-left: 0.5rem;
@@ -1290,19 +1539,65 @@ tr:hover .excludeToggle .fa-ban {
     opacity: 1;
 }
 
-.addAssignment:active span {
+.assignmentWizard tr {
+    display: none;
+}
+
+.addAssignmentDate {
+    margin-bottom: auto !important;
+}
+
+@keyframes expand-assignment-wizard {
+    0% {
+        width: 0;
+        margin-left: 0;
+        opacity: 0;
+    }
+    25% {
+        margin-left: 0.5rem;
+        opacity: 0;
+    }
+    50% {
+        margin-left: 0.5rem;
+        opacity: 0.5;
+    }
+    75% {
+        margin-left: 0.5rem;
+        opacity: 0.75;
+    }
+    100% {
+        width: 100%;
+        height: 100%;
+        margin-left: 0.5rem;
+        opacity: 1;
+        padding: 0.5rem;
+        display: block;
+    }
+}
+
+.add-assignment-container.active .assignmentWizard {
+    width: 100%;
+    height: 100%;
+    margin-left: 0.5rem;
+    padding: 0.5rem;
+    animation: expand-assignment-wizard 400ms;
     opacity: 1;
 }
 
-.tableOptions {
-    align-items: center;
-    border-radius: 0.5rem;
+.add-assignment-container.active tr {
     display: flex;
+}
+
+.tableOptions {
+    z-index: 1;
+    display: flex;
+    align-items: center;
     justify-content: center;
+    width: fit-content;
+    width: -moz-fit-content;
     margin-bottom: 0.5rem;
     padding: 0.1rem 1rem;
-    width: fit-content;
-    z-index: 1;
+    border-radius: 0.5rem;
 }
 
 .tableOptions select {
@@ -1356,6 +1651,7 @@ tr:hover .excludeToggle .fa-ban {
 .weights {
     align-self: stretch;
     width: fit-content;
+    width: -moz-fit-content;
 }
 
 .weights th, .weights td {
@@ -1367,7 +1663,8 @@ tr:hover .excludeToggle .fa-ban {
     align-items: center;
     align-self: stretch;
     justify-content: center;
-    width: 55%;
+    width: fit-content;
+    width: -moz-fit-content;
     padding: 0 !important;
     border-radius: 0.5rem;
 }
@@ -1396,6 +1693,7 @@ tr:hover .excludeToggle .fa-ban {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    text-align: left;
 }
 
 .excludeToggle div:nth-child(2) {
@@ -1418,13 +1716,8 @@ tr:hover .excludeToggle .fa-ban {
 
 #chart-container-1 {
     position: relative;
-    width: 100%;
+    width: 80%;
     height: 60vh;
-}
-
-.delta {
-    font-size: smaller;
-    display: inline-block;
 }
 
 .backToHome {
@@ -1433,36 +1726,123 @@ tr:hover .excludeToggle .fa-ban {
 
 .nav-item, .nav-item btn {
     width: fit-content !important;
+    width: -moz-fit-content !important;
+}
+
+.navbar-brand-holder {
+    display: flex;
+    width: 50%;
+}
+
+.navbar-brand {
+    cursor: pointer;
+}
+
+.nav-username {
+    display: block;
+    width: available;
+    margin: 0 0 0 auto;
+    cursor: pointer;
+    transform: translateX(50%);
+}
+
+.rounded-table :first-child tr:first-child th:first-child,
+.rounded-table :first-child tr:first-child td:first-child {
+    border-top-left-radius: 0.5rem;
+}
+
+.rounded-table :first-child tr:first-child th:last-child,
+.rounded-table :first-child tr:first-child td:last-child,
+.rounded-table.class-table:not(.unround-top-right) :first-child tr:first-child th:nth-last-child(2) {
+    border-top-right-radius: 0.5rem;
+}
+
+.rounded-table :last-child tr:last-child th:first-child,
+.rounded-table :last-child tr:last-child td:first-child {
+    border-bottom-left-radius: 0.5rem;
+}
+
+.rounded-table :last-child tr:last-child th:last-child,
+.rounded-table :last-child tr:last-child td:last-child,
+.rounded-table.class-table :last-child tr:last-child td:nth-last-child(2) {
+    border-bottom-right-radius: 0.5rem;
+}
+
+tr.separator {
+    background-color: transparent;
+}
+
+tr.separator + tr th {
+    border-right: none;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+tr.beforeSeparator td:first-child {
+    border-radius: 0 0 0 0.5rem;
+}
+
+tr.beforeSeparator td:nth-last-child(2) {
+    border-radius: 0 0 0.5rem 0;
+}
+
+.delta {
+    font-size: 0.7rem;
+    margin-left: 0.5rem;
+    white-space: nowrap;
+}
+
+/* When navbar get's a little cluttered */
+@media only screen and (max-width: 1191px) {
+    .nav-username {
+        transform: translateX(-50px);
+    }
 }
 
 /* Mobile Stuff */
 @media only screen and (max-width: 991px) {
+    .nav-popups {
+        display: none !important;
+    }
+
     .nav-item, .nav-item btn {
         width: 100% !important;
+    }
+
+    html.no-scroll {
+        overflow: hidden;
+        width: 100%;
+    }
+
+    body.no-scroll {
+        overflow: hidden;
+    }
+
+    .no-scroll {
+        padding: 0;
     }
 
     th.compact, td.compact {
         display: none;
     }
 
-    td, th, .table:not(#table-1) div {
+    td, table:not(.weights) th {
         font-size: 0.6rem;
     }
 
-    .table:not(#table-1) td, .table:not(#table-1) th {
+    .table:not(#table-1, .weights) td, .table:not(#table-1, .weights) th {
         padding: 0.5rem !important;
         pointer-events: none;
     }
 
     .excludeToggle {
-        justify-content: center;
+        justify-content: flex-start;
     }
 
     .excludeToggle div:nth-child(2) {
         display: none;
     }
 
-    td *, th * {
+    td *, table:not(.weights) th * {
         font-size: 0.6rem;
     }
 
@@ -1471,9 +1851,12 @@ tr:hover .excludeToggle .fa-ban {
         max-width: 3rem;
     }
 
-    .table input:not(.weights), .popup span, .popup span * {
-        font-size: 0.6rem !important;
-        pointer-events: none;
+    .table input, .popup span, .popup span *, .table td {
+        font-size: 0.6rem;
+    }
+
+    .table {
+        margin-bottom: 0;
     }
 
     .popup span {
@@ -1490,8 +1873,12 @@ tr:hover .excludeToggle .fa-ban {
         max-height: unset;
     }
 
-    .weights * {
+    .form-weights > :not(.weights) input:not([type=checkbox]) {
         font-size: 0.6rem;
+    }
+
+    .form-weights > .weights input:not([type=checkbox]) {
+        font-size: 0.8rem;
     }
 
     .weights {
@@ -1500,14 +1887,21 @@ tr:hover .excludeToggle .fa-ban {
     }
 
     .weights-container {
-        width: 100%;
+        width: fit-content;
+        width: -moz-fit-content;
+        margin: 1rem auto 0 auto;
+    }
+
+    table:not(.weights) input {
+        pointer-events: none;
     }
 
     .table-container {
         display: flex;
+        overflow: hidden;
         align-items: center;
         justify-content: center;
-        padding: 0.5rem 0;
+        padding: 0;
         border-radius: 0.5rem;
     }
 
@@ -1515,7 +1909,7 @@ tr:hover .excludeToggle .fa-ban {
         display: none;
     }
 
-    .addAssignment, .tableOptions {
+    .add-assignment-container, .tableOptions {
         display: none;
     }
 
@@ -1523,12 +1917,35 @@ tr:hover .excludeToggle .fa-ban {
         display: none;
     }
 
-    .card:not(#signin) {
-        max-height: 80% !important;
+    .card:not(.non-responsive) {
+        max-height: 80vh;
+    }
+
+    .card .tab {
+        transition: all 400ms ease;
+    }
+
+    #settingsCard:focus-within > .card-body, #settingsCard:not(.non-responsive):focus-within .tab {
+        position: absolute;
+        height: 0 !important;
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+
+    #table-1 .delta {
+        display: none;
+    }
+
+    .card-body {
+        overflow: hidden;
     }
 
     .changelog-container {
-        max-height: 50% !important;
+        max-height: 50vh;
+    }
+
+    .changelog-container .type, .changelog-container .body, .changelog-container .title {
+        font-size: 80%;
     }
 
     .card-title {
@@ -1553,29 +1970,27 @@ tr:hover .excludeToggle .fa-ban {
     }
 
     .tab {
-        height: fit-content;
-    }
-
-    .nav-popups {
-        display: none !important;
-    }
-
-    .tab {
         align-items: center;
-        height: 4rem;
+        height: fit-content;
+        min-height: 3rem;
     }
 
-    #mobilePopup {
-        margin: 20rem 0 1rem 0;
+    body::-webkit-scrollbar {
+        display: none;
     }
 
-    body {
-        padding-bottom: 0;
+    .card-signin .card-body {
+        padding: 5%;
+    }
+
+    .tab btn {
+        height: fit-content;
     }
 
     #table-1 table {
         width: calc(50% - 0.5rem);
         margin-bottom: 0.5rem;
+        transition: filter 100ms ease;
     }
 
     #table-1 th {
@@ -1583,15 +1998,19 @@ tr:hover .excludeToggle .fa-ban {
     }
 
     .overallGrade {
-        font-size: 1rem;
+        font-size: 200%;
     }
 
     .overallLetter {
-        font-size: 4rem;
+        font-size: 600%;
     }
 
     .delta {
-        display: none;
+        font-size: 0.4rem;
+    }
+
+    .table td.overall {
+        padding: 0.1rem;
     }
 
     #table-1 .popup i {
@@ -1615,8 +2034,8 @@ tr:hover .excludeToggle .fa-ban {
         padding: 0 0 1rem 0 !important;
     }
 
-    #table-1 table:active {
-        opacity: 0.5;
+    #table-1 table:active, #table-1 table:hover {
+        filter: drop-shadow(0 0 2px gray);
     }
 
     .backToHome {
@@ -1629,11 +2048,17 @@ tr:hover .excludeToggle .fa-ban {
         flex-flow: row;
         justify-content: center;
         width: fit-content;
+        width: -moz-fit-content;
         min-width: 3rem;
         height: 3rem;
+        cursor: pointer;
         pointer-events: none;
         opacity: 0.5;
         border-radius: 1.5rem;
+    }
+
+    body:focus-within .backToHome {
+        visibility: hidden;
     }
 
     .backToHome i {
@@ -1656,6 +2081,10 @@ tr:hover .excludeToggle .fa-ban {
         opacity: 0;
     }
 
+    .backToHome span:before {
+        content: "Home";
+    }
+
     .backToHome.showDetails {
         pointer-events: all;
         opacity: 1;
@@ -1672,8 +2101,30 @@ tr:hover .excludeToggle .fa-ban {
         margin-left: 1.5rem;
     }
 
-    .backToHome:active {
-        opacity: 0.8;
+    .sessionTimeout h4 {
+        font-size: 0.5rem !important;
+    }
+
+    .navbar-brand-holder {
+        display: flex;
+        width: 100%;
+    }
+
+    .nav-username {
+        display: flex;
+        flex-flow: column;
+        width: fit-content;
+        margin: 0 auto;
+        cursor: pointer;
+        transform: none;
+    }
+
+    .weightOverall {
+        font-size: 1rem;
+    }
+
+    .changelog-legend {
+        display: none;
     }
 
 }

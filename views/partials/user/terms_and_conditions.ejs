@@ -7,7 +7,7 @@
             <% if (user.alerts.termsLastSeen !== "never") { %>
                 <btn class="btn btn-md"
                      onclick="closeForm('termsDisplay');"
-                     style="width: fit-content; margin-bottom:0">
+                     style="width: fit-content; width: -moz-fit-content; margin-bottom:0">
                     <i class="fa fa-close" aria-hidden="true"></i> Close
                 </btn>
             <% } %>
@@ -533,7 +533,7 @@
                         <button class="btn btn-md"
                                 type="submit"
                                 onclick="try {closeForm('termsDisplay')} catch (e){}"
-                                style="width: fit-content; float: right; margin-bottom:0">
+                                style="width: fit-content; width: -moz-fit-content; float: right; margin-bottom:0">
                             <i class="fa fa-check" aria-hidden="true"></i> Accept
                         </button>
                     </form>
