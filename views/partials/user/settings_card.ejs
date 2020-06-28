@@ -6,10 +6,10 @@
         <div id="settingsCard" class="card card-signin my-5" style="padding-bottom: 1rem">
             <btn class="btn btn-md"
                  onclick="closeForm('settingsCardDisplay')"
-                 style="display: table; width: fit-content; width: -moz-fit-content; margin-bottom:0">
+                 style="display: table; width: fit-content; width: -moz-fit-content; width: -moz-fit-content; margin-bottom:0">
                 <i class="fa fa-close" aria-hidden="true"></i> Close
             </btn>
-            <div class="card-body popup" id="thePopup">
+            <div class="card-body">
                 <h1 class="card-title text-center popup" style="margin: 0;"><i class="fa fa-cog"></i>
                     Settings
                 </h1>
@@ -27,7 +27,7 @@
                             <h5>Class Colors
                                 <span class="popup">
                                     <i class="fa fa-question-circle">
-                                        <span class="popup-right">Only random colors are currently supported. These
+                                        <span class="popup-bottom">Only random colors are currently supported. These
                                             colors are generated to be as distinct as possible in both light and dark
                                             themes.</span>
                                     </i>
@@ -36,7 +36,7 @@
                             <form style="display: flex; justify-content: center; align-content: space-evenly"
                                   action="/randomizeClassColors" id="randomizeClassColors" method="POST"
                                   class="form-signin">
-                                <button style="width: fit-content; width: -moz-fit-content; height: 2rem; align-self: center"
+                                <button style="width: fit-content; width: -moz-fit-content; width: -moz-fit-content; height: 2rem; align-self: center"
                                         onclick="ajaxPostForm('#randomizeClassColors',[],'',true)"
                                         class="btn btn-med">
                                     Randomize Colors
@@ -171,7 +171,7 @@
                                     </select>
                                 </label>
                                 <button class="btn-default btn btn-sm" type="submit"
-                                        style="<% if (user.appearance.theme !== 'auto') { %>display: none;<% } %> margin: 0 0 0 1rem !important; width: fit-content !important;"
+                                        style="<% if (user.appearance.theme !== 'auto') { %>display: none;<% } %> margin: 0 0 0 1rem !important; width: fit-content; width: -moz-fit-content !important; width: -moz-fit-content !important;"
                                         onclick="ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);"
                                         disabled>
                                     Apply
@@ -248,7 +248,8 @@
                                     </div>
                                     <button type="submit"
                                             onclick="updateSchoolUsernameDisplay(); ajaxPostForm('#changeSchoolEmail',[],'#emailChangeMessage', true)"
-                                            class="btn btn-default btn-med" style="width: fit-content" disabled>
+                                            class="btn btn-default btn-med"
+                                            style="width: fit-content; width: -moz-fit-content; width" disabled>
                                         Apply
                                     </button>
                                 </div>
@@ -479,7 +480,8 @@
                             <span class="popup">
                                 <i class="fa fa-question-circle">
                                     <span class="popup-right-top">Explore parts of Graderoom with blue popups to
-                                        complete the tutorial</span>
+                                        complete the tutorial. The tutorial cannot be completed on the mobile
+                                        site.</span>
                                 </i>
                             </span></h5>
                         <div style="display:flex; flex-flow: row; align-items: center; justify-content: stretch;">
@@ -489,7 +491,8 @@
                                     Loading...
                                 </div>
                             </div>
-                            <button class="btn btn-sm" style="margin: 0.1rem; width: fit-content" type="submit"
+                            <button class="btn btn-sm"
+                                    style="margin: 0.1rem; width: fit-content; width: -moz-fit-content" type="submit"
                                     onclick="resetTutorial()">Reset
                             </button>
                         </div>

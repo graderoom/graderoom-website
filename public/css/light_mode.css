@@ -98,20 +98,40 @@ table thead tr th {
     color: #222222;
 }
 
-.card::-webkit-scrollbar-thumb {
-    background-color: #555555;
+::-webkit-scrollbar-thumb {
+    background-color: #CCCCCC;
 }
 
-.card::-webkit-scrollbar-thumb:hover {
-    background-color: #777777;
+::-webkit-scrollbar-thumb:vertical:hover {
+    background-color: #BBBBBB;
+}
+
+::-webkit-scrollbar-thumb:vertical:active {
+    background-color: #999999;
+}
+
+:not(body)::-webkit-scrollbar-thumb:vertical:hover {
+    background-color: #AAAAAA;
+}
+
+:not(body)::-webkit-scrollbar-thumb:vertical:active {
+    background-color: #888888;
+}
+
+:not(body)::-webkit-scrollbar-thumb {
+    background-color: #BBBBBB;
 }
 
 .chart {
     background-color: #FFFFFF;
 }
 
-.changelog {
+.changelog, .changelog-legend {
     background-color: #FFFFFF;
+}
+
+.changelog-legend {
+    box-shadow: 0 0 5px 1px darkgray;
 }
 
 .changelog-container .body {
@@ -120,7 +140,14 @@ table thead tr th {
 
 .changelog-container .current {
     background-color: rgba(0, 255, 0, 0.1);
+}
 
+.changelog-container .known-issues {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.changelog-container .stable {
+    background-color: rgba(0, 0, 255, 0.2);
 }
 
 .changelog-container .type {
@@ -179,12 +206,14 @@ table thead tr th {
     background-color: #FFFFFF;
 }
 
-.resetTab:not(th) {
+td.resetTab {
     border-top: 1px #EEEEEE solid !important;
+    background-color: #FFFFFF;
 }
 
-.resetTab:not(td) {
+th.resetTab {
     border-bottom: 2px #EEEEEE solid !important;
+    background-color: #FFFFFF;
 }
 
 .school-username {
@@ -235,29 +264,7 @@ input:checked + .slider:before {
     background-color: transparent;
 }
 
-.rounded-table :first-child tr:first-child th:first-child,
-.rounded-table :first-child tr:first-child td:first-child {
-    border-top-left-radius: 0.5rem;
-}
-
-.rounded-table :first-child tr:first-child th:last-child,
-.rounded-table :first-child tr:first-child td:last-child,
-.rounded-table.class-table:not(.unround-top-right) :first-child tr:first-child th:nth-last-child(2) {
-    border-top-right-radius: 0.5rem;
-}
-
-.rounded-table :last-child tr:last-child th:first-child,
-.rounded-table :last-child tr:last-child td:first-child {
-    border-bottom-left-radius: 0.5rem;
-}
-
-.rounded-table :last-child tr:last-child th:last-child,
-.rounded-table :last-child tr:last-child td:last-child,
-.rounded-table.class-table :last-child tr:last-child td:nth-last-child(2) {
-    border-bottom-right-radius: 0.5rem;
-}
-
-.table thead th, .table tbody td, .table tfoot th {
+.table tr {
     background-color: #FFFFFF;
 }
 
@@ -310,13 +317,13 @@ select.minimal:focus {
     background-image: linear-gradient(45deg, lightgray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, lightgray 50%), linear-gradient(to right, lightgray, lightgray);
 }
 
-select:focus {
-    outline-color: lightgray;
-}
-
 .excluded select {
     background-color: #FFFFFF;
     color: #D3D3D3;
+}
+
+.class-table select {
+    box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.5);
 }
 
 .switchDisplayMode, .addAssignment, .tableOptions {
@@ -350,13 +357,37 @@ select:focus {
     background-color: #FFFFFF;
 }
 
-.table-container {
-    background: #FFFFFF;
-}
-
 #table-1 {
     border-radius: 0.5rem;
     background-color: white;
+}
+
+.add-assignment-container {
+    background-color: #FFFFFF;
+}
+
+.add-assignment-container.active {
+    box-shadow: 0 0 10px 1px darkgray;
+}
+
+.class-table th, .class-table td {
+    border-color: transparent;
+}
+
+.class-table td, .class-table th {
+    box-shadow: inset 0 0 1px rgba(100, 100, 100, 0.5);
+}
+
+.separator td {
+    box-shadow: none;
+}
+
+.improve {
+    color: rgba(100, 150, 100, 1);
+}
+
+.deprove {
+    color: rgba(200, 50, 50, 1);
 }
 
 /* Mobile Stuff */
@@ -367,6 +398,15 @@ select:focus {
 
     .backToHome {
         background-color: #FFFFFF;
-        box-shadow: 0 0 2px #000000;
+        box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.2);
+    }
+
+    .backToHome:hover, .backToHome:active {
+        color: rgb(119, 119, 119);
+        background-color: rgb(246.5, 246.5, 246.5);
+    }
+
+    .table-container {
+        background-color: #FFFFFF;
     }
 }

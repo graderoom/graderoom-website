@@ -1,7 +1,8 @@
 <!-- Nav Bar -->
 <nav class="navbar <% if (theme) { %>navbar-dark<% } else { %>navbar-light<% } %> navbar-expand-lg justify-content-center">
-    <span class="d-flex w-100">
-        <a href="/" class="navbar-brand" style="margin: 0;">
+    <span class="navbar-brand-holder">
+        <a onclick="try {if (currentPage === -1) {window.location.href = '/'} else {showPage(-1)}} catch (e) {window.location = '/'}"
+           class="navbar-brand" style="margin: 0;">
             <h1>
                 <img
                 <% if (theme) { %>
@@ -9,14 +10,14 @@
                 <% } else { %>
                     src="/public/resources/light_mode/logo.png"
                         <% } %>
-                    style="width: 3rem"
-                    alt="logo">
+                        style="width: 3rem"
+                        alt="logo">
                 <div class="brand-label">
                     Graderoom
                 </div>
             </h1>
         </a>
-        <div style="cursor: pointer; display: block; margin: 0 auto; width: available" class="text-center">
+        <div class="text-center nav-username">
             <h5 style="padding-top: 0; white-space: nowrap"
                 onclick="showCard('#settingsCardDisplay'); openTab(2)"><%= user.username %></h5>
             <label onclick="showCard('#settingsCardDisplay'); openTab(2)" id="nameDisplay"
@@ -35,7 +36,7 @@
             <span class="navbar-toggler-icon"></span>
         </button>
     </span>
-    <div class="navbar-collapse collapse w-100" id="collapsingNav">
+    <div class="navbar-collapse collapse w-50" id="collapsingNav">
         <ul class="navbar-nav w-100 justify-content-end align-items-end ml-auto">
             <% if (current == 'home') { %>
                 <li id="calc" class="nav-item popup">
@@ -59,10 +60,6 @@
                             Sync your grades with PowerSchool
                         </span>
                     </btn>
-                </li>
-            <% } else { %>
-                <li id="home" class="nav-item">
-                    <a class="btn btn-med" href="/"> <i class="fa fa-home" aria-hidden="true"></i> Home </a>
                 </li>
             <% } %>
             <% if (user.isAdmin) { %>
@@ -392,6 +389,9 @@
     }
 
     function updateTutorial(action) {
+        if (window.innerWidth <= 991) {
+            return;
+        }
         $.ajax({
                    url: "/UpdateTutorialStatus", type: "POST", async: true, data: {action: action}
                }).done((response) => {
@@ -410,7 +410,6 @@
             }
         });
         $(id).fadeIn(500);
-        disableScrolling();
         if (id === "#settingsCardDisplay") {
             $($("#school_email").val(user.schoolUsername).parents(".input-group")[0].nextElementSibling).prop("disabled", true);
             checkLabel($("#school_email"));
@@ -432,7 +431,6 @@
             } else {
                 let form = document.getElementById(id);
                 form.style.display = "none";
-                enableScrolling();
             }
         } else {
             let form = $("#" + id);
@@ -447,7 +445,6 @@
                 closeMessage("emailChangeMessage");
                 closeMessage("themeMessage");
             }
-            enableScrolling();
         }
 
         // Manage theme selection, if it exists
@@ -501,14 +498,6 @@
                 }
                 closeForm(cardsDisplayed[cardsDisplayed.length - 1]);
             }
-        }
-    });
-    //ToDo -> Adding mobile size of popups in navbar
-    $(window).on("resize", function () {
-        if ($(window).width() > 991) {
-            //Big Screen
-        } else {
-            //Small Screen
         }
     });
 </script>

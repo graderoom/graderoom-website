@@ -13,7 +13,7 @@
 <body>
 <div class="container h-100 d-flex justify-content-center ">
     <div class="col-sm-12 col-md-10 col-lg-8 col-xl-7">
-        <div class="card card-signin my-5">
+        <div class="card card-signin my-5 non-responsive">
             <div class="card-body">
                 <h1 class="text-center card-title" style="margin-bottom: 2rem">
                     <i class="fa fa-plus-circle" aria-hidden="true"></i> Sign Up
@@ -33,7 +33,7 @@
                                name="username" id="username">
                         <span class="popup">
                             <i>
-                                <span class="popup-right dont-show" id="usernameCheckMessage"></span></i>
+                                <span class="popup-left-bottom dont-show" id="usernameCheckMessage"></span></i>
                         </span>
                     </div>
                     <div class="form-group input-group">
@@ -43,7 +43,7 @@
                                id="password"
                                type="password" class="form-control" name="password" required>
                         <span class="popup">
-                            <i><span class="popup-right dont-show" id="passwordCheckMessage"></span></i>
+                            <i><span class="popup-left-bottom dont-show" id="passwordCheckMessage"></span></i>
                         </span>
                     </div>
                     <div class="form-group input-group">
@@ -54,7 +54,7 @@
                                class="form-control" required>
                         <span class="popup">
                             <i>
-                                <span class="popup-right dont-show" id="passwordConfirmMessage"></span></i>
+                                <span class="popup-left-bottom dont-show" id="passwordConfirmMessage"></span></i>
                         </span>
                     </div>
                     <div class="form-group input-group">
@@ -64,7 +64,7 @@
                                type="text" class="form-control" name="school_email" id="schoolEmail">
                         <span class="popup">
                             <i>
-                                <span class="popup-right dont-show" id="emailCheckMessage"></span></i>
+                                <span class="popup-left-bottom dont-show" id="emailCheckMessage"></span></i>
                         </span>
                     </div>
 
@@ -91,7 +91,7 @@
                         <div style="margin-bottom: 2rem">
                             <span class="popup">
                                 <i class="fa fa-question-circle">
-                                    <span class="popup-right">This information can be changed later</span>
+                                    <span class="popup-left-bottom">This information can be changed later</span>
                                 </i>
                             </span>
                         </div>
@@ -106,7 +106,7 @@
                                    id="betaKey">
                             <span class="popup">
                                 <i>
-                                    <span class="popup-right dont-show" id="betakeyMessage"></span></i>
+                                    <span class="popup-left-bottom dont-show" id="betakeyMessage"></span></i>
                             </span>
                         </div>
                     <% } %>
@@ -134,10 +134,11 @@
 <script>
 
     setTimeout(() => {
-        $("input:-webkit-autofill").each(function () {
+        $("input").each(function () {
             let input = $(this);
-            let label = $($(input)[0].previousElementSibling);
-            label.addClass("label-active");
+            if (input[0].value) {
+                input.trigger('input');
+            }
         });
     }, 250);
 
