@@ -30,10 +30,13 @@
 <!-- ------------------------------------------------ Special HTML ------------------------------------------------- -->
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
-<!-- Use the following HTML before information specific to beta users (e.g. The Announcement on 2020-03-12) -->
-<!-- <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> -->
+<!-- Use the following HTML before information specific to Beta -->
+<!-- <em>[Beta]</em> -->
 
-<!-- Use the following HTML to add lines under the date (e.g. PI Day on 2020-03-14) -->
+<!-- Use the following HTML before information specific to mobile users -->
+<!-- <em>[Mobile]</em> -->
+
+<!-- Use the following HTML to add lines under the date -->
 <!-- <br><strong>[Text here]</strong> -->
 
 
@@ -51,17 +54,59 @@
 - Changelog display buttons work incorrectly after page resize <strong>[Fixed in Beta 2.3.8]</strong>
 - Grades sometimes do not sync when autofill is enabled and GradeSync is disabled <strong>[Fixed in Beta 2.5.0]</strong>
 
-## [Beta 2.5.2] - 2020-06-12
+## [Beta 2.6.0] - 2020-06-27
 ### Added
-- New back to home button on mobile site
+- Ability to add assignments
+- New custom scrollbars
+- Added legend to the changelog
+- Clicking on the logo in the navbar now goes to the overview page if on main page
+- Brought back row coloring now improved and always readable
+- Keyboard shortcut 'A' to add assignment
+- Enabled ability to edit assignment categories while sorting by category
+- Enabled ability to sort from newest to oldest while sorting by category
 
 ### Improved
-- Mobile Homepage is much more useful and less cluttered. Click on a class to view its page
-- Mobile navbar now has important information such as sync status and user name easily visible
-- Incorrect grades no longer show in overview table
+- Less important popups are now less intrusive and have a new icon
+- Changelog now remains on last seen version when closed
+- Stable versions are highlighted in blue
+- Changelog initially only displays recent versions. More can be loaded by scrolling down.
+- Chart and weight table sizing
+- Improved support for Mozilla Firefox
+- Page can be scrolled with card open
+- Tweaked design of class tables
+- <em>[Mobile]</em> Signup experience
+- <em>[Mobile]</em> Weights and point-based toggle can now be edited on mobile
+- <em>[Mobile]</em> Styling for 'Home' button
+- <em>[Mobile]</em> Changelog is now sized correctly for mobile
+- <em>[Mobile]</em> 'Home' button now hides when typing into an input field
+- <em>[Mobile]</em> Typing into inputs within cards has improved
+
+### Fixed
+- Issue where username in navbar was not centered
+- Issue where popups were sometimes not perfectly aligned
+- Issue where changing class colors was not working correctly
+- Issue with sync status when card open after background sync complete
+- Issue where extra credit would sometimes have fake score
+- A number of issues in category sorting mode caused by special assignments
+- <em>[Mobile]</em> Issue where scrolling was not smooth on some devices
+- <em>[Mobile]</em> Issue where scrolling would not disable correctly
 
 ### Removed
-- Removed all charts from mobile site
+- 'Home' button from navbar everywhere (Use the logo to go home)
+- Removed 'scroll to version' buttons in changelog
+- <em>[Mobile]</em> Removed large screen Popup Message
+
+## [Beta 2.5.2] - 2020-06-12
+### Added
+- <em>[Mobile]</em> New "home" button
+
+### Improved
+- Incorrect grades no longer show in overview table
+- <em>[Mobile]</em> Homepage is much more useful and less cluttered. Click on a class to view its page
+- <em>[Mobile]</em> Navbar now has important information such as sync status and user name easily visible
+
+### Removed
+- <em>[Mobile]</em> Removed all charts
 
 ## [Beta 2.5.1] - 2020-06-11
 ### Added
@@ -74,7 +119,6 @@
 
 ### Fixed
 - All cards now display over all page elements
-- Tutorial popups do not display in mobile mode
 
 ## [Beta 2.5.0] - 2020-06-10
 ### Added
@@ -503,8 +547,8 @@
 - Issue where excluded assignments were part of overall grade in point-based classes
 
 ## [Announcement] - 2020-03-20
-- <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> During testing, some beta user's weights were lost. Although this data could be restored from the database backups, due to the beta nature of this issue and the relatively small inconvenience this will cause, this weight data will not be recovered
-- <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> Send feedback if you have any questions, comments, or concerns
+- <em>[Beta]</em> During testing, some beta user's weights were lost. Although this data could be restored from the database backups, due to the beta nature of this issue and the relatively small inconvenience this will cause, this weight data will not be recovered
+- <em>[Beta]</em> Send feedback if you have any questions, comments, or concerns
 
 ## [Beta 1.5.0] - 2020-03-20
 ### Added
@@ -581,7 +625,7 @@
 ## [Announcement] - 2020-03-12
 - Auto-population of weights is now in beta
 - To prepare for the wide release, if you know the category weights for your classes, please enter them in the edit weights tab to improve the user experience for other users
-- <a href="https://beta.graderoom.me/signup" target="_blank" style="color: #888888">[Beta Users]</a> If you find an issue with the auto-populated weights, send feedback in Settings > About > Feedback Form
+- <em>[Beta]</em> If you find an issue with the auto-populated weights, send feedback in Settings > About > Feedback Form
 
 ## [Beta 1.3.2] - 2020-03-12
 ### Added
@@ -628,7 +672,7 @@
 - If your account still exists, you will be asked to sync your grades with PowerSchool to recover your data
 - Please inform anyone affected by this issue to create a new account
 - The Graderoom Team apologizes for the great inconvenience this has caused and has taken strict measures to prevent a similar event from occurring again
-- <a href="https://beta.graderoom.me/signup" target="_blank" style="display: inline-block; color: #888888">[Beta Users]</a> Request another beta key by emailing graderoom@gmail.com or asking a developer directly
+- <em>[Beta]</em> Request another beta key by emailing graderoom@gmail.com or asking a developer directly
 
 ## [Beta 1.2.2] - 2020-03-02
 ### Added
@@ -674,7 +718,6 @@
 - Changelog shows only once a day by default (can be changed in settings)
 
 ### Improved
-- New changelog UI
 - Prevent background scroll when focused on card
 
 ### Fixed
@@ -698,4 +741,4 @@
 - Solved issue where new users could not sync with PowerSchool
 
 ### Removed
-- Removed beta key requirement
+- Removed beta key requirement for stable site
