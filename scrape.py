@@ -110,9 +110,11 @@ class PowerschoolScraper:
     def clean_number(self, n):
         """javadoc"""
         n = n.strip()
-        if str.isdigit(n):
-            return float(n)
-        return False
+        try:
+            n = float(n)
+            return n
+        except:
+            return False
 
     def login(self, email, password):
         """Logs into PowerSchool with credentials, then prints grades
