@@ -1213,7 +1213,7 @@
         refreshWithoutReload(false, classIndex);
     }
 
-    function resetRow(element, refresh = true) {
+    function resetRow(element, notMassReset = true) {
         let classes = $(element)[0].className.split(" ");
         let classIndex;
         let assignmentIndex;
@@ -1243,9 +1243,8 @@
         }
 
         let assignment = data[classIndex]["grades"][assignmentIndex];
-        if (assignment.added) {
+        if (assignment.added && notMassReset) {
             data[classIndex]["grades"].splice(assignmentIndex, 1);
-            refresh = true;
         } else {
 
             // Reset all edited values
@@ -1264,7 +1263,7 @@
             tempData[classIndex][assignmentIndex] = {};
         }
 
-        if (refresh) {
+        if (notMassReset) {
             refreshWithoutReload(false, classIndex);
         }
     }
@@ -1664,6 +1663,7 @@
                     } else if (Object.keys(modTempData[j]).length) {
                         resetButton.css("visibility", "visible").removeClass("fa-trash").addClass("fa-undo").children("span").text("Revert to Original").parents(".resetTab").show();
                         $(`#resetAll${i}`).css("visibility", "visible").parents(".resetTab").show();
+                        $($(`.resetCategory${i}`)[categories.indexOf(assignmentCategories[j])]).css("visibility", "visible").parents(".resetTab").show();
                         $(`#table${i}`).addClass("unround-top-right");
                     } else {
                         resetButton.css("visibility", "hidden").parents(".resetTab").hide();
