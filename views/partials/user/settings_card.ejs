@@ -578,7 +578,9 @@
                     $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text(response);
                     icon.attr("class", "fa fa-check-circle");
                     $(inputID).css("border-bottom-color", "");
+                    user.personalInfo.firstName = firstName;
                     updateNameDisplay(firstName);
+                    setupFeedbackForm();
                 }
             }).fail((data) => {
                 // Make sure value is still the same

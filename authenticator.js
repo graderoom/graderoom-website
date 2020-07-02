@@ -161,6 +161,12 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
 
+        // Add grade_history
+        if (!userRef.get("grade_history").value()) {
+            userRef.set("grade_history", {}).write();
+            userRef.set("grade_history_weights", {}).write();
+        }
+
         // Add tutorial status
         if (!user.alerts.tutorialStatus) {
             userRef.get("alerts").set("tutorialStatus", {
@@ -546,6 +552,8 @@ module.exports = {
                                          },
                                          weights: {},
                                          grades: [],
+                                         grade_history: {},
+                                         grade_history_weights: {},
                                          loggedIn: []
                                      }).write();
 
@@ -697,10 +705,37 @@ module.exports = {
         user.unset("schoolPassword").write();
     },
 
+    updateGradeHistory: async function (acc_username, school_password) {
+        let lc_username = acc_username.toLowerCase();
+        let userRef = db.get("users").find({username: lc_username});
+        let grade_history_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password, true);
+        if (grade_history_update_status.success) {
+            let current_years = Object.keys(userRef.get("grade_history").value());
+            let years = Object.keys(grade_history_update_status.new_grades);
+            for (let i = 0; i < years.length; i++) {
+                if (!current_years.includes(years[i])) {
+                    userRef.get("grade_history").set(years[i], grade_history_update_status.new_grades[years[i]]).write();
+                } else {
+                    let current_semesters = Object.keys(userRef.get("grade_history").get(years[i]).value());
+                    let semesters = Object.keys(grade_history_update_status.new_grades[years[i]]);
+                    for (let j = 0; j < semesters.length; j++) {
+                        if (!current_semesters.includes[semesters[j]]) {
+                            userRef.get("grades_history").get(years[i]).set(semesters[j], grade_history_update_status.new_grades[years[i]][semesters[j]]).write();
+                        }
+                    }
+                }
+            }
+            return {success: true, message: "Updated grade history!"};
+        }
+        return {success: false, message: "Error scraping grade history!"};
+    },
+
     updateGradesBackground: function (acc_username, school_password) {
         let lc_username = acc_username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         user.set("updatedInBackground", "updating").write();
+        //TODO
+        // this.updateGradeHistory(acc_username, school_password).then(async () => {
         this.updateGrades(acc_username, school_password).then(function (resp) {
             lc_username = acc_username.toLowerCase();
             user = db.get("users").find({username: lc_username});
@@ -712,6 +747,7 @@ module.exports = {
                 user.set("updatedInBackground", "failed").write();
             }
         });
+        // });
     },
 
     updateGrades: async function (acc_username, school_password) {

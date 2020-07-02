@@ -394,7 +394,7 @@ changelog-legend span {
 
 .sticky {
     position: fixed;
-    z-index: 999;
+    z-index: 5;
     top: 0;
     left: 50%;
     flex-direction: row;
@@ -1310,7 +1310,7 @@ tr:hover .excludeToggle .fa-ban {
 }
 
 .add-assignment-container.active {
-    position: fixed;
+    position: absolute;
     width: fit-content;
     width: -moz-fit-content;
 }
@@ -1789,6 +1789,12 @@ tr.beforeSeparator td:nth-last-child(2) {
     font-size: 0.7rem;
     margin-left: 0.5rem;
     white-space: nowrap;
+}
+
+#feedbackForm {
+    width: 100%;
+    height: 50vh;
+    color: #FFFFFF;
 }
 
 /* When navbar get's a little cluttered */

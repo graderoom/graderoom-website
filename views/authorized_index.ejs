@@ -304,7 +304,7 @@
                                 <form id="addAssignmentForm<%= i + offset %>">
                                     <div class="add-assignment-header">
                                         <div class="addAssignment"
-                                             onclick="$(this).parents('.add-assignment-container').toggleClass('active').parents('div').toggleClass('keep-right'); ">
+                                             onclick="{$(this).parents('.add-assignment-container').toggleClass('active').parents('div').toggleClass('keep-right');}">
                                             <i class="fa fa-plus"></i>
                                             <span>Add Assignment</span>
                                         </div>
@@ -553,6 +553,7 @@
     setupWeightsTableListeners();
     setupInputListeners();
     setupAddAssignments();
+    setupFeedbackForm();
 
     if (user.alerts.lastUpdated.length !== 0) {
         try {
@@ -1037,9 +1038,9 @@
             addPossible = 0;
         }
         let addExclude = $(`#addExclude${classIndex}`).prop("checked");
-        let addPercent = +(addGotten / addPossible * 100).toFixed(2) || -1;
+        let addPercent = +(addGotten / addPossible * 100).toFixed(2) || false;
         if (addPercent === Infinity) {
-            addPercent = -1;
+            addPercent = false;
         }
         let assignmentObject = {
             assignment_name: addName,
@@ -1099,10 +1100,10 @@
         if ((assignment.points_gotten || assignment.points_gotten === 0) && assignment.points_possible) {
             assignment.grade_percent = +(parseFloat(assignment.points_gotten / assignment.points_possible * 100)).toFixed(2);
         } else {
-            assignment.grade_percent = -1;
+            assignment.grade_percent = false;
         }
         if (isNaN(assignment.grade_percent)) {
-            assignment.grade_percent = -1;
+            assignment.grade_percent = false;
         }
 
         if (!parsedData[classIndex].assignmentAdds[assignmentIndex] && tempData[classIndex][assignmentIndex].points_gotten === assignment.points_gotten) {
@@ -1147,7 +1148,7 @@
         if (assignment.points_possible && assignment.points_gotten) {
             assignment.grade_percent = +parseFloat(assignment.points_gotten / assignment.points_possible * 100).toFixed(2);
         } else {
-            assignment.grade_percent = -1;
+            assignment.grade_percent = false;
         }
 
         if (!parsedData[classIndex].assignmentAdds[assignmentIndex] && tempData[classIndex][assignmentIndex].points_possible === assignment.points_possible) {
@@ -1257,7 +1258,7 @@
                 if ((assignment.points_gotten || assignment.points_gotten === 0) && assignment.points_possible) {
                     assignment.grade_percent = +parseFloat(assignment.points_gotten / assignment.points_possible * 100).toFixed(2);
                 } else {
-                    assignment.grade_percent = -1;
+                    assignment.grade_percent = false;
                 }
             }
             tempData[classIndex][assignmentIndex] = {};
@@ -1672,7 +1673,7 @@
                     // Set up percents
                     let percent = assignmentPercents[j];
                     let letterGrade = "";
-                    if (percent === -1 || isNaN(parseFloat(percent))) {
+                    if (isNaN(parseFloat(percent))) {
                         percent = "--";
                     } else {
                         letterGrade = " (" + getLetterGrade(percent) + ")";
@@ -2047,7 +2048,7 @@
                         title: function (tooltipItems) {
                             return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + +parseFloat(tooltipItems[0].value).toFixed(2) + "%";
                         }, label: function (tooltipItem) {
-                            return ["[" + chartData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.index] + "] " + chartData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + ((chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== -1 && chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, 2) !== "--") ? (" - " + chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "% ") : (" ")) + ((chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? ("(" + chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")") : ("(" + chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2) + ")"))];
+                            return ["[" + chartData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.index] + "] " + chartData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + ((chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== false && chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, 2) !== "--") ? (" - " + chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "% ") : (" ")) + ((chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? ("(" + chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")") : ("(" + chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2) + ")"))];
                         }
                     }
                 }, responsive: true, maintainAspectRatio: false, plugins: {
@@ -2134,7 +2135,7 @@
                             title: function (tooltipItems, data) {
                                 return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + +parseFloat(tooltipItems[0].value).toFixed(4) + "%";
                             }, label: function (tooltipItem, data) {
-                                return ["[" + chartData[id].assignmentCategories[tooltipItem.index] + "] " + chartData[id].assignmentNames[tooltipItem.index] + ((chartData[id].assignmentPercents[tooltipItem.index] !== -1 && chartData[id].assignmentScoresParsed[tooltipItem.index].substring(0, 2) !== "--") ? (" - " + chartData[id].assignmentPercents[tooltipItem.index] + "% ") : (" ")) + ((chartData[id].assignmentScoresParsed[tooltipItem.index].substring(chartData[id].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? ("(" + chartData[id].assignmentScoresParsed[tooltipItem.index] + ")") : ("(" + chartData[id].assignmentScoresParsed[tooltipItem.index].substring(0, chartData[id].assignmentScoresParsed[tooltipItem.index].length - 2) + ")"))];
+                                return ["[" + chartData[id].assignmentCategories[tooltipItem.index] + "] " + chartData[id].assignmentNames[tooltipItem.index] + ((chartData[id].assignmentPercents[tooltipItem.index] !== false && chartData[id].assignmentScoresParsed[tooltipItem.index].substring(0, 2) !== "--") ? (" - " + chartData[id].assignmentPercents[tooltipItem.index] + "% ") : (" ")) + ((chartData[id].assignmentScoresParsed[tooltipItem.index].substring(chartData[id].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? ("(" + chartData[id].assignmentScoresParsed[tooltipItem.index] + ")") : ("(" + chartData[id].assignmentScoresParsed[tooltipItem.index].substring(0, chartData[id].assignmentScoresParsed[tooltipItem.index].length - 2) + ")"))];
                             }
                         }
                     }, responsive: true, maintainAspectRatio: false, plugins: {
@@ -2271,7 +2272,9 @@
             }
         } else if (e.key === "a") {
             if (currentPage === -1) return;
-            $($(".addAssignment")[currentPage]).trigger('click');
+            let addAssignment = $($(".addAssignment")[currentPage]);
+            addAssignment.trigger('click');
+
         } else {
             //console.log(e.code);
         }
@@ -2519,6 +2522,13 @@
     // This is very important for mobile
     $("*:not(input:not([type=checkbox],[type=radio]),select)").focus(function () {
         $(this).blur();
+    });
+
+    // Collapse add assignment when click outside
+    $(document).mousedown(function (e) {
+        if (!$(e.target).parents(".add-assignment-container").length && currentPage >= 0 && $($(".add-assignment-container")[currentPage]).hasClass("active")) {
+            $($(".addAssignment")[currentPage]).trigger('click');
+        }
     });
 
 </script>

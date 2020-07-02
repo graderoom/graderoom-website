@@ -335,6 +335,13 @@ module.exports = function (app, passport) {
             res.status(400).send(resp.message);
         }
 
+        // Grade history
+        //TODO
+        // let scrapeGradeHistory = req.body.scrape_grade_history === "on";
+        // if (scrapeGradeHistory || true) {
+        //     let resp = await authenticator.updateGradeHistory(req.user.username, pass);
+        // }
+
     });
 
     //must be called via client side ajax+js
