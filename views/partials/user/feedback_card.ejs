@@ -14,8 +14,7 @@
                     <i class="fa fa-address-book"></i> Feedback
                 </h1>
                 <div class="card-footer">
-                    <iframe style="color: #FFFFFF; height: 50vh; width: 100%;"
-                            src="https://docs.google.com/forms/d/e/1FAIpQLSfBiwyEi3TKH2Kr356ZOtLTUwUml9I9h_bWlOcraVXDyBIzbA/viewform?embedded=true"
+                    <iframe id="feedbackForm"
                             frameborder="0" marginheight="0" marginwidth="0">Loading…
                     </iframe>
                 </div>
@@ -23,3 +22,9 @@
         </div>
     </div>
 </div>
+
+<script>
+    function setupFeedbackForm() {
+        $("#feedbackForm").attr('src', "https://docs.google.com/forms/d/e/1FAIpQLSfBiwyEi3TKH2Kr356ZOtLTUwUml9I9h_bWlOcraVXDyBIzbA/viewform?usp=pp_url&embedded=true&entry.979242080=" + encodeURI(user.personalInfo.firstName + " " + user.personalInfo.lastName));
+    }
+</script>
