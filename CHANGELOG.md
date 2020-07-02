@@ -54,6 +54,16 @@
 - Changelog display buttons work incorrectly after page resize <strong>[Fixed in Beta 2.3.8]</strong>
 - Grades sometimes do not sync when autofill is enabled and GradeSync is disabled <strong>[Fixed in Beta 2.5.0]</strong>
 
+## [Beta 2.6.1] - 2020-07-02
+### Added
+- Feedback form now autofills with your name
+
+### Improved
+- Assignment wizard can be closed by clicking anywhere outside
+
+### Fixed
+- Issue where class link navbar would display over cards
+
 ## [Beta 2.6.0] - 2020-06-28
 ### Added
 - Ability to add assignments
