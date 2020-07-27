@@ -9,14 +9,14 @@ def json_format(success, message_or_grades):
     Args:
         success: boolean if scraping was successful
         message_or_grades: a message for errors or grade data in JSON format
-        fail_grades: partial grades if error while scraping grades
 
     Returns:
-        A JSON formatted object containing the response
+        A JSON formatted response
     """
 
     if success:
-        return json.dumps({'success': True, 'grades': message_or_grades})
+        message_or_grades.update({'success': True})
+        return json.dumps(message_or_grades)
 
     return json.dumps({'success': False, 'message': message_or_grades})
 
@@ -377,10 +377,25 @@ class PowerschoolScraper:
             self.scrape_class(url, all_classes, overall_percent,
                               overall_letter)
 
+        # Fetch the current term and semester
+        url = 'https://powerschool.bcp.org/guardian/myschedulematrix.html'
+        resp = self.session.get(url)
+        soup_resp = BS(resp.text, "html.parser")
+
+        main_table = soup_resp.find("table")
+        table_cells = main_table.find_all("td")
+        term = table_cells[1].text
+        semester = table_cells[2].text
+
+        if term == None or semester == None:
+            raise Exception("Error getting term and semester data")
+
         # Print out the result
         if not all_classes:
             print(json_format(False, "No class data."))
         else:
+            # Add term and semester to the data
+            all_classes = {term: {semester: all_classes}}
             print(json_format(True, all_classes))
 
     def scrape_class(self, url, all_classes, overall_percent, overall_letter):
