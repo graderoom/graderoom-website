@@ -13,9 +13,12 @@ const fs = require("fs");
 
 db.defaults({users: [], keys: [], classes: {}, deletedUsers: []}).write();
 
-let changelogArray = "";
-let betaChangelogArray = "";
+let changelogArray = [];
+let betaChangelogArray = [];
 let versionNameArray = [];
+
+// Update this list with new tutorial keys
+let tutorialKeys = ["calcSeen", "helpSeen", "changelogLegendSeen", "homeSeen", "navinfoSeen"];
 
 module.exports = {
 
@@ -161,17 +164,48 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
 
-        // Add grade_history
-        if (!userRef.get("grade_history").value()) {
-            userRef.set("grade_history", {}).write();
-            userRef.set("grade_history_weights", {}).write();
+        // Migrate to new grade and weight storage (any data found in old storage *must* be from 19-20 S2)
+        if (Array.isArray(userRef.get("grades").value())) {
+            userRef.set("grades", {"19-20": {"S2": user.grades}}).write();
+            userRef.set("weights", {"19-20": {"S2": user.weights}}).write();
+        }
+
+        // Remove old grade_history storage (This should be empty anyway)
+        if (userRef.get("grade_history").value()) {
+            userRef.unset("grade_history").write();
+            userRef.unset("grade_history_weights").write();
+        }
+
+        // Add grade history tracker
+        if (!userRef.get("updatedGradeHistory").value()) {
+            userRef.set("updatedGradeHistory", []).write();
+        }
+
+        // Add sorting data
+        if (!userRef.get("sortingData").value()) {
+            userRef.set("sortingData", {
+                dateSort: [], categorySort: []
+            }).write();
         }
 
         // Add tutorial status
         if (!user.alerts.tutorialStatus) {
-            userRef.get("alerts").set("tutorialStatus", {
-                helpSeen: false, calcSeen: false
-            }).write();
+            userRef.get("alerts").set("tutorialStatus", {}).write();
+        }
+
+        // Remove any extra tutorial keys
+        let existingKeys = Object.keys(userRef.get("alerts").get("tutorialStatus").value());
+        for (let i = 0; i < existingKeys.length; i++) {
+            if (!tutorialKeys.includes(existingKeys[i])) {
+                userRef.get("alerts").get("tutorialStatus").unset(existingKeys[i]).write();
+            }
+        }
+
+        // Add tutorial keys
+        for (let i = 0; i < tutorialKeys.length; i++) {
+            if (!userRef.get("alerts").get("tutorialStatus").get(tutorialKeys[i]).value()) {
+                userRef.get("alerts").get("tutorialStatus").set(tutorialKeys[i], false).write();
+            }
         }
 
         // Add personal info
@@ -249,39 +283,6 @@ module.exports = {
             delete user.autoRefresh;
         }
 
-        // Fixes weights
-        for (let i = 0; i < Object.keys(user.weights).length; i++) {
-            console.log("" + Date.now() + " | Updating weight: " + (i + 1) + " of " + Object.keys(user.weights).length);
-            let className = Object.keys(user.weights)[i];
-            //Add custom weight tag
-            if (!("custom" in user.weights[className])) {
-                userRef.get("weights").get("className").set("custom", false).write();
-            }
-
-            //Move weights to new storage system
-            let weights = Object.assign({}, user.weights[className]); // get weights from old storage
-            let hasWeights = "true";
-            let custom = false;
-            if (weights.hasOwnProperty("hasWeights")) {
-                hasWeights = weights["hasWeights"];
-                delete weights["hasWeights"];
-            }
-            if (weights.hasOwnProperty("custom")) {
-                custom = weights["custom"];
-                delete weights["custom"];
-            }
-            delete weights["weights"];
-
-            this.updateWeightsForClass(username, className, hasWeights, weights, custom, false); // put weights in new
-                                                                                                 // storage
-
-            for (var key in weights) {
-                if (weights.hasOwnProperty(key)) {
-                    delete user.weights[className][key]; // delete weights in old storage
-                }
-            }
-        }
-
         // After all db stuff is done
         this.bringUpToDate(username);
     }, bringUpToDate: function (username) {
@@ -357,12 +358,22 @@ module.exports = {
         }
     },
 
+    getMostRecentTermData: function (username) {
+        let userRef = db.get("users").find({username: username.toLowerCase()});
+        let terms = Object.keys(userRef.get("grades").value());
+        let term = terms[terms.map(t => parseInt(t.substring(0, 2))).reduce((maxIndex, term, index, arr) => term > arr[maxIndex] ? index : maxIndex, 0)];
+        let semesters = Object.keys(userRef.get("grades").get(term).value());
+        let semester = semesters[semesters.map(s => parseInt(s.substring(1))).reduce((maxIndex, semester, index, arr) => semester > arr[maxIndex] ? index : maxIndex, 0)];
+        return {term: term, semester: semester};
+    },
+
     getRelClassData: function (username) {
         //TODO
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         let userClasses = [];
-        userRef.get("grades").value().forEach(classRef => userClasses.push([classRef.class_name, classRef.teacher_name]));
+        let {term, semester} = this.getMostRecentTermData(username);
+        userRef.get("grades").get(term).get(semester).value().forEach(classRef => userClasses.push([classRef.class_name, classRef.teacher_name]));
         let classes = db.get("classes").value();
         let relClasses = {};
         for (let i = 0; i < userClasses.length; i++) {
@@ -538,23 +549,17 @@ module.exports = {
                                              showNonAcademic: true,
                                              darkModeStart: 19,
                                              darkModeFinish: 6
-                                         },
-                                         alerts: {
-                                             lastUpdated: [],
-                                             updateGradesReminder: "daily",
-                                             latestSeen: beta ? versionNameArray[1][1] : versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1],
-                                             policyLastSeen: "never",
-                                             termsLastSeen: "never",
-                                             remoteAccess: "denied",
-                                             tutorialStatus: {
-                                                 helpSeen: false, calcSeen: false
-                                             }
-                                         },
-                                         weights: {},
-                                         grades: [],
-                                         grade_history: {},
-                                         grade_history_weights: {},
-                                         loggedIn: []
+                                         }, alerts: {
+                        lastUpdated: [],
+                        updateGradesReminder: "daily",
+                        latestSeen: versionNameArray[1] ? beta ? versionNameArray[1][1] : versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1] : "1.0.0",
+                        policyLastSeen: "never",
+                        termsLastSeen: "never",
+                        remoteAccess: "denied",
+                        tutorialStatus: Object.fromEntries(tutorialKeys.map(k => [k, false]))
+                    }, weights: {}, grades: {}, sortingData: {
+                        dateSort: [], categorySort: []
+                    }, loggedIn: []
                                      }).write();
 
                 return resolve({success: true, message: "User Created"});
@@ -710,17 +715,25 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         let grade_history_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password, true);
         if (grade_history_update_status.success) {
-            let current_years = Object.keys(userRef.get("grade_history").value());
+            let grades = Object.keys(userRef.get("grades").value());
             let years = Object.keys(grade_history_update_status.new_grades);
+            let weights = userRef.get("weights").value();
             for (let i = 0; i < years.length; i++) {
-                if (!current_years.includes(years[i])) {
-                    userRef.get("grade_history").set(years[i], grade_history_update_status.new_grades[years[i]]).write();
+                if (!weights[years[i]]) {
+                    weights[years[i]] = {};
+                    let semesters = Object.keys(grade_history_update_status.new_grades[years[i]]);
+                    for (let j = 0; j < semesters.length; j++) {
+                        weights[years[i]][semesters[j]] = {};
+                    }
+                }
+                if (!grades.includes(years[i])) {
+                    userRef.get("grades").set(years[i], grade_history_update_status.new_grades[years[i]]).write();
                 } else {
-                    let current_semesters = Object.keys(userRef.get("grade_history").get(years[i]).value());
+                    let current_semesters = Object.keys(userRef.get("grades").get(years[i]).value());
                     let semesters = Object.keys(grade_history_update_status.new_grades[years[i]]);
                     for (let j = 0; j < semesters.length; j++) {
                         if (!current_semesters.includes[semesters[j]]) {
-                            userRef.get("grades_history").get(years[i]).set(semesters[j], grade_history_update_status.new_grades[years[i]][semesters[j]]).write();
+                            userRef.get("grades").get(years[i]).set(semesters[j], grade_history_update_status.new_grades[years[i]][semesters[j]]).write();
                         }
                     }
                 }
@@ -734,9 +747,7 @@ module.exports = {
         let lc_username = acc_username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         user.set("updatedInBackground", "updating").write();
-        //TODO
-        // this.updateGradeHistory(acc_username, school_password).then(async () => {
-        this.updateGrades(acc_username, school_password).then(function (resp) {
+        this.updateGrades(acc_username, school_password).then((resp) => {
             lc_username = acc_username.toLowerCase();
             user = db.get("users").find({username: lc_username});
             if (resp.success) {
@@ -746,13 +757,25 @@ module.exports = {
             } else {
                 user.set("updatedInBackground", "failed").write();
             }
+            this.updateGradeHistory(acc_username, school_password).then(function (resp) {
+                if (resp.success) {
+                    user.get("updatedGradeHistory").push(Date.now()).write();
+                } else {
+                    console.log(resp.message);
+                }
+            });
         });
-        // });
     },
 
     updateGrades: async function (acc_username, school_password) {
         let lc_username = acc_username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
+
+        // Scrape grade history if never done before
+        if (!userRef.get("updatedGradeHistory").value().length) {
+            await this.updateGradeHistory(acc_username, school_password, true);
+        }
+
         let grade_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password);
         if (!grade_update_status.success) {
             //error updating grades
@@ -775,9 +798,11 @@ module.exports = {
         if (userRef.value().appearance.classColors.length !== grade_update_status.new_grades.length) {
             this.randomizeClassColors(lc_username);
         }
-        userRef.get("alerts").get("lastUpdated").push(Date.now()).write();
+
+        let time = Date.now();
+        userRef.get("alerts").get("lastUpdated").push(time).write();
         userRef.set("updatedInBackground", "already done").write();
-        return {success: true, message: "Updated grades!"};
+        return {success: true, message: "Updated grades!", grades: grade_update_status.new_grades, time: time};
     },
 
     addDbClass: function (className, teacherName) {
@@ -1129,10 +1154,13 @@ module.exports = {
                     }
                 } else if (items[i].title.substring(0, 12) === "Announcement") {
                     betaResultHTML += " announcement\">";
+                    resultHTML += " announcement\">";
                 } else if (items[i].title.substring(0, 12) === "Known Issues") {
                     betaResultHTML += " known-issues\">";
+                    resultHTML += " known-issues\">";
                 } else {
                     betaResultHTML += "\">";
+                    resultHTML += "\">";
                 }
                 resultHTML += "<div class=\"header\">";
                 resultHTML += "<div class=\"title\">" + items[i].title + "</div>";
@@ -1190,8 +1218,12 @@ module.exports = {
 
     updateTutorial: function (username, action) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
-        userRef.get("alerts").get("tutorialStatus").set(action + "Seen", true).write();
-        return userRef.get("alerts").get("tutorialStatus").value();
+        if (tutorialKeys.includes(action + "Seen")) {
+            userRef.get("alerts").get("tutorialStatus").set(action + "Seen", true).write();
+            return {success: true, message: userRef.get("alerts").get("tutorialStatus").value()};
+        } else {
+            return {success: false, message: "Invalid action: " + action};
+        }
     },
 
     resetTutorial: function (username) {
@@ -1201,6 +1233,14 @@ module.exports = {
             tutorialStatus[key] = false;
         }
         return userRef.get("alerts").get("tutorialStatus").value();
+    },
+
+    updateSortData: function (username, sortData) {
+        let userRef = db.get("users").find({username: username.toLowerCase()});
+        let {dateSort, categorySort} = sortData;
+        let sortDataRef = userRef.get("sortingData");
+        sortDataRef.set("dateSort", dateSort).write();
+        sortDataRef.set("categorySort", categorySort).write();
     }
 
 };

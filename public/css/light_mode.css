@@ -163,7 +163,7 @@ table thead tr th {
     color: black;
 }
 
-.coloration {
+.tutorial-popup {
     color: hsl(210, 48%, 48%);
     background: #FFFFFF;
 }
@@ -202,7 +202,18 @@ table thead tr th {
     color: #D3D3D3 !important;
 }
 
-.popup span {
+.popup span.popup-top-left,
+.popup span.popup-top,
+.popup span.popup-top-right,
+.popup span.popup-right-top,
+.popup span.popup-right,
+.popup span.popup-right-bottom,
+.popup span.popup-bottom-right,
+.popup span.popup-bottom,
+.popup span.popup-bottom-left,
+.popup span.popup-left-bottom,
+.popup span.popup-left,
+.popup span.popup-left-top {
     background-color: #FFFFFF;
 }
 
@@ -218,11 +229,6 @@ th.resetTab {
 
 .school-username {
     color: #444444
-}
-
-.scroll-to {
-    background: #EEEEEE;
-    filter: opacity(0.6);
 }
 
 .slider {
@@ -345,12 +351,16 @@ select.minimal:focus {
 
 .progress-bar {
     color: #FFFFFF;
-    background-color: hsl(210, 48%, 48%);;
+    background-color: hsl(210, 48%, 48%);
 }
 
 .empty-progress {
     color: #FFFFFF;
     border-left: 1px solid #FFFFFF;
+}
+
+.progress, .empty-progress {
+    background-color: #DDDDDD;
 }
 
 .weights-container {

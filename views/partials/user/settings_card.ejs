@@ -22,7 +22,7 @@
             </div>
             <div id="settings-1" class="tabcontent" style="display: block">
                 <div class="card-body">
-                    <% if (user.grades.length > 0) { %>
+                    <% if (JSON.parse(gradeData).length > 0) { %>
                         <div class="card-footer">
                             <h5>Class Colors
                                 <span class="popup">
@@ -42,10 +42,10 @@
                                     Randomize Colors
                                 </button>
                                 <div class="text-center" id="classColors" style="width: 100%; height: fit-content">
-                                    <% for (var i = 0; i < user.grades.length; i++) { %>
+                                    <% for (var i = 0; i < JSON.parse(gradeData).length; i++) { %>
                                         <label id="classColor<%= i %>"
-                                               style="margin-bottom: 0; padding: 0 1rem 0 1rem; color: <%= user.appearance.classColors[i] %>; font-size: medium; font-weight: bolder; transition: color 1s ease">
-                                            <%= user.grades[i].class_name %>
+                                               style="margin-bottom: 0; padding: 0 1rem 0 1rem; color: <%= JSON.parse(appearance).classColors[i] %>; font-size: medium; font-weight: bolder; transition: color 1s ease">
+                                            <%= JSON.parse(gradeData)[i].class_name %>
                                         </label>
                                     <% } %>
                                 </div>
@@ -77,7 +77,7 @@
                                                                                $($($(this)[0].form)[0].elements[7]).hide();
                                                                                ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
                                                                                $($(this)[0].form).submit();"
-                                    <% if (user.appearance.theme === "light") { %> checked
+                                    <% if (appearance.theme === "light") { %> checked
                                             <% } %>
                                     > Light Theme
                                 </label>
@@ -89,7 +89,7 @@
                                                                                $($($(this)[0].form)[0].elements[7]).hide();
                                                                                ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
                                                                                $($(this)[0].form).submit();"
-                                    <% if (user.appearance.theme === "dark") { %> checked
+                                    <% if (appearance.theme === "dark") { %> checked
                                             <% } %>
                                     > Dark Theme</label>
                                 <br>
@@ -100,7 +100,7 @@
                                                                                ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
                                                                                $($(this)[0].form).submit();
                                                                                $($($(this)[0].form)[0].elements[7]).show().attr('disabled','disabled')"
-                                    <% if (user.appearance.theme === "auto") { %> checked
+                                    <% if (appearance.theme === "auto") { %> checked
                                             <% } %>
                                     > Automatic
                                     <span class="popup">
@@ -114,7 +114,7 @@
                             </div>
                             <div style="display: inline-flex">
                                 <label class="form-group" id="autoLimits"
-                                       style="<% if (user.appearance.theme !== 'auto') { %>display: none;<% } else { %>display: inline-flex;<% } %>font-size: 0.9rem; margin-bottom: 0;">
+                                       style="<% if (appearance.theme !== 'auto') { %>display: none;<% } else { %>display: inline-flex;<% } %>font-size: 0.9rem; margin-bottom: 0;">
                                     <label style="vertical-align: center">
                                         Dark theme from
                                     </label>
@@ -130,13 +130,13 @@
                                             name="darkModeStartAmPm"
                                             oninput="$($($(this)[0].form)[0].elements[7]).removeAttr('disabled');">
                                         <option value="PM"
-                                        <% if (user.appearance.darkModeStart >= 12 && user.appearance.darkModeStart !== 24) { %>
+                                        <% if (appearance.darkModeStart >= 12 && appearance.darkModeStart !== 24) { %>
                                                 selected
                                                 <% } %>
                                         >PM
                                         </option>
                                         <option value="AM"
-                                        <% if (user.appearance.darkModeStart < 12 || user.appearance.darkModeStart === 24) { %>
+                                        <% if (appearance.darkModeStart < 12 || appearance.darkModeStart === 24) { %>
                                                 selected
                                                 <% } %>
                                         >AM
@@ -157,13 +157,13 @@
                                             name="darkModeFinishAmPm"
                                             oninput="$($($(this)[0].form)[0].elements[7]).removeAttr('disabled');">
                                         <option value="AM"
-                                        <% if (user.appearance.darkModeFinish < 12 || user.appearance.darkModeFinish === 24) { %>
+                                        <% if (appearance.darkModeFinish < 12 || appearance.darkModeFinish === 24) { %>
                                                 selected
                                                 <% } %>
                                         >AM
                                         </option>
                                         <option value="PM"
-                                        <% if (user.appearance.darkModeFinish >= 12 && user.appearance.darkModeFinish !== 24) { %>
+                                        <% if (appearance.darkModeFinish >= 12 && appearance.darkModeFinish !== 24) { %>
                                                 selected
                                                 <% } %>
                                         >PM
@@ -171,7 +171,7 @@
                                     </select>
                                 </label>
                                 <button class="btn-default btn btn-sm" type="submit"
-                                        style="<% if (user.appearance.theme !== 'auto') { %>display: none;<% } %> margin: 0 0 0 1rem !important; width: fit-content; width: -moz-fit-content !important; width: -moz-fit-content !important;"
+                                        style="<% if (appearance.theme !== 'auto') { %>display: none;<% } %> margin: 0 0 0 1rem !important; width: fit-content; width: -moz-fit-content !important; width: -moz-fit-content !important;"
                                         onclick="ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);"
                                         disabled>
                                     Apply
@@ -200,7 +200,7 @@
                                   onsubmit="$('#advancedSubmit').attr('disabled','disabled')">
                                 <label style="cursor: pointer">
                                     <input id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
-                                    <% if (user.appearance.showNonAcademic) { %> checked
+                                    <% if (appearance.showNonAcademic) { %> checked
                                             <% } %>
                                            oninput="$('#advancedSubmit').removeAttr('disabled')"
                                     > Show Non-Academic Classes
@@ -249,7 +249,7 @@
                                     <button type="submit"
                                             onclick="updateSchoolUsernameDisplay(); ajaxPostForm('#changeSchoolEmail',[],'#emailChangeMessage', true)"
                                             class="btn btn-default btn-med"
-                                            style="width: fit-content; width: -moz-fit-content; width" disabled>
+                                            style="width: fit-content; width: -moz-fit-content;" disabled>
                                         Apply
                                     </button>
                                 </div>
@@ -263,10 +263,10 @@
                                             style="margin: 0; display: flex"
                                             type="checkbox"
                                             name="gradeSync"
-                                    <% if (user.schoolPassword) { %>
+                                    <% if (gradeSync) { %>
                                             checked
                                             <% } %>
-                                            onchange="manageGradeSyncCheckbox()"
+                                            onchange="manageGradeSyncCheckbox(); setupTutorialPopups()"
                                     >
                                     <span style="color: #888888" class="slider"></span>
                                 </label>
@@ -311,7 +311,7 @@
                                     <label class="label-active">First Name</label>
                                     <input oninput="checkLabel(this); checkFirstName(this, '#firstNameCheckMessage')"
                                            type="text" class="form-control dont-clear" name="first_name" id="firstName"
-                                           value="<%= user.personalInfo.firstName %>">
+                                           value="<%= JSON.parse(personalInfo).firstName %>">
                                     <span class="popup">
                                         <i>
                                             <span class="popup-top-left dont-show"
@@ -323,7 +323,7 @@
                                     <label style="filter: opacity(0.5)" class="label-active">Last Name</label>
                                     <input oninput="checkLabel(this);" style="filter: opacity(0.5)"
                                            type="text" class="form-control" name="last_name" id="lastName"
-                                           value="<%= user.personalInfo.lastName %>" disabled>
+                                           value="<%= JSON.parse(personalInfo).lastName %>" disabled>
                                     <span class="popup">
                                         <i class="fa fa-question-circle">
                                             <span class="popup-top-left">Changing your Last Name is not supported</span></i>
@@ -334,7 +334,7 @@
                                     <label style="filter: opacity(0.5)" class="label-active">Graduation Year</label>
                                     <input oninput="checkLabel(this);" style="filter: opacity(0.5)"
                                            type="number" class="form-control" name="graduation_year" id="graduationYear"
-                                           value="<%= user.personalInfo.graduationYear %>"
+                                           value="<%= JSON.parse(personalInfo).graduationYear %>"
                                            disabled>
                                     <span class="popup">
                                         <i class="fa fa-question-circle">
@@ -418,7 +418,7 @@
                                             style="margin: 0; display: flex"
                                             type="checkbox"
                                             name="remoteAccess"
-                                    <% if (user.alerts.remoteAccess === "allowed") { %>
+                                    <% if (alerts.remoteAccess === "allowed") { %>
                                             checked
                                             <% } %>
                                             onchange="ajaxPostForm('#remoteAccess',[],'',true); $('#remoteAccess').submit();"
@@ -552,7 +552,7 @@
         }
 
         if (firstName.length === 0) {
-            firstName = getPersonalInfo(user.schoolUsername).firstName;
+            firstName = getPersonalInfo(schoolUsername).firstName;
             $(messageDivID).addClass("always-show").removeClass("dont-show").css("color", "red").text("Your name will be set back to " + firstName + " when you click outside of the input field");
             icon.attr("class", "fa fa-exclamation-circle");
             $(inputID).css("border-bottom-color", "red").blur(() => {
@@ -578,7 +578,7 @@
                     $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text(response);
                     icon.attr("class", "fa fa-check-circle");
                     $(inputID).css("border-bottom-color", "");
-                    user.personalInfo.firstName = firstName;
+                    personalInfo.firstName = firstName;
                     updateNameDisplay(firstName);
                     setupFeedbackForm();
                 }
@@ -595,7 +595,7 @@
 
     function updateNameDisplay(firstName, schoolUsername) {
         if (firstName) {
-            let {temp, lastName, graduationYear} = getPersonalInfo(user.schoolUsername);
+            let {temp, lastName, graduationYear} = getPersonalInfo(schoolUsername);
             $("#nameDisplay").text(firstName + " " + lastName + " '" + (graduationYear - 2000));
         } else if (schoolUsername) {
             let {firstName, lastName, graduationYear} = getPersonalInfo(schoolUsername);
@@ -627,25 +627,25 @@
 
     function manageGradeSyncCheckbox() {
         if ($("#gradeSyncDiv").css("display") === "block" && !$("#gradeSyncToggle").prop("checked")) {
-            delete user.schoolPassword;
+            gradeSync = false;
             ajaxPostForm("#gradeSync", [], "", true);
             $("#gradeSync").submit();
             $("#gradeSyncDiv").hide();
             $("#syncGradesDiv").show();
-            if (user.alerts.lastUpdated.length === 0 && !user.schoolPassword) {
+            if (alerts.lastUpdated.length === 0 && !gradeSync) {
                 $("#syncGrades").find("span").addClass("always-show").removeClass("dont-show");
             } else {
-                if (!user.alerts.tutorialStatus.calcSeen) {
+                if (!alerts.tutorialStatus.calcSeen) {
                     $("#finalGradeCalculator").find("span").addClass("always-show").removeClass("dont-show");
                 }
-                if (!user.alerts.tutorialStatus.helpSeen) {
+                if (!alerts.tutorialStatus.helpSeen) {
                     $("#help").find("span").addClass("always-show").removeClass("dont-show");
                 }
             }
             clearTimeout(checkLastUpdated);
             $(".updateGradesMessage .messageTxt").text("GradeSync is not enabled");
         } else {
-            $("#savePasswordToggle:not(:checked)").trigger('click');
+            $("#savePasswordToggle:not(:checked)").trigger("click");
             showCard("#updateGradesDisplay");
         }
     }
@@ -857,15 +857,16 @@
         $.ajax({
                    url: "/resetTutorial", type: "POST", async: true
                }).done((response) => {
-            Object.keys(user.alerts.tutorialStatus).forEach(action => $("#" + action.substring(0, action.length - 4)).find("span").removeClass("dont-show").addClass("always-show"));
-            user.alerts.tutorialStatus = JSON.parse(response);
+            alerts.tutorialStatus = JSON.parse(response);
+            setupTutorialPopups();
             updateTutorialProgress();
         });
     }
 
     function updateTutorialProgress() {
-        let numGotten = Object.values(user.alerts.tutorialStatus).filter(x => x).length;
-        let numTotal = Object.values(user.alerts.tutorialStatus).length;
+        const {tutorialStatus} = alerts;
+        let numGotten = Object.values(tutorialStatus).filter(x => x).length;
+        let numTotal = Object.values(tutorialStatus).length;
         let progress = numGotten / numTotal * 100;
         let bar = $("#tutorialStatus").text(progress !== 0 ? Math.round(progress) + "%" : "").css("width", progress + "%").parents(".progress");
         let emptyBars = $(".empty-progress");
@@ -874,7 +875,7 @@
             if (i >= emptyBars.length) {
                 bar.append("<div class=\"progress-bar empty-progress\" role=\"progressbar\" style=\"width: " + (100 / numTotal) + "%\"></div>");
             } else {
-                $(emptyBars[i]).css('width', (100 / numTotal) + "%");
+                $(emptyBars[i]).css("width", (100 / numTotal) + "%");
             }
         }
         for (i; i < emptyBars.length; i++) {

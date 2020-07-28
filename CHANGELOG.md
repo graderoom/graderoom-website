@@ -54,6 +54,26 @@
 - Changelog display buttons work incorrectly after page resize <strong>[Fixed in Beta 2.3.8]</strong>
 - Grades sometimes do not sync when autofill is enabled and GradeSync is disabled <strong>[Fixed in Beta 2.5.0]</strong>
 
+## [Beta 2.7.0] - 2020-07-28
+### Added
+- Changelog legend now contains clickable elements
+- New keyboard shortcut 'H' to open the help tab of Settings
+- Sort methods are now synced and save automatically
+- More tutorial popups
+- Sync Grades Card and sync status now always show last synced information
+
+### Improved
+- Graphs are now bounded between 0 and 150 when panned and zoomed
+- Updated "Got It" buttons in tutorial popups to be more responsive.
+- Terms and Conditions and Privacy Policy now must be scrolled to the bottom before accepting
+- Syncing with PowerSchool no longer requires a refresh unless your classes change
+- Tweaked animations and styling in some areas
+- Logged out pages, including sign-in are now themed based on time of day
+
+### Fixed
+- Username in the final grade calculator page navbar is now vertically centered
+- Issue where scrollbar would display when content was not scrollable
+
 ## [Beta 2.6.1] - 2020-07-02
 ### Added
 - Feedback form now autofills with your name
