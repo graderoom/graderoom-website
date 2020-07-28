@@ -4,28 +4,28 @@
     <div class="blurred-background"></div>
     <div class="col-sm-11 col-md-10 col-lg-9 col-xl-8 mx-auto">
         <div id="termsCard" class="card card-signin my-5">
-            <% if (user.alerts.termsLastSeen !== "never") { %>
+            <% if (JSON.parse(alerts).termsLastSeen !== "never") { %>
                 <btn class="btn btn-md"
                      onclick="closeForm('termsDisplay');"
                      style="width: fit-content; width: -moz-fit-content; margin-bottom:0">
                     <i class="fa fa-close" aria-hidden="true"></i> Close
                 </btn>
             <% } %>
-                <div class="card-body">
-                    <h1 class="card-title text-center">
-                        Terms and Conditions
-                    </h1>
-                    <div class="card-footer" style="max-height: 60vh; overflow-y: scroll; overflow-x: hidden;">
-                        <p>Last updated May 30, 2020</p>
-                        <h3>AGREEMENT</h3>
-                        <p>These Terms of Use constitute a legally binding agreement made between you, whether
-                            personally or on
-                            behalf of an entity (“you”) and
-                            Graderoom
-                            ("
-                            <strong>Company</strong>
-                            ", “<strong>we</strong>”, “<strong>us</strong>”, or “<strong>our</strong>”),
-                            concerning your access to and use of the
+            <div class="card-body">
+                <h1 class="card-title text-center">
+                    Terms and Conditions
+                </h1>
+                <div class="card-footer" id="termsScroller">
+                    <p>Last updated May 30, 2020</p>
+                    <h3>AGREEMENT</h3>
+                    <p>These Terms of Use constitute a legally binding agreement made between you, whether
+                        personally or on
+                        behalf of an entity (“you”) and
+                        Graderoom
+                        ("
+                        <strong>Company</strong>
+                        ", “<strong>we</strong>”, “<strong>us</strong>”, or “<strong>our</strong>”),
+                        concerning your access to and use of the
                             graderoom.me and beta.graderoom.me
                             website as well as any other media form, media channel, mobile website or mobile
                             application related, linked, or otherwise connected thereto (collectively, the
@@ -522,22 +522,28 @@
                             Use.
                         </p>
 
-                        <h3>CONTACT US</h3>
-                        <p>In order to resolve a complaint regarding the Site or to
-                            receive further information regarding use of the Site, please contact us
-                            at: <strong>Graderoom</strong>
-                            <a href="mailto: graderoom@gmail.com">graderoom@gmail.com</a></p>
+                    <h3>CONTACT US</h3>
+                    <p>In order to resolve a complaint regarding the Site or to
+                        receive further information regarding use of the Site, please contact us
+                        at: <strong>Graderoom</strong>
+                        <a href="mailto: graderoom@gmail.com">graderoom@gmail.com</a></p>
 
-                    </div>
-                    <form action="/acceptTerms" method="post">
-                        <button class="btn btn-md"
-                                type="submit"
-                                onclick="try {closeForm('termsDisplay')} catch (e){}"
-                                style="width: fit-content; width: -moz-fit-content; float: right; margin-bottom:0">
-                            <i class="fa fa-check" aria-hidden="true"></i> Accept
-                        </button>
-                    </form>
                 </div>
+                <button class="btn btn-md"
+                        style="width: fit-content; width: -moz-fit-content; float: right; margin-bottom: 0"
+                        onclick="scrollToBottom($('#termsScroller'), 2000)"
+                        id="terms-down">
+                    <i class="fa fa-arrow-down" aria-hidden="true"></i> Scroll Down
+                </button>
+                <form id="accept-terms" action="/acceptTerms" method="post" style="display: none">
+                    <button class="btn btn-md"
+                            type="submit"
+                            onclick="try {closeForm('termsDisplay')} catch (e){}"
+                            style="width: fit-content; width: -moz-fit-content; float: right; margin-bottom:0">
+                        <i class="fa fa-check" aria-hidden="true"></i> Accept
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </div>

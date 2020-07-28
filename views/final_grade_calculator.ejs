@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-US">
 <head>
     <title>Graderoom</title>
     <link rel="icon" href="public/resources/common/icon.png">
@@ -7,13 +7,13 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
     <% let theme; %>
-    <% if (user.appearance.theme === "dark") { %>
+    <% if (JSON.parse(appearance).theme === "dark") { %>
         <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
-    <% } else if (user.appearance.theme === "light") { %>
+    <% } else if (JSON.parse(appearance).theme === "light") { %>
         <% theme = false; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
-    <% } else if ((((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (dst ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) && ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (dst ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0))) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (dst ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (dst ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0))))) { %>
+    <% } else if ((((JSON.parse(appearance).darkModeStart < JSON.parse(appearance).darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= JSON.parse(appearance).darkModeStart - (dst ? (JSON.parse(appearance).darkModeStart === 0 ? -23 : 1) : 0)) && ((Date.now() / 1000 / 3600 - 8) % 24) < JSON.parse(appearance).darkModeFinish - (dst ? (JSON.parse(appearance).darkModeFinish === 1 ? -23 : 1) : 0))) || ((JSON.parse(appearance).darkModeStart > JSON.parse(appearance).darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= JSON.parse(appearance).darkModeStart - (dst ? (JSON.parse(appearance).darkModeStart === 0 ? -23 : 1) : 0)) || ((Date.now() / 1000 / 3600 - 8) % 24) < JSON.parse(appearance).darkModeFinish - (dst ? (JSON.parse(appearance).darkModeFinish === 1 ? -23 : 1) : 0))))) { %>
         <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else { %>
@@ -50,8 +50,8 @@
                             <label style="display: flex; align-items: flex-end"> <select class="classic"
                                                                                          id="chooseClass">
                                     <option selected>- - Select Class - -</option>
-                                    <% for (let i = 0; i < user.grades.length; i++) { %>
-                                        <option><%= user.grades[Object.keys(user.grades)[i]].class_name %></option>
+                                    <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
+                                        <option><%= JSON.parse(gradeData)[Object.keys(JSON.parse(gradeData))[i]].class_name %></option>
                                     <% } %>
                                 </select> </label> <label style="display: flex; align-items: flex-end;">
                                 <select class="classic" id="chooseLetterGrade" style="float: right">
@@ -125,8 +125,9 @@
 
 <script>
 
-    user = <%- userRef %>;
-    data = <%- gradeData %>;
+    let data = <%- gradeData %>;
+    let weights = <%- weightData %>;
+    let appearance = <%- appearance %>;
 
     // Set up input divs
     let currentGradeDiv = $("#currentGrade");
@@ -157,7 +158,7 @@
             finalWeightDiv.prop("defaultValue", "");
             $("#specialFinal").hide();
             $("#pointFinal").hide();
-        } else if (user.weights[user.grades[Object.keys(user.grades)[$(this)[0].selectedIndex - 1]].class_name]["hasWeights"] === "false") {
+        } else if (weights[data[Object.keys(data)[$(this)[0].selectedIndex - 1]].class_name]["hasWeights"] === "false") {
             currentGradeDiv.val(+(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
             currentGradeDiv.prop("defaultValue", +(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
             $("#specialFinal").hide();
@@ -434,11 +435,11 @@
         newWeight.value = "";
         weightDropdown.add(newWeight);
         if (classIndex >= 0) {
-            for (let i = 0; i < Object.keys(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name]["weights"]).length; i++) {
-                if (Object.values(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name]["weights"])[i]) {
+            for (let i = 0; i < Object.keys(weights[data[Object.keys(data)[classIndex]].class_name]["weights"]).length; i++) {
+                if (Object.values(weights[data[Object.keys(data)[classIndex]].class_name]["weights"])[i]) {
                     let newWeight = document.createElement("option");
-                    newWeight.text = Object.keys(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name]["weights"])[i];
-                    newWeight.value = Object.values(user.weights[user.grades[Object.keys(user.grades)[classIndex]].class_name]["weights"])[i].toString();
+                    newWeight.text = Object.keys(weights[data[Object.keys(data)[classIndex]].class_name]["weights"])[i];
+                    newWeight.value = Object.values(weights[data[Object.keys(data)[classIndex]].class_name]["weights"])[i].toString();
                     weightDropdown.add(newWeight);
                 }
             }
@@ -451,6 +452,24 @@
         }
     }
 
+    let alerts = <%- alerts %>;
+
+    function updateTutorial(action) {
+        if (window.innerWidth <= 991) {
+            return;
+        }
+        $.ajax({
+                   url: "/UpdateTutorialStatus", type: "POST", async: true, data: {action: action}
+               }).done((response) => {
+            alerts.tutorialStatus = JSON.parse(response);
+            $("#" + action + "Popup").animate({opacity: 0}, 400, function () {
+                $(this).removeClass("always-show").css("opacity", "");
+            });
+            setupTutorialPopups();
+            updateTutorialProgress();
+        });
+    }
+
     // Hides message
     function closeMessage(id) {
         document.getElementById(id).style.display = "none";
@@ -459,9 +478,9 @@
     // Returns total weight of class
     function getTotalWeight(classIndex) {
         let className = data[classIndex].class_name;
-        let classWeights = Object.values(user.weights[className]["weights"]);
+        let classWeights = Object.values(weights[className]["weights"]);
         let totalWeight = 0;
-        let classCategories = Object.keys(user.weights[className]["weights"]);
+        let classCategories = Object.keys(weights[className]["weights"]);
         for (let i = 0; i < classWeights.length; i++) {
             if (getCategoryGottenAndPossible(classIndex, classCategories[i]).possible !== 0) {
                 totalWeight += classWeights[i];
@@ -489,7 +508,6 @@
     // Returns overall grade of class
     function getOverallGrade(classIndex) {
         let className = data[classIndex].class_name;
-        let weights = user.weights;
         if (className in weights) {
             let overallGrade = 0;
             if (weights[className]["hasWeights"] === "false") {
@@ -533,9 +551,9 @@
     }
 
     let checkingTheme;
-    let theme = user.appearance.theme;
-    let darkModeStart = user.appearance.darkModeStart;
-    let darkModeFinish = user.appearance.darkModeFinish;
+    let theme = appearance.theme;
+    let darkModeStart = appearance.darkModeStart;
+    let darkModeFinish = appearance.darkModeFinish;
 
     function setAutoTheme() {
         if (theme !== "auto") {

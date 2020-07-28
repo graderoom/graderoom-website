@@ -21,19 +21,22 @@
                             <div class="sk-chase-dot mini"></div>
                         </div>
                         <div class="font-weight-bold messageTxt">Loading Sync Status...</div>
-                        <span class="popup">
-                            <i class="fa fa-info-circle" id="syncFailure"
-                               style="padding-left: 0.2rem; align-self: center; display:none">
+                        <span class="font-weight-bold popup" id="syncFailure" style="display: none">
+                            . Sync Failed.
+                            <i class="fa fa-info-circle"
+                               style="padding-left: 0.2rem; align-self: center;">
                                 <span class="popup-bottom-left">
-                                    An error occurred while collecting grade data
+                                    Could not connect to PowerSchool
                                 </span>
+                                <div class="font-weight-bold timeTxt"></div>
                             </i>
                         </span>
-                        <span class="popup">
-                            <i class="fa fa-info-circle" id="syncNoData"
-                               style="padding-left: 0.2rem; align-self: center; display:none">
+                        <span class="popup font-weight-bold" id="syncNoData" style="display: none">
+                            . Cannot access grades.
+                            <i class="fa fa-info-circle"
+                               style="padding-left: 0.2rem; align-self: center;">
                                 <span class="popup-bottom-left">
-                                    No grade data was found
+                                    Grades may be hidden or locked
                                 </span>
                             </i>
                         </span>
@@ -42,7 +45,10 @@
                 <h1 class="card-title text-center">School Login</h1>
                 <div id="syncGradesDiv" style="display: none">
                     <h5 class="text-center">Enter password for:</h5>
-                    <h5 id="schoolUsernameDisplay" class="school-username text-center"><%= schoolUsername %></h5>
+                    <h5 class="text-center"><span id="schoolUsernameDisplay"
+                                                  class="school-username"><%= schoolUsername %></span><i
+                                style="margin-left: 0.5rem; cursor: pointer;" class="fa fa-pencil"
+                                onclick="showCard('#settingsCardDisplay'); openTab(2)"></i></h5>
                     <br>
                     <form id="syncGradesForm" class="form-signin" action="/update" method="post">
                         <div class="form-group input-group">
@@ -130,6 +136,8 @@
     let checkLastUpdated;
 
     function setupLastUpdated() {
+        const JUST_NOW_LIMIT = 10;
+
         const SECOND = 1000;
         const MINUTE = 60 * SECOND;
         const HOUR = 60 * MINUTE;
@@ -138,7 +146,7 @@
         let messageDiv = $(".updateGradesMessage");
         $(messageDiv[1]).removeClass("alert-danger").addClass("alert-info");
         let message = messageDiv.find(".messageTxt");
-        let lastUpdated = user.alerts.lastUpdated.slice(-1)[0];
+        let lastUpdated = alerts.lastUpdated.slice(-1)[0];
         let deltaTime = Date.now() - lastUpdated;
         if (lastUpdated === undefined) {
             message.text("Never synced");
@@ -147,16 +155,20 @@
                 clearTimeout(checkLastUpdated);
             }
             let seconds = Math.floor(deltaTime / SECOND) % 60;
-            // (1 + seconds - (deltaTime / SECOND) % 60) * SECOND);
+            if (deltaTime < JUST_NOW_LIMIT * SECOND) {
+                message.text("Last synced just now");
+                checkLastUpdated = setTimeout(setupLastUpdated, (1 + seconds / JUST_NOW_LIMIT - deltaTime / (JUST_NOW_LIMIT * SECOND)) * JUST_NOW_LIMIT * SECOND);
+                return;
+            }
             if (deltaTime < MINUTE) {
                 message.text("Last synced " + seconds + "s ago");
-                checkLastUpdated = setTimeout(setupLastUpdated, (1 + seconds - (deltaTime / SECOND) % 60) * SECOND);
+                checkLastUpdated = setTimeout(setupLastUpdated, (1 + seconds - deltaTime / SECOND) * SECOND);
                 return;
             }
             let minutes = Math.floor(deltaTime / MINUTE) % 60;
             if (deltaTime < HOUR) {
-                message.text("Last synced " + minutes + "m " + seconds + "s ago");
-                checkLastUpdated = setTimeout(setupLastUpdated, (1 + seconds - (deltaTime / SECOND) % 60) * SECOND);
+                message.text("Last synced " + minutes + "m ago");
+                checkLastUpdated = setTimeout(setupLastUpdated, (1 + minutes - deltaTime / MINUTE) * MINUTE);
                 return;
             }
             let hours = Math.floor(deltaTime / HOUR) % 24;
