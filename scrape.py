@@ -194,7 +194,7 @@ class PowerschoolScraper:
 
         # First request
         url = "https://powerschool.bcp.org/guardian/home.html"
-        resp = self.session.get(url, headers=headers_1)
+        resp = self.session.get(url, headers=headers_1, timeout=10)
         soup = BS(resp.text, "html.parser")
         samlr = soup.find("input", {'name': 'SAMLRequest'}).get('value')
 
@@ -204,7 +204,7 @@ class PowerschoolScraper:
             'RelayState': "/guardian/home.html",
             'SAMLRequest': samlr,
         }
-        resp = self.session.post(url, data=data, headers=headers_2)
+        resp = self.session.post(url, data=data, headers=headers_2, timeout=10)
         soup = BS(resp.text, "html.parser")
         dynamic_url = soup.find("form", id='ping-login-form').get('action')
 
@@ -216,7 +216,8 @@ class PowerschoolScraper:
             'pf.username': email,
             'pf.pass': password,
         }
-        resp = self.session.post(dynamic_url, data=data, headers=headers_3)
+        resp = self.session.post(dynamic_url, data=data, headers=headers_3,
+                                 timeout=10)
         soup = BS(resp.text, "html.parser")
 
         # If no response, authentication failed (incorrect login)
@@ -237,12 +238,12 @@ class PowerschoolScraper:
         # Manually add cookie
         jsession = self.session.cookies.get_dict()['JSESSIONID']
         headers_4['Cookie'] = "JSESSIONID=" + jsession
-        resp = self.session.post(url, data=data, headers=headers_4)
+        resp = self.session.post(url, data=data, headers=headers_4, timeout=10)
 
     def get_history(self):
         """Uses a session to grab all available grade data on powerschool"""
         url = 'https://powerschool.bcp.org/guardian/termgrades.html'
-        resp = self.session.get(url)
+        resp = self.session.get(url, timeout=10)
         soup_resp = BS(resp.text, "html.parser")
 
         # Begin organizing response data
@@ -266,7 +267,7 @@ class PowerschoolScraper:
             if not link['href']:
                 continue
             url = 'https://powerschool.bcp.org/guardian/'
-            resp = self.session.get(url + link['href'])
+            resp = self.session.get(url + link['href'], timeout=10)
             soup_resp = BS(resp.text, "html.parser")
             
             # Begin parsing data
@@ -320,7 +321,7 @@ class PowerschoolScraper:
     def get_present(self):
         """Uses a session to grab current semester grade data"""
         url = 'https://powerschool.bcp.org/guardian/home.html'
-        resp = self.session.get(url)
+        resp = self.session.get(url, timeout=10)
         soup_resp = BS(resp.text, "html.parser")
 
         # Begin organizing response data
@@ -378,7 +379,7 @@ class PowerschoolScraper:
 
         # Fetch the current term and semester
         url = 'https://powerschool.bcp.org/guardian/myschedulematrix.html'
-        resp = self.session.get(url)
+        resp = self.session.get(url, timeout=10)
         soup_resp = BS(resp.text, "html.parser")
 
         main_table = soup_resp.find("table")
@@ -405,7 +406,7 @@ class PowerschoolScraper:
             overall_percent: Float
             overall_letter: Float
         """
-        grades_resp = self.session.get(url)
+        grades_resp = self.session.get(url, timeout=10)
         grades_soup = BS(grades_resp.text, 'html.parser')
 
         # The two tables in the page. info is top, grades is bottom
