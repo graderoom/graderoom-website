@@ -15,8 +15,7 @@ def json_format(success, message_or_grades):
     """
 
     if success:
-        message_or_grades.update({'success': True})
-        return json.dumps(message_or_grades)
+        return json.dumps({'success': True, 'grades': message_or_grades})
 
     return json.dumps({'success': False, 'message': message_or_grades})
 
