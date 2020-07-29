@@ -551,7 +551,7 @@ table thead tr th:last-child {
     position: relative;
 }
 
-.popup i:hover span, input:focus + .popup i span {
+.popup i:hover span, input:focus + .popup i span, .popup:hover i span {
     display: block;
     animation: fadeIn 400ms;
 }
@@ -1803,6 +1803,15 @@ tr.beforeSeparator td:nth-last-child(2) {
 
 .nav-popups {
     margin-top: 1rem;
+}
+
+#syncFailure, #syncNoData {
+    margin-right: 0.5rem;
+    cursor: default;
+}
+
+.messageTxt {
+    cursor: default;
 }
 
 /* When navbar get's a little cluttered */

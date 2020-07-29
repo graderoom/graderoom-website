@@ -37,10 +37,10 @@
                        style="white-space: nowrap; cursor: pointer; margin: 0; display: block"><%= JSON.parse(personalInfo).firstName %> <%= JSON.parse(personalInfo).lastName %>
                     '<%= JSON.parse(personalInfo).graduationYear - 2000 %></label>
                 <% if (page == "home") { %>
-                    <label style="white-space: nowrap; cursor: pointer; color: green;"
+                    <label style="white-space: nowrap; cursor: pointer; border-radius: 0.5rem; padding: 0.1rem 0.5rem; font-family: Arial, Helvetica, sans-serif"
                            onclick="showCard('#updateGradesDisplay');"
-                           class="updateGradesMessage">
-                        <div class="messageTxt">Loading Sync Status...</div>
+                           class="updateGradesMessage alert-info">
+                        <div style="cursor: pointer" class="messageTxt">Loading Sync Status...</div>
                     </label>
                 <% } %>
             </div>
@@ -190,8 +190,8 @@
             $(formMessagesDiv).find(".sk-chase-mini").css("display", "inline-block");
             if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
                 clearTimeout(checkLastUpdated);
-                $($(formMessagesDiv)[1]).removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").show();
-                message = $($(formMessagesDiv)[1]).find(".messageTxt");
+                $(".updateGradesMessage").removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
+                message = $(".updateGradesMessage.alert .messageTxt");
                 $(message).text("");
             } else {
                 message = $(formMessagesDiv).find(".messageTxt");
@@ -229,26 +229,27 @@
                         response.message = response.message.substring(19);
                         $("#syncGradesDiv").hide();
                         $("#gradeSyncDiv").show();
+                        $("#gradeSyncEnabled").show();
                         gradeSync = true;
                         setupTutorialPopups();
                     }
                     if (response.message && response.message === "No class data.") {
                         $("#syncNoData").show();
+                        $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
                         $(formMessagesDiv).find(".sk-chase-mini").hide();
-                        $(formMessagesDiv).find(".messageTxt").text(msg + "Cannot access grades.");
-                        $($(formMessagesDiv)[1]).removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
+                        setupLastUpdated();
                     } else if (response.message && response.message === "Error scraping grades.") {
                         $("#syncFailure").show();
+                        $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
                         $(formMessagesDiv).find(".sk-chase-mini").hide();
-                        $(formMessagesDiv).find(".messageTxt").text(msg + "Sync Failed.");
-                        $($(formMessagesDiv)[1]).removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
+                        setupLastUpdated();
                     } else if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
                         $(formMessagesDiv).find(".sk-chase-mini").hide();
                         let newData = {grades: response.grades, lastUpdated: response.time};
                         clearTimeout(checkLastUpdated);
                         if (!updateData(newData).updated) {
                             $(formMessagesDiv).find(".messageTxt").text(msg + "Refresh to see the latest updates.");
-                            $($(formMessagesDiv)[1]).removeClass("alert-info").removeClass("alert-danger").addClass("alert-success");
+                            $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-danger").addClass("alert-success");
                             setTimeout(() => window.reload(), 400);
                         } else {
                             setupLastUpdated();
