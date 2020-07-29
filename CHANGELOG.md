@@ -54,6 +54,12 @@
 - Changelog display buttons work incorrectly after page resize <strong>[Fixed in Beta 2.3.8]</strong>
 - Grades sometimes do not sync when autofill is enabled and GradeSync is disabled <strong>[Fixed in Beta 2.5.0]</strong>
 
+## [Beta 2.7.1] - 2020-07-29
+### Fixed
+- Issue where sync status would constantly be "Syncing..."
+- Issue with setting auto dark theme start to 12 AM
+- Issue where auto dark theme bounds settings wouldn't show if automatic theme was already selected
+
 ## [Beta 2.7.0] - 2020-07-28
 ### Added
 - Changelog legend now contains clickable elements
