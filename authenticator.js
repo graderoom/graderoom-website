@@ -547,8 +547,8 @@ module.exports = {
                                              accentColor: null,
                                              classColors: [],
                                              showNonAcademic: true,
-                                             darkModeStart: 19,
-                                             darkModeFinish: 6
+                                             darkModeStart: 18,
+                                             darkModeFinish: 7
                                          }, alerts: {
                         lastUpdated: [],
                         updateGradesReminder: "daily",
@@ -715,29 +715,38 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         let grade_history_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password, true);
         if (grade_history_update_status.success) {
-            let grades = Object.keys(userRef.get("grades").value());
+            let current_years = Object.keys(userRef.get("grades").value());
             let years = Object.keys(grade_history_update_status.new_grades);
             let weights = userRef.get("weights").value();
             for (let i = 0; i < years.length; i++) {
-                if (!weights[years[i]]) {
+                if (!(years[i] in weights)) {
                     weights[years[i]] = {};
                     let semesters = Object.keys(grade_history_update_status.new_grades[years[i]]);
                     for (let j = 0; j < semesters.length; j++) {
                         weights[years[i]][semesters[j]] = {};
                     }
+                } else {
+                    let current_semesters = Object.keys(weights[years[i]]);
+                    let semesters = Object.keys(grade_history_update_status.new_grades[years[i]]);
+                    for (let j = 0; j < semesters.length; j++) {
+                        if (!current_semesters.includes(semesters[j])) {
+                            weights[years[i]][semesters[j]] = {};
+                        }
+                    }
                 }
-                if (!grades.includes(years[i])) {
+                if (!current_years.includes(years[i])) {
                     userRef.get("grades").set(years[i], grade_history_update_status.new_grades[years[i]]).write();
                 } else {
                     let current_semesters = Object.keys(userRef.get("grades").get(years[i]).value());
                     let semesters = Object.keys(grade_history_update_status.new_grades[years[i]]);
                     for (let j = 0; j < semesters.length; j++) {
-                        if (!current_semesters.includes[semesters[j]]) {
+                        if (!current_semesters.includes(semesters[j])) {
                             userRef.get("grades").get(years[i]).set(semesters[j], grade_history_update_status.new_grades[years[i]][semesters[j]]).write();
                         }
                     }
                 }
             }
+            userRef.get("updatedGradeHistory").push(Date.now()).write();
             return {success: true, message: "Updated grade history!"};
         }
         return {success: false, message: "Error scraping grade history!"};
@@ -747,7 +756,7 @@ module.exports = {
         let lc_username = acc_username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         user.set("updatedInBackground", "updating").write();
-        this.updateGrades(acc_username, school_password).then((resp) => {
+        this.updateGrades(acc_username, school_password).then(async (resp) => {
             lc_username = acc_username.toLowerCase();
             user = db.get("users").find({username: lc_username});
             if (resp.success) {
@@ -757,24 +766,13 @@ module.exports = {
             } else {
                 user.set("updatedInBackground", "failed").write();
             }
-            this.updateGradeHistory(acc_username, school_password).then(function (resp) {
-                if (resp.success) {
-                    user.get("updatedGradeHistory").push(Date.now()).write();
-                } else {
-                    console.log(resp.message);
-                }
-            });
+            await this.updateGradeHistory(acc_username, school_password);
         });
     },
 
     updateGrades: async function (acc_username, school_password) {
         let lc_username = acc_username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
-
-        // Scrape grade history if never done before
-        if (!userRef.get("updatedGradeHistory").value().length) {
-            await this.updateGradeHistory(acc_username, school_password, true);
-        }
 
         let grade_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password);
         if (!grade_update_status.success) {
@@ -794,7 +792,9 @@ module.exports = {
             userRef.value().appearance.classColors.pop();
         }
 
-        userRef.assign({grades: grade_update_status.new_grades}).write();
+        // TODO make sure this works
+        console.log(grade_update_status.new_grades);
+        userRef.update({grades: grade_update_status.new_grades}).write();
         if (userRef.value().appearance.classColors.length !== grade_update_status.new_grades.length) {
             this.randomizeClassColors(lc_username);
         }

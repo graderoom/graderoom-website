@@ -34,7 +34,9 @@ module.exports = {
                     console.error("ERROR:" + err);
                     resolve({success: false, message: "Error getting grades."});
                 } else if (resp.success === true) {
-                    resolve({success: true, new_grades: resp.grades});
+                    let new_grades = Object.assign({}, resp);
+                    delete new_grades["success"];
+                    resolve({success: true, new_grades: new_grades});
                 } else {
                     // Error when scraping PowerSchool
                     console.error("ERROR:" + resp.message);

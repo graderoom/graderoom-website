@@ -77,7 +77,7 @@
                                                                                $($($(this)[0].form)[0].elements[7]).hide();
                                                                                ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
                                                                                $($(this)[0].form).submit();"
-                                    <% if (appearance.theme === "light") { %> checked
+                                    <% if (JSON.parse(appearance).theme === "light") { %> checked
                                             <% } %>
                                     > Light Theme
                                 </label>
@@ -89,7 +89,7 @@
                                                                                $($($(this)[0].form)[0].elements[7]).hide();
                                                                                ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
                                                                                $($(this)[0].form).submit();"
-                                    <% if (appearance.theme === "dark") { %> checked
+                                    <% if (JSON.parse(appearance).theme === "dark") { %> checked
                                             <% } %>
                                     > Dark Theme</label>
                                 <br>
@@ -100,7 +100,7 @@
                                                                                ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
                                                                                $($(this)[0].form).submit();
                                                                                $($($(this)[0].form)[0].elements[7]).show().attr('disabled','disabled')"
-                                    <% if (appearance.theme === "auto") { %> checked
+                                    <% if (JSON.parse(appearance).theme === "auto") { %> checked
                                             <% } %>
                                     > Automatic
                                     <span class="popup">
@@ -114,7 +114,7 @@
                             </div>
                             <div style="display: inline-flex">
                                 <label class="form-group" id="autoLimits"
-                                       style="<% if (appearance.theme !== 'auto') { %>display: none;<% } else { %>display: inline-flex;<% } %>font-size: 0.9rem; margin-bottom: 0;">
+                                       style="<% if (JSON.parse(appearance).theme !== "auto") { %>display: none;<% } else { %>display: inline-flex;<% } %>font-size: 0.9rem; margin-bottom: 0;">
                                     <label style="vertical-align: center">
                                         Dark theme from
                                     </label>
@@ -130,13 +130,13 @@
                                             name="darkModeStartAmPm"
                                             oninput="$($($(this)[0].form)[0].elements[7]).removeAttr('disabled');">
                                         <option value="PM"
-                                        <% if (appearance.darkModeStart >= 12 && appearance.darkModeStart !== 24) { %>
+                                        <% if (JSON.parse(appearance).darkModeStart >= 12 && JSON.parse(appearance).darkModeStart !== 24) { %>
                                                 selected
                                                 <% } %>
                                         >PM
                                         </option>
                                         <option value="AM"
-                                        <% if (appearance.darkModeStart < 12 || appearance.darkModeStart === 24) { %>
+                                        <% if (JSON.parse(appearance).darkModeStart < 12 || JSON.parse(appearance).darkModeStart === 24) { %>
                                                 selected
                                                 <% } %>
                                         >AM
@@ -157,13 +157,13 @@
                                             name="darkModeFinishAmPm"
                                             oninput="$($($(this)[0].form)[0].elements[7]).removeAttr('disabled');">
                                         <option value="AM"
-                                        <% if (appearance.darkModeFinish < 12 || appearance.darkModeFinish === 24) { %>
+                                        <% if (JSON.parse(appearance).darkModeFinish < 12 || JSON.parse(appearance).darkModeFinish === 24) { %>
                                                 selected
                                                 <% } %>
                                         >AM
                                         </option>
                                         <option value="PM"
-                                        <% if (appearance.darkModeFinish >= 12 && appearance.darkModeFinish !== 24) { %>
+                                        <% if (JSON.parse(appearance).darkModeFinish >= 12 && JSON.parse(appearance).darkModeFinish !== 24) { %>
                                                 selected
                                                 <% } %>
                                         >PM
@@ -171,7 +171,7 @@
                                     </select>
                                 </label>
                                 <button class="btn-default btn btn-sm" type="submit"
-                                        style="<% if (appearance.theme !== 'auto') { %>display: none;<% } %> margin: 0 0 0 1rem !important; width: fit-content; width: -moz-fit-content !important; width: -moz-fit-content !important;"
+                                        style="<% if (JSON.parse(appearance).theme !== "auto") { %>display: none;<% } %> margin: 0 0 0 1rem !important; width: fit-content; width: -moz-fit-content !important; width: -moz-fit-content !important;"
                                         onclick="ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);"
                                         disabled>
                                     Apply
@@ -179,9 +179,9 @@
                             </div>
                         </form>
                     </div>
-                    <% if (Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
-                        <div class="card-footer">
-                            <h5>Advanced</h5>
+                        <% if (Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
+                            <div class="card-footer">
+                                <h5>Advanced</h5>
                             <div id="advancedMessage"
                                  class="alert alert-success alert-dismissible font-weight-bold"
                                  style="display:none">
@@ -196,21 +196,21 @@
                                 <div class="messageTxt"></div>
                                 <a class="close" onclick="closeMessage('advancedMessage')" aria-label="close">X</a>
                             </div>
-                            <form id="advancedAppearance" action="/setShowNonacademic" method="post"
-                                  onsubmit="$('#advancedSubmit').attr('disabled','disabled')">
-                                <label style="cursor: pointer">
-                                    <input id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
-                                    <% if (appearance.showNonAcademic) { %> checked
-                                            <% } %>
-                                           oninput="$('#advancedSubmit').removeAttr('disabled')"
-                                    > Show Non-Academic Classes
-                                </label>
-                                <button id="advancedSubmit" class="btn-default btn btn-sm" type="submit"
-                                        onclick="$('#reloadNeeded').text('Reload Needed'); ajaxPostForm('#advancedAppearance',[],'#advancedMessage',true)"
-                                        disabled>
-                                    Apply
-                                </button>
-                            </form>
+                                <form id="advancedAppearance" action="/setShowNonacademic" method="post"
+                                      onsubmit="$('#advancedSubmit').attr('disabled','disabled')">
+                                    <label style="cursor: pointer">
+                                        <input id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
+                                        <% if (JSON.parse(appearance).showNonAcademic) { %> checked
+                                                <% } %>
+                                               oninput="$('#advancedSubmit').removeAttr('disabled')"
+                                        > Show Non-Academic Classes
+                                    </label>
+                                    <button id="advancedSubmit" class="btn-default btn btn-sm" type="submit"
+                                            onclick="$('#reloadNeeded').text('Reload Needed'); ajaxPostForm('#advancedAppearance',[],'#advancedMessage',true)"
+                                            disabled>
+                                        Apply
+                                    </button>
+                                </form>
                         </div>
                     <% } %>
                 </div>
@@ -632,18 +632,8 @@
             $("#gradeSync").submit();
             $("#gradeSyncDiv").hide();
             $("#syncGradesDiv").show();
-            if (alerts.lastUpdated.length === 0 && !gradeSync) {
-                $("#syncGrades").find("span").addClass("always-show").removeClass("dont-show");
-            } else {
-                if (!alerts.tutorialStatus.calcSeen) {
-                    $("#finalGradeCalculator").find("span").addClass("always-show").removeClass("dont-show");
-                }
-                if (!alerts.tutorialStatus.helpSeen) {
-                    $("#help").find("span").addClass("always-show").removeClass("dont-show");
-                }
-            }
             clearTimeout(checkLastUpdated);
-            $(".updateGradesMessage .messageTxt").text("GradeSync is not enabled");
+            $(".updateGradesMessage").removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text("GradeSync is not enabled");
         } else {
             $("#savePasswordToggle:not(:checked)").trigger("click");
             showCard("#updateGradesDisplay");

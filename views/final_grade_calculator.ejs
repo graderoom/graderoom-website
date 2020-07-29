@@ -13,7 +13,7 @@
     <% } else if (JSON.parse(appearance).theme === "light") { %>
         <% theme = false; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
-    <% } else if ((((JSON.parse(appearance).darkModeStart < JSON.parse(appearance).darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= JSON.parse(appearance).darkModeStart - (dst ? (JSON.parse(appearance).darkModeStart === 0 ? -23 : 1) : 0)) && ((Date.now() / 1000 / 3600 - 8) % 24) < JSON.parse(appearance).darkModeFinish - (dst ? (JSON.parse(appearance).darkModeFinish === 1 ? -23 : 1) : 0))) || ((JSON.parse(appearance).darkModeStart > JSON.parse(appearance).darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= JSON.parse(appearance).darkModeStart - (dst ? (JSON.parse(appearance).darkModeStart === 0 ? -23 : 1) : 0)) || ((Date.now() / 1000 / 3600 - 8) % 24) < JSON.parse(appearance).darkModeFinish - (dst ? (JSON.parse(appearance).darkModeFinish === 1 ? -23 : 1) : 0))))) { %>
+    <% } else if ((((JSON.parse(appearance).darkModeStart < JSON.parse(appearance).darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8 + (dst ? 1 : 0)) % 24) >= JSON.parse(appearance).darkModeStart) && ((Date.now() / 1000 / 3600 - 8 + (dst ? 1 : 0)) % 24) < JSON.parse(appearance).darkModeFinish)) || ((JSON.parse(appearance).darkModeStart > JSON.parse(appearance).darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8 + (dst ? 1 : 0)) % 24) >= JSON.parse(appearance).darkModeStart) || ((Date.now() / 1000 / 3600 - 8 + (dst ? 1 : 0)) % 24) < JSON.parse(appearance).darkModeFinish)))) { %>
         <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else { %>
@@ -562,7 +562,7 @@
         }
         darkModeStart = parseInt(darkModeStart);
         darkModeFinish = parseInt(darkModeFinish);
-        if (theme === "dark" || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart - (isDST() ? (darkModeStart === 0 ? -23 : 1) : 0)) && ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish - (isDST() ? (darkModeFinish === 1 ? -23 : 1) : 0))) || ((darkModeStart > darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart - (isDST() ? (darkModeStart === 0 ? -23 : 1) : 0)) || ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish - (isDST() ? (darkModeFinish === 1 ? -23 : 1) : 0)))))) {
+        if (theme === "dark" || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) >= darkModeStart) && ((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) >= darkModeStart) || ((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) < darkModeFinish))))) {
             let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
             darkMode = true;
             if (darkMode !== oldDarkMode) {
