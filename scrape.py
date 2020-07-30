@@ -240,6 +240,15 @@ class PowerschoolScraper:
         headers_4['Cookie'] = "JSESSIONID=" + jsession
         resp = self.session.post(url, data=data, headers=headers_4, timeout=10)
 
+        # Check if PowerSchool is locked
+        url = 'https://powerschool.bcp.org/guardian/home.html'
+        resp = self.session.get(url, timeout=10)
+        soup_resp = BS(resp.text, "html.parser")
+        table = soup_resp.find("table")
+        if not table:
+            print(json_format(False, "PowerSchool is locked"))
+            sys.exit()
+
     def get_history(self):
         """Uses a session to grab all available grade data on powerschool"""
         url = 'https://powerschool.bcp.org/guardian/termgrades.html'
@@ -492,8 +501,10 @@ if __name__ == "__main__":
             ps.get_history()
         else:
             ps.get_present()
+    except requests.Timeout:
+        print(json_format(False, "Could not connect to PowerSchool"))
     except Exception as e:
         # Error when something in PowerSchool breaks scraper
         print(json_format(False, "Error scraping grades."))
         # Uncomment below to print error
-        # print(e)
+        print(e)
