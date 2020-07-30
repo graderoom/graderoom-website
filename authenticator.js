@@ -170,6 +170,16 @@ module.exports = {
             userRef.set("weights", {"19-20": {"S2": user.weights}}).write();
         }
 
+        // Fix -1 values in 19-20 S2
+        for (let i = 0; i < userRef.get("grades").get("19-20").get("S2").value().length; i++) {
+            let classGrades = userRef.get("grades").get("19-20").get("S2").value()[i].grades;
+            for (let j = 0; j < classGrades.length; j++) {
+                if (classGrades[j].grade_percent === -1) {
+                    userRef.get("grades").get("19-20").get("S2").nth(i).get("grades").nth(j).set("grade_percent", false).write();
+                }
+            }
+        }
+
         // Remove old grade_history storage (This should be empty anyway)
         if (userRef.get("grade_history").value()) {
             userRef.unset("grade_history").write();

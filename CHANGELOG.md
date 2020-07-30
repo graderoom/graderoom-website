@@ -54,6 +54,14 @@
 - Changelog display buttons work incorrectly after page resize <strong>[Fixed in Beta 2.3.8]</strong>
 - Grades sometimes do not sync when autofill is enabled and GradeSync is disabled <strong>[Fixed in Beta 2.5.0]</strong>
 
+## [Beta 2.7.2] - 2020-07-30
+### Improved
+- Graderoom now reacts much more quickly when PowerSchool is down
+- Readability of some popups in dark mode
+
+### Fixed
+- Issue where some assignment percents showed as -1 instead of being empty
+
 ## [Beta 2.7.1] - 2020-07-29
 ### Fixed
 - Issue where sync status would constantly be "Syncing..."

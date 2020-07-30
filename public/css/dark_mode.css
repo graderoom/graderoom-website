@@ -180,7 +180,8 @@ th {
 .popup span.popup-left-bottom,
 .popup span.popup-left,
 .popup span.popup-left-top {
-    background-color: #222222;
+    font-weight: bolder;
+    background: black;
 }
 
 .school-username {
