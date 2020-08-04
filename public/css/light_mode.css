@@ -154,6 +154,10 @@ table thead tr th {
     color: #000000;
 }
 
+#classColors label {
+    background-color: white;
+}
+
 .form-group input {
     color: black;
 }

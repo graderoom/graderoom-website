@@ -19,22 +19,41 @@ module.exports = function (app, passport) {
             authenticator.bringUpToDate(req.user.username);
 
             let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
-            res.render("authorized_index.ejs", {
-                page: "home",
-                username: req.user.username,
-                schoolUsername: req.user.schoolUsername,
-                isAdmin: req.user.isAdmin,
-                personalInfo: JSON.stringify(req.user.personalInfo),
-                appearance: JSON.stringify(req.user.appearance),
-                alerts: JSON.stringify(req.user.alerts),
-                gradeSync: !!req.user.schoolPassword,
-                gradeData: JSON.stringify(req.user.grades[term][semester]),
-                weightData: JSON.stringify(req.user.weights[term][semester]),
-                relevantClassData: JSON.stringify(authenticator.getRelClassData(req.user.username)),
-                sortingData: JSON.stringify(req.user.sortingData),
-                sessionTimeout: Date.parse(req.session.cookie._expires),
-                dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
-            });
+            if (term && semester) {
+                res.render("authorized_index.ejs", {
+                    page: "home",
+                    username: req.user.username,
+                    schoolUsername: req.user.schoolUsername,
+                    isAdmin: req.user.isAdmin,
+                    personalInfo: JSON.stringify(req.user.personalInfo),
+                    appearance: JSON.stringify(req.user.appearance),
+                    alerts: JSON.stringify(req.user.alerts),
+                    gradeSync: !!req.user.schoolPassword,
+                    gradeData: JSON.stringify(req.user.grades[term][semester]),
+                    weightData: JSON.stringify(req.user.weights[term][semester]),
+                    relevantClassData: JSON.stringify(authenticator.getRelClassData(req.user.username)),
+                    sortingData: JSON.stringify(req.user.sortingData),
+                    sessionTimeout: Date.parse(req.session.cookie._expires),
+                    dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+                });
+            } else {
+                res.render("authorized_index.ejs", {
+                    page: "home",
+                    username: req.user.username,
+                    schoolUsername: req.user.schoolUsername,
+                    isAdmin: req.user.isAdmin,
+                    personalInfo: JSON.stringify(req.user.personalInfo),
+                    appearance: JSON.stringify(req.user.appearance),
+                    alerts: JSON.stringify(req.user.alerts),
+                    gradeSync: !!req.user.schoolPassword,
+                    gradeData: JSON.stringify([]),
+                    weightData: JSON.stringify({}),
+                    relevantClassData: JSON.stringify({}),
+                    sortingData: JSON.stringify(req.user.sortingData),
+                    sessionTimeout: Date.parse(req.session.cookie._expires),
+                    dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+                });
+            }
             return;
         }
         res.render("index.ejs", {
@@ -405,8 +424,8 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.post("/randomizeclasscolors", [isLoggedIn], (req, res) => {
-        let resp = authenticator.randomizeClassColors(req.user.username);
+    app.post("/setColorPalette", [isLoggedIn], (req, res) => {
+        let resp = authenticator.setColorPalette(req.user.username, req.body.preset);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {

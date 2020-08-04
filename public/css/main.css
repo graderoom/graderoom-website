@@ -510,6 +510,59 @@ table thead tr th:last-child {
     z-index: 2;
 }
 
+#color-scheme-picker-container {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#classColors {
+    display: flex;
+    align-items: stretch;
+    flex-flow: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+#classColors label {
+    font-size: 1rem;
+    font-weight: bolder;
+    flex-basis: 80%;
+    margin: 0.1rem;
+    padding: 0.25rem;
+    transition: all 400ms ease, color 1s ease;
+    border-radius: 0.5rem;
+}
+
+#classColors label:-moz-drag-over {
+    outline: 1px solid currentColor;
+}
+
+#color-scheme-picker {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+#color-scheme-picker button {
+    font-size: 1rem;
+    width: 80%;
+    margin: 0.1rem;
+    padding: 0.1rem;
+}
+
+#color-scheme-picker i {
+    transition: opacity 1s ease;
+}
+
+#color-scheme-picker div {
+    flex-basis: 100%;
+    width: 100%;
+}
+
 .popup .fa-close {
     font-size: 1rem;
     height: 0.5rem;
@@ -1269,6 +1322,10 @@ select:focus {
     outline: none;
 }
 
+.excluded .excludeToggle .fa-ban {
+    visibility: visible;
+}
+
 .excludeToggle .fa-ban {
     display: flex;
     visibility: hidden;
@@ -1276,6 +1333,7 @@ select:focus {
     flex-flow: column;
     justify-content: center;
     cursor: pointer;
+    transition: filter 250ms ease;
 }
 
 .excludeToggle label {
@@ -1285,6 +1343,10 @@ select:focus {
 
 tr:hover .excludeToggle .fa-ban {
     visibility: visible;
+}
+
+tr.excluded:hover .excludeToggle .fa-ban {
+    filter: brightness(200%);
 }
 
 .sample {
@@ -1810,6 +1872,10 @@ tr.beforeSeparator td:nth-last-child(2) {
     cursor: default;
 }
 
+#syncFailure.popup, #syncNoData.popup, #gradeSyncEnabled.popup {
+    z-index: unset;
+}
+
 .messageTxt {
     cursor: default;
 }
@@ -1823,6 +1889,15 @@ tr.beforeSeparator td:nth-last-child(2) {
 
 /* Mobile Stuff */
 @media only screen and (max-width: 991px) {
+    #color-scheme-picker button {
+        font-size: 0.7rem;
+        width: 70%;
+    }
+
+    #classColors label {
+        font-size: 0.5rem;
+    }
+
     .nav-popups {
         display: none !important;
     }

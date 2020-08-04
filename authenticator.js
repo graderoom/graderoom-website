@@ -5,7 +5,6 @@ const adapter = new FileSync("user_db.json");
 const db = low(adapter);
 const bcrypt = require("bcryptjs");
 const scraper = require("./scrape");
-const distinctColors = require("distinct-colors").default;
 const chroma = require("chroma-js");
 const crypto = require("crypto");
 const readline = require("readline");
@@ -164,6 +163,17 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
 
+        // Fix error in weight storage
+        if (userRef.get("weights").get("grades").value()) {
+            userRef.get("weights").unset("grades").write();
+        }
+
+        // Add color palette
+        if (!userRef.get("appearance").get("colorPalette").value()) {
+            userRef.get("appearance").set("colorPalette", "default").write();
+            this.setColorPalette(lc_username, "default");
+        }
+
         // Migrate to new grade and weight storage (any data found in old storage *must* be from 19-20 S2)
         if (Array.isArray(userRef.get("grades").value())) {
             userRef.set("grades", {"19-20": {"S2": user.grades}}).write();
@@ -171,11 +181,13 @@ module.exports = {
         }
 
         // Fix -1 values in 19-20 S2
-        for (let i = 0; i < userRef.get("grades").get("19-20").get("S2").value().length; i++) {
-            let classGrades = userRef.get("grades").get("19-20").get("S2").value()[i].grades;
-            for (let j = 0; j < classGrades.length; j++) {
-                if (classGrades[j].grade_percent === -1) {
-                    userRef.get("grades").get("19-20").get("S2").nth(i).get("grades").nth(j).set("grade_percent", false).write();
+        if (userRef.get("grades").value() && userRef.get("grades").get("19-20").value() && userRef.get("grades").get("19-20").get("S2").value()) {
+            for (let i = 0; i < userRef.get("grades").get("19-20").get("S2").value().length; i++) {
+                let classGrades = userRef.get("grades").get("19-20").get("S2").value()[i].grades;
+                for (let j = 0; j < classGrades.length; j++) {
+                    if (classGrades[j].grade_percent === -1) {
+                        userRef.get("grades").get("19-20").get("S2").nth(i).get("grades").nth(j).set("grade_percent", false).write();
+                    }
                 }
             }
         }
@@ -370,10 +382,18 @@ module.exports = {
 
     getMostRecentTermData: function (username) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
+        if (!Object.keys(userRef.get("grades").value()).length) {
+            // Don't give data if new acc
+            return {term: false, semester: false};
+        }
         let terms = Object.keys(userRef.get("grades").value());
         let term = terms[terms.map(t => parseInt(t.substring(0, 2))).reduce((maxIndex, term, index, arr) => term > arr[maxIndex] ? index : maxIndex, 0)];
         let semesters = Object.keys(userRef.get("grades").get(term).value());
         let semester = semesters[semesters.map(s => parseInt(s.substring(1))).reduce((maxIndex, semester, index, arr) => semester > arr[maxIndex] ? index : maxIndex, 0)];
+        if (!userRef.get("grades").get(term).get(semester).value()[0].grades.length) {
+            // Don't give data if no grades in first class of semester. (Must be from history)
+            return {term: false, semester: false};
+        }
         return {term: term, semester: semester};
     },
 
@@ -550,16 +570,14 @@ module.exports = {
                                          schoolUsername: schoolUsername,
                                          personalInfo: {
                                              firstName: firstName, lastName: lastName, graduationYear: graduationYear
-                                         },
-                                         isAdmin: isAdmin,
-                                         appearance: {
-                                             theme: "auto",
-                                             accentColor: null,
-                                             classColors: [],
-                                             showNonAcademic: true,
-                                             darkModeStart: 18,
-                                             darkModeFinish: 7
-                                         }, alerts: {
+                                         }, isAdmin: isAdmin, appearance: {
+                        theme: "auto",
+                        accentColor: null,
+                        classColors: [],
+                        showNonAcademic: true,
+                        darkModeStart: 18,
+                        darkModeFinish: 7
+                    }, alerts: {
                         lastUpdated: [],
                         updateGradesReminder: "daily",
                         latestSeen: versionNameArray[1] ? beta ? versionNameArray[1][1] : versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1] : "1.0.0",
@@ -806,7 +824,7 @@ module.exports = {
         console.log(grade_update_status.new_grades);
         userRef.update({grades: grade_update_status.new_grades}).write();
         if (userRef.value().appearance.classColors.length !== grade_update_status.new_grades.length) {
-            this.randomizeClassColors(lc_username);
+            this.setColorPalette(lc_username, "default");
         }
 
         let time = Date.now();
@@ -850,24 +868,48 @@ module.exports = {
         let weights = userRef.value().weights;
 
         weights[className] = {"weights": {}, "hasWeights": "true", "custom": false};
-        //userRef.set("weights", weights).write();
         return {success: true, message: weights};
     },
 
-    randomizeClassColors: function (username) {
+    setColorPalette: function (username, preset) {
+        let light, saturation, hues, shuffle;
+        switch (preset) {
+            case "default":
+                light = 0.5;
+                saturation = 0.7;
+                hues = [0, 30, 60, 120, 180, 240, 270, 300];
+                shuffle = true;
+                break;
+            case "pastel":
+                light = 0.8;
+                saturation = 0.8;
+                hues = [0, 30, 90, 120, 180, 240, 270, 300];
+                shuffle = true;
+                break;
+            case "dark":
+                light = 0.4;
+                saturation = 0.4;
+                hues = [0, 30, 60, 120, 180, 240, 270, 300];
+                shuffle = true;
+                break;
+            case "rainbow":
+                light = 0.5;
+                saturation = 0.7;
+                hues = [0, 30, 60, 120, 180, 240, 270, 300];
+                shuffle = false;
+                break;
+            default:
+                return {success: false, message: "Invalid preset"};
+        }
+
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
-        let numColors = userRef.get("grades").value().length;
-        let classColors = distinctColors({
-                                             count: numColors,
-                                             lightMin: 25,
-                                             lightMax: 100,
-                                             chromaMin: 25,
-                                             samples: Math.floor(Math.random() * 10000 + numColors)
-                                         }).map(color => {
-            return chroma(color["_rgb"][0], color["_rgb"][1], color["_rgb"][2]).hex();
-        }).sort(() => Math.random() - 0.5);
+        let classColors = hues.map(h => chroma({h: h, s: saturation, l: light}).hex());
+        if (shuffle) {
+            shuffleArray(classColors);
+        }
         userRef.get("appearance").set("classColors", classColors).write();
+        userRef.get("appearance").set("colorPalette", preset).write();
         return {success: true, message: classColors};
     },
 
@@ -1384,4 +1426,11 @@ function getPersonalInfo(bcpEmail) {
     }
 
     return {firstName, lastName, graduationYear};
+}
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
 }
