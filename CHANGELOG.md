@@ -36,9 +36,6 @@
 <!-- Use the following HTML before information specific to mobile users -->
 <!-- <em>[Mobile]</em> -->
 
-<!-- Use the following HTML to add lines under the date -->
-<!-- <br><strong>[Text here]</strong> -->
-
 
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 <!-- --------------------------------------------------------------------------------------------------------------- -->
@@ -53,6 +50,19 @@
 - Cards can sometimes not be closed with keyboard shortcuts <strong>[Fixed in Beta 2.3.8]</strong>
 - Changelog display buttons work incorrectly after page resize <strong>[Fixed in Beta 2.3.8]</strong>
 - Grades sometimes do not sync when autofill is enabled and GradeSync is disabled <strong>[Fixed in Beta 2.5.0]</strong>
+
+## [Beta 2.7.3] - 2020-08-04
+### Added
+- Brand new color scheme presets you can choose from
+
+### Improved
+- Distinctness of generated colors
+- Unexclude buttons now always display to make exclusion more clear
+
+### Fixed
+- Issue where class colors could not be changed
+- Issue where saved sorting options were not displayed on load
+- Issues with new accounts being unable to view the site
 
 ## [Beta 2.7.2] - 2020-07-30
 ### Improved
@@ -365,7 +375,7 @@
 ### Removed
 - Alerts have been replaced by a more intuitive syncing status display
 
-## [Beta 2.0.3] - 2020-05-01<br><strong>It's May!</strong>
+## [Beta 2.0.3] - 2020-05-01
 ### Added
 - Most assignment scores are now editable on class pages. See the effects of different scores on your overall grade!
 
@@ -385,7 +395,7 @@
 ### Fixed
 - Incorrect grade step calculation with ungraded assignments
 
-## [Stable 2.0.0] - 2020-04-01<br><strong>It's April!</strong>
+## [Stable 2.0.0] - 2020-04-01
 ### Added
 - Support for point-based classes
 - Support for non-academic classes
@@ -635,7 +645,7 @@
 ### Fixed
 - Issue where auto theme would sometimes not take effect
 
-## [Beta 1.4.2] - 2020-03-14<br><strong>Happy PI Day!</strong>
+## [Beta 1.4.2] - 2020-03-14
 ### Improved
 - Theme always remains the same after logout
 
@@ -728,7 +738,7 @@
 ### Fixed
 - Keyboard shortcuts are now disabled while typing into the password/email fields in settings and when syncing grades
 
-## [Beta 1.2.1] - 2020-03-01<br><strong>It's March!</strong>
+## [Beta 1.2.1] - 2020-03-01
 ### Added
 - Changelog display initially scrolls to current version with a nice animation
 - Added 'current version' buttons when changelog is scrolled
@@ -737,7 +747,7 @@
 - Better changelog UI
 - Changed keyboard shortcut for changelog to 'Q'
 
-## [Beta 1.2.0] - 2020-02-29<br><strong>Happy Leap Day!</strong>
+## [Beta 1.2.0] - 2020-02-29
 ### Added
 - Separate changelog card to reduce clutter in settings
 - Keyboard Shortcut 'C' to view changelog
