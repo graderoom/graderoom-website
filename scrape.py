@@ -15,7 +15,7 @@ def json_format(success, message_or_grades):
     """
 
     if success:
-        return json.dumps({'success': True, 'grades': message_or_grades})
+        return json.dumps({'success': True, 'new_grades': message_or_grades})
 
     return json.dumps({'success': False, 'message': message_or_grades})
 
@@ -262,18 +262,18 @@ class PowerschoolScraper:
 
             # Cut the year from the link text
             year = year_link.text[:5]
-            
+
             # Ensure it exists, then fetch the year link
             if not link['href']:
                 continue
             url = 'https://powerschool.bcp.org/guardian/'
             resp = self.session.get(url + link['href'], timeout=10)
             soup_resp = BS(resp.text, "html.parser")
-            
+
             # Begin parsing data
             main_table = soup_resp.find("table")
             main_table_rows = main_table.find_all("tr")
-            
+
             title = ""
             semester_classes = []
             year_data = {}
@@ -288,7 +288,7 @@ class PowerschoolScraper:
                     # Reset for a new semester
                     title = th.text
                     semester_classes = []
-                
+
                 # Check if the current row has class data
                 if title and row.find("td", align="left"):
                     data = row.find_all("td")
@@ -301,7 +301,7 @@ class PowerschoolScraper:
                     if row.find("a"):
                         url = "https://powerschool.bcp.org/guardian/"
                         url = url + row.find("a").get('href')
-                        self.scrape_class(url, semester_classes, 
+                        self.scrape_class(url, semester_classes,
                                           overall_percent,
                                           overall_letter)
                     else:
@@ -312,7 +312,7 @@ class PowerschoolScraper:
             # Finalize data for the selected year
             year_data[title] = semester_classes
             all_history[year] = year_data
-        
+
         if not all_history:
             print(json_format(False, "No class data."))
         else:
