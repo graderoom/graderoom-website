@@ -86,8 +86,8 @@
                 <span></span>
             </div>
             <!-- Overview Section -->
-            <% if (JSON.parse(alerts).lastUpdated.length !== 0) { %>
-                <span id="section-1">
+            <% if (JSON.parse(gradeData).length) { %>
+                <div id="section-1">
                     <div style="display: flex">
                         <div id="GPA-container">
                             <h5 style="font-size: 2rem" class="text-center" id="GPA-label">Semester GPA</h5>
@@ -117,29 +117,33 @@
                             <% if (JSON.parse(appearance).showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
                                 <table class="rounded-table text-center">
                                     <thead>
-                                        <th id="overview<%= i + offset %>" class="overview"
-                                            style="cursor: pointer; text-align: center; color: <%= JSON.parse(appearance).classColors[i] %>"
-                                            onclick="showPage(<%= i + offset %>)">
-                                            <%= JSON.parse(gradeData)[i].class_name %>
-                                            <span class="popup">
-                                                <i id="incorrectOverviewGrade<%= i + offset %>"
-                                                   class="fa fa-exclamation-triangle"
-                                                   style="display: none; margin-left: 0.2rem">
-                                                    <span class="popup-top-left">
-                                                        Does not match calculated grade
-                                                    </span>
-                                                </i></span></th>
+                                        <tr>
+                                            <th id="overview<%= i + offset %>" class="overview"
+                                                style="cursor: pointer; text-align: center; color: <%= JSON.parse(appearance).classColors[i] %>"
+                                                onclick="showPage(<%= i + offset %>)">
+                                                <%= JSON.parse(gradeData)[i].class_name %>
+                                                <span class="popup">
+                                                    <i id="incorrectOverviewGrade<%= i + offset %>"
+                                                       class="fa fa-exclamation-triangle"
+                                                       style="display: none; margin-left: 0.2rem">
+                                                        <span class="popup-top-left">
+                                                            Does not match calculated grade
+                                                        </span>
+                                                    </i></span></th>
+                                        </tr>
                                     </thead>
                                     <tbody>
-                                        <td class="overview"
-                                            style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= JSON.parse(appearance).classColors[i] %>"
-                                            onclick="showPage(<%= i + offset %>)">
-                                            <div id="overviewChart<%= i + offset %>"
-                                                 style="display:block; font-weight:bolder">
-                                                <div style="color: <%= JSON.parse(appearance).classColors[i] %> !important"
-                                                     class="fa fa-spin fa-spinner overviewTableLoading"></div>
-                                            </div>
-                                        </td>
+                                        <tr>
+                                            <td class="overview"
+                                                style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= JSON.parse(appearance).classColors[i] %>"
+                                                onclick="showPage(<%= i + offset %>)">
+                                                <div id="overviewChart<%= i + offset %>"
+                                                     style="display:block; font-weight:bolder">
+                                                    <div style="color: <%= JSON.parse(appearance).classColors[i] %> !important"
+                                                         class="fa fa-spin fa-spinner overviewTableLoading"></div>
+                                                </div>
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             <% } else {
@@ -147,7 +151,7 @@
                             } %>
                         <% } %>
                     </div>
-                </span>
+                </div>
             <% } %>
             <!-- Class Sections -->
             <% offset = 0; %>
@@ -245,12 +249,12 @@
                                                     <% let value = weights[category] %>
                                                     <td id="weightTableWeight<%= i + offset %><%= j %>"
                                                         class="form-group">
-                                                        <input style="<% if (!value && value != 0) { %> border-color: lightcoral !important; <% } %>"
+                                                        <input style="<% if (!value && value !== 0) { %> border-color: lightcoral !important; <% } %>"
                                                                value="<%= value %>"
                                                                type="number"
                                                                min="0"
                                                                step="0.01"
-                                                               class="number-input disableable form-control <% if(value || value == 0){ %> text-view <% } %>"
+                                                               class="number-input disableable form-control <% if(value || value === 0){ %> text-view <% } %>"
                                                                name="<%= category %>"
                                                         >
                                                     </td>
@@ -367,14 +371,27 @@
                                 <div class="tableOptions">
                                     <div>Sort By</div>
                                     <select id="sortBy<%= i + offset %>" class="classic" onchange="setSortMethod(this)">
-                                        <option value="date">Date</option>
-                                        <option value="category">Category</option>
+                                        <option value="date"
+                                                <% if (!JSON.parse(sortingData).categorySort[i + offset]) { %>selected
+                                                <% } %>
+                                        >Date
+                                        </option>
+                                        <option value="category"
+                                                <% if (JSON.parse(sortingData).categorySort[i + offset]) { %>selected
+                                                <% } %>
+                                        >Category
+                                        </option>
                                     </select>
                                     <span class="popup">
-                                        <i style="cursor: pointer; margin: 1rem 0" class="fa fa-sort-amount-asc"
+                                        <i style="cursor: pointer; margin: 1rem 0"
+                                           class="fa <% if (JSON.parse(sortingData).dateSort[i + offset]) { %>fa-sort-amount-asc <% } else { %>fa-sort-amount-desc<% } %>"
                                            onclick="toggleSortDirection(<%= i + offset %>)">
                                             <span class="popup-top">
-                                                Oldest to Newest
+                                                <% if (JSON.parse(sortingData).dateSort[i + offset]) { %>
+                                                    Oldest to Newest
+                                                <% } else { %>
+                                                    Newest to Oldest
+                                                <% } %>
                                             </span>
                                         </i>
                                     </span>

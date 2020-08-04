@@ -24,32 +24,60 @@
                 <div class="card-body">
                     <% if (JSON.parse(gradeData).length > 0) { %>
                         <div class="card-footer">
-                            <h5>Class Colors
+                            <h5>Color Scheme
                                 <span class="popup">
-                                    <i class="fa fa-question-circle">
-                                        <span class="popup-bottom">Only random colors are currently supported. These
-                                            colors are generated to be as distinct as possible in both light and dark
-                                            themes.</span>
+                                    <i class="fa fa-info-circle">
+                                        <span class="popup-right-bottom">You can keep clicking the presets to generate
+                                            more color palettes</span>
                                     </i>
                                 </span>
                             </h5>
-                            <form style="display: flex; justify-content: center; align-content: space-evenly"
-                                  action="/randomizeClassColors" id="randomizeClassColors" method="POST"
-                                  class="form-signin">
-                                <button style="width: fit-content; width: -moz-fit-content; width: -moz-fit-content; height: 2rem; align-self: center"
-                                        onclick="ajaxPostForm('#randomizeClassColors',[],'',true)"
-                                        class="btn btn-med">
-                                    Randomize Colors
-                                </button>
-                                <div class="text-center" id="classColors" style="width: 100%; height: fit-content">
+                            <div id="color-scheme-picker-container">
+                                <div>
+                                    <div id="color-scheme-picker">
+                                        <div id="default">
+                                            <button onclick="setColorPalette('default')"
+                                                    class="btn btn-med">
+                                                Default
+                                            </button>
+                                            <i class="fa fa-check"
+                                               style="<% if (JSON.parse(appearance).colorPalette !== 'default') { %>opacity: 0;<% } %>"></i>
+                                        </div>
+                                        <div id="pastel">
+                                            <button onclick="setColorPalette('pastel')"
+                                                    class="btn btn-med">
+                                                Pastel
+                                            </button>
+                                            <i class="fa fa-check"
+                                               style="<% if (JSON.parse(appearance).colorPalette !== 'pastel') { %>opacity: 0;<% } %>"></i>
+                                        </div>
+                                        <div id="dark">
+                                            <button onclick="setColorPalette('dark')"
+                                                    class="btn btn-med">
+                                                Dark
+                                            </button>
+                                            <i class="fa fa-check"
+                                               style="<% if (JSON.parse(appearance).colorPalette !== 'dark') { %>opacity: 0;<% } %>"></i>
+                                        </div>
+                                        <div id="rainbow">
+                                            <button onclick="setColorPalette('rainbow')"
+                                                    class="btn btn-med">
+                                                Rainbow
+                                            </button>
+                                            <i class="fa fa-check"
+                                               style="<% if (JSON.parse(appearance).colorPalette !== 'rainbow') { %>opacity: 0;<% } %>"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center" id="classColors">
                                     <% for (var i = 0; i < JSON.parse(gradeData).length; i++) { %>
                                         <label id="classColor<%= i %>"
-                                               style="margin-bottom: 0; padding: 0 1rem 0 1rem; color: <%= JSON.parse(appearance).classColors[i] %>; font-size: medium; font-weight: bolder; transition: color 1s ease">
+                                               style="color: <%= JSON.parse(appearance).classColors[i] %>;">
                                             <%= JSON.parse(gradeData)[i].class_name %>
                                         </label>
                                     <% } %>
                                 </div>
-                            </form>
+                            </div>
                         </div>
                     <% } %>
                     <div class="card-footer">
@@ -179,9 +207,9 @@
                             </div>
                         </form>
                     </div>
-                        <% if (Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
-                            <div class="card-footer">
-                                <h5>Advanced</h5>
+                    <% if (Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
+                        <div class="card-footer">
+                            <h5>Advanced</h5>
                             <div id="advancedMessage"
                                  class="alert alert-success alert-dismissible font-weight-bold"
                                  style="display:none">
@@ -196,21 +224,21 @@
                                 <div class="messageTxt"></div>
                                 <a class="close" onclick="closeMessage('advancedMessage')" aria-label="close">X</a>
                             </div>
-                                <form id="advancedAppearance" action="/setShowNonacademic" method="post"
-                                      onsubmit="$('#advancedSubmit').attr('disabled','disabled')">
-                                    <label style="cursor: pointer">
-                                        <input id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
-                                        <% if (JSON.parse(appearance).showNonAcademic) { %> checked
-                                                <% } %>
-                                               oninput="$('#advancedSubmit').removeAttr('disabled')"
-                                        > Show Non-Academic Classes
-                                    </label>
-                                    <button id="advancedSubmit" class="btn-default btn btn-sm" type="submit"
-                                            onclick="$('#reloadNeeded').text('Reload Needed'); ajaxPostForm('#advancedAppearance',[],'#advancedMessage',true)"
-                                            disabled>
-                                        Apply
-                                    </button>
-                                </form>
+                            <form id="advancedAppearance" action="/setShowNonacademic" method="post"
+                                  onsubmit="$('#advancedSubmit').attr('disabled','disabled')">
+                                <label style="cursor: pointer">
+                                    <input id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
+                                    <% if (JSON.parse(appearance).showNonAcademic) { %> checked
+                                            <% } %>
+                                           oninput="$('#advancedSubmit').removeAttr('disabled')"
+                                    > Show Non-Academic Classes
+                                </label>
+                                <button id="advancedSubmit" class="btn-default btn btn-sm" type="submit"
+                                        onclick="$('#reloadNeeded').text('Reload Needed'); ajaxPostForm('#advancedAppearance',[],'#advancedMessage',true)"
+                                        disabled>
+                                    Apply
+                                </button>
+                            </form>
                         </div>
                     <% } %>
                 </div>
@@ -644,6 +672,26 @@
         location.reload();
     }
 
+    function setColorPalette(palette) {
+        let buttons = $("#color-scheme-picker button");
+        buttons.prop("disabled", true);
+        $.ajax({
+                   url: "/setColorPalette", type: "POST", data: {preset: palette}, async: true
+               }).done((response) => {
+            $("#color-scheme-picker div").each(function () {
+                if (this.id === palette) {
+                    $(this).find("i").css("opacity", 1);
+                } else {
+                    $(this).find("i").css("opacity", 0);
+                }
+            });
+            updateClassColors(response);
+            setTimeout(() => {
+                buttons.prop("disabled", false);
+            }, 1000);
+        });
+    }
+
     function updateClassColors(colorArray) {
         let _colors = colorArray;
         for (let i = 0; i < _colors.length; i++) {
@@ -684,7 +732,7 @@
         document.getElementById("btn-" + tabIndex).classList.add("active");
         currentTab = tabIndex;
         if (currentTab === 3) {
-            updateTutorial('help');
+            updateTutorial("help");
         }
     }
 
@@ -825,7 +873,7 @@
     let passwordDiv = $("#password");
     let oldPasswordDiv = $("#oldPassword");
     let confirmDiv = $("#confirmPassword");
-    let signupBtn = $("#changePasswordBtn")
+    let signupBtn = $("#changePasswordBtn");
 
     function validate() {
         if (!checkPasswordConfirm(passwordDiv, oldPasswordDiv, confirmDiv)) { // Invalid or Unconfirmed Password

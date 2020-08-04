@@ -168,6 +168,10 @@ th {
     color: #FFFFFF;
 }
 
+#classColors label {
+    background-color: #222222;
+}
+
 .popup span.popup-top-left,
 .popup span.popup-top,
 .popup span.popup-top-right,
