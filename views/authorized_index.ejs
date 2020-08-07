@@ -470,6 +470,8 @@
 
             let refreshing;
             let shortcutsEnabled = true;
+            let recentlyAddedAssignment;
+            let recentlyAddedAssignmentDiv;
 
             function setupColorStuff() {
                 // Class links
@@ -1133,6 +1135,10 @@
                     data[classIndex].grades.push(assignmentObject);
                     tempData[classIndex].push({});
                 }
+
+                let addAssignment = $($(".addAssignment")[currentPage]);
+                addAssignment.trigger("click");
+                recentlyAddedAssignment = assignmentObject;
                 refreshWithoutReload(classIndex);
             }
 
@@ -1150,7 +1156,12 @@
                 } else {
                     test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "categoryGotten");
                     classIndex = parseFloat(test[0].match(/\d+$/)[0]);
-                    assignmentIndex = categorySortedData[classIndex].originalIndices[$.makeArray($(".categoryGotten" + classIndex)).indexOf(element)];
+                    assignmentIndex = $.makeArray($(".categoryGotten" + classIndex)).indexOf(element);
+                    if (!dateSort[classIndex]) {
+                        let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
+                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                    }
+                    assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
                 }
 
                 let assignment = data[classIndex]["grades"][assignmentIndex];
@@ -1200,7 +1211,12 @@
                 } else {
                     test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "categoryPossible");
                     classIndex = parseFloat(test[0].match(/\d+$/)[0]);
-                    assignmentIndex = categorySortedData[classIndex].originalIndices[$.makeArray($(".categoryPossible" + classIndex)).indexOf(element)];
+                    assignmentIndex = $.makeArray($(".categoryPossible" + classIndex)).indexOf(element);
+                    if (!dateSort[classIndex]) {
+                        let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
+                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                    }
+                    assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
                 }
 
                 let assignment = data[classIndex]["grades"][assignmentIndex];
@@ -1245,7 +1261,12 @@
                 } else {
                     test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "categoryCategory");
                     classIndex = parseFloat(test[0].match(/\d+$/)[0]);
-                    assignmentIndex = categorySortedData[classIndex].originalIndices[$.makeArray($(".categoryCategory" + classIndex)).indexOf(element[0])];
+                    assignmentIndex = $.makeArray($(".categoryCategory" + classIndex)).indexOf(element[0]);
+                    if (!dateSort[classIndex]) {
+                        let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
+                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                    }
+                    assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
                 }
 
                 let assignment = data[classIndex]["grades"][assignmentIndex];
@@ -1306,7 +1327,12 @@
                 } else {
                     test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "categoryResetRow");
                     classIndex = parseFloat(test[0].match(/\d+$/)[0]);
-                    assignmentIndex = categorySortedData[classIndex].originalIndices[$.makeArray($(`.categoryResetRow${classIndex}`)).indexOf(element)];
+                    assignmentIndex = $.makeArray($(`.categoryResetRow${classIndex}`)).indexOf(element);
+                    if (!dateSort[classIndex]) {
+                        let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
+                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                    }
+                    assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
 
                     // This means that the row was never changed
                     if ((!tempData[classIndex] || !tempData[classIndex][assignmentIndex]) && !parsedData[classIndex].assignmentAdds[assignmentIndex]) {
@@ -1355,7 +1381,12 @@
                 } else {
                     test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "categoryExclude");
                     classIndex = parseFloat(test[0].match(/\d+$/)[0]);
-                    assignmentIndex = categorySortedData[classIndex].originalIndices[$.makeArray($(".categoryExclude" + classIndex)).indexOf(element)];
+                    assignmentIndex = $.makeArray($(".categoryExclude" + classIndex)).indexOf(element);
+                    if (!dateSort[classIndex]) {
+                        let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
+                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                    }
+                    assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
                 }
 
                 let assignment = data[classIndex]["grades"][assignmentIndex];
@@ -1743,6 +1774,10 @@
                             // Set up reset buttons
                             let resetButton = $(resetRowDivs[assignmentIndex]);
                             if (assignmentAdds[j]) {
+                                if (recentlyAddedAssignment && _.isEqual(categorySort[i] ? data[i].grades[categorySortedData[i].originalIndices[j]] : data[i].grades[j], recentlyAddedAssignment)) {
+                                    recentlyAddedAssignment = undefined;
+                                    recentlyAddedAssignmentDiv = $(resetButton.parents("tr")[0]);
+                                }
                                 resetButton.css("visibility", "visible").removeClass("fa-undo").addClass("fa-trash").children("span").text("Remove added assignment").parents(".resetTab").show();
                             } else if (Object.keys(modTempData[j]).length) {
                                 resetButton.css("visibility", "visible").removeClass("fa-trash").addClass("fa-undo").children("span").text("Revert to Original").parents(".resetTab").show();
@@ -1798,6 +1833,15 @@
                             }
                         }
                     }
+                }
+                if (recentlyAddedAssignmentDiv) {
+                    $("html, body").animate({scrollTop: recentlyAddedAssignmentDiv.offset().top - $(window).height() / 2 - recentlyAddedAssignmentDiv.height() / 2}, 400);
+                    recentlyAddedAssignmentDiv.addClass("addAssignmentAnimation");
+                    let temp = recentlyAddedAssignmentDiv;
+                    setTimeout(() => {
+                        temp.removeClass("addAssignmentAnimation");
+                    }, 10000);
+                    recentlyAddedAssignmentDiv = undefined;
                 }
             }
 

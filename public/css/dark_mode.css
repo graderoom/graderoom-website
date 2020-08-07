@@ -172,6 +172,25 @@ th {
     background-color: #222222;
 }
 
+tr.excluded:hover .excludeToggle .fa-ban {
+    color: #AAAAAA;
+}
+
+@keyframes addAssignmentAnimation {
+    0%, 100% {
+        background-color: rgba(255, 255, 255, 0.5);
+    }
+    50% {
+        background-color: #333333;
+    }
+}
+
+tr.addAssignmentAnimation {
+    transition: none;
+    animation: addAssignmentAnimation linear 2s;
+    animation-iteration-count: 1.5;
+}
+
 .popup span.popup-top-left,
 .popup span.popup-top,
 .popup span.popup-top-right,

@@ -1333,7 +1333,7 @@ select:focus {
     flex-flow: column;
     justify-content: center;
     cursor: pointer;
-    transition: filter 250ms ease;
+    transition: color 250ms ease, opacity 250ms ease;
 }
 
 .excludeToggle label {
@@ -1343,10 +1343,6 @@ select:focus {
 
 tr:hover .excludeToggle .fa-ban {
     visibility: visible;
-}
-
-tr.excluded:hover .excludeToggle .fa-ban {
-    filter: brightness(200%);
 }
 
 .sample {
@@ -1832,6 +1828,10 @@ td.addAssignmentScore {
 .rounded-table :last-child tr:last-child td:last-child,
 .rounded-table.class-table :last-child tr:last-child td:nth-last-child(2) {
     border-bottom-right-radius: 0.5rem;
+}
+
+.class-table tr {
+    transition: background-color 400ms ease;
 }
 
 tr.separator {
