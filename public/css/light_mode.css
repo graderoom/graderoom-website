@@ -206,6 +206,25 @@ table thead tr th {
     color: #D3D3D3 !important;
 }
 
+tr.excluded:hover .excludeToggle .fa-ban {
+    color: #555555;
+}
+
+@keyframes addAssignmentAnimation {
+    0%, 100% {
+        background-color: transparent;
+    }
+    50% {
+        background-color: #DDDDDD;
+    }
+}
+
+tr.addAssignmentAnimation {
+    transition: none;
+    animation: addAssignmentAnimation linear 2s;
+    animation-iteration-count: 1.5;
+}
+
 .popup span.popup-top-left,
 .popup span.popup-top,
 .popup span.popup-top-right,
