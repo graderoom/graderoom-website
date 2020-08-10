@@ -189,7 +189,7 @@ module.exports = {
                 temp[years[i]] = {};
                 for (let j = 0; j < semesters.length; j++) {
                     temp[years[i]][semesters[j]] = {};
-                    let classes = userRef.get("grades").get(years[i]).get(semesters[j]).value().map(d => d.class_name);
+                    let classes = userRef.get("grades").get(years[i]).get(semesters[j]).map(d => d.class_name).value();
                     for (let k = 0; k < classes.length; k++) {
                         temp[years[i]][semesters[j]][classes[k]] = [];
                     }
