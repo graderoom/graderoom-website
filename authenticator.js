@@ -180,6 +180,24 @@ module.exports = {
             userRef.set("weights", {"19-20": {"S2": user.weights}}).write();
         }
 
+        // Add addedAssignments dict
+        if (!userRef.get("addedAssignments").value()) {
+            let temp = {};
+            let years = Object.keys(userRef.get("grades").value());
+            for (let i = 0; i < years.length; i++) {
+                let semesters = Object.keys(userRef.get("grades").get(years[i]).value());
+                temp[years[i]] = {};
+                for (let j = 0; j < semesters.length; j++) {
+                    temp[years[i]][semesters[j]] = {};
+                    let classes = userRef.get("grades").get(years[i]).get(semesters[j]).value().map(d => d.class_name);
+                    for (let k = 0; k < classes.length; k++) {
+                        temp[years[i]][semesters[j]][classes[k]] = [];
+                    }
+                }
+            }
+            userRef.set("addedAssignments", temp).write();
+        }
+
         // Fix -1 values in 19-20 S2
         if (userRef.get("grades").value() && userRef.get("grades").get("19-20").value() && userRef.get("grades").get("19-20").get("S2").value()) {
             for (let i = 0; i < userRef.get("grades").get("19-20").get("S2").value().length; i++) {
@@ -574,9 +592,7 @@ module.exports = {
                         theme: "auto",
                         accentColor: null,
                         classColors: [],
-                        showNonAcademic: true,
-                        darkModeStart: 18,
-                        darkModeFinish: 7
+                        showNonAcademic: true, darkModeStart: 18, darkModeFinish: 7
                     }, alerts: {
                         lastUpdated: [],
                         updateGradesReminder: "daily",
@@ -585,7 +601,7 @@ module.exports = {
                         termsLastSeen: "never",
                         remoteAccess: "denied",
                         tutorialStatus: Object.fromEntries(tutorialKeys.map(k => [k, false]))
-                    }, weights: {}, grades: {}, sortingData: {
+                    }, weights: {}, grades: {}, addedAssignments: {}, sortingData: {
                         dateSort: [], categorySort: []
                     }, loggedIn: []
                                      }).write();
@@ -1293,6 +1309,13 @@ module.exports = {
         let sortDataRef = userRef.get("sortingData");
         sortDataRef.set("dateSort", dateSort).write();
         sortDataRef.set("categorySort", categorySort).write();
+    },
+
+    updateAddedAssignments: function (username, addedAssignments) {
+        let userRef = db.get("users").find({username: username.toLowerCase()});
+        let {term, semester} = this.getMostRecentTermData(username);
+        userRef.get("addedAssignments").get(term).set(semester, addedAssignments).write();
+        return {success: true, message: "Successfully updated added assignments"};
     }
 
 };

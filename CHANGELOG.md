@@ -51,6 +51,10 @@
 - Changelog display buttons work incorrectly after page resize <strong>[Fixed in Beta 2.3.8]</strong>
 - Grades sometimes do not sync when autofill is enabled and GradeSync is disabled <strong>[Fixed in Beta 2.5.0]</strong>
 
+## [Beta 2.7.5] - 2020-08-10
+### Added
+- Added assignments now save to your account
+
 ## [Beta 2.7.4] - 2020-08-07
 ### Added
 - When you add an assignment, the page is scrolled and the added assignment flashes briefly to draw attention to itself

@@ -31,6 +31,7 @@ module.exports = function (app, passport) {
                     gradeSync: !!req.user.schoolPassword,
                     gradeData: JSON.stringify(req.user.grades[term][semester]),
                     weightData: JSON.stringify(req.user.weights[term][semester]),
+                    addedAssignments: JSON.stringify(req.user.addedAssignments[term][semester]),
                     relevantClassData: JSON.stringify(authenticator.getRelClassData(req.user.username)),
                     sortingData: JSON.stringify(req.user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
@@ -48,6 +49,7 @@ module.exports = function (app, passport) {
                     gradeSync: !!req.user.schoolPassword,
                     gradeData: JSON.stringify([]),
                     weightData: JSON.stringify({}),
+                    addedAssignments: JSON.stringify({}),
                     relevantClassData: JSON.stringify({}),
                     sortingData: JSON.stringify(req.user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
@@ -76,26 +78,44 @@ module.exports = function (app, passport) {
                 return;
             }
             let {term, semester} = authenticator.getMostRecentTermData(req.query.usernameToRender);
-            let weightData = JSON.stringify(user.weights[term][semester]);
-            let gradeData = JSON.stringify(user.grades[term][semester]);
-            let relClassData = JSON.stringify(authenticator.getRelClassData(req.query.usernameToRender));
 
-            res.render("authorized_index.ejs", {
-                page: "home",
-                username: user.username,
-                schoolUsername: user.schoolUsername,
-                isAdmin: user.isAdmin,
-                personalInfo: JSON.stringify(user.personalInfo),
-                appearance: JSON.stringify(user.appearance),
-                alerts: JSON.stringify(user.alerts),
-                gradeSync: !!user.schoolPassword,
-                gradeData: gradeData,
-                weightData: weightData,
-                relevantClassData: relClassData,
-                sortingData: JSON.stringify(user.sortingData),
-                sessionTimeout: Date.parse(req.session.cookie._expires),
-                dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
-            });
+            if (term && semester) {
+                res.render("authorized_index.ejs", {
+                    page: "home",
+                    username: user.username,
+                    schoolUsername: user.schoolUsername,
+                    isAdmin: user.isAdmin,
+                    personalInfo: JSON.stringify(user.personalInfo),
+                    appearance: JSON.stringify(user.appearance),
+                    alerts: JSON.stringify(user.alerts),
+                    gradeSync: !!user.schoolPassword,
+                    gradeData: JSON.stringify(user.grades[term][semester]),
+                    weightData: JSON.stringify(user.weights[term][semester]),
+                    addedAssignments: JSON.stringify(req.user.addedAssignments[term][semester]),
+                    relevantClassData: JSON.stringify(authenticator.getRelClassData(req.query.usernameToRender)),
+                    sortingData: JSON.stringify(user.sortingData),
+                    sessionTimeout: Date.parse(req.session.cookie._expires),
+                    dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+                });
+            } else {
+                res.render("authorized_index.ejs", {
+                    page: "home",
+                    username: req.user.username,
+                    schoolUsername: req.user.schoolUsername,
+                    isAdmin: req.user.isAdmin,
+                    personalInfo: JSON.stringify(req.user.personalInfo),
+                    appearance: JSON.stringify(req.user.appearance),
+                    alerts: JSON.stringify(req.user.alerts),
+                    gradeSync: !!req.user.schoolPassword,
+                    gradeData: JSON.stringify([]),
+                    weightData: JSON.stringify({}),
+                    addedAssignments: JSON.stringify({}),
+                    relevantClassData: JSON.stringify({}),
+                    sortingData: JSON.stringify(req.user.sortingData),
+                    sessionTimeout: Date.parse(req.session.cookie._expires),
+                    dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+                });
+            }
             return;
         }
         res.redirect("/");
@@ -273,6 +293,16 @@ module.exports = function (app, passport) {
             res.status(200).send(resp.message);
         } else {
             res.status(400).send(resp.message);
+        }
+    });
+
+    app.post("/updateAddedAssignments", [isLoggedIn], (req, res) => {
+        let data = req.body.data;
+        let resp = authenticator.updateAddedAssignments(req.user.username, JSON.parse(data));
+        if (resp.success) {
+            res.status(200).send(resp.message);
+        } else {
+            res.status(400).send(resp.messgae);
         }
     });
 
