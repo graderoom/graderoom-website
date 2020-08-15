@@ -1340,8 +1340,7 @@ module.exports = {
         if (user) {
             userRef.set('passwordResetToken', token).write();
             // expire after 1 hr
-            // TODO bell spam filters catch email :( give more time for user to find it in spam
-            userRef.set('passwordResetTokenExpire', Date.now() + 60 * 60 * 1000).write();
+            userRef.set('passwordResetTokenExpire', Date.now() + 1000 * 60 * 60 * 24).write();
         }
 
         return {user: user, token: token}; // determines which email to send
