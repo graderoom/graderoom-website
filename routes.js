@@ -36,7 +36,7 @@ module.exports = function (app, passport) {
                     relevantClassData: JSON.stringify(authenticator.getRelClassData(req.user.username)),
                     sortingData: JSON.stringify(req.user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+                    dst: isDST(),
                 });
             } else {
                 res.render("authorized_index.ejs", {
@@ -54,14 +54,14 @@ module.exports = function (app, passport) {
                     relevantClassData: JSON.stringify({}),
                     sortingData: JSON.stringify(req.user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+                    dst: isDST(),
                 });
             }
             return;
         }
         res.render("index.ejs", {
             message: req.flash("loginMessage"),
-            dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+            dst: isDST(),
         });
     });
 
@@ -96,7 +96,7 @@ module.exports = function (app, passport) {
                     relevantClassData: JSON.stringify(authenticator.getRelClassData(req.query.usernameToRender)),
                     sortingData: JSON.stringify(user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+                    dst: isDST(),
                 });
             } else {
                 res.render("authorized_index.ejs", {
@@ -114,7 +114,7 @@ module.exports = function (app, passport) {
                     relevantClassData: JSON.stringify({}),
                     sortingData: JSON.stringify(req.user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+                    dst: isDST(),
                 });
             }
             return;
@@ -205,7 +205,7 @@ module.exports = function (app, passport) {
             adminSuccessMessage: req.flash("adminSuccessMessage"),
             adminFailMessage: req.flash("adminFailMessage"),
             sessionTimeout: Date.parse(req.session.cookie._expires),
-            dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+            dst: isDST(),
         });
     });
 
@@ -320,7 +320,7 @@ module.exports = function (app, passport) {
         res.render("signup.ejs", {
             message: req.flash("signupMessage"),
             needsBeta: server.needsBetaKeyToSignUp,
-            dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+            dst: isDST(),
         });
     });
 
@@ -480,12 +480,12 @@ module.exports = function (app, passport) {
                 gradeData: JSON.stringify(req.user.grades[term][semester]),
                 weightData: JSON.stringify(req.user.weights[term][semester]),
                 sessionTimeout: Date.parse(req.session.cookie._expires),
-                dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+                dst: isDST(),
             });
         } else {
             req.session.returnTo = req.originalUrl;
             res.render("final_grade_calculator_logged_out.ejs", {
-                dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+                dst: isDST(),
             });
         }
 
@@ -514,7 +514,7 @@ module.exports = function (app, passport) {
             darkModeFinish: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeFinish),
             page: "keys",
             sessionTimeout: Date.parse(req.session.cookie._expires),
-            dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+            dst: isDST(),
         });
 
     });
@@ -570,7 +570,7 @@ module.exports = function (app, passport) {
             darkModeStart: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeStart),
             darkModeFinish: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeFinish),
             sessionTimeout: Date.parse(req.session.cookie._expires),
-            dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+            dst: isDST(),
         });
     });
 
@@ -621,7 +621,11 @@ module.exports = function (app, passport) {
             return
         }
 
-        res.status(404).render('password_reset/reset_password.ejs', {message: req.flash('resetPasswordMsg'),  token: resetToken})
+        res.status(404).render('password_reset/reset_password.ejs', {
+            message: req.flash('resetPasswordMsg'),
+            token: resetToken,
+            dst: isDST(),
+        })
     });
 
     app.post('/reset_password', (req, res) => {
@@ -648,8 +652,8 @@ module.exports = function (app, passport) {
         }
         res.status(200).render('password_reset/forgot_password.ejs', {
             message: req.flash('forgotPasswordMsg'),
-            dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset(),
-    });
+            dst: isDST(),
+        });
     });
 
     app.post('/forgot_password', (req, res) => {
@@ -697,4 +701,8 @@ function makeKey(length) {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
+}
+
+function isDST() {
+    return Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset();
 }
