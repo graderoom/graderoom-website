@@ -638,7 +638,6 @@ module.exports = function (app, passport) {
 
         let newPass = req.body.password;
         let resp = authenticator.resetPassword(resetToken, newPass);
-        console.log(resp); // todo remove
         if (!resp.success && resp.message === "Invalid token.") {
             res.status(404).render('password_reset/reset_password_404.ejs', {dst: isDST()});
             return
@@ -671,8 +670,8 @@ module.exports = function (app, passport) {
         if (resp.user) {
             emailSender.sendPasswordResetToAccountOwner(email, "https://" + req.headers.host + "/reset_password?token=" + resp.token, resp.user.personalInfo.firstName);
         } else {
-            // todo replace with sending email to non account holder
-            emailSender.sendPasswordResetToAccountOwner(email, "https://" + req.headers.host + "/reset_password?token=" + resp.token, "non");
+            // this doesn't do anything
+            emailSender.sendPasswordResetToNonUser(email, "https://" + req.headers.host + "/reset_password?token=" + resp.token);
         }
         req.flash('forgotPasswordMsg', "A link has been sent to your email to reset your password.")
         res.redirect('/forgot_password')

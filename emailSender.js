@@ -1,12 +1,11 @@
 const sgMail = require('@sendgrid/mail');
-sgMail.setApiKey('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'); // todo regenerate & move to env
+sgMail.setApiKey(process.env.SGMAILAPI);
 const fromEmail = "no-reply@graderoom.me"
 
 
 module.exports = {
 
     sendPasswordResetToAccountOwner(toEmail, pwResetLink, firstName) {
-        console.log(toEmail)
         const msg = {
             to: toEmail,
             from: fromEmail,
@@ -17,7 +16,7 @@ module.exports = {
         (async () => {
             try {
                 await sgMail.send(msg);
-                console.log("sent email");
+                console.log(`Sent email to ${toEmail}`);
             } catch (error) {
                 console.error(error);
 
@@ -29,7 +28,7 @@ module.exports = {
     },
 
     sendPasswordResetToNonUser(toEmail, pwResetLink) {
-        // todo
+        // for now, just don't send one (and let the user think one was sent)
     },
 
 }
