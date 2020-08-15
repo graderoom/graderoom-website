@@ -645,13 +645,13 @@ module.exports = function (app, passport) {
     });
 
     app.post('/forgot_password', (req, res) => {
-        console.log("aa")
         let email = req.body.email;
         let resp = authenticator.resetPasswordRequest(email);
 
         if (resp.user) {
             emailSender.sendPasswordResetToAccountOwner(email, "https://" + req.headers.host + "/reset_password?token=" + resp.token);
         } else {
+            // todo replace with sending email to non account holder
             emailSender.sendPasswordResetToAccountOwner(email, "https://" + req.headers.host + "/reset_password?token=" + resp.token);
         }
         req.flash('forgotPasswordMsg', "A link has been sent to your email to reset your password.")

@@ -605,9 +605,7 @@ module.exports = {
                         tutorialStatus: Object.fromEntries(tutorialKeys.map(k => [k, false]))
                     }, weights: {}, grades: {}, addedAssignments: {}, sortingData: {
                         dateSort: [], categorySort: []
-                    }, loggedIn: [],
-                    passwordResetToken: "",
-                    passwordResetTokenExpire: 0,
+                    }, loggedIn: []
                                      }).write();
 
                 return resolve({success: true, message: "User Created"});
