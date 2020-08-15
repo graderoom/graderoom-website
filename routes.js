@@ -617,11 +617,11 @@ module.exports = function (app, passport) {
         let invalidToken = !authenticator.checkToken(resetToken);
         if (invalidToken) {
             // req.flash('forgotPasswordMsg', 'Invalid token.')
-            res.status(404).render('password_reset/reset_password_404.ejs')
+            res.status(404).render('password_reset/reset_password_404.ejs', {dst: isDST()})
             return
         }
 
-        res.status(404).render('password_reset/reset_password.ejs', {
+        res.status(200).render('password_reset/reset_password.ejs', {
             message: req.flash('resetPasswordMsg'),
             token: resetToken,
             dst: isDST(),
@@ -639,8 +639,16 @@ module.exports = function (app, passport) {
         let newPass = req.body.password;
         let resp = authenticator.resetPassword(resetToken, newPass);
         console.log(resp); // todo remove
-        req.flash('resetPasswordMsg', resp.message); // todo fix
-        res.render('password_reset/reset_password_success.ejs')
+        if (!resp.success && resp.message === "Invalid token.") {
+            res.status(404).render('password_reset/reset_password_404.ejs', {dst: isDST()});
+            return
+        }
+        if (!resp.success) {
+            req.flash('resetPasswordMsg', resp.message);
+            res.redirect('/reset_password?token=' + resetToken);
+            return
+        }
+        res.render('password_reset/reset_password_success.ejs', {dst: isDST()})
 
     });
 
