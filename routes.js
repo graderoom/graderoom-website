@@ -641,7 +641,15 @@ module.exports = function (app, passport) {
     });
 
     app.get('/forgot_password', (req, res) => {
-        res.status(200).render('password_reset/forgot_password.ejs', {message: req.flash('forgotPasswordMsg')});
+        // dont allow while logged in
+        if (req.user) {
+            res.redirect('/');
+            return
+        }
+        res.status(200).render('password_reset/forgot_password.ejs', {
+            message: req.flash('forgotPasswordMsg'),
+            dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset(),
+    });
     });
 
     app.post('/forgot_password', (req, res) => {
@@ -649,10 +657,10 @@ module.exports = function (app, passport) {
         let resp = authenticator.resetPasswordRequest(email);
 
         if (resp.user) {
-            emailSender.sendPasswordResetToAccountOwner(email, "https://" + req.headers.host + "/reset_password?token=" + resp.token);
+            emailSender.sendPasswordResetToAccountOwner(email, "https://" + req.headers.host + "/reset_password?token=" + resp.token, resp.user.personalInfo.firstName);
         } else {
             // todo replace with sending email to non account holder
-            emailSender.sendPasswordResetToAccountOwner(email, "https://" + req.headers.host + "/reset_password?token=" + resp.token);
+            emailSender.sendPasswordResetToAccountOwner(email, "https://" + req.headers.host + "/reset_password?token=" + resp.token, "non");
         }
         req.flash('forgotPasswordMsg', "A link has been sent to your email to reset your password.")
         res.redirect('/forgot_password')
