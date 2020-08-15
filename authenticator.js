@@ -10,6 +10,9 @@ const crypto = require("crypto");
 const readline = require("readline");
 const fs = require("fs");
 
+const roundsToGenerateSalt = 10;
+
+
 db.defaults({users: [], keys: [], classes: {}, deletedUsers: []}).write();
 
 let changelogArray = [];
@@ -580,12 +583,11 @@ module.exports = {
             // Set up personal info with EXACT same algorithm as on signup page
             let {firstName, lastName, graduationYear} = getPersonalInfo(schoolUsername);
 
-            const roundsToGenerateSalt = 10;
             bcrypt.hash(password, roundsToGenerateSalt, function (err, hash) {
                 db.get("users").push({
                                          username: lc_username,
                                          password: hash,
-                                         schoolUsername: schoolUsername,
+                                         schoolUsername: schoolUsername.toLowerCase(),
                                          personalInfo: {
                                              firstName: firstName, lastName: lastName, graduationYear: graduationYear
                                          }, isAdmin: isAdmin, appearance: {
@@ -603,7 +605,9 @@ module.exports = {
                         tutorialStatus: Object.fromEntries(tutorialKeys.map(k => [k, false]))
                     }, weights: {}, grades: {}, addedAssignments: {}, sortingData: {
                         dateSort: [], categorySort: []
-                    }, loggedIn: []
+                    }, loggedIn: [],
+                    passwordResetToken: "",
+                    passwordResetTokenExpire: 0,
                                      }).write();
 
                 return resolve({success: true, message: "User Created"});
@@ -634,7 +638,6 @@ module.exports = {
         if (user.get("schoolPassword").value()) {
             schoolPass = this.decryptAndGet(username, oldPassword).message;
         }
-        let roundsToGenerateSalt = 10;
         let hashedPass = bcrypt.hashSync(password, roundsToGenerateSalt);
         user.assign({password: hashedPass}).write();
         if (schoolPass) {
@@ -647,7 +650,7 @@ module.exports = {
             return {success: false, message: "This must be your Bellarmine College Preparatory school email."};
         }
         let userRef = db.get("users").find({username: lc_username});
-        userRef.assign({schoolUsername: schoolUsername}).write();
+        userRef.assign({schoolUsername: schoolUsername.toLowerCase()}).write();
         let {firstName, lastName, graduationYear} = getPersonalInfo(schoolUsername);
         userRef.get("personalInfo").set("firstName", firstName).write();
         userRef.get("personalInfo").set("lastName", lastName).write();
@@ -1316,9 +1319,71 @@ module.exports = {
         let {term, semester} = this.getMostRecentTermData(username);
         userRef.get("addedAssignments").get(term).set(semester, addedAssignments).write();
         return {success: true, message: "Successfully updated added assignments"};
-    }
+    },
+
+    // password reset stuff
+    checkToken: function (token, user = undefined) {
+        if (!token) {
+            return false;
+        }
+        if (!user) {
+            user = db.get('users').find({passwordResetToken: token}).value();
+        }
+
+        return (user && user.passwordResetTokenExpire > Date.now())
+    },
+
+    resetPasswordRequest: function(email) {
+
+        let userRef = db.get('users').find({schoolUsername: email.toLowerCase()});
+        let user = userRef.value();
+
+        let token = makeKey(20);
+        if (user) {
+            userRef.set('passwordResetToken', token).write();
+            // expire after 1 hr
+            // TODO bell spam filters catch email :( give more time for user to find it in spam
+            userRef.set('passwordResetTokenExpire', Date.now() + 60 * 60 * 1000).write();
+        }
+
+        return {user: user, token: token}; // determines which email to send
+    },
+
+    resetPassword: function(token, newPassword) {
+
+        let user = db.get('users').find({passwordResetToken: token});
+
+        let validToken = this.checkToken(token, user.value());
+
+        if (!validToken) {
+            return {success: false, message: "Invalid token."};
+        }
+
+        let message = validatePassword(newPassword);
+        if (message) {
+            return {success: false, message: message};
+        }
+
+        // since no "old password", just disable gradesync if they have it
+        // otherwise decryption won't work
+
+        if (user.get("schoolPassword").value()) {
+            this.disableGradeSync(user.username);
+        }
+
+        let hashedPass = bcrypt.hashSync(newPassword, roundsToGenerateSalt);
+        user.assign({"password": hashedPass}).write();
+
+        user.unset("passwordResetTokenExpire").write();
+        // apparently the "reference" continuously runs the intial query?
+        // when unsetting the token first, nothing else will write
+        user.unset("passwordResetToken").write();
+
+        return {success: true, message: "Password updated."};
+    },
 
 };
+
 
 
 function isAlphaNumeric(str) {
@@ -1457,3 +1522,14 @@ function shuffleArray(array) {
         [array[i], array[j]] = [array[j], array[i]];
     }
 }
+
+function makeKey(length) {
+    let result = "";
+    let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
+

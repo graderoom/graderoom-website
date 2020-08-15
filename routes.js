@@ -1,5 +1,6 @@
 let server = require("./graderoom.js");
 let authenticator = require("./authenticator.js");
+let emailSender = require('./emailSender.js');
 
 module.exports = function (app, passport) {
 
@@ -605,6 +606,58 @@ module.exports = function (app, passport) {
     /**
      * END GENERAL USER MANAGEMENT
      */
+
+
+    // password reset
+
+    app.get('/reset_password', (req, res) => {
+
+        let resetToken = req.query.token;
+
+        let invalidToken = !authenticator.checkToken(resetToken);
+        if (invalidToken) {
+            // req.flash('forgotPasswordMsg', 'Invalid token.')
+            res.status(404).render('password_reset/reset_password_404.ejs')
+            return
+        }
+
+        res.status(404).render('password_reset/reset_password.ejs', {message: req.flash('resetPasswordMsg'),  token: resetToken})
+    });
+
+    app.post('/reset_password', (req, res) => {
+
+        let resetToken = req.body.token;
+        if (!resetToken) {
+            res.redirect('/')
+            return
+        }
+
+        let newPass = req.body.password;
+        let resp = authenticator.resetPassword(resetToken, newPass);
+        console.log(resp); // todo remove
+        req.flash('resetPasswordMsg', resp.message); // todo fix
+        res.render('password_reset/reset_password_success.ejs')
+
+    });
+
+    app.get('/forgot_password', (req, res) => {
+        res.status(200).render('password_reset/forgot_password.ejs', {message: req.flash('forgotPasswordMsg')});
+    });
+
+    app.post('/forgot_password', (req, res) => {
+        console.log("aa")
+        let email = req.body.email;
+        let resp = authenticator.resetPasswordRequest(email);
+
+        if (resp.user) {
+            emailSender.sendPasswordResetToAccountOwner(email, "https://" + req.headers.host + "/reset_password?token=" + resp.token);
+        } else {
+            emailSender.sendPasswordResetToAccountOwner(email, "https://" + req.headers.host + "/reset_password?token=" + resp.token);
+        }
+        req.flash('forgotPasswordMsg', "A link has been sent to your email to reset your password.")
+        res.redirect('/forgot_password')
+    })
+
 
     // general web app
     app.get("/*", (req, res) => {
