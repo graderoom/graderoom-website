@@ -91,6 +91,10 @@ th {
 }
 
 .card a {
+    color: #222222;
+}
+
+.card-footer a {
     color: #BBBBBB;
 }
 
