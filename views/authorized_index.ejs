@@ -552,8 +552,8 @@
             let maxTab = $(".tabcontent").length;
             let darkMode;
             let colors = appearance.classColors;
-            let darkModeStart = appearance.darkModeStart;
-            let darkModeFinish = appearance.darkModeFinish;
+            let darkModeStart = appearance.darkModeStart || 18;
+            let darkModeFinish = appearance.darkModeFinish || 7;
             let mobile = window.innerWidth <= 991;
 
             if (!appearance.showNonAcademic) {

@@ -166,6 +166,10 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
 
+        // Make all school emails lowercase
+        let email = user.schoolUsername;
+        userRef.set("schoolUsername", email.toLowerCase()).write();
+
         // Fix error in weight storage
         if (userRef.get("weights").get("grades").value()) {
             userRef.get("weights").unset("grades").write();
@@ -551,10 +555,14 @@ module.exports = {
                 return resolve({success: false, message: "Username already in use."});
             }
 
+            if (this.emailExists(schoolUsername)) {
+                return resolve({success: false, message: "This email address is already associated with an account."});
+            }
+
             if (this.userDeleted(lc_username)) {
                 return resolve({
                                    success: false,
-                                   message: "This account has been deleted. Email graderoom@gmail.com to recover your account."
+                                   message: "This account has been deleted. Email <a href='mailto:support@graderoom.me'>support@graderoom.me</a> to recover your account."
                                });
             }
 
@@ -590,22 +598,32 @@ module.exports = {
                                          schoolUsername: schoolUsername.toLowerCase(),
                                          personalInfo: {
                                              firstName: firstName, lastName: lastName, graduationYear: graduationYear
-                                         }, isAdmin: isAdmin, appearance: {
-                        theme: "auto",
-                        accentColor: null,
-                        classColors: [],
-                        showNonAcademic: true, darkModeStart: 18, darkModeFinish: 7
-                    }, alerts: {
-                        lastUpdated: [],
-                        updateGradesReminder: "daily",
-                        latestSeen: versionNameArray[1] ? beta ? versionNameArray[1][1] : versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1] : "1.0.0",
-                        policyLastSeen: "never",
-                        termsLastSeen: "never",
-                        remoteAccess: "denied",
-                        tutorialStatus: Object.fromEntries(tutorialKeys.map(k => [k, false]))
-                    }, weights: {}, grades: {}, addedAssignments: {}, sortingData: {
-                        dateSort: [], categorySort: []
-                    }, loggedIn: []
+                                         },
+                                         isAdmin: isAdmin,
+                                         appearance: {
+                                             theme: "auto",
+                                             accentColor: null,
+                                             classColors: [],
+                                             showNonAcademic: true,
+                                             darkModeStart: 18,
+                                             darkModeFinish: 7
+                                         },
+                                         alerts: {
+                                             lastUpdated: [],
+                                             updateGradesReminder: "daily",
+                                             latestSeen: versionNameArray[1] ? beta ? versionNameArray[1][1] : versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1] : "1.0.0",
+                                             policyLastSeen: "never",
+                                             termsLastSeen: "never",
+                                             remoteAccess: "denied",
+                                             tutorialStatus: Object.fromEntries(tutorialKeys.map(k => [k, false]))
+                                         },
+                                         weights: {},
+                                         grades: {},
+                                         addedAssignments: {},
+                                         sortingData: {
+                                             dateSort: [], categorySort: []
+                                         },
+                                         loggedIn: []
                                      }).write();
 
                 return resolve({success: true, message: "User Created"});
@@ -657,6 +675,10 @@ module.exports = {
     }, userExists: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username}).value();
+        return !!user;
+    }, emailExists: function (email) {
+        let lc_email = email.toLowerCase();
+        let user = db.get("users").find({schoolUsername: lc_email}).value();
         return !!user;
     }, userDeleted: function (username) {
         let lc_username = username.toLowerCase();
@@ -1274,10 +1296,17 @@ module.exports = {
         } else if (!!db.get("deletedUsers").find({username: username.toLowerCase()}).value()) {
             return {
                 success: false,
-                message: "This account has been deleted! Email graderoom@gmail.com to recover your account."
+                message: "This account has been deleted! Email <a href='support@graderoom.me'>support@graderoom.me</a> to recover your account."
             };
         }
         return {success: true, message: "Valid Username!"};
+    },
+
+    emailAvailable: function (schoolUsername) {
+        if (!!db.get("users").find({schoolUsername: schoolUsername.toLowerCase()}).value()) {
+            return {success: false, message: "This email address is already associated with an account."};
+        }
+        return {success: true, message: "Valid email!"};
     },
 
     setLoggedIn: function (username) {
@@ -1322,35 +1351,35 @@ module.exports = {
     // password reset stuff
     checkToken: function (token, user = undefined) {
         if (!token) {
-            return false;
+            return {valid: false, gradeSync: null};
         }
         if (!user) {
-            user = db.get('users').find({passwordResetToken: token}).value();
+            user = db.get("users").find({passwordResetToken: token}).value();
         }
 
-        return (user && user.passwordResetTokenExpire > Date.now())
+        return {valid: user && (user.passwordResetTokenExpire > Date.now()), gradeSync: user && !!user.schoolPassword};
     },
 
-    resetPasswordRequest: function(email) {
+    resetPasswordRequest: function (email) {
 
-        let userRef = db.get('users').find({schoolUsername: email.toLowerCase()});
+        let userRef = db.get("users").find({schoolUsername: email.toLowerCase()});
         let user = userRef.value();
 
         let token = makeKey(20);
         if (user) {
-            userRef.set('passwordResetToken', token).write();
+            userRef.set("passwordResetToken", token).write();
             // expire after 1 hr
-            userRef.set('passwordResetTokenExpire', Date.now() + 1000 * 60 * 60 * 24).write();
+            userRef.set("passwordResetTokenExpire", Date.now() + 1000 * 60 * 60 * 24).write();
         }
 
         return {user: user, token: token}; // determines which email to send
     },
 
-    resetPassword: function(token, newPassword) {
+    resetPassword: function (token, newPassword) {
 
-        let user = db.get('users').find({passwordResetToken: token});
+        let user = db.get("users").find({passwordResetToken: token});
 
-        let validToken = this.checkToken(token, user.value());
+        let {validToken, gradeSync} = this.checkToken(token, user.value());
 
         if (!validToken) {
             return {success: false, message: "Invalid token."};
@@ -1364,8 +1393,8 @@ module.exports = {
         // since no "old password", just disable gradesync if they have it
         // otherwise decryption won't work
 
-        if (user.get("schoolPassword").value()) {
-            this.disableGradeSync(user.username);
+        if (gradeSync) {
+            this.disableGradeSync(user.value().username);
         }
 
         let hashedPass = bcrypt.hashSync(newPassword, roundsToGenerateSalt);
@@ -1377,10 +1406,9 @@ module.exports = {
         user.unset("passwordResetToken").write();
 
         return {success: true, message: "Password updated."};
-    },
+    }
 
 };
-
 
 
 function isAlphaNumeric(str) {
