@@ -3,7 +3,13 @@
     <span class="d-flex w-25 mr-auto">
         <a href="/" class="navbar-brand">
             <h1>
-                <img src="/public/resources/light_mode/logo.png" style="width: 3rem" class="d-inline-block" alt="">
+                <img
+                <% if (theme) { %>
+                    src="/public/resources/dark_mode/logo.png"
+                <% } else { %>
+                    src="/public/resources/light_mode/logo.png"
+                        <% } %>
+                    style="width: 3rem" class="d-inline-block" alt="">
                 Graderoom
             </h1>
         </a>

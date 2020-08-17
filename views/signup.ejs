@@ -25,7 +25,7 @@
                 <% if (message.length > 0) { %>
                     <div class="alert alert-danger alert-dismissible">
                         <a class="close" data-dismiss="alert" aria-label="close">X</a>
-                        <%= message %>
+                        <%- message; %>
                     </div>
                 <% } %>
                 <form class="form-signin" action="/signup" method="post" spellcheck="false">
@@ -392,15 +392,38 @@
                     icon.attr("class", "fa fa-exclamation-circle");
                     $(inputID).css("border-bottom-color", "red");
                     invalidateSignup();
-                    return;
+                    return false;
                 }
                 $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text("Valid email");
                 icon.attr("class", "fa fa-check-circle");
                 $(inputID).css("border-bottom-color", "");
-                validateSignup();
+                $.ajax({
+                           url: "/emailAvailable", type: "POST", async: false, data: {schoolUsername: bcpEmail}
+                       }).done((response) => {
+                    if (messageDivID) {
+                        // Make sure value is still the same
+                        if (bcpEmail === $(inputID)[0].value) {
+                            $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text(response);
+                            icon.attr("class", "fa fa-check-circle");
+                            $(inputID).css("border-bottom-color", "");
+                            validateSignup();
+                            return true;
+                        }
+                    }
+                }).fail((data) => {
+                    if (messageDivID) {
+                        // Make sure value is still the same
+                        if (bcpEmail === $(inputID)[0].value) {
+                            $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text(data.responseText);
+                            icon.attr("class", "fa fa-exclamation-circle");
+                            $(inputID).css("border-bottom-color", "red");
+                            invalidateSignup();
+                        }
+                    }
+                });
             }, 400);
         } else {
-            return bcpEmailRegex.test(bcpEmail);
+            return icon.attr("class") === "fa fa-check-circle";
         }
     }
 

@@ -92,11 +92,11 @@ module.exports = function (app, passport) {
                     gradeSync: !!user.schoolPassword,
                     gradeData: JSON.stringify(user.grades[term][semester]),
                     weightData: JSON.stringify(user.weights[term][semester]),
-                    addedAssignments: JSON.stringify(req.user.addedAssignments[term][semester]),
+                    addedAssignments: JSON.stringify(user.addedAssignments[term][semester]),
                     relevantClassData: JSON.stringify(authenticator.getRelClassData(req.query.usernameToRender)),
                     sortingData: JSON.stringify(user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    dst: isDST(),
+                    dst: isDST()
                 });
             } else {
                 res.render("authorized_index.ejs", {
@@ -466,8 +466,9 @@ module.exports = function (app, passport) {
 
     app.get("/finalgradecalculator", (req, res) => {
 
-        let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
         if (req.isAuthenticated()) {
+
+            let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
             res.render("final_grade_calculator.ejs", {
                 page: "calc",
                 username: req.user.username,
@@ -591,6 +592,16 @@ module.exports = function (app, passport) {
         }
     });
 
+    app.post("/emailAvailable", (req, res) => {
+        let schoolUsername = req.body.schoolUsername.toLowerCase();
+        let resp = authenticator.emailAvailable(schoolUsername);
+        if (resp.success) {
+            res.status(200).send(resp.message);
+        } else {
+            res.status(400).send(resp.message);
+        }
+    });
+
     app.post("/betakeyValid", (req, res) => {
         let betakeys = authenticator.getAllBetaKeyData();
 
@@ -614,18 +625,16 @@ module.exports = function (app, passport) {
 
         let resetToken = req.query.token;
 
-        let invalidToken = !authenticator.checkToken(resetToken);
-        if (invalidToken) {
+        let {valid: validToken, gradeSync: gradeSync} = authenticator.checkToken(resetToken);
+        if (!validToken) {
             // req.flash('forgotPasswordMsg', 'Invalid token.')
-            res.status(404).render('password_reset/reset_password_404.ejs', {dst: isDST()})
-            return
+            res.status(404).render("password_reset/reset_password_404.ejs", {dst: isDST()});
+            return;
         }
 
-        res.status(200).render('password_reset/reset_password.ejs', {
-            message: req.flash('resetPasswordMsg'),
-            token: resetToken,
-            dst: isDST(),
-        })
+        res.status(200).render("password_reset/reset_password.ejs", {
+            message: req.flash("resetPasswordMsg"), token: resetToken, gradeSync: gradeSync, dst: isDST()
+        });
     });
 
     app.post('/reset_password', (req, res) => {
@@ -673,8 +682,8 @@ module.exports = function (app, passport) {
             // this doesn't do anything
             emailSender.sendPasswordResetToNonUser(email, "https://" + req.headers.host + "/reset_password?token=" + resp.token);
         }
-        req.flash('forgotPasswordMsg', "A link has been sent to your email to reset your password.")
-        res.redirect('/forgot_password')
+        req.flash("forgotPasswordMsg", "If the email address you entered is associated with an account, you should receive an email containing a link to reset your password. Please make sure to check your spam folder. If you run into any issues, contact <b><a href='mailto:support@graderoom.me'>support@graderoom.me</a></b>.");
+        res.redirect("/forgot_password");
     })
 
 
