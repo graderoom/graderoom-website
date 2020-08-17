@@ -1,5 +1,6 @@
 let server = require("./graderoom.js");
 let authenticator = require("./authenticator.js");
+let emailSender = require('./emailSender.js');
 
 module.exports = function (app, passport) {
 
@@ -35,7 +36,7 @@ module.exports = function (app, passport) {
                     relevantClassData: JSON.stringify(authenticator.getRelClassData(req.user.username)),
                     sortingData: JSON.stringify(req.user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+                    dst: isDST(),
                 });
             } else {
                 res.render("authorized_index.ejs", {
@@ -53,14 +54,14 @@ module.exports = function (app, passport) {
                     relevantClassData: JSON.stringify({}),
                     sortingData: JSON.stringify(req.user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+                    dst: isDST(),
                 });
             }
             return;
         }
         res.render("index.ejs", {
             message: req.flash("loginMessage"),
-            dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+            dst: isDST(),
         });
     });
 
@@ -91,11 +92,11 @@ module.exports = function (app, passport) {
                     gradeSync: !!user.schoolPassword,
                     gradeData: JSON.stringify(user.grades[term][semester]),
                     weightData: JSON.stringify(user.weights[term][semester]),
-                    addedAssignments: JSON.stringify(req.user.addedAssignments[term][semester]),
+                    addedAssignments: JSON.stringify(user.addedAssignments[term][semester]),
                     relevantClassData: JSON.stringify(authenticator.getRelClassData(req.query.usernameToRender)),
                     sortingData: JSON.stringify(user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+                    dst: isDST()
                 });
             } else {
                 res.render("authorized_index.ejs", {
@@ -113,7 +114,7 @@ module.exports = function (app, passport) {
                     relevantClassData: JSON.stringify({}),
                     sortingData: JSON.stringify(req.user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+                    dst: isDST(),
                 });
             }
             return;
@@ -204,7 +205,7 @@ module.exports = function (app, passport) {
             adminSuccessMessage: req.flash("adminSuccessMessage"),
             adminFailMessage: req.flash("adminFailMessage"),
             sessionTimeout: Date.parse(req.session.cookie._expires),
-            dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+            dst: isDST(),
         });
     });
 
@@ -319,7 +320,7 @@ module.exports = function (app, passport) {
         res.render("signup.ejs", {
             message: req.flash("signupMessage"),
             needsBeta: server.needsBetaKeyToSignUp,
-            dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+            dst: isDST(),
         });
     });
 
@@ -465,8 +466,9 @@ module.exports = function (app, passport) {
 
     app.get("/finalgradecalculator", (req, res) => {
 
-        let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
         if (req.isAuthenticated()) {
+
+            let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
             res.render("final_grade_calculator.ejs", {
                 page: "calc",
                 username: req.user.username,
@@ -479,12 +481,12 @@ module.exports = function (app, passport) {
                 gradeData: JSON.stringify(req.user.grades[term][semester]),
                 weightData: JSON.stringify(req.user.weights[term][semester]),
                 sessionTimeout: Date.parse(req.session.cookie._expires),
-                dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+                dst: isDST(),
             });
         } else {
             req.session.returnTo = req.originalUrl;
             res.render("final_grade_calculator_logged_out.ejs", {
-                dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+                dst: isDST(),
             });
         }
 
@@ -513,7 +515,7 @@ module.exports = function (app, passport) {
             darkModeFinish: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeFinish),
             page: "keys",
             sessionTimeout: Date.parse(req.session.cookie._expires),
-            dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+            dst: isDST(),
         });
 
     });
@@ -569,7 +571,7 @@ module.exports = function (app, passport) {
             darkModeStart: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeStart),
             darkModeFinish: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeFinish),
             sessionTimeout: Date.parse(req.session.cookie._expires),
-            dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+            dst: isDST(),
         });
     });
 
@@ -583,6 +585,16 @@ module.exports = function (app, passport) {
     app.post("/usernameAvailable", (req, res) => {
         let username = req.body.username.toLowerCase();
         let resp = authenticator.usernameAvailable(username);
+        if (resp.success) {
+            res.status(200).send(resp.message);
+        } else {
+            res.status(400).send(resp.message);
+        }
+    });
+
+    app.post("/emailAvailable", (req, res) => {
+        let schoolUsername = req.body.schoolUsername.toLowerCase();
+        let resp = authenticator.emailAvailable(schoolUsername);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
@@ -605,6 +617,75 @@ module.exports = function (app, passport) {
     /**
      * END GENERAL USER MANAGEMENT
      */
+
+
+    // password reset
+
+    app.get('/reset_password', (req, res) => {
+
+        let resetToken = req.query.token;
+
+        let {valid: validToken, gradeSync: gradeSync} = authenticator.checkToken(resetToken);
+        if (!validToken) {
+            // req.flash('forgotPasswordMsg', 'Invalid token.')
+            res.status(404).render("password_reset/reset_password_404.ejs", {dst: isDST()});
+            return;
+        }
+
+        res.status(200).render("password_reset/reset_password.ejs", {
+            message: req.flash("resetPasswordMsg"), token: resetToken, gradeSync: gradeSync, dst: isDST()
+        });
+    });
+
+    app.post('/reset_password', (req, res) => {
+
+        let resetToken = req.body.token;
+        if (!resetToken) {
+            res.redirect('/')
+            return
+        }
+
+        let newPass = req.body.password;
+        let resp = authenticator.resetPassword(resetToken, newPass);
+        if (!resp.success && resp.message === "Invalid token.") {
+            res.status(404).render('password_reset/reset_password_404.ejs', {dst: isDST()});
+            return
+        }
+        if (!resp.success) {
+            req.flash('resetPasswordMsg', resp.message);
+            res.redirect('/reset_password?token=' + resetToken);
+            return
+        }
+        res.render('password_reset/reset_password_success.ejs', {dst: isDST()})
+
+    });
+
+    app.get('/forgot_password', (req, res) => {
+        // dont allow while logged in
+        if (req.user) {
+            res.redirect('/');
+            return
+        }
+        res.status(200).render('password_reset/forgot_password.ejs', {
+            message: req.flash('forgotPasswordMsg'),
+            dst: isDST(),
+        });
+    });
+
+    app.post('/forgot_password', (req, res) => {
+        let email = req.body.email;
+        let resp = authenticator.resetPasswordRequest(email);
+
+        if (resp.user) {
+            emailSender.sendPasswordResetToAccountOwner(email, "https://" + req.headers.host + "/reset_password?token=" + resp.token, resp.user.personalInfo.firstName);
+        } else {
+            // this doesn't do anything
+            emailSender.sendPasswordResetToNonUser(email, "https://" + req.headers.host + "/reset_password?token=" + resp.token);
+        }
+        req.flash("forgotPasswordMsg", "If the email address you entered is associated with an account, you should receive an email containing a link to reset your password. Please make sure to check your spam folder. If you run into any issues, contact <b><a href='mailto:support@graderoom.me'>support@graderoom.me</a></b>.");
+        res.redirect("/forgot_password");
+    })
+
 
     // general web app
     app.get("/*", (req, res) => {
@@ -636,4 +717,8 @@ function makeKey(length) {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
+}
+
+function isDST() {
+    return Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset();
 }

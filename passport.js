@@ -41,7 +41,7 @@ module.exports = function (passport) {
 
             // if no user is found, return the message
             if (authent.userDeleted(username)) {
-                return done(null, false, req.flash("loginMessage", "The account, " + username + ", has been deleted. Email graderoom@gmail.com to recover your account."));
+                return done(null, false, req.flash("loginMessage", "The account <b>" + username + "</b> has been deleted. Email <a href='mailto:support@graderoom.me'>support@graderoom.me</a> to recover your account."));
             }
             if (!authent.userExists(username)) {
                 return done(null, false, req.flash("loginMessage", "Invalid Credentials"));
