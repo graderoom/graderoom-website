@@ -51,6 +51,13 @@
 - Changelog display buttons work incorrectly after page resize <strong>[Fixed in Beta 2.3.8]</strong>
 - Grades sometimes do not sync when autofill is enabled and GradeSync is disabled <strong>[Fixed in Beta 2.5.0]</strong>
 
+## [Beta 2.7.6] - 2020-08-16
+### Added
+- Ability to request password reset from signin page
+
+### Fixed
+- Issue where page would sometimes not load
+
 ## [Beta 2.7.5] - 2020-08-10
 ### Added
 - Added assignments now save to your account
