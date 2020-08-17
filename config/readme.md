@@ -78,3 +78,18 @@ server {
 - Commands to know
     - `sudo nginx` starts nginx
     - `sudo nginx -s stop` stops nginx
+
+- SendGrid Setup (password reset):
+   - create an account on send grid (free works fine, just capped at 100 emails a day)
+    - setup domain authentication:  
+      - Which DNS host do we use? right now, Amazon Route 53.
+      - Would you like to brand all the links for this domain? no
+    
+      - The default advanced settings (below) are fine:
+        - Use automated security: yes
+      	- Use a custom return path: no
+      	- Use a custom DKIM selector: no
+      
+      - then copy the CNAME records they provide, to the advanced DNS options in namecheap. Note that you must remove the 'graderoom.me' at the end of the 1st part of the CNAME record. Namecheap will automatically append a 'graderoom.me' at the end
+      
+   - generate API keys at `https://app.sendgrid.com/settings/api_keys`
