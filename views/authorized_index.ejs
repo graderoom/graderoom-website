@@ -57,7 +57,7 @@
         <% <!-- DO NOT REMOVE this is there for my IDE's autoformatting to not mess up --> %>
 
         <% let classPage = -1; %>
-        <i id="pageNumber" style="display:none"><%= classPage %></i>
+        <i id="pageNumber" style="display:none"><%= classPage; %></i>
 
         <!-- Class Links -->
         <% if (JSON.parse(gradeData).length > 0) { %>
@@ -68,9 +68,9 @@
                 <% let offset = 0; %>
                 <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
                     <% if (JSON.parse(appearance).showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
-                        <li class="nav-item" id="link<%= i + offset %>">
-                            <a class="nav-link" style="color: <%= JSON.parse(appearance).classColors[i] %>"
-                               onclick="showPage(<%= i + offset %>)"><%= (JSON.parse(gradeData)[i].class_name) %></a>
+                        <li class="nav-item" id="link<%= i + offset; %>">
+                            <a class="nav-link" style="color: <%= JSON.parse(appearance).classColors[i]; %>"
+                               onclick="showPage(<%= i + offset; %>)"><%= (JSON.parse(gradeData)[i].class_name); %></a>
                         </li>
                     <% } else {
                         offset--;
@@ -118,12 +118,12 @@
                                 <table class="rounded-table text-center">
                                     <thead>
                                         <tr>
-                                            <th id="overview<%= i + offset %>" class="overview"
-                                                style="cursor: pointer; text-align: center; color: <%= JSON.parse(appearance).classColors[i] %>"
-                                                onclick="showPage(<%= i + offset %>)">
-                                                <%= JSON.parse(gradeData)[i].class_name %>
+                                            <th id="overview<%= i + offset; %>" class="overview"
+                                                style="cursor: pointer; text-align: center; color: <%= JSON.parse(appearance).classColors[i]; %>"
+                                                onclick="showPage(<%= i + offset; %>)">
+                                                <%= JSON.parse(gradeData)[i].class_name; %>
                                                 <span class="popup">
-                                                    <i id="incorrectOverviewGrade<%= i + offset %>"
+                                                    <i id="incorrectOverviewGrade<%= i + offset; %>"
                                                        class="fa fa-exclamation-triangle"
                                                        style="display: none; margin-left: 0.2rem">
                                                         <span class="popup-top-left">
@@ -135,11 +135,11 @@
                                     <tbody>
                                         <tr>
                                             <td class="overview"
-                                                style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= JSON.parse(appearance).classColors[i] %>"
-                                                onclick="showPage(<%= i + offset %>)">
-                                                <div id="overviewChart<%= i + offset %>"
+                                                style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= JSON.parse(appearance).classColors[i]; %>"
+                                                onclick="showPage(<%= i + offset; %>)">
+                                                <div id="overviewChart<%= i + offset; %>"
                                                      style="display:block; font-weight:bolder">
-                                                    <div style="color: <%= JSON.parse(appearance).classColors[i] %> !important"
+                                                    <div style="color: <%= JSON.parse(appearance).classColors[i]; %> !important"
                                                          class="fa fa-spin fa-spinner overviewTableLoading"></div>
                                                 </div>
                                             </td>
@@ -157,36 +157,36 @@
             <% offset = 0; %>
             <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
                 <% if (JSON.parse(appearance).showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
-                    <span id="section<%= i + offset %>" class="section" style="display: none;">
+                    <span id="section<%= i + offset; %>" class="section" style="display: none;">
                         <% if (JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] === "non-academic") { %>
                             <div style="display:block">
                                 <div class="alert alert-info font-weight-bold"
-                                     id="weightmsg<%= i + offset %>">This class is non-academic. You can stop
+                                     id="weightmsg<%= i + offset; %>">This class is non-academic. You can stop
                                     non-academic classes from being displayed in <u style="cursor: pointer"
                                                                                     onclick="showCard('#settingsCardDisplay');">settings</u>
                                 </div>
                             </div>
                         <% } %>
                         <div class="chartAndWeights">
-                            <div id="chart-container<%= i + offset %>" class="chart-container">
-                                <button id="reset-zoom<%= i + offset %>"
+                            <div id="chart-container<%= i + offset; %>" class="chart-container">
+                                <button id="reset-zoom<%= i + offset; %>"
                                         style="position: absolute; top: 0; right: 0; height: fit-content; display:none"
                                         class="btn btn-sm"
-                                        onclick="resetZoom(<%= i + offset %>); $(this).hide()">Reset
+                                        onclick="resetZoom(<%= i + offset; %>); $(this).hide()">Reset
                                 </button>
-                                <canvas id="chart<%= i + offset %>" class="chart"></canvas>
-                                <button id="reset-zoom<%= i + offset %>"
+                                <canvas id="chart<%= i + offset; %>" class="chart"></canvas>
+                                <button id="reset-zoom<%= i + offset; %>"
                                         style="position: absolute; top: 0; right: 0; height: fit-content; display:block"
                                         class="btn btn-sm"
-                                        onclick="resetZoom(<%= i + offset %>); $(this).hide()">Reset
+                                        onclick="resetZoom(<%= i + offset; %>); $(this).hide()">Reset
                                 </button>
                             </div>
                             <div class="weights-container">
-                                <form id="weights<%= i + offset %>" class="form-ajax form-weights form-signin"
+                                <form id="weights<%= i + offset; %>" class="form-ajax form-weights form-signin"
                                       action="/updateweights">
                                     <table class="table text-center weights rounded-table"
                                            style="white-space: nowrap"
-                                           id="weightsTable<%= i + offset %>">
+                                           id="weightsTable<%= i + offset; %>">
                                         <thead>
                                             <tr>
                                                 <th colspan="4" style="padding: 0.3rem 0;">
@@ -194,16 +194,16 @@
                                                         Based&nbsp;
                                                         <label class="switch">
                                                             <input
-                                                                    id="check<%= i + offset %>"
+                                                                    id="check<%= i + offset; %>"
                                                                     style="margin: 0; display: flex"
                                                                     type="checkbox"
                                                                     name="hasWeights"
                                                             <% if (JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["hasWeights"] === "false") { %>
                                                                     checked
                                                                     <% } %>
-                                                                    onchange="disableInput('check<%= i + offset %>','weightsTable<%= i + offset %>'); resetInputs('#weights<%= i + offset %>'); $('#weights<%= i + offset %>').submit();"
+                                                                    onchange="disableInput('check<%= i + offset; %>','weightsTable<%= i + offset; %>'); resetInputs('#weights<%= i + offset; %>'); $('#weights<%= i + offset; %>').submit();"
                                                             >
-                                                            <span style="color: <%= JSON.parse(appearance).classColors[i + offset] %>"
+                                                            <span style="color: <%= JSON.parse(appearance).classColors[i + offset]; %>"
                                                                   class="classSlider slider"></span>
                                                         </label>
                                                     </label>
@@ -211,21 +211,21 @@
                                             </tr>
                                             <tr>
                                                 <th>Category</th>
-                                                <th id="weight-header<%= i + offset %>">
+                                                <th id="weight-header<%= i + offset; %>">
                                                     Weights
                                                     <span class="popup">
                                                         <i
-                                                                id="reset<%= i + offset %>"
+                                                                id="reset<%= i + offset; %>"
                                                                 style="color: #888888; margin: 0; cursor: pointer; display:inline-block"
                                                                 class="fa fa-undo"
-                                                                onclick="resetWeights(<%= i + offset %>); $('#weights<%= i + offset %>').submit();">
+                                                                onclick="resetWeights(<%= i + offset; %>); $('#weights<%= i + offset; %>').submit();">
                                                             <span class="popup-top">Revert
                                                                 to Crowdsourced Default</span>
                                                         </i>
                                                     </span>
                                                     <span class="popup">
                                                         <i style="display: inline-block"
-                                                           id="ignoringWeights<%= i + offset %>"
+                                                           id="ignoringWeights<%= i + offset; %>"
                                                            class="fa fa-exclamation-triangle">
                                                             <span class="popup-top">
                                                                 Enter all weights to enable weighted overall grade
@@ -243,23 +243,23 @@
 
                                             <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]).length; j++) { %>
                                                 <tr>
-                                                    <td id="weightTableCategory<%= i + offset %><%= j %>"></td>
-                                                    <% let weights = JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"] %>
-                                                    <% let category = Object.keys(weights)[j] %>
-                                                    <% let value = weights[category] %>
-                                                    <td id="weightTableWeight<%= i + offset %><%= j %>"
+                                                    <td id="weightTableCategory<%= i + offset; %><%= j; %>"></td>
+                                                    <% let weights = JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]; %>
+                                                    <% let category = Object.keys(weights)[j]; %>
+                                                    <% let value = weights[category]; %>
+                                                    <td id="weightTableWeight<%= i + offset; %><%= j; %>"
                                                         class="form-group">
                                                         <input style="<% if (!value && value !== 0) { %> border-color: lightcoral !important; <% } %>"
-                                                               value="<%= value %>"
+                                                               value="<%= value; %>"
                                                                type="number"
                                                                min="0"
                                                                step="0.01"
                                                                class="number-input disableable form-control <% if(value || value === 0){ %> text-view <% } %>"
-                                                               name="<%= category %>"
+                                                               name="<%= category; %>"
                                                         >
                                                     </td>
-                                                    <td id="weightTablePoints<%= i + offset %><%= j %>"></td>
-                                                    <td id="weightTableGrade<%= i + offset %><%= j %>"></td>
+                                                    <td id="weightTablePoints<%= i + offset; %><%= j; %>"></td>
+                                                    <td id="weightTableGrade<%= i + offset; %><%= j; %>"></td>
                                                 </tr>
                                             <% } %>
                                             <script>
@@ -276,24 +276,24 @@
                                                     });
                                                 }
 
-                                                disableInput('check<%= i + offset %>', 'weightsTable<%= i + offset %>');
+                                                disableInput('check<%= i + offset; %>', 'weightsTable<%= i + offset; %>');
                                             </script>
                                         <tfoot>
                                             <tr>
                                                 <th colspan="4">
                                                     <span class="popup">
-                                                        <i id="incorrectOverallGrade<%= i + offset %>"
+                                                        <i id="incorrectOverallGrade<%= i + offset; %>"
                                                            class="fa fa-exclamation-circle"
                                                            style="margin-left: 0.2rem; vertical-align: middle">
                                                             <span class="popup-bottom-left always-show">
                                                                 <% let grade = JSON.parse(gradeData)[i].overall_percent + "%"; %>
                                                                 Grade in PowerSchool:
-                                                                <nobr><%= grade + " (" + JSON.parse(gradeData)[i].overall_letter + ")" %></nobr>
+                                                                <nobr><%= grade + " (" + JSON.parse(gradeData)[i].overall_letter + ")"; %></nobr>
                                                             </span>
                                                         </i>
                                                     </span>
-                                                    <div style="display:none; color: <%= JSON.parse(appearance).classColors[i + offset] %>"
-                                                         id="weightTableOverallGrade<%= i + offset %>"
+                                                    <div style="display:none; color: <%= JSON.parse(appearance).classColors[i + offset]; %>"
+                                                         id="weightTableOverallGrade<%= i + offset; %>"
                                                          class="weightOverall">
                                                     </div>
                                                 </th>
@@ -306,7 +306,7 @@
                         <hr>
                         <div class="options-container">
                             <div class="add-assignment-container">
-                                <form id="addAssignmentForm<%= i + offset %>">
+                                <form id="addAssignmentForm<%= i + offset; %>">
                                     <div class="add-assignment-header">
                                         <div class="addAssignment"
                                              onclick="{$(this).parents('.add-assignment-container').toggleClass('active').parents('div').toggleClass('keep-right');}">
@@ -316,15 +316,16 @@
                                         <button type="submit" class="btn btn-med">Add
                                         </button>
                                     </div>
-                                    <table id="assignmentWizard<%= i + offset %>"
+                                    <table id="assignmentWizard<%= i + offset; %>"
                                            class="assignmentWizard">
                                         <tr>
                                             <td class="addAssignmentDate form-weights form-signin form-group input-group">
-                                                <label id="dateLabel<%= i + offset %>" style="display:none">Date</label>
+                                                <label id="dateLabel<%= i + offset; %>"
+                                                       style="display:none">Date</label>
                                                 <input class="form-control dynamic-input"
                                                        type="text"
-                                                       onfocus="this.type='date'; $('#dateLabel<%= i + offset %>').show().addClass('label-active');"
-                                                       onblur="this.type='text'; checkLabel(this); $('#dateLabel<%= i + offset %>:not(.label-active)').hide(); "
+                                                       onfocus="this.type='date'; $('#dateLabel<%= i + offset; %>').show().addClass('label-active');"
+                                                       onblur="this.type='text'; checkLabel(this); $('#dateLabel<%= i + offset; %>:not(.label-active)').hide(); "
                                                        placeholder="Date" required>
                                             </td>
                                             <td class="form-weights form-signin">
@@ -337,10 +338,10 @@
                                                     </div>
                                                     <div style="display: flex; justify-content: center; flex-flow: column; align-items: center"
                                                          class="addExclude">
-                                                        <input id="addExclude<%= i + offset %>"
+                                                        <input id="addExclude<%= i + offset; %>"
                                                                class="form-control" type="checkbox"
                                                                style="cursor: pointer">
-                                                        <label for="addExclude<%= i + offset %>"
+                                                        <label for="addExclude<%= i + offset; %>"
                                                                style="cursor: pointer !important; margin: 0; display: block; font-weight: bolder; font-size: 0.5rem">Exclude</label>
                                                     </div>
                                                 </div>
@@ -370,7 +371,8 @@
                             <div class="tableOptionsContainer">
                                 <div class="tableOptions">
                                     <div>Sort By</div>
-                                    <select id="sortBy<%= i + offset %>" class="classic" onchange="setSortMethod(this)">
+                                    <select id="sortBy<%= i + offset; %>" class="classic"
+                                            onchange="setSortMethod(this)">
                                         <option value="date"
                                                 <% if (!JSON.parse(sortingData).categorySort[i + offset]) { %>selected
                                                 <% } %>
@@ -385,7 +387,7 @@
                                     <span class="popup">
                                         <i style="cursor: pointer; margin: 1rem 0"
                                            class="fa <% if (JSON.parse(sortingData).dateSort[i + offset]) { %>fa-sort-amount-asc <% } else { %>fa-sort-amount-desc<% } %>"
-                                           onclick="toggleSortDirection(<%= i + offset %>)">
+                                           onclick="toggleSortDirection(<%= i + offset; %>)">
                                             <span class="popup-top">
                                                 <% if (JSON.parse(sortingData).dateSort[i + offset]) { %>
                                                     Oldest to Newest
@@ -399,7 +401,7 @@
                             </div>
                         </div>
                         <div class="table-container">
-                            <table class="table rounded-table class-table text-center" id="table<%= i + offset %>">
+                            <table class="table rounded-table class-table text-center" id="table<%= i + offset; %>">
                                 <thead>
                                     <tr>
                                         <th class="compact">Date</th>
@@ -409,7 +411,7 @@
                                         <th class="compact">Assignment Percent</th>
                                         <th>Overall Grade</th>
                                         <th class="popup resetTab">
-                                            <i id="resetAll<%= i + offset %>"
+                                            <i id="resetAll<%= i + offset; %>"
                                                class="fa fa-undo"
                                                style="color: #888888; margin: 0; cursor: pointer; visibility:hidden"
                                                onclick="{resetAll(this);}"
@@ -424,9 +426,9 @@
                                 <tbody></tbody>
                             </table>
                         </div>
-                        <table class="table rounded-table class-table text-center categoryTable<%= i + offset %>">
+                        <table class="table rounded-table class-table text-center categoryTable<%= i + offset; %>">
                             <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].weights).length; j++) { %>
-                                <% let category = Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].weights)[j] %>
+                                <% let category = Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].weights)[j]; %>
                                 <thead class="categoryStart">
                                     <% if (j > 0) { %>
                                         <tr class="separator">
@@ -434,9 +436,9 @@
                                         </tr>
                                     <% } %>
                                     <tr>
-                                        <th colspan="6"><%= category %></th>
+                                        <th colspan="6"><%= category; %></th>
                                         <th class="popup resetTab">
-                                            <i class="resetCategory<%= i + offset %> fa fa-undo"
+                                            <i class="resetCategory<%= i + offset; %> fa fa-undo"
                                                style="color: #888888; margin: 0; cursor: pointer; visibility:hidden"
                                                onclick="{resetCategory(this);}"
                                             >
@@ -527,18 +529,18 @@
                 }
             }
 
-            let appearance = <%- appearance %>;
-            let alerts = <%- alerts %>;
-            let personalInfo = <%- personalInfo %>;
-            let username = "<%= username %>";
-            let schoolUsername = "<%= schoolUsername %>";
-            let isAdmin = <%= isAdmin %>;
-            let gradeSync = <%= gradeSync %>;
-            let data = <%- gradeData %>;
+            let appearance = <%- appearance; %>;
+            let alerts = <%- alerts; %>;
+            let personalInfo = <%- personalInfo; %>;
+            let username = "<%= username; %>";
+            let schoolUsername = "<%= schoolUsername; %>";
+            let isAdmin = <%= isAdmin; %>;
+            let gradeSync = <%= gradeSync; %>;
+            let data = <%- gradeData; %>;
             let _data = JSON.parse(JSON.stringify(data)); // This is a local copy
-            let addedAssignments = <%- addedAssignments %>;
-            let weights = <%- weightData %>;
-            let relClassData = <%- relevantClassData %>;
+            let addedAssignments = <%- addedAssignments; %>;
+            let weights = <%- weightData; %>;
+            let relClassData = <%- relevantClassData; %>;
             let chartData = [];
             let parsedData = [];
             let categorySortedData = [];
@@ -552,8 +554,8 @@
             let maxTab = $(".tabcontent").length;
             let darkMode;
             let colors = appearance.classColors;
-            let darkModeStart = appearance.darkModeStart;
-            let darkModeFinish = appearance.darkModeFinish;
+            let darkModeStart = appearance.darkModeStart || 18;
+            let darkModeFinish = appearance.darkModeFinish || 7;
             let mobile = window.innerWidth <= 991;
 
             if (!appearance.showNonAcademic) {
@@ -574,7 +576,7 @@
             }
 
             // This should only happen once
-            let {dateSort, categorySort} = <%- sortingData %>;
+            let {dateSort, categorySort} = <%- sortingData; %>;
             refreshWithoutReload(true);
             setupWeightsTableListeners();
             setupInputListeners();

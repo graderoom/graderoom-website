@@ -27,9 +27,7 @@
                          width=60rem> Graderoom
                 </h1>
                 <% if (message.length > 0) { %>
-                    <span class="popup"><span
-                                style="max-width: 25rem !important; width: fit-content; position: relative; color: red; right: -50%; transform: translateX(-50%)"
-                                class="<% if (message.length > 0) { %> always-show<% } else { %> dont-show<% } %>"><%= message %></span></span>
+                    <div class="alert alert-danger"><%- message; %></div>
                 <% } else { %><br>
                 <% } %>
                 <br>
@@ -46,7 +44,8 @@
                         <input oninput="checkLabel(this)" type="password" class="form-control" name="password">
                     </div>
 
-                    <a style="color: dimgrey; float: right; margin-top: -25px;" href="/forgot_password">Forgot password?</a>
+                    <a style="color: dimgrey; float: right; margin-top: -25px;" href="/forgot_password">Forgot
+                        password?</a>
                     <div class="text-center">
                         <button type="submit" class="btn btn-default btn-lg">
                             <i class="fa fa-sign-in" aria-hidden="true"></i> Login
