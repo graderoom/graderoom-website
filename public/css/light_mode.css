@@ -126,6 +126,11 @@ table thead tr th {
     background-color: #FFFFFF;
 }
 
+.chart-placeholder {
+    opacity: 0.2;
+    color: black !important;
+}
+
 .changelog, .changelog-legend {
     background-color: #FFFFFF;
 }
@@ -210,6 +215,10 @@ tr.excluded:hover .excludeToggle .fa-ban {
     color: #555555;
 }
 
+.fa-undo {
+    color: black;
+}
+
 @keyframes addAssignmentAnimation {
     0%, 100% {
         background-color: transparent;
@@ -240,12 +249,12 @@ tr.addAssignmentAnimation {
     background-color: #FFFFFF;
 }
 
-td.resetTab {
+td.toolTab {
     border-top: 1px #EEEEEE solid !important;
     background-color: #FFFFFF;
 }
 
-th.resetTab {
+th.toolTab {
     border-bottom: 2px #EEEEEE solid !important;
     background-color: #FFFFFF;
 }

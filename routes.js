@@ -17,9 +17,26 @@ module.exports = function (app, passport) {
                 res.redirect(returnTo);
                 return;
             }
+
             authenticator.bringUpToDate(req.user.username);
+            let gradeHistoryLetters = [];
 
             let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
+            for (let i = 0; i < Object.keys(req.user.grades).length; i++) {
+                let t = Object.keys(req.user.grades)[i];
+                for (let j = 0; j < Object.keys(req.user.grades[t]).length; j++) {
+                    let s = Object.keys(req.user.grades[t])[j];
+                    if ((t === term && s === semester) || s === "S0") {
+                        continue;
+                    }
+                    for (let k = 0; k < req.user.grades[t][s].length; k++) {
+                        let next = {};
+                        next[req.user.grades[t][s][k].class_name] = req.user.grades[t][s][k].overall_letter;
+                        gradeHistoryLetters.push(next);
+                    }
+                }
+            }
+
             if (term && semester) {
                 res.render("authorized_index.ejs", {
                     page: "home",
@@ -28,11 +45,12 @@ module.exports = function (app, passport) {
                     isAdmin: req.user.isAdmin,
                     personalInfo: JSON.stringify(req.user.personalInfo),
                     appearance: JSON.stringify(req.user.appearance),
-                    alerts: JSON.stringify(req.user.alerts),
+                    alerts: JSON.stringify(Object.assign(req.user.alerts, {lastUpdated: req.user.alerts.lastUpdated.slice(-1)})),
                     gradeSync: !!req.user.schoolPassword,
                     gradeData: JSON.stringify(req.user.grades[term][semester]),
                     weightData: JSON.stringify(req.user.weights[term][semester]),
                     addedAssignments: JSON.stringify(req.user.addedAssignments[term][semester]),
+                    gradeHistory: JSON.stringify(gradeHistoryLetters),
                     relevantClassData: JSON.stringify(authenticator.getRelClassData(req.user.username)),
                     sortingData: JSON.stringify(req.user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
@@ -46,29 +64,35 @@ module.exports = function (app, passport) {
                     isAdmin: req.user.isAdmin,
                     personalInfo: JSON.stringify(req.user.personalInfo),
                     appearance: JSON.stringify(req.user.appearance),
-                    alerts: JSON.stringify(req.user.alerts),
+                    alerts: JSON.stringify(Object.assign(req.user.alerts, {lastUpdated: req.user.alerts.lastUpdated.slice(-1)})),
                     gradeSync: !!req.user.schoolPassword,
                     gradeData: JSON.stringify([]),
                     weightData: JSON.stringify({}),
                     addedAssignments: JSON.stringify({}),
+                    gradeHistory: JSON.stringify([]),
                     relevantClassData: JSON.stringify({}),
                     sortingData: JSON.stringify(req.user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    dst: isDST(),
+                    dst: isDST()
                 });
             }
             return;
         }
         res.render("index.ejs", {
-            message: req.flash("loginMessage"),
-            dst: isDST(),
+            message: req.flash("loginMessage"), dst: isDST()
         });
     });
 
-    app.post("/setShowNonAcademic", [isLoggedIn], (req, res) => {
-        let show = req.body.showNonAcademic === "on";
-        authenticator.setNonAcademic(req.user.username, show);
-        res.status(200).send("Non-academic classes will be " + (show ? "shown" : "hidden"));
+    app.post("/advancedAppearance", [isLoggedIn], (req, res) => {
+        if (req.body.showNonAcademic) {
+            let show = req.body.showNonAcademic === "on";
+            authenticator.setNonAcademic(req.user.username, show);
+        }
+        let regularize = req.body.regularizeClassGraphs === "on";
+        authenticator.setRegularizeClassGraphs(req.user.username, regularize);
+        let weightedGPA = req.body.weightedGPA === "on";
+        authenticator.setWeightedGPA(req.user.username, weightedGPA);
+        res.sendStatus(200);
     });
 
     app.get("/viewuser", [isAdmin], (req, res) => {
@@ -78,7 +102,25 @@ module.exports = function (app, passport) {
                 res.redirect("/");
                 return;
             }
+
+            authenticator.bringUpToDate(req.query.usernameToRender);
+            let gradeHistoryLetters = [];
+
             let {term, semester} = authenticator.getMostRecentTermData(req.query.usernameToRender);
+            for (let i = 0; i < Object.keys(req.user.grades).length; i++) {
+                let t = Object.keys(req.user.grades)[i];
+                for (let j = 0; j < Object.keys(req.user.grades[t]).length; j++) {
+                    let s = Object.keys(req.user.grades[t])[j];
+                    if ((t === term && s === semester) || s === "S0") {
+                        continue;
+                    }
+                    for (let k = 0; k < req.user.grades[t][s].length; k++) {
+                        let next = {};
+                        next[req.user.grades[t][s][k].class_name] = req.user.grades[t][s][k].overall_letter;
+                        gradeHistoryLetters.push(next);
+                    }
+                }
+            }
 
             if (term && semester) {
                 res.render("authorized_index.ejs", {
@@ -88,11 +130,12 @@ module.exports = function (app, passport) {
                     isAdmin: user.isAdmin,
                     personalInfo: JSON.stringify(user.personalInfo),
                     appearance: JSON.stringify(user.appearance),
-                    alerts: JSON.stringify(user.alerts),
+                    alerts: JSON.stringify(Object.assign(user.alerts, {lastUpdated: user.alerts.lastUpdated.slice(-1)})),
                     gradeSync: !!user.schoolPassword,
                     gradeData: JSON.stringify(user.grades[term][semester]),
                     weightData: JSON.stringify(user.weights[term][semester]),
                     addedAssignments: JSON.stringify(user.addedAssignments[term][semester]),
+                    gradeHistory: JSON.stringify(gradeHistoryLetters),
                     relevantClassData: JSON.stringify(authenticator.getRelClassData(req.query.usernameToRender)),
                     sortingData: JSON.stringify(user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
@@ -106,15 +149,16 @@ module.exports = function (app, passport) {
                     isAdmin: req.user.isAdmin,
                     personalInfo: JSON.stringify(req.user.personalInfo),
                     appearance: JSON.stringify(req.user.appearance),
-                    alerts: JSON.stringify(req.user.alerts),
+                    alerts: JSON.stringify(Object.assign(req.user.alerts, {lastUpdated: req.user.alerts.lastUpdated.slice(-1)})),
                     gradeSync: !!req.user.schoolPassword,
                     gradeData: JSON.stringify([]),
                     weightData: JSON.stringify({}),
                     addedAssignments: JSON.stringify({}),
+                    gradeHistory: JSON.stringify([]),
                     relevantClassData: JSON.stringify({}),
                     sortingData: JSON.stringify(req.user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    dst: isDST(),
+                    dst: isDST()
                 });
             }
             return;
@@ -220,11 +264,16 @@ module.exports = function (app, passport) {
     app.get("/checkUpdateBackground", [isLoggedIn], (req, res) => {
         let resp = authenticator.checkUpdateBackground(req.user.username);
         let user = authenticator.getUser(req.user.username);
-        res.status(200).send({
-                                 message: resp.message,
-                                 grades: JSON.stringify(user.grades),
-                                 time: user.alerts.lastUpdated.slice(-1)[0]
-                             });
+        let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
+        if (term && semester) {
+            res.status(200).send({
+                                     message: resp.message,
+                                     grades: JSON.stringify(user.grades[term][semester]),
+                                     time: user.alerts.lastUpdated.slice(-1)[0]
+                                 });
+        } else {
+            res.sendStatus(400);
+        }
     });
 
     app.get("/changelog", [isLoggedIn], async (req, res) => {
@@ -391,6 +440,8 @@ module.exports = function (app, passport) {
             }
         }
         let resp = await authenticator.updateGrades(req.user.username, pass);
+        await authenticator.updateGradeHistory(req.user.username, pass);
+        let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
         if (resp.success || resp.message === "No class data." || resp.message === "Error scraping grades.") {
             if (gradeSync) {
                 let encryptResp = authenticator.encryptAndStore(user, pass, userPass);
@@ -400,22 +451,15 @@ module.exports = function (app, passport) {
                 }
                 res.status(200).send({
                                          message: "GradeSync Enabled. " + resp.message,
-                                         grades: resp.grades,
+                                         grades: resp.grades[term][semester],
                                          time: resp.time
                                      });
             } else {
-                res.status(200).send({message: resp.message, grades: resp.grades, time: resp.time});
+                res.status(200).send({message: resp.message, grades: resp.grades[term][semester], time: resp.time});
             }
         } else {
             res.status(400).send(resp.message);
         }
-
-        // Grade history
-        //TODO
-        // let scrapeGradeHistory = req.body.scrape_grade_history === "on";
-        // if (scrapeGradeHistory || true) {
-        //     let resp = await authenticator.updateGradeHistory(req.user.username, pass);
-        // }
 
     });
 
@@ -424,9 +468,11 @@ module.exports = function (app, passport) {
         let className = req.body.className;
         let hasWeights = req.body.hasWeights;
         let newWeights = JSON.parse(req.body.newWeights);
+        let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
 
-        let resp = authenticator.updateWeightsForClass(req.user.username, className, hasWeights, newWeights);
+        let resp = authenticator.updateWeightsForClass(req.user.username, term, semester, className, hasWeights, newWeights);
         if (resp.success) {
+            authenticator.bringUpToDate(req.user.username);
             res.status(200).send(resp.message);
         } else {
             res.status(400).send(resp.message);
@@ -476,12 +522,12 @@ module.exports = function (app, passport) {
                 isAdmin: req.user.isAdmin,
                 personalInfo: JSON.stringify(req.user.personalInfo),
                 appearance: JSON.stringify(req.user.appearance),
-                alerts: JSON.stringify(req.user.alerts),
+                alerts: JSON.stringify(Object.assign(req.user.alerts, {lastUpdated: req.user.alerts.lastUpdated.slice(-1)})),
                 gradeSync: !!req.user.schoolPassword,
                 gradeData: JSON.stringify(req.user.grades[term][semester]),
                 weightData: JSON.stringify(req.user.weights[term][semester]),
                 sessionTimeout: Date.parse(req.session.cookie._expires),
-                dst: isDST(),
+                dst: isDST()
             });
         } else {
             req.session.returnTo = req.originalUrl;

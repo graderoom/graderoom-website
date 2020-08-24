@@ -38,7 +38,7 @@ module.exports = {
                 } else {
                     // Error when scraping PowerSchool
                     console.error("ERROR:" + resp.message);
-                    return resolve(resp);
+                    resolve(resp);
                 }
 
             });

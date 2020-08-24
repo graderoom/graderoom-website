@@ -260,8 +260,8 @@ table thead tr th:last-child {
 }
 
 .chart {
+    padding: 1rem 0.8rem 0 0.8rem;
     border-radius: 0.5rem;
-    padding: 1rem 1rem 0 1rem;
 }
 
 .changelog {
@@ -588,7 +588,7 @@ table thead tr th:last-child {
     font-family: "Montserrat", sans-serif;
     font-size: small;
     position: absolute;
-    z-index: 1;
+    z-index: 19;
     display: none;
     min-width: 10rem;
     max-width: 15rem;
@@ -836,9 +836,13 @@ table thead tr th:last-child {
     margin-top: 1em;
 }
 
+i span {
+    pointer-events: none;
+}
+
 .fa.disabled {
     cursor: not-allowed !important;
-    opacity: 0.5;
+    opacity: 0.2;
 }
 
 .fa.disabled:active {
@@ -1048,9 +1052,14 @@ th {
     vertical-align: middle !important;
 }
 
-.resetTab {
-    border-radius: 0 1rem 1rem 0 !important;
+.toolTab {
     position: absolute;
+    visibility: hidden;
+    border-radius: 0 1rem 1rem 0 !important;
+}
+
+.toolTab .popup i.disabled span {
+    display: none !important;
 }
 
 tbody tr {
@@ -1084,18 +1093,30 @@ tbody tr {
     width: 0;
 }
 
+.slider-container {
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.slider-container > label:not(.slider) {
+    margin: 0 0 0 1rem;
+}
+
 .slider {
-    border-radius: 0.6rem;
-    bottom: 0;
-    cursor: pointer;
-    height: 1.2rem;
-    left: 0;
     position: absolute;
-    right: 0;
     top: 0.24rem;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 2.4rem;
+    height: 1.2rem;
+    cursor: pointer;
     transition: 0.4s;
     vertical-align: middle;
-    width: 2.4rem;
+    color: #888888;
+    border-radius: 0.6rem;
 }
 
 .slider:before {
@@ -1108,6 +1129,20 @@ tbody tr {
     transform: translateX(0);
     transition: 0.4s;
     width: 0.96rem;
+}
+
+label.disabled {
+    cursor: not-allowed;
+    opacity: 0.2;
+}
+
+input:disabled + .slider {
+    cursor: not-allowed !important;
+}
+
+input:disabled + .slider:before {
+    cursor: not-allowed !important;
+    opacity: 0.2;
 }
 
 input:checked + .slider:before {
@@ -1743,6 +1778,8 @@ td.addAssignmentScore {
     flex-flow: column;
     justify-content: center;
     padding-right: 1rem;
+    text-align: center;
+    white-space: nowrap;
 }
 
 .brand-label {
@@ -1768,6 +1805,10 @@ td.addAssignmentScore {
     flex-flow: row;
     flex-wrap: wrap;
     justify-content: center;
+    width: fit-content;
+    width: -moz-fit-content;
+    margin: auto;
+    padding: 0.5rem;
 }
 
 #table-1 table {
@@ -1776,7 +1817,7 @@ td.addAssignmentScore {
 
 #chart-container-1 {
     position: relative;
-    width: 80%;
+    width: 75%;
     height: 60vh;
 }
 
@@ -1804,8 +1845,11 @@ td.addAssignmentScore {
     flex-flow: column;
     justify-content: center;
     margin: 0 0 0 auto;
-    cursor: pointer;
     transform: translateX(50%);
+}
+
+.nav-username h5 {
+    cursor: pointer;
 }
 
 .rounded-table :first-child tr:first-child th:first-child,
@@ -1851,6 +1895,22 @@ tr.beforeSeparator td:nth-last-child(2) {
     border-radius: 0 0 0.5rem 0;
 }
 
+.toolTab > span {
+    cursor: context-menu;
+}
+
+.toolTab i {
+    cursor: pointer;
+}
+
+.toolTab .fa-check {
+    color: #00FF00;
+}
+
+.toolTab .fa-trash {
+    color: #FF0000;
+}
+
 .delta {
     font-size: 0.7rem;
     margin-left: 0.5rem;
@@ -1861,6 +1921,19 @@ tr.beforeSeparator td:nth-last-child(2) {
     width: 100%;
     height: 50vh;
     color: #FFFFFF;
+}
+
+.chart-placeholder {
+    font-size: 5em;
+    position: absolute;
+    top: calc(50% - 2.5rem) !important;
+    left: calc(50% - 2.5rem) !important;
+    padding: 0;
+}
+
+input:disabled {
+    cursor: not-allowed !important;
+    pointer-events: none;
 }
 
 .nav-popups {
@@ -1880,15 +1953,24 @@ tr.beforeSeparator td:nth-last-child(2) {
     cursor: default;
 }
 
-/* When navbar get's a little cluttered */
 @media only screen and (max-width: 1191px) {
     .nav-username {
         transform: translateX(-50px);
+    }
+
+    .toolTab {
+        position: static;
+        width: min-content;
+        width: -moz-min-content;
     }
 }
 
 /* Mobile Stuff */
 @media only screen and (max-width: 991px) {
+    .toolTab {
+        display: none;
+    }
+
     #color-scheme-picker button {
         font-size: 0.7rem;
         width: 70%;
@@ -2078,6 +2160,10 @@ tr.beforeSeparator td:nth-last-child(2) {
 
     .tab btn {
         height: fit-content;
+    }
+
+    #table-1 {
+        width: unset;
     }
 
     #table-1 table {

@@ -31,7 +31,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.7"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js"></script>
 </head>
 <body>
 
@@ -90,24 +90,24 @@
                 <div id="section-1">
                     <div style="display: flex">
                         <div id="GPA-container">
-                            <h5 style="font-size: 2rem" class="text-center" id="GPA-label">Semester GPA</h5>
-                            <h5 style="font-size: 5rem" id="GPA-display">--</h5>
-                            <span class="popup">
-                                <i id="incorrectGPA"
-                                   class="fa fa-2x fa-exclamation-triangle"
-                                   style="display: none; margin-left: 0.2rem; vertical-align: middle">
-                                    <span class="popup-bottom">
-                                        Does not match calculated GPA
-                                    </span>
-                                </i>
-                            </span>
+                            <div>
+                                <h5 style="font-size: 2rem" class="text-center">Semester GPA</h5>
+                                <h5 style="font-size: 5rem" id="GPA-display">--</h5>
+                            </div>
+                            <% if (JSON.parse(gradeHistory).length) { %>
+                                <div>
+                                    <h5 style="font-size: 2rem" class="text-center">Cumulative GPA</h5>
+                                    <h5 style="font-size: 5rem" id="GPA-display-cumulative">--</h5>
+                                </div>
+                            <% } %>
                         </div>
-                        <div id="chart-container-1" class="chart-container text-center">
+                        <div id="chart-container-1" class="chart chart-container text-center">
                             <button id="reset-zoom-1"
                                     style="position: absolute; top: 0; right: 0; height: fit-content; display:none"
                                     class="btn btn-sm" onclick="resetZoom(-1); $(this).hide()">Reset
                             </button>
-                            <canvas id="chart-1" class="chart" style="height: 60vh; width: 60vw;"></canvas>
+                            <div class="chart chart-placeholder fa fa-spin fa-spinner"></div>
+                            <canvas id="chart-1" style="height: 60vh; width: 60vw;"></canvas>
                         </div>
                     </div>
                     <br>
@@ -156,7 +156,7 @@
             <!-- Class Sections -->
             <% offset = 0; %>
             <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                <% if (JSON.parse(appearance).showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
+                <% if (JSON.parse(appearance).showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData).filter(g => g.grades.length)[i].class_name]["classType"] !== "non-academic") { %>
                     <span id="section<%= i + offset; %>" class="section" style="display: none;">
                         <% if (JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] === "non-academic") { %>
                             <div style="display:block">
@@ -168,22 +168,11 @@
                             </div>
                         <% } %>
                         <div class="chartAndWeights">
-                            <div id="chart-container<%= i + offset; %>" class="chart-container">
-                                <button id="reset-zoom<%= i + offset; %>"
-                                        style="position: absolute; top: 0; right: 0; height: fit-content; display:none"
-                                        class="btn btn-sm"
-                                        onclick="resetZoom(<%= i + offset; %>); $(this).hide()">Reset
-                                </button>
-                                <canvas id="chart<%= i + offset; %>" class="chart"></canvas>
-                                <button id="reset-zoom<%= i + offset; %>"
-                                        style="position: absolute; top: 0; right: 0; height: fit-content; display:block"
-                                        class="btn btn-sm"
-                                        onclick="resetZoom(<%= i + offset; %>); $(this).hide()">Reset
-                                </button>
+                            <div id="chart-container<%= i + offset; %>" class="chart chart-container">
+                                <div class="chart-placeholder fa fa-spin fa-spinner"></div>
                             </div>
                             <div class="weights-container">
-                                <form id="weights<%= i + offset; %>" class="form-ajax form-weights form-signin"
-                                      action="/updateweights">
+                                <form id="weights<%= i + offset; %>" class="form-ajax form-weights form-signin">
                                     <table class="table text-center weights rounded-table"
                                            style="white-space: nowrap"
                                            id="weightsTable<%= i + offset; %>">
@@ -193,15 +182,15 @@
                                                     <label style="display: flex; font-size: 1rem; justify-content: center; margin: 0; align-items: flex-start">Point
                                                         Based&nbsp;
                                                         <label class="switch">
-                                                            <input
-                                                                    id="check<%= i + offset; %>"
-                                                                    style="margin: 0; display: flex"
-                                                                    type="checkbox"
-                                                                    name="hasWeights"
+                                                            <input disabled
+                                                                   id="check<%= i + offset; %>"
+                                                                   style="margin: 0; display: flex"
+                                                                   type="checkbox"
+                                                                   name="hasWeights"
                                                             <% if (JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["hasWeights"] === "false") { %>
-                                                                    checked
+                                                                   checked
                                                                     <% } %>
-                                                                    onchange="disableInput('check<%= i + offset; %>','weightsTable<%= i + offset; %>'); resetInputs('#weights<%= i + offset; %>'); $('#weights<%= i + offset; %>').submit();"
+                                                                   onchange="disableInput('check<%= i + offset; %>','weightsTable<%= i + offset; %>'); resetInputs('#weights<%= i + offset; %>'); $('#weights<%= i + offset; %>').submit();"
                                                             >
                                                             <span style="color: <%= JSON.parse(appearance).classColors[i + offset]; %>"
                                                                   class="classSlider slider"></span>
@@ -216,7 +205,7 @@
                                                     <span class="popup">
                                                         <i
                                                                 id="reset<%= i + offset; %>"
-                                                                style="color: #888888; margin: 0; cursor: pointer; display:inline-block"
+                                                                style="margin: 0; cursor: pointer; display:inline-block"
                                                                 class="fa fa-undo"
                                                                 onclick="resetWeights(<%= i + offset; %>); $('#weights<%= i + offset; %>').submit();">
                                                             <span class="popup-top">Revert
@@ -249,7 +238,8 @@
                                                     <% let value = weights[category]; %>
                                                     <td id="weightTableWeight<%= i + offset; %><%= j; %>"
                                                         class="form-group">
-                                                        <input style="<% if (!value && value !== 0) { %> border-color: lightcoral !important; <% } %>"
+                                                        <input disabled
+                                                               style="<% if (!value && value !== 0) { %> border-color: lightcoral !important; <% } %>"
                                                                value="<%= value; %>"
                                                                type="number"
                                                                min="0"
@@ -410,16 +400,13 @@
                                         <th>Score</th>
                                         <th class="compact">Assignment Percent</th>
                                         <th>Overall Grade</th>
-                                        <th class="popup resetTab">
-                                            <i id="resetAll<%= i + offset; %>"
-                                               class="fa fa-undo"
-                                               style="color: #888888; margin: 0; cursor: pointer; visibility:hidden"
-                                               onclick="{resetAll(this);}"
-                                            >
-                                                <span class="popup-left">
-                                                    Revert All
-                                                </span>
-                                            </i>
+                                        <th id="modAllTab<%= i + offset %>" class="toolTab">
+                                            <i id="resetAll<%= i + offset %>" class="fa fa-undo disabled"
+                                               onclick="{resetAll(this)}"></i>
+                                            <i id="trashAll<%= i + offset %>" class="fa fa-trash disabled"
+                                               onclick="{trashAll(this);}"></i>
+                                            <i id="saveAll<%= i + offset %>" class="fa fa-check disabled"
+                                               onclick="{saveAll(this);}"></i>
                                         </th>
                                     </tr>
                                 </thead>
@@ -437,15 +424,13 @@
                                     <% } %>
                                     <tr>
                                         <th colspan="6"><%= category; %></th>
-                                        <th class="popup resetTab">
-                                            <i class="resetCategory<%= i + offset; %> fa fa-undo"
-                                               style="color: #888888; margin: 0; cursor: pointer; visibility:hidden"
-                                               onclick="{resetCategory(this);}"
-                                            >
-                                                <span class="popup-left">
-                                                    Revert Category
-                                                </span>
-                                            </i>
+                                        <th class="toolTab categoryModAllTab<%= i + offset %>">
+                                            <i class="fa fa-undo resetCategory<%= i + offset %> disabled"
+                                               onclick="{resetCategory(this)}"></i>
+                                            <i class="fa fa-trash trashCategory<%= i + offset %> disabled"
+                                               onclick="{trashCategory(this);}"></i>
+                                            <i class="fa fa-check saveCategory<%= i + offset %> disabled"
+                                               onclick="{saveCategory(this);}"></i>
                                         </th>
                                     </tr>
                                     <tr>
@@ -507,7 +492,7 @@
                 setupWeightsTables(changedClassIndex);
                 setupOverviewTable(changedClassIndex);
                 setupClassTables(changedClassIndex);
-                setupGPADisplay();
+                setupGPADisplays();
                 setupIncorrectGradeMessages(changedClassIndex);
                 setPointBasedWeights(changedClassIndex);
                 renderAllCharts(changedClassIndex);
@@ -522,6 +507,11 @@
                 } else {
                     if (refreshing) {
                         clearTimeout(refreshing);
+                    }
+                    for (let i = 0; i < _data.length; i++) {
+                        if (changedClassIndex === undefined || changedClassIndex === i) {
+                            $(`#chart-container${changedClassIndex}`).html("<button id=\"reset-zoom" + changedClassIndex + "\" style=\"position: absolute; top: 0; right: 0; height: fit-content; display:none\" class=\"btn btn-sm\" onclick=\"resetZoom(" + changedClassIndex + "); $(this).hide()\">Reset</button><div class=\"chart-placeholder fa fa-spin fa-spinner\"></div><canvas id=\"chart" + changedClassIndex + "\"></canvas>");
+                        }
                     }
                     refreshing = setTimeout(() => {
                         refresh(changedClassIndex);
@@ -541,6 +531,7 @@
             let addedAssignments = <%- addedAssignments; %>;
             let weights = <%- weightData; %>;
             let relClassData = <%- relevantClassData; %>;
+            let gradeHistoryLetters = <%- gradeHistory; %>;
             let chartData = [];
             let parsedData = [];
             let categorySortedData = [];
@@ -558,13 +549,12 @@
             let darkModeFinish = appearance.darkModeFinish || 7;
             let mobile = window.innerWidth <= 991;
 
-            if (!appearance.showNonAcademic) {
+            if (!appearance.showNonAcademic && Object.keys(Object.fromEntries(Object.entries(relClassData).filter(([, v]) => v.classType === "non-academic"))).length > 0) {
                 colors = colors.filter(color => relClassData[_data[colors.indexOf(color)].class_name].classType !== "non-academic");
                 _data = _data.filter(grade => relClassData[grade.class_name].classType !== "non-academic");
                 weights = Object.fromEntries(Object.entries(weights).filter(([className]) => relClassData[className].classType !== "non-academic"));
             }
 
-            let tempData = Array(_data.length).fill([]).map((x, index) => Array.from({length: _data[index].grades.length}, _ => new Object));
             let changeTransition;
             let theme = appearance.theme;
             let checkingTheme;
@@ -691,7 +681,7 @@
                     return;
                 }
                 $.ajax({
-                           url: "/UpdateTutorialStatus", type: "POST", async: true, _data: {action: action}
+                           url: "/UpdateTutorialStatus", type: "POST", async: true, data: {action: action}
                        }).done((response) => {
                     alerts.tutorialStatus = JSON.parse(response);
                     $("#" + action + "Popup").animate({opacity: 0}, 400, function () {
@@ -703,6 +693,9 @@
             }
 
             function updateData(newData) {
+                if (!newData.grades) {
+                    return {updated: true};
+                }
                 if (_.isEqual(_data.map(c => c.class_name), newData.grades.map(c => c.class_name))) {
                     data = newData.grades;
                     _data = JSON.parse(JSON.stringify(data));
@@ -710,6 +703,7 @@
                     refreshWithoutReload();
                     return {updated: true};
                 }
+                clearTimeout(checkLastUpdated);
                 return {updated: false};
             }
 
@@ -738,6 +732,7 @@
                                 setupLastUpdated();
                             } else if (message.message === "Did not sync") {
                                 $(".updateGradesMessage").find(".messageTxt").text("Syncing...");
+                                $(".fa-refresh").addClass("fa-spin").css("opacity", 0.5);
                             } else if (message.message === "Cannot access grades.") {
                                 $("#syncNoData").show();
                                 clearInterval(checking);
@@ -767,15 +762,18 @@
                 $("body, html").removeClass("no-scroll");
             }
 
-            function setupGPADisplay() {
-                $("#GPA-display").text(getOverallGPA);
+            function setupGPADisplays() {
+                $("#GPA-display").text(getOverallGPA());
+                if (gradeHistoryLetters.length) {
+                    $("#GPA-display-cumulative").text(getCumulativeGPA());
+                }
             }
 
             function setupIncorrectGradeMessages(classIndex) {
                 $("#incorrectGPA").hide();
                 $("#GPA-display").removeClass("ignored");
                 for (let i = 0; i < _data.length; i++) {
-                    if (!classIndex || classIndex === i) {
+                    if (classIndex === undefined || classIndex === i) {
                         let realOverallGrade = _data[i].overall_percent;
                         let realOverallLetter = _data[i].overall_letter;
                         let calculatedOverallGrade = getOverallGrade(i);
@@ -806,27 +804,45 @@
                 return value.toString().split(".")[1].length || 0;
             }
 
+            function getCumulativeGPA() {
+                let GPA = 0.0;
+                let numClasses = gradeHistoryLetters.length;
+                for (let i = 0; i < gradeHistoryLetters.length; i++) {
+                    let classType = relClassData[Object.keys(gradeHistoryLetters[i])[0]].classType;
+                    if (classType !== "non-academic" && Object.values(gradeHistoryLetters[i])[0] && Object.values(gradeHistoryLetters[i])[0] !== "CR") {
+                        if (appearance.weightedGPA && (classType === "ap" || classType === "honors")) {
+                            GPA += 1;
+                        }
+                        GPA += getGPA(Object.values(gradeHistoryLetters[i])[0]);
+                    } else {
+                        numClasses--;
+                    }
+                }
+                GPA /= numClasses;
+                return GPA.toFixed(3);
+            }
+
             function getOverallGPA() {
                 let GPA = 0.0;
                 let numClasses = _data.length;
                 for (let i = 0; i < _data.length; i++) {
                     let className = _data[i].class_name;
                     let classType = relClassData[className]["classType"];
-                    if (classType === "ap" || classType === "honors") {
+                    if (appearance.weightedGPA && (classType === "ap" || classType === "honors")) {
                         GPA += 1;
                     }
-                    if (classType !== "non-academic") {
-                        GPA += getGPA(_data[i].overall_percent);
+                    if (_data[i].overall_letter && _data[i].overall_letter !== "CR") {
+                        GPA += getGPA(_data[i].overall_letter);
                     } else {
                         numClasses--;
                     }
                 }
                 GPA /= numClasses;
-                return GPA.toFixed(2);
+                return GPA.toFixed(3);
             }
 
-            function getGPA(grade) {
-                let letterGrade = getLetterGrade(grade).substring(0, 1);
+            function getGPA(letterGrade) {
+                letterGrade = letterGrade.substring(0, 1);
                 if (letterGrade === "A") {
                     return 4;
                 } else if (letterGrade === "B") {
@@ -854,7 +870,7 @@
 
             function setPointBasedWeights(classIndex) {
                 for (let i = 0; i < _data.length; i++) {
-                    if (!classIndex || classIndex === i) {
+                    if (classIndex === undefined || classIndex === i) {
                         let totalPossible = 0;
                         let result = {};
                         for (let assignment of _data[i]["grades"]) {
@@ -958,7 +974,7 @@
 
             function setupWeightsTables(classIndex) {
                 for (let i = 0; i < _data.length; i++) {
-                    if (!classIndex || classIndex === i) {
+                    if (classIndex === undefined || classIndex === i) {
                         let className = _data[i].class_name;
                         let tableCategories = Object.keys(weights[className]["weights"]);
                         let enableReset = weights[className]["custom"];
@@ -1131,7 +1147,7 @@
                     exclude: addExclude
                 };
 
-                addedAssignments[_data[classIndex].class_name].push(assignmentObject);
+                addedAssignments[_data[classIndex].class_name].push(JSON.parse(JSON.stringify(assignmentObject)));
                 $.ajax({type: "POST", url: "/updateAddedAssignments", data: {data: JSON.stringify(addedAssignments)}});
 
                 let addAssignment = $($(".addAssignment")[currentPage]);
@@ -1164,10 +1180,6 @@
 
                 let assignment = _data[classIndex]["grades"][assignmentIndex];
 
-                if (!parsedData[classIndex].assignmentAdds[assignmentIndex] && !tempData[classIndex][assignmentIndex].points_gotten && tempData[classIndex][assignmentIndex].points_gotten !== false) {
-                    tempData[classIndex][assignmentIndex].points_gotten = assignment.points_gotten;
-                }
-
                 let doRefresh = false;
                 if (assignment.points_gotten !== parseFloat($(element)[0].value)) {
                     doRefresh = true;
@@ -1187,9 +1199,6 @@
                     assignment.grade_percent = false;
                 }
 
-                if (!parsedData[classIndex].assignmentAdds[assignmentIndex] && tempData[classIndex][assignmentIndex].points_gotten === assignment.points_gotten) {
-                    delete tempData[classIndex][assignmentIndex].points_gotten;
-                }
                 if (doRefresh) {
                     refreshWithoutReload(true, classIndex);
                 }
@@ -1219,10 +1228,6 @@
 
                 let assignment = _data[classIndex]["grades"][assignmentIndex];
 
-                if (!parsedData[classIndex].assignmentAdds[assignmentIndex] && !tempData[classIndex][assignmentIndex].points_possible && tempData[classIndex][assignmentIndex].points_possible !== false) {
-                    tempData[classIndex][assignmentIndex].points_possible = assignment.points_possible;
-                }
-
                 let doRefresh = false;
                 if (assignment.points_possible !== parseFloat($(element)[0].value)) {
                     doRefresh = true;
@@ -1237,9 +1242,6 @@
                     assignment.grade_percent = false;
                 }
 
-                if (!parsedData[classIndex].assignmentAdds[assignmentIndex] && tempData[classIndex][assignmentIndex].points_possible === assignment.points_possible) {
-                    delete tempData[classIndex][assignmentIndex].points_possible;
-                }
                 if (doRefresh) {
                     refreshWithoutReload(true, classIndex);
                 }
@@ -1269,15 +1271,7 @@
 
                 let assignment = _data[classIndex]["grades"][assignmentIndex];
 
-                if (!parsedData[classIndex].assignmentAdds[assignmentIndex] && !tempData[classIndex][assignmentIndex].category && tempData[classIndex][assignmentIndex].category !== false) {
-                    tempData[classIndex][assignmentIndex].category = assignment.category;
-                }
-
                 assignment.category = $(element).find("option:selected").text();
-
-                if (!parsedData[classIndex].assignmentAdds[assignmentIndex] && tempData[classIndex][assignmentIndex].category === assignment.category) {
-                    delete tempData[classIndex][assignmentIndex].category;
-                }
             }
 
             function resetAll(element) {
@@ -1309,6 +1303,7 @@
                 let classes = $(element)[0].className.split(" ");
                 let classIndex;
                 let assignmentIndex;
+                let added;
                 let test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "resetRow");
                 if (test.length) {
                     classIndex = parseFloat(test[0].match(/\d+$/)[0]);
@@ -1316,10 +1311,11 @@
                     if (!dateSort[classIndex]) {
                         assignmentIndex = _data[classIndex]["grades"].length - assignmentIndex - 1;
                     }
+                    added = Number.isInteger(data[classIndex].grades[assignmentIndex]);
 
                     // This means that the row was never changed
-                    if ((!tempData[classIndex] || !tempData[classIndex][assignmentIndex]) && !parsedData[classIndex].assignmentAdds[assignmentIndex]) {
-                        $($(`.resetRow${classIndex}`)[assignmentIndex]).css("visibility", "hidden");
+                    if (_.isEqual(data[classIndex].grades[assignmentIndex], added ? addedAssignments[_data[classIndex].class_name][data[classIndex].grades[assignmentIndex]] : _data[classIndex].grades[assignmentIndex])) {
+                        $($(`.resetRow${classIndex}`)[assignmentIndex]).addClass("disabled");
                         return;
                     }
                 } else {
@@ -1331,42 +1327,136 @@
                         assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
                     }
                     assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
+                    added = Number.isInteger(data[classIndex].grades[assignmentIndex]);
 
                     // This means that the row was never changed
-                    if ((!tempData[classIndex] || !tempData[classIndex][assignmentIndex]) && !parsedData[classIndex].assignmentAdds[assignmentIndex]) {
-                        $($(".categoryResetRow" + classIndex)[assignmentIndex]).css("visibility", "hidden");
+                    if (_.isEqual(data[classIndex].grades[assignmentIndex], added ? addedAssignments[_data[classIndex].class_name][data[classIndex].grades[assignmentIndex]] : _data[classIndex].grades[assignmentIndex])) {
+                        $($(".categoryResetRow" + classIndex)[assignmentIndex]).addClass("disabled");
                         return;
                     }
                 }
 
-                let assignment = _data[classIndex]["grades"][assignmentIndex];
-                let addedAssignmentIndex = addedAssignments[_data[classIndex].class_name].indexOf(assignment);
-                if (addedAssignmentIndex !== -1 && notMassReset) {
-                    addedAssignments[_data[classIndex].class_name].splice(addedAssignmentIndex);
-                    $.ajax({
-                               type: "POST",
-                               url: "/updateAddedAssignments",
-                               data: {data: JSON.stringify(addedAssignments)}
-                           });
-                } else {
-
-                    // Reset all edited values
-                    for (let key of Object.keys(tempData[classIndex][assignmentIndex])) {
-                        assignment[key] = tempData[classIndex][assignmentIndex][key];
-                    }
-
-                    // Recalculate grade percent if necessary
-                    if (Object.keys(tempData[classIndex][assignmentIndex]).includes("points_gotten") || Object.keys(tempData[classIndex][assignmentIndex]).includes("points_possible")) {
-                        if ((assignment.points_gotten || assignment.points_gotten === 0) && assignment.points_possible) {
-                            assignment.grade_percent = +parseFloat(assignment.points_gotten / assignment.points_possible * 100).toFixed(2);
-                        } else {
-                            assignment.grade_percent = false;
-                        }
-                    }
-                    tempData[classIndex][assignmentIndex] = {};
-                }
+                // Reset all edited values
+                _data[classIndex].grades[assignmentIndex] = added ? JSON.parse(JSON.stringify(addedAssignments[_data[classIndex].class_name][data[classIndex].grades[assignmentIndex]])) : JSON.parse(JSON.stringify(data[classIndex].grades[assignmentIndex]));
 
                 if (notMassReset) {
+                    refreshWithoutReload(false, classIndex);
+                }
+
+            }
+
+            function trashAll(element) {
+                let classIndex = parseFloat($(element)[0].id.substring(8));
+                let trashButtons = $(".trashRow" + classIndex);
+                for (let i = 0; i < trashButtons.length; i++) {
+                    trashRow(trashButtons[i], false);
+                }
+                refreshWithoutReload(false, classIndex);
+            }
+
+            function trashCategory(element) {
+                let classes = $(element)[0].className.split(" ");
+                let classIndex = parseFloat(classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "trashCategory")[0].match(/\d+$/)[0]);
+                let categories = Object.keys(weights[Object.keys(weights)[classIndex]]["weights"]);
+                let categoryIndex = $.makeArray($(".trashCategory" + classIndex)).indexOf(element);
+                $($(".categoryTable" + classIndex)[categoryIndex]).removeClass("unround-top-right");
+                let category = categories[categoryIndex];
+                let startIndex = categorySortedData[classIndex].assignmentCategories.indexOf(category);
+                let numOfCategory = categorySortedData[classIndex].assignmentCategories.filter(x => x === category).length;
+                let trashButtons = $(".categoryTrashRow" + classIndex);
+                for (let i = startIndex; i < startIndex + numOfCategory; i++) {
+                    trashRow(trashButtons[i], false);
+                }
+                refreshWithoutReload(false, classIndex);
+            }
+
+            function trashRow(element, notMassTrash = true) {
+                let classes = $(element)[0].className.split(" ");
+                let classIndex;
+                let assignmentIndex;
+                let test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "trashRow");
+                if (test.length) {
+                    classIndex = parseFloat(test[0].match(/\d+$/)[0]);
+                    assignmentIndex = $.makeArray($(`.trashRow${classIndex}`)).indexOf(element);
+                    if (!dateSort[classIndex]) {
+                        assignmentIndex = _data[classIndex]["grades"].length - assignmentIndex - 1;
+                    }
+                } else {
+                    test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "categoryTrashRow");
+                    classIndex = parseFloat(test[0].match(/\d+$/)[0]);
+                    assignmentIndex = $.makeArray($(`.categoryTrashRow${classIndex}`)).indexOf(element);
+                    if (!dateSort[classIndex]) {
+                        let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
+                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                    }
+                    assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
+                }
+                let addedAssignmentIndex = data[classIndex].grades[assignmentIndex];
+                addedAssignments[_data[classIndex].class_name].splice(addedAssignmentIndex, 1);
+                _data[classIndex].grades = _data[classIndex].grades.filter((g, index) => !Number.isInteger(data[classIndex].grades[index]));
+                data[classIndex].grades = data[classIndex].grades.filter(g => !Number.isInteger(g));
+
+                $.ajax({
+                           type: "POST", url: "/updateAddedAssignments", data: {data: JSON.stringify(addedAssignments)}
+                       });
+
+                if (notMassTrash) {
+                    refreshWithoutReload(false, classIndex);
+                }
+            }
+
+            function saveAll(element) {
+                let classIndex = parseFloat($(element)[0].id.substring(7));
+                let saveButtons = $(".saveRow" + classIndex);
+                for (let i = 0; i < saveButtons.length; i++) {
+                    saveRow(saveButtons[i], false);
+                }
+                refreshWithoutReload(false, classIndex);
+            }
+
+            function saveCategory(element) {
+                let classes = $(element)[0].className.split(" ");
+                let classIndex = parseFloat(classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "saveCategory")[0].match(/\d+$/)[0]);
+                let categories = Object.keys(weights[Object.keys(weights)[classIndex]]["weights"]);
+                let categoryIndex = $.makeArray($(".saveCategory" + classIndex)).indexOf(element);
+                $($(".categoryTable" + classIndex)[categoryIndex]).removeClass("unround-top-right");
+                let category = categories[categoryIndex];
+                let startIndex = categorySortedData[classIndex].assignmentCategories.indexOf(category);
+                let numOfCategory = categorySortedData[classIndex].assignmentCategories.filter(x => x === category).length;
+                let saveButtons = $(".categorySaveRow" + classIndex);
+                for (let i = startIndex; i < startIndex + numOfCategory; i++) {
+                    saveRow(saveButtons[i], false);
+                }
+                refreshWithoutReload(false, classIndex);
+            }
+
+            function saveRow(element, notMassSave = true) {
+                let classes = $(element)[0].className.split(" ");
+                let classIndex;
+                let assignmentIndex;
+                let test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "saveRow");
+                if (test.length) {
+                    classIndex = parseFloat(test[0].match(/\d+$/)[0]);
+                    assignmentIndex = $.makeArray($(`.saveRow${classIndex}`)).indexOf(element);
+                    if (!dateSort[classIndex]) {
+                        assignmentIndex = _data[classIndex]["grades"].length - assignmentIndex - 1;
+                    }
+                } else {
+                    test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "categorySaveRow");
+                    classIndex = parseFloat(test[0].match(/\d+$/)[0]);
+                    assignmentIndex = $.makeArray($(`.categorySaveRow${classIndex}`)).indexOf(element);
+                    if (!dateSort[classIndex]) {
+                        let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
+                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                    }
+                    assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
+                }
+                addedAssignments[_data[classIndex].class_name][data[classIndex].grades[assignmentIndex]] = JSON.parse(JSON.stringify(_data[classIndex].grades[assignmentIndex]));
+                $.ajax({
+                           type: "POST", url: "/updateAddedAssignments", data: {data: JSON.stringify(addedAssignments)}
+                       });
+
+                if (notMassSave) {
                     refreshWithoutReload(false, classIndex);
                 }
             }
@@ -1394,15 +1484,7 @@
                 }
 
                 let assignment = _data[classIndex]["grades"][assignmentIndex];
-
-                if (!parsedData[classIndex].assignmentAdds[assignmentIndex] && !tempData[classIndex][assignmentIndex].exclude && tempData[classIndex][assignmentIndex].exclude !== false) {
-                    tempData[classIndex][assignmentIndex].exclude = assignment.exclude;
-                }
-
                 assignment.exclude = !assignment.exclude;
-                if (tempData[classIndex][assignmentIndex].exclude === assignment.exclude) {
-                    delete tempData[classIndex][assignmentIndex].exclude;
-                }
                 refreshWithoutReload(true, classIndex);
             }
 
@@ -1498,7 +1580,7 @@
 
             function setupClassTables(classIndex) {
                 for (let i = 0; i < parsedData.length; i++) {
-                    if (!classIndex || classIndex === i) {
+                    if (classIndex === undefined || classIndex === i) {
                         let categories = Object.keys(weights[Object.keys(weights)[i]]["weights"]);
                         let assignmentData;
                         let assignmentDates;
@@ -1508,7 +1590,6 @@
                         let assignmentPercents;
                         let assignmentExcludes;
                         let assignmentAdds;
-                        let modTempData;
                         let rowDivs;
                         let row;
                         let assignmentDateDivs;
@@ -1516,10 +1597,15 @@
                         let assignmentCategoryDivs;
                         let excludeDivs;
                         let assignmentScoreDivs;
+                        let modTabDivs;
                         let resetRowDivs;
+                        let trashRowDivs;
+                        let saveRowDivs;
                         let assignmentPercentDivs;
                         let assignmentOverallDivs;
                         let resetCategoryDivs;
+                        let trashCategoryDivs;
+                        let saveCategoryDivs;
 
                         if (categorySort[i]) {
                             // Data
@@ -1531,58 +1617,70 @@
                             assignmentPercents = categorySortedData[i].assignmentPercents;
                             assignmentExcludes = categorySortedData[i].assignmentExcludes;
                             assignmentAdds = categorySortedData[i].assignmentAdds;
-                            modTempData = [];
-                            for (let j = 0; j < tempData[i].length; j++) {
-                                modTempData.push(tempData[i][categorySortedData[i].originalIndices[j]]);
-                            }
 
                             rowDivs = $(`.categoryClassTableRow${i}`);
                             row = `<tr class="categoryClassTableRow${i}">
-                    <td class="categoryAssignmentDate${i}"></td>
-                    <td>
-                        <div class="excludeToggle"
-                             style="display: flex; justify-content: space-between; align-items: center;">
-                            <div class="categoryAssignmentName${i}"></div>
-                            <div style="display: flex; justify-content: center; flex-flow: column; align-items: center">
-                                <i class="fa fa-ban categoryExclude${i}"
-                                   style="cursor: pointer"
-                                   onclick="toggleExclude(this);">
-                                    <label style="cursor: pointer !important; margin: 0; display: block; font-weight: bolder; font-size: 0.5rem">Exclude</label>
-                                </i>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="categoryAssignmentCategory${i}">
-                        <select class="minimal categoryCategory${i}"
-                                style="margin: 0"></select>
-                    </td>
-                    <td class="form-weights form-signin form-group categoryAssignmentScore${i}">
-                        <div style="display: flex; justify-content: center; align-items: center">
-                            <input class="form-control text-view dynamic-input categoryGotten${i}"
-                                   type="number" step="0.001"
-                                   style="padding: 0; width: 0 !important; "
-                                   placeholder="--"
-                                   onblur="{updatePointsGotten(this);}">
-                                /<input style="padding: 0; width: 0 !important; "
-                                        class="form-control text-view dynamic-input categoryPossible${i}"
-                                        type="number" step="0.001"
-                                        placeholder="--"
-                                        onblur="{updatePointsPossible(this);}">
-                        </div>
-                    </td>
-                    <td class="categoryAssignmentPercent${i}"></td>
-                    <td class="categoryAssignment${i}"></td>
-                    <td class="popup resetTab">
-                        <i class="fa fa-undo categoryResetRow${i}"
-                           style="color: #888888; margin: 0; cursor: pointer; visibility:hidden"
-                           onclick="{resetRow(this);}"
-                        >
-                            <span class="popup-left">
-                                Revert to Original
-                            </span>
-                        </i>
-                    </td>
-                </tr>`;
+                                       <td class="categoryAssignmentDate${i}"></td>
+                                       <td>
+                                           <div class="excludeToggle"
+                                                style="display: flex; justify-content: space-between; align-items: center;">
+                                               <div class="categoryAssignmentName${i}"></div>
+                                               <div style="display: flex; justify-content: center; flex-flow: column; align-items: center">
+                                                   <i class="fa fa-ban categoryExclude${i}"
+                                                      style="cursor: pointer"
+                                                      onclick="toggleExclude(this);">
+                                                       <label style="cursor: pointer !important; margin: 0; display: block; font-weight: bolder; font-size: 0.5rem">Exclude</label>
+                                                   </i>
+                                               </div>
+                                           </div>
+                                       </td>
+                                       <td class="categoryAssignmentCategory${i}">
+                                           <select class="minimal categoryCategory${i}"
+                                                   style="margin: 0"></select>
+                                       </td>
+                                       <td class="form-weights form-signin form-group categoryAssignmentScore${i}">
+                                           <div style="display: flex; justify-content: center; align-items: center">
+                                               <input class="form-control text-view dynamic-input categoryGotten${i}"
+                                                      type="number" step="0.001"
+                                                      style="padding: 0; width: 0 !important; "
+                                                      placeholder="--"
+                                                      onblur="{updatePointsGotten(this);}">
+                                                   /<input style="padding: 0; width: 0 !important; "
+                                                           class="form-control text-view dynamic-input categoryPossible${i}"
+                                                           type="number" step="0.001"
+                                                           placeholder="--"
+                                                           onblur="{updatePointsPossible(this);}">
+                                           </div>
+                                       </td>
+                                       <td class="categoryAssignmentPercent${i}"></td>
+                                       <td class="categoryAssignment${i}"></td>
+                                       <td class="toolTab categoryModTab${i}">
+                                           <span class="popup">
+                                               <i class="fa fa-undo categoryResetRow${i} disabled"
+                                                  onclick="{resetRow(this);}">
+                                                   <span class="popup-left">
+                                                       Revert Changes
+                                                   </span>
+                                               </i>
+                                           </span>
+                                           <span class="popup">
+                                               <i class="fa fa-trash categoryTrashRow${i} disabled"
+                                                  onclick="{trashRow(this);}">
+                                                   <span class="popup-left">
+                                                       Delete Assignment
+                                                   </span>
+                                               </i>
+                                           </span>
+                                           <span class="popup">
+                                               <i class="fa fa-check categorySaveRow${i} disabled"
+                                                  onclick="{saveRow(this);}">
+                                                   <span class="popup-left">
+                                                       Save Changes
+                                                   </span>
+                                               </i>
+                                           </span>
+                                       </td>
+                                   </tr>`;
 
                             for (let j = rowDivs.length; j < assignmentData.length; j++) {
                                 rowDivs.push(row);
@@ -1618,14 +1716,19 @@
                             assignmentCategoryDivs = $(`.categoryAssignmentCategory${i}`);
                             excludeDivs = $(`.categoryExclude${i}`);
                             assignmentScoreDivs = $(`.categoryAssignmentScore${i}`);
+                            modTabDivs = $(`.categoryModTab${i}`);
                             resetRowDivs = $(`.categoryResetRow${i}`);
+                            trashRowDivs = $(`.categoryTrashRow${i}`);
+                            saveRowDivs = $(`.categorySaveRow${i}`);
                             assignmentPercentDivs = $(`.categoryAssignmentPercent${i}`);
                             assignmentOverallDivs = $(`.categoryAssignment${i}`);
 
                             // Set up visuals
                             resetCategoryDivs = $(`.resetCategory${i}`);
-                            resetCategoryDivs.css("visibility", "hidden").parents(".resetTab").hide();
+                            trashCategoryDivs = $(`.trashCategory${i}`);
+                            saveCategoryDivs = $(`.saveCategory${i}`);
                             $(`#table${i}`).hide();
+                            $(`.categoryModAllTab${i}`).css("visibility", "hidden").children("i").addClass("disabled");
                             $(`.categoryTable${i}`).show();
                         } else {
                             // Data
@@ -1637,54 +1740,69 @@
                             assignmentPercents = parsedData[i].assignmentPercents;
                             assignmentExcludes = parsedData[i].assignmentExcludes;
                             assignmentAdds = parsedData[i].assignmentAdds;
-                            modTempData = tempData[i];
 
                             rowDivs = $(`.classTableRow${i}`);
                             row = `<tr class="classTableRow${i}">
-                    <td class="compact assignmentDate${i}"></td>
-                    <td>
-                        <div class="excludeToggle">
-                            <div class="assignmentName${i}"></div>
-                            <div>
-                                <i class="fa fa-ban exclude${i}"
-                                   style="display: flex; flex-flow: column; cursor: pointer; justify-content: center; align-items: center;"
-                                   onclick="toggleExclude(this);">
-                                    <label style="cursor: pointer !important; margin: 0; display: block; font-weight: bolder; font-size: 0.5rem">Exclude</label>
-                                </i>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="compact assignmentCategory${i}">
-                        <select class="minimal category${i}"
-                                style="margin: 0"></select>
-                    </td>
-                    <td class="form-weights form-signin form-group assignmentScore${i}">
-                        <div style="display: flex; justify-content: center; align-items: center">
-                            <input class="form-control text-view dynamic-input gotten${i}"
-                                   type="number" step="0.001"
-                                   style="padding: 0; width: 0 !important; "
-                                   placeholder="--"
-                                   onblur="{updatePointsGotten(this);}">
-                                /<input style="padding: 0; width: 0 !important; "
-                                        class="form-control text-view dynamic-input possible${i}"
-                                        type="number" step="0.001"
-                                        placeholder="--"
-                                        onblur="{updatePointsPossible(this);}">
-                        </div>
-                    </td>
-                    <td class="compact assignmentPercent${i}"></td>
-                    <td class="overall assignment${i}"></td>
-                    <td class="popup resetTab">
-                        <i class="fa fa-undo resetRow${i}"
-                           style="color: #888888; margin: 0; cursor: pointer; visibility:hidden"
-                           onclick="{resetRow(this);}"
-                        >
-                            <span class="popup-left">
-                                Revert to Original
-                            </span>
-                        </i>
-                    </td>
-                </tr>`;
+                                       <td class="compact assignmentDate${i}"></td>
+                                       <td>
+                                           <div class="excludeToggle">
+                                               <div class="assignmentName${i}"></div>
+                                               <div>
+                                                   <i class="fa fa-ban exclude${i}"
+                                                      style="display: flex; flex-flow: column; cursor: pointer; justify-content: center; align-items: center;"
+                                                      onclick="toggleExclude(this);">
+                                                       <label style="cursor: pointer !important; margin: 0; display: block; font-weight: bolder; font-size: 0.5rem">Exclude</label>
+                                                    </i>
+                                               </div>
+                                           </div>
+                                       </td>
+                                       <td class="compact assignmentCategory${i}">
+                                           <select class="minimal category${i}"
+                                                   style="margin: 0"></select>
+                                       </td>
+                                       <td class="form-weights form-signin form-group assignmentScore${i}">
+                                           <div style="display: flex; justify-content: center; align-items: center">
+                                               <input class="form-control text-view dynamic-input gotten${i}"
+                                                      type="number" step="0.001"
+                                                      style="padding: 0; width: 0 !important; "
+                                                      placeholder="--"
+                                                      onblur="{updatePointsGotten(this);}">
+                                                   /<input style="padding: 0; width: 0 !important; "
+                                                           class="form-control text-view dynamic-input possible${i}"
+                                                           type="number" step="0.001"
+                                                           placeholder="--"
+                                                           onblur="{updatePointsPossible(this);}">
+                                           </div>
+                                       </td>
+                                       <td class="compact assignmentPercent${i}"></td>
+                                       <td class="overall assignment${i}"></td>
+                                       <td class="toolTab modTab${i}">
+                                           <span class="popup">
+                                               <i class="fa fa-undo resetRow${i} disabled"
+                                                  onclick="{resetRow(this);}">
+                                                   <span class="popup-left">
+                                                       Revert Changes
+                                                   </span>
+                                               </i>
+                                           </span>
+                                           <span class="popup">
+                                               <i class="fa fa-trash trashRow${i} disabled"
+                                                  onclick="{trashRow(this);}">
+                                                   <span class="popup-left">
+                                                       Delete Assignment
+                                                   </span>
+                                               </i>
+                                           </span>
+                                           <span class="popup">
+                                               <i class="fa fa-check saveRow${i} disabled"
+                                                  onclick="{saveRow(this);}">
+                                                   <span class="popup-left">
+                                                       Save Changes
+                                                   </span>
+                                               </i>
+                                           </span>
+                                       </td>
+                                   </tr>`;
 
                             // Add missing rows
                             for (let j = rowDivs.length; j < assignmentData.length; j++) {
@@ -1707,13 +1825,16 @@
                             assignmentCategoryDivs = $(`.assignmentCategory${i}`);
                             excludeDivs = $(`.exclude${i}`);
                             assignmentScoreDivs = $(`.assignmentScore${i}`);
+                            modTabDivs = $(`.modTab${i}`);
                             resetRowDivs = $(`.resetRow${i}`);
+                            trashRowDivs = $(`.trashRow${i}`);
+                            saveRowDivs = $(`.saveRow${i}`);
                             assignmentPercentDivs = $(`.assignmentPercent${i}`);
                             assignmentOverallDivs = $(`.assignment${i}`);
 
                             // Set up visuals
-                            $(`#resetAll${i}`).css("visibility", "hidden").parents(".resetTab").hide();
                             $(`.categoryTable${i}`).hide();
+                            $(`#modAllTab${i}`).css("visibility", "hidden").children("i").addClass("disabled");
                             $(`#table${i}`).removeClass("unround-top-right").show();
                         }
                         // Rows
@@ -1776,20 +1897,51 @@
                             $(inputs[1]).val(score[1]);
 
                             // Set up reset buttons
+                            let modTab = $(modTabDivs[assignmentIndex]);
                             let resetButton = $(resetRowDivs[assignmentIndex]);
+                            let trashButton = $(trashRowDivs[assignmentIndex]);
+                            let saveButton = $(saveRowDivs[assignmentIndex]);
+                            modTab.css("visibility", "hidden");
+                            let realIndex = categorySort[i] ? categorySortedData[i].originalIndices[j] : j;
                             if (assignmentAdds[j]) {
-                                if (recentlyAddedAssignment && _.isEqual(categorySort[i] ? _data[i].grades[categorySortedData[i].originalIndices[j]] : _data[i].grades[j], recentlyAddedAssignment)) {
+                                if (recentlyAddedAssignment && _.isEqual(_data[i].grades[realIndex], recentlyAddedAssignment)) {
                                     recentlyAddedAssignment = undefined;
                                     recentlyAddedAssignmentDiv = $(resetButton.parents("tr")[0]);
                                 }
-                                resetButton.css("visibility", "visible").removeClass("fa-undo").addClass("fa-trash").children("span").text("Remove added assignment").parents(".resetTab").show();
-                            } else if (Object.keys(modTempData[j]).length) {
-                                resetButton.css("visibility", "visible").removeClass("fa-trash").addClass("fa-undo").children("span").text("Revert to Original").parents(".resetTab").show();
-                                $(`#resetAll${i}`).css("visibility", "visible").parents(".resetTab").show();
-                                $($(`.resetCategory${i}`)[categories.indexOf(assignmentCategories[j])]).css("visibility", "visible").parents(".resetTab").show();
+                                trashButton.removeClass("disabled");
+                                modTab.css("visibility", "visible");
+                                $(`#modAllTab${i}`).css("visibility", "visible");
+                                $(`#trashAll${i}`).removeClass("disabled");
+                                $($(`.categoryModAllTab${i}`)[categories.indexOf(assignmentCategories[j])]).css("visibility", "visible");
+                                $($(`.trashCategory${i}`)[categories.indexOf(assignmentCategories[j])]).removeClass("disabled");
                                 $(`#table${i}`).addClass("unround-top-right");
                             } else {
-                                resetButton.css("visibility", "hidden").parents(".resetTab").hide();
+                                trashButton.addClass("disabled");
+                            }
+
+                            if (!assignmentAdds[j] && !_.isEqual(data[i].grades[realIndex], _data[i].grades[realIndex])) {
+                                resetButton.removeClass("disabled");
+                                modTab.css("visibility", "visible");
+                                $(`#modAllTab${i}`).css("visibility", "visible");
+                                $(`#resetAll${i}`).removeClass("disabled");
+                                $($(`.categoryModAllTab${i}`)[categories.indexOf(assignmentCategories[j])]).css("visibility", "visible");
+                                $($(`.resetCategory${i}`)[categories.indexOf(assignmentCategories[j])]).removeClass("disabled");
+                                $(`#table${i}`).addClass("unround-top-right");
+                            } else {
+                                resetButton.addClass("disabled");
+                            }
+                            if (assignmentAdds[j] && !_.isEqual(addedAssignments[data[i].class_name][data[i].grades[realIndex]], _data[i].grades[realIndex])) {
+                                resetButton.removeClass("disabled");
+                                saveButton.removeClass("disabled");
+                                modTab.css("visibility", "visible");
+                                $(`#modAllTab${i}`).css("visibility", "visible");
+                                $(`#saveAll${i}, #resetAll${i}`).removeClass("disabled");
+                                $($(`.categoryModAllTab${i}`)[categories.indexOf(assignmentCategories[j])]).css("visibility", "visible");
+                                $($(`.saveCategory${i}`)[categories.indexOf(assignmentCategories[j])]).removeClass("disabled");
+                                $($(`.resetCategory${i}`)[categories.indexOf(assignmentCategories[j])]).removeClass("disabled");
+                                $(`#table${i}`).addClass("unround-top-right");
+                            } else {
+                                saveButton.addClass("disabled");
                             }
 
                             // Set up percents
@@ -1841,10 +1993,9 @@
                 if (recentlyAddedAssignmentDiv) {
                     $("html, body").animate({scrollTop: recentlyAddedAssignmentDiv.offset().top - $(window).height() / 2 - recentlyAddedAssignmentDiv.height() / 2}, 400);
                     recentlyAddedAssignmentDiv.addClass("addAssignmentAnimation");
-                    let temp = recentlyAddedAssignmentDiv;
-                    setTimeout(() => {
-                        temp.removeClass("addAssignmentAnimation");
-                    }, 10000);
+                    recentlyAddedAssignmentDiv.on("webkitAnimationEnd oanimationend msAnimationEnd animationend", function () {
+                        $(this).removeClass("addAssignmentAnimation");
+                    });
                     recentlyAddedAssignmentDiv = undefined;
                 }
             }
@@ -1865,7 +2016,7 @@
                         color = "red";
                     }
                     delta = (delta ? (" <div class=\"delta\" style=\"color: " + color + "\">" + delta + "</div>") : "");
-                    if (getOverallGrade(i)) {
+                    if (overallGrade) {
                         document.getElementById("overviewChart" + i).innerHTML = "<div class=\"overallGrade\">" + (+(overallGrade.toFixed(4))).toString() + "%" + "</div><div class=\"overallLetter\">" + _data[i].overall_letter + "</div>" + delta;
                     } else {
                         document.getElementById("overviewChart" + i).innerHTML = "N/A";
@@ -1899,11 +2050,9 @@
             }
 
             function parseData(classIndex) {
-                // Reset to original
-                _data = JSON.parse(JSON.stringify(data));
 
                 for (let i = 0; i < _data.length; i++) {
-                    if (!classIndex || classIndex === i) {
+                    if (classIndex === undefined || classIndex === i) {
                         let classData = _data[i];
                         let className = classData.class_name;
                         let localMissingCategories = Object.keys(weights[className]["weights"]).filter(category => !weights[className]["weights"][category] && weights[className]["weights"][category] !== 0);
@@ -1915,20 +2064,21 @@
                 }
 
                 // Insert added assignments
-                console.log(_data, addedAssignments);
                 for (let i = 0; i < _data.length; i++) {
-                    for (let j = 0; j < addedAssignments[_data[i].class_name].length; j++) {
-                        let assignmentObject = addedAssignments[_data[i].class_name][j];
-                        if (_data[i].grades.includes(assignmentObject)) {
-                            continue;
-                        }
-                        let insertAt = _data[i].grades.findIndex(g => new Date(g.date) > new Date(assignmentObject.date));
-                        if (insertAt >= 0) {
-                            _data[i].grades.splice(insertAt, 0, assignmentObject);
-                            tempData[i].splice(insertAt, 0, {});
-                        } else {
-                            _data[i].grades.push(assignmentObject);
-                            tempData[i].push({});
+                    if (classIndex === undefined || classIndex === i) {
+                        for (let j = 0; j < addedAssignments[_data[i].class_name].length; j++) {
+                            let assignmentObject = JSON.parse(JSON.stringify(addedAssignments[_data[i].class_name][j]));
+                            if (_.findIndex(_data[i].grades, (a) => _.isMatch(a, assignmentObject)) > -1 || data[i].grades.indexOf(j) > -1) {
+                                continue;
+                            }
+                            let insertAt = _data[i].grades.findIndex(g => new Date(g.date) > new Date(assignmentObject.date));
+                            if (insertAt >= 0) {
+                                _data[i].grades.splice(insertAt, 0, assignmentObject);
+                                data[i].grades.splice(insertAt, 0, j);
+                            } else {
+                                _data[i].grades.push(assignmentObject);
+                                data[i].grades.push(j);
+                            }
                         }
                     }
                 }
@@ -1937,10 +2087,10 @@
                 //Get data for one class
                 for (let i = 0; i < _data.length; i++) {
                     let categories = Object.keys(weights[Object.keys(weights)[i]]["weights"]);
-                    if (!classIndex || classIndex === i) {
+                    if (classIndex === undefined || classIndex === i) {
                         //Add sorting vars
                         if (!dateSort[i] && dateSort[i] !== false) {
-                            dateSort[i] = true;
+                            dateSort[i] = false;
                         }
                         if (!categorySort[i] && categorySort[i] !== false) {
                             categorySort[i] = false;
@@ -1986,7 +2136,7 @@
                                             categoryGrades[grade.category].totalGotten += grade.points_gotten;
                                         }
                                         let overallPercent = 0;
-                                        for (let [key, value] of Object.entries(totalPossiblesAndGottens)) {
+                                        for (let [, value] of Object.entries(totalPossiblesAndGottens)) {
                                             if (value.totalGotten === false || value.totalPossible === false) {
                                                 totalWeightValue -= value.weight;
                                                 value.weight = 0;
@@ -2045,8 +2195,8 @@
                         assignmentScoresParsed = classData.map(x => (x.points_gotten === false ? "--" : x.points_gotten) + (x.points_possible === false ? "" : "/" + x.points_possible));
                         assignmentCategories = classData.map(x => x.category);
                         let assignmentExcludes = classData.map(x => x.exclude);
-                        let assignmentAdds = classData.map(x => addedAssignments[className].includes(x));
-                        let rawData = overallGradeSteps.map((grade, index) => grade === false ? (index > 0 ? excludedGradeSteps.shift() : 100) : grade);
+                        let assignmentAdds = classData.map((grade, index) => Number.isInteger(data[i].grades[index]));
+                        let rawData = overallGradeSteps.map((grade, index) => grade === false ? (index >= 0 ? excludedGradeSteps.shift() : 100) : grade);
                         parsedData[i] = {
                             assignmentNames: assignmentNames,
                             assignmentDates: assignmentDates,
@@ -2079,7 +2229,7 @@
                 if (_data && _data.length && !mobile) {
                     renderOverviewChart();
                     for (let i = 0; i < _data.length; i++) {
-                        if (!classIndex || classIndex === i) {
+                        if (classIndex === undefined || classIndex === i) {
                             renderChart(i);
                         }
                     }
@@ -2105,7 +2255,7 @@
 
             function renderOverviewChart() {
                 $("#chart-1").remove();
-                $("#chart-container-1").html("<button id=\"reset-zoom-1\" style=\"position: absolute; top: 0; right: 0; height: fit-content; display:none\" class=\"btn btn-sm\" onclick=\"resetZoom(-1); $(this).hide()\">Reset</button><canvas id=\"chart-1\" class=\"chart\"></canvas>");
+                $("#chart-container-1").html("<button id=\"reset-zoom-1\" style=\"position: absolute; top: 0; right: 0; height: fit-content; display:none\" class=\"btn btn-sm\" onclick=\"resetZoom(-1); $(this).hide()\">Reset</button><canvas id=\"chart-1\"></canvas>");
                 let ctx = document.getElementById("chart-1");
                 let dataset = [];
                 let _colors = colors;
@@ -2114,8 +2264,7 @@
                 }
                 for (let i = 0; i < _data.length; i++) {
                     dataset.push({
-                                     label: _data[i].class_name,
-                                     backgroundColor: "transparent",
+                                     label: _data[i].class_name, backgroundColor: "transparent",
                                      pointBackgroundColor: _colors[i],
                                      pointBorderColor: "transparent",
                                      borderColor: _colors[i],
@@ -2168,7 +2317,7 @@
                         }, scales: {
                             xAxes: [{
                                 type: "time", time: {
-                                    unit: "month"
+                                    unit: chartData.filter(d => new Date(d.assignmentDates.slice(-1)[0]).getMonth() !== new Date(d.assignmentDates[0]).getMonth()).length ? "month" : "day"
                                 }, ticks: {
                                     fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "13"
                                 }, gridLines: {
@@ -2176,9 +2325,7 @@
                                 }
                             }], yAxes: [{
                                 ticks: {
-                                    max: 110,
-                                    min: 70,
-                                    fontColor: (darkMode ? "white" : "black"),
+                                    max: 110, min: 70, fontColor: (darkMode ? "white" : "black"),
                                     fontFamily: "Verdana",
                                     fontSize: "12"
                                 }, gridLines: {
@@ -2241,10 +2388,16 @@
                 });
             }
 
+            Chart.pluginService.register({
+                                             afterRender: chartInstance => {
+                                                 $(`#chart-container${chartInstance.chart.ctx.canvas.id.substring(5)} .chart-placeholder`).remove();
+                                             }
+                                         });
+
             function renderChart(id) {
                 $("#chart" + id).remove();
                 if (chartData[id].mixedData.length) {
-                    $("#chart-container" + id).html("<button id=\"reset-zoom" + id + "\" style=\"position: absolute; top: 0; right: 0; height: fit-content; display:none\" class=\"btn btn-sm\" onclick=\"resetZoom(" + id + "); $(this).hide()\">Reset</button><canvas id=\"chart" + id + "\" class=\"chart\"></canvas>");
+                    $("#chart-container" + id).html("<button id=\"reset-zoom" + id + "\" style=\"position: absolute; top: 0; right: 0; height: fit-content; display:none\" class=\"btn btn-sm\" onclick=\"resetZoom(" + id + "); $(this).hide()\">Reset</button><div class=\"chart-placeholder fa fa-spin fa-spinner\"></div><canvas id=\"chart" + id + "\"></canvas>");
                     let ctx = document.getElementById("chart" + id);
                     let _colors = colors;
                     charts[id + 1] = new Chart(ctx, {
@@ -2272,7 +2425,7 @@
                             }, scales: {
                                 xAxes: [{
                                     type: "time", time: {
-                                        unit: "month"
+                                        unit: new Date(chartData[id].assignmentDates.slice(-1)[0]).getMonth() === new Date(chartData[id].assignmentDates[0]).getMonth() ? "day" : "month"
                                     }, ticks: {
                                         fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "13"
                                     }, gridLines: {
@@ -2280,7 +2433,11 @@
                                     }
                                 }], yAxes: [{
                                     ticks: {
-                                        fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "12"
+                                        max: appearance.regularizeClassGraphs ? 110 : undefined,
+                                        min: appearance.regularizeClassGraphs ? 70 : undefined,
+                                        fontColor: (darkMode ? "white" : "black"),
+                                        fontFamily: "Verdana",
+                                        fontSize: "12"
                                     }, gridLines: {
                                         color: (darkMode ? "#555555" : "#CCCCCC"), drawBorder: false
                                     }
@@ -2333,9 +2490,9 @@
                                 }
                             }
                         }
-                    });
+                    })
                 } else {
-                    $("#chart-container" + id).html("<div class=\"chart\" style=\"height: 100%; font-size: 3rem; font-weight: bold;text-align: center; filter: opacity(0.5); line-height: 100%\">No Data</div>");
+                    $("#chart-container" + id).html("<div style=\"height: 100%; font-size: 3rem; font-weight: bold;text-align: center; filter: opacity(0.5); line-height: 100%\">No Data</div>");
                 }
             }
 
@@ -2459,33 +2616,6 @@
                 }
             };
 
-            function isEqual(a, b) {
-                let aProps = Object.getOwnPropertyNames(a);
-                let bProps = Object.getOwnPropertyNames(b);
-
-                // If number of properties is different,
-                // objects are not equivalent
-                if (aProps.length != bProps.length) {
-                    return false;
-                }
-
-                for (let i = 0; i < aProps.length; i++) {
-                    let propName = aProps[i];
-
-                    // If values of same property are not equal,
-                    // objects are not equivalent
-                    if (a[propName] !== b[propName]) {
-                        return false;
-                    }
-                }
-
-                // If we made it this far, objects
-                // are considered equivalent
-                return true;
-            }
-
-
-            //TODO I'm pretty sure the following two functions do the same thing but I'm not sure so I'll keep them for now -- Joel
             function resetWeights(index) {
                 let className = _data[index].class_name;
                 $("#check" + index).prop("checked", relClassData[className]["hasWeights"] === "false");
@@ -2540,7 +2670,7 @@
                                     weightURI[n.name] = isNaN(parseFloat(n.value)) ? null : parseFloat(n.value);
                                 }
                             });
-                            if (isEqual(weights[className]["weights"], weightURI) && ((weights[className]["hasWeights"] === "true") === hasWeights)) {
+                            if (_.isEqual(weights[className]["weights"], weightURI) && ((weights[className]["hasWeights"] === "true") === hasWeights)) {
                                 return;
                             }
                             weightURI = encodeURIComponent(JSON.stringify(weightURI));
@@ -2549,7 +2679,7 @@
                             let formData = "className=" + className + "&hasWeights=" + hasWeights + "&newWeights=" + weightURI;
 
                             $.ajax({
-                                       type: "POST", url: $(form).attr("action"), data: formData
+                                       type: "POST", url: "/updateWeights", data: formData
                                    }).done((data) => {
                                 // Make sure that the formMessages div has the alert-success class.
                                 className = decodeURI(className);
@@ -2579,6 +2709,7 @@
                                 refreshWithoutReload();
                             });
                         });
+                        $(form).find("input").prop("disabled", false);
                     });
                 }
             });

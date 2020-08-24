@@ -142,6 +142,8 @@
     let checkLastUpdated;
 
     function setupLastUpdated() {
+        $(".fa-refresh.fa-spin").removeClass("fa-spin").css("opacity", "");
+
         const JUST_NOW_LIMIT = 10;
 
         const SECOND = 1000;
