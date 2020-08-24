@@ -107,16 +107,16 @@ module.exports = function (app, passport) {
             let gradeHistoryLetters = [];
 
             let {term, semester} = authenticator.getMostRecentTermData(req.query.usernameToRender);
-            for (let i = 0; i < Object.keys(req.user.grades).length; i++) {
-                let t = Object.keys(req.user.grades)[i];
-                for (let j = 0; j < Object.keys(req.user.grades[t]).length; j++) {
-                    let s = Object.keys(req.user.grades[t])[j];
+            for (let i = 0; i < Object.keys(user.grades).length; i++) {
+                let t = Object.keys(user.grades)[i];
+                for (let j = 0; j < Object.keys(user.grades[t]).length; j++) {
+                    let s = Object.keys(user.grades[t])[j];
                     if ((t === term && s === semester) || s === "S0") {
                         continue;
                     }
-                    for (let k = 0; k < req.user.grades[t][s].length; k++) {
+                    for (let k = 0; k < user.grades[t][s].length; k++) {
                         let next = {};
-                        next[req.user.grades[t][s][k].class_name] = req.user.grades[t][s][k].overall_letter;
+                        next[user.grades[t][s][k].class_name] = user.grades[t][s][k].overall_letter;
                         gradeHistoryLetters.push(next);
                     }
                 }
@@ -144,19 +144,19 @@ module.exports = function (app, passport) {
             } else {
                 res.render("authorized_index.ejs", {
                     page: "home",
-                    username: req.user.username,
-                    schoolUsername: req.user.schoolUsername,
-                    isAdmin: req.user.isAdmin,
-                    personalInfo: JSON.stringify(req.user.personalInfo),
-                    appearance: JSON.stringify(req.user.appearance),
-                    alerts: JSON.stringify(Object.assign(req.user.alerts, {lastUpdated: req.user.alerts.lastUpdated.slice(-1)})),
-                    gradeSync: !!req.user.schoolPassword,
+                    username: user.username,
+                    schoolUsername: user.schoolUsername,
+                    isAdmin: user.isAdmin,
+                    personalInfo: JSON.stringify(user.personalInfo),
+                    appearance: JSON.stringify(user.appearance),
+                    alerts: JSON.stringify(Object.assign(user.alerts, {lastUpdated: user.alerts.lastUpdated.slice(-1)})),
+                    gradeSync: !!user.schoolPassword,
                     gradeData: JSON.stringify([]),
                     weightData: JSON.stringify({}),
                     addedAssignments: JSON.stringify({}),
                     gradeHistory: JSON.stringify([]),
                     relevantClassData: JSON.stringify({}),
-                    sortingData: JSON.stringify(req.user.sortingData),
+                    sortingData: JSON.stringify(user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     dst: isDST()
                 });
