@@ -16,13 +16,13 @@
 </div>
 <script>
     // Show user when session ends
-    let timeout = <%= sessionTimeout %>
-        setInterval(function () {
+    let timeout = <%= sessionTimeout %>;
+    setInterval(function () {
 
-            if (Date.now() > timeout) {
-                $(".session-timeout").show();
-                $("body").find("*").not(".session-timeout").remove();
-            }
+        if (Date.now() > timeout) {
+            $(".session-timeout").show();
+            $("body").find("*").not(".session-timeout").remove();
+        }
 
-        }, 10000);
+    }, 10000);
 </script>

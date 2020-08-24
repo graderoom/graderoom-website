@@ -4,257 +4,263 @@
     <div class="blurred-background"></div>
     <div class="col-sm-11 col-md-10 col-lg-9 col-xl-8 mx-auto">
         <div id="privacyCard" class="card card-signin my-5">
-            <% if (user.alerts.policyLastSeen !== "never") { %>
+            <% if (JSON.parse(alerts).policyLastSeen !== "never") { %>
                 <btn class="btn btn-md"
                      onclick="closeForm('privacyDisplay');"
                      style="width: fit-content; width: -moz-fit-content; margin-bottom:0">
                     <i class="fa fa-close" aria-hidden="true"></i> Close
                 </btn>
             <% } %>
-                <div class="card-body">
-                    <h1 class="card-title text-center">
-                        Welcome to our Privacy Policy
-                    </h1>
-                    <div class="card-footer">
-                        <h3>Your privacy is critically important to us.</h3>
+            <div class="card-body">
+                <h1 class="card-title text-center">
+                    Welcome to our Privacy Policy
+                </h1>
+                <div class="card-footer" id="privacyScroller">
+                    <h3>Your privacy is critically important to us.</h3>
 
-                        <p>This privacy policy has been compiled to better serve those who are concerned with how their
-                            Personally Identifiable Information (PII) is being used online. PII, as described in US
-                            privacy
-                            law and information security, is information that can be used on its own or with other
-                            information to identify, contact, or locate a single person, or to identify an individual in
-                            context. Please read our privacy policy carefully to get a clear understanding of how we
-                            collect, use, protect or otherwise handle your Personally Identifiable Information in
-                            accordance
-                            with our website.
-                        </p>
+                    <p>This privacy policy has been compiled to better serve those who are concerned with how their
+                        Personally Identifiable Information (PII) is being used online. PII, as described in US
+                        privacy
+                        law and information security, is information that can be used on its own or with other
+                        information to identify, contact, or locate a single person, or to identify an individual in
+                        context. Please read our privacy policy carefully to get a clear understanding of how we
+                        collect, use, protect or otherwise handle your Personally Identifiable Information in
+                        accordance
+                        with our website.
+                    </p>
 
-                        <h3>Website Visitors</h3>
-                        <p>When registering on our site, you are asked to enter your name,
-                            email address, and other details to help you with your
-                            experience.
-                        </p>
+                    <h3>Website Visitors</h3>
+                    <p>When registering on our site, you are asked to enter your name,
+                        email address, and other details to help you with your
+                        experience.
+                    </p>
 
-                        <h3>Information We Collect</h3>
-                        <p>We collect and safely store information from you when you fill out forms or enter information
-                            on
-                            our
-                            site.
-                        </p>
+                    <h3>Information We Collect</h3>
+                    <p>We collect and safely store information from you when you fill out forms or enter information
+                        on
+                        our
+                        site.
+                    </p>
 
-                        <h4>How we use your information</h4>
-                        <p>We use the information we collect from you when you register, change your settings, sync your
-                            grades, or use other site features that require storage of your information to provide a
-                            better
-                            experience for you. This includes displaying your grades, providing insights, and providing
-                            remote assistance when requested.
-                        </p>
+                    <h4>How we use your information</h4>
+                    <p>We use the information we collect from you when you register, change your settings, sync your
+                        grades, or use other site features that require storage of your information to provide a
+                        better
+                        experience for you. This includes displaying your grades, providing insights, and providing
+                        remote assistance when requested.
+                    </p>
 
-                        <h4>How we protect your information</h4>
-                        <p>Your personal information is contained behind secured networks and is only accessible by a
-                            limited
-                            number of persons who have special access rights to such systems, and are required to keep
-                            the
-                            information confidential. In addition, information you supply is encrypted via
-                            Secure Socket Layer (SSL) technology.
-                        </p>
+                    <h4>How we protect your information</h4>
+                    <p>Your personal information is contained behind secured networks and is only accessible by a
+                        limited
+                        number of persons who have special access rights to such systems, and are required to keep
+                        the
+                        information confidential. In addition, information you supply is encrypted via
+                        Secure Socket Layer (SSL) technology.
+                    </p>
 
-                        <p>We implement a variety of security measures when a user enters, submits, or accesses their
-                            information to maintain the safety of your personal information.
-                        </p>
+                    <p>We implement a variety of security measures when a user enters, submits, or accesses their
+                        information to maintain the safety of your personal information.
+                    </p>
 
-                        <p>Graderoom discloses potentially personally-identifying and personally-identifying information
-                            only to those of its employees, contractors and affiliated organizations that (i) need to
-                            know
-                            that information in order to process it on Graderoom's behalf or to provide services
-                            available
-                            at Graderoom's website, and (ii) that have agreed not to disclose it to others.
-                            by using Graderoom's website, you consent to the transfer of such information to them.
-                            Graderoom
-                            will not rent or sell potentially personally-identifying and personally-identifying
-                            information
-                            to anyone. Other than to its employees, contractors and affiliated organizations, as
-                            described
-                            above, Graderoom discloses potentially personally-identifying and personally-identifying
-                            information only in response to a subpoena, court order or other governmental request, or
-                            when
-                            Graderoom believes in good faith that disclosure is reasonably necessary to protect the
-                            property
-                            or rights of Graderoom, third parties or the public at large.
-                        </p>
+                    <p>Graderoom discloses potentially personally-identifying and personally-identifying information
+                        only to those of its employees, contractors and affiliated organizations that (i) need to
+                        know
+                        that information in order to process it on Graderoom's behalf or to provide services
+                        available
+                        at Graderoom's website, and (ii) that have agreed not to disclose it to others.
+                        by using Graderoom's website, you consent to the transfer of such information to them.
+                        Graderoom
+                        will not rent or sell potentially personally-identifying and personally-identifying
+                        information
+                        to anyone. Other than to its employees, contractors and affiliated organizations, as
+                        described
+                        above, Graderoom discloses potentially personally-identifying and personally-identifying
+                        information only in response to a subpoena, court order or other governmental request, or
+                        when
+                        Graderoom believes in good faith that disclosure is reasonably necessary to protect the
+                        property
+                        or rights of Graderoom, third parties or the public at large.
+                    </p>
 
-                        <p>If you are a registered user of our site and have supplied your email address,
-                            Graderoom may occasionally send you an email to tell you about new features, solicit your
-                            feedback, or just keep you up to date with what's going on with Graderoom. We
-                            primarily use our changelog to communicate this type of information, so we expect to keep
-                            this
-                            type of email to a minimum. If you send us a request (for example via a support email or via
-                            one
-                            of our feedback mechanisms), we reserve the right to publish it in order to help us clarify
-                            or
-                            respond to your request or to help us support other users. Graderoom takes all measures
-                            reasonably necessary to protect against the unauthorized access, use, alteration or
-                            destruction
-                            of potentially personally-identifying and personally-identifying information.
-                        </p>
+                    <p>If you are a registered user of our site and have supplied your email address,
+                        Graderoom may occasionally send you an email to tell you about new features, solicit your
+                        feedback, or just keep you up to date with what's going on with Graderoom. We
+                        primarily use our changelog to communicate this type of information, so we expect to keep
+                        this
+                        type of email to a minimum. If you send us a request (for example via a support email or via
+                        one
+                        of our feedback mechanisms), we reserve the right to publish it in order to help us clarify
+                        or
+                        respond to your request or to help us support other users. Graderoom takes all measures
+                        reasonably necessary to protect against the unauthorized access, use, alteration or
+                        destruction
+                        of potentially personally-identifying and personally-identifying information.
+                    </p>
 
-                        <h3>Aggregated Statistics</h3>
-                        <p>Graderoom may collect statistics about the behavior of visitors to its website. Graderoom may
-                            display this information publicly or provide it to others. However, Graderoom does not
-                            disclose
-                            your personally-identifying information.
-                        </p>
+                    <h3>Aggregated Statistics</h3>
+                    <p>Graderoom may collect statistics about the behavior of visitors to its website. Graderoom may
+                        display this information publicly or provide it to others. However, Graderoom does not
+                        disclose
+                        your personally-identifying information.
+                    </p>
 
-                        <h3>Cookies</h3>
-                        <p>To enrich and perfect your online experience, Graderoom uses "Cookies", similar technologies
-                            and
-                            services provided by others to display personalized content, appropriate advertising and
-                            store
-                            your preferences on your computer.
-                        </p>
+                    <h3>Cookies</h3>
+                    <p>To enrich and perfect your online experience, Graderoom uses "Cookies", similar technologies
+                        and
+                        services provided by others to display personalized content, appropriate advertising and
+                        store
+                        your preferences on your computer.
+                    </p>
 
-                        <p>A cookie is a string of information that a website stores on a visitor's computer, and that
-                            the
-                            visitor's browser provides to the website each time the visitor returns. Graderoom uses
-                            cookies
-                            to help Graderoom identify and track visitors, their usage of Graderoom, and
-                            their website access preferences. Graderoom visitors who do not wish to have cookies placed
-                            on
-                            their computers should set their browsers to refuse cookies before using Graderoom's
-                            websites,
-                            with the drawback that certain features of Graderoom's websites may not function properly
-                            without the aid of cookies.
-                        </p>
+                    <p>A cookie is a string of information that a website stores on a visitor's computer, and that
+                        the
+                        visitor's browser provides to the website each time the visitor returns. Graderoom uses
+                        cookies
+                        to help Graderoom identify and track visitors, their usage of Graderoom, and
+                        their website access preferences. Graderoom visitors who do not wish to have cookies placed
+                        on
+                        their computers should set their browsers to refuse cookies before using Graderoom's
+                        websites,
+                        with the drawback that certain features of Graderoom's websites may not function properly
+                        without the aid of cookies.
+                    </p>
 
-                        <p>By continuing to navigate our website without changing your cookie settings, you hereby
-                            acknowledge and agree to Graderoom's use of cookies.
-                        </p>
+                    <p>By continuing to navigate our website without changing your cookie settings, you hereby
+                        acknowledge and agree to Graderoom's use of cookies.
+                    </p>
 
-                        <h3>California Online Privacy Protection Act</h3>
-                        <p>CalOPPA is the first state law in the nation to require commercial websites and online
-                            services
-                            to post a privacy policy. The law’s reach stretches well beyond California to require any
-                            person
-                            or company in the United States (and conceivably the world) that operates websites
-                            collecting
-                            PII from California consumers to post a conspicuous privacy policy on its website stating
-                            exactly the information being collected and those individuals or companies with whom it is
-                            being
-                            shared. – See more at:
-                            <a href="http://consumercal.org/california-online-privacy-protection-act-caloppa/#sthash.0FdRbT51.dpuf"
-                               target="_blank">http://consumercal.org/california-online-privacy-protection-act-caloppa/#sthash.0FdRbT51.dpuf</a>
-                        </p>
+                    <h3>California Online Privacy Protection Act</h3>
+                    <p>CalOPPA is the first state law in the nation to require commercial websites and online
+                        services
+                        to post a privacy policy. The law’s reach stretches well beyond California to require any
+                        person
+                        or company in the United States (and conceivably the world) that operates websites
+                        collecting
+                        PII from California consumers to post a conspicuous privacy policy on its website stating
+                        exactly the information being collected and those individuals or companies with whom it is
+                        being
+                        shared. – See more at:
+                        <a href="http://consumercal.org/california-online-privacy-protection-act-caloppa/#sthash.0FdRbT51.dpuf"
+                           target="_blank">http://consumercal.org/california-online-privacy-protection-act-caloppa/#sthash.0FdRbT51.dpuf</a>
+                    </p>
 
-                        <h4>According to CalOPPA, we agree to the following:</h4>
-                        <p>Users can visit our site anonymously.</p>
+                    <h4>According to CalOPPA, we agree to the following:</h4>
+                    <p>Users can visit our site anonymously.</p>
 
-                        <p>Once this privacy policy is created we will add a link to it on our home page or as a
-                            minimum, on
-                            the first significant page after entering our website.
-                        </p>
+                    <p>Once this privacy policy is created we will add a link to it on our home page or as a
+                        minimum, on
+                        the first significant page after entering our website.
+                    </p>
 
-                        <p>Our Privacy Policy link includes the word "privacy" and can be easily found on the page
-                            specified
-                            above.
-                        </p>
+                    <p>Our Privacy Policy link includes the word "privacy" and can be easily found on the page
+                        specified
+                        above.
+                    </p>
 
-                        <p>You will be notified of any Privacy Policy changes in a what's new popup and occurences of
-                            changes will be documented
+                    <p>You will be notified of any Privacy Policy changes in a what's new popup and occurences of
+                        changes will be documented
 
-                        <h3>COPPA (Children Online Privacy Protection Act)</h3>
-                        <p>When it comes to the collection of personal information from children under the age of 13
-                            years
-                            old, the Children’s Online Privacy Protection Act (COPPA) puts parents in control.
-                        </p>
+                    <h3>COPPA (Children Online Privacy Protection Act)</h3>
+                    <p>When it comes to the collection of personal information from children under the age of 13
+                        years
+                        old, the Children’s Online Privacy Protection Act (COPPA) puts parents in control.
+                    </p>
 
-                        <p>The Federal Trade Commission, United States’ consumer protection agency, enforces the COPPA
-                            Rule, which spells out what operators of websites and online services must do to protect
-                            children’s privacy and safety online.
-                        </p>
+                    <p>The Federal Trade Commission, United States’ consumer protection agency, enforces the COPPA
+                        Rule, which spells out what operators of websites and online services must do to protect
+                        children’s privacy and safety online.
+                    </p>
 
-                        <p>We do not specifically market to children under the age of 13 years old.</p>
+                    <p>We do not specifically market to children under the age of 13 years old.</p>
 
-                        <h3>Fair Information Practices</h3>
-                        <p>The Fair Information Practices Principles form the backbone of privacy law in the United
-                            States
-                            and
-                            the concepts they include have played a significant role in the development of data
-                            protection
-                            laws
-                            around the globe. Understanding the Fair Information Practice Principles and how they should
-                            be
-                            implemented is critical to comply with the various privacy laws that protect personal
-                            information.
-                        </p>
+                    <h3>Fair Information Practices</h3>
+                    <p>The Fair Information Practices Principles form the backbone of privacy law in the United
+                        States
+                        and
+                        the concepts they include have played a significant role in the development of data
+                        protection
+                        laws
+                        around the globe. Understanding the Fair Information Practice Principles and how they should
+                        be
+                        implemented is critical to comply with the various privacy laws that protect personal
+                        information.
+                    </p>
 
-                        <p>In order to be in line with Fair Information Practices we will take the following responsive
-                            action,
-                            should a data breach occur:
-                        </p>
+                    <p>In order to be in line with Fair Information Practices we will take the following responsive
+                        action,
+                        should a data breach occur:
+                    </p>
 
-                        <p>We will notify you via email within seven business days.</p>
+                    <p>We will notify you via email within seven business days.</p>
 
-                        <p>We also agree to the Individual Redress Principle which requires that individuals have the
-                            right
-                            to
-                            legally pursue enforceable rights against data collectors and processors who fail to adhere
-                            to
-                            the
-                            law. This principle requires not only that individuals have enforceable rights against data
-                            users,
-                            but also that individuals have recourse to courts or government agencies to investigate
-                            and/or
-                            prosecute non-compliance by data processors.
-                        </p>
+                    <p>We also agree to the Individual Redress Principle which requires that individuals have the
+                        right
+                        to
+                        legally pursue enforceable rights against data collectors and processors who fail to adhere
+                        to
+                        the
+                        law. This principle requires not only that individuals have enforceable rights against data
+                        users,
+                        but also that individuals have recourse to courts or government agencies to investigate
+                        and/or
+                        prosecute non-compliance by data processors.
+                    </p>
 
-                        <h3>CAN-SPAM Act</h3>
-                        <p>The CAN-SPAM Act is a law that sets the rules for commercial email, establishes requirements
-                            for
-                            commercial messages, gives recipients the right to have emails stopped from being sent to
-                            them,
-                            and
-                            spells out tough penalties for violations.
-                        </p>
+                    <h3>CAN-SPAM Act</h3>
+                    <p>The CAN-SPAM Act is a law that sets the rules for commercial email, establishes requirements
+                        for
+                        commercial messages, gives recipients the right to have emails stopped from being sent to
+                        them,
+                        and
+                        spells out tough penalties for violations.
+                    </p>
 
-                        <p>We collect your email address in order to send information, respond to inquiries, and/or
-                            other
-                            requests or questions.
-                        </p>
+                    <p>We collect your email address in order to send information, respond to inquiries, and/or
+                        other
+                        requests or questions.
+                    </p>
 
-                        <p>To be in accordance with CAN-SPAM, we agree to the following:</p>
-                        <ul>
-                            <li>Not use false or misleading subjects or email addresses.</li>
-                            <li>Identify the message as an advertisement in some reasonable way.</li>
-                            <li>Include the physical address of our business or site headquarters.</li>
-                            <li>Monitor third-party email marketing services for compliance, if one is used.</li>
-                            <li>Honor opt-out/unsubscribe requests quickly.</li>
-                            <li>Allow users to unsubscribe by using the link at the bottom of each email.</li>
-                        </ul>
+                    <p>To be in accordance with CAN-SPAM, we agree to the following:</p>
+                    <ul>
+                        <li>Not use false or misleading subjects or email addresses.</li>
+                        <li>Identify the message as an advertisement in some reasonable way.</li>
+                        <li>Include the physical address of our business or site headquarters.</li>
+                        <li>Monitor third-party email marketing services for compliance, if one is used.</li>
+                        <li>Honor opt-out/unsubscribe requests quickly.</li>
+                        <li>Allow users to unsubscribe by using the link at the bottom of each email.</li>
+                    </ul>
 
-                        <p>If at any time you would like to unsubscribe from receiving future emails, you can email us
-                            at
-                            <a href="mailto: graderoom@gmail.com">graderoom@gmail.com</a> and we will promptly remove
-                            you
-                            from all correspondence.
-                        </p>
+                    <p>If at any time you would like to unsubscribe from receiving future emails, you can email us
+                        at
+                        <a href="mailto: graderoom@gmail.com">graderoom@gmail.com</a> and we will promptly remove
+                        you
+                        from all correspondence.
+                    </p>
 
-                        <h3>Contacting Us</h3>
-                        <p>If there are any questions regarding this privacy policy, you may contact us using the
-                            information below.
-                        </p>
+                    <h3>Contacting Us</h3>
+                    <p>If there are any questions regarding this privacy policy, you may contact us using the
+                        information below.
+                    </p>
 
-                        <p><a href="mailto: graderoom@gmail.com">graderoom@gmail.com</a></p>
+                    <p><a href="mailto: graderoom@gmail.com">graderoom@gmail.com</a></p>
 
-                    </div>
-                    <form action="/acceptPrivacyPolicy" method="post">
-                        <button class="btn btn-md"
-                                type="submit"
-                                onclick="try {closeForm('privacyDisplay')} catch (e){}"
-                                style="width: fit-content; float: right; margin-bottom:0">
-                            <i class="fa fa-check" aria-hidden="true"></i> Accept
-                        </button>
-                    </form>
                 </div>
+                <button class="btn btn-md"
+                        style="width: fit-content; width: -moz-fit-content; float: right; margin-bottom: 0"
+                        onclick="scrollToBottom($('#privacyScroller'), 2000)"
+                        id="privacy-down">
+                    <i class="fa fa-arrow-down" aria-hidden="true"></i> Scroll Down
+                </button>
+                <form id="accept-privacy" action="/acceptPrivacyPolicy" method="post" style="display: none">
+                    <button class="btn btn-md"
+                            type="submit"
+                            onclick="try {closeForm('privacyDisplay')} catch (e){}"
+                            style="width: fit-content; width: -moz-fit-content; float: right; margin-bottom:0">
+                        <i class="fa fa-check" aria-hidden="true"></i> Accept
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </div>

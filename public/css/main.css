@@ -86,9 +86,9 @@ hr {
 }
 
 html {
-    overflow: scroll;
-    -ms-overflow-style: none;
+    overflow: auto;
     overflow-x: hidden;
+    -ms-overflow-style: none;
 }
 
 html *, html {
@@ -108,7 +108,6 @@ nav h5 {
     font-family: "Montserrat", sans-serif;
     font-size: 1.25rem;
     margin-bottom: 0;
-    padding: .375rem .75rem 0 .75rem;
 }
 
 nav label {
@@ -349,24 +348,32 @@ table thead tr th:last-child {
     width: -moz-fit-content;
     margin-left: auto;
     padding: 1rem;
-    transition: opacity 400ms ease;
-    pointer-events: none;
+    transition: opacity 250ms ease;
     opacity: 1;
     border-radius: 0.5rem;
 }
 
-.changelog-legend > span {
+.changelog-legend .changelog-container > span {
     font-size: 0.6rem;
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    margin-right: 1rem;
     margin-bottom: 0.3rem;
     white-space: nowrap;
+    background-color: transparent;
 }
 
-changelog-legend span {
-    margin-left: 1rem;
+.changelog-legend .changelog-container > span > span {
+    margin-right: 0.5rem;
+    background-color: transparent;
+}
+
+.changelog-legend .changelog-container > span > i.fa {
+    cursor: pointer;
+}
+
+.changelog-legend .changelog-container > span > i.fa:first-of-type {
+    margin-left: auto;
 }
 
 .square {
@@ -429,14 +436,6 @@ changelog-legend span {
 .accordian-label h5:hover {
     font-weight: bold !important;
 }
-
-.down {
-    border-radius: 0.5rem 0.5rem 0 0;
-    bottom: 0;
-    left: 50%;
-    margin: 0 0 0 -5rem;
-}
-
 
 .form-signin .btn {
     font-weight: bold;
@@ -511,6 +510,59 @@ changelog-legend span {
     z-index: 2;
 }
 
+#color-scheme-picker-container {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#classColors {
+    display: flex;
+    align-items: stretch;
+    flex-flow: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+#classColors label {
+    font-size: 1rem;
+    font-weight: bolder;
+    flex-basis: 80%;
+    margin: 0.1rem;
+    padding: 0.25rem;
+    transition: all 400ms ease, color 1s ease;
+    border-radius: 0.5rem;
+}
+
+#classColors label:-moz-drag-over {
+    outline: 1px solid currentColor;
+}
+
+#color-scheme-picker {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+#color-scheme-picker button {
+    font-size: 1rem;
+    width: 80%;
+    margin: 0.1rem;
+    padding: 0.1rem;
+}
+
+#color-scheme-picker i {
+    transition: opacity 1s ease;
+}
+
+#color-scheme-picker div {
+    flex-basis: 100%;
+    width: 100%;
+}
+
 .popup .fa-close {
     font-size: 1rem;
     height: 0.5rem;
@@ -521,7 +573,18 @@ changelog-legend span {
     width: 0.5rem;
 }
 
-.popup span {
+.popup span.popup-top-left,
+.popup span.popup-top,
+.popup span.popup-top-right,
+.popup span.popup-right-top,
+.popup span.popup-right,
+.popup span.popup-right-bottom,
+.popup span.popup-bottom-right,
+.popup span.popup-bottom,
+.popup span.popup-bottom-left,
+.popup span.popup-left-bottom,
+.popup span.popup-left,
+.popup span.popup-left-top {
     font-family: "Montserrat", sans-serif;
     font-size: small;
     position: absolute;
@@ -541,7 +604,7 @@ changelog-legend span {
     position: relative;
 }
 
-.popup i:hover span, input:focus + .popup i span {
+.popup i:hover span, input:focus + .popup i span, .popup:hover i span {
     display: block;
     animation: fadeIn 400ms;
 }
@@ -767,7 +830,6 @@ changelog-legend span {
 
 .always-show {
     display: block !important;
-    transition: opacity 400ms ease;
 }
 
 .tabcontent .card-footer:not(:first-child) {
@@ -848,25 +910,6 @@ label.label-active {
 .number-input::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
-}
-
-.scroll-to {
-    cursor: pointer;
-    height: 1.75rem;
-    padding: 0 0.5rem 0.2rem 0.5rem;
-    position: absolute;
-    text-align: center;
-    transition: filter 500ms;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    -webkit-user-select: none;
-    user-select: none;
-    width: 10rem;
-    z-index: 2;
-}
-
-.scroll-to:hover {
-    filter: opacity(1);
 }
 
 .sk-chase {
@@ -1018,12 +1061,6 @@ tbody tr {
     border-top: none;
 }
 
-.up {
-    border-radius: 0 0 0.5rem 0.5rem;
-    left: 50%;
-    margin: 0 0 0 -5rem;
-}
-
 .switch {
     display: block;
     margin: 0 0 0 0.5rem;
@@ -1140,6 +1177,11 @@ input:checked + .slider:before {
     border-radius: 0.5rem;
 }
 
+#privacyCard .card-footer, #termsCard .card-footer {
+    overflow-y: scroll;
+    max-height: 60vh;
+}
+
 #weightsCard h5 {
     font-family: "Montserrat", sans-serif;
     font-size: 1.1rem;
@@ -1234,41 +1276,41 @@ select {
 }
 
 select.classic {
-    background-position: calc(100% - 0.6rem) 50%, calc(100% - 0.28rem) 50%, 100% 0;
     background-repeat: no-repeat;
+    background-position: calc(100% - 0.6rem) 50%, calc(100% - 0.3rem) 50%, 100% 0;
     background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1.2rem 100%;
 }
 
 select.classic:focus {
-    background-position: calc(100% - 0.28rem) 50%, calc(100% - 0.6rem) 50%, 100% 0;
-    background-repeat: no-repeat;
-    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1.2rem 100%;
     border-color: grey;
     outline: 0;
+    background-repeat: no-repeat;
+    background-position: calc(100% - 0.3rem) 50%, calc(100% - 0.6rem) 50%, 100% 0;
+    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1.2rem 100%;
 }
 
 select.round {
-    background-position: calc(100% - 0.6rem) 55%, calc(100% - 0.28rem) 55%, 100% 50%;
     background-repeat: no-repeat;
+    background-position: calc(100% - 0.6rem) 55%, calc(100% - 0.3rem) 55%, 100% 50%;
     background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1.2rem 1.2rem;
 }
 
 select.round:focus {
-    background-position: calc(100% - 0.28rem) 50%, calc(100% - 0.6rem) 50%, 100% 50%;
     background-repeat: no-repeat;
+    background-position: calc(100% - 0.3rem) 50%, calc(100% - 0.6rem) 50%, 100% 50%;
     background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1.2rem 1.2rem;
 }
 
 
 select.minimal {
-    background-position: calc(100% - 0.6rem) 55%, calc(100% - 0.28rem) 55%, calc(100% - 1.2rem) 50%;
     background-repeat: no-repeat;
+    background-position: calc(100% - 0.6rem) 55%, calc(100% - 0.3rem) 55%, calc(100% - 1.2rem) 50%;
     background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1px 65%;
 }
 
 select.minimal:focus {
-    background-position: calc(100% - 0.28rem) 50%, calc(100% - 0.6rem) 50%, calc(100% - 1.2rem) 50%;
     background-repeat: no-repeat;
+    background-position: calc(100% - 0.3rem) 50%, calc(100% - 0.6rem) 50%, calc(100% - 1.2rem) 50%;
     background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1px 65%;
 }
 
@@ -1280,6 +1322,10 @@ select:focus {
     outline: none;
 }
 
+.excluded .excludeToggle .fa-ban {
+    visibility: visible;
+}
+
 .excludeToggle .fa-ban {
     display: flex;
     visibility: hidden;
@@ -1287,6 +1333,7 @@ select:focus {
     flex-flow: column;
     justify-content: center;
     cursor: pointer;
+    transition: color 250ms ease, opacity 250ms ease;
 }
 
 .excludeToggle label {
@@ -1511,17 +1558,15 @@ td.addAssignmentScore {
     25% {
         width: 8rem;
         margin-left: 0.5rem;
-        opacity: 0;
     }
     50% {
         width: 8rem;
         margin-left: 0.5rem;
-        opacity: 0.5;
     }
     75% {
         width: 8rem;
         margin-left: 0.5rem;
-        opacity: 0.75;
+        opacity: 0.5;
     }
     100% {
         width: 8rem;
@@ -1535,7 +1580,7 @@ td.addAssignmentScore {
     font-weight: 500;
     width: 8rem;
     margin-left: 0.5rem;
-    animation: expand-add-assignment 400ms;
+    animation: expand-add-assignment 250ms linear;
     opacity: 1;
 }
 
@@ -1604,21 +1649,40 @@ td.addAssignmentScore {
     margin: 0 1rem;
 }
 
-.popup-holder span {
+.popup-holder > span {
     font-family: "Montserrat", sans-serif;
     font-weight: bold;
     cursor: context-menu;
 }
 
+.popup-holder > span:not(#syncPopup) {
+    padding-bottom: 1.2rem !important;
+}
+
 .gotIt {
     font-size: 0.5rem;
-    float: right !important;
+    position: absolute;
+    right: 0.6rem;
+    display: block;
+    padding: 0 0.1rem;
     cursor: pointer;
+    transition: all 250ms ease;
+    white-space: nowrap;
     pointer-events: all;
 }
 
-.gotIt:before {
-    content: "Got It!"
+.gotIt::after {
+    padding: 0;
+    content: "Got it!";
+    text-align: center;
+}
+
+.gotIt:hover {
+    transform: scale(1.5);
+}
+
+.gotIt:active {
+    opacity: 0.5;
 }
 
 .popup-holder {
@@ -1635,10 +1699,6 @@ td.addAssignmentScore {
 
 .progress-bar {
     font-weight: bold;
-}
-
-.empty-progress {
-    background-color: transparent;
 }
 
 .chart-container {
@@ -1739,8 +1799,10 @@ td.addAssignmentScore {
 }
 
 .nav-username {
-    display: block;
-    width: available;
+    display: flex;
+    align-items: center;
+    flex-flow: column;
+    justify-content: center;
     margin: 0 0 0 auto;
     cursor: pointer;
     transform: translateX(50%);
@@ -1766,6 +1828,10 @@ td.addAssignmentScore {
 .rounded-table :last-child tr:last-child td:last-child,
 .rounded-table.class-table :last-child tr:last-child td:nth-last-child(2) {
     border-bottom-right-radius: 0.5rem;
+}
+
+.class-table tr {
+    transition: background-color 400ms ease;
 }
 
 tr.separator {
@@ -1797,6 +1863,23 @@ tr.beforeSeparator td:nth-last-child(2) {
     color: #FFFFFF;
 }
 
+.nav-popups {
+    margin-top: 1rem;
+}
+
+#syncFailure, #syncNoData {
+    margin-right: 0.5rem;
+    cursor: default;
+}
+
+#syncFailure.popup, #syncNoData.popup, #gradeSyncEnabled.popup {
+    z-index: unset;
+}
+
+.messageTxt {
+    cursor: default;
+}
+
 /* When navbar get's a little cluttered */
 @media only screen and (max-width: 1191px) {
     .nav-username {
@@ -1806,6 +1889,15 @@ tr.beforeSeparator td:nth-last-child(2) {
 
 /* Mobile Stuff */
 @media only screen and (max-width: 991px) {
+    #color-scheme-picker button {
+        font-size: 0.7rem;
+        width: 70%;
+    }
+
+    #classColors label {
+        font-size: 0.5rem;
+    }
+
     .nav-popups {
         display: none !important;
     }
@@ -1958,11 +2050,6 @@ tr.beforeSeparator td:nth-last-child(2) {
         font-size: 2rem;
     }
 
-    #privacyCard .card-footer, #termsCard .card-footer {
-        overflow: scroll;
-        max-height: 30% !important;
-    }
-
     h3 {
         font-size: 1rem;
     }
@@ -1986,7 +2073,7 @@ tr.beforeSeparator td:nth-last-child(2) {
     }
 
     .card-signin .card-body {
-        padding: 5%;
+        padding: 1.5rem;
     }
 
     .tab btn {
@@ -2131,6 +2218,11 @@ tr.beforeSeparator td:nth-last-child(2) {
 
     .changelog-legend {
         display: none;
+    }
+
+    #privacyCard .card-footer, #termsCard .card-footer {
+        overflow-y: scroll;
+        max-height: 30vh;
     }
 
 }
