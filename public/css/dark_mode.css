@@ -91,6 +91,10 @@ th {
 }
 
 .card a {
+    color: #222222;
+}
+
+.card-footer a {
     color: #BBBBBB;
 }
 
@@ -124,7 +128,7 @@ th {
     color: white;
 }
 
-.coloration {
+.tutorial-popup {
     color: hsl(210, 48%, 48%);
 }
 
@@ -168,17 +172,47 @@ th {
     color: #FFFFFF;
 }
 
-.popup span {
+#classColors label {
     background-color: #222222;
+}
+
+tr.excluded:hover .excludeToggle .fa-ban {
+    color: #AAAAAA;
+}
+
+@keyframes addAssignmentAnimation {
+    0%, 100% {
+        background-color: rgba(255, 255, 255, 0.5);
+    }
+    50% {
+        background-color: #333333;
+    }
+}
+
+tr.addAssignmentAnimation {
+    transition: none;
+    animation: addAssignmentAnimation linear 2s;
+    animation-iteration-count: 1.5;
+}
+
+.popup span.popup-top-left,
+.popup span.popup-top,
+.popup span.popup-top-right,
+.popup span.popup-right-top,
+.popup span.popup-right,
+.popup span.popup-right-bottom,
+.popup span.popup-bottom-right,
+.popup span.popup-bottom,
+.popup span.popup-bottom-left,
+.popup span.popup-left-bottom,
+.popup span.popup-left,
+.popup span.popup-left-top {
+    font-weight: bolder;
+    background: black;
 }
 
 .school-username {
     color: #BBBBBB
-}
-
-.scroll-to {
-    background: #111111;
-    filter: opacity(0.6);
 }
 
 .tab {
@@ -315,7 +349,7 @@ select.minimal:focus {
 }
 
 .progress {
-    border: 1px #333333 solid;
+    border: 1px #222222 solid;
     background-color: #444444;
 }
 
@@ -324,9 +358,13 @@ select.minimal:focus {
     background-color: hsl(210, 48%, 48%);;
 }
 
-.empty-progress {
+.empty-progress:not(:nth-child(2)) {
     color: #333333;
     border-left: 1px solid #333333;
+}
+
+.progress, .empty-progress {
+    background-color: #111111;
 }
 
 ::-webkit-scrollbar-thumb {

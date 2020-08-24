@@ -223,6 +223,7 @@ class PowerschoolScraper:
             print(json_format(False, "PowerSchool is locked"))
             sys.exit()
 
+
     def get_history(self):
         """Uses a session to grab all available grade data on powerschool"""
         url = 'https://powerschool.bcp.org/guardian/termgrades.html'
@@ -295,7 +296,7 @@ class PowerschoolScraper:
             # Finalize data for the selected year
             year_data[title] = semester_classes
             all_history[year] = year_data
-            
+
         if not all_history:
             print(json_format(False, "No class data."))
         else:
@@ -492,4 +493,4 @@ if __name__ == "__main__":
         # Error when something in PowerSchool breaks scraper
         print(json_format(False, "Error scraping grades."))
         # Uncomment below to print error
-        print(e)
+        # print(e)

@@ -1,5 +1,6 @@
 let server = require("./graderoom.js");
 let authenticator = require("./authenticator.js");
+let emailSender = require('./emailSender.js');
 
 module.exports = function (app, passport) {
 
@@ -17,26 +18,50 @@ module.exports = function (app, passport) {
                 return;
             }
             authenticator.bringUpToDate(req.user.username);
-            let user = authenticator.getUser(req.user.username);
-            let gradeDat = JSON.stringify(user.grades);
-            let weightData = JSON.stringify(user.weights);
-            let relClassData = JSON.stringify(authenticator.getRelClassData(req.user.username));
 
-            res.render("authorized_index.ejs", {
-                user: req.user,
-                current: "home",
-                userRef: JSON.stringify(user),
-                schoolUsername: req.user.schoolUsername,
-                gradeData: gradeDat,
-                weightData: weightData,
-                relevantClassData: relClassData,
-                sessionTimeout: Date.parse(req.session.cookie._expires),
-                dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
-            });
+            let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
+            if (term && semester) {
+                res.render("authorized_index.ejs", {
+                    page: "home",
+                    username: req.user.username,
+                    schoolUsername: req.user.schoolUsername,
+                    isAdmin: req.user.isAdmin,
+                    personalInfo: JSON.stringify(req.user.personalInfo),
+                    appearance: JSON.stringify(req.user.appearance),
+                    alerts: JSON.stringify(req.user.alerts),
+                    gradeSync: !!req.user.schoolPassword,
+                    gradeData: JSON.stringify(req.user.grades[term][semester]),
+                    weightData: JSON.stringify(req.user.weights[term][semester]),
+                    addedAssignments: JSON.stringify(req.user.addedAssignments[term][semester]),
+                    relevantClassData: JSON.stringify(authenticator.getRelClassData(req.user.username)),
+                    sortingData: JSON.stringify(req.user.sortingData),
+                    sessionTimeout: Date.parse(req.session.cookie._expires),
+                    dst: isDST(),
+                });
+            } else {
+                res.render("authorized_index.ejs", {
+                    page: "home",
+                    username: req.user.username,
+                    schoolUsername: req.user.schoolUsername,
+                    isAdmin: req.user.isAdmin,
+                    personalInfo: JSON.stringify(req.user.personalInfo),
+                    appearance: JSON.stringify(req.user.appearance),
+                    alerts: JSON.stringify(req.user.alerts),
+                    gradeSync: !!req.user.schoolPassword,
+                    gradeData: JSON.stringify([]),
+                    weightData: JSON.stringify({}),
+                    addedAssignments: JSON.stringify({}),
+                    relevantClassData: JSON.stringify({}),
+                    sortingData: JSON.stringify(req.user.sortingData),
+                    sessionTimeout: Date.parse(req.session.cookie._expires),
+                    dst: isDST(),
+                });
+            }
             return;
         }
         res.render("index.ejs", {
-            message: req.flash("loginMessage")
+            message: req.flash("loginMessage"),
+            dst: isDST(),
         });
     });
 
@@ -53,21 +78,45 @@ module.exports = function (app, passport) {
                 res.redirect("/");
                 return;
             }
-            let weightData = JSON.stringify(user.weights);
-            let gradeData = JSON.stringify(user.grades);
-            let relClassData = JSON.stringify(authenticator.getRelClassData(req.query.usernameToRender));
+            let {term, semester} = authenticator.getMostRecentTermData(req.query.usernameToRender);
 
-            res.render("authorized_index.ejs", {
-                user: user,
-                current: "home",
-                userRef: JSON.stringify(user),
-                schoolUsername: user.schoolUsername,
-                gradeData: gradeData,
-                weightData: weightData,
-                relevantClassData: relClassData,
-                sessionTimeout: Date.parse(req.session.cookie._expires),
-                dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
-            });
+            if (term && semester) {
+                res.render("authorized_index.ejs", {
+                    page: "home",
+                    username: user.username,
+                    schoolUsername: user.schoolUsername,
+                    isAdmin: user.isAdmin,
+                    personalInfo: JSON.stringify(user.personalInfo),
+                    appearance: JSON.stringify(user.appearance),
+                    alerts: JSON.stringify(user.alerts),
+                    gradeSync: !!user.schoolPassword,
+                    gradeData: JSON.stringify(user.grades[term][semester]),
+                    weightData: JSON.stringify(user.weights[term][semester]),
+                    addedAssignments: JSON.stringify(user.addedAssignments[term][semester]),
+                    relevantClassData: JSON.stringify(authenticator.getRelClassData(req.query.usernameToRender)),
+                    sortingData: JSON.stringify(user.sortingData),
+                    sessionTimeout: Date.parse(req.session.cookie._expires),
+                    dst: isDST()
+                });
+            } else {
+                res.render("authorized_index.ejs", {
+                    page: "home",
+                    username: req.user.username,
+                    schoolUsername: req.user.schoolUsername,
+                    isAdmin: req.user.isAdmin,
+                    personalInfo: JSON.stringify(req.user.personalInfo),
+                    appearance: JSON.stringify(req.user.appearance),
+                    alerts: JSON.stringify(req.user.alerts),
+                    gradeSync: !!req.user.schoolPassword,
+                    gradeData: JSON.stringify([]),
+                    weightData: JSON.stringify({}),
+                    addedAssignments: JSON.stringify({}),
+                    relevantClassData: JSON.stringify({}),
+                    sortingData: JSON.stringify(req.user.sortingData),
+                    sessionTimeout: Date.parse(req.session.cookie._expires),
+                    dst: isDST(),
+                });
+            }
             return;
         }
         res.redirect("/");
@@ -156,7 +205,7 @@ module.exports = function (app, passport) {
             adminSuccessMessage: req.flash("adminSuccessMessage"),
             adminFailMessage: req.flash("adminFailMessage"),
             sessionTimeout: Date.parse(req.session.cookie._expires),
-            dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+            dst: isDST(),
         });
     });
 
@@ -170,7 +219,12 @@ module.exports = function (app, passport) {
 
     app.get("/checkUpdateBackground", [isLoggedIn], (req, res) => {
         let resp = authenticator.checkUpdateBackground(req.user.username);
-        res.status(200).send(resp.message);
+        let user = authenticator.getUser(req.user.username);
+        res.status(200).send({
+                                 message: resp.message,
+                                 grades: JSON.stringify(user.grades),
+                                 time: user.alerts.lastUpdated.slice(-1)[0]
+                             });
     });
 
     app.get("/changelog", [isLoggedIn], async (req, res) => {
@@ -188,7 +242,12 @@ module.exports = function (app, passport) {
     });
 
     app.post("/updateTutorialStatus", [isLoggedIn], (req, res) => {
-        res.status(200).send(JSON.stringify(authenticator.updateTutorial(req.user.username, req.body.action)));
+        let resp = authenticator.updateTutorial(req.user.username, req.body.action);
+        if (resp.success) {
+            res.status(200).send(JSON.stringify(resp.message));
+        } else {
+            res.sendStatus(400);
+        }
     });
 
     app.post("/resetTutorial", [isLoggedIn], (req, res) => {
@@ -238,6 +297,16 @@ module.exports = function (app, passport) {
         }
     });
 
+    app.post("/updateAddedAssignments", [isLoggedIn], (req, res) => {
+        let data = req.body.data;
+        let resp = authenticator.updateAddedAssignments(req.user.username, JSON.parse(data));
+        if (resp.success) {
+            res.status(200).send(resp.message);
+        } else {
+            res.status(400).send(resp.messgae);
+        }
+    });
+
     // process the login form
     app.post("/login", passport.authenticate("local-login", {
         successRedirect: "/", // redirect to the secure profile section
@@ -249,7 +318,9 @@ module.exports = function (app, passport) {
     // show the signup form
     app.get("/signup", (req, res) => {
         res.render("signup.ejs", {
-            message: req.flash("signupMessage"), needsBeta: server.needsBetaKeyToSignUp
+            message: req.flash("signupMessage"),
+            needsBeta: server.needsBetaKeyToSignUp,
+            dst: isDST(),
         });
     });
 
@@ -327,9 +398,13 @@ module.exports = function (app, passport) {
                     res.status(400).send(encryptResp.message);
                     return;
                 }
-                res.status(200).send("GradeSync Enabled. " + resp.message);
+                res.status(200).send({
+                                         message: "GradeSync Enabled. " + resp.message,
+                                         grades: resp.grades,
+                                         time: resp.time
+                                     });
             } else {
-                res.status(200).send(resp.message);
+                res.status(200).send({message: resp.message, grades: resp.grades, time: resp.time});
             }
         } else {
             res.status(400).send(resp.message);
@@ -380,8 +455,8 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.post("/randomizeclasscolors", [isLoggedIn], (req, res) => {
-        let resp = authenticator.randomizeClassColors(req.user.username);
+    app.post("/setColorPalette", [isLoggedIn], (req, res) => {
+        let resp = authenticator.setColorPalette(req.user.username, req.body.preset);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
@@ -392,18 +467,27 @@ module.exports = function (app, passport) {
     app.get("/finalgradecalculator", (req, res) => {
 
         if (req.isAuthenticated()) {
+
+            let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
             res.render("final_grade_calculator.ejs", {
-                current: "calc",
-                user: req.user,
-                gradeData: JSON.stringify(req.user.grades),
-                userRef: JSON.stringify(req.user),
+                page: "calc",
+                username: req.user.username,
                 schoolUsername: req.user.schoolUsername,
+                isAdmin: req.user.isAdmin,
+                personalInfo: JSON.stringify(req.user.personalInfo),
+                appearance: JSON.stringify(req.user.appearance),
+                alerts: JSON.stringify(req.user.alerts),
+                gradeSync: !!req.user.schoolPassword,
+                gradeData: JSON.stringify(req.user.grades[term][semester]),
+                weightData: JSON.stringify(req.user.weights[term][semester]),
                 sessionTimeout: Date.parse(req.session.cookie._expires),
-                dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+                dst: isDST(),
             });
         } else {
             req.session.returnTo = req.originalUrl;
-            res.render("final_grade_calculator_logged_out.ejs");
+            res.render("final_grade_calculator_logged_out.ejs", {
+                dst: isDST(),
+            });
         }
 
     });
@@ -431,7 +515,7 @@ module.exports = function (app, passport) {
             darkModeFinish: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeFinish),
             page: "keys",
             sessionTimeout: Date.parse(req.session.cookie._expires),
-            dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+            dst: isDST(),
         });
 
     });
@@ -487,13 +571,30 @@ module.exports = function (app, passport) {
             darkModeStart: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeStart),
             darkModeFinish: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeFinish),
             sessionTimeout: Date.parse(req.session.cookie._expires),
-            dst: Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset()
+            dst: isDST(),
         });
+    });
+
+    app.post("/updateSortData", [isLoggedIn], (req, res) => {
+        let username = req.user.username;
+        let sortData = JSON.parse(req.body.sortingData);
+        authenticator.updateSortData(username, sortData);
+        res.sendStatus(200);
     });
 
     app.post("/usernameAvailable", (req, res) => {
         let username = req.body.username.toLowerCase();
         let resp = authenticator.usernameAvailable(username);
+        if (resp.success) {
+            res.status(200).send(resp.message);
+        } else {
+            res.status(400).send(resp.message);
+        }
+    });
+
+    app.post("/emailAvailable", (req, res) => {
+        let schoolUsername = req.body.schoolUsername.toLowerCase();
+        let resp = authenticator.emailAvailable(schoolUsername);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
@@ -516,6 +617,75 @@ module.exports = function (app, passport) {
     /**
      * END GENERAL USER MANAGEMENT
      */
+
+
+    // password reset
+
+    app.get('/reset_password', (req, res) => {
+
+        let resetToken = req.query.token;
+
+        let {valid: validToken, gradeSync: gradeSync} = authenticator.checkToken(resetToken);
+        if (!validToken) {
+            // req.flash('forgotPasswordMsg', 'Invalid token.')
+            res.status(404).render("password_reset/reset_password_404.ejs", {dst: isDST()});
+            return;
+        }
+
+        res.status(200).render("password_reset/reset_password.ejs", {
+            message: req.flash("resetPasswordMsg"), token: resetToken, gradeSync: gradeSync, dst: isDST()
+        });
+    });
+
+    app.post('/reset_password', (req, res) => {
+
+        let resetToken = req.body.token;
+        if (!resetToken) {
+            res.redirect('/')
+            return
+        }
+
+        let newPass = req.body.password;
+        let resp = authenticator.resetPassword(resetToken, newPass);
+        if (!resp.success && resp.message === "Invalid token.") {
+            res.status(404).render('password_reset/reset_password_404.ejs', {dst: isDST()});
+            return
+        }
+        if (!resp.success) {
+            req.flash('resetPasswordMsg', resp.message);
+            res.redirect('/reset_password?token=' + resetToken);
+            return
+        }
+        res.render('password_reset/reset_password_success.ejs', {dst: isDST()})
+
+    });
+
+    app.get('/forgot_password', (req, res) => {
+        // dont allow while logged in
+        if (req.user) {
+            res.redirect('/');
+            return
+        }
+        res.status(200).render('password_reset/forgot_password.ejs', {
+            message: req.flash('forgotPasswordMsg'),
+            dst: isDST(),
+        });
+    });
+
+    app.post('/forgot_password', (req, res) => {
+        let email = req.body.email;
+        let resp = authenticator.resetPasswordRequest(email);
+
+        if (resp.user) {
+            emailSender.sendPasswordResetToAccountOwner(email, "https://" + req.headers.host + "/reset_password?token=" + resp.token, resp.user.personalInfo.firstName);
+        } else {
+            // this doesn't do anything
+            emailSender.sendPasswordResetToNonUser(email, "https://" + req.headers.host + "/reset_password?token=" + resp.token);
+        }
+        req.flash("forgotPasswordMsg", "If the email address you entered is associated with an account, you should receive an email containing a link to reset your password. Please make sure to check your spam folder. If you run into any issues, contact <b><a href='mailto:support@graderoom.me'>support@graderoom.me</a></b>.");
+        res.redirect("/forgot_password");
+    })
+
 
     // general web app
     app.get("/*", (req, res) => {
@@ -547,4 +717,8 @@ function makeKey(length) {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
+}
+
+function isDST() {
+    return Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset();
 }

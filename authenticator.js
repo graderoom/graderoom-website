@@ -5,17 +5,22 @@ const adapter = new FileSync("user_db.json");
 const db = low(adapter);
 const bcrypt = require("bcryptjs");
 const scraper = require("./scrape");
-const distinctColors = require("distinct-colors").default;
 const chroma = require("chroma-js");
 const crypto = require("crypto");
 const readline = require("readline");
 const fs = require("fs");
 
+const roundsToGenerateSalt = 10;
+
+
 db.defaults({users: [], keys: [], classes: {}, deletedUsers: []}).write();
 
-let changelogArray = "";
-let betaChangelogArray = "";
+let changelogArray = [];
+let betaChangelogArray = [];
 let versionNameArray = [];
+
+// Update this list with new tutorial keys
+let tutorialKeys = ["calcSeen", "helpSeen", "changelogLegendSeen", "homeSeen", "navinfoSeen"];
 
 module.exports = {
 
@@ -161,17 +166,93 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
 
-        // Add grade_history
-        if (!userRef.get("grade_history").value()) {
-            userRef.set("grade_history", {}).write();
-            userRef.set("grade_history_weights", {}).write();
+        // Make all school emails lowercase
+        let email = user.schoolUsername;
+        userRef.set("schoolUsername", email.toLowerCase()).write();
+
+        // Fix error in weight storage
+        if (userRef.get("weights").get("grades").value()) {
+            userRef.get("weights").unset("grades").write();
+        }
+
+        // Add color palette
+        if (!userRef.get("appearance").get("colorPalette").value()) {
+            userRef.get("appearance").set("colorPalette", "default").write();
+            this.setColorPalette(lc_username, "default");
+        }
+
+        // Migrate to new grade and weight storage (any data found in old storage *must* be from 19-20 S2)
+        if (Array.isArray(userRef.get("grades").value())) {
+            userRef.set("grades", {"19-20": {"S2": user.grades}}).write();
+            userRef.set("weights", {"19-20": {"S2": user.weights}}).write();
+        }
+
+        // Add addedAssignments dict
+        if (!userRef.get("addedAssignments").value()) {
+            let temp = {};
+            let years = Object.keys(userRef.get("grades").value());
+            for (let i = 0; i < years.length; i++) {
+                let semesters = Object.keys(userRef.get("grades").get(years[i]).value());
+                temp[years[i]] = {};
+                for (let j = 0; j < semesters.length; j++) {
+                    temp[years[i]][semesters[j]] = {};
+                    let classes = userRef.get("grades").get(years[i]).get(semesters[j]).map(d => d.class_name).value();
+                    for (let k = 0; k < classes.length; k++) {
+                        temp[years[i]][semesters[j]][classes[k]] = [];
+                    }
+                }
+            }
+            userRef.set("addedAssignments", temp).write();
+        }
+
+        // Fix -1 values in 19-20 S2
+        if (userRef.get("grades").value() && userRef.get("grades").get("19-20").value() && userRef.get("grades").get("19-20").get("S2").value()) {
+            for (let i = 0; i < userRef.get("grades").get("19-20").get("S2").value().length; i++) {
+                let classGrades = userRef.get("grades").get("19-20").get("S2").value()[i].grades;
+                for (let j = 0; j < classGrades.length; j++) {
+                    if (classGrades[j].grade_percent === -1) {
+                        userRef.get("grades").get("19-20").get("S2").nth(i).get("grades").nth(j).set("grade_percent", false).write();
+                    }
+                }
+            }
+        }
+
+        // Remove old grade_history storage (This should be empty anyway)
+        if (userRef.get("grade_history").value()) {
+            userRef.unset("grade_history").write();
+            userRef.unset("grade_history_weights").write();
+        }
+
+        // Add grade history tracker
+        if (!userRef.get("updatedGradeHistory").value()) {
+            userRef.set("updatedGradeHistory", []).write();
+        }
+
+        // Add sorting data
+        if (!userRef.get("sortingData").value()) {
+            userRef.set("sortingData", {
+                dateSort: [], categorySort: []
+            }).write();
         }
 
         // Add tutorial status
         if (!user.alerts.tutorialStatus) {
-            userRef.get("alerts").set("tutorialStatus", {
-                helpSeen: false, calcSeen: false
-            }).write();
+            userRef.get("alerts").set("tutorialStatus", {}).write();
+        }
+
+        // Remove any extra tutorial keys
+        let existingKeys = Object.keys(userRef.get("alerts").get("tutorialStatus").value());
+        for (let i = 0; i < existingKeys.length; i++) {
+            if (!tutorialKeys.includes(existingKeys[i])) {
+                userRef.get("alerts").get("tutorialStatus").unset(existingKeys[i]).write();
+            }
+        }
+
+        // Add tutorial keys
+        for (let i = 0; i < tutorialKeys.length; i++) {
+            if (!userRef.get("alerts").get("tutorialStatus").get(tutorialKeys[i]).value()) {
+                userRef.get("alerts").get("tutorialStatus").set(tutorialKeys[i], false).write();
+            }
         }
 
         // Add personal info
@@ -249,39 +330,6 @@ module.exports = {
             delete user.autoRefresh;
         }
 
-        // Fixes weights
-        for (let i = 0; i < Object.keys(user.weights).length; i++) {
-            console.log("" + Date.now() + " | Updating weight: " + (i + 1) + " of " + Object.keys(user.weights).length);
-            let className = Object.keys(user.weights)[i];
-            //Add custom weight tag
-            if (!("custom" in user.weights[className])) {
-                userRef.get("weights").get("className").set("custom", false).write();
-            }
-
-            //Move weights to new storage system
-            let weights = Object.assign({}, user.weights[className]); // get weights from old storage
-            let hasWeights = "true";
-            let custom = false;
-            if (weights.hasOwnProperty("hasWeights")) {
-                hasWeights = weights["hasWeights"];
-                delete weights["hasWeights"];
-            }
-            if (weights.hasOwnProperty("custom")) {
-                custom = weights["custom"];
-                delete weights["custom"];
-            }
-            delete weights["weights"];
-
-            this.updateWeightsForClass(username, className, hasWeights, weights, custom, false); // put weights in new
-                                                                                                 // storage
-
-            for (var key in weights) {
-                if (weights.hasOwnProperty(key)) {
-                    delete user.weights[className][key]; // delete weights in old storage
-                }
-            }
-        }
-
         // After all db stuff is done
         this.bringUpToDate(username);
     }, bringUpToDate: function (username) {
@@ -357,12 +405,30 @@ module.exports = {
         }
     },
 
+    getMostRecentTermData: function (username) {
+        let userRef = db.get("users").find({username: username.toLowerCase()});
+        if (!Object.keys(userRef.get("grades").value()).length) {
+            // Don't give data if new acc
+            return {term: false, semester: false};
+        }
+        let terms = Object.keys(userRef.get("grades").value());
+        let term = terms[terms.map(t => parseInt(t.substring(0, 2))).reduce((maxIndex, term, index, arr) => term > arr[maxIndex] ? index : maxIndex, 0)];
+        let semesters = Object.keys(userRef.get("grades").get(term).value());
+        let semester = semesters[semesters.map(s => parseInt(s.substring(1))).reduce((maxIndex, semester, index, arr) => semester > arr[maxIndex] ? index : maxIndex, 0)];
+        if (!userRef.get("grades").get(term).get(semester).value()[0].grades.length) {
+            // Don't give data if no grades in first class of semester. (Must be from history)
+            return {term: false, semester: false};
+        }
+        return {term: term, semester: semester};
+    },
+
     getRelClassData: function (username) {
         //TODO
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         let userClasses = [];
-        userRef.get("grades").value().forEach(classRef => userClasses.push([classRef.class_name, classRef.teacher_name]));
+        let {term, semester} = this.getMostRecentTermData(username);
+        userRef.get("grades").get(term).get(semester).value().forEach(classRef => userClasses.push([classRef.class_name, classRef.teacher_name]));
         let classes = db.get("classes").value();
         let relClasses = {};
         for (let i = 0; i < userClasses.length; i++) {
@@ -489,10 +555,14 @@ module.exports = {
                 return resolve({success: false, message: "Username already in use."});
             }
 
+            if (this.emailExists(schoolUsername)) {
+                return resolve({success: false, message: "This email address is already associated with an account."});
+            }
+
             if (this.userDeleted(lc_username)) {
                 return resolve({
                                    success: false,
-                                   message: "This account has been deleted. Email graderoom@gmail.com to recover your account."
+                                   message: "This account has been deleted. Email <a href='mailto:support@graderoom.me'>support@graderoom.me</a> to recover your account."
                                });
             }
 
@@ -521,12 +591,11 @@ module.exports = {
             // Set up personal info with EXACT same algorithm as on signup page
             let {firstName, lastName, graduationYear} = getPersonalInfo(schoolUsername);
 
-            const roundsToGenerateSalt = 10;
             bcrypt.hash(password, roundsToGenerateSalt, function (err, hash) {
                 db.get("users").push({
                                          username: lc_username,
                                          password: hash,
-                                         schoolUsername: schoolUsername,
+                                         schoolUsername: schoolUsername.toLowerCase(),
                                          personalInfo: {
                                              firstName: firstName, lastName: lastName, graduationYear: graduationYear
                                          },
@@ -536,24 +605,24 @@ module.exports = {
                                              accentColor: null,
                                              classColors: [],
                                              showNonAcademic: true,
-                                             darkModeStart: 19,
-                                             darkModeFinish: 6
+                                             darkModeStart: 18,
+                                             darkModeFinish: 7
                                          },
                                          alerts: {
                                              lastUpdated: [],
                                              updateGradesReminder: "daily",
-                                             latestSeen: beta ? versionNameArray[1][1] : versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1],
+                                             latestSeen: versionNameArray[1] ? beta ? versionNameArray[1][1] : versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1] : "1.0.0",
                                              policyLastSeen: "never",
                                              termsLastSeen: "never",
                                              remoteAccess: "denied",
-                                             tutorialStatus: {
-                                                 helpSeen: false, calcSeen: false
-                                             }
+                                             tutorialStatus: Object.fromEntries(tutorialKeys.map(k => [k, false]))
                                          },
                                          weights: {},
-                                         grades: [],
-                                         grade_history: {},
-                                         grade_history_weights: {},
+                                         grades: {},
+                                         addedAssignments: {},
+                                         sortingData: {
+                                             dateSort: [], categorySort: []
+                                         },
                                          loggedIn: []
                                      }).write();
 
@@ -585,7 +654,6 @@ module.exports = {
         if (user.get("schoolPassword").value()) {
             schoolPass = this.decryptAndGet(username, oldPassword).message;
         }
-        let roundsToGenerateSalt = 10;
         let hashedPass = bcrypt.hashSync(password, roundsToGenerateSalt);
         user.assign({password: hashedPass}).write();
         if (schoolPass) {
@@ -598,7 +666,7 @@ module.exports = {
             return {success: false, message: "This must be your Bellarmine College Preparatory school email."};
         }
         let userRef = db.get("users").find({username: lc_username});
-        userRef.assign({schoolUsername: schoolUsername}).write();
+        userRef.assign({schoolUsername: schoolUsername.toLowerCase()}).write();
         let {firstName, lastName, graduationYear} = getPersonalInfo(schoolUsername);
         userRef.get("personalInfo").set("firstName", firstName).write();
         userRef.get("personalInfo").set("lastName", lastName).write();
@@ -607,6 +675,10 @@ module.exports = {
     }, userExists: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username}).value();
+        return !!user;
+    }, emailExists: function (email) {
+        let lc_email = email.toLowerCase();
+        let user = db.get("users").find({schoolUsername: lc_email}).value();
         return !!user;
     }, userDeleted: function (username) {
         let lc_username = username.toLowerCase();
@@ -710,21 +782,38 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         let grade_history_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password, true);
         if (grade_history_update_status.success) {
-            let current_years = Object.keys(userRef.get("grade_history").value());
+            let current_years = Object.keys(userRef.get("grades").value());
             let years = Object.keys(grade_history_update_status.new_grades);
+            let weights = userRef.get("weights").value();
             for (let i = 0; i < years.length; i++) {
-                if (!current_years.includes(years[i])) {
-                    userRef.get("grade_history").set(years[i], grade_history_update_status.new_grades[years[i]]).write();
-                } else {
-                    let current_semesters = Object.keys(userRef.get("grade_history").get(years[i]).value());
+                if (!(years[i] in weights)) {
+                    weights[years[i]] = {};
                     let semesters = Object.keys(grade_history_update_status.new_grades[years[i]]);
                     for (let j = 0; j < semesters.length; j++) {
-                        if (!current_semesters.includes[semesters[j]]) {
-                            userRef.get("grades_history").get(years[i]).set(semesters[j], grade_history_update_status.new_grades[years[i]][semesters[j]]).write();
+                        weights[years[i]][semesters[j]] = {};
+                    }
+                } else {
+                    let current_semesters = Object.keys(weights[years[i]]);
+                    let semesters = Object.keys(grade_history_update_status.new_grades[years[i]]);
+                    for (let j = 0; j < semesters.length; j++) {
+                        if (!current_semesters.includes(semesters[j])) {
+                            weights[years[i]][semesters[j]] = {};
+                        }
+                    }
+                }
+                if (!current_years.includes(years[i])) {
+                    userRef.get("grades").set(years[i], grade_history_update_status.new_grades[years[i]]).write();
+                } else {
+                    let current_semesters = Object.keys(userRef.get("grades").get(years[i]).value());
+                    let semesters = Object.keys(grade_history_update_status.new_grades[years[i]]);
+                    for (let j = 0; j < semesters.length; j++) {
+                        if (!current_semesters.includes(semesters[j])) {
+                            userRef.get("grades").get(years[i]).set(semesters[j], grade_history_update_status.new_grades[years[i]][semesters[j]]).write();
                         }
                     }
                 }
             }
+            userRef.get("updatedGradeHistory").push(Date.now()).write();
             return {success: true, message: "Updated grade history!"};
         }
         return {success: false, message: "Error scraping grade history!"};
@@ -734,9 +823,7 @@ module.exports = {
         let lc_username = acc_username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         user.set("updatedInBackground", "updating").write();
-        //TODO
-        // this.updateGradeHistory(acc_username, school_password).then(async () => {
-        this.updateGrades(acc_username, school_password).then(function (resp) {
+        this.updateGrades(acc_username, school_password).then(async (resp) => {
             lc_username = acc_username.toLowerCase();
             user = db.get("users").find({username: lc_username});
             if (resp.success) {
@@ -746,13 +833,14 @@ module.exports = {
             } else {
                 user.set("updatedInBackground", "failed").write();
             }
+            await this.updateGradeHistory(acc_username, school_password);
         });
-        // });
     },
 
     updateGrades: async function (acc_username, school_password) {
         let lc_username = acc_username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
+
         let grade_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password);
         if (!grade_update_status.success) {
             //error updating grades
@@ -771,13 +859,17 @@ module.exports = {
             userRef.value().appearance.classColors.pop();
         }
 
-        userRef.assign({grades: grade_update_status.new_grades}).write();
+        // TODO make sure this works
+        console.log(grade_update_status.new_grades);
+        userRef.update({grades: grade_update_status.new_grades}).write();
         if (userRef.value().appearance.classColors.length !== grade_update_status.new_grades.length) {
-            this.randomizeClassColors(lc_username);
+            this.setColorPalette(lc_username, "default");
         }
-        userRef.get("alerts").get("lastUpdated").push(Date.now()).write();
+
+        let time = Date.now();
+        userRef.get("alerts").get("lastUpdated").push(time).write();
         userRef.set("updatedInBackground", "already done").write();
-        return {success: true, message: "Updated grades!"};
+        return {success: true, message: "Updated grades!", grades: grade_update_status.new_grades, time: time};
     },
 
     addDbClass: function (className, teacherName) {
@@ -815,24 +907,48 @@ module.exports = {
         let weights = userRef.value().weights;
 
         weights[className] = {"weights": {}, "hasWeights": "true", "custom": false};
-        //userRef.set("weights", weights).write();
         return {success: true, message: weights};
     },
 
-    randomizeClassColors: function (username) {
+    setColorPalette: function (username, preset) {
+        let light, saturation, hues, shuffle;
+        switch (preset) {
+            case "default":
+                light = 0.5;
+                saturation = 0.7;
+                hues = [0, 30, 60, 120, 180, 240, 270, 300];
+                shuffle = true;
+                break;
+            case "pastel":
+                light = 0.8;
+                saturation = 0.8;
+                hues = [0, 30, 90, 120, 180, 240, 270, 300];
+                shuffle = true;
+                break;
+            case "dark":
+                light = 0.4;
+                saturation = 0.4;
+                hues = [0, 30, 60, 120, 180, 240, 270, 300];
+                shuffle = true;
+                break;
+            case "rainbow":
+                light = 0.5;
+                saturation = 0.7;
+                hues = [0, 30, 60, 120, 180, 240, 270, 300];
+                shuffle = false;
+                break;
+            default:
+                return {success: false, message: "Invalid preset"};
+        }
+
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
-        let numColors = userRef.get("grades").value().length;
-        let classColors = distinctColors({
-                                             count: numColors,
-                                             lightMin: 25,
-                                             lightMax: 100,
-                                             chromaMin: 25,
-                                             samples: Math.floor(Math.random() * 10000 + numColors)
-                                         }).map(color => {
-            return chroma(color["_rgb"][0], color["_rgb"][1], color["_rgb"][2]).hex();
-        }).sort(() => Math.random() - 0.5);
+        let classColors = hues.map(h => chroma({h: h, s: saturation, l: light}).hex());
+        if (shuffle) {
+            shuffleArray(classColors);
+        }
         userRef.get("appearance").set("classColors", classColors).write();
+        userRef.get("appearance").set("colorPalette", preset).write();
         return {success: true, message: classColors};
     },
 
@@ -1129,10 +1245,13 @@ module.exports = {
                     }
                 } else if (items[i].title.substring(0, 12) === "Announcement") {
                     betaResultHTML += " announcement\">";
+                    resultHTML += " announcement\">";
                 } else if (items[i].title.substring(0, 12) === "Known Issues") {
                     betaResultHTML += " known-issues\">";
+                    resultHTML += " known-issues\">";
                 } else {
                     betaResultHTML += "\">";
+                    resultHTML += "\">";
                 }
                 resultHTML += "<div class=\"header\">";
                 resultHTML += "<div class=\"title\">" + items[i].title + "</div>";
@@ -1177,10 +1296,17 @@ module.exports = {
         } else if (!!db.get("deletedUsers").find({username: username.toLowerCase()}).value()) {
             return {
                 success: false,
-                message: "This account has been deleted! Email graderoom@gmail.com to recover your account."
+                message: "This account has been deleted! Email <a href='support@graderoom.me'>support@graderoom.me</a> to recover your account."
             };
         }
         return {success: true, message: "Valid Username!"};
+    },
+
+    emailAvailable: function (schoolUsername) {
+        if (!!db.get("users").find({schoolUsername: schoolUsername.toLowerCase()}).value()) {
+            return {success: false, message: "This email address is already associated with an account."};
+        }
+        return {success: true, message: "Valid email!"};
     },
 
     setLoggedIn: function (username) {
@@ -1190,8 +1316,12 @@ module.exports = {
 
     updateTutorial: function (username, action) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
-        userRef.get("alerts").get("tutorialStatus").set(action + "Seen", true).write();
-        return userRef.get("alerts").get("tutorialStatus").value();
+        if (tutorialKeys.includes(action + "Seen")) {
+            userRef.get("alerts").get("tutorialStatus").set(action + "Seen", true).write();
+            return {success: true, message: userRef.get("alerts").get("tutorialStatus").value()};
+        } else {
+            return {success: false, message: "Invalid action: " + action};
+        }
     },
 
     resetTutorial: function (username) {
@@ -1201,6 +1331,81 @@ module.exports = {
             tutorialStatus[key] = false;
         }
         return userRef.get("alerts").get("tutorialStatus").value();
+    },
+
+    updateSortData: function (username, sortData) {
+        let userRef = db.get("users").find({username: username.toLowerCase()});
+        let {dateSort, categorySort} = sortData;
+        let sortDataRef = userRef.get("sortingData");
+        sortDataRef.set("dateSort", dateSort).write();
+        sortDataRef.set("categorySort", categorySort).write();
+    },
+
+    updateAddedAssignments: function (username, addedAssignments) {
+        let userRef = db.get("users").find({username: username.toLowerCase()});
+        let {term, semester} = this.getMostRecentTermData(username);
+        userRef.get("addedAssignments").get(term).set(semester, addedAssignments).write();
+        return {success: true, message: "Successfully updated added assignments"};
+    },
+
+    // password reset stuff
+    checkToken: function (token, user = undefined) {
+        if (!token) {
+            return {valid: false, gradeSync: null};
+        }
+        if (!user) {
+            user = db.get("users").find({passwordResetToken: token}).value();
+        }
+
+        return {valid: user && (user.passwordResetTokenExpire > Date.now()), gradeSync: user && !!user.schoolPassword};
+    },
+
+    resetPasswordRequest: function (email) {
+
+        let userRef = db.get("users").find({schoolUsername: email.toLowerCase()});
+        let user = userRef.value();
+
+        let token = makeKey(20);
+        if (user) {
+            userRef.set("passwordResetToken", token).write();
+            // expire after 1 hr
+            userRef.set("passwordResetTokenExpire", Date.now() + 1000 * 60 * 60 * 24).write();
+        }
+
+        return {user: user, token: token}; // determines which email to send
+    },
+
+    resetPassword: function (token, newPassword) {
+
+        let user = db.get("users").find({passwordResetToken: token});
+
+        let {validToken, gradeSync} = this.checkToken(token, user.value());
+
+        if (!validToken) {
+            return {success: false, message: "Invalid token."};
+        }
+
+        let message = validatePassword(newPassword);
+        if (message) {
+            return {success: false, message: message};
+        }
+
+        // since no "old password", just disable gradesync if they have it
+        // otherwise decryption won't work
+
+        if (gradeSync) {
+            this.disableGradeSync(user.value().username);
+        }
+
+        let hashedPass = bcrypt.hashSync(newPassword, roundsToGenerateSalt);
+        user.assign({"password": hashedPass}).write();
+
+        user.unset("passwordResetTokenExpire").write();
+        // apparently the "reference" continuously runs the intial query?
+        // when unsetting the token first, nothing else will write
+        user.unset("passwordResetToken").write();
+
+        return {success: true, message: "Password updated."};
     }
 
 };
@@ -1335,3 +1540,21 @@ function getPersonalInfo(bcpEmail) {
 
     return {firstName, lastName, graduationYear};
 }
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+function makeKey(length) {
+    let result = "";
+    let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
+

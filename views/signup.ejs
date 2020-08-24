@@ -1,12 +1,16 @@
 <!doctype html>
-<html>
+<html lang="en-US">
 <head>
     <title>Graderoom</title>
     <link rel="icon" href="public/resources/common/icon.png">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
-    <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
+    <% if ((((Date.now() / 1000 / 3600 - 8) % 24) >= 18 - (dst ? 1 : 0)) || ((Date.now() / 1000 / 3600 - 8) % 24) < 7 - (dst ? 1 : 0)) { %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+    <% } else { %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
+    <% } %>
     <link rel="stylesheet" type="text/css" href="public/css/main.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
@@ -21,7 +25,7 @@
                 <% if (message.length > 0) { %>
                     <div class="alert alert-danger alert-dismissible">
                         <a class="close" data-dismiss="alert" aria-label="close">X</a>
-                        <%= message %>
+                        <%- message; %>
                     </div>
                 <% } %>
                 <form class="form-signin" action="/signup" method="post" spellcheck="false">
@@ -388,15 +392,38 @@
                     icon.attr("class", "fa fa-exclamation-circle");
                     $(inputID).css("border-bottom-color", "red");
                     invalidateSignup();
-                    return;
+                    return false;
                 }
                 $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text("Valid email");
                 icon.attr("class", "fa fa-check-circle");
                 $(inputID).css("border-bottom-color", "");
-                validateSignup();
+                $.ajax({
+                           url: "/emailAvailable", type: "POST", async: false, data: {schoolUsername: bcpEmail}
+                       }).done((response) => {
+                    if (messageDivID) {
+                        // Make sure value is still the same
+                        if (bcpEmail === $(inputID)[0].value) {
+                            $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text(response);
+                            icon.attr("class", "fa fa-check-circle");
+                            $(inputID).css("border-bottom-color", "");
+                            validateSignup();
+                            return true;
+                        }
+                    }
+                }).fail((data) => {
+                    if (messageDivID) {
+                        // Make sure value is still the same
+                        if (bcpEmail === $(inputID)[0].value) {
+                            $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text(data.responseText);
+                            icon.attr("class", "fa fa-exclamation-circle");
+                            $(inputID).css("border-bottom-color", "red");
+                            invalidateSignup();
+                        }
+                    }
+                });
             }, 400);
         } else {
-            return bcpEmailRegex.test(bcpEmail);
+            return icon.attr("class") === "fa fa-check-circle";
         }
     }
 
