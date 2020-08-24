@@ -41,7 +41,7 @@
                                                 Default
                                             </button>
                                             <i class="fa fa-check"
-                                               style="<% if (JSON.parse(appearance).colorPalette !== 'default') { %>opacity: 0;<% } %>"></i>
+                                               style="<% if (JSON.parse(appearance).colorPalette !== "default") { %>opacity: 0;<% } %>"></i>
                                         </div>
                                         <div id="pastel">
                                             <button onclick="setColorPalette('pastel')"
@@ -49,7 +49,7 @@
                                                 Pastel
                                             </button>
                                             <i class="fa fa-check"
-                                               style="<% if (JSON.parse(appearance).colorPalette !== 'pastel') { %>opacity: 0;<% } %>"></i>
+                                               style="<% if (JSON.parse(appearance).colorPalette !== "pastel") { %>opacity: 0;<% } %>"></i>
                                         </div>
                                         <div id="dark">
                                             <button onclick="setColorPalette('dark')"
@@ -57,7 +57,7 @@
                                                 Dark
                                             </button>
                                             <i class="fa fa-check"
-                                               style="<% if (JSON.parse(appearance).colorPalette !== 'dark') { %>opacity: 0;<% } %>"></i>
+                                               style="<% if (JSON.parse(appearance).colorPalette !== "dark") { %>opacity: 0;<% } %>"></i>
                                         </div>
                                         <div id="rainbow">
                                             <button onclick="setColorPalette('rainbow')"
@@ -65,15 +65,15 @@
                                                 Rainbow
                                             </button>
                                             <i class="fa fa-check"
-                                               style="<% if (JSON.parse(appearance).colorPalette !== 'rainbow') { %>opacity: 0;<% } %>"></i>
+                                               style="<% if (JSON.parse(appearance).colorPalette !== "rainbow") { %>opacity: 0;<% } %>"></i>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="text-center" id="classColors">
                                     <% for (var i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                                        <label id="classColor<%= i %>"
-                                               style="color: <%= JSON.parse(appearance).classColors[i] %>;">
-                                            <%= JSON.parse(gradeData)[i].class_name %>
+                                        <label id="classColor<%= i; %>"
+                                               style="color: <%= JSON.parse(appearance).classColors[i]; %>;">
+                                            <%= JSON.parse(gradeData)[i].class_name; %>
                                         </label>
                                     <% } %>
                                 </div>
@@ -207,40 +207,75 @@
                             </div>
                         </form>
                     </div>
-                    <% if (Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
-                        <div class="card-footer">
-                            <h5>Advanced</h5>
-                            <div id="advancedMessage"
-                                 class="alert alert-success alert-dismissible font-weight-bold"
-                                 style="display:none">
-                                <div style="display:none" class="sk-chase-mini">
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                </div>
-                                <div class="messageTxt"></div>
-                                <a class="close" onclick="closeMessage('advancedMessage')" aria-label="close">X</a>
-                            </div>
-                            <form id="advancedAppearance" action="/setShowNonacademic" method="post"
-                                  onsubmit="$('#advancedSubmit').attr('disabled','disabled')">
-                                <label style="cursor: pointer">
-                                    <input id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
-                                    <% if (JSON.parse(appearance).showNonAcademic) { %> checked
+                    <div class="card-footer">
+                        <h5>Advanced</h5>
+                        <form id="advancedAppearance" action="/advancedAppearance" method="post">
+                            <label class="slider-container">
+                                <label class="switch">
+                                    <input
+                                            id="classGraphRegularizationToggle"
+                                            style="margin: 0; display: flex"
+                                            type="checkbox"
+                                            name="regularizeClassGraphs"
+                                    <% if (JSON.parse(appearance).regularizeClassGraphs) { %>
+                                            checked="checked"
                                             <% } %>
-                                           oninput="$('#advancedSubmit').removeAttr('disabled')"
-                                    > Show Non-Academic Classes
+                                            onchange="$('#advancedSubmit').prop('disabled', $(this).prop('checked') === appearance.regularizeClassGraphs)"
+                                    >
+                                    <span class="slider"></span>
                                 </label>
-                                <button id="advancedSubmit" class="btn-default btn btn-sm" type="submit"
-                                        onclick="$('#reloadNeeded').text('Reload Needed'); ajaxPostForm('#advancedAppearance',[],'#advancedMessage',true)"
-                                        disabled>
-                                    Apply
-                                </button>
-                            </form>
-                        </div>
-                    <% } %>
+                                <label>
+                                    Regularize Class Graphs <span class="popup"><i class="fa fa-question-circle"><span
+                                                    class="popup-right-bottom">When enabled, all class graphs are
+                                                bounded between 70 and 110 on the y-axis.</span></i></span>
+                                </label>
+                            </label>
+                            <label class="slider-container">
+                                <label class="switch"
+                                <% if (Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
+                                       style="cursor: pointer"
+                                        <% } %>
+                                >
+                                    <input
+                                    <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
+                                        disabled
+                                            <% } %>
+                                        id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
+                                    <% if (JSON.parse(appearance).showNonAcademic) { %> checked="checked"
+                                            <% } %>
+                                        onchange="$('#advancedSubmit').prop('disabled', $(this).prop('checked') === appearance.showNonAcademic)"
+                                    >
+                                    <span class="slider"></span>
+                                </label>
+                                <label
+                                <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
+                                    class="disabled"
+                                        <% } %>
+                                >
+                                    Show Non-Academic Classes
+                                </label>
+                            </label>
+                            <label class="slider-container">
+                                <label class="switch">
+                                    <input id="weightedGPACheckbox" type="checkbox" name="weightedGPA"
+                                    <% if (JSON.parse(appearance).weightedGPA) { %>
+                                           checked="checked"
+                                            <% } %>
+                                           onchange="$('#advancedSubmit').prop('disabled', $(this).prop('checked') === appearance.weightedGPA)"
+                                    >
+                                    <span class="slider"></span>
+                                </label>
+                                <label>
+                                    Show Weighted GPA
+                                </label>
+                            </label>
+                            <button id="advancedSubmit" class="btn-default btn btn-sm" type="submit"
+                                    onclick="ajaxPostForm('#advancedAppearance',[],'',true,reload=true)"
+                                    disabled>
+                                Apply & Refresh Page
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
             <div id="settings-2" class="tabcontent">
@@ -296,7 +331,7 @@
                                             <% } %>
                                             onchange="manageGradeSyncCheckbox(); setupTutorialPopups()"
                                     >
-                                    <span style="color: #888888" class="slider"></span>
+                                    <span class="slider"></span>
                                 </label>
                                 <label style="margin: 0 0 0 1rem; justify-content: center; align-items: center; cursor: pointer"
                                        onclick="$('#gradeSyncToggle').trigger('click')">GradeSync<span
@@ -339,7 +374,7 @@
                                     <label class="label-active">First Name</label>
                                     <input oninput="checkLabel(this); checkFirstName(this, '#firstNameCheckMessage')"
                                            type="text" class="form-control dont-clear" name="first_name" id="firstName"
-                                           value="<%= JSON.parse(personalInfo).firstName %>">
+                                           value="<%= JSON.parse(personalInfo).firstName; %>">
                                     <span class="popup">
                                         <i>
                                             <span class="popup-top-left dont-show"
@@ -351,7 +386,7 @@
                                     <label style="filter: opacity(0.5)" class="label-active">Last Name</label>
                                     <input oninput="checkLabel(this);" style="filter: opacity(0.5)"
                                            type="text" class="form-control" name="last_name" id="lastName"
-                                           value="<%= JSON.parse(personalInfo).lastName %>" disabled>
+                                           value="<%= JSON.parse(personalInfo).lastName; %>" disabled>
                                     <span class="popup">
                                         <i class="fa fa-question-circle">
                                             <span class="popup-top-left">Changing your Last Name is not supported</span></i>
@@ -362,7 +397,7 @@
                                     <label style="filter: opacity(0.5)" class="label-active">Graduation Year</label>
                                     <input oninput="checkLabel(this);" style="filter: opacity(0.5)"
                                            type="number" class="form-control" name="graduation_year" id="graduationYear"
-                                           value="<%= JSON.parse(personalInfo).graduationYear %>"
+                                           value="<%= JSON.parse(personalInfo).graduationYear; %>"
                                            disabled>
                                     <span class="popup">
                                         <i class="fa fa-question-circle">
@@ -451,7 +486,7 @@
                                             <% } %>
                                             onchange="ajaxPostForm('#remoteAccess',[],'',true); $('#remoteAccess').submit();"
                                     >
-                                    <span style="color: #888888" class="slider"></span>
+                                    <span class="slider"></span>
                                 </label>
                                 <label style="margin: 0 0 0 1rem; justify-content: center; align-items: center; cursor: pointer"
                                        onclick="$('#remoteAccessToggle').trigger('click')">Allow
@@ -660,6 +695,9 @@
             $("#gradeSync").submit();
             $("#gradeSyncDiv").hide();
             $("#syncGradesDiv").show();
+            $("#gradeSyncEnabled").hide();
+            $("#syncFailure").hide();
+            $("#syncNoData").hide();
             clearTimeout(checkLastUpdated);
             $(".updateGradesMessage").removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text("GradeSync is not enabled");
         } else {

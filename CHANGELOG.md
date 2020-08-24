@@ -50,6 +50,40 @@
 - Cards can sometimes not be closed with keyboard shortcuts <strong>[Fixed in Beta 2.3.8]</strong>
 - Changelog display buttons work incorrectly after page resize <strong>[Fixed in Beta 2.3.8]</strong>
 - Grades sometimes do not sync when autofill is enabled and GradeSync is disabled <strong>[Fixed in Beta 2.5.0]</strong>
+- Popups don't disappear if mouse is quickly moved onto them <strong>[Fixed in Beta 2.7.6]<strong>
+
+## [Beta 2.8.0] - 2020-08-24
+### Added
+- New assignment toolbar with save and trash options
+- Added ability to save and undo changes to added assignments
+- Added loading indicators to charts
+- Added ability to regularize class graphs
+- Added ability to delete, save, and trash all possible in a category or in the entire class
+- Added ability to toggle weighted GPA
+- Added cumulative GPA
+- Added new animation while syncing to sync button icon
+- Added advanced appearance settings
+
+### Improved
+- Popups no longer remain open if the mouse quickly jumps from the initial position into the popup area
+- Decreased load time when refreshing page while on first class page
+- Changed default date sort to Newest to Oldest
+- Charts change their x-axis to days if data fits within one month
+- Grades can by synced without refreshing the page in most cases
+
+### Fixed
+- Issue where assignments could not be edited
+- Issues with editing assignments in category mode
+- Issue where tutorial popups were not cleared correctly
+- Issue where changelog legend buttons would not update if manually scrolled
+- Bug when only one assignment was not excluded
+- Prevented weights form from being submitted before page is fully loaded
+- Visual bugs in homepage
+- Issue where charts would not render properly in light mode
+- Issue where popups were showing up underneath other elements
+
+### Removed
+- <em>[Mobile]</em> Tooltab is now hidden on mobile
 
 ## [Beta 2.7.6] - 2020-08-16
 ### Added

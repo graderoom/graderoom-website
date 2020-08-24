@@ -210,12 +210,22 @@
         }
     }
 
+    let fixButtons;
     changelogContainer.scroll(function () {
         setupChangelogLegend();
         let gracePeriod = 100;
         if (Math.abs(this.scrollTop - this.scrollHeight + this.offsetHeight) < gracePeriod) {
             loadMore();
         }
+        scrolling = true;
+        clearTimeout(fixButtons);
+        fixButtons = setTimeout(() => {
+            scrolling = false;
+            scrollToNextStable(false);
+            scrollToPrevStable(false);
+            scrollToNextAnnouncement(false);
+            scrollToPrevAnnouncement(false);
+        }, 400);
     });
 
 </script>

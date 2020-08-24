@@ -158,7 +158,7 @@
         updateTutorial(id.substring(0, id.length - 5));
     });
 
-    function ajaxPostForm(formID, fieldIDsToClear, messagesDivID, async) {
+    function ajaxPostForm(formID, fieldIDsToClear, messagesDivID, async, reload = false) {
         // Get the form.
         let form = $(formID);
         $(form).submit(function (event) {
@@ -190,6 +190,7 @@
             $(formMessagesDiv).find(".sk-chase-mini").css("display", "inline-block");
             if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
                 clearTimeout(checkLastUpdated);
+                $(".fa-refresh").addClass("fa-spin").css("opacity", 0.5);
                 $(".updateGradesMessage").removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
                 message = $(".updateGradesMessage.alert .messageTxt");
                 $(message).text("");
@@ -368,6 +369,10 @@
                         }
                     }
                 }
+
+                if (reload) {
+                    window.location.href = "/";
+                }
             }).fail(function (data) {
                 // Make sure that the formMessages div has the alert-danger class
                 $($(formMessagesDiv)[1]).removeClass("alert-info");
@@ -381,8 +386,10 @@
                     } else {
                         if (formID === "#syncGradesForm") {
                             $("#inputUserPassword").focus();
+                            $(".fa-refresh").removeClass("fa-spin").css("opacity", "");
                         } else if (formID === "#gradeSyncForm") {
                             $("#gradeSyncInputUserPassword").focus();
+                            $(".fa-refresh").removeClass("fa-spin").css("opacity", "");
                         }
                         $(message).text(data.responseText);
                     }

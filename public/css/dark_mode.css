@@ -98,6 +98,11 @@ th {
     color: #BBBBBB;
 }
 
+.chart-placeholder {
+    opacity: 0.2;
+    color: white !important;
+}
+
 .changelog, .changelog-legend {
     background-color: #333333;
 }
@@ -178,6 +183,10 @@ th {
 
 tr.excluded:hover .excludeToggle .fa-ban {
     color: #AAAAAA;
+}
+
+.fa-undo {
+    color: #DDDDDD;
 }
 
 @keyframes addAssignmentAnimation {
@@ -266,15 +275,15 @@ tr.addAssignmentAnimation {
     color: #4F4F4F !important;
 }
 
-.resetTab {
+.toolTab {
     background-image: linear-gradient(to right, #222222, #333333);
 }
 
-.resetTab:not(th) {
+.toolTab:not(th) {
     border-top: 1px transparent solid !important;
 }
 
-.resetTab:not(td) {
+.toolTab:not(td) {
     border-bottom: 2px transparent solid !important;
 }
 
@@ -291,7 +300,7 @@ input:checked + .slider {
 }
 
 input:checked + .slider:before {
-    background-color: #EEEEEE;
+    background-color: #222222;
 }
 
 select {
