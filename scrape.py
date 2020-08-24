@@ -45,32 +45,6 @@ class ClassGrade:
         self.overall_letter = overall_letter
         self.grades = []
 
-    def add_grade(self, assignment_name, date, grade_percent, points_gotten,
-                  points_possible, category, exclude):
-        """Adds an assignment with its attributes to grades
-
-        Args:
-            assignment_name: String
-            date: String
-            grade_percent: Int
-            points_gotten: Float
-            points_possible: Float
-            category: String
-            exclude: Boolean
-        """
-
-        new_grade = {
-            'assignment_name': assignment_name,
-            'date': date,
-            'category': category,
-            'grade_percent': grade_percent,
-            'points_gotten': points_gotten,
-            'points_possible': points_possible,
-            'exclude': exclude
-        }
-
-        self.grades.append(new_grade)
-
     def as_dict(self):
         """Returns ClassGrade object as a formatted dictionary"""
         return {
@@ -239,6 +213,16 @@ class PowerschoolScraper:
         jsession = self.session.cookies.get_dict()['JSESSIONID']
         headers_4['Cookie'] = "JSESSIONID=" + jsession
         resp = self.session.post(url, data=data, headers=headers_4, timeout=10)
+
+        # Check if PowerSchool is locked
+        url = 'https://powerschool.bcp.org/guardian/home.html'
+        resp = self.session.get(url, timeout=10)
+        soup_resp = BS(resp.text, "html.parser")
+        table = soup_resp.find("table")
+        if not table:
+            print(json_format(False, "PowerSchool is locked"))
+            sys.exit()
+
 
     def get_history(self):
         """Uses a session to grab all available grade data on powerschool"""
@@ -412,7 +396,6 @@ class PowerschoolScraper:
         # The two tables in the page. info is top, grades is bottom
         class_tables = grades_soup.find_all('table')
         info_table = class_tables[0]
-        grades_table = class_tables[1]
 
         # Get teacher and class name
         info_row = info_table.find_all('tr')[1]
@@ -429,55 +412,67 @@ class PowerschoolScraper:
         else:
             return
 
-        # Get grade and name data for each assignment
-        grade_rows = grades_table.find_all('tr')
-        for grade_row in grade_rows:
-            grade_data = grade_row.find_all('td')
+        # Get the Section ID for a class
+        wrapper = grades_soup.find('div', class_='xteContentWrapper')
+        section_id = wrapper.find('div')['data-sectionid']
 
-            # Skip table header
-            if grade_data == [] or len(grade_data) < 10:
-                continue
+        # Get the Student ID for a class
+        student_id = wrapper['data-ng-init'].split(';')[0][-5:-1]
 
-            date = grade_data[0].text
-            category = grade_data[1].text
-            assignment_name = grade_data[2].text
-            exclude = False
+        headers = {
+            'Connection': 'keep-alive',
+            'authority': 'application/json, text/plain, */*',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36',
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Origin': 'https://powerschool.bcp.org',
+            'Sec-Fetch-Site': 'same-origin',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Dest': 'empty',
+            'Referer': url,
+            'Accept-Language': 'en-US,en;q=0.9',
+        }
 
-            # Check if either exclude flag exists
-            if len(grade_data[6]) == 1 or len(grade_data[7]) == 1:
-                exclude = True
+        params = (('_', ''),)
 
-            score = grade_data[8].text
-            # Check cases for if the score does not have a grade
-            try:
-                # When it is extra credit (ex. 5)
-                points_possible = 0
-                points_gotten = float(score)
-            except Exception:
-                if score.find('/') == -1:
-                    # When it is extra credit (same as above?)
-                    points_possible = False
-                    points_gotten = False
-                elif score.split('/')[0] == '--':
-                    # When no grade is present (ex. --/100)
-                    points_possible = float(score.split('/')[1])
-                    points_gotten = False
-                else:
-                    # When it is normal (ex. 90/100)
-                    points_possible = float(score.split('/')[1])
-                    points_gotten = float(score.split('/')[0])
+        data = '{"section_ids":[' + section_id + '],"student_ids":[' + student_id + '],"start_date":"2020-8-17","end_date":"2020-12-18"}'
 
-            # Get the percent for the assignment
-            if points_possible and points_possible and points_gotten:
-                grade_percent = grade_data[9].text
-                grade_percent = self.clean_number(grade_percent)
+        url = 'https://powerschool.bcp.org/ws/xte/assignment/lookup'
+        response = self.session.post(url, headers=headers, params=params, data=data)
+
+        # function that takes a Powerschool assignment object and returns a Graderoom assignment object
+        def stripper(info):
+            if not "_assignmentsections" in info: return False
+            _data = info["_assignmentsections"][0]
+            date = _data["duedate"].replace("-", "/")
+            date = date[5:] + "/" + date[:4]
+            category = _data["_assignmentcategoryassociations"][0]["_teachercategory"]["name"]
+            assignment_name = _data["name"]
+            exclude = not _data["iscountedinfinalgrade"]
+            if "totalpointvalue" in _data and isinstance(_data["totalpointvalue"], (float, int)):
+                points_possible = _data["totalpointvalue"]
             else:
+                points_possible = False
+            if len(_data["_assignmentscores"]) > 0:
+                points_gotten = _data["_assignmentscores"][0]["scorepoints"]
+                grade_percent = _data["_assignmentscores"][0]["scorepercent"]
+            else:
+                points_gotten = False
                 grade_percent = False
+            return {
+                "date": date,
+                "category": category,
+                "assignment_name": assignment_name,
+                "exclude": exclude,
+                "points_possible": points_possible,
+                "points_gotten": points_gotten,
+                "grade_percent": grade_percent
+            }
 
-            # Add the assignment to the ClassGrade object
-            local_class.add_grade(assignment_name, date, grade_percent,
-                                  points_gotten, points_possible,
-                                  category, exclude)
+        # input
+        raw = json.loads(response.text)
+
+        # output
+        local_class.grades = sorted(list(map(stripper, raw)), key=lambda i:i['date'])
         all_classes.append(local_class.as_dict())
 
 
@@ -492,6 +487,8 @@ if __name__ == "__main__":
             ps.get_history()
         else:
             ps.get_present()
+    except requests.Timeout:
+        print(json_format(False, "Could not connect to PowerSchool"))
     except Exception as e:
         # Error when something in PowerSchool breaks scraper
         print(json_format(False, "Error scraping grades."))
