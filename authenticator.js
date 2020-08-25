@@ -185,7 +185,7 @@ module.exports = {
 
         // Add regularizeClassGraphs
         if (!userRef.get("appearance").get("regularizeClassGraphs").value()) {
-            userRef.get("appearance").set("regularizeClassGraphs", false).write();
+            userRef.get("appearance").set("regularizeClassGraphs", true).write();
         }
 
         // Make all school emails lowercase
