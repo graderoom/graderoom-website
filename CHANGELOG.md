@@ -81,7 +81,6 @@
 - Visual bugs in homepage
 - Issue where charts would not render properly in light mode
 - Issue where popups were showing up underneath other elements
-- Issue where page would say changes not saved
 
 ### Removed
 - <em>[Mobile]</em> Tooltab is now hidden on mobile

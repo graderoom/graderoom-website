@@ -326,7 +326,7 @@ module.exports = function (app, passport) {
 
         console.table(req.body);
         let old_pass = req.body.oldPass;
-        let new_pass = req.body.newPass;
+        let new_pass = req.body.password;
         let resp = await authenticator.changePassword(req.user.username, old_pass, new_pass);
         if (resp.success) {
             res.status(200).send(resp.message);
