@@ -68,7 +68,7 @@
 - Added setting for regularizing class graphs (enabled by default)
 - Added setting for showing non-academic classes (enabled by default)
 - Added setting for weighting GPA (enabled by default)</ul></ul>
-- Class table updates<ul>
+- Class Table Updates<ul>
 - All assignment categories, scores, and exclusions are now editable
 - Added assignment wizard for adding assignments
 - Added assignments save to your account
