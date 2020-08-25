@@ -6,11 +6,11 @@
         <div id="latestCard" class="card card-signin my-5">
             <btn class="btn btn-md"
                  onclick="closeForm('latestDisplay')"
-                 style="width: fit-content; margin-bottom:0;">
+                 style="width: fit-content; width: -moz-fit-content; margin-bottom:0;">
                 <i class="fa fa-close" aria-hidden="true"></i> Close
             </btn>
             <btn class="btn btn-med" onclick="showChangelog()"
-                 style="position: absolute; width: fit-content; right: 0; margin-bottom: 0">
+                 style="position: absolute; width: fit-content; width: -moz-fit-content; right: 0; margin-bottom: 0">
                 View Full Changelog <i class="fa fa-external-link-square"></i></btn>
             <div class="card-body">
                 <h3 class="card-title text-center"><span class="fa fa-arrow-down"></span>
@@ -31,25 +31,25 @@
     let latestContainer = $("#latest-container");
 
     function showLatest(force) {
+        closeForm("latestDisplay");
         $.ajax({
-            url: "/latestVersion", type: "GET", async: true
-        }).done(function (response) {
+                   url: "/latestVersion", type: "GET", async: true
+               }).done(function (response) {
             let versionTitle = $(response)[0].childNodes[0].childNodes[0].innerText;
             versionTitle = versionTitle.substring(versionTitle.indexOf(" ") + 1);
-            if (versionTitle !== user.alerts.latestSeen || force) {
+            if (versionTitle !== alerts.latestSeen || force) {
                 $("#latestDisplay").fadeIn(500);
                 latestContainer.html(response);
                 latestContainer.animate({scrollTop: 0}, 0);
-                disableScrolling();
                 cardsDisplayed.push("latestDisplay");
                 $(".blurred-background").each(function () {
                     if (cardsDisplayed.includes($($(this).parent())[0].id)) {
-                        $(this).parent().css("z-index", cardsDisplayed.indexOf($($(this).parent())[0].id) + 2);
+                        $(this).parent().css("z-index", cardsDisplayed.indexOf($($(this).parent())[0].id) + minCardZIndex);
                     }
                 });
                 $.ajax({
-                    url: "/latestVersionSeen", type: "POST", data: versionTitle, async: true
-                });
+                           url: "/latestVersionSeen", type: "POST", async: true
+                       });
             }
         });
 

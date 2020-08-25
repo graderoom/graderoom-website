@@ -20,22 +20,26 @@ nav h5 {
     color: #555555;
 }
 
+nav label {
+    color: #BBBBBB;
+}
+
+.sticky {
+    box-shadow: 2px 1px 20px #999999;
+}
+
 nav .btn {
-    color: black;
     background-color: transparent;
+    color: black;
 }
 
 nav .btn:hover {
-    color: #888888;
     background-color: #FFFFFF;
+    color: #888888;
 }
 
 nav .navbar-toggler {
-    background-color: #AAAAAA;
-}
-
-nav .navbar-toggler:hover {
-    background-color: #BBBBBB;
+    background-color: #FFFFFF;
 }
 
 table tbody tr td {
@@ -64,6 +68,28 @@ table thead tr th {
     color: #444444;
 }
 
+.approve_btn {
+    background-color: #6CA66C;
+}
+
+::placeholder {
+    color: #AAAAAA !important;
+}
+
+.approve_btn:hover {
+    border-color: #6CA66C;
+    color: #6CA66C;
+}
+
+.deny_btn {
+    background-color: #F57171;
+}
+
+.deny_btn:hover {
+    border-color: #F57171;
+    color: #F57171;
+}
+
 .card {
     background-color: #FFFFFF;
 }
@@ -72,20 +98,45 @@ table thead tr th {
     color: #222222;
 }
 
-.card::-webkit-scrollbar-thumb {
-    background-color: #555555;
+::-webkit-scrollbar-thumb {
+    background-color: #CCCCCC;
 }
 
-.card::-webkit-scrollbar-thumb:hover {
-    background-color: #777777;
+::-webkit-scrollbar-thumb:vertical:hover {
+    background-color: #BBBBBB;
+}
+
+::-webkit-scrollbar-thumb:vertical:active {
+    background-color: #999999;
+}
+
+:not(body)::-webkit-scrollbar-thumb:vertical:hover {
+    background-color: #AAAAAA;
+}
+
+:not(body)::-webkit-scrollbar-thumb:vertical:active {
+    background-color: #888888;
+}
+
+:not(body)::-webkit-scrollbar-thumb {
+    background-color: #BBBBBB;
 }
 
 .chart {
     background-color: #FFFFFF;
 }
 
-.changelog {
+.chart-placeholder {
+    opacity: 0.2;
+    color: black !important;
+}
+
+.changelog, .changelog-legend {
     background-color: #FFFFFF;
+}
+
+.changelog-legend {
+    box-shadow: 0 0 5px 1px darkgray;
 }
 
 .changelog-container .body {
@@ -94,17 +145,22 @@ table thead tr th {
 
 .changelog-container .current {
     background-color: rgba(0, 255, 0, 0.1);
+}
 
+.changelog-container .known-issues {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.changelog-container .stable {
+    background-color: rgba(0, 0, 255, 0.2);
 }
 
 .changelog-container .type {
     color: #000000;
 }
 
-.changelog-item {
-    margin-top: 1rem;
-    border-radius: 1rem;
-    background-color: #EEEEEE;
+#classColors label {
+    background-color: white;
 }
 
 .form-group input {
@@ -112,8 +168,13 @@ table thead tr th {
 }
 
 .form-group input:focus {
-    color: black;
     border-bottom-color: #BBBBBB;
+    color: black;
+}
+
+.tutorial-popup {
+    color: hsl(210, 48%, 48%);
+    background: #FFFFFF;
 }
 
 .form-group .email-bg {
@@ -132,10 +193,6 @@ table thead tr th {
     background: url(/public/resources/light_mode/user.png) no-repeat left/23px 27px !important;
 }
 
-.logo {
-    content: url(/public/resources/light_mode/logo.png) !important;
-}
-
 .mini:before {
     background-color: darkgreen !important;
 }
@@ -146,26 +203,64 @@ table thead tr th {
 }
 
 .nav .active {
-    color: #000000;
     background-color: #EEEEEE;
+    color: #000000;
 }
 
-.popup .popuptext {
-    background-color: #555555;
-    color: #FFFFFF;
+.excluded {
+    color: #D3D3D3 !important;
+}
+
+tr.excluded:hover .excludeToggle .fa-ban {
+    color: #555555;
+}
+
+.fa-undo {
+    color: black;
+}
+
+@keyframes addAssignmentAnimation {
+    0%, 100% {
+        background-color: transparent;
+    }
+    50% {
+        background-color: #DDDDDD;
+    }
+}
+
+tr.addAssignmentAnimation {
+    transition: none;
+    animation: addAssignmentAnimation linear 2s;
+    animation-iteration-count: 1.5;
+}
+
+.popup span.popup-top-left,
+.popup span.popup-top,
+.popup span.popup-top-right,
+.popup span.popup-right-top,
+.popup span.popup-right,
+.popup span.popup-right-bottom,
+.popup span.popup-bottom-right,
+.popup span.popup-bottom,
+.popup span.popup-bottom-left,
+.popup span.popup-left-bottom,
+.popup span.popup-left,
+.popup span.popup-left-top {
+    background-color: #FFFFFF;
+}
+
+td.toolTab {
+    border-top: 1px #EEEEEE solid !important;
+    background-color: #FFFFFF;
+}
+
+th.toolTab {
+    border-bottom: 2px #EEEEEE solid !important;
+    background-color: #FFFFFF;
 }
 
 .school-username {
     color: #444444
-}
-
-.scroll-to {
-    background: #FFFFFF;
-    filter: opacity(0.9);
-}
-
-.sk-chase-dot:before {
-    background-color: #000000;
 }
 
 .slider {
@@ -185,9 +280,9 @@ input:checked + .slider:before {
 }
 
 .tab {
-    border-top-color: #DDDDDD;
-    border-bottom-color: #DDDDDD;
     background-color: #FFFFFF;
+    border-bottom-color: #DDDDDD;
+    border-top-color: #DDDDDD;
 }
 
 .tab btn {
@@ -204,6 +299,10 @@ input:checked + .slider:before {
 }
 
 .table {
+    background-color: transparent;
+}
+
+.table tr {
     background-color: #FFFFFF;
 }
 
@@ -219,22 +318,137 @@ input:checked + .slider:before {
     color: #DDDDDD;
 }
 
-#weightsCard input {
-    border-color: lightcoral;
+select {
+    background-color: #EEEEEE;
+    color: #000000;
 }
 
-#weightsCard input:focus {
-    border-color: red;
+select.classic {
+    background-image: linear-gradient(45deg, transparent 50%, gray 50%), linear-gradient(135deg, gray 50%, transparent 50%), linear-gradient(to right, lightgray, lightgray);
 }
 
-#weightsCard input.text-view {
-    border-color: white;
+select.classic:focus {
+    background-image: linear-gradient(45deg, gray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, gray 50%), linear-gradient(to right, lightgray, lightgray);
 }
 
-#weightsCard .fail {
-    color: lightcoral;
+select.round {
+    background-image: linear-gradient(45deg, transparent 50%, gray 50%), linear-gradient(135deg, gray 50%, transparent 50%), radial-gradient(lightgray 60%, transparent 60%);
 }
 
-#weightsCard .success {
-    color: lightgreen;
+select.round:focus {
+    background-image: linear-gradient(45deg, gray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, gray 50%), radial-gradient(lightgray 60%, transparent 60%);
+}
+
+select.minimal {
+    background-image: linear-gradient(45deg, transparent 50%, gray 50%), linear-gradient(135deg, gray 50%, transparent 50%), linear-gradient(to right, lightgray, lightgray);
+}
+
+.excluded select.minimal {
+    background-image: linear-gradient(45deg, transparent 50%, lightgray 50%), linear-gradient(135deg, lightgray 50%, transparent 50%), linear-gradient(to right, lightgray, lightgray);
+}
+
+select.minimal:focus {
+    background-image: linear-gradient(45deg, gray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, gray 50%), linear-gradient(to right, lightgray, lightgray);
+}
+
+.excluded select.minimal:focus {
+    background-image: linear-gradient(45deg, lightgray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, lightgray 50%), linear-gradient(to right, lightgray, lightgray);
+}
+
+.excluded select {
+    background-color: #FFFFFF;
+    color: #D3D3D3;
+}
+
+.class-table select {
+    box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+.switchDisplayMode, .addAssignment, .tableOptions {
+    background-color: #FFFFFF;
+}
+
+.progress-bar {
+    color: #FFFFFF;
+    background-color: hsl(210, 48%, 48%);
+}
+
+.gotIt {
+    color: black;
+}
+
+.progress {
+    border: 1px #FFFFFF solid;
+}
+
+.progress-bar {
+    color: #FFFFFF;
+    background-color: hsl(210, 48%, 48%);
+}
+
+.empty-progress {
+    color: #FFFFFF;
+    border-left: 1px solid #FFFFFF;
+}
+
+.progress, .empty-progress {
+    background-color: #DDDDDD;
+}
+
+.weights-container {
+    background-color: #FFFFFF;
+}
+
+#table-1 {
+    border-radius: 0.5rem;
+    background-color: white;
+}
+
+.add-assignment-container {
+    background-color: #FFFFFF;
+}
+
+.add-assignment-container.active {
+    box-shadow: 0 0 10px 1px darkgray;
+}
+
+.class-table th, .class-table td {
+    border-color: transparent;
+}
+
+.class-table td, .class-table th {
+    box-shadow: inset 0 0 1px rgba(100, 100, 100, 0.5);
+}
+
+.separator td {
+    box-shadow: none;
+}
+
+.improve {
+    color: rgba(100, 150, 100, 1);
+}
+
+.deprove {
+    color: rgba(200, 50, 50, 1);
+}
+
+/* Mobile Stuff */
+@media only screen and (max-width: 991px) {
+    #table-1 {
+        background-color: transparent;
+    }
+
+    .backToHome {
+        background-color: #FFFFFF;
+        box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.2);
+    }
+
+    .backToHome:hover, .backToHome:active {
+        color: rgb(119, 119, 119);
+        background-color: rgb(246.5, 246.5, 246.5);
+    }
+
+    .table-container {
+        background-color: #FFFFFF;
+    }
 }

@@ -1,18 +1,23 @@
 <!doctype html>
-<html>
+<html lang="en-US">
 <head>
     <title>Graderoom</title>
     <link rel="icon" href="public/resources/common/icon.png">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
+    <% let theme; %>
     <% if (user.appearance.theme === "dark") { %>
+        <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else if (user.appearance.theme === "light") { %>
+        <% theme = false; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
-    <% } else if ((((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (dst ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) && ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (dst ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0))) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= user.appearance.darkModeStart - (dst ? (user.appearance.darkModeStart === 0 ? -23 : 1) : 0)) || ((Date.now() / 1000 / 3600 - 8) % 24) < user.appearance.darkModeFinish - (dst ? (user.appearance.darkModeFinish === 1 ? -23 : 1) : 0))))) { %>
+    <% } else if ((((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8 + (dst ? 1 : 0)) % 24) >= user.appearance.darkModeStart) && ((Date.now() / 1000 / 3600 - 8 + (dst ? 1 : 0)) % 24) < user.appearance.darkModeFinish)) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8 + (dst ? 1 : 0)) % 24) >= user.appearance.darkModeStart) || ((Date.now() / 1000 / 3600 - 8 + (dst ? 1 : 0)) % 24) < user.appearance.darkModeFinish)))) { %>
+        <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else { %>
+        <% theme = false; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
     <% } %>
     <link rel="stylesheet" type="text/css" href="public/css/main.css">
@@ -43,9 +48,8 @@
     <% } %>
 
     <span id="table-container">
-            <hr>
-            <table class="table">
-                <thead>
+        <table class="table rounded-table">
+            <thead>
                 <tr>
                     <th style="width:30%;">Key</th>
                     <th style="width:20%;">Claimed</th>
@@ -53,31 +57,33 @@
                     <th style="width:20%;">Delete</th>
 
                 </tr>
-                </thead>
+            </thead>
 
-                <% for (let k of betaKeyData) { %>
-                    <tr>
-                        <td><%= k.betaKey %> </td>
-                        <td><%= k.claimed %></td>
-                        <td><%= k.claimedBy %> </td>
+            <% for (let k of betaKeyData) { %>
+                <tr>
+                    <td><%= k.betaKey %> </td>
+                    <td><%= k.claimed %></td>
+                    <td><%= k.claimedBy %> </td>
 
-                        <% if (k.claimed === false){ %>
+                    <% if (k.claimed === false){ %>
 
-                            <td>
+                        <td>
                             <form action="/deletebetakey" method="post">
-                                    <button type="submit" name="beta_key" class="btn btn-sm" value="<%= k.betaKey %>">Delete Key</button>
+                                <button type="submit" name="beta_key" class="btn btn-sm" value="<%= k.betaKey %>">Delete
+                                    Key
+                                </button>
                             </form>
                         </td>
 
-                        <% } else { %>
+                    <% } else { %>
 
-                            <td>Already claimed!</td>
-                        <% } %>
+                        <td>Already claimed!</td>
+                    <% } %>
 
-                    </tr>
-                <% } %>
-            </table>
-        </span>
+                </tr>
+            <% } %>
+        </table>
+    </span>
 
     <div class="text-center">
         <form action="/newbetakey" method="post">
@@ -102,17 +108,17 @@
         }
         darkModeStart = parseInt(darkModeStart);
         darkModeFinish = parseInt(darkModeFinish);
-        if (theme === "dark" || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart - (isDST() ? (darkModeStart === 0 ? -23 : 1) : 0)) && ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish - (isDST() ? (darkModeFinish === 1 ? -23 : 1) : 0))) || ((darkModeStart > darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= darkModeStart - (isDST() ? (darkModeStart === 0 ? -23 : 1) : 0)) || ((Date.now() / 1000 / 3600 - 8) % 24) < darkModeFinish - (isDST() ? (darkModeFinish === 1 ? -23 : 1) : 0)))))) {
+        if (theme === "dark" || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) >= darkModeStart) && ((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) >= darkModeStart) || ((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) < darkModeFinish))))) {
             let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
             darkMode = true;
             if (darkMode !== oldDarkMode) {
                 clearTimeout(changeTransition);
                 document.getElementById("fade").disabled = false;
+                $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
                 document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
                 }, 1000);
-                renderAllCharts();
             }
         } else {
             let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
@@ -120,11 +126,11 @@
             if (darkMode !== oldDarkMode) {
                 clearTimeout(changeTransition);
                 document.getElementById("fade").disabled = false;
+                $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
                 document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
                 }, 1000);
-                renderAllCharts();
             }
         }
     }

@@ -4,21 +4,20 @@ import sys
 from bs4 import BeautifulSoup as BS
 
 
-def json_format(success, message_or_grades, fail_grades=[]):
+def json_format(success, message_or_grades):
     """
     Args:
-        :param success: boolean if scraping was successful
-        :param message_or_grades: a message for errors or grade data in JSON format
-        :param fail_grades: partial grades if error while scraping grades
+        success: boolean if scraping was successful
+        message_or_grades: a message for errors or grade data in JSON format
 
     Returns:
-        A JSON formatted object containing the response
+        A JSON formatted response
     """
 
     if success:
-        return json.dumps({'success': True, 'grades': message_or_grades})
+        return json.dumps({'success': True, 'new_grades': message_or_grades})
 
-    return json.dumps({'success': False, 'message': message_or_grades, 'grades': fail_grades})
+    return json.dumps({'success': False, 'message': message_or_grades})
 
 
 class ClassGrade:
@@ -46,32 +45,6 @@ class ClassGrade:
         self.overall_letter = overall_letter
         self.grades = []
 
-    def add_grade(self, assignment_name, date, grade_percent, points_gotten,
-                  points_possible, category, exclude):
-        """Adds an assignment with its attributes to grades
-
-        Args:
-            assignment_name: String
-            date: String
-            grade_percent: Int
-            points_gotten: Float
-            points_possible: Float
-            category: String
-            exclude: Boolean
-        """
-
-        new_grade = {
-            'assignment_name': assignment_name,
-            'date': date,
-            'category': category,
-            'grade_percent': grade_percent,
-            'points_gotten': points_gotten,
-            'points_possible': points_possible,
-            'exclude': exclude
-        }
-
-        self.grades.append(new_grade)
-
     def as_dict(self):
         """Returns ClassGrade object as a formatted dictionary"""
         return {
@@ -96,16 +69,30 @@ class PowerschoolScraper:
         session: requests session object
     """
 
-    def __init__(self, email, password):
-        """Inits with credentials and creates a session"""
-        self.email = email
-        self.password = password
+    def __init__(self):
+        """Inits with a session"""
         self.session = requests.Session()
-        self.intermediate_class_data = []
 
-    def login_and_get_all_class_grades_and_print_resp(self):
-        """Scrapes grade data from PowerSchool and prints it
+    def clean_string(self, s):
+        """javadoc"""
+        s = s.strip()
+        if s == "":
+            return False
+        return s
 
+    def clean_number(self, n):
+        """javadoc"""
+        n = n.strip()
+        try:
+            n = float(n)
+            return n
+        except:
+            return False
+
+    def login(self, email, password):
+        """Logs into PowerSchool with credentials, then prints grades
+
+        Session is stored in instance variable.
         Authenticates via SAML
         See https://developers.onelogin.com/saml
         """
@@ -170,7 +157,7 @@ class PowerschoolScraper:
             'Content-Type': 'application/x-www-form-urlencoded',
             'Host': 'powerschool.bcp.org',
             'Origin': 'https://federation.bcp.org',
-            # This will be changed to the dynamic URL
+            # Below will be changed to the dynamic URL
             'Referer': 'CHANGE_THIS',
             'Sec-Fetch-Mode': 'navigate',
             'Sec-Fetch-Site': 'same-site',
@@ -181,60 +168,154 @@ class PowerschoolScraper:
 
         # First request
         url = "https://powerschool.bcp.org/guardian/home.html"
-        resp_1 = self.session.get(url, headers=headers_1)
-        soup_1 = BS(resp_1.text, "html.parser")
-        samlr_1 = soup_1.find("input", {'name': 'SAMLRequest'}).get('value')
+        resp = self.session.get(url, headers=headers_1, timeout=10)
+        soup = BS(resp.text, "html.parser")
+        samlr = soup.find("input", {'name': 'SAMLRequest'}).get('value')
 
         # Second request
-        url_2 = "https://federation.bcp.org/idp/SSO.saml2"
-        data_2 = {
+        url = "https://federation.bcp.org/idp/SSO.saml2"
+        data = {
             'RelayState': "/guardian/home.html",
-            'SAMLRequest': samlr_1,
+            'SAMLRequest': samlr,
         }
-        resp_2 = self.session.post(url_2, data=data_2, headers=headers_2)
-        soup_2 = BS(resp_2.text, "html.parser")
-        dynamic_url = soup_2.find("form", id='ping-login-form').get('action')
+        resp = self.session.post(url, data=data, headers=headers_2, timeout=10)
+        soup = BS(resp.text, "html.parser")
+        dynamic_url = soup.find("form", id='ping-login-form').get('action')
 
         # Third request
         dynamic_url = "https://federation.bcp.org" + dynamic_url
-        data_3 = {
+        data = {
             'pf.ok': '',
             'pf.cancel': '',
-            'pf.username': self.email,
-            'pf.pass': self.password,
+            'pf.username': email,
+            'pf.pass': password,
         }
-        resp_3 = self.session.post(dynamic_url, data=data_3, headers=headers_3)
-        soup_3 = BS(resp_3.text, "html.parser")
+        resp = self.session.post(dynamic_url, data=data, headers=headers_3,
+                                 timeout=10)
+        soup = BS(resp.text, "html.parser")
 
-        # If response is not found, authentication failed (incorrect login)
-        samlr_3_ref = soup_3.find("input", {'name': 'SAMLResponse'})
-        if samlr_3_ref is None:
+        # If no response, authentication failed (incorrect login)
+        samlr = soup.find("input", {'name': 'SAMLResponse'})
+        if samlr is None:
             print(json_format(False, "Incorrect login details."))
             return
 
         # Fourth request
-        url_4 = 'https://powerschool.bcp.org:443/saml/SSO/alias/pslive'
-        samlr_4 = samlr_3_ref.get('value')
+        url = 'https://powerschool.bcp.org:443/saml/SSO/alias/pslive'
+        samlr = samlr.get('value')
         headers_4['Referer'] = dynamic_url
-        data_4 = {
-            'SAMLResponse': samlr_4,
+        data = {
+            'SAMLResponse': samlr,
+            # Below does not affect where the site redirects
             'RelayState': "/guardian/home.html",
         }
         # Manually add cookie
         jsession = self.session.cookies.get_dict()['JSESSIONID']
         headers_4['Cookie'] = "JSESSIONID=" + jsession
-        resp_4 = self.session.post(url_4, data=data_4, headers=headers_4)
+        resp = self.session.post(url, data=data, headers=headers_4, timeout=10)
 
+        # Check if PowerSchool is locked
+        url = 'https://powerschool.bcp.org/guardian/home.html'
+        resp = self.session.get(url, timeout=10)
+        soup_resp = BS(resp.text, "html.parser")
+        table = soup_resp.find("table")
+        if not table:
+            print(json_format(False, "PowerSchool is locked"))
+            sys.exit()
+
+
+    def get_history(self):
+        """Uses a session to grab all available grade data on powerschool"""
+        url = 'https://powerschool.bcp.org/guardian/termgrades.html'
+        resp = self.session.get(url, timeout=10)
+        soup_resp = BS(resp.text, "html.parser")
 
         # Begin organizing response data
-        final_all_classes = []
+        all_history = {}
 
-        # Main table on PowerSchool Page
-        soup_resp = BS(resp_4.text, "html.parser")
-        main_table = soup_resp.find("table", {'class': 'linkDescList grid'})
+        # Locate links of past years
+        year_list = soup_resp.find("ul", class_='tabs')
+        year_links = year_list.find_all("li")
 
-        # Get only the rows of classes from the table
-        main_table_rows = main_table.findChildren("tr", recursive=False)
+        for year_link in year_links:
+            # Exclude summer school pages by checking for SS in title
+            # since they show duplicate data
+            link = year_link.find("a")
+            if "SS" in str(link):
+                continue
+
+            # Cut the year from the link text
+            year = year_link.text[:5]
+
+            # Ensure it exists, then fetch the year link
+            if not link['href']:
+                continue
+            url = 'https://powerschool.bcp.org/guardian/'
+            resp = self.session.get(url + link['href'], timeout=10)
+            soup_resp = BS(resp.text, "html.parser")
+
+            # Begin parsing data
+            main_table = soup_resp.find("table")
+            main_table_rows = main_table.find_all("tr")
+
+            title = ""
+            semester_classes = []
+            year_data = {}
+            for row in main_table_rows:
+                # Identify what semester we are under
+                th = row.find("th")
+                if th and th.text in ["S0", "S1", "S2"]:
+                    if semester_classes:
+                        # Add data when all classes for a semester
+                        # have been scraped
+                        year_data[title] = semester_classes
+                    # Reset for a new semester
+                    title = th.text
+                    semester_classes = []
+
+                # Check if the current row has class data
+                if title and row.find("td", align="left"):
+                    data = row.find_all("td")
+
+                    class_name = self.clean_string(data[0].text)
+                    overall_letter = self.clean_string(data[1].text)
+                    overall_percent = self.clean_number(data[2].text)
+
+                    # Scrape links that lead to assignments
+                    if row.find("a"):
+                        url = "https://powerschool.bcp.org/guardian/"
+                        url = url + row.find("a").get('href')
+                        self.scrape_class(url, semester_classes,
+                                          overall_percent,
+                                          overall_letter)
+                    else:
+                        local_class = ClassGrade(class_name, False,
+                                                 overall_percent,
+                                                 overall_letter)
+                        semester_classes.append(local_class.as_dict())
+            # Finalize data for the selected year
+            year_data[title] = semester_classes
+            all_history[year] = year_data
+
+        if not all_history:
+            print(json_format(False, "No class data."))
+        else:
+            print(json_format(True, all_history))
+
+    def get_present(self):
+        """Uses a session to grab current semester grade data"""
+        url = 'https://powerschool.bcp.org/guardian/home.html'
+        resp = self.session.get(url, timeout=10)
+        soup_resp = BS(resp.text, "html.parser")
+
+        # Begin organizing response data
+        all_classes = []
+
+        # Main table on PowerSchool Home Page
+        main_table = soup_resp.find("table", class_='linkDescList grid')
+
+        # Extract only the rows of a class from the table
+        main_table_rows = main_table.find_all("tr")
         class_rows = []
         for row in main_table_rows:
             if row.has_attr('class') and row['class'] == ['center']:
@@ -247,11 +328,12 @@ class PowerschoolScraper:
             overall_letter = None
 
             # Get overall grade and the link to assignments page
-            links = class_row.findChildren("a", recursive=True)
+            links = class_row.find_all("a")
             for link in links:
                 # If an overall grade is present, the link text is bold
                 # If no grade is present, then it is [ i ]
                 # Finally, check if it is actually a class grade link
+                # by checking the first five letters for "score"
                 if ((link.has_attr('class') and link['class'] == ['bold'])
                     or link.text == '[ i ]') and link['href'][:5] == 'score':
 
@@ -262,7 +344,7 @@ class PowerschoolScraper:
                     letter_and_percent = link.text
                     if link.text == '[ i ]':
                         overall_letter = '-'
-                        overall_percent = -1
+                        overall_percent = False
                     else:
                         for i, charac in enumerate(letter_and_percent):
                             if str.isdigit(charac):
@@ -274,102 +356,141 @@ class PowerschoolScraper:
             if assignments_link is None:
                 continue
 
-            # Scrape data from assignments page
             url = 'https://powerschool.bcp.org/guardian/'
-            grades_resp = self.session.get(url + assignments_link)
+            url = url + assignments_link
+            self.scrape_class(url, all_classes, overall_percent,
+                              overall_letter)
 
-            grades_soup = BS(grades_resp.text, 'html.parser')
+        # Fetch the current term and semester
+        url = 'https://powerschool.bcp.org/guardian/myschedulematrix.html'
+        resp = self.session.get(url, timeout=10)
+        soup_resp = BS(resp.text, "html.parser")
 
-            # The two tables in the page. info is top, grades is bottom
-            class_tables = grades_soup.findChildren('table')
-            info_table = class_tables[0]
-            grades_table = class_tables[1]
+        main_table = soup_resp.find("table")
+        table_cells = main_table.find_all("td")
+        term = table_cells[1].text
+        semester = table_cells[2].text
 
-            # Get teacher and class name
-            info_row = info_table.findChildren('tr')[1]
-            info_data = info_row.findChildren('td')
-            class_name = info_data[0].text
-            teacher_name = info_data[1].text
-
-            # Create a ClassGrade object to hold assignment data
-            # Ensure all data is present, otherwise skip the class
-            if (class_name and teacher_name and overall_percent
-                and (overall_letter != '-')):
-                local_class = ClassGrade(class_name, teacher_name,
-                                         overall_percent, overall_letter)
-            else:
-                continue
-
-            # Add class name to intermediate_class_data
-            self.intermediate_class_data.append('CLASS_NAME ' + class_name)
-
-            # Get grade and name data for each assignment
-            grades_rows = grades_table.findChildren('tr')
-            for grade_row in grades_rows:
-                grade_data = grade_row.findChildren('td')
-
-                # Skip table header
-                if grade_data == [] or len(grade_data) < 10:
-                    continue
-
-                date = grade_data[0].text
-                category = grade_data[1].text
-                assignment_name = grade_data[2].text
-                exclude = False
-
-                # Check if either exclude flag exists
-                if len(grade_data[6]) == 1 or len(grade_data[7]) == 1:
-                    exclude = True
-
-                score = grade_data[8].text
-                # Check cases for if the score does not have a grade
-                try:
-                    points_possible = 0
-                    points_gotten = float(score)
-                except Exception:
-                    if score.find('/') == -1:
-                        points_possible = False
-                        points_gotten = False
-                    elif score.split('/')[0] == '--':
-                        points_possible = float(score.split('/')[1])
-                        points_gotten = False
-                    else:
-                        points_possible = float(score.split('/')[1])
-                        points_gotten = float(score.split('/')[0])
-
-                # Get the percent for the assignment
-                if points_possible != 0 and points_possible != False and points_gotten != False:
-                    grade_percent = grade_data[9].text
-                else:
-                    grade_percent = -1
-
-                # Add the assignment to the ClassGrade object
-                local_class.add_grade(assignment_name, date, grade_percent,
-                                      points_gotten, points_possible,
-                                      category, exclude)
-
-                # Add assignment name to intermediate_class_data
-                self.intermediate_class_data.append(assignment_name)
-
-            final_all_classes.append(local_class.as_dict())
+        if term == None or semester == None:
+            raise Exception("Error getting term and semester data")
 
         # Print out the result
-        if not final_all_classes:
+        if not all_classes:
             print(json_format(False, "No class data."))
         else:
-            pass
-            print(json_format(True, final_all_classes))
+            # Add term and semester to the data
+            all_classes = {term: {semester: all_classes}}
+            print(json_format(True, all_classes))
+
+    def scrape_class(self, url, all_classes, overall_percent, overall_letter):
+        """Scrapes data from a class assignments page
+        Args:
+            url: String of the page to scrape
+            all_classes: List that assignments will be added to
+            overall_percent: Float
+            overall_letter: Float
+        """
+        grades_resp = self.session.get(url, timeout=10)
+        grades_soup = BS(grades_resp.text, 'html.parser')
+
+        # The two tables in the page. info is top, grades is bottom
+        class_tables = grades_soup.find_all('table')
+        info_table = class_tables[0]
+
+        # Get teacher and class name
+        info_row = info_table.find_all('tr')[1]
+        info_data = info_row.find_all('td')
+        class_name = info_data[0].text
+        teacher_name = info_data[1].text
+
+        # Create a ClassGrade object to hold assignment data
+        # Ensure all data is present, otherwise skip the class
+        if (class_name and teacher_name and overall_percent
+            and (overall_letter != '-')):
+            local_class = ClassGrade(class_name, teacher_name,
+                                     overall_percent, overall_letter)
+        else:
+            return
+
+        # Get the Section ID for a class
+        wrapper = grades_soup.find('div', class_='xteContentWrapper')
+        section_id = wrapper.find('div')['data-sectionid']
+
+        # Get the Student ID for a class
+        student_id = wrapper['data-ng-init'].split(';')[0][-5:-1]
+
+        headers = {
+            'Connection': 'keep-alive',
+            'authority': 'application/json, text/plain, */*',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36',
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Origin': 'https://powerschool.bcp.org',
+            'Sec-Fetch-Site': 'same-origin',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Dest': 'empty',
+            'Referer': url,
+            'Accept-Language': 'en-US,en;q=0.9',
+        }
+
+        params = (('_', ''),)
+
+        data = '{"section_ids":[' + section_id + '],"student_ids":[' + student_id + '],"start_date":"2020-8-17","end_date":"2020-12-18"}'
+
+        url = 'https://powerschool.bcp.org/ws/xte/assignment/lookup'
+        response = self.session.post(url, headers=headers, params=params, data=data)
+
+        # function that takes a Powerschool assignment object and returns a Graderoom assignment object
+        def stripper(info):
+            if not "_assignmentsections" in info: return False
+            _data = info["_assignmentsections"][0]
+            date = _data["duedate"].replace("-", "/")
+            date = date[5:] + "/" + date[:4]
+            category = _data["_assignmentcategoryassociations"][0]["_teachercategory"]["name"]
+            assignment_name = _data["name"]
+            exclude = not _data["iscountedinfinalgrade"]
+            if "totalpointvalue" in _data and isinstance(_data["totalpointvalue"], (float, int)):
+                points_possible = _data["totalpointvalue"]
+            else:
+                points_possible = False
+            if len(_data["_assignmentscores"]) > 0:
+                points_gotten = _data["_assignmentscores"][0]["scorepoints"]
+                grade_percent = _data["_assignmentscores"][0]["scorepercent"]
+            else:
+                points_gotten = False
+                grade_percent = False
+            return {
+                "date": date,
+                "category": category,
+                "assignment_name": assignment_name,
+                "exclude": exclude,
+                "points_possible": points_possible,
+                "points_gotten": points_gotten,
+                "grade_percent": grade_percent
+            }
+
+        # input
+        raw = json.loads(response.text)
+
+        # output
+        local_class.grades = sorted(list(map(stripper, raw)), key=lambda i:i['date'])
+        all_classes.append(local_class.as_dict())
+
 
 if __name__ == "__main__":
     user = sys.argv[1]
     password = sys.argv[2]
-    ps = PowerschoolScraper(user, password)
-    ### DEBUG ###
-    # user = ""
-    # password = ""
-    ### DEBUG ###
+    get_history = sys.argv[3]
+    ps = PowerschoolScraper()
     try:
-        ps.login_and_get_all_class_grades_and_print_resp()
-    except Exception:
-        # send class data in the event of something in Powerschool breaking scraper
-        print(json_format(False, "Error scraping grades.", ps.intermediate_class_data))
+        ps.login(user, password)
+        if get_history in ['true', 'True', '1']:
+            ps.get_history()
+        else:
+            ps.get_present()
+    except requests.Timeout:
+        print(json_format(False, "Could not connect to PowerSchool"))
+    except Exception as e:
+        # Error when something in PowerSchool breaks scraper
+        print(json_format(False, "Error scraping grades."))
+        # Uncomment below to print error
+        # print(e)

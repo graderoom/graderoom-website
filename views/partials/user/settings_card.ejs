@@ -3,44 +3,81 @@
      style="position:fixed; display:none; height: 100%; width: 100%; top: 0; left: 0; z-index: 1">
     <div class="blurred-background"></div>
     <div class="col-sm-11 col-md-10 col-lg-9 col-xl-6 mx-auto">
-        <div id="settingsCard" class="card card-signin my-5">
+        <div id="settingsCard" class="card card-signin my-5" style="padding-bottom: 1rem">
             <btn class="btn btn-md"
                  onclick="closeForm('settingsCardDisplay')"
-                 style="width: fit-content; margin-bottom:0">
+                 style="display: table; width: fit-content; width: -moz-fit-content; width: -moz-fit-content; margin-bottom:0">
                 <i class="fa fa-close" aria-hidden="true"></i> Close
             </btn>
             <div class="card-body">
-                <h1 class="card-title text-center"><span class="fa fa-cog"></span> Settings</h1>
+                <h1 class="card-title text-center popup" style="margin: 0;"><i class="fa fa-cog"></i>
+                    Settings
+                </h1>
             </div>
-            <div id="reloadNeeded" style="display: none"></div>
             <div class="tab">
                 <btn id="btn-1" class="tablinks active" onclick="openTab(1)">Appearance</btn>
                 <btn id="btn-2" class="tablinks" onclick="openTab(2)">Account</btn>
-                <btn id="btn-3" class="tablinks" onclick="openTab(3)">Advanced</btn>
-                <btn id="btn-4" class="tablinks" onclick="openTab(4)">Help</btn>
+                <btn id="btn-3" class="tablinks" onclick="openTab(3)">Help</btn>
+                <btn id="btn-4" class="tablinks" onclick="openTab(4)">About</btn>
             </div>
             <div id="settings-1" class="tabcontent" style="display: block">
                 <div class="card-body">
-                    <% if (user.grades.length > 0) { %>
+                    <% if (JSON.parse(gradeData).length > 0) { %>
                         <div class="card-footer">
-                            <h5>Class Colors</h5>
-                            <form style="display: flex; justify-content: center; align-content: space-evenly"
-                                  action="/randomizeClassColors" id="randomizeClassColors" method="POST"
-                                  class="form-signin">
-                                <button style="width: fit-content"
-                                        onclick="ajaxPostForm('#randomizeClassColors',[],'',true)"
-                                        class="btn btn-med">
-                                    Randomize Palette
-                                </button>
-                                <div class="text-center" id="classColors" style="width: 100%; height: fit-content">
-                                    <% for (var i = 0; i < user.grades.length; i++) { %>
-                                        <label id="classColor<%= i %>"
-                                               style="margin-bottom: 0; padding: 0 1rem 0 1rem; color: <%= user.appearance.classColors[i] %>; font-size: medium; font-weight: bolder; transition: color 1s ease">
-                                            <%= user.grades[i].class_name %>
+                            <h5>Color Scheme
+                                <span class="popup">
+                                    <i class="fa fa-info-circle">
+                                        <span class="popup-right-bottom">You can keep clicking the presets to generate
+                                            more color palettes</span>
+                                    </i>
+                                </span>
+                            </h5>
+                            <div id="color-scheme-picker-container">
+                                <div>
+                                    <div id="color-scheme-picker">
+                                        <div id="default">
+                                            <button onclick="setColorPalette('default')"
+                                                    class="btn btn-med">
+                                                Default
+                                            </button>
+                                            <i class="fa fa-check"
+                                               style="<% if (JSON.parse(appearance).colorPalette !== "default") { %>opacity: 0;<% } %>"></i>
+                                        </div>
+                                        <div id="pastel">
+                                            <button onclick="setColorPalette('pastel')"
+                                                    class="btn btn-med">
+                                                Pastel
+                                            </button>
+                                            <i class="fa fa-check"
+                                               style="<% if (JSON.parse(appearance).colorPalette !== "pastel") { %>opacity: 0;<% } %>"></i>
+                                        </div>
+                                        <div id="dark">
+                                            <button onclick="setColorPalette('dark')"
+                                                    class="btn btn-med">
+                                                Dark
+                                            </button>
+                                            <i class="fa fa-check"
+                                               style="<% if (JSON.parse(appearance).colorPalette !== "dark") { %>opacity: 0;<% } %>"></i>
+                                        </div>
+                                        <div id="rainbow">
+                                            <button onclick="setColorPalette('rainbow')"
+                                                    class="btn btn-med">
+                                                Rainbow
+                                            </button>
+                                            <i class="fa fa-check"
+                                               style="<% if (JSON.parse(appearance).colorPalette !== "rainbow") { %>opacity: 0;<% } %>"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center" id="classColors">
+                                    <% for (var i = 0; i < JSON.parse(gradeData).length; i++) { %>
+                                        <label id="classColor<%= i; %>"
+                                               style="color: <%= JSON.parse(appearance).classColors[i]; %>;">
+                                            <%= JSON.parse(gradeData)[i].class_name; %>
                                         </label>
                                     <% } %>
                                 </div>
-                            </form>
+                            </div>
                         </div>
                     <% } %>
                     <div class="card-footer">
@@ -68,7 +105,7 @@
                                                                                $($($(this)[0].form)[0].elements[7]).hide();
                                                                                ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
                                                                                $($(this)[0].form).submit();"
-                                    <% if (user.appearance.theme === "light") { %> checked
+                                    <% if (JSON.parse(appearance).theme === "light") { %> checked
                                             <% } %>
                                     > Light Theme
                                 </label>
@@ -80,7 +117,7 @@
                                                                                $($($(this)[0].form)[0].elements[7]).hide();
                                                                                ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
                                                                                $($(this)[0].form).submit();"
-                                    <% if (user.appearance.theme === "dark") { %> checked
+                                    <% if (JSON.parse(appearance).theme === "dark") { %> checked
                                             <% } %>
                                     > Dark Theme</label>
                                 <br>
@@ -91,14 +128,21 @@
                                                                                ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
                                                                                $($(this)[0].form).submit();
                                                                                $($($(this)[0].form)[0].elements[7]).show().attr('disabled','disabled')"
-                                    <% if (user.appearance.theme === "auto") { %> checked
+                                    <% if (JSON.parse(appearance).theme === "auto") { %> checked
                                             <% } %>
                                     > Automatic
+                                    <span class="popup">
+                                        <i class="fa fa-question-circle">
+                                            <span class="popup-right-top">Graderoom will automatically switch between
+                                                light and dark theme based on the times you set, even while you're using
+                                                the website</span>
+                                        </i>
+                                    </span>
                                 </label>
                             </div>
                             <div style="display: inline-flex">
                                 <label class="form-group" id="autoLimits"
-                                       style="<% if (user.appearance.theme !== 'auto') { %>display: none;<% } else { %>display: inline-flex;<% } %>font-size: 0.9rem; margin-bottom: 0;">
+                                       style="<% if (JSON.parse(appearance).theme !== "auto") { %>display: none;<% } else { %>display: inline-flex;<% } %>font-size: 0.9rem; margin-bottom: 0;">
                                     <label style="vertical-align: center">
                                         Dark theme from
                                     </label>
@@ -110,17 +154,17 @@
                                            max="12"
                                            oninput="$($($(this)[0].form)[0].elements[7]).removeAttr('disabled');">
                                     <select style="margin-left: 0 !important" id="darkModeStartAmPm"
-                                            class="dropdown"
+                                            class="round"
                                             name="darkModeStartAmPm"
                                             oninput="$($($(this)[0].form)[0].elements[7]).removeAttr('disabled');">
                                         <option value="PM"
-                                        <% if (user.appearance.darkModeStart >= 12 && user.appearance.darkModeStart !== 24) { %>
+                                        <% if (JSON.parse(appearance).darkModeStart >= 12 && JSON.parse(appearance).darkModeStart !== 24) { %>
                                                 selected
                                                 <% } %>
                                         >PM
                                         </option>
                                         <option value="AM"
-                                        <% if (user.appearance.darkModeStart < 12 || user.appearance.darkModeStart === 24) { %>
+                                        <% if (JSON.parse(appearance).darkModeStart < 12 || JSON.parse(appearance).darkModeStart === 24) { %>
                                                 selected
                                                 <% } %>
                                         >AM
@@ -137,17 +181,17 @@
                                            max="12"
                                            oninput="$($($(this)[0].form)[0].elements[7]).removeAttr('disabled');">
                                     <select style="margin-left: 0 !important" id="darkModeFinishAmPm"
-                                            class="dropdown"
+                                            class="round"
                                             name="darkModeFinishAmPm"
                                             oninput="$($($(this)[0].form)[0].elements[7]).removeAttr('disabled');">
                                         <option value="AM"
-                                        <% if (user.appearance.darkModeFinish < 12 || user.appearance.darkModeFinish === 24) { %>
+                                        <% if (JSON.parse(appearance).darkModeFinish < 12 || JSON.parse(appearance).darkModeFinish === 24) { %>
                                                 selected
                                                 <% } %>
                                         >AM
                                         </option>
                                         <option value="PM"
-                                        <% if (user.appearance.darkModeFinish >= 12 && user.appearance.darkModeFinish !== 24) { %>
+                                        <% if (JSON.parse(appearance).darkModeFinish >= 12 && JSON.parse(appearance).darkModeFinish !== 24) { %>
                                                 selected
                                                 <% } %>
                                         >PM
@@ -155,7 +199,7 @@
                                     </select>
                                 </label>
                                 <button class="btn-default btn btn-sm" type="submit"
-                                        style="<% if (user.appearance.theme !== 'auto') { %>display: none;<% } %> margin: 0 0 0 1rem !important; width: fit-content !important;"
+                                        style="<% if (JSON.parse(appearance).theme !== "auto") { %>display: none;<% } %> margin: 0 0 0 1rem !important; width: fit-content; width: -moz-fit-content !important; width: -moz-fit-content !important;"
                                         onclick="ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);"
                                         disabled>
                                     Apply
@@ -163,10 +207,152 @@
                             </div>
                         </form>
                     </div>
-                    <% if (Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
-                        <div class="card-footer">
-                            <h5>Advanced</h5>
-                            <div id="advancedMessage"
+                    <div class="card-footer">
+                        <h5>Advanced</h5>
+                        <form id="advancedAppearance" action="/advancedAppearance" method="post">
+                            <label class="slider-container">
+                                <label class="switch">
+                                    <input
+                                            id="classGraphRegularizationToggle"
+                                            style="margin: 0; display: flex"
+                                            type="checkbox"
+                                            name="regularizeClassGraphs"
+                                    <% if (JSON.parse(appearance).regularizeClassGraphs) { %>
+                                            checked="checked"
+                                            <% } %>
+                                            onchange="$('#advancedSubmit').prop('disabled', $(this).prop('checked') === appearance.regularizeClassGraphs)"
+                                    >
+                                    <span class="slider"></span>
+                                </label>
+                                <label>
+                                    Regularize Class Graphs <span class="popup"><i class="fa fa-question-circle"><span
+                                                    class="popup-right-bottom">When enabled, all class graphs are
+                                                bounded between 70 and 110 on the y-axis.</span></i></span>
+                                </label>
+                            </label>
+                            <label class="slider-container">
+                                <label class="switch"
+                                <% if (Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
+                                       style="cursor: pointer"
+                                        <% } %>
+                                >
+                                    <input
+                                    <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
+                                        disabled
+                                            <% } %>
+                                        id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
+                                    <% if (JSON.parse(appearance).showNonAcademic) { %> checked="checked"
+                                            <% } %>
+                                        onchange="$('#advancedSubmit').prop('disabled', $(this).prop('checked') === appearance.showNonAcademic)"
+                                    >
+                                    <span class="slider"></span>
+                                </label>
+                                <label
+                                <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
+                                    class="disabled"
+                                        <% } %>
+                                >
+                                    Show Non-Academic Classes
+                                </label>
+                            </label>
+                            <label class="slider-container">
+                                <label class="switch">
+                                    <input id="weightedGPACheckbox" type="checkbox" name="weightedGPA"
+                                    <% if (JSON.parse(appearance).weightedGPA) { %>
+                                           checked="checked"
+                                            <% } %>
+                                           onchange="$('#advancedSubmit').prop('disabled', $(this).prop('checked') === appearance.weightedGPA)"
+                                    >
+                                    <span class="slider"></span>
+                                </label>
+                                <label>
+                                    Show Weighted GPA
+                                </label>
+                            </label>
+                            <button id="advancedSubmit" class="btn-default btn btn-sm" type="submit"
+                                    onclick="ajaxPostForm('#advancedAppearance',[],'',true,reload=true)"
+                                    disabled>
+                                Apply & Refresh Page
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div id="settings-2" class="tabcontent">
+                <div class="card-body">
+                    <div class="card-footer">
+                        <h5>PowerSchool Sync Settings</h5>
+                        <form id="changeSchoolEmail" class="form-signin"
+                              action="/changeschoolemail" method="post">
+                            <div class="form-group">
+                                <div id="emailChangeMessage"
+                                     class="alert alert-success alert-dismissible font-weight-bold"
+                                     style="display:none">
+                                    <div style="display:none" class="sk-chase-mini">
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                    </div>
+                                    <div class="messageTxt"></div>
+                                    <a class="close" onclick="closeMessage('emailChangeMessage')"
+                                       aria-label="close">X</a>
+                                </div>
+                                <div style="display: flex; flex-flow: row; justify-content: flex-start; align-items: center">
+                                    <div class="input-group" style="margin-bottom: 0">
+                                        <i class="email-bg"></i>
+                                        <label>School Email</label>
+                                        <input oninput="checkLabel(this); $($(this).parents('.input-group')[0].nextElementSibling).prop('disabled',false)"
+                                               id="school_email" type="text"
+                                               class="form-control"
+                                               name="school_email" required>
+                                    </div>
+                                    <button type="submit"
+                                            onclick="updateSchoolUsernameDisplay(); ajaxPostForm('#changeSchoolEmail',[],'#emailChangeMessage', true)"
+                                            class="btn btn-default btn-med"
+                                            style="width: fit-content; width: -moz-fit-content;" disabled>
+                                        Apply
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        <form id="gradeSync" class="form-signin" action="/disableGradeSync" method="post">
+                            <label style="white-space: nowrap; display: flex; font-size: 1rem; justify-content: flex-start; align-items: center">
+                                <label class="switch">
+                                    <input
+                                            id="gradeSyncToggle"
+                                            style="margin: 0; display: flex"
+                                            type="checkbox"
+                                            name="gradeSync"
+                                    <% if (gradeSync) { %>
+                                            checked
+                                            <% } %>
+                                            onchange="manageGradeSyncCheckbox(); setupTutorialPopups()"
+                                    >
+                                    <span class="slider"></span>
+                                </label>
+                                <label style="margin: 0 0 0 1rem; justify-content: center; align-items: center; cursor: pointer"
+                                       onclick="$('#gradeSyncToggle').trigger('click')">GradeSync<span
+                                            class="popup"><i class="fa fa-question-circle"
+                                                             style="margin-left: 0.4rem"><span
+                                                    class="popup-right-top">When enabled, Graderoom syncs whenever you
+                                                login</span></i></span></label>
+                            </label>
+                        </form>
+                    </div>
+                    <form id="changePersonalInfo" class="card-footer form-signin" autocomplete="off">
+                        <div class="form-group">
+                            <h5>Personal Info
+                                <span class="popup">
+                                    <i class="fa fa-question-circle">
+                                        <span class="popup-right">This information is derived from your school email.
+                                            You can edit your first name.</span>
+                                    </i>
+                                </span>
+                            </h5>
+                            <div id="personalInfoChangeMessage"
                                  class="alert alert-success alert-dismissible font-weight-bold"
                                  style="display:none">
                                 <div style="display:none" class="sk-chase-mini">
@@ -178,30 +364,52 @@
                                     <div class="sk-chase-dot mini"></div>
                                 </div>
                                 <div class="messageTxt"></div>
-                                <a class="close" onclick="closeMessage('advancedMessage')" aria-label="close">X</a>
+                                <a class="close" onclick="closeMessage('personalInfoChangeMessage')" aria-label="close">X</a>
                             </div>
-                            <form id="advancedAppearance" action="/setShowNonacademic" method="post"
-                                  onsubmit="$('#advancedSubmit').attr('disabled','disabled')">
-                                <label style="cursor: pointer">
-                                    <input id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
-                                    <% if (user.appearance.showNonAcademic) { %> checked
-                                            <% } %>
-                                           oninput="$('#advancedSubmit').removeAttr('disabled')"
-                                    > Show Non-Academic Classes
-                                </label>
-                                <button id="advancedSubmit" class="btn-default btn btn-sm" type="submit"
-                                        onclick="$('#reloadNeeded').text('Reload Needed'); ajaxPostForm('#advancedAppearance',[],'#advancedMessage',true)"
-                                        disabled>
-                                    Apply
-                                </button>
-                            </form>
+                            <br>
+                            <div style="display: flex; align-items: center; flex-basis: content; flex-wrap: wrap"
+                                 id="personalInfo">
+                                <div class="form-group input-group">
+                                    <i class="user-bg"></i>
+                                    <label class="label-active">First Name</label>
+                                    <input oninput="checkLabel(this); checkFirstName(this, '#firstNameCheckMessage')"
+                                           type="text" class="form-control dont-clear" name="first_name" id="firstName"
+                                           value="<%= JSON.parse(personalInfo).firstName; %>">
+                                    <span class="popup">
+                                        <i>
+                                            <span class="popup-top-left dont-show"
+                                                  id="firstNameCheckMessage"></span></i>
+                                    </span>
+                                </div>
+                                <div class="form-group input-group">
+                                    <i style="filter: opacity(0.5)" class="user-bg"></i>
+                                    <label style="filter: opacity(0.5)" class="label-active">Last Name</label>
+                                    <input oninput="checkLabel(this);" style="filter: opacity(0.5)"
+                                           type="text" class="form-control" name="last_name" id="lastName"
+                                           value="<%= JSON.parse(personalInfo).lastName; %>" disabled>
+                                    <span class="popup">
+                                        <i class="fa fa-question-circle">
+                                            <span class="popup-top-left">Changing your Last Name is not supported</span></i>
+                                    </span>
+                                </div>
+                                <div class="form-group input-group">
+                                    <i style="filter: opacity(0.5)" class="user-bg"></i>
+                                    <label style="filter: opacity(0.5)" class="label-active">Graduation Year</label>
+                                    <input oninput="checkLabel(this);" style="filter: opacity(0.5)"
+                                           type="number" class="form-control" name="graduation_year" id="graduationYear"
+                                           value="<%= JSON.parse(personalInfo).graduationYear; %>"
+                                           disabled>
+                                    <span class="popup">
+                                        <i class="fa fa-question-circle">
+                                            <span class="popup-top-left">Changing your Graduation Year is not
+                                                supported</span></i>
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                    <% } %>
-                </div>
-            </div>
-            <div id="settings-2" class="tabcontent">
-                <div class="card-body">
-                    <form id="changePassword" class="card-footer form-signin" action="/changepassword"
+                    </form>
+                    <form id="changePassword" class="card-footer form-signin"
+                          action="/changepassword"
                           method="post">
                         <div class="form-group">
                             <h5>Change Password</h5>
@@ -224,27 +432,31 @@
                             <div class="input-group">
                                 <i class="lock-bg"></i>
                                 <label>Old Password</label>
-                                <input oninput="checkLabel(this); checkPassword('#password', '#passwordCheckMessage', this);"
+                                <input oninput="checkLabel(this); checkPassword('#password',this,'#passwordCheckMessage'); checkPasswordConfirm('#password', this, '#confirmPassword', '#passwordConfirmMessage')"
                                        id="oldPassword" type="password" class="form-control"
                                        name="oldPass" required>
                             </div>
                             <div class="input-group">
                                 <i class="lock-bg"></i>
-                                <label>New Password<label
-                                            style="margin: 0 0 0 2.9rem; font-weight: bold; font-size: small"
-                                            id="passwordCheckMessage"></label></label>
-                                <input oninput="checkLabel(this); checkPassword(this, '#passwordCheckMessage', '#oldPassword'); checkPasswordConfirm(this, '#confirmPassword', '#passwordConfirmMessage', '#changePasswordBtn')"
+                                <label>New Password</label>
+                                <input oninput="checkLabel(this); checkPassword(this,'#oldPassword', '#passwordCheckMessage'); checkPasswordConfirm(this, '#oldPassword', '#confirmPassword', '#passwordConfirmMessage')"
                                        id="password"
                                        type="password" class="form-control" name="password" required>
+                                <span class="popup">
+                                    <i>
+                                        <span class="popup-top-left dont-show" id="passwordCheckMessage"></span></i>
+                                </span>
                             </div>
                             <div class="input-group">
                                 <i class="lock-bg"></i>
-                                <label>Confirm New Password<label
-                                            style="margin: 0 0 0 5.5rem; font-weight: bold; font-size: small"
-                                            id="passwordConfirmMessage"></label></label>
-                                <input oninput="checkLabel(this); checkPasswordConfirm('#password', this, '#passwordConfirmMessage', '#changePasswordBtn')"
+                                <label>Confirm New Password</label>
+                                <input oninput="checkLabel(this); checkPasswordConfirm('#password', '#oldPassword', this, '#passwordConfirmMessage')"
                                        id="confirmPassword" type="password"
                                        class="form-control" required>
+                                <span class="popup">
+                                    <i>
+                                        <span class="popup-top-left dont-show" id="passwordConfirmMessage"></span></i>
+                                </span>
                             </div>
                         </div>
                         <div class="text-center">
@@ -255,111 +467,12 @@
                             </button>
                         </div>
                     </form>
-                    <form id="changeSchoolEmail" class="card-footer form-signin" style="margin-top: 1em"
-                          action="/changeschoolemail" method="post">
-                        <div class="form-group">
-                            <h5>Change School Email</h5>
-                            <div id="emailChangeMessage" class="alert alert-success alert-dismissible font-weight-bold"
-                                 style="display:none">
-                                <div style="display:none" class="sk-chase-mini">
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                </div>
-                                <div class="messageTxt"></div>
-                                <a class="close" onclick="closeMessage('emailChangeMessage')" aria-label="close">X</a>
-                            </div>
-                            <br>
-                            <div class="input-group">
-                                <i class="email-bg"></i>
-                                <label>School Email</label>
-                                <input oninput="checkLabel(this)" id="school_email" type="text" class="form-control"
-                                       name="school_email" required>
-                            </div>
-                        </div>
-                        <div class="text-center">
-                            <button type="submit"
-                                    onclick=" updateSchoolUsernameDisplay(); ajaxPostForm('#changeSchoolEmail',['#school_email'],'#emailChangeMessage', true);"
-                                    class="btn btn-default btn-med">
-                                Change School Email
-                            </button>
-                        </div>
-                    </form>
                 </div>
             </div>
-            <div id="settings-3" class="tabcontent" style="display:none">
+            <div id="settings-3" class="tabcontent">
                 <div class="card-body">
                     <div class="card-footer">
-                        <h5>Alerts</h5>
-                        <div id="alertSettingsMessage"
-                             class="alert alert alert-success alert-dismissible font-weight-bold"
-                             style="display:none">
-                            <div style="display:none" class="sk-chase-mini">
-                                <div class="sk-chase-dot mini"></div>
-                                <div class="sk-chase-dot mini"></div>
-                                <div class="sk-chase-dot mini"></div>
-                                <div class="sk-chase-dot mini"></div>
-                                <div class="sk-chase-dot mini"></div>
-                                <div class="sk-chase-dot mini"></div>
-                            </div>
-                            <div class="messageTxt"></div>
-                            <a class="close" onclick="closeMessage('alertSettingsMessage')" aria-label="close">X</a>
-                        </div>
-                        <form id="changeAlertSettings" class="form-signin" action="/changealertsettings"
-                              method="post">
-                            <div class="form-group" style="margin: 0">
-                                <label>Grade Update Reminder:</label> <select style="float: right" class="dropdown"
-                                                                              name="updateGradesReminder">
-                                    <option value="daily"
-                                    <% if (user.alerts.updateGradesReminder == 'daily') { %> selected
-                                            <% } %>
-                                    >Daily
-                                    </option>
-                                    <option value="weekly"
-                                    <% if (user.alerts.updateGradesReminder == 'weekly') { %> selected
-                                            <% } %>
-                                    >Weekly
-                                    </option>
-                                    <option value="never"
-                                    <% if (user.alerts.updateGradesReminder == 'never') { %> selected
-                                            <% } %>
-                                    >Never
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="text-center">
-                                <button type="submit"
-                                        onclick="ajaxPostForm('#changeAlertSettings',[],'#alertSettingsMessage', true); updateSchoolUsernameDisplay()"
-                                        class="btn btn-default btn-med">
-                                    Save
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="card-footer">
-                        <h5>Miscellaneous</h5>
-                        <form id="gradeSync" class="form-signin" action="/disableGradeSync" method="post">
-                            <label style="white-space: nowrap; display: flex; font-size: 1rem; justify-content: flex-start; align-items: center">
-                                <label class="switch">
-                                    <input
-                                            id="gradeSyncToggle"
-                                            style="margin: 0; display: flex"
-                                            type="checkbox"
-                                            name="gradeSync"
-                                    <% if (user.schoolPassword) { %>
-                                            checked
-                                            <% } %>
-                                            oninput="manageGradeSyncCheckbox()"
-                                    >
-                                    <span style="color: #888888" class="slider"></span>
-                                </label>
-                                <label style="margin: 0 0 0 1rem; justify-content: center; align-items: center; cursor: pointer"
-                                       onclick="$('#gradeSyncToggle').trigger('input')">GradeSync</label>
-                            </label>
-                        </form>
+                        <h5>Troubleshooting</h5>
                         <form id="remoteAccess" class="form-signin" action="/setRemoteAccess" method="post">
                             <label style="display: flex; font-size: 1rem; justify-content: flex-start; align-items: center">
                                 <label class="switch">
@@ -368,26 +481,23 @@
                                             style="margin: 0; display: flex"
                                             type="checkbox"
                                             name="remoteAccess"
-                                    <% if (user.alerts.remoteAccess === "allowed") { %>
+                                    <% if (alerts.remoteAccess === "allowed") { %>
                                             checked
                                             <% } %>
-                                            oninput="ajaxPostForm('#remoteAccess',[],'',true); $('#remoteAccess').submit();"
+                                            onchange="ajaxPostForm('#remoteAccess',[],'',true); $('#remoteAccess').submit();"
                                     >
-                                    <span style="color: #888888" class="slider"></span>
+                                    <span class="slider"></span>
                                 </label>
                                 <label style="margin: 0 0 0 1rem; justify-content: center; align-items: center; cursor: pointer"
                                        onclick="$('#remoteAccessToggle').trigger('click')">Allow
-                                    Remote Access</label>
+                                    Remote Access<span
+                                            class="popup"><i class="fa fa-question-circle"
+                                                             style="margin-left: 0.4rem"><span
+                                                    class="popup-right-top">When enabled, developers can view your
+                                                personal home page to help with
+                                                troubleshooting.</span></i></span></label>
                             </label>
                         </form>
-                    </div>
-                </div>
-            </div>
-            <div id="settings-4" class="tabcontent">
-                <div class="card-body">
-                    <div class="card-footer">
-                        <h5>Contact Us</h5>
-                        <p>Email: <u><a href="mailto: graderoom@gmail.com">graderoom@gmail.com</a></u></p>
                     </div>
                     <div class="card-footer">
                         <h5>Quick Links</h5>
@@ -428,6 +538,58 @@
                             </label>
                         </button>
                     </div>
+                    <div class="card-footer">
+                        <h5>Tutorial Progress
+                            <span class="popup">
+                                <i class="fa fa-question-circle">
+                                    <span class="popup-right-top">Explore parts of Graderoom with blue popups to
+                                        complete the tutorial. The tutorial cannot be completed on the mobile
+                                        site.</span>
+                                </i>
+                            </span></h5>
+                        <div style="display:flex; flex-flow: row; align-items: center; justify-content: stretch;">
+                            <div class="progress" style="width: 100%">
+                                <div class="progress-bar progress-bar-success" role="progressbar" style="width:100%"
+                                     id="tutorialStatus">
+                                    Loading...
+                                </div>
+                            </div>
+                            <button class="btn btn-sm"
+                                    style="margin: 0.1rem; width: fit-content; width: -moz-fit-content" type="submit"
+                                    onclick="resetTutorial()">Reset
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <h5>Contact Us</h5>
+                        <p>Email: <u><a href="mailto: graderoom@gmail.com">graderoom@gmail.com</a></u></p>
+                    </div>
+                </div>
+            </div>
+            <div id="settings-4" class="tabcontent">
+                <div class="card-body">
+                    <div class="card-footer">
+                        <h5>Description</h5>
+                        <p>Graderoom is an advanced grade visualizer designed to help students better understand their
+                            grades. Graderoom was created by students at Bellarmine College Preparatory in San Jose, CA,
+                            but is in no way affiliated with the school or it's faculty and staff. We welcome feedback
+                            from our users and are actively working on features and improvements.
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <h5>Contributors</h5>
+                        <h6>Joel Jothiprakasam BCP '21</h6>
+                        <h6>Abhinav Nallapa BCP '21</h6>
+                        <h6>Robert Ganino BCP '20</h6>
+                        <h6>Krish Pandit BCP '21</h6>
+                        <h6>Bryce Hackel BCP '21</h6>
+                    </div>
+                    <div class="card-footer">
+                        <h5>History</h5>
+                        <h6>First Commit: September 17, 2019</h6>
+                        <h6>First Beta Release: October 2, 2019</h6>
+                        <h6>First Stable Release: February 27, 2020</h6>
+                    </div>
                 </div>
             </div>
         </div>
@@ -437,15 +599,109 @@
 <!-- Custom JavaScript -->
 <script type="text/javascript">
 
+    let checkingFirstName;
+
+    function checkFirstName(inputID, messageDivID) {
+        const firstNameRegex = new RegExp("^[a-zA-Z]*$");
+
+        let firstName = $(inputID)[0].value;
+        let icon = $($($(inputID)[0].nextElementSibling)[0].firstElementChild);
+
+        $(messageDivID).addClass("dont-show").removeClass("always-show");
+        icon.attr("class", "fa fa-pulse fa-spinner");
+        $(inputID).css("border-bottom-color", "blue");
+        if (checkingFirstName) {
+            clearTimeout(checkingFirstName);
+        }
+
+        if (firstName.length === 0) {
+            firstName = getPersonalInfo(schoolUsername).firstName;
+            $(messageDivID).addClass("always-show").removeClass("dont-show").css("color", "red").text("Your name will be set back to " + firstName + " when you click outside of the input field");
+            icon.attr("class", "fa fa-exclamation-circle");
+            $(inputID).css("border-bottom-color", "red").blur(() => {
+                $(inputID).val(firstName);
+                $(inputID).trigger("input");
+                $(inputID).unbind("blur");
+            });
+            return;
+        }
+
+        checkingFirstName = setTimeout(() => {
+            if (!firstNameRegex.test(firstName)) {
+                $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("First name must contain only letters...You're name isn't X Æ A-12, is it?");
+                icon.attr("class", "fa fa-exclamation-circle");
+                $(inputID).css("border-bottom-color", "red");
+                return;
+            }
+            $.ajax({
+                       url: "/setFirstName", type: "POST", async: true, data: {firstName: firstName}
+                   }).done((response) => {
+                // Make sure value is still the same
+                if (firstName === $(inputID)[0].value) {
+                    $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text(response);
+                    icon.attr("class", "fa fa-check-circle");
+                    $(inputID).css("border-bottom-color", "");
+                    personalInfo.firstName = firstName;
+                    updateNameDisplay(firstName);
+                }
+            }).fail((data) => {
+                // Make sure value is still the same
+                if (firstName === $(inputID)[0].value) {
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").html(data.responseText);
+                    icon.attr("class", "fa fa-exclamation-circle");
+                    $(inputID).css("border-bottom-color", "red");
+                }
+            });
+        }, 400);
+    }
+
+    function updateNameDisplay(firstName, schoolUsername) {
+        if (firstName) {
+            let {temp, lastName, graduationYear} = getPersonalInfo(schoolUsername);
+            $("#nameDisplay").text(firstName + " " + lastName + " '" + (graduationYear - 2000));
+        } else if (schoolUsername) {
+            let {firstName, lastName, graduationYear} = getPersonalInfo(schoolUsername);
+            $("#nameDisplay").text(firstName + " " + lastName + " '" + (graduationYear - 2000));
+            $("#firstName").val(firstName);
+            $("#lastName").val(lastName);
+            $("#graduationYear").val(graduationYear);
+        }
+    }
+
+    function getPersonalInfo(bcpEmail) {
+        // First Name
+        let firstName = bcpEmail.indexOf(".") === -1 ? bcpEmail : bcpEmail.substring(0, bcpEmail.indexOf("."));
+        firstName = firstName.substring(0, 1).toUpperCase() + firstName.substring(1).toLowerCase();
+
+        // Last Name
+        let lastName = bcpEmail.indexOf(".") === -1 ? "" : bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? bcpEmail.substring(bcpEmail.indexOf(".") + 1) : bcpEmail.substring(bcpEmail.indexOf(".") + 1, bcpEmail.indexOf(bcpEmail.match(/\d/)));
+        lastName = lastName.substring(0, 1).toUpperCase() + lastName.substring(1).toLowerCase();
+
+        // Graduation Year
+        let graduationYear = bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? "" : bcpEmail.indexOf("@") === -1 ? bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/))) : bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/)), bcpEmail.indexOf("@"));
+        if (graduationYear) {
+            graduationYear = parseInt(graduationYear);
+            graduationYear += 2000;
+        }
+
+        return {firstName, lastName, graduationYear};
+    }
+
     function manageGradeSyncCheckbox() {
-        if ($('#gradeSyncDiv').css('display') === 'block' && !$('#gradeSyncToggle').prop('checked')) {
-            delete user.schoolPassword;
-            ajaxPostForm('#gradeSync', [], '', true);
-            $('#gradeSync').submit();
-            $('#gradeSyncDiv').hide();
+        if ($("#gradeSyncDiv").css("display") === "block" && !$("#gradeSyncToggle").prop("checked")) {
+            gradeSync = false;
+            ajaxPostForm("#gradeSync", [], "", true);
+            $("#gradeSync").submit();
+            $("#gradeSyncDiv").hide();
             $("#syncGradesDiv").show();
+            $("#gradeSyncEnabled").hide();
+            $("#syncFailure").hide();
+            $("#syncNoData").hide();
+            clearTimeout(checkLastUpdated);
+            $(".updateGradesMessage").removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text("GradeSync is not enabled");
         } else {
-            showCard('#updateGradesDisplay');
+            $("#savePasswordToggle:not(:checked)").trigger("click");
+            showCard("#updateGradesDisplay");
         }
     }
 
@@ -453,11 +709,33 @@
         location.reload();
     }
 
+    function setColorPalette(palette) {
+        let buttons = $("#color-scheme-picker button");
+        buttons.prop("disabled", true);
+        $.ajax({
+                   url: "/setColorPalette", type: "POST", data: {preset: palette}, async: true
+               }).done((response) => {
+            $("#color-scheme-picker div").each(function () {
+                if (this.id === palette) {
+                    $(this).find("i").css("opacity", 1);
+                } else {
+                    $(this).find("i").css("opacity", 0);
+                }
+            });
+            updateClassColors(response);
+            setTimeout(() => {
+                buttons.prop("disabled", false);
+            }, 1000);
+        });
+    }
+
     function updateClassColors(colorArray) {
-        let colors = colorArray;
-        for (let i = 0; i < colors.length; i++) {
-            $("#classColor" + i).css("color", colors[i]);
+        let _colors = colorArray;
+        for (let i = 0; i < _colors.length; i++) {
+            $("#classColor" + i).css("color", _colors[i]);
         }
+        colors = colorArray;
+        setupColorStuff();
     }
 
     function updateSchoolUsernameDisplay() {
@@ -490,6 +768,9 @@
         document.getElementById(tabName).style.display = "block";
         document.getElementById("btn-" + tabIndex).classList.add("active");
         currentTab = tabIndex;
+        if (currentTab === 3) {
+            updateTutorial("help");
+        }
     }
 
     function checkLabel(input) {
@@ -504,62 +785,177 @@
         }
     }
 
-    function checkPassword(inputID, messageDivID, oldPasswordID) {
-        const lowerCaseRegex = new RegExp('^(?=.*[a-z])');
-        const upperCaseRegex = new RegExp('^(?=.*[A-Z])');
-        const numericRegex = new RegExp('^(?=.*[0-9])');
+    let checkingPassword;
+
+    function checkPassword(inputID, oldID, messageDivID) {
+        const lowerCaseRegex = new RegExp("^(?=.*[a-z])");
+        const upperCaseRegex = new RegExp("^(?=.*[A-Z])");
+        const numericRegex = new RegExp("^(?=.*[0-9])");
 
         let password = $(inputID)[0].value;
-        let message;
-
-        if (password.length === 0) {
-            message = "";
-        } else if (oldPasswordID && (password === $(oldPasswordID)[0].value)) {
-            message = "You're supposed to be changing your password...";
-        } else if (password.length < 6) {
-            message = 'Your password must be at least 6 characters long.';
-        } else if (password.length > 64) {
-            message = 'Your password must be fewer than 64 characters long.';
-        } else if (!lowerCaseRegex.test(password)) {
-            message = 'Your password must include at least one lowercase character.';
-        } else if (!upperCaseRegex.test(password)) {
-            message = 'Your password must include at least one uppercase character.';
-        } else if (!numericRegex.test(password)) {
-            message = 'Your password must include at least one number.';
-        } else {
-            message = 'Strong password!';
-            if (!messageDivID) {
-                return true;
+        let oldPassword = $(oldID)[0].value;
+        let icon = $($($(inputID)[0].nextElementSibling)[0].firstElementChild);
+        if (messageDivID) {
+            $(messageDivID).addClass("dont-show").removeClass("always-show");
+            icon.attr("class", "fa fa-pulse fa-spinner");
+            $(inputID).css("border-bottom-color", "blue");
+            if (checkingPassword) {
+                clearTimeout(checkingPassword);
             }
-            $(messageDivID).css('color', 'green').text(message);
-            return;
-        }
 
-        if (!messageDivID) {
-            return false;
+            if (password === "") {
+                $(messageDivID).addClass("dont-show").removeClass("always-show");
+                icon.attr("class", "");
+                $(inputID).css("border-bottom-color", "");
+                invalidate();
+                return;
+            }
+            checkingPassword = setTimeout(() => {
+                if (oldPassword === "") {
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Enter your old password first");
+                    icon.attr("class", "fa fa-exclamation-circle");
+                    $(inputID).css("border-bottom-color", "red");
+                    invalidate();
+                    return;
+                }
+                if (password === oldPassword) {
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Your new password should be different from your old password");
+                    icon.attr("class", "fa fa-exclamation-circle");
+                    $(inputID).css("border-bottom-color", "red");
+                    invalidate();
+                    return;
+                }
+                let message;
+                if (password.length < 6) {
+                    message = "Your password must be at least 6 characters long";
+                } else if (password.length > 64) {
+                    message = "Your password must be fewer than 64 characters long";
+                } else if (!lowerCaseRegex.test(password)) {
+                    message = "Your password must include at least one lowercase character";
+                } else if (!upperCaseRegex.test(password)) {
+                    message = "Your password must include at least one uppercase character";
+                } else if (!numericRegex.test(password)) {
+                    message = "Your password must include at least one number";
+                } else {
+                    message = "Strong password";
+                    $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text(message);
+                    icon.attr("class", "fa fa-check-circle");
+                    $(inputID).css("border-bottom-color", "");
+                    validate();
+                    return;
+                }
+                if (message) {
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text(message);
+                    icon.attr("class", "fa fa-exclamation-circle");
+                    $(inputID).css("border-bottom-color", "red");
+                    invalidate();
+                } else {
+                    $(messageDivID).addClass("dont-show").removeClass("always-show");
+                    icon.attr("class", "");
+                    $(inputID).css("border-bottom-color", "");
+                }
+            }, 400);
+        } else {
+            return !((password.length < 6) || (password.length > 64) || (!lowerCaseRegex.test(password)) || (!upperCaseRegex.test(password)) || (!numericRegex.test(password)));
         }
-        $(messageDivID).css('color', 'red').text(message);
     }
 
-    function checkPasswordConfirm(inputID, confirmID, messageDivID, buttonID) {
+    let checkingPasswordConfirm;
+
+    function checkPasswordConfirm(inputID, oldID, confirmID, messageDivID) {
         let password = $(inputID)[0].value;
         let confirm = $(confirmID)[0].value;
-        if (checkPassword(inputID)) {
-            if (password === confirm) {
-                $(messageDivID).css('color', 'green').text('Passwords match!');
-                $(buttonID).prop('disabled', '');
-                return;
-            } else if (confirm !== "") {
-                $(messageDivID).css('color', 'red').text('Passwords do not match!');
-                $(buttonID).prop('disabled', 'disabled');
+        let icon = $($($(confirmID)[0].nextElementSibling)[0].firstElementChild);
+        if (messageDivID) {
+            $(messageDivID).addClass("dont-show").removeClass("always-show");
+            icon.attr("class", "fa fa-pulse fa-spinner");
+            $(confirmID).css("border-bottom-color", "blue");
+            if (checkingPasswordConfirm) {
+                clearTimeout(checkingPasswordConfirm);
+            }
+
+            if (confirm === "") {
+                $(messageDivID).addClass("dont-show").removeClass("always-show");
+                icon.attr("class", "");
+                $(confirmID).css("border-bottom-color", "");
+                invalidate();
                 return;
             }
+            checkingPasswordConfirm = setTimeout(() => {
+                if (checkPassword(inputID, oldID)) {
+                    if (password === confirm) {
+                        $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text("Passwords match");
+                        icon.attr("class", "fa fa-check-circle");
+                        $(confirmID).css("color", "").css("border-bottom-color", "");
+                        validate();
+                    } else {
+                        $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Passwords do not match");
+                        icon.attr("class", "fa fa-exclamation-circle");
+                        $(confirmID).css("border-bottom-color", "red");
+                        invalidate();
+                    }
+                } else {
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Enter a valid password first");
+                    icon.attr("class", "fa fa-exclamation-circle");
+                    $(confirmID).css("border-bottom-color", "red");
+                    invalidate();
+                }
+            }, 400);
+        } else {
+            invalidate();
+            return checkPassword(inputID, oldID) && password === confirm;
         }
-        $(messageDivID).text("");
-        $(buttonID).prop('disabled', 'disabled');
+    }
+
+    let passwordDiv = $("#password");
+    let oldPasswordDiv = $("#oldPassword");
+    let confirmDiv = $("#confirmPassword");
+    let signupBtn = $("#changePasswordBtn");
+
+    function validate() {
+        if (!checkPasswordConfirm(passwordDiv, oldPasswordDiv, confirmDiv)) { // Invalid or Unconfirmed Password
+            invalidate();
+            return;
+        }
+        signupBtn.prop("disabled", "");
+    }
+
+    function invalidate() {
+        signupBtn.prop("disabled", "disabled");
     }
 
     function closeMessage(id) {
         document.getElementById(id).style.display = "none";
     }
+
+    function resetTutorial() {
+        $.ajax({
+                   url: "/resetTutorial", type: "POST", async: true
+               }).done((response) => {
+            alerts.tutorialStatus = JSON.parse(response);
+            setupTutorialPopups();
+            updateTutorialProgress();
+        });
+    }
+
+    function updateTutorialProgress() {
+        const {tutorialStatus} = alerts;
+        let numGotten = Object.values(tutorialStatus).filter(x => x).length;
+        let numTotal = Object.values(tutorialStatus).length;
+        let progress = numGotten / numTotal * 100;
+        let bar = $("#tutorialStatus").text(progress !== 0 ? Math.round(progress) + "%" : "").css("width", progress + "%").parents(".progress");
+        let emptyBars = $(".empty-progress");
+        let i;
+        for (i = 0; i < numTotal - numGotten; i++) {
+            if (i >= emptyBars.length) {
+                bar.append("<div class=\"progress-bar empty-progress\" role=\"progressbar\" style=\"width: " + (100 / numTotal) + "%\"></div>");
+            } else {
+                $(emptyBars[i]).css("width", (100 / numTotal) + "%");
+            }
+        }
+        for (i; i < emptyBars.length; i++) {
+            $(emptyBars[i]).remove();
+        }
+    }
+
 </script>

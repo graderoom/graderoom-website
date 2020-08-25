@@ -22,7 +22,7 @@
 
 <!-- ALL versions with SEVEN or FEWER entries: increase THIRD digit -->
 <!-- ALL versions with EIGHT or MORE entries: increase SECOND digit -->
-<!-- Increase FIRST digit when SECOND digit reaches NINE -->
+<!-- STABLE versions with LOTS of entries: increase FIRST digit -->
 <!-- ALL updates within a day must be in the same version, unless separated by an announcement or stability -->
 
 
@@ -40,16 +40,198 @@
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
-## [Known Issues] - Send bug reports in Settings > Help > Feedback Form<br>Only issues in the stable version will be listed here
-- Incorrect grade step calculation with ungraded assignments <strong>[Fixed in Beta 2.0.1]</strong>
-- Rounding errors with incorrect grade warning messages <strong>[Fixed in Beta 2.1.1]</strong>
-- GradeSync cannot be enabled when grades are locked in PowerSchool <strong>[Fixed in Beta 2.3.3]</strong>
-- Lack of support for Microsoft Edge (non-Chromium) <strong>[Fixed in Beta 2.3.5]</strong>
-- Some cards incorrectly show over other cards when using keyboard shortcuts <strong>[Fixed in Beta 2.3.5]</strong>
-- Card Animations last very long if keyboard shortcuts are spammed <strong>[Fixed in Beta 2.3.8]</strong>
-- Cards can sometimes not be closed with keyboard shortcuts <strong>[Fixed in Beta 2.3.8]</strong>
-- Changelog display buttons work incorrectly after page resize <strong>[Fixed in Beta 2.3.8]</strong>
-- Grades sometimes do not sync when autofill is enabled and GradeSync is disabled <strong>[Fixed in Beta 2.5.0]</strong>
+## [Known Issues] - Nothing Yet
+- <em>Send bug reports in Settings > Help > Feedback Form</em>
+- <em>Only issues in the stable version will be listed here</em>
+
+## [Stable 3.0.0] - 2020-08-25
+### Added
+- Navigation Bar Updates<ul>
+- Your name and graduation year show up under your username
+- Added a help button
+- Added syncing status in center navbar cluster
+- Class navbar now remains on the top of the screen when scrolling down
+- Clicking on your username now opens Account settings
+- Clicking on the logo in the navbar now goes to the overview page if you are on a class page. If you are already on the overview page, the site will refresh. You can always use the logo to go to the homepage.
+- Added new animation to sync button while syncing grades
+- <em>[Mobile]</em> New "home" button</ul>
+- Settings Updates<ul>
+- Added Personal Info in Account Settings
+- You can update your first name in settings
+- Added progress status of tutorial
+- Added button to reset tutorial progress
+- See contributors to Graderoom in the 'About' tab of settings
+- Updated 'About' tab with history and description
+- Updated help messages on various settings
+- Brand new color scheme presets in appearance settings
+- Added advanced appearance settings<ul>
+- Added setting for regularizing class graphs (enabled by default)
+- Added setting for showing non-academic classes (enabled by default)
+- Added setting for weighting GPA (enabled by default)</ul></ul>
+- Class table updates<ul>
+- All assignment categories, scores, and exclusions are now editable
+- Added assignment wizard for adding assignments
+- Added assignments save to your account
+- Added a tool tab to every assignment row<ul>
+- The undo button reverts any local changes to added assignments or edits to PowerSchool assignments
+- The trash button deletes added assignments
+- The save button saves and uploades modifications to added assignments
+- The tool tab that displays at the top of category or overall tables can be used to enact the action on all rows in said table that support the action</ul>
+- Added letter grades to assignment grades and overall grade steps
+- Added sorting options<ul>
+- Grades can be sorted from newest to oldest (enabled by default)
+- Grades can also be sorted by category
+- Sort methods save to your account</ul>
+- Improved row coloring so that overall grade steps are always readable</ul>
+- Miscellaneous Updates<ul>
+- New types of popups
+- Tutorial<ul>
+- New tutorial and help messages
+- Click the "Got It!" button on any tutorial popup to close it</ul>
+- Support for Microsoft Edge (non-Chromium)
+- <em>[Mobile]</em> Initial support for mobile website with limited features. Use Graderoom on your large screen device to access all features
+- New custom scrollbars
+- Added legend to the changelog with clickable elements
+- New Keyboard shortcuts<ul>
+- 'A' to add assignment
+- 'H' to open the help tab of Settings</ul>
+- Feedback form now autofills with your name
+- Sync Grades Card and sync status now always show last synced information
+- You can now request password reset from the signin page
+- Added loading indicators to charts
+- Added cumulative GPA display</ul>
+
+### Improved
+- User Interface Improvements<ul>
+- Better popups
+- Smoother, faster transition between themes
+- Better spacing and styling on main navigation bar
+- Improved Placement of popups
+- Spacing in account settings has been improved so that content does not flow off screen
+- Improved revert grade button placement
+- Better display of excluded assignments
+- Smoother animation on showing cards
+- New styling of dropdowns globally
+- Made grade deltas slightly larger
+- Changelog Display style improvements
+- Redesigned settings card
+- Updated change password and school email sections in settings to match overall style
+- Less important popups are now less intrusive and have a new icon
+- Improved chart and weight table sizing
+- Tweaked design of class tables
+- Tweaked animations and styling in some areas
+- Logged out pages, including sign-in are now themed based on time of day
+- Generated colors are now always distinct
+- <em>[Mobile]</em> Changelog is now sized correctly for mobile</ul>
+- User Experience Improvements<ul>
+- Better input validation on login and signup pages
+- Decreased time before giving incorrect password feedback while attempting to sync grades
+- Sync status is more accurate
+- Disabled keyboard shortcuts while grades are manually syncing
+- Focus incorrect password after manually syncing grades fails
+- Popups with correct grade from PowerSchool now always show when calculated grade is incorrect
+- Charts rerender when page is resized
+- More informative sync status messages
+- Whats New display now shows announcements
+- Whats New display can display multiple missed versions
+- Gradesync is more clear when enabled
+- Class colors can be changed without refreshing the page
+- Overview page now always shows on login, even if last page viewed before logout was different
+- Incorrect grades no longer show in overview table
+- Changelog now remains on last seen version when closed
+- Stable versions are highlighted in blue
+- Changelog initially only displays recent versions. More can be loaded by scrolling down.
+- Improved support for Mozilla Firefox
+- Page can be scrolled with card open
+- Graphs are now bounded between 0 and 150 when panned and zoomed
+- Terms and Conditions and Privacy Policy now must be scrolled to the bottom before accepting
+- Syncing with PowerSchool no longer requires a refresh unless your classes change
+- Graderoom now reacts much more quickly when PowerSchool is down
+- Popups no longer remain open if the mouse quickly jumps from the initial position into the popup area
+- Decreased load time when refreshing page while on first class page
+- Charts change their x-axis to days if data fits within one month
+- <em>[Mobile]</em> Homepage is much more useful and less cluttered. Click on a class to view its page
+- <em>[Mobile]</em> Navbar now has important information such as sync status and user name easily visible
+- <em>[Mobile]</em> Signup experience
+- <em>[Mobile]</em> Weights and point-based toggle can now be edited on mobile
+- <em>[Mobile]</em> Typing into inputs within cards has improved</ul>
+
+### Fixed
+- Incorrect grade step calculation with ungraded assignments
+- Overview tab no longer shows until grades are successfully synced
+- Issue where scores displayed incorrectly on popups
+- Graderoom no longer automatically refreshes if you are focused on a card during syncing (except the sync grades card)
+- Rounding errors with incorrect grade warning message
+- Issue where main navigation bar toggle icon would sometimes disappear on theme change
+- Unnecessary re-rendering
+- Issues in weight tables when non-academic classes were hidden
+- Issues in class tables when non-academic classes were hidden
+- Issue where chart wouldn't change color on theme change
+- Issue with unnecessary refreshing
+- Issue where GradeSync could not be enabled when grades were locked in PowerSchool
+- Issue where categories would not reset when the row was reset
+- Issue where some icons incorrectly appeared above cards
+- Issue where what's new card wouldn't show if grade syncing was unsuccessful
+- Issue where card animations would last very long if keyboard shortcuts were spammed
+- Issue where cards could sometimes not be closed with keyboard shortcuts
+- Issue where changelog display buttons would work incorrectly after page resize
+- Issue where popups would show over first card
+- Issue where ungraded first assignment in any class would cause incorrect grade step calculation
+- Issue where grades sometimes did not sync when autofill was enabled and GradeSync was disabled
+- Issue where category grade steps were sometimes incorrect
+- Issue where username in navbar was not centered
+- Issue where popups were sometimes not perfectly aligned
+- Issue where extra credit would sometimes have fake score
+- Username in the final grade calculator page navbar is now vertically centered
+- Issue with setting auto dark theme start to 12 AM
+- Issue where auto dark theme bounds settings wouldn't show if automatic theme was already selected
+- Bug when only one assignment was not excluded
+- Prevented weights form from being submitted before page is fully loaded
+- Issue where charts would not render properly in light mode
+- Issue where popups were showing up underneath other elements
+- Issue where page would sometimes say changes not saved
+- <em>[Mobile]</em> Issue where scrolling was not smooth on some devices
+- <em>[Mobile]</em> Issue where scrolling would not disable correctly
+
+### Removed
+- Alerts have been replaced by a more intuitive syncing status display
+- 'Home' button from navbar everywhere (Use the logo to go home)
+- Removed 'scroll to version' buttons in changelog
+- <em>[Mobile]</em> Removed all charts
+
+## [Beta 2.8.0] - 2020-08-24
+### Added
+- New assignment toolbar with save and trash options
+- Added ability to save and undo changes to added assignments
+- Added loading indicators to charts
+- Added ability to regularize class graphs
+- Added ability to delete, save, and trash all possible in a category or in the entire class
+- Added ability to toggle weighted GPA
+- Added cumulative GPA
+- Added new animation while syncing to sync button icon
+- Added advanced appearance settings
+
+### Improved
+- Popups no longer remain open if the mouse quickly jumps from the initial position into the popup area
+- Decreased load time when refreshing page while on first class page
+- Changed default date sort to Newest to Oldest
+- Charts change their x-axis to days if data fits within one month
+- Grades can by synced without refreshing the page in most cases
+
+### Fixed
+- Issue where assignments could not be edited
+- Issues with editing assignments in category mode
+- Issue where tutorial popups were not cleared correctly
+- Issue where changelog legend buttons would not update if manually scrolled
+- Bug when only one assignment was not excluded
+- Prevented weights form from being submitted before page is fully loaded
+- Visual bugs in homepage
+- Issue where charts would not render properly in light mode
+- Issue where popups were showing up underneath other elements
+- Issue where page would sometimes say changes not saved
+
+### Removed
+- <em>[Mobile]</em> Tooltab is now hidden on mobile
 
 ## [Beta 2.7.6] - 2020-08-16
 ### Added
@@ -261,7 +443,7 @@
 - Issue where cards could sometimes not be closed with keyboard shortcuts
 - Issue where changelog display buttons would work incorrectly after page resize
 
-## [Announcement] - 2020-05-29
+## [Announcement 2.3.7] - 2020-05-29
 - Our Privacy Policy has been updated
 - Our Terms and Conditions have been updated
 
@@ -619,7 +801,7 @@
 - Auto theme is now set up correctly for new users
 - Issue where excluded assignments were part of overall grade in point-based classes
 
-## [Announcement] - 2020-03-20
+## [Announcement 1.5.1] - 2020-03-20
 - <em>[Beta]</em> During testing, some beta user's weights were lost. Although this data could be restored from the database backups, due to the beta nature of this issue and the relatively small inconvenience this will cause, this weight data will not be recovered
 - <em>[Beta]</em> Send feedback if you have any questions, comments, or concerns
 
@@ -695,7 +877,7 @@
 - 'Escape' shortcut correctly disables when grades are syncing
 - Weight auto-population works correctly for new and existing users
 
-## [Announcement] - 2020-03-12
+## [Announcement 1.3.3] - 2020-03-12
 - Auto-population of weights is now in beta
 - To prepare for the wide release, if you know the category weights for your classes, please enter them in the edit weights tab to improve the user experience for other users
 - <em>[Beta]</em> If you find an issue with the auto-populated weights, send feedback in Settings > About > Feedback Form
@@ -738,7 +920,7 @@
 ### Fixed
 - GradeSync loading screen now always shows correctly
 
-## [Announcement] - 2020-03-02
+## [Announcement 1.2.3] - 2020-03-02
 - On March 2, 2020 at about 8 AM PST, Graderoom encountered a server error
 - Unfortunately, all user accounts created after January 7, 2020 were lost
 - Passwords and personal user data, however, were not compromised

@@ -20,18 +20,22 @@ nav h5 {
     color: #CCCCCC;
 }
 
+nav label {
+    color: #666666;
+}
+
+.sticky {
+    box-shadow: 2px 1px 20px #111111;
+}
+
 nav .btn {
-    color: white;
     background-color: transparent;
+    color: white;
 }
 
 nav .btn:hover {
-    color: #333333;
     background-color: #BBBBBB;
-}
-
-nav .navbar-toggler:hover {
-    background-color: #444444;
+    color: #333333;
 }
 
 td {
@@ -40,6 +44,10 @@ td {
 
 th {
     border-color: #333333 !important;
+}
+
+::placeholder {
+    color: #999999 !important;
 }
 
 :disabled {
@@ -60,29 +68,50 @@ th {
     color: #BBBBBB;
 }
 
+.approve_btn {
+    background-color: #95AD95;
+}
+
+.approve_btn:hover {
+    border-color: #95AD95;
+    color: #95AD95;
+}
+
+.deny_btn {
+    background-color: #D6A1A1;
+}
+
+.deny_btn:hover {
+    border-color: #D6A1A1;
+    color: #D6A1A1;
+}
+
 .card {
     background-color: #333333;
 }
 
 .card a {
+    color: #222222;
+}
+
+.card-footer a {
     color: #BBBBBB;
 }
 
-.card::-webkit-scrollbar-thumb {
-    background-color: #555555;
+.chart-placeholder {
+    opacity: 0.2;
+    color: white !important;
 }
 
-.card::-webkit-scrollbar-thumb:hover {
-    background-color: #777777;
-}
-
-.changelog {
+.changelog, .changelog-legend {
     background-color: #333333;
 }
 
+.changelog-legend {
+    box-shadow: 0 0 5px 1px black;
+}
+
 .changelog-item {
-    margin-top: 1rem;
-    border-radius: 1rem;
     background-color: #222222;
 }
 
@@ -102,6 +131,10 @@ th {
 .form-group input:focus {
     border-bottom-color: #555555;
     color: white;
+}
+
+.tutorial-popup {
+    color: hsl(210, 48%, 48%);
 }
 
 .form-group:focus-within label {
@@ -131,10 +164,6 @@ th {
     background: url(/public/resources/dark_mode/user.png) no-repeat left/23px 27px !important;
 }
 
-.logo {
-    content: url(/public/resources/dark_mode/logo.png) !important;
-}
-
 .mini:before {
     background-color: darkgreen !important;
 }
@@ -148,28 +177,57 @@ th {
     color: #FFFFFF;
 }
 
-.popup .popuptext {
-    background-color: #555555;
-    color: #FFFFFF;
+#classColors label {
+    background-color: #222222;
+}
+
+tr.excluded:hover .excludeToggle .fa-ban {
+    color: #AAAAAA;
+}
+
+.fa-undo {
+    color: #DDDDDD;
+}
+
+@keyframes addAssignmentAnimation {
+    0%, 100% {
+        background-color: rgba(255, 255, 255, 0.5);
+    }
+    50% {
+        background-color: #333333;
+    }
+}
+
+tr.addAssignmentAnimation {
+    transition: none;
+    animation: addAssignmentAnimation linear 2s;
+    animation-iteration-count: 1.5;
+}
+
+.popup span.popup-top-left,
+.popup span.popup-top,
+.popup span.popup-top-right,
+.popup span.popup-right-top,
+.popup span.popup-right,
+.popup span.popup-right-bottom,
+.popup span.popup-bottom-right,
+.popup span.popup-bottom,
+.popup span.popup-bottom-left,
+.popup span.popup-left-bottom,
+.popup span.popup-left,
+.popup span.popup-left-top {
+    font-weight: bolder;
+    background: black;
 }
 
 .school-username {
     color: #BBBBBB
 }
 
-.scroll-to {
-    background: #000000;
-    filter: opacity(0.7);
-}
-
-.sk-chase-dot:before {
-    background-color: #FFFFFF;
-}
-
 .tab {
-    border-top-color: #222222;
-    border-bottom-color: #222222;
     background-color: #333333;
+    border-bottom-color: #222222;
+    border-top-color: #222222;
 }
 
 .tab btn {
@@ -190,7 +248,15 @@ th {
 }
 
 .changelog-container .current {
-    background-color: rgba(0, 255, 0, 0.06);
+    background-color: rgba(0, 255, 0, 0.1);
+}
+
+.changelog-container .known-issues {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.changelog-container .stable {
+    background-color: rgba(0, 0, 255, 0.1);
 }
 
 .changelog-container .type {
@@ -203,6 +269,22 @@ th {
 
 .form-weights input::placeholder {
     color: #666666;
+}
+
+.excluded {
+    color: #4F4F4F !important;
+}
+
+.toolTab {
+    background-image: linear-gradient(to right, #222222, #333333);
+}
+
+.toolTab:not(th) {
+    border-top: 1px transparent solid !important;
+}
+
+.toolTab:not(td) {
+    border-bottom: 2px transparent solid !important;
 }
 
 .slider {
@@ -218,25 +300,148 @@ input:checked + .slider {
 }
 
 input:checked + .slider:before {
-    background-color: #EEEEEE;
+    background-color: #222222;
 }
 
-#weightsCard input {
-    border-color: lightcoral;
+select {
+    background-color: #444444;
+    color: #FFFFFF;
 }
 
-#weightsCard input:focus {
-    border-color: red;
+select.classic {
+    background-image: linear-gradient(45deg, transparent 50%, lightgray 50%), linear-gradient(135deg, lightgray 50%, transparent 50%), linear-gradient(to right, #555555, #555555);
 }
 
-#weightsCard input.text-view {
-    border-color: white;
+select.classic:focus {
+    background-image: linear-gradient(45deg, lightgray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, lightgray 50%), linear-gradient(to right, #555555, #555555);
 }
 
-#weightsCard .fail {
-    color: lightcoral;
+select.round {
+    background-image: linear-gradient(45deg, transparent 50%, lightgray 50%), linear-gradient(135deg, lightgray 50%, transparent 50%), radial-gradient(#555555 60%, transparent 60%);
 }
 
-#weightsCard .success {
-    color: lightgreen;
+select.round:focus {
+    background-image: linear-gradient(45deg, lightgray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, lightgray 50%), radial-gradient(#555555 60%, transparent 60%);
+}
+
+select.minimal {
+    background-image: linear-gradient(45deg, transparent 50%, lightgray 50%), linear-gradient(135deg, lightgray 50%, transparent 50%), linear-gradient(to right, #555555, #555555);
+}
+
+.excluded select.minimal {
+    background-image: linear-gradient(45deg, transparent 50%, gray 50%), linear-gradient(135deg, gray 50%, transparent 50%), linear-gradient(to right, #555555, #555555);
+}
+
+select.minimal:focus {
+    background-image: linear-gradient(45deg, lightgray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, lightgray 50%), linear-gradient(to right, #555555, #555555);
+}
+
+.excluded select.minimal:focus {
+    background-image: linear-gradient(45deg, gray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, gray 50%), linear-gradient(to right, #555555, #555555);
+}
+
+.excluded select {
+    background-color: #222222;
+    color: #4F4F4F;
+}
+
+.class-table select {
+    box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.switchDisplayMode, .addAssignment, .tableOptions {
+    background-color: #222222;
+}
+
+.gotIt {
+    color: white;
+}
+
+.progress {
+    border: 1px #222222 solid;
+    background-color: #444444;
+}
+
+.progress-bar {
+    color: #333333;
+    background-color: hsl(210, 48%, 48%);;
+}
+
+.empty-progress:not(:nth-child(2)) {
+    color: #333333;
+    border-left: 1px solid #333333;
+}
+
+.progress, .empty-progress {
+    background-color: #111111;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #2F2F2F;
+}
+
+::-webkit-scrollbar-thumb:vertical:hover {
+    background-color: #333333;
+}
+
+::-webkit-scrollbar-thumb:vertical:active {
+    background-color: #444444;
+}
+
+:not(body)::-webkit-scrollbar-thumb:vertical:hover {
+    background-color: #555555;
+}
+
+:not(body)::-webkit-scrollbar-thumb:vertical:active {
+    background-color: #666666;
+}
+
+:not(body)::-webkit-scrollbar-thumb {
+    background-color: #444444;
+}
+
+.addAssignment, .add-assignment-container, .tableOptions {
+    background-color: #333333;
+}
+
+.add-assignment-container.active {
+    box-shadow: 0 0 10px 1px #000000;
+}
+
+.class-table th, .class-table td {
+    border-color: transparent !important;
+}
+
+.class-table td, .class-table th {
+    box-shadow: inset 0 0 2px 1px rgba(50, 50, 50, 0.5);
+}
+
+.separator td {
+    box-shadow: none;
+}
+
+.improve {
+    color: rgba(50, 200, 50, 1);
+}
+
+.deprove {
+    color: rgba(255, 100, 100, 1);
+}
+
+/* Mobile Stuff */
+@media only screen and (max-width: 991px) {
+    #table-1 table {
+        border-radius: 0.5rem;
+        background-color: #111111;
+    }
+
+    .backToHome {
+        background-color: #000000;
+        box-shadow: 0 0 10px 1px rgba(0, 0, 0, 1);
+    }
+
+    .backToHome:active, .backToHome:hover {
+        color: rgb(138.5, 138.5, 138.5);
+        background-color: #111111;
+    }
 }

@@ -1,76 +1,164 @@
 <!-- Nav Bar -->
-<nav class="navbar navbar-dark navbar-expand-lg justify-content-center">
-    <span class="d-flex w-50 mr-auto">
-        <a href="/" class="navbar-brand">
-            <h1><img src="/public/resources/dark_mode/logo.png" style="width: 3rem" class="d-inline-block logo" alt="">
-                Graderoom </h1>
-        </a>
+<nav class="navbar <% if (theme) { %>navbar-dark<% } else { %>navbar-light<% } %> navbar-expand-lg justify-content-center">
+    <span class="navbar-brand-holder">
+        <div class="popup">
+            <a onclick="try {if (currentPage === -1) {window.location.href = '/'} else {showPage(-1)}} catch (e) {window.location = '/'}"
+               class="navbar-brand" style="margin: 0;">
+                <h1>
+                    <img
+                    <% if (theme) { %>
+                        src="/public/resources/dark_mode/logo.png"
+                    <% } else { %>
+                        src="/public/resources/light_mode/logo.png"
+                            <% } %>
+                        style="width: 3rem"
+                        alt="logo">
+                    <div class="brand-label">
+                        Graderoom
+                    </div>
+                </h1>
+            </a>
+            <% if (page != "home") { %>
+                <div class="popup-holder">
+                    <span id="homePopup"
+                          class="nav-popups popup-bottom tutorial-popup <% if (!JSON.parse(alerts).tutorialStatus.homeSeen) { %> always-show <% } %>">
+                        Clicking here at any time will take you home
+                        <span class="gotIt"></span>
+                    </span>
+                </div>
+            <% } %>
+        </div>
+        <div class="nav-username popup">
+            <div class="text-center">
+                <h5 style="padding-top: 0; white-space: nowrap"
+                    onclick="<% if (page == "home") { %>showCard('#settingsCardDisplay'); openTab(2) <% } %>"><%= username %></h5>
+                <label onclick="<% if (page == "home") { %>showCard('#settingsCardDisplay'); openTab(2) <% } %>"
+                       id="nameDisplay"
+                       style="white-space: nowrap; cursor: pointer; margin: 0; display: block"><%= JSON.parse(personalInfo).firstName %> <%= JSON.parse(personalInfo).lastName %>
+                    '<%= JSON.parse(personalInfo).graduationYear - 2000 %></label>
+                <% if (page == "home") { %>
+                    <label style="white-space: nowrap; cursor: pointer; border-radius: 0.5rem; padding: 0.1rem 0.5rem; font-family: Arial, Helvetica, sans-serif"
+                           onclick="showCard('#updateGradesDisplay');"
+                           class="updateGradesMessage alert-info">
+                        <div style="cursor: pointer" class="messageTxt">Loading Sync Status...</div>
+                    </label>
+                <% } %>
+            </div>
+            <div class="popup-holder">
+                <span id="navinfoPopup"
+                      class="nav-popups popup-bottom tutorial-popup">
+                    The sync status with PowerSchool will be displayed here.
+                    <span class="gotIt"></span>
+                </span>
+            </div>
+        </div>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNav"
+                aria-controls="collapsingNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
     </span>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNav"
-            aria-controls="collapsingNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="navbar-collapse collapse w-100" id="collapsingNav">
-        <% if (user.username.length > 0) { %>
-            <ul class="navbar-nav w-100 justify-content-center">
-                <li class="nav-item">
-                    <h5><%= user.username %></h5>
-                </li>
-            </ul>
-        <% } %>
+    <div class="navbar-collapse collapse w-50" id="collapsingNav">
         <ul class="navbar-nav w-100 justify-content-end align-items-end ml-auto">
-            <% if (current == 'home') { %>
-                <li id="finalGradeCalculator" class="nav-item">
-                    <a class="btn btn-med" href="/finalgradecalculator"> <i class="fa fa-calculator"
-                                                                            aria-hidden="true"></i> Calculator </a>
+            <% if (page == 'home') { %>
+                <li class="nav-item popup">
+                    <a class="btn btn-med" href="/finalgradecalculator"><i
+                                class="fa fa-calculator" aria-hidden="true"></i>
+                        Calculator
+                    </a>
+                    <div class="popup-holder">
+                        <span id="calcPopup" class="nav-popups popup-bottom tutorial-popup">
+                            Find out how much your final might impact your grade
+                            <span class="gotIt"></span>
+                        </span>
+                    </div>
                 </li>
-                <li id="syncGrades" class="nav-item">
+                <li id="syncGrades" class="nav-item popup">
                     <btn class="btn btn-med" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">
-                        <i class="fa fa-refresh" aria-hidden="true"></i> Sync
+                        <i class="fa fa-refresh" aria-hidden="true"></i>
+                        Sync
                     </btn>
-                </li>
-            <% } else { %>
-                <li id="home" class="nav-item">
-                    <a class="btn btn-med" href="/"> <i class="fa fa-home" aria-hidden="true"></i> Home </a>
+                    <div class="popup-holder">
+                        <span id="syncPopup"
+                              class="nav-popups popup-bottom tutorial-popup">
+                            Sync your grades with PowerSchool
+                        </span>
+                    </div>
                 </li>
             <% } %>
-            <% if (user.isAdmin) { %>
+            <% if (isAdmin) { %>
                 <li id="toggleAdmin" class="nav-item toggle-admin">
                     <a class="btn btn-med" href="/admin"> <i class="fa fa-fighter-jet" aria-hidden="true"></i> Admin
                     </a>
                 </li>
+            <% } else if (page === "home") { %>
+                <li class="nav-item popup">
+                    <btn class="btn btn-med"
+                         onclick="showCard('#settingsCardDisplay'); openTab(3);">
+                        <i class="fa fa-info-circle" aria-hidden="true"></i> Help
+                    </btn>
+                    <div class="popup-holder">
+                        <span id="helpPopup" class="nav-popups popup-bottom tutorial-popup">
+                            Here you can find contact information and quick links to important parts of the site.
+                            <br>
+                            <span class="gotIt"></span>
+                        </span>
+                    </div>
+                </li>
             <% } %>
-            <% if (current === "home") { %>
+            <% if (page === "home") { %>
                 <li id="settings" class="nav-item">
                     <btn class="btn btn-med" onclick="showCard('#settingsCardDisplay')">
                         <i class="fa fa-cog" aria-hidden="true"></i> Settings
                     </btn>
                 </li>
             <% } %>
-                <li class="nav-item active">
-                    <a onclick="window.localStorage.setItem('currentPage','')" href="/logout" class="btn btn-med"> <i
-                                class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
-                </li>
+            <li class="nav-item active">
+                <a onclick="window.sessionStorage.setItem('currentPage','')" href="/logout" class="btn btn-med"> <i
+                            class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
+            </li>
         </ul>
     </div>
 </nav>
 
 <!-- Cards -->
-<% if (current === "home") { %>
-    <% include settings_card.ejs %>
-        <% include sync_grades_card.ejs %>
-            <% include changelog.ejs %>
-                <% include privacy_policy.ejs %>
-                    <% include terms_and_conditions.ejs %>
-                        <% include feedback_card.ejs %>
-                            <% include whats_new.ejs %>
-                                <% include keyboard_shortcuts.ejs %>
+<% if (page === "home") { %>
+    <% include sync_grades_card.ejs %>
 <% } %>
-<% include logged_out.ejs %>
+<% if (page === "home") { %>
+    <% include settings_card.ejs %>
+<% } %>
+<% if (page === "home") { %>
+    <% include changelog.ejs %>
+<% } %>
+<% if (page === "home") { %>
+    <% include privacy_policy.ejs %>
+<% } %>
+<% if (page === "home") { %>
+    <% include terms_and_conditions.ejs %>
+<% } %>
+<% if (page === "home") { %>
+    <% include feedback_card.ejs %>
+<% } %>
+<% if (page === "home") { %>
+    <% include whats_new.ejs %>
+<% } %>
+<% if (page === "home") { %>
+    <% include keyboard_shortcuts.ejs %>
+<% } %>
+<% if (page === "home" || page === "calc") { %>
+    <% include logged_out.ejs %>
+<% } %>
 
 <!-- Custom JavaScript -->
 <script>
-    function ajaxPostForm(formID, fieldIDsToClear, messagesDivID, async) {
+    $(".gotIt").on("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        let id = $(this).parents("span.tutorial-popup")[0].id;
+        updateTutorial(id.substring(0, id.length - 5));
+    });
+
+    function ajaxPostForm(formID, fieldIDsToClear, messagesDivID, async, reload = false) {
         // Get the form.
         let form = $(formID);
         $(form).submit(function (event) {
@@ -99,184 +187,210 @@
 
             // Get the messages.
             formMessagesDiv = $(messagesDivID);
-            message = $(formMessagesDiv).find(".messageTxt");
-            $(message).text("");
-            $(formMessagesDiv).removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
-            $(formMessagesDiv).show();
             $(formMessagesDiv).find(".sk-chase-mini").css("display", "inline-block");
-            if (formID === "#randomizeClassColors") {
-                $("#classColors").find("label").css("color", $(formID).parents(".card-footer").css("background-color"));
+            if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
+                clearTimeout(checkLastUpdated);
+                $(".fa-refresh").addClass("fa-spin").css("opacity", 0.5);
+                $(".updateGradesMessage").removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
+                message = $(".updateGradesMessage.alert .messageTxt");
+                $(message).text("");
+            } else {
+                message = $(formMessagesDiv).find(".messageTxt");
+                $(message).text("");
+                $(formMessagesDiv).removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
+                $(formMessagesDiv).show();
             }
 
             if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
-                $("input").blur();
+                $("#updateGradesDisplay input").blur();
+                shortcutsEnabled = false;
                 $("#loadingDisplay").show();
                 $("#syncFailure").hide();
-                clearInterval(checkLastUpdated);
+                $("#syncNoData").hide();
             }
 
             // Submit the form using AJAX.
             $.ajax({
-                type: "POST", url: $(form).attr("action"), data: formData, async: async
-            }).done(function (response) {
+                       type: "POST", url: $(form).attr("action"), data: formData, async: async
+                   }).done(function (response) {
                 // Special behavior for class colors.
-                if (formID === "#randomizeClassColors") {
-                    // numClasses is contained in messagesDivID
-                    // colors come from response
-                    setTimeout(() => {
-                        updateClassColors(response);
-                    }, 500);
-                    $("#reloadNeeded").text("Reload Needed");
-                } else {
-
-                    // Set synced variable
-                    if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
-                        $(formMessagesDiv).find(".sk-chase-mini").hide();
-                        $(message).text("Last synced 0 seconds ago");
+                let msg = "";
+                if (response.message && response.message.substring(0, 19) === "GradeSync Enabled. ") {
+                    msg = response.message.substring(0, 19);
+                    response.message = response.message.substring(19);
+                    $("#syncGradesDiv").hide();
+                    $("#gradeSyncDiv").show();
+                    $("#gradeSyncEnabled").show();
+                    gradeSync = true;
+                    setupTutorialPopups();
+                }
+                if (response.message && response.message === "No class data.") {
+                    $("#syncNoData").show();
+                    $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
+                    $(formMessagesDiv).find(".sk-chase-mini").hide();
+                    setupLastUpdated();
+                } else if (response.message && response.message === "Error scraping grades.") {
+                    $("#syncFailure").show();
+                    $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
+                    $(formMessagesDiv).find(".sk-chase-mini").hide();
+                    setupLastUpdated();
+                } else if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
+                    $(formMessagesDiv).find(".sk-chase-mini").hide();
+                    let newData = {grades: response.grades, lastUpdated: response.time};
+                    clearTimeout(checkLastUpdated);
+                    if (!updateData(newData).updated) {
+                        $(formMessagesDiv).find(".messageTxt").text(msg + "Refresh to see the latest updates.");
+                        $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-danger").addClass("alert-success");
                         setTimeout(() => window.reload(), 400);
                     } else {
-                        setTimeout(function () {
-                            $(message).text(response), 200;
-                            $(formMessagesDiv).find(".sk-chase-mini").hide();
-                            // Make sure that the formMessages div has the alert-success class.
-                            $(formMessagesDiv).removeClass("alert-info");
-                            $(formMessagesDiv).addClass("alert-success");
-                        }, 500);
+                        setupLastUpdated();
                     }
+                } else {
+                    setTimeout(function () {
+                        $(message).text(response);
+                        $(formMessagesDiv).find(".sk-chase-mini").hide();
+                        $(formMessagesDiv).removeClass("alert-info").removeClass("alert-danger").addClass("alert-success");
+                    }, 500);
+                }
 
-                    // Show the div.
-                    $(formMessagesDiv).show();
+                if (formID === "#changeSchoolEmail") {
+                    updateNameDisplay(undefined, $("#school_email")[0].value);
+                    $("#school_email").prop("disabled", true);
+                }
 
-                    // Show correct sync div
-                    if (response === "GradeSync Enabled. Updated grades!") {
-                        $("#syncGradesDiv").hide();
-                        $("#gradeSyncDiv").show();
-                        setTimeout(() => window.reload(), 1400);
-                    }
+                // Show the div.
+                $(formMessagesDiv).show();
 
-                    // Switch mode instantly
-                    if (formID === "#chooseTheme") {
-                        if (response === "Dark theme enabled!") {
-                            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
-                            darkMode = true;
-                            theme = "dark";
-                            if (darkMode !== oldDarkMode) {
-                                clearTimeout(changeTransition);
-                                document.getElementById("fade").disabled = false;
-                                document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
-                                setTimeout(() => {
-                                    document.getElementById("fade").disabled = true;
-                                }, 1000);
-                                renderAllCharts();
-                            }
-                            localStorage.setItem("defaultAppearance", "dark");
-                        } else if (response === "Light theme enabled!") {
-                            let autoLimits = $("#autoLimits");
-                            autoLimits.hide();
-                            $($(form)[0].elements[7]).hide();
-                            $($(form)[0].elements[0]).prop("checked", true);
-                            autoLimits[0].children[1].value = (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString());
-                            autoLimits[0].children[2].selectedIndex = (darkModeStart < 12 ? 1 : 0);
-                            autoLimits[0].children[4].value = (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString());
-                            autoLimits[0].children[5].selectedIndex = (darkModeFinish === 24 ? 0 : darkModeFinish > 12 ? 1 : 0);
-                            document.getElementsByName("theme")[0].setAttribute("checked", "checked");
-                            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
-                            darkMode = false;
-                            theme = "light";
-                            if (darkMode !== oldDarkMode) {
-                                clearTimeout(changeTransition);
-                                document.getElementById("fade").disabled = false;
-                                document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
-                                setTimeout(() => {
-                                    document.getElementById("fade").disabled = true;
-                                }, 1000);
-                                renderAllCharts();
-                            }
-                            localStorage.setItem("defaultAppearance", "light");
-                        } else {
-                            $(form[0].elements[7]).attr("disabled", "disabled");
-                            theme = "auto";
-                            //console.log("1: ", darkModeStart, darkModeFinish);
-                            if ($(form[0].elements.darkModeStartAmPm)[0].selectedOptions[0].value === "PM") {
-                                if ($(form[0].elements.darkModeStart)[0].value) {
-                                    if ($(form[0].elements.darkModeStart)[0].valueAsNumber !== 12) {
-                                        darkModeStart = ($(form[0].elements.darkModeStart)[0].valueAsNumber + 12);
-                                    } else {
-                                        darkModeStart = 12;
-                                    }
-                                } else if (parseInt($(form[0].elements.darkModeStart)[0].placeholder) !== 12) {
-                                    darkModeStart = parseInt($(form[0].elements.darkModeStart)[0].placeholder) + 12;
+                // Switch mode instantly
+                if (formID === "#chooseTheme") {
+                    if (response === "Dark theme enabled!") {
+                        let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
+                        darkMode = true;
+                        theme = "dark";
+                        if (darkMode !== oldDarkMode) {
+                            clearTimeout(changeTransition);
+                            document.getElementById("fade").disabled = false;
+                            document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+                            renderAllCharts();
+                            $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
+                            $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
+                            setTimeout(() => {
+                                document.getElementById("fade").disabled = true;
+                            }, 500);
+                        }
+                    } else if (response === "Light theme enabled!") {
+                        let autoLimits = $("#autoLimits");
+                        autoLimits.hide();
+                        $($(form)[0].elements[7]).hide();
+                        $($(form)[0].elements[0]).prop("checked", true);
+                        autoLimits[0].children[1].value = (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString());
+                        autoLimits[0].children[2].selectedIndex = (darkModeStart < 12 ? 1 : 0);
+                        autoLimits[0].children[4].value = (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString());
+                        autoLimits[0].children[5].selectedIndex = (darkModeFinish === 24 ? 0 : darkModeFinish > 12 ? 1 : 0);
+                        document.getElementsByName("theme")[0].setAttribute("checked", "checked");
+                        let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
+                        darkMode = false;
+                        theme = "light";
+                        if (darkMode !== oldDarkMode) {
+                            clearTimeout(changeTransition);
+                            document.getElementById("fade").disabled = false;
+                            document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+                            renderAllCharts();
+                            $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
+                            $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
+                            setTimeout(() => {
+                                document.getElementById("fade").disabled = true;
+                            }, 500);
+                        }
+                    } else {
+                        $(form[0].elements[7]).attr("disabled", "disabled");
+                        theme = "auto";
+                        //console.log("1: ", darkModeStart, darkModeFinish);
+                        if ($(form[0].elements.darkModeStartAmPm)[0].selectedOptions[0].value === "PM") {
+                            if ($(form[0].elements.darkModeStart)[0].value) {
+                                if ($(form[0].elements.darkModeStart)[0].valueAsNumber !== 12) {
+                                    darkModeStart = ($(form[0].elements.darkModeStart)[0].valueAsNumber + 12);
                                 } else {
-                                    darkModeStart = $(form[0].elements.darkModeStart)[0].placeholder;
+                                    darkModeStart = 12;
                                 }
-                            } else if ($(form[0].elements.darkModeStart)[0].value) {
-                                if ($(form[0].elements.darkModeStart)[0].valueAsNumber === 12) {
-                                    darkModeStart = 0;
-                                } else {
-                                    darkModeStart = $(form[0].elements.darkModeStart)[0].valueAsNumber;
-                                }
-                            } else if (parseInt($(form[0].elements.darkModeStart)[0].placeholder) === 12) {
-                                darkModeStart = 0;
+                            } else if (parseInt($(form[0].elements.darkModeStart)[0].placeholder) !== 12) {
+                                darkModeStart = parseInt($(form[0].elements.darkModeStart)[0].placeholder) + 12;
                             } else {
                                 darkModeStart = $(form[0].elements.darkModeStart)[0].placeholder;
                             }
-                            if ($(form[0].elements.darkModeFinishAmPm)[0].selectedOptions[0].value === "PM") {
-                                if ($(form[0].elements.darkModeFinish)[0].value) {
-                                    if ($(form[0].elements.darkModeFinish)[0].valueAsNumber !== 12) {
-                                        darkModeFinish = ($(form[0].elements.darkModeFinish)[0].valueAsNumber + 12);
-                                    } else {
-                                        darkModeFinish = 12;
-                                    }
-                                } else if (parseInt($(form[0].elements.darkModeFinish)[0].placeholder) !== 12) {
-                                    darkModeFinish = parseInt($(form[0].elements.darkModeFinish)[0].placeholder) + 12;
+                        } else if ($(form[0].elements.darkModeStart)[0].value) {
+                            if ($(form[0].elements.darkModeStart)[0].valueAsNumber === 12) {
+                                darkModeStart = 0;
+                            } else {
+                                darkModeStart = $(form[0].elements.darkModeStart)[0].valueAsNumber;
+                            }
+                        } else if (parseInt($(form[0].elements.darkModeStart)[0].placeholder) === 12) {
+                            darkModeStart = 0;
+                        } else {
+                            darkModeStart = $(form[0].elements.darkModeStart)[0].placeholder;
+                        }
+                        if ($(form[0].elements.darkModeFinishAmPm)[0].selectedOptions[0].value === "PM") {
+                            if ($(form[0].elements.darkModeFinish)[0].value) {
+                                if ($(form[0].elements.darkModeFinish)[0].valueAsNumber !== 12) {
+                                    darkModeFinish = ($(form[0].elements.darkModeFinish)[0].valueAsNumber + 12);
                                 } else {
-                                    darkModeFinish = $(form[0].elements.darkModeFinish)[0].placeholder;
+                                    darkModeFinish = 12;
                                 }
-                            } else if ($(form[0].elements.darkModeFinish)[0].value) {
-                                if ($(form[0].elements.darkModeFinish)[0].valueAsNumber === 12) {
-                                    darkModeFinish = 24;
-                                } else {
-                                    darkModeFinish = $(form[0].elements.darkModeFinish)[0].valueAsNumber;
-                                }
-                            } else if (parseInt($(form[0].elements.darkModeFinish)[0].placeholder) === 12) {
-                                darkModeFinish = 24;
+                            } else if (parseInt($(form[0].elements.darkModeFinish)[0].placeholder) !== 12) {
+                                darkModeFinish = parseInt($(form[0].elements.darkModeFinish)[0].placeholder) + 12;
                             } else {
                                 darkModeFinish = $(form[0].elements.darkModeFinish)[0].placeholder;
                             }
-                            //console.log("2: ", darkModeStart, darkModeFinish);
-                            document.getElementById("darkModeStart").setAttribute("placeholder", (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString()));
-                            document.getElementById("darkModeFinish").setAttribute("placeholder", (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString()));
-                            checkTime();
-                        }
-                    }
-
-                    // Clear fields to clear
-                    for (let i = 0; i < fieldIDsToClear.length; i++) {
-                        $(fieldIDsToClear[i]).val("");
-                        if (formID === "#changePassword") {
-                            $($(fieldIDsToClear[i])[0].previousElementSibling).removeClass("label-active");
-                            if ($($(fieldIDsToClear[i])[0].previousElementSibling.children[0])) {
-                                $($(fieldIDsToClear[i])[0].previousElementSibling.children[0]).text("");
+                        } else if ($(form[0].elements.darkModeFinish)[0].value) {
+                            if ($(form[0].elements.darkModeFinish)[0].valueAsNumber === 12) {
+                                darkModeFinish = 24;
+                            } else {
+                                darkModeFinish = $(form[0].elements.darkModeFinish)[0].valueAsNumber;
                             }
+                        } else if (parseInt($(form[0].elements.darkModeFinish)[0].placeholder) === 12) {
+                            darkModeFinish = 24;
+                        } else {
+                            darkModeFinish = $(form[0].elements.darkModeFinish)[0].placeholder;
+                        }
+                        //console.log("2: ", darkModeStart, darkModeFinish);
+                        document.getElementById("darkModeStart").setAttribute("placeholder", (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString()));
+                        document.getElementById("darkModeFinish").setAttribute("placeholder", (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString()));
+                        checkTime();
+                    }
+                }
+
+                // Clear fields to clear
+                for (let i = 0; i < fieldIDsToClear.length; i++) {
+                    $(fieldIDsToClear[i]).val("");
+                    if (formID === "#changePassword") {
+                        $($(fieldIDsToClear[i])[0].previousElementSibling).removeClass("label-active");
+                        if ($($(fieldIDsToClear[i])[0].previousElementSibling.children[0])) {
+                            $($(fieldIDsToClear[i])[0].previousElementSibling.children[0]).text("");
                         }
                     }
-                    $("input").each(function () {
-                        $(this).blur();
-                    });
+                }
+
+                if (reload) {
+                    window.location.href = "/";
                 }
             }).fail(function (data) {
                 // Make sure that the formMessages div has the alert-danger class
-                $(formMessagesDiv).removeClass("alert-info");
-                $(formMessagesDiv).addClass("alert-danger");
+                $($(formMessagesDiv)[1]).removeClass("alert-info");
+                $($(formMessagesDiv)[1]).addClass("alert-danger");
 
                 // Set the message text.
                 if (data.responseText !== "") {
-                    if (data.responseText === "Error scraping grades.") {
-                        $("#syncFailure").show();
-                    }
-                    if (data.responseText === "Login Failed") {
-                        $(message).text("School Password is incorrect");
+                    if (data.responseText === "Incorrect login details.") {
+                        $(message).text("Incorrect school password.");
+                        $("#inputPassword").focus();
                     } else {
+                        if (formID === "#syncGradesForm") {
+                            $("#inputUserPassword").focus();
+                            $(".fa-refresh").removeClass("fa-spin").css("opacity", "");
+                        } else if (formID === "#gradeSyncForm") {
+                            $("#gradeSyncInputUserPassword").focus();
+                            $(".fa-refresh").removeClass("fa-spin").css("opacity", "");
+                        }
                         $(message).text(data.responseText);
                     }
                 } else {
@@ -290,63 +404,56 @@
                 $(formMessagesDiv).find(".sk-chase-mini").hide();
 
                 if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
-                    $("#inputPassword").focus();
+                    clearTimeout(checkLastUpdated);
                 }
 
             }).always(function () {
                 if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
                     $("#loadingDisplay").hide();
+                    shortcutsEnabled = true;
                 }
             });
         });
     }
 
     function showCard(id) {
+        closeForm(id.substring(1));
         cardsDisplayed.push(id.substring(1));
         $(".blurred-background").each(function () {
             if (cardsDisplayed.includes($($(this).parent())[0].id)) {
-                $(this).parent().css("z-index", cardsDisplayed.indexOf($($(this).parent())[0].id) + 2);
+                $(this).parent().css("z-index", cardsDisplayed.indexOf($($(this).parent())[0].id) + minCardZIndex);
             }
         });
-        if (id === "#updateGradesDisplay") {
-            setupLastUpdated();
+        $(id).fadeIn(500);
+        if (id === "#settingsCardDisplay") {
+            $($("#school_email").val(schoolUsername).parents(".input-group")[0].nextElementSibling).prop("disabled", true);
+            checkLabel($("#school_email"));
+            openTab(currentTab);
+            updateTutorialProgress();
         }
-        $(id).fadeIn(100);
-        disableScrolling();
+        if (id === "#feedbackDisplay") {
+            setupFeedbackForm();
+        }
     }
 
     function closeForm(id) {
-        if (cardsDisplayed.includes(id)) {
-            cardsDisplayed.splice(cardsDisplayed.indexOf(id), 1);
+        if (cardsDisplayed.length && cardsDisplayed.includes(id)) {
+            cardsDisplayed = cardsDisplayed.filter(c => c !== id);
         }
-        if (id === "updateGradesDisplay") {
-            clearInterval(checkLastUpdated);
+        for (let i = 0; i < cardsDisplayed.length; i++) {
+            $("#" + cardsDisplayed[i]).finish();
         }
-        if (id === "updateWeightsDisplay") {
-            if (document.getElementById("edited").textContent === "Edited") {
-                window.reload();
-            } else {
-                let form = document.getElementById(id);
-                form.style.display = "none";
-                enableScrolling();
-            }
-        } else if (id === "settingsCardDisplay" && document.getElementById("reloadNeeded").textContent === "Reload Needed") {
-            window.reload();
-        } else {
-            let form = $("#" + id);
-            form.fadeOut(100);
-            let inputFields = $("#" + id + " .form-control");
-            for (let i = 0; i < inputFields.length; i++) {
-                inputFields[i].value = "";
-                $(inputFields[i]).trigger("input");
-            }
-            if (id === "settingsCardDisplay") {
-                closeMessage("passwordChangeMessage");
-                closeMessage("emailChangeMessage");
-                closeMessage("alertSettingsMessage");
-                closeMessage("themeMessage");
-            }
-            enableScrolling();
+        let form = $("#" + id);
+        form.fadeOut(100);
+        let inputFields = $("#" + id + " .form-control").not(".dont-clear").not(":disabled");
+        for (let i = 0; i < inputFields.length; i++) {
+            inputFields[i].value = "";
+            $(inputFields[i]).trigger("input");
+        }
+        if (id === "settingsCardDisplay") {
+            closeMessage("passwordChangeMessage");
+            closeMessage("emailChangeMessage");
+            closeMessage("themeMessage");
         }
 
         // Manage theme selection, if it exists
@@ -359,18 +466,18 @@
             } else if (theme === "light") {
                 themeRadioButtons[0].checked = true;
             }
-        } catch {
+        } catch (e) {
         }
 
         // Manage gradeSync checkbox, if it exists
         try {
-            let gradeSync = document.getElementById("gradeSyncToggle");
-            if (user.schoolPassword && !gradeSync.checked) {
-                gradeSync.checked = true;
-            } else if (!user.schoolPassword && gradeSync.checked) {
-                gradeSync.checked = false;
+            let gradeSyncCheckBox = document.getElementById("gradeSyncToggle");
+            if (gradeSync && !gradeSyncCheckBox.checked) {
+                gradeSyncCheckBox.checked = true;
+            } else if (!gradeSync && gradeSyncCheckBox.checked) {
+                gradeSyncCheckBox.checked = false;
             }
-        } catch {
+        } catch (e) {
         }
     }
 
@@ -394,6 +501,9 @@
                     $(".navbar-collapse").collapse("hide");
                     closeForm("toggle");
                 } catch (e) {
+                }
+                if (cardsDisplayed.length === 0) {
+                    return;
                 }
                 closeForm(cardsDisplayed[cardsDisplayed.length - 1]);
             }

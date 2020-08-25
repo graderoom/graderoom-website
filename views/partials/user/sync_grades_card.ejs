@@ -5,13 +5,13 @@
     <div class="col-sm-8 col-md-7 col-lg-5 mx-auto">
         <div id="updateGradesCard" class="card card-signin my-5">
             <btn class="btn btn-md" onclick="closeForm('updateGradesDisplay')"
-                 style="width: fit-content; margin-bottom:0">
+                 style="display:table; width: fit-content; width: -moz-fit-content; margin-bottom:0">
                 <i class="fa fa-close" aria-hidden="true"></i> Close
             </btn>
             <div class="card-body" style="max-height: 70vh; overflow-y: scroll; overflow-x: hidden; transition: 500ms">
-                <div id="updateGradesMessage" class="alert alert-info"
+                <div class="updateGradesMessage alert alert-info"
                      style="display:block">
-                    <div style="display: flex">
+                    <div style="display: flex; justify-content: flex-start; align-items: flex-start; flex-flow: column">
                         <div style="display:none" class="sk-chase-mini">
                             <div class="sk-chase-dot mini"></div>
                             <div class="sk-chase-dot mini"></div>
@@ -20,34 +20,58 @@
                             <div class="sk-chase-dot mini"></div>
                             <div class="sk-chase-dot mini"></div>
                         </div>
-                        <div class="font-weight-bold messageTxt"></div>
-                        <i class="fa fa-info-circle popup" id="syncFailure"
-                           style="padding-left: 0.2rem; align-self: center; display:none">
-                            <span class="popuptext">
-                                This usually occurs when the PowerSchool website is down.
-                            </span>
-                        </i>
+                        <div class="font-weight-bold popup" id="gradeSyncEnabled" style="display: none">
+                            GradeSync enabled.
+                            <i class="fa fa-info-circle">
+                                <span class="popup-right-bottom">
+                                    When you log in to Graderoom, syncing with PowerSchool will occur automatically
+                                </span>
+                            </i>
+                        </div>
+                        <span class="font-weight-bold popup" id="syncFailure" style="display: none">
+                            Sync Failed.
+                            <i class="fa fa-info-circle">
+                                <span class="popup-right-bottom">
+                                    Could not connect to PowerSchool.
+                                </span>
+                                <div class="font-weight-bold timeTxt"></div>
+                            </i>
+                        </span>
+                        <span class="popup font-weight-bold" id="syncNoData" style="display: none">
+                            Cannot access grades.
+                            <i class="fa fa-info-circle">
+                                <span class="popup-bottom-left">
+                                    Grades may be hidden or locked
+                                </span>
+                            </i>
+                        </span>
+                        <div class="font-weight-bold messageTxt">Loading Sync Status...</div>
                     </div>
                 </div>
                 <h1 class="card-title text-center">School Login</h1>
                 <div id="syncGradesDiv" style="display: none">
                     <h5 class="text-center">Enter password for:</h5>
-                    <h5 id="schoolUsernameDisplay" class="school-username text-center"><%= schoolUsername %></h5>
+                    <h5 class="text-center"><span id="schoolUsernameDisplay"
+                                                  class="school-username"><%= schoolUsername %></span><i
+                                style="margin-left: 0.5rem; cursor: pointer;" class="fa fa-pencil"
+                                onclick="showCard('#settingsCardDisplay'); openTab(2)"></i></h5>
                     <br>
                     <form id="syncGradesForm" class="form-signin" action="/update" method="post">
                         <div class="form-group input-group">
                             <i class="lock-bg"></i>
                             <label>School Password</label>
-                            <input oninput="checkLabel(this)" name="school_password" type="password" id="inputPassword"
+                            <input oninput="checkLabel(this)" onblur="checkLabel(this)" name="school_password"
+                                   type="password" id="inputPassword"
                                    class="form-control" required>
                         </div>
                         <div id="userPassword" class="form-group input-group" style="display:none">
                             <i class="user-bg"></i>
                             <label>Graderoom Password</label>
-                            <input oninput="checkLabel(this)" name="user_password" type="password"
+                            <input oninput="checkLabel(this)" onblur="checkLabel(this)" name="user_password"
+                                   type="password"
                                    id="inputUserPassword" class="form-control" required>
                         </div>
-                        <label style="cursor: pointer; float: left; text-align: right" class="popup"
+                        <label style="cursor: pointer; float: left; text-align: right"
                                onclick="toggleInputUserPasswordDisplay()">
                             <input style="cursor: inherit"
                                    id="savePasswordToggle"
@@ -55,16 +79,18 @@
                                    name="savePassword"
                                    checked
                             > Sync Grades on Login
-                            <i class="fa fa-info-circle popup">
-                                    <span class="popuptext">
+                            <span class="popup">
+                                <i class="fa fa-info-circle">
+                                    <span class="popup-right-top">
                                         <p>Graderoom will sync automatically whenever you login.</p>
                                         You will still be able to manually sync at any time.
                                     </span>
-                            </i>
+                                </i>
+                            </span>
                         </label>
                         <div class="text-center">
                             <button class="btn btn-lg btn-default" type="submit"
-                                    onclick="ajaxPostForm('#syncGradesForm',['#inputUserPassword'],'#updateGradesMessage', true)">
+                                    onclick="ajaxPostForm('#syncGradesForm',['#inputUserPassword'],'.updateGradesMessage', true)">
                                 Sign In
                             </button>
                         </div>
@@ -77,13 +103,13 @@
                         <div class="input-group form-group">
                             <i class="lock-bg"></i>
                             <label>Graderoom Password</label>
-                            <input oninput="checkLabel(this)" name="user_password" type="password"
+                            <input oninput="checkLabel(this)" onblur="checkLabel(this)" name="user_password"
+                                   type="password"
                                    id="gradeSyncInputUserPassword"
                                    class="form-control" required>
                         </div>
-                        </label>
                         <button class="btn btn-lg btn-default" type="submit"
-                                onclick="ajaxPostForm('#gradeSyncForm',['#gradeSyncInputUserPassword'],'#updateGradesMessage', true)">
+                                onclick="ajaxPostForm('#gradeSyncForm',['#gradeSyncInputUserPassword'],'.updateGradesMessage', true)">
                             Log In
                         </button>
                     </form>
@@ -106,47 +132,59 @@
     function toggleInputUserPasswordDisplay() {
         if ($("#savePasswordToggle").is(":checked")) {
             $("#userPassword").show();
-            $("#inputUserPassword").attr("required", "required");
+            $("#inputUserPassword").attr("required", "required").attr("autocomplete", "on");
         } else {
             $("#userPassword").hide();
-            $("#inputUserPassword").removeAttr("required");
+            $("#inputUserPassword").removeAttr("required").val("").attr("autocomplete", "off");
         }
     }
 
     let checkLastUpdated;
 
     function setupLastUpdated() {
+        $(".fa-refresh.fa-spin").removeClass("fa-spin").css("opacity", "");
+
+        const JUST_NOW_LIMIT = 10;
+
         const SECOND = 1000;
         const MINUTE = 60 * SECOND;
         const HOUR = 60 * MINUTE;
         const DAY = 24 * HOUR;
 
-        let messageDiv = $("#updateGradesMessage");
-        let message = messageDiv.find(".messageTxt");
-        let lastUpdated = user.alerts.lastUpdated.slice(-1)[0];
+        let message = $(".updateGradesMessage").find(".messageTxt");
+        let lastUpdated = alerts.lastUpdated.slice(-1)[0];
         let deltaTime = Date.now() - lastUpdated;
         if (lastUpdated === undefined) {
             message.text("Never synced");
         } else {
             if (checkLastUpdated) {
-                clearInterval(checkLastUpdated);
+                clearTimeout(checkLastUpdated);
+            }
+            let seconds = Math.floor(deltaTime / SECOND) % 60;
+            if (deltaTime < JUST_NOW_LIMIT * SECOND) {
+                message.text("Last synced just now.");
+                checkLastUpdated = setTimeout(setupLastUpdated, (1 + seconds / JUST_NOW_LIMIT - deltaTime / (JUST_NOW_LIMIT * SECOND)) * JUST_NOW_LIMIT * SECOND);
+                return;
             }
             if (deltaTime < MINUTE) {
-                checkLastUpdated = setInterval(setupLastUpdated, 100);
-                let seconds = Math.floor(deltaTime / SECOND);
-                message.text("Last synced " + seconds + " second" + (seconds > 1 ? "s" : "") + " ago.");
-            } else if (deltaTime < HOUR) {
-                checkLastUpdated = setInterval(setupLastUpdated, 6 * SECOND);
-                let minutes = Math.floor(deltaTime / MINUTE);
-                message.text("Last synced " + minutes + " minute" + (minutes > 1 ? "s" : "") + " ago.");
-            } else if (deltaTime < DAY) {
-                checkLastUpdated = setInterval(setupLastUpdated, 6 * MINUTE);
-                let hours = Math.floor(deltaTime / HOUR);
-                message.text("Last synced " + hours + " hour" + (hours > 1 ? "s" : "") + " ago.");
+                message.text("Last synced " + seconds + "s ago.");
+                checkLastUpdated = setTimeout(setupLastUpdated, (1 + seconds - deltaTime / SECOND) * SECOND);
+                return;
+            }
+            let minutes = Math.floor(deltaTime / MINUTE) % 60;
+            if (deltaTime < HOUR) {
+                message.text("Last synced " + minutes + "m ago.");
+                checkLastUpdated = setTimeout(setupLastUpdated, (1 + minutes - deltaTime / MINUTE) * MINUTE);
+                return;
+            }
+            let hours = Math.floor(deltaTime / HOUR) % 24;
+            let days = Math.floor(deltaTime / DAY);
+            if (deltaTime < DAY) {
+                message.text("Last synced " + hours + "h " + (minutes > 0 ? minutes + "m ago." : " ago."));
+                checkLastUpdated = setTimeout(setupLastUpdated, (1 + minutes - (deltaTime / MINUTE) % 60) * MINUTE);
             } else {
-                checkLastUpdated = setInterval(setupLastUpdated, 2.4 * HOUR);
-                let days = Math.floor(deltaTime / DAY);
-                message.text("Last synced " + days + " day" + (days > 1 ? "s" : "") + " ago.");
+                message.text("Last synced " + days + "d " + (hours > 0 ? hours + "h ago." : " ago."));
+                checkLastUpdated = setTimeout(setupLastUpdated, (1 + hours - (deltaTime / HOUR) % 24) * HOUR);
             }
         }
     }
