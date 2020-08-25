@@ -432,7 +432,7 @@
                             <div class="input-group">
                                 <i class="lock-bg"></i>
                                 <label>Old Password</label>
-                                <input oninput="checkLabel(this); checkPassword('#newPassword',this,'#passwordCheckMessage'); checkPasswordConfirm('#newPassword', this, '#confirmPassword', '#passwordConfirmMessage')"
+                                <input oninput="checkLabel(this); checkPassword('#password',this,'#passwordCheckMessage'); checkPasswordConfirm('#password', this, '#confirmPassword', '#passwordConfirmMessage')"
                                        id="oldPassword" type="password" class="form-control"
                                        name="oldPass" required>
                             </div>
@@ -440,7 +440,7 @@
                                 <i class="lock-bg"></i>
                                 <label>New Password</label>
                                 <input oninput="checkLabel(this); checkPassword(this,'#oldPassword', '#passwordCheckMessage'); checkPasswordConfirm(this, '#oldPassword', '#confirmPassword', '#passwordConfirmMessage')"
-                                       id="newPassword"
+                                       id="password"
                                        type="password" class="form-control" name="newPass" required>
                                 <span class="popup">
                                     <i>
