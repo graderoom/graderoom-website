@@ -417,7 +417,7 @@ class PowerschoolScraper:
         section_id = wrapper.find('div')['data-sectionid']
 
         # Get the Student ID for a class
-        student_id = wrapper['data-ng-init'].split(';')[0][-5:-1]
+        student_id = wrapper['data-ng-init'].split(';')[0].split("'")[1][3:]
 
         headers = {
             'Connection': 'keep-alive',
@@ -453,8 +453,14 @@ class PowerschoolScraper:
             else:
                 points_possible = False
             if len(_data["_assignmentscores"]) > 0:
-                points_gotten = _data["_assignmentscores"][0]["scorepoints"]
-                grade_percent = _data["_assignmentscores"][0]["scorepercent"]
+                if "scorepoints" in _data["_assignmentscores"][0]:
+                    points_gotten = _data["_assignmentscores"][0]["scorepoints"]
+                else:
+                    points_gotten = False
+                if "scorepercent" in _data["_assignmentscores"][0]:
+                    grade_percent = _data["_assignmentscores"][0]["scorepercent"]
+                else:
+                    grade_percent = False
             else:
                 points_gotten = False
                 grade_percent = False

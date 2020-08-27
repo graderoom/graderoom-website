@@ -497,6 +497,7 @@
     let emailDiv = $("#schoolEmail");
     let betaDiv = $("#betaKey");
     let signupBtn = $("#signupBtn");
+    let needsBeta = <%= needsBeta ;%>;
 
     function validateSignup() {
         if (!checkUsername(userDiv)) { // Invalid Username
@@ -511,7 +512,7 @@
             invalidateSignup();
             return;
         }
-        if (!checkBetaKey(betaDiv)) { // Invalid Beta Key
+        if (needsBeta && !checkBetaKey(betaDiv)) { // Invalid Beta Key
             invalidateSignup();
             return;
         }
