@@ -1151,10 +1151,10 @@ module.exports = {
             let result = "";
             for (let i = 1; i < versionNameArray.length; i++) {
                 if (versionNameArray[i][0] !== "Beta") {
-                    result += changelogArray[i];
-                    if (i > end) {
+                    if (i >= end) {
                         break;
                     }
+                    result += changelogArray[i];
                 }
             }
             return result;

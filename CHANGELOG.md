@@ -44,6 +44,13 @@
 - <em>Send bug reports in Settings > Help > Feedback Form</em>
 - <em>Only issues in the stable version will be listed here</em>
 
+## [Stable 3.0.1] - 2020-08-26
+### Fixed
+- Issue with syncing grades for some users
+- Issue with syncing grades when some assignments were not graded in PowerSchool
+- Issue where what's new page always showed at least 2 versions on the stable site
+- Issue where users could not sign up on the stable site
+
 ## [Stable 3.0.0] - 2020-08-25
 ### Added
 - Navigation Bar Updates<ul>

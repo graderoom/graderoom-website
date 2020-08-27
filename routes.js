@@ -272,7 +272,9 @@ module.exports = function (app, passport) {
                                      time: user.alerts.lastUpdated.slice(-1)[0]
                                  });
         } else {
-            res.sendStatus(400);
+            res.status(200).send({
+                                     message: resp.message
+                                 });
         }
     });
 
@@ -443,19 +445,23 @@ module.exports = function (app, passport) {
         await authenticator.updateGradeHistory(req.user.username, pass);
         let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
         if (resp.success || resp.message === "No class data." || resp.message === "Error scraping grades.") {
-            if (gradeSync) {
-                let encryptResp = authenticator.encryptAndStore(user, pass, userPass);
-                if (!encryptResp.success) {
-                    res.status(400).send(encryptResp.message);
-                    return;
+            if (term && semester) {
+                if (gradeSync) {
+                    let encryptResp = authenticator.encryptAndStore(user, pass, userPass);
+                    if (!encryptResp.success) {
+                        res.status(400).send(encryptResp.message);
+                        return;
+                    }
+                    res.status(200).send({
+                                             message: "GradeSync Enabled. " + resp.message,
+                                             grades: resp.grades[term][semester],
+                                             time: resp.time
+                                         });
+                } else {
+                    res.status(200).send({message: resp.message, grades: resp.grades[term][semester], time: resp.time});
                 }
-                res.status(200).send({
-                                         message: "GradeSync Enabled. " + resp.message,
-                                         grades: resp.grades[term][semester],
-                                         time: resp.time
-                                     });
             } else {
-                res.status(200).send({message: resp.message, grades: resp.grades[term][semester], time: resp.time});
+                res.status(200).send({message: resp.message});
             }
         } else {
             res.status(400).send(resp.message);
