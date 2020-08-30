@@ -523,6 +523,7 @@ table thead tr th:last-child {
     flex-flow: row;
     flex-wrap: wrap;
     justify-content: flex-end;
+    width: fit-content;
 }
 
 #classColors label {
@@ -533,10 +534,6 @@ table thead tr th:last-child {
     padding: 0.25rem;
     transition: all 400ms ease, color 1s ease;
     border-radius: 0.5rem;
-}
-
-#classColors label:-moz-drag-over {
-    outline: 1px solid currentColor;
 }
 
 #color-scheme-picker {
@@ -1098,10 +1095,61 @@ tbody tr {
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    cursor: pointer;
 }
 
-.slider-container > label:not(.slider) {
-    margin: 0 0 0 1rem;
+.slider-container > label:not(:first-child) {
+    margin: 0 0 0 1.5rem;
+    cursor: pointer;
+}
+
+.slider-container > label:first-child {
+    margin: 0;
+}
+
+#termSwitcher {
+    position: absolute;
+    z-index: 19;
+    top: 50%;
+    left: 0;
+    padding: 1rem;
+    transform: translateY(-50%);
+    border-radius: 0 3rem 3rem 0;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+#termSwitcher > div {
+    padding: 1rem;
+    cursor: default;
+    transition: all 400ms ease;
+    opacity: 0.5;
+    border-radius: 2rem;
+}
+
+#termSwitcher > div:not(:last-of-type) {
+    margin-bottom: 1rem;
+}
+
+#termSwitcher > div:hover, #termSwitcher > div.active {
+    opacity: 1;
+}
+
+#termSwitcher > div > div {
+    height: 0;
+    cursor: pointer;
+    transition: all 400ms ease;
+    color: transparent;
+}
+
+#termSwitcher > div:hover > div, #termSwitcher > div.active > div {
+    height: 1.5rem;
+    color: unset;
+}
+
+#termSwitcher > div > div:hover, #termSwitcher > div > div.active {
+    font-size: 1.4rem;
+    height: 2.3rem;
+    color: blue;
 }
 
 .slider {

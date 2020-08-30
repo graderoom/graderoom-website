@@ -22,11 +22,19 @@ module.exports = function (app, passport) {
             let gradeHistoryLetters = [];
 
             let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
+            if (req.query.term && req.query.semester) {
+                if ((term === req.query.term && semester === req.query.semester) || !req.user.betaFeatures.active || !authenticator.semesterExists(req.user.username, req.query.term, req.query.semester)) {
+                    res.redirect("/");
+                    return;
+                }
+                term = req.query.term;
+                semester = req.query.semester;
+            }
             for (let i = 0; i < Object.keys(req.user.grades).length; i++) {
                 let t = Object.keys(req.user.grades)[i];
                 for (let j = 0; j < Object.keys(req.user.grades[t]).length; j++) {
                     let s = Object.keys(req.user.grades[t])[j];
-                    if ((t === term && s === semester) || s === "S0") {
+                    if ((t.substring(0, 2) >= term.substring(0, 2) && s.substring(1) >= semester.substring(1)) || s === "S0") {
                         continue;
                     }
                     for (let k = 0; k < req.user.grades[t][s].length; k++) {
@@ -54,7 +62,9 @@ module.exports = function (app, passport) {
                     relevantClassData: JSON.stringify(authenticator.getRelClassData(req.user.username)),
                     sortingData: JSON.stringify(req.user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    dst: isDST(),
+                    betaFeatures: JSON.stringify(req.user.betaFeatures),
+                    termsAndSemesters: JSON.stringify(Object.keys(req.user.grades).map(x => [x, Object.keys(req.user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
+                    dst: isDST()
                 });
             } else {
                 res.render("authorized_index.ejs", {
@@ -73,6 +83,8 @@ module.exports = function (app, passport) {
                     relevantClassData: JSON.stringify({}),
                     sortingData: JSON.stringify(req.user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
+                    betaFeatures: JSON.stringify(req.user.betaFeatures),
+                    termsAndSemesters: JSON.stringify([]),
                     dst: isDST()
                 });
             }
@@ -81,6 +93,22 @@ module.exports = function (app, passport) {
         res.render("index.ejs", {
             message: req.flash("loginMessage"), dst: isDST()
         });
+    });
+
+    app.post("/joinbeta", [isLoggedIn], (req, res) => {
+        authenticator.joinBeta(req.user.username);
+        authenticator.setRemoteAccess(req.user.username, req.body.activateWithRemoteAccess === "on" ? "allowed" : "denied");
+        res.redirect("/");
+    });
+
+    app.post("/betafeatures", [isLoggedIn], (req, res) => {
+        authenticator.addBetaFeature(req.user.username, req.body);
+        res.redirect("/");
+    });
+
+    app.post("/leavebeta", [isLoggedIn], (req, res) => {
+        authenticator.leaveBeta(req.user.username);
+        res.redirect("/");
     });
 
     app.post("/advancedAppearance", [isLoggedIn], (req, res) => {
@@ -107,16 +135,24 @@ module.exports = function (app, passport) {
             let gradeHistoryLetters = [];
 
             let {term, semester} = authenticator.getMostRecentTermData(req.query.usernameToRender);
-            for (let i = 0; i < Object.keys(user.grades).length; i++) {
-                let t = Object.keys(user.grades)[i];
-                for (let j = 0; j < Object.keys(user.grades[t]).length; j++) {
-                    let s = Object.keys(user.grades[t])[j];
-                    if ((t === term && s === semester) || s === "S0") {
+            if (req.query.term && req.query.semester) {
+                if ((term === req.query.term && semester === req.query.semester) || !user.betaFeatures.active || !authenticator.semesterExists(user.username, req.query.term, req.query.semester)) {
+                    res.redirect("/");
+                    return;
+                }
+                term = req.query.term;
+                semester = req.query.semester;
+            }
+            for (let i = 0; i < Object.keys(req.user.grades).length; i++) {
+                let t = Object.keys(req.user.grades)[i];
+                for (let j = 0; j < Object.keys(req.user.grades[t]).length; j++) {
+                    let s = Object.keys(req.user.grades[t])[j];
+                    if ((t.substring(0, 2) >= term.substring(0, 2) && s.substring(1) >= semester.substring(1)) || s === "S0") {
                         continue;
                     }
-                    for (let k = 0; k < user.grades[t][s].length; k++) {
+                    for (let k = 0; k < req.user.grades[t][s].length; k++) {
                         let next = {};
-                        next[user.grades[t][s][k].class_name] = user.grades[t][s][k].overall_letter;
+                        next[req.user.grades[t][s][k].class_name] = req.user.grades[t][s][k].overall_letter;
                         gradeHistoryLetters.push(next);
                     }
                 }
@@ -139,6 +175,8 @@ module.exports = function (app, passport) {
                     relevantClassData: JSON.stringify(authenticator.getRelClassData(req.query.usernameToRender)),
                     sortingData: JSON.stringify(user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
+                    betaFeatures: JSON.stringify(user.betaFeatures),
+                    termsAndSemesters: JSON.stringify(Object.keys(req.user.grades).map(x => [x, Object.keys(req.user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
                     dst: isDST()
                 });
             } else {
@@ -158,6 +196,8 @@ module.exports = function (app, passport) {
                     relevantClassData: JSON.stringify({}),
                     sortingData: JSON.stringify(user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
+                    betaFetaures: JSON.stringify(user.betaFeatures),
+                    termsAndSemesters: JSON.stringify([]),
                     dst: isDST()
                 });
             }
@@ -253,14 +293,6 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.get("/update", [isLoggedIn], (req, res) => {
-
-        //todo rate limits
-        //todo use axios to contact python api and update data.
-
-        res.redirect("/");
-    });
-
     app.get("/checkUpdateBackground", [isLoggedIn], (req, res) => {
         let resp = authenticator.checkUpdateBackground(req.user.username);
         let user = authenticator.getUser(req.user.username);
@@ -348,7 +380,7 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.post("/updateAddedAssignments", [isLoggedIn], (req, res) => {
+    app.post("/updateAddedAssignments", [isLoggedIn, inRecentTerm], (req, res) => {
         let data = req.body.data;
         let resp = authenticator.updateAddedAssignments(req.user.username, JSON.parse(data));
         if (resp.success) {
@@ -418,7 +450,7 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.post("/update", [isLoggedIn], async (req, res) => {
+    app.post("/update", [isLoggedIn, inRecentTerm], async (req, res) => {
 
         let gradeSync = req.body.savePassword === "on";
         let pass = req.body.school_password;
@@ -470,7 +502,7 @@ module.exports = function (app, passport) {
     });
 
     //must be called via client side ajax+js
-    app.post("/updateweights", [isLoggedIn], async (req, res) => {
+    app.post("/updateweights", [isLoggedIn, inRecentTerm], async (req, res) => {
         let className = req.body.className;
         let hasWeights = req.body.hasWeights;
         let newWeights = JSON.parse(req.body.newWeights);
@@ -627,7 +659,7 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.post("/updateSortData", [isLoggedIn], (req, res) => {
+    app.post("/updateSortData", [isLoggedIn, inRecentTerm], (req, res) => {
         let username = req.user.username;
         let sortData = JSON.parse(req.body.sortingData);
         authenticator.updateSortData(username, sortData);
@@ -750,6 +782,21 @@ module.exports = function (app, passport) {
             return next();
         }
         res.redirect("/");
+    }
+
+    // temp middleware to prevent routes from happening if using query to view old semesters
+    function inRecentTerm(req, res, next) {
+        let url = req.headers.referer;
+        let props = Object.fromEntries(url.includes("?") ? url.split("?")[1].split("&").map(prop => prop.split("=")) : []);
+        if (props.term && props.semester && !authenticator.semesterExists(req.user.username, props.term, props.semester)) {
+            delete props.term;
+            delete props.semester;
+        }
+        if (!props.term && !props.semester) {
+            return next();
+        }
+        res.redirect("/");
+
     }
 
     function isAdmin(req, res, next) {

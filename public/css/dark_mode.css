@@ -86,6 +86,10 @@ th {
     color: #D6A1A1;
 }
 
+#termSwitcher > div {
+    background-color: #111111;
+}
+
 .card {
     background-color: #333333;
 }
