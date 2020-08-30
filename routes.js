@@ -143,16 +143,16 @@ module.exports = function (app, passport) {
                 term = req.query.term;
                 semester = req.query.semester;
             }
-            for (let i = 0; i < Object.keys(req.user.grades).length; i++) {
-                let t = Object.keys(req.user.grades)[i];
-                for (let j = 0; j < Object.keys(req.user.grades[t]).length; j++) {
-                    let s = Object.keys(req.user.grades[t])[j];
+            for (let i = 0; i < Object.keys(user.grades).length; i++) {
+                let t = Object.keys(user.grades)[i];
+                for (let j = 0; j < Object.keys(user.grades[t]).length; j++) {
+                    let s = Object.keys(user.grades[t])[j];
                     if ((t.substring(0, 2) >= term.substring(0, 2) && s.substring(1) >= semester.substring(1)) || s === "S0") {
                         continue;
                     }
-                    for (let k = 0; k < req.user.grades[t][s].length; k++) {
+                    for (let k = 0; k < user.grades[t][s].length; k++) {
                         let next = {};
-                        next[req.user.grades[t][s][k].class_name] = req.user.grades[t][s][k].overall_letter;
+                        next[user.grades[t][s][k].class_name] = user.grades[t][s][k].overall_letter;
                         gradeHistoryLetters.push(next);
                     }
                 }
