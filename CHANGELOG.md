@@ -44,6 +44,18 @@
 - <em>Send bug reports in Settings > Help > Feedback Form</em>
 - <em>Only issues in the stable version will be listed here</em>
 
+## [Stable 3.0.2] - 2020-08-27
+### Added
+- GPA display now indicates if the displayed GPA is weighted or unweighted
+- New public beta. Join by scrolling to the bottom of Account Settings
+- First public beta feature: Enable viewing data from previous semesters
+
+### Improved
+- Graphs no longer hide data even if regularized
+
+### Fixed
+- Issue where weights for classes with some special characters could not be updated
+
 ## [Stable 3.0.1] - 2020-08-26
 ### Fixed
 - Issue with syncing grades for some users

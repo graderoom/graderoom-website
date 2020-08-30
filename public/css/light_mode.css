@@ -163,6 +163,10 @@ table thead tr th {
     background-color: white;
 }
 
+#termSwitcher > div {
+    background-color: white;
+}
+
 .form-group input {
     color: black;
 }

@@ -1,0 +1,54 @@
+<!-- Update Grades Card -->
+<div class="blurred-login" id="activateBetaDisplay"
+     style="position:fixed; display:none; height: 100%; width: 100%; top: 0; left: 0; z-index: 1">
+    <div class="blurred-background"></div>
+    <div class="col-sm-8 col-md-7 col-lg-5 mx-auto">
+        <div id="updateGradesCard" class="card card-signin my-5">
+            <btn class="btn btn-md" onclick="closeForm('activateBetaDisplay')"
+                 style="display:table; width: fit-content; width: -moz-fit-content; margin-bottom:0">
+                <i class="fa fa-close" aria-hidden="true"></i> Close
+            </btn>
+            <form action="/joinbeta" method="post" class="card-body"
+                  style="max-height: 70vh; overflow-y: scroll; overflow-x: hidden; transition: 500ms">
+                <h1 class="card-title text-center">Join the Beta</h1>
+                <div class="card-footer">
+                    <h5>Try features before they're officially released.</h5>
+                    <p><b>You are in control.</b> After activating the beta, you may choose to leave at any time. After
+                        you
+                        activate the beta, a new settings menu aptly named 'Beta' will appear. Your decisions to
+                        activate
+                        beta features will be analyzed to determine which
+                        features will be fast-tracked to becoming official features. Activate features you want to see
+                        more
+                        widely supported. There is no guarantee for any beta feature to become an officially supported
+                        feature. By activating Remote
+                        Access, you allow developers to gain more test data to improve these unreleased features.
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <label class="slider-container">
+                        <label for="activateWithRemoteAccess">
+                            Allow Remote Access<span
+                                    class="popup"><i class="fa fa-question-circle"
+                                                     style="margin-left: 0.4rem"><span
+                                            class="popup-right-top">When enabled, developers can view your
+                                        personal home page to help with
+                                        troubleshooting.</span></i></span>
+                        </label>
+                        <label class="switch">
+                            <input id="activateWithRemoteAccess" type="checkbox" name="activateWithRemoteAccess"
+                                   checked="checked">
+                            <span class="slider"></span>
+                        </label>
+                    </label>
+                    <button style="margin: 0;" class="btn btn-sm" type="submit">Join the Beta</button>
+                </div>
+                <div class="card-footer">
+                    <p><small>For even earlier access to beta features, request a beta key for <a
+                                    href="https://beta.graderoom.me">https://beta.graderoom.me</a> by emailing <a
+                                    href="mailto:support@graderoom.me">support@graderoom.me</a>.</small></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

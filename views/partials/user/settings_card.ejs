@@ -19,6 +19,9 @@
                 <btn id="btn-2" class="tablinks" onclick="openTab(2)">Account</btn>
                 <btn id="btn-3" class="tablinks" onclick="openTab(3)">Help</btn>
                 <btn id="btn-4" class="tablinks" onclick="openTab(4)">About</btn>
+                <% if (JSON.parse(betaFeatures).active) { %>
+                    <btn id="btn-5" class="tablinks" onclick="openTab(5)">Beta</btn>
+                <% } %>
             </div>
             <div id="settings-1" class="tabcontent" style="display: block">
                 <div class="card-body">
@@ -224,10 +227,10 @@
                                     >
                                     <span class="slider"></span>
                                 </label>
-                                <label>
+                                <label for="classGraphRegularizationToggle">
                                     Regularize Class Graphs <span class="popup"><i class="fa fa-question-circle"><span
                                                     class="popup-right-bottom">When enabled, all class graphs are
-                                                bounded between 70 and 110 on the y-axis.</span></i></span>
+                                                bounded between at 70 and 110 on the y-axis</span></i></span>
                                 </label>
                             </label>
                             <label class="slider-container">
@@ -247,9 +250,9 @@
                                     >
                                     <span class="slider"></span>
                                 </label>
-                                <label
+                                <label for="showNonAcademicCheckbox"
                                 <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
-                                    class="disabled"
+                                       class="disabled"
                                         <% } %>
                                 >
                                     Show Non-Academic Classes
@@ -265,7 +268,7 @@
                                     >
                                     <span class="slider"></span>
                                 </label>
-                                <label>
+                                <label for="weightedGPACheckbox">
                                     Show Weighted GPA
                                 </label>
                             </label>
@@ -467,6 +470,20 @@
                             </button>
                         </div>
                     </form>
+                    <div class="card-footer">
+                        <% if (JSON.parse(betaFeatures).active) { %>
+                            <form action="/leavebeta" method="post">
+                                <button class="btn btn-sm" type="submit">Leave the beta</button>
+                            </form>
+                        <% } else { %>
+                            <button class="btn btn-sm" style="margin: 0.1rem"
+                                    onclick="showCard('#activateBetaDisplay');">
+                                <label style="margin: 0; cursor: pointer;">Open Beta Activation Panel
+                                    <span class="fa fa-external-link-square"></span>
+                                </label>
+                            </button>
+                        <% } %>
+                    </div>
                 </div>
             </div>
             <div id="settings-3" class="tabcontent">
@@ -481,7 +498,7 @@
                                             style="margin: 0; display: flex"
                                             type="checkbox"
                                             name="remoteAccess"
-                                    <% if (alerts.remoteAccess === "allowed") { %>
+                                    <% if (JSON.parse(alerts).remoteAccess === "allowed") { %>
                                             checked
                                             <% } %>
                                             onchange="ajaxPostForm('#remoteAccess',[],'',true); $('#remoteAccess').submit();"
@@ -592,6 +609,43 @@
                     </div>
                 </div>
             </div>
+            <% if (JSON.parse(betaFeatures).active) { %>
+                <div id="settings-5" class="tabcontent">
+                    <div class="card-body">
+                        <div class="card-footer">
+                            <h5>Thanks for trying out new features before they're released!</h5>
+                            <p>Your choices to enable the features listed below contribute to the speed at which these
+                                features are officially released. We will continue to add more features as time goes on.
+                            </p>
+                        </div>
+                        <form id="betaFeatures" action="/betaFeatures" method="post">
+                            <div class="card-footer">
+                                <label class="slider-container">
+                                    <label style="margin-left: 0;" for="showTermSwitcher">
+                                        Enable viewing data from previous semesters
+                                    </label>
+                                    <label class="switch">
+                                        <input id="showTermSwitcher" type="checkbox" name="showTermSwitcher"
+                                        <% if (JSON.parse(betaFeatures).showTermSwitcher) { %>
+                                               checked="checked"
+                                                <% } %>
+                                               onchange="$($(this)[0].form).submit()"
+                                        >
+                                        <span class="slider"></span>
+                                    </label>
+                                </label>
+                                <small>
+                                    Enabled: Adds an additional navigation bar to view older grade data
+                                </small>
+                                <br>
+                                <small>
+                                    Disabled: Default
+                                </small>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            <% } %>
         </div>
     </div>
 </div>

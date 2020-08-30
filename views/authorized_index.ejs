@@ -85,17 +85,61 @@
                 <i class="fa fa-arrow-left"></i>
                 <span></span>
             </div>
+            <% if (JSON.parse(betaFeatures).showTermSwitcher) { %>
+                <div id="termSwitcher">
+                    <% for (let i = 0; i < JSON.parse(termsAndSemesters).length; i++) { %>
+                        <div id="<%= JSON.parse(termsAndSemesters)[i][0] %>"><%= JSON.parse(termsAndSemesters)[i][0] %>
+
+                            <% for (let j = 0; j < JSON.parse(termsAndSemesters)[i][1].length; j++) { %>
+                                <div onclick="window.location.href='/?term=<%= JSON.parse(termsAndSemesters)[i][0] %>&semester=<%= JSON.parse(termsAndSemesters)[i][1][j] %>'"
+                                     id="<%= JSON.parse(termsAndSemesters)[i][0] %><%= JSON.parse(termsAndSemesters)[i][1][j] %>"><%= JSON.parse(termsAndSemesters)[i][1][j] %></div>
+                            <% } %>
+                        </div>
+                        <script>
+                            props = window.location.href.includes("?") ? Object.fromEntries(window.location.href.split("?")[1].split("&").map(prop => prop.split("="))) : {};
+                            if ("term" in props && "semester" in props) {
+                                $("#" + props["term"]).addClass("active");
+                                $("#" + props["term"] + props["semester"]).addClass("active");
+                            } else {
+                                let termsAndSemesters = <%- termsAndSemesters %>;
+                                $("#" + termsAndSemesters.slice(-1)[0][0]).addClass("active");
+                                $("#" + termsAndSemesters.slice(-1)[0][0] + termsAndSemesters.slice(-1)[0][1].slice(-1)[0]).addClass("active");
+                            }
+                        </script>
+                    <% } %>
+                </div>
+            <% } %>
+            <% if (JSON.parse(betaFeatures).active) { %>
+                <div style="display: none" class="editsdontsave alert alert-warning font-weight-bold">
+                    <script>
+                        props = window.location.href.includes("?") ? window.location.href.split("?")[1].split("&").map(prop => prop.split("=")[0]) : [];
+                        if (props.includes("term") && props.includes("semester")) {
+                            $(".editsdontsave").text("You are using a beta feature. As of now, changes made cannot be saved.").show();
+                        }
+                    </script>
+                </div>
+            <% } %>
             <!-- Overview Section -->
             <% if (JSON.parse(gradeData).length) { %>
                 <div id="section-1">
                     <div style="display: flex">
                         <div id="GPA-container">
                             <div>
+                                <h5 style="font-size: 2rem" class="text-center">
+                                    <% if (!JSON.parse(appearance).weightedGPA) { %>Unweighted
+                                    <% } else { %>Weighted
+                                    <% } %>
+                                </h5>
                                 <h5 style="font-size: 2rem" class="text-center">Semester GPA</h5>
                                 <h5 style="font-size: 5rem" id="GPA-display">--</h5>
                             </div>
                             <% if (JSON.parse(gradeHistory).length) { %>
                                 <div>
+                                    <h5 style="font-size: 2rem" class="text-center">
+                                        <% if (!JSON.parse(appearance).weightedGPA) { %>Unweighted
+                                        <% } else { %>Weighted
+                                        <% } %>
+                                    </h5>
                                     <h5 style="font-size: 2rem" class="text-center">Cumulative GPA</h5>
                                     <h5 style="font-size: 5rem" id="GPA-display-cumulative">--</h5>
                                 </div>
@@ -238,14 +282,14 @@
                                                     <% let value = weights[category]; %>
                                                     <td id="weightTableWeight<%= i + offset; %><%= j; %>"
                                                         class="form-group">
-                                                        <input disabled
-                                                               style="<% if (!value && value !== 0) { %> border-color: lightcoral !important; <% } %>"
+                                                        <input style="<% if (!value && value !== 0) { %> border-color: lightcoral !important; <% } %>"
                                                                value="<%= value; %>"
                                                                type="number"
                                                                min="0"
                                                                step="0.01"
                                                                class="number-input disableable form-control <% if(value || value === 0){ %> text-view <% } %>"
                                                                name="<%= category; %>"
+                                                               disabled
                                                         >
                                                     </td>
                                                     <td id="weightTablePoints<%= i + offset; %><%= j; %>"></td>
@@ -769,7 +813,6 @@
             }
 
             function setupIncorrectGradeMessages(classIndex) {
-                $("#incorrectGPA").hide();
                 $("#GPA-display").removeClass("ignored");
                 for (let i = 0; i < _data.length; i++) {
                     if (classIndex === undefined || classIndex === i) {
@@ -784,13 +827,6 @@
                         } else {
                             $("#incorrectOverviewGrade" + i).hide();
                             $("#incorrectOverallGrade" + i).hide();
-                        }
-
-                        // GPA will only be different if the actual letter is different
-                        let strippedCalculatedLetter = calculatedOverallLetter.substring(0, 1);
-                        let strippedRealLetter = realOverallLetter.substring(0, 1);
-                        if (strippedCalculatedLetter !== strippedRealLetter) {
-                            $("#incorrectGPA").css("display", "inline-block");
                         }
                     }
                 }
@@ -871,7 +907,7 @@
                 for (let i = 0; i < _data.length; i++) {
                     if (classIndex === undefined || classIndex === i) {
                         let totalPossible = 0;
-                        let result = {};
+                        let result = Object.fromEntries(Object.entries(weights[_data[i].class_name].weights).map(a => [a[0], 0]));
                         for (let assignment of _data[i]["grades"]) {
                             if (assignment["points_gotten"] !== false && assignment["points_possible"] !== false && assignment["exclude"] !== true) {
                                 if (!result[assignment.category]) {
@@ -974,6 +1010,7 @@
             function setupWeightsTables(classIndex) {
                 for (let i = 0; i < _data.length; i++) {
                     if (classIndex === undefined || classIndex === i) {
+                        disableInput("check" + i, "weightsTable" + i);
                         let className = _data[i].class_name;
                         let tableCategories = Object.keys(weights[className]["weights"]);
                         let enableReset = weights[className]["custom"];
@@ -985,7 +1022,7 @@
                             for (let i = 0; i < keys.length; i++) {
                                 if (weights[className]["hasWeights"] === "false" && keys[i] in relClassData[className]["weights"]) {
                                     enableReset = true;
-                                } else if ((keys[i] in relClassData[className]["weights"]) && weights[className]["weights"][keys[i]] != relClassData[className]["weights"][keys[i]]) {
+                                } else if (relClassData[className]["weights"] && (keys[i] in relClassData[className]["weights"]) && weights[className]["weights"][keys[i]] != relClassData[className]["weights"][keys[i]]) {
                                     enableReset = true;
                                 }
                             }
@@ -1285,7 +1322,7 @@
             function resetCategory(element) {
                 let classes = $(element)[0].className.split(" ");
                 let classIndex = parseFloat(classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "resetCategory")[0].match(/\d+$/)[0]);
-                let categories = Object.keys(weights[Object.keys(weights)[classIndex]]["weights"]);
+                let categories = Object.keys(weights[_data[classIndex].class_name]["weights"]);
                 let categoryIndex = $.makeArray($(".resetCategory" + classIndex)).indexOf(element);
                 $($(".categoryTable" + classIndex)[categoryIndex]).removeClass("unround-top-right");
                 let category = categories[categoryIndex];
@@ -1356,7 +1393,7 @@
             function trashCategory(element) {
                 let classes = $(element)[0].className.split(" ");
                 let classIndex = parseFloat(classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "trashCategory")[0].match(/\d+$/)[0]);
-                let categories = Object.keys(weights[Object.keys(weights)[classIndex]]["weights"]);
+                let categories = Object.keys(weights[_data[classIndex].class_name]["weights"]);
                 let categoryIndex = $.makeArray($(".trashCategory" + classIndex)).indexOf(element);
                 $($(".categoryTable" + classIndex)[categoryIndex]).removeClass("unround-top-right");
                 let category = categories[categoryIndex];
@@ -1416,7 +1453,7 @@
             function saveCategory(element) {
                 let classes = $(element)[0].className.split(" ");
                 let classIndex = parseFloat(classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "saveCategory")[0].match(/\d+$/)[0]);
-                let categories = Object.keys(weights[Object.keys(weights)[classIndex]]["weights"]);
+                let categories = Object.keys(weights[_data[classIndex].class_name]["weights"]);
                 let categoryIndex = $.makeArray($(".saveCategory" + classIndex)).indexOf(element);
                 $($(".categoryTable" + classIndex)[categoryIndex]).removeClass("unround-top-right");
                 let category = categories[categoryIndex];
@@ -1557,7 +1594,7 @@
                 let categorySelectReferences = $(".addCategory");
                 for (let i = 0; i < parsedData.length; i++) {
                     let dropdown = $(categorySelectReferences[i]);
-                    let categories = Object.keys(weights[Object.keys(weights)[i]]["weights"]);
+                    let categories = Object.keys(weights[_data[i].class_name]["weights"]);
 
                     // Adjust widths
                     adjust($(".addAssignmentName input"), 0, remToPixels(8), remToPixels(12));
@@ -1580,7 +1617,7 @@
             function setupClassTables(classIndex) {
                 for (let i = 0; i < parsedData.length; i++) {
                     if (classIndex === undefined || classIndex === i) {
-                        let categories = Object.keys(weights[Object.keys(weights)[i]]["weights"]);
+                        let categories = Object.keys(weights[_data[i].class_name]["weights"]);
                         let assignmentData;
                         let assignmentDates;
                         let assignmentNames;
@@ -1956,9 +1993,9 @@
 
                             // Set up coloring and gain/loss
                             let display = +isNaN(parseFloat(assignmentData[j]).toFixed(2)) ? +parseFloat(assignmentData[assignmentData.length - 1]).toFixed(2) : parseFloat(assignmentData[j]).toFixed(2);
-                            let delta = (assignmentData[j] - assignmentData[j - 1]).toFixed(3);
+                            let delta = (assignmentData[j] - (assignmentData[j - 1] || 100)).toFixed(3);
                             if (categorySort[i] && assignmentCategories[j] !== assignmentCategories[j - 1]) {
-                                delta = 0.000;
+                                delta = assignmentData[j] - 100;
                             }
                             let colorClass;
                             let bgColor;
@@ -2085,7 +2122,7 @@
                 //Add array to each object in parsedData: one for weights (not needed?), one for missing weights
                 //Get data for one class
                 for (let i = 0; i < _data.length; i++) {
-                    let categories = Object.keys(weights[Object.keys(weights)[i]]["weights"]);
+                    let categories = Object.keys(weights[_data[i].class_name]["weights"]);
                     if (classIndex === undefined || classIndex === i) {
                         //Add sorting vars
                         if (!dateSort[i] && dateSort[i] !== false) {
@@ -2263,7 +2300,8 @@
                 }
                 for (let i = 0; i < _data.length; i++) {
                     dataset.push({
-                                     label: _data[i].class_name, backgroundColor: "transparent",
+                                     label: _data[i].class_name,
+                                     backgroundColor: "transparent",
                                      pointBackgroundColor: _colors[i],
                                      pointBorderColor: "transparent",
                                      borderColor: _colors[i],
@@ -2324,7 +2362,9 @@
                                 }
                             }], yAxes: [{
                                 ticks: {
-                                    max: 110, min: 70, fontColor: (darkMode ? "white" : "black"),
+                                    suggestedMax: appearance.regularizeClassGraphs ? 110 : undefined,
+                                    suggestedMin: appearance.regularizeClassGraphs ? 70 : undefined,
+                                    fontColor: (darkMode ? "white" : "black"),
                                     fontFamily: "Verdana",
                                     fontSize: "12"
                                 }, gridLines: {
@@ -2432,8 +2472,8 @@
                                     }
                                 }], yAxes: [{
                                     ticks: {
-                                        max: appearance.regularizeClassGraphs ? 110 : undefined,
-                                        min: appearance.regularizeClassGraphs ? 70 : undefined,
+                                        suggestedMax: appearance.regularizeClassGraphs ? 110 : undefined,
+                                        suggestedMin: appearance.regularizeClassGraphs ? 70 : undefined,
                                         fontColor: (darkMode ? "white" : "black"),
                                         fontFamily: "Verdana",
                                         fontSize: "12"
@@ -2489,7 +2529,7 @@
                                 }
                             }
                         }
-                    })
+                    });
                 } else {
                     $("#chart-container" + id).html("<div style=\"height: 100%; font-size: 3rem; font-weight: bold;text-align: center; filter: opacity(0.5); line-height: 100%\">No Data</div>");
                 }
@@ -2672,16 +2712,16 @@
                             if (_.isEqual(weights[className]["weights"], weightURI) && ((weights[className]["hasWeights"] === "true") === hasWeights)) {
                                 return;
                             }
-                            weightURI = encodeURIComponent(JSON.stringify(weightURI));
-                            className = encodeURI(className);
-                            hasWeights = encodeURI(hasWeights);
-                            let formData = "className=" + className + "&hasWeights=" + hasWeights + "&newWeights=" + weightURI;
+                            let formData = {
+                                "className": className,
+                                "hasWeights": hasWeights,
+                                "newWeights": JSON.stringify(weightURI)
+                            };
 
                             $.ajax({
                                        type: "POST", url: "/updateWeights", data: formData
                                    }).done((data) => {
                                 // Make sure that the formMessages div has the alert-success class.
-                                className = decodeURI(className);
                                 weights[className]["custom"] = data.includes("Custom");
                                 for (let i = 0; i < Object.keys(weights[className]["weights"]).length; i++) {
                                     let weight = $("#weightTableWeight" + $(form)[0].id.substring(7) + i + " input");
