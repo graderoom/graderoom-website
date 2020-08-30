@@ -127,6 +127,27 @@ module.exports = {
         userRef.get("appearance").set("weightedGPA", value).write();
     },
 
+    joinBeta: function (username, remoteAccess) {
+        let lc_username = username.toLowerCase();
+        let userRef = db.get("users").find({username: lc_username});
+        userRef.get("betaFeatures").set("active", true).write();
+    },
+
+    addBetaFeature: function (username, features) {
+        let lc_username = username.toLowerCase();
+        let userRef = db.get("users").find({username: lc_username});
+        userRef.set("betaFeatures", {active: true}).write();
+        Object.keys(features).forEach(feature => {
+            userRef.get("betaFeatures").set(feature, true).write();
+        });
+    },
+
+    leaveBeta: function (username) {
+        let lc_username = username.toLowerCase();
+        let userRef = db.get("users").find({username: lc_username});
+        userRef.set("betaFeatures", {"active": false}).write();
+    },
+
     /* class database */
     getAllClassData: function () {
         return db.get("classes").value();
@@ -178,13 +199,18 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
 
+        // Add betaFeatures activation
+        if (!userRef.get("betaFeatures").value()) {
+            userRef.set("betaFeatures", {"active": false}).write();
+        }
+
         // Add weightedGPA option
-        if (!userRef.get("appearance").get("weightedGPA").value()) {
+        if (!userRef.get("appearance").get("weightedGPA").value() && userRef.get("appearance").get("weightedGPA").value() !== false) {
             userRef.get("appearance").set("weightedGPA", true).write();
         }
 
         // Add regularizeClassGraphs
-        if (!userRef.get("appearance").get("regularizeClassGraphs").value()) {
+        if (!userRef.get("appearance").get("regularizeClassGraphs").value() && userRef.get("appearance").get("regularizeClassGraphs").value() !== false) {
             userRef.get("appearance").set("regularizeClassGraphs", true).write();
         }
 
@@ -432,6 +458,11 @@ module.exports = {
         }
     },
 
+    semesterExists: function (username, term, semester) {
+        let userRef = db.get("users").find({username: username.toLowerCase()});
+        return (term in userRef.get("grades").value() && semester in userRef.get("grades").get(term).value());
+    },
+
     getMostRecentTermData: function (username) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
         if (!Object.keys(userRef.get("grades").value()).length) {
@@ -442,10 +473,7 @@ module.exports = {
         let term = terms[terms.map(t => parseInt(t.substring(0, 2))).reduce((maxIndex, term, index, arr) => term > arr[maxIndex] ? index : maxIndex, 0)];
         let semesters = Object.keys(userRef.get("grades").get(term).value());
         let semester = semesters[semesters.map(s => parseInt(s.substring(1))).reduce((maxIndex, semester, index, arr) => semester > arr[maxIndex] ? index : maxIndex, 0)];
-        // if (userRef.get("grades").get(term).get(semester).value().filter(c => c.grades.length).length) {
         return {term: term, semester: semester};
-        // }
-        return {term: false, semester: false};
     },
 
     getRelClassData: function (username) {
@@ -631,13 +659,18 @@ module.exports = {
                                              firstName: firstName, lastName: lastName, graduationYear: graduationYear
                                          },
                                          isAdmin: isAdmin,
+                                         betaFeatures: {
+                                             active: beta
+                                         },
                                          appearance: {
                                              theme: "auto",
                                              accentColor: null,
                                              classColors: [],
                                              showNonAcademic: true,
                                              darkModeStart: 18,
-                                             darkModeFinish: 7
+                                             darkModeFinish: 7,
+                                             weightedGPA: true,
+                                             regularizeClassGraphs: true
                                          },
                                          alerts: {
                                              lastUpdated: [],
@@ -1089,6 +1122,7 @@ module.exports = {
         weightsRef.set(modClassName + ".hasWeights", hasWeights).write();
         weightsRef.set(modClassName + ".custom", custom).write();
         if (custom) {
+            console.log("Custom weight set for " + className + ".");
             return {success: true, message: "Custom weight set for " + className + "."};
         }
         return {success: true, message: "Reset weight for " + className + "."};

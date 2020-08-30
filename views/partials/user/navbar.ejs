@@ -145,6 +145,9 @@
 <% if (page === "home") { %>
     <% include keyboard_shortcuts.ejs %>
 <% } %>
+<% if (page === "home") { %>
+    <% include activate_beta_card.ejs %>
+<% } %>
 <% if (page === "home" || page === "calc") { %>
     <% include logged_out.ejs %>
 <% } %>
