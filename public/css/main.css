@@ -1111,11 +1111,40 @@ tbody tr {
     position: absolute;
     z-index: 19;
     top: 50%;
-    left: 0;
-    padding: 1rem;
+    left: -6rem;
+    width: 6rem;
+    padding: 0.5rem;
+    transition: all 400ms ease;
     transform: translateY(-50%);
-    border-radius: 0 3rem 3rem 0;
-    background-color: rgba(0, 0, 0, 0.1);
+    text-align: center;
+    border-radius: 0 2rem 2rem 0;
+}
+
+#termSwitcher::after {
+    font-weight: 500;
+    position: absolute;
+    top: 50%;
+    left: 6rem;
+    width: 2rem;
+    height: 12rem;
+    padding: 0.1rem;
+    content: "Term Switcher";
+    transition: all 500ms ease;
+    transform: translateY(-50%);
+    text-align: center;
+    vertical-align: middle;
+    border-radius: 0 1rem 1rem 0;
+    background-color: inherit;
+    writing-mode: vertical-rl;
+    text-orientation: sideways;
+}
+
+#termSwitcher:hover, #termSwitcher.hover {
+    left: 0;
+}
+
+#termSwitcher:hover::after, #termSwitcher.hover::after {
+    left: -2rem;
 }
 
 #termSwitcher > div {
@@ -1143,13 +1172,13 @@ tbody tr {
 
 #termSwitcher > div:hover > div, #termSwitcher > div.active > div {
     height: 1.5rem;
+    opacity: 0.3;
     color: unset;
 }
 
 #termSwitcher > div > div:hover, #termSwitcher > div > div.active {
     font-size: 1.4rem;
     height: 2.3rem;
-    color: blue;
 }
 
 .slider {
@@ -1263,6 +1292,16 @@ input:checked + .slider:before {
 #privacyCard .card-footer, #termsCard .card-footer {
     overflow-y: scroll;
     max-height: 60vh;
+}
+
+.weights-container td {
+    overflow: hidden;
+    max-width: 4rem;
+}
+
+#GPA-container > div > .text-center > .popup > .fa > span > span {
+    font-weight: bold;
+    display: inline;
 }
 
 #weightsCard h5 {
@@ -1830,6 +1869,47 @@ td.addAssignmentScore {
     white-space: nowrap;
 }
 
+#weightedGPAToggle {
+    border-radius: 0.5rem;
+}
+
+#weightedGPAToggle form {
+    display: flex;
+    border-radius: 0.5rem;
+}
+
+#weightedGPAToggle button {
+    width: 6rem;
+    margin: 0;
+    padding: 0.5rem 0;
+}
+
+#weightedGPAToggle button:first-of-type {
+    border-radius: 0.5rem 0 0 0.5rem;
+}
+
+#weightedGPAToggle button:last-of-type {
+    border-radius: 0 0.5rem 0.5rem 0;
+}
+
+#weightedGPAToggle button.active {
+    pointer-events: none;
+}
+
+#GPA-container > div:not(#weightedGPAToggle) {
+    width: 12rem;
+    padding: 1rem 0.5rem;
+    border-radius: 0.5rem;
+}
+
+#GPA-container h5 {
+    margin: 0;
+}
+
+#GPA-container > div:not(:last-of-type) {
+    margin-bottom: 1rem;
+}
+
 .brand-label {
     display: inline;
 }
@@ -2034,6 +2114,10 @@ input:disabled {
 
     .nav-item, .nav-item btn {
         width: 100% !important;
+    }
+
+    #termSwitcher {
+        display: none;
     }
 
     html.no-scroll {

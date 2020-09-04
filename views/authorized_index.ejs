@@ -109,41 +109,62 @@
                     <% } %>
                 </div>
             <% } %>
-            <% if (JSON.parse(betaFeatures).active) { %>
-                <div style="display: none" class="editsdontsave alert alert-warning font-weight-bold">
-                    <script>
-                        props = window.location.href.includes("?") ? window.location.href.split("?")[1].split("&").map(prop => prop.split("=")[0]) : [];
-                        if (props.includes("term") && props.includes("semester")) {
-                            $(".editsdontsave").text("You are using a beta feature. As of now, changes made cannot be saved.").show();
-                        }
-                    </script>
-                </div>
-            <% } %>
             <!-- Overview Section -->
             <% if (JSON.parse(gradeData).length) { %>
                 <div id="section-1">
                     <div style="display: flex">
                         <div id="GPA-container">
+                            <div id="weightedGPAToggle">
+                                <form action="/weightedGPA" method="post">
+                                    <input name="weightedGPA"
+                                           value="<% if (JSON.parse(appearance).weightedGPA) { %>false<% } else { %>true<% } %>"
+                                           style="display: none">
+                                    <button
+                                    <% if (JSON.parse(appearance).weightedGPA) { %> type="button"
+                                            <% } %>
+                                                                                    class="<% if (JSON.parse(appearance).weightedGPA) { %> active <% } %> btn">
+                                        Weighted
+                                    </button>
+                                    <button
+                                    <% if (!JSON.parse(appearance).weightedGPA) { %> type="button"
+                                            <% } %>
+                                                                                     class="<% if (!JSON.parse(appearance).weightedGPA) { %> active <% } %> btn">
+                                        Unweighted
+                                    </button>
+                                </form>
+                            </div>
                             <div>
-                                <h5 style="font-size: 2rem" class="text-center">
-                                    <% if (!JSON.parse(appearance).weightedGPA) { %>Unweighted
-                                    <% } else { %>Weighted
-                                    <% } %>
+                                <% let accentColor = _.sample(JSON.parse(appearance).classColors); %>
+                                <h5 class="text-center">Semester GPA<span
+                                            class="popup"><i class="fa fa-question-circle"
+                                                             style="margin-left: 0.4rem"><span
+                                                    class="popup-right-top">This metric is based on your grades from
+                                                this semester.</span></i></span>
                                 </h5>
-                                <h5 style="font-size: 2rem" class="text-center">Semester GPA</h5>
-                                <h5 style="font-size: 5rem" id="GPA-display">--</h5>
+                                <h5 id="GPA-display">----/----</h5>
                             </div>
                             <% if (JSON.parse(gradeHistory).length) { %>
                                 <div>
-                                    <h5 style="font-size: 2rem" class="text-center">
-                                        <% if (!JSON.parse(appearance).weightedGPA) { %>Unweighted
-                                        <% } else { %>Weighted
-                                        <% } %>
-                                    </h5>
-                                    <h5 style="font-size: 2rem" class="text-center">Cumulative GPA</h5>
-                                    <h5 style="font-size: 5rem" id="GPA-display-cumulative">--</h5>
+                                    <h5 class="text-center">Cumulative GPA<span class="popup"><i
+                                                    class="fa fa-question-circle"
+                                                    style="margin-left: 0.4rem"><span
+                                                        class="popup-right-top">Your cumulative GPA
+                                                    is what shows up on your transcript. It does not include pe or
+                                                    summer classes. This cumulative GPA includes your current
+                                                    semester.</span></i></span></h5>
+                                    <h5 id="GPA-display-cumulative">----/----</h5>
                                 </div>
                             <% } %>
+                            <div style="opacity: 0.2; pointer-events: none">
+                                <h5 class="text-center">UC GPA<span class="popup"><i class="fa fa-question-circle"
+                                                                                     style="margin-left: 0.4rem"><span
+                                                    class="popup-right-top">This is your GPA as calculated by the <span
+                                                        style="color: <%= accentColor; %>">University of
+                                                    California</span>. This metric uses grades from 9<sup>th</sup>
+                                                through 11<sup>th</sup> grade and does not include religion, pe, or
+                                                summer classes.</span></i></span></h5>
+                                <h5 id="GPA-display-uc">Coming Soon!</h5>
+                            </div>
                         </div>
                         <div id="chart-container-1" class="chart chart-container text-center">
                             <button id="reset-zoom-1"
@@ -615,6 +636,8 @@
             setupWeightsTableListeners();
             setupInputListeners();
             setupAddAssignments();
+            $('#termSwitcher').addClass('hover');
+            setTimeout(() => $('#termSwitcher').removeClass('hover'), 2000);
 
             if (alerts.lastUpdated.length !== 0) {
                 try {
@@ -736,10 +759,10 @@
             }
 
             function updateData(newData) {
-                if (!newData.grades) {
+                if (!newData.grades || !newData.weights) {
                     return {updated: true};
                 }
-                if (_.isEqual(_data.map(c => c.class_name), newData.grades.map(c => c.class_name))) {
+                if (_.isEqual(_data.map(c => c.class_name), newData.grades.map(c => c.class_name)) && _.isEqual(weights, newData.weights)) {
                     data = newData.grades;
                     _data = JSON.parse(JSON.stringify(data));
                     alerts.lastUpdated.push(newData.lastUpdated);
@@ -755,7 +778,11 @@
                     $.get("/checkUpdateBackground", function (message, status) {
                         if (status === "success") {
                             if (message.message === "Sync Complete!") {
-                                let newData = {grades: JSON.parse(message.grades), lastUpdated: message.time};
+                                let newData = {
+                                    grades: JSON.parse(message.grades),
+                                    weights: JSON.parse(message.weights),
+                                    lastUpdated: message.time
+                                };
                                 if (!updateData(newData).updated) {
                                     clearInterval(checking);
                                     if (cardsDisplayed.length === 0 || cardsDisplayed[cardsDisplayed.length - 1] === "updateGradesDisplay") {
@@ -841,39 +868,47 @@
 
             function getCumulativeGPA() {
                 let GPA = 0.0;
+                let max = 0.0;
                 let numClasses = gradeHistoryLetters.length;
                 for (let i = 0; i < gradeHistoryLetters.length; i++) {
                     let classType = relClassData[Object.keys(gradeHistoryLetters[i])[0]].classType;
                     if (classType !== "non-academic" && Object.values(gradeHistoryLetters[i])[0] && Object.values(gradeHistoryLetters[i])[0] !== "CR") {
                         if (appearance.weightedGPA && (classType === "ap" || classType === "honors")) {
                             GPA += 1;
+                            max += 1;
                         }
                         GPA += getGPA(Object.values(gradeHistoryLetters[i])[0]);
+                        max += 4;
                     } else {
                         numClasses--;
                     }
                 }
                 GPA /= numClasses;
-                return GPA.toFixed(3);
+                max /= numClasses;
+                return GPA.toFixed(3) + "/" + max.toFixed(3);
             }
 
             function getOverallGPA() {
                 let GPA = 0.0;
+                let max = 0.0;
                 let numClasses = _data.length;
                 for (let i = 0; i < _data.length; i++) {
                     let className = _data[i].class_name;
                     let classType = relClassData[className]["classType"];
                     if (appearance.weightedGPA && (classType === "ap" || classType === "honors")) {
                         GPA += 1;
+                        max += 1;
                     }
                     if (_data[i].overall_letter && _data[i].overall_letter !== "CR") {
                         GPA += getGPA(_data[i].overall_letter);
+                        max += 4;
                     } else {
                         numClasses--;
                     }
                 }
                 GPA /= numClasses;
-                return GPA.toFixed(3);
+                max /= numClasses;
+                return GPA.toFixed(3) + "/" + max.toFixed(3);
             }
 
             function getGPA(letterGrade) {

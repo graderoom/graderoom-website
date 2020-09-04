@@ -163,7 +163,28 @@ table thead tr th {
     background-color: white;
 }
 
+#termSwitcher {
+    background-color: rgba(255, 255, 255, 0.6);
+}
+
 #termSwitcher > div {
+    border: 1px solid #CCCCCC;
+    background-color: rgba(255, 255, 255, 0.6);
+}
+
+#termSwitcher > div > div:hover, #termSwitcher > div > div.active {
+    opacity: 1 !important;
+}
+
+#termSwitcher:hover, #termSwitcher.hover {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+#GPA-container > div {
+    background-color: white;
+}
+
+#weightedGPAToggle button:not(.active) {
     background-color: white;
 }
 
