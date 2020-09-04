@@ -86,8 +86,33 @@ th {
     color: #D6A1A1;
 }
 
+#termSwitcher {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
 #termSwitcher > div {
-    background-color: #111111;
+    background-color: rgba(50, 50, 50, 1);
+}
+
+#termSwitcher > div:hover {
+    background-color: rgba(50, 50, 50, 0.6);
+}
+
+#termSwitcher > div > div:hover, #termSwitcher > div > div.active {
+    opacity: 1 !important;
+}
+
+#termSwitcher:hover, #termSwitcher.hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+#GPA-container > div {
+    border: 1px solid black;
+    background-color: #191919;
+}
+
+#weightedGPAToggle button:not(.active) {
+    background-color: black;
 }
 
 .card {

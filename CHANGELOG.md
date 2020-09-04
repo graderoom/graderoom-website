@@ -44,6 +44,15 @@
 - <em>Send bug reports in Settings > Help > Feedback Form</em>
 - <em>Only issues in the stable version will be listed here</em>
 
+## [Stable 3.0.3] - 2020-09-02
+### Improved
+- Made GPA Displays smaller and added theoretical maximums
+- [Beta] New, less intrusive look for term switcher
+
+### Fixed
+- Issue where new weights would not update automatically after sync
+- Issue with password reset
+
 ## [Stable 3.0.2] - 2020-08-27
 ### Added
 - GPA display now indicates if the displayed GPA is weighted or unweighted
