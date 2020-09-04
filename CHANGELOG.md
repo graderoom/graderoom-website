@@ -47,7 +47,9 @@
 ## [Stable 3.0.3] - 2020-09-03
 ### Improved
 - Made GPA Displays smaller and added theoretical maximums
-- [Beta] New, less intrusive look for term switcher
+- Moved weighted GPA toggle to homepage
+- [Beta] New, less intrusive design for term switcher
+- [Beta] Moved 'Leave Beta' button to Beta Settings
 
 ### Fixed
 - Issue where new weights would not update automatically after sync
