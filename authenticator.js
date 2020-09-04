@@ -235,6 +235,14 @@ module.exports = {
             userRef.set("weights", {"19-20": {"S2": user.weights}}).write();
         }
 
+        // I didn't realize that some people have 2019 grades
+        if (userRef.get("grades").get("19-20").get("S2").value() && userRef.get("grades").get("19-20").get("S2").value().filter(c => c.grades.filter(a => a.date.slice(-4) === "2019").length).length) {
+            userRef.get("grades").get("19-20").set("S1", userRef.get("grades").get("19-20").get("S2").value()).write();
+            userRef.get("grades").get("19-20").unset("S2").write();
+            userRef.get("weights").get("19-20").set("S1", userRef.get("weights").get("19-20").get("S2").value()).write();
+            userRef.get("weights").get("19-20").unset("S2").write();
+        }
+
         // Add addedAssignments dict
         if (!userRef.get("addedAssignments").value()) {
             userRef.set("addedAssignments", {}).write();
@@ -1414,7 +1422,7 @@ module.exports = {
         let years = Object.keys(userRef.get("grades").value());
         for (let i = 0; i < years.length; i++) {
             let semesters = Object.keys(userRef.get("grades").get(years[i]).value());
-            temp[years[i]] = current[years[i]] || {};
+            temp[years[i]] = {};
             for (let j = 0; j < semesters.length; j++) {
                 temp[years[i]][semesters[j]] = current[years[i]] ? current[years[i]][semesters[j]] || {} : {};
                 let classes = userRef.get("grades").get(years[i]).get(semesters[j]).map(d => d.class_name).value();
@@ -1489,7 +1497,7 @@ module.exports = {
 
         let user = db.get("users").find({passwordResetToken: token});
 
-        let {validToken, gradeSync} = this.checkToken(token, user.value());
+        let {valid: validToken, gradeSync: gradeSync} = this.checkToken(token, user.value());
 
         if (!validToken) {
             return {success: false, message: "Invalid token."};

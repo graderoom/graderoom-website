@@ -1,6 +1,7 @@
 let server = require("./graderoom.js");
 let authenticator = require("./authenticator.js");
-let emailSender = require('./emailSender.js');
+let emailSender = require("./emailSender.js");
+let _ = require("lodash");
 
 module.exports = function (app, passport) {
 
@@ -34,7 +35,7 @@ module.exports = function (app, passport) {
                 let t = Object.keys(req.user.grades)[i];
                 for (let j = 0; j < Object.keys(req.user.grades[t]).length; j++) {
                     let s = Object.keys(req.user.grades[t])[j];
-                    if ((t.substring(0, 2) >= term.substring(0, 2) && s.substring(1) >= semester.substring(1)) || s === "S0") {
+                    if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) > semester.substring(1)) || s === "S0") {
                         continue;
                     }
                     for (let k = 0; k < req.user.grades[t][s].length; k++) {
@@ -55,7 +56,7 @@ module.exports = function (app, passport) {
                     appearance: JSON.stringify(req.user.appearance),
                     alerts: JSON.stringify(Object.assign(req.user.alerts, {lastUpdated: req.user.alerts.lastUpdated.slice(-1)})),
                     gradeSync: !!req.user.schoolPassword,
-                    gradeData: JSON.stringify(req.user.grades[term][semester]),
+                    gradeData: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter))),
                     weightData: JSON.stringify(req.user.weights[term][semester]),
                     addedAssignments: JSON.stringify(req.user.addedAssignments[term][semester]),
                     gradeHistory: JSON.stringify(gradeHistoryLetters),
@@ -64,7 +65,8 @@ module.exports = function (app, passport) {
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     betaFeatures: JSON.stringify(req.user.betaFeatures),
                     termsAndSemesters: JSON.stringify(Object.keys(req.user.grades).map(x => [x, Object.keys(req.user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
-                    dst: isDST()
+                    dst: isDST(),
+                    _: _
                 });
             } else {
                 res.render("authorized_index.ejs", {
@@ -85,7 +87,8 @@ module.exports = function (app, passport) {
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     betaFeatures: JSON.stringify(req.user.betaFeatures),
                     termsAndSemesters: JSON.stringify([]),
-                    dst: isDST()
+                    dst: isDST(),
+                    _: _
                 });
             }
             return;
@@ -118,9 +121,13 @@ module.exports = function (app, passport) {
         }
         let regularize = req.body.regularizeClassGraphs === "on";
         authenticator.setRegularizeClassGraphs(req.user.username, regularize);
-        let weightedGPA = req.body.weightedGPA === "on";
-        authenticator.setWeightedGPA(req.user.username, weightedGPA);
         res.sendStatus(200);
+    });
+
+    app.post("/weightedGPA", [isLoggedIn], (req, res) => {
+        let weightedGPA = req.body.weightedGPA === "true";
+        authenticator.setWeightedGPA(req.user.username, weightedGPA);
+        res.redirect(req.headers.referer);
     });
 
     app.get("/viewuser", [isAdmin], (req, res) => {
@@ -168,7 +175,7 @@ module.exports = function (app, passport) {
                     appearance: JSON.stringify(user.appearance),
                     alerts: JSON.stringify(Object.assign(user.alerts, {lastUpdated: user.alerts.lastUpdated.slice(-1)})),
                     gradeSync: !!user.schoolPassword,
-                    gradeData: JSON.stringify(user.grades[term][semester]),
+                    gradeData: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter))),
                     weightData: JSON.stringify(user.weights[term][semester]),
                     addedAssignments: JSON.stringify(user.addedAssignments[term][semester]),
                     gradeHistory: JSON.stringify(gradeHistoryLetters),
@@ -176,8 +183,9 @@ module.exports = function (app, passport) {
                     sortingData: JSON.stringify(user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     betaFeatures: JSON.stringify(user.betaFeatures),
-                    termsAndSemesters: JSON.stringify(Object.keys(req.user.grades).map(x => [x, Object.keys(req.user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
-                    dst: isDST()
+                    termsAndSemesters: JSON.stringify(Object.keys(user.grades).map(x => [x, Object.keys(user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
+                    dst: isDST(),
+                    _: _
                 });
             } else {
                 res.render("authorized_index.ejs", {
@@ -198,7 +206,8 @@ module.exports = function (app, passport) {
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     betaFetaures: JSON.stringify(user.betaFeatures),
                     termsAndSemesters: JSON.stringify([]),
-                    dst: isDST()
+                    dst: isDST(),
+                    _: _
                 });
             }
             return;
@@ -288,8 +297,7 @@ module.exports = function (app, passport) {
             deletedUserList: deletedUsers,
             adminSuccessMessage: req.flash("adminSuccessMessage"),
             adminFailMessage: req.flash("adminFailMessage"),
-            sessionTimeout: Date.parse(req.session.cookie._expires),
-            dst: isDST(),
+            sessionTimeout: Date.parse(req.session.cookie._expires), dst: isDST()
         });
     });
 
@@ -297,10 +305,11 @@ module.exports = function (app, passport) {
         let resp = authenticator.checkUpdateBackground(req.user.username);
         let user = authenticator.getUser(req.user.username);
         let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
-        if (term && semester) {
+        if (term && semester && resp.message === "Sync Complete!") {
             res.status(200).send({
                                      message: resp.message,
                                      grades: JSON.stringify(user.grades[term][semester]),
+                                     weights: JSON.stringify(user.weights[term][semester]),
                                      time: user.alerts.lastUpdated.slice(-1)[0]
                                  });
         } else {
@@ -401,9 +410,7 @@ module.exports = function (app, passport) {
     // show the signup form
     app.get("/signup", (req, res) => {
         res.render("signup.ejs", {
-            message: req.flash("signupMessage"),
-            needsBeta: server.needsBetaKeyToSignUp,
-            dst: isDST(),
+            message: req.flash("signupMessage"), needsBeta: server.needsBetaKeyToSignUp, dst: isDST()
         });
     });
 
@@ -570,7 +577,7 @@ module.exports = function (app, passport) {
         } else {
             req.session.returnTo = req.originalUrl;
             res.render("final_grade_calculator_logged_out.ejs", {
-                dst: isDST(),
+                dst: isDST()
             });
         }
 
@@ -598,8 +605,7 @@ module.exports = function (app, passport) {
             darkModeStart: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeStart),
             darkModeFinish: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeFinish),
             page: "keys",
-            sessionTimeout: Date.parse(req.session.cookie._expires),
-            dst: isDST(),
+            sessionTimeout: Date.parse(req.session.cookie._expires), dst: isDST()
         });
 
     });
@@ -654,8 +660,7 @@ module.exports = function (app, passport) {
             theme: JSON.stringify(authenticator.getUser(req.user.username).appearance.theme),
             darkModeStart: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeStart),
             darkModeFinish: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeFinish),
-            sessionTimeout: Date.parse(req.session.cookie._expires),
-            dst: isDST(),
+            sessionTimeout: Date.parse(req.session.cookie._expires), dst: isDST()
         });
     });
 
@@ -705,7 +710,7 @@ module.exports = function (app, passport) {
 
     // password reset
 
-    app.get('/reset_password', (req, res) => {
+    app.get("/reset_password", (req, res) => {
 
         let resetToken = req.query.token;
 
@@ -721,42 +726,41 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.post('/reset_password', (req, res) => {
+    app.post("/reset_password", (req, res) => {
 
         let resetToken = req.body.token;
         if (!resetToken) {
-            res.redirect('/')
-            return
+            res.redirect("/");
+            return;
         }
 
         let newPass = req.body.password;
         let resp = authenticator.resetPassword(resetToken, newPass);
         if (!resp.success && resp.message === "Invalid token.") {
-            res.status(404).render('password_reset/reset_password_404.ejs', {dst: isDST()});
-            return
+            res.status(404).render("password_reset/reset_password_404.ejs", {dst: isDST()});
+            return;
         }
         if (!resp.success) {
-            req.flash('resetPasswordMsg', resp.message);
-            res.redirect('/reset_password?token=' + resetToken);
-            return
+            req.flash("resetPasswordMsg", resp.message);
+            res.redirect("/reset_password?token=" + resetToken);
+            return;
         }
-        res.render('password_reset/reset_password_success.ejs', {dst: isDST()})
+        res.render("password_reset/reset_password_success.ejs", {dst: isDST()});
 
     });
 
-    app.get('/forgot_password', (req, res) => {
+    app.get("/forgot_password", (req, res) => {
         // dont allow while logged in
         if (req.user) {
-            res.redirect('/');
-            return
+            res.redirect("/");
+            return;
         }
-        res.status(200).render('password_reset/forgot_password.ejs', {
-            message: req.flash('forgotPasswordMsg'),
-            dst: isDST(),
+        res.status(200).render("password_reset/forgot_password.ejs", {
+            message: req.flash("forgotPasswordMsg"), dst: isDST()
         });
     });
 
-    app.post('/forgot_password', (req, res) => {
+    app.post("/forgot_password", (req, res) => {
         let email = req.body.email;
         let resp = authenticator.resetPasswordRequest(email);
 
@@ -768,7 +772,7 @@ module.exports = function (app, passport) {
         }
         req.flash("forgotPasswordMsg", "If the email address you entered is associated with an account, you should receive an email containing a link to reset your password. Please make sure to check your spam folder. If you run into any issues, contact <b><a href='mailto:support@graderoom.me'>support@graderoom.me</a></b>.");
         res.redirect("/forgot_password");
-    })
+    });
 
 
     // general web app

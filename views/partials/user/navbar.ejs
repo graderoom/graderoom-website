@@ -239,7 +239,11 @@
                     setupLastUpdated();
                 } else if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
                     $(formMessagesDiv).find(".sk-chase-mini").hide();
-                    let newData = {grades: response.grades, lastUpdated: response.time};
+                    let newData = {
+                        grades: JSON.parse(response.grades),
+                        weights: JSON.parse(response.weights),
+                        lastUpdated: response.time
+                    };
                     clearTimeout(checkLastUpdated);
                     if (!updateData(newData).updated) {
                         $(formMessagesDiv).find(".messageTxt").text(msg + "Refresh to see the latest updates.");

@@ -258,20 +258,6 @@
                                     Show Non-Academic Classes
                                 </label>
                             </label>
-                            <label class="slider-container">
-                                <label class="switch">
-                                    <input id="weightedGPACheckbox" type="checkbox" name="weightedGPA"
-                                    <% if (JSON.parse(appearance).weightedGPA) { %>
-                                           checked="checked"
-                                            <% } %>
-                                           onchange="$('#advancedSubmit').prop('disabled', $(this).prop('checked') === appearance.weightedGPA)"
-                                    >
-                                    <span class="slider"></span>
-                                </label>
-                                <label for="weightedGPACheckbox">
-                                    Show Weighted GPA
-                                </label>
-                            </label>
                             <button id="advancedSubmit" class="btn-default btn btn-sm" type="submit"
                                     onclick="ajaxPostForm('#advancedAppearance',[],'',true,reload=true)"
                                     disabled>
@@ -470,20 +456,16 @@
                             </button>
                         </div>
                     </form>
-                    <div class="card-footer">
-                        <% if (JSON.parse(betaFeatures).active) { %>
-                            <form action="/leavebeta" method="post">
-                                <button class="btn btn-sm" type="submit">Leave the beta</button>
-                            </form>
-                        <% } else { %>
+                    <% if (!JSON.parse(betaFeatures).active) { %>
+                        <div class="card-footer">
                             <button class="btn btn-sm" style="margin: 0.1rem"
                                     onclick="showCard('#activateBetaDisplay');">
                                 <label style="margin: 0; cursor: pointer;">Open Beta Activation Panel
                                     <span class="fa fa-external-link-square"></span>
                                 </label>
                             </button>
-                        <% } %>
-                    </div>
+                        </div>
+                    <% } %>
                 </div>
             </div>
             <div id="settings-3" class="tabcontent">
@@ -642,6 +624,9 @@
                                     Disabled: Default
                                 </small>
                             </div>
+                        </form>
+                        <form action="/leavebeta" method="post">
+                            <button class="btn btn-sm" type="submit">Leave the beta</button>
                         </form>
                     </div>
                 </div>
