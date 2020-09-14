@@ -1316,6 +1316,7 @@ module.exports = {
                         betaResultHTML += " current";
                         betaCurrentVersionFound = true;
                     }
+                    resultHTML += "\">";
                     betaResultHTML += "\">";
                 } else if (items[i].title.substring(0, 6) === "Stable") {
                     if (!currentVersionFound) {
