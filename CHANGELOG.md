@@ -40,9 +40,16 @@
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
-## [Known Issues] - Nothing Yet
-- <em>Send bug reports in Settings > Help > Feedback Form</em>
-- <em>Only issues in the stable version will be listed here</em>
+## [Known Issues] - <em>Send bug reports in Settings > Help > Feedback Form</em><br><em>Only issues in the stable version will be listed here</em>
+- Assignments from PowerSchool with the same due date are sometimes displayed in a different order than on PowerSchool
+
+## [Stable 3.0.4] - 2020-09-14
+### Improved
+- [Beta] All beta features are enabled by default when a user joins the beta
+
+### Fixed
+- Issue where grades could not be manually synced
+- [Beta] Issue where old data would not update correctly
 
 ## [Stable 3.0.3] - 2020-09-03
 ### Improved
