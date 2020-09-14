@@ -22,6 +22,9 @@ let versionNameArray = [];
 // Update this list with new tutorial keys
 let tutorialKeys = ["calcSeen", "helpSeen", "changelogLegendSeen", "homeSeen", "navinfoSeen"];
 
+// Update this list with new beta features
+let betaFeatureKeys = ["showTermSwitcher"];
+
 module.exports = {
 
     backupdb: function () {
@@ -127,10 +130,11 @@ module.exports = {
         userRef.get("appearance").set("weightedGPA", value).write();
     },
 
-    joinBeta: function (username, remoteAccess) {
+    joinBeta: function (username) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         userRef.get("betaFeatures").set("active", true).write();
+        betaFeatureKeys.forEach(feature => userRef.get("betaFeatures").set(feature, true).write());
     },
 
     addBetaFeature: function (username, features) {
@@ -138,7 +142,9 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         userRef.set("betaFeatures", {active: true}).write();
         Object.keys(features).forEach(feature => {
-            userRef.get("betaFeatures").set(feature, true).write();
+            if (betaFeatureKeys.includes(feature)) {
+                userRef.get("betaFeatures").set(feature, true).write();
+            }
         });
     },
 
@@ -156,7 +162,7 @@ module.exports = {
     /* user functions
      */
 
-    updateAllDB: function () {
+    updateAllDB: function (beta = false) {
         let startTime = Date.now();
         console.log("" + startTime + " | Started Database Update");
 
@@ -169,7 +175,7 @@ module.exports = {
 
         for (let i = 0; i < users.length; i++) {
             console.log("" + Date.now() + " | Updating User: " + (i + 1) + " of " + users.length);
-            this.updateDB(users[i].username);
+            this.updateDB(users[i].username, beta);
         }
 
         //Update classes to include suggestions key
@@ -194,14 +200,14 @@ module.exports = {
 
         let endTime = Date.now();
         console.log("" + endTime + " | Database Updated in " + (endTime - startTime) + "ms");
-    }, updateDB: function (username) {
+    }, updateDB: function (username, beta = false) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
 
         // Add betaFeatures activation
         if (!userRef.get("betaFeatures").value()) {
-            userRef.set("betaFeatures", {"active": false}).write();
+            userRef.set("betaFeatures", {"active": beta}).write();
         }
 
         // Add weightedGPA option
@@ -879,6 +885,20 @@ module.exports = {
                     for (let j = 0; j < semesters.length; j++) {
                         if (!current_semesters.includes(semesters[j])) {
                             userRef.get("grades").get(years[i]).set(semesters[j], grade_history_update_status.new_grades[years[i]][semesters[j]]).write();
+                        } else {
+                            let classes = grade_history_update_status.new_grades[years[i]][semesters[j]];
+                            for (let k = 0; k < classes.length; k++) {
+                                let oldRef = userRef.get("grades").get(years[i]).get(semesters[j]).find({class_name: classes[k].class_name}).value();
+                                if (!oldRef) {
+                                    let temp = userRef.get("grades").get(years[i]).get(semesters[j]).value();
+                                    temp = temp.splice(k, 0, grade_history_update_status.new_grades[years[i]][semesters[j]][k]);
+                                } else if (classes[k].grades.length) {
+                                    oldRef = grade_history_update_status.new_grades[years[i]][semesters[j]][k];
+                                } else {
+                                    oldRef.overall_percent = grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_percent;
+                                    oldRef.overall_letter = grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_letter;
+                                }
+                            }
                         }
                     }
                 }
@@ -1448,8 +1468,7 @@ module.exports = {
                 let classes = reference[years[i]][semesters[j]].map(d => d.class_name);
                 for (let k = 0; k < classes.length; k++) {
                     temp[years[i]][semesters[j]][classes[k]] = current[years[i]] ? current[years[i]][semesters[j]] ? current[years[i]][semesters[j]][classes[k]] || {
-                        weights: {},
-                        hasWeights: false
+                        weights: {}, hasWeights: false
                     } : {weights: {}, hasWeights: false} : {weights: {}, hasWeights: false};
                 }
             }

@@ -218,9 +218,7 @@
                    }).done(function (response) {
                 // Special behavior for class colors.
                 let msg = "";
-                if (response.message && response.message.substring(0, 19) === "GradeSync Enabled. ") {
-                    msg = response.message.substring(0, 19);
-                    response.message = response.message.substring(19);
+                if (response.gradeSyncEnabled) {
                     $("#syncGradesDiv").hide();
                     $("#gradeSyncDiv").show();
                     $("#gradeSyncEnabled").show();

@@ -395,7 +395,7 @@ module.exports = function (app, passport) {
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
-            res.status(400).send(resp.messgae);
+            res.status(400).send(resp.message);
         }
     });
 
@@ -492,12 +492,20 @@ module.exports = function (app, passport) {
                         return;
                     }
                     res.status(200).send({
-                                             message: "GradeSync Enabled. " + resp.message,
-                                             grades: resp.grades[term][semester],
+                                             gradeSyncEnabled: true,
+                                             message: resp.message,
+                                             grades: JSON.stringify(resp.grades[term][semester]),
+                                             weights: JSON.stringify(req.user.weights[term][semester]),
                                              time: resp.time
                                          });
                 } else {
-                    res.status(200).send({message: resp.message, grades: resp.grades[term][semester], time: resp.time});
+                    res.status(200).send({
+                                             gradeSyncEnabled: false,
+                                             message: resp.message,
+                                             grades: JSON.stringify(resp.grades[term][semester]),
+                                             weights: JSON.stringify(req.user.weights[term][semester]),
+                                             time: resp.time
+                                         });
                 }
             } else {
                 res.status(200).send({message: resp.message});
