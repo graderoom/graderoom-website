@@ -55,7 +55,19 @@ th {
 }
 
 .blurred-background {
-    background-color: #000000 !important;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.range-picker {
+    background-color: #555555;
+}
+
+.range-picker::-webkit-slider-thumb {
+    background-color: #FFFFFF;
+}
+
+.range-picker::-moz-range-thumb {
+    background: #FFFFFF;
 }
 
 .btn {

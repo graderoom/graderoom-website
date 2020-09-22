@@ -1,6 +1,5 @@
 <!-- Settings Card -->
-<div class="blurred-login" id="settingsCardDisplay"
-     style="position:fixed; display:none; height: 100%; width: 100%; top: 0; left: 0; z-index: 1">
+<div class="blurred-login" id="settingsCardDisplay">
     <div class="blurred-background"></div>
     <div class="col-sm-11 col-md-10 col-lg-9 col-xl-6 mx-auto">
         <div id="settingsCard" class="card card-signin my-5" style="padding-bottom: 1rem">
@@ -25,6 +24,37 @@
             </div>
             <div id="settings-1" class="tabcontent" style="display: block">
                 <div class="card-body">
+                    <% if (JSON.parse(betaFeatures).blurEffects) { %>
+                        <div class="card-footer">
+                            <h5>[Beta] Blur Settings</h5>
+                            <label>Drag the slider to adjust the intensity of blur effects.</label>
+                            <form id="blur-range-picker-form" action="/blurSettings" method="post"
+                                  class="range-picker-container">
+                                1<input id="blur-range-picker"
+                                        name="blur-amount"
+                                        oninput="$('#svg-blur-settings feGaussianBlur').attr('stdDeviation',$(this).val())"
+                                        type="range" min="1" max="10"
+                                        value="<%= JSON.parse(appearance).blurAmount || 4; %>" step="1"
+                                        class="range-picker"
+                                        style="margin: 0 1rem;">10
+                                <button class="btn btn-md">
+                                    Apply
+                                </button>
+                            </form>
+                            <p>Here is some sample unblurred text. The next line contains text blurred based on the
+                                intensity you set
+                            </p>
+                            <p style="filter: url('#svg-blur-settings')">
+                                Here is some sample blurred text. You most likely can't read this, but if you can, hi!
+                            </p>
+                            <svg id="svg-filter-settings" style="position: absolute">
+                                <filter id="svg-blur-settings">
+                                    <feGaussianBlur in="SourceGraphic"
+                                                    stdDeviation="<%= JSON.parse(appearance).blurAmount || 4; %>"></feGaussianBlur>
+                                </filter>
+                            </svg>
+                        </div>
+                    <% } %>
                     <% if (JSON.parse(gradeData).length > 0) { %>
                         <div class="card-footer">
                             <h5>Color Scheme
@@ -602,6 +632,7 @@
                                 features are officially released. We will continue to add more features as time goes on.
                             </p>
                         </div>
+                        <br>
                         <form id="betaFeatures" action="/betaFeatures" method="post">
                             <div class="card-footer">
                                 <label class="slider-container">
@@ -620,6 +651,31 @@
                                 </label>
                                 <small>
                                     Enabled: Adds an additional navigation bar to view older grade data
+                                </small>
+                                <br>
+                                <small>
+                                    Disabled: Default
+                                </small>
+                            </div>
+                            <div class="card-footer">
+                                <label class="slider-container">
+                                    <label style="margin-left: 0;" for="blurEffects">
+                                        Enable improved blurring effects
+                                    </label>
+                                    <label class="switch">
+                                        <input id="blurEffects" type="checkbox" name="blurEffects"
+                                        <% if (JSON.parse(betaFeatures).blurEffects) { %>
+                                               checked="checked"
+                                                <% } %>
+                                               onchange="$($(this)[0].form).submit()"
+                                        >
+                                        <span class="slider"></span>
+                                    </label>
+                                </label>
+                                <small>
+                                    Enabled: Adds blur and translusency effects across the site.<br>
+                                    You can change the blur amount in Appearance settings<br>
+                                    <span style="color: red">[WARNING: Causes lag on slower devices]</span>
                                 </small>
                                 <br>
                                 <small>

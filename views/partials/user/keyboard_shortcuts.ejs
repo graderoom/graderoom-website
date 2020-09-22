@@ -1,6 +1,5 @@
 <!-- Keyboard Shortcuts Card -->
-<div class="blurred-login" id="shortcutsDisplay"
-     style="position:fixed; display:none; height: 100%; width: 100%; top: 0; left: 0; z-index: 1">
+<div class="blurred-login" id="shortcutsDisplay">
     <div class="blurred-background"></div>
     <div class="col-sm-11 col-md-10 col-lg-9 col-xl-8 mx-auto">
         <div id="latestCard" class="card card-signin my-5">
@@ -52,6 +51,13 @@
                             <label style="margin-bottom: 0; margin-left: auto; text-align: right">Add an assignment to
                                 the displayed class</label>
                         </div>
+                        <% if (JSON.parse(betaFeatures).active) { %>
+                            <div style="display: flex" class="card-footer">
+                                <label class="key-display">B</label>
+                                <label style="margin-bottom: 0; margin-left: auto; text-align: right">Open the Beta Tab
+                                    of Settings</label>
+                            </div>
+                        <% } %>
                     </div>
                 </div>
             </div>
