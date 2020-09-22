@@ -124,6 +124,11 @@ module.exports = function (app, passport) {
         res.sendStatus(200);
     });
 
+    app.post("/blurSettings", [isLoggedIn], (req, res) => {
+        authenticator.setBlurAmount(req.user.username, req.body["blur-amount"]);
+        res.redirect("/");
+    });
+
     app.post("/weightedGPA", [isLoggedIn], (req, res) => {
         let weightedGPA = req.body.weightedGPA === "true";
         authenticator.setWeightedGPA(req.user.username, weightedGPA);
@@ -154,7 +159,7 @@ module.exports = function (app, passport) {
                 let t = Object.keys(user.grades)[i];
                 for (let j = 0; j < Object.keys(user.grades[t]).length; j++) {
                     let s = Object.keys(user.grades[t])[j];
-                    if ((t.substring(0, 2) >= term.substring(0, 2) && s.substring(1) >= semester.substring(1)) || s === "S0") {
+                    if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) > semester.substring(1)) || s === "S0") {
                         continue;
                     }
                     for (let k = 0; k < user.grades[t][s].length; k++) {

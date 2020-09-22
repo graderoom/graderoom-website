@@ -429,12 +429,13 @@
                 $(this).parent().css("z-index", cardsDisplayed.indexOf($($(this).parent())[0].id) + minCardZIndex);
             }
         });
-        $(id).fadeIn(500);
+        $(id).fadeIn(100);
         if (id === "#settingsCardDisplay") {
             $($("#school_email").val(schoolUsername).parents(".input-group")[0].nextElementSibling).prop("disabled", true);
             checkLabel($("#school_email"));
             openTab(currentTab);
             updateTutorialProgress();
+            $('#blur-range-picker').val(appearance.blurAmount || 4);
         }
         if (id === "#feedbackDisplay") {
             setupFeedbackForm();

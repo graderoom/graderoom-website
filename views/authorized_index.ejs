@@ -32,6 +32,14 @@
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.7"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js"></script>
+
+    <% if (JSON.parse(betaFeatures).blurEffects) { %>
+        <style>
+            .blurred-background {
+                backdrop-filter: url(#svg-blur);
+            }
+        </style>
+    <% } %>
 </head>
 <body>
 
@@ -86,7 +94,7 @@
                 <span></span>
             </div>
             <% if (JSON.parse(betaFeatures).showTermSwitcher) { %>
-                <div id="termSwitcher">
+                <div id="termSwitcher" class="blurred-background">
                     <% for (let i = 0; i < JSON.parse(termsAndSemesters).length; i++) { %>
                         <div id="<%= JSON.parse(termsAndSemesters)[i][0] %>"><%= JSON.parse(termsAndSemesters)[i][0] %>
 
@@ -2685,6 +2693,18 @@
                         showCard("#settingsCardDisplay");
                         openTab(3);
                     }
+                    <% if (JSON.parse(betaFeatures).active) { %>
+                } else if (e.key === "b") {
+                    if (cardsDisplayed.includes("settingsCardDisplay")) {
+                        if (cardsDisplayed.indexOf("settingsCardDisplay") !== cardsDisplayed.length - 1) {
+                            showCard("#settingsCardDisplay");
+                        }
+                        openTab(5);
+                    } else {
+                        showCard("#settingsCardDisplay");
+                        openTab(5);
+                    }
+                    <% } %>
                 } else {
                     //console.log(e.code);
                 }
@@ -2958,3 +2978,13 @@
 </script>
 </body>
 </html>
+<!-- SVG Blur Filter -->
+<!-- 'stdDeviation' is the blur amount applied -->
+<% if (JSON.parse(betaFeatures).blurEffects) { %>
+    <svg id="svg-filter" style="position: absolute">
+        <filter id="svg-blur">
+            <feGaussianBlur in="SourceGraphic"
+                            stdDeviation="<%= JSON.parse(appearance).blurAmount || 4 ;%>"></feGaussianBlur>
+        </filter>
+    </svg>
+<% } %>

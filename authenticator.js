@@ -23,7 +23,7 @@ let versionNameArray = [];
 let tutorialKeys = ["calcSeen", "helpSeen", "changelogLegendSeen", "homeSeen", "navinfoSeen"];
 
 // Update this list with new beta features
-let betaFeatureKeys = ["showTermSwitcher"];
+let betaFeatureKeys = ["showTermSwitcher", "blurEffects"];
 
 module.exports = {
 
@@ -1544,6 +1544,12 @@ module.exports = {
         user.unset("passwordResetToken").write();
 
         return {success: true, message: "Password updated."};
+    },
+
+    setBlurAmount: function (username, blurAmount) {
+        let user = db.get("users").find({username: username.toLowerCase()});
+        user.get("appearance").set("blurAmount", blurAmount).write();
+        return {success: true, message: "blurAmount updated"};
     }
 
 };
