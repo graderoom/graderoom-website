@@ -171,31 +171,29 @@ module.exports = {
             db.unset("versions").write();
         }
 
-        let users = db.get("users").value();
-
-        for (let i = 0; i < users.length; i++) {
-            console.log("" + Date.now() + " | Updating User: " + (i + 1) + " of " + users.length);
-            this.updateDB(users[i].username, beta);
-        }
-
-
         let classRef = db.get("classes");
         let classes = db.get("classes").value();
 
         //Migrate classes to semester system
-        if (!classes.hasOwnProperty("semesterized")){
-            classRef.set("semesterized",true).write();
-
+        if (!classes.hasOwnProperty("20-21")){
             //Clear Suggestions:
             for (let i = 0; i < Object.keys(classes).length; i++) {
                 let className = Object.keys(classes)[i];
                 for (let j = 1; j < Object.keys(classes[className]).length; j++) { //start at 1 to skip classType
-                    classes.get(className).get(teacherName).set("suggestions", []).write();
+                    let teacherName = Object.keys(classes[className])[j];
+                    classes[className][teacherName]["suggestions"] = [];
                 }
             }
 
             //Add current weights for all semesters
             db.set("classes", {"20-21": {"S1": classes}}).write();
+        }
+
+        let users = db.get("users").value();
+
+        for (let i = 0; i < users.length; i++) {
+            console.log("" + Date.now() + " | Updating User: " + (i + 1) + " of " + users.length);
+            this.updateDB(users[i].username, beta);
         }
 
         let endTime = Date.now();
@@ -462,7 +460,7 @@ module.exports = {
                     this.addWeightsSuggestion(lc_username, term, semester, className, teacherName, user.weights[term][semester][className]["hasWeights"], user.weights[term][semester][className]["weights"]);
 
                     //Set custom to not custom if it is same as classes db
-                    if (user.weights[term][semester][className]["custom"] && dbContainsClass(term, semeseter, className, teacherName)) {
+                    if (user.weights[term][semester][className]["custom"] && dbContainsClass(term, semester, className, teacherName)) {
                         user.weights[term][semester][className]["custom"] = isCustom({
                                                                                          "weights": user.weights[term][semester][className]["weights"],
                                                                                          "hasWeights": user.weights[term][semester][className]["hasWeights"]
@@ -592,25 +590,25 @@ module.exports = {
         }
 
         //delete any old suggestions for user
-        deleteUserSuggestion(lc_username, className, teacherName);
+        deleteUserSuggestion(lc_username, term, semester, className, teacherName);
 
-        let suggestionIndex = getSuggestionIndex(className, teacherName, {
+        let suggestionIndex = getSuggestionIndex(term, semester, className, teacherName, {
             "weights": modWeights, "hasWeights": hasWeights
         });
         if (suggestionIndex != -1) {
             //Add username to existing suggestion
-            classDb.get(className).get(teacherName).get("suggestions").nth(suggestionIndex).get("usernames").push(lc_username).write();
+            classDb.get(term).get(semester).get(className).get(teacherName).get("suggestions").nth(suggestionIndex).get("usernames").push(lc_username).write();
         } else {
             //Add suggestion if doesn't already exist
-            let classWeights = classDb.get(className).get(teacherName).get("weights").value();
-            let classHasWeights = classDb.get(className).get(teacherName).get("hasWeights").value();
+            let classWeights = classDb.get(term).get(semester).get(className).get(teacherName).get("weights").value();
+            let classHasWeights = classDb.get(term).get(semester).get(className).get(teacherName).get("hasWeights").value();
             //Test if same as class weights
             if (!compareWeights({"weights": classWeights, "hasWeights": classHasWeights}, {
                 "weights": modWeights, "hasWeights": hasWeights
             })) {
                 //Test if all weights are null
                 if (!Object.values(modWeights).every(x => x === null) || hasWeights == "false") {
-                    classDb.get(className).get(teacherName).get("suggestions").push({
+                    classDb.get(term).get(semester).get(className).get(teacherName).get("suggestions").push({
                                                                                         "usernames": [lc_username],
                                                                                         "weights": modWeights,
                                                                                         "hasWeights": hasWeights
@@ -1004,10 +1002,9 @@ module.exports = {
     addDbTerm: function (term, semester){
         let classesRef = db.get("classes");
         if (!Object.keys(classesRef.value()).includes(term)){
-            classesRef.set(term,{semester:{}}).write()
-        } else {
-            classesRef.get(term).set(semester,{}).write();
+            classesRef.set(term,{}).write()
         }
+        classesRef.get(term).set(semester,{}).write();
     },
 
     setColorPalette: function (username, preset) {
@@ -1616,30 +1613,30 @@ function dbContainsTerm(term, semester) {
     return false;
 }
 
-function getSuggestionIndex(class_name, teacher_name, weight) {
+function getSuggestionIndex(term, semester, class_name, teacher_name, weight) {
     // Returns index if suggestion with same weight found, else returns -1
     let classes = db.get("classes").value();
-    for (let i = 0; i < classes[class_name][teacher_name]["suggestions"].length; i++) {
-        if (compareWeights(weight, classes[class_name][teacher_name]["suggestions"][i])) {
+    for (let i = 0; i < classes[term][semester][class_name][teacher_name]["suggestions"].length; i++) {
+        if (compareWeights(weight, classes[term][semester][class_name][teacher_name]["suggestions"][i])) {
             return i;
         }
     }
     return -1;
 }
 
-function deleteUserSuggestion(username, class_name, teacher_name) {
+function deleteUserSuggestion(username, term, semester, class_name, teacher_name) {
     let lc_username = username.toLowerCase();
     let classes = db.get("classes").value();
     let classRef = db.get("classes");
-    for (let i = 0; i < classes[class_name][teacher_name]["suggestions"].length; i++) {
-        let usernames = classes[class_name][teacher_name]["suggestions"][i].usernames;
+    for (let i = 0; i < classes[term][semester][class_name][teacher_name]["suggestions"].length; i++) {
+        let usernames = classes[term][semester][class_name][teacher_name]["suggestions"][i].usernames;
         //remove user from list of usernames
         if (usernames.includes(lc_username)) {
-            classRef.get(class_name).get(teacher_name).get("suggestions").nth(i).get("usernames").pull(lc_username).write();
+            classRef.get(term).get(semester).get(class_name).get(teacher_name).get("suggestions").nth(i).get("usernames").pull(lc_username).write();
         }
         //remove suggestions if no other users suggested it
         if (usernames.length < 1) {
-            classRef.get(class_name).get(teacher_name).get("suggestions").pullAt(i).write();
+            classRef.get(term).get(semester).get(class_name).get(teacher_name).get("suggestions").pullAt(i).write();
         }
     }
 }

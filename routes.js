@@ -521,6 +521,9 @@ module.exports = function (app, passport) {
 
     });
 
+
+    //FIX THIS TO NOT LET ANY WEIGHTS BE EDITED CODED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     //must be called via client side ajax+js
     app.post("/updateweights", [isLoggedIn, inRecentTerm], async (req, res) => {
         let className = req.body.className;
@@ -537,12 +540,16 @@ module.exports = function (app, passport) {
         }
     });
 
+    //FIX THIS TO NOT BE HARD CODED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     app.post("/updateclassweights", [isAdmin], (req, res) => {
+        let term = "20-21" //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        let semester = "S1"; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         let className = req.body.className;
         let teacherName = req.body.teacherName;
         let hasWeights = req.body.hasWeights;
         let weights = req.body.weights;
-        let resp = authenticator.updateWeightsInClassDb(className, teacherName, hasWeights, weights);
+        let resp = authenticator.updateWeightsInClassDb(term, semester, className, teacherName, hasWeights, weights);
         if (resp.success) {
             res.status(200).send(resp);
         } else {
@@ -550,8 +557,14 @@ module.exports = function (app, passport) {
         }
     });
 
+    //FIX THIS TO NOT BE HARD CODED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     app.post("/updateclasstype", [isAdmin], (req, res) => {
-        let resp = authenticator.updateClassTypeInClassDb(req.body.className, req.body.classType);
+        let term = "20-21" //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        let semester = "S1"; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        let className = req.body.className;
+        let classType = req.body.classType;
+        let resp = authenticator.updateClassTypeInClassDb(term, semester, className, classType);
         if (resp.success) {
             res.status(200).send(resp);
         } else {
@@ -663,13 +676,15 @@ module.exports = function (app, passport) {
 
     });
 
+    //FIX THIS TO NOT BE HARD CODED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     app.get("/classes", [isAdmin], (req, res) => {
         let user = authenticator.getUser(req.user.username);
         res.render("classes.ejs", {
             user: req.user,
             userRef: JSON.stringify(user),
             page: "classes",
-            classData: authenticator.getAllClassData(),
+            classData: authenticator.getAllClassData()["20-21"]["S1"], //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             theme: JSON.stringify(authenticator.getUser(req.user.username).appearance.theme),
             darkModeStart: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeStart),
             darkModeFinish: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeFinish),
