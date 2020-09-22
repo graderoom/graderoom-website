@@ -43,6 +43,14 @@
 ## [Known Issues] - <em>Send bug reports in Settings > Help > Feedback Form</em><br><em>Only issues in the stable version will be listed here</em>
 - Assignments from PowerSchool with the same due date are sometimes displayed in a different order than on PowerSchool
 
+## [Beta 3.0.6] - 2020-09-21
+### Added
+- [Beta] Added blur effect option and blur effect settings
+
+## [Beta 3.0.5] - 2020-09-14
+### Fixed
+- Issue with some classes incorrectly included in GPA calculation [reported by <em>safwaank</em>]
+
 ## [Stable 3.0.4] - 2020-09-14
 ### Improved
 - [Beta] All beta features are enabled by default when a user joins the beta
