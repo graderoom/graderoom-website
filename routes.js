@@ -60,6 +60,8 @@ module.exports = function (app, passport) {
                     weightData: JSON.stringify(req.user.weights[term][semester]),
                     addedAssignments: JSON.stringify(req.user.addedAssignments[term][semester]),
                     gradeHistory: JSON.stringify(gradeHistoryLetters),
+                    //FIX TO MAKE getRelClassData work for multiple semesters!!! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     relevantClassData: JSON.stringify(authenticator.getRelClassData(req.user.username)),
                     sortingData: JSON.stringify(req.user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
@@ -522,7 +524,7 @@ module.exports = function (app, passport) {
     });
 
 
-    //FIX THIS TO NOT LET ANY WEIGHTS BE EDITED CODED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //FIX THIS TO LET ANY WEIGHTS BE EDITED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     //must be called via client side ajax+js
     app.post("/updateweights", [isLoggedIn, inRecentTerm], async (req, res) => {
