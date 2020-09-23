@@ -62,7 +62,7 @@ module.exports = function (app, passport) {
                     gradeHistory: JSON.stringify(gradeHistoryLetters),
                     //FIX TO MAKE getRelClassData work for multiple semesters!!! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    relevantClassData: JSON.stringify(authenticator.getRelClassData(req.user.username)),
+                    relevantClassData: JSON.stringify(authenticator.getRelClassData(req.user.username, term, semester)),
                     sortingData: JSON.stringify(req.user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     betaFeatures: JSON.stringify(req.user.betaFeatures),
@@ -186,7 +186,7 @@ module.exports = function (app, passport) {
                     weightData: JSON.stringify(user.weights[term][semester]),
                     addedAssignments: JSON.stringify(user.addedAssignments[term][semester]),
                     gradeHistory: JSON.stringify(gradeHistoryLetters),
-                    relevantClassData: JSON.stringify(authenticator.getRelClassData(req.query.usernameToRender)),
+                    relevantClassData: JSON.stringify(authenticator.getRelClassData(req.query.usernameToRender, term, semester)),
                     sortingData: JSON.stringify(user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     betaFeatures: JSON.stringify(user.betaFeatures),

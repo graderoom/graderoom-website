@@ -491,30 +491,33 @@ module.exports = {
         let semester = semesters[semesters.map(s => parseInt(s.substring(1))).reduce((maxIndex, semester, index, arr) => semester > arr[maxIndex] ? index : maxIndex, 0)];
         return {term: term, semester: semester};
     },
-    // getGlobalMostRecentTerm: function() {
-    // },
 
-    getRelClassData: function (username) {
+    getRelClassData: function (username, term, semester) {
         //TODO
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         let userClasses = [];
         for (let i = 0; i < Object.keys(userRef.get("grades").value()).length; i++) {
-            let term = Object.keys(userRef.get("grades").value())[i];
-            for (let j = 0; j < Object.keys(userRef.get("grades").value()[term]).length; j++) {
-                let semester = Object.keys(userRef.get("grades").value()[term])[j];
-                userRef.get("grades").get(term).get(semester).value().forEach(classRef => userClasses.push([classRef.class_name, classRef.teacher_name]));
+            let t = Object.keys(userRef.get("grades").value())[i];
+            for (let j = 0; j < Object.keys(userRef.get("grades").value()[t]).length; j++) {
+                let s = Object.keys(userRef.get("grades").value()[t])[j];
+                userRef.get("grades").get(t).get(s).value().forEach(classRef => userClasses.push([t, s, classRef.class_name, classRef.teacher_name]));
             }
         }
+        
         let classes = db.get("classes").value();
         let relClasses = {};
         for (let i = 0; i < userClasses.length; i++) {
-            relClasses[userClasses[i][0]] = {
-                "classType": classes[userClasses[i][0]]["classType"],
-                "weights": userClasses[i][1] ? classes[userClasses[i][0]][userClasses[i][1]]["weights"] : null,
-                "hasWeights": userClasses[i][1] ? classes[userClasses[i][0]][userClasses[i][1]]["hasWeights"] : null
-            };
+            //Give priority for data from target term & semester, in case class is in multiple semesters
+            if ((userClasses[i][0] === term && userClasses[i][1] === semester) || !relClasses.hasOwnProperty(userClasses[i][2])) {
+                relClasses[userClasses[i][2]] = {
+                    "classType": classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]]["classType"],
+                    "weights": userClasses[i][3] ? classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]][userClasses[i][3]]["weights"] : null,
+                    "hasWeights": userClasses[i][3] ? classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]][userClasses[i][3]]["hasWeights"] : null
+                };
+            }
         }
+        // console.log(relClasses);
         return relClasses;
     }, updateWeightsInClassDb: function (term, semester, className, teacherName, hasWeights, weights) {
         let classDb = db.get("classes");
