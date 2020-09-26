@@ -205,6 +205,14 @@ th {
     background: url(/public/resources/dark_mode/user.png) no-repeat left/23px 27px !important;
 }
 
+.form-group .graduation-bg {
+    background: url(/public/resources/dark_mode/graduation.png) no-repeat left/27px 23px !important;
+}
+
+.form-group .school-bg {
+    background: url(/public/resources/dark_mode/school.png) no-repeat left/28px 26px !important;
+}
+
 .mini:before {
     background-color: darkgreen !important;
 }
