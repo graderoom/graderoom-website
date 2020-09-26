@@ -493,6 +493,14 @@ table thead tr th:last-child {
     padding-left: 35px;
 }
 
+.form-group .graduation-bg {
+    padding-left: 35px;
+}
+
+.form-group .school-bg {
+    padding-left: 35px;
+}
+
 .input-group {
     margin-bottom: 2rem;
     position: relative;
