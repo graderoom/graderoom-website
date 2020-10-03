@@ -157,6 +157,20 @@ table thead tr th:last-child {
     border-right: none;
 }
 
+.class-table select {
+    max-width: 5rem;
+}
+
+.class-table .excludeToggle {
+    overflow: hidden;
+    max-width: 15vw;
+    word-break: break-word;
+}
+
+.class-table .excludeToggle label {
+    word-break: normal;
+}
+
 .class-table:not(#table-1) thead tr:first-child th:nth-last-child(2) {
     border-right: none;
 }
@@ -1074,6 +1088,10 @@ th {
     position: absolute;
     visibility: hidden;
     border-radius: 0 1rem 1rem 0 !important;
+}
+
+.toolTab:hover {
+    z-index: 19;
 }
 
 .toolTab .popup i.disabled span {
@@ -2147,12 +2165,6 @@ input:disabled {
 @media only screen and (max-width: 1191px) {
     .nav-username {
         transform: translateX(-50px);
-    }
-
-    .toolTab {
-        position: static;
-        width: min-content;
-        width: -moz-min-content;
     }
 }
 

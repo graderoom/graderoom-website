@@ -43,6 +43,24 @@
 ## [Known Issues] - <em>Send bug reports in Settings > Help > Feedback Form</em><br><em>Only issues in the stable version will be listed here</em>
 - Assignments from PowerSchool with the same due date are sometimes displayed in a different order than on PowerSchool
 
+## [Stable 3.1.0] - 2020-10-02
+### Added
+- Descriptions to mass modification buttons
+- [Beta] Added blur effect option and blur effect settings
+
+### Improved
+- Cumulative GPA now only includes past semesters
+- Table sizing has improved
+- Page no longer needs refresh when switching between weighted and unweighted GPAs
+- Hovering over a tooltab brings it above any overlapping tooltabs
+
+### Fixed
+- Issue where assignment scores were too accurate by default
+- Issue with cumulative GPA for students who had AP Calculus BC in 19-20 S2
+
+### Removed
+- Boundaries when zooming and panning graphs
+
 ## [Beta 3.0.6] - 2020-09-21
 ### Added
 - [Beta] Added blur effect option and blur effect settings
