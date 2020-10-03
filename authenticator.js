@@ -23,7 +23,7 @@ let versionNameArray = [];
 let tutorialKeys = ["calcSeen", "helpSeen", "changelogLegendSeen", "homeSeen", "navinfoSeen"];
 
 // Update this list with new beta features
-let betaFeatureKeys = ["showTermSwitcher"];
+let betaFeatureKeys = ["showTermSwitcher", "blurEffects"];
 
 module.exports = {
 
@@ -324,6 +324,11 @@ module.exports = {
             } else {
                 userRef.get("alerts").set("lastUpdated", [user.alerts.lastUpdated]).write();
             }
+        }
+
+        // Get back lastUpdated data
+        if (userRef.get("alerts").get("lastUpdated").value().length === 1 && userRef.get("updatedGradeHistory").value().length > 1) {
+            userRef.get("alerts").set("lastUpdated", userRef.get("updatedGradeHistory").value()).write();
         }
 
         // Add loggedIn vars
@@ -1544,6 +1549,12 @@ module.exports = {
         user.unset("passwordResetToken").write();
 
         return {success: true, message: "Password updated."};
+    },
+
+    setBlurAmount: function (username, blurAmount) {
+        let user = db.get("users").find({username: username.toLowerCase()});
+        user.get("appearance").set("blurAmount", blurAmount).write();
+        return {success: true, message: "blurAmount updated"};
     }
 
 };

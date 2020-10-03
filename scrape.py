@@ -442,6 +442,7 @@ class PowerschoolScraper:
         # function that takes a Powerschool assignment object and returns a Graderoom assignment object
         def stripper(info):
             if not "_assignmentsections" in info: return False
+            psaid = info["assignmentid"] # PowerSchool Assignment ID
             _data = info["_assignmentsections"][0]
             date = _data["duedate"].replace("-", "/")
             date = date[5:] + "/" + date[:4]
@@ -458,7 +459,7 @@ class PowerschoolScraper:
                 else:
                     points_gotten = False
                 if "scorepercent" in _data["_assignmentscores"][0]:
-                    grade_percent = _data["_assignmentscores"][0]["scorepercent"]
+                    grade_percent = round(_data["_assignmentscores"][0]["scorepercent"], 2)
                 else:
                     grade_percent = False
             else:
@@ -471,7 +472,8 @@ class PowerschoolScraper:
                 "exclude": exclude,
                 "points_possible": points_possible,
                 "points_gotten": points_gotten,
-                "grade_percent": grade_percent
+                "grade_percent": grade_percent,
+                "psaid": psaid
             }
 
         # input

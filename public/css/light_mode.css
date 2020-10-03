@@ -55,7 +55,19 @@ table thead tr th {
 }
 
 .blurred-background {
-    background-color: #FFFFFF !important;
+    background-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.range-picker {
+    background-color: #AAAAAA;
+}
+
+.range-picker::-webkit-slider-thumb {
+    background-color: #333333;
+}
+
+.range-picker::-moz-range-thumb {
+    background: #333333;
 }
 
 .btn {
@@ -216,6 +228,14 @@ table thead tr th {
 
 .form-group .user-bg {
     background: url(/public/resources/light_mode/user.png) no-repeat left/23px 27px !important;
+}
+
+.form-group .graduation-bg {
+    background: url(/public/resources/light_mode/graduation.png) no-repeat left/27px 23px !important;
+}
+
+.form-group .school-bg {
+    background: url(/public/resources/light_mode/school.png) no-repeat left/28px 26px !important;
 }
 
 .mini:before {

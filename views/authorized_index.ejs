@@ -32,6 +32,14 @@
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.7"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js"></script>
+
+    <% if (JSON.parse(betaFeatures).blurEffects) { %>
+        <style>
+            .blurred-background {
+                backdrop-filter: url(#svg-blur);
+            }
+        </style>
+    <% } %>
 </head>
 <body>
 
@@ -86,7 +94,7 @@
                 <span></span>
             </div>
             <% if (JSON.parse(betaFeatures).showTermSwitcher) { %>
-                <div id="termSwitcher">
+                <div id="termSwitcher" class="blurred-background">
                     <% for (let i = 0; i < JSON.parse(termsAndSemesters).length; i++) { %>
                         <div id="<%= JSON.parse(termsAndSemesters)[i][0] %>"><%= JSON.parse(termsAndSemesters)[i][0] %>
 
@@ -115,17 +123,17 @@
                     <div style="display: flex">
                         <div id="GPA-container">
                             <div id="weightedGPAToggle">
-                                <form action="/weightedGPA" method="post">
+                                <form id="weightedGPAForm" action="/weightedGPA" method="post">
                                     <input name="weightedGPA"
                                            value="<% if (JSON.parse(appearance).weightedGPA) { %>false<% } else { %>true<% } %>"
                                            style="display: none">
-                                    <button
+                                    <button onclick="ajaxPostForm('#weightedGPAForm',[],'',true)"
                                     <% if (JSON.parse(appearance).weightedGPA) { %> type="button"
                                             <% } %>
                                                                                     class="<% if (JSON.parse(appearance).weightedGPA) { %> active <% } %> btn">
                                         Weighted
                                     </button>
-                                    <button
+                                    <button onclick="ajaxPostForm('#weightedGPAForm',[],'',true)"
                                     <% if (!JSON.parse(appearance).weightedGPA) { %> type="button"
                                             <% } %>
                                                                                      class="<% if (!JSON.parse(appearance).weightedGPA) { %> active <% } %> btn">
@@ -150,7 +158,7 @@
                                                     style="margin-left: 0.4rem"><span
                                                         class="popup-right-top">Your cumulative GPA
                                                     is what shows up on your transcript. It does not include pe or
-                                                    summer classes. This cumulative GPA includes your current
+                                                    summer classes. This cumulative GPA does not include your current
                                                     semester.</span></i></span></h5>
                                     <h5 id="GPA-display-cumulative">----/----</h5>
                                 </div>
@@ -466,46 +474,88 @@
                                         <th class="compact">Assignment Percent</th>
                                         <th>Overall Grade</th>
                                         <th id="modAllTab<%= i + offset %>" class="toolTab">
-                                            <i id="resetAll<%= i + offset %>" class="fa fa-undo disabled"
-                                               onclick="{resetAll(this)}"></i>
-                                            <i id="trashAll<%= i + offset %>" class="fa fa-trash disabled"
-                                               onclick="{trashAll(this);}"></i>
-                                            <i id="saveAll<%= i + offset %>" class="fa fa-check disabled"
-                                               onclick="{saveAll(this);}"></i>
+                                            <span class="popup">
+                                                <i id="resetAll<%= i + offset %>" class="fa fa-undo disabled"
+                                                   onclick="{resetAll(this)}">
+                                                    <span class="popup-top-left">
+                                                        Revert ALL changes
+                                                    </span>
+                                                </i>
+                                            </span>
+                                            <span class="popup">
+                                                <i id="trashAll<%= i + offset %>" class="fa fa-trash disabled"
+                                                   onclick="{trashAll(this);}">
+                                                    <span class="popup-top-left">
+                                                        Delete ALL added assignments
+                                                    </span>
+                                                </i>
+                                            </span>
+                                            <span class="popup">
+                                                <i id="saveAll<%= i + offset %>" class="fa fa-check disabled"
+                                                   onclick="{saveAll(this);}">
+                                                    <span class="popup-top-left">
+                                                        Save ALL changes
+                                                    </span>
+                                                </i>
+                                            </span>
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
                             </table>
                         </div>
-                        <table class="table rounded-table class-table text-center categoryTable<%= i + offset; %>">
-                            <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].weights).length; j++) { %>
-                                <% let category = Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].weights)[j]; %>
-                                <thead class="categoryStart">
-                                    <% if (j > 0) { %>
-                                        <tr class="separator">
-                                            <td colspan="6"></td>
+                            <table class="table rounded-table class-table text-center categoryTable<%= i + offset; %>">
+                                <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].weights).length; j++) { %>
+                                    <% let category = Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].weights)[j]; %>
+                                    <thead class="categoryStart">
+                                        <% if (j > 0) { %>
+                                            <tr class="separator">
+                                                <td colspan="6"></td>
+                                            </tr>
+                                        <% } %>
+                                        <tr>
+                                            <th colspan="6"><%= category; %></th>
+                                            <th class="toolTab categoryModAllTab<%= i + offset %>">
+                                                <span class="popup">
+                                                    <i
+                                                            class="fa fa-undo resetCategory<%= i + offset %> disabled"
+                                                            onclick="{resetCategory(this)}">
+                                                        <span class="popup-top-left">
+                                                            Revert ALL changes in <span
+                                                                    class="tutorial-popup"><%= category; %></span>
+                                                        </span>
+                                                    </i>
+                                                </span>
+                                                <span class="popup">
+                                                    <i
+                                                            class="fa fa-trash trashCategory<%= i + offset %> disabled"
+                                                            onclick="{trashCategory(this);}"><span
+                                                                class="popup-top-left">
+                                                            Delete ALL added assignments in <span
+                                                                    class="tutorial-popup"><%= category; %></span>
+                                                        </span>
+                                                    </i>
+                                                </span>
+                                                <span class="popup">
+                                                    <i
+                                                            class="fa fa-check saveCategory<%= i + offset %> disabled"
+                                                            onclick="{saveCategory(this);}"><span
+                                                                class="popup-top-left">
+                                                            Save ALL changes in <span
+                                                                    class="tutorial-popup"><%= category; %></span>
+                                                        </span>
+                                                    </i>
+                                                </span>
+                                            </th>
                                         </tr>
-                                    <% } %>
-                                    <tr>
-                                        <th colspan="6"><%= category; %></th>
-                                        <th class="toolTab categoryModAllTab<%= i + offset %>">
-                                            <i class="fa fa-undo resetCategory<%= i + offset %> disabled"
-                                               onclick="{resetCategory(this)}"></i>
-                                            <i class="fa fa-trash trashCategory<%= i + offset %> disabled"
-                                               onclick="{trashCategory(this);}"></i>
-                                            <i class="fa fa-check saveCategory<%= i + offset %> disabled"
-                                               onclick="{saveCategory(this);}"></i>
-                                        </th>
-                                    </tr>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Assignment Name</th>
-                                        <th>Category</th>
-                                        <th>Score</th>
-                                        <th>Assignment Percent</th>
-                                        <th>Category Grade</th>
-                                    </tr>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Assignment Name</th>
+                                            <th>Category</th>
+                                            <th>Score</th>
+                                            <th>Assignment Percent</th>
+                                            <th>Category Grade</th>
+                                        </tr>
                                 </thead>
                                 <tbody>
                                 </tbody>
@@ -595,8 +645,14 @@
             let _data = JSON.parse(JSON.stringify(data)); // This is a local copy
             let addedAssignments = <%- addedAssignments; %>;
             let weights = <%- weightData; %>;
+            // Temp Fix
+            weights = Object.fromEntries(Object.entries(weights).filter(([className]) => className.slice(-1) !== " "));
             let relClassData = <%- relevantClassData; %>;
+            // Temp Fix
+            relClassData = Object.fromEntries(Object.entries(relClassData).filter(([className]) => className.slice(-1) !== " "));
             let gradeHistoryLetters = <%- gradeHistory; %>;
+            // Temp Fix
+            gradeHistoryLetters = gradeHistoryLetters.filter(className => Object.entries(className)[0][0].slice(-1) !== " ");
             let chartData = [];
             let parsedData = [];
             let categorySortedData = [];
@@ -872,7 +928,7 @@
                 let numClasses = gradeHistoryLetters.length;
                 for (let i = 0; i < gradeHistoryLetters.length; i++) {
                     let classType = relClassData[Object.keys(gradeHistoryLetters[i])[0]].classType;
-                    if (classType !== "non-academic" && Object.values(gradeHistoryLetters[i])[0] && Object.values(gradeHistoryLetters[i])[0] !== "CR") {
+                    if (classType !== "non-academic" && !([false, "CR", "W"]).includes(Object.values(gradeHistoryLetters[i])[0])) {
                         if (appearance.weightedGPA && (classType === "ap" || classType === "honors")) {
                             GPA += 1;
                             max += 1;
@@ -899,7 +955,7 @@
                         GPA += 1;
                         max += 1;
                     }
-                    if (_data[i].overall_letter && _data[i].overall_letter !== "CR") {
+                    if (!([false, "CR", "W"]).includes(_data[i].overall_letter)) {
                         GPA += getGPA(_data[i].overall_letter);
                         max += 4;
                     } else {
@@ -1799,7 +1855,7 @@
                             trashCategoryDivs = $(`.trashCategory${i}`);
                             saveCategoryDivs = $(`.saveCategory${i}`);
                             $(`#table${i}`).hide();
-                            $(`.categoryModAllTab${i}`).css("visibility", "hidden").children("i").addClass("disabled");
+                            $(`.categoryModAllTab${i}`).css("visibility", "hidden").children("span").children("i").addClass("disabled");
                             $(`.categoryTable${i}`).show();
                         } else {
                             // Data
@@ -1905,7 +1961,7 @@
 
                             // Set up visuals
                             $(`.categoryTable${i}`).hide();
-                            $(`#modAllTab${i}`).css("visibility", "hidden").children("i").addClass("disabled");
+                            $(`#modAllTab${i}`).css("visibility", "hidden").children("span").children("i").addClass("disabled");
                             $(`#table${i}`).removeClass("unround-top-right").show();
                         }
                         // Rows
@@ -2435,10 +2491,6 @@
                                     }, onZoomComplete: ({chart}) => {
                                         chart.options.hover.mode = "nearest";
                                         chart.options.tooltips.enabled = true;
-                                    }, rangeMin: {
-                                        y: 0
-                                    }, rangeMax: {
-                                        y: 150
                                     }
                                 }, pan: {
                                     enabled: true, mode: "y", speed: 0.05, onPan: ({chart}) => {
@@ -2540,10 +2592,6 @@
                                         }, onZoomComplete: ({chart}) => {
                                             chart.options.hover.mode = "nearest";
                                             chart.options.tooltips.enabled = true;
-                                        }, rangeMin: {
-                                            y: 0
-                                        }, rangeMax: {
-                                            y: 150
                                         }
                                     }, pan: {
                                         enabled: true, mode: "y", speed: 0.05, onPan: ({chart}) => {
@@ -2685,6 +2733,18 @@
                         showCard("#settingsCardDisplay");
                         openTab(3);
                     }
+                    <% if (JSON.parse(betaFeatures).active) { %>
+                } else if (e.key === "b") {
+                    if (cardsDisplayed.includes("settingsCardDisplay")) {
+                        if (cardsDisplayed.indexOf("settingsCardDisplay") !== cardsDisplayed.length - 1) {
+                            showCard("#settingsCardDisplay");
+                        }
+                        openTab(5);
+                    } else {
+                        showCard("#settingsCardDisplay");
+                        openTab(5);
+                    }
+                    <% } %>
                 } else {
                     //console.log(e.code);
                 }
@@ -2958,3 +3018,13 @@
 </script>
 </body>
 </html>
+<!-- SVG Blur Filter -->
+<!-- 'stdDeviation' is the blur amount applied -->
+<% if (JSON.parse(betaFeatures).blurEffects) { %>
+    <svg id="svg-filter" style="position: absolute">
+        <filter id="svg-blur">
+            <feGaussianBlur in="SourceGraphic"
+                            stdDeviation="<%= JSON.parse(appearance).blurAmount || 4; %>"></feGaussianBlur>
+        </filter>
+    </svg>
+<% } %>

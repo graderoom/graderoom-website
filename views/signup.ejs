@@ -72,7 +72,6 @@
                         </span>
                     </div>
 
-                    <!-- TODO implement this in backend -->
                     <div style="display: none; align-items: center; flex-basis: content" id="personalInfo">
                         <div class="form-group input-group" style="filter: opacity(0.2)">
                             <i class="user-bg"></i>
@@ -497,7 +496,7 @@
     let emailDiv = $("#schoolEmail");
     let betaDiv = $("#betaKey");
     let signupBtn = $("#signupBtn");
-    let needsBeta = <%= needsBeta ;%>;
+    let needsBeta = <%= needsBeta; %>;
 
     function validateSignup() {
         if (!checkUsername(userDiv)) { // Invalid Username

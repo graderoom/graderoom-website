@@ -157,6 +157,20 @@ table thead tr th:last-child {
     border-right: none;
 }
 
+.class-table select {
+    max-width: 5rem;
+}
+
+.class-table .excludeToggle {
+    overflow: hidden;
+    max-width: 15vw;
+    word-break: break-word;
+}
+
+.class-table .excludeToggle label {
+    word-break: normal;
+}
+
 .class-table:not(#table-1) thead tr:first-child th:nth-last-child(2) {
     border-right: none;
 }
@@ -195,9 +209,18 @@ table thead tr th:last-child {
     background-color: rgba(255, 0, 0, 0.2) !important;
 }
 
+.blurred-login {
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    display: none;
+    width: 100%;
+    height: 100%;
+}
+
 .blurred-background {
     height: 100%;
-    opacity: 0.5;
     position: fixed;
     width: 100%;
 }
@@ -274,6 +297,10 @@ table thead tr th:last-child {
     max-height: 70vh;
     overflow-y: scroll;
     position: relative;
+}
+
+#changelog-container {
+    height: 70vh;
 }
 
 .changelog-container .added {
@@ -477,6 +504,14 @@ table thead tr th:last-child {
 }
 
 .form-group .key-bg {
+    padding-left: 35px;
+}
+
+.form-group .graduation-bg {
+    padding-left: 35px;
+}
+
+.form-group .school-bg {
     padding-left: 35px;
 }
 
@@ -1055,6 +1090,10 @@ th {
     border-radius: 0 1rem 1rem 0 !important;
 }
 
+.toolTab:hover {
+    z-index: 19;
+}
+
 .toolTab .popup i.disabled span {
     display: none !important;
 }
@@ -1108,11 +1147,12 @@ tbody tr {
 }
 
 #termSwitcher {
-    position: absolute;
+    position: fixed;
     z-index: 19;
     top: 50%;
     left: -6rem;
     width: 6rem;
+    height: unset;
     padding: 0.5rem;
     transition: all 400ms ease;
     transform: translateY(-50%);
@@ -1206,6 +1246,47 @@ tbody tr {
     transform: translateX(0);
     transition: 0.4s;
     width: 0.96rem;
+}
+
+.range-picker-container {
+    display: flex;
+    align-items: center;
+    width: 100%; /* Width of the outside container */
+}
+
+/* The slider itself */
+.range-picker {
+    width: 100%; /* Full-width */
+    height: 0.2rem; /* Specified height */
+    margin: 0.5rem 0;
+    -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+    transition: opacity .2s;
+    opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+    border-radius: 0.1rem;
+    outline: none; /* Remove outline */
+    -webkit-appearance: none; /* Override default CSS styles */
+    appearance: none;
+}
+
+/* Mouse-over effects */
+.range-picker:hover {
+    opacity: 1; /* Fully shown on mouse-over */
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.range-picker::-webkit-slider-thumb {
+    width: 1.1rem; /* Set a specific slider handle width */
+    height: 1.1rem; /* Slider handle height */
+    cursor: pointer; /* Cursor on hover */
+    border-radius: 50%;
+    -webkit-appearance: none; /* Override default look */
+    appearance: none;
+}
+
+.range-picker::-moz-range-thumb {
+    width: 25px; /* Set a specific slider handle width */
+    height: 25px; /* Slider handle height */
+    cursor: pointer; /* Cursor on hover */
 }
 
 label.disabled {
@@ -2084,12 +2165,6 @@ input:disabled {
 @media only screen and (max-width: 1191px) {
     .nav-username {
         transform: translateX(-50px);
-    }
-
-    .toolTab {
-        position: static;
-        width: min-content;
-        width: -moz-min-content;
     }
 }
 

@@ -55,7 +55,19 @@ th {
 }
 
 .blurred-background {
-    background-color: #000000 !important;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.range-picker {
+    background-color: #555555;
+}
+
+.range-picker::-webkit-slider-thumb {
+    background-color: #FFFFFF;
+}
+
+.range-picker::-moz-range-thumb {
+    background: #FFFFFF;
 }
 
 .btn {
@@ -191,6 +203,14 @@ th {
 
 .form-group .user-bg {
     background: url(/public/resources/dark_mode/user.png) no-repeat left/23px 27px !important;
+}
+
+.form-group .graduation-bg {
+    background: url(/public/resources/dark_mode/graduation.png) no-repeat left/27px 23px !important;
+}
+
+.form-group .school-bg {
+    background: url(/public/resources/dark_mode/school.png) no-repeat left/28px 26px !important;
 }
 
 .mini:before {

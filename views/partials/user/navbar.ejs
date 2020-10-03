@@ -161,7 +161,7 @@
         updateTutorial(id.substring(0, id.length - 5));
     });
 
-    function ajaxPostForm(formID, fieldIDsToClear, messagesDivID, async, reload = false) {
+    function ajaxPostForm(formID, fieldIDsToClear, messagesDivID, _async, reload = false) {
         // Get the form.
         let form = $(formID);
         $(form).submit(function (event) {
@@ -214,8 +214,21 @@
 
             // Submit the form using AJAX.
             $.ajax({
-                       type: "POST", url: $(form).attr("action"), data: formData, async: async
+                       type: "POST", url: $(form).attr("action"), data: formData, async: _async
                    }).done(function (response) {
+                if (formID === "#weightedGPAForm") {
+                    appearance.weightedGPA = !appearance.weightedGPA;
+                    $('#weightedGPAForm button').each(function () {
+                        $(this).toggleClass('active');
+                        if ($(this).prop('type') === 'submit') {
+                            $(this).prop('type', 'button');
+                        } else {
+                            $(this).prop('type', '');
+                        }
+                    });
+                    setupGPADisplays();
+                    return;
+                }
                 // Special behavior for class colors.
                 let msg = "";
                 if (response.gradeSyncEnabled) {
@@ -429,12 +442,13 @@
                 $(this).parent().css("z-index", cardsDisplayed.indexOf($($(this).parent())[0].id) + minCardZIndex);
             }
         });
-        $(id).fadeIn(500);
+        $(id).fadeIn(100);
         if (id === "#settingsCardDisplay") {
             $($("#school_email").val(schoolUsername).parents(".input-group")[0].nextElementSibling).prop("disabled", true);
             checkLabel($("#school_email"));
             openTab(currentTab);
             updateTutorialProgress();
+            $('#blur-range-picker').val(appearance.blurAmount || 4);
         }
         if (id === "#feedbackDisplay") {
             setupFeedbackForm();
