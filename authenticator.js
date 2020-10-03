@@ -326,6 +326,11 @@ module.exports = {
             }
         }
 
+        // Get back lastUpdated data
+        if (userRef.get("alerts").get("lastUpdated").value().length === 1 && userRef.get("updatedGradeHistory").value().length > 1) {
+            userRef.get("alerts").set("lastUpdated", userRef.get("updatedGradeHistory").value()).write();
+        }
+
         // Add loggedIn vars
         if (!Object.keys(user).includes("loggedIn") || userRef.get("loggedIn").value() === "never") {
             userRef.set("loggedIn", []).write();
