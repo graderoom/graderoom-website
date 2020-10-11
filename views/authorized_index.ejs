@@ -35,13 +35,28 @@
 
     <% if (JSON.parse(betaFeatures).blurEffects) { %>
         <style>
-            .blurred-background {
+            .blurred-background, .blur {
                 backdrop-filter: url(#svg-blur);
+            }
+
+            .blur {
+                background-color: transparent;
             }
         </style>
     <% } %>
 </head>
 <body>
+
+<!-- SVG Blur Filter -->
+<!-- 'stdDeviation' is the blur amount applied -->
+<% if (JSON.parse(betaFeatures).blurEffects) { %>
+    <svg id="svg-filter" style="position: absolute">
+        <filter id="svg-blur">
+            <feGaussianBlur in="SourceGraphic"
+                            stdDeviation="<%= JSON.parse(appearance).blurAmount || 4; %>"></feGaussianBlur>
+        </filter>
+    </svg>
+<% } %>
 
 <% if (JSON.parse(alerts).policyLastSeen === "never" || JSON.parse(alerts).termsLastSeen === "never") { %>
 
@@ -93,8 +108,12 @@
                 <i class="fa fa-arrow-left"></i>
                 <span></span>
             </div>
+            <div style="display:none; width: fit-content; width: -moz-fit-content; margin: 0 auto;" id="oldSemesterMsg"
+                 class="alert alert-info text-center font-weight-bold">At the moment, this
+                semester is view only. Edits will not be saved.
+            </div>
             <% if (JSON.parse(betaFeatures).showTermSwitcher) { %>
-                <div id="termSwitcher" class="blurred-background">
+                <div id="termSwitcher" class="blur">
                     <% for (let i = 0; i < JSON.parse(termsAndSemesters).length; i++) { %>
                         <div id="<%= JSON.parse(termsAndSemesters)[i][0] %>"><%= JSON.parse(termsAndSemesters)[i][0] %>
 
@@ -108,6 +127,7 @@
                             if ("term" in props && "semester" in props) {
                                 $("#" + props["term"]).addClass("active");
                                 $("#" + props["term"] + props["semester"]).addClass("active");
+                                $('#oldSemesterMsg').show();
                             } else {
                                 let termsAndSemesters = <%- termsAndSemesters %>;
                                 $("#" + termsAndSemesters.slice(-1)[0][0]).addClass("active");
@@ -130,13 +150,13 @@
                                     <button onclick="ajaxPostForm('#weightedGPAForm',[],'',true)"
                                     <% if (JSON.parse(appearance).weightedGPA) { %> type="button"
                                             <% } %>
-                                                                                    class="<% if (JSON.parse(appearance).weightedGPA) { %> active <% } %> btn">
+                                            class="<% if (JSON.parse(appearance).weightedGPA) { %> active <% } %> btn">
                                         Weighted
                                     </button>
                                     <button onclick="ajaxPostForm('#weightedGPAForm',[],'',true)"
                                     <% if (!JSON.parse(appearance).weightedGPA) { %> type="button"
                                             <% } %>
-                                                                                     class="<% if (!JSON.parse(appearance).weightedGPA) { %> active <% } %> btn">
+                                            class="<% if (!JSON.parse(appearance).weightedGPA) { %> active <% } %> btn">
                                         Unweighted
                                     </button>
                                 </form>
@@ -556,11 +576,11 @@
                                             <th>Assignment Percent</th>
                                             <th>Category Grade</th>
                                         </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            <% } %>
-                        </table>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                <% } %>
+                            </table>
                     </span>
                 <% } else {
                     offset--;
@@ -643,16 +663,11 @@
             let gradeSync = <%= gradeSync; %>;
             let data = <%- gradeData; %>;
             let _data = JSON.parse(JSON.stringify(data)); // This is a local copy
+            let changeData = <%- changeData; %>;
             let addedAssignments = <%- addedAssignments; %>;
             let weights = <%- weightData; %>;
-            // Temp Fix
-            weights = Object.fromEntries(Object.entries(weights).filter(([className]) => className.slice(-1) !== " "));
             let relClassData = <%- relevantClassData; %>;
-            // Temp Fix
-            relClassData = Object.fromEntries(Object.entries(relClassData).filter(([className]) => className.slice(-1) !== " "));
             let gradeHistoryLetters = <%- gradeHistory; %>;
-            // Temp Fix
-            gradeHistoryLetters = gradeHistoryLetters.filter(className => Object.entries(className)[0][0].slice(-1) !== " ");
             let chartData = [];
             let parsedData = [];
             let categorySortedData = [];
@@ -855,6 +870,8 @@
                             } else if (message.message === "Already Synced!") {
                                 clearInterval(checking);
                                 showLatest(false);
+                                changeData = JSON.parse(message.changeData);
+                                setupGradeChanges();
                                 setupLastUpdated();
                             } else if (message.message === "Did not sync") {
                                 $(".updateGradesMessage").find(".messageTxt").text("Syncing...");
@@ -2319,7 +2336,7 @@
                         assignmentNames = classData.map(x => x.assignment_name);
                         assignmentDates = classData.map(x => x.date);
                         assignmentPercents = classData.map(x => x.grade_percent);
-                        assignmentScoresParsed = classData.map(x => (x.points_gotten === false ? "--" : x.points_gotten) + (x.points_possible === false ? "" : "/" + x.points_possible));
+                        assignmentScoresParsed = classData.map(x => parseScore(x.points_gotten, x.points_possible));
                         assignmentCategories = classData.map(x => x.category);
                         let assignmentExcludes = classData.map(x => x.exclude);
                         let assignmentAdds = classData.map((grade, index) => Number.isInteger(data[i].grades[index]));
@@ -2350,6 +2367,10 @@
                         };
                     }
                 }
+            }
+
+            function parseScore(points_gotten, points_possible) {
+                return (points_gotten === false ? "--" : points_gotten) + (points_possible === false ? "" : "/" + points_possible);
             }
 
             function renderAllCharts(classIndex) {
@@ -2745,6 +2766,16 @@
                         openTab(5);
                     }
                     <% } %>
+                } else if (e.key === "g") {
+                    if (cardsDisplayed.includes("gradeChangesCardDisplay")) {
+                        if (cardsDisplayed.indexOf("gradeChangesCardDisplay") !== cardsDisplayed.length - 1) {
+                            setupGradeChanges();
+                        } else {
+                            closeForm("gradeChangesCardDisplay");
+                        }
+                    } else {
+                        setupGradeChanges();
+                    }
                 } else {
                     //console.log(e.code);
                 }
@@ -2852,7 +2883,7 @@
             let navbar = document.getElementById("classLinks");
             let sticky, height;
 
-            if (navbar) {
+            if ($(".navbar")[0]) {
                 // Get the offset position of the navbar
                 sticky = navbar.offsetTop - $(".navbar")[0].offsetTop;
 
@@ -3018,13 +3049,3 @@
 </script>
 </body>
 </html>
-<!-- SVG Blur Filter -->
-<!-- 'stdDeviation' is the blur amount applied -->
-<% if (JSON.parse(betaFeatures).blurEffects) { %>
-    <svg id="svg-filter" style="position: absolute">
-        <filter id="svg-blur">
-            <feGaussianBlur in="SourceGraphic"
-                            stdDeviation="<%= JSON.parse(appearance).blurAmount || 4; %>"></feGaussianBlur>
-        </filter>
-    </svg>
-<% } %>

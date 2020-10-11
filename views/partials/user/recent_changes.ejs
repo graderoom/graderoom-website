@@ -1,0 +1,89 @@
+<!-- Grade Changes Card -->
+<div class="blurred-login" id="gradeChangesCardDisplay">
+    <div class="blurred-background"></div>
+    <div class="col-sm-13 col-md-12 col-lg-10 col-xl-8 mx-auto">
+        <div id="gradeChangesCard" class="card card-signin my-5" style="padding-bottom: 1rem">
+            <btn class="btn btn-md"
+                 onclick="closeForm('gradeChangesCardDisplay')"
+                 style="display: table; width: fit-content; width: -moz-fit-content; width: -moz-fit-content; margin-bottom:0">
+                <i class="fa fa-close" aria-hidden="true"></i> Close
+            </btn>
+            <div class="card-body">
+                <h1 class="card-title text-center popup">
+                    <i class="fa fa-clock-o"></i>
+                    Recent Changes
+                </h1>
+                <div class="card-body" id="gradeChangesContainer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function setupGradeChanges() {
+        let classNames = _data.map(d => d.class_name);
+        if (!changeData.added) return;
+        let newAssignments = changeData.added;
+        let modifiedAssignments = changeData.modified;
+        let removedAssignments = changeData.removed;
+        let overallChanges = changeData.overall;
+
+        let modifiedClasses = [...new Set([...Object.keys(newAssignments), ...Object.keys(modifiedAssignments), ...Object.keys(removedAssignments), ...Object.keys(overallChanges)])];
+
+        // Create the class cards
+        for (let i = 0; i < modifiedClasses.length; i++) {
+            let realIndex = classNames.indexOf(modifiedClasses[i]);
+
+            let card = `<div class="grade-changes-card" id="changes` + realIndex + `">` + `<span style="color: ` + colors[realIndex] + `"><span>` + modifiedClasses[i];
+            if (modifiedClasses[i] in overallChanges) {
+                if ('overall_percent' in overallChanges[modifiedClasses[i]]) {
+                    let delta = +(_data[realIndex].overall_percent - overallChanges[modifiedClasses[i]].overall_percent).toFixed(3) + '%';
+                    card += ` <span>(` + delta + `)</span>`
+                }
+                card += `</span><span>`;
+                if ('overall_letter' in overallChanges[modifiedClasses[i]]) {
+                    card += `<span>(` + overallChanges[modifiedClasses[i]].overall_letter + `) → (` + _data[realIndex].overall_letter + `)</span>`;
+                }
+                card += `</span>`;
+            } else {
+                card += `</span><span></span>`
+            }
+            card += `</span>`;
+            if (modifiedClasses[i] in newAssignments) {
+                card += `<div class="grade-changes-section"><div class="grade-changes-section-header">New</div><hr>`;
+                for (let j = 0; j < newAssignments[modifiedClasses[i]].length; j++) {
+                    let realAssignmentIndex = _data[realIndex].grades.findIndex(g => g.psaid === newAssignments[modifiedClasses[i]][j]);
+                    card += `<div>` + _data[realIndex].grades[realAssignmentIndex].assignment_name + ` <span class="score">(` + parsedData[realIndex].assignmentScoresParsed[realAssignmentIndex] + `)</span></div>`;
+                }
+                card += `</div>`;
+            }
+
+            if (modifiedClasses[i] in modifiedAssignments) {
+                card += `<div class="grade-changes-section"><div class="grade-changes-section-header">Modified</div><hr>`;
+                for (let j = 0; j < modifiedAssignments[modifiedClasses[i]].length; j++) {
+                    let realAssignmentIndex = _data[realIndex].grades.findIndex(g => g.psaid === modifiedAssignments[modifiedClasses[i]][j].psaid);
+                    card += `<div><span>` + _data[realIndex].grades[realAssignmentIndex].assignment_name + `</span><span class="score">(` + parseScore(modifiedAssignments[modifiedClasses[i]][j].points_gotten, modifiedAssignments[modifiedClasses[i]][j].points_possible) + `) → <span>(` + parsedData[realIndex].assignmentScoresParsed[realAssignmentIndex] + `)</span></span></div>`;
+                }
+                card += `</div>`;
+            }
+
+            if (modifiedClasses[i] in removedAssignments) {
+                card += `<div class="grade-changes-section"><div class="grade-changes-section-header">Removed</div><hr>`;
+                for (let j = 0; j < removedAssignments[modifiedClasses[i]].length; j++) {
+                    card += `<div><span>` + removedAssignments[modifiedClasses[i]][j].assignment_name + `</div>`;
+                }
+                card += `</div>`;
+            }
+
+            card += `</div>`;
+            $('#gradeChangesContainer').append(card);
+        }
+        if (modifiedClasses.length) {
+            $('#recentChangesNavBtn').removeClass('disabled').children('btn').html('<i class="fa fa-clock-o"></i> Recent Changes');
+            showCard('#gradeChangesCardDisplay');
+            return true;
+        } else {
+            $('#recentChangesNavBtn').addClass('disabled').children('btn').html('<i class="fa fa-clock-o"></i> No Recent Changes');
+            return false;
+        }
+    }
+</script>

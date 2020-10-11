@@ -1087,10 +1087,11 @@ th {
 .toolTab {
     position: absolute;
     visibility: hidden;
+    transition: filter 400ms ease;
     border-radius: 0 1rem 1rem 0 !important;
 }
 
-.toolTab:hover {
+tr:hover .toolTab {
     z-index: 19;
 }
 
@@ -2162,6 +2163,103 @@ input:disabled {
     cursor: default;
 }
 
+#syncPopup {
+    pointer-events: none;
+}
+
+#gradeChangesContainer {
+    overflow: scroll;
+    max-height: 60vh;
+    padding: 0;
+}
+
+.grade-changes-card {
+    margin: 0.5rem;
+    padding: 1rem;
+    border-radius: 1rem;
+}
+
+.grade-changes-card > span:first-child {
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+}
+
+.grade-changes-section {
+    padding: 1rem 1rem 1rem 1rem;
+    border-radius: 1rem;
+}
+
+.grade-changes-section > div {
+    display: flex;
+    justify-content: space-between;
+}
+
+.grade-changes-section > div > span {
+    display: block;
+}
+
+.grade-changes-section > div > .score {
+}
+
+.score > span {
+    font-weight: bold;
+}
+
+.grade-changes-section-header {
+    font-weight: bold;
+}
+
+.grade-changes-section hr {
+    margin: 0.5rem 0;
+}
+
+.dropdown {
+    z-index: 19;
+}
+
+.dropdown-menu {
+    padding: 0;
+    border-radius: 1rem;
+}
+
+.dropdown-menu {
+    overflow: hidden;
+    padding: 0.5rem 0;
+    cursor: context-menu;
+    border-radius: 0.25rem;
+}
+
+.dropdown-divider {
+    border-width: 2px;
+}
+
+.dropdown-item {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: none;
+}
+
+.dropdown-item:hover {
+    cursor: context-menu;
+    background: none;
+}
+
+.dropdown-item a, .dropdown-item btn {
+    width: 100% !important;
+    cursor: pointer;
+}
+
+.dropdown-item.disabled {
+    cursor: not-allowed;
+}
+
+.dropdown-item.disabled btn {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
 @media only screen and (max-width: 1191px) {
     .nav-username {
         transform: translateX(-50px);
@@ -2189,6 +2287,22 @@ input:disabled {
 
     .nav-item, .nav-item btn {
         width: 100% !important;
+    }
+
+    .dropdown-toggle {
+        display: none;
+    }
+
+    .dropdown-divider {
+        display: none;
+    }
+
+    .dropdown-menu {
+        display: block;
+        margin: 0;
+        padding: 0;
+        border: none;
+        box-shadow: none;
     }
 
     #termSwitcher {
