@@ -35,7 +35,7 @@ module.exports = function (app, passport) {
                 let t = Object.keys(req.user.grades)[i];
                 for (let j = 0; j < Object.keys(req.user.grades[t]).length; j++) {
                     let s = Object.keys(req.user.grades[t])[j];
-                    if (t.substring(0, 2) >= term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) >= semester.substring(1)) || s === "S0") {
+                    if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) >= semester.substring(1)) || s === "S0") {
                         continue;
                     }
                     for (let k = 0; k < req.user.grades[t][s].length; k++) {
@@ -65,6 +65,7 @@ module.exports = function (app, passport) {
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     betaFeatures: JSON.stringify(req.user.betaFeatures),
                     termsAndSemesters: JSON.stringify(Object.keys(req.user.grades).map(x => [x, Object.keys(req.user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
+                    changeData: JSON.stringify(req.user.changeData[term][semester]),
                     dst: isDST(),
                     _: _
                 });
@@ -87,6 +88,7 @@ module.exports = function (app, passport) {
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     betaFeatures: JSON.stringify(req.user.betaFeatures),
                     termsAndSemesters: JSON.stringify([]),
+                    changeData: JSON.stringify([]),
                     dst: isDST(),
                     _: _
                 });
@@ -159,7 +161,7 @@ module.exports = function (app, passport) {
                 let t = Object.keys(user.grades)[i];
                 for (let j = 0; j < Object.keys(user.grades[t]).length; j++) {
                     let s = Object.keys(user.grades[t])[j];
-                    if (t.substring(0, 2) >= term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) >= semester.substring(1)) || s === "S0") {
+                    if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) >= semester.substring(1)) || s === "S0") {
                         continue;
                     }
                     for (let k = 0; k < user.grades[t][s].length; k++) {
@@ -189,6 +191,7 @@ module.exports = function (app, passport) {
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     betaFeatures: JSON.stringify(user.betaFeatures),
                     termsAndSemesters: JSON.stringify(Object.keys(user.grades).map(x => [x, Object.keys(user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
+                    changeData: JSON.stringify(user.changeData[term][semester]),
                     dst: isDST(),
                     _: _
                 });
@@ -211,6 +214,7 @@ module.exports = function (app, passport) {
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     betaFetaures: JSON.stringify(user.betaFeatures),
                     termsAndSemesters: JSON.stringify([]),
+                    changeData: JSON.stringify([]),
                     dst: isDST(),
                     _: _
                 });
@@ -302,7 +306,8 @@ module.exports = function (app, passport) {
             deletedUserList: deletedUsers,
             adminSuccessMessage: req.flash("adminSuccessMessage"),
             adminFailMessage: req.flash("adminFailMessage"),
-            sessionTimeout: Date.parse(req.session.cookie._expires), dst: isDST()
+            sessionTimeout: Date.parse(req.session.cookie._expires),
+            dst: isDST()
         });
     });
 
@@ -316,6 +321,10 @@ module.exports = function (app, passport) {
                                      grades: JSON.stringify(user.grades[term][semester]),
                                      weights: JSON.stringify(user.weights[term][semester]),
                                      time: user.alerts.lastUpdated.slice(-1)[0]
+                                 });
+        } else if (term && semester && resp.message === "Already Synced!") {
+            res.status(200).send({
+                                     message: resp.message, changeData: JSON.stringify(user.changeData[term][semester])
                                  });
         } else {
             res.status(200).send({
@@ -501,6 +510,7 @@ module.exports = function (app, passport) {
                                              message: resp.message,
                                              grades: JSON.stringify(resp.grades[term][semester]),
                                              weights: JSON.stringify(req.user.weights[term][semester]),
+                                             changeData: JSON.stringify(req.user.changeData[term][semester]),
                                              time: resp.time
                                          });
                 } else {
@@ -509,6 +519,7 @@ module.exports = function (app, passport) {
                                              message: resp.message,
                                              grades: JSON.stringify(resp.grades[term][semester]),
                                              weights: JSON.stringify(req.user.weights[term][semester]),
+                                             changeData: JSON.stringify(req.user.changeData[term][semester]),
                                              time: resp.time
                                          });
                 }
@@ -573,20 +584,37 @@ module.exports = function (app, passport) {
         if (req.isAuthenticated()) {
 
             let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
-            res.render("final_grade_calculator.ejs", {
-                page: "calc",
-                username: req.user.username,
-                schoolUsername: req.user.schoolUsername,
-                isAdmin: req.user.isAdmin,
-                personalInfo: JSON.stringify(req.user.personalInfo),
-                appearance: JSON.stringify(req.user.appearance),
-                alerts: JSON.stringify(Object.assign({}, req.user.alerts, {lastUpdated: req.user.alerts.lastUpdated.slice(-1)})),
-                gradeSync: !!req.user.schoolPassword,
-                gradeData: JSON.stringify(req.user.grades[term][semester]),
-                weightData: JSON.stringify(req.user.weights[term][semester]),
-                sessionTimeout: Date.parse(req.session.cookie._expires),
-                dst: isDST()
-            });
+            if (term && semester) {
+                res.render("final_grade_calculator.ejs", {
+                    page: "calc",
+                    username: req.user.username,
+                    schoolUsername: req.user.schoolUsername,
+                    isAdmin: req.user.isAdmin,
+                    personalInfo: JSON.stringify(req.user.personalInfo),
+                    appearance: JSON.stringify(req.user.appearance),
+                    alerts: JSON.stringify(Object.assign({}, req.user.alerts, {lastUpdated: req.user.alerts.lastUpdated.slice(-1)})),
+                    gradeSync: !!req.user.schoolPassword,
+                    gradeData: JSON.stringify(req.user.grades[term][semester]),
+                    weightData: JSON.stringify(req.user.weights[term][semester]),
+                    sessionTimeout: Date.parse(req.session.cookie._expires),
+                    dst: isDST()
+                });
+            } else {
+                res.render("final_grade_calculator.ejs", {
+                    page: "calc",
+                    username: req.user.username,
+                    schoolUsername: req.user.schoolUsername,
+                    isAdmin: req.user.isAdmin,
+                    personalInfo: JSON.stringify(req.user.personalInfo),
+                    appearance: JSON.stringify(req.user.appearance),
+                    alerts: JSON.stringify(Object.assign({}, req.user.alerts, {lastUpdated: req.user.alerts.lastUpdated.slice(-1)})),
+                    gradeSync: !!req.user.schoolPassword,
+                    gradeData: JSON.stringify({}),
+                    weightData: JSON.stringify({}),
+                    sessionTimeout: Date.parse(req.session.cookie._expires),
+                    dst: isDST()
+                });
+            }
         } else {
             req.session.returnTo = req.originalUrl;
             res.render("final_grade_calculator_logged_out.ejs", {
@@ -618,7 +646,8 @@ module.exports = function (app, passport) {
             darkModeStart: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeStart),
             darkModeFinish: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeFinish),
             page: "keys",
-            sessionTimeout: Date.parse(req.session.cookie._expires), dst: isDST()
+            sessionTimeout: Date.parse(req.session.cookie._expires),
+            dst: isDST()
         });
 
     });
@@ -673,7 +702,8 @@ module.exports = function (app, passport) {
             theme: JSON.stringify(authenticator.getUser(req.user.username).appearance.theme),
             darkModeStart: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeStart),
             darkModeFinish: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeFinish),
-            sessionTimeout: Date.parse(req.session.cookie._expires), dst: isDST()
+            sessionTimeout: Date.parse(req.session.cookie._expires),
+            dst: isDST()
         });
     });
 

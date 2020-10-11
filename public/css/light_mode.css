@@ -477,6 +477,25 @@ select.minimal:focus {
     color: rgba(200, 50, 50, 1);
 }
 
+tr:hover .toolTab {
+    filter: brightness(90%);
+}
+
+.grade-changes-card {
+    border: 1px solid #DDDDDD;
+    box-shadow: 0 0 10px 2px #DDDDDD;
+}
+
+.dropdown-menu {
+    border: 1px solid #DDDDDD;
+    background-color: white;
+    box-shadow: 0 0 20px 2px #DDDDDD;
+}
+
+.dropdown-divider {
+    color: #AAAAAA;
+}
+
 /* Mobile Stuff */
 @media only screen and (max-width: 991px) {
     #table-1 {

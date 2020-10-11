@@ -31,11 +31,11 @@
         <div class="nav-username popup">
             <div class="text-center">
                 <h5 style="padding-top: 0; white-space: nowrap"
-                    onclick="<% if (page == "home") { %>showCard('#settingsCardDisplay'); openTab(2) <% } %>"><%= username %></h5>
+                    onclick="<% if (page == "home") { %>showCard('#settingsCardDisplay'); openTab(2) <% } %>"><%= username; %></h5>
                 <label onclick="<% if (page == "home") { %>showCard('#settingsCardDisplay'); openTab(2) <% } %>"
                        id="nameDisplay"
-                       style="white-space: nowrap; cursor: pointer; margin: 0; display: block"><%= JSON.parse(personalInfo).firstName %> <%= JSON.parse(personalInfo).lastName %>
-                    '<%= JSON.parse(personalInfo).graduationYear - 2000 %></label>
+                       style="white-space: nowrap; cursor: pointer; margin: 0; display: block"><%= JSON.parse(personalInfo).firstName; %> <%= JSON.parse(personalInfo).lastName; %>
+                    '<%= JSON.parse(personalInfo).graduationYear - 2000; %></label>
                 <% if (page == "home") { %>
                     <label style="white-space: nowrap; cursor: pointer; border-radius: 0.5rem; padding: 0.1rem 0.5rem; font-family: Arial, Helvetica, sans-serif"
                            onclick="showCard('#updateGradesDisplay');"
@@ -59,18 +59,62 @@
     </span>
     <div class="navbar-collapse collapse w-50" id="collapsingNav">
         <ul class="navbar-nav w-100 justify-content-end align-items-end ml-auto">
-            <% if (page == 'home') { %>
-                <li class="nav-item popup">
-                    <a class="btn btn-med" href="/finalgradecalculator"><i
-                                class="fa fa-calculator" aria-hidden="true"></i>
-                        Calculator
+            <% if (page == "home") { %>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        More
                     </a>
-                    <div class="popup-holder">
-                        <span id="calcPopup" class="nav-popups popup-bottom tutorial-popup">
-                            Find out how much your final might impact your grade
-                            <span class="gotIt"></span>
-                        </span>
-                    </div>
+                    <ul class="dropdown-menu blur" aria-labelledby="navbarDropdown">
+                        <% if (isAdmin) { %>
+                            <li id="toggleAdmin" class="nav-item toggle-admin dropdown-item">
+                                <a class="btn btn-med" href="/admin"> <i class="fa fa-fighter-jet"
+                                                                         aria-hidden="true"></i> Admin
+                                </a>
+                            </li>
+                            <div class="dropdown-divider"></div>
+                        <% } %>
+                        <% if (page === "home") { %>
+                            <li class="nav-item dropdown-item">
+                                <btn class="btn btn-med"
+                                     onclick="showCard('#settingsCardDisplay'); openTab(3);">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i> Help
+                                </btn>
+                            </li>
+                            <li class="nav-item dropdown-item">
+                                <btn class="btn btn-med" onclick="showCard('#shortcutsDisplay')"><i
+                                            class="fa fa-keyboard-o" aria-hidden="true"></i> Keyboard Shortcuts
+                                </btn>
+                            </li>
+                            <li class="nav-item dropdown-item">
+                                <btn class="btn btn-med" onclick="showCard('#feedbackDisplay')"><i
+                                            class="fa fa-send" aria-hidden="true"></i> Send Feedback
+                                </btn>
+                            </li>
+                            <div class="dropdown-divider"></div>
+                            <li id="recentChangesNavBtn" class="nav-item dropdown-item disabled">
+                                <btn class="btn btn-med" onclick="setupGradeChanges()"><i
+                                            class="fa fa-clock-o" aria-hidden="true"></i> No Recent Changes
+                                </btn>
+                            </li>
+                            <li class="nav-item dropdown-item">
+                                <a class="btn btn-med" href="/finalgradecalculator"><i
+                                            class="fa fa-calculator" aria-hidden="true"></i> Calculator
+                                </a>
+                            </li>
+                            <div class="dropdown-divider"></div>
+                            <li class="nav-item dropdown-item">
+                                <btn class="btn btn-med" onclick="showLatest(true)"><i
+                                            class="fa fa-lightbulb-o" aria-hidden="true"></i> What's New
+                                </btn>
+                            </li>
+                            <li class="nav-item dropdown-item">
+                                <btn class="btn btn-med" onclick="showChangelog()"><i
+                                            class="fa fa-book" aria-hidden="true"></i> Changelog
+                                </btn>
+                            </li>
+                        <% } %>
+                    </ul>
                 </li>
                 <li id="syncGrades" class="nav-item popup">
                     <btn class="btn btn-med" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">
@@ -81,26 +125,6 @@
                         <span id="syncPopup"
                               class="nav-popups popup-bottom tutorial-popup">
                             Sync your grades with PowerSchool
-                        </span>
-                    </div>
-                </li>
-            <% } %>
-            <% if (isAdmin) { %>
-                <li id="toggleAdmin" class="nav-item toggle-admin">
-                    <a class="btn btn-med" href="/admin"> <i class="fa fa-fighter-jet" aria-hidden="true"></i> Admin
-                    </a>
-                </li>
-            <% } else if (page === "home") { %>
-                <li class="nav-item popup">
-                    <btn class="btn btn-med"
-                         onclick="showCard('#settingsCardDisplay'); openTab(3);">
-                        <i class="fa fa-info-circle" aria-hidden="true"></i> Help
-                    </btn>
-                    <div class="popup-holder">
-                        <span id="helpPopup" class="nav-popups popup-bottom tutorial-popup">
-                            Here you can find contact information and quick links to important parts of the site.
-                            <br>
-                            <span class="gotIt"></span>
                         </span>
                     </div>
                 </li>
@@ -150,6 +174,9 @@
 <% } %>
 <% if (page === "home" || page === "calc") { %>
     <% include logged_out.ejs %>
+<% } %>
+<% if (page === "home") { %>
+    <% include recent_changes.ejs %>
 <% } %>
 
 <!-- Custom JavaScript -->
@@ -261,6 +288,8 @@
                         $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-danger").addClass("alert-success");
                         setTimeout(() => window.reload(), 400);
                     } else {
+                        changeData = JSON.parse(response.changeData);
+                        setupGradeChanges();
                         setupLastUpdated();
                     }
                 } else {

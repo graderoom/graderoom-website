@@ -501,14 +501,6 @@
             <div id="settings-3" class="tabcontent">
                 <div class="card-body">
                     <div class="card-footer">
-                        <button class="btn btn-sm" style="margin: 0.1rem"
-                                onclick="showCard('#feedbackDisplay')">
-                            <label style="margin: 0; cursor: pointer">Feedback Form
-                                <span class="fa fa-external-link-square"></span>
-                            </label>
-                        </button>
-                    </div>
-                    <div class="card-footer">
                         <h5>Troubleshooting</h5>
                         <form id="remoteAccess" class="form-signin" action="/setRemoteAccess" method="post">
                             <label style="display: flex; font-size: 1rem; justify-content: flex-start; align-items: center">
@@ -537,39 +529,6 @@
                         </form>
                     </div>
                     <div class="card-footer">
-                        <h5>Quick Links</h5>
-                        <button class="btn btn-sm" style="margin: 0.1rem"
-                                onclick="showCard('#shortcutsDisplay');">
-                            <label style="margin: 0; cursor: pointer;">Keyboard Shortcuts
-                                <span class="fa fa-external-link-square"></span>
-                            </label>
-                        </button>
-                        <button class="btn btn-sm" style="margin: 0.1rem"
-                                onclick="showLatest(true);">
-                            <label style="margin: 0; cursor: pointer;">What's New
-                                <span class="fa fa-external-link-square"></span>
-                            </label>
-                        </button>
-                        <button class="btn btn-sm" style="margin: 0.1rem"
-                                onclick="showCard('#termsDisplay')">
-                            <label style="margin: 0; cursor: pointer;">Terms And Conditions
-                                <span class="fa fa-external-link-square"></span>
-                            </label>
-                        </button>
-                        <button class="btn btn-sm" style="margin: 0.1rem"
-                                onclick="showCard('#privacyDisplay')">
-                            <label style="margin: 0; cursor: pointer;">Privacy Policy
-                                <span class="fa fa-external-link-square"></span>
-                            </label>
-                        </button>
-                        <button class="btn btn-sm" style="margin: 0.1rem"
-                                onclick="showChangelog()">
-                            <label style="margin: 0; cursor: pointer;">Changelog
-                                <span class="fa fa-external-link-square"></span>
-                            </label>
-                        </button>
-                    </div>
-                    <div class="card-footer">
                         <h5>Tutorial Progress
                             <span class="popup">
                                 <i class="fa fa-question-circle">
@@ -593,7 +552,21 @@
                     </div>
                     <div class="card-footer">
                         <h5>Contact Us</h5>
-                        <p>Email: <u><a href="mailto: graderoom@gmail.com">graderoom@gmail.com</a></u></p>
+                        <p>Email: <u><a href="mailto: support@graderoom.me">support@graderoom.me</a></u></p>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm" style="margin: 0.1rem"
+                                onclick="showCard('#termsDisplay')">
+                            <label style="margin: 0; cursor: pointer;">Terms And Conditions
+                                <span class="fa fa-external-link-square"></span>
+                            </label>
+                        </button>
+                        <button class="btn btn-sm" style="margin: 0.1rem"
+                                onclick="showCard('#privacyDisplay')">
+                            <label style="margin: 0; cursor: pointer;">Privacy Policy
+                                <span class="fa fa-external-link-square"></span>
+                            </label>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -865,9 +838,6 @@
         document.getElementById(tabName).style.display = "block";
         document.getElementById("btn-" + tabIndex).classList.add("active");
         currentTab = tabIndex;
-        if (currentTab === 3) {
-            updateTutorial("help");
-        }
     }
 
     function checkLabel(input) {

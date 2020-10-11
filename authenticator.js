@@ -20,7 +20,7 @@ let betaChangelogArray = [];
 let versionNameArray = [];
 
 // Update this list with new tutorial keys
-let tutorialKeys = ["calcSeen", "helpSeen", "changelogLegendSeen", "homeSeen", "navinfoSeen"];
+let tutorialKeys = ["changelogLegendSeen", "homeSeen", "navinfoSeen"];
 
 // Update this list with new beta features
 let betaFeatureKeys = ["showTermSwitcher", "blurEffects"];
@@ -205,6 +205,24 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
 
+        // Fix calc bc ap with space
+        let badData = userRef.get("grades").get("19-20").get("S1").find({class_name: "Calculus BC AP "}).value();
+        if (badData) {
+            userRef.get("grades").get("19-20").get("S1").remove({class_name: "Calculus BC AP"}).write();
+            userRef.get("grades").get("19-20").get("S1").find({class_name: "Calculus BC AP "}).set("class_name", "Calculus BC AP").write();
+            userRef.get("grades").get("19-20").get("S1").remove({class_name: "Calculus BC AP "}).write();
+            userRef.get("weights").get("19-20").get("S1").set("Calculus BC AP", userRef.get("weights").get("19-20").get("S1").get("Calculus BC AP ").value()).write();
+            userRef.get("weights").get("19-20").get("S1").unset("Calculus BC AP ").write();
+            userRef.get("addedAssignments").get("19-20").get("S1").set("Calculus BC AP", userRef.get("addedAssignments").get("19-20").get("S1").get("Calculus BC AP ").value()).write();
+            userRef.get("addedAssignments").get("19-20").get("S1").unset("Calculus BC AP ").write();
+        }
+
+        // Add changeData dict
+        if (!userRef.get("changeData").value()) {
+            userRef.set("changeData", {}).write();
+            this.initChangeData(user.username);
+        }
+
         // Add betaFeatures activation
         if (!userRef.get("betaFeatures").value()) {
             userRef.set("betaFeatures", {"active": beta}).write();
@@ -265,6 +283,20 @@ module.exports = {
                     }
                     if (classGrades[j].grade_percent === "Â ") {
                         userRef.get("grades").get("19-20").get("S2").nth(i).get("grades").nth(j).set("grade_percent", false).write();
+                    }
+                }
+            }
+        }
+        // Fix -1 and Â  values in 19-20 S1
+        if (userRef.get("grades").value() && userRef.get("grades").get("19-20").value() && userRef.get("grades").get("19-20").get("S1").value()) {
+            for (let i = 0; i < userRef.get("grades").get("19-20").get("S1").value().length; i++) {
+                let classGrades = userRef.get("grades").get("19-20").get("S1").value()[i].grades;
+                for (let j = 0; j < classGrades.length; j++) {
+                    if (classGrades[j].grade_percent === -1) {
+                        userRef.get("grades").get("19-20").get("S1").nth(i).get("grades").nth(j).set("grade_percent", false).write();
+                    }
+                    if (classGrades[j].grade_percent === "Â ") {
+                        userRef.get("grades").get("19-20").get("S1").nth(i).get("grades").nth(j).set("grade_percent", false).write();
                     }
                 }
             }
@@ -948,14 +980,35 @@ module.exports = {
             userRef.value().appearance.classColors.pop();
         }
 
-        //TODO Confirm This works
         let {term: oldTerm, semester: oldSemester} = this.getMostRecentTermData(lc_username);
         let newTerm = Object.keys(grade_update_status.new_grades)[0];
         let newSemester = Object.keys(grade_update_status.new_grades[newTerm])[0];
         if (!(newTerm in userRef.get("grades").value())) {
             userRef.get("grades").set(newTerm, {}).write();
         }
-        userRef.get("grades").get(newTerm).set(newSemester, grade_update_status.new_grades[newTerm][newSemester]).write();
+        let oldGrades = userRef.get("grades").get(newTerm).get(newSemester).value();
+        let oldPSAIDs = oldGrades.map(x => x.grades.map(y => y.psaid));
+        let newGrades = grade_update_status.new_grades[newTerm][newSemester];
+        let newPSAIDs = newGrades.map(x => x.grades.map(y => y.psaid));
+        let added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [newGrades[index].class_name, newPSAIDs[index].filter(psaid => !oldPSAIDs[index].includes(psaid))]).filter(data => data[1].length));
+        let modified = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => newPSAIDs[index].includes(assignmentData.psaid) && !_.isEqual(assignmentData, newGrades[index].grades.find(assignment => assignment.psaid === assignmentData.psaid)))]).filter(data => data[1].length));
+        let removed = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => !newPSAIDs[index].includes(assignmentData.psaid))]).filter(data => data[1].length));
+        let overall = Object.fromEntries(oldGrades.map((classData, index) => {
+            let clone = Object.assign({}, classData);
+            delete clone.grades;
+            delete clone.class_name;
+            let newClone = Object.assign({}, newGrades[index]);
+            delete newClone.grades;
+            delete newClone.class_name;
+            return [classData.class_name, Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v))];
+        }).filter(data => Object.keys(data[1]).length));
+        userRef.get("changeData").get(newTerm).set(newSemester, {
+            added: added,
+            modified: modified,
+            removed: removed,
+            overall: overall
+        }).write();
+        userRef.get("grades").get(newTerm).set(newSemester, newGrades).write();
         this.bringUpToDate(lc_username);
         if (newTerm !== oldTerm && newSemester !== oldSemester) {
             this.setColorPalette(lc_username, "default");
@@ -1302,7 +1355,7 @@ module.exports = {
                 } else {
                     // Prevents changelog file errors from crashing server
                     if (!item.content["Unfiled"]) {
-                        item.title = "This shouldn't have happened. Send a bug report in Settings > Help > Feedback Form. ERR #" + lineno;
+                        item.title = "This shouldn't have happened. Send a bug report in More > Send Feedback. ERR #" + lineno;
                         item.content["Unfiled"] = [];
                     }
                     item.content["Unfiled"].push(line.substring(2));
@@ -1439,6 +1492,25 @@ module.exports = {
         let {term, semester} = this.getMostRecentTermData(username);
         userRef.get("addedAssignments").get(term).set(semester, addedAssignments).write();
         return {success: true, message: "Successfully updated added assignments"};
+    },
+
+    initChangeData: function (username) {
+        let temp = {};
+        let userRef = db.get("users").find({username: username.toLowerCase()});
+        let current = userRef.get("changeData").value();
+        let years = Object.keys(userRef.get("grades").value());
+        for (let i = 0; i < years.length; i++) {
+            let semesters = Object.keys(userRef.get("grades").get(years[i]).value());
+            temp[years[i]] = {};
+            for (let j = 0; j < semesters.length; j++) {
+                temp[years[i]][semesters[j]] = current[years[i]] ? current[years[i]][semesters[j]] || {} : {};
+                let classes = userRef.get("grades").get(years[i]).get(semesters[j]).map(d => d.class_name).value();
+                for (let k = 0; k < classes.length; k++) {
+                    temp[years[i]][semesters[j]][classes[k]] = {added: {}, modified: {}, removed: {}, overall: {}};
+                }
+            }
+        }
+        userRef.set("changeData", temp).write();
     },
 
     initAddedAssignments: function (username) {

@@ -40,8 +40,32 @@
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
-## [Known Issues] - <em>Send bug reports in Settings > Help > Feedback Form</em><br><em>Only issues in the stable version will be listed here</em>
+## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - Assignments from PowerSchool with the same due date are sometimes displayed in a different order than on PowerSchool
+- [Beta] Summer semesters are listed under the incorrect year
+
+## [Beta 3.2.0] - 2020-10-10
+### Added
+- New 'Recent Changes' Card that displays all modifications, additions, and removals of assignments after each sync [requested by <em>bbb</em> aka <em>bbbeta</em>]
+- Keyboard shortcut 'G' for 'Recent Changes' Card
+- New 'More' section to the main navbar
+- [Beta] The new 'More' section is one of the first components to take advantage of the brand new transparency effects
+- [Beta] Message stating that old semesters are view-only. Edits will not be saved
+
+### Improved
+- Tooltabs now react when a row is hovered to draw attention to their existence
+- Keyboard shortcuts card displays correctly across more screen sizes
+- Several smaller styling and smoothness improvements
+
+### Fixed
+- Issue with logged-in final grade calculator not working for users without grades
+- [Beta] Issue where blur effects would not be applied to elements if interacted with immediately on page load
+- [Beta] Issue with cumulative GPA in S2 of past years
+- [Beta] Issue with 2019-2020 S1 Data showing -1 in the percent column
+
+### Removed
+- Quick Links section of Settings
+- Some tutorial popups (More will be added in the future)
 
 ## [Stable 3.1.0] - 2020-10-02
 ### Added
@@ -57,6 +81,7 @@
 ### Fixed
 - Issue where assignment scores were too accurate by default
 - Issue with cumulative GPA for students who had AP Calculus BC in 19-20 S2
+- Issue with some classes incorrectly included in GPA calculation [reported by <em>safwaank</em>]
 
 ### Removed
 - Boundaries when zooming and panning graphs
