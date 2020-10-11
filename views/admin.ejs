@@ -63,7 +63,7 @@
                 <tr>
                     <th class="admin">Username</th>
                     <th class="admin">Name</th>
-                    <th class="admin">Last Updated</th>
+                    <th class="admin">Account Created</th>
                     <th class="admin">Last Logged In</th>
                     <th class="admin">Attributes</th>
                     <th class="admin">Render User Site</th>
@@ -77,11 +77,7 @@
                     <td class="admin"><%= u.username %> </td>
                     <td class="admin"><%= u.personalInfo.firstName + " " + u.personalInfo.lastName + " '" + (u.personalInfo.graduationYear - 2000) %></td>
                     <td class="admin">
-                        <% if (new Date(u.alerts.lastUpdated.slice(-1)[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
-                            Never Updated
-                        <% } else { %>
-                            <%= new Date(u.alerts.lastUpdated.slice(-1)[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) %>
-                        <% } %>
+                        <%= new Date(u.loggedIn[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}); %>
                     </td>
                     <td class="admin">
                         <% if (new Date(u.loggedIn.slice(-1)[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
@@ -101,12 +97,16 @@
                         <% if (new Date(u.alerts.policyLastSeen).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
                             Policy not Seen<br>
                         <% } %>
+                        <% if (u.betaFeatures.active) { %>
+                            Beta<br>
+                        <% } %>
+                        <%= u.loggedIn.length; %> logins
                     </td>
                     <td class="admin">
                         <% if (u.alerts.remoteAccess === "allowed") { %>
                             <form action="/viewuser" method="get" style="display: inline-block;">
                                 <button type="submit" name="usernameToRender" class="btn btn-sm admin"
-                                        value="<%= u.username %>">
+                                        value="<%= u.username; %>">
                                     Render User Site
                                 </button>
                             </form>
