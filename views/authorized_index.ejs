@@ -686,7 +686,7 @@
             let mobile = window.innerWidth <= 991;
 
             if (!appearance.showNonAcademic && Object.keys(Object.fromEntries(Object.entries(relClassData).filter(([, v]) => v.classType === "non-academic"))).length > 0) {
-                colors = colors.filter(color => relClassData[_data[colors.indexOf(color)].class_name].classType !== "non-academic");
+                colors = colors.slice(0, _data.length).filter(color => relClassData[_data[colors.indexOf(color)].class_name].classType !== "non-academic");
                 _data = _data.filter(grade => relClassData[grade.class_name].classType !== "non-academic");
                 weights = Object.fromEntries(Object.entries(weights).filter(([className]) => relClassData[className].classType !== "non-academic"));
             }

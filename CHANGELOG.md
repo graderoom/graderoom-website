@@ -44,6 +44,10 @@
 - Assignments from PowerSchool with the same due date are sometimes displayed in a different order than on PowerSchool
 - [Beta] Summer semesters are listed under the incorrect year
 
+## [Beta 3.2.1] - 2020-10-13
+### Fixed
+- Issue where users that hid non-academic classes could not see their grades
+
 ## [Beta 3.2.0] - 2020-10-10
 ### Added
 - New 'Recent Changes' Card that displays all modifications, additions, and removals of assignments after each sync [requested by <em>bbb</em> aka <em>bbbeta</em>]
