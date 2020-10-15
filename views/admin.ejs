@@ -100,7 +100,8 @@
                         <% if (u.betaFeatures.active) { %>
                             Beta<br>
                         <% } %>
-                        <%= u.loggedIn.length; %> logins
+                        <%= u.loggedIn.length; %> logins<br>
+                        <%= u.alerts.lastUpdated.length; %> syncs
                     </td>
                     <td class="admin">
                         <% if (u.alerts.remoteAccess === "allowed") { %>

@@ -44,17 +44,37 @@
 - Assignments from PowerSchool with the same due date are sometimes displayed in a different order than on PowerSchool
 - [Beta] Summer semesters are listed under the incorrect year
 
+## [Beta 3.3.0] - 2020-10-15
+### Added
+- Blur effects are now out of beta! Enable them in advanced appearance settings.
+- [Beta] If you had blur effects enabled in the public beta, they will remain enabled.
+
+### Improved
+- Recent Changes now displays a detailed history
+- Integrated overall grades into class navbar and increased size of overview graph
+- Several browser-specific stability improvements
+- Sizing of settings card
+- [Beta] Several styling improvements to term switcher
+
+### Fixed
+- Issue where spamming the sync grades button was possible
+- Several issues with Recent Changes
+- Attempt to prevent keyboard shortcuts from firing when combined with special keys (Ctrl and/or Alt)
+- [Beta] Issue where a portion of the screen could sometimes not be interacted with when blur effects were enabled
+
+### Removed
+- [Beta] Ability to tweak blur amount
+
 ## [Beta 3.2.1] - 2020-10-13
 ### Fixed
-- Issue where users that hid non-academic classes could not see their grades
+- Issue where users that hid non-academic classes could not view their grades
 
 ## [Beta 3.2.0] - 2020-10-10
 ### Added
 - New 'Recent Changes' Card that displays all modifications, additions, and removals of assignments after each sync [requested by <em>bbb</em> aka <em>bbbeta</em>]
 - Keyboard shortcut 'G' for 'Recent Changes' Card
 - New 'More' section to the main navbar
-- [Beta] The new 'More' section is one of the first components to take advantage of the brand new transparency effects
-- [Beta] Message stating that old semesters are view-only. Edits will not be saved
+- [Beta] Message stating that old semesters are view-only. Edits will not be saved.
 
 ### Improved
 - Tooltabs now react when a row is hovered to draw attention to their existence
