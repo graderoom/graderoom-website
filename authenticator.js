@@ -23,7 +23,7 @@ let versionNameArray = [];
 let tutorialKeys = ["changelogLegendSeen", "homeSeen", "navinfoSeen"];
 
 // Update this list with new beta features
-let betaFeatureKeys = ["showTermSwitcher", "blurEffects"];
+let betaFeatureKeys = ["showTermSwitcher"];
 
 module.exports = {
 
@@ -205,6 +205,22 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
 
+        // Remove blur amount preference
+        if (userRef.get("appearance").get("blurAmount").value()) {
+            userRef.get("appearance").unset("blurAmount").write();
+        }
+
+        // Move blur out of beta
+        if (userRef.get("betaFeatures").get("blurEffects").value()) {
+            userRef.get("appearance").set("blurEffects", true).write();
+            userRef.get("betaFeatures").unset("blurEffects").write();
+        }
+
+        // Add blur var
+        if (!([true, false]).includes(userRef.get("appearance").get("blurEffects").value())) {
+            userRef.get("appearance").set("blurEffects", false).write();
+        }
+
         // Fix calc bc ap with space
         let badData = userRef.get("grades").get("19-20").get("S1").find({class_name: "Calculus BC AP "}).value();
         if (badData) {
@@ -217,11 +233,13 @@ module.exports = {
             userRef.get("addedAssignments").get("19-20").get("S1").unset("Calculus BC AP ").write();
         }
 
-        // Add changeData dict
-        if (!userRef.get("changeData").value()) {
-            userRef.set("changeData", {}).write();
-            this.initChangeData(user.username);
+        // Remove changedata
+        if (userRef.get("changeData").value()) {
+            userRef.unset("changeData").write();
         }
+
+        // Migrate lastupdated
+        this.migrateLastUpdated(user.username);
 
         // Add betaFeatures activation
         if (!userRef.get("betaFeatures").value()) {
@@ -987,27 +1005,33 @@ module.exports = {
             userRef.get("grades").set(newTerm, {}).write();
         }
         let oldGrades = userRef.get("grades").get(newTerm).get(newSemester).value();
-        let oldPSAIDs = oldGrades.map(x => x.grades.map(y => y.psaid));
+        let oldPSAIDs = [];
+        if (oldGrades) {
+            oldPSAIDs = oldGrades.map(x => x.grades.map(y => y.psaid));
+        }
         let newGrades = grade_update_status.new_grades[newTerm][newSemester];
         let newPSAIDs = newGrades.map(x => x.grades.map(y => y.psaid));
-        let added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [newGrades[index].class_name, newPSAIDs[index].filter(psaid => !oldPSAIDs[index].includes(psaid))]).filter(data => data[1].length));
-        let modified = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => newPSAIDs[index].includes(assignmentData.psaid) && !_.isEqual(assignmentData, newGrades[index].grades.find(assignment => assignment.psaid === assignmentData.psaid)))]).filter(data => data[1].length));
-        let removed = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => !newPSAIDs[index].includes(assignmentData.psaid))]).filter(data => data[1].length));
-        let overall = Object.fromEntries(oldGrades.map((classData, index) => {
-            let clone = Object.assign({}, classData);
-            delete clone.grades;
-            delete clone.class_name;
-            let newClone = Object.assign({}, newGrades[index]);
-            delete newClone.grades;
-            delete newClone.class_name;
-            return [classData.class_name, Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v))];
-        }).filter(data => Object.keys(data[1]).length));
-        userRef.get("changeData").get(newTerm).set(newSemester, {
-            added: added,
-            modified: modified,
-            removed: removed,
-            overall: overall
-        }).write();
+        let added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [newGrades[index].class_name, newPSAIDs[index]]).filter(data => data[1].length));
+        let modified = {};
+        let removed = {};
+        let overall = {};
+        if (oldGrades) {
+            added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [newGrades[index].class_name, newPSAIDs[index].filter(psaid => !oldPSAIDs[index].includes(psaid))]).filter(data => data[1].length));
+            modified = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => newPSAIDs[index].includes(assignmentData.psaid) && !_.isEqual(assignmentData, newGrades[index].grades.find(assignment => assignment.psaid === assignmentData.psaid)))]).filter(data => data[1].length));
+            removed = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => !newPSAIDs[index].includes(assignmentData.psaid))]).filter(data => data[1].length));
+            overall = Object.fromEntries(oldGrades.map((classData, index) => {
+                let clone = Object.assign({}, classData);
+                delete clone.grades;
+                delete clone.class_name;
+                let newClone = Object.assign({}, newGrades[index]);
+                delete newClone.grades;
+                delete newClone.class_name;
+                return [classData.class_name, Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v))];
+            }).filter(data => Object.keys(data[1]).length));
+        }
+        let changeData = {
+            added: added, modified: modified, removed: removed, overall: overall
+        };
         userRef.get("grades").get(newTerm).set(newSemester, newGrades).write();
         this.bringUpToDate(lc_username);
         if (newTerm !== oldTerm && newSemester !== oldSemester) {
@@ -1016,9 +1040,14 @@ module.exports = {
         }
 
         let time = Date.now();
-        userRef.get("alerts").get("lastUpdated").push(time).write();
+        userRef.get("alerts").get("lastUpdated").push({timestamp: time, changeData: changeData}).write();
         userRef.set("updatedInBackground", "already done").write();
-        return {success: true, message: "Updated grades!", grades: grade_update_status.new_grades, time: time};
+        return {
+            success: true,
+            message: "Updated grades!",
+            grades: grade_update_status.new_grades,
+            updateData: {timestamp: time, changeData: changeData}
+        };
     },
 
     addDbClass: function (className, teacherName) {
@@ -1494,23 +1523,18 @@ module.exports = {
         return {success: true, message: "Successfully updated added assignments"};
     },
 
-    initChangeData: function (username) {
-        let temp = {};
+    migrateLastUpdated: function (username) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
-        let current = userRef.get("changeData").value();
-        let years = Object.keys(userRef.get("grades").value());
-        for (let i = 0; i < years.length; i++) {
-            let semesters = Object.keys(userRef.get("grades").get(years[i]).value());
-            temp[years[i]] = {};
-            for (let j = 0; j < semesters.length; j++) {
-                temp[years[i]][semesters[j]] = current[years[i]] ? current[years[i]][semesters[j]] || {} : {};
-                let classes = userRef.get("grades").get(years[i]).get(semesters[j]).map(d => d.class_name).value();
-                for (let k = 0; k < classes.length; k++) {
-                    temp[years[i]][semesters[j]][classes[k]] = {added: {}, modified: {}, removed: {}, overall: {}};
-                }
+        let current = userRef.get("alerts").get("lastUpdated").value();
+        if (typeof current[0] === "number") {
+            // Migrate
+            let copy = JSON.parse(JSON.stringify(userRef.get("alerts").get("lastUpdated").value()));
+            let updated = [];
+            for (let i = 0; i < copy.length; i++) {
+                updated.push({timestamp: copy[i], changeData: {}});
             }
+            userRef.get("alerts").set("lastUpdated", updated).write();
         }
-        userRef.set("changeData", temp).write();
     },
 
     initAddedAssignments: function (username) {
@@ -1623,10 +1647,10 @@ module.exports = {
         return {success: true, message: "Password updated."};
     },
 
-    setBlurAmount: function (username, blurAmount) {
+    setBlur: function (username, enabled) {
         let user = db.get("users").find({username: username.toLowerCase()});
-        user.get("appearance").set("blurAmount", blurAmount).write();
-        return {success: true, message: "blurAmount updated"};
+        user.get("appearance").set("blurEffects", enabled).write();
+        return {success: true, message: "Blur effects " + (enabled ? "enabled" : "disabled") + "!"};
     }
 
 };

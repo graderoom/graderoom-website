@@ -1,7 +1,7 @@
 <!-- Settings Card -->
 <div class="blurred-login" id="settingsCardDisplay">
     <div class="blurred-background"></div>
-    <div class="col-sm-11 col-md-10 col-lg-9 col-xl-6 mx-auto">
+    <div class="col-sm-11 col-md-10 col-lg-9 col-xl-8 mx-auto">
         <div id="settingsCard" class="card card-signin my-5" style="padding-bottom: 1rem">
             <btn class="btn btn-md"
                  onclick="closeForm('settingsCardDisplay')"
@@ -24,37 +24,6 @@
             </div>
             <div id="settings-1" class="tabcontent" style="display: block">
                 <div class="card-body">
-                    <% if (JSON.parse(betaFeatures).blurEffects) { %>
-                        <div class="card-footer">
-                            <h5>[Beta] Blur Settings</h5>
-                            <label>Drag the slider to adjust the intensity of blur effects.</label>
-                            <form id="blur-range-picker-form" action="/blurSettings" method="post"
-                                  class="range-picker-container">
-                                1<input id="blur-range-picker"
-                                        name="blur-amount"
-                                        oninput="$('#svg-blur-settings feGaussianBlur').attr('stdDeviation',$(this).val())"
-                                        type="range" min="1" max="10"
-                                        value="<%= JSON.parse(appearance).blurAmount || 4; %>" step="1"
-                                        class="range-picker"
-                                        style="margin: 0 1rem;">10
-                                <button class="btn btn-md">
-                                    Apply
-                                </button>
-                            </form>
-                            <p>Here is some sample unblurred text. The next line contains text blurred based on the
-                                intensity you set
-                            </p>
-                            <p style="filter: url('#svg-blur-settings')">
-                                Here is some sample blurred text. You most likely can't read this, but if you can, hi!
-                            </p>
-                            <svg id="svg-filter-settings" style="position: absolute">
-                                <filter id="svg-blur-settings">
-                                    <feGaussianBlur in="SourceGraphic"
-                                                    stdDeviation="<%= JSON.parse(appearance).blurAmount || 4; %>"></feGaussianBlur>
-                                </filter>
-                            </svg>
-                        </div>
-                    <% } %>
                     <% if (JSON.parse(gradeData).length > 0) { %>
                         <div class="card-footer">
                             <h5>Color Scheme
@@ -240,61 +209,105 @@
                             </div>
                         </form>
                     </div>
-                    <div class="card-footer">
-                        <h5>Advanced</h5>
-                        <form id="advancedAppearance" action="/advancedAppearance" method="post">
-                            <label class="slider-container">
-                                <label class="switch">
-                                    <input
-                                            id="classGraphRegularizationToggle"
-                                            style="margin: 0; display: flex"
-                                            type="checkbox"
-                                            name="regularizeClassGraphs"
-                                    <% if (JSON.parse(appearance).regularizeClassGraphs) { %>
-                                            checked="checked"
-                                            <% } %>
-                                            onchange="$('#advancedSubmit').prop('disabled', $(this).prop('checked') === appearance.regularizeClassGraphs)"
-                                    >
-                                    <span class="slider"></span>
-                                </label>
-                                <label for="classGraphRegularizationToggle">
-                                    Regularize Class Graphs <span class="popup"><i class="fa fa-question-circle"><span
-                                                    class="popup-right-bottom">When enabled, all class graphs are
-                                                bounded between at 70 and 110 on the y-axis</span></i></span>
-                                </label>
-                            </label>
-                            <label class="slider-container">
-                                <label class="switch"
-                                <% if (Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
-                                       style="cursor: pointer"
-                                        <% } %>
-                                >
-                                    <input
-                                    <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
-                                        disabled
-                                            <% } %>
-                                        id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
-                                    <% if (JSON.parse(appearance).showNonAcademic) { %> checked="checked"
-                                            <% } %>
-                                        onchange="$('#advancedSubmit').prop('disabled', $(this).prop('checked') === appearance.showNonAcademic)"
-                                    >
-                                    <span class="slider"></span>
-                                </label>
-                                <label for="showNonAcademicCheckbox"
-                                <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
-                                       class="disabled"
-                                        <% } %>
-                                >
-                                    Show Non-Academic Classes
-                                </label>
-                            </label>
-                            <button id="advancedSubmit" class="btn-default btn btn-sm" type="submit"
-                                    onclick="ajaxPostForm('#advancedAppearance',[],'',true,reload=true)"
-                                    disabled>
-                                Apply & Refresh Page
-                            </button>
-                        </form>
-                    </div>
+                        <div class="card-footer">
+                            <h5>Advanced</h5>
+                            <form id="advancedAppearance" action="/advancedAppearance" method="post">
+                                <div>
+                                    <label class="slider-container disable-in-firefox">
+                                        <label class="switch">
+                                            <input
+                                                    id="blurEffectsToggle"
+                                                    style="margin: 0; display: flex"
+                                                    type="checkbox"
+                                                    name="blurEffects"
+                                            <% if (JSON.parse(appearance).blurEffects) { %>
+                                                    checked="checked"
+                                                    <% } %>
+                                                    onchange="{
+                                                let checked = $(this).prop('checked');
+                                                $('#advancedSubmit').prop('disabled',checked === appearance.blurEffects);
+                                                    if (!checked) {
+                                                        $('#blur_base').prop('disabled', true);
+                                                        $('#blur_overrides').prop('disabled', true);
+                                                    } else {
+                                                        $('#blur_base').prop('disabled', false);
+                                                        $('#blur_overrides').prop('disabled', false);
+                                                    }
+                                            }"
+                                            >
+                                            <span class="slider"></span>
+                                        </label>
+                                        <label for="blurEffectsToggle">
+                                            <span>Enable Blur Effects</span> <span class="popup"><i
+                                                        class="fa fa-question-circle"><span
+                                                            class="popup-right-bottom">When enabled, adds blur and
+                                                        translucency effects across the site.
+                                                    </span></i></span> <span class="popup hide-in-firefox"><i
+                                                        class="fa fa-exclamation-triangle">
+                                                    <span class="popup-right-bottom">WARNING: Causes lag on slower
+                                                        devices</span></i></span>
+                                        </label>
+                                        <span style="margin-left: 0.5rem;" class="popup show-in-firefox"><i
+                                                    class="fa fa-exclamation-circle"><span
+                                                        class="popup-right always-show"
+                                                        style="width: 10rem;">Your
+                                                    browser does not support these effects.</span></i></span>
+                                    </label>
+                                    <label class="slider-container">
+                                        <label class="switch">
+                                            <input
+                                                    id="classGraphRegularizationToggle"
+                                                    style="margin: 0; display: flex"
+                                                    type="checkbox"
+                                                    name="regularizeClassGraphs"
+                                            <% if (JSON.parse(appearance).regularizeClassGraphs) { %>
+                                                    checked="checked"
+                                                    <% } %>
+                                                    onchange="$('#advancedSubmit').prop('disabled', $(this).prop('checked') === appearance.regularizeClassGraphs)"
+                                            >
+                                            <span class="slider"></span>
+                                        </label>
+                                        <label for="classGraphRegularizationToggle">
+                                            Regularize Class Graphs <span class="popup"><i
+                                                        class="fa fa-question-circle"><span
+                                                            class="popup-right-bottom">When enabled, all class graphs
+                                                        are
+                                                        bounded between at 70 and 110 on the y-axis</span></i></span>
+                                        </label>
+                                    </label>
+                                    <label class="slider-container">
+                                        <label class="switch"
+                                        <% if (Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
+                                               style="cursor: pointer"
+                                                <% } %>
+                                        >
+                                            <input
+                                            <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
+                                                disabled
+                                                    <% } %>
+                                                id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
+                                            <% if (JSON.parse(appearance).showNonAcademic) { %> checked="checked"
+                                                    <% } %>
+                                                onchange="$('#advancedSubmit').prop('disabled', $(this).prop('checked') === appearance.showNonAcademic)"
+                                            >
+                                            <span class="slider"></span>
+                                        </label>
+                                        <label for="showNonAcademicCheckbox"
+                                        <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
+                                               class="disabled"
+                                                <% } %>
+                                        >
+                                            Show Non-Academic Classes
+                                        </label>
+                                    </label>
+                                </div>
+                                <button id="advancedSubmit" class="btn-default btn btn-sm" type="submit"
+                                        onclick="ajaxPostForm('#advancedAppearance',[],'',true,reload=true)"
+                                        disabled>
+                                    Apply & Refresh Page
+                                </button>
+                            </form>
+                        </div>
                 </div>
             </div>
             <div id="settings-2" class="tabcontent">
@@ -624,31 +637,6 @@
                                 </label>
                                 <small>
                                     Enabled: Adds an additional navigation bar to view older grade data
-                                </small>
-                                <br>
-                                <small>
-                                    Disabled: Default
-                                </small>
-                            </div>
-                            <div class="card-footer">
-                                <label class="slider-container">
-                                    <label style="margin-left: 0;" for="blurEffects">
-                                        Enable improved blurring effects
-                                    </label>
-                                    <label class="switch">
-                                        <input id="blurEffects" type="checkbox" name="blurEffects"
-                                        <% if (JSON.parse(betaFeatures).blurEffects) { %>
-                                               checked="checked"
-                                                <% } %>
-                                               onchange="$($(this)[0].form).submit()"
-                                        >
-                                        <span class="slider"></span>
-                                    </label>
-                                </label>
-                                <small>
-                                    Enabled: Adds blur and translusency effects across the site.<br>
-                                    You can change the blur amount in Appearance settings<br>
-                                    <span style="color: red">[WARNING: Causes lag on slower devices]</span>
                                 </small>
                                 <br>
                                 <small>

@@ -19,71 +19,89 @@
     </div>
 </div>
 <script>
-    function setupGradeChanges() {
-        let classNames = _data.map(d => d.class_name);
-        if (!changeData.added) return;
-        let newAssignments = changeData.added;
-        let modifiedAssignments = changeData.modified;
-        let removedAssignments = changeData.removed;
-        let overallChanges = changeData.overall;
+    function setupGradeChanges(show = true) {
+        let changesExist = false;
+        // Clear the container
+        let container = $("#gradeChangesContainer");
+        container.html("");
 
-        let modifiedClasses = [...new Set([...Object.keys(newAssignments), ...Object.keys(modifiedAssignments), ...Object.keys(removedAssignments), ...Object.keys(overallChanges)])];
+        for (let i = alerts.lastUpdated.length - 1; i >= 0; i--) {
 
-        // Create the class cards
-        for (let i = 0; i < modifiedClasses.length; i++) {
-            let realIndex = classNames.indexOf(modifiedClasses[i]);
+            let changeData = alerts.lastUpdated[i].changeData;
+            let classNames = _data.map(d => d.class_name);
+            if (!changeData.added) {
+                // Before changeData storage
+                container.append(`<hr><span class="timestamp">` + new Date(alerts.lastUpdated[i].timestamp).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) + ` - No Data</span>`);
+                continue;
+            }
+            let newAssignments = changeData.added;
+            let modifiedAssignments = changeData.modified;
+            let removedAssignments = changeData.removed;
+            let overallChanges = changeData.overall;
 
-            let card = `<div class="grade-changes-card" id="changes` + realIndex + `">` + `<span style="color: ` + colors[realIndex] + `"><span>` + modifiedClasses[i];
-            if (modifiedClasses[i] in overallChanges) {
-                if ('overall_percent' in overallChanges[modifiedClasses[i]]) {
-                    let delta = +(_data[realIndex].overall_percent - overallChanges[modifiedClasses[i]].overall_percent).toFixed(3) + '%';
-                    card += ` <span>(` + delta + `)</span>`
-                }
-                card += `</span><span>`;
-                if ('overall_letter' in overallChanges[modifiedClasses[i]]) {
-                    card += `<span>(` + overallChanges[modifiedClasses[i]].overall_letter + `) → (` + _data[realIndex].overall_letter + `)</span>`;
+            let modifiedClasses = [...new Set([...Object.keys(newAssignments), ...Object.keys(modifiedAssignments), ...Object.keys(removedAssignments), ...Object.keys(overallChanges)])];
+
+            if (modifiedClasses.length) {
+                changesExist = true;
+            } else {
+                // No changes
+                container.append(`<hr><span class="timestamp">` + new Date(alerts.lastUpdated[i].timestamp).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) + ` - No Changes</span>`);
+                continue;
+            }
+
+            container.append(`<hr><span class="timestamp">` + new Date(alerts.lastUpdated[i].timestamp).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) + `</span>`);
+
+            // Create the class cards
+            for (let j = 0; j < modifiedClasses.length; j++) {
+                let realIndex = classNames.indexOf(modifiedClasses[j]);
+
+                let card = `<div class="grade-changes-card" id="changes` + realIndex + `"><span class="class-name" style="color: ` + colors[realIndex] + `"><span>` + modifiedClasses[j];
+                if (modifiedClasses[j] in overallChanges) {
+                    if ("overall_percent" in overallChanges[modifiedClasses[j]]) {
+                        let delta = +(_data[realIndex].overall_percent - overallChanges[modifiedClasses[j]].overall_percent).toFixed(3) + "%";
+                        card += ` <span>(` + delta + `)</span>`;
+                    }
+                    card += `</span><span>`;
+                    if ("overall_letter" in overallChanges[modifiedClasses[j]]) {
+                        card += `<span>(` + overallChanges[modifiedClasses[j]].overall_letter + `) → (` + _data[realIndex].overall_letter + `)</span>`;
+                    }
+                    card += `</span>`;
+                } else {
+                    card += `</span><span></span>`;
                 }
                 card += `</span>`;
-            } else {
-                card += `</span><span></span>`
-            }
-            card += `</span>`;
-            if (modifiedClasses[i] in newAssignments) {
-                card += `<div class="grade-changes-section"><div class="grade-changes-section-header">New</div><hr>`;
-                for (let j = 0; j < newAssignments[modifiedClasses[i]].length; j++) {
-                    let realAssignmentIndex = _data[realIndex].grades.findIndex(g => g.psaid === newAssignments[modifiedClasses[i]][j]);
-                    card += `<div>` + _data[realIndex].grades[realAssignmentIndex].assignment_name + ` <span class="score">(` + parsedData[realIndex].assignmentScoresParsed[realAssignmentIndex] + `)</span></div>`;
+                if (modifiedClasses[j] in newAssignments) {
+                    card += `<div class="grade-changes-section"><div class="grade-changes-section-header">New</div><hr>`;
+                    for (let k = 0; k < newAssignments[modifiedClasses[j]].length; k++) {
+                        let realAssignmentIndex = _data[realIndex].grades.findIndex(g => g.psaid === newAssignments[modifiedClasses[j]][k]);
+                        card += `<div>` + _data[realIndex].grades[realAssignmentIndex].assignment_name + ` <span class="score"><span>(` + parseScore(_data[realIndex].grades[realAssignmentIndex].points_gotten, _data[realIndex].grades[realAssignmentIndex].points_possible) + `)</span></span></div>`;
+                    }
+                    card += `</div>`;
                 }
-                card += `</div>`;
-            }
 
-            if (modifiedClasses[i] in modifiedAssignments) {
-                card += `<div class="grade-changes-section"><div class="grade-changes-section-header">Modified</div><hr>`;
-                for (let j = 0; j < modifiedAssignments[modifiedClasses[i]].length; j++) {
-                    let realAssignmentIndex = _data[realIndex].grades.findIndex(g => g.psaid === modifiedAssignments[modifiedClasses[i]][j].psaid);
-                    card += `<div><span>` + _data[realIndex].grades[realAssignmentIndex].assignment_name + `</span><span class="score">(` + parseScore(modifiedAssignments[modifiedClasses[i]][j].points_gotten, modifiedAssignments[modifiedClasses[i]][j].points_possible) + `) → <span>(` + parsedData[realIndex].assignmentScoresParsed[realAssignmentIndex] + `)</span></span></div>`;
+                if (modifiedClasses[j] in modifiedAssignments) {
+                    card += `<div class="grade-changes-section"><div class="grade-changes-section-header">Modified</div><hr>`;
+                    for (let k = 0; k < modifiedAssignments[modifiedClasses[j]].length; k++) {
+                        let realAssignmentIndex = _data[realIndex].grades.findIndex(g => g.psaid === modifiedAssignments[modifiedClasses[j]][k].psaid);
+                        card += `<div><span>` + _data[realIndex].grades[realAssignmentIndex].assignment_name + `</span><span class="score">(` + parseScore(modifiedAssignments[modifiedClasses[j]][k].points_gotten, modifiedAssignments[modifiedClasses[j]][k].points_possible) + `) → <span>(` + parsedData[realIndex].assignmentScoresParsed[realAssignmentIndex] + `)</span></span></div>`;
+                    }
+                    card += `</div>`;
                 }
-                card += `</div>`;
-            }
 
-            if (modifiedClasses[i] in removedAssignments) {
-                card += `<div class="grade-changes-section"><div class="grade-changes-section-header">Removed</div><hr>`;
-                for (let j = 0; j < removedAssignments[modifiedClasses[i]].length; j++) {
-                    card += `<div><span>` + removedAssignments[modifiedClasses[i]][j].assignment_name + `</div>`;
+                if (modifiedClasses[j] in removedAssignments) {
+                    card += `<div class="grade-changes-section"><div class="grade-changes-section-header">Removed</div><hr>`;
+                    for (let k = 0; j < removedAssignments[modifiedClasses[j]].length; k++) {
+                        card += `<div><span>` + removedAssignments[modifiedClasses[j]][k].assignment_name + `</div>`;
+                    }
+                    card += `</div>`;
                 }
-                card += `</div>`;
-            }
 
-            card += `</div>`;
-            $('#gradeChangesContainer').append(card);
+                card += `</div>`;
+                container.append(card);
+            }
         }
-        if (modifiedClasses.length) {
-            $('#recentChangesNavBtn').removeClass('disabled').children('btn').html('<i class="fa fa-clock-o"></i> Recent Changes');
-            showCard('#gradeChangesCardDisplay');
-            return true;
-        } else {
-            $('#recentChangesNavBtn').addClass('disabled').children('btn').html('<i class="fa fa-clock-o"></i> No Recent Changes');
-            return false;
+        if (show) {
+            showCard("#gradeChangesCardDisplay");
         }
     }
 </script>

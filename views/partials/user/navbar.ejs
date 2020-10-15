@@ -92,11 +92,13 @@
                                 </btn>
                             </li>
                             <div class="dropdown-divider"></div>
-                            <li id="recentChangesNavBtn" class="nav-item dropdown-item disabled">
-                                <btn class="btn btn-med" onclick="setupGradeChanges()"><i
-                                            class="fa fa-clock-o" aria-hidden="true"></i> No Recent Changes
-                                </btn>
-                            </li>
+                            <% if (JSON.parse(alerts).lastUpdated.length && JSON.parse(alerts).lastUpdated.slice(-1)[0].changeData.added) { %>
+                                <li id="recentChangesNavBtn" class="nav-item dropdown-item">
+                                    <btn class="btn btn-med" onclick="setupGradeChanges()"><i
+                                                class="fa fa-clock-o" aria-hidden="true"></i> Recent Changes
+                                    </btn>
+                                </li>
+                            <% } %>
                             <li class="nav-item dropdown-item">
                                 <a class="btn btn-med" href="/finalgradecalculator"><i
                                             class="fa fa-calculator" aria-hidden="true"></i> Calculator
@@ -237,6 +239,7 @@
                 $("#loadingDisplay").show();
                 $("#syncFailure").hide();
                 $("#syncNoData").hide();
+                $(form).find("button").prop("disabled", true);
             }
 
             // Submit the form using AJAX.
@@ -245,8 +248,8 @@
                    }).done(function (response) {
                 if (formID === "#weightedGPAForm") {
                     appearance.weightedGPA = !appearance.weightedGPA;
-                    $('#weightedGPAForm button').each(function () {
-                        $(this).toggleClass('active');
+                    $("#weightedGPAForm button").each(function () {
+                        $(this).toggleClass("active");
                         if ($(this).prop('type') === 'submit') {
                             $(this).prop('type', 'button');
                         } else {
@@ -278,9 +281,7 @@
                 } else if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
                     $(formMessagesDiv).find(".sk-chase-mini").hide();
                     let newData = {
-                        grades: JSON.parse(response.grades),
-                        weights: JSON.parse(response.weights),
-                        lastUpdated: response.time
+                        grades: JSON.parse(response.grades), weights: JSON.parse(response.weights)
                     };
                     clearTimeout(checkLastUpdated);
                     if (!updateData(newData).updated) {
@@ -288,9 +289,10 @@
                         $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-danger").addClass("alert-success");
                         setTimeout(() => window.reload(), 400);
                     } else {
-                        changeData = JSON.parse(response.changeData);
+                        alerts.lastUpdated.push(JSON.parse(response.updateData));
                         setupGradeChanges();
                         setupLastUpdated();
+                        $(form).find("button").prop("disabled", false);
                     }
                 } else {
                     setTimeout(function () {
@@ -318,6 +320,9 @@
                             clearTimeout(changeTransition);
                             document.getElementById("fade").disabled = false;
                             document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+                            if (appearance.blurEffects) {
+                                document.getElementById("blur_overrides").setAttribute("href", "public/css/dark_blur.css");
+                            }
                             renderAllCharts();
                             $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
                             $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
@@ -342,6 +347,9 @@
                             clearTimeout(changeTransition);
                             document.getElementById("fade").disabled = false;
                             document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+                            if (appearance.blurEffects) {
+                                document.getElementById("blur_overrides").setAttribute("href", "public/css/light_blur.css");
+                            }
                             renderAllCharts();
                             $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
                             $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
@@ -434,9 +442,11 @@
                         if (formID === "#syncGradesForm") {
                             $("#inputUserPassword").focus();
                             $(".fa-refresh").removeClass("fa-spin").css("opacity", "");
+                            $(form).find("button").prop("disabled", false);
                         } else if (formID === "#gradeSyncForm") {
                             $("#gradeSyncInputUserPassword").focus();
                             $(".fa-refresh").removeClass("fa-spin").css("opacity", "");
+                            $(form).find("button").prop("disabled", false);
                         }
                         $(message).text(data.responseText);
                     }

@@ -54,7 +54,7 @@ module.exports = function (app, passport) {
                     isAdmin: req.user.isAdmin,
                     personalInfo: JSON.stringify(req.user.personalInfo),
                     appearance: JSON.stringify(req.user.appearance),
-                    alerts: JSON.stringify(Object.assign({}, req.user.alerts, {lastUpdated: req.user.alerts.lastUpdated.slice(-1)})),
+                    alerts: JSON.stringify(req.user.alerts),
                     gradeSync: !!req.user.schoolPassword,
                     gradeData: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter))),
                     weightData: JSON.stringify(req.user.weights[term][semester]),
@@ -65,7 +65,6 @@ module.exports = function (app, passport) {
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     betaFeatures: JSON.stringify(req.user.betaFeatures),
                     termsAndSemesters: JSON.stringify(Object.keys(req.user.grades).map(x => [x, Object.keys(req.user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
-                    changeData: JSON.stringify(req.user.changeData[term][semester]),
                     dst: isDST(),
                     _: _
                 });
@@ -77,7 +76,7 @@ module.exports = function (app, passport) {
                     isAdmin: req.user.isAdmin,
                     personalInfo: JSON.stringify(req.user.personalInfo),
                     appearance: JSON.stringify(req.user.appearance),
-                    alerts: JSON.stringify(Object.assign({}, req.user.alerts, {lastUpdated: req.user.alerts.lastUpdated.slice(-1)})),
+                    alerts: JSON.stringify(req.user.alerts),
                     gradeSync: !!req.user.schoolPassword,
                     gradeData: JSON.stringify([]),
                     weightData: JSON.stringify({}),
@@ -88,7 +87,6 @@ module.exports = function (app, passport) {
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     betaFeatures: JSON.stringify(req.user.betaFeatures),
                     termsAndSemesters: JSON.stringify([]),
-                    changeData: JSON.stringify([]),
                     dst: isDST(),
                     _: _
                 });
@@ -123,12 +121,9 @@ module.exports = function (app, passport) {
         }
         let regularize = req.body.regularizeClassGraphs === "on";
         authenticator.setRegularizeClassGraphs(req.user.username, regularize);
+        let blurEffects = req.body.blurEffects === "on";
+        authenticator.setBlur(req.user.username, blurEffects);
         res.sendStatus(200);
-    });
-
-    app.post("/blurSettings", [isLoggedIn], (req, res) => {
-        authenticator.setBlurAmount(req.user.username, req.body["blur-amount"]);
-        res.redirect("/");
     });
 
     app.post("/weightedGPA", [isLoggedIn], (req, res) => {
@@ -180,7 +175,7 @@ module.exports = function (app, passport) {
                     isAdmin: user.isAdmin,
                     personalInfo: JSON.stringify(user.personalInfo),
                     appearance: JSON.stringify(user.appearance),
-                    alerts: JSON.stringify(Object.assign({}, user.alerts, {lastUpdated: user.alerts.lastUpdated.slice(-1)})),
+                    alerts: JSON.stringify(user.alerts),
                     gradeSync: !!user.schoolPassword,
                     gradeData: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter))),
                     weightData: JSON.stringify(user.weights[term][semester]),
@@ -191,7 +186,6 @@ module.exports = function (app, passport) {
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     betaFeatures: JSON.stringify(user.betaFeatures),
                     termsAndSemesters: JSON.stringify(Object.keys(user.grades).map(x => [x, Object.keys(user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
-                    changeData: JSON.stringify(user.changeData[term][semester]),
                     dst: isDST(),
                     _: _
                 });
@@ -203,7 +197,7 @@ module.exports = function (app, passport) {
                     isAdmin: user.isAdmin,
                     personalInfo: JSON.stringify(user.personalInfo),
                     appearance: JSON.stringify(user.appearance),
-                    alerts: JSON.stringify(Object.assign({}, user.alerts, {lastUpdated: user.alerts.lastUpdated.slice(-1)})),
+                    alerts: JSON.stringify(user.alerts),
                     gradeSync: !!user.schoolPassword,
                     gradeData: JSON.stringify([]),
                     weightData: JSON.stringify({}),
@@ -214,7 +208,6 @@ module.exports = function (app, passport) {
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     betaFetaures: JSON.stringify(user.betaFeatures),
                     termsAndSemesters: JSON.stringify([]),
-                    changeData: JSON.stringify([]),
                     dst: isDST(),
                     _: _
                 });
@@ -320,11 +313,12 @@ module.exports = function (app, passport) {
                                      message: resp.message,
                                      grades: JSON.stringify(user.grades[term][semester]),
                                      weights: JSON.stringify(user.weights[term][semester]),
-                                     time: user.alerts.lastUpdated.slice(-1)[0]
+                                     updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
                                  });
         } else if (term && semester && resp.message === "Already Synced!") {
             res.status(200).send({
-                                     message: resp.message, changeData: JSON.stringify(user.changeData[term][semester])
+                                     message: resp.message,
+                                     updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
                                  });
         } else {
             res.status(200).send({
@@ -510,8 +504,7 @@ module.exports = function (app, passport) {
                                              message: resp.message,
                                              grades: JSON.stringify(resp.grades[term][semester]),
                                              weights: JSON.stringify(req.user.weights[term][semester]),
-                                             changeData: JSON.stringify(req.user.changeData[term][semester]),
-                                             time: resp.time
+                                             updateData: JSON.stringify(req.user.alerts.lastUpdated.slice(-1)[0])
                                          });
                 } else {
                     res.status(200).send({
@@ -519,8 +512,7 @@ module.exports = function (app, passport) {
                                              message: resp.message,
                                              grades: JSON.stringify(resp.grades[term][semester]),
                                              weights: JSON.stringify(req.user.weights[term][semester]),
-                                             changeData: JSON.stringify(req.user.changeData[term][semester]),
-                                             time: resp.time
+                                             updateData: JSON.stringify(req.user.alerts.lastUpdated.slice(-1)[0])
                                          });
                 }
             } else {
@@ -592,7 +584,7 @@ module.exports = function (app, passport) {
                     isAdmin: req.user.isAdmin,
                     personalInfo: JSON.stringify(req.user.personalInfo),
                     appearance: JSON.stringify(req.user.appearance),
-                    alerts: JSON.stringify(Object.assign({}, req.user.alerts, {lastUpdated: req.user.alerts.lastUpdated.slice(-1)})),
+                    alerts: JSON.stringify(req.user.alerts),
                     gradeSync: !!req.user.schoolPassword,
                     gradeData: JSON.stringify(req.user.grades[term][semester]),
                     weightData: JSON.stringify(req.user.weights[term][semester]),
@@ -607,7 +599,7 @@ module.exports = function (app, passport) {
                     isAdmin: req.user.isAdmin,
                     personalInfo: JSON.stringify(req.user.personalInfo),
                     appearance: JSON.stringify(req.user.appearance),
-                    alerts: JSON.stringify(Object.assign({}, req.user.alerts, {lastUpdated: req.user.alerts.lastUpdated.slice(-1)})),
+                    alerts: JSON.stringify(req.user.alerts),
                     gradeSync: !!req.user.schoolPassword,
                     gradeData: JSON.stringify({}),
                     weightData: JSON.stringify({}),
