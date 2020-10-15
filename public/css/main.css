@@ -92,7 +92,7 @@ html {
 }
 
 html *, html {
-    scrollbar-width: none; /*hide scrollbar in firefox */
+    scrollbar-width: thin; /*hide scrollbar in firefox */
 }
 
 nav {
@@ -918,9 +918,18 @@ label.label-active {
     border-radius: 0 0 0.5rem 0.5rem;
 }
 
-.nav .active {
+#classLinks li.nav-item {
+    font-weight: 500;
+    transition: background-color 250ms ease, opacity 250ms ease;
     border-radius: 0.5rem;
+}
+
+#classLinks li.nav-item.active {
     font-weight: bolder;
+}
+
+#classLinks li.nav-item:not(.active):hover {
+    opacity: 0.5;
 }
 
 .nav-item {
@@ -1133,7 +1142,7 @@ tbody tr {
 .slider-container {
     font-size: 1rem;
     display: flex;
-    align-items: center;
+    align-items: stretch;
     justify-content: flex-start;
     cursor: pointer;
 }
@@ -1176,6 +1185,7 @@ tbody tr {
     vertical-align: middle;
     border-radius: 0 1rem 1rem 0;
     background-color: inherit;
+    box-shadow: inherit;
     writing-mode: vertical-rl;
     text-orientation: sideways;
 }
@@ -2011,24 +2021,13 @@ td.addAssignmentScore {
 }
 
 #table-1 {
-    display: flex;
-    flex-flow: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    width: fit-content;
-    width: -moz-fit-content;
-    margin: auto;
-    padding: 0.5rem;
-}
-
-#table-1 table {
-    margin: 0 auto;
+    display: none;
 }
 
 #chart-container-1 {
     position: relative;
     width: 75%;
-    height: 60vh;
+    height: 70vh;
 }
 
 .backToHome {
@@ -2168,7 +2167,7 @@ input:disabled {
 }
 
 #gradeChangesContainer {
-    overflow: scroll;
+    overflow: auto;
     max-height: 60vh;
     padding: 0;
 }
@@ -2179,10 +2178,20 @@ input:disabled {
     border-radius: 1rem;
 }
 
-.grade-changes-card > span:first-child {
+.grade-changes-card > span.class-name {
     font-weight: bold;
     display: flex;
     justify-content: space-between;
+}
+
+#gradeChangesContainer > span.timestamp {
+    margin: 0.5rem;
+    padding-right: 1.5rem;
+    opacity: 0.5;
+}
+
+#gradeChangesContainer > hr:first-of-type {
+    display: none;
 }
 
 .grade-changes-section {
@@ -2260,9 +2269,34 @@ input:disabled {
     opacity: 0.5;
 }
 
-@media only screen and (max-width: 1191px) {
-    .nav-username {
-        transform: translateX(-50px);
+#link-1 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#advancedAppearance {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+}
+
+/* Firefox */
+@supports not (backdrop-filter: blur(0.1rem)) {
+    .disable-in-firefox {
+        pointer-events: none;
+        opacity: 0.5;
+    }
+
+    .hide-in-firefox {
+        display: none;
+    }
+}
+
+/* Not Firefox */
+@supports (backdrop-filter: blur(0.1rem)) {
+    .show-in-firefox {
+        display: none;
     }
 }
 
@@ -2483,13 +2517,9 @@ input:disabled {
         height: fit-content;
     }
 
-    #table-1 {
-        width: unset;
-    }
-
     #table-1 table {
         width: calc(50% - 0.5rem);
-        margin-bottom: 0.5rem;
+        margin: 0.25rem;
         transition: filter 100ms ease;
     }
 
@@ -2526,7 +2556,6 @@ input:disabled {
     .overview > div {
         display: flex !important;
         align-items: center;
-        flex-flow: column-reverse;
         justify-content: center;
     }
 

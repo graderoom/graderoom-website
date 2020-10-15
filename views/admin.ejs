@@ -100,13 +100,14 @@
                         <% if (u.betaFeatures.active) { %>
                             Beta<br>
                         <% } %>
-                        <%= u.loggedIn.length ;%> logins
+                        <%= u.loggedIn.length; %> logins<br>
+                        <%= u.alerts.lastUpdated.length; %> syncs
                     </td>
                     <td class="admin">
                         <% if (u.alerts.remoteAccess === "allowed") { %>
                             <form action="/viewuser" method="get" style="display: inline-block;">
                                 <button type="submit" name="usernameToRender" class="btn btn-sm admin"
-                                        value="<%= u.username ;%>">
+                                        value="<%= u.username; %>">
                                     Render User Site
                                 </button>
                             </form>

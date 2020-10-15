@@ -21,6 +21,15 @@
         <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
     <% } %>
     <link rel="stylesheet" type="text/css" href="public/css/main.css">
+    <link id="blur_base" rel="stylesheet" type="text/css" href="public/css/blur.css"
+          <% if (!JSON.parse(appearance).blurEffects) { %>disabled
+            <% } %>
+    >
+    <link id="blur_overrides" rel="stylesheet" type="text/css"
+          href="public/css/<%= (theme ? "dark" : "light"); %>_blur.css"
+          <% if (!JSON.parse(appearance).blurEffects) { %>disabled
+            <% } %>
+    >
     <link id="fade" rel="stylesheet" type="text/css" href="public/css/fade.css" disabled>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -32,31 +41,8 @@
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.7"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js"></script>
-
-    <% if (JSON.parse(betaFeatures).blurEffects) { %>
-        <style>
-            .blurred-background, .blur {
-                backdrop-filter: url(#svg-blur);
-            }
-
-            .blur {
-                background-color: transparent;
-            }
-        </style>
-    <% } %>
 </head>
 <body>
-
-<!-- SVG Blur Filter -->
-<!-- 'stdDeviation' is the blur amount applied -->
-<% if (JSON.parse(betaFeatures).blurEffects) { %>
-    <svg id="svg-filter" style="position: absolute">
-        <filter id="svg-blur">
-            <feGaussianBlur in="SourceGraphic"
-                            stdDeviation="<%= JSON.parse(appearance).blurAmount || 4; %>"></feGaussianBlur>
-        </filter>
-    </svg>
-<% } %>
 
 <% if (JSON.parse(alerts).policyLastSeen === "never" || JSON.parse(alerts).termsLastSeen === "never") { %>
 
@@ -93,7 +79,18 @@
                     <% if (JSON.parse(appearance).showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
                         <li class="nav-item" id="link<%= i + offset; %>">
                             <a class="nav-link" style="color: <%= JSON.parse(appearance).classColors[i]; %>"
-                               onclick="showPage(<%= i + offset; %>)"><%= (JSON.parse(gradeData)[i].class_name); %></a>
+                               onclick="showPage(<%= i + offset; %>)"><%= (JSON.parse(gradeData)[i].class_name); %>
+                                <br><%= (JSON.parse(gradeData)[i].overall_percent + '%'); %>
+                                (<%= (JSON.parse(gradeData)[i].overall_letter); %>)
+                                <span class="popup">
+                                    <i id="incorrectOverviewGrade<%= i + offset; %>"
+                                       class="fa fa-exclamation-triangle"
+                                       style="display: none; margin-left: 0.2rem">
+                                        <span class="popup-bottom">
+                                            Does not match calculated grade
+                                        </span>
+                                    </i></span>
+                            </a>
                         </li>
                     <% } else {
                         offset--;
@@ -127,7 +124,7 @@
                             if ("term" in props && "semester" in props) {
                                 $("#" + props["term"]).addClass("active");
                                 $("#" + props["term"] + props["semester"]).addClass("active");
-                                $('#oldSemesterMsg').show();
+                                $("#oldSemesterMsg").show();
                             } else {
                                 let termsAndSemesters = <%- termsAndSemesters %>;
                                 $("#" + termsAndSemesters.slice(-1)[0][0]).addClass("active");
@@ -215,14 +212,7 @@
                                                 style="cursor: pointer; text-align: center; color: <%= JSON.parse(appearance).classColors[i]; %>"
                                                 onclick="showPage(<%= i + offset; %>)">
                                                 <%= JSON.parse(gradeData)[i].class_name; %>
-                                                <span class="popup">
-                                                    <i id="incorrectOverviewGrade<%= i + offset; %>"
-                                                       class="fa fa-exclamation-triangle"
-                                                       style="display: none; margin-left: 0.2rem">
-                                                        <span class="popup-top-left">
-                                                            Does not match calculated grade
-                                                        </span>
-                                                    </i></span></th>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -232,8 +222,12 @@
                                                 onclick="showPage(<%= i + offset; %>)">
                                                 <div id="overviewChart<%= i + offset; %>"
                                                      style="display:block; font-weight:bolder">
-                                                    <div style="color: <%= JSON.parse(appearance).classColors[i]; %> !important"
-                                                         class="fa fa-spin fa-spinner overviewTableLoading"></div>
+                                                    <div style="color: <%= JSON.parse(appearance).classColors[i]; %> !important">
+                                                        <div class="overallLetter"><%= JSON.parse(gradeData)[i].overall_letter %></div>
+                                                        <div class="overallGrade"><%= JSON.parse(gradeData)[i].overall_percent %>
+                                                            %
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </td>
                                         </tr>
@@ -524,63 +518,63 @@
                                 <tbody></tbody>
                             </table>
                         </div>
-                            <table class="table rounded-table class-table text-center categoryTable<%= i + offset; %>">
-                                <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].weights).length; j++) { %>
-                                    <% let category = Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].weights)[j]; %>
-                                    <thead class="categoryStart">
-                                        <% if (j > 0) { %>
-                                            <tr class="separator">
-                                                <td colspan="6"></td>
-                                            </tr>
-                                        <% } %>
-                                        <tr>
-                                            <th colspan="6"><%= category; %></th>
-                                            <th class="toolTab categoryModAllTab<%= i + offset %>">
-                                                <span class="popup">
-                                                    <i
-                                                            class="fa fa-undo resetCategory<%= i + offset %> disabled"
-                                                            onclick="{resetCategory(this)}">
-                                                        <span class="popup-top-left">
-                                                            Revert ALL changes in <span
-                                                                    class="tutorial-popup"><%= category; %></span>
-                                                        </span>
-                                                    </i>
-                                                </span>
-                                                <span class="popup">
-                                                    <i
-                                                            class="fa fa-trash trashCategory<%= i + offset %> disabled"
-                                                            onclick="{trashCategory(this);}"><span
-                                                                class="popup-top-left">
-                                                            Delete ALL added assignments in <span
-                                                                    class="tutorial-popup"><%= category; %></span>
-                                                        </span>
-                                                    </i>
-                                                </span>
-                                                <span class="popup">
-                                                    <i
-                                                            class="fa fa-check saveCategory<%= i + offset %> disabled"
-                                                            onclick="{saveCategory(this);}"><span
-                                                                class="popup-top-left">
-                                                            Save ALL changes in <span
-                                                                    class="tutorial-popup"><%= category; %></span>
-                                                        </span>
-                                                    </i>
-                                                </span>
-                                            </th>
+                        <table class="table rounded-table class-table text-center categoryTable<%= i + offset; %>">
+                            <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].weights).length; j++) { %>
+                                <% let category = Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].weights)[j]; %>
+                                <thead class="categoryStart">
+                                    <% if (j > 0) { %>
+                                        <tr class="separator">
+                                            <td colspan="6"></td>
                                         </tr>
-                                        <tr>
-                                            <th>Date</th>
-                                            <th>Assignment Name</th>
-                                            <th>Category</th>
-                                            <th>Score</th>
-                                            <th>Assignment Percent</th>
-                                            <th>Category Grade</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                <% } %>
-                            </table>
+                                    <% } %>
+                                    <tr>
+                                        <th colspan="6"><%= category; %></th>
+                                        <th class="toolTab categoryModAllTab<%= i + offset %>">
+                                            <span class="popup">
+                                                <i
+                                                        class="fa fa-undo resetCategory<%= i + offset %> disabled"
+                                                        onclick="{resetCategory(this)}">
+                                                    <span class="popup-top-left">
+                                                        Revert ALL changes in <span
+                                                                class="tutorial-popup"><%= category; %></span>
+                                                    </span>
+                                                </i>
+                                            </span>
+                                            <span class="popup">
+                                                <i
+                                                        class="fa fa-trash trashCategory<%= i + offset %> disabled"
+                                                        onclick="{trashCategory(this);}"><span
+                                                            class="popup-top-left">
+                                                        Delete ALL added assignments in <span
+                                                                class="tutorial-popup"><%= category; %></span>
+                                                    </span>
+                                                </i>
+                                            </span>
+                                            <span class="popup">
+                                                <i
+                                                        class="fa fa-check saveCategory<%= i + offset %> disabled"
+                                                        onclick="{saveCategory(this);}"><span
+                                                            class="popup-top-left">
+                                                        Save ALL changes in <span
+                                                                class="tutorial-popup"><%= category; %></span>
+                                                    </span>
+                                                </i>
+                                            </span>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Assignment Name</th>
+                                        <th>Category</th>
+                                        <th>Score</th>
+                                        <th>Assignment Percent</th>
+                                        <th>Category Grade</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            <% } %>
+                        </table>
                     </span>
                 <% } else {
                     offset--;
@@ -597,7 +591,7 @@
 
             function setupColorStuff() {
                 // Class links
-                $.makeArray($(".nav-link")).slice(1).forEach((x, i) => $(x).css("color", colors[i]));
+                $.makeArray($("#classLinks a.nav-link")).slice(1).forEach((x, i) => $(x).css("color", colors[i]));
 
                 // Overview Chart
                 $.makeArray($(".overview")).forEach((x, i) => $(x).css("color", colors[Math.floor(i / 2) % colors.length]));
@@ -625,7 +619,7 @@
                 clearTimeout(refreshing);
                 parseData(changedClassIndex);
                 setupWeightsTables(changedClassIndex);
-                setupOverviewTable(changedClassIndex);
+                // setupOverviewTable(changedClassIndex);
                 setupClassTables(changedClassIndex);
                 setupGPADisplays();
                 setupIncorrectGradeMessages(changedClassIndex);
@@ -663,7 +657,6 @@
             let gradeSync = <%= gradeSync; %>;
             let data = <%- gradeData; %>;
             let _data = JSON.parse(JSON.stringify(data)); // This is a local copy
-            let changeData = <%- changeData; %>;
             let addedAssignments = <%- addedAssignments; %>;
             let weights = <%- weightData; %>;
             let relClassData = <%- relevantClassData; %>;
@@ -707,8 +700,9 @@
             setupWeightsTableListeners();
             setupInputListeners();
             setupAddAssignments();
-            $('#termSwitcher').addClass('hover');
-            setTimeout(() => $('#termSwitcher').removeClass('hover'), 2000);
+            setupGradeChanges(false);
+            $("#termSwitcher").addClass("hover");
+            setTimeout(() => $("#termSwitcher").removeClass("hover"), 2000);
 
             if (alerts.lastUpdated.length !== 0) {
                 try {
@@ -766,6 +760,9 @@
                         clearTimeout(changeTransition);
                         document.getElementById("fade").disabled = false;
                         document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+                        if (appearance.blurEffects) {
+                            document.getElementById("blur_overrides").setAttribute("href", "public/css/dark_blur.css");
+                        }
                         renderAllCharts();
                         $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
                         $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
@@ -780,6 +777,9 @@
                         clearTimeout(changeTransition);
                         document.getElementById("fade").disabled = false;
                         document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+                        if (appearance.blurEffects) {
+                            document.getElementById("blur_overrides").setAttribute("href", "public/css/light_blur.css");
+                        }
                         renderAllCharts();
                         $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
                         $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
@@ -836,8 +836,6 @@
                 if (_.isEqual(_data.map(c => c.class_name), newData.grades.map(c => c.class_name)) && _.isEqual(weights, newData.weights)) {
                     data = newData.grades;
                     _data = JSON.parse(JSON.stringify(data));
-                    alerts.lastUpdated.push(newData.lastUpdated);
-                    refreshWithoutReload();
                     return {updated: true};
                 }
                 clearTimeout(checkLastUpdated);
@@ -852,7 +850,6 @@
                                 let newData = {
                                     grades: JSON.parse(message.grades),
                                     weights: JSON.parse(message.weights),
-                                    lastUpdated: message.time
                                 };
                                 if (!updateData(newData).updated) {
                                     clearInterval(checking);
@@ -866,12 +863,13 @@
                                             window.reload();
                                         });
                                     }
+                                } else {
+                                    alerts.lastUpdated.push(JSON.parse(message.updateData));
+                                    setupGradeChanges();
                                 }
                             } else if (message.message === "Already Synced!") {
                                 clearInterval(checking);
                                 showLatest(false);
-                                changeData = JSON.parse(message.changeData);
-                                setupGradeChanges();
                                 setupLastUpdated();
                             } else if (message.message === "Did not sync") {
                                 $(".updateGradesMessage").find(".messageTxt").text("Syncing...");
@@ -2660,8 +2658,10 @@
                 currentPage = id;
             }
 
-            document.onkeyup = function (e) {
-                if ($("input").is(":focus") || !shortcutsEnabled) {
+            document.onkeydown = function (e) {
+                if (e.ctrlKey || e.altKey) {
+                    // Do nothing
+                } else if ($("input").is(":focus") || !shortcutsEnabled) {
                     // Do nothing
                 } else if (e.key === "ArrowUp") {
                     // up arrow
@@ -2744,6 +2744,7 @@
                     }
                     let addAssignment = $($(".addAssignment")[currentPage]);
                     addAssignment.trigger("click");
+                    $(addAssignment.parent().parent().find("input")[0]).focus();
                 } else if (e.key === "h") {
                     if (cardsDisplayed.includes("settingsCardDisplay")) {
                         if (cardsDisplayed.indexOf("settingsCardDisplay") !== cardsDisplayed.length - 1) {

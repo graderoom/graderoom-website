@@ -151,7 +151,7 @@
         const DAY = 24 * HOUR;
 
         let message = $(".updateGradesMessage").find(".messageTxt");
-        let lastUpdated = alerts.lastUpdated.slice(-1)[0];
+        let lastUpdated = alerts.lastUpdated.slice(-1)[0].timestamp;
         let deltaTime = Date.now() - lastUpdated;
         if (lastUpdated === undefined) {
             message.text("Never synced");
