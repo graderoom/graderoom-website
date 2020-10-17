@@ -44,6 +44,10 @@
 - Assignments from PowerSchool with the same due date are sometimes displayed in a different order than on PowerSchool
 - [Beta] Summer semesters are listed under the incorrect year
 
+## [Stable 3.3.1] - 2020-10-16
+### Fixed
+- Non-functional legend buttons in changelog display
+
 ## [Beta 3.3.0] - 2020-10-15
 ### Added
 - Blur effects are now out of beta! Enable them in advanced appearance settings.
