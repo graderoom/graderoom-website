@@ -75,7 +75,7 @@
 
 ## [Beta 3.2.0] - 2020-10-10
 ### Added
-- New 'Recent Changes' Card that displays all modifications, additions, and removals of assignments after each sync [requested by <em>bbb</em> aka <em>bbbeta</em>]
+- New 'Recent Changes' Card that displays all modifications, additions, and removals of assignments after each sync
 - Keyboard shortcut 'G' for 'Recent Changes' Card
 - New 'More' section to the main navbar
 - [Beta] Message stating that old semesters are view-only. Edits will not be saved.
@@ -109,7 +109,7 @@
 ### Fixed
 - Issue where assignment scores were too accurate by default
 - Issue with cumulative GPA for students who had AP Calculus BC in 19-20 S2
-- Issue with some classes incorrectly included in GPA calculation [reported by <em>safwaank</em>]
+- Issue with some classes incorrectly included in GPA calculation
 
 ### Removed
 - Boundaries when zooming and panning graphs
@@ -120,7 +120,7 @@
 
 ## [Beta 3.0.5] - 2020-09-14
 ### Fixed
-- Issue with some classes incorrectly included in GPA calculation [reported by <em>safwaank</em>]
+- Issue with some classes incorrectly included in GPA calculation
 
 ## [Stable 3.0.4] - 2020-09-14
 ### Improved
@@ -139,7 +139,7 @@
 
 ### Fixed
 - Issue where new weights would not update automatically after sync
-- Issue with password reset [reported by <em>kristofsochan</em>]
+- Issue with password reset
 
 ## [Stable 3.0.2] - 2020-08-27
 ### Added
