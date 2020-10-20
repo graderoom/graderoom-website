@@ -438,6 +438,7 @@
                     if (data.responseText === "Incorrect login details.") {
                         $(message).text("Incorrect school password.");
                         $("#inputPassword").focus();
+                        $(form).find("button").prop("disabled", false);
                     } else {
                         if (formID === "#syncGradesForm") {
                             $("#inputUserPassword").focus();

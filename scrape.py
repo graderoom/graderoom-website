@@ -274,7 +274,7 @@ class PowerschoolScraper:
                     semester_classes = []
 
                 # Check if the current row has class data
-                if title and row.find("td", align="left"):
+                if title != "" and row.find("td", align="left"):
                     data = row.find_all("td")
 
                     class_name = self.clean_string(data[0].text)
@@ -293,9 +293,11 @@ class PowerschoolScraper:
                                                  overall_percent,
                                                  overall_letter)
                         semester_classes.append(local_class.as_dict())
+            
             # Finalize data for the selected year
-            year_data[title] = semester_classes
-            all_history[year] = year_data
+            if title != "":
+                year_data[title] = semester_classes
+                all_history[year] = year_data
 
         if not all_history:
             print(json_format(False, "No class data."))
