@@ -44,6 +44,10 @@
 - Assignments from PowerSchool with the same due date are sometimes displayed in a different order than on PowerSchool
 - [Beta] Summer semesters are listed under the incorrect year
 
+## [Stable 3.3.3] - 2020-10-22
+### Fixed
+- Issue where spamming the sync grades button was possible
+
 ## [Stable 3.3.2] - 2020-10-20
 ### Fixed
 - Issue caused by incorrect school password in GradeSync
