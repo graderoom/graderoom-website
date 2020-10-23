@@ -210,6 +210,7 @@
                 $("#loadingDisplay").show();
                 $("#syncFailure").hide();
                 $("#syncNoData").hide();
+                $(form).find("button").prop("disabled", true);
             }
 
             // Submit the form using AJAX.
@@ -218,8 +219,8 @@
                    }).done(function (response) {
                 if (formID === "#weightedGPAForm") {
                     appearance.weightedGPA = !appearance.weightedGPA;
-                    $('#weightedGPAForm button').each(function () {
-                        $(this).toggleClass('active');
+                    $("#weightedGPAForm button").each(function () {
+                        $(this).toggleClass("active");
                         if ($(this).prop('type') === 'submit') {
                             $(this).prop('type', 'button');
                         } else {
@@ -262,6 +263,7 @@
                         setTimeout(() => window.reload(), 400);
                     } else {
                         setupLastUpdated();
+                        $(form).find("button").prop("disabled", false);
                     }
                 } else {
                     setTimeout(function () {
@@ -406,9 +408,11 @@
                         if (formID === "#syncGradesForm") {
                             $("#inputUserPassword").focus();
                             $(".fa-refresh").removeClass("fa-spin").css("opacity", "");
+                            $(form).find("button").prop("disabled", false);
                         } else if (formID === "#gradeSyncForm") {
                             $("#gradeSyncInputUserPassword").focus();
                             $(".fa-refresh").removeClass("fa-spin").css("opacity", "");
+                            $(form).find("button").prop("disabled", false);
                         }
                         $(message).text(data.responseText);
                     }
