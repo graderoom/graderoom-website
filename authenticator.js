@@ -1525,13 +1525,17 @@ module.exports = {
 
     migrateLastUpdated: function (username) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
-        let current = userRef.get("alerts").get("lastUpdated").value();
-        if (typeof current[0] === "number") {
-            // Migrate
-            let copy = JSON.parse(JSON.stringify(userRef.get("alerts").get("lastUpdated").value()));
+
+        // Migrate
+        let copy = JSON.parse(JSON.stringify(userRef.get("alerts").get("lastUpdated").value()));
+        if (copy.filter(d => typeof d === "number").length) {
             let updated = [];
             for (let i = 0; i < copy.length; i++) {
-                updated.push({timestamp: copy[i], changeData: {}});
+                if (typeof copy[i] === "number") {
+                    updated.push({timestamp: copy[i], changeData: {}});
+                } else {
+                    updated.push(copy[i]);
+                }
             }
             userRef.get("alerts").set("lastUpdated", updated).write();
         }

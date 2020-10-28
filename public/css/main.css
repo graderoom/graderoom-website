@@ -2167,9 +2167,13 @@ input:disabled {
 }
 
 #gradeChangesContainer {
-    overflow: auto;
+    overflow-y: scroll;
     max-height: 60vh;
-    padding: 0;
+    padding: 1rem 0;
+}
+
+#gradeChangesContainer > hr {
+    margin: 1rem;
 }
 
 .grade-changes-card {
@@ -2185,9 +2189,63 @@ input:disabled {
 }
 
 #gradeChangesContainer > span.timestamp {
-    margin: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 0 0 0.5rem;
     padding-right: 1.5rem;
+    cursor: context-menu;
+}
+
+#gradeChangesContainer > span.timestamp > span {
+    font-weight: bold;
+    padding-left: 1rem;
+}
+
+#gradeChangesContainer > span.timestamp {
+    opacity: 0.3;
+}
+
+#gradeChangesContainer > span.timestamp > b {
+    text-align: right;
     opacity: 0.5;
+}
+
+#gradeChangesContainer > span.timestamp.change-data-exists {
+    opacity: 1;
+}
+
+#gradeChangesContainer > span.timestamp.change-data-exists > b {
+    cursor: pointer;
+    transition: all 400ms ease;
+}
+
+#gradeChangesContainer > span.timestamp.change-data-exists > b:hover, #gradeChangesContainer > span.timestamp.change-data-exists > b:not(.collapsed) {
+    opacity: 1;
+}
+
+#gradeChangesContainer > span.timestamp > b::after {
+    font-family: FontAwesome;
+    content: "";
+    color: transparent;
+}
+
+#gradeChangesContainer > span.timestamp.change-data-exists > b::after {
+    line-height: 100%;
+    margin-left: 1rem;
+    color: unset;
+}
+
+#gradeChangesContainer > span.timestamp.change-data-exists > b::after {
+    content: "\f078";
+}
+
+#gradeChangesContainer > span.timestamp.change-data-exists > b.collapsed::after {
+    content: "\f054";
+}
+
+#gradeChangesContainer > div {
+    transition: height 400ms ease;
 }
 
 #gradeChangesContainer > hr:first-of-type {
@@ -2386,7 +2444,7 @@ input:disabled {
         max-width: 3rem;
     }
 
-    .table input, .popup span, .popup span *, .table td {
+    .table input, .popup span:not(.timestamp), .popup span:not(.timestamp) *, .table td {
         font-size: 0.6rem;
     }
 
@@ -2394,7 +2452,7 @@ input:disabled {
         margin-bottom: 0;
     }
 
-    .popup span {
+    .popup span:not(.timestamp) {
         min-width: 5rem !important;
         max-width: 10rem !important;
     }

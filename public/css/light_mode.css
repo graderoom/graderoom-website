@@ -510,6 +510,12 @@ tr:hover .toolTab {
     background-color: #333333;
 }
 
+#gradeChangesContainer span.class-name {
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    background-color: #333333;
+}
+
 /* Mobile Stuff */
 @media only screen and (max-width: 991px) {
     #table-1 {

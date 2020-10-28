@@ -93,12 +93,12 @@
                             </li>
                             <div class="dropdown-divider"></div>
                             <% if (JSON.parse(alerts).lastUpdated.length && JSON.parse(alerts).lastUpdated.slice(-1)[0].changeData.added) { %>
-                                <li id="recentChangesNavBtn" class="nav-item dropdown-item">
-                                    <btn class="btn btn-med" onclick="setupGradeChanges()"><i
-                                                class="fa fa-clock-o" aria-hidden="true"></i> Recent Changes
-                                    </btn>
-                                </li>
-                            <% } %>
+                                    <li id="recentChangesNavBtn" class="nav-item dropdown-item">
+                                        <btn class="btn btn-med" onclick="setupGradeChanges()"><i
+                                                    class="fa fa-clock-o" aria-hidden="true"></i> Sync Log
+                                        </btn>
+                                    </li>
+                                <% } %>
                             <li class="nav-item dropdown-item">
                                 <a class="btn btn-med" href="/finalgradecalculator"><i
                                             class="fa fa-calculator" aria-hidden="true"></i> Calculator
