@@ -44,6 +44,16 @@
 - Assignments from PowerSchool with the same due date are sometimes displayed in a different order than on PowerSchool
 - [Beta] Summer semesters are listed under the incorrect year
 
+## [Beta 3.3.4] - 2020-10-27
+### Improved
+- Recent Changes display is now aptly called 'Sync Log'
+- Sync Log has been compressed to display only relevant information
+- Several styling improvements to Sync Log
+
+### Fixed
+- Issue where assignments that were modified more than once would show incorrect data in some parts of the Sync Log
+- Issue where positive grade increases were not preceded by a '+'
+
 ## [Stable 3.3.3] - 2020-10-22
 ### Fixed
 - Issue where spamming the sync grades button was possible
