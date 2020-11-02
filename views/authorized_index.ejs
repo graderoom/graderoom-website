@@ -657,6 +657,7 @@
             let gradeSync = <%= gradeSync; %>;
             let data = <%- gradeData; %>;
             let _data = JSON.parse(JSON.stringify(data)); // This is a local copy
+            <!--let editedAssignments = <%- /*editedAssignments;*/ %>;-->
             let addedAssignments = <%- addedAssignments; %>;
             let weights = <%- weightData; %>;
             let relClassData = <%- relevantClassData; %>;
@@ -2408,7 +2409,13 @@
                 if (!_data) {
                     return;
                 }
+                let startDate = Infinity;
+                let endDate = 0;
+                let lowScore = Infinity;
                 for (let i = 0; i < _data.length; i++) {
+                    startDate = Math.min(startDate, chartData[i].mixedData.reduce((a, b) => Math.min(a, Date.parse(b.x)), Infinity));
+                    endDate = Math.max(endDate, chartData[i].mixedData.reduce((a, b) => Math.max(a, Date.parse(b.x)), 0));
+                    lowScore = Math.min(lowScore, chartData[i].mixedData.reduce((a, b) => Math.min(a, b.y), Infinity));
                     dataset.push({
                                      label: _data[i].class_name,
                                      backgroundColor: "transparent",
@@ -2426,6 +2433,37 @@
                                      pointHoverBorderWidth: 2
                                  });
                 }
+                let possibles;
+                let possibleLabels;
+                if (startDate < endDate) {
+                    possibles = [{"A-": 89.5}, {"B-": 79.5}, {"C-": 69.5}, {"D-": 59.5}];
+                    possibles = possibles.filter(element => Object.values(element)[0] > lowScore - 5);
+                    possibleLabels = possibles.map(element => Object.keys(element)[0]);
+                    possibles = possibles.map(element => Object.values(element)[0]);
+                    for (let i = 0; i < possibles.length; i++) {
+                        let mixedData = [];
+                        for (let j = startDate; j < endDate; j += Math.ceil((endDate - startDate) / 100)) {
+                            mixedData.push({x: new Date(j), y: possibles[i]});
+                        }
+                        dataset.push({
+                                         label: "undefined",
+                                         backgroundColor: "transparent",
+                                         pointBackgroundColor: "transparent",
+                                         pointBorderColor: "transparent",
+                                         borderColor: "white",
+                                         data: mixedData,
+                                         cubicInterpolationMode: "monotone",
+                                         spanGaps: false,
+                                         borderDash: [10, 10],
+                                         pointRadius: 0,
+                                         borderWidth: 1,
+                                         pointHoverRadius: 0,
+                                         pointHoverBackgroundColor: "transparent",
+                                         pointHoverBorderColor: "white",
+                                         pointHoverBorderWidth: 0
+                                     });
+                    }
+                }
                 let numRunning = 0;
                 charts[0] = new Chart(ctx, {
                     type: "line", data: {
@@ -2438,8 +2476,9 @@
                                 return;
                             }
                             let datasetIndex = activeElements[0]._datasetIndex;
+                            if (datasetIndex >= chartData.length) return;
                             let activeDataset = this.data.datasets[datasetIndex];
-                            for (let i = 0; i < this.data.datasets.length; i++) {
+                            for (let i = 0; i < chartData.length; i++) {
                                 let inactiveDataset = this.data.datasets[i];
                                 inactiveDataset.borderWidth = 3;
                                 inactiveDataset.pointRadius = 3;
@@ -2453,7 +2492,7 @@
                                 numRunning++;
                                 running = setTimeout(() => {
                                     numRunning--;
-                                    for (let i = 0; i < chart.data.datasets.length; i++) {
+                                    for (let i = 0; i < chartData.length; i++) {
                                         let dataset = chart.data.datasets[i];
                                         dataset.borderWidth = 3;
                                         dataset.pointRadius = 3;
@@ -2488,13 +2527,18 @@
                                 fontColor: (darkMode ? "white" : "black"),
                                 fontFamily: "Verdana",
                                 boxWidth: 20,
-                                fontSize: 13
+                                fontSize: 13,
+                                filter: function (item) {
+                                    return !item.text.includes('undefined');
+                                }
                             }
                         }, tooltips: {
                             enabled: true, position: "nearest", intersect: false, displayColors: true, callbacks: {
                                 title: function (tooltipItems) {
+                                    if (tooltipItems[0].datasetIndex >= chartData.length) return possibles[tooltipItems[0].datasetIndex - chartData.length] + "% (" + possibleLabels[tooltipItems[0].datasetIndex - chartData.length] + ")";
                                     return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + +parseFloat(tooltipItems[0].value).toFixed(2) + "%";
                                 }, label: function (tooltipItem) {
+                                    if (tooltipItem.datasetIndex >= chartData.length) return;
                                     return ["[" + chartData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.index] + "] " + chartData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + ((chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== false && chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, 2) !== "--") ? (" - " + chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "% ") : (" ")) + ((chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? ("(" + chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")") : ("(" + chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2) + ")"))];
                                 }
                             }
@@ -2545,25 +2589,61 @@
                     $("#chart-container" + id).html("<button id=\"reset-zoom" + id + "\" style=\"position: absolute; top: 0; right: 0; height: fit-content; display:none\" class=\"btn btn-sm\" onclick=\"resetZoom(" + id + "); $(this).hide()\">Reset</button><div class=\"chart-placeholder fa fa-spin fa-spinner\"></div><canvas id=\"chart" + id + "\"></canvas>");
                     let ctx = document.getElementById("chart" + id);
                     let _colors = colors;
+                    let startDate = chartData[id].mixedData.reduce((a, b) => Math.min(a, Date.parse(b.x)), Infinity);
+                    let endDate = chartData[id].mixedData.reduce((a, b) => Math.max(a, Date.parse(b.x)), 0);
+                    let lowScore = chartData[id].mixedData.reduce((a, b) => Math.min(a, b.y), Infinity);
+                    let dataset = [];
+                    dataset.push({
+                                     label: "chartData[id]",
+                                     backgroundColor: (darkMode ? "rgba(256,256,256,0.05)" : "rgba(0,0,0,0.05)"),
+                                     pointBackgroundColor: _colors[id],
+                                     pointBorderColor: _colors[id],
+                                     borderColor: _colors[id],
+                                     fill: "start",
+                                     data: chartData[id].mixedData,
+                                     cubicInterpolationMode: "monotone",
+                                     spanGaps: false,
+                                     pointRadius: 3,
+                                     borderWidth: 3,
+                                     pointHoverRadius: 7,
+                                     pointHoverBackgroundColor: _colors[id],
+                                     pointHoverBorderColor: _colors[id],
+                                     pointHoverBorderWidth: 2
+                                 });
+                    let possibles;
+                    let possibleLabels;
+                    if (startDate < endDate) {
+                        possibles = [{"A-": 89.5}, {"B-": 79.5}, {"C-": 69.5}, {"D-": 59.5}];
+                        possibles = possibles.filter(element => Object.values(element)[0] > lowScore - 5);
+                        possibleLabels = possibles.map(element => Object.keys(element)[0]);
+                        possibles = possibles.map(element => Object.values(element)[0]);
+                        for (let i = 0; i < possibles.length; i++) {
+                            let mixedData = [];
+                            for (let j = startDate; j < endDate; j += Math.ceil((endDate - startDate) / 100)) {
+                                mixedData.push({x: new Date(j), y: possibles[i]});
+                            }
+                            dataset.push({
+                                             label: "undefined",
+                                             backgroundColor: "transparent",
+                                             pointBackgroundColor: "transparent",
+                                             pointBorderColor: "transparent",
+                                             borderColor: "white",
+                                             data: mixedData,
+                                             cubicInterpolationMode: "monotone",
+                                             spanGaps: false,
+                                             borderDash: [10, 10],
+                                             pointRadius: 0,
+                                             borderWidth: 1,
+                                             pointHoverRadius: 0,
+                                             pointHoverBackgroundColor: "transparent",
+                                             pointHoverBorderColor: "white",
+                                             pointHoverBorderWidth: 0
+                                         });
+                        }
+                    }
                     charts[id + 1] = new Chart(ctx, {
                         type: "line", data: {
-                            datasets: [{
-                                label: "chartData[id]",
-                                backgroundColor: (darkMode ? "rgba(256,256,256,0.05)" : "rgba(0,0,0,0.05)"),
-                                pointBackgroundColor: _colors[id],
-                                pointBorderColor: _colors[id],
-                                borderColor: _colors[id],
-                                fill: "start",
-                                data: chartData[id].mixedData,
-                                cubicInterpolationMode: "monotone",
-                                spanGaps: false,
-                                pointRadius: 3,
-                                borderWidth: 3,
-                                pointHoverRadius: 7,
-                                pointHoverBackgroundColor: _colors[id],
-                                pointHoverBorderColor: _colors[id],
-                                pointHoverBorderWidth: 2
-                            }]
+                            datasets: dataset
                         }, options: {
                             hover: {
                                 mode: "nearest", intersect: false
@@ -2593,9 +2673,11 @@
                                 display: false
                             }, tooltips: {
                                 enabled: true, position: "nearest", intersect: false, displayColors: false, callbacks: {
-                                    title: function (tooltipItems, data) {
+                                    title: function (tooltipItems) {
+                                        if (tooltipItems[0].datasetIndex >= 1) return possibles[tooltipItems[0].datasetIndex - 1] + "% (" + possibleLabels[tooltipItems[0].datasetIndex - 1] + ")";
                                         return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + +parseFloat(tooltipItems[0].value).toFixed(4) + "%";
-                                    }, label: function (tooltipItem, data) {
+                                    }, label: function (tooltipItem) {
+                                        if (tooltipItem.datasetIndex >= 1) return;
                                         return ["[" + chartData[id].assignmentCategories[tooltipItem.index] + "] " + chartData[id].assignmentNames[tooltipItem.index] + ((chartData[id].assignmentPercents[tooltipItem.index] !== false && chartData[id].assignmentScoresParsed[tooltipItem.index].substring(0, 2) !== "--") ? (" - " + chartData[id].assignmentPercents[tooltipItem.index] + "% ") : (" ")) + ((chartData[id].assignmentScoresParsed[tooltipItem.index].substring(chartData[id].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? ("(" + chartData[id].assignmentScoresParsed[tooltipItem.index] + ")") : ("(" + chartData[id].assignmentScoresParsed[tooltipItem.index].substring(0, chartData[id].assignmentScoresParsed[tooltipItem.index].length - 2) + ")"))];
                                     }
                                 }

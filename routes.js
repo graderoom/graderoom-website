@@ -489,7 +489,9 @@ module.exports = function (app, passport) {
             }
         }
         let resp = await authenticator.updateGrades(req.user.username, pass);
-        await authenticator.updateGradeHistory(req.user.username, pass);
+        if (resp.updateHistory) {
+            await authenticator.updateGradeHistory(req.user.username, pass);
+        }
         let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
         if (resp.success || resp.message === "No class data." || resp.message === "Error scraping grades.") {
             if (term && semester) {
