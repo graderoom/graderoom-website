@@ -188,7 +188,7 @@
                             if (oldCategory !== newCategory) {
                                 categoryChange = `<br><span class="score">[` + oldCategory + `] → <span>[` + newCategory + `]</span></span>`;
                             }
-                            card += `<div` + (categoryChange ? ` style="margin-bottom: 1rem"` : ``) + `><span>` + nameChange + categoryChange + `</span>` + scoreChange + `</div>`;
+                            card += `<div` + (categoryChange ? ` style="margin-bottom: 1rem"` : ``) + `><span>` + nameChange + (categoryChange || ``) + `</span>` + scoreChange + `</div>`;
                         }
                     }
                     card += `</div>`;
