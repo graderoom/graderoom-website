@@ -50,7 +50,7 @@
 
 ### Improved
 - Sync Log now displays modifications to the names and categories of assignments
-- Slightly decreased manual syncing speed
+- Slightly increased manual syncing speed
 - Sync Log is now always fully scrolled to top when opened
 
 ### Fixed
