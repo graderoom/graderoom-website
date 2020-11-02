@@ -45,9 +45,13 @@
 - [Beta] Summer semesters are listed under the incorrect year
 
 ## [Beta 3.3.5] - 2020-11-01
+### Added
+- Dashed lines at relevant letter grades on all charts
+
 ### Improved
 - Sync Log now displays modifications to the names and categories of assignments
 - Slightly decreased manual syncing speed
+- Sync Log is now always fully scrolled to top when opened
 
 ### Fixed
 - Issue where sync log was preventing proper functioning of the site
