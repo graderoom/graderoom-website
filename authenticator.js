@@ -980,8 +980,9 @@ module.exports = {
                 user.set("updatedInBackground", "failed").write();
             }
 
-            // TODO optimize (don't need grade history every time)
-            await this.updateGradeHistory(acc_username, school_password);
+            if (resp.updateHistory) {
+                await this.updateGradeHistory(acc_username, school_password);
+            }
         });
     },
 
@@ -1034,9 +1035,11 @@ module.exports = {
         };
         userRef.get("grades").get(newTerm).set(newSemester, newGrades).write();
         this.bringUpToDate(lc_username);
+        let updateHistory = false;
         if (newTerm !== oldTerm && newSemester !== oldSemester) {
             this.setColorPalette(lc_username, "default");
             this.resetSortData(lc_username);
+            updateHistory = true;
         }
 
         let time = Date.now();
@@ -1046,6 +1049,7 @@ module.exports = {
             success: true,
             message: "Updated grades!",
             grades: grade_update_status.new_grades,
+            updateHistory: updateHistory,
             updateData: {timestamp: time, changeData: changeData}
         };
     },

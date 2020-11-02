@@ -150,10 +150,23 @@
                 if (modifiedClasses[j] in modifiedAssignments) {
                     card += `<div class="grade-changes-section"><div class="grade-changes-section-header">Modified</div><hr>`;
                     for (let k = 0; k < modifiedAssignments[modifiedClasses[j]].length; k++) {
-                        let realAssignmentIndex = _data[realIndex].grades.findIndex(g => g.psaid === modifiedAssignments[modifiedClasses[j]][k].psaid);
+                        let searchID = modifiedAssignments[modifiedClasses[j]][k].psaid;
+                        let realAssignmentIndex = _data[realIndex].grades.findIndex(g => g.psaid === searchID);
                         if (realAssignmentIndex === -1) {
                             card += `<div>[Removed] <span class="score"><span></span></span></div>`;
                         } else {
+                            let nameChange;
+                            let oldName = modifiedAssignments[modifiedClasses[j]][k].assignment_name;
+                            let newName = alerts.lastUpdated.find((d, index) => index > i && 'modified' in d.changeData && modifiedClasses[j] in d.changeData.modified && d.changeData.modified[modifiedClasses[j]].filter(s => s.psaid === searchID && 'assignment_name' in s).length);
+                            if (newName) {
+                                newName = newName.changeData.modified[modifiedClasses[j]].find(g => g.psaid === searchID).assignment_name;
+                            }
+                            if (!newName) newName = _data[realIndex].grades[realAssignmentIndex].assignment_name;
+                            if (oldName !== newName) {
+                                nameChange = `<span class="score">` + oldName + ` → <span>` + newName + `</span></span>`;
+                            }
+                            if (!nameChange) nameChange = `<span>` + newName + `</span>`;
+                            let scoreChange;
                             let oldScore = parseScore(modifiedAssignments[modifiedClasses[j]][k].points_gotten, modifiedAssignments[modifiedClasses[j]][k].points_possible);
                             let newScore = alerts.lastUpdated.find((d, index) => index > i && 'modified' in d.changeData && modifiedClasses[j] in d.changeData.modified && d.changeData.modified[modifiedClasses[j]].filter(s => s.psaid === searchID && ('points_gotten' in s || 'points_possible' in s)).length);
                             if (newScore) {
@@ -161,7 +174,21 @@
                                 newScore = parseScore(newScore.points_gotten, newScore.points_possible);
                             }
                             if (!newScore) newScore = parseScore(_data[realIndex].grades[realAssignmentIndex].points_gotten, _data[realIndex].grades[realAssignmentIndex].points_possible);
-                            card += `<div><span>` + _data[realIndex].grades[realAssignmentIndex].assignment_name + `</span><span class="score">(` + oldScore + `) → <span>(` + newScore + `)</span></span></div>`;
+                            if (oldScore !== newScore) {
+                                scoreChange = `<span class="score">(` + oldScore + `) → <span>(` + newScore + `)</span></span>`;
+                            }
+                            if (!scoreChange) scoreChange = `<span>(` + newScore + `)</span>`;
+                            let categoryChange;
+                            let oldCategory = modifiedAssignments[modifiedClasses[j]][k].category;
+                            let newCategory = alerts.lastUpdated.find((d, index) => index > i && 'modified' in d.changeData && modifiedClasses[j] in d.changeData.modified && d.changeData.modified[modifiedClasses[j]].filter(s => s.psaid === searchID && 'category' in s).length);
+                            if (newCategory) {
+                                newCategory = newCategory.changeData.modified[modifiedClasses[j]].find(g => g.psaid === searchID).category;
+                            }
+                            if (!newCategory) newCategory = _data[realIndex].grades[realAssignmentIndex].category;
+                            if (oldCategory !== newCategory) {
+                                categoryChange = `<br><span class="score">[` + oldCategory + `] → <span>[` + newCategory + `]</span></span>`;
+                            }
+                            card += `<div` + (categoryChange ? ` style="margin-bottom: 1rem"` : ``) + `><span>` + nameChange + categoryChange + `</span>` + scoreChange + `</div>`;
                         }
                     }
                     card += `</div>`;

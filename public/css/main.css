@@ -2259,6 +2259,7 @@ input:disabled {
 
 .grade-changes-section > div {
     display: flex;
+    align-items: center;
     justify-content: space-between;
 }
 
