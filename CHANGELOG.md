@@ -44,6 +44,10 @@
 - Assignments from PowerSchool with the same due date are sometimes displayed in a different order than on PowerSchool
 - [Beta] Summer semesters are listed under the incorrect year
 
+## [Beta 3.3.6] - 2020-11-02
+### Fixed
+- Letter grade lines not visible in light mode
+
 ## [Beta 3.3.5] - 2020-11-01
 ### Added
 - Dashed lines at relevant letter grades on all charts
