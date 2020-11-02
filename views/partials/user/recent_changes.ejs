@@ -23,6 +23,7 @@
         let changesExist = false;
         // Clear the container
         let container = $("#gradeChangesContainer");
+        container.animate({scrollTop: 0}, 100);
         container.html("");
 
         let noChangesStreak = 0;
