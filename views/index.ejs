@@ -18,7 +18,7 @@
 </head>
 
 <body>
-<div class="container h-100 d-flex justify-content-center ">
+<div class="container h-100 d-flex justify-content-center">
     <div class="col-sm-10 col-md-8 col-lg-6 col-xl-5">
         <div class="card card-signin my-5 non-responsive" id="signin">
             <div class="card-body">
@@ -31,7 +31,8 @@
                 <% } else { %><br>
                 <% } %>
                 <br>
-                <form id="login" class="form-signin" action="/login" method="post">
+                <form id="login" class="form-signin" action="/login" method="post"
+                      onsubmit="$(this).find('button').prop('disabled', true)">
                     <div class="input-group form-group">
                         <i class="user-bg"></i>
                         <label>Username</label>

@@ -2615,6 +2615,7 @@ input:disabled {
     .overview > div {
         display: flex !important;
         align-items: center;
+        flex-flow: column-reverse;
         justify-content: center;
     }
 

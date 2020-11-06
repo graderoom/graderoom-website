@@ -514,6 +514,12 @@
             closeMessage("emailChangeMessage");
             closeMessage("themeMessage");
         }
+        if (id === "feedbackDisplay") {
+            let oldFrame = $("#feedbackForm").parent();
+            $("#feedbackForm").remove();
+            oldFrame.append(`<iframe id="feedbackForm" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>`);
+            setupFeedbackForm();
+        }
 
         // Manage theme selection, if it exists
         try {

@@ -20,6 +20,7 @@
 </div>
 <script>
     function setupGradeChanges(show = true) {
+        if (oldSemester) return;
         let changesExist = false;
         // Clear the container
         let container = $("#gradeChangesContainer");
