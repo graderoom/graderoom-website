@@ -99,6 +99,9 @@
             </ul>
         <% } %>
 
+        <script>
+            let oldSemester = false;
+        </script>
         <!-- Main Screen -->
         <div class="container">
             <div class="backToHome" style="display: none" onclick="showPage(-1)">
@@ -125,6 +128,8 @@
                                 $("#" + props["term"]).addClass("active");
                                 $("#" + props["term"] + props["semester"]).addClass("active");
                                 $("#oldSemesterMsg").show();
+                                $("#recentChangesNavBtn").hide();
+                                oldSemester = true;
                             } else {
                                 let termsAndSemesters = <%- termsAndSemesters %>;
                                 $("#" + termsAndSemesters.slice(-1)[0][0]).addClass("active");
@@ -619,7 +624,7 @@
                 clearTimeout(refreshing);
                 parseData(changedClassIndex);
                 setupWeightsTables(changedClassIndex);
-                // setupOverviewTable(changedClassIndex);
+                setupOverviewTable(changedClassIndex);
                 setupClassTables(changedClassIndex);
                 setupGPADisplays();
                 setupIncorrectGradeMessages(changedClassIndex);
@@ -849,8 +854,7 @@
                         if (status === "success") {
                             if (message.message === "Sync Complete!") {
                                 let newData = {
-                                    grades: JSON.parse(message.grades),
-                                    weights: JSON.parse(message.weights),
+                                    grades: JSON.parse(message.grades), weights: JSON.parse(message.weights),
                                 };
                                 if (!updateData(newData).updated) {
                                     clearInterval(checking);
@@ -867,6 +871,7 @@
                                 } else {
                                     alerts.lastUpdated.push(JSON.parse(message.updateData));
                                     setupGradeChanges();
+                                    refreshWithoutReload(true);
                                 }
                             } else if (message.message === "Already Synced!") {
                                 clearInterval(checking);
@@ -915,12 +920,7 @@
                 $("#GPA-display").removeClass("ignored");
                 for (let i = 0; i < _data.length; i++) {
                     if (classIndex === undefined || classIndex === i) {
-                        let realOverallGrade = _data[i].overall_percent;
-                        let realOverallLetter = _data[i].overall_letter;
-                        let calculatedOverallGrade = getOverallGrade(i);
-                        let correctDecimalPlaces = getOverallGrade(i).toFixed(countDecimals(realOverallGrade));
-                        let calculatedOverallLetter = getLetterGrade(calculatedOverallGrade);
-                        if (correctDecimalPlaces != realOverallGrade || calculatedOverallLetter !== realOverallLetter) {
+                        if (!correctCalc(i)) {
                             $("#incorrectOverviewGrade" + i).css("display", "inline-block");
                             $("#incorrectOverallGrade" + i).css("display", "inline-block");
                         } else {
@@ -929,6 +929,15 @@
                         }
                     }
                 }
+            }
+
+            function correctCalc(classIndex) {
+                let realOverallGrade = _data[classIndex].overall_percent;
+                let realOverallLetter = _data[classIndex].overall_letter;
+                let calculatedOverallGrade = getOverallGrade(classIndex);
+                let correctDecimalPlaces = getOverallGrade(classIndex).toFixed(countDecimals(realOverallGrade));
+                let calculatedOverallLetter = getLetterGrade(calculatedOverallGrade);
+                return (correctDecimalPlaces == realOverallGrade && calculatedOverallLetter === realOverallLetter);
             }
 
             function countDecimals(value) {
@@ -2161,8 +2170,10 @@
                     delta = (delta ? (" <div class=\"delta\" style=\"color: " + color + "\">" + delta + "</div>") : "");
                     if (overallGrade) {
                         document.getElementById("overviewChart" + i).innerHTML = "<div class=\"overallGrade\">" + (+(overallGrade.toFixed(4))).toString() + "%" + "</div><div class=\"overallLetter\">" + _data[i].overall_letter + "</div>" + delta;
+                        document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>` + _data[i].overall_percent + ` (` + _data[i].overall_letter + `)<span class="popup"><i id="incorrectOverviewGrade` + i + `"class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-bottom">Does not match calculated grade</span></i></span>`;
                     } else {
                         document.getElementById("overviewChart" + i).innerHTML = "N/A";
+                        document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>N/A<span class="popup"><i id="incorrectOverviewGrade` + i + `"class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-bottom">Does not match calculated grade</span></i></span>`;
                     }
                 }
             }
@@ -2375,6 +2386,15 @@
             function renderAllCharts(classIndex) {
                 if (_data && _data.length && !mobile) {
                     renderOverviewChart();
+                    $('#chart-1').click(function (e) {
+                        let activePoints = charts[0].getElementsAtEvent(e);
+                        let activeDataSet = charts[0].getDatasetAtEvent(e);
+
+                        if (activePoints.length > 0) {
+                            let clickedDatasetIndex = activeDataSet[0]._datasetIndex;
+                            showPage(clickedDatasetIndex);
+                        }
+                    });
                     for (let i = 0; i < _data.length; i++) {
                         if (classIndex === undefined || classIndex === i) {
                             renderChart(i);
@@ -2416,17 +2436,30 @@
                     startDate = Math.min(startDate, chartData[i].mixedData.reduce((a, b) => Math.min(a, Date.parse(b.x)), Infinity));
                     endDate = Math.max(endDate, chartData[i].mixedData.reduce((a, b) => Math.max(a, Date.parse(b.x)), 0));
                     lowScore = Math.min(lowScore, chartData[i].mixedData.reduce((a, b) => Math.min(a, b.y), Infinity));
+                    let _mixedData = JSON.parse(JSON.stringify(chartData[i].mixedData));
+                    if (!correctCalc(i)) {
+                        if (endDate === 0) {
+                            _mixedData.push({
+                                                x: new Date(Date.now() - 24 * 60 * 60 * 1000),
+                                                y: _data[i].overall_percent
+                                            });
+                            _mixedData.push({x: new Date(Date.now()), y: _data[i].overall_percent});
+                        } else {
+                            _mixedData.push({x: new Date(endDate + 24 * 60 * 60 * 1000), y: _data[i].overall_percent});
+                        }
+                    }
                     dataset.push({
                                      label: _data[i].class_name,
                                      backgroundColor: "transparent",
                                      pointBackgroundColor: _colors[i],
                                      pointBorderColor: "transparent",
-                                     borderColor: _colors[i],
-                                     data: chartData[i].mixedData,
+                                     borderColor: (correctCalc(i) ? _colors[i] : "darkgray"),
+                                     data: _mixedData,
                                      cubicInterpolationMode: "monotone",
+                                     borderDash: (correctCalc(i) ? [0, 0] : [3, 3]),
                                      spanGaps: false,
                                      pointRadius: 3,
-                                     borderWidth: 3,
+                                     borderWidth: (correctCalc(i) ? 3 : 1),
                                      pointHoverRadius: 7,
                                      pointHoverBackgroundColor: _colors[i],
                                      pointHoverBorderColor: _colors[i],
@@ -2476,15 +2509,18 @@
                                 return;
                             }
                             let datasetIndex = activeElements[0]._datasetIndex;
-                            if (datasetIndex >= chartData.length) return;
                             let activeDataset = this.data.datasets[datasetIndex];
-                            for (let i = 0; i < chartData.length; i++) {
+                            for (let i = 0; i < this.data.datasets.length; i++) {
+                                if (i >= chartData.length) continue;
+                                if (!correctCalc(i)) continue;
                                 let inactiveDataset = this.data.datasets[i];
                                 inactiveDataset.borderWidth = 3;
                                 inactiveDataset.pointRadius = 3;
                             }
-                            activeDataset.borderWidth = 6;
-                            activeDataset.pointRadius = 6;
+                            if (datasetIndex < chartData.length && correctCalc(datasetIndex)) {
+                                activeDataset.borderWidth = 6;
+                                activeDataset.pointRadius = 6;
+                            }
                             this.update(100);
                             let chart = this;
                             if (numRunning === 0) {
@@ -2492,7 +2528,9 @@
                                 numRunning++;
                                 running = setTimeout(() => {
                                     numRunning--;
-                                    for (let i = 0; i < chartData.length; i++) {
+                                    for (let i = 0; i < this.data.datasets.length; i++) {
+                                        if (i >= chartData.length) continue;
+                                        if (!correctCalc(i)) continue;
                                         let dataset = chart.data.datasets[i];
                                         dataset.borderWidth = 3;
                                         dataset.pointRadius = 3;
@@ -2513,9 +2551,7 @@
                                 ticks: {
                                     suggestedMax: appearance.regularizeClassGraphs ? 110 : undefined,
                                     suggestedMin: appearance.regularizeClassGraphs ? 70 : undefined,
-                                    fontColor: (darkMode ? "white" : "black"),
-                                    fontFamily: "Verdana",
-                                    fontSize: "12"
+                                    fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "12"
                                 }, gridLines: {
                                     color: (darkMode ? "#555555" : "#CCCCCC"), drawBorder: false
                                 }
@@ -2524,6 +2560,7 @@
                             easing: "easeOutCubic"
                         }, legend: {
                             display: true, position: "top", labels: {
+                                usePointStyle: true,
                                 fontColor: (darkMode ? "white" : "black"),
                                 fontFamily: "Verdana",
                                 boxWidth: 20,
@@ -2533,12 +2570,23 @@
                                 }
                             }
                         }, tooltips: {
-                            enabled: true, position: "nearest", intersect: false, displayColors: true, callbacks: {
+                            enabled: true, mode: "nearest", intersect: false, displayColors: true, callbacks: {
                                 title: function (tooltipItems) {
                                     if (tooltipItems[0].datasetIndex >= chartData.length) return possibles[tooltipItems[0].datasetIndex - chartData.length] + "% (" + possibleLabels[tooltipItems[0].datasetIndex - chartData.length] + ")";
-                                    return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + +parseFloat(tooltipItems[0].value).toFixed(2) + "%";
+                                    if (!correctCalc(tooltipItems[0].datasetIndex)) {
+                                        if (!chartData[tooltipItems[0].datasetIndex].mixedData.length) return "Unknown Date " + _data[tooltipItems[0].datasetIndex].overall_percent + "% (" + _data[tooltipItems[0].datasetIndex].overall_letter + ")";
+                                        if (tooltipItems[0].index >= chartData[tooltipItems[0].datasetIndex].mixedData.length) return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + _data[tooltipItems[0].datasetIndex].overall_percent + "% (" + _data[tooltipItems[0].datasetIndex].overall_letter + ")";
+                                        return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " N/A [Inaccurate weights]";
+                                    }
+                                    return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + +parseFloat(tooltipItems[0].value).toFixed(2) + "% (" + getLetterGrade(tooltipItems[0].value) + ")";
                                 }, label: function (tooltipItem) {
                                     if (tooltipItem.datasetIndex >= chartData.length) return;
+                                    if (!chartData[tooltipItem.datasetIndex].mixedData.length) return;
+                                    if (tooltipItem.index >= chartData[tooltipItem.datasetIndex].mixedData.length) {
+                                        let delta = +(_data[tooltipItem.datasetIndex].overall_percent - chartData[tooltipItem.datasetIndex].mixedData.slice(-1)[0].y).toFixed(3);
+                                        if (delta > 0) delta = "+" + delta;
+                                        return delta + "% (To Match PowerSchool)";
+                                    }
                                     return ["[" + chartData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.index] + "] " + chartData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + ((chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== false && chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, 2) !== "--") ? (" - " + chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "% ") : (" ")) + ((chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? ("(" + chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")") : ("(" + chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2) + ")"))];
                                 }
                             }
@@ -2565,10 +2613,6 @@
                                     }, onPanComplete: ({chart}) => {
                                         chart.options.hover.mode = "nearest";
                                         chart.options.tooltips.enabled = true;
-                                    }, rangeMin: {
-                                        y: 0
-                                    }, rangeMax: {
-                                        y: 150
                                     }
                                 }
                             }
@@ -2585,36 +2629,46 @@
 
             function renderChart(id) {
                 $("#chart" + id).remove();
-                if (chartData[id].mixedData.length) {
-                    $("#chart-container" + id).html("<button id=\"reset-zoom" + id + "\" style=\"position: absolute; top: 0; right: 0; height: fit-content; display:none\" class=\"btn btn-sm\" onclick=\"resetZoom(" + id + "); $(this).hide()\">Reset</button><div class=\"chart-placeholder fa fa-spin fa-spinner\"></div><canvas id=\"chart" + id + "\"></canvas>");
-                    let ctx = document.getElementById("chart" + id);
-                    let _colors = colors;
-                    let startDate = chartData[id].mixedData.reduce((a, b) => Math.min(a, Date.parse(b.x)), Infinity);
-                    let endDate = chartData[id].mixedData.reduce((a, b) => Math.max(a, Date.parse(b.x)), 0);
-                    let lowScore = chartData[id].mixedData.reduce((a, b) => Math.min(a, b.y), Infinity);
-                    let dataset = [];
-                    dataset.push({
-                                     label: "chartData[id]",
-                                     backgroundColor: (darkMode ? "rgba(256,256,256,0.05)" : "rgba(0,0,0,0.05)"),
-                                     pointBackgroundColor: _colors[id],
-                                     pointBorderColor: _colors[id],
-                                     borderColor: _colors[id],
-                                     fill: "start",
-                                     data: chartData[id].mixedData,
-                                     cubicInterpolationMode: "monotone",
-                                     spanGaps: false,
-                                     pointRadius: 3,
-                                     borderWidth: 3,
-                                     pointHoverRadius: 7,
-                                     pointHoverBackgroundColor: _colors[id],
-                                     pointHoverBorderColor: _colors[id],
-                                     pointHoverBorderWidth: 2
-                                 });
-                    let possibles;
-                    let possibleLabels;
-                    if (startDate < endDate) {
-                        possibles = [{"A-": 89.5}, {"B-": 79.5}, {"C-": 69.5}, {"D-": 59.5}];
-                        possibles = possibles.filter(element => Object.values(element)[0] > lowScore - 5);
+                // if (chartData[id].mixedData.length) {
+                $("#chart-container" + id).html("<button id=\"reset-zoom" + id + "\" style=\"position: absolute; top: 0; right: 0; height: fit-content; display:none\" class=\"btn btn-sm\" onclick=\"resetZoom(" + id + "); $(this).hide()\">Reset</button><div class=\"chart-placeholder fa fa-spin fa-spinner\"></div><canvas id=\"chart" + id + "\"></canvas>");
+                let ctx = document.getElementById("chart" + id);
+                let _colors = colors;
+                let startDate = chartData[id].mixedData.reduce((a, b) => Math.min(a, Date.parse(b.x)), Infinity);
+                let endDate = chartData[id].mixedData.reduce((a, b) => Math.max(a, Date.parse(b.x)), 0);
+                let lowScore = chartData[id].mixedData.reduce((a, b) => Math.min(a, b.y), Infinity);
+                let dataset = [];
+                let _mixedData = JSON.parse(JSON.stringify(chartData[id].mixedData));
+                if (!correctCalc(id)) {
+                    if (endDate === 0) {
+                        _mixedData.push({x: new Date(Date.now() - 24 * 60 * 60 * 1000), y: _data[id].overall_percent});
+                        _mixedData.push({x: new Date(Date.now()), y: _data[id].overall_percent});
+                    } else {
+                        _mixedData.push({x: new Date(endDate + 24 * 60 * 60 * 1000), y: _data[id].overall_percent});
+                    }
+                }
+                dataset.push({
+                                 label: "chartData[id]",
+                                 backgroundColor: (darkMode ? "rgba(256,256,256,0.05)" : "rgba(0,0,0,0.05)"),
+                                 pointBackgroundColor: _colors[id],
+                                 pointBorderColor: _colors[id],
+                                 borderColor: (correctCalc(id) ? _colors[id] : "darkgray"),
+                                 fill: "start",
+                                 data: _mixedData,
+                                 cubicInterpolationMode: "monotone",
+                                 borderDash: (correctCalc(id) ? [0, 0] : [3, 3]),
+                                 spanGaps: false,
+                                 pointRadius: 3,
+                                 borderWidth: (correctCalc(id) ? 3 : 1),
+                                 pointHoverRadius: 7,
+                                 pointHoverBackgroundColor: _colors[id],
+                                 pointHoverBorderColor: _colors[id],
+                                 pointHoverBorderWidth: 2
+                             });
+                let possibles;
+                let possibleLabels;
+                if (startDate < endDate) {
+                    possibles = [{"A-": 89.5}, {"B-": 79.5}, {"C-": 69.5}, {"D-": 59.5}];
+                    possibles = possibles.filter(element => Object.values(element)[0] > lowScore - 5);
                         possibleLabels = possibles.map(element => Object.keys(element)[0]);
                         possibles = possibles.map(element => Object.values(element)[0]);
                         for (let i = 0; i < possibles.length; i++) {
@@ -2675,9 +2729,20 @@
                                 enabled: true, position: "nearest", intersect: false, displayColors: false, callbacks: {
                                     title: function (tooltipItems) {
                                         if (tooltipItems[0].datasetIndex >= 1) return possibles[tooltipItems[0].datasetIndex - 1] + "% (" + possibleLabels[tooltipItems[0].datasetIndex - 1] + ")";
-                                        return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + +parseFloat(tooltipItems[0].value).toFixed(4) + "%";
+                                        if (!correctCalc(id)) {
+                                            if (!chartData[id].mixedData.length) return "Unknown Date " + _data[id].overall_percent + "% (" + _data[id].overall_letter + ")";
+                                            if (tooltipItems[0].index >= chartData[id].mixedData.length) return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + _data[id].overall_percent + "% (" + _data[id].overall_letter + ")";
+                                            return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " N/A [Inaccurate weights]";
+                                        }
+                                        return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + +parseFloat(tooltipItems[0].value).toFixed(4) + "% (" + getLetterGrade(tooltipItems[0].value) + ")";
                                     }, label: function (tooltipItem) {
                                         if (tooltipItem.datasetIndex >= 1) return;
+                                        if (!chartData[tooltipItem.datasetIndex].mixedData.length) return;
+                                        if (tooltipItem.index >= chartData[id].mixedData.length) {
+                                            let delta = +(_data[id].overall_percent - chartData[id].mixedData.slice(-1)[0].y).toFixed(3);
+                                            if (delta > 0) delta = "+" + delta;
+                                            return delta + "% (To Match PowerSchool)";
+                                        }
                                         return ["[" + chartData[id].assignmentCategories[tooltipItem.index] + "] " + chartData[id].assignmentNames[tooltipItem.index] + ((chartData[id].assignmentPercents[tooltipItem.index] !== false && chartData[id].assignmentScoresParsed[tooltipItem.index].substring(0, 2) !== "--") ? (" - " + chartData[id].assignmentPercents[tooltipItem.index] + "% ") : (" ")) + ((chartData[id].assignmentScoresParsed[tooltipItem.index].substring(chartData[id].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? ("(" + chartData[id].assignmentScoresParsed[tooltipItem.index] + ")") : ("(" + chartData[id].assignmentScoresParsed[tooltipItem.index].substring(0, chartData[id].assignmentScoresParsed[tooltipItem.index].length - 2) + ")"))];
                                     }
                                 }
@@ -2704,19 +2769,15 @@
                                         }, onPanComplete: ({chart}) => {
                                             chart.options.hover.mode = "nearest";
                                             chart.options.tooltips.enabled = true;
-                                        }, rangeMin: {
-                                            y: 0
-                                        }, rangeMax: {
-                                            y: 150
                                         }
                                     }
                                 }
                             }
                         }
                     });
-                } else {
-                    $("#chart-container" + id).html("<div style=\"height: 100%; font-size: 3rem; font-weight: bold;text-align: center; filter: opacity(0.5); line-height: 100%\">No Data</div>");
-                }
+                // } else {
+                //     $("#chart-container" + id).html("<div style=\"height: 100%; font-size: 3rem; font-weight: bold;text-align: center; filter: opacity(0.5); line-height: 100%\">No Data</div>");
+                // }
             }
 
             function showPage(id) {
