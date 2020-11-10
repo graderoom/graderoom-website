@@ -115,11 +115,11 @@
             <% if (JSON.parse(betaFeatures).showTermSwitcher) { %>
                 <div id="termSwitcher" class="blur">
                     <% for (let i = 0; i < JSON.parse(termsAndSemesters).length; i++) { %>
-                        <div id="<%= JSON.parse(termsAndSemesters)[i][0] %>"><%= JSON.parse(termsAndSemesters)[i][0] %>
+                        <div id="<%= JSON.parse(termsAndSemesters)[i][0] ;%>"><%= JSON.parse(termsAndSemesters)[i][0] ;%>
 
                             <% for (let j = 0; j < JSON.parse(termsAndSemesters)[i][1].length; j++) { %>
-                                <div onclick="window.location.href='/?term=<%= JSON.parse(termsAndSemesters)[i][0] %>&semester=<%= JSON.parse(termsAndSemesters)[i][1][j] %>'"
-                                     id="<%= JSON.parse(termsAndSemesters)[i][0] %><%= JSON.parse(termsAndSemesters)[i][1][j] %>"><%= JSON.parse(termsAndSemesters)[i][1][j] %></div>
+                                <div onclick="window.location.href='/' + (window.location.href.indexOf('usernameToRender') === -1 ? '?' : 'viewuser?' + window.location.href.slice(window.location.href.indexOf('usernameToRender'),window.location.href.indexOf('&') === -1 ? undefined : window.location.href.indexOf('&')) + '&') + 'term=<%= JSON.parse(termsAndSemesters)[i][0] ;%>&semester=<%= JSON.parse(termsAndSemesters)[i][1][j] ;%>'"
+                                     id="<%= JSON.parse(termsAndSemesters)[i][0] ;%><%= JSON.parse(termsAndSemesters)[i][1][j] ;%>"><%= JSON.parse(termsAndSemesters)[i][1][j] ;%></div>
                             <% } %>
                         </div>
                         <script>
@@ -661,9 +661,11 @@
             let isAdmin = <%= isAdmin; %>;
             let gradeSync = <%= gradeSync; %>;
             let data = <%- gradeData; %>;
-            let _data = JSON.parse(JSON.stringify(data)); // This is a local copy
-            <!--let editedAssignments = <%- /*editedAssignments;*/ %>;-->
+            let aData = data.map(c => Array(c.grades.length).fill(undefined)); // added assignment placeholders will go in here
+            let editedAssignments = <%- editedAssignments; %>;
+            let _editedAssignments = JSON.parse(JSON.stringify(editedAssignments)); // Copy to apply edits to edits to
             let addedAssignments = <%- addedAssignments; %>;
+            let _addedAssignments = JSON.parse(JSON.stringify(addedAssignments)); // Copy to apply edits to added assignments to
             let weights = <%- weightData; %>;
             let relClassData = <%- relevantClassData; %>;
             let gradeHistoryLetters = <%- gradeHistory; %>;
@@ -685,10 +687,11 @@
             let mobile = window.innerWidth <= 991;
 
             if (!appearance.showNonAcademic && Object.keys(Object.fromEntries(Object.entries(relClassData).filter(([, v]) => v.classType === "non-academic"))).length > 0) {
-                colors = colors.slice(0, _data.length).filter(color => relClassData[_data[colors.indexOf(color)].class_name].classType !== "non-academic");
-                _data = _data.filter(grade => relClassData[grade.class_name].classType !== "non-academic");
+                colors = colors.slice(0, data.length).filter(color => relClassData[data[colors.indexOf(color)].class_name].classType !== "non-academic");
+                data = data.filter(grade => relClassData[grade.class_name].classType !== "non-academic");
                 weights = Object.fromEntries(Object.entries(weights).filter(([className]) => relClassData[className].classType !== "non-academic"));
             }
+            let _data = JSON.parse(JSON.stringify(data)); // Copy to apply edits to assignments to
 
             let changeTransition;
             let theme = appearance.theme;
@@ -840,8 +843,7 @@
                     return {updated: true};
                 }
                 if (_.isEqual(_data.map(c => c.class_name), newData.grades.map(c => c.class_name)) && _.isEqual(weights, newData.weights)) {
-                    data = newData.grades;
-                    _data = JSON.parse(JSON.stringify(data));
+                    _data = newData.grades;
                     return {updated: true};
                 }
                 clearTimeout(checkLastUpdated);
@@ -854,7 +856,7 @@
                         if (status === "success") {
                             if (message.message === "Sync Complete!") {
                                 let newData = {
-                                    grades: JSON.parse(message.grades), weights: JSON.parse(message.weights),
+                                    grades: JSON.parse(message.grades), weights: JSON.parse(message.weights)
                                 };
                                 if (!updateData(newData).updated) {
                                     clearInterval(checking);
@@ -1299,6 +1301,7 @@
                     exclude: addExclude
                 };
 
+                _addedAssignments[_data[classIndex].class_name].push(JSON.parse(JSON.stringify(assignmentObject)));
                 addedAssignments[_data[classIndex].class_name].push(JSON.parse(JSON.stringify(assignmentObject)));
                 $.ajax({type: "POST", url: "/updateAddedAssignments", data: {data: JSON.stringify(addedAssignments)}});
 
@@ -1330,25 +1333,68 @@
                     assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
                 }
 
-                let assignment = _data[classIndex]["grades"][assignmentIndex];
+                let doRefresh;
+                if (aData[classIndex][assignmentIndex] !== undefined) {
 
-                let doRefresh = false;
-                if (assignment.points_gotten !== parseFloat($(element)[0].value)) {
-                    doRefresh = true;
-                }
-                assignment.points_gotten = parseFloat($(element)[0].value);
-                if (isNaN(assignment.points_gotten)) {
-                    assignment.points_gotten = false;
-                } else if (assignment.points_possible === false) {
-                    assignment.points_possible = 0;
-                }
-                if ((assignment.points_gotten || assignment.points_gotten === 0) && assignment.points_possible) {
-                    assignment.grade_percent = +(parseFloat(assignment.points_gotten / assignment.points_possible * 100)).toFixed(2);
+                    let assignment = _addedAssignments[_data[classIndex].class_name][aData[classIndex][assignmentIndex]];
+
+                    let temp = assignment.points_gotten;
+                    assignment.points_gotten = parseFloat($(element)[0].value);
+                    if (isNaN(assignment.points_gotten)) {
+                        assignment.points_gotten = false;
+                    } else if (assignment.points_possible === false) {
+                        assignment.points_possible = 0;
+                    }
+                    if ((assignment.points_gotten || assignment.points_gotten === 0) && assignment.points_possible) {
+                        assignment.grade_percent = +(parseFloat(assignment.points_gotten / assignment.points_possible * 100)).toFixed(2);
+                    } else {
+                        assignment.grade_percent = false;
+                    }
+                    if (isNaN(assignment.grade_percent)) {
+                        assignment.grade_percent = false;
+                    }
+
+                    doRefresh = false;
+                    if (temp != assignment.points_gotten) {
+                        doRefresh = true;
+                    }
+
                 } else {
-                    assignment.grade_percent = false;
-                }
-                if (isNaN(assignment.grade_percent)) {
-                    assignment.grade_percent = false;
+
+                    let assignment = _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid];
+                    let pointsPossible;
+
+                    if (!assignment) {
+                        _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid] = {};
+                        assignment = _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid];
+                        assignment.points_gotten = _data[classIndex].grades[assignmentIndex].points_gotten;
+                        pointsPossible = _data[classIndex].grades[assignmentIndex].points_possible;
+                    } else {
+                        pointsPossible = assignment.points_possible || _data[classIndex].grades[assignmentIndex].points_possible;
+                    }
+
+                    let temp = assignment.points_gotten;
+                    assignment.points_gotten = parseFloat($(element)[0].value);
+                    if (isNaN(assignment.points_gotten)) {
+                        assignment.points_gotten = false;
+                    } else if (pointsPossible === false) {
+                        pointsPossible = 0;
+                    }
+                    if ((assignment.points_gotten || assignment.points_gotten === 0) && pointsPossible) {
+                        assignment.grade_percent = +(parseFloat(assignment.points_gotten / pointsPossible * 100)).toFixed(2);
+                    } else {
+                        assignment.grade_percent = false;
+                    }
+                    if (isNaN(assignment.grade_percent)) {
+                        assignment.grade_percent = false;
+                    }
+
+                    doRefresh = false;
+                    if (temp !== assignment.points_gotten && assignment.points_gotten !== _data[classIndex].grades[assignmentIndex].points_gotten) {
+                        doRefresh = true;
+                    }
+
+                    cleanEdits(classIndex, assignmentIndex);
                 }
 
                 if (doRefresh) {
@@ -1378,20 +1424,59 @@
                     assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
                 }
 
-                let assignment = _data[classIndex]["grades"][assignmentIndex];
+                let doRefresh;
+                if (aData[classIndex][assignmentIndex] !== undefined) {
 
-                let doRefresh = false;
-                if (assignment.points_possible !== parseFloat($(element)[0].value)) {
-                    doRefresh = true;
-                }
-                assignment.points_possible = parseFloat($(element)[0].value);
-                if (isNaN(assignment.points_possible)) {
-                    assignment.points_possible = false;
-                }
-                if (assignment.points_possible && assignment.points_gotten) {
-                    assignment.grade_percent = +parseFloat(assignment.points_gotten / assignment.points_possible * 100).toFixed(2);
+                    let assignment = _addedAssignments[_data[classIndex].class_name][aData[classIndex][assignmentIndex]];
+
+                    let temp = assignment.points_possible;
+                    assignment.points_possible = parseFloat($(element)[0].value);
+                    if (isNaN(assignment.points_possible)) {
+                        assignment.points_possible = false;
+                    }
+                    if (assignment.points_possible && assignment.points_gotten) {
+                        assignment.grade_percent = +parseFloat(assignment.points_gotten / assignment.points_possible * 100).toFixed(2);
+                    } else {
+                        assignment.grade_percent = false;
+                    }
+
+                    doRefresh = false;
+                    if (temp != assignment.points_possible) {
+                        doRefresh = true;
+                    }
+
                 } else {
-                    assignment.grade_percent = false;
+
+                    let assignment = _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid];
+                    let pointsGotten;
+
+                    if (!assignment) {
+                        _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid] = {};
+                        assignment = _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid];
+                        assignment.points_possible = _data[classIndex].grades[assignmentIndex].points_possible;
+                        pointsGotten = _data[classIndex].grades[assignmentIndex].points_gotten;
+                    } else {
+                        pointsGotten = assignment.points_gotten || _data[classIndex].grades[assignmentIndex].points_gotten;
+                    }
+
+                    let temp = assignment.points_possible;
+                    assignment.points_possible = parseFloat($(element)[0].value);
+                    if (isNaN(assignment.points_possible)) {
+                        assignment.points_possible = false;
+                    }
+                    if (assignment.points_possible && pointsGotten) {
+                        assignment.grade_percent = +parseFloat(pointsGotten / assignment.points_possible * 100).toFixed(2);
+                    } else {
+                        assignment.grade_percent = false;
+                    }
+
+                    doRefresh = false;
+                    if (temp != assignment.points_possible && assignment.points_possible != _data[classIndex].grades[assignmentIndex].points_possible) {
+                        doRefresh = true;
+                    }
+
+                    cleanEdits(classIndex, assignmentIndex);
+
                 }
 
                 if (doRefresh) {
@@ -1421,9 +1506,67 @@
                     assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
                 }
 
-                let assignment = _data[classIndex]["grades"][assignmentIndex];
+                if (aData[classIndex][assignmentIndex] !== undefined) {
+                    let assignment = _addedAssignments[_data[classIndex].class_name][aData[classIndex][assignmentIndex]];
 
-                assignment.category = $(element).find("option:selected").text();
+                    assignment.category = $(element).find("option:selected").text();
+
+                } else {
+                    let assignment = _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid];
+
+                    if (!assignment) {
+                        _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid] = {};
+                        assignment = _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid];
+                        assignment.category = _data[classIndex].grades[assignmentIndex].category;
+                    }
+
+                    assignment.category = $(element).find("option:selected").text();
+
+                    cleanEdits(classIndex, assignmentIndex);
+                }
+            }
+
+            function toggleExclude(element) {
+                let classes = $(element)[0].className.split(" ");
+                let classIndex;
+                let assignmentIndex;
+                let test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "exclude");
+                if (test.length) {
+                    classIndex = parseFloat(test[0].match(/\d+$/)[0]);
+                    assignmentIndex = $.makeArray($(".exclude" + classIndex)).indexOf(element);
+                    if (!dateSort[classIndex]) {
+                        assignmentIndex = _data[classIndex]["grades"].length - assignmentIndex - 1;
+                    }
+                } else {
+                    test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "categoryExclude");
+                    classIndex = parseFloat(test[0].match(/\d+$/)[0]);
+                    assignmentIndex = $.makeArray($(".categoryExclude" + classIndex)).indexOf(element);
+                    if (!dateSort[classIndex]) {
+                        let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
+                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                    }
+                    assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
+                }
+
+                if (aData[classIndex][assignmentIndex] !== undefined) {
+                    let assignment = _addedAssignments[_data[classIndex].class_name][aData[classIndex][assignmentIndex]];
+
+                    assignment.exclude = !assignment.exclude;
+                } else {
+
+                    let assignment = _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid];
+                    if (!assignment) {
+                        _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid] = {};
+                        assignment = _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid];
+                        assignment.exclude = _data[classIndex].grades[assignmentIndex].exclude;
+                    }
+
+                    assignment.exclude = !assignment.exclude;
+
+                    cleanEdits(classIndex, assignmentIndex);
+
+                }
+                refreshWithoutReload(true, classIndex);
             }
 
             function resetAll(element) {
@@ -1455,7 +1598,6 @@
                 let classes = $(element)[0].className.split(" ");
                 let classIndex;
                 let assignmentIndex;
-                let added;
                 let test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "resetRow");
                 if (test.length) {
                     classIndex = parseFloat(test[0].match(/\d+$/)[0]);
@@ -1463,10 +1605,9 @@
                     if (!dateSort[classIndex]) {
                         assignmentIndex = _data[classIndex]["grades"].length - assignmentIndex - 1;
                     }
-                    added = Number.isInteger(data[classIndex].grades[assignmentIndex]);
 
                     // This means that the row was never changed
-                    if (_.isEqual(data[classIndex].grades[assignmentIndex], added ? addedAssignments[_data[classIndex].class_name][data[classIndex].grades[assignmentIndex]] : _data[classIndex].grades[assignmentIndex])) {
+                    if (!_editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]) {
                         $($(`.resetRow${classIndex}`)[assignmentIndex]).addClass("disabled");
                         return;
                     }
@@ -1479,17 +1620,22 @@
                         assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
                     }
                     assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
-                    added = Number.isInteger(data[classIndex].grades[assignmentIndex]);
 
                     // This means that the row was never changed
-                    if (_.isEqual(data[classIndex].grades[assignmentIndex], added ? addedAssignments[_data[classIndex].class_name][data[classIndex].grades[assignmentIndex]] : _data[classIndex].grades[assignmentIndex])) {
+                    if (!_editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]) {
                         $($(".categoryResetRow" + classIndex)[assignmentIndex]).addClass("disabled");
                         return;
                     }
                 }
 
                 // Reset all edited values
-                _data[classIndex].grades[assignmentIndex] = added ? JSON.parse(JSON.stringify(addedAssignments[_data[classIndex].class_name][data[classIndex].grades[assignmentIndex]])) : JSON.parse(JSON.stringify(data[classIndex].grades[assignmentIndex]));
+                delete _editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
+                delete editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
+                $.ajax({
+                           type: "POST",
+                           url: "/updateEditedAssignments",
+                           data: {data: JSON.stringify(editedAssignments)}
+                       });
 
                 if (notMassReset) {
                     refreshWithoutReload(false, classIndex);
@@ -1544,9 +1690,8 @@
                     assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
                 }
                 let addedAssignmentIndex = data[classIndex].grades[assignmentIndex];
+                _addedAssignments[_data[classIndex].class_name].splice(addedAssignmentIndex, 1);
                 addedAssignments[_data[classIndex].class_name].splice(addedAssignmentIndex, 1);
-                _data[classIndex].grades = _data[classIndex].grades.filter((g, index) => !Number.isInteger(data[classIndex].grades[index]));
-                data[classIndex].grades = data[classIndex].grades.filter(g => !Number.isInteger(g));
 
                 $.ajax({
                            type: "POST", url: "/updateAddedAssignments", data: {data: JSON.stringify(addedAssignments)}
@@ -1603,41 +1748,32 @@
                     }
                     assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
                 }
-                addedAssignments[_data[classIndex].class_name][data[classIndex].grades[assignmentIndex]] = JSON.parse(JSON.stringify(_data[classIndex].grades[assignmentIndex]));
-                $.ajax({
-                           type: "POST", url: "/updateAddedAssignments", data: {data: JSON.stringify(addedAssignments)}
-                       });
+
+                // Added
+                if (aData[classIndex][assignmentIndex] !== undefined) {
+                    addedAssignments[_data[classIndex].class_name][aData[classIndex][assignmentIndex]] = JSON.parse(JSON.stringify(_addedAssignments[_data[classIndex].class_name][aData[classIndex][assignmentIndex]]));
+                    $.ajax({
+                               type: "POST",
+                               url: "/updateAddedAssignments",
+                               data: {data: JSON.stringify(addedAssignments)}
+                           });
+                } else if (_editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid] || editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]) {
+                    // Edited
+                    if (_editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]) {
+                        editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid] = JSON.parse(JSON.stringify(_editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]));
+                    } else {
+                        delete editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
+                    }
+                    $.ajax({
+                               type: "POST",
+                               url: "/updateEditedAssignments",
+                               data: {data: JSON.stringify(editedAssignments)}
+                           });
+                }
 
                 if (notMassSave) {
                     refreshWithoutReload(false, classIndex);
                 }
-            }
-
-            function toggleExclude(element) {
-                let classes = $(element)[0].className.split(" ");
-                let classIndex;
-                let assignmentIndex;
-                let test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "exclude");
-                if (test.length) {
-                    classIndex = parseFloat(test[0].match(/\d+$/)[0]);
-                    assignmentIndex = $.makeArray($(".exclude" + classIndex)).indexOf(element);
-                    if (!dateSort[classIndex]) {
-                        assignmentIndex = _data[classIndex]["grades"].length - assignmentIndex - 1;
-                    }
-                } else {
-                    test = classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "categoryExclude");
-                    classIndex = parseFloat(test[0].match(/\d+$/)[0]);
-                    assignmentIndex = $.makeArray($(".categoryExclude" + classIndex)).indexOf(element);
-                    if (!dateSort[classIndex]) {
-                        let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
-                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
-                    }
-                    assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
-                }
-
-                let assignment = _data[classIndex]["grades"][assignmentIndex];
-                assignment.exclude = !assignment.exclude;
-                refreshWithoutReload(true, classIndex);
             }
 
             function setupInputListeners() {
@@ -2048,13 +2184,15 @@
                             $(inputs[0]).val(score[0]);
                             $(inputs[1]).val(score[1]);
 
-                            // Set up reset buttons
+                            // Set up tooltab buttons
                             let modTab = $(modTabDivs[assignmentIndex]);
                             let resetButton = $(resetRowDivs[assignmentIndex]);
                             let trashButton = $(trashRowDivs[assignmentIndex]);
                             let saveButton = $(saveRowDivs[assignmentIndex]);
                             modTab.css("visibility", "hidden");
                             let realIndex = categorySort[i] ? categorySortedData[i].originalIndices[j] : j;
+
+                            // Set up trash button
                             if (assignmentAdds[j]) {
                                 if (recentlyAddedAssignment && _.isEqual(_data[i].grades[realIndex], recentlyAddedAssignment)) {
                                     recentlyAddedAssignment = undefined;
@@ -2071,7 +2209,8 @@
                                 trashButton.addClass("disabled");
                             }
 
-                            if (!assignmentAdds[j] && !_.isEqual(data[i].grades[realIndex], _data[i].grades[realIndex])) {
+                            // Set up revert buttons
+                            if (!assignmentAdds[j] && _editedAssignments[_data[i].class_name][_data[i].grades[realIndex].psaid]) {
                                 resetButton.removeClass("disabled");
                                 modTab.css("visibility", "visible");
                                 $(`#modAllTab${i}`).css("visibility", "visible");
@@ -2082,15 +2221,15 @@
                             } else {
                                 resetButton.addClass("disabled");
                             }
-                            if (assignmentAdds[j] && !_.isEqual(addedAssignments[data[i].class_name][data[i].grades[realIndex]], _data[i].grades[realIndex])) {
-                                resetButton.removeClass("disabled");
+
+                            // Set up save buttons
+                            if (assignmentAdds[j] && !_.isEqual(_addedAssignments[_data[i].class_name][aData[i][realIndex]], addedAssignments[_data[i].class_name][aData[i][realIndex]]) || !_.isEqual(editedAssignments[_data[i].class_name][_data[i].grades[realIndex].psaid], _editedAssignments[_data[i].class_name][_data[i].grades[realIndex].psaid])) {
                                 saveButton.removeClass("disabled");
                                 modTab.css("visibility", "visible");
                                 $(`#modAllTab${i}`).css("visibility", "visible");
-                                $(`#saveAll${i}, #resetAll${i}`).removeClass("disabled");
+                                $(`#saveAll${i}`).removeClass("disabled");
                                 $($(`.categoryModAllTab${i}`)[categories.indexOf(assignmentCategories[j])]).css("visibility", "visible");
                                 $($(`.saveCategory${i}`)[categories.indexOf(assignmentCategories[j])]).removeClass("disabled");
-                                $($(`.resetCategory${i}`)[categories.indexOf(assignmentCategories[j])]).removeClass("disabled");
                                 $(`#table${i}`).addClass("unround-top-right");
                             } else {
                                 saveButton.addClass("disabled");
@@ -2203,8 +2342,37 @@
                 return totalGotten / totalPossible * 100;
             }
 
+            function cleanEdits(classIndex, assignmentIndex) {
+                let edited = _editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
+                let current = data[classIndex].grades.find(g => g.psaid === _data[classIndex].grades[assignmentIndex].psaid);
+                let keys = Object.keys(edited);
+                for (let i = 0; i < keys.length; i++) {
+                    let key = keys[i];
+                    if (edited[key] === current[key]) {
+                        delete edited[key];
+                    }
+                }
+                if (Object.keys(edited).length === 0) {
+                    delete edited;
+                }
+            }
+
+            /**
+             * Parses all data
+             * @param classIndex index of class to parse. If not given or undefined, all classes are parsed
+             */
             function parseData(classIndex) {
 
+                // Reset local data copies
+                if (classIndex === undefined) {
+                    _data = JSON.parse(JSON.stringify(data));
+                    aData = data.map(c => Array(c.grades.length).fill(undefined));
+                } else {
+                    _data[classIndex] = JSON.parse(JSON.stringify(data[classIndex]));
+                    aData[classIndex] = Array(data[classIndex].grades.length).fill(undefined);
+                }
+
+                // Get unobtained weights
                 for (let i = 0; i < _data.length; i++) {
                     if (classIndex === undefined || classIndex === i) {
                         let classData = _data[i];
@@ -2220,18 +2388,32 @@
                 // Insert added assignments
                 for (let i = 0; i < _data.length; i++) {
                     if (classIndex === undefined || classIndex === i) {
-                        for (let j = 0; j < addedAssignments[_data[i].class_name].length; j++) {
-                            let assignmentObject = JSON.parse(JSON.stringify(addedAssignments[_data[i].class_name][j]));
-                            if (_.findIndex(_data[i].grades, (a) => _.isMatch(a, assignmentObject)) > -1 || data[i].grades.indexOf(j) > -1) {
+                        for (let j = 0; j < _addedAssignments[_data[i].class_name].length; j++) {
+                            let assignmentObject = JSON.parse(JSON.stringify(_addedAssignments[_data[i].class_name][j]));
+                            if (_.findIndex(_data[i].grades, (a) => _.isMatch(a, assignmentObject)) > -1 || _data[i].grades.indexOf(j) > -1) {
                                 continue;
                             }
                             let insertAt = _data[i].grades.findIndex(g => new Date(g.date) > new Date(assignmentObject.date));
                             if (insertAt >= 0) {
                                 _data[i].grades.splice(insertAt, 0, assignmentObject);
-                                data[i].grades.splice(insertAt, 0, j);
+                                aData[i].splice(insertAt, 0, j);
                             } else {
                                 _data[i].grades.push(assignmentObject);
-                                data[i].grades.push(j);
+                                aData[i].push(j);
+                            }
+                        }
+                    }
+                }
+
+                // Apply edits
+                for (let i = 0; i < _data.length; i++) {
+                    if (classIndex === undefined || classIndex === i) {
+                        for (let j = 0; j < Object.keys(_editedAssignments[_data[i].class_name]).length; j++) {
+                            let searchID = parseInt(Object.keys(_editedAssignments[_data[i].class_name])[j]);
+                            let needsEdits = _data[i].grades.find(g => g.psaid === searchID);
+                            Object.assign(needsEdits, _editedAssignments[_data[i].class_name][searchID]);
+                            if (!Object.keys(_editedAssignments[_data[i].class_name][searchID]).length) {
+                                delete _editedAssignments[_data[i].class_name][searchID];
                             }
                         }
                     }
@@ -2349,7 +2531,7 @@
                         assignmentScoresParsed = classData.map(x => parseScore(x.points_gotten, x.points_possible));
                         assignmentCategories = classData.map(x => x.category);
                         let assignmentExcludes = classData.map(x => x.exclude);
-                        let assignmentAdds = classData.map((grade, index) => Number.isInteger(data[i].grades[index]));
+                        let assignmentAdds = classData.map((grade, index) => aData[i][index] !== undefined);
                         let rawData = overallGradeSteps.map((grade, index) => grade === false ? (index >= 0 ? excludedGradeSteps.shift() : 100) : grade);
                         parsedData[i] = {
                             assignmentNames: assignmentNames,
@@ -2386,7 +2568,7 @@
             function renderAllCharts(classIndex) {
                 if (_data && _data.length && !mobile) {
                     renderOverviewChart();
-                    $('#chart-1').click(function (e) {
+                    $("#chart-1").click(function (e) {
                         let activePoints = charts[0].getElementsAtEvent(e);
                         let activeDataSet = charts[0].getDatasetAtEvent(e);
 
@@ -2506,13 +2688,29 @@
                             mode: "nearest", intersect: false
                         }, onHover: function onHover(evt, activeElements) {
                             if (!activeElements || !activeElements.length) {
+                                for (let i = 0; i < this.data.datasets.length; i++) {
+                                    if (i >= chartData.length) {
+                                        continue;
+                                    }
+                                    if (!correctCalc(i)) {
+                                        continue;
+                                    }
+                                    let dataset = this.data.datasets[i];
+                                    dataset.borderWidth = 3;
+                                    dataset.pointRadius = 3;
+                                }
+                                this.update(1000);
                                 return;
                             }
                             let datasetIndex = activeElements[0]._datasetIndex;
                             let activeDataset = this.data.datasets[datasetIndex];
                             for (let i = 0; i < this.data.datasets.length; i++) {
-                                if (i >= chartData.length) continue;
-                                if (!correctCalc(i)) continue;
+                                if (i >= chartData.length) {
+                                    continue;
+                                }
+                                if (!correctCalc(i)) {
+                                    continue;
+                                }
                                 let inactiveDataset = this.data.datasets[i];
                                 inactiveDataset.borderWidth = 3;
                                 inactiveDataset.pointRadius = 3;
@@ -2522,22 +2720,6 @@
                                 activeDataset.pointRadius = 6;
                             }
                             this.update(100);
-                            let chart = this;
-                            if (numRunning === 0) {
-                                clearTimeout(running);
-                                numRunning++;
-                                running = setTimeout(() => {
-                                    numRunning--;
-                                    for (let i = 0; i < this.data.datasets.length; i++) {
-                                        if (i >= chartData.length) continue;
-                                        if (!correctCalc(i)) continue;
-                                        let dataset = chart.data.datasets[i];
-                                        dataset.borderWidth = 3;
-                                        dataset.pointRadius = 3;
-                                    }
-                                    chart.update(1000);
-                                }, 6000);
-                            }
                         }, scales: {
                             xAxes: [{
                                 type: "time", time: {
@@ -2551,7 +2733,9 @@
                                 ticks: {
                                     suggestedMax: appearance.regularizeClassGraphs ? 110 : undefined,
                                     suggestedMin: appearance.regularizeClassGraphs ? 70 : undefined,
-                                    fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "12"
+                                    fontColor: (darkMode ? "white" : "black"),
+                                    fontFamily: "Verdana",
+                                    fontSize: "12"
                                 }, gridLines: {
                                     color: (darkMode ? "#555555" : "#CCCCCC"), drawBorder: false
                                 }
@@ -2566,25 +2750,43 @@
                                 boxWidth: 20,
                                 fontSize: 13,
                                 filter: function (item) {
-                                    return !item.text.includes('undefined');
+                                    return !item.text.includes("undefined");
                                 }
                             }
                         }, tooltips: {
-                            enabled: true, mode: "nearest", intersect: false, displayColors: true, callbacks: {
-                                title: function (tooltipItems) {
-                                    if (tooltipItems[0].datasetIndex >= chartData.length) return possibles[tooltipItems[0].datasetIndex - chartData.length] + "% (" + possibleLabels[tooltipItems[0].datasetIndex - chartData.length] + ")";
+                            enabled: true,
+                            mode: "nearest",
+                            intersect: false,
+                            displayColors: true,
+                            caretSize: 10,
+                            backgroundColor: darkMode ? "black" : "white",
+                            callbacks: {
+                                title: function (tooltipItems, data) {
+                                    if (tooltipItems[0].datasetIndex >= chartData.length) {
+                                        return possibles[tooltipItems[0].datasetIndex - chartData.length] + "% (" + possibleLabels[tooltipItems[0].datasetIndex - chartData.length] + ")";
+                                    }
                                     if (!correctCalc(tooltipItems[0].datasetIndex)) {
-                                        if (!chartData[tooltipItems[0].datasetIndex].mixedData.length) return "Unknown Date " + _data[tooltipItems[0].datasetIndex].overall_percent + "% (" + _data[tooltipItems[0].datasetIndex].overall_letter + ")";
-                                        if (tooltipItems[0].index >= chartData[tooltipItems[0].datasetIndex].mixedData.length) return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + _data[tooltipItems[0].datasetIndex].overall_percent + "% (" + _data[tooltipItems[0].datasetIndex].overall_letter + ")";
+                                        if (!chartData[tooltipItems[0].datasetIndex].mixedData.length) {
+                                            return "Unknown Date " + _data[tooltipItems[0].datasetIndex].overall_percent + "% (" + _data[tooltipItems[0].datasetIndex].overall_letter + ")";
+                                        }
+                                        if (tooltipItems[0].index >= chartData[tooltipItems[0].datasetIndex].mixedData.length) {
+                                            return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + _data[tooltipItems[0].datasetIndex].overall_percent + "% (" + _data[tooltipItems[0].datasetIndex].overall_letter + ")";
+                                        }
                                         return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " N/A [Inaccurate weights]";
                                     }
                                     return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + +parseFloat(tooltipItems[0].value).toFixed(2) + "% (" + getLetterGrade(tooltipItems[0].value) + ")";
                                 }, label: function (tooltipItem) {
-                                    if (tooltipItem.datasetIndex >= chartData.length) return;
-                                    if (!chartData[tooltipItem.datasetIndex].mixedData.length) return;
+                                    if (tooltipItem.datasetIndex >= chartData.length) {
+                                        return;
+                                    }
+                                    if (!chartData[tooltipItem.datasetIndex].mixedData.length) {
+                                        return;
+                                    }
                                     if (tooltipItem.index >= chartData[tooltipItem.datasetIndex].mixedData.length) {
                                         let delta = +(_data[tooltipItem.datasetIndex].overall_percent - chartData[tooltipItem.datasetIndex].mixedData.slice(-1)[0].y).toFixed(3);
-                                        if (delta > 0) delta = "+" + delta;
+                                        if (delta > 0) {
+                                            delta = "+" + delta;
+                                        }
                                         return delta + "% (To Match PowerSchool)";
                                     }
                                     return ["[" + chartData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.index] + "] " + chartData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + ((chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== false && chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, 2) !== "--") ? (" - " + chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "% ") : (" ")) + ((chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? ("(" + chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")") : ("(" + chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length - 2) + ")"))];
@@ -2669,112 +2871,124 @@
                 if (startDate < endDate) {
                     possibles = [{"A-": 89.5}, {"B-": 79.5}, {"C-": 69.5}, {"D-": 59.5}];
                     possibles = possibles.filter(element => Object.values(element)[0] > lowScore - 5);
-                        possibleLabels = possibles.map(element => Object.keys(element)[0]);
-                        possibles = possibles.map(element => Object.values(element)[0]);
-                        for (let i = 0; i < possibles.length; i++) {
-                            let mixedData = [];
-                            for (let j = startDate; j < endDate; j += Math.ceil((endDate - startDate) / 100)) {
-                                mixedData.push({x: new Date(j), y: possibles[i]});
+                    possibleLabels = possibles.map(element => Object.keys(element)[0]);
+                    possibles = possibles.map(element => Object.values(element)[0]);
+                    for (let i = 0; i < possibles.length; i++) {
+                        let mixedData = [];
+                        for (let j = startDate; j < endDate; j += Math.ceil((endDate - startDate) / 100)) {
+                            mixedData.push({x: new Date(j), y: possibles[i]});
+                        }
+                        dataset.push({
+                                         label: "undefined",
+                                         backgroundColor: "transparent",
+                                         pointBackgroundColor: "transparent",
+                                         pointBorderColor: "transparent",
+                                         borderColor: darkMode ? "white" : "black",
+                                         data: mixedData,
+                                         cubicInterpolationMode: "monotone",
+                                         spanGaps: false,
+                                         borderDash: [10, 10],
+                                         pointRadius: 0,
+                                         borderWidth: 1,
+                                         pointHoverRadius: 0,
+                                         pointHoverBackgroundColor: "transparent",
+                                         pointHoverBorderColor: darkMode ? "white" : "black",
+                                         pointHoverBorderWidth: 0
+                                     });
+                    }
+                }
+                charts[id + 1] = new Chart(ctx, {
+                    type: "line", data: {
+                        datasets: dataset
+                    }, options: {
+                        hover: {
+                            mode: "nearest", intersect: false
+                        }, scales: {
+                            xAxes: [{
+                                type: "time", time: {
+                                    unit: new Date(chartData[id].assignmentDates.slice(-1)[0]).getMonth() === new Date(chartData[id].assignmentDates[0]).getMonth() ? "day" : "month"
+                                }, ticks: {
+                                    fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "13"
+                                }, gridLines: {
+                                    color: (darkMode ? "#555555" : "#CCCCCC")
+                                }
+                            }], yAxes: [{
+                                ticks: {
+                                    suggestedMax: appearance.regularizeClassGraphs ? 110 : undefined,
+                                    suggestedMin: appearance.regularizeClassGraphs ? 70 : undefined,
+                                    fontColor: (darkMode ? "white" : "black"),
+                                    fontFamily: "Verdana",
+                                    fontSize: "12"
+                                }, gridLines: {
+                                    color: (darkMode ? "#555555" : "#CCCCCC"), drawBorder: false
+                                }
+                            }]
+                        }, animation: {
+                            easing: "easeOutCubic"
+                        }, legend: {
+                            display: false
+                        }, tooltips: {
+                            enabled: true, position: "nearest", intersect: false, displayColors: false, callbacks: {
+                                title: function (tooltipItems) {
+                                    if (tooltipItems[0].datasetIndex >= 1) {
+                                        return possibles[tooltipItems[0].datasetIndex - 1] + "% (" + possibleLabels[tooltipItems[0].datasetIndex - 1] + ")";
+                                    }
+                                    if (!correctCalc(id)) {
+                                        if (!chartData[id].mixedData.length) {
+                                            return "Unknown Date " + _data[id].overall_percent + "% (" + _data[id].overall_letter + ")";
+                                        }
+                                        if (tooltipItems[0].index >= chartData[id].mixedData.length) {
+                                            return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + _data[id].overall_percent + "% (" + _data[id].overall_letter + ")";
+                                        }
+                                        return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " N/A [Inaccurate weights]";
+                                    }
+                                    return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + +parseFloat(tooltipItems[0].value).toFixed(4) + "% (" + getLetterGrade(tooltipItems[0].value) + ")";
+                                }, label: function (tooltipItem) {
+                                    if (tooltipItem.datasetIndex >= 1) {
+                                        return;
+                                    }
+                                    if (!chartData[tooltipItem.datasetIndex].mixedData.length) {
+                                        return;
+                                    }
+                                    if (tooltipItem.index >= chartData[id].mixedData.length) {
+                                        let delta = +(_data[id].overall_percent - chartData[id].mixedData.slice(-1)[0].y).toFixed(3);
+                                        if (delta > 0) {
+                                            delta = "+" + delta;
+                                        }
+                                        return delta + "% (To Match PowerSchool)";
+                                    }
+                                    return ["[" + chartData[id].assignmentCategories[tooltipItem.index] + "] " + chartData[id].assignmentNames[tooltipItem.index] + ((chartData[id].assignmentPercents[tooltipItem.index] !== false && chartData[id].assignmentScoresParsed[tooltipItem.index].substring(0, 2) !== "--") ? (" - " + chartData[id].assignmentPercents[tooltipItem.index] + "% ") : (" ")) + ((chartData[id].assignmentScoresParsed[tooltipItem.index].substring(chartData[id].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? ("(" + chartData[id].assignmentScoresParsed[tooltipItem.index] + ")") : ("(" + chartData[id].assignmentScoresParsed[tooltipItem.index].substring(0, chartData[id].assignmentScoresParsed[tooltipItem.index].length - 2) + ")"))];
+                                }
                             }
-                            dataset.push({
-                                             label: "undefined",
-                                             backgroundColor: "transparent",
-                                             pointBackgroundColor: "transparent",
-                                             pointBorderColor: "transparent",
-                                             borderColor: darkMode ? "white" : "black",
-                                             data: mixedData,
-                                             cubicInterpolationMode: "monotone",
-                                             spanGaps: false,
-                                             borderDash: [10, 10],
-                                             pointRadius: 0,
-                                             borderWidth: 1,
-                                             pointHoverRadius: 0,
-                                             pointHoverBackgroundColor: "transparent",
-                                             pointHoverBorderColor: darkMode ? "white" : "black",
-                                             pointHoverBorderWidth: 0
-                                         });
+                        }, responsive: true, maintainAspectRatio: false, plugins: {
+                            zoom: {
+                                zoom: {
+                                    enabled: true, mode: "y", speed: 0.05, onZoom: ({chart}) => {
+                                        $("#reset-zoom" + id).show();
+
+                                        // Disable hovering and tooltips to make animation smoother
+                                        chart.options.hover.mode = null;
+                                        chart.options.tooltips.enabled = false;
+                                    }, onZoomComplete: ({chart}) => {
+                                        chart.options.hover.mode = "nearest";
+                                        chart.options.tooltips.enabled = true;
+                                    }
+                                }, pan: {
+                                    enabled: true, mode: "y", speed: 0.05, onPan: ({chart}) => {
+                                        $("#reset-zoom" + id).show();
+
+                                        // Disable hovering and tooltips to make animation smoother
+                                        chart.options.hover.mode = null;
+                                        chart.options.tooltips.enabled = false;
+                                    }, onPanComplete: ({chart}) => {
+                                        chart.options.hover.mode = "nearest";
+                                        chart.options.tooltips.enabled = true;
+                                    }
+                                }
+                            }
                         }
                     }
-                    charts[id + 1] = new Chart(ctx, {
-                        type: "line", data: {
-                            datasets: dataset
-                        }, options: {
-                            hover: {
-                                mode: "nearest", intersect: false
-                            }, scales: {
-                                xAxes: [{
-                                    type: "time", time: {
-                                        unit: new Date(chartData[id].assignmentDates.slice(-1)[0]).getMonth() === new Date(chartData[id].assignmentDates[0]).getMonth() ? "day" : "month"
-                                    }, ticks: {
-                                        fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "13"
-                                    }, gridLines: {
-                                        color: (darkMode ? "#555555" : "#CCCCCC")
-                                    }
-                                }], yAxes: [{
-                                    ticks: {
-                                        suggestedMax: appearance.regularizeClassGraphs ? 110 : undefined,
-                                        suggestedMin: appearance.regularizeClassGraphs ? 70 : undefined,
-                                        fontColor: (darkMode ? "white" : "black"),
-                                        fontFamily: "Verdana",
-                                        fontSize: "12"
-                                    }, gridLines: {
-                                        color: (darkMode ? "#555555" : "#CCCCCC"), drawBorder: false
-                                    }
-                                }]
-                            }, animation: {
-                                easing: "easeOutCubic"
-                            }, legend: {
-                                display: false
-                            }, tooltips: {
-                                enabled: true, position: "nearest", intersect: false, displayColors: false, callbacks: {
-                                    title: function (tooltipItems) {
-                                        if (tooltipItems[0].datasetIndex >= 1) return possibles[tooltipItems[0].datasetIndex - 1] + "% (" + possibleLabels[tooltipItems[0].datasetIndex - 1] + ")";
-                                        if (!correctCalc(id)) {
-                                            if (!chartData[id].mixedData.length) return "Unknown Date " + _data[id].overall_percent + "% (" + _data[id].overall_letter + ")";
-                                            if (tooltipItems[0].index >= chartData[id].mixedData.length) return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + _data[id].overall_percent + "% (" + _data[id].overall_letter + ")";
-                                            return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " N/A [Inaccurate weights]";
-                                        }
-                                        return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + +parseFloat(tooltipItems[0].value).toFixed(4) + "% (" + getLetterGrade(tooltipItems[0].value) + ")";
-                                    }, label: function (tooltipItem) {
-                                        if (tooltipItem.datasetIndex >= 1) return;
-                                        if (!chartData[tooltipItem.datasetIndex].mixedData.length) return;
-                                        if (tooltipItem.index >= chartData[id].mixedData.length) {
-                                            let delta = +(_data[id].overall_percent - chartData[id].mixedData.slice(-1)[0].y).toFixed(3);
-                                            if (delta > 0) delta = "+" + delta;
-                                            return delta + "% (To Match PowerSchool)";
-                                        }
-                                        return ["[" + chartData[id].assignmentCategories[tooltipItem.index] + "] " + chartData[id].assignmentNames[tooltipItem.index] + ((chartData[id].assignmentPercents[tooltipItem.index] !== false && chartData[id].assignmentScoresParsed[tooltipItem.index].substring(0, 2) !== "--") ? (" - " + chartData[id].assignmentPercents[tooltipItem.index] + "% ") : (" ")) + ((chartData[id].assignmentScoresParsed[tooltipItem.index].substring(chartData[id].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ? ("(" + chartData[id].assignmentScoresParsed[tooltipItem.index] + ")") : ("(" + chartData[id].assignmentScoresParsed[tooltipItem.index].substring(0, chartData[id].assignmentScoresParsed[tooltipItem.index].length - 2) + ")"))];
-                                    }
-                                }
-                            }, responsive: true, maintainAspectRatio: false, plugins: {
-                                zoom: {
-                                    zoom: {
-                                        enabled: true, mode: "y", speed: 0.05, onZoom: ({chart}) => {
-                                            $("#reset-zoom" + id).show();
-
-                                            // Disable hovering and tooltips to make animation smoother
-                                            chart.options.hover.mode = null;
-                                            chart.options.tooltips.enabled = false;
-                                        }, onZoomComplete: ({chart}) => {
-                                            chart.options.hover.mode = "nearest";
-                                            chart.options.tooltips.enabled = true;
-                                        }
-                                    }, pan: {
-                                        enabled: true, mode: "y", speed: 0.05, onPan: ({chart}) => {
-                                            $("#reset-zoom" + id).show();
-
-                                            // Disable hovering and tooltips to make animation smoother
-                                            chart.options.hover.mode = null;
-                                            chart.options.tooltips.enabled = false;
-                                        }, onPanComplete: ({chart}) => {
-                                            chart.options.hover.mode = "nearest";
-                                            chart.options.tooltips.enabled = true;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    });
+                });
                 // } else {
                 //     $("#chart-container" + id).html("<div style=\"height: 100%; font-size: 3rem; font-weight: bold;text-align: center; filter: opacity(0.5); line-height: 100%\">No Data</div>");
                 // }
@@ -2990,9 +3204,9 @@
 
                             $.ajax({
                                        type: "POST", url: "/updateWeights", data: formData
-                                   }).done((data) => {
+                                   }).done((response) => {
                                 // Make sure that the formMessages div has the alert-success class.
-                                weights[className]["custom"] = data.includes("Custom");
+                                weights[className]["custom"] = response.includes("Custom");
                                 for (let i = 0; i < Object.keys(weights[className]["weights"]).length; i++) {
                                     let weight = $("#weightTableWeight" + $(form)[0].id.substring(7) + i + " input");
                                     if (weight[0].value) {

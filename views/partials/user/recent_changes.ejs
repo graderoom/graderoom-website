@@ -97,13 +97,14 @@
             let actualTime = new Date(alerts.lastUpdated[i].timestamp).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
 
             let numChanges = 0;
-            modifiedClasses.forEach(c => numChanges += (newAssignments[c] || []).length + (modifiedAssignments[c] || []).length + (removedAssignments[c] || []).length);
+            modifiedClasses.forEach(c => numChanges += (classNames.indexOf(c) >= 0 ? (newAssignments[c] || []).length + (modifiedAssignments[c] || []).length + (removedAssignments[c] || []).length : 0));
             container.append(`<hr><span class="timestamp change-data-exists"><span class="popup">` + actualTime + deltaTime + `</span><b class="collapsed" data-toggle="collapse" data-target="#changeData` + i + `">` + numChanges + ` Changes</b></span>`);
 
             // Create the class cards
             let changeCard = `<div id="changeData` + i + `" class="collapse` + (i === alerts.lastUpdated.length - 1 ? ` show` : ``) + `">`;
             for (let j = 0; j < modifiedClasses.length; j++) {
                 let realIndex = classNames.indexOf(modifiedClasses[j]);
+                if (realIndex < 0) continue;
 
                 let card = `<div class="grade-changes-card" id="changes` + realIndex + `"><span class="class-name" style="color: ` + colors[realIndex] + `"><span>` + modifiedClasses[j];
                 if (modifiedClasses[j] in overallChanges) {

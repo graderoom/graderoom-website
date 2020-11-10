@@ -19,7 +19,6 @@ module.exports = function (app, passport) {
                 return;
             }
 
-            authenticator.bringUpToDate(req.user.username);
             let gradeHistoryLetters = [];
 
             let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
@@ -59,6 +58,7 @@ module.exports = function (app, passport) {
                     gradeData: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter))),
                     weightData: JSON.stringify(req.user.weights[term][semester]),
                     addedAssignments: JSON.stringify(req.user.addedAssignments[term][semester]),
+                    editedAssignments: JSON.stringify(req.user.editedAssignments[term][semester]),
                     gradeHistory: JSON.stringify(gradeHistoryLetters),
                     relevantClassData: JSON.stringify(authenticator.getRelClassData(req.user.username)),
                     sortingData: JSON.stringify(req.user.sortingData),
@@ -81,6 +81,7 @@ module.exports = function (app, passport) {
                     gradeData: JSON.stringify([]),
                     weightData: JSON.stringify({}),
                     addedAssignments: JSON.stringify({}),
+                    editedAssignments: JSON.stringify({}),
                     gradeHistory: JSON.stringify([]),
                     relevantClassData: JSON.stringify({}),
                     sortingData: JSON.stringify(req.user.sortingData),
@@ -140,13 +141,12 @@ module.exports = function (app, passport) {
                 return;
             }
 
-            authenticator.bringUpToDate(req.query.usernameToRender);
             let gradeHistoryLetters = [];
 
             let {term, semester} = authenticator.getMostRecentTermData(req.query.usernameToRender);
             if (req.query.term && req.query.semester) {
                 if ((term === req.query.term && semester === req.query.semester) || !user.betaFeatures.active || !authenticator.semesterExists(user.username, req.query.term, req.query.semester)) {
-                    res.redirect("/");
+                    res.redirect("/viewuser?usernameToRender=" + req.query.usernameToRender);
                     return;
                 }
                 term = req.query.term;
@@ -180,6 +180,7 @@ module.exports = function (app, passport) {
                     gradeData: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter))),
                     weightData: JSON.stringify(user.weights[term][semester]),
                     addedAssignments: JSON.stringify(user.addedAssignments[term][semester]),
+                    editedAssignments: JSON.stringify(user.editedAssignments[term][semester]),
                     gradeHistory: JSON.stringify(gradeHistoryLetters),
                     relevantClassData: JSON.stringify(authenticator.getRelClassData(req.query.usernameToRender)),
                     sortingData: JSON.stringify(user.sortingData),
@@ -202,6 +203,7 @@ module.exports = function (app, passport) {
                     gradeData: JSON.stringify([]),
                     weightData: JSON.stringify({}),
                     addedAssignments: JSON.stringify({}),
+                    editedAssignments: JSON.stringify({}),
                     gradeHistory: JSON.stringify([]),
                     relevantClassData: JSON.stringify({}),
                     sortingData: JSON.stringify(user.sortingData),
@@ -400,6 +402,16 @@ module.exports = function (app, passport) {
     app.post("/updateAddedAssignments", [isLoggedIn, inRecentTerm], (req, res) => {
         let data = req.body.data;
         let resp = authenticator.updateAddedAssignments(req.user.username, JSON.parse(data));
+        if (resp.success) {
+            res.status(200).send(resp.message);
+        } else {
+            res.status(400).send(resp.message);
+        }
+    });
+
+    app.post("/updateEditedAssignments", [isLoggedIn, inRecentTerm], (req, res) => {
+        let data = req.body.data;
+        let resp = authenticator.updateEditedAssignments(req.user.username, JSON.parse(data));
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {

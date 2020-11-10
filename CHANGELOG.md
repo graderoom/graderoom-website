@@ -44,6 +44,18 @@
 - Assignments from PowerSchool with the same due date are sometimes displayed in a different order than on PowerSchool
 - [Beta] Summer semesters are listed under the incorrect year
 
+## [Beta 3.3.8] - 2020-11-10
+### Added
+- Edits can now be saved to all assignments
+- Sync Log can now also be accessed from the Sync card
+
+### Improved
+- Optimized load time for home page immediately after login
+- Overview chart lines now return to normal immediately after the cursor leaves the chart
+
+### Fixed
+- Issue caused by credit courses and sync log
+
 ## [Beta 3.3.7] - 2020-11-06
 ### Added
 - Clicking on any line on the overview chart now opens the page for that class
