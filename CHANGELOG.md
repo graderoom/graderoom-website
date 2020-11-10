@@ -44,6 +44,34 @@
 - Assignments from PowerSchool with the same due date are sometimes displayed in a different order than on PowerSchool
 - [Beta] Summer semesters are listed under the incorrect year
 
+## [Beta 3.3.8] - 2020-11-10
+### Added
+- Edits can now be saved to all assignments
+- Sync Log can now also be accessed from the Sync card
+
+### Improved
+- Optimized load time for home page immediately after login
+- Overview chart lines now return to normal immediately after the cursor leaves the chart
+
+### Fixed
+- Issue caused by credit courses and sync log
+
+## [Beta 3.3.7] - 2020-11-06
+### Added
+- Clicking on any line on the overview chart now opens the page for that class
+- Chart tooltips now display overall letter grade at every point
+- Charts of classes with inaccurate weights now always display a final data point with the correct grade
+
+### Improved
+- Grades with incorrect weights now display thin, dashed lines on the chart to signify inaccurate weights
+
+### Fixed
+- Issue where refreshing or leaving the page after closing a half-complete feedback form would trigger an alert
+- [Beta] Fixed several issues when viewing old semesters
+
+### Removed
+- Panning limit has been removed from charts
+
 ## [Beta 3.3.6] - 2020-11-02
 ### Fixed
 - Letter grade lines not visible in light mode
