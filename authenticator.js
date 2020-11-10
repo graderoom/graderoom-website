@@ -285,6 +285,12 @@ module.exports = {
             userRef.get("weights").get("19-20").unset("S2").write();
         }
 
+        // Add editedAssignments dict
+        if (!userRef.get("editedAssignments").value()) {
+            userRef.set("editedAssignments", {}).write();
+            this.initEditedAssignments(user.username);
+        }
+
         // Add addedAssignments dict
         if (!userRef.get("addedAssignments").value()) {
             userRef.set("addedAssignments", {}).write();
@@ -434,29 +440,33 @@ module.exports = {
             delete user.autoRefresh;
         }
 
-        // After all db stuff is done
-        this.bringUpToDate(username);
-    }, bringUpToDate: function (username) {
+        // Fix dicts
+        this.initAddedAssignments(lc_username);
+        this.initWeights(lc_username);
+        this.initEditedAssignments(lc_username);
+
+    }, bringUpToDate: function (username, onlyLatest = true) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
         let classes = db.get("classes").value();
 
-
-        // TODO optimize (don't need to run every term every time)
-
-        // Fix dicts
-        this.initAddedAssignments(user.username);
-        this.initWeights(user.username);
+        let {term, semester} = this.getMostRecentTermData(lc_username);
 
         for (let g = 0; g < Object.keys(user.grades).length; g++) {
-            let term = Object.keys(user.grades)[g];
-            for (let h = 0; h < Object.keys(user.grades[term]).length; h++) {
-                let semester = Object.keys(user.grades[term])[h];
-                for (let i = 0; i < user.grades[term][semester].length; i++) {
-                    console.log("" + Date.now() + " | Bringing class up to date: " + (i + 1) + " of " + user.grades[term][semester].length);
-                    let className = user.grades[term][semester][i].class_name;
-                    let teacherName = user.grades[term][semester][i].teacher_name;
+            let _term = Object.keys(user.grades)[g];
+            if (onlyLatest && _term !== term) {
+                continue;
+            }
+            for (let h = 0; h < Object.keys(user.grades[_term]).length; h++) {
+                let _semester = Object.keys(user.grades[_term])[h];
+                if (onlyLatest && _semester !== semester) {
+                    continue;
+                }
+                for (let i = 0; i < user.grades[_term][_semester].length; i++) {
+                    console.log("" + Date.now() + " | Bringing class up to date: " + (i + 1) + " of " + user.grades[_term][_semester].length);
+                    let className = user.grades[_term][_semester][i].class_name;
+                    let teacherName = user.grades[_term][_semester][i].teacher_name;
 
                     //Add all classes to db
                     if (!dbContainsClass(className, teacherName)) {
@@ -470,57 +480,57 @@ module.exports = {
 
                     // Determine needed weights
                     let goodWeights = [];
-                    for (let j = 0; j < user.grades[term][semester][i].grades.length; j++) {
-                        if (!goodWeights.includes(user.grades[term][semester][i].grades[j].category)) {
-                            goodWeights.push(user.grades[term][semester][i].grades[j].category);
+                    for (let j = 0; j < user.grades[_term][_semester][i].grades.length; j++) {
+                        if (!goodWeights.includes(user.grades[_term][_semester][i].grades[j].category)) {
+                            goodWeights.push(user.grades[_term][_semester][i].grades[j].category);
                         }
                     }
 
                     // Add custom: false
-                    if (!Object.keys(user.weights[term][semester][className]["weights"]).length) {
-                        userRef.get("weights").get(term).get(semester).get(className).set("custom", false).write();
+                    if (!Object.keys(user.weights[_term][_semester][className]["weights"]).length) {
+                        userRef.get("weights").get(_term).get(_semester).get(className).set("custom", false).write();
                     }
 
                     // Add all weights that exist in user grades
                     for (let j = 0; j < goodWeights.length; j++) {
-                        if (!Object.keys(user.weights[term][semester][className]["weights"]).includes(goodWeights[j])) {
-                            user.weights[term][semester][className]["weights"][goodWeights[j]] = null;
+                        if (!Object.keys(user.weights[_term][_semester][className]["weights"]).includes(goodWeights[j])) {
+                            user.weights[_term][_semester][className]["weights"][goodWeights[j]] = null;
                         }
                     }
 
                     //Updates weights from classes db
-                    if (userRef.get("weights").get(term).get(semester).get(className).get("custom").value() === false && dbContainsClass(className, teacherName)) {
+                    if (userRef.get("weights").get(_term).get(_semester).get(className).get("custom").value() === false && dbContainsClass(className, teacherName)) {
                         if (classes[className][teacherName]["hasWeights"] == "false" || Object.keys(classes[className][teacherName]["weights"]).length > 0) {
-                            this.updateWeightsForClass(username, term, semester, className, classes[className][teacherName]["hasWeights"], classes[className][teacherName]["weights"], false, false);
+                            this.updateWeightsForClass(username, _term, _semester, className, classes[className][teacherName]["hasWeights"], classes[className][teacherName]["weights"], false, false);
                         }
                     }
 
                     //Remove any weights that don't exist in user grades
-                    for (let j = 0; j < Object.keys(user.weights[term][semester][className]["weights"]).length; j++) {
-                        if (!goodWeights.includes(Object.keys(user.weights[term][semester][className]["weights"])[j])) {
-                            delete user.weights[term][semester][className]["weights"][Object.keys(user.weights[term][semester][className]["weights"])[j]];
+                    for (let j = 0; j < Object.keys(user.weights[_term][_semester][className]["weights"]).length; j++) {
+                        if (!goodWeights.includes(Object.keys(user.weights[_term][_semester][className]["weights"])[j])) {
+                            delete user.weights[_term][_semester][className]["weights"][Object.keys(user.weights[_term][_semester][className]["weights"])[j]];
                         }
                     }
 
                     //Set to point-based if only one category exists (& category is null)
-                    if (Object.keys(user.weights[term][semester][className]["weights"]).length == 1) {
-                        if (user.weights[term][semester][className]["weights"][Object.keys(user.weights[term][semester][className]["weights"])[0]] == null) {
-                            user.weights[term][semester][className]["hasWeights"] = "false";
+                    if (Object.keys(user.weights[_term][_semester][className]["weights"]).length == 1) {
+                        if (user.weights[_term][_semester][className]["weights"][Object.keys(user.weights[_term][_semester][className]["weights"])[0]] == null) {
+                            user.weights[_term][_semester][className]["hasWeights"] = "false";
                         }
                     }
 
                     //Add user's weights as suggestions
-                    this.addWeightsSuggestion(lc_username, className, teacherName, user.weights[term][semester][className]["hasWeights"], user.weights[term][semester][className]["weights"]);
+                    this.addWeightsSuggestion(lc_username, className, teacherName, user.weights[_term][_semester][className]["hasWeights"], user.weights[_term][_semester][className]["weights"]);
 
                     //Set custom to not custom if it is same as classes db
-                    if (user.weights[term][semester][className]["custom"] && dbContainsClass(className, teacherName)) {
-                        user.weights[term][semester][className]["custom"] = isCustom({
-                                                                                         "weights": user.weights[term][semester][className]["weights"],
-                                                                                         "hasWeights": user.weights[term][semester][className]["hasWeights"]
-                                                                                     }, {
-                                                                                         "weights": classes[className][teacherName]["weights"],
-                                                                                         "hasWeights": classes[className][teacherName]["hasWeights"]
-                                                                                     });
+                    if (user.weights[_term][_semester][className]["custom"] && dbContainsClass(className, teacherName)) {
+                        user.weights[_term][_semester][className]["custom"] = isCustom({
+                                                                                           "weights": user.weights[_term][_semester][className]["weights"],
+                                                                                           "hasWeights": user.weights[_term][_semester][className]["hasWeights"]
+                                                                                       }, {
+                                                                                           "weights": classes[className][teacherName]["weights"],
+                                                                                           "hasWeights": classes[className][teacherName]["hasWeights"]
+                                                                                       });
                     }
                 }
             }
@@ -958,7 +968,7 @@ module.exports = {
                     }
                 }
             }
-            this.bringUpToDate(lc_username);
+            this.bringUpToDate(lc_username, false);
             userRef.get("updatedGradeHistory").push(Date.now()).write();
             return {success: true, message: "Updated grade history!"};
         }
@@ -1012,6 +1022,11 @@ module.exports = {
         }
         let newGrades = grade_update_status.new_grades[newTerm][newSemester];
         let newPSAIDs = newGrades.map(x => x.grades.map(y => y.psaid));
+        let fixDicts = false;
+        for (let i = 0; i < newPSAIDs.length - oldPSAIDs.length; i++) {
+            oldPSAIDs.push([]);
+            fixDicts = true;
+        }
         let added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [newGrades[index].class_name, newPSAIDs[index]]).filter(data => data[1].length));
         let modified = {};
         let removed = {};
@@ -1034,6 +1049,11 @@ module.exports = {
             added: added, modified: modified, removed: removed, overall: overall
         };
         userRef.get("grades").get(newTerm).set(newSemester, newGrades).write();
+        if (fixDicts) {
+            this.initAddedAssignments(lc_username);
+            this.initWeights(lc_username);
+            this.initEditedAssignments(lc_username);
+        }
         this.bringUpToDate(lc_username);
         let updateHistory = false;
         if (newTerm !== oldTerm && newSemester !== oldSemester) {
@@ -1527,6 +1547,13 @@ module.exports = {
         return {success: true, message: "Successfully updated added assignments"};
     },
 
+    updateEditedAssignments: function (username, editedAssignments) {
+        let userRef = db.get("users").find({username: username.toLowerCase()});
+        let {term, semester} = this.getMostRecentTermData(username);
+        userRef.get("editedAssignments").get(term).set(semester, editedAssignments).write();
+        return {success: true, message: "Successfully updated edited assignments"};
+    },
+
     migrateLastUpdated: function (username) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
 
@@ -1557,7 +1584,7 @@ module.exports = {
                 temp[years[i]][semesters[j]] = current[years[i]] ? current[years[i]][semesters[j]] || {} : {};
                 let classes = userRef.get("grades").get(years[i]).get(semesters[j]).map(d => d.class_name).value();
                 for (let k = 0; k < classes.length; k++) {
-                    temp[years[i]][semesters[j]][classes[k]] = current[years[i]] ? current[years[i]][semesters[j]] ? current[years[i]][semesters[j]][classes[k]] || [] : [] : [];
+                    temp[years[i]][semesters[j]][classes[k]] = [];
                 }
             }
         }
@@ -1584,6 +1611,25 @@ module.exports = {
             }
         }
         userRef.set("weights", temp).write();
+    },
+
+    initEditedAssignments: function (username) {
+        let temp = {};
+        let userRef = db.get("users").find({username: username.toLowerCase()});
+        let current = userRef.get("editedAssignments").value();
+        let years = Object.keys(userRef.get("grades").value());
+        for (let i = 0; i < years.length; i++) {
+            let semesters = Object.keys(userRef.get("grades").get(years[i]).value());
+            temp[years[i]] = {};
+            for (let j = 0; j < semesters.length; j++) {
+                temp[years[i]][semesters[j]] = current[years[i]] ? current[years[i]][semesters[j]] || {} : {};
+                let classes = userRef.get("grades").get(years[i]).get(semesters[j]).map(d => d.class_name).value();
+                for (let k = 0; k < classes.length; k++) {
+                    temp[years[i]][semesters[j]][classes[k]] = {};
+                }
+            }
+        }
+        userRef.set("editedAssignments", temp).write();
     },
 
     resetSortData: function (username) {
