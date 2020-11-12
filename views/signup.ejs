@@ -15,6 +15,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
+<% include partials/limited_time/snowfall.ejs %>
 <div class="container h-100 d-flex justify-content-center ">
     <div class="col-sm-12 col-md-10 col-lg-8 col-xl-7">
         <div class="card card-signin my-5 non-responsive">
@@ -100,7 +101,7 @@
                         </div>
                     </div>
 
-                    <% if (needsBeta) { %>
+                    <% if (beta) { %>
                         <div class="form-group input-group">
                             <i class="key-bg"></i>
                             <label>Beta Key</label>
@@ -140,9 +141,10 @@
         $("input").each(function () {
             let input = $(this);
             if (input[0].value) {
-                input.trigger('input');
+                input.trigger("input");
             }
         });
+        Snowy(true);
     }, 250);
 
     function checkLabel(input) {
@@ -496,7 +498,7 @@
     let emailDiv = $("#schoolEmail");
     let betaDiv = $("#betaKey");
     let signupBtn = $("#signupBtn");
-    let needsBeta = <%= needsBeta; %>;
+    let beta = <%= beta; %>;
 
     function validateSignup() {
         if (!checkUsername(userDiv)) { // Invalid Username
@@ -511,7 +513,7 @@
             invalidateSignup();
             return;
         }
-        if (needsBeta && !checkBetaKey(betaDiv)) { // Invalid Beta Key
+        if (beta && !checkBetaKey(betaDiv)) { // Invalid Beta Key
             invalidateSignup();
             return;
         }

@@ -18,6 +18,7 @@
 </head>
 
 <body>
+<% include partials/limited_time/snowfall.ejs %>
 <div class="container h-100 d-flex justify-content-center">
     <div class="col-sm-10 col-md-8 col-lg-6 col-xl-5">
         <div class="card card-signin my-5 non-responsive" id="signin">
@@ -77,9 +78,10 @@
         $("input").each(function () {
             let input = $(this);
             if (input[0].value) {
-                input.trigger('input');
+                input.trigger("input");
             }
         });
+        Snowy(true);
     }, 250);
 
     function checkLabel(input) {

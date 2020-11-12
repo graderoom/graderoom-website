@@ -86,29 +86,29 @@
                                             class="fa fa-keyboard-o" aria-hidden="true"></i> Keyboard Shortcuts
                                 </btn>
                             </li>
-                            <li class="nav-item dropdown-item">
-                                <btn class="btn btn-med" onclick="showCard('#feedbackDisplay')"><i
-                                            class="fa fa-send" aria-hidden="true"></i> Send Feedback
-                                </btn>
-                            </li>
-                            <div class="dropdown-divider"></div>
-                            <% if (JSON.parse(alerts).lastUpdated.length) { %>
+                                <li class="nav-item dropdown-item">
+                                    <btn class="btn btn-med" onclick="showCard('#feedbackDisplay')"><i
+                                                class="fa fa-send" aria-hidden="true"></i> Send Feedback
+                                    </btn>
+                                </li>
+                                <div class="dropdown-divider"></div>
+                                <% if (JSON.parse(alerts).lastUpdated.length) { %>
                                     <li id="recentChangesNavBtn" class="nav-item dropdown-item">
-                                        <btn class="btn btn-med" onclick="setupGradeChanges()"><i
+                                        <btn class="btn btn-med" onclick="setupGradeChanges(true, true)"><i
                                                     class="fa fa-clock-o" aria-hidden="true"></i> Sync Log
                                         </btn>
                                     </li>
                                 <% } %>
-                            <li class="nav-item dropdown-item">
-                                <a class="btn btn-med" href="/finalgradecalculator"><i
-                                            class="fa fa-calculator" aria-hidden="true"></i> Calculator
-                                </a>
-                            </li>
-                            <div class="dropdown-divider"></div>
-                            <li class="nav-item dropdown-item">
-                                <btn class="btn btn-med" onclick="showLatest(true)"><i
-                                            class="fa fa-lightbulb-o" aria-hidden="true"></i> What's New
-                                </btn>
+                                <li class="nav-item dropdown-item">
+                                    <a class="btn btn-med" href="/finalgradecalculator"><i
+                                                class="fa fa-calculator" aria-hidden="true"></i> Calculator
+                                    </a>
+                                </li>
+                                <div class="dropdown-divider"></div>
+                                <li class="nav-item dropdown-item">
+                                    <btn class="btn btn-med" onclick="showLatest(true)"><i
+                                                class="fa fa-lightbulb-o" aria-hidden="true"></i> What's New
+                                    </btn>
                             </li>
                             <li class="nav-item dropdown-item">
                                 <btn class="btn btn-med" onclick="showChangelog()"><i
@@ -180,6 +180,9 @@
 <% if (page === "home") { %>
     <% include recent_changes.ejs %>
 <% } %>
+<% if (page === "home") { %>
+    <% include ../limited_time/snowfall.ejs %>
+<% } %>
 
 <!-- Custom JavaScript -->
 <script>
@@ -250,17 +253,15 @@
                     appearance.weightedGPA = !appearance.weightedGPA;
                     $("#weightedGPAForm button").each(function () {
                         $(this).toggleClass("active");
-                        if ($(this).prop('type') === 'submit') {
-                            $(this).prop('type', 'button');
+                        if ($(this).prop("type") === "submit") {
+                            $(this).prop("type", "button");
                         } else {
-                            $(this).prop('type', '');
+                            $(this).prop("type", "");
                         }
                     });
                     setupGPADisplays();
                     return;
                 }
-                // Special behavior for class colors.
-                let msg = "";
                 if (response.gradeSyncEnabled) {
                     $("#syncGradesDiv").hide();
                     $("#gradeSyncDiv").show();
@@ -285,11 +286,12 @@
                     };
                     clearTimeout(checkLastUpdated);
                     if (!updateData(newData).updated) {
-                        $(formMessagesDiv).find(".messageTxt").text(msg + "Refresh to see the latest updates.");
+                        $(formMessagesDiv).find(".messageTxt").text("Refresh to see the latest updates.");
                         $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-danger").addClass("alert-success");
                         setTimeout(() => window.reload(), 400);
                     } else {
                         alerts.lastUpdated.push(JSON.parse(response.updateData));
+                        refreshWithoutReload(true);
                         setupGradeChanges();
                         setupLastUpdated();
                         $(form).find("button").prop("disabled", false);
@@ -488,7 +490,7 @@
             checkLabel($("#school_email"));
             openTab(currentTab);
             updateTutorialProgress();
-            $('#blur-range-picker').val(appearance.blurAmount || 4);
+            $("#blur-range-picker").val(appearance.blurAmount || 4);
         }
         if (id === "#feedbackDisplay") {
             setupFeedbackForm();

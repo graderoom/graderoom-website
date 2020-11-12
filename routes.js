@@ -63,6 +63,7 @@ module.exports = function (app, passport) {
                     relevantClassData: JSON.stringify(authenticator.getRelClassData(req.user.username)),
                     sortingData: JSON.stringify(req.user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
+                    beta: JSON.stringify(server.needsBetaKeyToSignUp),
                     betaFeatures: JSON.stringify(req.user.betaFeatures),
                     termsAndSemesters: JSON.stringify(Object.keys(req.user.grades).map(x => [x, Object.keys(req.user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
                     dst: isDST(),
@@ -86,6 +87,7 @@ module.exports = function (app, passport) {
                     relevantClassData: JSON.stringify({}),
                     sortingData: JSON.stringify(req.user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
+                    beta: JSON.stringify(server.needsBetaKeyToSignUp),
                     betaFeatures: JSON.stringify(req.user.betaFeatures),
                     termsAndSemesters: JSON.stringify([]),
                     dst: isDST(),
@@ -95,7 +97,7 @@ module.exports = function (app, passport) {
             return;
         }
         res.render("index.ejs", {
-            message: req.flash("loginMessage"), dst: isDST()
+            message: req.flash("loginMessage"), dst: isDST(), beta: server.needsBetaKeyToSignUp
         });
     });
 
@@ -185,6 +187,7 @@ module.exports = function (app, passport) {
                     relevantClassData: JSON.stringify(authenticator.getRelClassData(req.query.usernameToRender)),
                     sortingData: JSON.stringify(user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
+                    beta: server.needsBetaKeyToSignUp,
                     betaFeatures: JSON.stringify(user.betaFeatures),
                     termsAndSemesters: JSON.stringify(Object.keys(user.grades).map(x => [x, Object.keys(user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
                     dst: isDST(),
@@ -208,7 +211,8 @@ module.exports = function (app, passport) {
                     relevantClassData: JSON.stringify({}),
                     sortingData: JSON.stringify(user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    betaFetaures: JSON.stringify(user.betaFeatures),
+                    beta: server.needsBetaKeyToSignUp,
+                    betaFeatures: JSON.stringify(user.betaFeatures),
                     termsAndSemesters: JSON.stringify([]),
                     dst: isDST(),
                     _: _
@@ -313,7 +317,7 @@ module.exports = function (app, passport) {
         if (term && semester && resp.message === "Sync Complete!") {
             res.status(200).send({
                                      message: resp.message,
-                                     grades: JSON.stringify(user.grades[term][semester]),
+                                     grades: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter))),
                                      weights: JSON.stringify(user.weights[term][semester]),
                                      updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
                                  });
@@ -340,6 +344,15 @@ module.exports = function (app, passport) {
             res.status(200).send(resp.message);
         } else {
             res.status(400).send(resp.message);
+        }
+    });
+
+    app.post("/updateShowMaxGPA", [isLoggedIn], (req, res) => {
+        let resp = authenticator.setShowMaxGPA(req.user.username, JSON.parse(req.body.showMaxGPA));
+        if (resp.success) {
+            res.sendStatus(200);
+        } else {
+            res.sendStatus(400);
         }
     });
 
@@ -430,7 +443,7 @@ module.exports = function (app, passport) {
     // show the signup form
     app.get("/signup", (req, res) => {
         res.render("signup.ejs", {
-            message: req.flash("signupMessage"), needsBeta: server.needsBetaKeyToSignUp, dst: isDST()
+            message: req.flash("signupMessage"), beta: server.needsBetaKeyToSignUp, dst: isDST()
         });
     });
 
@@ -516,7 +529,7 @@ module.exports = function (app, passport) {
                     res.status(200).send({
                                              gradeSyncEnabled: true,
                                              message: resp.message,
-                                             grades: JSON.stringify(resp.grades[term][semester]),
+                                             grades: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter))),
                                              weights: JSON.stringify(req.user.weights[term][semester]),
                                              updateData: JSON.stringify(req.user.alerts.lastUpdated.slice(-1)[0])
                                          });
@@ -524,7 +537,7 @@ module.exports = function (app, passport) {
                     res.status(200).send({
                                              gradeSyncEnabled: false,
                                              message: resp.message,
-                                             grades: JSON.stringify(resp.grades[term][semester]),
+                                             grades: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter))),
                                              weights: JSON.stringify(req.user.weights[term][semester]),
                                              updateData: JSON.stringify(req.user.alerts.lastUpdated.slice(-1)[0])
                                          });
@@ -600,7 +613,7 @@ module.exports = function (app, passport) {
                     appearance: JSON.stringify(req.user.appearance),
                     alerts: JSON.stringify(req.user.alerts),
                     gradeSync: !!req.user.schoolPassword,
-                    gradeData: JSON.stringify(req.user.grades[term][semester]),
+                    gradeData: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter))),
                     weightData: JSON.stringify(req.user.weights[term][semester]),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     dst: isDST()
@@ -826,6 +839,7 @@ module.exports = function (app, passport) {
 
     // general web app
     app.get("/*", (req, res) => {
+        req.session.returnTo = req.originalUrl;
         res.redirect("/");
     });
 
