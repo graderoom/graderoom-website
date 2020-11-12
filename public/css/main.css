@@ -2340,6 +2340,17 @@ input:disabled {
     justify-content: space-between;
 }
 
+.classInfo {
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+}
+
 /* Firefox */
 @supports not (backdrop-filter: blur(0.1rem)) {
     .disable-in-firefox {

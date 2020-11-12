@@ -205,6 +205,11 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
 
+        // Add show max gpa preference
+        if (!userRef.get("appearance").get("showMaxGPA").value()) {
+            userRef.get("appearance").set("showMaxGPA", false).write();
+        }
+
         // Remove blur amount preference
         if (userRef.get("appearance").get("blurAmount").value()) {
             userRef.get("appearance").unset("blurAmount").write();
@@ -749,7 +754,8 @@ module.exports = {
                                              darkModeStart: 18,
                                              darkModeFinish: 7,
                                              weightedGPA: true,
-                                             regularizeClassGraphs: true
+                                             regularizeClassGraphs: true,
+                                             showMaxGPA: false
                                          },
                                          alerts: {
                                              lastUpdated: [],
@@ -763,6 +769,7 @@ module.exports = {
                                          weights: {},
                                          grades: {},
                                          addedAssignments: {},
+                                         editedAssignments: {},
                                          sortingData: {
                                              dateSort: [], categorySort: []
                                          },
@@ -890,9 +897,16 @@ module.exports = {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username}).value();
         return user;
-    },
-
-    checkUpdateBackground: function (username) {
+    }, setShowMaxGPA: function (username, value) {
+        let lc_username = username.toLowerCase();
+        let user = db.get("users").find({username: lc_username});
+        if ([true, false].includes(value)) {
+            user.get("appearance").set("showMaxGPA", value).write();
+            return {success: true};
+        } else {
+            return {success: false};
+        }
+    }, checkUpdateBackground: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         let syncStatus = user.get("updatedInBackground").value();

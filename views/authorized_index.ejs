@@ -115,11 +115,11 @@
             <% if (JSON.parse(betaFeatures).showTermSwitcher) { %>
                 <div id="termSwitcher" class="blur">
                     <% for (let i = 0; i < JSON.parse(termsAndSemesters).length; i++) { %>
-                        <div id="<%= JSON.parse(termsAndSemesters)[i][0] ;%>"><%= JSON.parse(termsAndSemesters)[i][0] ;%>
+                        <div id="<%= JSON.parse(termsAndSemesters)[i][0]; %>"><%= JSON.parse(termsAndSemesters)[i][0]; %>
 
                             <% for (let j = 0; j < JSON.parse(termsAndSemesters)[i][1].length; j++) { %>
-                                <div onclick="window.location.href='/' + (window.location.href.indexOf('usernameToRender') === -1 ? '?' : 'viewuser?' + window.location.href.slice(window.location.href.indexOf('usernameToRender'),window.location.href.indexOf('&') === -1 ? undefined : window.location.href.indexOf('&')) + '&') + 'term=<%= JSON.parse(termsAndSemesters)[i][0] ;%>&semester=<%= JSON.parse(termsAndSemesters)[i][1][j] ;%>'"
-                                     id="<%= JSON.parse(termsAndSemesters)[i][0] ;%><%= JSON.parse(termsAndSemesters)[i][1][j] ;%>"><%= JSON.parse(termsAndSemesters)[i][1][j] ;%></div>
+                                <div onclick="window.location.href='/' + (window.location.href.indexOf('usernameToRender') === -1 ? '?' : 'viewuser?' + window.location.href.slice(window.location.href.indexOf('usernameToRender'),window.location.href.indexOf('&') === -1 ? undefined : window.location.href.indexOf('&')) + '&') + 'term=<%= JSON.parse(termsAndSemesters)[i][0]; %>&semester=<%= JSON.parse(termsAndSemesters)[i][1][j]; %>'"
+                                     id="<%= JSON.parse(termsAndSemesters)[i][0]; %><%= JSON.parse(termsAndSemesters)[i][1][j]; %>"><%= JSON.parse(termsAndSemesters)[i][1][j]; %></div>
                             <% } %>
                         </div>
                         <script>
@@ -163,6 +163,20 @@
                                     </button>
                                 </form>
                             </div>
+                            <div id="showMaxGPA">
+                                <label style="display: flex; font-size: 1rem; justify-content: center; margin: 0; align-items: flex-start">Show
+                                    Max GPA
+                                    <label class="switch">
+                                        <input style="margin: 0; display: flex"
+                                               type="checkbox"
+                                               onchange="showMaxGPA = $(this).is(':checked'); setupGPADisplays(true)"
+                                        <% if (JSON.parse(appearance).showMaxGPA) { %> checked
+                                                <% } %>
+                                        >
+                                        <span class="slider"></span>
+                                    </label>
+                                </label>
+                            </div>
                             <div>
                                 <% let accentColor = _.sample(JSON.parse(appearance).classColors); %>
                                 <h5 class="text-center">Semester GPA<span
@@ -171,7 +185,10 @@
                                                     class="popup-right-top">This metric is based on your grades from
                                                 this semester.</span></i></span>
                                 </h5>
-                                <h5 id="GPA-display">----/----</h5>
+                                <h5 id="GPA-display">----
+                                    <% if (JSON.parse(appearance).showMaxGPA) { %>/----
+                                    <% } %>
+                                </h5>
                             </div>
                             <% if (JSON.parse(gradeHistory).length) { %>
                                 <div>
@@ -182,7 +199,10 @@
                                                     is what shows up on your transcript. It does not include pe or
                                                     summer classes. This cumulative GPA does not include your current
                                                     semester.</span></i></span></h5>
-                                    <h5 id="GPA-display-cumulative">----/----</h5>
+                                    <h5 id="GPA-display-cumulative">----
+                                        <% if (JSON.parse(appearance).showMaxGPA) { %>/----
+                                        <% } %>
+                                    </h5>
                                 </div>
                             <% } %>
                             <div style="opacity: 0.2; pointer-events: none">
@@ -248,17 +268,32 @@
             <!-- Class Sections -->
             <% offset = 0; %>
             <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                <% if (JSON.parse(appearance).showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData).filter(g => g.grades.length)[i].class_name]["classType"] !== "non-academic") { %>
+                <% if (JSON.parse(appearance).showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
                     <span id="section<%= i + offset; %>" class="section" style="display: none;">
-                        <% if (JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] === "non-academic") { %>
-                            <div style="display:block">
-                                <div class="alert alert-info font-weight-bold"
-                                     id="weightmsg<%= i + offset; %>">This class is non-academic. You can stop
-                                    non-academic classes from being displayed in <u style="cursor: pointer"
-                                                                                    onclick="showCard('#settingsCardDisplay');">settings</u>
-                                </div>
-                            </div>
-                        <% } %>
+                        <div class="classInfo">
+                            <% let classType = JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].classType %>
+                            <% switch (classType) {
+                                case "honors":
+                                    classType = "Honors";
+                                    break;
+
+                                case "ap":
+                                    classType = "AP";
+                                    break;
+
+                                case "none":
+                                    classType = "None";
+                                    break;
+
+                                case "non-academic":
+                                    classType = "Non-Academic";
+
+                                default:
+                                    break;
+                            } %>
+                            <span>Special Weighting: <%= classType %></span>
+                            <span>Teacher: <%= JSON.parse(gradeData)[i].teacher_name || "Unknown" %></span>
+                        </div>
                         <div class="chartAndWeights">
                             <div id="chart-container<%= i + offset; %>" class="chart chart-container">
                                 <div class="chart-placeholder fa fa-spin fa-spinner"></div>
@@ -391,7 +426,7 @@
                                 <form id="addAssignmentForm<%= i + offset; %>">
                                     <div class="add-assignment-header">
                                         <div class="addAssignment"
-                                             onclick="{$(this).parents('.add-assignment-container').toggleClass('active').parents('div').toggleClass('keep-right');}">
+                                             onclick="{$(this).parents('.add-assignment-container').toggleClass('active').parents('div').toggleClass('keep-right'); $('#dateLabel<%= i + offset %> + input').focus().blur()}">
                                             <i class="fa fa-plus"></i>
                                             <span>Add Assignment</span>
                                         </div>
@@ -406,7 +441,7 @@
                                                        style="display:none">Date</label>
                                                 <input class="form-control dynamic-input"
                                                        type="text"
-                                                       onfocus="this.type='date'; $('#dateLabel<%= i + offset; %>').show().addClass('label-active');"
+                                                       onfocus="this.type='date'; $('#dateLabel<%= i + offset; %>').show().addClass('label-active'); this.valueAsDate = new Date()"
                                                        onblur="this.type='text'; checkLabel(this); $('#dateLabel<%= i + offset; %>:not(.label-active)').hide(); "
                                                        placeholder="Date" required>
                                             </td>
@@ -703,6 +738,9 @@
                 darkMode = theme === "dark";
             }
 
+            let showMaxGPA = appearance.showMaxGPA;
+            let recentChangeText = "";
+
             // This should only happen once
             let {dateSort, categorySort} = <%- sortingData; %>;
             refreshWithoutReload(true);
@@ -712,6 +750,7 @@
             setupGradeChanges(false);
             $("#termSwitcher").addClass("hover");
             setTimeout(() => $("#termSwitcher").removeClass("hover"), 2000);
+            setTimeout(Snowy(true), 1000);
 
             if (alerts.lastUpdated.length !== 0) {
                 try {
@@ -843,7 +882,7 @@
                     return {updated: true};
                 }
                 if (_.isEqual(_data.map(c => c.class_name), newData.grades.map(c => c.class_name)) && _.isEqual(weights, newData.weights)) {
-                    _data = newData.grades;
+                    data = newData.grades;
                     return {updated: true};
                 }
                 clearTimeout(checkLastUpdated);
@@ -872,8 +911,8 @@
                                     }
                                 } else {
                                     alerts.lastUpdated.push(JSON.parse(message.updateData));
-                                    setupGradeChanges();
                                     refreshWithoutReload(true);
+                                    setupGradeChanges();
                                 }
                             } else if (message.message === "Already Synced!") {
                                 clearInterval(checking);
@@ -911,10 +950,23 @@
                 $("body, html").removeClass("no-scroll");
             }
 
-            function setupGPADisplays() {
-                $("#GPA-display").text(getOverallGPA());
-                if (gradeHistoryLetters.length) {
-                    $("#GPA-display-cumulative").text(getCumulativeGPA());
+            function setupGPADisplays(postNewSettings = false) {
+                if (postNewSettings) {
+                    $.ajax({
+                               method: "POST",
+                               url: "/updateShowMaxGPA",
+                               data: {showMaxGPA: JSON.stringify(showMaxGPA)}
+                           }).done(() => {
+                        $("#GPA-display").text(getOverallGPA());
+                        if (gradeHistoryLetters.length) {
+                            $("#GPA-display-cumulative").text(getCumulativeGPA());
+                        }
+                    });
+                } else {
+                    $("#GPA-display").text(getOverallGPA());
+                    if (gradeHistoryLetters.length) {
+                        $("#GPA-display-cumulative").text(getCumulativeGPA());
+                    }
                 }
             }
 
@@ -968,7 +1020,7 @@
                 }
                 GPA /= numClasses;
                 max /= numClasses;
-                return GPA.toFixed(3) + "/" + max.toFixed(3);
+                return GPA.toFixed(3) + (showMaxGPA ? "/" + max.toFixed(3) : "");
             }
 
             function getOverallGPA() {
@@ -991,7 +1043,7 @@
                 }
                 GPA /= numClasses;
                 max /= numClasses;
-                return GPA.toFixed(3) + "/" + max.toFixed(3);
+                return GPA.toFixed(3) + (showMaxGPA ? "/" + max.toFixed(3) : "");
             }
 
             function getGPA(letterGrade) {
@@ -3126,12 +3178,12 @@
                 } else if (e.key === "g") {
                     if (cardsDisplayed.includes("gradeChangesCardDisplay")) {
                         if (cardsDisplayed.indexOf("gradeChangesCardDisplay") !== cardsDisplayed.length - 1) {
-                            setupGradeChanges();
+                            setupGradeChanges(true, true);
                         } else {
                             closeForm("gradeChangesCardDisplay");
                         }
                     } else {
-                        setupGradeChanges();
+                        setupGradeChanges(true, true);
                     }
                 } else {
                     //console.log(e.code);

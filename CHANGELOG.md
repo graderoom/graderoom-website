@@ -44,6 +44,24 @@
 - Assignments from PowerSchool with the same due date are sometimes displayed in a different order than on PowerSchool
 - [Beta] Summer semesters are listed under the incorrect year
 
+## [Beta 3.4.0] - 2020-11-12
+### Added
+- Toggle for showing Maximum achievable GPA
+- Weighting and Teacher Name display
+- Winter snow (Only visible in dark mode)
+- Number of recent changes is shown along with sync status in the main navbar
+- [Beta] FPS display
+
+### Improved
+- Sync Log now only displays when there are changes
+- Blur Effects
+
+### Fixed
+- Issue where page would refresh after sync when it was not necessary
+- Issue where some info would be incorrect in sync log after sync
+- Issue where tables did not refresh after sync
+- Issue with light mode blurring
+
 ## [Beta 3.3.8] - 2020-11-10
 ### Added
 - Edits can now be saved to all assignments

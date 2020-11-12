@@ -164,28 +164,28 @@
             }
             let seconds = Math.floor(deltaTime / SECOND) % 60;
             if (deltaTime < JUST_NOW_LIMIT * SECOND) {
-                message.text("Last synced just now.");
+                message.text("Last synced just now." + recentChangeText);
                 checkLastUpdated = setTimeout(setupLastUpdated, (1 + seconds / JUST_NOW_LIMIT - deltaTime / (JUST_NOW_LIMIT * SECOND)) * JUST_NOW_LIMIT * SECOND);
                 return;
             }
             if (deltaTime < MINUTE) {
-                message.text("Last synced " + seconds + "s ago.");
+                message.text("Last synced " + seconds + "s ago." + recentChangeText);
                 checkLastUpdated = setTimeout(setupLastUpdated, (1 + seconds - deltaTime / SECOND) * SECOND);
                 return;
             }
             let minutes = Math.floor(deltaTime / MINUTE) % 60;
             if (deltaTime < HOUR) {
-                message.text("Last synced " + minutes + "m ago.");
+                message.text("Last synced " + minutes + "m ago." + recentChangeText);
                 checkLastUpdated = setTimeout(setupLastUpdated, (1 + minutes - deltaTime / MINUTE) * MINUTE);
                 return;
             }
             let hours = Math.floor(deltaTime / HOUR) % 24;
             let days = Math.floor(deltaTime / DAY);
             if (deltaTime < DAY) {
-                message.text("Last synced " + hours + "h " + (minutes > 0 ? minutes + "m ago." : " ago."));
+                message.text("Last synced " + hours + "h " + (minutes > 0 ? minutes + "m ago." : " ago.") + recentChangeText);
                 checkLastUpdated = setTimeout(setupLastUpdated, (1 + minutes - (deltaTime / MINUTE) % 60) * MINUTE);
             } else {
-                message.text("Last synced " + days + "d " + (hours > 0 ? hours + "h ago." : " ago."));
+                message.text("Last synced " + days + "d " + (hours > 0 ? hours + "h ago." : " ago.") + recentChangeText);
                 checkLastUpdated = setTimeout(setupLastUpdated, (1 + hours - (deltaTime / HOUR) % 24) * HOUR);
             }
         }
