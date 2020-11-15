@@ -23,7 +23,7 @@
     const rotationScale = 1; // Must be 1
     const speedScale = 1;
     const buffer = 10;
-    const minSpeed = 0.5;
+    const minSpeed = 1;
     const sizeScale = 0.5;
 
     let numFlakes;
@@ -36,7 +36,7 @@
         if (today < winterStart || today > winterEnd) {
             return;
         }
-        numFlakes = screenWidth / 2;
+        numFlakes = screenWidth / 5;
         for (let i = 0; i < numFlakes; ++i) {
             let flake = new Flake();
             snow.push(initializeFlake(flake));
