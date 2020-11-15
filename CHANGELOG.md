@@ -44,6 +44,10 @@
 - Assignments from PowerSchool with the same due date are sometimes displayed in a different order than on PowerSchool <strong>[Fixed in Beta 3.5.0]</strong>
 - [Beta] Summer semesters are listed under the incorrect year
 
+## [Stable 3.5.1] - 2020-11-15
+### Fixed
+- Issue with showing new versions if latest version is not a stable version
+
 ## [Beta 3.5.0] - 2020-11-15
 ### Added
 - X direction panning and zooming of charts

@@ -1218,7 +1218,7 @@ module.exports = {
             let result = "";
             for (let i = 1; i < versionNameArray.length; i++) {
                 if (versionNameArray[i][0] !== "Beta") {
-                    if (i >= end) {
+                    if (i >= end && result) {
                         break;
                     }
                     result += changelogArray[i];
