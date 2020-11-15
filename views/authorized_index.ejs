@@ -1089,7 +1089,7 @@
                         }
                         for (let j = 0; j < Object.keys(result).length; j++) {
                             let weight = Object.keys(result)[j];
-                            result[weight] = +(result[weight] / totalPossible * 100).toFixed(4) || 0;
+                            result[weight] = +(result[weight] / totalPossible * 100).toFixed(2) || 0;
                             $("#weightTableWeight" + i + j + " input").attr("placeholder", result[weight]);
                         }
                     }
@@ -1233,7 +1233,7 @@
                             document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
                             let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
                             document.getElementById("weightTablePoints" + i + j).textContent = +categoryGottenAndPossible.gotten.toFixed(4) + ((categoryGottenAndPossible.possible !== 0) ? ("/" + +(categoryGottenAndPossible.possible.toFixed(4))) : "");
-                            let categoryGrade = +(+getCategoryGrade(i, tableCategories[j])).toFixed(4);
+                            let categoryGrade = getCategoryGrade(i, tableCategories[j]);
                             if (categoryGottenAndPossible.possible !== 0) {
                                 document.getElementById("weightTableGrade" + i + j).textContent = categoryGrade + "% (" + getLetterGrade(categoryGrade) + ")";
                             } else {
@@ -1243,7 +1243,7 @@
                         let overallGrade = getOverallGrade(i);
                         let assignmentData = parsedData[i].rawData;
                         let lastIndex = assignmentData.length - 1;
-                        let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(5);
+                        let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(2);
                         let color;
                         if (delta > 0) {
                             delta = "<i class=\"fa fa-caret-up\"></i>" + delta + "%";
@@ -1254,7 +1254,7 @@
                         }
                         delta = (delta ? (" <div style=\"display: inline-block; margin-left: 1rem; color: " + color + "\">" + delta + "</div>") : "");
                         if (overallGrade) {
-                            document.getElementById("weightTableOverallGrade" + i).innerHTML = (+(overallGrade.toFixed(4))).toString() + "% (" + getLetterGrade(overallGrade) + ")" + delta;
+                            document.getElementById("weightTableOverallGrade" + i).innerHTML = (+(overallGrade.toFixed(2))).toString() + "% (" + getLetterGrade(overallGrade) + ")" + delta;
                         } else {
                             document.getElementById("weightTableOverallGrade" + i).innerHTML = "--" + delta;
                         }
@@ -2300,7 +2300,7 @@
 
                             // Set up coloring and gain/loss
                             let display = +isNaN(parseFloat(assignmentData[j]).toFixed(2)) ? +parseFloat(assignmentData[assignmentData.length - 1]).toFixed(2) : parseFloat(assignmentData[j]).toFixed(2);
-                            let delta = (assignmentData[j] - (assignmentData[j - 1] || 100)).toFixed(3);
+                            let delta = (assignmentData[j] - (assignmentData[j - 1] || 100)).toFixed(2);
                             if (categorySort[i] && assignmentCategories[j] !== assignmentCategories[j - 1]) {
                                 delta = assignmentData[j] - 100;
                             }
@@ -2348,7 +2348,7 @@
                     let overallGrade = _data[i].overall_percent;
                     let assignmentData = parsedData[i].rawData;
                     let lastIndex = assignmentData.length - 1;
-                    let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(5);
+                    let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(2);
                     let color;
 
                     if (delta > 0) {
@@ -2360,7 +2360,7 @@
                     }
                     delta = (delta ? (" <div class=\"delta\" style=\"color: " + color + "\">" + delta + "</div>") : "");
                     if (overallGrade) {
-                        document.getElementById("overviewChart" + i).innerHTML = "<div class=\"overallGrade\">" + (+(overallGrade.toFixed(4))).toString() + "%" + "</div><div class=\"overallLetter\">" + _data[i].overall_letter + "</div>" + delta;
+                        document.getElementById("overviewChart" + i).innerHTML = "<div class=\"overallGrade\">" + (+(overallGrade.toFixed(2))).toString() + "%" + "</div><div class=\"overallLetter\">" + _data[i].overall_letter + "</div>" + delta;
                         document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>` + _data[i].overall_percent + ` (` + _data[i].overall_letter + `)<span class="popup"><i id="incorrectOverviewGrade` + i + `"class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-bottom">Does not match calculated grade</span></i></span>`;
                     } else {
                         document.getElementById("overviewChart" + i).innerHTML = "N/A";
@@ -2391,7 +2391,7 @@
                 if (totalPossible === 0) {
                     return null;
                 }
-                return totalGotten / totalPossible * 100;
+                return +(totalGotten / totalPossible * 100).toFixed(2);
             }
 
             function cleanEdits(classIndex, assignmentIndex) {
@@ -2530,9 +2530,9 @@
                                                 value.weight = 0;
                                                 continue;
                                             }
-                                            overallPercent += ((value.weight * (value.totalPossible !== 0 ? (value.totalGotten / value.totalPossible) : 1)));
+                                            overallPercent += +(value.weight * (value.totalPossible !== 0 ? value.totalGotten / value.totalPossible : 1)).toFixed(2);
                                         }
-                                        let total = overallPercent / totalWeightValue * 100;
+                                        let total = +(overallPercent / totalWeightValue * 100).toFixed(2);
                                         overallGradeSteps.push(total);
                                     } else {
                                         overallGradeSteps.push(overallGradeSteps.filter(x => x).slice(-1)[0] || 100);
@@ -2543,13 +2543,13 @@
                                 }
                                 if (doesntHaveWeights) {
                                     if (categoryGrades[grade.category]) {
-                                        categoryGradeSteps.push((categoryGrades[grade.category].totalPossible !== 0 ? categoryGrades[grade.category].totalGotten / categoryGrades[grade.category].totalPossible : 1) * 100);
+                                        categoryGradeSteps.push((categoryGrades[grade.category].totalPossible !== 0 ? +(categoryGrades[grade.category].totalGotten / categoryGrades[grade.category].totalPossible).toFixed(2) : 1) * 100);
                                     } else {
                                         categoryGradeSteps.push(100);
                                     }
                                 } else {
                                     if (totalPossiblesAndGottens[category]) {
-                                        categoryGradeSteps.push((totalPossiblesAndGottens[category].totalPossible !== 0 ? totalPossiblesAndGottens[category].totalGotten / totalPossiblesAndGottens[category].totalPossible : 1) * 100);
+                                        categoryGradeSteps.push((totalPossiblesAndGottens[category].totalPossible !== 0 ? +(totalPossiblesAndGottens[category].totalGotten / totalPossiblesAndGottens[category].totalPossible).toFixed(2) : 1) * 100);
                                     } else {
                                         categoryGradeSteps.push(100);
                                     }
@@ -2561,7 +2561,7 @@
                         }
                         let assignmentNames = classData.filter(x => !x.exclude).map(x => x.assignment_name);
                         let assignmentDates = classData.filter(x => !x.exclude).map(x => x.date);
-                        let assignmentTimestamps = classData.filter(x => !x.exclude).map(x => new Date(x.date));
+                        let assignmentTimestamps = classData.filter(x => !x.exclude).map((x, i, arr) => new Date(Date.parse(x.date) + ((24 * 60 * 60 * 1000 / arr.filter(y => x.date === y.date).length + 1) * arr.filter((y, j) => j < i && x.date === y.date).length)));
                         let assignmentPercents = classData.filter(x => !x.exclude).map(x => x.grade_percent);
                         let assignmentScoresParsed = classData.filter(x => !x.exclude).map(x => (x.points_gotten === false ? "--" : x.points_gotten) + "/" + (x.points_possible === false ? "--" : x.points_possible));
                         let assignmentCategories = classData.filter(x => !x.exclude).map(x => x.category);
@@ -2825,7 +2825,7 @@
                                         }
                                         return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " N/A [Inaccurate weights]";
                                     }
-                                    return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + +parseFloat(tooltipItems[0].value).toFixed(2) + "% (" + getLetterGrade(tooltipItems[0].value) + ")";
+                                    return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + tooltipItems[0].value + "% (" + getLetterGrade(tooltipItems[0].value) + ")";
                                 }, label: function (tooltipItem) {
                                     if (tooltipItem.datasetIndex >= chartData.length) {
                                         return;
@@ -2834,7 +2834,7 @@
                                         return;
                                     }
                                     if (tooltipItem.index >= chartData[tooltipItem.datasetIndex].mixedData.length) {
-                                        let delta = +(_data[tooltipItem.datasetIndex].overall_percent - chartData[tooltipItem.datasetIndex].mixedData.slice(-1)[0].y).toFixed(3);
+                                        let delta = +(_data[tooltipItem.datasetIndex].overall_percent - chartData[tooltipItem.datasetIndex].mixedData.slice(-1)[0].y).toFixed(2);
                                         if (delta > 0) {
                                             delta = "+" + delta;
                                         }
@@ -2846,7 +2846,7 @@
                         }, responsive: true, maintainAspectRatio: false, plugins: {
                             zoom: {
                                 zoom: {
-                                    enabled: true, mode: "y", speed: 0.05, onZoom: ({chart}) => {
+                                    enabled: true, mode: "xy", speed: 0.05, onZoom: ({chart}) => {
                                         $("#reset-zoom-1").show();
 
                                         // Disable hovering and tooltips to make animation smoother
@@ -2857,7 +2857,7 @@
                                         chart.options.tooltips.enabled = true;
                                     }
                                 }, pan: {
-                                    enabled: true, mode: "y", speed: 0.05, onPan: ({chart}) => {
+                                    enabled: true, mode: "xy", speed: 0.05, onPan: ({chart}) => {
                                         $("#reset-zoom-1").show();
 
                                         // Disable hovering and tooltips to make animation smoother
@@ -2993,7 +2993,7 @@
                                         }
                                         return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " N/A [Inaccurate weights]";
                                     }
-                                    return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + +parseFloat(tooltipItems[0].value).toFixed(4) + "% (" + getLetterGrade(tooltipItems[0].value) + ")";
+                                    return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + tooltipItems[0].value + "% (" + getLetterGrade(tooltipItems[0].value) + ")";
                                 }, label: function (tooltipItem) {
                                     if (tooltipItem.datasetIndex >= 1) {
                                         return;
@@ -3002,7 +3002,7 @@
                                         return;
                                     }
                                     if (tooltipItem.index >= chartData[id].mixedData.length) {
-                                        let delta = +(_data[id].overall_percent - chartData[id].mixedData.slice(-1)[0].y).toFixed(3);
+                                        let delta = +(_data[id].overall_percent - chartData[id].mixedData.slice(-1)[0].y).toFixed(2);
                                         if (delta > 0) {
                                             delta = "+" + delta;
                                         }
@@ -3014,7 +3014,7 @@
                         }, responsive: true, maintainAspectRatio: false, plugins: {
                             zoom: {
                                 zoom: {
-                                    enabled: true, mode: "y", speed: 0.05, onZoom: ({chart}) => {
+                                    enabled: true, mode: "xy", speed: 0.05, onZoom: ({chart}) => {
                                         $("#reset-zoom" + id).show();
 
                                         // Disable hovering and tooltips to make animation smoother
@@ -3025,7 +3025,7 @@
                                         chart.options.tooltips.enabled = true;
                                     }
                                 }, pan: {
-                                    enabled: true, mode: "y", speed: 0.05, onPan: ({chart}) => {
+                                    enabled: true, mode: "xy", speed: 0.05, onPan: ({chart}) => {
                                         $("#reset-zoom" + id).show();
 
                                         // Disable hovering and tooltips to make animation smoother
