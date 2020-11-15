@@ -41,8 +41,23 @@
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
-- Assignments from PowerSchool with the same due date are sometimes displayed in a different order than on PowerSchool
+- Assignments from PowerSchool with the same due date are sometimes displayed in a different order than on PowerSchool <strong>[Fixed in Beta 3.5.0]</strong>
 - [Beta] Summer semesters are listed under the incorrect year
+
+## [Beta 3.5.0] - 2020-11-15
+### Added
+- X direction panning and zooming of charts
+
+### Improved
+- Multiple assignments with the same date now display as separate, nearby points, creating a more accurate graph with accurate timings
+- Calculations now account for PowerSchool's rounding of category grades
+- All calculations are now limited to 2 decimal places to better match PowerSchool
+- Stability of winter snow
+- Changelog sizing and changelog legend positioning
+
+### Fixed
+- Issue where assignments from PowerSchool with the same due date were sometimes displayed in a different order than on PowerSchool
+- Issue where snow would sometimes form a horizontal line if page was not in focus
 
 ## [Beta 3.4.0] - 2020-11-12
 ### Added
@@ -53,6 +68,7 @@
 - [Beta] FPS display
 
 ### Improved
+- Date is automatically set to current date when adding an assignment
 - Sync Log now only displays when there are changes
 - Blur Effects
 
