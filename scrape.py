@@ -2,6 +2,7 @@ import json
 import requests
 import sys
 from bs4 import BeautifulSoup as BS
+from datetime import datetime
 
 
 def json_format(success, message_or_grades):
@@ -223,7 +224,6 @@ class PowerschoolScraper:
             print(json_format(False, "PowerSchool is locked"))
             sys.exit()
 
-
     def get_history(self):
         """Uses a session to grab all available grade data on powerschool"""
         url = 'https://powerschool.bcp.org/guardian/termgrades.html'
@@ -293,7 +293,7 @@ class PowerschoolScraper:
                                                  overall_percent,
                                                  overall_letter)
                         semester_classes.append(local_class.as_dict())
-            
+
             # Finalize data for the selected year
             if title != "":
                 year_data[title] = semester_classes
@@ -373,7 +373,7 @@ class PowerschoolScraper:
         term = table_cells[1].text
         semester = table_cells[2].text
 
-        if term == None or semester == None:
+        if term is None or semester is None:
             raise Exception("Error getting term and semester data")
 
         # Print out the result
@@ -408,7 +408,7 @@ class PowerschoolScraper:
         # Create a ClassGrade object to hold assignment data
         # Ensure all data is present, otherwise skip the class
         if (class_name and teacher_name and overall_percent
-            and (overall_letter != '-')):
+                and (overall_letter != '-')):
             local_class = ClassGrade(class_name, teacher_name,
                                      overall_percent, overall_letter)
         else:
@@ -444,10 +444,11 @@ class PowerschoolScraper:
         # function that takes a Powerschool assignment object and returns a Graderoom assignment object
         def stripper(info):
             if not "_assignmentsections" in info: return False
-            psaid = info["assignmentid"] # PowerSchool Assignment ID
+            psaid = info["assignmentid"]  # PowerSchool Assignment ID
             _data = info["_assignmentsections"][0]
             date = _data["duedate"].replace("-", "/")
             date = date[5:] + "/" + date[:4]
+            sort_date = datetime.strptime(date, "%m/%d/%Y").timestamp()
             category = _data["_assignmentcategoryassociations"][0]["_teachercategory"]["name"]
             assignment_name = _data["name"]
             exclude = not _data["iscountedinfinalgrade"]
@@ -456,6 +457,8 @@ class PowerschoolScraper:
             else:
                 points_possible = False
             if len(_data["_assignmentscores"]) > 0:
+                sort_date = _data["_assignmentscores"][0]["scoreentrydate"]
+                sort_date = datetime.strptime(sort_date, "%Y-%m-%d %H:%M:%S").timestamp()
                 if "scorepoints" in _data["_assignmentscores"][0]:
                     points_gotten = _data["_assignmentscores"][0]["scorepoints"]
                 else:
@@ -469,6 +472,7 @@ class PowerschoolScraper:
                 grade_percent = False
             return {
                 "date": date,
+                "sort_date": sort_date,
                 "category": category,
                 "assignment_name": assignment_name,
                 "exclude": exclude,
@@ -482,7 +486,9 @@ class PowerschoolScraper:
         raw = json.loads(response.text)
 
         # output
-        local_class.grades = sorted(list(map(stripper, raw)), key=lambda i:i['date'])
+        local_class.grades = sorted(list(map(stripper, raw)), key=lambda i: i['sort_date'], reverse=True)
+        local_class.grades = [{key: value for key, value in assignment.items() if key != 'sort_date'} for assignment in local_class.grades]  # Remove sorting date
+        local_class.grades = sorted(local_class.grades, key=lambda i: i['date'])
         all_classes.append(local_class.as_dict())
 
 

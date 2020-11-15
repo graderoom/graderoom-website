@@ -320,9 +320,9 @@ table thead tr th:last-child {
 }
 
 .changelog-container .body {
-    display: list-item;
-    font-size: 1.2rem;
+    font-size: 80%;
     font-weight: normal;
+    display: list-item;
     margin: 0 0 0 2rem;
     padding: 0;
 }
@@ -364,8 +364,8 @@ table thead tr th:last-child {
 .changelog-legend {
     position: absolute;
     z-index: 2;
-    top: 10rem;
-    right: 4rem;
+    top: 1rem;
+    right: 2rem;
     display: flex;
     overflow: hidden;
     align-items: flex-start;
@@ -446,18 +446,18 @@ table thead tr th:last-child {
 }
 
 .changelog-container .title {
-    font-size: 1.2rem;
+    font-size: 80%;
     font-style: oblique;
-    margin: 0;
     width: fit-content;
+    margin: 0;
 }
 
 .changelog-container .type {
-    border-radius: 0.5rem;
-    font-size: 1.2rem;
+    font-size: 80%;
     font-weight: bold;
     margin: 0.9rem 0 0.9rem 1rem;
     padding: 0.5rem 1rem 1rem 1rem;
+    border-radius: 0.5rem;
 }
 
 .accordian-label h5:hover {
@@ -2547,10 +2547,6 @@ input:disabled {
 
     .changelog-container {
         max-height: 50vh;
-    }
-
-    .changelog-container .type, .changelog-container .body, .changelog-container .title {
-        font-size: 80%;
     }
 
     .card-title {
