@@ -2530,10 +2530,9 @@
                                                 value.weight = 0;
                                                 continue;
                                             }
-                                            overallPercent += value.weight * +(value.totalPossible !== 0 ? (value.totalGotten / value.totalPossible).toFixed(4) : 1);
-                                            console.log(value.weight);
+                                            overallPercent += value.weight * (value.totalPossible !== 0 ? +(value.totalGotten / value.totalPossible * 100).toFixed(2) : 1);
                                         }
-                                        let total = +(overallPercent / totalWeightValue * 100).toFixed(2);
+                                        let total = +(overallPercent / totalWeightValue).toFixed(2);
                                         overallGradeSteps.push(total);
                                     } else {
                                         overallGradeSteps.push(overallGradeSteps.filter(x => x).slice(-1)[0] || 100);
@@ -2544,13 +2543,13 @@
                                 }
                                 if (doesntHaveWeights) {
                                     if (categoryGrades[grade.category]) {
-                                        categoryGradeSteps.push((categoryGrades[grade.category].totalPossible !== 0 ? +(categoryGrades[grade.category].totalGotten / categoryGrades[grade.category].totalPossible).toFixed(2) : 1) * 100);
+                                        categoryGradeSteps.push((categoryGrades[grade.category].totalPossible !== 0 ? +(categoryGrades[grade.category].totalGotten / categoryGrades[grade.category].totalPossible * 100).toFixed(2) : 1));
                                     } else {
                                         categoryGradeSteps.push(100);
                                     }
                                 } else {
                                     if (totalPossiblesAndGottens[category]) {
-                                        categoryGradeSteps.push((totalPossiblesAndGottens[category].totalPossible !== 0 ? +(totalPossiblesAndGottens[category].totalGotten / totalPossiblesAndGottens[category].totalPossible).toFixed(2) : 1) * 100);
+                                        categoryGradeSteps.push((totalPossiblesAndGottens[category].totalPossible !== 0 ? +(totalPossiblesAndGottens[category].totalGotten / totalPossiblesAndGottens[category].totalPossible * 100).toFixed(2) : 1));
                                     } else {
                                         categoryGradeSteps.push(100);
                                     }
