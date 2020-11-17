@@ -2508,7 +2508,7 @@
                                 if (typeof totalPossiblesAndGottens[category] === "undefined" && !grade.exclude && grade.points_possible !== false && grade.points_gotten !== false) {
                                     let weightVal = 100;
                                     if (!doesntHaveWeights) {
-                                        weightVal = Number(weights[className]["weights"][category]);
+                                        weightVal = weights[className]["weights"][category];
                                     }
                                     totalPossiblesAndGottens[category] = {
                                         totalPossible: 0, totalGotten: 0, weight: weightVal
@@ -2530,7 +2530,8 @@
                                                 value.weight = 0;
                                                 continue;
                                             }
-                                            overallPercent += +(value.weight * (value.totalPossible !== 0 ? value.totalGotten / value.totalPossible : 1)).toFixed(2);
+                                            overallPercent += value.weight * +(value.totalPossible !== 0 ? (value.totalGotten / value.totalPossible).toFixed(4) : 1);
+                                            console.log(value.weight);
                                         }
                                         let total = +(overallPercent / totalWeightValue * 100).toFixed(2);
                                         overallGradeSteps.push(total);
