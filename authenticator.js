@@ -205,6 +205,40 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
 
+        // Add holiday effects var
+        if (!([true, false].includes(userRef.get("appearance").get("holidayEffects").value()))) {
+            userRef.get("appearance").set("holidayEffects", true).write();
+        }
+
+        // Migrate to new color scheme system
+        if (!([true, false].includes(userRef.get("appearance").get("shuffleColors").value()))) {
+            let oldScheme = userRef.get("appearance").get("colorPalette").value();
+            let newScheme, shuffle;
+            switch (oldScheme) {
+                case "default":
+                    newScheme = "bright";
+                    shuffle = true;
+                    break;
+                case "pastel":
+                    newScheme = "pastel";
+                    shuffle = true;
+                    break;
+                case "dark":
+                    newScheme = "dull";
+                    shuffle = true;
+                    break;
+                case "rainbow":
+                    newScheme = "clear";
+                    shuffle = false;
+                    break;
+                default:
+                    newScheme = "clear";
+                    shuffle = false;
+                    break;
+            }
+            this.setColorPalette(lc_username, newScheme, shuffle);
+        }
+
         // Add show max gpa preference
         if (!userRef.get("appearance").get("showMaxGPA").value()) {
             userRef.get("appearance").set("showMaxGPA", false).write();
@@ -273,7 +307,7 @@ module.exports = {
         // Add color palette
         if (!userRef.get("appearance").get("colorPalette").value()) {
             userRef.get("appearance").set("colorPalette", "default").write();
-            this.setColorPalette(lc_username, "default");
+            this.setColorPalette(lc_username, "clear", false);
         }
 
         // Migrate to new grade and weight storage (any data found in old storage *must* be from 19-20 S2)
@@ -750,6 +784,9 @@ module.exports = {
                                              theme: "auto",
                                              accentColor: null,
                                              classColors: [],
+                                             colorPalette: "clear",
+                                             shuffleColors: false,
+                                             holidayEffects: true,
                                              showNonAcademic: true,
                                              darkModeStart: 18,
                                              darkModeFinish: 7,
@@ -829,15 +866,18 @@ module.exports = {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username}).value();
         return !!user;
-    }, emailExists: function (email) {
+    },
+    emailExists: function (email) {
         let lc_email = email.toLowerCase();
         let user = db.get("users").find({schoolUsername: lc_email}).value();
         return !!user;
-    }, userDeleted: function (username) {
+    },
+    userDeleted: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("deletedUsers").find({username: lc_username}).value();
         return !!user;
-    }, setTheme: function (username, theme, darkModeStart, darkModeStartAmPm, darkModeFinish, darkModeFinishAmPm) {
+    },
+    setTheme: function (username, theme, darkModeStart, darkModeStartAmPm, darkModeFinish, darkModeFinishAmPm, holidayEffects) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         user.get("appearance").set("theme", theme).write();
@@ -891,6 +931,10 @@ module.exports = {
                 darkModeFinish = 12;
             }
             message = "Dark theme enabled from " + darkModeStart + " " + darkModeStartAmPm + " to " + darkModeFinish + " " + darkModeFinishAmPm + ".";
+        }
+        if (holidayEffects !== user.get("appearance").get("holidayEffects").value()) {
+            message = "Holiday effects " + (holidayEffects ? "enabled" : "disabled") + "!";
+            user.get("appearance").set("holidayEffects", holidayEffects).write();
         }
         return {success: true, message: message};
     }, getUser: function (username) {
@@ -1071,7 +1115,7 @@ module.exports = {
         this.bringUpToDate(lc_username);
         let updateHistory = false;
         if (newTerm !== oldTerm && newSemester !== oldSemester) {
-            this.setColorPalette(lc_username, "default");
+            this.setColorPalette(lc_username, "clear", false);
             this.resetSortData(lc_username);
             updateHistory = true;
         }
@@ -1120,32 +1164,28 @@ module.exports = {
         }).write();
     },
 
-    setColorPalette: function (username, preset) {
-        let light, saturation, hues, shuffle;
+    setColorPalette: function (username, preset, shuffle) {
+        let light, saturation, hues = [0, 30, 60, 120, 180, 240, 270, 300];
         switch (preset) {
-            case "default":
-                light = 0.5;
+            case "pale":
+                light = 0.8;
                 saturation = 0.7;
-                hues = [0, 30, 60, 120, 180, 240, 270, 300];
-                shuffle = true;
                 break;
             case "pastel":
-                light = 0.8;
+                light = 0.7;
                 saturation = 0.8;
-                hues = [0, 30, 90, 120, 180, 240, 270, 300];
-                shuffle = true;
                 break;
-            case "dark":
-                light = 0.4;
-                saturation = 0.4;
-                hues = [0, 30, 60, 120, 180, 240, 270, 300];
-                shuffle = true;
-                break;
-            case "rainbow":
-                light = 0.5;
+            case "clear":
+                light = 0.6;
                 saturation = 0.7;
-                hues = [0, 30, 60, 120, 180, 240, 270, 300];
-                shuffle = false;
+                break;
+            case "bright":
+                light = 0.5;
+                saturation = 0.8;
+                break;
+            case "dull":
+                light = 0.4;
+                saturation = 0.7;
                 break;
             default:
                 return {success: false, message: "Invalid preset"};
@@ -1159,6 +1199,7 @@ module.exports = {
         }
         userRef.get("appearance").set("classColors", classColors).write();
         userRef.get("appearance").set("colorPalette", preset).write();
+        userRef.get("appearance").set("shuffleColors", shuffle).write();
         return {success: true, message: classColors};
     },
 

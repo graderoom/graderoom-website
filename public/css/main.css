@@ -1915,6 +1915,10 @@ td.addAssignmentScore {
     font-weight: bold;
 }
 
+body::-webkit-scrollbar {
+    display: none;
+}
+
 .chart-container {
     position: relative;
     align-self: stretch;

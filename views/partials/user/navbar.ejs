@@ -1,3 +1,7 @@
+<% if (page === "home") { %>
+    <% include ../limited_time/snowfall.ejs %>
+<% } %>
+
 <!-- Nav Bar -->
 <nav class="navbar <% if (theme) { %>navbar-dark<% } else { %>navbar-light<% } %> navbar-expand-lg justify-content-center">
     <span class="navbar-brand-holder">
@@ -86,29 +90,29 @@
                                             class="fa fa-keyboard-o" aria-hidden="true"></i> Keyboard Shortcuts
                                 </btn>
                             </li>
-                                <li class="nav-item dropdown-item">
-                                    <btn class="btn btn-med" onclick="showCard('#feedbackDisplay')"><i
-                                                class="fa fa-send" aria-hidden="true"></i> Send Feedback
+                            <li class="nav-item dropdown-item">
+                                <btn class="btn btn-med" onclick="showCard('#feedbackDisplay')"><i
+                                            class="fa fa-send" aria-hidden="true"></i> Send Feedback
+                                </btn>
+                            </li>
+                            <div class="dropdown-divider"></div>
+                            <% if (JSON.parse(alerts).lastUpdated.length) { %>
+                                <li id="recentChangesNavBtn" class="nav-item dropdown-item">
+                                    <btn class="btn btn-med" onclick="setupGradeChanges(true, true)"><i
+                                                class="fa fa-clock-o" aria-hidden="true"></i> Sync Log
                                     </btn>
                                 </li>
-                                <div class="dropdown-divider"></div>
-                                <% if (JSON.parse(alerts).lastUpdated.length) { %>
-                                    <li id="recentChangesNavBtn" class="nav-item dropdown-item">
-                                        <btn class="btn btn-med" onclick="setupGradeChanges(true, true)"><i
-                                                    class="fa fa-clock-o" aria-hidden="true"></i> Sync Log
-                                        </btn>
-                                    </li>
-                                <% } %>
-                                <li class="nav-item dropdown-item">
-                                    <a class="btn btn-med" href="/finalgradecalculator"><i
-                                                class="fa fa-calculator" aria-hidden="true"></i> Calculator
-                                    </a>
-                                </li>
-                                <div class="dropdown-divider"></div>
-                                <li class="nav-item dropdown-item">
-                                    <btn class="btn btn-med" onclick="showLatest(true)"><i
-                                                class="fa fa-lightbulb-o" aria-hidden="true"></i> What's New
-                                    </btn>
+                            <% } %>
+                            <li class="nav-item dropdown-item">
+                                <a class="btn btn-med" href="/finalgradecalculator"><i
+                                            class="fa fa-calculator" aria-hidden="true"></i> Calculator
+                                </a>
+                            </li>
+                            <div class="dropdown-divider"></div>
+                            <li class="nav-item dropdown-item">
+                                <btn class="btn btn-med" onclick="showLatest(true)"><i
+                                            class="fa fa-lightbulb-o" aria-hidden="true"></i> What's New
+                                </btn>
                             </li>
                             <li class="nav-item dropdown-item">
                                 <btn class="btn btn-med" onclick="showChangelog()"><i
@@ -179,9 +183,6 @@
 <% } %>
 <% if (page === "home") { %>
     <% include recent_changes.ejs %>
-<% } %>
-<% if (page === "home") { %>
-    <% include ../limited_time/snowfall.ejs %>
 <% } %>
 
 <!-- Custom JavaScript -->
@@ -322,14 +323,13 @@
                             clearTimeout(changeTransition);
                             document.getElementById("fade").disabled = false;
                             document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
-                            if (appearance.blurEffects) {
-                                document.getElementById("blur_overrides").setAttribute("href", "public/css/dark_blur.css");
-                            }
+                            document.getElementById("blur_overrides").setAttribute("href", "public/css/dark_blur.css");
                             renderAllCharts();
                             $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
                             $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
                             setTimeout(() => {
                                 document.getElementById("fade").disabled = true;
+                                setupClassTables();
                             }, 500);
                         }
                     } else if (response === "Light theme enabled!") {
@@ -349,16 +349,18 @@
                             clearTimeout(changeTransition);
                             document.getElementById("fade").disabled = false;
                             document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
-                            if (appearance.blurEffects) {
-                                document.getElementById("blur_overrides").setAttribute("href", "public/css/light_blur.css");
-                            }
+                            document.getElementById("blur_overrides").setAttribute("href", "public/css/light_blur.css");
                             renderAllCharts();
                             $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
                             $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
                             setTimeout(() => {
                                 document.getElementById("fade").disabled = true;
+                                setupClassTables();
                             }, 500);
                         }
+                    } else if (response.slice(0, 15) === "Holiday effects") {
+                        appearance.holidayEffects = response.slice(16) === "enabled!";
+
                     } else {
                         $(form[0].elements[7]).attr("disabled", "disabled");
                         theme = "auto";
@@ -413,6 +415,16 @@
                         document.getElementById("darkModeStart").setAttribute("placeholder", (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString()));
                         document.getElementById("darkModeFinish").setAttribute("placeholder", (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString()));
                         checkTime();
+                    }
+                    if (appearance.holidayEffects) {
+                        $("#snow-fall").show();
+                        if (!darkMode) {
+                            $("#light_snowfall").attr("media", "");
+                        } else {
+                            $("#light_snowfall").attr("media", "not all");
+                        }
+                    } else {
+                        $("#snow-fall").hide();
                     }
                 }
 

@@ -646,12 +646,32 @@
                 renderAllCharts();
             }
 
-            function colorAlphaFunction(delta) {
+            function deltaColorFunction(delta, improve) {
+                // Calculate alpha
                 let abs = Math.abs(delta);
                 let max = 0.4;
                 let maxInput = 10;
                 let cutoff = Math.min(abs, maxInput);
-                return max * Math.pow(cutoff / maxInput, 1 / 2.5);
+                let alpha = max * Math.pow(cutoff / maxInput, 1 / 2.5);
+
+                // Get initial improve/deprove color
+                let initColor = (improve ? {r: 0, g: 255, b: 0, a: alpha} : {r: 255, g: 0, b: 0, a: alpha});
+                if (darkMode) {
+                    return "rgba(" + initColor.r + ", " + initColor.g + ", " + initColor.b + ", " + initColor.a + ")";
+                }
+
+                // Get background color
+                let bgColors = $("body").css("background-color").slice(4, -1).split(", ");
+                let bgColor = {r: parseInt(bgColors[0]), g: parseInt(bgColors[0]), b: parseInt(bgColors[0])};
+
+                // Calculate final color
+                let finalColor = {r: 0, g: 0, b: 0};
+                finalColor.r = ((1 - initColor.a) * bgColor.r) + (initColor.a * initColor.r);
+                finalColor.g = ((1 - initColor.a) * bgColor.g) + (initColor.a * initColor.g);
+                finalColor.b = ((1 - initColor.a) * bgColor.b) + (initColor.a * initColor.b);
+
+                finalColor = "rgb(" + finalColor.r + ", " + finalColor.g + ", " + finalColor.b + ")";
+                return finalColor;
             }
 
             function refresh(changedClassIndex) {
@@ -816,7 +836,8 @@
                         $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
                         setTimeout(() => {
                             document.getElementById("fade").disabled = true;
-                        }, 2000);
+                            setupClassTables();
+                        }, 500);
                     }
                 } else {
                     let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
@@ -833,7 +854,8 @@
                         $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
                         setTimeout(() => {
                             document.getElementById("fade").disabled = true;
-                        }, 2000);
+                            setupClassTables();
+                        }, 500);
                     }
                 }
             }
@@ -2309,11 +2331,11 @@
 
                             if (delta > 0) {
                                 colorClass = "improve";
-                                bgColor = "rgba(0, 255, 0, " + colorAlphaFunction(delta) + ")";
+                                bgColor = deltaColorFunction(delta, true);
                                 delta = "+" + delta + "% <i class=\"fa fa-long-arrow-up\"></i>";
                             } else if (delta < 0) {
                                 colorClass = "deprove";
-                                bgColor = "rgba(255, 0, 0, " + colorAlphaFunction(delta) + ")";
+                                bgColor = deltaColorFunction(delta, false);
                                 delta = delta + "% <i class=\"fa fa-long-arrow-down\"></i>";
                             } else {
                                 colorClass = "";
@@ -2901,7 +2923,7 @@
                 }
                 dataset.push({
                                  label: "chartData[id]",
-                                 backgroundColor: (darkMode ? "rgba(256,256,256,0.05)" : "rgba(0,0,0,0.05)"),
+                                 backgroundColor: "transparent",
                                  pointBackgroundColor: _colors[id],
                                  pointBorderColor: _colors[id],
                                  borderColor: (correctCalc(id) ? _colors[id] : "darkgray"),

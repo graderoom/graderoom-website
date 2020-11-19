@@ -10,8 +10,18 @@
         pointer-events: none;
     }
 </style>
+<style id="light_snowfall"
+<% if (!JSON.parse(appearance).holidayEffects || theme) { %> media="not all"
+        <% } %>
+>
+    #snow-fall {
+        background-image: linear-gradient(to top, #E5E5E5 20%, lightblue 80%);
+    }
+</style>
 
-<canvas id='snow-fall'></canvas>
+<canvas id='snow-fall' <% if (!JSON.parse(appearance).holidayEffects) { %>style="display: none"
+        <% } %>
+></canvas>
 <% if (beta) { %>
     <span style="z-index: 999; position: fixed; bottom: 10px; left: 10px;" id="fps"></span>
 <% } %>
