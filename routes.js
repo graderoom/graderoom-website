@@ -97,7 +97,10 @@ module.exports = function (app, passport) {
             return;
         }
         res.render("index.ejs", {
-            message: req.flash("loginMessage"), dst: isDST(), beta: server.needsBetaKeyToSignUp
+            message: req.flash("loginMessage"),
+            dst: isDST(),
+            beta: server.needsBetaKeyToSignUp,
+            appearance: JSON.stringify({holidayEffects: true})
         });
     });
 
@@ -443,7 +446,10 @@ module.exports = function (app, passport) {
     // show the signup form
     app.get("/signup", (req, res) => {
         res.render("signup.ejs", {
-            message: req.flash("signupMessage"), beta: server.needsBetaKeyToSignUp, dst: isDST()
+            message: req.flash("signupMessage"),
+            beta: server.needsBetaKeyToSignUp,
+            dst: isDST(),
+            appearance: JSON.stringify({holidayEffects: true})
         });
     });
 
