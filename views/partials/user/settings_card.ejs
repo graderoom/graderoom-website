@@ -26,24 +26,32 @@
                 <div class="card-body">
                     <% if (JSON.parse(gradeData).length > 0) { %>
                         <div class="card-footer">
-                            <h5>Color Scheme
-                                <span class="popup">
-                                    <i class="fa fa-info-circle">
-                                        <span class="popup-right-bottom">You can keep clicking the presets to generate
-                                            more color palettes</span>
-                                    </i>
-                                </span>
-                            </h5>
+                            <h5>Color Scheme</h5>
                             <div id="color-scheme-picker-container">
                                 <div>
+                                    <label class="slider-container">
+                                        <label class="switch">
+                                            <input id="shuffleToggle" type="checkbox"
+                                                   name="shuffleColors" onchange="setColorPalette()"
+                                            <% if (JSON.parse(appearance).shuffleColors) { %>
+                                                   checked
+                                                    <% } %>
+                                            >
+                                            <span class="slider"></span>
+                                        </label>
+                                        <label for="shuffleToggle">
+                                            Shuffle Colors
+                                        </label>
+                                    </label>
+                                    <hr>
                                     <div id="color-scheme-picker">
-                                        <div id="default">
-                                            <button onclick="setColorPalette('default')"
+                                        <div id="pale">
+                                            <button onclick="setColorPalette('pale')"
                                                     class="btn btn-med">
-                                                Default
+                                                Pale
                                             </button>
                                             <i class="fa fa-check"
-                                               style="<% if (JSON.parse(appearance).colorPalette !== "default") { %>opacity: 0;<% } %>"></i>
+                                               style="<% if (JSON.parse(appearance).colorPalette !== "pale") { %>opacity: 0;<% } %>"></i>
                                         </div>
                                         <div id="pastel">
                                             <button onclick="setColorPalette('pastel')"
@@ -53,21 +61,29 @@
                                             <i class="fa fa-check"
                                                style="<% if (JSON.parse(appearance).colorPalette !== "pastel") { %>opacity: 0;<% } %>"></i>
                                         </div>
-                                        <div id="dark">
-                                            <button onclick="setColorPalette('dark')"
+                                        <div id="clear">
+                                            <button onclick="setColorPalette('clear')"
                                                     class="btn btn-med">
-                                                Dark
+                                                Clear
                                             </button>
                                             <i class="fa fa-check"
-                                               style="<% if (JSON.parse(appearance).colorPalette !== "dark") { %>opacity: 0;<% } %>"></i>
+                                               style="<% if (JSON.parse(appearance).colorPalette !== "clear") { %>opacity: 0;<% } %>"></i>
                                         </div>
-                                        <div id="rainbow">
-                                            <button onclick="setColorPalette('rainbow')"
+                                        <div id="bright">
+                                            <button onclick="setColorPalette('bright')"
                                                     class="btn btn-med">
-                                                Rainbow
+                                                Bright
                                             </button>
                                             <i class="fa fa-check"
-                                               style="<% if (JSON.parse(appearance).colorPalette !== "rainbow") { %>opacity: 0;<% } %>"></i>
+                                               style="<% if (JSON.parse(appearance).colorPalette !== "bright") { %>opacity: 0;<% } %>"></i>
+                                        </div>
+                                        <div id="dull">
+                                            <button onclick="setColorPalette('dull')"
+                                                    class="btn btn-med">
+                                                Dull
+                                            </button>
+                                            <i class="fa fa-check"
+                                               style="<% if (JSON.parse(appearance).colorPalette !== "dull") { %>opacity: 0;<% } %>"></i>
                                         </div>
                                     </div>
                                 </div>
@@ -115,7 +131,7 @@
                                 <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
                                                                        value="dark"
                                                                        name="theme"
-                                                                       onclick="$('#autoLimits').hide();
+                                                                       onclick="$('#auto-limits-container').hide();
                                                                                $($($(this)[0].form)[0].elements[7]).hide();
                                                                                ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
                                                                                $($(this)[0].form).submit();"
@@ -126,7 +142,7 @@
                                 <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
                                                                        value="auto"
                                                                        name="theme"
-                                                                       onclick="$('#autoLimits').show().css('display','flex');
+                                                                       onclick="$('#auto-limits-container').show().css('display','flex');
                                                                                ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
                                                                                $($(this)[0].form).submit();
                                                                                $($($(this)[0].form)[0].elements[7]).show().attr('disabled','disabled')"
@@ -142,9 +158,9 @@
                                     </span>
                                 </label>
                             </div>
-                            <div style="display: inline-flex">
-                                <label class="form-group" id="autoLimits"
-                                       style="<% if (JSON.parse(appearance).theme !== "auto") { %>display: none;<% } else { %>display: inline-flex;<% } %>font-size: 0.9rem; margin-bottom: 0;">
+                            <div id="auto-limits-container"
+                                 style="<% if (JSON.parse(appearance).theme !== "auto") { %>display: none;<% } else { %>display: flex;<% } %>font-size: 0.9rem; margin-bottom: 0;">
+                                <label class="form-group" id="autoLimits" style="display: flex">
                                     <label style="vertical-align: center">
                                         Dark theme from
                                     </label>
@@ -207,23 +223,43 @@
                                     Apply
                                 </button>
                             </div>
+                            <hr>
+                            <label class="slider-container">
+                                <label class="switch">
+                                    <input id="holidayEffectsToggle" type="checkbox"
+                                           name="enableHolidayEffects"
+                                    <% if (JSON.parse(appearance).holidayEffects) { %>
+                                           checked
+                                            <% } %>
+                                           onchange="ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true); $($(this)[0].form).submit();"
+                                    >
+                                    <span class="slider"></span>
+                                </label>
+                                <label for="holidayEffectsToggle">
+                                    Enable Holiday Effects <span class="popup"><i
+                                                class="fa fa-question-circle"><span
+                                                    class="popup-right-bottom">When enabled, seasonal effects will be
+                                                applied (e.g. Winter Snow).
+                                            </span></i></span>
+                                </label>
+                            </label>
                         </form>
                     </div>
-                        <div class="card-footer">
-                            <h5>Advanced</h5>
-                            <form id="advancedAppearance" action="/advancedAppearance" method="post">
-                                <div>
-                                    <label class="slider-container disable-in-firefox">
-                                        <label class="switch">
-                                            <input
-                                                    id="blurEffectsToggle"
-                                                    style="margin: 0; display: flex"
-                                                    type="checkbox"
-                                                    name="blurEffects"
-                                            <% if (JSON.parse(appearance).blurEffects) { %>
-                                                    checked="checked"
-                                                    <% } %>
-                                                    onchange="{
+                    <div class="card-footer">
+                        <h5>Advanced</h5>
+                        <form id="advancedAppearance" action="/advancedAppearance" method="post">
+                            <div>
+                                <label class="slider-container disable-in-firefox">
+                                    <label class="switch">
+                                        <input
+                                                id="blurEffectsToggle"
+                                                style="margin: 0; display: flex"
+                                                type="checkbox"
+                                                name="blurEffects"
+                                        <% if (JSON.parse(appearance).blurEffects) { %>
+                                                checked="checked"
+                                                <% } %>
+                                                onchange="{
                                                 let checked = $(this).prop('checked');
                                                 $('#advancedSubmit').prop('disabled',checked === appearance.blurEffects);
                                                     if (!checked) {
@@ -234,80 +270,80 @@
                                                         $('#blur_overrides').prop('disabled', false);
                                                     }
                                             }"
-                                            >
-                                            <span class="slider"></span>
-                                        </label>
-                                        <label for="blurEffectsToggle">
-                                            <span>Enable Blur Effects</span> <span class="popup"><i
-                                                        class="fa fa-question-circle"><span
-                                                            class="popup-right-bottom">When enabled, adds blur and
-                                                        translucency effects across the site.
-                                                    </span></i></span> <span class="popup hide-in-firefox"><i
-                                                        class="fa fa-exclamation-triangle">
-                                                    <span class="popup-right-bottom">WARNING: Causes lag on slower
-                                                        devices</span></i></span>
-                                        </label>
-                                        <span style="margin-left: 0.5rem;" class="popup show-in-firefox"><i
-                                                    class="fa fa-exclamation-circle"><span
-                                                        class="popup-right always-show"
-                                                        style="width: 10rem;">Your
-                                                    browser does not support these effects.</span></i></span>
-                                    </label>
-                                    <label class="slider-container">
-                                        <label class="switch">
-                                            <input
-                                                    id="classGraphRegularizationToggle"
-                                                    style="margin: 0; display: flex"
-                                                    type="checkbox"
-                                                    name="regularizeClassGraphs"
-                                            <% if (JSON.parse(appearance).regularizeClassGraphs) { %>
-                                                    checked="checked"
-                                                    <% } %>
-                                                    onchange="$('#advancedSubmit').prop('disabled', $(this).prop('checked') === appearance.regularizeClassGraphs)"
-                                            >
-                                            <span class="slider"></span>
-                                        </label>
-                                        <label for="classGraphRegularizationToggle">
-                                            Regularize Class Graphs <span class="popup"><i
-                                                        class="fa fa-question-circle"><span
-                                                            class="popup-right-bottom">When enabled, all class graphs
-                                                        are
-                                                        bounded between at 70 and 110 on the y-axis</span></i></span>
-                                        </label>
-                                    </label>
-                                    <label class="slider-container">
-                                        <label class="switch"
-                                        <% if (Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
-                                               style="cursor: pointer"
-                                                <% } %>
                                         >
-                                            <input
-                                            <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
-                                                disabled
-                                                    <% } %>
-                                                id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
-                                            <% if (JSON.parse(appearance).showNonAcademic) { %> checked="checked"
-                                                    <% } %>
-                                                onchange="$('#advancedSubmit').prop('disabled', $(this).prop('checked') === appearance.showNonAcademic)"
-                                            >
-                                            <span class="slider"></span>
-                                        </label>
-                                        <label for="showNonAcademicCheckbox"
+                                        <span class="slider"></span>
+                                    </label>
+                                    <label for="blurEffectsToggle">
+                                        <span>Enable Blur Effects</span> <span class="popup"><i
+                                                    class="fa fa-question-circle"><span
+                                                        class="popup-right-bottom">When enabled, adds blur and
+                                                    translucency effects across the site.
+                                                </span></i></span> <span class="popup hide-in-firefox"><i
+                                                    class="fa fa-exclamation-triangle">
+                                                <span class="popup-right-bottom">WARNING: Causes lag on slower
+                                                    devices</span></i></span>
+                                    </label>
+                                    <span style="margin-left: 0.5rem;" class="popup show-in-firefox"><i
+                                                class="fa fa-exclamation-circle"><span
+                                                    class="popup-right always-show"
+                                                    style="width: 10rem;">Your
+                                                browser does not support these effects.</span></i></span>
+                                </label>
+                                <label class="slider-container">
+                                    <label class="switch">
+                                        <input
+                                                id="classGraphRegularizationToggle"
+                                                style="margin: 0; display: flex"
+                                                type="checkbox"
+                                                name="regularizeClassGraphs"
+                                        <% if (JSON.parse(appearance).regularizeClassGraphs) { %>
+                                                checked="checked"
+                                                <% } %>
+                                                onchange="$('#advancedSubmit').prop('disabled', $(this).prop('checked') === appearance.regularizeClassGraphs)"
+                                        >
+                                        <span class="slider"></span>
+                                    </label>
+                                    <label for="classGraphRegularizationToggle">
+                                        Regularize Class Graphs <span class="popup"><i
+                                                    class="fa fa-question-circle"><span
+                                                        class="popup-right-bottom">When enabled, all class graphs
+                                                    are
+                                                    bounded between at 70 and 110 on the y-axis</span></i></span>
+                                    </label>
+                                </label>
+                                <label class="slider-container">
+                                    <label class="switch"
+                                    <% if (Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
+                                           style="cursor: pointer"
+                                            <% } %>
+                                    >
+                                        <input
                                         <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
-                                               class="disabled"
+                                            disabled
                                                 <% } %>
+                                            id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
+                                        <% if (JSON.parse(appearance).showNonAcademic) { %> checked="checked"
+                                                <% } %>
+                                            onchange="$('#advancedSubmit').prop('disabled', $(this).prop('checked') === appearance.showNonAcademic)"
                                         >
-                                            Show Non-Academic Classes
-                                        </label>
+                                        <span class="slider"></span>
                                     </label>
-                                </div>
-                                <button id="advancedSubmit" class="btn-default btn btn-sm" type="submit"
-                                        onclick="ajaxPostForm('#advancedAppearance',[],'',true,reload=true)"
-                                        disabled>
-                                    Apply & Refresh Page
-                                </button>
-                            </form>
-                        </div>
+                                    <label for="showNonAcademicCheckbox"
+                                    <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
+                                           class="disabled"
+                                            <% } %>
+                                    >
+                                        Show Non-Academic Classes
+                                    </label>
+                                </label>
+                            </div>
+                            <button id="advancedSubmit" class="btn-default btn btn-sm" type="submit"
+                                    onclick="ajaxPostForm('#advancedAppearance',[],'',true,reload=true)"
+                                    disabled>
+                                Apply & Refresh Page
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
             <div id="settings-2" class="tabcontent">
@@ -768,10 +804,16 @@
     }
 
     function setColorPalette(palette) {
+        if (!palette) {
+            palette = appearance.colorPalette;
+        }
         let buttons = $("#color-scheme-picker button");
         buttons.prop("disabled", true);
         $.ajax({
-                   url: "/setColorPalette", type: "POST", data: {preset: palette}, async: true
+                   url: "/setColorPalette",
+                   type: "POST",
+                   data: {preset: palette, shuffleColors: JSON.stringify($("#shuffleToggle").is(":checked"))},
+                   async: true
                }).done((response) => {
             $("#color-scheme-picker div").each(function () {
                 if (this.id === palette) {
@@ -780,6 +822,7 @@
                     $(this).find("i").css("opacity", 0);
                 }
             });
+            appearance.colorPalette = palette;
             updateClassColors(response);
             setTimeout(() => {
                 buttons.prop("disabled", false);

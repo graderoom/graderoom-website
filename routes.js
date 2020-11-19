@@ -339,7 +339,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/updateAppearance", [isLoggedIn], (req, res) => {
-        let resp = authenticator.setTheme(req.user.username, req.body.theme, req.body.darkModeStart, req.body.darkModeStartAmPm, req.body.darkModeFinish, req.body.darkModeFinishAmPm);
+        let resp = authenticator.setTheme(req.user.username, req.body.theme, req.body.darkModeStart, req.body.darkModeStartAmPm, req.body.darkModeFinish, req.body.darkModeFinishAmPm, req.body.enableHolidayEffects === "on");
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
@@ -590,7 +590,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/setColorPalette", [isLoggedIn], (req, res) => {
-        let resp = authenticator.setColorPalette(req.user.username, req.body.preset);
+        let resp = authenticator.setColorPalette(req.user.username, req.body.preset, JSON.parse(req.body.shuffleColors));
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {

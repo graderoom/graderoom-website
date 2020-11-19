@@ -172,7 +172,7 @@ table thead tr th {
 }
 
 #classColors label {
-    background-color: white;
+    background-image: linear-gradient(to left, #333333 50%, white 50%);
 }
 
 #termSwitcher {
@@ -459,9 +459,6 @@ select.minimal:focus {
 
 .class-table th, .class-table td {
     border-color: transparent;
-}
-
-.class-table td, .class-table th {
     box-shadow: inset 0 0 1px rgba(100, 100, 100, 0.5);
 }
 

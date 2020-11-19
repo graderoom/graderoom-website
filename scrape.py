@@ -44,6 +44,8 @@ class ClassGrade:
         self.teacher_name = teacher_name
         self.overall_percent = overall_percent
         self.overall_letter = overall_letter
+        self.student_id = None
+        self.section_id = None
         self.grades = []
 
     def as_dict(self):
@@ -53,6 +55,8 @@ class ClassGrade:
             'teacher_name': self.teacher_name,
             'overall_percent': self.overall_percent,
             'overall_letter': self.overall_letter,
+            'student_id': self.student_id,
+            'section_id': self.section_id,
             'grades': self.grades
         }
 
@@ -74,14 +78,16 @@ class PowerschoolScraper:
         """Inits with a session"""
         self.session = requests.Session()
 
-    def clean_string(self, s):
+    @staticmethod
+    def clean_string(s):
         """javadoc"""
         s = s.strip()
         if s == "":
             return False
         return s
 
-    def clean_number(self, n):
+    @staticmethod
+    def clean_number(n):
         """javadoc"""
         n = n.strip()
         try:
@@ -90,7 +96,7 @@ class PowerschoolScraper:
         except:
             return False
 
-    def login(self, email, password):
+    def login(self, email, _password):
         """Logs into PowerSchool with credentials, then prints grades
 
         Session is stored in instance variable.
@@ -189,7 +195,7 @@ class PowerschoolScraper:
             'pf.ok': '',
             'pf.cancel': '',
             'pf.username': email,
-            'pf.pass': password,
+            'pf.pass': _password,
         }
         resp = self.session.post(dynamic_url, data=data, headers=headers_3,
                                  timeout=10)
@@ -443,7 +449,7 @@ class PowerschoolScraper:
 
         # function that takes a Powerschool assignment object and returns a Graderoom assignment object
         def stripper(info):
-            if not "_assignmentsections" in info: return False
+            if not "_assignmentsections" in info: return
             psaid = info["assignmentid"]  # PowerSchool Assignment ID
             _data = info["_assignmentsections"][0]
             date = _data["duedate"].replace("-", "/")
@@ -482,13 +488,24 @@ class PowerschoolScraper:
                 "psaid": psaid
             }
 
+        # function that removes nonexistence objects
+        def remove_empty(value):
+            if value is None:
+                return False
+            return True
+
         # input
         raw = json.loads(response.text)
 
         # output
-        local_class.grades = sorted(list(map(stripper, raw)), key=lambda i: i['sort_date'], reverse=True)
+        local_class.grades = sorted(list(filter(remove_empty, map(stripper, raw))), key=lambda i: i['sort_date'], reverse=True)
         local_class.grades = [{key: value for key, value in assignment.items() if key != 'sort_date'} for assignment in local_class.grades]  # Remove sorting date
         local_class.grades = sorted(local_class.grades, key=lambda i: i['date'])
+
+        # add student_id and section_id
+        local_class.student_id = student_id
+        local_class.section_id = section_id
+
         all_classes.append(local_class.as_dict())
 
 

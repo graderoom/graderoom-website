@@ -44,6 +44,23 @@
 - Assignments from PowerSchool with the same due date are sometimes displayed in a different order than on PowerSchool <strong>[Fixed in Beta 3.5.0]</strong>
 - [Beta] Summer semesters are listed under the incorrect year
 
+## [Beta 3.6.0] - 2020-11-19
+### Added
+- Made holiday effects toggleable
+- Winter snow is now properly supported in light mode
+
+### Improved
+- Refreshed color scheme picker with new presets and new settings
+- Color scheme can now always be organized/random in every preset
+- Updated class color preview in light mode to include all relevant color backgrounds
+- Scrollbar is now hidden from main page
+
+### Fixed
+- Issue with turning on blur after changing theme without refresh
+
+### Removed
+- Shaded area under class graphs
+
 ## [Beta 3.5.2] - 2020-11-16
 ### Fixed
 - Issue with extra rounding in grade step calculations
