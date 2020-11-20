@@ -231,8 +231,7 @@
         let classIndex = chooseClassDiv[0].selectedIndex - 1;
         let finalPoints;
         let categoryWeight;
-        let grades = data;
-        let classGrades = Object.values(grades)[classIndex].grades;
+        let classGrades = Object.values(data)[classIndex].grades;
         let numPossible = 0;
         if (selectedWeight) {
             let categoryName = selectedWeight.html();
@@ -254,6 +253,7 @@
                         feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 4: Enter Final Points");
                         return;
                     }
+                    break;
                 case "chooseWeightDiv":
                     if (finalPoints === "") {
                         feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 4: Enter Final Points");
@@ -263,9 +263,10 @@
                         feedbackMessageDiv.removeClass("alert-success").removeClass("alert-info").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 4: Select a Category");
                         return;
                     }
+                    break;
             }
             for (let i = 0; i < classGrades.length; i++) {
-                if (classGrades[i].category === categoryName) {
+                if (classGrades[i].category === categoryName && classGrades[i].points_gotten !== false && classGrades[i].points_possible !== false) {
                     numPossible += classGrades[i].points_possible;
                 }
             }
@@ -282,6 +283,16 @@
             }
             categoryWeight = 100;
         }
+
+        // Calculate total weight
+        let weightValues = $.makeArray($("#chooseWeight option")).slice(1).map(element => parseFloat(element.value));
+        let totalWeightValue;
+        if (weightValues.length) {
+            totalWeightValue = weightValues.reduce((a, b) => a + b);
+            categoryWeight /= totalWeightValue / 100;
+        }
+
+        // Calculate final weight
         let finalWeight = 0;
         if (parseFloat(finalPoints) > 0) {
             finalWeight = parseFloat(finalPoints) / (numPossible + parseFloat(finalPoints)) * categoryWeight;
