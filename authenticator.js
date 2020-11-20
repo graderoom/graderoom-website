@@ -1082,11 +1082,10 @@ module.exports = {
         let newGrades = grade_update_status.new_grades[newTerm][newSemester];
         let newPSAIDs = newGrades.map(x => x.grades.map(y => y.psaid));
         let fixDicts = false;
-        for (let i = 0; i < newPSAIDs.length - oldPSAIDs.length + 1; i++) {
+        for (let i = 0; i < newPSAIDs.length - oldPSAIDs.length; i++) {
             oldPSAIDs.push([]);
             fixDicts = true;
         }
-        console.log(acc_username, newPSAIDs, oldPSAIDs);
         let added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [newGrades[index].class_name, newPSAIDs[index]]).filter(data => data[1].length));
         let modified = {};
         let removed = {};

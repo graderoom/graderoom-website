@@ -57,6 +57,8 @@
 
 ### Fixed
 - Issue with turning on blur after changing theme without refresh
+- Issues in final grade calculator for some classes
+- An issue that prevent users who had not synced in a while from syncing
 
 ### Removed
 - Shaded area under class graphs
