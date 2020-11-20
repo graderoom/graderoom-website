@@ -1076,12 +1076,13 @@ module.exports = {
         let oldGrades = userRef.get("grades").get(newTerm).get(newSemester).value();
         let oldPSAIDs = [];
         if (oldGrades) {
-            oldPSAIDs = oldGrades.map(x => x.grades.map(y => y.psaid));
+            oldPSAIDs = oldGrades.map(x => x.grades.map(y => y.psaid)).filter(id => !!id); // Remove undefined (before
+                                                                                           // we scraped psaids)
         }
         let newGrades = grade_update_status.new_grades[newTerm][newSemester];
         let newPSAIDs = newGrades.map(x => x.grades.map(y => y.psaid));
         let fixDicts = false;
-        for (let i = 0; i < newPSAIDs.length - oldPSAIDs.length; i++) {
+        for (let i = 0; i < newPSAIDs.length - oldPSAIDs.length + 1; i++) {
             oldPSAIDs.push([]);
             fixDicts = true;
         }
