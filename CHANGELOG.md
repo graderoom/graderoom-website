@@ -10,7 +10,6 @@
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 <!-- ----------------------------------------- Format for Released Versions ---------------------------------------- -->
 <!-- --------------------------------------------------------------------------------------------------------------- -->
-
 <!-- ## [Stable/Beta X.X.X] - YYYY-MM-DD -->
 <!-- ### Added/Improved/Fixed/Removed -->
 <!-- - Specifics -->
@@ -41,8 +40,11 @@
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
-- Assignments from PowerSchool with the same due date are sometimes displayed in a different order than on PowerSchool <strong>[Fixed in Beta 3.5.0]</strong>
 - [Beta] Summer semesters are listed under the incorrect year
+
+## [Stable 3.6.1] - 2020-11-20
+### Fixed
+- Issue where assignments from PowerSchool with the same due date were sometimes displayed in a different order than on PowerSchool
 
 ## [Beta 3.6.0] - 2020-11-19
 ### Added
