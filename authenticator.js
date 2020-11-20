@@ -1085,6 +1085,7 @@ module.exports = {
             oldPSAIDs.push([]);
             fixDicts = true;
         }
+        console.log(acc_username, newPSAIDs, oldPSAIDs);
         let added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [newGrades[index].class_name, newPSAIDs[index]]).filter(data => data[1].length));
         let modified = {};
         let removed = {};
