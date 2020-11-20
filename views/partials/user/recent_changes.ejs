@@ -65,7 +65,8 @@
             let removedAssignments = changeData.removed;
             let overallChanges = changeData.overall;
 
-            let modifiedClasses = [...new Set([...Object.keys(newAssignments), ...Object.keys(modifiedAssignments), ...Object.keys(removedAssignments), ...Object.keys(overallChanges)])];
+            let existentClassNames = data.map(d => d.class_name);
+            let modifiedClasses = [...new Set([...Object.keys(newAssignments), ...Object.keys(modifiedAssignments), ...Object.keys(removedAssignments), ...Object.keys(overallChanges)])].filter(className => existentClassNames.includes(className));
 
             if (modifiedClasses.length) {
                 changesExist = true;
