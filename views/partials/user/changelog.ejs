@@ -66,10 +66,12 @@
     let numDisplayed = 4;
 
     function showChangelog() {
-        closeForm("changelogDisplay");
         $.ajax({
                    url: "/changelog", type: "GET", async: true
                }).done(function (response) {
+            if (cardsDisplayed.includes("changelogDisplay")) {
+                cardsDisplayed.splice(cardsDisplayed.indexOf("changelogDisplay"),1);
+            }
             cardsDisplayed.push("changelogDisplay");
             $(".blurred-background").each(function () {
                 if (cardsDisplayed.includes($($(this).parent())[0].id)) {

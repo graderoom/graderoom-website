@@ -29,7 +29,6 @@
     let latestContainer = $("#latest-container");
 
     function showLatest(force) {
-        closeForm("latestDisplay");
         $.ajax({
                    url: "/latestVersion", type: "GET", async: true
                }).done(function (response) {
@@ -39,6 +38,9 @@
                 $("#latestDisplay").fadeIn(500);
                 latestContainer.html(response);
                 latestContainer.animate({scrollTop: 0}, 0);
+                if (cardsDisplayed.includes("latestDisplay")) {
+                    cardsDisplayed.splice(cardsDisplayed.indexOf("latestDisplay"),1);
+                }
                 cardsDisplayed.push("latestDisplay");
                 $(".blurred-background").each(function () {
                     if (cardsDisplayed.includes($($(this).parent())[0].id)) {
