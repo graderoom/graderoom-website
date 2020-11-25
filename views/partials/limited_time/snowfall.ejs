@@ -30,14 +30,14 @@
     Winter Snow was disabled to improve performance
 </span>
 <span style="z-index: 999; position: fixed; bottom: 10px; right: 10px; font-size: 0.5rem; display: none" id="lights-disabled-message">
-    Christmas Lights were disabled to improve performance
+    Christmas Lights were paused to improve performance
 </span>
 
 <script>
     const today = new Date();
     const winterStart = 10; // 10 is November
     const winterEnd = 2; // 2 is March
-    <% const lightsMonth = 11; /* 11 is December */ %>
+    <% const lightsMonth = 10; /* 11 is December */ %>
     const rotationScale = 1; // Must be 1
     const speedScale = 1;
     const buffer = 10;
@@ -93,20 +93,20 @@
                 $("#fps").html(fpsDisplay);
             }, 1);
             <% } %>
-            let showingLights = true;
+            let showingLights = <%= new Date().getMonth() === lightsMonth %>;
             setInterval(() => {
                 if (_1sTempFps.length > 2) {
                     _1sAverage = _1sTempFps.reduce((a, b) => a + b) / _1sTempFps.length;
                     _1sTempFps = _1sTempFps.slice(-2);
                     if (performance.now() - init < 10000) return; // Wait 10 seconds before making fps-based changes
                     if (_1sAverage < 15 && showingLights) {
-                        $('.lightrope').fadeOut('slow');
+                        $('.lightrope li').css('animation-play-state', 'paused');
                         showingLights = false;
                         $('#lights-disabled-message').fadeIn('fast');
                         init = performance.now();
                         return;
                     }
-                    if (_1sAverage < 10 && !showingLights) {
+                    if (_1sAverage < 20 && !showingLights) {
                         $('#snow-fall').fadeOut('slow');
                         $('#snow-disabled-message').fadeIn('fast');
                     }
@@ -181,22 +181,22 @@
                 $$.fill();
             };
         }
-
-        let _resizeTimer;
-        window.addEventListener("resize", function () {
-            clearTimeout(_resizeTimer);
-            _resizeTimer = setTimeout(() => {
-                canvas.width = screenWidth = window.innerWidth;
-                canvas.height = screenHeight = window.innerHeight;
-                snow.forEach((flake, index) => delete snow[index]);
-                snow = [];
-                Snowy();
-                <% if (new Date().getMonth() === lightsMonth) { %>
-                    setupLights();
-                <% } %>
-            }, 400);
-        }, false);
     }
+
+    let _resizeTimer;
+    window.addEventListener("resize", function () {
+        clearTimeout(_resizeTimer);
+        _resizeTimer = setTimeout(() => {
+            canvas.width = screenWidth = window.innerWidth;
+            canvas.height = screenHeight = window.innerHeight;
+            snow.forEach((flake, index) => delete snow[index]);
+            snow = [];
+            Snowy();
+            <% if (new Date().getMonth() === lightsMonth) { %>
+            setupLights();
+            <% } %>
+        }, 400);
+    }, false);
 
 </script>
 
