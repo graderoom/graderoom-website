@@ -26,18 +26,22 @@
 <% if (beta) { %>
     <span style="z-index: 999; position: fixed; bottom: 10px; left: 10px;" id="fps"></span>
 <% } %>
-<span style="z-index: 999; position: fixed; bottom: 20px; right: 10px; font-size: 0.5rem; display: none" id="snow-disabled-message">
+<span style="z-index: 999; position: fixed; bottom: 20px; right: 10px; font-size: 0.5rem; display: none"
+      id="snow-disabled-message">
     Winter Snow was disabled to improve performance
 </span>
-<span style="z-index: 999; position: fixed; bottom: 10px; right: 10px; font-size: 0.5rem; display: none" id="lights-disabled-message">
-    Christmas Lights were paused to improve performance
-</span>
+<% const lightsMonth = 11; /* 11 is December */ %>
+<% if (new Date().getMonth() === lightsMonth) { %>
+    <span style="z-index: 999; position: fixed; bottom: 10px; right: 10px; font-size: 0.5rem; display: none"
+          id="lights-disabled-message">
+        Christmas Lights were paused to improve performance
+    </span>
+<% } %>
 
 <script>
     const today = new Date();
     const winterStart = 10; // 10 is November
     const winterEnd = 2; // 2 is March
-    <% const lightsMonth = 10; /* 11 is December */ %>
     const rotationScale = 1; // Must be 1
     const speedScale = 1;
     const buffer = 10;
@@ -93,7 +97,7 @@
                 $("#fps").html(fpsDisplay);
             }, 1);
             <% } %>
-            let showingLights = <%= new Date().getMonth() === lightsMonth %>;
+            let showingLights = <%= new Date().getMonth() === lightsMonth ;%>;
             setInterval(() => {
                 if (_1sTempFps.length > 2) {
                     _1sAverage = _1sTempFps.reduce((a, b) => a + b) / _1sTempFps.length;
