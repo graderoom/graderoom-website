@@ -51,6 +51,10 @@
 - Keyboard shortcuts do not work when caps lock is turned on <strong>[Fixed in Beta 3.7.0]</strong>
 - <em>[Beta]</em> Summer semesters are listed under the incorrect year <strong>[Fixed in Beta 3.7.0]</strong>
 
+## [Beta 3.7.1] - 2020-11-26
+### Fixed
+- An issue with holiday effects that would cause lag if page was resized several times
+
 ## [Beta 3.7.0] - 2020-11-25
 ### Added
 - Grades can now be synced even while PowerSchool is locked<ul>
