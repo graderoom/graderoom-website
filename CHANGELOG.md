@@ -40,7 +40,43 @@
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
-- [Beta] Summer semesters are listed under the incorrect year
+- Refreshing or leaving the page after closing a half-complete feedback form would triggers an alert <strong>[Fixed in Beta 3.3.7]</strong>
+- Slow overall loading <strong>[Fixed in Beta 3.3.8]</strong>
+- Page unnecessarily refreshes after syncing grades <strong>[Fixed in Beta 3.4.0]</strong>
+- Rounding inconsistencies with PowerSchool <strong>[Fixed in Beta 3.5.2]</strong>
+- Final grade calculator is inaccurate in some cases <strong>[Fixed in Beta 3.6.0]</strong>
+- Slow performance when mass editing grades <strong>[Fixed in Beta 3.7.0]</strong>
+- Open cards flicker when brought to front <strong>[Fixed in Beta 3.7.0]</strong>
+- Show Non-Academic setting cannot be turned off <strong>[Fixed in Beta 3.7.0]</strong>
+- Keyboard shortcuts do not work when caps lock is turned on <strong>[Fixed in Beta 3.7.0]</strong>
+- <em>[Beta]</em> Summer semesters are listed under the incorrect year <strong>[Fixed in Beta 3.7.0]</strong>
+
+## [Beta 3.7.0] - 2020-11-25
+### Added
+- Grades can now be synced even while PowerSchool is locked<ul>
+- Syncing this way will only reflect changes in assignments, not overall grades</ul>
+- Numerical keyboard shortcuts corresponding to each class
+- Sync log now supports overall grade changes without any assignment modifications
+
+### Improved
+- Performance when completing mass actions
+- Cleaned up sync log<ul>
+- Clicking on navbar sync status now opens sync log
+- Sync log now displays sync status
+- Added shortcut to sync card in sync log</ul>
+- Holiday effects now stop if they are significantly harming performance<ul>
+- A message will appear in the bottom right of your screen when this happens
+- Refreshing the page or toggling holiday effects to the off and on position will bring the effects back, but not permanently</ul>
+- Moved changelog legend 'Back to Top' button to the top
+- Keyboard shortcuts display sizing on smaller screens
+- Automatic theme is now 'Schedule Dark Theme' in settings
+
+### Fixed
+- Issue with auto-theme UI
+- Issue with warning messages after editing any class page
+- Issue where cards would flicker when brought to front
+- Keyboard shortcuts now work when caps lock is on
+- <em>[Beta]</em> S0 now displays as S3 in the term switcher and is correctly organized chronologically
 
 ## [Stable 3.6.1] - 2020-11-20
 ### Fixed
@@ -94,7 +130,7 @@
 - Weighting and Teacher Name display
 - Winter snow (Only visible in dark mode)
 - Number of recent changes is shown along with sync status in the main navbar
-- [Beta] FPS display
+- <em>[Beta]</em> FPS display
 
 ### Improved
 - Date is automatically set to current date when adding an assignment
@@ -130,7 +166,7 @@
 
 ### Fixed
 - Issue where refreshing or leaving the page after closing a half-complete feedback form would trigger an alert
-- [Beta] Fixed several issues when viewing old semesters
+- <em>[Beta]</em> Fixed several issues when viewing old semesters
 
 ### Removed
 - Panning limit has been removed from charts
@@ -177,23 +213,23 @@
 ## [Beta 3.3.0] - 2020-10-15
 ### Added
 - Blur effects are now out of beta! Enable them in advanced appearance settings.
-- [Beta] If you had blur effects enabled in the public beta, they will remain enabled.
+- <em>[Beta]</em> If you had blur effects enabled in the public beta, they will remain enabled.
 
 ### Improved
 - Recent Changes now displays a detailed history
 - Integrated overall grades into class navbar and increased size of overview graph
 - Several browser-specific stability improvements
 - Sizing of settings card
-- [Beta] Several styling improvements to term switcher
+- <em>[Beta]</em> Several styling improvements to term switcher
 
 ### Fixed
 - Issue where spamming the sync grades button was possible
 - Several issues with Recent Changes
 - Attempt to prevent keyboard shortcuts from firing when combined with special keys (Ctrl and/or Alt)
-- [Beta] Issue where a portion of the screen could sometimes not be interacted with when blur effects were enabled
+- <em>[Beta]</em> Issue where a portion of the screen could sometimes not be interacted with when blur effects were enabled
 
 ### Removed
-- [Beta] Ability to tweak blur amount
+- <em>[Beta]</em> Ability to tweak blur amount
 
 ## [Beta 3.2.1] - 2020-10-13
 ### Fixed
@@ -204,7 +240,7 @@
 - New 'Recent Changes' Card that displays all modifications, additions, and removals of assignments after each sync
 - Keyboard shortcut 'G' for 'Recent Changes' Card
 - New 'More' section to the main navbar
-- [Beta] Message stating that old semesters are view-only. Edits will not be saved.
+- <em>[Beta]</em> Message stating that old semesters are view-only. Edits will not be saved.
 
 ### Improved
 - Tooltabs now react when a row is hovered to draw attention to their existence
@@ -213,9 +249,9 @@
 
 ### Fixed
 - Issue with logged-in final grade calculator not working for users without grades
-- [Beta] Issue where blur effects would not be applied to elements if interacted with immediately on page load
-- [Beta] Issue with cumulative GPA in S2 of past years
-- [Beta] Issue with 2019-2020 S1 Data showing -1 in the percent column
+- <em>[Beta]</em> Issue where blur effects would not be applied to elements if interacted with immediately on page load
+- <em>[Beta]</em> Issue with cumulative GPA in S2 of past years
+- <em>[Beta]</em> Issue with 2019-2020 S1 Data showing -1 in the percent column
 
 ### Removed
 - Quick Links section of Settings
@@ -224,7 +260,7 @@
 ## [Stable 3.1.0] - 2020-10-02
 ### Added
 - Descriptions to mass modification buttons
-- [Beta] Added blur effect option and blur effect settings
+- <em>[Beta]</em> Added blur effect option and blur effect settings
 
 ### Improved
 - Cumulative GPA now only includes past semesters
@@ -242,7 +278,7 @@
 
 ## [Beta 3.0.6] - 2020-09-21
 ### Added
-- [Beta] Added blur effect option and blur effect settings
+- <em>[Beta]</em> Added blur effect option and blur effect settings
 
 ## [Beta 3.0.5] - 2020-09-14
 ### Fixed
@@ -250,18 +286,18 @@
 
 ## [Stable 3.0.4] - 2020-09-14
 ### Improved
-- [Beta] All beta features are enabled by default when a user joins the beta
+- <em>[Beta]</em> All beta features are enabled by default when a user joins the beta
 
 ### Fixed
 - Issue where grades could not be manually synced
-- [Beta] Issue where old data would not update correctly
+- <em>[Beta]</em> Issue where old data would not update correctly
 
 ## [Stable 3.0.3] - 2020-09-03
 ### Improved
 - Made GPA Displays smaller and added theoretical maximums
 - Moved weighted GPA toggle to homepage
-- [Beta] New, less intrusive design for term switcher
-- [Beta] Moved 'Leave Beta' button to Beta Settings
+- <em>[Beta]</em> New, less intrusive design for term switcher
+- <em>[Beta]</em> Moved 'Leave Beta' button to Beta Settings
 
 ### Fixed
 - Issue where new weights would not update automatically after sync
