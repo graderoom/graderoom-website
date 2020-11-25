@@ -119,7 +119,7 @@
                                 <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
                                                                        value="light"
                                                                        name="theme"
-                                                                       onclick="$('#autoLimits').hide();
+                                                                       onclick="$('#auto-limits-container').hide();
                                                                                $($($(this)[0].form)[0].elements[7]).hide();
                                                                                ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
                                                                                $($(this)[0].form).submit();"
@@ -148,7 +148,7 @@
                                                                                $($($(this)[0].form)[0].elements[7]).show().attr('disabled','disabled')"
                                     <% if (JSON.parse(appearance).theme === "auto") { %> checked
                                             <% } %>
-                                    > Automatic
+                                    > Schedule Dark Theme
                                     <span class="popup">
                                         <i class="fa fa-question-circle">
                                             <span class="popup-right-top">Graderoom will automatically switch between
@@ -174,7 +174,7 @@
                                     <select style="margin-left: 0 !important" id="darkModeStartAmPm"
                                             class="round"
                                             name="darkModeStartAmPm"
-                                            oninput="$($($(this)[0].form)[0].elements[7]).removeAttr('disabled');">
+                                            onchange="$($($(this)[0].form)[0].elements[7]).removeAttr('disabled');">
                                         <option value="PM"
                                         <% if (JSON.parse(appearance).darkModeStart >= 12 && JSON.parse(appearance).darkModeStart !== 24) { %>
                                                 selected
@@ -201,7 +201,7 @@
                                     <select style="margin-left: 0 !important" id="darkModeFinishAmPm"
                                             class="round"
                                             name="darkModeFinishAmPm"
-                                            oninput="$($($(this)[0].form)[0].elements[7]).removeAttr('disabled');">
+                                            onchange="$($($(this)[0].form)[0].elements[7]).removeAttr('disabled');">
                                         <option value="AM"
                                         <% if (JSON.parse(appearance).darkModeFinish < 12 || JSON.parse(appearance).darkModeFinish === 24) { %>
                                                 selected
@@ -238,8 +238,7 @@
                                 <label for="holidayEffectsToggle">
                                     Enable Holiday Effects <span class="popup"><i
                                                 class="fa fa-question-circle"><span
-                                                    class="popup-right-bottom">When enabled, seasonal effects will be
-                                                applied (e.g. Winter Snow).
+                                                    class="popup-right-bottom"> On slower devices, disabling this when holiday animations are active may improve your experience.
                                             </span></i></span>
                                 </label>
                             </label>

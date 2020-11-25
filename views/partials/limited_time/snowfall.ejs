@@ -2,6 +2,7 @@
     #snow-fall {
         z-index: -1;
         position: fixed;
+        top: 0;
     }
 
     #fps {
@@ -25,11 +26,18 @@
 <% if (beta) { %>
     <span style="z-index: 999; position: fixed; bottom: 10px; left: 10px;" id="fps"></span>
 <% } %>
+<span style="z-index: 999; position: fixed; bottom: 20px; right: 10px; font-size: 0.5rem; display: none" id="snow-disabled-message">
+    Winter Snow was disabled to improve performance
+</span>
+<span style="z-index: 999; position: fixed; bottom: 10px; right: 10px; font-size: 0.5rem; display: none" id="lights-disabled-message">
+    Christmas Lights were disabled to improve performance
+</span>
 
 <script>
     const today = new Date();
-    const winterStart = new Date(today.getFullYear() - (today.getMonth() >= 10 ? 0 : 1), 10, 1); // November 1 of current year
-    const winterEnd = new Date(new Date().getFullYear() + (today.getMonth() < 2 ? 0 : 1), 2, 1); // March 1 of next year
+    const winterStart = 10; // 10 is November
+    const winterEnd = 2; // 2 is March
+    <% const lightsMonth = 11; /* 11 is December */ %>
     const rotationScale = 1; // Must be 1
     const speedScale = 1;
     const buffer = 10;
@@ -43,7 +51,7 @@
     let renderNextFrame = true;
 
     function Snowy(start = false) {
-        if (today < winterStart || today > winterEnd) {
+        if (today.getMonth() < winterStart && today > winterEnd) {
             return;
         }
         numFlakes = screenWidth / 5;
@@ -68,10 +76,11 @@
 
         if (start) {
 
+            let init = performance.now();
             let lastCalledTime;
             let fps = 0;
-            let _500msTempFps = [];
-            let _500msAverage = 0;
+            let _1sTempFps = [];
+            let _1sAverage = 0;
             let fpsScale;
 
             go();
@@ -79,30 +88,43 @@
             <% if (beta) { %>
             setInterval(() => {
                 let fpsDisplay = ``;
-                fpsDisplay += `500MS AVG: ` + (_500msAverage < 100 ? `&nbsp;` : ``) + (_500msAverage < 10 ? `&nbsp;` : ``) + _500msAverage.toFixed(0) + `FPS<br>`;
-                fpsDisplay += `&nbsp;&nbsp;INSTANT: ` + (fps < 100 ? `&nbsp;` : ``) + (fps < 10 ? `&nbsp;` : ``) + fps.toFixed(0) + `FPS`;
+                fpsDisplay += `&nbsp;1S AVG: ` + (_1sAverage < 100 ? `&nbsp;` : ``) + (_1sAverage < 10 ? `&nbsp;` : ``) + _1sAverage.toFixed(0) + `FPS<br>`;
+                fpsDisplay += `INSTANT: ` + (fps < 100 ? `&nbsp;` : ``) + (fps < 10 ? `&nbsp;` : ``) + fps.toFixed(0) + `FPS`;
                 $("#fps").html(fpsDisplay);
             }, 1);
             <% } %>
+            let showingLights = true;
             setInterval(() => {
-                if (_500msTempFps.length > 2) {
-                    _500msAverage = _500msTempFps.reduce((a, b) => a + b) / _500msTempFps.length;
-                    _500msTempFps = _500msTempFps.slice(-2);
+                if (_1sTempFps.length > 2) {
+                    _1sAverage = _1sTempFps.reduce((a, b) => a + b) / _1sTempFps.length;
+                    _1sTempFps = _1sTempFps.slice(-2);
+                    if (performance.now() - init < 10000) return; // Wait 10 seconds before making fps-based changes
+                    if (_1sAverage < 15 && showingLights) {
+                        $('.lightrope').fadeOut('slow');
+                        showingLights = false;
+                        $('#lights-disabled-message').fadeIn('fast');
+                        init = performance.now();
+                        return;
+                    }
+                    if (_1sAverage < 10 && !showingLights) {
+                        $('#snow-fall').fadeOut('slow');
+                        $('#snow-disabled-message').fadeIn('fast');
+                    }
                 }
-            }, 500);
+            }, 1000);
 
             function go(requestAnother = true) {
                 if (renderNextFrame) {
                     if (!lastCalledTime) {
                         lastCalledTime = performance.now();
                         fps = 1;
-                        _500msTempFps.push(fps);
+                        _1sTempFps.push(fps);
                         fpsScale = 1;
                     } else {
                         let delta = (performance.now() - lastCalledTime) / 1000;
                         lastCalledTime = performance.now();
                         fps = 1 / delta;
-                        _500msTempFps.push(fps);
+                        _1sTempFps.push(fps);
                         fpsScale = fps / 60;
                     }
                     $$.clearRect(0, 0, screenWidth, screenHeight);
@@ -142,7 +164,7 @@
 
             function play() {
                 renderNextFrame = true;
-                _500msTempFps = [];
+                _1sTempFps = [];
                 lastCalledTime = undefined;
             }
         }
@@ -169,8 +191,15 @@
                 snow.forEach((flake, index) => delete snow[index]);
                 snow = [];
                 Snowy();
+                <% if (new Date().getMonth() === lightsMonth) { %>
+                    setupLights();
+                <% } %>
             }, 400);
         }, false);
     }
 
 </script>
+
+<% if (new Date().getMonth() === lightsMonth) { %>
+    <% include christmas_lights.ejs %>
+<% } %>

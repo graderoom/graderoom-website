@@ -8,11 +8,29 @@
                  style="display: table; width: fit-content; width: -moz-fit-content; width: -moz-fit-content; margin-bottom:0">
                 <i class="fa fa-close" aria-hidden="true"></i> Close
             </btn>
+            <btn class="btn btn-med" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()"
+                 style="position: absolute; width: fit-content; width: -moz-fit-content; right: 0; margin-bottom: 0">
+                Sync <i class="fa fa-refresh" aria-hidden="true"></i>
+            </btn>
             <div class="card-body">
                 <h1 class="card-title text-center popup">
                     <i class="fa fa-clock-o"></i>
                     Sync Log
                 </h1>
+                <div class="updateGradesMessage alert alert-info"
+                     style="display:block">
+                    <div style="display: flex; justify-content: flex-start; align-items: flex-start; flex-flow: column">
+                        <div style="display:none" class="sk-chase-mini">
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                        </div>
+                        <div class="font-weight-bold messageTxt">Loading Sync Status...</div>
+                    </div>
+                </div>
                 <div class="card-body" id="gradeChangesContainer"></div>
             </div>
         </div>
@@ -37,7 +55,7 @@
         for (let i = alerts.lastUpdated.length - 1; i >= 0; i--) {
 
             let changeData = alerts.lastUpdated[i].changeData;
-            if (!changeData.added) {
+            if (changeData.added === undefined) {
                 // Before changeData storage
                 if (!noDataStreak) {
                     endDate = alerts.lastUpdated[i].timestamp;
@@ -45,7 +63,7 @@
                 startDate = alerts.lastUpdated[i].timestamp;
                 noDataStreak++;
                 if (i === alerts.lastUpdated.length - 1) {
-                    recentChangeText = " No Changes.";
+                    recentChangeText = " No Data.";
                 }
                 if (i === 0) {
                     startDate = new Date(startDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
@@ -107,7 +125,7 @@
             let actualTime = new Date(alerts.lastUpdated[i].timestamp).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
 
             let numChanges = 0;
-            modifiedClasses.forEach(c => numChanges += (classNames.indexOf(c) >= 0 ? (newAssignments[c] || []).length + (modifiedAssignments[c] || []).length + (removedAssignments[c] || []).length : 0));
+            modifiedClasses.forEach(c => numChanges += (classNames.indexOf(c) >= 0 ? (newAssignments[c] || []).length + (modifiedAssignments[c] || []).length + (removedAssignments[c] || []).length + (overallChanges[c] ? 1 : 0) : 0));
             if (numChanges === 0) {
                 if (i === alerts.lastUpdated.length - 1) {
                     recentChangeText = " No Changes.";

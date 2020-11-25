@@ -27,6 +27,8 @@ let betaFeatureKeys = ["showTermSwitcher"];
 
 module.exports = {
 
+    db: db,
+
     backupdb: function () {
         let today = Date.now();
         let filename = "user_db_backup" + today + ".json";
@@ -939,8 +941,7 @@ module.exports = {
         return {success: true, message: message};
     }, getUser: function (username) {
         let lc_username = username.toLowerCase();
-        let user = db.get("users").find({username: lc_username}).value();
-        return user;
+        return db.get("users").find({username: lc_username}).value();
     }, setShowMaxGPA: function (username, value) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
@@ -979,7 +980,7 @@ module.exports = {
     updateGradeHistory: async function (acc_username, school_password) {
         let lc_username = acc_username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
-        let grade_history_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password, true);
+        let grade_history_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password, "", "", true);
         if (grade_history_update_status.success) {
             let current_years = Object.keys(userRef.get("grades").value());
             let years = Object.keys(grade_history_update_status.new_grades);
@@ -1058,7 +1059,16 @@ module.exports = {
         let lc_username = acc_username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
 
-        let grade_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password);
+        let {term: oldTerm, semester: oldSemester} = this.getMostRecentTermData(lc_username);
+        let term_data_if_locked = {term: oldTerm, semester: oldSemester};
+        let data_if_locked = "";
+        if (oldTerm && oldSemester) {
+            data_if_locked = userRef.get("grades").value()[oldTerm][oldSemester].map(class_data => _.omit(class_data, ["grades"]));
+        } else {
+            term_data_if_locked = "";
+        }
+
+        let grade_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password, data_if_locked, term_data_if_locked);
         if (!grade_update_status.success) {
             //error updating grades
             return grade_update_status;
@@ -1067,7 +1077,6 @@ module.exports = {
             userRef.value().appearance.classColors.pop();
         }
 
-        let {term: oldTerm, semester: oldSemester} = this.getMostRecentTermData(lc_username);
         let newTerm = Object.keys(grade_update_status.new_grades)[0];
         let newSemester = Object.keys(grade_update_status.new_grades[newTerm])[0];
         if (!(newTerm in userRef.get("grades").value())) {

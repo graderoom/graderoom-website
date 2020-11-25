@@ -97,6 +97,7 @@ html *, html {
 
 nav {
     box-shadow: 0 1px 2px;
+    z-index: 19;
 }
 
 nav h1 {
@@ -299,6 +300,11 @@ table thead tr th:last-child {
     position: relative;
 }
 
+#shortcutsDisplay .card-body .card-body {
+    overflow-y:scroll;
+    max-height: 70vh;
+}
+
 #changelog-container {
     height: 70vh;
 }
@@ -375,7 +381,7 @@ table thead tr th:last-child {
     width: -moz-fit-content;
     margin-left: auto;
     padding: 1rem;
-    transition: opacity 250ms ease;
+    transition: opacity 100ms ease;
     opacity: 1;
     border-radius: 0.5rem;
 }
@@ -428,7 +434,7 @@ table thead tr th:last-child {
 
 .sticky {
     position: fixed;
-    z-index: 5;
+    z-index: 19;
     top: 0;
     left: 50%;
     flex-direction: row;
@@ -2550,6 +2556,10 @@ input:disabled {
     }
 
     .changelog-container {
+        max-height: 50vh;
+    }
+
+    #shortcutsDisplay .card-body .card-body {
         max-height: 50vh;
     }
 
