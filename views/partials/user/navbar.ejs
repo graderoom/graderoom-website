@@ -42,7 +42,7 @@
                     '<%= JSON.parse(personalInfo).graduationYear - 2000; %></label>
                 <% if (page == "home") { %>
                     <label style="white-space: nowrap; cursor: pointer; border-radius: 0.5rem; padding: 0.1rem 0.5rem; font-family: Arial, Helvetica, sans-serif"
-                           onclick="showCard('#updateGradesDisplay');"
+                           onclick="showCard('#gradeChangesCardDisplay');"
                            class="updateGradesMessage alert-info">
                         <div style="cursor: pointer" class="messageTxt">Loading Sync Status...</div>
                     </label>
@@ -270,7 +270,7 @@
                     gradeSync = true;
                     setupTutorialPopups();
                 }
-                if (response.message && response.message === "No class data.") {
+                if (response.message && (response.message === "No class data." || response.message === "Powerschool is locked.")) {
                     $("#syncNoData").show();
                     $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
                     $(formMessagesDiv).find(".sk-chase-mini").hide();
@@ -334,7 +334,8 @@
                         }
                     } else if (response === "Light theme enabled!") {
                         let autoLimits = $("#autoLimits");
-                        autoLimits.hide();
+                        let autoLimitsContainer = $('#auto-limits-container');
+                        autoLimitsContainer.hide();
                         $($(form)[0].elements[7]).hide();
                         $($(form)[0].elements[0]).prop("checked", true);
                         autoLimits[0].children[1].value = (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString());
@@ -360,7 +361,6 @@
                         }
                     } else if (response.slice(0, 15) === "Holiday effects") {
                         appearance.holidayEffects = response.slice(16) === "enabled!";
-
                     } else {
                         $(form[0].elements[7]).attr("disabled", "disabled");
                         theme = "auto";
@@ -417,14 +417,20 @@
                         checkTime();
                     }
                     if (appearance.holidayEffects) {
+                        $('#lights-disabled-message').hide();
+                        $('#snow-disabled-message').hide();
                         $("#snow-fall").show();
+                        $(".lightrope").show();
                         if (!darkMode) {
                             $("#light_snowfall").attr("media", "");
                         } else {
                             $("#light_snowfall").attr("media", "not all");
                         }
                     } else {
+                        $('#lights-disabled-message').hide();
+                        $('#snow-disabled-message').hide();
                         $("#snow-fall").hide();
+                        $(".lightrope").hide();
                     }
                 }
 
@@ -489,7 +495,9 @@
     }
 
     function showCard(id) {
-        closeForm(id.substring(1));
+        if (cardsDisplayed.includes(id.substring(1))) {
+            cardsDisplayed.splice(cardsDisplayed.indexOf(id.substring(1)),1);
+        }
         cardsDisplayed.push(id.substring(1));
         $(".blurred-background").each(function () {
             if (cardsDisplayed.includes($($(this).parent())[0].id)) {
@@ -524,6 +532,7 @@
             $(inputFields[i]).trigger("input");
         }
         if (id === "settingsCardDisplay") {
+            $('#auto-limits-container button').attr('disabled','disabled');
             closeMessage("passwordChangeMessage");
             closeMessage("emailChangeMessage");
             closeMessage("themeMessage");

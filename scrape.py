@@ -38,14 +38,14 @@ class ClassGrade:
         grades: list of dictionaries of individual assignments
     """
 
-    def __init__(self, class_name, teacher_name, overall_percent, overall_letter):
+    def __init__(self, class_name, teacher_name, overall_percent, overall_letter, student_id, section_id):
         """Inits ClassGrade with PowerSchool class information"""
         self.class_name = class_name
         self.teacher_name = teacher_name
         self.overall_percent = overall_percent
         self.overall_letter = overall_letter
-        self.student_id = None
-        self.section_id = None
+        self.student_id = student_id
+        self.section_id = section_id
         self.grades = []
 
     def as_dict(self):
@@ -59,6 +59,66 @@ class ClassGrade:
             'section_id': self.section_id,
             'grades': self.grades
         }
+
+
+def parse_class(local_class, raw_data):
+    # function that takes a Powerschool assignment object and returns a Graderoom assignment object
+    def stripper(info):
+        if "_assignmentsections" not in info:
+            return
+        psaid = info["assignmentid"]  # PowerSchool Assignment ID
+        _data = info["_assignmentsections"][0]
+        date = _data["duedate"].replace("-", "/")
+        date = date[5:] + "/" + date[:4]
+        sort_date = datetime.strptime(date, "%m/%d/%Y").timestamp()
+        category = _data["_assignmentcategoryassociations"][0]["_teachercategory"]["name"]
+        assignment_name = _data["name"]
+        exclude = not _data["iscountedinfinalgrade"]
+        if "totalpointvalue" in _data and isinstance(_data["totalpointvalue"], (float, int)):
+            points_possible = _data["totalpointvalue"]
+        else:
+            points_possible = False
+        if len(_data["_assignmentscores"]) > 0:
+            sort_date = _data["_assignmentscores"][0]["scoreentrydate"]
+            sort_date = datetime.strptime(sort_date, "%Y-%m-%d %H:%M:%S").timestamp()
+            if "scorepoints" in _data["_assignmentscores"][0]:
+                points_gotten = _data["_assignmentscores"][0]["scorepoints"]
+            else:
+                points_gotten = False
+            if "scorepercent" in _data["_assignmentscores"][0]:
+                grade_percent = round(_data["_assignmentscores"][0]["scorepercent"], 2)
+            else:
+                grade_percent = False
+        else:
+            points_gotten = False
+            grade_percent = False
+        return {
+            "date": date,
+            "sort_date": sort_date,
+            "category": category,
+            "assignment_name": assignment_name,
+            "exclude": exclude,
+            "points_possible": points_possible,
+            "points_gotten": points_gotten,
+            "grade_percent": grade_percent,
+            "psaid": psaid
+        }
+
+    # function that removes nonexistence objects
+    def remove_empty(value):
+        if value is None:
+            return False
+        return True
+
+    # input
+    raw = json.loads(raw_data.text)
+
+    # output
+    local_class.grades = sorted(list(filter(remove_empty, map(stripper, raw))), key=lambda j: j['sort_date'], reverse=True)
+    local_class.grades = [{key: value for key, value in assignment.items() if key != 'sort_date'} for assignment in local_class.grades]  # Remove sorting date
+    local_class.grades = sorted(local_class.grades, key=lambda j: j['date'])
+
+    return local_class.as_dict()
 
 
 class PowerschoolScraper:
@@ -97,11 +157,13 @@ class PowerschoolScraper:
             return False
 
     def login(self, email, _password):
-        """Logs into PowerSchool with credentials, then prints grades
+        """Logs into PowerSchool with credentials
 
         Session is stored in instance variable.
         Authenticates via SAML
         See https://developers.onelogin.com/saml
+
+        :returns False if grades are locked, True if grades are visible
         """
         # Various headers required for logging in
         headers_1 = {
@@ -205,7 +267,7 @@ class PowerschoolScraper:
         samlr = soup.find("input", {'name': 'SAMLResponse'})
         if samlr is None:
             print(json_format(False, "Incorrect login details."))
-            return
+            sys.exit()
 
         # Fourth request
         url = 'https://powerschool.bcp.org:443/saml/SSO/alias/pslive'
@@ -227,8 +289,15 @@ class PowerschoolScraper:
         soup_resp = BS(resp.text, "html.parser")
         table = soup_resp.find("table")
         if not table:
-            print(json_format(False, "PowerSchool is locked"))
-            sys.exit()
+            if (len(list(filter(lambda d: "student_id" in d and "section_id" in d, data_if_locked))) == len(data_if_locked)
+                    and "term" in term_data_if_locked and "semester" in term_data_if_locked):
+                # Scrape locked powerschool with given data
+                return False
+            else:
+                print(json_format(False, "PowerSchool is locked."))
+                sys.exit()
+
+        return True
 
     def get_history(self):
         """Uses a session to grab all available grade data on powerschool"""
@@ -342,8 +411,7 @@ class PowerschoolScraper:
                 # If no grade is present, then it is [ i ]
                 # Finally, check if it is actually a class grade link
                 # by checking the first five letters for "score"
-                if ((link.has_attr('class') and link['class'] == ['bold'])
-                    or link.text == '[ i ]') and link['href'][:5] == 'score':
+                if ((link.has_attr('class') and link['class'] == ['bold']) or link.text == '[ i ]') and link['href'][:5] == 'score':
 
                     assignments_link = link['href']
 
@@ -416,7 +484,7 @@ class PowerschoolScraper:
         if (class_name and teacher_name and overall_percent
                 and (overall_letter != '-')):
             local_class = ClassGrade(class_name, teacher_name,
-                                     overall_percent, overall_letter)
+                                     overall_percent, overall_letter, None, None)
         else:
             return
 
@@ -426,6 +494,14 @@ class PowerschoolScraper:
 
         # Get the Student ID for a class
         student_id = wrapper['data-ng-init'].split(';')[0].split("'")[1][3:]
+
+        # Add student_id and section_id
+        local_class.student_id = student_id
+        local_class.section_id = section_id
+
+        all_classes.append(parse_class(local_class, self.get_class(url, local_class)))
+
+    def get_class(self, url, local_class):
 
         headers = {
             'Connection': 'keep-alive',
@@ -442,84 +518,77 @@ class PowerschoolScraper:
 
         params = (('_', ''),)
 
-        data = '{"section_ids":[' + section_id + '],"student_ids":[' + student_id + '],"start_date":"2020-8-17","end_date":"2020-12-18"}'
+        now = datetime.now()
+
+        # Declare likely start and end dates for each semester to determine data to send request with
+        semester_1 = []
+        semester_2 = []
+        semester_0 = []
+        semester_1.append(datetime(now.year, 8, 1))
+        semester_1.append(datetime(now.year, 12, 31))
+        semester_2.append(datetime(now.year, 1, 1))
+        semester_2.append(datetime(now.year, 5, 31))
+        semester_0.append(datetime(now.year, 6, 1))
+        semester_0.append(datetime(now.year, 7, 31))
+
+        # Find which term we are currently in
+        if semester_1[0] <= now <= semester_1[1]:
+            # Semester 1
+            [start_date, end_date] = semester_1
+        elif semester_2[0] <= now <= semester_2[1]:
+            # Semester 2
+            [start_date, end_date] = semester_2
+        else:
+            # Semester 0
+            [start_date, end_date] = semester_0
+
+        start_date = json.dumps(start_date.strftime("%Y-%m-%d"))
+        end_date = json.dumps(end_date.strftime("%Y-%m-%d"))
+
+        data = '{"section_ids":[' + local_class.section_id + '],"student_ids":[' + local_class.student_id + '],"start_date":' + start_date + ',"end_date":' + end_date + '}'
 
         url = 'https://powerschool.bcp.org/ws/xte/assignment/lookup'
         response = self.session.post(url, headers=headers, params=params, data=data)
 
-        # function that takes a Powerschool assignment object and returns a Graderoom assignment object
-        def stripper(info):
-            if not "_assignmentsections" in info: return
-            psaid = info["assignmentid"]  # PowerSchool Assignment ID
-            _data = info["_assignmentsections"][0]
-            date = _data["duedate"].replace("-", "/")
-            date = date[5:] + "/" + date[:4]
-            sort_date = datetime.strptime(date, "%m/%d/%Y").timestamp()
-            category = _data["_assignmentcategoryassociations"][0]["_teachercategory"]["name"]
-            assignment_name = _data["name"]
-            exclude = not _data["iscountedinfinalgrade"]
-            if "totalpointvalue" in _data and isinstance(_data["totalpointvalue"], (float, int)):
-                points_possible = _data["totalpointvalue"]
-            else:
-                points_possible = False
-            if len(_data["_assignmentscores"]) > 0:
-                sort_date = _data["_assignmentscores"][0]["scoreentrydate"]
-                sort_date = datetime.strptime(sort_date, "%Y-%m-%d %H:%M:%S").timestamp()
-                if "scorepoints" in _data["_assignmentscores"][0]:
-                    points_gotten = _data["_assignmentscores"][0]["scorepoints"]
-                else:
-                    points_gotten = False
-                if "scorepercent" in _data["_assignmentscores"][0]:
-                    grade_percent = round(_data["_assignmentscores"][0]["scorepercent"], 2)
-                else:
-                    grade_percent = False
-            else:
-                points_gotten = False
-                grade_percent = False
-            return {
-                "date": date,
-                "sort_date": sort_date,
-                "category": category,
-                "assignment_name": assignment_name,
-                "exclude": exclude,
-                "points_possible": points_possible,
-                "points_gotten": points_gotten,
-                "grade_percent": grade_percent,
-                "psaid": psaid
-            }
+        return response
 
-        # function that removes nonexistence objects
-        def remove_empty(value):
-            if value is None:
-                return False
-            return True
+    def get_locked(self, class_data, term_data):
+        # Begin organizing response data
+        all_classes = []
 
-        # input
-        raw = json.loads(response.text)
+        for data in class_data:
+            class_name = data['class_name']
+            teacher_name = data['teacher_name']
+            overall_percent = data['overall_percent']
+            overall_letter = data['overall_letter']
+            student_id = data['student_id']
+            section_id = data['section_id']
+            local_class = ClassGrade(class_name, teacher_name, overall_percent, overall_letter, student_id, section_id)
 
-        # output
-        local_class.grades = sorted(list(filter(remove_empty, map(stripper, raw))), key=lambda i: i['sort_date'], reverse=True)
-        local_class.grades = [{key: value for key, value in assignment.items() if key != 'sort_date'} for assignment in local_class.grades]  # Remove sorting date
-        local_class.grades = sorted(local_class.grades, key=lambda i: i['date'])
+            all_classes.append(parse_class(local_class, self.get_class('https://powerschool.bcp.org/', local_class)))
 
-        # add student_id and section_id
-        local_class.student_id = student_id
-        local_class.section_id = section_id
-
-        all_classes.append(local_class.as_dict())
+        # Add term and semester data
+        term = term_data["term"]
+        semester = term_data["semester"]
+        all_classes = {term: {semester: all_classes}}
+        print(json_format(True, all_classes))
 
 
 if __name__ == "__main__":
     user = sys.argv[1]
     password = sys.argv[2]
-    get_history = sys.argv[3]
+    data_if_locked = json.loads(sys.argv[3])  # arg must be stringified json
+    term_data_if_locked = json.loads(sys.argv[4])  # arg must be stringified json
+    get_history = sys.argv[5]
     ps = PowerschoolScraper()
     try:
-        ps.login(user, password)
-        if get_history in ['true', 'True', '1']:
-            ps.get_history()
+        if ps.login(user, password):
+            if get_history in ['true', 'True', '1']:
+                ps.get_history()
+            else:
+                ps.get_present()
         else:
-            ps.get_present()
+            ps.get_locked(data_if_locked, term_data_if_locked)
     except requests.Timeout:
         print(json_format(False, "Could not connect to PowerSchool"))
     except Exception as e:

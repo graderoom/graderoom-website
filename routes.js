@@ -121,10 +121,8 @@ module.exports = function (app, passport) {
     });
 
     app.post("/advancedAppearance", [isLoggedIn], (req, res) => {
-        if (req.body.showNonAcademic) {
-            let show = req.body.showNonAcademic === "on";
-            authenticator.setNonAcademic(req.user.username, show);
-        }
+        let show = req.body.showNonAcademic === "on";
+        authenticator.setNonAcademic(req.user.username, show);
         let regularize = req.body.regularizeClassGraphs === "on";
         authenticator.setRegularizeClassGraphs(req.user.username, regularize);
         let blurEffects = req.body.blurEffects === "on";
@@ -524,7 +522,7 @@ module.exports = function (app, passport) {
             await authenticator.updateGradeHistory(req.user.username, pass);
         }
         let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
-        if (resp.success || resp.message === "No class data." || resp.message === "Error scraping grades.") {
+        if (resp.success || resp.message === "No class data." || resp.message === "Error scraping grades." || resp.message === "Powerschool is locked.") {
             if (term && semester) {
                 if (gradeSync) {
                     let encryptResp = authenticator.encryptAndStore(user, pass, userPass);

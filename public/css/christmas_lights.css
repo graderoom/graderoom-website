@@ -1,0 +1,222 @@
+.lightrope {
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    position: fixed;
+    z-index: 15;
+    height: 100vh;
+    width: 100%;
+    top: 0;
+    padding: 0;
+    pointer-events: none;
+    margin: 0 auto;
+}
+
+.lightrope.right {
+    right: 0;
+    width: 100vh;
+    transform: rotate(0.25turn);
+}
+
+.lightrope.bottom {
+    transform: rotate(0.5turn);
+}
+
+.lightrope.left {
+    width: 100vh;
+    transform: rotate(0.75turn);
+}
+
+.lightrope li {
+    position: relative;
+    animation-fill-mode: both;
+    animation-iteration-count: infinite;
+    list-style: none;
+    padding: 0;
+    width: 12px;
+    height: 30px;
+    border-radius: 50%;
+    margin: 0 30px;
+    display: inline-block;
+    background: rgba(31, 78, 255, 0.5);
+    box-shadow: 0 5px 24px 3px rgba(255, 255, 255, 0), inset 0 0 1px 2px rgba(31, 78, 255, 0.8);
+    animation-name: flash-1;
+    animation-duration: 2s;
+}
+
+.lightrope li:nth-child(2n+1) {
+    background: rgba(255, 188, 66, 0.5);
+    box-shadow: 0 5px 24px 3px rgba(255, 255, 255, 0), inset 0 0 1px 2px rgba(255, 188, 66, 0.1);
+    animation-name: flash-2;
+    animation-duration: 3s;
+}
+
+.lightrope li:nth-child(3n+2) {
+    background: rgba(12, 169, 12, 0.5);
+    box-shadow: 0 5px 24px 3px rgba(255, 255, 255, 0), inset 0 0 1px 2px rgba(12, 169, 12, 0.1);
+    animation-name: flash-3;
+    animation-duration: 5s;
+}
+
+.lightrope li:nth-child(5n+3) {
+    background: rgba(216, 17, 89, 0.5);
+    box-shadow: 0 5px 24px 3px rgba(255, 255, 255, 0), inset 0 0 1px 2px rgba(216, 17, 89, 0.1);
+    animation-name: flash-4;
+    animation-duration: 7s;
+}
+
+.lightrope li:nth-child(7n+5) {
+    background: rgba(254, 48, 11, 0.5);
+    box-shadow: 0 5px 24px 3px rgba(255, 255, 255, 0), inset 0 0 1px 2px rgba(254, 48, 11, 0.1);
+    animation-name: flash-5;
+    animation-duration: 11s;
+}
+
+.lightrope li:nth-child(2n) {
+    animation-duration: 5.5s;
+}
+
+.lightrope li:nth-child(3n) {
+    animation-duration: 3.5s;
+}
+
+.lightrope li:nth-child(5n) {
+    animation-duration: 2.5s;
+}
+
+.lightrope li:nth-child(7n) {
+    animation-duration: 1.5s;
+}
+
+.lightrope li:nth-child(11n) {
+    animation-duration: 1s;
+}
+
+.lightrope li:nth-child(2n-1) {
+    transform: translateX(-4px) rotate(10deg);
+}
+
+.lightrope li:nth-child(3n-2) {
+    transform: translateX(2px) rotate(-10deg);
+}
+
+.lightrope li:nth-child(5n-3) {
+    transform: translateX(-8px) rotate(20deg);
+}
+
+.lightrope li:nth-child(7n-5) {
+    transform: translateX(8px) rotate(-20deg);
+}
+
+.lightrope li:nth-child(11n-7) {
+    transform: translateX(-10px) rotate(30deg);
+}
+
+.lightrope li:nth-child(13n-11) {
+    transform: translateX(10px) rotate(-30deg);
+}
+
+.lightrope li:before {
+    content: "";
+    position: absolute;
+    background: #555555;
+    width: 10px;
+    height: 10px;
+    border-radius: 1px;
+    top: -5px;
+    left: 1px;
+}
+
+.lightrope li:after {
+    content: "";
+    top: -14px;
+    left: 9px;
+    position: absolute;
+    width: 72px;
+    height: 20px;
+    border-bottom: solid #555555 2px;
+    border-radius: 50%;
+}
+
+.lightrope li:nth-child(2n-1):after {
+    transform: rotate(-10deg) translateY(-7px);
+}
+
+.lightrope li:nth-child(3n-2):after {
+    transform: rotate(10deg) translateY(7px);
+}
+
+.lightrope li:nth-child(5n-3):after {
+    transform: rotate(-20deg) translateY(-14px);
+}
+
+.lightrope li:nth-child(7n-5):after {
+    transform: rotate(20deg) translateY(13px);
+}
+
+.lightrope li:nth-child(11n-7):after {
+    transform: rotate(-30deg) translateY(-22px);
+}
+
+.lightrope li:nth-child(13n-11):after {
+    transform: rotate(30deg) translateY(17px);
+}
+
+.lightrope li:last-child:after {
+    content: none;
+}
+
+@keyframes flash-1 {
+    0%, 100% {
+        background: rgba(31, 78, 255, 0.5);
+        box-shadow: 0 5px 24px 3px rgba(255, 255, 255, 0), inset 0 0 1px 2px rgba(31, 78, 255, 0.8);
+    }
+    50% {
+        background: rgba(31, 78, 255, 0.8);
+        box-shadow: 0 5px 24px 5px #1F4EFF, inset 0 0 2px 4px #1F4EFF;
+    }
+}
+
+@keyframes flash-2 {
+    0%, 100% {
+        background: rgba(255, 188, 66, 0.5);
+        box-shadow: 0 5px 24px 3px rgba(255, 255, 255, 0), inset 0 0 1px 2px rgba(255, 188, 66, 0.1);
+    }
+    50% {
+        background: rgba(255, 188, 66, 0.8);
+        box-shadow: 0 5px 24px 5px #FFBC42, inset 0 0 2px 4px #FFBC42;
+    }
+}
+
+@keyframes flash-3 {
+    0%, 100% {
+        background: rgba(12, 169, 12, 0.5);
+        box-shadow: 0 5px 24px 3px rgba(255, 255, 255, 0), inset 0 0 1px 2px rgba(12, 169, 12, 0.1);
+    }
+    50% {
+        background: rgba(12, 169, 12, 0.8);
+        box-shadow: 0 5px 24px 5px #0CA90C, inset 0 0 2px 4px #0CA90C;
+    }
+}
+
+@keyframes flash-4 {
+    0%, 100% {
+        background: rgba(216, 17, 89, 0.5);
+        box-shadow: 0 5px 24px 3px rgba(255, 255, 255, 0), inset 0 0 1px 2px rgba(216, 17, 89, 0.1);
+    }
+    50% {
+        background: rgba(216, 17, 89, 0.8);
+        box-shadow: 0 5px 24px 5px #D81159, inset 0 0 2px 4px #D81159;
+    }
+}
+
+@keyframes flash-5 {
+    0%, 100% {
+        background: rgba(254, 48, 11, 0.5);
+        box-shadow: 0 5px 24px 3px rgba(255, 255, 255, 0), inset 0 0 1px 2px rgba(254, 48, 11, 0.1);
+    }
+    50% {
+        background: rgba(254, 48, 11, 0.8);
+        box-shadow: 0 5px 24px 5px #fe300b, inset 0 0 2px 4px #fe300b;
+    }
+}

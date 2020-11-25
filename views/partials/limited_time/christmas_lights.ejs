@@ -1,0 +1,37 @@
+<head>
+    <link rel="stylesheet" type="text/css" href="./public/css/christmas_lights.css">
+</head>
+<ul class="lightrope right" <% if (!JSON.parse(appearance).holidayEffects) { %>style="display: none"
+        <% } %>></ul>
+<ul class="lightrope bottom" <% if (!JSON.parse(appearance).holidayEffects) { %>style="display: none"
+        <% } %>></ul>
+<ul class="lightrope left" <% if (!JSON.parse(appearance).holidayEffects) { %>style="display: none"
+        <% } %>></ul>
+
+<script>
+    function setupLights() {
+        let randomAddHorizontal = Math.floor(Math.random() * 10) * 2 + 2; // Ensuring even number >= 2
+        let randomAddVertical = Math.floor(Math.random() * 10) + 2 + 2; // Ensuring even number >= 2
+        let numLightsHorizontal = Math.floor(screenWidth / 72 + 0.5) + randomAddHorizontal;
+        let numLightsVertical = Math.floor(screenHeight / 72 + 0.5) + randomAddVertical;
+        let lightsRight = $($('.lightrope.right')[0]);
+        let lightsBottom = $($('.lightrope.bottom')[0]);
+        let lightsLeft = $($('.lightrope.left')[0]);
+        lightsRight.html(``);
+        lightsBottom.html(``);
+        lightsLeft.html(``);
+        for (let light = 0; light < numLightsHorizontal; light++) {
+            lightsBottom.append(`<li></li>`);
+        }
+        for (let light = 0; light < numLightsVertical; light++) {
+            lightsRight.append(`<li></li>`);
+            lightsLeft.append(`<li></li>`);
+        }
+
+        $('.lightrope.right li:first-child').css('margin-left',30 - (screenHeight - (numLightsVertical - randomAddVertical) * 72) - randomAddVertical * 36 + "px");
+        $('.lightrope.bottom li:first-child').css('margin-left',30 - (screenWidth - (numLightsHorizontal - randomAddHorizontal) * 72) - randomAddHorizontal * 36 + "px");
+        $('.lightrope.left li:first-child').css('margin-left',30 - (screenHeight - (numLightsVertical - randomAddVertical) * 72) - randomAddVertical * 36 + "px");
+    }
+
+    setupLights();
+</script>
