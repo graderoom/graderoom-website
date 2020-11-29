@@ -41,6 +41,7 @@
 
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - Refreshing or leaving the page after closing a half-complete feedback form would triggers an alert <strong>[Fixed in Beta 3.3.7]</strong>
+- <em>[Beta]</em> 2019 S2 does not load if having taken Calculus BC AP during this term <strong>[Fixed in Beta 3.3.7]</strong>
 - Slow overall loading <strong>[Fixed in Beta 3.3.8]</strong>
 - Page unnecessarily refreshes after syncing grades <strong>[Fixed in Beta 3.4.0]</strong>
 - Rounding inconsistencies with PowerSchool <strong>[Fixed in Beta 3.5.2]</strong>
@@ -50,6 +51,32 @@
 - Show Non-Academic setting cannot be turned off <strong>[Fixed in Beta 3.7.0]</strong>
 - Keyboard shortcuts do not work when caps lock is turned on <strong>[Fixed in Beta 3.7.0]</strong>
 - <em>[Beta]</em> Summer semesters are listed under the incorrect year <strong>[Fixed in Beta 3.7.0]</strong>
+- Auto theme does not change reliably <strong>[Fixed 3.8.0]</strong>
+
+## [Announcement 3.8.1] - 2020-11-28
+- Our Privacy Policy has been updated
+- Our Terms and Conditions have been updated
+
+## [Beta 3.8.0] - 2020-11-28
+### Added
+- New loading animations on buttons
+- More tutorial popups
+- New dark theme schedule options
+- [Beta] Fps display option in Beta settings
+
+### Improved
+- Sync log edge case display improvements
+- First card with data on sync log is now always uncollapsed
+- Moved holiday effects disabled message into settings
+- Expanded holiday effects to all site pages
+- Logged out pages are now themed based on sunset and sunrise
+- Custom dark theme schedule can now be adjusted to the minute and uses the browser's time picker
+- Holiday effects are now enabled in final grade calculator and all logged out pages
+- Blur effect settings can be changed without refresh
+- Disabling holiday effects is now less harsh
+
+### Fixed
+- Issues with auto theme
 
 ## [Beta 3.7.1] - 2020-11-26
 ### Fixed
