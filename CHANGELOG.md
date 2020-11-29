@@ -53,6 +53,10 @@
 - <em>[Beta]</em> Summer semesters are listed under the incorrect year <strong>[Fixed in Beta 3.7.0]</strong>
 - Auto theme does not change reliably <strong>[Fixed in Beta 3.8.0]</strong>
 
+## [Stable 3.8.2] - 2020-11-28
+### Added
+- <em>[Mobile]</em> Added ability to edit scores on mobile.
+
 ## [Announcement 3.8.1] - 2020-11-28
 - Our Privacy Policy has been updated
 - Our Terms and Conditions have been updated
@@ -62,7 +66,7 @@
 - New loading animations on buttons
 - More tutorial popups
 - New dark theme schedule options
-- [Beta] Fps display option in Beta settings
+- <em>[Beta]</em> Fps display option in Beta settings
 
 ### Improved
 - Sync log edge case display improvements
