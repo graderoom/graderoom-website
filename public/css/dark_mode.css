@@ -24,6 +24,10 @@ nav label {
     color: #666666;
 }
 
+.loading span {
+    background-color: #FFFFFF;
+}
+
 .sticky {
     box-shadow: 2px 1px 20px #111111;
 }

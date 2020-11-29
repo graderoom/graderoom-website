@@ -52,6 +52,7 @@
         let startDate = "";
         let endDate = "";
         let recentChange = false;
+        let firstCardUnCollapsed = false;
         for (let i = alerts.lastUpdated.length - 1; i >= 0; i--) {
 
             let changeData = alerts.lastUpdated[i].changeData;
@@ -68,14 +69,14 @@
                 if (i === 0) {
                     startDate = new Date(startDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
                     endDate = new Date(endDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
-                    container.append(`<hr><span class="timestamp"><span class="popup">` + startDate + ` - <br>` + endDate + `</span><b class="popup">` + noDataStreak + ` Syncs<br>No Data</b></span>`);
+                    container.append(`<hr><span class="timestamp"><span class="popup">` + startDate + (startDate !== endDate ? ` - <br>` + endDate : ``) + `</span><b>` + (noDataStreak > 1 ? noDataStreak + ` Syncs<br>` : ``) + `No Data</b></span>`);
                 }
                 continue;
             }
             if (noDataStreak) {
                 startDate = new Date(startDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
                 endDate = new Date(endDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
-                container.append(`<hr><span class="timestamp"><span class="popup">` + startDate + ` - <br>` + endDate + `</span><b class="popup">` + noDataStreak + ` Syncs<br>No Data</b></span>`);
+                container.append(`<hr><span class="timestamp"><span class="popup">` + startDate + (startDate !== endDate ? ` - <br>` + endDate : ``) + `</span><b>` + (noDataStreak > 1 ? noDataStreak + ` Syncs<br>` : ``) + `No Data</b></span>`);
                 noDataStreak = 0;
             }
             let newAssignments = changeData.added;
@@ -101,14 +102,14 @@
                 if (i === 0) {
                     startDate = new Date(startDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
                     endDate = new Date(endDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
-                    container.append(`<hr><span class="timestamp"><span class="popup">` + startDate + ` - <br>` + endDate + `</span><b class="popup">` + noChangesStreak + ` Syncs<br>No Changes</b></span>`);
+                    container.append(`<hr><span class="timestamp"><span class="popup">` + startDate + (startDate !== endDate ? ` - <br>` + endDate : ``) + `</span><b>` + (noChangesStreak > 1 ? noChangesStreak + ` Syncs<br>` : ``) + `No Changes</b></span>`);
                 }
                 continue;
             }
             if (noChangesStreak) {
                 startDate = new Date(startDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
                 endDate = new Date(endDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
-                container.append(`<hr><span class="timestamp"><span class="popup">` + startDate + ` - <br>` + endDate + `</span><b class="popup">` + noChangesStreak + ` Syncs<br>No Changes</b></span>`);
+                container.append(`<hr><span class="timestamp"><span class="popup">` + startDate + (startDate !== endDate ? ` - <br>` + endDate : ``) + `</span><b>` + (noChangesStreak > 1 ? noChangesStreak + ` Syncs<br>` : ``) + `No Changes</b></span>`);
                 noChangesStreak = 0;
             }
 
@@ -140,7 +141,8 @@
             container.append(`<hr><span class="timestamp change-data-exists"><span class="popup">` + actualTime + deltaTime + `</span><b class="collapsed" data-toggle="collapse" data-target="#changeData` + i + `">` + numChanges + ` Change` + (numChanges > 1 ? `s` : ``) + `</b></span>`);
 
             // Create the class cards
-            let changeCard = `<div id="changeData` + i + `" class="collapse` + (i === alerts.lastUpdated.length - 1 ? ` show` : ``) + `">`;
+            let changeCard = `<div id="changeData` + i + `" class="collapse` + (!firstCardUnCollapsed ? ` show` : ``) + `">`;
+            firstCardUnCollapsed = true;
             for (let j = 0; j < modifiedClasses.length; j++) {
                 let realIndex = classNames.indexOf(modifiedClasses[j]);
                 if (realIndex < 0) {

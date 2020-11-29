@@ -626,10 +626,9 @@ table thead tr th:last-child {
     font-family: "Montserrat", sans-serif;
     font-size: small;
     position: absolute;
-    z-index: 19;
+    z-index: 3;
     display: none;
     min-width: 10rem;
-    max-width: 15rem;
     padding: 0.5rem 0.6rem 0.5rem 0.6rem;
     animation: fadeIn 400ms ease;
     text-align: center;
@@ -878,9 +877,60 @@ i span {
     pointer-events: none;
 }
 
+.loading {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+@keyframes loading {
+    0% {
+        transform: translate(-100px, -1rem) scale(0);
+    }
+    50% {
+        transform: translate(0, -1rem) scale(1);
+    }
+    100% {
+        transform: translate(100px, -1rem) scale(0);
+    }
+}
+
+.loading span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    position: absolute;
+}
+
+.loading span:nth-child(1) {
+    transform: translate(-100px, -1rem) scale(0);
+    animation: loading 1.5s ease infinite 0s;
+}
+
+.loading span:nth-child(2) {
+    transform: translate(-100px, -1rem) scale(0);
+    animation: loading 1.5s ease infinite 0.5s;
+}
+
+.loading span:nth-child(3) {
+    transform: translate(-100px, -1rem) scale(0);
+    animation: loading 1.5s ease infinite 1s;
+}
+
 .fa.disabled {
     cursor: not-allowed !important;
     opacity: 0.2;
+}
+
+#sun-limits-container input {
+    border: none;
+    opacity: 0.6;
+}
+
+#sun-limits-container label {
+    margin: 0;
 }
 
 .fa.disabled:active {
@@ -2155,10 +2205,6 @@ input:disabled {
     pointer-events: none;
 }
 
-.nav-popups {
-    margin-top: 1rem;
-}
-
 #syncFailure, #syncNoData {
     margin-right: 0.5rem;
     cursor: default;
@@ -2348,6 +2394,10 @@ input:disabled {
     display: flex;
     align-items: stretch;
     justify-content: space-between;
+}
+
+.tutorial-popup {
+    z-index: 1;
 }
 
 .classInfo {

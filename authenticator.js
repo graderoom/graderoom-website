@@ -9,6 +9,7 @@ const chroma = require("chroma-js");
 const crypto = require("crypto");
 const readline = require("readline");
 const fs = require("fs");
+const SunCalc = require("suncalc");
 
 const roundsToGenerateSalt = 10;
 
@@ -20,10 +21,10 @@ let betaChangelogArray = [];
 let versionNameArray = [];
 
 // Update this list with new tutorial keys
-let tutorialKeys = ["changelogLegendSeen", "homeSeen", "navinfoSeen"];
+let tutorialKeys = ["homeSeen", "navinfoSeen", "classLinksSeen", "moreSeen", "settingsSeen"];
 
 // Update this list with new beta features
-let betaFeatureKeys = ["showTermSwitcher"];
+let betaFeatureKeys = ["showTermSwitcher", "showFps"];
 
 module.exports = {
 
@@ -207,6 +208,21 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
 
+        // Update darkModeStart/Finish
+        if (userRef.get("appearance").get("darkModeStart").value() === null) {
+            userRef.get("appearance").set("darkModeStart",18).write();
+            userRef.get("appearance").set("darkModeFinish", 7).write();
+        }
+
+        if (userRef.get("appearance").get("darkModeStart").value() <= 24) {
+            let _start = userRef.get("appearance").get("darkModeStart").value();
+            _start = new Date("0/" + _start + ":00").getTime();
+            let _finish = userRef.get("appearance").get("darkModeFinish").value();
+            _finish = new Date("0/" + (_finish % 24) + ":00").getTime();
+            userRef.get("appearance").set("darkModeStart",_start).write();
+            userRef.get("appearance").set("darkModeFinish",_finish).write();
+        }
+
         // Add holiday effects var
         if (!([true, false].includes(userRef.get("appearance").get("holidayEffects").value()))) {
             userRef.get("appearance").set("holidayEffects", true).write();
@@ -274,117 +290,11 @@ module.exports = {
             userRef.get("addedAssignments").get("19-20").get("S1").unset("Calculus BC AP ").write();
         }
 
-        // Remove changedata
-        if (userRef.get("changeData").value()) {
-            userRef.unset("changeData").write();
-        }
-
         // Migrate lastupdated
         this.migrateLastUpdated(user.username);
 
-        // Add betaFeatures activation
-        if (!userRef.get("betaFeatures").value()) {
-            userRef.set("betaFeatures", {"active": beta}).write();
-        }
-
-        // Add weightedGPA option
-        if (!userRef.get("appearance").get("weightedGPA").value() && userRef.get("appearance").get("weightedGPA").value() !== false) {
-            userRef.get("appearance").set("weightedGPA", true).write();
-        }
-
-        // Add regularizeClassGraphs
-        if (!userRef.get("appearance").get("regularizeClassGraphs").value() && userRef.get("appearance").get("regularizeClassGraphs").value() !== false) {
-            userRef.get("appearance").set("regularizeClassGraphs", true).write();
-        }
-
-        // Make all school emails lowercase
-        let email = user.schoolUsername;
-        userRef.set("schoolUsername", email.toLowerCase()).write();
-
-        // Fix error in weight storage
-        if (userRef.get("grades").get("grades").value()) {
-            userRef.get("grades").unset("grades").write();
-        }
-
-        // Add color palette
-        if (!userRef.get("appearance").get("colorPalette").value()) {
-            userRef.get("appearance").set("colorPalette", "default").write();
-            this.setColorPalette(lc_username, "clear", false);
-        }
-
-        // Migrate to new grade and weight storage (any data found in old storage *must* be from 19-20 S2)
-        if (Array.isArray(userRef.get("grades").value())) {
-            userRef.set("grades", {"19-20": {"S2": user.grades}}).write();
-            userRef.set("weights", {"19-20": {"S2": user.weights}}).write();
-        }
-
-        // I didn't realize that some people have 2019 grades
-        if (userRef.get("grades").get("19-20").get("S2").value() && userRef.get("grades").get("19-20").get("S2").value().filter(c => c.grades.filter(a => a.date.slice(-4) === "2019").length).length) {
-            userRef.get("grades").get("19-20").set("S1", userRef.get("grades").get("19-20").get("S2").value()).write();
-            userRef.get("grades").get("19-20").unset("S2").write();
-            userRef.get("weights").get("19-20").set("S1", userRef.get("weights").get("19-20").get("S2").value()).write();
-            userRef.get("weights").get("19-20").unset("S2").write();
-        }
-
-        // Add editedAssignments dict
-        if (!userRef.get("editedAssignments").value()) {
-            userRef.set("editedAssignments", {}).write();
-            this.initEditedAssignments(user.username);
-        }
-
-        // Add addedAssignments dict
-        if (!userRef.get("addedAssignments").value()) {
-            userRef.set("addedAssignments", {}).write();
-            this.initAddedAssignments(user.username);
-        }
-
-        // Fix -1 and Â  values in 19-20 S2
-        if (userRef.get("grades").value() && userRef.get("grades").get("19-20").value() && userRef.get("grades").get("19-20").get("S2").value()) {
-            for (let i = 0; i < userRef.get("grades").get("19-20").get("S2").value().length; i++) {
-                let classGrades = userRef.get("grades").get("19-20").get("S2").value()[i].grades;
-                for (let j = 0; j < classGrades.length; j++) {
-                    if (classGrades[j].grade_percent === -1) {
-                        userRef.get("grades").get("19-20").get("S2").nth(i).get("grades").nth(j).set("grade_percent", false).write();
-                    }
-                    if (classGrades[j].grade_percent === "Â ") {
-                        userRef.get("grades").get("19-20").get("S2").nth(i).get("grades").nth(j).set("grade_percent", false).write();
-                    }
-                }
-            }
-        }
-        // Fix -1 and Â  values in 19-20 S1
-        if (userRef.get("grades").value() && userRef.get("grades").get("19-20").value() && userRef.get("grades").get("19-20").get("S1").value()) {
-            for (let i = 0; i < userRef.get("grades").get("19-20").get("S1").value().length; i++) {
-                let classGrades = userRef.get("grades").get("19-20").get("S1").value()[i].grades;
-                for (let j = 0; j < classGrades.length; j++) {
-                    if (classGrades[j].grade_percent === -1) {
-                        userRef.get("grades").get("19-20").get("S1").nth(i).get("grades").nth(j).set("grade_percent", false).write();
-                    }
-                    if (classGrades[j].grade_percent === "Â ") {
-                        userRef.get("grades").get("19-20").get("S1").nth(i).get("grades").nth(j).set("grade_percent", false).write();
-                    }
-                }
-            }
-        }
-
-        // Remove old grade_history storage (This should be empty anyway)
-        if (userRef.get("grade_history").value()) {
-            userRef.unset("grade_history").write();
-            userRef.unset("grade_history_weights").write();
-        }
-
-        // Add grade history tracker
-        if (!userRef.get("updatedGradeHistory").value()) {
-            userRef.set("updatedGradeHistory", []).write();
-        }
-
         // Add sorting data
         this.resetSortData(user.username);
-
-        // Add tutorial status
-        if (!user.alerts.tutorialStatus) {
-            userRef.get("alerts").set("tutorialStatus", {}).write();
-        }
 
         // Remove any extra tutorial keys
         let existingKeys = Object.keys(userRef.get("alerts").get("tutorialStatus").value());
@@ -399,86 +309,6 @@ module.exports = {
             if (!userRef.get("alerts").get("tutorialStatus").get(tutorialKeys[i]).value()) {
                 userRef.get("alerts").get("tutorialStatus").set(tutorialKeys[i], false).write();
             }
-        }
-
-        // Add personal info
-        if (!user.personalInfo) {
-            let {firstName, lastName, graduationYear} = getPersonalInfo(user.schoolUsername);
-            userRef.set("personalInfo", {
-                firstName: firstName, lastName: lastName, graduationYear: graduationYear
-            }).write();
-        }
-
-        // Remove grade update reminder
-        if (user.alerts.updateGradesReminder) {
-            delete user.alerts.updateGradesReminder;
-        }
-
-        // Make lastupdated an array
-        if (!Array.isArray(user.alerts.lastUpdated)) {
-            if (user.alerts.lastUpdated === "never") {
-                userRef.get("alerts").set("lastUpdated", []).write();
-            } else {
-                userRef.get("alerts").set("lastUpdated", [user.alerts.lastUpdated]).write();
-            }
-        }
-
-        // Get back lastUpdated data
-        if (userRef.get("alerts").get("lastUpdated").value().length === 1 && userRef.get("updatedGradeHistory").value().length > 1) {
-            userRef.get("alerts").set("lastUpdated", userRef.get("updatedGradeHistory").value()).write();
-        }
-
-        // Add loggedIn vars
-        if (!Object.keys(user).includes("loggedIn") || userRef.get("loggedIn").value() === "never") {
-            userRef.set("loggedIn", []).write();
-        }
-        // Make loggedIn an array
-        if (!Array.isArray(user.loggedIn)) {
-            userRef.set("loggedIn", [user.loggedIn]).write();
-        }
-        if (user.alerts.lastUpdated.length !== 0 && userRef.get("loggedIn").value().length === 0) {
-            userRef.set("loggedIn", [user.alerts.lastUpdated.slice(-1)[0]]).write();
-        }
-
-        // Add privacy policy and terms vars
-        if (!Object.keys(user.alerts).includes("policyLastSeen")) {
-            userRef.get("alerts").set("policyLastSeen", "never").write();
-        }
-        if (!Object.keys(userRef.value().alerts).includes("termsLastSeen")) {
-            userRef.get("alerts").set("termsLastSeen", "never").write();
-        }
-        if (!Object.keys(user.alerts).includes("remoteAccess")) {
-            userRef.get("alerts").set("remoteAccess", "denied").write();
-        }
-
-        // Add nonacademic vars
-        if (!Object.keys(user.appearance).includes("showNonAcademic")) {
-            userRef.get("appearance").set("showNonAcademic", true).write();
-        }
-
-        // Fix theme for old users
-        if (Object.keys(user.appearance).includes("darkMode")) {
-            userRef.get("appearance").unset("darkMode").write();
-            this.setTheme(user.username, "auto", 7, "PM", 6, "AM");
-        }
-
-        // Setup autotheme for old users
-        if (user.appearance.theme === "auto" && !user.appearance.darkModeStart) {
-            this.setTheme(user.username, "auto", 7, "PM", 6, "AM");
-        }
-
-        // Remove show changelog variables for old users
-        if (Object.keys(user.alerts).includes("showChangelog")) {
-            delete user.alerts.showChangelog;
-        }
-        if (Object.keys(userRef.value().alerts).includes("changelogLastShown")) {
-            delete user.alerts.changelogLastShown;
-            userRef.get("alerts").set("latestSeen", "1.0.0").write();
-        }
-
-        // Remove autorefresh var
-        if (Object.keys(userRef.value()).includes("autoRefresh")) {
-            delete user.autoRefresh;
         }
 
         // Fix dicts
@@ -783,15 +613,15 @@ module.exports = {
                                              active: beta
                                          },
                                          appearance: {
-                                             theme: "auto",
+                                             theme: "sun",
                                              accentColor: null,
                                              classColors: [],
                                              colorPalette: "clear",
                                              shuffleColors: false,
                                              holidayEffects: true,
                                              showNonAcademic: true,
-                                             darkModeStart: 18,
-                                             darkModeFinish: 7,
+                                             darkModeStart: 946778400000,
+                                             darkModeFinish: 94673880000,
                                              weightedGPA: true,
                                              regularizeClassGraphs: true,
                                              showMaxGPA: false
@@ -879,64 +709,27 @@ module.exports = {
         let user = db.get("deletedUsers").find({username: lc_username}).value();
         return !!user;
     },
-    setTheme: function (username, theme, darkModeStart, darkModeStartAmPm, darkModeFinish, darkModeFinishAmPm, holidayEffects) {
+    setTheme: function (username, theme, darkModeStart, darkModeFinish, holidayEffects, blurEffects) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         user.get("appearance").set("theme", theme).write();
         let message = theme.replace(/^\w/, c => c.toUpperCase()) + " theme enabled!";
         if (theme === "auto") {
-            darkModeStart = parseInt(darkModeStart);
-            darkModeFinish = parseInt(darkModeFinish);
-            if (darkModeStartAmPm === "PM") {
-                if (darkModeStart !== 12) {
-                    darkModeStart += 12;
-                }
-            } else if (darkModeStart === 12) {
-                darkModeStart -= 12;
-            }
-            if (darkModeFinishAmPm === "PM") {
-                if (darkModeFinish !== 12) {
-                    darkModeFinish += 12;
-                }
-            } else if (darkModeFinish === 12) {
-                darkModeFinish += 12;
-            }
-            if (darkModeStart === darkModeFinish) {
-                user.get("appearance").set("theme", "light").write();
-                return {success: true, message: "Light theme enabled!"};
-            }
-            if ((darkModeStart < 0 || darkModeStart > 24) && (darkModeFinish < 0 || darkModeFinish > 24)) {
-                return {success: false, message: "Invalid Start and End Time"};
-            }
-            if (darkModeStart < 0 || darkModeStart > 24) {
-                return {success: false, message: "Invalid Start Time"};
-            }
-            if (darkModeFinish < 0 || darkModeFinish > 24) {
-                return {success: false, message: "Invalid Finish Time"};
-            }
-            user.get("appearance").set("darkModeStart", parseInt(darkModeStart)).write();
-            user.get("appearance").set("darkModeFinish", parseInt(darkModeFinish)).write();
-            if (darkModeStartAmPm === "PM") {
-                if (darkModeStart !== 12) {
-                    darkModeStart -= 12;
-                }
-            }
-            if (darkModeFinishAmPm === "PM") {
-                if (darkModeFinish !== 12) {
-                    darkModeFinish -= 12;
-                }
-            }
-            if (darkModeStart === 0) {
-                darkModeStart = 12;
-            }
-            if (darkModeFinish === 24) {
-                darkModeFinish = 12;
-            }
-            message = "Dark theme enabled from " + darkModeStart + " " + darkModeStartAmPm + " to " + darkModeFinish + " " + darkModeFinishAmPm + ".";
+            darkModeStart = new Date("0/" + darkModeStart);
+            darkModeFinish = new Date("0/" + darkModeFinish);
+            user.get("appearance").set("darkModeStart", darkModeStart.getTime()).write();
+            user.get("appearance").set("darkModeFinish", darkModeFinish.getTime()).write();
+            message = "Dark theme enabled from " + darkModeStart.toLocaleTimeString() + " to " + darkModeFinish.toLocaleTimeString() + ".";
+        }
+        if (theme === "sun") {
+            message = "Dark theme enabled from sunset to sunrise.";
         }
         if (holidayEffects !== user.get("appearance").get("holidayEffects").value()) {
             message = "Holiday effects " + (holidayEffects ? "enabled" : "disabled") + "!";
             user.get("appearance").set("holidayEffects", holidayEffects).write();
+        }
+        if (blurEffects !== user.get("appearance").get("blurEffects").value()) {
+            message = this.setBlur(lc_username, blurEffects).message;
         }
         return {success: true, message: message};
     }, getUser: function (username) {
@@ -1223,7 +1016,7 @@ module.exports = {
 
     deleteUser: function (username) {
         let lc_username = username.toLowerCase();
-        if (this.userExists(lc_username)) {
+        if (this.userExists(lc_username) && !this.getUser(lc_username).isAdmin) {
             this.prepForDeletion(lc_username);
             db.get("deletedUsers").push(db.get("users").find({username: lc_username}).value()).write();
             db.get("users").remove({username: lc_username}).write();
@@ -1232,7 +1025,7 @@ module.exports = {
             db.get("deletedUsers").remove({username: lc_username}).write();
             return {success: true, message: "Deleted " + lc_username + " forever"};
         }
-        return {success: false, message: "User does not exist."};
+        return {success: false, message: "User could not be deleted."};
     },
 
     prepForDeletion: function (username) {
@@ -1261,8 +1054,11 @@ module.exports = {
         return {success: false, message: "User does not exist."};
     },
 
-    removeAdmin: function (username) {
+    removeAdmin: function (username, requester) {
         let lc_username = username.toLowerCase();
+        if (lc_username === requester) {
+            return {success: false, message: "Could not remove admin privileges."};
+        }
         if (this.userExists(lc_username)) {
             db.get("users").find({username: lc_username}).assign({isAdmin: false}).write();
             return {success: true, message: "Removed admin privileges."};
@@ -1770,6 +1566,14 @@ module.exports = {
         let user = db.get("users").find({username: username.toLowerCase()});
         user.get("appearance").set("blurEffects", enabled).write();
         return {success: true, message: "Blur effects " + (enabled ? "enabled" : "disabled") + "!"};
+    },
+
+    getSunriseAndSunset: function () {
+        const SAN_JOSE_CA = {lat: 37, lng: -122};
+        let times = SunCalc.getTimes(new Date(), SAN_JOSE_CA.lat, SAN_JOSE_CA.lng);
+        let sunrise = new Date("0/" + times.sunrise.getHours() + ":" + times.sunrise.getMinutes());
+        let sunset = new Date("0/" + times.sunset.getHours() + ":" + times.sunset.getMinutes());
+        return {sunrise: sunrise, sunset: sunset};
     }
 
 };

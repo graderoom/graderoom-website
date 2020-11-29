@@ -119,109 +119,99 @@
                                 <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
                                                                        value="light"
                                                                        name="theme"
-                                                                       onclick="$('#auto-limits-container').hide();
-                                                                               $($($(this)[0].form)[0].elements[7]).hide();
-                                                                               ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
+                                                                       onclick="$('#sun-limits-container, #auto-limits-container').hide();
+                                                                               ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
                                                                                $($(this)[0].form).submit();"
                                     <% if (JSON.parse(appearance).theme === "light") { %> checked
                                             <% } %>
-                                    > Light Theme
+                                    > Always Light
                                 </label>
                                 <br>
                                 <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
                                                                        value="dark"
                                                                        name="theme"
-                                                                       onclick="$('#auto-limits-container').hide();
-                                                                               $($($(this)[0].form)[0].elements[7]).hide();
-                                                                               ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
+                                                                       onclick="$('#sun-limits-container, #auto-limits-container').hide();
+                                                                               ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
                                                                                $($(this)[0].form).submit();"
                                     <% if (JSON.parse(appearance).theme === "dark") { %> checked
                                             <% } %>
-                                    > Dark Theme</label>
+                                    > Always Dark</label>
+                                <br>
+                                <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
+                                                                       value="sun"
+                                                                       name="theme"
+                                                                       onclick="$('#auto-limits-container').hide();
+                                                                       $('#sun-limits-container').show();
+                                                                       ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
+                                                                               $($(this)[0].form).submit();"
+                                    <% if (JSON.parse(appearance).theme === "sun") { %> checked
+                                            <% } %>
+                                    > Dark from Sunset to Sunrise</label>
+                                <div id="sun-limits-container"
+                                     style="<% if (JSON.parse(appearance).theme !== "sun") { %>display: none;<% } %>font-size: 0.9rem; margin-bottom: 0; width: fit-content; width: -moz-fit-content">
+                                    <label class="form-group" id="sunLimits"
+                                           style="display: flex; white-space: nowrap; margin-bottom: 0">
+                                        <label style="vertical-align: center; width: 8rem">
+                                            Dark theme from
+                                        </label>
+                                        <input id="sunModeStart"
+                                               style="padding: 0 0.75rem 0 0.75rem"
+                                               type="time"
+                                               class="text-center form-control"
+                                               value="<%= ("0" + sunset.getHours()).slice(-2) + ":" + ("0" + sunset.getMinutes()).slice(-2) %>"
+                                               disabled>
+                                        <label style="margin-left: 0.25rem">
+                                            to
+                                        </label>
+                                        <input id="sunModeFinish"
+                                               style="padding: 0 0.75rem 0 0.75rem"
+                                               type="time"
+                                               class="text-center form-control"
+                                               value="<%= ("0" + sunrise.getHours()).slice(-2) + ":" + ("0" + sunrise.getMinutes()).slice(-2) %>"
+                                               disabled>
+                                    </label>
+                                </div>
                                 <br>
                                 <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
                                                                        value="auto"
                                                                        name="theme"
                                                                        onclick="$('#auto-limits-container').show().css('display','flex');
-                                                                               ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);
-                                                                               $($(this)[0].form).submit();
-                                                                               $($($(this)[0].form)[0].elements[7]).show().attr('disabled','disabled')"
+                                                                                $('#sun-limits-container').hide();
+                                                                               ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
+                                                                               $($(this)[0].form).submit();"
                                     <% if (JSON.parse(appearance).theme === "auto") { %> checked
                                             <% } %>
-                                    > Schedule Dark Theme
-                                    <span class="popup">
-                                        <i class="fa fa-question-circle">
-                                            <span class="popup-right-top">Graderoom will automatically switch between
-                                                light and dark theme based on the times you set, even while you're using
-                                                the website</span>
-                                        </i>
-                                    </span>
-                                </label>
-                            </div>
-                            <div id="auto-limits-container"
-                                 style="<% if (JSON.parse(appearance).theme !== "auto") { %>display: none;<% } else { %>display: flex;<% } %>font-size: 0.9rem; margin-bottom: 0;">
-                                <label class="form-group" id="autoLimits" style="display: flex">
-                                    <label style="vertical-align: center">
-                                        Dark theme from
+                                    > Dark on Custom Schedule</label>
+                                <div id="auto-limits-container"
+                                     style="<% if (JSON.parse(appearance).theme !== "auto") { %>display: none;<% } else { %>display: flex;<% } %>font-size: 0.9rem; margin-bottom: 0; align-items: stretch">
+                                    <label class="form-group" id="autoLimits"
+                                           style="display: flex; white-space: nowrap;">
+                                        <label style="vertical-align: center; width: 8rem">
+                                            Dark theme from
+                                        </label>
+                                        <% let _startDate = new Date(JSON.parse(appearance).darkModeStart);
+                                        let _endDate = new Date(JSON.parse(appearance).darkModeFinish); %>
+                                        <input id="darkModeStart"
+                                               style="padding: 0 0.75rem 0 0.75rem"
+                                               type="time"
+                                               class="text-center form-control dont-clear" name="darkModeStart"
+                                               onchange="ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
+                                                                               $($(this)[0].form).submit();"
+                                               value="<%= ("0" + _startDate.getHours()).slice(-2) + ":" + ("0" + _startDate.getMinutes()).slice(-2) %>"
+                                        >
+                                        <label style="margin-left: 0.25rem">
+                                            to
+                                        </label>
+                                        <input id="darkModeFinish"
+                                               style="padding: 0 0.75rem 0 0.75rem;"
+                                               type="time"
+                                               class="text-center form-control dont-clear" name="darkModeFinish"
+                                               onchange="ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
+                                                                               $($(this)[0].form).submit();"
+                                               value="<%= ("0" + _endDate.getHours()).slice(-2) + ":" + ("0" + _endDate.getMinutes()).slice(-2) %>"
+                                        >
                                     </label>
-                                    <input id="darkModeStart"
-                                           style="padding: 0 0.75rem 0 0.75rem; width: 3rem !important"
-                                           type="number"
-                                           class="text-center number-input form-control" name="darkModeStart"
-                                           min="1"
-                                           max="12"
-                                           oninput="$($($(this)[0].form)[0].elements[7]).removeAttr('disabled');">
-                                    <select style="margin-left: 0 !important" id="darkModeStartAmPm"
-                                            class="round"
-                                            name="darkModeStartAmPm"
-                                            onchange="$($($(this)[0].form)[0].elements[7]).removeAttr('disabled');">
-                                        <option value="PM"
-                                        <% if (JSON.parse(appearance).darkModeStart >= 12 && JSON.parse(appearance).darkModeStart !== 24) { %>
-                                                selected
-                                                <% } %>
-                                        >PM
-                                        </option>
-                                        <option value="AM"
-                                        <% if (JSON.parse(appearance).darkModeStart < 12 || JSON.parse(appearance).darkModeStart === 24) { %>
-                                                selected
-                                                <% } %>
-                                        >AM
-                                        </option>
-                                    </select>
-                                    <label style="margin-left: 0.25rem">
-                                        to
-                                    </label>
-                                    <input id="darkModeFinish"
-                                           style="padding: 0 0.75rem 0 0.75rem; width: 3rem !important"
-                                           type="number"
-                                           class="text-center number-input form-control" name="darkModeFinish"
-                                           min="1"
-                                           max="12"
-                                           oninput="$($($(this)[0].form)[0].elements[7]).removeAttr('disabled');">
-                                    <select style="margin-left: 0 !important" id="darkModeFinishAmPm"
-                                            class="round"
-                                            name="darkModeFinishAmPm"
-                                            onchange="$($($(this)[0].form)[0].elements[7]).removeAttr('disabled');">
-                                        <option value="AM"
-                                        <% if (JSON.parse(appearance).darkModeFinish < 12 || JSON.parse(appearance).darkModeFinish === 24) { %>
-                                                selected
-                                                <% } %>
-                                        >AM
-                                        </option>
-                                        <option value="PM"
-                                        <% if (JSON.parse(appearance).darkModeFinish >= 12 && JSON.parse(appearance).darkModeFinish !== 24) { %>
-                                                selected
-                                                <% } %>
-                                        >PM
-                                        </option>
-                                    </select>
-                                </label>
-                                <button class="btn-default btn btn-sm" type="submit"
-                                        style="<% if (JSON.parse(appearance).theme !== "auto") { %>display: none;<% } %> margin: 0 0 0 1rem !important; width: fit-content; width: -moz-fit-content !important; width: -moz-fit-content !important;"
-                                        onclick="ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true);"
-                                        disabled>
-                                    Apply
-                                </button>
+                                </div>
                             </div>
                             <hr>
                             <label class="slider-container">
@@ -231,16 +221,55 @@
                                     <% if (JSON.parse(appearance).holidayEffects) { %>
                                            checked
                                             <% } %>
-                                           onchange="ajaxPostForm('#chooseTheme',['#darkModeStart','#darkModeFinish'],'#themeMessage',true); $($(this)[0].form).submit();"
+                                           onchange="ajaxPostForm('#chooseTheme',[],'#themeMessage',true); $($(this)[0].form).submit();"
                                     >
                                     <span class="slider"></span>
                                 </label>
                                 <label for="holidayEffectsToggle">
-                                    Enable Holiday Effects <span class="popup"><i
-                                                class="fa fa-question-circle"><span
-                                                    class="popup-right-bottom"> On slower devices, disabling this when holiday animations are active may improve your experience.
-                                            </span></i></span>
+                                    Enable Holiday Effects
                                 </label>
+                            </label>
+                            <div>
+                                <div style="font-size: 0.5rem; display: none"
+                                     id="snow-disabled-message">
+                                    Winter Snow was disabled to improve performance<br>
+                                </div>
+                                <% if (new Date().getMonth() === lightsMonth) { %>
+                                    <div style="font-size: 0.5rem; display: none"
+                                         id="lights-disabled-message">
+                                        Christmas Lights were paused to improve performance
+                                    </div>
+                                <% } %>
+                            </div>
+                            <label class="slider-container disable-in-firefox">
+                                <label class="switch">
+                                    <input
+                                            id="blurEffectsToggle"
+                                            style="margin: 0; display: flex"
+                                            type="checkbox"
+                                            name="blurEffects"
+                                    <% if (JSON.parse(appearance).blurEffects) { %>
+                                            checked="checked"
+                                            <% } %>
+                                            onchange="ajaxPostForm('#chooseTheme',[],'#themeMessage',true); $($(this)[0].form).submit();"
+                                    >
+                                    <span class="slider"></span>
+                                </label>
+                                <label for="blurEffectsToggle">
+                                    <span>Enable Blur Effects</span> <span class="popup"><i
+                                                class="fa fa-question-circle"><span
+                                                    class="popup-right-bottom">When enabled, adds blur and
+                                                translucency effects across the site.
+                                            </span></i></span> <span class="popup hide-in-firefox"><i
+                                                class="fa fa-exclamation-triangle">
+                                            <span class="popup-right-bottom">WARNING: Causes lag on slower
+                                                devices</span></i></span>
+                                </label>
+                                <span style="margin-left: 0.5rem;" class="popup show-in-firefox"><i
+                                            class="fa fa-exclamation-circle"><span
+                                                class="popup-right always-show"
+                                                style="width: 10rem;">Your
+                                            browser does not support these effects.</span></i></span>
                             </label>
                         </form>
                     </div>
@@ -248,46 +277,6 @@
                         <h5>Advanced</h5>
                         <form id="advancedAppearance" action="/advancedAppearance" method="post">
                             <div>
-                                <label class="slider-container disable-in-firefox">
-                                    <label class="switch">
-                                        <input
-                                                id="blurEffectsToggle"
-                                                style="margin: 0; display: flex"
-                                                type="checkbox"
-                                                name="blurEffects"
-                                        <% if (JSON.parse(appearance).blurEffects) { %>
-                                                checked="checked"
-                                                <% } %>
-                                                onchange="{
-                                                let checked = $(this).prop('checked');
-                                                $('#advancedSubmit').prop('disabled',checked === appearance.blurEffects);
-                                                    if (!checked) {
-                                                        $('#blur_base').prop('disabled', true);
-                                                        $('#blur_overrides').prop('disabled', true);
-                                                    } else {
-                                                        $('#blur_base').prop('disabled', false);
-                                                        $('#blur_overrides').prop('disabled', false);
-                                                    }
-                                            }"
-                                        >
-                                        <span class="slider"></span>
-                                    </label>
-                                    <label for="blurEffectsToggle">
-                                        <span>Enable Blur Effects</span> <span class="popup"><i
-                                                    class="fa fa-question-circle"><span
-                                                        class="popup-right-bottom">When enabled, adds blur and
-                                                    translucency effects across the site.
-                                                </span></i></span> <span class="popup hide-in-firefox"><i
-                                                    class="fa fa-exclamation-triangle">
-                                                <span class="popup-right-bottom">WARNING: Causes lag on slower
-                                                    devices</span></i></span>
-                                    </label>
-                                    <span style="margin-left: 0.5rem;" class="popup show-in-firefox"><i
-                                                class="fa fa-exclamation-circle"><span
-                                                    class="popup-right always-show"
-                                                    style="width: 10rem;">Your
-                                                browser does not support these effects.</span></i></span>
-                                </label>
                                 <label class="slider-container">
                                     <label class="switch">
                                         <input
@@ -298,7 +287,7 @@
                                         <% if (JSON.parse(appearance).regularizeClassGraphs) { %>
                                                 checked="checked"
                                                 <% } %>
-                                                onchange="$('#advancedSubmit').prop('disabled', $(this).prop('checked') === appearance.regularizeClassGraphs)"
+                                                onchange="$('#advancedSubmit').prop('disabled', $(this).prop('checked') === appearance.regularizeClassGraphs && $('#showNonAcademicCheckbox').prop('checked') === appearance.showNonAcademic)"
                                         >
                                         <span class="slider"></span>
                                     </label>
@@ -323,7 +312,7 @@
                                             id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
                                         <% if (JSON.parse(appearance).showNonAcademic) { %> checked="checked"
                                                 <% } %>
-                                            onchange="$('#advancedSubmit').prop('disabled', $(this).prop('checked') === appearance.showNonAcademic)"
+                                            onchange="$('#advancedSubmit').prop('disabled', $(this).prop('checked') === appearance.showNonAcademic && $('#classGraphRegularizationToggle').prop('checked') === appearance.regularizeClassGraphs)"
                                         >
                                         <span class="slider"></span>
                                     </label>
@@ -672,6 +661,29 @@
                                 </label>
                                 <small>
                                     Enabled: Adds an additional navigation bar to view older grade data
+                                </small>
+                                <br>
+                                <small>
+                                    Disabled: Default
+                                </small>
+                            </div>
+                            <div class="card-footer">
+                                <label class="slider-container">
+                                    <label style="margin-left: 0;" for="showFps">
+                                        Enable FPS display
+                                    </label>
+                                    <label class="switch">
+                                        <input id="showFps" type="checkbox" name="showFps"
+                                        <% if (JSON.parse(betaFeatures).showFps) { %>
+                                               checked="checked"
+                                                <% } %>
+                                               onchange="$($(this)[0].form).submit()"
+                                        >
+                                        <span class="slider"></span>
+                                    </label>
+                                </label>
+                                <small>
+                                    Enabled: Displays FPS in the bottom left corner of the screen
                                 </small>
                                 <br>
                                 <small>
