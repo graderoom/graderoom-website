@@ -10,6 +10,8 @@ module.exports = function (app, passport) {
     // show the home page (will also have our login links)
     app.get("/", (req, res) => {
 
+        let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
+
         if (req.isAuthenticated()) {
 
             let returnTo = req.session.returnTo;
@@ -46,7 +48,7 @@ module.exports = function (app, passport) {
             }
 
             if (term && semester) {
-                res.render("authorized_index.ejs", {
+                res.render("user/authorized_index.ejs", {
                     page: "home",
                     username: req.user.username,
                     schoolUsername: req.user.schoolUsername,
@@ -66,11 +68,12 @@ module.exports = function (app, passport) {
                     beta: JSON.stringify(server.needsBetaKeyToSignUp),
                     betaFeatures: JSON.stringify(req.user.betaFeatures),
                     termsAndSemesters: JSON.stringify(Object.keys(req.user.grades).map(x => [x, Object.keys(req.user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
-                    dst: isDST(),
-                    _: _
+                    _: _,
+                    sunset: sunset,
+                    sunrise: sunrise
                 });
             } else {
-                res.render("authorized_index.ejs", {
+                res.render("user/authorized_index.ejs", {
                     page: "home",
                     username: req.user.username,
                     schoolUsername: req.user.schoolUsername,
@@ -90,17 +93,20 @@ module.exports = function (app, passport) {
                     beta: JSON.stringify(server.needsBetaKeyToSignUp),
                     betaFeatures: JSON.stringify(req.user.betaFeatures),
                     termsAndSemesters: JSON.stringify([]),
-                    dst: isDST(),
-                    _: _
+                    _: _,
+                    sunset: sunset,
+                    sunrise: sunrise
                 });
             }
             return;
         }
-        res.render("index.ejs", {
+        res.render("viewer/index.ejs", {
             message: req.flash("loginMessage"),
-            dst: isDST(),
             beta: server.needsBetaKeyToSignUp,
-            appearance: JSON.stringify({holidayEffects: true})
+            appearance: JSON.stringify({holidayEffects: true}),
+            page: "login",
+            sunset: sunset,
+            sunrise: sunrise
         });
     });
 
@@ -125,8 +131,6 @@ module.exports = function (app, passport) {
         authenticator.setNonAcademic(req.user.username, show);
         let regularize = req.body.regularizeClassGraphs === "on";
         authenticator.setRegularizeClassGraphs(req.user.username, regularize);
-        let blurEffects = req.body.blurEffects === "on";
-        authenticator.setBlur(req.user.username, blurEffects);
         res.sendStatus(200);
     });
 
@@ -170,8 +174,10 @@ module.exports = function (app, passport) {
                 }
             }
 
+            let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
+
             if (term && semester) {
-                res.render("authorized_index.ejs", {
+                res.render("user/authorized_index.ejs", {
                     page: "home",
                     username: user.username,
                     schoolUsername: user.schoolUsername,
@@ -191,11 +197,12 @@ module.exports = function (app, passport) {
                     beta: server.needsBetaKeyToSignUp,
                     betaFeatures: JSON.stringify(user.betaFeatures),
                     termsAndSemesters: JSON.stringify(Object.keys(user.grades).map(x => [x, Object.keys(user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
-                    dst: isDST(),
+                    sunset: sunset,
+                    sunrise: sunrise,
                     _: _
                 });
             } else {
-                res.render("authorized_index.ejs", {
+                res.render("user/authorized_index.ejs", {
                     page: "home",
                     username: user.username,
                     schoolUsername: user.schoolUsername,
@@ -215,7 +222,8 @@ module.exports = function (app, passport) {
                     beta: server.needsBetaKeyToSignUp,
                     betaFeatures: JSON.stringify(user.betaFeatures),
                     termsAndSemesters: JSON.stringify([]),
-                    dst: isDST(),
+                    sunset: sunset,
+                    sunrise: sunrise,
                     _: _
                 });
             }
@@ -281,7 +289,7 @@ module.exports = function (app, passport) {
         let username = req.body.removeAdminUser;
         console.log("Got request to remove admin: " + username);
 
-        let resp = authenticator.removeAdmin(username);
+        let resp = authenticator.removeAdmin(username, req.user.username);
         console.log(resp);
         if (resp.success) {
             req.flash("adminSuccessMessage", resp.message);
@@ -296,18 +304,20 @@ module.exports = function (app, passport) {
         // admin panel TODO
         let allUsers = authenticator.getAllUsers();
         let deletedUsers = authenticator.getDeletedUsers();
-        res.render("admin.ejs", {
-            user: req.user,
-            theme: JSON.stringify(authenticator.getUser(req.user.username).appearance.theme),
-            darkModeStart: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeStart),
-            darkModeFinish: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeFinish),
+        let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
+        res.render("admin/admin.ejs", {
             page: "admin",
+            username: req.user.username,
             userList: allUsers,
             deletedUserList: deletedUsers,
             adminSuccessMessage: req.flash("adminSuccessMessage"),
             adminFailMessage: req.flash("adminFailMessage"),
             sessionTimeout: Date.parse(req.session.cookie._expires),
-            dst: isDST()
+            appearance: JSON.stringify(req.user.appearance),
+            beta: server.needsBetaKeyToSignUp,
+            sunset: sunset,
+            sunrise: sunrise,
+
         });
     });
 
@@ -340,7 +350,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/updateAppearance", [isLoggedIn], (req, res) => {
-        let resp = authenticator.setTheme(req.user.username, req.body.theme, req.body.darkModeStart, req.body.darkModeStartAmPm, req.body.darkModeFinish, req.body.darkModeFinishAmPm, req.body.enableHolidayEffects === "on");
+        let resp = authenticator.setTheme(req.user.username, req.body.theme, req.body.darkModeStart, req.body.darkModeFinish, req.body.enableHolidayEffects === "on", req.body.blurEffects === "on");
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
@@ -443,11 +453,15 @@ module.exports = function (app, passport) {
     // SIGNUP =================================
     // show the signup form
     app.get("/signup", (req, res) => {
-        res.render("signup.ejs", {
+        let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
+
+        res.render("viewer/signup.ejs", {
             message: req.flash("signupMessage"),
             beta: server.needsBetaKeyToSignUp,
-            dst: isDST(),
-            appearance: JSON.stringify({holidayEffects: true})
+            appearance: JSON.stringify({holidayEffects: true}),
+            page: "signup",
+            sunset: sunset,
+            sunrise: sunrise
         });
     });
 
@@ -604,11 +618,13 @@ module.exports = function (app, passport) {
 
     app.get("/finalgradecalculator", (req, res) => {
 
+        let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
+
         if (req.isAuthenticated()) {
 
             let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
             if (term && semester) {
-                res.render("final_grade_calculator.ejs", {
+                res.render("user/final_grade_calculator.ejs", {
                     page: "calc",
                     username: req.user.username,
                     schoolUsername: req.user.schoolUsername,
@@ -620,10 +636,13 @@ module.exports = function (app, passport) {
                     gradeData: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter))),
                     weightData: JSON.stringify(req.user.weights[term][semester]),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    dst: isDST()
+                    beta: JSON.stringify(server.needsBetaKeyToSignUp),
+                    sunset: sunset,
+                    sunrise: sunrise,
+
                 });
             } else {
-                res.render("final_grade_calculator.ejs", {
+                res.render("user/final_grade_calculator.ejs", {
                     page: "calc",
                     username: req.user.username,
                     schoolUsername: req.user.schoolUsername,
@@ -635,13 +654,21 @@ module.exports = function (app, passport) {
                     gradeData: JSON.stringify({}),
                     weightData: JSON.stringify({}),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    dst: isDST()
+                    beta: JSON.stringify(server.needsBetaKeyToSignUp),
+                    sunset: sunset,
+                    sunrise: sunrise,
+
                 });
             }
         } else {
             req.session.returnTo = req.originalUrl;
-            res.render("final_grade_calculator_logged_out.ejs", {
-                dst: isDST()
+            res.render("viewer/final_grade_calculator_logged_out.ejs", {
+                appearance: JSON.stringify({holidayEffects: true}),
+                page: "logged_out_calc",
+                beta: JSON.stringify(server.needsBetaKeyToSignUp),
+                sunset: sunset,
+                sunrise: sunrise,
+
             });
         }
 
@@ -660,17 +687,19 @@ module.exports = function (app, passport) {
 
     app.get("/betakeys", [isAdmin], (req, res) => {
 
-        res.render("betakeys.ejs", {
+        let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
+
+        res.render("admin/betakeys.ejs", {
             betaKeyData: authenticator.getAllBetaKeyData(),
             betaKeySuccessMessage: req.flash("betaKeySuccessMessage"),
             betaKeyFailMessage: req.flash("betaKeyFailMessage"),
-            user: req.user,
-            theme: JSON.stringify(authenticator.getUser(req.user.username).appearance.theme),
-            darkModeStart: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeStart),
-            darkModeFinish: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeFinish),
             page: "keys",
             sessionTimeout: Date.parse(req.session.cookie._expires),
-            dst: isDST()
+            appearance: JSON.stringify(req.user.appearance),
+            beta: server.needsBetaKeyToSignUp,
+            sunset: sunset,
+            sunrise: sunrise,
+            username: req.user.username
         });
 
     });
@@ -717,16 +746,18 @@ module.exports = function (app, passport) {
 
     app.get("/classes", [isAdmin], (req, res) => {
         let user = authenticator.getUser(req.user.username);
-        res.render("classes.ejs", {
-            user: req.user,
+        let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
+
+        res.render("admin/classes.ejs", {
             userRef: JSON.stringify(user),
+            username: req.user.username,
             page: "classes",
             classData: authenticator.getAllClassData(),
-            theme: JSON.stringify(authenticator.getUser(req.user.username).appearance.theme),
-            darkModeStart: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeStart),
-            darkModeFinish: JSON.stringify(authenticator.getUser(req.user.username).appearance.darkModeFinish),
             sessionTimeout: Date.parse(req.session.cookie._expires),
-            dst: isDST()
+            appearance: JSON.stringify(req.user.appearance),
+            beta: server.needsBetaKeyToSignUp,
+            sunset: sunset,
+            sunrise: sunrise
         });
     });
 
@@ -779,16 +810,29 @@ module.exports = function (app, passport) {
     app.get("/reset_password", (req, res) => {
 
         let resetToken = req.query.token;
+        let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
 
         let {valid: validToken, gradeSync: gradeSync} = authenticator.checkToken(resetToken);
         if (!validToken) {
+
             // req.flash('forgotPasswordMsg', 'Invalid token.')
-            res.status(404).render("password_reset/reset_password_404.ejs", {dst: isDST()});
+            res.status(404).render("password_reset/reset_password_404.ejs", {
+                sunset: sunset,
+                appearance: JSON.stringify({holidayEffects: true}),
+                sunrise: sunrise,
+                page: "password404"
+            });
             return;
         }
 
         res.status(200).render("password_reset/reset_password.ejs", {
-            message: req.flash("resetPasswordMsg"), token: resetToken, gradeSync: gradeSync, dst: isDST()
+            message: req.flash("resetPasswordMsg"),
+            token: resetToken,
+            gradeSync: gradeSync,
+            appearance: JSON.stringify({holidayEffects: true}),
+            sunset: sunset,
+            sunrise: sunrise,
+            page: "passwordReset"
         });
     });
 
@@ -800,10 +844,16 @@ module.exports = function (app, passport) {
             return;
         }
 
+        let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
         let newPass = req.body.password;
         let resp = authenticator.resetPassword(resetToken, newPass);
         if (!resp.success && resp.message === "Invalid token.") {
-            res.status(404).render("password_reset/reset_password_404.ejs", {dst: isDST()});
+            res.status(404).render("password_reset/reset_password_404.ejs", {
+                sunset: sunset,
+                appearance: JSON.stringify({holidayEffects: true}),
+                sunrise: sunrise,
+                page: "password404"
+            });
             return;
         }
         if (!resp.success) {
@@ -811,7 +861,12 @@ module.exports = function (app, passport) {
             res.redirect("/reset_password?token=" + resetToken);
             return;
         }
-        res.render("password_reset/reset_password_success.ejs", {dst: isDST()});
+        res.render("password_reset/reset_password_success.ejs", {
+            appearance: JSON.stringify({holidayEffects: true}),
+            sunset: sunset,
+            sunrise: sunrise,
+            page: "passwordResetSuccess"
+        });
 
     });
 
@@ -821,8 +876,14 @@ module.exports = function (app, passport) {
             res.redirect("/");
             return;
         }
+
+        let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
         res.status(200).render("password_reset/forgot_password.ejs", {
-            message: req.flash("forgotPasswordMsg"), dst: isDST()
+            message: req.flash("forgotPasswordMsg"),
+            sunset: sunset,
+            appearance: JSON.stringify({holidayEffects: true}),
+            page: "passwordForgot",
+            sunrise: sunrise
         });
     });
 

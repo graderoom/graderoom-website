@@ -23,19 +23,9 @@
 <canvas id='snow-fall' <% if (!JSON.parse(appearance).holidayEffects) { %>style="display: none"
         <% } %>
 ></canvas>
-<% if (beta) { %>
-    <span style="z-index: 999; position: fixed; bottom: 10px; left: 10px;" id="fps"></span>
-<% } %>
-<span style="z-index: 999; position: fixed; bottom: 20px; right: 10px; font-size: 0.5rem; display: none"
-      id="snow-disabled-message">
-    Winter Snow was disabled to improve performance
-</span>
 <% const lightsMonth = 11; /* 11 is December */ %>
-<% if (new Date().getMonth() === lightsMonth) { %>
-    <span style="z-index: 999; position: fixed; bottom: 10px; right: 10px; font-size: 0.5rem; display: none"
-          id="lights-disabled-message">
-        Christmas Lights were paused to improve performance
-    </span>
+<% if (page == "home" && JSON.parse(betaFeatures).showFps) { %>
+    <span style="z-index: 999; position: fixed; bottom: 10px; left: 10px;" id="fps"></span>
 <% } %>
 
 <script>
@@ -53,6 +43,9 @@
     let canvas = document.getElementById("snow-fall"), $$ = canvas.getContext("2d");
     let screenWidth = canvas.width = window.innerWidth, screenHeight = canvas.height = window.innerHeight;
     let renderNextFrame = true;
+
+    let showingLights = <%= new Date().getMonth() === lightsMonth; %>;
+    let init;
 
     function Snowy(start = false) {
         if (today.getMonth() < winterStart && today > winterEnd) {
@@ -80,7 +73,7 @@
 
         if (start) {
 
-            let init = performance.now();
+            init = performance.now();
             let lastCalledTime;
             let fps = 0;
             let _1sTempFps = [];
@@ -89,21 +82,22 @@
 
             go();
 
-            <% if (beta) { %>
+            <% if (page == "home" && JSON.parse(betaFeatures).showFps) { %>
             setInterval(() => {
-                let fpsDisplay = ``;
-                fpsDisplay += `&nbsp;1S AVG: ` + (_1sAverage < 100 ? `&nbsp;` : ``) + (_1sAverage < 10 ? `&nbsp;` : ``) + _1sAverage.toFixed(0) + `FPS<br>`;
-                fpsDisplay += `INSTANT: ` + (fps < 100 ? `&nbsp;` : ``) + (fps < 10 ? `&nbsp;` : ``) + fps.toFixed(0) + `FPS`;
-                $("#fps").html(fpsDisplay);
+                if (renderNextFrame) {
+                    let fpsDisplay = ``;
+                    fpsDisplay += `&nbsp;1S AVG: ` + (_1sAverage < 100 ? `&nbsp;` : ``) + (_1sAverage < 10 ? `&nbsp;` : ``) + _1sAverage.toFixed(0) + `FPS<br>`;
+                    fpsDisplay += `INSTANT: ` + (fps < 100 ? `&nbsp;` : ``) + (fps < 10 ? `&nbsp;` : ``) + fps.toFixed(0) + `FPS`;
+                    $("#fps").html(fpsDisplay);
+                }
             }, 1);
             <% } %>
-            let showingLights = <%= new Date().getMonth() === lightsMonth ;%>;
             setInterval(() => {
                 if (_1sTempFps.length > 2) {
                     _1sAverage = _1sTempFps.reduce((a, b) => a + b) / _1sTempFps.length;
                     _1sTempFps = _1sTempFps.slice(-2);
                     if (performance.now() - init < 10000) return; // Wait 10 seconds before making fps-based changes
-                    if (_1sAverage < 15 && showingLights) {
+                    if (_1sAverage < 20 && showingLights) {
                         $('.lightrope li').css('animation-play-state', 'paused');
                         showingLights = false;
                         $('#lights-disabled-message').fadeIn('fast');
@@ -113,6 +107,9 @@
                     if (_1sAverage < 20 && !showingLights) {
                         $('#snow-fall').fadeOut('slow');
                         $('#snow-disabled-message').fadeIn('fast');
+                    } else if (!showingLights) {
+                        $('#snow-fall').fadeIn('slow');
+                        $('#snow-disabled-message').fadeOut('fast');
                     }
                 }
             }, 1000);
@@ -167,6 +164,7 @@
             }
 
             function play() {
+                init = performance.now();
                 renderNextFrame = true;
                 _1sTempFps = [];
                 lastCalledTime = undefined;

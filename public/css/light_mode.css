@@ -197,6 +197,10 @@ table thead tr th {
     background-color: rgba(255, 255, 255, 0.8);
 }
 
+.loading span {
+    background-color: #333333;
+}
+
 #GPA-container > div {
     background-color: white;
 }

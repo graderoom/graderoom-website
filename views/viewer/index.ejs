@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
     <title>Graderoom</title>
-    <link rel="icon" href="public/resources/common/icon.png">
+    <link rel="icon" href="/public/resources/common/icon.png">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
@@ -13,74 +13,89 @@
     <% zeroTime = zeroTime.getTime(); %>
     <% if (((sunset < sunrise) && ((zeroTime >= sunset) && (zeroTime <= sunrise))) || ((sunset > sunrise) && ((zeroTime >= sunset) || (zeroTime <= sunrise)))) { %>
         <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
     <% } else { %>
         <% theme = false; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/light_mode.css">
     <% } %>
+    <link rel="stylesheet" type="text/css" href="../../public/css/main.css">
     <link id="fade" rel="stylesheet" type="text/css" href="../../public/css/fade.css" disabled>
-    <link rel="stylesheet" type="text/css" href="public/css/main.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Javascript imports -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <meta name="wot-verification" content="5c773c9acca0afa3e00e"/>
+    <meta name="google-site-verification" content="V1uOTCUT5-IUFr-emEfyIvawYTz3DklEqorkkO5-nF8"/>
 </head>
-<body>
 
-<% include ../partials/viewer/viewer_navbar.ejs %>
+<body>
 <div class="container h-100 d-flex justify-content-center">
-    <div class="col-sm-10 col-md-9 col-lg-8 col-xl-7">
-        <div class="card card-signin my-5">
-            <% if (message.length) { %>
-                <btn class="btn btn-md"
-                     style="display: table; width: fit-content; width: -moz-fit-content; margin-bottom:0"
-                     onclick="window.location.href = '/forgot_password'">
-                    <i class="fa fa-arrow-left" aria-hidden="true"></i> Back
-                </btn>
-            <% } %>
+    <div class="col-sm-10 col-md-8 col-lg-6 col-xl-5">
+        <div class="card card-signin my-5 non-responsive" id="signin">
             <div class="card-body">
                 <h1 class="text-center card-title">
-                    <i class="fa fa-unlock-alt" aria-hidden="true"></i> Forgot Password
+                    <img src="<% if ((new Date().getHours() * 60 + new Date().getMinutes() >= sunset.getHours() * 60 + sunset.getMinutes()) || (new Date().getHours() * 60 + new Date().getMinutes() <= sunrise.getHours() * 60 + sunrise.getMinutes())) { %>/public/resources/dark_mode/logo.png<% } else { %>/public/resources/light_mode/logo.png<% } %>"
+                         width=60rem> Graderoom
                 </h1>
-
-                <% if (message.length === 0) { %>
-                    <p id="help_text">Enter your user account's email address and we will send you a password reset
-                        link.
-                    </p>
-
-                    <form method="post" class="form-signin">
-
-                        <div class="form-group input-group">
-                            <i class="email-bg"></i>
-                            <label>Email</label>
-                            <input oninput="checkLabel(this);" type="text"
-                                   class="form-control"
-                                   name="email" id="email">
-                        </div>
-
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-default btn-lg">Send email
-                            </button>
-                        </div>
-
-                    </form>
-                <% } %>
-
                 <% if (message.length > 0) { %>
-                    <div class="alert alert-info">
-                        <%- message; %>
-                    </div>
+                    <div class="alert alert-danger"><%- message; %></div>
+                <% } else { %><br>
                 <% } %>
+                <br>
+                <form id="login" class="form-signin" action="/login" method="post"
+                      onsubmit="$(this).find('button').prop('disabled', true).find('div').addClass('loading')">
+                    <div class="input-group form-group">
+                        <i class="user-bg"></i>
+                        <label>Username</label>
+                        <input oninput="checkLabel(this)" type="text" class="form-control" name="username"
+                               autofocus id="usernameInput">
+                    </div>
+                    <div class="input-group form-group">
+                        <i class="lock-bg"></i>
+                        <label>Password</label>
+                        <input oninput="checkLabel(this)" type="password" class="form-control" name="password">
+                    </div>
 
+                    <a style="color: dimgrey; float: right; margin-top: -25px;" href="/forgot_password">Forgot
+                        password?</a>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-default btn-lg">
+                            <i class="fa fa-sign-in" aria-hidden="true"></i> Login
+                            <div>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <a href="/signup">Create Account</a>
+            </div>
+            <div class="card-footer text-center">
+                <a href="/finalgradecalculator">Final Grade Calculator</a>
             </div>
         </div>
     </div>
 </div>
-
-</body>
-
+<!-- JavaScript Imports -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<% include ../partials/limited_time/snowfall.ejs %>
 <script>
+
+    setTimeout(() => {
+        $("input").each(function () {
+            let input = $(this);
+            if (input[0].value) {
+                input.trigger("input");
+            }
+        });
+        Snowy(true);
+    }, 250);
 
     function checkLabel(input) {
         let label = $($(input)[0].previousElementSibling);
@@ -94,13 +109,10 @@
         }
     }
 
-
-    let sunrise = <%= sunrise.getTime(); %>;
-    let sunset = <%= sunset.getTime(); %>;
-    let appearance = <%- appearance %>;
+    let sunrise = <%= sunrise.getTime() ;%>;
+    let sunset = <%= sunset.getTime() ;%>;
+    let appearance = <%- appearance; %>;
     let darkMode;
-
-    checkTime();
 
     function setAutoTheme() {
         let zeroTime = new Date("0/");
@@ -158,5 +170,5 @@
         }, 100);
     }
 </script>
+</body>
 </html>
-

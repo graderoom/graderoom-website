@@ -2,26 +2,33 @@
 <html lang="en-US">
 <head>
     <title>Graderoom</title>
-    <link rel="icon" href="public/resources/common/icon.png">
+    <link rel="icon" href="../../public/resources/common/icon.png">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
     <% let theme; %>
+    <% let zeroTime = new Date("0/"); %>
+    <% zeroTime.setHours(new Date().getHours()); %>
+    <% zeroTime.setMinutes(new Date().getMinutes()); %>
+    <% zeroTime = zeroTime.getTime(); %>
     <% if (JSON.parse(appearance).theme === "dark") { %>
         <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
     <% } else if (JSON.parse(appearance).theme === "light") { %>
         <% theme = false; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
-    <% } else if ((((JSON.parse(appearance).darkModeStart < JSON.parse(appearance).darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8 + (dst ? 1 : 0)) % 24) >= JSON.parse(appearance).darkModeStart) && ((Date.now() / 1000 / 3600 - 8 + (dst ? 1 : 0)) % 24) < JSON.parse(appearance).darkModeFinish)) || ((JSON.parse(appearance).darkModeStart > JSON.parse(appearance).darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8 + (dst ? 1 : 0)) % 24) >= JSON.parse(appearance).darkModeStart) || ((Date.now() / 1000 / 3600 - 8 + (dst ? 1 : 0)) % 24) < JSON.parse(appearance).darkModeFinish)))) { %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/light_mode.css">
+    <% } else if (((JSON.parse(appearance).darkModeStart < JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) && (zeroTime < JSON.parse(appearance).darkModeFinish))) || ((JSON.parse(appearance).darkModeStart > JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) || (zeroTime < JSON.parse(appearance).darkModeFinish)))) { %>
         <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
+    <% } else if (((sunset < sunrise) && ((zeroTime >= sunset) && (zeroTime <= sunrise))) || ((sunset > sunrise) && ((zeroTime >= sunset) || (zeroTime <= sunrise)))) { %>
+        <% theme = true; %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
     <% } else { %>
         <% theme = false; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/light_mode.css">
     <% } %>
-    <link rel="stylesheet" type="text/css" href="public/css/main.css">
-    <link id="blur_base" rel="stylesheet" type="text/css" href="public/css/blur.css"
+    <link rel="stylesheet" type="text/css" href="../../public/css/main.css">
+    <link id="blur_base" rel="stylesheet" type="text/css" href="../../public/css/blur.css"
           <% if (!JSON.parse(appearance).blurEffects) { %>disabled
             <% } %>
     >
@@ -30,7 +37,7 @@
           <% if (!JSON.parse(appearance).blurEffects) { %>disabled
             <% } %>
     >
-    <link id="fade" rel="stylesheet" type="text/css" href="public/css/fade.css" disabled>
+    <link id="fade" rel="stylesheet" type="text/css" href="../../public/css/fade.css" disabled>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- JavaScript Imports -->
@@ -43,17 +50,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js"></script>
 </head>
 <body>
-
 <% if (JSON.parse(alerts).policyLastSeen === "never" || JSON.parse(alerts).termsLastSeen === "never") { %>
 
     <% if (JSON.parse(alerts).termsLastSeen === "never") { %>
-        <% include partials/user/terms_and_conditions.ejs %>
+        <% include ../partials/user/terms_and_conditions.ejs %>
             <script>
                 $("#termsDisplay").show();
             </script>
     <% } %>
     <% if (JSON.parse(alerts).policyLastSeen === "never") { %>
-        <% include partials/user/privacy_policy.ejs %>
+        <% include ../partials/user/privacy_policy.ejs %>
             <script>
                 $("#privacyDisplay").show();
             </script>
@@ -62,7 +68,7 @@
 <% } else { %>
 
     <!-- Navbar -->
-    <% include partials/user/navbar.ejs %>
+    <% include ../partials/user/navbar.ejs %>
         <% <!-- DO NOT REMOVE this is there for my IDE's autoformatting to not mess up --> %>
 
         <% let classPage = -1; %>
@@ -70,7 +76,7 @@
 
         <!-- Class Links -->
         <% if (JSON.parse(gradeData).length > 0) { %>
-            <ul id="classLinks" class="nav nav-fill" style="color: #BBBBBB">
+            <ul id="classLinks" class="nav nav-fill popup" style="color: #BBBBBB">
                 <li class="nav-item" id="link-1">
                     <a class="nav-link" onclick="showPage(-1)">Overview</a>
                 </li>
@@ -96,6 +102,14 @@
                         offset--;
                     } %>
                 <% } %>
+                <div class="popup-holder">
+                    <span id="classLinksPopup"
+                          style="width: 30rem"
+                          class="nav-popups popup-bottom-right tutorial-popup <% if (!JSON.parse(alerts).tutorialStatus.classLinksSeen) { %> always-show <% } %>">
+                        You can navigate to different classes using the class navigation bar
+                        <span class="gotIt"></span>
+                    </span>
+                </div>
             </ul>
         <% } %>
 
@@ -116,7 +130,7 @@
                 <div id="termSwitcher" class="blur">
                     <% for (let i = 0; i < JSON.parse(termsAndSemesters).length; i++) { %>
                         <div id="<%= JSON.parse(termsAndSemesters)[i][0]; %>"><%= JSON.parse(termsAndSemesters)[i][0]; %>
-                            <% let addS3 = false;%>
+                            <% let addS3 = false; %>
                             <% for (let j = 0; j < JSON.parse(termsAndSemesters)[i][1].length; j++) { %>
                                 <% if (JSON.parse(termsAndSemesters)[i][1][j] === "S0") {
                                     addS3 = true;
@@ -127,7 +141,9 @@
                             <% } %>
                             <% if (addS3) { %>
                                 <div onclick="window.location.href='/' + (window.location.href.indexOf('usernameToRender') === -1 ? '?' : 'viewuser?' + window.location.href.slice(window.location.href.indexOf('usernameToRender'),window.location.href.indexOf('&') === -1 ? undefined : window.location.href.indexOf('&')) + '&') + 'term=<%= JSON.parse(termsAndSemesters)[i][0]; %>&semester=<%= JSON.parse(termsAndSemesters)[i][1][0]; %>'"
-                                     id="<%= JSON.parse(termsAndSemesters)[i][0]; %><%= JSON.parse(termsAndSemesters)[i][1][0]; %>">S3</div>
+                                     id="<%= JSON.parse(termsAndSemesters)[i][0]; %><%= JSON.parse(termsAndSemesters)[i][1][0]; %>">
+                                    S3
+                                </div>
                             <% } %>
                         </div>
                         <script>
@@ -716,6 +732,8 @@
             }
 
             let appearance = <%- appearance; %>;
+            let sunrise = <%= sunrise.getTime() %>;
+            let sunset = <%= sunset.getTime() %>;
             let alerts = <%- alerts; %>;
             let personalInfo = <%- personalInfo; %>;
             let username = "<%= username; %>";
@@ -744,8 +762,8 @@
             let maxTab = $(".tabcontent").length;
             let darkMode;
             let colors = appearance.classColors;
-            let darkModeStart = appearance.darkModeStart || 18;
-            let darkModeFinish = appearance.darkModeFinish || 7;
+            let darkModeStart = appearance.darkModeStart;
+            let darkModeFinish = appearance.darkModeFinish;
             let mobile = window.innerWidth <= 991;
 
             if (!appearance.showNonAcademic && Object.keys(Object.fromEntries(Object.entries(relClassData).filter(([, v]) => v.classType === "non-academic"))).length > 0) {
@@ -758,12 +776,6 @@
             let changeTransition;
             let theme = appearance.theme;
             let checkingTheme;
-            if (theme === "auto") {
-                darkMode = (appearance.theme === "dark" || (appearance.theme === "auto" && (((appearance.darkModeStart < appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= appearance.darkModeStart - (isDST() ? (appearance.darkModeStart === 0 ? -23 : 1) : 0)) && ((Date.now() / 1000 / 3600 - 8) % 24) < appearance.darkModeFinish - (isDST() ? (appearance.darkModeFinish === 1 ? -23 : 1) : 0))) || ((appearance.darkModeStart > appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8) % 24) >= appearance.darkModeStart - (isDST() ? (appearance.darkModeStart === 0 ? -23 : 1) : 0)) || ((Date.now() / 1000 / 3600 - 8) % 24) < appearance.darkModeFinish - (isDST() ? (appearance.darkModeFinish === 1 ? -23 : 1) : 0))))));
-                checkTime();
-            } else {
-                darkMode = theme === "dark";
-            }
 
             let showMaxGPA = appearance.showMaxGPA;
             let recentChangeText = "";
@@ -778,7 +790,11 @@
             setupGradeChanges(false);
             $("#termSwitcher").addClass("hover");
             setTimeout(() => $("#termSwitcher").removeClass("hover"), 2000);
-            setTimeout(Snowy(true), 1000);
+            if (theme === "auto" || theme === "sun") {
+                checkTime();
+            } else {
+                darkMode = theme === "dark";
+            }
 
             if (alerts.lastUpdated.length !== 0) {
                 try {
@@ -813,27 +829,22 @@
                            });
                 }
             }
-            document.getElementById("darkModeStart").setAttribute("placeholder", (darkModeStart === 0 ? "12" : darkModeStart > 12 ? (darkModeStart - 12).toString() : darkModeStart.toString()));
-            document.getElementById("darkModeFinish").setAttribute("placeholder", (darkModeFinish === 24 ? "12" : darkModeFinish > 12 ? (darkModeFinish - 12).toString() : darkModeFinish.toString()));
-
-            function isDST() {
-                return Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset();
-            }
 
             function setAutoTheme() {
-                if (theme !== "auto") {
+                let zeroTime = new Date("0/");
+                zeroTime.setHours(new Date().getHours());
+                zeroTime.setMinutes(new Date().getMinutes());
+                zeroTime = zeroTime.getTime();
+                if (theme !== "auto" && theme !== "sun") {
                     if (checkingTheme) {
                         clearInterval(checkingTheme);
                     }
                     return;
                 }
-                darkModeStart = parseInt(darkModeStart);
-                darkModeFinish = parseInt(darkModeFinish);
-                if (theme === "dark" || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) >= darkModeStart) && ((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) >= darkModeStart) || ((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) < darkModeFinish))))) {
+                if ((theme === "sun" && (zeroTime >= sunset || zeroTime <= sunrise)) || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((zeroTime >= darkModeStart) && (zeroTime < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((zeroTime >= darkModeStart) || (zeroTime < darkModeFinish))))))) {
                     let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
                     darkMode = true;
                     if (darkMode !== oldDarkMode) {
-                        clearTimeout(changeTransition);
                         document.getElementById("fade").disabled = false;
                         document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
                         if (appearance.blurEffects) {
@@ -851,7 +862,6 @@
                     let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
                     darkMode = false;
                     if (darkMode !== oldDarkMode) {
-                        clearTimeout(changeTransition);
                         document.getElementById("fade").disabled = false;
                         document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
                         if (appearance.blurEffects) {
@@ -865,6 +875,23 @@
                             setupClassTables();
                         }, 500);
                     }
+                }
+                if (appearance.holidayEffects) {
+                    init = performance.now();
+                    $('#lights-disabled-message').hide();
+                    $('#snow-disabled-message').hide();
+                    $("#snow-fall").show();
+                    $(".lightrope").show();
+                    if (!darkMode) {
+                        $("#light_snowfall").attr("media", "");
+                    } else {
+                        $("#light_snowfall").attr("media", "not all");
+                    }
+                } else {
+                    $('#lights-disabled-message').hide();
+                    $('#snow-disabled-message').hide();
+                    $("#snow-fall").hide();
+                    $(".lightrope").hide();
                 }
             }
 
@@ -3192,7 +3219,7 @@
                             showPage(currentPage + 1);
                         }
                     }
-                } else if (["s","S"].includes(e.key)) {
+                } else if (["s", "S"].includes(e.key)) {
                     if (cardsDisplayed.includes("settingsCardDisplay")) {
                         if (cardsDisplayed.indexOf("settingsCardDisplay") !== cardsDisplayed.length - 1) {
                             showCard("#settingsCardDisplay");
@@ -3203,7 +3230,7 @@
                         showCard("#settingsCardDisplay");
                         openTab(1);
                     }
-                } else if (["w","W"].includes(e.key)) {
+                } else if (["w", "W"].includes(e.key)) {
                     if (cardsDisplayed.includes("latestDisplay")) {
                         if (cardsDisplayed.indexOf("latestDisplay") !== cardsDisplayed.length - 1) {
                             showLatest(true);
@@ -3213,7 +3240,7 @@
                     } else {
                         showLatest(true);
                     }
-                } else if (["q","Q"].includes(e.key)) {
+                } else if (["q", "Q"].includes(e.key)) {
                     if (cardsDisplayed.includes("changelogDisplay")) {
                         if (cardsDisplayed.indexOf("changelogDisplay") !== cardsDisplayed.length - 1) {
                             showChangelog();
@@ -3223,7 +3250,7 @@
                     } else {
                         showChangelog();
                     }
-                } else if (["k","K"].includes(e.key)) {
+                } else if (["k", "K"].includes(e.key)) {
                     if (cardsDisplayed.includes("shortcutsDisplay")) {
                         if (cardsDisplayed.indexOf("shortcutsDisplay") !== cardsDisplayed.length - 1) {
                             showCard("#shortcutsDisplay");
@@ -3233,14 +3260,14 @@
                     } else {
                         showCard("#shortcutsDisplay");
                     }
-                } else if (["a","A"].includes(e.key)) {
+                } else if (["a", "A"].includes(e.key)) {
                     if (currentPage === -1) {
                         return;
                     }
                     let addAssignment = $($(".addAssignment")[currentPage]);
                     addAssignment.trigger("click");
                     $(addAssignment.parent().parent().find("input")[0]).focus();
-                } else if (["h","H"].includes(e.key)) {
+                } else if (["h", "H"].includes(e.key)) {
                     if (cardsDisplayed.includes("settingsCardDisplay")) {
                         if (cardsDisplayed.indexOf("settingsCardDisplay") !== cardsDisplayed.length - 1) {
                             showCard("#settingsCardDisplay");
@@ -3251,7 +3278,7 @@
                         openTab(3);
                     }
                     <% if (JSON.parse(betaFeatures).active) { %>
-                } else if (["b","B"].includes(e.key)) {
+                } else if (["b", "B"].includes(e.key)) {
                     if (cardsDisplayed.includes("settingsCardDisplay")) {
                         if (cardsDisplayed.indexOf("settingsCardDisplay") !== cardsDisplayed.length - 1) {
                             showCard("#settingsCardDisplay");
@@ -3262,7 +3289,7 @@
                         openTab(5);
                     }
                     <% } %>
-                } else if (["g","G"].includes(e.key)) {
+                } else if (["g", "G"].includes(e.key)) {
                     if (cardsDisplayed.includes("gradeChangesCardDisplay")) {
                         if (cardsDisplayed.indexOf("gradeChangesCardDisplay") !== cardsDisplayed.length - 1) {
                             setupGradeChanges(true, true);
@@ -3549,6 +3576,14 @@
                 $("#terms-down").fadeIn();
             }
         }, 100);
+    });
+
+
+    $(".gotIt").on("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        let id = $(this).parents("span.tutorial-popup")[0].id;
+        updateTutorial(id.substring(0, id.length - 5));
     });
 </script>
 </body>
