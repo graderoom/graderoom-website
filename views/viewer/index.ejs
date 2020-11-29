@@ -120,11 +120,11 @@
         zeroTime.setMinutes(new Date().getMinutes());
         zeroTime = zeroTime.getTime();
         if (zeroTime >= sunset || zeroTime <= sunrise) {
-            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
+            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
             darkMode = true;
             if (darkMode !== oldDarkMode) {
                 document.getElementById("fade").disabled = false;
-                document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+                document.getElementById("pageStyle").setAttribute("href", "../../public/css/dark_mode.css");
                 $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
                 $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
                 setTimeout(() => {
@@ -132,11 +132,11 @@
                 }, 500);
             }
         } else {
-            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
+            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
             darkMode = false;
             if (darkMode !== oldDarkMode) {
                 document.getElementById("fade").disabled = false;
-                document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+                document.getElementById("pageStyle").setAttribute("href", "../../public/css/light_mode.css");
                 $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
                 $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
                 setTimeout(() => {
