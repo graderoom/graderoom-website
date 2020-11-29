@@ -2557,10 +2557,6 @@ input:disabled {
         margin: 1rem auto 0 auto;
     }
 
-    table:not(.weights) input {
-        pointer-events: none;
-    }
-
     .table-container {
         display: flex;
         overflow: hidden;
