@@ -329,7 +329,6 @@
                     // Switch mode instantly
                     if (formID === "#chooseTheme") {
                         if (response === "Dark theme enabled!") {
-                            clearInterval(checkingTheme);
                             let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
                             darkMode = true;
                             theme = "dark";
@@ -346,7 +345,6 @@
                                 }, 500);
                             }
                         } else if (response === "Light theme enabled!") {
-                            clearInterval(checkingTheme);
                             let autoLimitsContainer = $('#auto-limits-container');
                             autoLimitsContainer.hide();
                             document.getElementsByName("theme")[0].setAttribute("checked", "checked");
@@ -367,9 +365,8 @@
                             }
                         } else if (response.includes("sun")) {
                             theme = "sun";
-                            checkTime();
                         } else if (response.slice(0, 15) === "Holiday effects") {
-                            appearance.holidayEffects = response.slice(16) === "enabled!";
+                            appearance.holidayEffects = response.slice(16) === "enabled!"
                         } else if (response.slice(0, 12) === "Blur effects") {
                             appearance.blurEffects = response.slice(13) === "enabled!";
                             if (!appearance.blurEffects) {
@@ -382,24 +379,27 @@
                         } else {
                             theme = "auto";
                             [darkModeStart, darkModeFinish] = response.split('from ')[1].slice(0, -1).split(' to ').map(time => Date.parse("0/" + time));
-                            checkTime();
                         }
-                        if (appearance.holidayEffects) {
-                            init = performance.now();
-                            $('#lights-disabled-message').hide();
-                            $('#snow-disabled-message').hide();
-                            $("#snow-fall").show();
-                            $(".lightrope").show();
-                            if (!darkMode) {
-                                $("#light_snowfall").attr("media", "");
-                            } else {
-                                $("#light_snowfall").attr("media", "not all");
-                            }
+                        if (theme === "auto" || theme === "sun") {
+                            checkTime();
                         } else {
-                            $('#lights-disabled-message').hide();
-                            $('#snow-disabled-message').hide();
-                            $("#snow-fall").hide();
-                            $(".lightrope").hide();
+                            if (appearance.holidayEffects) {
+                                init = performance.now();
+                                $('#lights-disabled-message').hide();
+                                $('#snow-disabled-message').hide();
+                                $("#snow-fall").show();
+                                $(".lightrope").show();
+                                if (darkMode === false) {
+                                    $("#light_snowfall").attr("media", "");
+                                } else if (darkMode) {
+                                    $("#light_snowfall").attr("media", "not all");
+                                }
+                            } else {
+                                $('#lights-disabled-message').hide();
+                                $('#snow-disabled-message').hide();
+                                $("#snow-fall").hide();
+                                $(".lightrope").hide();
+                            }
                         }
                     }
 
