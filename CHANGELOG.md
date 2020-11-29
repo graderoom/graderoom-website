@@ -51,7 +51,7 @@
 - Show Non-Academic setting cannot be turned off <strong>[Fixed in Beta 3.7.0]</strong>
 - Keyboard shortcuts do not work when caps lock is turned on <strong>[Fixed in Beta 3.7.0]</strong>
 - <em>[Beta]</em> Summer semesters are listed under the incorrect year <strong>[Fixed in Beta 3.7.0]</strong>
-- Auto theme does not change reliably <strong>[Fixed 3.8.0]</strong>
+- Auto theme does not change reliably <strong>[Fixed in Beta 3.8.0]</strong>
 
 ## [Announcement 3.8.1] - 2020-11-28
 - Our Privacy Policy has been updated
