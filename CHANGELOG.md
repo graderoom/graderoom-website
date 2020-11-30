@@ -40,19 +40,83 @@
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
-- Refreshing or leaving the page after closing a half-complete feedback form would triggers an alert <strong>[Fixed in Beta 3.3.7]</strong>
-- <em>[Beta]</em> 2019 S2 does not load if having taken Calculus BC AP during this term <strong>[Fixed in Beta 3.3.7]</strong>
-- Slow overall loading <strong>[Fixed in Beta 3.3.8]</strong>
-- Page unnecessarily refreshes after syncing grades <strong>[Fixed in Beta 3.4.0]</strong>
-- Rounding inconsistencies with PowerSchool <strong>[Fixed in Beta 3.5.2]</strong>
-- Final grade calculator is inaccurate in some cases <strong>[Fixed in Beta 3.6.0]</strong>
-- Slow performance when mass editing grades <strong>[Fixed in Beta 3.7.0]</strong>
-- Open cards flicker when brought to front <strong>[Fixed in Beta 3.7.0]</strong>
-- Show Non-Academic setting cannot be turned off <strong>[Fixed in Beta 3.7.0]</strong>
-- Keyboard shortcuts do not work when caps lock is turned on <strong>[Fixed in Beta 3.7.0]</strong>
-- <em>[Beta]</em> Summer semesters are listed under the incorrect year <strong>[Fixed in Beta 3.7.0]</strong>
-- Auto theme does not change reliably <strong>[Fixed in Beta 3.8.0]</strong>
-- <em>[Beta]</em> Issues with Calculus BC AP <strong>[Fixed in Beta 3.9.0]</strong>
+- None
+
+## [Stable 4.0.0] - 2020-11-30
+### Added
+- New 'Sync Log' that displays all modifications, additions, and removals of assignments after each sync with changes
+- Edits can now be saved to all assignments
+- Added holiday effects (toggleable)
+- Grades can now be synced with PowerSchool even while PowerSchool is locked<ul>
+- Syncing this way will only reflect changes in assignments, not overall grades</ul>
+- Navigation Bar Updates<ul>
+- New 'More' section with all quick links
+- Overall grades are now integrated into the class navigation bar</ul>
+- Appearance Updates<ul>
+- The size of the overview graph has increased
+- All charts now display dashed lines at relevant letter grades
+- Charts can now be panned and zoomed in all directions
+- Classes with incorrect weights now display thin, dashed lines to signify inaccurate weights
+- Chart tooltips now display overall letter grades at every point
+- Charts of classes with inaccurate weights now always display a final point with the correct grade
+- Number of recent changes is now shown along with the sync status in the main navigation bar
+- Added weighting and teacher name displays to every class
+- Multiple assignments with the same date now display as separate, nearby points, creating a more accurate graph with accurate timings
+- Scrollbar is now hidden on main page
+- Refreshed color scheme picker with new presets and new settings<ul>
+- Color scheme can now always be organized/random in every preset
+- Updated class color preview in light mode to include all relevant color backgrounds</ul>
+- Moved changelog legend 'Back to Top' button to the top</ul>
+- User Experience Updates<ul>
+- Clicking on any line on the overview chart now opens the page for that class
+- When adding a new assignment, date is now automatically set to today's date
+- There is now a toggle (disabled by default) for displaying maximum achievable GPA
+- 'Automatic Theme' is now 'Dark on Custom Schedule'
+- Greatly improved speed of bulk actions on class table
+- Logged out pages are now themed based on sunset and sunrise
+- Custom dark theme schedule can now be adjusted to the minute and uses the browser's time picker
+- More tutorial popups
+- New loading animations on buttons</ul>
+- Keyboard Shortcuts<ul>
+- Added Keyboard shortcut 'G' for 'Sync Log'
+- Added Keyboard shortcut '`' for the overview page
+- Added numerical shortcuts for all classes (1 corresponds to the first class, 2 to the second, etc.)
+- Keyboard shortcuts now work when caps lock is on</ul>
+- <em>[Beta]</em> New FPS display option
+
+### Improved
+- Tooltabs now react when a row is hovered to draw attention to their existence
+- Keyboard shortcuts card displays correctly across more screen sizes
+- Manual syncing with powerschool is now quicker
+- Optimized load time for home page immediately after login
+- Overview chart lines now return to normal immediately after the cursor leaves the chart
+- All calculations now account for PowerSchool's rounding of category grades (limited to 2 decimal places)
+- Improved changelog sizing
+- Improved keyboard shortcuts card sizing
+
+### Fixed
+- Issue with logged-in final grade calculator not working for users without grades
+- Issue where users that hid non-academic classes could not view their grades
+- Keyboard shortcuts no longer fire when combined with special keys (Ctrl and/or Alt)
+- Issue where refreshing or leaving the page after closing a half-complete feedback form would trigger an alert
+- Issue where page would refresh after sync when it was not necessary
+- Issue where tables did not refresh after sync
+- Issues in final grade calculator for some users
+- Issue where cards would flicker when brought to the front
+- Several issues with Auto Theme
+- An issue with changing school email
+- <em>[Beta]</em> Issue with cumulative GPA in S2 of past years
+- <em>[Beta]</em> Issue with 2019-2020 S1 Data showing -1 in the percent column
+- <em>[Beta]</em> Fixed an issue where a portion of the screen could not be interacted with when blur effects were enabled
+- <em>[Beta]</em> Blur effects are now out of beta! If you had blur effects enabled in the public beta, they will remain enabled
+- <em>[Beta]</em> Fixed several issues when viewing old semesters
+- <em>[Beta]</em> S0 now displays as S3 in the term switcher and is correctly organized chronologically
+- <em>[Beta]</em> An issue with AP Calculus BC displaying twice in S2 of 19-20
+
+### Removed
+- Panning limits on charts
+- Shaded area under class graphs
+- Some tutorial popups
 
 ## [Beta 3.9.0] - 2020-11-29
 ### Added
