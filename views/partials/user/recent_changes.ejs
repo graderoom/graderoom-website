@@ -80,6 +80,12 @@
                     endDate = new Date(endDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
                     container.append(`<hr><span class="timestamp"><span class="popup">` + startDate + (startDate !== endDate ? ` - <br>` + endDate : ``) + `</span><b>` + (noDataStreak > 1 ? noDataStreak + ` Syncs<br>` : ``) + `No Data</b></span>`);
                 }
+                if (noChangesStreak) {
+                    startDate = new Date(startDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                    endDate = new Date(endDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                    container.append(`<hr><span class="timestamp"><span class="popup">` + startDate + (startDate !== endDate ? ` - <br>` + endDate : ``) + `</span><b>` + (noChangesStreak > 1 ? noChangesStreak + ` Syncs<br>` : ``) + `No Changes</b></span>`);
+                    noChangesStreak = 0;
+                }
                 continue;
             }
             if (noDataStreak) {
