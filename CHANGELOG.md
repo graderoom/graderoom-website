@@ -52,6 +52,28 @@
 - Keyboard shortcuts do not work when caps lock is turned on <strong>[Fixed in Beta 3.7.0]</strong>
 - <em>[Beta]</em> Summer semesters are listed under the incorrect year <strong>[Fixed in Beta 3.7.0]</strong>
 - Auto theme does not change reliably <strong>[Fixed in Beta 3.8.0]</strong>
+- <em>[Beta]</em> Issues with Calculus BC AP <strong>[Fixed in Beta 3.9.0]</strong>
+
+## [Beta 3.9.0] - 2020-11-29
+### Added
+- Clicking on sync status in sync log now also opens sync card
+- A tutorial popup to the sync log
+
+### Improved
+- Tweaked language of some tutorial popups
+
+### Fixed
+- An issue with loading indicators
+- Tutorial popups sometimes displaying briefly on load
+- An issue with changing school email
+- Issue with auto theme
+- Issue with slow toggling between weighted and unweighted GPAs
+- A fatal issue with sync log after first sync after update
+- <em>[Beta]</em> An issue with AP Calculus BC displaying twice in S2 of 19-20
+
+### Removed
+- Removed class links tutorial popup as it interfered with proper functioning of the site
+- <em>[Beta]</em> Removed old semester read-only message as most users of this beta feature already know about this
 
 ## [Stable 3.8.2] - 2020-11-28
 ### Added
