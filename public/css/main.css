@@ -92,11 +92,12 @@ html {
 }
 
 html *, html {
-    scrollbar-width: none; /*hide scrollbar in firefox */
+    scrollbar-width: thin; /*hide scrollbar in firefox */
 }
 
 nav {
     box-shadow: 0 1px 2px;
+    z-index: 19;
 }
 
 nav h1 {
@@ -299,6 +300,11 @@ table thead tr th:last-child {
     position: relative;
 }
 
+#shortcutsDisplay .card-body .card-body {
+    overflow-y:scroll;
+    max-height: 70vh;
+}
+
 #changelog-container {
     height: 70vh;
 }
@@ -320,9 +326,9 @@ table thead tr th:last-child {
 }
 
 .changelog-container .body {
-    display: list-item;
-    font-size: 1.2rem;
+    font-size: 80%;
     font-weight: normal;
+    display: list-item;
     margin: 0 0 0 2rem;
     padding: 0;
 }
@@ -364,8 +370,8 @@ table thead tr th:last-child {
 .changelog-legend {
     position: absolute;
     z-index: 2;
-    top: 10rem;
-    right: 4rem;
+    top: 1rem;
+    right: 2rem;
     display: flex;
     overflow: hidden;
     align-items: flex-start;
@@ -375,7 +381,7 @@ table thead tr th:last-child {
     width: -moz-fit-content;
     margin-left: auto;
     padding: 1rem;
-    transition: opacity 250ms ease;
+    transition: opacity 100ms ease;
     opacity: 1;
     border-radius: 0.5rem;
 }
@@ -428,7 +434,7 @@ table thead tr th:last-child {
 
 .sticky {
     position: fixed;
-    z-index: 5;
+    z-index: 19;
     top: 0;
     left: 50%;
     flex-direction: row;
@@ -446,18 +452,18 @@ table thead tr th:last-child {
 }
 
 .changelog-container .title {
-    font-size: 1.2rem;
+    font-size: 80%;
     font-style: oblique;
-    margin: 0;
     width: fit-content;
+    margin: 0;
 }
 
 .changelog-container .type {
-    border-radius: 0.5rem;
-    font-size: 1.2rem;
+    font-size: 80%;
     font-weight: bold;
     margin: 0.9rem 0 0.9rem 1rem;
     padding: 0.5rem 1rem 1rem 1rem;
+    border-radius: 0.5rem;
 }
 
 .accordian-label h5:hover {
@@ -620,10 +626,9 @@ table thead tr th:last-child {
     font-family: "Montserrat", sans-serif;
     font-size: small;
     position: absolute;
-    z-index: 19;
+    z-index: 3;
     display: none;
     min-width: 10rem;
-    max-width: 15rem;
     padding: 0.5rem 0.6rem 0.5rem 0.6rem;
     animation: fadeIn 400ms ease;
     text-align: center;
@@ -872,9 +877,60 @@ i span {
     pointer-events: none;
 }
 
+.loading {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+@keyframes loading {
+    0% {
+        transform: translate(-100px, -1rem) scale(0);
+    }
+    50% {
+        transform: translate(0, -1rem) scale(1);
+    }
+    100% {
+        transform: translate(100px, -1rem) scale(0);
+    }
+}
+
+.loading span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    position: absolute;
+}
+
+.loading span:nth-child(1) {
+    transform: translate(-100px, -1rem) scale(0);
+    animation: loading 1.5s ease infinite 0s;
+}
+
+.loading span:nth-child(2) {
+    transform: translate(-100px, -1rem) scale(0);
+    animation: loading 1.5s ease infinite 0.5s;
+}
+
+.loading span:nth-child(3) {
+    transform: translate(-100px, -1rem) scale(0);
+    animation: loading 1.5s ease infinite 1s;
+}
+
 .fa.disabled {
     cursor: not-allowed !important;
     opacity: 0.2;
+}
+
+#sun-limits-container input {
+    border: none;
+    opacity: 0.6;
+}
+
+#sun-limits-container label {
+    margin: 0;
 }
 
 .fa.disabled:active {
@@ -918,9 +974,18 @@ label.label-active {
     border-radius: 0 0 0.5rem 0.5rem;
 }
 
-.nav .active {
+#classLinks li.nav-item {
+    font-weight: 500;
+    transition: background-color 250ms ease, opacity 250ms ease;
     border-radius: 0.5rem;
+}
+
+#classLinks li.nav-item.active {
     font-weight: bolder;
+}
+
+#classLinks li.nav-item:not(.active):hover {
+    opacity: 0.5;
 }
 
 .nav-item {
@@ -1087,10 +1152,11 @@ th {
 .toolTab {
     position: absolute;
     visibility: hidden;
+    transition: filter 400ms ease;
     border-radius: 0 1rem 1rem 0 !important;
 }
 
-.toolTab:hover {
+tr:hover .toolTab {
     z-index: 19;
 }
 
@@ -1132,7 +1198,7 @@ tbody tr {
 .slider-container {
     font-size: 1rem;
     display: flex;
-    align-items: center;
+    align-items: stretch;
     justify-content: flex-start;
     cursor: pointer;
 }
@@ -1175,6 +1241,7 @@ tbody tr {
     vertical-align: middle;
     border-radius: 0 1rem 1rem 0;
     background-color: inherit;
+    box-shadow: inherit;
     writing-mode: vertical-rl;
     text-orientation: sideways;
 }
@@ -1904,6 +1971,10 @@ td.addAssignmentScore {
     font-weight: bold;
 }
 
+body::-webkit-scrollbar {
+    display: none;
+}
+
 .chart-container {
     position: relative;
     align-self: stretch;
@@ -2010,24 +2081,13 @@ td.addAssignmentScore {
 }
 
 #table-1 {
-    display: flex;
-    flex-flow: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    width: fit-content;
-    width: -moz-fit-content;
-    margin: auto;
-    padding: 0.5rem;
-}
-
-#table-1 table {
-    margin: 0 auto;
+    display: none;
 }
 
 #chart-container-1 {
     position: relative;
     width: 75%;
-    height: 60vh;
+    height: 70vh;
 }
 
 .backToHome {
@@ -2145,10 +2205,6 @@ input:disabled {
     pointer-events: none;
 }
 
-.nav-popups {
-    margin-top: 1rem;
-}
-
 #syncFailure, #syncNoData {
     margin-right: 0.5rem;
     cursor: default;
@@ -2162,9 +2218,215 @@ input:disabled {
     cursor: default;
 }
 
-@media only screen and (max-width: 1191px) {
-    .nav-username {
-        transform: translateX(-50px);
+#syncPopup {
+    pointer-events: none;
+}
+
+#gradeChangesContainer {
+    overflow-y: scroll;
+    max-height: 60vh;
+    padding: 1rem 0;
+}
+
+#gradeChangesContainer > hr {
+    margin: 1rem;
+}
+
+.grade-changes-card {
+    margin: 0.5rem;
+    padding: 1rem;
+    border-radius: 1rem;
+}
+
+.grade-changes-card > span.class-name {
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+}
+
+#gradeChangesContainer > span.timestamp {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 0 0 0.5rem;
+    padding-right: 1.5rem;
+    cursor: context-menu;
+}
+
+#gradeChangesContainer > span.timestamp > span {
+    font-weight: bold;
+    padding-left: 1rem;
+}
+
+#gradeChangesContainer > span.timestamp {
+    opacity: 0.3;
+}
+
+#gradeChangesContainer > span.timestamp > b {
+    text-align: right;
+    opacity: 0.5;
+}
+
+#gradeChangesContainer > span.timestamp.change-data-exists {
+    opacity: 1;
+}
+
+#gradeChangesContainer > span.timestamp.change-data-exists > b {
+    cursor: pointer;
+    transition: all 400ms ease;
+}
+
+#gradeChangesContainer > span.timestamp.change-data-exists > b:hover, #gradeChangesContainer > span.timestamp.change-data-exists > b:not(.collapsed) {
+    opacity: 1;
+}
+
+#gradeChangesContainer > span.timestamp > b::after {
+    font-family: FontAwesome;
+    content: "";
+    color: transparent;
+}
+
+#gradeChangesContainer > span.timestamp.change-data-exists > b::after {
+    line-height: 100%;
+    margin-left: 1rem;
+    color: unset;
+}
+
+#gradeChangesContainer > span.timestamp.change-data-exists > b::after {
+    content: "\f078";
+}
+
+#gradeChangesContainer > span.timestamp.change-data-exists > b.collapsed::after {
+    content: "\f054";
+}
+
+#gradeChangesContainer > div {
+    transition: height 400ms ease;
+}
+
+#gradeChangesContainer > hr:first-of-type {
+    display: none;
+}
+
+.grade-changes-section {
+    padding: 1rem 1rem 1rem 1rem;
+    border-radius: 1rem;
+}
+
+.grade-changes-section > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.grade-changes-section > div > span {
+    display: block;
+}
+
+.grade-changes-section > div > .score {
+}
+
+.score > span {
+    font-weight: bold;
+}
+
+.grade-changes-section-header {
+    font-weight: bold;
+}
+
+.grade-changes-section hr {
+    margin: 0.5rem 0;
+}
+
+.dropdown {
+    z-index: 19;
+}
+
+.dropdown-menu {
+    padding: 0;
+    border-radius: 1rem;
+}
+
+.dropdown-menu {
+    overflow: hidden;
+    padding: 0.5rem 0;
+    cursor: context-menu;
+    border-radius: 0.25rem;
+}
+
+.dropdown-divider {
+    border-width: 2px;
+}
+
+.dropdown-item {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: none;
+}
+
+.dropdown-item:hover {
+    cursor: context-menu;
+    background: none;
+}
+
+.dropdown-item a, .dropdown-item btn {
+    width: 100% !important;
+    cursor: pointer;
+}
+
+.dropdown-item.disabled {
+    cursor: not-allowed;
+}
+
+.dropdown-item.disabled btn {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+#link-1 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#advancedAppearance {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+}
+
+.tutorial-popup {
+    z-index: 1;
+}
+
+.classInfo {
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+}
+
+/* Firefox */
+@supports not (backdrop-filter: blur(0.1rem)) {
+    .disable-in-firefox {
+        pointer-events: none;
+        opacity: 0.5;
+    }
+
+    .hide-in-firefox {
+        display: none;
+    }
+}
+
+/* Not Firefox */
+@supports (backdrop-filter: blur(0.1rem)) {
+    .show-in-firefox {
+        display: none;
     }
 }
 
@@ -2189,6 +2451,22 @@ input:disabled {
 
     .nav-item, .nav-item btn {
         width: 100% !important;
+    }
+
+    .dropdown-toggle {
+        display: none;
+    }
+
+    .dropdown-divider {
+        display: none;
+    }
+
+    .dropdown-menu {
+        display: block;
+        margin: 0;
+        padding: 0;
+        border: none;
+        box-shadow: none;
     }
 
     #termSwitcher {
@@ -2238,7 +2516,7 @@ input:disabled {
         max-width: 3rem;
     }
 
-    .table input, .popup span, .popup span *, .table td {
+    .table input, .popup span:not(.timestamp), .popup span:not(.timestamp) *, .table td {
         font-size: 0.6rem;
     }
 
@@ -2246,7 +2524,7 @@ input:disabled {
         margin-bottom: 0;
     }
 
-    .popup span {
+    .popup span:not(.timestamp) {
         min-width: 5rem !important;
         max-width: 10rem !important;
     }
@@ -2327,8 +2605,8 @@ input:disabled {
         max-height: 50vh;
     }
 
-    .changelog-container .type, .changelog-container .body, .changelog-container .title {
-        font-size: 80%;
+    #shortcutsDisplay .card-body .card-body {
+        max-height: 50vh;
     }
 
     .card-title {
@@ -2365,13 +2643,9 @@ input:disabled {
         height: fit-content;
     }
 
-    #table-1 {
-        width: unset;
-    }
-
     #table-1 table {
         width: calc(50% - 0.5rem);
-        margin-bottom: 0.5rem;
+        margin: 0.25rem;
         transition: filter 100ms ease;
     }
 

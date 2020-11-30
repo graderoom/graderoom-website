@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+    <title>Graderoom</title>
+    <link rel="icon" href="../../public/resources/common/icon.png">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
+    <% let theme; %>
+    <% let zeroTime = new Date("0/"); %>
+    <% zeroTime.setHours(new Date().getHours()); %>
+    <% zeroTime.setMinutes(new Date().getMinutes()); %>
+    <% zeroTime = zeroTime.getTime(); %>
+    <% if (JSON.parse(appearance).theme === "dark") { %>
+        <% theme = true; %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
+    <% } else if (JSON.parse(appearance).theme === "light") { %>
+        <% theme = false; %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/light_mode.css">
+    <% } else if (((JSON.parse(appearance).darkModeStart < JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) && (zeroTime < JSON.parse(appearance).darkModeFinish))) || ((JSON.parse(appearance).darkModeStart > JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) || (zeroTime < JSON.parse(appearance).darkModeFinish)))) { %>
+        <% theme = true; %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
+    <% } else if (((sunset < sunrise) && ((zeroTime >= sunset) && (zeroTime <= sunrise))) || ((sunset > sunrise) && ((zeroTime >= sunset) || (zeroTime <= sunrise)))) { %>
+        <% theme = true; %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
+    <% } else { %>
+        <% theme = false; %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/light_mode.css">
+    <% } %>
+    <link rel="stylesheet" type="text/css" href="../../public/css/main.css">
+    <link id="blur_base" rel="stylesheet" type="text/css" href="../../public/css/blur.css"
+          <% if (!JSON.parse(appearance).blurEffects) { %>disabled
+            <% } %>
+    >
+    <link id="blur_overrides" rel="stylesheet" type="text/css"
+          href="public/css/<%= (theme ? "dark" : "light"); %>_blur.css"
+          <% if (!JSON.parse(appearance).blurEffects) { %>disabled
+            <% } %>
+    >
+    <link id="fade" rel="stylesheet" type="text/css" href="../../public/css/fade.css" disabled>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<!-- Admin Navbar -->
+<% include ../partials/admin/admin_navbar.ejs %>
+
+<!-- Main Screen -->
+<div class="container">
+    <!-- Messages -->
+    <% if (betaKeySuccessMessage.length > 0) { %>
+        <br>
+        <div class="alert alert-danger alert-dismissible">
+            <a class="close" data-dismiss="alert" aria-label="close">X</a>
+            <%= betaKeySuccessMessage %>
+        </div>
+    <% } else if (betaKeyFailMessage.length > 0) { %>
+        <br>
+        <div class="alert alert-success alert-dismissible">
+            <a class="close" data-dismiss="alert" aria-label="close">X</a>
+            <%= betaKeyFailMessage %>
+        </div>
+    <% } else { %>
+        <br>
+    <% } %>
+
+    <span id="table-container">
+        <table class="table rounded-table">
+            <thead>
+                <tr>
+                    <th style="width:30%;">Key</th>
+                    <th style="width:20%;">Claimed</th>
+                    <th style="width:20%;">Claimed By</th>
+                    <th style="width:20%;">Delete</th>
+
+                </tr>
+            </thead>
+
+            <% for (let k of betaKeyData) { %>
+                <tr>
+                    <td><%= k.betaKey %> </td>
+                    <td><%= k.claimed %></td>
+                    <td><%= k.claimedBy %> </td>
+
+                    <% if (k.claimed === false){ %>
+
+                        <td>
+                            <form action="/deletebetakey" method="post">
+                                <button type="submit" name="beta_key" class="btn btn-sm" value="<%= k.betaKey %>">Delete
+                                    Key
+                                </button>
+                            </form>
+                        </td>
+
+                    <% } else { %>
+
+                        <td>Already claimed!</td>
+                    <% } %>
+
+                </tr>
+            <% } %>
+        </table>
+    </span>
+
+    <div class="text-center">
+        <form action="/newbetakey" method="post">
+            <button type="submit" class="btn btn-sm">Create new random Beta Key</button>
+        </form>
+    </div>
+</div>
+<script>
+    let checkingTheme;
+    let appearance = <%- appearance %>;
+    let theme = appearance.theme;
+    let darkModeStart = appearance.darkModeStart;
+    let darkModeFinish = appearance.darkModeFinish;
+    let sunrise = <%= sunrise.getTime() %>;
+    let sunset = <%= sunset.getTime() %>;
+
+    if (theme === "auto" || theme === "sun") {
+        checkTime();
+    }
+
+    function setAutoTheme() {
+        let zeroTime = new Date("0/");
+        zeroTime.setHours(new Date().getHours());
+        zeroTime.setMinutes(new Date().getMinutes());
+        zeroTime = zeroTime.getTime();
+        if (theme !== "auto" && theme !== "sun") {
+            if (checkingTheme) {
+                clearInterval(checkingTheme);
+            }
+            return;
+        }
+        if ((theme === "sun" && (zeroTime >= sunset || zeroTime <= sunrise)) || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((zeroTime >= darkModeStart) && (zeroTime < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((zeroTime >= darkModeStart) || (zeroTime < darkModeFinish))))))) {
+            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
+            darkMode = true;
+            if (darkMode !== oldDarkMode) {
+                document.getElementById("fade").disabled = false;
+                document.getElementById("pageStyle").setAttribute("href", "../../public/css/dark_mode.css");
+                if (appearance.blurEffects) {
+                    document.getElementById("blur_overrides").setAttribute("href", "../../public/css/dark_blur.css");
+                }
+                $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
+                $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
+                setTimeout(() => {
+                    document.getElementById("fade").disabled = true;
+                }, 500);
+            }
+        } else {
+            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
+            darkMode = false;
+            if (darkMode !== oldDarkMode) {
+                document.getElementById("fade").disabled = false;
+                document.getElementById("pageStyle").setAttribute("href", "../../public/css/light_mode.css");
+                if (appearance.blurEffects) {
+                    document.getElementById("blur_overrides").setAttribute("href", "../../public/css/light_blur.css");
+                }
+                $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
+                $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
+                setTimeout(() => {
+                    document.getElementById("fade").disabled = true;
+                }, 500);
+            }
+        }
+        if (appearance.holidayEffects) {
+            init = performance.now();
+            $('#lights-disabled-message').hide();
+            $('#snow-disabled-message').hide();
+            $("#snow-fall").show();
+            $(".lightrope").show();
+            if (!darkMode) {
+                $("#light_snowfall").attr("media", "");
+            } else {
+                $("#light_snowfall").attr("media", "not all");
+            }
+        } else {
+            $('#lights-disabled-message').hide();
+            $('#snow-disabled-message').hide();
+            $("#snow-fall").hide();
+            $(".lightrope").hide();
+        }
+    }
+
+    async function checkTime() {
+        if (checkingTheme) {
+            clearInterval(checkingTheme);
+        }
+        setAutoTheme();
+        checkingTheme = window.setInterval(function () {
+            setAutoTheme();
+        }, 100);
+    }
+</script>
+</body>
+</html>

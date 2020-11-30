@@ -1,0 +1,19 @@
+/* Not Firefox */
+@supports (backdrop-filter: blur(0.1rem)) {
+    .blurred-background, .blur {
+        background: transparent !important;
+    }
+
+    .blurred-background {
+        backdrop-filter: blur(0.2rem);
+    }
+
+    .blur {
+        backdrop-filter: blur(0.5rem);
+    }
+
+    #termSwitcher.blur {
+        backdrop-filter: blur(0.2rem);
+    }
+
+}
