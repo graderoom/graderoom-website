@@ -66,7 +66,6 @@
     <% } %>
 
 <% } else { %>
-
     <!-- Navbar -->
     <% include ../partials/user/navbar.ejs %>
         <% <!-- DO NOT REMOVE this is there for my IDE's autoformatting to not mess up --> %>
@@ -76,7 +75,7 @@
 
         <!-- Class Links -->
         <% if (JSON.parse(gradeData).length > 0) { %>
-            <ul id="classLinks" class="nav nav-fill popup" style="color: #BBBBBB">
+            <ul id="classLinks" class="nav nav-fill" style="color: #BBBBBB">
                 <li class="nav-item" id="link-1">
                     <a class="nav-link" onclick="showPage(-1)">Overview</a>
                 </li>
@@ -102,14 +101,6 @@
                         offset--;
                     } %>
                 <% } %>
-                <div class="popup-holder">
-                    <span id="classLinksPopup"
-                          style="width: 30rem"
-                          class="nav-popups popup-bottom-right tutorial-popup <% if (!JSON.parse(alerts).tutorialStatus.classLinksSeen) { %> always-show <% } %>">
-                        You can navigate to different classes using the class navigation bar
-                        <span class="gotIt"></span>
-                    </span>
-                </div>
             </ul>
         <% } %>
 
@@ -121,10 +112,6 @@
             <div class="backToHome" style="display: none" onclick="showPage(-1)">
                 <i class="fa fa-arrow-left"></i>
                 <span></span>
-            </div>
-            <div style="display:none; width: fit-content; width: -moz-fit-content; margin: 0 auto;" id="oldSemesterMsg"
-                 class="alert alert-info text-center font-weight-bold">At the moment, this
-                semester is view only. Edits will not be saved.
             </div>
             <% if (JSON.parse(betaFeatures).showTermSwitcher) { %>
                 <div id="termSwitcher" class="blur">
@@ -151,7 +138,6 @@
                             if ("term" in props && "semester" in props) {
                                 $("#" + props["term"]).addClass("active");
                                 $("#" + props["term"] + props["semester"]).addClass("active");
-                                $("#oldSemesterMsg").show();
                                 $("#recentChangesNavBtn").hide();
                                 oldSemester = true;
                             } else {
@@ -173,13 +159,13 @@
                                     <input name="weightedGPA"
                                            value="<% if (JSON.parse(appearance).weightedGPA) { %>false<% } else { %>true<% } %>"
                                            style="display: none">
-                                    <button onclick="ajaxPostForm('#weightedGPAForm',[],'',true)"
+                                    <button onclick="ajaxPostForm('#weightedGPAForm',[],'',true, true)"
                                     <% if (JSON.parse(appearance).weightedGPA) { %> type="button"
                                             <% } %>
                                             class="<% if (JSON.parse(appearance).weightedGPA) { %> active <% } %> btn">
                                         Weighted
                                     </button>
-                                    <button onclick="ajaxPostForm('#weightedGPAForm',[],'',true)"
+                                    <button onclick="ajaxPostForm('#weightedGPAForm',[],'',true, true)"
                                     <% if (!JSON.parse(appearance).weightedGPA) { %> type="button"
                                             <% } %>
                                             class="<% if (!JSON.parse(appearance).weightedGPA) { %> active <% } %> btn">

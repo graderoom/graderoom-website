@@ -16,9 +16,18 @@
                 <h1 class="card-title text-center popup">
                     <i class="fa fa-clock-o"></i>
                     Sync Log
+                    <div class="popup-holder">
+                        <span id="syncLogPopup"
+                              style="width: 20rem"
+                              class="nav-popups popup-bottom-right tutorial-popup">
+                            NEW! Graderoom now logs all modifications to your assignments.<br>
+                            <small>Note: It is completely normal to see an enormous number of items on the first sync after support for this new feature.</small>
+                            <span class="gotIt"></span>
+                        </span>
+                    </div>
                 </h1>
                 <div class="updateGradesMessage alert alert-info"
-                     style="display:block">
+                     style="display:block; cursor: pointer;" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">
                     <div style="display: flex; justify-content: flex-start; align-items: flex-start; flex-flow: column">
                         <div style="display:none" class="sk-chase-mini">
                             <div class="sk-chase-dot mini"></div>
@@ -28,7 +37,7 @@
                             <div class="sk-chase-dot mini"></div>
                             <div class="sk-chase-dot mini"></div>
                         </div>
-                        <div class="font-weight-bold messageTxt">Loading Sync Status...</div>
+                        <div class="font-weight-bold messageTxt" style="cursor: pointer">Loading Sync Status...</div>
                     </div>
                 </div>
                 <div class="card-body" id="gradeChangesContainer"></div>
