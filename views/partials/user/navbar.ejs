@@ -24,7 +24,7 @@
                 <div class="popup-holder">
                     <span id="homePopup"
                           style="width: 20rem"
-                          class="nav-popups popup-bottom-right tutorial-popup <% if (!JSON.parse(alerts).tutorialStatus.homeSeen) { %> always-show <% } %>">
+                          class="nav-popups popup-bottom-right tutorial-popup">
                         Clicking here at any time will take you home
                         <span class="gotIt"></span>
                     </span>
@@ -35,21 +35,20 @@
             <div class="text-center">
                 <h5 style="padding-top: 0; white-space: nowrap;<% if (page != "home") { %> cursor: default; <% } %> "
                     onclick="<% if (page == "home") { %>showCard('#settingsCardDisplay'); openTab(2) <% } %>"><%= username; %></h5>
-                <label onclick="<% if (page == "home") { %>showCard('#settingsCardDisplay'); openTab(2) <% } %>"
-                       id="nameDisplay"
+                <label id="nameDisplay"
                        style="white-space: nowrap;<% if (page == "home") { %> cursor: pointer; <% } %> margin: 0; display: block"><%= JSON.parse(personalInfo).firstName; %> <%= JSON.parse(personalInfo).lastName; %>
                     '<%= JSON.parse(personalInfo).graduationYear - 2000; %></label>
                 <% if (page == "home") { %>
                     <label style="white-space: nowrap; cursor: pointer; border-radius: 0.5rem; padding: 0.1rem 0.5rem; font-family: Arial, Helvetica, sans-serif"
-                           onclick="showCard('#gradeChangesCardDisplay');"
+                           onclick="<% if (JSON.parse(alerts).lastUpdated.length) { %>showCard('#gradeChangesCardDisplay');<% } %>"
                            class="updateGradesMessage alert-info popup">
                         <div style="cursor: pointer" class="messageTxt">Loading Sync Status...</div>
                         <div class="popup-holder">
                             <span id="navinfoPopup"
-                                  class="nav-popups popup-bottom-left tutorial-popup <% if (!JSON.parse(alerts).tutorialStatus.navinfoSeen) { %>always-show<% } %>"
+                                  class="nav-popups popup-bottom-left tutorial-popup"
                                   style="width: 25rem; margin-top: 1rem;"
                             >
-                                The sync status with PowerSchool will be displayed here
+                                The sync status with PowerSchool will be displayed here. Clicking here will open the sync log.
                                 <span class="gotIt"></span>
                             </span>
                         </div>
@@ -72,7 +71,7 @@
                     </a>
                     <div class="popup-holder">
                         <span id="morePopup"
-                              class="nav-popups popup-bottom-left tutorial-popup <% if (!JSON.parse(alerts).tutorialStatus.moreSeen) { %>always-show<% } %>"
+                              class="nav-popups popup-bottom-left tutorial-popup"
                               style="min-width: 8rem">
                             Click here to access other parts of the site
                             <span class="gotIt"></span>
@@ -151,7 +150,7 @@
                     </btn>
                     <div class="popup-holder">
                         <span id="settingsPopup"
-                              class="nav-popups popup-bottom-right tutorial-popup <% if (!JSON.parse(alerts).tutorialStatus.settingsSeen) { %>always-show<% } %>"
+                              class="nav-popups popup-bottom-right tutorial-popup"
                               style="min-width: 8rem;">
                             Click here to manage your preferences
                             <span class="gotIt"></span>
@@ -214,7 +213,7 @@
 
     let submittingForms = {};
 
-    function ajaxPostForm(formID, fieldIDsToClear, messagesDivID, _async, reload = false) {
+    function ajaxPostForm(formID, fieldIDsToClear, messagesDivID, _async, doInstantly = false) {
         // Get the form.
         let form = $(formID);
         $(form).submit(function (event) {
@@ -319,8 +318,9 @@
                     }
 
                     if (formID === "#changeSchoolEmail") {
-                        updateNameDisplay(undefined, $("#school_email")[0].value);
-                        $("#school_email").prop("disabled", true);
+                        schoolUsername = $("#school_email")[0].value;
+                        updateNameDisplay(undefined, schoolUsername);
+                        $($("#school_email")[0].form).find('button').prop("disabled", true);
                     }
 
                     // Show the div.
@@ -329,13 +329,13 @@
                     // Switch mode instantly
                     if (formID === "#chooseTheme") {
                         if (response === "Dark theme enabled!") {
-                            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
+                            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
                             darkMode = true;
                             theme = "dark";
                             if (darkMode !== oldDarkMode) {
                                 document.getElementById("fade").disabled = false;
-                                document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
-                                document.getElementById("blur_overrides").setAttribute("href", "public/css/dark_blur.css");
+                                document.getElementById("pageStyle").setAttribute("href", "../../public/css/dark_mode.css");
+                                document.getElementById("blur_overrides").setAttribute("href", "../../public/css/dark_blur.css");
                                 renderAllCharts();
                                 $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
                                 $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
@@ -348,13 +348,13 @@
                             let autoLimitsContainer = $('#auto-limits-container');
                             autoLimitsContainer.hide();
                             document.getElementsByName("theme")[0].setAttribute("checked", "checked");
-                            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
+                            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
                             darkMode = false;
                             theme = "light";
                             if (darkMode !== oldDarkMode) {
                                 document.getElementById("fade").disabled = false;
-                                document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
-                                document.getElementById("blur_overrides").setAttribute("href", "public/css/light_blur.css");
+                                document.getElementById("pageStyle").setAttribute("href", "../../public/css/light_mode.css");
+                                document.getElementById("blur_overrides").setAttribute("href", "../../public/css/light_blur.css");
                                 renderAllCharts();
                                 $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
                                 $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
@@ -406,6 +406,7 @@
                     // Clear fields to clear
                     for (let i = 0; i < fieldIDsToClear.length; i++) {
                         $(fieldIDsToClear[i]).val("");
+                        $(fieldIDsToClear[i]).blur();
                         if (formID === "#changePassword") {
                             $($(fieldIDsToClear[i])[0].previousElementSibling).removeClass("label-active");
                             if ($($(fieldIDsToClear[i])[0].previousElementSibling.children[0])) {
@@ -414,9 +415,6 @@
                         }
                     }
 
-                    if (reload) {
-                        window.location.href = "/";
-                    }
                 }).fail(function (data) {
                     // Make sure that the formMessages div has the alert-danger class
                     $($(formMessagesDiv)[1]).removeClass("alert-info");
@@ -451,6 +449,7 @@
                     $(formMessagesDiv).find(".sk-chase-mini").hide();
 
                     if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
+                        $(form).find("button").prop("disabled", false).find("div").removeClass("loading");
                         clearTimeout(checkLastUpdated);
                     }
 
@@ -460,7 +459,7 @@
                         shortcutsEnabled = true;
                     }
                 });
-            }, 400);
+            }, (doInstantly ? 0 : 400));
         });
     }
 
@@ -476,7 +475,7 @@
         });
         $(id).fadeIn(100);
         if (id === "#settingsCardDisplay") {
-            $($("#school_email").val(schoolUsername).parents(".input-group")[0].nextElementSibling).prop("disabled", true);
+            $($("#school_email").val(schoolUsername)[0].form).find('button').prop("disabled", true);
             checkLabel($("#school_email"));
             openTab(currentTab);
             updateTutorialProgress();

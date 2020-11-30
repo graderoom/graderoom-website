@@ -360,13 +360,13 @@
                                     <div class="input-group" style="margin-bottom: 0">
                                         <i class="email-bg"></i>
                                         <label>School Email</label>
-                                        <input oninput="checkLabel(this); $($(this).parents('.input-group')[0].nextElementSibling).prop('disabled',false)"
+                                        <input oninput="checkLabel(this); $($(this)[0].form).find('button').prop('disabled',false)"
                                                id="school_email" type="text"
                                                class="form-control"
                                                name="school_email" required>
                                     </div>
                                     <button type="submit"
-                                            onclick="updateSchoolUsernameDisplay(); ajaxPostForm('#changeSchoolEmail',[],'#emailChangeMessage', true)"
+                                            onclick="ajaxPostForm('#changeSchoolEmail',[],'#emailChangeMessage', true); updateSchoolUsernameDisplay(); "
                                             class="btn btn-default btn-med"
                                             style="width: fit-content; width: -moz-fit-content;" disabled>
                                         Apply

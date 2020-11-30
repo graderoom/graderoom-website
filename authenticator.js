@@ -21,7 +21,7 @@ let betaChangelogArray = [];
 let versionNameArray = [];
 
 // Update this list with new tutorial keys
-let tutorialKeys = ["homeSeen", "navinfoSeen", "classLinksSeen", "moreSeen", "settingsSeen"];
+let tutorialKeys = ["homeSeen", "navinfoSeen", "moreSeen", "settingsSeen", "syncLogSeen"];
 
 // Update this list with new beta features
 let betaFeatureKeys = ["showTermSwitcher", "showFps"];
@@ -184,6 +184,15 @@ module.exports = {
         //Update classes to include suggestions key
         let classRef = db.get("classes");
         let classes = db.get("classes").value();
+
+        // Fix Calculus BC AP with space
+        let badData = classRef.get("Calculus BC AP ").value();
+        if (badData) {
+            let temp = badData["Reyerson, Hardy"];
+            classRef.get("Calculus BC AP").set("Reyerson, Hardy", temp).write();
+            classRef.unset("Calculus BC AP ").write();
+        }
+
         for (let i = 0; i < Object.keys(classes).length; i++) {
             console.log("" + Date.now() + " | Updating Class: " + (i + 1) + " of " + Object.keys(classes).length);
             let className = Object.keys(classes)[i];
@@ -221,6 +230,11 @@ module.exports = {
             _finish = new Date("0/" + (_finish % 24) + ":00").getTime();
             userRef.get("appearance").set("darkModeStart",_start).write();
             userRef.get("appearance").set("darkModeFinish",_finish).write();
+
+            // Force old auto mode to sunrise/sunset which is objectively better
+            if (userRef.get("appearance").get("theme").value() === "auto") {
+                userRef.get("appearance").set("theme", "sun").write();
+            }
         }
 
         // Add holiday effects var
@@ -284,14 +298,33 @@ module.exports = {
             userRef.get("grades").get("19-20").get("S1").remove({class_name: "Calculus BC AP"}).write();
             userRef.get("grades").get("19-20").get("S1").find({class_name: "Calculus BC AP "}).set("class_name", "Calculus BC AP").write();
             userRef.get("grades").get("19-20").get("S1").remove({class_name: "Calculus BC AP "}).write();
+        }
+
+        badData = userRef.get("weights").get("19-20").get("S1").get("Calculus BC AP ").value();
+        if (badData) {
             userRef.get("weights").get("19-20").get("S1").set("Calculus BC AP", userRef.get("weights").get("19-20").get("S1").get("Calculus BC AP ").value()).write();
             userRef.get("weights").get("19-20").get("S1").unset("Calculus BC AP ").write();
+        }
+
+        badData = userRef.get("weights").get("19-20").get("S2").get("Calculus BC AP ").value();
+        if (badData) {
+            userRef.get("weights").get("19-20").get("S2").set("Calculus BC AP", userRef.get("weights").get("19-20").get("S2").get("Calculus BC AP ").value()).write();
+            userRef.get("weights").get("19-20").get("S2").unset("Calculus BC AP ").write();
+        }
+
+        badData = userRef.get("addedAssignments").get("19-20").get("S1").get("Calculus BC AP ");
+        if (badData) {
             userRef.get("addedAssignments").get("19-20").get("S1").set("Calculus BC AP", userRef.get("addedAssignments").get("19-20").get("S1").get("Calculus BC AP ").value()).write();
             userRef.get("addedAssignments").get("19-20").get("S1").unset("Calculus BC AP ").write();
         }
 
         // Migrate lastupdated
         this.migrateLastUpdated(user.username);
+
+        // Add editedAssignments dict
+        if (!userRef.get("editedAssignments").value()) {
+            userRef.set("editedAssignments", {}).write();
+        }
 
         // Add sorting data
         this.resetSortData(user.username);
@@ -621,7 +654,7 @@ module.exports = {
                                              holidayEffects: true,
                                              showNonAcademic: true,
                                              darkModeStart: 946778400000,
-                                             darkModeFinish: 94673880000,
+                                             darkModeFinish: 946738800000,
                                              weightedGPA: true,
                                              regularizeClassGraphs: true,
                                              showMaxGPA: false
@@ -895,7 +928,7 @@ module.exports = {
         if (oldGrades) {
             added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [newGrades[index].class_name, newPSAIDs[index].filter(psaid => !oldPSAIDs[index].includes(psaid))]).filter(data => data[1].length));
             modified = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => newPSAIDs[index].includes(assignmentData.psaid) && !_.isEqual(assignmentData, newGrades[index].grades.find(assignment => assignment.psaid === assignmentData.psaid)))]).filter(data => data[1].length));
-            removed = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => !newPSAIDs[index].includes(assignmentData.psaid))]).filter(data => data[1].length));
+            removed = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => assignmentData.psaid && !newPSAIDs[index].includes(assignmentData.psaid))]).filter(data => data[1].length));
             overall = Object.fromEntries(oldGrades.map((classData, index) => {
                 let clone = Object.assign({}, classData);
                 delete clone.grades;
@@ -1437,6 +1470,10 @@ module.exports = {
         let temp = {};
         let userRef = db.get("users").find({username: username.toLowerCase()});
         let current = userRef.get("addedAssignments").value();
+        if (!current) {
+            userRef.set("addedAssignments", {}).write();
+            current = userRef.get("addedAssignments").value();
+        }
         let years = Object.keys(userRef.get("grades").value());
         for (let i = 0; i < years.length; i++) {
             let semesters = Object.keys(userRef.get("grades").get(years[i]).value());
@@ -1456,6 +1493,10 @@ module.exports = {
         let temp = {};
         let userRef = db.get("users").find({username: username.toLowerCase()});
         let current = userRef.get("weights").value();
+        if (!current) {
+            userRef.set("weights", {}).write();
+            current = userRef.get("weights").value();
+        }
         let reference = userRef.get("grades").value();
         let years = Object.keys(reference);
         for (let i = 0; i < years.length; i++) {
@@ -1478,6 +1519,10 @@ module.exports = {
         let temp = {};
         let userRef = db.get("users").find({username: username.toLowerCase()});
         let current = userRef.get("editedAssignments").value();
+        if (!current) {
+            userRef.set("editedAssignments", {}).write();
+            current = userRef.get("editedAssignments").value();
+        }
         let years = Object.keys(userRef.get("grades").value());
         for (let i = 0; i < years.length; i++) {
             let semesters = Object.keys(userRef.get("grades").get(years[i]).value());
