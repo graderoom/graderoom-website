@@ -42,6 +42,11 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 4.0.1] - 2020-12-01
+### Fixed
+- An issue where dashed lines in charts were slightly shorter than they should have been.
+- An issue with Chrismas Lights not pausing at low framerates when certain theme options were selected
+
 ## [Stable 4.0.0] - 2020-11-30
 ### Added
 - New 'Sync Log' that displays all modifications, additions, and removals of assignments after each sync with changes

@@ -316,7 +316,7 @@ module.exports = function (app, passport) {
             appearance: JSON.stringify(req.user.appearance),
             beta: server.needsBetaKeyToSignUp,
             sunset: sunset,
-            sunrise: sunrise,
+            sunrise: sunrise
 
         });
     });
@@ -638,7 +638,7 @@ module.exports = function (app, passport) {
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     beta: JSON.stringify(server.needsBetaKeyToSignUp),
                     sunset: sunset,
-                    sunrise: sunrise,
+                    sunrise: sunrise
 
                 });
             } else {
@@ -656,7 +656,7 @@ module.exports = function (app, passport) {
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     beta: JSON.stringify(server.needsBetaKeyToSignUp),
                     sunset: sunset,
-                    sunrise: sunrise,
+                    sunrise: sunrise
 
                 });
             }
@@ -667,7 +667,7 @@ module.exports = function (app, passport) {
                 page: "logged_out_calc",
                 beta: JSON.stringify(server.needsBetaKeyToSignUp),
                 sunset: sunset,
-                sunrise: sunrise,
+                sunrise: sunrise
 
             });
         }
@@ -910,6 +910,9 @@ module.exports = function (app, passport) {
 
     // route middleware to ensure user is logged in
     function isLoggedIn(req, res, next) {
+        if ((["/","/admin"]).includes(req._parsedOriginalUrl.path) && req.headers.referer.includes('viewuser')) {
+            return;
+        }
         if (req.isAuthenticated()) {
             return next();
         }
