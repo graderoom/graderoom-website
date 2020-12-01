@@ -843,6 +843,23 @@
                             document.getElementById("fade").disabled = true;
                             setupClassTables();
                         }, 500);
+                        if (appearance.holidayEffects) {
+                            init = performance.now();
+                            $('#lights-disabled-message').hide();
+                            $('#snow-disabled-message').hide();
+                            $("#snow-fall").show();
+                            $(".lightrope").show();
+                            if (darkMode === false) {
+                                $("#light_snowfall").attr("media", "");
+                            } else if (darkMode) {
+                                $("#light_snowfall").attr("media", "not all");
+                            }
+                        } else {
+                            $('#lights-disabled-message').hide();
+                            $('#snow-disabled-message').hide();
+                            $("#snow-fall").hide();
+                            $(".lightrope").hide();
+                        }
                     }
                 } else {
                     let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
@@ -860,24 +877,24 @@
                             document.getElementById("fade").disabled = true;
                             setupClassTables();
                         }, 500);
+                        if (appearance.holidayEffects) {
+                            init = performance.now();
+                            $('#lights-disabled-message').hide();
+                            $('#snow-disabled-message').hide();
+                            $("#snow-fall").show();
+                            $(".lightrope").show();
+                            if (darkMode === false) {
+                                $("#light_snowfall").attr("media", "");
+                            } else if (darkMode) {
+                                $("#light_snowfall").attr("media", "not all");
+                            }
+                        } else {
+                            $('#lights-disabled-message').hide();
+                            $('#snow-disabled-message').hide();
+                            $("#snow-fall").hide();
+                            $(".lightrope").hide();
+                        }
                     }
-                }
-                if (appearance.holidayEffects) {
-                    init = performance.now();
-                    $('#lights-disabled-message').hide();
-                    $('#snow-disabled-message').hide();
-                    $("#snow-fall").show();
-                    $(".lightrope").show();
-                    if (darkMode === false) {
-                        $("#light_snowfall").attr("media", "");
-                    } else if (darkMode) {
-                        $("#light_snowfall").attr("media", "not all");
-                    }
-                } else {
-                    $('#lights-disabled-message').hide();
-                    $('#snow-disabled-message').hide();
-                    $("#snow-fall").hide();
-                    $(".lightrope").hide();
                 }
             }
 
@@ -2809,7 +2826,7 @@
                     possibles = possibles.map(element => Object.values(element)[0]);
                     for (let i = 0; i < possibles.length; i++) {
                         let mixedData = [];
-                        for (let j = startDate; j < endDate; j += Math.ceil((endDate - startDate) / 100)) {
+                        for (let j = startDate; j <= endDate; j += (endDate - startDate) / 100) {
                             mixedData.push({x: new Date(j), y: possibles[i]});
                         }
                         dataset.push({
@@ -2831,7 +2848,6 @@
                                      });
                     }
                 }
-                let numRunning = 0;
                 charts[0] = new Chart(ctx, {
                     type: "line", data: {
                         datasets: dataset
@@ -3026,7 +3042,7 @@
                     possibles = possibles.map(element => Object.values(element)[0]);
                     for (let i = 0; i < possibles.length; i++) {
                         let mixedData = [];
-                        for (let j = startDate; j < endDate; j += Math.ceil((endDate - startDate) / 100)) {
+                        for (let j = startDate; j <= endDate; j += (endDate - startDate) / 100) {
                             mixedData.push({x: new Date(j), y: possibles[i]});
                         }
                         dataset.push({

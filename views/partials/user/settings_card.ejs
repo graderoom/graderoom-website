@@ -214,33 +214,6 @@
                                 </div>
                             </div>
                             <hr>
-                            <label class="slider-container">
-                                <label class="switch">
-                                    <input id="holidayEffectsToggle" type="checkbox"
-                                           name="enableHolidayEffects"
-                                    <% if (JSON.parse(appearance).holidayEffects) { %>
-                                           checked
-                                            <% } %>
-                                           onchange="ajaxPostForm('#chooseTheme',[],'#themeMessage',true); $($(this)[0].form).submit();"
-                                    >
-                                    <span class="slider"></span>
-                                </label>
-                                <label for="holidayEffectsToggle">
-                                    Enable Holiday Effects
-                                </label>
-                            </label>
-                            <div>
-                                <div style="font-size: 0.5rem; display: none"
-                                     id="snow-disabled-message">
-                                    Winter Snow was disabled to improve performance<br>
-                                </div>
-                                <% if (new Date().getMonth() === lightsMonth) { %>
-                                    <div style="font-size: 0.5rem; display: none"
-                                         id="lights-disabled-message">
-                                        Christmas Lights were paused to improve performance
-                                    </div>
-                                <% } %>
-                            </div>
                             <label class="slider-container disable-in-firefox">
                                 <label class="switch">
                                     <input
@@ -271,6 +244,33 @@
                                                 style="width: 10rem;">Your
                                             browser does not support these effects.</span></i></span>
                             </label>
+                            <label class="slider-container">
+                                <label class="switch">
+                                    <input id="holidayEffectsToggle" type="checkbox"
+                                           name="enableHolidayEffects"
+                                    <% if (JSON.parse(appearance).holidayEffects) { %>
+                                           checked
+                                            <% } %>
+                                           onchange="ajaxPostForm('#chooseTheme',[],'#themeMessage',true); $($(this)[0].form).submit();"
+                                    >
+                                    <span class="slider"></span>
+                                </label>
+                                <label for="holidayEffectsToggle">
+                                    Enable Holiday Effects
+                                </label>
+                            </label>
+                            <div>
+                                <div style="font-size: 0.5rem; display: none"
+                                     id="snow-disabled-message">
+                                    Winter Snow was disabled to improve performance<br>
+                                </div>
+                                <% if (new Date().getMonth() === lightsMonth) { %>
+                                    <div style="font-size: 0.5rem; display: none"
+                                         id="lights-disabled-message">
+                                        Christmas Lights were paused to improve performance
+                                    </div>
+                                <% } %>
+                            </div>
                         </form>
                     </div>
                     <div class="card-footer">
