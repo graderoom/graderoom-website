@@ -343,7 +343,7 @@ class PowerschoolScraper:
                     if semester_classes:
                         # Add data when all classes for a semester
                         # have been scraped
-                        year_data[title] = semester_classes
+                        year_data["S3" if title == "S0" else title] = semester_classes
                     # Reset for a new semester
                     title = th.text
                     semester_classes = []
@@ -371,7 +371,7 @@ class PowerschoolScraper:
 
             # Finalize data for the selected year
             if title != "":
-                year_data[title] = semester_classes
+                year_data["S3" if title == "S0" else title] = semester_classes
                 all_history[year] = year_data
 
         if not all_history:
@@ -446,6 +446,7 @@ class PowerschoolScraper:
         table_cells = main_table.find_all("td")
         term = table_cells[1].text
         semester = table_cells[2].text
+        semester = "S3" if semester == "S0" else semester
 
         if term is None or semester is None:
             raise Exception("Error getting term and semester data")

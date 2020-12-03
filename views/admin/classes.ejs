@@ -17,10 +17,10 @@
     <% } else if (JSON.parse(appearance).theme === "light") { %>
         <% theme = false; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/light_mode.css">
-    <% } else if (((JSON.parse(appearance).darkModeStart < JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) && (zeroTime < JSON.parse(appearance).darkModeFinish))) || ((JSON.parse(appearance).darkModeStart > JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) || (zeroTime < JSON.parse(appearance).darkModeFinish)))) { %>
+    <% } else if (JSON.parse(appearance).theme === "auto" && (((JSON.parse(appearance).darkModeStart < JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) && (zeroTime < JSON.parse(appearance).darkModeFinish))) || ((JSON.parse(appearance).darkModeStart > JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) || (zeroTime < JSON.parse(appearance).darkModeFinish))))) { %>
         <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
-    <% } else if (((sunset < sunrise) && ((zeroTime >= sunset) && (zeroTime <= sunrise))) || ((sunset > sunrise) && ((zeroTime >= sunset) || (zeroTime <= sunrise)))) { %>
+    <% } else if ((zeroTime >= sunset.getTime()) || (zeroTime <= sunrise.getTime())) { %>
         <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
     <% } else { %>
