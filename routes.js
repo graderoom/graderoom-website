@@ -21,8 +21,7 @@ module.exports = function (app, passport) {
                 return;
             }
 
-            let gradeHistoryLetters = [];
-
+            let gradeHistoryLetters = {};
             let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
             if (req.query.term && req.query.semester) {
                 if ((term === req.query.term && semester === req.query.semester) || !req.user.betaFeatures.active || !authenticator.semesterExists(req.user.username, req.query.term, req.query.semester)) {
@@ -34,15 +33,17 @@ module.exports = function (app, passport) {
             }
             for (let i = 0; i < Object.keys(req.user.grades).length; i++) {
                 let t = Object.keys(req.user.grades)[i];
+                gradeHistoryLetters[t] = {};
                 for (let j = 0; j < Object.keys(req.user.grades[t]).length; j++) {
                     let s = Object.keys(req.user.grades[t])[j];
-                    if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) >= semester.substring(1)) || s === "S0") {
+                    if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) >= semester.substring(1))) {
                         continue;
                     }
+                    gradeHistoryLetters[t][s] = [];
                     for (let k = 0; k < req.user.grades[t][s].length; k++) {
                         let next = {};
                         next[req.user.grades[t][s][k].class_name] = req.user.grades[t][s][k].overall_letter;
-                        gradeHistoryLetters.push(next);
+                        gradeHistoryLetters[t][s].push(next);
                     }
                 }
             }
@@ -148,8 +149,7 @@ module.exports = function (app, passport) {
                 return;
             }
 
-            let gradeHistoryLetters = [];
-
+            let gradeHistoryLetters = {};
             let {term, semester} = authenticator.getMostRecentTermData(req.query.usernameToRender);
             if (req.query.term && req.query.semester) {
                 if ((term === req.query.term && semester === req.query.semester) || !user.betaFeatures.active || !authenticator.semesterExists(user.username, req.query.term, req.query.semester)) {
@@ -161,15 +161,17 @@ module.exports = function (app, passport) {
             }
             for (let i = 0; i < Object.keys(user.grades).length; i++) {
                 let t = Object.keys(user.grades)[i];
+                gradeHistoryLetters[t] = {};
                 for (let j = 0; j < Object.keys(user.grades[t]).length; j++) {
                     let s = Object.keys(user.grades[t])[j];
-                    if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) >= semester.substring(1)) || s === "S0") {
+                    if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) >= semester.substring(1))) {
                         continue;
                     }
+                    gradeHistoryLetters[t][s] = [];
                     for (let k = 0; k < user.grades[t][s].length; k++) {
                         let next = {};
                         next[user.grades[t][s][k].class_name] = user.grades[t][s][k].overall_letter;
-                        gradeHistoryLetters.push(next);
+                        gradeHistoryLetters[t][s].push(next);
                     }
                 }
             }
@@ -910,7 +912,8 @@ module.exports = function (app, passport) {
 
     // route middleware to ensure user is logged in
     function isLoggedIn(req, res, next) {
-        if ((["/","/admin"]).includes(req._parsedOriginalUrl.path) && req.headers.referer.includes('viewuser')) {
+        if (!(["/","/admin"]).includes(req._parsedOriginalUrl.path) && req.headers.referer.includes('viewuser')) {
+            res.sendStatus(405);
             return;
         }
         if (req.isAuthenticated()) {

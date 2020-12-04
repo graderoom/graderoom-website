@@ -349,6 +349,38 @@ module.exports = {
         this.initWeights(lc_username);
         this.initEditedAssignments(lc_username);
 
+        // Change S0s to S3s
+        // Use existence of accentColor to know db version
+        // TODO maybe add some sort of db versioning to make this easier in the future
+        if (user.appearance.accentColor === null) {
+            let gradesToFix = user.grades;
+            let terms = Object.keys(gradesToFix);
+            for (let i = 0; i < terms.length; i++) {
+                let old_S0;
+                if ("S0" in user.grades[terms[i]]) {
+                    old_S0 = user.grades[terms[i]]["S0"];
+                    userRef.get("grades").get(terms[i]).set("S3", old_S0).write();
+                    userRef.get("grades").get(terms[i]).unset("S0").write();
+                }
+                if ("S0" in user.weights[terms[i]]) {
+                    old_S0 = user.weights[terms[i]]["S0"];
+                    userRef.get("weights").get(terms[i]).set("S3", old_S0).write();
+                    userRef.get("weights").get(terms[i]).unset("S0").write();
+                }
+                if ("S0" in user.addedAssignments[terms[i]]) {
+                    old_S0 = user.addedAssignments[terms[i]]["S0"];
+                    userRef.get("addedAssignments").get(terms[i]).set("S3", old_S0).write();
+                    userRef.get("addedAssignments").get(terms[i]).unset("S0").write();
+                }
+                if ("S0" in user.editedAssignments[terms[i]]) {
+                    old_S0 = user.editedAssignments[terms[i]]["S0"];
+                    userRef.get("editedAssignments").get(terms[i]).set("S3", old_S0).write();
+                    userRef.get("editedAssignments").get(terms[i]).unset("S0").write();
+                }
+            }
+            userRef.get("appearance").unset("accentColor").write();
+        }
+
     }, bringUpToDate: function (username, onlyLatest = true) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
@@ -647,7 +679,6 @@ module.exports = {
                                          },
                                          appearance: {
                                              theme: "sun",
-                                             accentColor: null,
                                              classColors: [],
                                              colorPalette: "clear",
                                              shuffleColors: false,
