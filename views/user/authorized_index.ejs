@@ -206,13 +206,16 @@
                             <% } %>
                             <div>
                                 <h5 class="text-center">UC/CSU GPA<span class="popup"><i class="fa fa-question-circle"
-                                                                                     style="margin-left: 0.4rem"><span
-                                                    class="popup-right-top">This is your GPA as calculated by the<br><span
+                                                                                         style="margin-left: 0.4rem"><span
+                                                    class="popup-right-top">This is your GPA as calculated by
+                                                the<br><span
                                                         style="color: <%= accentColor; %>">University of
                                                     California System</span><br>and the<br><span
                                                         style="color: <%= accentColor; %>">California State
-                                                    University System</span>.<br> This metric uses grades from 10<sup>th</sup>
-                                                and 11<sup>th</sup> grade and only includes certain classes.</span></i></span></h5>
+                                                    University System</span>.<br> This metric uses grades from
+                                                10<sup>th</sup>
+                                                and 11<sup>th</sup> grade and only includes certain classes.</span></i></span>
+                                </h5>
                                 <h5 id="GPA-display-uc">Coming Soon!</h5>
                             </div>
                         </div>
@@ -1756,19 +1759,19 @@
                 }
 
                 // Reset all edited values
-                    if (notMassReset) {
-                        if (editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]) {
-                            delete editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
-                            $.ajax({
-                                       type: "POST",
-                                       url: "/updateEditedAssignments",
-                                       data: {data: JSON.stringify(editedAssignments)},
-                                       async: true
-                                   });
-                        }
-                        delete _editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
-                        refreshWithoutReload(false, classIndex);
+                if (notMassReset) {
+                    if (editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]) {
+                        delete editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
+                        $.ajax({
+                                   type: "POST",
+                                   url: "/updateEditedAssignments",
+                                   data: {data: JSON.stringify(editedAssignments)},
+                                   async: true
+                               });
                     }
+                    refreshWithoutReload(false, classIndex);
+                }
+                delete _editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
             }
 
             function trashAll(element) {
