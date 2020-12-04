@@ -45,6 +45,7 @@
 ## [Stable 4.0.2] - 2020-12-03
 ### Fixed
 - Issue with sun theme
+- Issue in sync log
 
 ## [Stable 4.0.1] - 2020-12-01
 ### Fixed
