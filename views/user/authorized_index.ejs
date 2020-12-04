@@ -1759,19 +1759,20 @@
                 }
 
                 // Reset all edited values
+
+                if (editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]) {
+                    delete editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
+                }
+                delete _editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
                 if (notMassReset) {
-                    if (editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]) {
-                        delete editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
                         $.ajax({
                                    type: "POST",
                                    url: "/updateEditedAssignments",
                                    data: {data: JSON.stringify(editedAssignments)},
                                    async: true
                                });
-                    }
                     refreshWithoutReload(false, classIndex);
                 }
-                delete _editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
             }
 
             function trashAll(element) {
