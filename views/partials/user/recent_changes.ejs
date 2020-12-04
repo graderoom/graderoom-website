@@ -153,7 +153,7 @@
                 recentChange = true;
                 recentChangeText = " " + numChanges + " Change" + (numChanges > 1 ? "s" : "") + ".";
             }
-            container.append(`<hr><span class="timestamp change-data-exists"><span class="popup">` + actualTime + deltaTime + `</span><b class="collapsed" data-toggle="collapse" data-target="#changeData` + i + `">` + numChanges + ` Change` + (numChanges > 1 ? `s` : ``) + `</b></span>`);
+            container.append(`<hr><span class="timestamp change-data-exists"><span class="popup">` + actualTime + deltaTime + `</span><b ` + (firstCardUnCollapsed ? `class="collapsed"` : ``) + ` data-toggle="collapse" data-target="#changeData` + i + `">` + numChanges + ` Change` + (numChanges > 1 ? `s` : ``) + `</b></span>`);
 
             // Create the class cards
             let changeCard = `<div id="changeData` + i + `" class="collapse` + (!firstCardUnCollapsed ? ` show` : ``) + `">`;
