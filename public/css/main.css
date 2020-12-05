@@ -2411,6 +2411,18 @@ input:disabled {
     border-radius: 0.5rem;
 }
 
+#login-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+}
+
+#about-container {
+    width: 60%;
+    border-right: 1px solid white;
+    margin-right: 2rem;
+}
+
 /* Firefox */
 @supports not (backdrop-filter: blur(0.1rem)) {
     .disable-in-firefox {
