@@ -3,6 +3,8 @@ const _ = require("lodash");
 const FileSync = require("lowdb/adapters/FileSync");
 const adapter = new FileSync("user_db.json");
 const db = low(adapter);
+const catalogAdapter = new FileSync("catalog.json");
+const catalog = low(catalogAdapter);
 const bcrypt = require("bcryptjs");
 const scraper = require("./scrape");
 const chroma = require("chroma-js");
@@ -198,14 +200,45 @@ module.exports = {
             let className = Object.keys(classes)[i];
             for (let j = 0; j < Object.keys(classes[className]).length; j++) {
                 let teacherName = Object.keys((classes)[className])[j];
-                if (teacherName !== "classType") { //one of the keys is classtype, so ignore that
+                if (_.isObject(classes[className][teacherName]) && !Array.isArray(classes[className][teacherName])) {
                     if (!("suggestions" in classes[className][teacherName])) {
                         classRef.get(className).get(teacherName).set("suggestions", []).write();
+                    }
+                    if (!("assignments" in classes[className][teacherName])) {
+                        classRef.get(className).get(teacherName).set("assignments", {}).write();
+                    }
+                    if (!("overall_grades" in classes[className][teacherName])) {
+                        classRef.get(className).get(teacherName).set("overall_grades", []).write();
                     }
                     // Remove suggestions without usernames
                     classRef.get(className).get(teacherName).get("suggestions").remove(function (e) {
                         return !("usernames" in e);
                     }).write();
+                }
+                if (!("department" in classes[className])) {
+                    // Update classes from catalog
+                    let catalogClass = catalog.find({class_name: className}).value();
+                    if (catalogClass) {
+                        classRef.get(className).set('department', catalogClass.department).write();
+                        classRef.get(className).set('grade_levels', catalogClass.grade_levels).write();
+                        classRef.get(className).set('credits', catalogClass.credits).write();
+                        classRef.get(className).set('terms', catalogClass.terms).write();
+                        classRef.get(className).set('description', catalogClass.description).write();
+                        classRef.get(className).set('uc_csuClassType', catalogClass.uc_csuClassType).write();
+                        classRef.get(className).set('classType', catalogClass.classType).write();
+                    } else {
+                        classRef.get(className).set('department', '').write();
+                        classRef.get(className).set('credits', '').write();
+                        classRef.get(className).set('terms', '').write();
+                        classRef.get(className).set('description', '').write();
+                        if (className.includes('Cura')) {
+                            classRef.get(className).set('uc_csuClassType', '').write();
+                            classRef.get(className).set('classType', 'non-academic').write();
+                        } else {
+                            classRef.get(className).set('uc_csuClassType', 'uc').write();
+                            classRef.get(className).set('classType', 'none').write();
+                        }
+                    }
                 }
             }
         }
@@ -381,6 +414,8 @@ module.exports = {
             userRef.get("appearance").unset("accentColor").write();
         }
 
+        this.bringUpToDate(username, false);
+
     }, bringUpToDate: function (username, onlyLatest = true) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
@@ -508,6 +543,7 @@ module.exports = {
         for (let i = 0; i < userClasses.length; i++) {
             relClasses[userClasses[i][0]] = {
                 "classType": classes[userClasses[i][0]]["classType"],
+                "uc_csuClassType": classes[userClasses[i][0]]["uc_csuClassType"],
                 "weights": userClasses[i][1] ? classes[userClasses[i][0]][userClasses[i][1]]["weights"] : null,
                 "hasWeights": userClasses[i][1] ? classes[userClasses[i][0]][userClasses[i][1]]["hasWeights"] : null
             };
@@ -1004,30 +1040,40 @@ module.exports = {
         let modClassName = "[\"" + className + "\"]";
 
         if (!Object.keys(classesRef.value()).includes(className)) {
-            // Set default AP/Honors to classes with names that suggest it
-            let classtype = "none";
-            if (className.includes("AP")) {
-                classtype = "ap";
-            } else if (className.includes("Honors")) {
-                classtype = "honors";
-            } else if (className === "Teaching Assistant") {
-                classtype = "non-academic";
+            // Update classes from catalog
+            let catalogClass = catalog.find({class_name: className}).value();
+            classesRef.set(className, {}).write();
+            if (catalogClass) {
+                classesRef.get(className).set('department', catalogClass.department).write();
+                classesRef.get(className).set('grade_levels', catalogClass.grade_levels).write();
+                classesRef.get(className).set('credits', catalogClass.credits).write();
+                classesRef.get(className).set('terms', catalogClass.terms).write();
+                classesRef.get(className).set('description', catalogClass.description).write();
+                classesRef.get(className).set('uc_csuClassType', catalogClass.uc_csuClassType).write();
+                classesRef.get(className).set('classType', catalogClass.classType).write();
+            } else {
+                classesRef.get(className).set('department', '').write();
+                classesRef.get(className).set('credits', '').write();
+                classesRef.get(className).set('terms', '').write();
+                classesRef.get(className).set('description', '').write();
+                if (className.includes('Cura')) {
+                    classesRef.get(className).set('uc_csuClassType', '').write();
+                    classesRef.get(className).set('classType', 'non-academic').write();
+                } else {
+                    classesRef.get(className).set('uc_csuClassType', 'uc').write();
+                    classesRef.get(className).set('classType', 'none').write();
+                }
             }
-
-            classesRef.set(modClassName, {
-                classType: classtype
-            }).write();
         }
         if (!teacherName) {
             return;
         }
         classesRef.get(modClassName).set(teacherName, {
-            weights: {}, //TODO Weights
-            hasWeights: null, //TODO Has weights
-            suggestions: [] // assignments: {}, //TODO populate assignments by some kind of identifier (points
-            // possible + assignment name
-            // should be enough to differentiate assignments)
-            // overallGrades: [] //TODO populate with overall grades of users (for average) length will give # in class
+            weights: {},
+            hasWeights: null,
+            suggestions: [],
+            assignments: {},
+            overall_grades: []
         }).write();
     },
 
@@ -1685,10 +1731,8 @@ function containsClass(obj, list) {
 
 function dbContainsClass(class_name, teacher_name) {
     let classes = db.get("classes").value();
-    if (classes[class_name] && classes[class_name][teacher_name]) {
-        return true;
-    }
-    return false;
+    return classes[class_name] && classes[class_name][teacher_name];
+
 }
 
 function getSuggestionIndex(class_name, teacher_name, weight) {
