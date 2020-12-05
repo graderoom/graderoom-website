@@ -11,3 +11,4 @@ node_modules/
 .idea/
 venv
 user_db*.json
+/credentials.json

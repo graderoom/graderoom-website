@@ -42,6 +42,11 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 4.0.4] - 2020-12-05
+### Added
+- UC/CSU GPA (Beta)<ul>
+- Cumulative GPA might become incorrect. Please report this</ul>
+
 ## [Stable 4.0.3] - 2020-12-04
 ### Fixed
 - Issue with using the revert all buttons

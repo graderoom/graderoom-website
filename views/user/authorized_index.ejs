@@ -189,22 +189,20 @@
                                     <% } %>
                                 </h5>
                             </div>
-                            <% if (Object.keys(JSON.parse(gradeHistory)).length) { %>
-                                <div>
-                                    <h5 class="text-center">Cumulative GPA<span class="popup"><i
-                                                    class="fa fa-question-circle"
-                                                    style="margin-left: 0.4rem"><span
-                                                        class="popup-right-top">Your cumulative GPA
-                                                    is what shows up on your transcript. It does not include pe or
-                                                    summer classes. This cumulative GPA does not include your current
-                                                    semester.</span></i></span></h5>
-                                    <h5 id="GPA-display-cumulative">----
-                                        <% if (JSON.parse(appearance).showMaxGPA) { %>/----
-                                        <% } %>
-                                    </h5>
-                                </div>
-                            <% } %>
-                            <div>
+                            <div style="display: none">
+                                <h5 class="text-center">Cumulative GPA<span class="popup"><i
+                                                class="fa fa-question-circle"
+                                                style="margin-left: 0.4rem"><span
+                                                    class="popup-right-top">Your cumulative GPA
+                                                is what shows up on your transcript. It does not include pe or
+                                                summer classes. This cumulative GPA does not include your current
+                                                semester.</span></i></span></h5>
+                                <h5 id="GPA-display-cumulative">----
+                                    <% if (JSON.parse(appearance).showMaxGPA) { %>/----
+                                    <% } %>
+                                </h5>
+                            </div>
+                            <div style="display: none">
                                 <h5 class="text-center">UC/CSU GPA<span class="popup"><i class="fa fa-question-circle"
                                                                                          style="margin-left: 0.4rem"><span
                                                     class="popup-right-top">This is your GPA as calculated by
@@ -212,11 +210,10 @@
                                                         style="color: <%= accentColor; %>">University of
                                                     California System</span><br>and the<br><span
                                                         style="color: <%= accentColor; %>">California State
-                                                    University System</span>.<br> This metric uses grades from
-                                                10<sup>th</sup>
-                                                and 11<sup>th</sup> grade and only includes certain classes.</span></i></span>
-                                </h5>
-                                <h5 id="GPA-display-uc">Coming Soon!</h5>
+                                                    University System</span>.<br> This metric is not affected by the weighted GPA setting.</span></i></span></h5>
+                                <h5 id="GPA-display-uc">----
+                                    <% if (JSON.parse(appearance).showMaxGPA) { %>/----
+                                    <% } %></h5>
                             </div>
                         </div>
                         <div id="chart-container-1" class="chart chart-container text-center">
@@ -290,12 +287,37 @@
 
                                 case "non-academic":
                                     classType = "Non-Academic";
+                                    break;
 
                                 default:
                                     break;
                             } %>
-                            <span>Special Weighting: <%= classType %></span>
+                            <% let uc_classType = JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].uc_csuClassType %>
+                            <% switch (uc_classType) {
+                                case "uc_hon":
+                                    uc_classType = "UC Approved Honors";
+                                    break;
+
+                                case "uc_ap":
+                                    uc_classType = "UC Approved AP";
+                                    break;
+
+                                case "uc":
+                                    uc_classType = "UC Approved Regular";
+                                    break;
+
+                                case "":
+                                    uc_classType = "Not UC Approved";
+                                    break;
+
+                                default:
+                                    break;
+                            } %>
                             <span>Teacher: <%= JSON.parse(gradeData)[i].teacher_name || "Unknown" %></span>
+                            <span>
+                                <span>BCP Weighting: <%= classType %></span><br>
+                                <span><%= uc_classType %></span>
+                            </span>
                         </div>
                         <div class="chartAndWeights">
                             <div id="chart-container<%= i + offset; %>" class="chart chart-container">
@@ -1010,16 +1032,14 @@
                     $.ajax({
                                method: "POST", url: "/updateShowMaxGPA", data: {showMaxGPA: JSON.stringify(showMaxGPA)}
                            }).done(() => {
-                        $("#GPA-display").text(getOverallGPA());
-                        if (Object.keys(gradeHistoryLetters).length) {
-                            $("#GPA-display-cumulative").text(getCumulativeGPA());
-                        }
+                               setupOverallGPA();
+                               setupCumulativeGPA();
+                               setup_UC_CSU_GPA();
                     });
                 } else {
-                    $("#GPA-display").text(getOverallGPA());
-                    if (Object.keys(gradeHistoryLetters).length) {
-                        $("#GPA-display-cumulative").text(getCumulativeGPA());
-                    }
+                    setupOverallGPA();
+                    setupCumulativeGPA();
+                    setup_UC_CSU_GPA();
                 }
             }
 
@@ -1053,7 +1073,137 @@
                 return value.toString().split(".")[1].length || 0;
             }
 
-            function getCumulativeGPA() {
+            function setup_UC_CSU_GPA() {
+                let out  = $('#GPA-display-uc');
+
+                // First we need to determine which years are 9-11
+                // We use graduation year for this
+                let gradYear = personalInfo.graduationYear;
+                let ninth = gradYear - 3;
+                let tenth = gradYear - 2;
+                let eleventh = gradYear - 1;
+
+                // Convert years into terms
+                ninth = (ninth - 2001) + "-" + (ninth - 2000); // 19-20
+                tenth = (tenth - 2001) + "-" + (tenth - 2000);
+                eleventh = (eleventh - 2001) + "-" + (eleventh - 2000);
+
+                // Add up points
+                let basePoints = 0;
+                let tenthHonorsPoints = 0;
+                let eleventhHonorsPoints = 0;
+
+                let maxPoints = 0;
+                let maxTenthHonorsPoints = 0;
+                let maxEleventhHonorsPoints = 0;
+
+                let numClasses = 0;
+
+                // Ninth Summer
+                if (ninth in gradeHistoryLetters && "S3" in gradeHistoryLetters[ninth]) {
+                    let classes = gradeHistoryLetters[ninth]["S3"];
+                    for (let c = 0; c < classes.length; c++) {
+                        let classData = Object.entries(classes[c])[0];
+                        let classType = relClassData[classData[0]].uc_csuClassType;
+                        let uc;
+                        [uc, classType] = classType.split("_");
+                        if (uc === "uc") {
+                            numClasses++;
+                            let points = getGPA(classData[1]);
+                            basePoints += points;
+                            maxPoints += 4;
+                            if ((["hon", "ap"]).includes(classType)) {
+                                if (points >= 2) {
+                                    tenthHonorsPoints++;
+                                }
+                                maxTenthHonorsPoints++;
+                            }
+                        }
+                    }
+                }
+
+                // Tenth
+                let classesCounted = [];
+                if (tenth in gradeHistoryLetters) {
+                    let semesters = Object.keys(gradeHistoryLetters[tenth]);
+                    for (let s = 0; s < semesters.length; s++) {
+                        let classes = gradeHistoryLetters[tenth][semesters[s]];
+                        for (let c = 0; c < classes.length; c++) {
+                            let classData = Object.entries(classes[c])[0];
+                            if (classesCounted.includes(classData[0])) continue;
+                            let classType = relClassData[classData[0]].uc_csuClassType;
+                            let uc;
+                            [uc, classType] = classType.split("_");
+                            if (uc === "uc") {
+                                classesCounted.push(classData[0]);
+                                let points = getGPA(classData[1]);
+                                basePoints += points;
+                                maxPoints += 4;
+                                if ((["hon", "ap"]).includes(classType)) {
+                                    if (points >= 2) {
+                                        tenthHonorsPoints++;
+                                    }
+                                    maxTenthHonorsPoints++;
+                                }
+                            }
+                        }
+                    }
+                }
+                numClasses += classesCounted.length;
+
+                // Eleventh
+                classesCounted = [];
+                if (eleventh in gradeHistoryLetters) {
+                    let semesters = Object.keys(gradeHistoryLetters[eleventh]);
+                    for (let s = 0; s < semesters.length; s++) {
+                        let classes = gradeHistoryLetters[eleventh][semesters[s]];
+                        for (let c = 0; c < classes.length; c++) {
+                            let classData = Object.entries(classes[c])[0];
+                            if (classesCounted.includes(classData[0])) continue;
+                            let classType = relClassData[classData[0]].uc_csuClassType;
+                            let uc;
+                            [uc, classType] = classType.split("_");
+                            if (uc === "uc") {
+                                classesCounted.push(classData[0]);
+                                let points = getGPA(classData[1]);
+                                basePoints += points;
+                                maxPoints += 4;
+                                if ((["hon", "ap"]).includes(classType)) {
+                                    if (points >= 2) {
+                                        eleventhHonorsPoints++;
+                                    }
+                                    maxEleventhHonorsPoints++;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                numClasses += classesCounted.length;
+
+                // Cap points at 4 in 10th and 8 total
+                tenthHonorsPoints = Math.min(4, tenthHonorsPoints);
+                eleventhHonorsPoints = Math.min(8 - tenthHonorsPoints, eleventhHonorsPoints);
+                let GPA = basePoints + tenthHonorsPoints + eleventhHonorsPoints;
+
+                maxTenthHonorsPoints = Math.min(4, maxTenthHonorsPoints);
+                maxEleventhHonorsPoints = Math.min(8 - maxTenthHonorsPoints, maxEleventhHonorsPoints);
+                let max = maxPoints + maxTenthHonorsPoints + maxEleventhHonorsPoints;
+
+                // Dived by numClasses
+                GPA /= numClasses;
+                max /= numClasses;
+
+                if (GPA && max) {
+                    out.text(GPA.toFixed(3) + (showMaxGPA ? "/" + max.toFixed(3) : "")).parent().show();
+                    return true;
+                }
+                out.parent().hide();
+                return false;
+            }
+
+            function setupCumulativeGPA() {
+                let out = $('#GPA-display-cumulative');
                 let GPA = 0.0;
                 let max = 0.0;
                 let numClasses = 0;
@@ -1063,7 +1213,7 @@
                     let semesters = Object.keys(gradeHistoryLetters[term]);
                     for (let s = 0; s < semesters.length; s++) {
                         let semester = semesters[s];
-                        if (semester === "S3") continue;
+                        if (semester === "S3") continue; // Ignore summer
                         let classes = gradeHistoryLetters[term][semester];
                         for (let c = 0; c < classes.length; c++) {
                             let classData = Object.entries(classes[c])[0];
@@ -1082,10 +1232,17 @@
                 }
                 GPA /= numClasses;
                 max /= numClasses;
-                return GPA.toFixed(3) + (showMaxGPA ? "/" + max.toFixed(3) : "");
+
+                if (GPA && max) {
+                    out.text(GPA.toFixed(3) + (showMaxGPA ? "/" + max.toFixed(3) : "")).parent().show();
+                    return true;
+                }
+                out.parent().hide();
+                return false;
             }
 
-            function getOverallGPA() {
+            function setupOverallGPA() {
+                let out = $('#GPA-display');
                 let GPA = 0.0;
                 let max = 0.0;
                 let numClasses = _data.length;
@@ -1105,7 +1262,13 @@
                 }
                 GPA /= numClasses;
                 max /= numClasses;
-                return GPA.toFixed(3) + (showMaxGPA ? "/" + max.toFixed(3) : "");
+
+                if (GPA && max) {
+                    out.text(GPA.toFixed(3) + (showMaxGPA ? "/" + max.toFixed(3) : "")).parent().show();
+                    return true;
+                }
+                out.parent().hide();
+                return false;
             }
 
             function getGPA(letterGrade) {
