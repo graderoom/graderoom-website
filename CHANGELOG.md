@@ -46,7 +46,7 @@
 ### Added
 - UC/CSU GPA (Beta)<ul>
 - Cumulative GPA might become incorrect. Please report this</ul>
-- Both BCP weighting and UC approval of courses is now displayed on each class page
+- Both BCP weighting and UC approval of courses are now displayed on each class page
 
 ## [Stable 4.0.3] - 2020-12-04
 ### Fixed
