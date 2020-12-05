@@ -10,4 +10,4 @@ user_db.json
 node_modules/
 .idea/
 venv
-*.json
+user_db*.json
