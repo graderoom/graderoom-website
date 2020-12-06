@@ -250,6 +250,10 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
 
+        if (!Array.isArray(userRef.get("updatedGradeHistory").value())) {
+            userRef.set("updatedGradeHistory", []).write();
+        }
+
         // Update darkModeStart/Finish
         if (userRef.get("appearance").get("darkModeStart").value() === null) {
             userRef.get("appearance").set("darkModeStart",18).write();
@@ -737,6 +741,7 @@ module.exports = {
                                          },
                                          weights: {},
                                          grades: {},
+                                         updatedGradeHistory: [],
                                          addedAssignments: {},
                                          editedAssignments: {},
                                          sortingData: {
@@ -912,8 +917,8 @@ module.exports = {
                                 } else if (classes[k].grades.length) {
                                     oldRef = grade_history_update_status.new_grades[years[i]][semesters[j]][k];
                                 } else {
-                                    oldRef.overall_percent = grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_percent;
-                                    oldRef.overall_letter = grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_letter;
+                                    oldRef.set('overall_percent', grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_percent).write();
+                                    oldRef.set('overall_letter', grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_letter).write();
                                 }
                             }
                         }
@@ -1017,7 +1022,7 @@ module.exports = {
         }
         this.bringUpToDate(lc_username);
         let updateHistory = false;
-        if (newTerm !== oldTerm && newSemester !== oldSemester) {
+        if ((newTerm !== oldTerm && newSemester !== oldSemester) || !userRef.get("updatedGradeHistory").value().length) {
             this.setColorPalette(lc_username, "clear", false);
             this.resetSortData(lc_username);
             updateHistory = true;
@@ -1042,26 +1047,26 @@ module.exports = {
         if (!Object.keys(classesRef.value()).includes(className)) {
             // Update classes from catalog
             let catalogClass = catalog.find({class_name: className}).value();
-            classesRef.set(className, {}).write();
+            classesRef.set(modClassName, {}).write();
             if (catalogClass) {
-                classesRef.get(className).set('department', catalogClass.department).write();
-                classesRef.get(className).set('grade_levels', catalogClass.grade_levels).write();
-                classesRef.get(className).set('credits', catalogClass.credits).write();
-                classesRef.get(className).set('terms', catalogClass.terms).write();
-                classesRef.get(className).set('description', catalogClass.description).write();
-                classesRef.get(className).set('uc_csuClassType', catalogClass.uc_csuClassType).write();
-                classesRef.get(className).set('classType', catalogClass.classType).write();
+                classesRef.get(modClassName).set('department', catalogClass.department).write();
+                classesRef.get(modClassName).set('grade_levels', catalogClass.grade_levels).write();
+                classesRef.get(modClassName).set('credits', catalogClass.credits).write();
+                classesRef.get(modClassName).set('terms', catalogClass.terms).write();
+                classesRef.get(modClassName).set('description', catalogClass.description).write();
+                classesRef.get(modClassName).set('uc_csuClassType', catalogClass.uc_csuClassType).write();
+                classesRef.get(modClassName).set('classType', catalogClass.classType).write();
             } else {
-                classesRef.get(className).set('department', '').write();
-                classesRef.get(className).set('credits', '').write();
-                classesRef.get(className).set('terms', '').write();
-                classesRef.get(className).set('description', '').write();
-                if (className.includes('Cura')) {
-                    classesRef.get(className).set('uc_csuClassType', '').write();
-                    classesRef.get(className).set('classType', 'non-academic').write();
+                classesRef.get(modClassName).set('department', '').write();
+                classesRef.get(modClassName).set('credits', '').write();
+                classesRef.get(modClassName).set('terms', '').write();
+                classesRef.get(modClassName).set('description', '').write();
+                if (modClassName.includes('Cura')) {
+                    classesRef.get(modClassName).set('uc_csuClassType', '').write();
+                    classesRef.get(modClassName).set('classType', 'non-academic').write();
                 } else {
-                    classesRef.get(className).set('uc_csuClassType', 'uc').write();
-                    classesRef.get(className).set('classType', 'none').write();
+                    classesRef.get(modClassName).set('uc_csuClassType', 'uc').write();
+                    classesRef.get(modClassName).set('classType', 'none').write();
                 }
             }
         }

@@ -367,7 +367,7 @@ class PowerschoolScraper:
                     else:
                         local_class = ClassGrade(class_name, False,
                                                  overall_percent,
-                                                 overall_letter)
+                                                 overall_letter, False, False)
                         semester_classes.append(local_class.as_dict())
 
             # Finalize data for the selected year
@@ -522,7 +522,7 @@ class PowerschoolScraper:
 
         now = datetime.now()
 
-        # Declare likely start and end dates for each semester to 
+        # Declare likely start and end dates for each semester to
         # determine data to send request with
         semester_1 = []
         semester_2 = []
