@@ -40,7 +40,11 @@
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
-- None
+- New users cannot view cumulative gpa <strong>[Fixed in Beta 4.0.5]</strong>
+
+## [Beta 4.0.5] - 2020-12-06
+### Fixed
+- An issue where new users could not view cumulative or uc gpas
 
 ## [Beta 4.0.4] - 2020-12-05
 ### Added
