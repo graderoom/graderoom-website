@@ -189,7 +189,7 @@
                                     <% } %>
                                 </h5>
                             </div>
-                            <% if (Object.values(JSON.parse(gradeHistory)).filter(v => Object.values(v).length)) { %>
+                            <% if (Object.values(JSON.parse(gradeHistory)).filter(v => Object.values(v).length).length) { %>
                                 <div>
                                     <h5 class="text-center">Cumulative GPA<span class="popup"><i
                                                     class="fa fa-question-circle"
