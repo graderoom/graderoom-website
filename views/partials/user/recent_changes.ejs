@@ -277,7 +277,7 @@
 
                 if (modifiedClasses[j] in removedAssignments) {
                     card += `<div class="grade-changes-section"><div class="grade-changes-section-header">Removed</div><hr>`;
-                    for (let k = 0; j < removedAssignments[modifiedClasses[j]].length; k++) {
+                    for (let k = 0; k < removedAssignments[modifiedClasses[j]].length; k++) {
                         card += `<div><span>` + removedAssignments[modifiedClasses[j]][k].assignment_name + `</div>`;
                     }
                     card += `</div>`;
