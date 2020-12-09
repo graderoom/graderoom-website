@@ -44,6 +44,11 @@
 - Incorrect grade messages sometimes displayed incorrect grades <strong>[Fixed in Beta 4.0.6]</strong>
 - <em>[Beta]</em> Unnecessary refreshes when viewing old semesters <strong>[Fixed in Beta 4.0.6]</strong>
 
+## [Stable 4.0.7] - 2020-12-09
+### Fixed
+- Fatal issue caused by removed assignments
+- Issue with cumulative GPA being displayed when it was not necessary
+
 ## [Beta 4.0.6] - 2020-12-09
 ### Added
 - Clicking grade deltas now open sync log
