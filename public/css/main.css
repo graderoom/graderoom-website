@@ -466,8 +466,18 @@ table thead tr th:last-child {
     border-radius: 0.5rem;
 }
 
-.accordian-label h5:hover {
+.accordion-label h5:hover {
     font-weight: bold !important;
+}
+
+.square {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 0;
+    margin-right: 0;
+    border-color: currentColor;
+    border-width: 5px;
 }
 
 .form-signin .btn {
