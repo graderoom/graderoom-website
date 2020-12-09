@@ -12,7 +12,7 @@
     }
 </style>
 <style id="light_snowfall"
-<% if (!JSON.parse(appearance).holidayEffects || theme) { %> media="not all"
+        <% if (!JSON.parse(appearance).holidayEffects || theme) { %> media="not all"
         <% } %>
 >
     #snow-fall {
@@ -25,7 +25,7 @@
 ></canvas>
 <% const lightsMonth = 11; /* 11 is December */ %>
 <% if (page == "home" && JSON.parse(betaFeatures).showFps) { %>
-    <span style="z-index: 999; position: fixed; bottom: 10px; left: 10px;" id="fps"></span>
+<span style="z-index: 999; position: fixed; bottom: 10px; left: 10px;" id="fps"></span>
 <% } %>
 
 <script>
@@ -59,9 +59,9 @@
 
         function initializeFlake(flake, initial = true) {
             if (initial) {
-                flake.yPos = Math.random() * (-screenHeight);
+                flake.yPos = 2 * Math.random() * (-screenHeight);
             } else {
-                flake.yPos = -10;
+                flake.yPos = Math.random() * (-screenHeight);
             }
             flake.xPos = Math.random() * screenWidth;
             flake.rotation = Math.random() * (Math.PI * 2);
@@ -96,20 +96,22 @@
                 if (_1sTempFps.length > 2) {
                     _1sAverage = _1sTempFps.reduce((a, b) => a + b) / _1sTempFps.length;
                     _1sTempFps = _1sTempFps.slice(-2);
-                    if (performance.now() - init < 10000) return; // Wait 10 seconds before making fps-based changes
+                    if (performance.now() - init < 10000) {
+                        return;
+                    } // Wait 10 seconds before making fps-based changes
                     if (_1sAverage < 20 && showingLights) {
-                        $('.lightrope li').css('animation-play-state', 'paused');
+                        $(".lightrope li").css("animation-play-state", "paused");
                         showingLights = false;
-                        $('#lights-disabled-message').fadeIn('fast');
+                        $("#lights-disabled-message").fadeIn("fast");
                         init = performance.now();
                         return;
                     }
                     if (_1sAverage < 20 && !showingLights) {
-                        $('#snow-fall').fadeOut('slow');
-                        $('#snow-disabled-message').fadeIn('fast');
+                        $("#snow-fall").fadeOut("slow");
+                        $("#snow-disabled-message").fadeIn("fast");
                     } else if (!showingLights) {
-                        $('#snow-fall').fadeIn('slow');
-                        $('#snow-disabled-message').fadeOut('fast');
+                        $("#snow-fall").fadeIn("slow");
+                        $("#snow-disabled-message").fadeOut("fast");
                     }
                 }
             }, 1000);
@@ -203,5 +205,5 @@
 </script>
 
 <% if (new Date().getMonth() === lightsMonth) { %>
-    <% include christmas_lights.ejs %>
+<% include christmas_lights.ejs %>
 <% } %>

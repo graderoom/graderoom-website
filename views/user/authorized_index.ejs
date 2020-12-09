@@ -510,6 +510,12 @@
                                     </table>
                                 </form>
                             </div>
+                            <div style="align-self: center;">
+                                <span id="addedOption<%= i + offset; %>"><span class="square" style="color: green"></span>
+                                    Added</span>
+                                <span id="modifiedOption<%= i + offset; %>"><span class="square" style="margin-left: 0.5rem; color: deepskyblue"></span>
+                                    Modified</span>
+                            </div>
                             <div class="tableOptionsContainer">
                                 <div class="tableOptions">
                                     <div>Sort By</div>
@@ -781,14 +787,16 @@
             let showMaxGPA = appearance.showMaxGPA;
             let recentChangeText = "";
 
+            let latestChange;
+
             // This should only happen once
             let {dateSort, categorySort} = <%- sortingData; %>;
+            setupGradeChanges(false);
             refreshWithoutReload(true);
             setupGPADisplays();
             setupWeightsTableListeners();
             setupInputListeners();
             setupAddAssignments();
-            setupGradeChanges(false);
             $("#termSwitcher").addClass("hover");
             setTimeout(() => $("#termSwitcher").removeClass("hover"), 2000);
             if (theme === "auto" || theme === "sun") {
@@ -956,6 +964,9 @@
                 if (!newData.grades || !newData.weights) {
                     return {updated: true};
                 }
+                if (document.location.href.includes('term') && document.location.href.includes('semester')) {
+                    return {updated: true};
+                }
                 if (_.isEqual(_data.map(c => c.class_name), newData.grades.map(c => c.class_name)) && _.isEqual(weights, newData.weights)) {
                     data = newData.grades;
                     return {updated: true};
@@ -986,8 +997,8 @@
                                     }
                                 } else {
                                     alerts.lastUpdated.push(JSON.parse(message.updateData));
-                                    refreshWithoutReload(true);
                                     setupGradeChanges();
+                                    refreshWithoutReload(true);
                                 }
                             } else if (message.message === "Already Synced!") {
                                 clearInterval(checking);
@@ -1034,18 +1045,19 @@
                            }).done(() => {
                                setupOverallGPA();
                                setupCumulativeGPA();
-                               setup_UC_CSU_GPA();
+                               setupUC_CSU_GPA();
                     });
                 } else {
                     setupOverallGPA();
                     setupCumulativeGPA();
-                    setup_UC_CSU_GPA();
+                    setupUC_CSU_GPA();
                 }
             }
 
             function setupIncorrectGradeMessages(classIndex) {
                 for (let i = 0; i < _data.length; i++) {
                     if (classIndex === undefined || classIndex === i) {
+                        $("#incorrectOverallGrade" + i + " span").html(`Grade in PowerSchool: <nobr>` + ` (` + _data[i].overall_letter + `)</nobr>`);
                         if (!correctCalc(i)) {
                             $("#incorrectOverviewGrade" + i).css("display", "inline-block");
                             $("#incorrectOverallGrade" + i).css("display", "inline-block");
@@ -1073,7 +1085,7 @@
                 return value.toString().split(".")[1].length || 0;
             }
 
-            function setup_UC_CSU_GPA() {
+            function setupUC_CSU_GPA() {
                 let out  = $('#GPA-display-uc');
 
                 // First we need to determine which years are 9-11
@@ -1466,18 +1478,21 @@
                             }
                         }
                         let overallGrade = getOverallGrade(i);
-                        let assignmentData = parsedData[i].rawData;
-                        let lastIndex = assignmentData.length - 1;
-                        let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(2);
+                        let delta;
                         let color;
-                        if (delta > 0) {
-                            delta = "<i class=\"fa fa-caret-up\"></i>" + delta + "%";
-                            color = "green";
-                        } else if (delta < 0) {
-                            delta = "<i class=\"fa fa-caret-down\"></i>" + delta + "%";
-                            color = "red";
+                        if (latestChange) {
+                            if (latestChange.overall && _data[i].class_name in latestChange.overall && 'overall_percent' in latestChange.overall[_data[i].class_name]) {
+                                delta = +(_data[i].overall_percent - latestChange.overall[_data[i].class_name].overall_percent).toFixed(2);
+                            }
+                            if (delta > 0) {
+                                delta = "<i class=\"fa fa-caret-up\"></i>" + delta + "%";
+                                color = "green";
+                            } else if (delta < 0) {
+                                delta = "<i class=\"fa fa-caret-down\"></i>" + delta + "%";
+                                color = "red";
+                            }
                         }
-                        delta = (delta ? (" <div style=\"display: inline-block; margin-left: 1rem; color: " + color + "\">" + delta + "</div>") : "");
+                        delta = (delta ? (" <div style=\"cursor: pointer; display: inline-block; margin-left: 1rem; color: " + color + "\" onclick=\"setupGradeChanges()\">" + delta + "</div>") : "");
                         if (overallGrade) {
                             document.getElementById("weightTableOverallGrade" + i).innerHTML = (+(overallGrade.toFixed(2))).toString() + "% (" + getLetterGrade(overallGrade) + ")" + delta;
                         } else {
@@ -1585,7 +1600,7 @@
                 let addAssignment = $($(".addAssignment")[currentPage]);
                 addAssignment.trigger("click");
                 recentlyAddedAssignment = assignmentObject;
-                refreshWithoutReload(classIndex);
+                refreshWithoutReload(true, classIndex);
             }
 
             function updatePointsGotten(element) {
@@ -2217,6 +2232,7 @@
                         let assignmentPercents;
                         let assignmentExcludes;
                         let assignmentAdds;
+                        let assignmentPSAIDs;
                         let rowDivs;
                         let row;
                         let assignmentDateDivs;
@@ -2244,6 +2260,7 @@
                             assignmentPercents = categorySortedData[i].assignmentPercents;
                             assignmentExcludes = categorySortedData[i].assignmentExcludes;
                             assignmentAdds = categorySortedData[i].assignmentAdds;
+                            assignmentPSAIDs = categorySortedData[i].assignmentPSAIDs;
 
                             rowDivs = $(`.categoryClassTableRow${i}`);
                             row = `<tr class="categoryClassTableRow${i}">
@@ -2367,6 +2384,7 @@
                             assignmentPercents = parsedData[i].assignmentPercents;
                             assignmentExcludes = parsedData[i].assignmentExcludes;
                             assignmentAdds = parsedData[i].assignmentAdds;
+                            assignmentPSAIDs = parsedData[i].assignmentPSAIDs;
 
                             rowDivs = $(`.classTableRow${i}`);
                             row = `<tr class="classTableRow${i}">
@@ -2464,6 +2482,7 @@
                             $(`#modAllTab${i}`).css("visibility", "hidden").children("span").children("i").addClass("disabled");
                             $(`#table${i}`).removeClass("unround-top-right").show();
                         }
+                        $('#addedOption' + i + ', #modifiedOption' + i).hide();
                         // Rows
                         for (let j = 0; j < assignmentData.length; j++) {
                             let assignmentIndex;
@@ -2478,8 +2497,26 @@
                             // Set up dates
                             $(assignmentDateDivs[assignmentIndex]).text(assignmentDates[j]);
 
+                            // Color names based on grade changes
+                            let textColor;
+                            if (latestChange) {
+                                if(_data[i].class_name in latestChange.added && Object.values(latestChange.added[_data[i].class_name]).includes(assignmentPSAIDs[j])) {
+                                    $('#addedOption' + i).show();
+                                    textColor = "green";
+                                }
+                                if(_data[i].class_name in latestChange.modified && latestChange.modified[_data[i].class_name].filter(m => m.psaid === assignmentPSAIDs[j]).length) {
+                                    $('#modifiedOption' + i).show();
+                                    textColor = "deepskyblue";
+                                }
+                            }
+
                             // Set up names
                             $(assignmentNameDivs[assignmentIndex]).text(assignmentNames[j]);
+                            if (textColor) {
+                                $(assignmentNameDivs[assignmentIndex]).css('color', textColor).css('font-weight', 'bold');
+                            } else {
+                                $(assignmentNameDivs[assignmentIndex]).css('color', '').css('font-weight', '');
+                            }
 
                             // Set up categories
                             let dropdown = $(assignmentCategoryDivs[assignmentIndex]).children("select");
@@ -2872,6 +2909,7 @@
                         assignmentScoresParsed = classData.map(x => parseScore(x.points_gotten, x.points_possible));
                         assignmentCategories = classData.map(x => x.category);
                         let assignmentExcludes = classData.map(x => x.exclude);
+                        let assignmentPSAIDs = classData.map(x => x.psaid);
                         let assignmentAdds = classData.map((grade, index) => aData[i][index] !== undefined);
                         let rawData = overallGradeSteps.map((grade, index) => grade === false ? (index >= 0 ? excludedGradeSteps.shift() : 100) : grade);
                         parsedData[i] = {
@@ -2881,6 +2919,7 @@
                             assignmentScoresParsed: assignmentScoresParsed,
                             assignmentCategories: assignmentCategories,
                             assignmentExcludes: assignmentExcludes,
+                            assignmentPSAIDs: assignmentPSAIDs,
                             assignmentAdds: assignmentAdds,
                             rawData: rawData
                         };
@@ -2894,6 +2933,7 @@
                             assignmentScoresParsed: assignmentScoresParsed.map((x, index, arr) => arr[sortHelper[index]]),
                             assignmentCategories: assignmentCategories.map((x, index, arr) => arr[sortHelper[index]]),
                             assignmentExcludes: assignmentExcludes.map((x, index, arr) => arr[sortHelper[index]]),
+                            assignmentPSAIDs: assignmentPSAIDs.map((x, index, arr) => arr[sortHelper[index]]),
                             assignmentAdds: assignmentAdds.map((x, index, arr) => arr[sortHelper[index]]),
                             rawData: categoryGradeSteps.map((x, index, arr) => arr[sortHelper[index]]),
                             originalIndices: sortHelper

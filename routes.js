@@ -609,6 +609,15 @@ module.exports = function (app, passport) {
         }
     });
 
+    app.post("/updateuccsuclasstype", [isAdmin], (req, res) => {
+        let resp = authenticator.updateUCCSUClassTypeInClassDb(req.body.className, req.body.classType);
+        if (resp.success) {
+            res.status(200).send(resp);
+        } else {
+            res.status(400).send(resp);
+        }
+    });
+
     app.post("/setColorPalette", [isLoggedIn], (req, res) => {
         let resp = authenticator.setColorPalette(req.user.username, req.body.preset, JSON.parse(req.body.shuffleColors));
         if (resp.success) {
@@ -759,7 +768,8 @@ module.exports = function (app, passport) {
             appearance: JSON.stringify(req.user.appearance),
             beta: server.needsBetaKeyToSignUp,
             sunset: sunset,
-            sunrise: sunrise
+            sunrise: sunrise,
+            _: _
         });
     });
 

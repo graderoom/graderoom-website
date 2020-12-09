@@ -219,25 +219,20 @@ module.exports = {
                     // Update classes from catalog
                     let catalogClass = catalog.find({class_name: className}).value();
                     if (catalogClass) {
-                        classRef.get(className).set('department', catalogClass.department).write();
-                        classRef.get(className).set('grade_levels', catalogClass.grade_levels).write();
-                        classRef.get(className).set('credits', catalogClass.credits).write();
-                        classRef.get(className).set('terms', catalogClass.terms).write();
-                        classRef.get(className).set('description', catalogClass.description).write();
-                        classRef.get(className).set('uc_csuClassType', catalogClass.uc_csuClassType).write();
-                        classRef.get(className).set('classType', catalogClass.classType).write();
+                        classRef.get(className).set("department", catalogClass.department).write();
+                        classRef.get(className).set("grade_levels", catalogClass.grade_levels).write();
+                        classRef.get(className).set("credits", catalogClass.credits).write();
+                        classRef.get(className).set("terms", catalogClass.terms).write();
+                        classRef.get(className).set("description", catalogClass.description).write();
+                        classRef.get(className).set("uc_csuClassType", catalogClass.uc_csuClassType).write();
+                        classRef.get(className).set("classType", catalogClass.classType).write();
                     } else {
-                        classRef.get(className).set('department', '').write();
-                        classRef.get(className).set('credits', '').write();
-                        classRef.get(className).set('terms', '').write();
-                        classRef.get(className).set('description', '').write();
-                        if (className.includes('Cura')) {
-                            classRef.get(className).set('uc_csuClassType', '').write();
-                            classRef.get(className).set('classType', 'non-academic').write();
-                        } else {
-                            classRef.get(className).set('uc_csuClassType', 'uc').write();
-                            classRef.get(className).set('classType', 'none').write();
-                        }
+                        classRef.get(className).set("department", "").write();
+                        classRef.get(className).set("credits", "").write();
+                        classRef.get(className).set("terms", "").write();
+                        classRef.get(className).set("description", "").write();
+                        classRef.get(className).set("uc_csuClassType", "").write();
+                        classRef.get(className).set("classType", "").write();
                     }
                 }
             }
@@ -256,7 +251,7 @@ module.exports = {
 
         // Update darkModeStart/Finish
         if (userRef.get("appearance").get("darkModeStart").value() === null) {
-            userRef.get("appearance").set("darkModeStart",18).write();
+            userRef.get("appearance").set("darkModeStart", 18).write();
             userRef.get("appearance").set("darkModeFinish", 7).write();
         }
 
@@ -265,8 +260,8 @@ module.exports = {
             _start = new Date("0/" + _start + ":00").getTime();
             let _finish = userRef.get("appearance").get("darkModeFinish").value();
             _finish = new Date("0/" + (_finish % 24) + ":00").getTime();
-            userRef.get("appearance").set("darkModeStart",_start).write();
-            userRef.get("appearance").set("darkModeFinish",_finish).write();
+            userRef.get("appearance").set("darkModeStart", _start).write();
+            userRef.get("appearance").set("darkModeFinish", _finish).write();
 
             // Force old auto mode to sunrise/sunset which is objectively better
             if (userRef.get("appearance").get("theme").value() === "auto") {
@@ -657,6 +652,10 @@ module.exports = {
         let classDb = db.get("classes");
         classDb.get(className).set("classType", classType).write();
         return {success: true, message: "Set class type of " + className + " to " + classType};
+    }, updateUCCSUClassTypeInClassDb: function (className, classType) {
+        let classDb = db.get("classes");
+        classDb.get(className).set("uc_csuClassType", classType).write();
+        return {success: true, message: "Set uc class type of " + className + " to " + classType};
     }
 
     //Need to add Try Catches to error check when updating db values
@@ -803,18 +802,15 @@ module.exports = {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username}).value();
         return !!user;
-    },
-    emailExists: function (email) {
+    }, emailExists: function (email) {
         let lc_email = email.toLowerCase();
         let user = db.get("users").find({schoolUsername: lc_email}).value();
         return !!user;
-    },
-    userDeleted: function (username) {
+    }, userDeleted: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("deletedUsers").find({username: lc_username}).value();
         return !!user;
-    },
-    setTheme: function (username, theme, darkModeStart, darkModeFinish, holidayEffects, blurEffects) {
+    }, setTheme: function (username, theme, darkModeStart, darkModeFinish, holidayEffects, blurEffects) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         user.get("appearance").set("theme", theme).write();
@@ -917,8 +913,8 @@ module.exports = {
                                 } else if (classes[k].grades.length) {
                                     oldRef = grade_history_update_status.new_grades[years[i]][semesters[j]][k];
                                 } else {
-                                    oldRef.set('overall_percent', grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_percent).write();
-                                    oldRef.set('overall_letter', grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_letter).write();
+                                    oldRef.set("overall_percent", grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_percent).write();
+                                    oldRef.set("overall_letter", grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_letter).write();
                                 }
                             }
                         }
@@ -1049,36 +1045,27 @@ module.exports = {
             let catalogClass = catalog.find({class_name: className}).value();
             classesRef.set(modClassName, {}).write();
             if (catalogClass) {
-                classesRef.get(modClassName).set('department', catalogClass.department).write();
-                classesRef.get(modClassName).set('grade_levels', catalogClass.grade_levels).write();
-                classesRef.get(modClassName).set('credits', catalogClass.credits).write();
-                classesRef.get(modClassName).set('terms', catalogClass.terms).write();
-                classesRef.get(modClassName).set('description', catalogClass.description).write();
-                classesRef.get(modClassName).set('uc_csuClassType', catalogClass.uc_csuClassType).write();
-                classesRef.get(modClassName).set('classType', catalogClass.classType).write();
+                classesRef.get(modClassName).set("department", catalogClass.department).write();
+                classesRef.get(modClassName).set("grade_levels", catalogClass.grade_levels).write();
+                classesRef.get(modClassName).set("credits", catalogClass.credits).write();
+                classesRef.get(modClassName).set("terms", catalogClass.terms).write();
+                classesRef.get(modClassName).set("description", catalogClass.description).write();
+                classesRef.get(modClassName).set("uc_csuClassType", catalogClass.uc_csuClassType).write();
+                classesRef.get(modClassName).set("classType", catalogClass.classType).write();
             } else {
-                classesRef.get(modClassName).set('department', '').write();
-                classesRef.get(modClassName).set('credits', '').write();
-                classesRef.get(modClassName).set('terms', '').write();
-                classesRef.get(modClassName).set('description', '').write();
-                if (modClassName.includes('Cura')) {
-                    classesRef.get(modClassName).set('uc_csuClassType', '').write();
-                    classesRef.get(modClassName).set('classType', 'non-academic').write();
-                } else {
-                    classesRef.get(modClassName).set('uc_csuClassType', 'uc').write();
-                    classesRef.get(modClassName).set('classType', 'none').write();
-                }
+                classesRef.get(className).set("department", "").write();
+                classesRef.get(className).set("credits", "").write();
+                classesRef.get(className).set("terms", "").write();
+                classesRef.get(className).set("description", "").write();
+                classesRef.get(className).set("uc_csuClassType", "").write();
+                classesRef.get(className).set("ClassType", "").write();
             }
         }
         if (!teacherName) {
             return;
         }
         classesRef.get(modClassName).set(teacherName, {
-            weights: {},
-            hasWeights: null,
-            suggestions: [],
-            assignments: {},
-            overall_grades: []
+            weights: {}, hasWeights: null, suggestions: [], assignments: {}, overall_grades: []
         }).write();
     },
 

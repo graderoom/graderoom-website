@@ -304,8 +304,8 @@
                             setTimeout(() => window.reload(), 400);
                         } else {
                             alerts.lastUpdated.push(JSON.parse(response.updateData));
-                            refreshWithoutReload(true);
                             setupGradeChanges();
+                            refreshWithoutReload(true);
                             setupLastUpdated();
                             $(form).find("button").prop("disabled", false).find("div").removeClass("loading");
                         }
