@@ -41,6 +41,22 @@
 
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - New users cannot view cumulative gpa <strong>[Fixed in Beta 4.0.5]</strong>
+- Incorrect grade messages sometimes displayed incorrect grades <strong>[Fixed in Beta 4.0.6]</strong>
+- <em>[Beta]</em> Unnecessary refreshes when viewing old semesters <strong>[Fixed in Beta 4.0.6]</strong>
+
+## [Beta 4.0.6] - 2020-12-09
+### Added
+- Clicking grade deltas now open sync log
+- Added and modified assignments are colored in class tables
+
+### Improved
+- Grade deltas on class pages now display changes on latest sync with changes
+- Snow has improved
+
+### Fixed
+- An issue where incorrect grade messages sometimes displayed incorrect grades
+- Issue with UC/CSU GPA
+- <em>[Beta]</em> Issue with unnecessary refreshes when viewing old semesters
 
 ## [Beta 4.0.5] - 2020-12-06
 ### Fixed
