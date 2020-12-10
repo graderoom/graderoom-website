@@ -57,7 +57,6 @@
 
 ### Improved
 - Grade deltas on class pages now display changes on latest sync with changes
-- Snow has improved
 
 ### Fixed
 - An issue where incorrect grade messages sometimes displayed incorrect grades
