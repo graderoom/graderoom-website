@@ -307,7 +307,6 @@
                             refreshWithoutReload(true);
                             setupGradeChanges();
                             setupLastUpdated();
-                            $(form).find("button").prop("disabled", false).find("div").removeClass("loading");
                         }
                     } else {
                         setTimeout(function () {
@@ -425,16 +424,13 @@
                         if (data.responseText === "Incorrect login details.") {
                             $(message).text("Incorrect school password.");
                             $("#inputPassword").focus();
-                            $(form).find("button").prop("disabled", false);
                         } else {
                             if (formID === "#syncGradesForm") {
                                 $("#inputUserPassword").focus();
                                 $(".fa-refresh").removeClass("fa-spin").css("opacity", "");
-                                $(form).find("button").prop("disabled", false).find("div").removeClass("loading");
                             } else if (formID === "#gradeSyncForm") {
                                 $("#gradeSyncInputUserPassword").focus();
                                 $(".fa-refresh").removeClass("fa-spin").css("opacity", "");
-                                $(form).find("button").prop("disabled", false).find("div").removeClass("loading");
                             }
                             $(message).text(data.responseText);
                         }
@@ -449,12 +445,12 @@
                     $(formMessagesDiv).find(".sk-chase-mini").hide();
 
                     if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
-                        $(form).find("button").prop("disabled", false).find("div").removeClass("loading");
                         clearTimeout(checkLastUpdated);
                     }
 
                 }).always(function () {
                     if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
+                        $(form).find("button").prop("disabled", false).find("div").removeClass("loading");
                         $("#loadingDisplay").hide();
                         shortcutsEnabled = true;
                     }
