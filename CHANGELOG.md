@@ -48,6 +48,7 @@
 ### Fixed
 - Fatal issue caused by removed assignments
 - Issue with cumulative GPA being displayed when it was not necessary
+- Issue with manual syncing button when PowerSchool is down
 
 ## [Beta 4.0.6] - 2020-12-09
 ### Added
