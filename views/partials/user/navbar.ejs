@@ -48,7 +48,8 @@
                                   class="nav-popups popup-bottom-left tutorial-popup"
                                   style="width: 25rem; margin-top: 1rem;"
                             >
-                                The sync status with PowerSchool will be displayed here. Clicking here will open the sync log.
+                                The sync status with PowerSchool will be displayed here. Clicking here will open the
+                                sync log.
                                 <span class="gotIt"></span>
                             </span>
                         </div>
@@ -381,24 +382,23 @@
                         }
                         if (theme === "auto" || theme === "sun") {
                             checkTime();
-                        } else {
-                            if (appearance.holidayEffects) {
-                                init = performance.now();
-                                $('#lights-disabled-message').hide();
-                                $('#snow-disabled-message').hide();
-                                $("#snow-fall").show();
-                                $(".lightrope").show();
-                                if (darkMode === false) {
-                                    $("#light_snowfall").attr("media", "");
-                                } else if (darkMode) {
-                                    $("#light_snowfall").attr("media", "not all");
-                                }
-                            } else {
-                                $('#lights-disabled-message').hide();
-                                $('#snow-disabled-message').hide();
-                                $("#snow-fall").hide();
-                                $(".lightrope").hide();
+                        }
+                        if (appearance.holidayEffects) {
+                            init = performance.now();
+                            $('#lights-disabled-message').hide();
+                            $('#snow-disabled-message').hide();
+                            $("#snow-fall").show();
+                            $(".lightrope").show();
+                            if (darkMode === false) {
+                                $("#light_snowfall").attr("media", "");
+                            } else if (darkMode) {
+                                $("#light_snowfall").attr("media", "not all");
                             }
+                        } else {
+                            $('#lights-disabled-message').hide();
+                            $('#snow-disabled-message').hide();
+                            $("#snow-fall").hide();
+                            $(".lightrope").hide();
                         }
                     }
 
