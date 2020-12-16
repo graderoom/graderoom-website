@@ -217,6 +217,10 @@ module.exports = {
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
 
+        if (!Array.isArray(userRef.get("updatedGradeHistory").value())) {
+            userRef.set("updatedGradeHistory", []).write();
+        }
+
         // Update darkModeStart/Finish
         if (userRef.get("appearance").get("darkModeStart").value() === null) {
             userRef.get("appearance").set("darkModeStart",18).write();
@@ -380,6 +384,8 @@ module.exports = {
             }
             userRef.get("appearance").unset("accentColor").write();
         }
+
+        this.bringUpToDate(username, false);
 
     }, bringUpToDate: function (username, onlyLatest = true) {
         let lc_username = username.toLowerCase();
@@ -701,6 +707,7 @@ module.exports = {
                                          },
                                          weights: {},
                                          grades: {},
+                                         updatedGradeHistory: [],
                                          addedAssignments: {},
                                          editedAssignments: {},
                                          sortingData: {
@@ -762,18 +769,15 @@ module.exports = {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username}).value();
         return !!user;
-    },
-    emailExists: function (email) {
+    }, emailExists: function (email) {
         let lc_email = email.toLowerCase();
         let user = db.get("users").find({schoolUsername: lc_email}).value();
         return !!user;
-    },
-    userDeleted: function (username) {
+    }, userDeleted: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("deletedUsers").find({username: lc_username}).value();
         return !!user;
-    },
-    setTheme: function (username, theme, darkModeStart, darkModeFinish, holidayEffects, blurEffects) {
+    }, setTheme: function (username, theme, darkModeStart, darkModeFinish, holidayEffects, blurEffects) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         user.get("appearance").set("theme", theme).write();
@@ -876,8 +880,8 @@ module.exports = {
                                 } else if (classes[k].grades.length) {
                                     oldRef = grade_history_update_status.new_grades[years[i]][semesters[j]][k];
                                 } else {
-                                    oldRef.overall_percent = grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_percent;
-                                    oldRef.overall_letter = grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_letter;
+                                    oldRef.set("overall_percent", grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_percent).write();
+                                    oldRef.set("overall_letter", grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_letter).write();
                                 }
                             }
                         }
@@ -981,7 +985,7 @@ module.exports = {
         }
         this.bringUpToDate(lc_username);
         let updateHistory = false;
-        if (newTerm !== oldTerm && newSemester !== oldSemester) {
+        if ((newTerm !== oldTerm && newSemester !== oldSemester) || !userRef.get("updatedGradeHistory").value().length) {
             this.setColorPalette(lc_username, "clear", false);
             this.resetSortData(lc_username);
             updateHistory = true;
@@ -1685,10 +1689,8 @@ function containsClass(obj, list) {
 
 function dbContainsClass(class_name, teacher_name) {
     let classes = db.get("classes").value();
-    if (classes[class_name] && classes[class_name][teacher_name]) {
-        return true;
-    }
-    return false;
+    return classes[class_name] && classes[class_name][teacher_name];
+
 }
 
 function getSuggestionIndex(class_name, teacher_name, weight) {

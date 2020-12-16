@@ -296,6 +296,10 @@
                             } %>
                             <span>Special Weighting: <%= classType %></span>
                             <span>Teacher: <%= JSON.parse(gradeData)[i].teacher_name || "Unknown" %></span>
+                            <span>
+                                <span>BCP Weighting: <%= classType %></span><br>
+                                <span><%= uc_classType %></span>
+                            </span>
                         </div>
                         <div class="chartAndWeights">
                             <div id="chart-container<%= i + offset; %>" class="chart chart-container">
@@ -761,12 +765,12 @@
 
             // This should only happen once
             let {dateSort, categorySort} = <%- sortingData; %>;
+            setupGradeChanges(false);
             refreshWithoutReload(true);
             setupGPADisplays();
             setupWeightsTableListeners();
             setupInputListeners();
             setupAddAssignments();
-            setupGradeChanges(false);
             $("#termSwitcher").addClass("hover");
             setTimeout(() => $("#termSwitcher").removeClass("hover"), 2000);
             if (theme === "auto" || theme === "sun") {
@@ -934,6 +938,9 @@
                 if (!newData.grades || !newData.weights) {
                     return {updated: true};
                 }
+                if (document.location.href.includes('term') && document.location.href.includes('semester')) {
+                    return {updated: true};
+                }
                 if (_.isEqual(_data.map(c => c.class_name), newData.grades.map(c => c.class_name)) && _.isEqual(weights, newData.weights)) {
                     data = newData.grades;
                     return {updated: true};
@@ -964,8 +971,8 @@
                                     }
                                 } else {
                                     alerts.lastUpdated.push(JSON.parse(message.updateData));
-                                    refreshWithoutReload(true);
                                     setupGradeChanges();
+                                    refreshWithoutReload(true);
                                 }
                             } else if (message.message === "Already Synced!") {
                                 clearInterval(checking);
@@ -1026,6 +1033,7 @@
             function setupIncorrectGradeMessages(classIndex) {
                 for (let i = 0; i < _data.length; i++) {
                     if (classIndex === undefined || classIndex === i) {
+                        $("#incorrectOverallGrade" + i + " span").html(`Grade in PowerSchool: <nobr>` + ` (` + _data[i].overall_letter + `)</nobr>`);
                         if (!correctCalc(i)) {
                             $("#incorrectOverviewGrade" + i).css("display", "inline-block");
                             $("#incorrectOverallGrade" + i).css("display", "inline-block");
@@ -1422,7 +1430,7 @@
                 let addAssignment = $($(".addAssignment")[currentPage]);
                 addAssignment.trigger("click");
                 recentlyAddedAssignment = assignmentObject;
-                refreshWithoutReload(classIndex);
+                refreshWithoutReload(true, classIndex);
             }
 
             function updatePointsGotten(element) {
