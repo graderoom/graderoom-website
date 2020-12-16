@@ -40,13 +40,18 @@
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
-- New users cannot view cumulative gpa <strong>[Fixed in Beta 4.0.5]</strong>
-- Incorrect grade messages sometimes displayed incorrect grades <strong>[Fixed in Beta 4.0.6]</strong>
-- <em>[Beta]</em> Unnecessary refreshes when viewing old semesters <strong>[Fixed in Beta 4.0.6]</strong>
+- None
 
-## [Stable 4.0.8] - 2020-12-16
+## [Stable 4.0.9] - 2020-12-16
 ### Fixed
 - Issue with changing advanced appearance settings
+- Issue where new users could not view cumulative gpa
+- Issue where incorrect grade messages sometimes displayed incorrect grades
+- <em>[Beta]</em> Issue with unnecessary refreshes when viewing old semesters
+
+## [Beta 4.0.8] - 2020-12-16
+### Fixed
+- Issue where incorrect grade messages did not show overall percent
 
 ## [Stable 4.0.7] - 2020-12-09
 ### Fixed
