@@ -132,7 +132,7 @@ module.exports = function (app, passport) {
         authenticator.setNonAcademic(req.user.username, show);
         let regularize = req.body.regularizeClassGraphs === "on";
         authenticator.setRegularizeClassGraphs(req.user.username, regularize);
-        res.sendStatus(200);
+        res.redirect("/");
     });
 
     app.post("/weightedGPA", [isLoggedIn], (req, res) => {
@@ -767,6 +767,21 @@ module.exports = function (app, passport) {
             sessionTimeout: Date.parse(req.session.cookie._expires),
             appearance: JSON.stringify(req.user.appearance),
             beta: server.needsBetaKeyToSignUp,
+            sunset: sunset,
+            sunrise: sunrise,
+            _: _
+        });
+    });
+
+    app.get("/charts", [isAdmin], (req, res) => {
+        let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
+        let allUsers = authenticator.getAllUsers();
+        res.render("admin/cool_charts.ejs", {
+            username: req.user.username,
+            appearance: JSON.stringify(req.user.appearance),
+            sessionTimeout: Date.parse(req.session.cookie._expires),
+            page: "charts",
+            userList: JSON.stringify(allUsers),
             sunset: sunset,
             sunrise: sunrise,
             _: _

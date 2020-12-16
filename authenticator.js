@@ -235,6 +235,10 @@ module.exports = {
                         classRef.get(className).set("classType", "").write();
                     }
                 }
+                if ("ClassType" in classes[className]) {
+                    classRef.get(className).set("classType", classRef.get(className).get("ClassType").value()).write();
+                    classRef.get(className).unset("ClassType").write();
+                }
             }
         }
 
@@ -1058,7 +1062,7 @@ module.exports = {
                 classesRef.get(className).set("terms", "").write();
                 classesRef.get(className).set("description", "").write();
                 classesRef.get(className).set("uc_csuClassType", "").write();
-                classesRef.get(className).set("ClassType", "").write();
+                classesRef.get(className).set("classType", "").write();
             }
         }
         if (!teacherName) {
