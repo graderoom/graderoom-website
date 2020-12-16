@@ -198,7 +198,7 @@ module.exports = {
             let className = Object.keys(classes)[i];
             for (let j = 0; j < Object.keys(classes[className]).length; j++) {
                 let teacherName = Object.keys((classes)[className])[j];
-                if (teacherName !== "classType") { //one of the keys is classtype, so ignore that
+                if (_.isObject(classes[className][teacherName]) && !Array.isArray(classes[className][teacherName])) {
                     if (!("suggestions" in classes[className][teacherName])) {
                         classRef.get(className).get(teacherName).set("suggestions", []).write();
                     }
