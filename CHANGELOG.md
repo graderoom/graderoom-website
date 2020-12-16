@@ -44,6 +44,10 @@
 - Incorrect grade messages sometimes displayed incorrect grades <strong>[Fixed in Beta 4.0.6]</strong>
 - <em>[Beta]</em> Unnecessary refreshes when viewing old semesters <strong>[Fixed in Beta 4.0.6]</strong>
 
+## [Stable 4.0.8] - 2020-12-16
+### Fixed
+- Issue with changing advanced appearance settings
+
 ## [Stable 4.0.7] - 2020-12-09
 ### Fixed
 - Fatal issue caused by removed assignments

@@ -46,6 +46,12 @@
                     </a>
                 </li>
             <% } %>
+            <% if (page != 'charts') { %>
+                    <li id="admin" class="nav-item">
+                        <a class="btn btn-med" href="/charts"> <i class="fa fa-sticky-note-o" aria-hidden="true"></i> Charts
+                        </a>
+                    </li>
+            <% } %>
             <li id="toggleAdmin" class="nav-item toggle-admin">
                 <a class="btn btn-med" href="/"> <i class="fa fa-home" aria-hidden="true"></i> Home </a>
             </li>
