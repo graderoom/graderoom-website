@@ -1058,7 +1058,7 @@
             function setupIncorrectGradeMessages(classIndex) {
                 for (let i = 0; i < _data.length; i++) {
                     if (classIndex === undefined || classIndex === i) {
-                        $("#incorrectOverallGrade" + i + " span").html(`Grade in PowerSchool: <nobr>` + ` (` + _data[i].overall_letter + `)</nobr>`);
+                        $("#incorrectOverallGrade" + i + " span").html(`Grade in PowerSchool: <nobr>` + _data[i].overall_percent + `% (` + _data[i].overall_letter + `)</nobr>`);
                         if (!correctCalc(i)) {
                             $("#incorrectOverviewGrade" + i).css("display", "inline-block");
                             $("#incorrectOverallGrade" + i).css("display", "inline-block");
