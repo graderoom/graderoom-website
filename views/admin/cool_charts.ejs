@@ -257,11 +257,10 @@
         pointHoverBorderColor: "blue",
         pointHoverBorderWidth: 2
     }
-    let uniqueUsersData = loginData.map((t, i) => ({
+    let uniqueUsersData = loginData.map(t => ({
         x: t.x, y: allUsers.filter(u => u.loggedIn.filter(v => {
             let vDate = new Date(v);
             let vTime = new Date(vDate.getFullYear(), vDate.getMonth(), vDate.getDate()).getTime();
-            if (i === 1) console.log(vTime, t.x.getTime());
             return (vTime <= t.x.getTime()) && (vTime >= (t.x.getTime() - (14 * 24 * 60 * 60 * 1000)))
         }).length).length
     }));
@@ -281,6 +280,25 @@
         pointHoverBorderColor: "purple",
         pointHoverBorderWidth: 2
     }
+    let activePercentageData = userData.map((t, i) => ({x: t.x, y: uniqueUsersData[i].y / t.y}));
+    let activePercentageDataset = {
+        label: "Active Percentage",
+        yAxisID: "percent",
+        backgroundColor: "rgba(255, 255, 255, 0.1)",
+        pointBackgroundColor: "pink",
+        pointBorderColor: "transparent",
+        borderColor: "pink",
+        data: activePercentageData,
+        cubicInterpolationMode: "monotone",
+        spanGaps: false,
+        pointRadius: 1,
+        borderWidth: 1,
+        pointHoverRadius: 3,
+        pointHoverBackgroundColor: "pink",
+        pointHoverBorderColor: "pink",
+        pointHoverBorderWidth: 2
+    }
+    dataset.push(activePercentageDataset);
     dataset.push(loginsDataset);
     dataset.push(uniqueLoginDataset);
     dataset.push(syncsDataset);
@@ -313,7 +331,22 @@
                         color: (document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css" ? "#555555" : "#CCCCCC"),
                         drawBorder: false
                     }
-                }]
+                },
+                    {
+                        id: "percent",
+                        position: "right",
+                        ticks: {
+                            fontColor: (document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css" ? "white" : "black"),
+                            fontFamily: "Verdana",
+                            fontSize: "13",
+                            callback: function (value) {
+                                return value.toLocaleString('de-DE', {style: 'percent'});
+                            }
+                        }, gridLines: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
+                        }
+                    }
+                ]
             }, animation: {
                 easing: "easeOutCubic"
             }, legend: {
