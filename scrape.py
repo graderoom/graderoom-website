@@ -62,7 +62,8 @@ class ClassGrade:
 
 
 def parse_class(local_class, raw_data):
-    # function that takes a Powerschool assignment object and returns a Graderoom assignment object
+    # Function that takes a Powerschool assignment object and returns
+    # a Graderoom assignment object
     def stripper(info):
         if "_assignmentsections" not in info:
             return
@@ -140,7 +141,7 @@ class PowerschoolScraper:
 
     @staticmethod
     def clean_string(s):
-        """javadoc"""
+        """Cleans the string"""
         s = s.strip()
         if s == "":
             return False
@@ -148,7 +149,7 @@ class PowerschoolScraper:
 
     @staticmethod
     def clean_number(n):
-        """javadoc"""
+        """Cleans the number"""
         n = n.strip()
         try:
             n = float(n)
@@ -366,7 +367,7 @@ class PowerschoolScraper:
                     else:
                         local_class = ClassGrade(class_name, False,
                                                  overall_percent,
-                                                 overall_letter)
+                                                 overall_letter, False, False)
                         semester_classes.append(local_class.as_dict())
 
             # Finalize data for the selected year
@@ -521,7 +522,8 @@ class PowerschoolScraper:
 
         now = datetime.now()
 
-        # Declare likely start and end dates for each semester to determine data to send request with
+        # Declare likely start and end dates for each semester to
+        # determine data to send request with
         semester_1 = []
         semester_2 = []
         semester_0 = []
