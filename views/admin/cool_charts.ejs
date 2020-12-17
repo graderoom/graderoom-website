@@ -178,10 +178,12 @@
         pointHoverBorderColor: "green",
         pointHoverBorderWidth: 2
     };
-    let uniqueLoginDates = allUsers.map(u => u.loggedIn.map(d => {
-        let date = new Date(d);
-        return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    }).filter((t, i, arr) => arr.findIndex((u, j) => j < i && u.getTime() === t.getTime()) === -1)).reduce((a, b) => a.concat(b)).sort((a, b) => a.getTime() - b.getTime());
+    let uniqueLoginDates = allUsers.map(user => [...new Set(user.loggedIn.map(loggedIn => {
+            let date = new Date(loggedIn);
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+        }))].map(loggedIn => new Date(loggedIn))).reduce((a, b) => a.concat(b));
+    uniqueLoginDates = uniqueLoginDates.concat(loginDates.filter(time => !uniqueLoginDates.find(anotherTime => anotherTime.getTime() === time.getTime())));
+    uniqueLoginDates.sort((a, b) => a.getTime() - b.getTime());
     let uniqueLoginData = [];
     for (let j = 0; j < uniqueLoginDates.length; j++) {
         let r = uniqueLoginData.find(d => d.x.getTime() === uniqueLoginDates[j].getTime());
@@ -232,10 +234,12 @@
         pointHoverBorderColor: "orange",
         pointHoverBorderWidth: 2
     }
-    let userData = loginData.map(t => ({x: t.x, y: allUsers.filter(u => {
-        let date = new Date(Math.min(...u.loggedIn));
-        return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() <= t.x.getTime();
-    }).length}));
+    let userData = loginData.map(t => ({
+        x: t.x, y: allUsers.filter(u => {
+            let date = new Date(Math.min(...u.loggedIn));
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() <= t.x.getTime();
+        }).length
+    }));
     let numUsersDataset = {
         label: "Num Users",
         backgroundColor: "transparent",
