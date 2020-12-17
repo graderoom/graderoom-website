@@ -42,6 +42,13 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 4.0.10] - 2020-12-17
+### Fixed
+- Issue with tutorial popups not showing up on new account creation
+
+### Removed
+- Popup inside sync log
+
 ## [Stable 4.0.9] - 2020-12-16
 ### Fixed
 - Issue with changing advanced appearance settings
