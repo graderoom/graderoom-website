@@ -21,7 +21,7 @@ let betaChangelogArray = [];
 let versionNameArray = [];
 
 // Update this list with new tutorial keys
-let tutorialKeys = ["homeSeen", "navinfoSeen", "moreSeen", "settingsSeen", "syncLogSeen"];
+let tutorialKeys = ["homeSeen", "navinfoSeen", "moreSeen", "settingsSeen"];
 
 // Update this list with new beta features
 let betaFeatureKeys = ["showTermSwitcher", "showFps"];

@@ -761,12 +761,14 @@
 
             // This should only happen once
             let {dateSort, categorySort} = <%- sortingData; %>;
-            setupGradeChanges(false);
-            refreshWithoutReload(true);
-            setupGPADisplays();
-            setupWeightsTableListeners();
-            setupInputListeners();
-            setupAddAssignments();
+            if (data.length) {
+                setupGradeChanges(false);
+                refreshWithoutReload(true);
+                setupGPADisplays();
+                setupWeightsTableListeners();
+                setupInputListeners();
+                setupAddAssignments();
+            }
             $("#termSwitcher").addClass("hover");
             setTimeout(() => $("#termSwitcher").removeClass("hover"), 2000);
             if (theme === "auto" || theme === "sun") {
@@ -3429,7 +3431,7 @@
             let navbar = document.getElementById("classLinks");
             let sticky, height;
 
-            if ($(".navbar")[0]) {
+            if (navbar && $(".navbar")[0]) {
                 // Get the offset position of the navbar
                 sticky = navbar.offsetTop - $(".navbar")[0].offsetTop;
 
