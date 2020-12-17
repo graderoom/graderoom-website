@@ -142,7 +142,6 @@
     }
 
     let allUsers = <%- userList %>;
-    console.log(allUsers);
     let loginDates = allUsers.map(u => u.loggedIn.map(d => {
         let date = new Date(d);
         return new Date(date.getFullYear(), date.getMonth(), date.getDate());
