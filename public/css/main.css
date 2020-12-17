@@ -470,7 +470,7 @@ table thead tr th:last-child {
     font-weight: bold !important;
 }
 
-.square {
+.options-container .square {
     display: inline-block;
     width: 10px;
     height: 10px;
