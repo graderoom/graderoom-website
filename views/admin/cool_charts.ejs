@@ -48,6 +48,7 @@
     <h1>
         Usage Statistics
     </h1>
+    <h5>A user is considered active if they logged in within two weeks prior to a data point</h5>
     <div id="cool" class="chart">
         <canvas id="chart-cool"></canvas>
     </div>
@@ -179,9 +180,9 @@
         pointHoverBorderWidth: 2
     };
     let uniqueLoginDates = allUsers.map(user => [...new Set(user.loggedIn.map(loggedIn => {
-            let date = new Date(loggedIn);
-            return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-        }))].map(loggedIn => new Date(loggedIn))).reduce((a, b) => a.concat(b));
+        let date = new Date(loggedIn);
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+    }))].map(loggedIn => new Date(loggedIn))).reduce((a, b) => a.concat(b));
     uniqueLoginDates = uniqueLoginDates.concat(loginDates.filter(time => !uniqueLoginDates.find(anotherTime => anotherTime.getTime() === time.getTime())));
     uniqueLoginDates.sort((a, b) => a.getTime() - b.getTime());
     let uniqueLoginData = [];
@@ -256,10 +257,35 @@
         pointHoverBorderColor: "blue",
         pointHoverBorderWidth: 2
     }
+    let uniqueUsersData = loginData.map((t, i) => ({
+        x: t.x, y: allUsers.filter(u => u.loggedIn.filter(v => {
+            let vDate = new Date(v);
+            let vTime = new Date(vDate.getFullYear(), vDate.getMonth(), vDate.getDate()).getTime();
+            if (i === 1) console.log(vTime, t.x.getTime());
+            return (vTime <= t.x.getTime()) && (vTime >= (t.x.getTime() - (14 * 24 * 60 * 60 * 1000)))
+        }).length).length
+    }));
+    let uniqueUsersDataset = {
+        label: "Active Users",
+        backgroundColor: "transparent",
+        pointBackgroundColor: "purple",
+        pointBorderColor: "transparent",
+        borderColor: "purple",
+        data: uniqueUsersData,
+        cubicInterpolationMode: "monotone",
+        spanGaps: false,
+        pointRadius: 1,
+        borderWidth: 1,
+        pointHoverRadius: 3,
+        pointHoverBackgroundColor: "purple",
+        pointHoverBorderColor: "purple",
+        pointHoverBorderWidth: 2
+    }
     dataset.push(loginsDataset);
     dataset.push(uniqueLoginDataset);
     dataset.push(syncsDataset);
     dataset.push(numUsersDataset);
+    dataset.push(uniqueUsersDataset);
     let ctx = document.getElementById("chart-cool");
     new Chart(ctx, {
         type: "line", data: {
