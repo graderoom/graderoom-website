@@ -44,6 +44,9 @@
 
 ## [Stable 4.0.10] - 2020-12-17
 ### Fixed
+- Issue where new users could not view cumulative gpa<ul>
+- You must be at least on your second full semester at Bellarmine to view this GPA
+- If you still don't have this feature, sync with PowerSchool, wait 10 seconds after the sync is complete, and refresh the page</ul>
 - Issue with tutorial popups not showing up on new account creation
 
 ### Removed
@@ -52,7 +55,6 @@
 ## [Stable 4.0.9] - 2020-12-16
 ### Fixed
 - Issue with changing advanced appearance settings
-- Issue where new users could not view cumulative gpa
 - Issue where incorrect grade messages sometimes displayed incorrect grades
 - <em>[Beta]</em> Issue with unnecessary refreshes when viewing old semesters
 
