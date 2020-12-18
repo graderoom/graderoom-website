@@ -1354,10 +1354,9 @@
                         let classCategories = Object.keys(weights[className]["weights"]);
                         let classWeights = Object.values(weights[className]["weights"]);
                         for (let i = 0; i < classCategories.length; i++) {
-                            overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i] / 100;
+                            overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i]
                         }
-                        let ratio = 100 / getTotalWeight(classIndex);
-                        overallGrade *= ratio;
+                        overallGrade /= getTotalWeight(classIndex);
                     }
                     return overallGrade;
                 }

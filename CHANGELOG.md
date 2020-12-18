@@ -42,6 +42,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 4.0.11] - 2020-12-18
+### Fixed
+- Issue with occasional rounding erro
+
 ## [Stable 4.0.10] - 2020-12-17
 ### Fixed
 - Issue where new users could not view cumulative gpa<ul>
