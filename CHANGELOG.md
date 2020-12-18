@@ -44,7 +44,7 @@
 
 ## [Stable 4.0.11] - 2020-12-18
 ### Fixed
-- Issue with occasional rounding erro
+- Issue with occasional rounding error
 
 ## [Stable 4.0.10] - 2020-12-17
 ### Fixed
