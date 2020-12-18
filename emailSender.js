@@ -9,8 +9,8 @@ module.exports = {
         const msg = {
             to: toEmail,
             from: fromEmail,
-            subject: 'Graderoom Password Reset',
-            html: buildEmailHTML(toEmail, pwResetLink, firstName),
+            subject: "Graderoom Password Reset",
+            html: buildEmailHTML(toEmail, pwResetLink, firstName)
         };
 
         (async () => {
@@ -21,7 +21,7 @@ module.exports = {
                 console.error(error);
 
                 if (error.response) {
-                    console.error(error.response.body)
+                    console.error(error.response.body);
                 }
             }
         })();
@@ -31,7 +31,30 @@ module.exports = {
         // for now, just don't send one (and let the user think one was sent)
     },
 
-}
+    sendCustomEmail() {
+        let toEmail = null; // Replace this and add stuff to custom email. Then send using npm run send_custom_email
+        const msg = {
+            to: toEmail,
+            from: "support@graderoom.me",
+            subject: "Thank You For Your Feedback",
+            html: buildCustomEmailHTML()
+        };
+
+        (async () => {
+            try {
+                await sgMail.send(msg);
+                console.log(`Sent email to ${toEmail}`);
+            } catch (error) {
+                console.error(error);
+
+                if (error.response) {
+                    console.error(error.response.body);
+                }
+            }
+        })();
+    }
+
+};
 
 function buildEmailHTML(toEmail, pwResetLink, firstName) {
     return `<html>
@@ -51,5 +74,23 @@ function buildEmailHTML(toEmail, pwResetLink, firstName) {
          The Graderoom Team
       <p>
    </body>
-</html>`
+</html>`;
+}
+
+function buildCustomEmailHTML() {
+    return `<html>
+<body>
+<h3>Atij,</h3>
+<p> Thank you for your feedback.
+<br> <br>
+` + /* Add stuff */ `
+<br>
+<br>
+Thank you for your suggestions. We will consider them for inclusion in our upcoming versions.
+<br> <br>
+Best, <br>
+The Graderoom Team
+<p>
+</body>
+</html>`;
 }
