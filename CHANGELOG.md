@@ -42,6 +42,18 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Announcement 4.0.14] - 2020-12-18
+- The following announcement is only applicable if you have successfully synced your grades at least once prior to Powerschool locking
+- When PowerSchool is locked: <ul>
+- Graderoom CAN sync new, modified, and removed assignments with PowerSchool
+- Graderoom CANNOT yet sync overall grades with PowerSchool
+- Therefore, after the addition of new assignments, messages signifying incorrect grades may popup
+- Please ignore these for now</ul>
+
+## [Stable 4.0.13] - 2020-12-18
+### Fixed
+- Issue where grades could not be synced while PowerSchool was locked
+
 ## [Announcement 4.0.12] - 2020-12-18
 - We are aware that connecting to PowerSchool is not working as expected
 - This issue will be resolved within 48 hours

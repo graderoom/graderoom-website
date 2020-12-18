@@ -289,7 +289,8 @@ class PowerschoolScraper:
         resp = self.session.get(url, timeout=10)
         soup_resp = BS(resp.text, "html.parser")
         table = soup_resp.find("table")
-        if not table:
+        rows = list(filter(lambda l: len(l) > 0, list(map(lambda row: list(filter(lambda link: link['href'][:5] == 'score', row.find_all("a"))), table.find_all("tr",class_='center')))))
+        if not table or len(rows) == 0:
             if (len(list(filter(lambda d: "student_id" in d and "section_id" in d, data_if_locked))) == len(data_if_locked)
                     and "term" in term_data_if_locked and "semester" in term_data_if_locked):
                 # Scrape locked powerschool with given data

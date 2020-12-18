@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "echo \"Running HTTP Server in production mode\" && sudo node graderoom.js true",
-    "scrape_test": "node -e \"require('./scraper_tester').external_scrape()\""
+    "scrape_test": "node -e \"require('./scraper_tester').external_scrape()\"",
+    "send_custom_email": "node -e \"require('./emailSender').sendCustomEmail()\""
   },
   "author": "",
   "license": "ISC",
