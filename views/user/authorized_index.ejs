@@ -1122,7 +1122,7 @@
                         let classType = relClassData[classData[0]].uc_csuClassType;
                         let uc;
                         [uc, classType] = classType.split("_");
-                        if (uc === "uc") {
+                        if (uc === "uc" && !([false, "CR", "W"]).includes(classData[1])) {
                             numClasses++;
                             let points = getGPA(classData[1]);
                             basePoints += points;
@@ -1149,7 +1149,7 @@
                             let classType = relClassData[classData[0]].uc_csuClassType;
                             let uc;
                             [uc, classType] = classType.split("_");
-                            if (uc === "uc") {
+                            if (uc === "uc" && !([false, "CR", "W"]).includes(classData[1])) {
                                 classesCounted.push(classData[0]);
                                 let points = getGPA(classData[1]);
                                 basePoints += points;
@@ -1178,7 +1178,7 @@
                             let classType = relClassData[classData[0]].uc_csuClassType;
                             let uc;
                             [uc, classType] = classType.split("_");
-                            if (uc === "uc") {
+                            if (uc === "uc" && !([false, "CR", "W"]).includes(classData[1])) {
                                 classesCounted.push(classData[0]);
                                 let points = getGPA(classData[1]);
                                 basePoints += points;

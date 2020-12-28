@@ -42,9 +42,17 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 4.0.16] - 2020-12-28
+### Fixed
+- Issue in UC GPA caused by dropped classes
+
+## [Stable 4.0.15] - 2020-12-28
+### Added
+- Changelog Beta versions preceding Stable 1.0.0 (0.X.X versions) have been added
+
 ## [Announcement 4.0.14] - 2020-12-18
 - The following announcement is only applicable if you have successfully synced your grades at least once prior to Powerschool locking
-- When PowerSchool is locked: <ul>
+- When PowerSchool is locked:<ul>
 - Graderoom CAN sync new, modified, and removed assignments with PowerSchool
 - Graderoom CANNOT yet sync overall grades with PowerSchool
 - Therefore, after the addition of new assignments, messages signifying incorrect grades may popup
@@ -1406,12 +1414,12 @@
 
 ## [Announcement 1.2.3] - 2020-03-02
 - On March 2, 2020 at about 8 AM PST, Graderoom encountered a server error
-- Unfortunately, all user accounts created after January 7, 2020 were lost
-- Passwords and personal user data, however, were not compromised
+- Unfortunately, all user accounts created after January 7, 2020 were deleted
+- Passwords and personal user data were not compromised
 - If your account still exists, you will be asked to sync your grades with PowerSchool to recover your data
 - Please inform anyone affected by this issue to create a new account
 - The Graderoom Team apologizes for the great inconvenience this has caused and has taken strict measures to prevent a similar event from occurring again
-- <em>[Beta]</em> Request another beta key by emailing graderoom@gmail.com or asking a developer directly
+- <em>[Beta]</em> Request another beta key by emailing <a href="mailto: support@graderoom.me">support@graderoom.me</a> or asking a developer directly
 
 ## [Beta 1.2.2] - 2020-03-02
 ### Added
@@ -1467,13 +1475,10 @@
 ## [Stable 1.0.0] - 2020-02-27
 ### Added
 - GradeSync (Sync with PowerSchool on login)
-- Proper Light Theme
-- Automatic Theme option
-- Satisfying transition when theme changes
+- Customized Final Grade Calculator
 
 ### Improved
-- User Interface/User Experience
-- Updated chart tooltips to show assignment category and exclusion
+- Graderoom now logs you out 4 hours after you log in for security
 
 ### Fixed
 - Significantly decreased lag on initial load of overview page
@@ -1481,3 +1486,659 @@
 
 ### Removed
 - Removed beta key requirement for stable site
+
+## [Beta 0.12.0] - 2020-02-25
+### Improved
+- Username display is now name display
+- Auto theme settings are now saved
+
+### Fixed
+- Issues with focus on card inputs
+
+## [Beta 0.11.0] - 2020-02-24
+### Added
+- Keyboard shortcut 'W' for edit weights
+
+### Improved
+- Category chart does not display for point-based classes
+- UI Improvements
+- Navbar styling
+- Class navbar styling
+
+### Fixed
+- Bug in edit weights formatting
+- Chart for point-based classes
+- Overall grade calculator for point-based classes
+- Auto theme
+- Mini loading display styling
+
+## [Beta 0.10.2] - 2020-02-23
+### Improved
+- Update weights card now prepopulates with partial existing weights
+
+### Fixed
+- Dark mode icons
+- Colors in update weights
+- Bug with auto theme
+
+## [Beta 0.10.1] - 2020-02-22
+### Added
+- Graderoom remembers which class you were looking at and opens it even after refresh (resets after logout/login)
+- Excluded assignments now have indicators that they are excluded in both the chart and the table
+
+### Improved
+- Sizing of settings card
+- Category grade no longer displays if points possible is 0
+
+### Fixed
+- Edge cases of 'auto' theme
+
+### Removed
+- Ability to dismiss missing weights messages
+
+## [Beta 0.10.0] - 2020-02-21
+### Added
+- Settings to modify auto theme bounds
+- Ability to edit weights one at a time
+- Info when grade scrape errors
+- Letter and percentage to category grades
+
+### Improved
+- Expanded auto theme to all pages
+- Theming for dark/light mode
+- Redesigned edit weights
+- Redesigned messages
+- Individual weight missing messages
+
+### Fixed
+- Issue with setting light theme after auto theme
+
+## [Beta 0.9.1] - 2020-02-18
+### Improved
+- When setting auto theme time bounds, theme updates instantly if current time is within bounds
+
+## [Beta 0.9.0] - 2020-02-17
+### Added
+- Automatic theme option<ul>
+- Theme will change between light and dark without refreshing page at times set</ul>
+
+### Improved
+- Random color generation
+- Arrow keys can now be used to move through tabs in settings
+- Checking for sync completion now happens instantly on page load
+- Expanded offline theming to all logged-out pages
+- Changing theme in settings occurs instantly without refreshing the page
+- Settings card
+- Popup in sync grades card
+- Default theme is now 'auto'
+- Class colors can now be changed one at a time
+
+### Fixed
+- <em>[Mobile</em> Invisible navbar icon in light-mode
+
+## [Beta 0.8.3] - 2020-02-15
+### Improved
+- Random color generation
+
+## [Beta 0.8.2] - 2020-02-14
+### Improved
+- Light mode is much better
+- Improved random color generation
+
+## [Beta 0.8.1] - 2020-02-11
+### Added
+- New layout
+- New color scheme
+
+### Improved
+- Default appearance is stored on login<ul>
+- Logged-out pages will maintain the same theme you had while logged in</ul>
+
+## [Beta 0.8.0] - 2020-02-10
+### Improved
+- Clicking on the ⓘ next to the GradeSync toggle now checks the checkbox
+- Instructions for using GradeSync
+- Page does not reload if no real changes were made<ul>
+- This applies to syncing and updating weights</ul>
+- Reorganized settings card
+
+### Fixed
+- Issue with infinite loading on manual sync
+- Prevent autorefresh from refreshing infinitely
+
+### Removed
+- Subtabs in settings
+- Non-functional buttons in navbar while on final grade calculator page
+- Betakey requirement on the stable site
+
+## [Beta 0.7.1] - 2020-02-08
+### Improved
+- Checkboxes now return to their real values after settings is closed even if page is not refreshed
+- Old password is now required to change password
+
+### Fixed
+- Issue with autorefresh settings message
+
+## [Beta 0.7.0] - 2020-02-07
+### Added
+- New autorefresh settings<ul>
+- When enabled, page refreshes automatically after sync in background
+- When disabled, click refresh to refresh the page after background sync</ul>
+- Toggle to turn off Gradesync in settings
+- Option to refresh page on background update loading indicator if autorefresh is disabled
+
+### Improved
+- Formatting of account settings
+- Changed smartsync to Gradesync
+- Loading indicators show during background update
+
+### Fixed
+- Issue where syncing loading indicator would spin infinitely after syncing manually
+- Issue with creating new account
+- Issue with changing password
+- Issue where changing password would break Gradesync
+- Loading indicator no longer says syncing when not actually syncing
+
+## [Beta 0.6.0] - 2020-02-06
+### Improved
+- Show system font until custom font loaded
+- Named autosync smartsync
+- Update grades card dynamically changes if smartsync is enabled
+- Respond with correct error message if incorrect Graderoom password
+- Grades now update in the background<ul>
+- The page will initially load with old data
+- Once the sync is completed in the background, the page will refresh automatically</ul>
+
+### Fixed
+- Issue caused by entering an incorrect Graderoom password
+
+## [Beta 0.5.1] - 2020-02-05
+### Improved
+- Finalized autosync on login<ul>
+- You may experience longer sign-in times
+- This is being worked on</ul>
+
+### Fixed
+- School email input validation
+
+## [Beta 0.5.0] - 2020-02-04
+### Added
+- Grade update now occurs in background while loading indicator is displayed
+- Page reloads after exiting the sync grades card
+- Autosync option<ul>
+- Check the box in the sync grades card
+- You will then be prompted to enter both your school password and your Graderoom password
+- Your school password will be used to encrypt your Graderoom password and securely store it</ul>
+  
+### Improved
+- When you open the sync grades card, the graderoom password field is focused
+- If the sync fails, the field is refocused
+
+## [Beta 0.4.0] - 2020-01-29
+### Added
+- Beta site at <a href="https://beta.graderoom.me">this link</a><ul>
+- Both sites still require beta keys
+- Your data will not transfer over
+- Features will be released first to the beta site once a stable version is released
+- But, you are more likely to encounter issues
+- If you are interested, please contact a developer</ul>
+
+### Improved
+- Weight inputs are disabled for point-based classes
+
+### Fixed
+- Another issue with final grade calculator
+
+## [Beta 0.3.6] - 2020-01-28
+### Improved
+- Error messages
+- Empty graph is now hidden when user has not yet synced with PowerSchool
+
+### Fixed
+- Issue with prompt to sync grades on new account creation
+- An issue with some scores not being parsed correctly
+- Issue in final grade calculator caused by selecting a weight with no current points
+
+## [Beta 0.3.5] - 2020-01-26
+### Improved
+- Chart tooltips everywhere
+
+## [Beta 0.3.4] - 2020-01-24
+### Added
+- Message urging syncing grades on new account creation
+
+### Fixed
+- Issue with grade calculation in final grade calculator
+
+## [Beta 0.3.3] - 2020-01-22
+### Improved
+- Experience with settings weights
+
+### Fixed
+- Issue with classes containing dots (e.g. U.S. History AP)
+
+## [Beta 0.3.2] - 2020-01-21
+### Fixed
+- Issue with ungraded categories (i.e. a category with no graded assignments)
+
+## [Beta 0.3.1] - 2020-01-15
+### Fixed
+- Issue with Semester 1 weights staying after shift to Semester 2
+
+## [Beta 0.3.0] - 2020-01-14
+### Added
+- Final Grade Calculator<ul>
+- When Logged in<ul>
+- Select a class to display your current grade
+- Choose a letter grade or enter a custom goal
+- Enter how much your final is worth
+- You can also choose a category that your final will be in
+- Then, enter the number of points it is worth
+- Graderoom will tell you  how much your final is worth (if applicable)
+- And, of course, the necessary score to achieve your goal will be displayed</ul>
+- When Logged out<ul>
+- Enter your current grade
+- Choose a leter grade or enter a custom goal
+- Enter how much your final is worth
+- The necessary score to achieve your goal will be displayed</ul></ul>
+
+## [Beta 0.2.24] - 2020-01-13
+### Fixed
+- Non-function point-based button
+
+## [Beta 0.2.23] - 2020-01-09
+### Added
+- You can now use the arrow keys to move through class pages
+
+## [Beta 0.2.22] - 2020-01-08
+### Added
+- New icon!
+
+### Improved
+- Centered overview graph
+
+## [Beta 0.2.21] - 2019-12-11
+### Added
+- Beta key requirement to sign up<ul>
+- Beta keys are one-time use only</ul>
+
+### Improved
+- Category grade display now displays more information
+
+### Fixed
+- Shifting when weight input underlined
+- Issue with edit weights button
+
+## [Beta 0.2.20] - 2019-12-10
+### Added
+- Points display for each category
+- Tooltips now include assignment categories
+- Classes overview table
+
+### Improved
+- Choosing a class in update weights now changes the class page behind it
+
+### Fixed
+- <em>Mobile</em> Issues with mobile navbar
+
+## [Beta 0.2.19] - 2019-12-09
+### Improved
+- Force HTTPS
+
+## [Beta 0.2.18] - 2019-12-08
+### Added
+- Loading screen animation
+
+### Fixed
+- Issue where 0 weight values were considered missing
+- Issue with closing edit weights with escape key
+
+## [Beta 0.2.17] - 2019-12-07
+### Improved
+- Category colors now match class colors
+- Weights card opens automatically to class with missing weights
+
+### Removed
+- Close button for missing weights messages on edit weights card
+- Alerts for classes with one weight
+
+## [Beta 0.2.16] - 2019-12-05
+### Added
+- Button and Google Form to submit feedback
+
+## [Beta 0.2.15] - 2019-12-04
+### Improved
+- Weights card UX
+
+## [Beta 0.2.14] - 2019-12-03
+### Added
+- Edit weights button to navbar
+- Category grades display
+- Overall grades display
+
+### Improved
+- Formatting of overall grade
+- Accuracy of calculated final grade
+
+### Fixed
+- Bug caused by users with no weights
+- Detecting existing weights
+
+## [Beta 0.2.13] - 2019-12-02
+### Added
+- Subtabs in appearance settings
+- Button to edit weights from missing weight message 
+- HTTPS
+
+### Fixed
+- Issue with failed message not clearing after success
+
+## [Beta 0.2.12] - 2019-11-27
+### Added
+- Color randomizer for class colors
+
+## [Beta 0.2.11] - 2019-11-26
+### Improved
+- Added messages for last updated time
+
+### Fixed
+- Issue with change password UI
+
+## [Beta 0.2.10] - 2019-11-25
+### Added
+- Class colors
+
+### Fixed
+- Issue that broke syncing
+- Several bugs
+
+## [Beta 0.2.9] - 2019-11-15
+### Improved
+- Improved charts
+
+### Fixed
+- Issue where logging in with a non-existent username would crash server
+
+## [Beta 0.2.8] - 2019-11-14
+### Improved
+- Graph styling
+- Redesigned weight input
+
+## [Beta 0.2.7] - 2019-11-11
+### Added
+- Messages in weight input
+
+## [Beta 0.2.6] - 2019-11-07
+### Added
+- Theme now saves to your account
+
+### Improved
+- Opacity of blur behind cards
+- Text near checkboxes can now be clicked to click the checkbox
+
+### Fixed
+- Issues with settings not resetting when settings is closed without saving changes
+
+## [Beta 0.2.5] - 2019-11-06
+### Improved
+- Form inputs clear when card is closed without submitting
+
+### Fixed
+- Issue where missing weights showed when weights weren't missing
+- Account settings input validation
+- Issue with updating grades
+
+## [Beta 0.2.4] - 2019-11-05
+### Fixed
+- Issue with classes that had names with dots in them (e.g. U.S. History AP)
+
+## [Beta 0.2.3] - 2019-11-04
+### Added
+- Support for extra credit assignments
+
+### Improved
+- Update weights option only shows when missing weights
+- Weight updates work without refresh
+
+## [Beta 0.2.2] - 2019-11-03
+### Improved
+- Weights card classes are now collapsed in an accordion style
+- Input weight styling
+- Weights card automatically opens to currently open class
+- Added Account and Appearance tabs to settings
+- Account settings no longer require page refresh
+- Improved theme changing
+
+## [Beta 0.2.1] - 2019-11-02
+### Added
+- Class-by-class missing weights messages
+
+### Improved
+- Alerts are now dismissible
+- Chart hover effects
+- Styling of class links
+- Weight input is now a number
+
+### Fixed
+- Default theme
+
+## [Beta 0.2.0] - 2019-11-01
+### Added
+- Basic overview graph<ul>
+- Color-coded classes with legend</ul>
+
+### Improved
+- Default theme is dark
+- Scrollbars in cards
+- Current weights populate weight inputs
+
+### Fixed
+- Scrollbar issue in Firefox
+- Scrollbar issue in Edge
+- Various issues in Edge
+- Missing weights message
+
+## [Beta 0.1.12] - 2019-10-31
+### Improved
+- Weight input styling
+- Centered username on navbar
+
+## [Beta 0.1.11] - 2019-10-30
+### Added
+- Basic weights input
+
+### Fixed
+- Various issues
+
+## [Beta 0.1.10] - 2019-10-29
+### Fixed
+- Various issues
+
+## [Beta 0.1.9] - 2019-10-27
+### Added
+- Cards close when clicked out of
+
+## [Beta 0.1.8] - 2019-10-26
+### Improved
+- Page load time
+
+## [Beta 0.1.7] - 2019-10-25
+### Added
+- Cards remain open after refresh
+
+## [Beta 0.1.6] - 2019-10-24
+### Improved
+- <em>[Mobile]</em> Navbar collapses on tablets
+
+## [Beta 0.1.5] - 2019-10-20
+### Added
+- Path '/s' for switching mode for testing
+
+### Improved
+- Light mode coloring
+
+### Fixed
+- Issue with closing cards with escape key
+- Positioning of navbar elements
+- Settings icon on navbar
+
+## [Beta 0.1.4] - 2019-10-19
+### Fixed
+- An error with theme switching
+
+## [Beta 0.1.3] - 2019-10-18
+### Added
+- Rudimentary light mode<ul>
+- Activate by using the path /switch-mode</ul>
+
+### Improved
+- Settings is now a card popup instead of a separate page
+- Logo changes based on theme
+
+## [Beta 0.1.2] - 2019-10-16
+### Fixed
+- Syncing while PowerSchool is locked no longer deletes grade data
+
+## [Beta 0.1.1] - 2019-10-14
+### Improved
+- <em>Mobile</em> Scaling on mobile
+
+## [Beta 0.1.0] - 2019-10-13
+### Added
+- Navbar to settings page
+- Tooltips now show assignment names
+- Tooltips now show assignment scores
+
+### Improved
+- Scores now display in a single table cell
+- Tooltips now only show date
+- Card widths
+- Styling of messages
+- UI of class links
+- Update grades can be exited with escape
+
+### Fixed
+- Issue with multiple horizontal lines on class pages
+- Various errors
+
+## [Beta 0.0.14] - 2019-10-12
+### Added
+- Overview table
+- Class tables
+
+### Improved
+- Chart is now centered
+
+## [Beta 0.0.13] - 2019-10-11
+### Improved
+- Chart implementation
+- Chart styling
+
+## [Beta 0.0.12] - 2019-10-10
+### Added
+- Calculated overall grades
+- Rudimentary chart implementation
+- Overall grade display
+- Support for classes with no weights in calculations
+
+### Improved
+- Account creation experience
+
+### Fixed
+- Rounding error
+
+## [Beta 0.0.11] - 2019-10-09
+### Added
+- Return button in sync card
+
+### Improved
+- Styling of sync card
+- Card width
+- Alert colors
+- Settings page
+
+### Fixed
+- Issue with school username settings
+
+## [Beta 0.0.10] - 2019-10-08
+### Improved
+- Settings page UI
+- Card styling
+
+## [Beta 0.0.9] - 2019-10-06
+### Improved
+- Styling and spacing of navbar
+- <em>[Mobile]</em> Navbar styling on smaller displays
+- <em>[Mobile]</em> Mobile navbar collapses when clicked out of
+
+### Fixed
+- Issue where invalid signup messages were not displayed
+
+## [Beta 0.0.8] - 2019-10-05
+### Added
+- Support for excluded assignments
+- Uniform navbar on all pages
+
+### Improved
+- Design of settings page
+- Buttons on navbar
+
+### Fixed
+- Issue with syncing with PowerSchool
+- Issue with changing password
+
+### Removed
+- School password requirement for inital sync from signup page
+
+## [Beta 0.0.7] - 2019-10-04
+### Added
+- Added icons to username and password fields on login and signup pages
+- Added 'return to login' option from the signup page
+
+### Improved
+- Updated logo
+- Updated font
+- Redesigned UI of signup pages
+
+## [Beta 0.0.6] - 2019-10-03
+### Improved
+- Redesigned login screen
+- Made login page the default page
+- Login page now displays message after failed login
+
+### Removed
+- Landing page
+
+## [Beta 0.0.5] - 2019-10-02
+### Added
+- Settings page
+- Graphs now use date from PowerSchool on the x-axis
+
+## [Beta 0.0.4] - 2019-10-01
+### Added
+- Initial chart design
+- Initial class page design
+- Logout button
+- Class navbar, support for viewing multiple classes
+
+### Fixed
+- Syncing with PowerSchool and response messages
+- Issue where ungraded classes (e.g. Homeroom) were being synced
+
+## [Beta 0.0.3] - 2019-09-30
+### Added
+- Ability to sync grades with PowerSchool
+- Icon
+
+## [Beta 0.0.2] - 2019-09-29
+### Fixed
+- Prevent duplicate user creation
+
+## [Beta 0.0.1] - 2019-09-26
+### Added
+- Landing page, login page, homepage, and signup page
+
+## [Beta 0.0.0] - 2019-09-17
+### Added
+- First commit
+- Connection to PowerSchool
