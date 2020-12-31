@@ -1,6 +1,7 @@
 let server = require("./graderoom.js");
 let authenticator = require("./authenticator.js");
 let emailSender = require("./emailSender.js");
+let passport = require("./passport.js");
 let _ = require("lodash");
 
 module.exports = function (app, passport) {
@@ -403,7 +404,6 @@ module.exports = function (app, passport) {
 
     app.post("/changepassword", [isLoggedIn], async (req, res) => {
 
-        console.table(req.body);
         let old_pass = req.body.oldPass;
         let new_pass = req.body.password;
         let resp = await authenticator.changePassword(req.user.username, old_pass, new_pass);
@@ -928,6 +928,23 @@ module.exports = function (app, passport) {
         res.redirect("/forgot_password");
     });
 
+    /** Api stuff (maybe temp) */
+    app.get("/api/login/success", (req, res) => {
+        if (req.isAuthenticated) {
+            res.sendStatus(200);
+        } else {
+            res.sendStatus(401);
+        }
+    });
+
+    app.get("/api/login/failure", (req, res) => {
+        res.sendStatus(401);
+    });
+
+    app.post("/api/login", passport.authenticate("local-login", {
+        successRedirect: "/api/login/success", failureRedirect: "/api/login/failure", failureFlash: true
+    }));
+    /** End api stuff */
 
     // general web app
     app.get("/*", (req, res) => {
@@ -937,7 +954,7 @@ module.exports = function (app, passport) {
 
     // route middleware to ensure user is logged in
     function isLoggedIn(req, res, next) {
-        if (!(["/","/admin"]).includes(req._parsedOriginalUrl.path) && req.headers.referer.includes('viewuser')) {
+        if (!(["/", "/admin"]).includes(req._parsedOriginalUrl.path) && req.headers.referer.includes("viewuser")) {
             res.sendStatus(405);
             return;
         }
