@@ -42,6 +42,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 4.0.17] - 2020-12-31
+### Fixed
+- Issue with GradeSync
+
 ## [Beta 4.0.16] - 2020-12-28
 ### Fixed
 - Issue in UC GPA caused by dropped classes
