@@ -529,8 +529,8 @@ class PowerschoolScraper:
         semester_2 = []
         semester_0 = []
         semester_1.append(datetime(now.year, 8, 1))
-        semester_1.append(datetime(now.year, 12, 31))
-        semester_2.append(datetime(now.year, 1, 1))
+        semester_1.append(datetime(now.year + 1, 1, 6))
+        semester_2.append(datetime(now.year, 1, 7))
         semester_2.append(datetime(now.year, 5, 31))
         semester_0.append(datetime(now.year, 6, 1))
         semester_0.append(datetime(now.year, 7, 31))
@@ -569,13 +569,18 @@ class PowerschoolScraper:
             section_id = data['section_id']
             local_class = ClassGrade(class_name, teacher_name, overall_percent, overall_letter, student_id, section_id)
 
-            all_classes.append(parse_class(local_class, self.get_class('https://powerschool.bcp.org/', local_class)))
+            local_class = parse_class(local_class, self.get_class('https://powerschool.bcp.org/', local_class))
+            if (len(local_class['grades']) > 0):
+                all_classes.append(local_class)
 
         # Add term and semester data
         term = term_data["term"]
         semester = term_data["semester"]
-        all_classes = {term: {semester: all_classes}}
-        print(json_format(True, all_classes))
+        if len(all_classes) > 0:
+            all_classes = {term: {semester: all_classes}}
+            print(json_format(True, all_classes))
+        else:
+            print(json_format(False, "No class data."))
 
 
 if __name__ == "__main__":
