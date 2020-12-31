@@ -528,8 +528,13 @@ class PowerschoolScraper:
         semester_1 = []
         semester_2 = []
         semester_0 = []
-        semester_1.append(datetime(now.year, 8, 1))
-        semester_1.append(datetime(now.year + 1, 1, 6))
+        if now.month == 1:
+            semester_1.append(datetime(now.year - 1, 8, 1))
+            semester_1.append(datetime(now.year, 1, 6))
+        else:
+            semester_1.append(datetime(now.year, 8, 1))
+            semester_1.append(datetime(now.year + 1, 1, 6))
+
         semester_2.append(datetime(now.year, 1, 7))
         semester_2.append(datetime(now.year, 5, 31))
         semester_0.append(datetime(now.year, 6, 1))
