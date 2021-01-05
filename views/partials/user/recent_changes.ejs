@@ -49,6 +49,7 @@
 
         let noChangesStreak = 0;
         let noDataStreak = 0;
+        let psLockedStreak = false;
         let startDate = "";
         let endDate = "";
         let recentChange = false;
@@ -56,6 +57,7 @@
         for (let i = alerts.lastUpdated.length - 1; i >= 0; i--) {
 
             let changeData = alerts.lastUpdated[i].changeData;
+            let ps_locked = alerts.lastUpdated[i].ps_locked;
             if (changeData.added === undefined) {
                 if (noChangesStreak) {
                     startDate = new Date(startDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
@@ -98,24 +100,33 @@
             } else {
                 // No changes
                 if (!noChangesStreak) {
+                    psLockedStreak = ps_locked;
                     endDate = alerts.lastUpdated[i].timestamp;
                 }
-                startDate = alerts.lastUpdated[i].timestamp;
-                noChangesStreak++;
-                if (i === alerts.lastUpdated.length - 1) {
-                    recentChangeText = " No Changes.";
-                }
-                if (i === 0) {
+                if (psLockedStreak !== ps_locked) {
                     startDate = new Date(startDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
                     endDate = new Date(endDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
-                    container.append(`<hr><span class="timestamp"><span class="popup">` + startDate + (startDate !== endDate ? ` - <br>` + endDate : ``) + `</span><b>` + (noChangesStreak > 1 ? noChangesStreak + ` Syncs<br>` : ``) + `No Changes</b></span>`);
+                    container.append(`<hr><span class="timestamp"><span class="recent-changes-date-holder"><span class="popup"><i class="fa fa-exclamation-circle"><span class="popup-right">PowerSchool was locked during this sync</span></i></span><span class="popup">` + startDate + (startDate !== endDate ? ` - <br>` + endDate : ``) + `</span></span><b>` + (noChangesStreak > 1 ? noChangesStreak + ` Syncs<br>` : ``) + `No Changes</b></span>`);
+                    noChangesStreak = 0;
+                    psLockedStreak = ps_locked;
+                } else {
+                    startDate = alerts.lastUpdated[i].timestamp;
+                    noChangesStreak++;
+                    if (i === alerts.lastUpdated.length - 1) {
+                        recentChangeText = " No Changes.";
+                    }
+                    if (i === 0) {
+                        startDate = new Date(startDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                        endDate = new Date(endDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                        container.append(`<hr><span class="timestamp"><span class="popup">` + startDate + (startDate !== endDate ? ` - <br>` + endDate : ``) + `</span><b>` + (noChangesStreak > 1 ? noChangesStreak + ` Syncs<br>` : ``) + `No Changes</b></span>`);
+                    }
+                    continue;
                 }
-                continue;
             }
             if (noChangesStreak) {
                 startDate = new Date(startDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
                 endDate = new Date(endDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
-                container.append(`<hr><span class="timestamp"><span class="popup">` + startDate + (startDate !== endDate ? ` - <br>` + endDate : ``) + `</span><b>` + (noChangesStreak > 1 ? noChangesStreak + ` Syncs<br>` : ``) + `No Changes</b></span>`);
+                container.append(`<hr><span class="timestamp"><span class="recent-changes-date-holder">` + (ps_locked ? `<span class="popup"><i class="fa fa-exclamation-circle"><span class="popup-right">PowerSchool was locked during this sync</span></i></span>` : ``) + `<span class="popup">` + startDate + (startDate !== endDate ? ` - <br>` + endDate : ``) + `</span></span><b>` + (noChangesStreak > 1 ? noChangesStreak + ` Syncs<br>` : ``) + `No Changes</b></span>`);
                 noChangesStreak = 0;
             }
 
@@ -144,7 +155,7 @@
                 recentChange = true;
                 recentChangeText = " " + numChanges + " Change" + (numChanges > 1 ? "s" : "") + ".";
             }
-            container.append(`<hr><span class="timestamp change-data-exists"><span class="popup">` + actualTime + deltaTime + `</span><b ` + (firstCardUnCollapsed ? `class="collapsed"` : ``) + ` data-toggle="collapse" data-target="#changeData` + i + `">` + numChanges + ` Change` + (numChanges > 1 ? `s` : ``) + `</b></span>`);
+            container.append(`<hr><span class="timestamp change-data-exists"><span class="recent-changes-date-holder">` + (ps_locked ? `<span class="popup"><i class="fa fa-exclamation-circle"><span class="popup-right">PowerSchool was locked during this sync</span></i></span>` : ``) + `<span class="popup">` + actualTime + deltaTime + `</span></span><b ` + (firstCardUnCollapsed ? `class="collapsed"` : ``) + ` data-toggle="collapse" data-target="#changeData` + i + `">` + numChanges + ` Change` + (numChanges > 1 ? `s` : ``) + `</b></span>`);
 
             // Create the class cards
             let changeCard = `<div id="changeData` + i + `" class="collapse` + (!firstCardUnCollapsed ? ` show` : ``) + `">`;

@@ -85,8 +85,6 @@
                         <li class="nav-item" id="link<%= i + offset; %>">
                             <a class="nav-link" style="color: <%= JSON.parse(appearance).classColors[i]; %>"
                                onclick="showPage(<%= i + offset; %>)"><%= (JSON.parse(gradeData)[i].class_name); %>
-                                <br><%= (JSON.parse(gradeData)[i].overall_percent + '%'); %>
-                                (<%= (JSON.parse(gradeData)[i].overall_letter); %>)
                                 <span class="popup">
                                     <i id="incorrectOverviewGrade<%= i + offset; %>"
                                        class="fa fa-exclamation-triangle"
@@ -1078,7 +1076,10 @@
                 let calculatedOverallGrade = getOverallGrade(classIndex);
                 let correctDecimalPlaces = getOverallGrade(classIndex).toFixed(countDecimals(realOverallGrade));
                 let calculatedOverallLetter = getLetterGrade(calculatedOverallGrade);
-                return (correctDecimalPlaces == realOverallGrade && calculatedOverallLetter === realOverallLetter);
+                if (correctDecimalPlaces == realOverallGrade && calculatedOverallLetter === realOverallLetter) {
+                    return true;
+                }
+                return !weights[data[classIndex].class_name].custom;
             }
 
             function countDecimals(value) {
@@ -2672,7 +2673,7 @@
             function setupOverviewTable(changedClassIndex) {
                 for (let i = 0; i < parsedData.length; i++) {
                     if (changedClassIndex === undefined || changedClassIndex === i) {
-                        let overallGrade = _data[i].overall_percent;
+                        let [overallGrade, overallLetter] = correctCalc(i) ? [getOverallGrade(i), getLetterGrade(getOverallGrade(i))] : [_data[i].overall_percent, _data[i].overall_letter];
                         let assignmentData = parsedData[i].rawData;
                         let lastIndex = assignmentData.length - 1;
                         let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(2);
@@ -2687,8 +2688,8 @@
                         }
                         delta = (delta ? (" <div class=\"delta\" style=\"color: " + color + "\">" + delta + "</div>") : "");
                         if (overallGrade) {
-                            document.getElementById("overviewChart" + i).innerHTML = "<div class=\"overallGrade\">" + (+(overallGrade.toFixed(2))).toString() + "%" + "</div><div class=\"overallLetter\">" + _data[i].overall_letter + "</div>" + delta;
-                            document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>` + _data[i].overall_percent + ` (` + _data[i].overall_letter + `)<span class="popup"><i id="incorrectOverviewGrade` + i + `"class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-bottom">Does not match calculated grade</span></i></span>`;
+                            document.getElementById("overviewChart" + i).innerHTML = "<div class=\"overallGrade\">" + (+(overallGrade.toFixed(2))).toString() + "%" + "</div><div class=\"overallLetter\">" + overallLetter + "</div>" + delta;
+                            document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>` + (+(overallGrade.toFixed(2))).toString() + "%" + ` (` + overallLetter + `)<span class="popup"><i id="incorrectOverviewGrade` + i + `"class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-bottom">Does not match calculated grade</span></i></span>`;
                         } else {
                             document.getElementById("overviewChart" + i).innerHTML = "N/A";
                             document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>N/A<span class="popup"><i id="incorrectOverviewGrade` + i + `"class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-bottom">Does not match calculated grade</span></i></span>`;

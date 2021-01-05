@@ -48,27 +48,26 @@
     let init;
 
     function Snowy(start = false) {
-        if (today.getMonth() < winterStart && today > winterEnd) {
-            return;
-        }
-        numFlakes = screenWidth / 5;
-        for (let i = 0; i < numFlakes; ++i) {
-            let flake = new Flake();
-            snow.push(initializeFlake(flake));
-        }
-
-        function initializeFlake(flake, initial = true) {
-            if (initial) {
-                flake.yPos = 2 * Math.random() * (-screenHeight);
-            } else {
-                flake.yPos = Math.random() * (-screenHeight);
+        if (today.getMonth() >= winterStart || today.getMonth() <= winterEnd) {
+            numFlakes = screenWidth / 5;
+            for (let i = 0; i < numFlakes; ++i) {
+                let flake = new Flake();
+                snow.push(initializeFlake(flake));
             }
-            flake.xPos = Math.random() * screenWidth;
-            flake.rotation = Math.random() * (Math.PI * 2);
-            flake.size = (100 / (10 + (Math.random() * 100))) * sizeScale;
-            flake.speed = (Math.pow(flake.size * .8, 2) * .15) * speedScale;
-            flake.speed = flake.speed < minSpeed ? minSpeed : flake.speed;
-            return flake;
+
+            function initializeFlake(flake, initial = true) {
+                if (initial) {
+                    flake.yPos = 2 * Math.random() * (-screenHeight);
+                } else {
+                    flake.yPos = Math.random() * (-screenHeight);
+                }
+                flake.xPos = Math.random() * screenWidth;
+                flake.rotation = Math.random() * (Math.PI * 2);
+                flake.size = (100 / (10 + (Math.random() * 100))) * sizeScale;
+                flake.speed = (Math.pow(flake.size * .8, 2) * .15) * speedScale;
+                flake.speed = flake.speed < minSpeed ? minSpeed : flake.speed;
+                return flake;
+            }
         }
 
         if (start) {
