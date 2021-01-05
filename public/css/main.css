@@ -2427,6 +2427,16 @@ input:disabled {
     margin-top: 2rem;
 }
 
+.recent-changes-date-holder {
+    display: flex;
+    align-items: center;
+}
+
+.recent-changes-date-holder > .popup:first-child {
+    z-index: 4;
+    margin-right: 1rem;
+}
+
 /*#about-container {*/
 /*    width: 60%;*/
 /*    border-right: 1px solid white;*/
