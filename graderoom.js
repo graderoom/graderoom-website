@@ -11,7 +11,7 @@ const passport = require("passport");
 const dbConn = require("./authenticator.js");
 const fs = require("fs");
 
-const productionEnv = process.argv[2] === undefined ? false : process.argv[2];
+const productionEnv = process.env.NODE_ENV === 'production';
 
 module.exports.needsBetaKeyToSignUp = false; //todo
 

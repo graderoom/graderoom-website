@@ -525,31 +525,11 @@ class PowerschoolScraper:
 
         # Declare likely start and end dates for each semester to
         # determine data to send request with
-        semester_1 = []
-        semester_2 = []
-        semester_0 = []
-        if now.month == 1:
-            semester_1.append(datetime(now.year - 1, 8, 1))
-            semester_1.append(datetime(now.year, 1, 6))
-        else:
-            semester_1.append(datetime(now.year, 8, 1))
-            semester_1.append(datetime(now.year + 1, 1, 6))
 
-        semester_2.append(datetime(now.year, 1, 7))
-        semester_2.append(datetime(now.year, 5, 31))
-        semester_0.append(datetime(now.year, 6, 1))
-        semester_0.append(datetime(now.year, 7, 31))
-
-        # Find which term we are currently in
-        if semester_1[0] <= now <= semester_1[1]:
-            # Semester 1
-            [start_date, end_date] = semester_1
-        elif semester_2[0] <= now <= semester_2[1]:
-            # Semester 2
-            [start_date, end_date] = semester_2
-        else:
-            # Semester 0
-            [start_date, end_date] = semester_0
+        dates = []
+        dates.append(datetime(now.year - 4, 1, 1))
+        dates.append(datetime(now.year + 4, 1, 1))
+        [start_date, end_date] = dates
 
         start_date = json.dumps(start_date.strftime("%Y-%m-%d"))
         end_date = json.dumps(end_date.strftime("%Y-%m-%d"))

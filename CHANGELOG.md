@@ -42,6 +42,23 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 4.1.1] - 2021-01-06
+### Fixed
+- Syncing with PowerSchool
+
+## [Beta 4.1.0] - 2021-01-05
+### Improved
+- Sync Log now indicates when PowerSchool was locked during sync
+- Charts no longer display [Inaccurate weights] when weights are accurate
+- Charts no longer become dashed when powerschool is locked and weights are correct
+- Navigation bar no longer displays grades in pre-loading stage<ul>
+- This prevents incorrect grades from showing briefly in the case of locked PowerSchool</ul>
+- Incorrect grade messages no longer display when weights are accurate
+
+### Fixed
+- Issue with snowfall
+- [Beta] Issue with fps display
+
 ## [Stable 4.0.17] - 2020-12-31
 ### Fixed
 - Issue with GradeSync
