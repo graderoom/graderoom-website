@@ -42,6 +42,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 4.1.1] - 2021-01-06
+### Fixed
+- Syncing with PowerSchool
+
 ## [Beta 4.1.0] - 2021-01-05
 ### Improved
 - Sync Log now indicates when PowerSchool was locked during sync
