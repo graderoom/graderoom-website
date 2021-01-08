@@ -1,32 +1,32 @@
 {
   "name": "graderoom",
   "version": "1.0.0",
-  "description": "Grade Visualization",
+  "description": "Advanced Grade Visualizer",
   "main": "graderoom.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "echo \"Running HTTP Server in production mode\" && sudo node graderoom.js true"
+    "start": "echo \"Running HTTP Server in production mode\" && sudo node graderoom.js true",
+    "scrape_test": "node -e \"require('./scraper_tester').external_scrape()\"",
+    "send_custom_email": "node -e \"require('./emailSender').sendCustomEmail()\""
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@sendgrid/mail": "^7.2.3",
+    "@sendgrid/mail": "^7.4.1",
     "bcryptjs": "^2.4.3",
-    "body-parser": "latest",
+    "body-parser": "^1.19.0",
     "chroma-js": "^2.1.0",
-    "color-scheme": "^1.0.1",
     "connect-flash": "^0.1.1",
-    "cookie-parser": "^1.4.4",
+    "cookie-parser": "^1.4.5",
     "ejs": "^2.7.3",
     "express": "^4.17.1",
-    "express-session": "^1.17.0",
-    "lodash": "latest",
+    "express-session": "^1.17.1",
+    "lodash": "^4.17.20",
     "lowdb": "^1.0.0",
-    "morgan": "^1.9.1",
+    "morgan": "^1.10.0",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
-    "python-shell": "^1.0.8",
-    "random-color": "^1.0.1",
-    "randomcolor": "^0.5.4"
+    "python-shell": "^2.0.3",
+    "suncalc": "^1.8.0"
   }
 }

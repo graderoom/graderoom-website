@@ -7,6 +7,9 @@
                  style="display:table; width: fit-content; width: -moz-fit-content; margin-bottom:0">
                 <i class="fa fa-close" aria-hidden="true"></i> Close
             </btn>
+            <btn class="btn btn-med" onclick="showCard('#gradeChangesCardDisplay')"
+                 style="position: absolute; width: fit-content; width: -moz-fit-content; right: 0; margin-bottom: 0">
+                View Sync Log <i class="fa fa-external-link-square"></i></btn>
             <div class="card-body" style="max-height: 70vh; overflow-y: scroll; overflow-x: hidden; transition: 500ms">
                 <div class="updateGradesMessage alert alert-info"
                      style="display:block">
@@ -89,8 +92,13 @@
                         </label>
                         <div class="text-center">
                             <button class="btn btn-lg btn-default" type="submit"
-                                    onclick="ajaxPostForm('#syncGradesForm',['#inputUserPassword'],'.updateGradesMessage', true)">
+                                    onclick="ajaxPostForm('#syncGradesForm',['#inputUserPassword','#inputPassword'],'.updateGradesMessage', true)">
                                 Sign In
+                                <div>
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
                             </button>
                         </div>
                     </form>
@@ -110,6 +118,11 @@
                         <button class="btn btn-lg btn-default" type="submit"
                                 onclick="ajaxPostForm('#gradeSyncForm',['#gradeSyncInputUserPassword'],'.updateGradesMessage', true)">
                             Log In
+                            <div>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
                         </button>
                     </form>
                 </div>
@@ -151,7 +164,7 @@
         const DAY = 24 * HOUR;
 
         let message = $(".updateGradesMessage").find(".messageTxt");
-        let lastUpdated = alerts.lastUpdated.slice(-1)[0];
+        let lastUpdated = alerts.lastUpdated.slice(-1)[0].timestamp;
         let deltaTime = Date.now() - lastUpdated;
         if (lastUpdated === undefined) {
             message.text("Never synced");
@@ -161,28 +174,28 @@
             }
             let seconds = Math.floor(deltaTime / SECOND) % 60;
             if (deltaTime < JUST_NOW_LIMIT * SECOND) {
-                message.text("Last synced just now.");
+                message.text("Last synced just now." + recentChangeText);
                 checkLastUpdated = setTimeout(setupLastUpdated, (1 + seconds / JUST_NOW_LIMIT - deltaTime / (JUST_NOW_LIMIT * SECOND)) * JUST_NOW_LIMIT * SECOND);
                 return;
             }
             if (deltaTime < MINUTE) {
-                message.text("Last synced " + seconds + "s ago.");
+                message.text("Last synced " + seconds + "s ago." + recentChangeText);
                 checkLastUpdated = setTimeout(setupLastUpdated, (1 + seconds - deltaTime / SECOND) * SECOND);
                 return;
             }
             let minutes = Math.floor(deltaTime / MINUTE) % 60;
             if (deltaTime < HOUR) {
-                message.text("Last synced " + minutes + "m ago.");
+                message.text("Last synced " + minutes + "m ago." + recentChangeText);
                 checkLastUpdated = setTimeout(setupLastUpdated, (1 + minutes - deltaTime / MINUTE) * MINUTE);
                 return;
             }
             let hours = Math.floor(deltaTime / HOUR) % 24;
             let days = Math.floor(deltaTime / DAY);
             if (deltaTime < DAY) {
-                message.text("Last synced " + hours + "h " + (minutes > 0 ? minutes + "m ago." : " ago."));
+                message.text("Last synced " + hours + "h " + (minutes > 0 ? minutes + "m ago." : " ago.") + recentChangeText);
                 checkLastUpdated = setTimeout(setupLastUpdated, (1 + minutes - (deltaTime / MINUTE) % 60) * MINUTE);
             } else {
-                message.text("Last synced " + days + "d " + (hours > 0 ? hours + "h ago." : " ago."));
+                message.text("Last synced " + days + "d " + (hours > 0 ? hours + "h ago." : " ago.") + recentChangeText);
                 checkLastUpdated = setTimeout(setupLastUpdated, (1 + hours - (deltaTime / HOUR) % 24) * HOUR);
             }
         }

@@ -2,31 +2,48 @@
 <html lang="en-US">
 <head>
     <title>Graderoom</title>
-    <link rel="icon" href="public/resources/common/icon.png">
+    <link rel="icon" href="../../public/resources/common/icon.png">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
     <% let theme; %>
-    <% if (user.appearance.theme === "dark") { %>
+    <% let zeroTime = new Date("0/"); %>
+    <% zeroTime.setHours(new Date().getHours()); %>
+    <% zeroTime.setMinutes(new Date().getMinutes()); %>
+    <% zeroTime = zeroTime.getTime(); %>
+    <% if (JSON.parse(appearance).theme === "dark") { %>
         <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
-    <% } else if (user.appearance.theme === "light") { %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
+    <% } else if (JSON.parse(appearance).theme === "light") { %>
         <% theme = false; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
-    <% } else if ((((user.appearance.darkModeStart < user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8 + (dst ? 1 : 0)) % 24) >= user.appearance.darkModeStart) && ((Date.now() / 1000 / 3600 - 8 + (dst ? 1 : 0)) % 24) < user.appearance.darkModeFinish)) || ((user.appearance.darkModeStart > user.appearance.darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8 + (dst ? 1 : 0)) % 24) >= user.appearance.darkModeStart) || ((Date.now() / 1000 / 3600 - 8 + (dst ? 1 : 0)) % 24) < user.appearance.darkModeFinish)))) { %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/light_mode.css">
+    <% } else if (JSON.parse(appearance).theme === "auto" && (((JSON.parse(appearance).darkModeStart < JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) && (zeroTime < JSON.parse(appearance).darkModeFinish))) || ((JSON.parse(appearance).darkModeStart > JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) || (zeroTime < JSON.parse(appearance).darkModeFinish))))) { %>
         <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
+    <% } else if ((zeroTime >= sunset.getTime()) || (zeroTime <= sunrise.getTime())) { %>
+        <% theme = true; %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
     <% } else { %>
         <% theme = false; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/light_mode.css">
     <% } %>
-    <link rel="stylesheet" type="text/css" href="public/css/main.css">
+    <link rel="stylesheet" type="text/css" href="../../public/css/main.css">
+    <link id="blur_base" rel="stylesheet" type="text/css" href="../../public/css/blur.css"
+          <% if (!JSON.parse(appearance).blurEffects) { %>disabled
+            <% } %>
+    >
+    <link id="blur_overrides" rel="stylesheet" type="text/css"
+          href="public/css/<%= (theme ? "dark" : "light"); %>_blur.css"
+          <% if (!JSON.parse(appearance).blurEffects) { %>disabled
+            <% } %>
+    >
+    <link id="fade" rel="stylesheet" type="text/css" href="../../public/css/fade.css" disabled>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
 
 <!-- Admin Navbar -->
-<% include partials/admin/admin_navbar.ejs %>
+<% include ../partials/admin/admin_navbar.ejs %>
 
 <!-- Main Screen -->
 <div class="container">
@@ -63,7 +80,7 @@
                 <tr>
                     <th class="admin">Username</th>
                     <th class="admin">Name</th>
-                    <th class="admin">Last Updated</th>
+                    <th class="admin">Account Created</th>
                     <th class="admin">Last Logged In</th>
                     <th class="admin">Attributes</th>
                     <th class="admin">Render User Site</th>
@@ -77,11 +94,7 @@
                     <td class="admin"><%= u.username %> </td>
                     <td class="admin"><%= u.personalInfo.firstName + " " + u.personalInfo.lastName + " '" + (u.personalInfo.graduationYear - 2000) %></td>
                     <td class="admin">
-                        <% if (new Date(u.alerts.lastUpdated.slice(-1)[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
-                            Never Updated
-                        <% } else { %>
-                            <%= new Date(u.alerts.lastUpdated.slice(-1)[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) %>
-                        <% } %>
+                        <%= new Date(u.loggedIn[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) ;%>
                     </td>
                     <td class="admin">
                         <% if (new Date(u.loggedIn.slice(-1)[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
@@ -101,12 +114,17 @@
                         <% if (new Date(u.alerts.policyLastSeen).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
                             Policy not Seen<br>
                         <% } %>
+                        <% if (u.betaFeatures.active) { %>
+                            Beta<br>
+                        <% } %>
+                        <%= u.loggedIn.length; %> logins<br>
+                        <%= u.alerts.lastUpdated.length; %> syncs
                     </td>
                     <td class="admin">
                         <% if (u.alerts.remoteAccess === "allowed") { %>
                             <form action="/viewuser" method="get" style="display: inline-block;">
                                 <button type="submit" name="usernameToRender" class="btn btn-sm admin"
-                                        value="<%= u.username %>">
+                                        value="<%= u.username; %>">
                                     Render User Site
                                 </button>
                             </form>
@@ -127,7 +145,7 @@
                     </td>
 
                     <td class="admin">
-                        <% if (u != user) { %>
+                        <% if (u.username != username) { %>
                             <% if (u.isAdmin) { %>
                                 <form action="/removeadmin" method="post">
                                     <button type="submit" name="removeAdminUser" class="btn btn-sm admin"
@@ -184,51 +202,83 @@
     </div>
 </div>
 <script>
-    function isDST() {
-        return Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset();
+    let checkingTheme;
+    let appearance = <%- appearance %>;
+    let theme = appearance.theme;
+    let darkModeStart = appearance.darkModeStart;
+    let darkModeFinish = appearance.darkModeFinish;
+    let sunrise = <%= sunrise.getTime() %>;
+    let sunset = <%= sunset.getTime() %>;
+
+    if (theme === "auto" || theme === "sun") {
+        checkTime();
     }
 
-    let checkingTheme;
-    let theme = <%- theme %>;
-    let darkModeStart = <%- darkModeStart %>;
-    let darkModeFinish = <%- darkModeFinish %>;
-
     function setAutoTheme() {
-        if (theme !== "auto") {
-            clearInterval(checkingTheme);
+        let zeroTime = new Date("0/");
+        zeroTime.setHours(new Date().getHours());
+        zeroTime.setMinutes(new Date().getMinutes());
+        zeroTime = zeroTime.getTime();
+        if (theme !== "auto" && theme !== "sun") {
+            if (checkingTheme) {
+                clearInterval(checkingTheme);
+            }
             return;
         }
-        darkModeStart = parseInt(darkModeStart);
-        darkModeFinish = parseInt(darkModeFinish);
-        if (theme === "dark" || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) >= darkModeStart) && ((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) >= darkModeStart) || ((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) < darkModeFinish))))) {
-            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
+        if ((theme === "sun" && (zeroTime >= sunset || zeroTime <= sunrise)) || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((zeroTime >= darkModeStart) && (zeroTime < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((zeroTime >= darkModeStart) || (zeroTime < darkModeFinish))))))) {
+            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
             darkMode = true;
             if (darkMode !== oldDarkMode) {
-                clearTimeout(changeTransition);
                 document.getElementById("fade").disabled = false;
+                document.getElementById("pageStyle").setAttribute("href", "../../public/css/dark_mode.css");
+                if (appearance.blurEffects) {
+                    document.getElementById("blur_overrides").setAttribute("href", "../../public/css/dark_blur.css");
+                }
                 $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
-                document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+                $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
-                }, 1000);
+                }, 500);
             }
         } else {
-            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
+            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
             darkMode = false;
             if (darkMode !== oldDarkMode) {
-                clearTimeout(changeTransition);
                 document.getElementById("fade").disabled = false;
+                document.getElementById("pageStyle").setAttribute("href", "../../public/css/light_mode.css");
+                if (appearance.blurEffects) {
+                    document.getElementById("blur_overrides").setAttribute("href", "../../public/css/light_blur.css");
+                }
                 $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
-                document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+                $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
-                }, 1000);
+                }, 500);
             }
+        }
+        if (appearance.holidayEffects) {
+            init = performance.now();
+            $('#lights-disabled-message').hide();
+            $('#snow-disabled-message').hide();
+            $("#snow-fall").show();
+            $(".lightrope").show();
+            if (!darkMode) {
+                $("#light_snowfall").attr("media", "");
+            } else {
+                $("#light_snowfall").attr("media", "not all");
+            }
+        } else {
+            $('#lights-disabled-message').hide();
+            $('#snow-disabled-message').hide();
+            $("#snow-fall").hide();
+            $(".lightrope").hide();
         }
     }
 
     async function checkTime() {
-        clearInterval(checkingTheme);
+        if (checkingTheme) {
+            clearInterval(checkingTheme);
+        }
         setAutoTheme();
         checkingTheme = window.setInterval(function () {
             setAutoTheme();

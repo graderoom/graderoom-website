@@ -2,7 +2,7 @@ let {PythonShell} = require("python-shell");
 
 module.exports = {
 
-    loginAndScrapeGrades: function (email, password, get_history=false) {
+    loginAndScrapeGrades: function (email, password, data_if_locked, term_data_if_locked, get_history=false) {
 
         let pythonPath;
 
@@ -17,7 +17,7 @@ module.exports = {
             // pythonOptions: ['-u'], // get print results in real-time
             // // scriptPath: 'path/to/my/scripts',
             // // scriptPath: 'path/to/my/scripts',
-            pythonPath: pythonPath, args: [email, password, get_history]
+            pythonPath: pythonPath, args: [email, password, JSON.stringify(data_if_locked), JSON.stringify(term_data_if_locked), get_history]
         };
 
         return new Promise(function (resolve) {

@@ -11,7 +11,7 @@ const passport = require("passport");
 const dbConn = require("./authenticator.js");
 const fs = require("fs");
 
-const productionEnv = process.argv[2] === undefined ? false : process.argv[2];
+const productionEnv = process.env.NODE_ENV === 'production';
 
 module.exports.needsBetaKeyToSignUp = true; //todo
 
@@ -65,7 +65,7 @@ require("./routes.js")(app, passport); // load our routes and pass in our app an
 // launch ======================================================================
 
 dbConn.backupdb();
-dbConn.updateAllDB(module.exports.needsBetaKeyToSignUp);
+dbConn.updateAllDB();
 dbConn.backupdb();
 dbConn.watchChangelog();
 const httpServer = http.createServer(app);

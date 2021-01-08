@@ -12,17 +12,14 @@
                 <h1 class="card-title text-center changelog-title">
                     <span class="fa fa-book"></span>Changelog
                 </h1>
-                <div class="popup changelog-legend" style="overflow: visible;">
-                    <div class="popup-holder">
-                        <span id="changelogLegendPopup" class="popup-top tutorial-popup"
-                              style="margin-bottom: 1.5rem">
-                            Click to scroll to each legend item.
-                            <br>
-                            <span class="gotIt"></span>
-                        </span>
-                    </div>
+                <div class="changelog-legend" style="overflow: visible;">
                     <div class="changelog-container">
                         <h6>Legend</h6>
+                        <button class="btn"
+                                style="padding: 0.125rem; font-size: 0.5rem; line-height: 2; border-radius: 0.25rem; margin: 0 0 0.5rem 0; width: 100%"
+                                onclick="scrollToVersion('Known Issues')">
+                            <span>Back to Top</span>
+                        </button>
                         <span style="cursor: pointer" onclick="scrollToCurrent()">
                             <div class="square current"></div>
                             <span>Current</span></span>
@@ -38,11 +35,6 @@
                             <i onclick="scrollToPrevAnnouncement()" class="fa fa-2x fa-caret-up"></i>
                             <i onclick="scrollToNextAnnouncement()" class="fa fa-2x fa-caret-down"></i>
                         </span>
-                        <button class="btn"
-                                style="padding: 0.125rem; font-size: 0.5rem; line-height: 2; border-radius: 0.25rem; margin: 0; width: 100%"
-                                onclick="scrollToVersion('Known Issues')">
-                            <span>Back to Top</span>
-                        </button>
                     </div>
                 </div>
                 <div class="card changelog">
@@ -66,10 +58,12 @@
     let numDisplayed = 4;
 
     function showChangelog() {
-        closeForm("changelogDisplay");
         $.ajax({
                    url: "/changelog", type: "GET", async: true
                }).done(function (response) {
+            if (cardsDisplayed.includes("changelogDisplay")) {
+                cardsDisplayed.splice(cardsDisplayed.indexOf("changelogDisplay"),1);
+            }
             cardsDisplayed.push("changelogDisplay");
             $(".blurred-background").each(function () {
                 if (cardsDisplayed.includes($($(this).parent())[0].id)) {
@@ -80,8 +74,8 @@
             changelogReferences = changelogArray.map(x => $(x));
             changelogContainer.html(changelogReferences);
             let versions = $("#changelogDisplay .changelog-item");
-            let onScreenVersion = versions[getOnScreenVersionIndex()];
-            changelogContainer.animate({scrollTop: 0}, 0, () => {
+            let onScreenVersion = $(versions[getOnScreenVersionIndex()])[0].childNodes[0].childNodes[0].innerText;
+            changelogContainer.animate({scrollTop: 0}, () => {
                 versionNames = [];
                 versionOffsets = {};
                 for (let version of versions) {

@@ -12,10 +12,9 @@
                  style="position: absolute; width: fit-content; width: -moz-fit-content; right: 0; margin-bottom: 0">
                 View Full Changelog <i class="fa fa-external-link-square"></i></btn>
             <div class="card-body">
-                <h3 class="card-title text-center"><span class="fa fa-arrow-down"></span>
-                    What's New
-                    <span class="fa fa-arrow-down"></span>
-                </h3>
+                <h4 class="card-title text-center"><span class="fa fa-clock-o"></span>
+                    A New Version Has Been Released
+                </h4>
                 <div style="display: flex; flex-flow: column; align-content: space-around">
                     <div class="card changelog">
                         <div id="latest-container" class="changelog-container"></div>
@@ -30,7 +29,6 @@
     let latestContainer = $("#latest-container");
 
     function showLatest(force) {
-        closeForm("latestDisplay");
         $.ajax({
                    url: "/latestVersion", type: "GET", async: true
                }).done(function (response) {
@@ -40,6 +38,9 @@
                 $("#latestDisplay").fadeIn(500);
                 latestContainer.html(response);
                 latestContainer.animate({scrollTop: 0}, 0);
+                if (cardsDisplayed.includes("latestDisplay")) {
+                    cardsDisplayed.splice(cardsDisplayed.indexOf("latestDisplay"),1);
+                }
                 cardsDisplayed.push("latestDisplay");
                 $(".blurred-background").each(function () {
                     if (cardsDisplayed.includes($($(this).parent())[0].id)) {

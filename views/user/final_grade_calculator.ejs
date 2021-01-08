@@ -2,25 +2,42 @@
 <html lang="en-US">
 <head>
     <title>Graderoom</title>
-    <link rel="icon" href="public/resources/common/icon.png">
+    <link rel="icon" href="../../public/resources/common/icon.png">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
     <% let theme; %>
+    <% let zeroTime = new Date("0/"); %>
+    <% zeroTime.setHours(new Date().getHours()); %>
+    <% zeroTime.setMinutes(new Date().getMinutes()); %>
+    <% zeroTime = zeroTime.getTime(); %>
     <% if (JSON.parse(appearance).theme === "dark") { %>
         <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
     <% } else if (JSON.parse(appearance).theme === "light") { %>
         <% theme = false; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
-    <% } else if ((((JSON.parse(appearance).darkModeStart < JSON.parse(appearance).darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8 + (dst ? 1 : 0)) % 24) >= JSON.parse(appearance).darkModeStart) && ((Date.now() / 1000 / 3600 - 8 + (dst ? 1 : 0)) % 24) < JSON.parse(appearance).darkModeFinish)) || ((JSON.parse(appearance).darkModeStart > JSON.parse(appearance).darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8 + (dst ? 1 : 0)) % 24) >= JSON.parse(appearance).darkModeStart) || ((Date.now() / 1000 / 3600 - 8 + (dst ? 1 : 0)) % 24) < JSON.parse(appearance).darkModeFinish)))) { %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/light_mode.css">
+    <% } else if (JSON.parse(appearance).theme === "auto" && (((JSON.parse(appearance).darkModeStart < JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) && (zeroTime < JSON.parse(appearance).darkModeFinish))) || ((JSON.parse(appearance).darkModeStart > JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) || (zeroTime < JSON.parse(appearance).darkModeFinish))))) { %>
         <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
+    <% } else if ((zeroTime >= sunset.getTime()) || (zeroTime <= sunrise.getTime())) { %>
+        <% theme = true; %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
     <% } else { %>
         <% theme = false; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/light_mode.css">
     <% } %>
-    <link rel="stylesheet" type="text/css" href="public/css/main.css">
+    <link rel="stylesheet" type="text/css" href="../../public/css/main.css">
+    <link id="blur_base" rel="stylesheet" type="text/css" href="../../public/css/blur.css"
+          <% if (!JSON.parse(appearance).blurEffects) { %>disabled
+            <% } %>
+    >
+    <link id="blur_overrides" rel="stylesheet" type="text/css"
+          href="public/css/<%= (theme ? "dark" : "light"); %>_blur.css"
+          <% if (!JSON.parse(appearance).blurEffects) { %>disabled
+            <% } %>
+    >
+    <link id="fade" rel="stylesheet" type="text/css" href="../../public/css/fade.css" disabled>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Javascript imports -->
@@ -30,7 +47,7 @@
 <body>
 
 <!-- Navbar -->
-<% include partials/user/navbar.ejs %>
+<% include ../partials/user/navbar.ejs %>
 <div class="container h-100 d-flex justify-content-center">
     <div class="col-sm-12 col-md-10 col-lg-9 col-xl-8">
         <div class="card card-signin my-5">
@@ -51,7 +68,7 @@
                                                                                          id="chooseClass">
                                     <option selected>- - Select Class - -</option>
                                     <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                                        <option><%= JSON.parse(gradeData)[Object.keys(JSON.parse(gradeData))[i]].class_name %></option>
+                                        <option><%= JSON.parse(gradeData)[Object.keys(JSON.parse(gradeData))[i]].class_name ;%></option>
                                     <% } %>
                                 </select> </label> <label style="display: flex; align-items: flex-end;">
                                 <select class="classic" id="chooseLetterGrade" style="float: right">
@@ -125,9 +142,9 @@
 
 <script>
 
-    let data = <%- gradeData %>;
-    let weights = <%- weightData %>;
-    let appearance = <%- appearance %>;
+    let data = <%- gradeData; %>;
+    let weights = <%- weightData; %>;
+    let appearance = <%- appearance; %>;
 
     // Set up input divs
     let currentGradeDiv = $("#currentGrade");
@@ -231,8 +248,7 @@
         let classIndex = chooseClassDiv[0].selectedIndex - 1;
         let finalPoints;
         let categoryWeight;
-        let grades = data;
-        let classGrades = Object.values(grades)[classIndex].grades;
+        let classGrades = Object.values(data)[classIndex].grades;
         let numPossible = 0;
         if (selectedWeight) {
             let categoryName = selectedWeight.html();
@@ -254,6 +270,7 @@
                         feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 4: Enter Final Points");
                         return;
                     }
+                    break;
                 case "chooseWeightDiv":
                     if (finalPoints === "") {
                         feedbackMessageDiv.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 4: Enter Final Points");
@@ -263,9 +280,10 @@
                         feedbackMessageDiv.removeClass("alert-success").removeClass("alert-info").addClass("alert-info").css("display", "block").find(".messageTxt").text("Step 4: Select a Category");
                         return;
                     }
+                    break;
             }
             for (let i = 0; i < classGrades.length; i++) {
-                if (classGrades[i].category === categoryName) {
+                if (classGrades[i].category === categoryName && classGrades[i].points_gotten !== false && classGrades[i].points_possible !== false) {
                     numPossible += classGrades[i].points_possible;
                 }
             }
@@ -282,6 +300,16 @@
             }
             categoryWeight = 100;
         }
+
+        // Calculate total weight
+        let weightValues = $.makeArray($("#chooseWeight option")).slice(1).map(element => parseFloat(element.value));
+        let totalWeightValue;
+        if (weightValues.length) {
+            totalWeightValue = weightValues.reduce((a, b) => a + b);
+            categoryWeight /= totalWeightValue / 100;
+        }
+
+        // Calculate final weight
         let finalWeight = 0;
         if (parseFloat(finalPoints) > 0) {
             finalWeight = parseFloat(finalPoints) / (numPossible + parseFloat(finalPoints)) * categoryWeight;
@@ -452,7 +480,7 @@
         }
     }
 
-    let alerts = <%- alerts %>;
+    let alerts = <%- alerts; %>;
 
     function updateTutorial(action) {
         if (window.innerWidth <= 991) {
@@ -465,10 +493,15 @@
             $("#" + action + "Popup").animate({opacity: 0}, 400, function () {
                 $(this).removeClass("always-show").css("opacity", "");
             });
-            setupTutorialPopups();
-            updateTutorialProgress();
         });
     }
+
+    $(".gotIt").on("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        let id = $(this).parents("span.tutorial-popup")[0].id;
+        updateTutorial(id.substring(0, id.length - 5));
+    });
 
     // Hides message
     function closeMessage(id) {
@@ -563,25 +596,23 @@
         darkModeStart = parseInt(darkModeStart);
         darkModeFinish = parseInt(darkModeFinish);
         if (theme === "dark" || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) >= darkModeStart) && ((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) >= darkModeStart) || ((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) < darkModeFinish))))) {
-            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
+            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
             darkMode = true;
             if (darkMode !== oldDarkMode) {
-                clearTimeout(changeTransition);
                 document.getElementById("fade").disabled = false;
                 $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
-                document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+                document.getElementById("pageStyle").setAttribute("href", "../../public/css/dark_mode.css");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
                 }, 1000);
             }
         } else {
-            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
+            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
             darkMode = false;
             if (darkMode !== oldDarkMode) {
-                clearTimeout(changeTransition);
                 document.getElementById("fade").disabled = false;
                 $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
-                document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+                document.getElementById("pageStyle").setAttribute("href", "../../public/css/light_mode.css");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
                 }, 1000);

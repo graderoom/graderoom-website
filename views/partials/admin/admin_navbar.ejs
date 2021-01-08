@@ -21,10 +21,10 @@
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="navbar-collapse collapse w-100" id="collapsingNav">
-        <% if (user.username.length > 0) { %>
+        <% if (username.length > 0) { %>
             <ul class="navbar-nav w-100 justify-content-center">
                 <li class="nav-item">
-                    <h5 class=""><%= user.username %></h5>
+                    <h5 class=""><%= username %></h5>
                 </li>
             </ul>
         <% } %>
@@ -46,6 +46,12 @@
                     </a>
                 </li>
             <% } %>
+            <% if (page != 'charts') { %>
+                    <li id="admin" class="nav-item">
+                        <a class="btn btn-med" href="/charts"> <i class="fa fa-sticky-note-o" aria-hidden="true"></i> Charts
+                        </a>
+                    </li>
+            <% } %>
             <li id="toggleAdmin" class="nav-item toggle-admin">
                 <a class="btn btn-med" href="/"> <i class="fa fa-home" aria-hidden="true"></i> Home </a>
             </li>
@@ -65,6 +71,9 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<% include ../limited_time/snowfall.ejs %>
 
 <!-- Custom JavaScript -->
 <script>
@@ -85,4 +94,6 @@
             }
         }
     });
+
+    Snowy(true);
 </script>

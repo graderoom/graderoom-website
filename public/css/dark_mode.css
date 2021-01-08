@@ -24,6 +24,10 @@ nav label {
     color: #666666;
 }
 
+.loading span {
+    background-color: #FFFFFF;
+}
+
 .sticky {
     box-shadow: 2px 1px 20px #111111;
 }
@@ -203,6 +207,14 @@ th {
 
 .form-group .user-bg {
     background: url(/public/resources/dark_mode/user.png) no-repeat left/23px 27px !important;
+}
+
+.form-group .graduation-bg {
+    background: url(/public/resources/dark_mode/graduation.png) no-repeat left/27px 23px !important;
+}
+
+.form-group .school-bg {
+    background: url(/public/resources/dark_mode/school.png) no-repeat left/28px 26px !important;
 }
 
 .mini:before {
@@ -467,6 +479,28 @@ select.minimal:focus {
 
 .deprove {
     color: rgba(255, 100, 100, 1);
+}
+
+tr:hover .toolTab {
+    filter: brightness(140%);
+}
+
+.grade-changes-card {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+#gradeChangesContainer > hr {
+    background-color: #444444;
+}
+
+.dropdown-menu {
+    border: 1px solid black;
+    background-color: #333333;
+    box-shadow: 0 0 20px 2px black;
+}
+
+.dropdown-divider {
+    border-color: black;
 }
 
 /* Mobile Stuff */
