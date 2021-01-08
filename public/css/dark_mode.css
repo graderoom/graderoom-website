@@ -503,6 +503,11 @@ tr:hover .toolTab {
     border-color: black;
 }
 
+.changelog-inline-setoff {
+    background-color: #333333;
+    box-shadow: black 0 0 2px 1px;
+}
+
 /* Mobile Stuff */
 @media only screen and (max-width: 991px) {
     #table-1 table {

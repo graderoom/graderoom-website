@@ -42,6 +42,34 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 4.2.0] - 2021-01-08
+### Added
+- Changelog can now emphasize important information <span class="changelog-inline-setoff">like this</span>
+
+### Improved
+- Incorrect grade messages have been updated to always display accurate information
+- Rearranged class info<ul>
+- Teacher has been moved to the right side
+- Course types have been moved to the left side
+- Course type language has been updated
+- Weight verification status has been added to the left side</ul>
+- Weight accuracy is determined by verification of weights
+- Your weights are verified if <span class="changelog-inline-setoff">Weights Verified <i class="fa fa-check-circle"></i></span> is displayed in the upper right corner of the class page
+- If your weights are not verified, <span class="changelog-inline-setoff">Weights Unverified <i class="fa fa-exclamation-circle"></i></span> will be displayed
+- Verification of your weights will occur more quickly if you send feedback through <span class="changelog-inline-setoff">More > Send Feedback</span><ol type="1">
+- Choose the option <span class="changelog-inline-setoff">Submit weights</span>
+- Include the class name and teacher name of the course you would like weights to be verified for
+- You should see the weights become verified shortly</ol>
+- Changelog now has all versions when opened
+- Changelog now remains on same version even after the page is resized or changelog is closed and reopened
+- Changelog legend is much more responsive
+- <em>[Beta]</em> Increased size of fps display as requested
+
+### Fixed
+- An issue where some syncs done after PowerSchool was locked did not display their status correctly
+- An issue where all classes would display in sync log with no changes
+- An issue with displaying PowerSchool locked status in sync log
+
 ## [Stable 4.1.1] - 2021-01-06
 ### Fixed
 - Syncing with PowerSchool
@@ -57,7 +85,7 @@
 
 ### Fixed
 - Issue with snowfall
-- [Beta] Issue with fps display
+- <em>[Beta]</em> Issue with fps display
 
 ## [Stable 4.0.17] - 2020-12-31
 ### Fixed
