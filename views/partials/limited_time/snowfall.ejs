@@ -1,0 +1,208 @@
+<style>
+    #snow-fall {
+        z-index: -1;
+        position: fixed;
+        top: 0;
+    }
+
+    #fps {
+        font-family: monospace;
+        font-size: 0.5rem;
+        pointer-events: none;
+    }
+</style>
+<style id="light_snowfall"
+        <% if (!JSON.parse(appearance).holidayEffects || theme) { %> media="not all"
+        <% } %>
+>
+    #snow-fall {
+        background-image: linear-gradient(to top, #E5E5E5 20%, lightblue 80%);
+    }
+</style>
+
+<canvas id='snow-fall' <% if (!JSON.parse(appearance).holidayEffects) { %>style="display: none"
+        <% } %>
+></canvas>
+<% const lightsMonth = 11; /* 11 is December */ %>
+<% if (page == "home" && JSON.parse(betaFeatures).showFps) { %>
+<span style="z-index: 999; position: fixed; bottom: 10px; left: 10px;" id="fps"></span>
+<% } %>
+
+<script>
+    const today = new Date();
+    const winterStart = 10; // 10 is November
+    const winterEnd = 2; // 2 is March
+    const rotationScale = 1; // Must be 1
+    const speedScale = 1;
+    const buffer = 10;
+    const minSpeed = 1;
+    const sizeScale = 0.5;
+
+    let numFlakes;
+    let snow = [];
+    let canvas = document.getElementById("snow-fall"), $$ = canvas.getContext("2d");
+    let screenWidth = canvas.width = window.innerWidth, screenHeight = canvas.height = window.innerHeight;
+    let renderNextFrame = true;
+
+    let showingLights = <%= new Date().getMonth() === lightsMonth; %>;
+    let init;
+
+    function Snowy(start = false) {
+        if (today.getMonth() >= winterStart || today.getMonth() <= winterEnd) {
+            numFlakes = screenWidth / 5;
+            for (let i = 0; i < numFlakes; ++i) {
+                let flake = new Flake();
+                snow.push(initializeFlake(flake));
+            }
+
+            function initializeFlake(flake, initial = true) {
+                if (initial) {
+                    flake.yPos = 2 * Math.random() * (-screenHeight);
+                } else {
+                    flake.yPos = Math.random() * (-screenHeight);
+                }
+                flake.xPos = Math.random() * screenWidth;
+                flake.rotation = Math.random() * (Math.PI * 2);
+                flake.size = (100 / (10 + (Math.random() * 100))) * sizeScale;
+                flake.speed = (Math.pow(flake.size * .8, 2) * .15) * speedScale;
+                flake.speed = flake.speed < minSpeed ? minSpeed : flake.speed;
+                return flake;
+            }
+        }
+
+        if (start) {
+
+            init = performance.now();
+            let lastCalledTime;
+            let fps = 0;
+            let _1sTempFps = [];
+            let _1sAverage = 0;
+            let fpsScale;
+
+            go();
+
+            <% if (page == "home" && JSON.parse(betaFeatures).showFps) { %>
+            setInterval(() => {
+                if (renderNextFrame) {
+                    let fpsDisplay = ``;
+                    fpsDisplay += `&nbsp;1S AVG: ` + (_1sAverage < 100 ? `&nbsp;` : ``) + (_1sAverage < 10 ? `&nbsp;` : ``) + _1sAverage.toFixed(0) + `FPS<br>`;
+                    fpsDisplay += `INSTANT: ` + (fps < 100 ? `&nbsp;` : ``) + (fps < 10 ? `&nbsp;` : ``) + fps.toFixed(0) + `FPS`;
+                    $("#fps").html(fpsDisplay);
+                }
+            }, 1);
+            <% } %>
+            setInterval(() => {
+                if (_1sTempFps.length > 2) {
+                    _1sAverage = _1sTempFps.reduce((a, b) => a + b) / _1sTempFps.length;
+                    _1sTempFps = _1sTempFps.slice(-2);
+                    if (performance.now() - init < 10000) {
+                        return;
+                    } // Wait 10 seconds before making fps-based changes
+                    if (_1sAverage < 20 && showingLights) {
+                        $(".lightrope li").css("animation-play-state", "paused");
+                        showingLights = false;
+                        $("#lights-disabled-message").fadeIn("fast");
+                        init = performance.now();
+                        return;
+                    }
+                    if (_1sAverage < 20 && !showingLights) {
+                        $("#snow-fall").fadeOut("slow");
+                        $("#snow-disabled-message").fadeIn("fast");
+                    } else if (!showingLights) {
+                        $("#snow-fall").fadeIn("slow");
+                        $("#snow-disabled-message").fadeOut("fast");
+                    }
+                }
+            }, 1000);
+
+            function go(requestAnother = true) {
+                if (renderNextFrame) {
+                    if (!lastCalledTime) {
+                        lastCalledTime = performance.now();
+                        fps = 1;
+                        _1sTempFps.push(fps);
+                        fpsScale = 1;
+                    } else {
+                        let delta = (performance.now() - lastCalledTime) / 1000;
+                        lastCalledTime = performance.now();
+                        fps = 1 / delta;
+                        _1sTempFps.push(fps);
+                        fpsScale = fps / 60;
+                    }
+                    $$.clearRect(0, 0, screenWidth, screenHeight);
+                    $$.fillStyle = "transparent";
+                    $$.fillRect(0, 0, screenWidth, screenHeight);
+                    $$.fill();
+                    let flake;
+                    for (let i = 0; i < snow.length; i++) {
+                        flake = snow[i];
+                        flake.rotation += .05 / fpsScale;
+                        flake.rotation = flake.rotation >= Math.PI * 2 ? 0 : flake.rotation;
+                        flake.yPos += flake.speed / fpsScale;
+                        flake.xPos += Math.sin(flake.rotation * rotationScale) * (flake.size * .3) / fpsScale;
+                        if (flake.yPos > screenHeight + 50) {
+                            flake = initializeFlake(flake, false);
+                        }
+                        if (flake.xPos > screenWidth + buffer) {
+                            flake.xPos = -buffer;
+                        }
+                        if (flake.xPos < -buffer) {
+                            flake.xPos = screenWidth + buffer;
+                        }
+                        flake.draw();
+                    }
+                    window.requestAnimationFrame(go);
+                } else if (requestAnother) {
+                    window.requestAnimationFrame(go);
+                }
+            }
+
+            window.addEventListener("blur", stop);
+            window.addEventListener("focus", play);
+
+            function stop() {
+                renderNextFrame = false;
+            }
+
+            function play() {
+                init = performance.now();
+                renderNextFrame = true;
+                _1sTempFps = [];
+                lastCalledTime = undefined;
+            }
+        }
+
+        function Flake() {
+            this.draw = function () {
+                this.gradient = $$.createRadialGradient(this.xPos, this.yPos, 0, this.xPos, this.yPos, this.size);
+                this.gradient.addColorStop(0, "rgba(255,255,255,1)");
+                this.gradient.addColorStop(1, "rgba(255,255,255,0)");
+                $$.moveTo(this.xPos, this.yPos);
+                $$.fillStyle = this.gradient;
+                $$.beginPath();
+                $$.arc(this.xPos, this.yPos, this.size, 0, Math.PI * 2, true);
+                $$.fill();
+            };
+        }
+    }
+
+    let _resizeTimer;
+    window.addEventListener("resize", function () {
+        clearTimeout(_resizeTimer);
+        _resizeTimer = setTimeout(() => {
+            canvas.width = screenWidth = window.innerWidth;
+            canvas.height = screenHeight = window.innerHeight;
+            snow.forEach((flake, index) => delete snow[index]);
+            snow = [];
+            Snowy();
+            <% if (new Date().getMonth() === lightsMonth) { %>
+            setupLights();
+            <% } %>
+        }, 400);
+    }, false);
+
+</script>
+
+<% if (new Date().getMonth() === lightsMonth) { %>
+<% include christmas_lights.ejs %>
+<% } %>

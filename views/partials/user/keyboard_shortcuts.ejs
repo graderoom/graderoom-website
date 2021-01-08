@@ -13,7 +13,20 @@
                     Keyboard Shortcuts
                 </h1>
                 <div style="display: flex; flex-flow: column; align-content: space-around">
-                    <div class="card-body">
+                    <div class="card-body" style="overflow: scroll;">
+                        <div style="display: flex; justify-content: center; align-items: center" class="card-footer">
+                            <label class="key-display">`</label>
+                            <label style="margin-bottom: 0; margin-left: auto; text-align: right">Show overview
+                                page</label>
+                        </div>
+                        <div style="display: flex; justify-content: center; align-items: center" class="card-footer">
+                            <% for (let c_index = 0; c_index < JSON.parse(gradeData).length; c_index++) { %>
+                                <% if (c_index !== 0) { %>&nbsp;<% } %>
+                                <label class="key-display"><%= c_index + 1 %></label>
+                            <% } %>
+                            <label style="margin-bottom: 0; margin-left: auto; text-align: right">Open corresponding
+                                class page</label>
+                        </div>
                         <div style="display: flex; justify-content: center; align-items: center" class="card-footer">
                             <label class="key-display">←</label>
                             <label style="margin-bottom: 0">&nbsp;and&nbsp;</label>
@@ -50,6 +63,11 @@
                             <label class="key-display">A</label>
                             <label style="margin-bottom: 0; margin-left: auto; text-align: right">Add an assignment to
                                 the displayed class</label>
+                        </div>
+                        <div style="display: flex" class="card-footer">
+                            <label class="key-display">G</label>
+                            <label style="margin-bottom: 0; margin-left: auto; text-align: right">Show/Hide sync
+                                log</label>
                         </div>
                         <% if (JSON.parse(betaFeatures).active) { %>
                             <div style="display: flex" class="card-footer">

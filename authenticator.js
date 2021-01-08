@@ -3,15 +3,23 @@ const _ = require("lodash");
 const FileSync = require("lowdb/adapters/FileSync");
 const adapter = new FileSync("user_db.json");
 const db = low(adapter);
+const catalogAdapter = new FileSync("catalog.json");
+const catalog = low(catalogAdapter);
 const bcrypt = require("bcryptjs");
 const scraper = require("./scrape");
 const chroma = require("chroma-js");
 const crypto = require("crypto");
 const readline = require("readline");
 const fs = require("fs");
+const SunCalc = require("suncalc");
 
 const roundsToGenerateSalt = 10;
 
+// Change this when updateDB changes
+const dbUserVersion = 1;
+
+// Change this when updateAllDB changes
+const dbClassVersion = 1;
 
 db.defaults({users: [], keys: [], classes: {}, deletedUsers: []}).write();
 
@@ -20,12 +28,14 @@ let betaChangelogArray = [];
 let versionNameArray = [];
 
 // Update this list with new tutorial keys
-let tutorialKeys = ["calcSeen", "helpSeen", "changelogLegendSeen", "homeSeen", "navinfoSeen"];
+let tutorialKeys = ["homeSeen", "navinfoSeen", "moreSeen", "settingsSeen"];
 
 // Update this list with new beta features
-let betaFeatureKeys = ["showTermSwitcher", "blurEffects"];
+let betaFeatureKeys = ["showTermSwitcher", "showFps"];
 
 module.exports = {
+
+    db: db,
 
     backupdb: function () {
         let today = Date.now();
@@ -162,244 +172,338 @@ module.exports = {
     /* user functions
      */
 
-    updateAllDB: function (beta = false) {
+    /**
+     * CHANGE dbClassVersion whenever you add to this
+     */
+    updateAllDB: function () {
         let startTime = Date.now();
         console.log("" + startTime + " | Started Database Update");
-
-        // Remove version object
-        if (db.get("versions").value()) {
-            db.unset("versions").write();
-        }
 
         let classRef = db.get("classes");
         let classes = db.get("classes").value();
 
-        //Migrate classes to semester system
-        if (!classes.hasOwnProperty("20-21")){
-            //Clear Suggestions:
+        if (!('version' in classes)) {
+            classRef.set("version", 0).write();
+        }
+        let version = classRef.get("version").value();
+
+        if (version < 1) {
+            // Fix Calculus BC AP with space
+            let badData = classRef.get("Calculus BC AP ").value();
+            if (badData) {
+                let temp = badData["Reyerson, Hardy"];
+                classRef.get("Calculus BC AP").set("Reyerson, Hardy", temp).write();
+                classRef.unset("Calculus BC AP ").write();
+            }
+
             for (let i = 0; i < Object.keys(classes).length; i++) {
+                console.log("" + Date.now() + " | Updating Class: " + (i + 1) + " of " + Object.keys(classes).length);
                 let className = Object.keys(classes)[i];
-                for (let j = 1; j < Object.keys(classes[className]).length; j++) { //start at 1 to skip classType
-                    let teacherName = Object.keys(classes[className])[j];
-                    classes[className][teacherName]["suggestions"] = [];
+                for (let j = 0; j < Object.keys(classes[className]).length; j++) {
+                    let teacherName = Object.keys((classes)[className])[j];
+                    if (_.isObject(classes[className][teacherName]) && !Array.isArray(classes[className][teacherName])) {
+                        if (!("suggestions" in classes[className][teacherName])) {
+                            classRef.get(className).get(teacherName).set("suggestions", []).write();
+                        }
+                        if (!("assignments" in classes[className][teacherName])) {
+                            classRef.get(className).get(teacherName).set("assignments", {}).write();
+                        }
+                        if (!("overall_grades" in classes[className][teacherName])) {
+                            classRef.get(className).get(teacherName).set("overall_grades", []).write();
+                        }
+                        // Remove suggestions without usernames
+                        classRef.get(className).get(teacherName).get("suggestions").remove(function (e) {
+                            return !("usernames" in e);
+                        }).write();
+                    }
+                    if (!("department" in classes[className])) {
+                        // Update classes from catalog
+                        let catalogClass = catalog.find({class_name: className}).value();
+                        if (catalogClass) {
+                            classRef.get(className).set("department", catalogClass.department).write();
+                            classRef.get(className).set("grade_levels", catalogClass.grade_levels).write();
+                            classRef.get(className).set("credits", catalogClass.credits).write();
+                            classRef.get(className).set("terms", catalogClass.terms).write();
+                            classRef.get(className).set("description", catalogClass.description).write();
+                            classRef.get(className).set("uc_csuClassType", catalogClass.uc_csuClassType).write();
+                            classRef.get(className).set("classType", catalogClass.classType).write();
+                        } else {
+                            classRef.get(className).set("department", "").write();
+                            classRef.get(className).set("credits", "").write();
+                            classRef.get(className).set("terms", "").write();
+                            classRef.get(className).set("description", "").write();
+                            classRef.get(className).set("uc_csuClassType", "").write();
+                            classRef.get(className).set("classType", "").write();
+                        }
+                    }
+                    if ("ClassType" in classes[className]) {
+                        classRef.get(className).set("classType", classRef.get(className).get("ClassType").value()).write();
+                        classRef.get(className).unset("ClassType").write();
+                    }
                 }
             }
 
-            //Add current weights for all semesters
-            db.set("classes", {"20-21": {"S1": classes}}).write();
+            // Update class db version
+            classRef.set("version", 1).write();
+        }
+        if (version < 2) {
+            //Migrate classes to semester system
+            if (!classes.hasOwnProperty("20-21")){
+                //Clear Suggestions:
+                for (let i = 0; i < Object.keys(classes).length; i++) {
+                    let className = Object.keys(classes)[i];
+                    for (let j = 1; j < Object.keys(classes[className]).length; j++) { //start at 1 to skip classType
+                        let teacherName = Object.keys(classes[className])[j];
+                        classes[className][teacherName]["suggestions"] = [];
+                    }
+                }
+                //Add current weights for all semesters
+                db.set("classes", {"20-21": {"S1": classes}}).write();
+            }
+            
+            // Update class db version
+            classRef.set("version", 2).write();
+        }
+        // Add more if/else to add db updates
+        if (version < dbClassVersion) {
+            // Add the stuff next time
         }
 
         let users = db.get("users").value();
-
         for (let i = 0; i < users.length; i++) {
             console.log("" + Date.now() + " | Updating User: " + (i + 1) + " of " + users.length);
-            this.updateDB(users[i].username, beta);
-        }
+            this.updateDB(users[i].username);
+        }    
 
         let endTime = Date.now();
         console.log("" + endTime + " | Database Updated in " + (endTime - startTime) + "ms");
-    }, updateDB: function (username, beta = false) {
+    },
+
+    /**
+     * CHANGE dbUserVersion whenever you change this function
+     * @param username user to update
+     */
+    updateDB: function (username) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
 
-        // Add betaFeatures activation
-        if (!userRef.get("betaFeatures").value()) {
-            userRef.set("betaFeatures", {"active": beta}).write();
+        // Add db versioning
+        if (!('version' in user)) {
+            userRef.set("version", 0).write();
         }
+        let version = userRef.get("version").value();
 
-        // Add weightedGPA option
-        if (!userRef.get("appearance").get("weightedGPA").value() && userRef.get("appearance").get("weightedGPA").value() !== false) {
-            userRef.get("appearance").set("weightedGPA", true).write();
+        if (version <= dbUserVersion) {
+            // Throw stuff in here next time
         }
+        if (version <= 0) {
 
-        // Add regularizeClassGraphs
-        if (!userRef.get("appearance").get("regularizeClassGraphs").value() && userRef.get("appearance").get("regularizeClassGraphs").value() !== false) {
-            userRef.get("appearance").set("regularizeClassGraphs", true).write();
-        }
+            // Update change data with ps_locked
+            let lastUpdateds = userRef.get("alerts").get("lastUpdated").value();
+            for (let i = 0; i < lastUpdateds.length; i++) {
+                if ('ps_locked' in lastUpdateds[i]) continue;
+                // This is really sketch but it should work
+                let cutoff = new Date(2020, 11, 18).getTime(); // Dec 18, 2020 is when grades locked in 2020
+                lastUpdateds[i].ps_locked = lastUpdateds[i].timestamp >= cutoff; // Hopefully pushed before grades unlocked
+            }
 
-        // Make all school emails lowercase
-        let email = user.schoolUsername;
-        userRef.set("schoolUsername", email.toLowerCase()).write();
+            if (!Array.isArray(userRef.get("updatedGradeHistory").value())) {
+                userRef.set("updatedGradeHistory", []).write();
+            }
 
-        // Fix error in weight storage
-        if (userRef.get("grades").get("grades").value()) {
-            userRef.get("grades").unset("grades").write();
-        }
+            // Update darkModeStart/Finish
+            if (userRef.get("appearance").get("darkModeStart").value() === null) {
+                userRef.get("appearance").set("darkModeStart", 18).write();
+                userRef.get("appearance").set("darkModeFinish", 7).write();
+            }
 
-        // Add color palette
-        if (!userRef.get("appearance").get("colorPalette").value()) {
-            userRef.get("appearance").set("colorPalette", "default").write();
-            this.setColorPalette(lc_username, "default");
-        }
+            if (userRef.get("appearance").get("darkModeStart").value() <= 24) {
+                let _start = userRef.get("appearance").get("darkModeStart").value();
+                _start = new Date("0/" + _start + ":00").getTime();
+                let _finish = userRef.get("appearance").get("darkModeFinish").value();
+                _finish = new Date("0/" + (_finish % 24) + ":00").getTime();
+                userRef.get("appearance").set("darkModeStart", _start).write();
+                userRef.get("appearance").set("darkModeFinish", _finish).write();
 
-        // Migrate to new grade and weight storage (any data found in old storage *must* be from 19-20 S2)
-        if (Array.isArray(userRef.get("grades").value())) {
-            userRef.set("grades", {"19-20": {"S2": user.grades}}).write();
-            userRef.set("weights", {"19-20": {"S2": user.weights}}).write();
-        }
-
-        // I didn't realize that some people have 2019 grades
-        if (userRef.get("grades").get("19-20").get("S2").value() && userRef.get("grades").get("19-20").get("S2").value().filter(c => c.grades.filter(a => a.date.slice(-4) === "2019").length).length) {
-            userRef.get("grades").get("19-20").set("S1", userRef.get("grades").get("19-20").get("S2").value()).write();
-            userRef.get("grades").get("19-20").unset("S2").write();
-            userRef.get("weights").get("19-20").set("S1", userRef.get("weights").get("19-20").get("S2").value()).write();
-            userRef.get("weights").get("19-20").unset("S2").write();
-        }
-
-        // Add addedAssignments dict
-        if (!userRef.get("addedAssignments").value()) {
-            userRef.set("addedAssignments", {}).write();
-            this.initAddedAssignments(user.username);
-        }
-
-        // Fix -1 and Â  values in 19-20 S2
-        if (userRef.get("grades").value() && userRef.get("grades").get("19-20").value() && userRef.get("grades").get("19-20").get("S2").value()) {
-            for (let i = 0; i < userRef.get("grades").get("19-20").get("S2").value().length; i++) {
-                let classGrades = userRef.get("grades").get("19-20").get("S2").value()[i].grades;
-                for (let j = 0; j < classGrades.length; j++) {
-                    if (classGrades[j].grade_percent === -1) {
-                        userRef.get("grades").get("19-20").get("S2").nth(i).get("grades").nth(j).set("grade_percent", false).write();
-                    }
-                    if (classGrades[j].grade_percent === "Â ") {
-                        userRef.get("grades").get("19-20").get("S2").nth(i).get("grades").nth(j).set("grade_percent", false).write();
-                    }
+                // Force old auto mode to sunrise/sunset which is objectively better
+                if (userRef.get("appearance").get("theme").value() === "auto") {
+                    userRef.get("appearance").set("theme", "sun").write();
                 }
             }
-        }
 
-        // Remove old grade_history storage (This should be empty anyway)
-        if (userRef.get("grade_history").value()) {
-            userRef.unset("grade_history").write();
-            userRef.unset("grade_history_weights").write();
-        }
-
-        // Add grade history tracker
-        if (!userRef.get("updatedGradeHistory").value()) {
-            userRef.set("updatedGradeHistory", []).write();
-        }
-
-        // Add sorting data
-        this.resetSortData(user.username);
-
-        // Add tutorial status
-        if (!user.alerts.tutorialStatus) {
-            userRef.get("alerts").set("tutorialStatus", {}).write();
-        }
-
-        // Remove any extra tutorial keys
-        let existingKeys = Object.keys(userRef.get("alerts").get("tutorialStatus").value());
-        for (let i = 0; i < existingKeys.length; i++) {
-            if (!tutorialKeys.includes(existingKeys[i])) {
-                userRef.get("alerts").get("tutorialStatus").unset(existingKeys[i]).write();
+            // Add holiday effects var
+            if (!([true, false].includes(userRef.get("appearance").get("holidayEffects").value()))) {
+                userRef.get("appearance").set("holidayEffects", true).write();
             }
-        }
 
-        // Add tutorial keys
-        for (let i = 0; i < tutorialKeys.length; i++) {
-            if (!userRef.get("alerts").get("tutorialStatus").get(tutorialKeys[i]).value()) {
-                userRef.get("alerts").get("tutorialStatus").set(tutorialKeys[i], false).write();
+            // Migrate to new color scheme system
+            if (!([true, false].includes(userRef.get("appearance").get("shuffleColors").value()))) {
+                let oldScheme = userRef.get("appearance").get("colorPalette").value();
+                let newScheme, shuffle;
+                switch (oldScheme) {
+                    case "default":
+                        newScheme = "bright";
+                        shuffle = true;
+                        break;
+                    case "pastel":
+                        newScheme = "pastel";
+                        shuffle = true;
+                        break;
+                    case "dark":
+                        newScheme = "dull";
+                        shuffle = true;
+                        break;
+                    case "rainbow":
+                        newScheme = "clear";
+                        shuffle = false;
+                        break;
+                    default:
+                        newScheme = "clear";
+                        shuffle = false;
+                        break;
+                }
+                this.setColorPalette(lc_username, newScheme, shuffle);
             }
-        }
 
-        // Add personal info
-        if (!user.personalInfo) {
-            let {firstName, lastName, graduationYear} = getPersonalInfo(user.schoolUsername);
-            userRef.set("personalInfo", {
-                firstName: firstName, lastName: lastName, graduationYear: graduationYear
-            }).write();
-        }
-
-        // Remove grade update reminder
-        if (user.alerts.updateGradesReminder) {
-            delete user.alerts.updateGradesReminder;
-        }
-
-        // Make lastupdated an array
-        if (!Array.isArray(user.alerts.lastUpdated)) {
-            if (user.alerts.lastUpdated === "never") {
-                userRef.get("alerts").set("lastUpdated", []).write();
-            } else {
-                userRef.get("alerts").set("lastUpdated", [user.alerts.lastUpdated]).write();
+            // Add show max gpa preference
+            if (!userRef.get("appearance").get("showMaxGPA").value()) {
+                userRef.get("appearance").set("showMaxGPA", false).write();
             }
+
+            // Remove blur amount preference
+            if (userRef.get("appearance").get("blurAmount").value()) {
+                userRef.get("appearance").unset("blurAmount").write();
+            }
+
+            // Move blur out of beta
+            if (userRef.get("betaFeatures").get("blurEffects").value()) {
+                userRef.get("appearance").set("blurEffects", true).write();
+                userRef.get("betaFeatures").unset("blurEffects").write();
+            }
+
+            // Add blur var
+            if (!([true, false]).includes(userRef.get("appearance").get("blurEffects").value())) {
+                userRef.get("appearance").set("blurEffects", false).write();
+            }
+
+            // Fix calc bc ap with space
+            let badData = userRef.get("grades").get("19-20").get("S1").find({class_name: "Calculus BC AP "}).value();
+            if (badData) {
+                userRef.get("grades").get("19-20").get("S1").remove({class_name: "Calculus BC AP"}).write();
+                userRef.get("grades").get("19-20").get("S1").find({class_name: "Calculus BC AP "}).set("class_name", "Calculus BC AP").write();
+                userRef.get("grades").get("19-20").get("S1").remove({class_name: "Calculus BC AP "}).write();
+            }
+
+            badData = userRef.get("weights").get("19-20").get("S1").get("Calculus BC AP ").value();
+            if (badData) {
+                userRef.get("weights").get("19-20").get("S1").set("Calculus BC AP", userRef.get("weights").get("19-20").get("S1").get("Calculus BC AP ").value()).write();
+                userRef.get("weights").get("19-20").get("S1").unset("Calculus BC AP ").write();
+            }
+
+            badData = userRef.get("weights").get("19-20").get("S2").get("Calculus BC AP ").value();
+            if (badData) {
+                userRef.get("weights").get("19-20").get("S2").set("Calculus BC AP", userRef.get("weights").get("19-20").get("S2").get("Calculus BC AP ").value()).write();
+                userRef.get("weights").get("19-20").get("S2").unset("Calculus BC AP ").write();
+            }
+
+            badData = userRef.get("addedAssignments").get("19-20").get("S1").get("Calculus BC AP ");
+            if (badData) {
+                userRef.get("addedAssignments").get("19-20").get("S1").set("Calculus BC AP", userRef.get("addedAssignments").get("19-20").get("S1").get("Calculus BC AP ").value()).write();
+                userRef.get("addedAssignments").get("19-20").get("S1").unset("Calculus BC AP ").write();
+            }
+
+            // Migrate lastupdated
+            this.migrateLastUpdated(user.username);
+
+            // Add editedAssignments dict
+            if (!userRef.get("editedAssignments").value()) {
+                userRef.set("editedAssignments", {}).write();
+            }
+
+            // Add sorting data
+            this.resetSortData(user.username);
+
+            // Remove any extra tutorial keys
+            let existingKeys = Object.keys(userRef.get("alerts").get("tutorialStatus").value());
+            for (let i = 0; i < existingKeys.length; i++) {
+                if (!tutorialKeys.includes(existingKeys[i])) {
+                    userRef.get("alerts").get("tutorialStatus").unset(existingKeys[i]).write();
+                }
+            }
+
+            // Add tutorial keys
+            for (let i = 0; i < tutorialKeys.length; i++) {
+                if (!userRef.get("alerts").get("tutorialStatus").get(tutorialKeys[i]).value()) {
+                    userRef.get("alerts").get("tutorialStatus").set(tutorialKeys[i], false).write();
+                }
+            }
+
+            // Fix dicts
+            this.initAddedAssignments(lc_username);
+            this.initWeights(lc_username);
+            this.initEditedAssignments(lc_username);
+
+            // Change S0s to S3s
+            // Use existence of accentColor to know db version
+            // TODO maybe add some sort of db versioning to make this easier in the future
+            if (user.appearance.accentColor === null) {
+                let gradesToFix = user.grades;
+                let terms = Object.keys(gradesToFix);
+                for (let i = 0; i < terms.length; i++) {
+                    let old_S0;
+                    if ("S0" in user.grades[terms[i]]) {
+                        old_S0 = user.grades[terms[i]]["S0"];
+                        userRef.get("grades").get(terms[i]).set("S3", old_S0).write();
+                        userRef.get("grades").get(terms[i]).unset("S0").write();
+                    }
+                    if ("S0" in user.weights[terms[i]]) {
+                        old_S0 = user.weights[terms[i]]["S0"];
+                        userRef.get("weights").get(terms[i]).set("S3", old_S0).write();
+                        userRef.get("weights").get(terms[i]).unset("S0").write();
+                    }
+                    if ("S0" in user.addedAssignments[terms[i]]) {
+                        old_S0 = user.addedAssignments[terms[i]]["S0"];
+                        userRef.get("addedAssignments").get(terms[i]).set("S3", old_S0).write();
+                        userRef.get("addedAssignments").get(terms[i]).unset("S0").write();
+                    }
+                    if ("S0" in user.editedAssignments[terms[i]]) {
+                        old_S0 = user.editedAssignments[terms[i]]["S0"];
+                        userRef.get("editedAssignments").get(terms[i]).set("S3", old_S0).write();
+                        userRef.get("editedAssignments").get(terms[i]).unset("S0").write();
+                    }
+                }
+                userRef.get("appearance").unset("accentColor").write();
+            }
+
+            // Update version to 1
+            userRef.set("version", 1).write();
         }
 
-        // Add loggedIn vars
-        if (!Object.keys(user).includes("loggedIn") || userRef.get("loggedIn").value() === "never") {
-            userRef.set("loggedIn", []).write();
-        }
-        // Make loggedIn an array
-        if (!Array.isArray(user.loggedIn)) {
-            userRef.set("loggedIn", [user.loggedIn]).write();
-        }
-        if (user.alerts.lastUpdated.length !== 0 && userRef.get("loggedIn").value().length === 0) {
-            userRef.set("loggedIn", [user.alerts.lastUpdated.slice(-1)[0]]).write();
-        }
+        this.bringUpToDate(username, false);
 
-        // Add privacy policy and terms vars
-        if (!Object.keys(user.alerts).includes("policyLastSeen")) {
-            userRef.get("alerts").set("policyLastSeen", "never").write();
-        }
-        if (!Object.keys(userRef.value().alerts).includes("termsLastSeen")) {
-            userRef.get("alerts").set("termsLastSeen", "never").write();
-        }
-        if (!Object.keys(user.alerts).includes("remoteAccess")) {
-            userRef.get("alerts").set("remoteAccess", "denied").write();
-        }
-
-        // Add nonacademic vars
-        if (!Object.keys(user.appearance).includes("showNonAcademic")) {
-            userRef.get("appearance").set("showNonAcademic", true).write();
-        }
-
-        // Fix theme for old users
-        if (Object.keys(user.appearance).includes("darkMode")) {
-            userRef.get("appearance").unset("darkMode").write();
-            this.setTheme(user.username, "auto", 7, "PM", 6, "AM");
-        }
-
-        // Setup autotheme for old users
-        if (user.appearance.theme === "auto" && !user.appearance.darkModeStart) {
-            this.setTheme(user.username, "auto", 7, "PM", 6, "AM");
-        }
-
-        // Remove show changelog variables for old users
-        if (Object.keys(user.alerts).includes("showChangelog")) {
-            delete user.alerts.showChangelog;
-        }
-        if (Object.keys(userRef.value().alerts).includes("changelogLastShown")) {
-            delete user.alerts.changelogLastShown;
-            userRef.get("alerts").set("latestSeen", "1.0.0").write();
-        }
-
-        // Remove autorefresh var
-        if (Object.keys(userRef.value()).includes("autoRefresh")) {
-            delete user.autoRefresh;
-        }
-
-        // After all db stuff is done
-        this.bringUpToDate(username);
-    }, bringUpToDate: function (username) {
+    }, bringUpToDate: function (username, onlyLatest = true) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
         let classes = db.get("classes").value();
 
-
-        // TODO optimize (don't need to run every term every time)
-
-        // Fix dicts
-        this.initAddedAssignments(user.username);
-        this.initWeights(user.username);
+        let {term, semester} = this.getMostRecentTermData(lc_username);
 
         for (let g = 0; g < Object.keys(user.grades).length; g++) {
-            let term = Object.keys(user.grades)[g];
-            for (let h = 0; h < Object.keys(user.grades[term]).length; h++) {
-                let semester = Object.keys(user.grades[term])[h];
-                for (let i = 0; i < user.grades[term][semester].length; i++) {
-                    console.log("" + Date.now() + " | Bringing class up to date: " + (i + 1) + " of " + user.grades[term][semester].length);
-                    let className = user.grades[term][semester][i].class_name;
-                    let teacherName = user.grades[term][semester][i].teacher_name;
+            let _term = Object.keys(user.grades)[g];
+            if (onlyLatest && _term !== term) {
+                continue;
+            }
+            for (let h = 0; h < Object.keys(user.grades[_term]).length; h++) {
+                let _semester = Object.keys(user.grades[_term])[h];
+                if (onlyLatest && _semester !== semester) {
+                    continue;
+                }
+                for (let i = 0; i < user.grades[_term][_semester].length; i++) {
+                    console.log("" + Date.now() + " | Bringing class up to date: " + (i + 1) + " of " + user.grades[_term][_semester].length);
+                    let className = user.grades[_term][_semester][i].class_name;
+                    let teacherName = user.grades[_term][_semester][i].teacher_name;
 
                     //Add all semesters to db
                     if (!dbContainsTerm(term,semester)) {
@@ -417,57 +521,57 @@ module.exports = {
 
                     // Determine needed weights
                     let goodWeights = [];
-                    for (let j = 0; j < user.grades[term][semester][i].grades.length; j++) {
-                        if (!goodWeights.includes(user.grades[term][semester][i].grades[j].category)) {
-                            goodWeights.push(user.grades[term][semester][i].grades[j].category);
+                    for (let j = 0; j < user.grades[_term][_semester][i].grades.length; j++) {
+                        if (!goodWeights.includes(user.grades[_term][_semester][i].grades[j].category)) {
+                            goodWeights.push(user.grades[_term][_semester][i].grades[j].category);
                         }
                     }
 
-                    // Add custom: false
-                    if (!Object.keys(user.weights[term][semester][className]["weights"]).length) {
-                        userRef.get("weights").get(term).get(semester).get(className).set("custom", false).write();
+                    // Add hasWeights: false
+                    if (!Object.keys(user.weights[_term][_semester][className]["weights"]).length) {
+                        userRef.get("weights").get(_term).get(_semester).get(className).set("hasWeights", false).write();
                     }
 
                     // Add all weights that exist in user grades
                     for (let j = 0; j < goodWeights.length; j++) {
-                        if (!Object.keys(user.weights[term][semester][className]["weights"]).includes(goodWeights[j])) {
-                            user.weights[term][semester][className]["weights"][goodWeights[j]] = null;
+                        if (!Object.keys(user.weights[_term][_semester][className]["weights"]).includes(goodWeights[j])) {
+                            user.weights[_term][_semester][className]["weights"][goodWeights[j]] = null;
                         }
                     }
 
                     //Updates weights from classes db
-                    if (userRef.get("weights").get(term).get(semester).get(className).get("custom").value() === false && dbContainsClass(term, semester, className, teacherName)) {
-                        if (classes[term][semester][className][teacherName]["hasWeights"] == "false" || Object.keys(classes[term][semester][className][teacherName]["weights"]).length > 0) {
-                            this.updateWeightsForClass(username, term, semester, className, classes[term][semester][className][teacherName]["hasWeights"], classes[term][semester][className][teacherName]["weights"], false, false);
+                    if (userRef.get("weights").get(_term).get(_semester).get(className).get("custom").value() === false && dbContainsClass(_term, _semester, className, teacherName)) {
+                        if (classes[_term][_semester][className][teacherName]["hasWeights"] == "false" || Object.keys(classes[_term][_semester][className][teacherName]["weights"]).length > 0) {
+                            this.updateWeightsForClass(username, _term, _semester, className, classes[_term][_semester][className][teacherName]["hasWeights"], classes[_term][_semester][className][teacherName]["weights"], false, false);
                         }
                     }
 
                     //Remove any weights that don't exist in user grades
-                    for (let j = 0; j < Object.keys(user.weights[term][semester][className]["weights"]).length; j++) {
-                        if (!goodWeights.includes(Object.keys(user.weights[term][semester][className]["weights"])[j])) {
-                            delete user.weights[term][semester][className]["weights"][Object.keys(user.weights[term][semester][className]["weights"])[j]];
+                    for (let j = 0; j < Object.keys(user.weights[_term][_semester][className]["weights"]).length; j++) {
+                        if (!goodWeights.includes(Object.keys(user.weights[_term][_semester][className]["weights"])[j])) {
+                            delete user.weights[_term][_semester][className]["weights"][Object.keys(user.weights[_term][_semester][className]["weights"])[j]];
                         }
                     }
 
                     //Set to point-based if only one category exists (& category is null)
-                    if (Object.keys(user.weights[term][semester][className]["weights"]).length == 1) {
-                        if (user.weights[term][semester][className]["weights"][Object.keys(user.weights[term][semester][className]["weights"])[0]] == null) {
-                            user.weights[term][semester][className]["hasWeights"] = "false";
+                    if (Object.keys(user.weights[_term][_semester][className]["weights"]).length == 1) {
+                        if (user.weights[_term][_semester][className]["weights"][Object.keys(user.weights[_term][_semester][className]["weights"])[0]] == null) {
+                            user.weights[_term][_semester][className]["hasWeights"] = "false";
                         }
                     }
 
                     //Add user's weights as suggestions
-                    this.addWeightsSuggestion(lc_username, term, semester, className, teacherName, user.weights[term][semester][className]["hasWeights"], user.weights[term][semester][className]["weights"]);
+                    this.addWeightsSuggestion(lc_username, _term, _semester, className, teacherName, user.weights[_term][_semester][className]["hasWeights"], user.weights[_term][_semester][className]["weights"]);
 
                     //Set custom to not custom if it is same as classes db
-                    if (user.weights[term][semester][className]["custom"] && dbContainsClass(term, semester, className, teacherName)) {
-                        user.weights[term][semester][className]["custom"] = isCustom({
-                                                                                         "weights": user.weights[term][semester][className]["weights"],
-                                                                                         "hasWeights": user.weights[term][semester][className]["hasWeights"]
-                                                                                     }, {
-                                                                                         "weights": classes[term][semester][className][teacherName]["weights"],
-                                                                                         "hasWeights": classes[term][semester][className][teacherName]["hasWeights"]
-                                                                                     });
+                    if (user.weights[_term][_semester][className]["custom"] && dbContainsClass(_term, _semester, className, teacherName)) {
+                        user.weights[_term][_semester][className]["custom"] = isCustom({
+                                                                                           "weights": user.weights[_term][_semester][className]["weights"],
+                                                                                           "hasWeights": user.weights[_term][_semester][className]["hasWeights"]
+                                                                                       }, {
+                                                                                           "weights": classes[_term][_semester][className][teacherName]["weights"],
+                                                                                           "hasWeights": classes[_term][_semester][className][teacherName]["hasWeights"]
+                                                                                       });
                     }
                 }
             }
@@ -509,9 +613,11 @@ module.exports = {
         let relClasses = {};
         for (let i = 0; i < userClasses.length; i++) {
             //Give priority for data from target term & semester, in case class is in multiple semesters
+            //NEED TO FIX IF SAME CLASS IN MULTIPLE SEMESTERS TO ACCOUNT FOR POTENTIALLY DIFFERENT WEIGHTS
             if ((userClasses[i][0] === term && userClasses[i][1] === semester) || !relClasses.hasOwnProperty(userClasses[i][2])) {
                 relClasses[userClasses[i][2]] = {
                     "classType": classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]]["classType"],
+                    "uc_csuClassType":  classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]]["uc_csuClassType"],
                     "weights": userClasses[i][3] ? classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]][userClasses[i][3]]["weights"] : null,
                     "hasWeights": userClasses[i][3] ? classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]][userClasses[i][3]]["hasWeights"] : null
                 };
@@ -623,6 +729,10 @@ module.exports = {
         let classDb = db.get("classes");
         classDb.get(term).get(semester).get(className).set("classType", classType).write();
         return {success: true, message: "Set class type of " + className + " to " + classType};
+    }, updateUCCSUClassTypeInClassDb: function (className, classType) {
+        let classDb = db.get("classes");
+        classDb.get(className).set("uc_csuClassType", classType).write();
+        return {success: true, message: "Set uc class type of " + className + " to " + classType};
     }
 
     //Need to add Try Catches to error check when updating db values
@@ -673,6 +783,7 @@ module.exports = {
 
             bcrypt.hash(password, roundsToGenerateSalt, function (err, hash) {
                 db.get("users").push({
+                                         version: dbUserVersion,
                                          username: lc_username,
                                          password: hash,
                                          schoolUsername: schoolUsername.toLowerCase(),
@@ -684,14 +795,17 @@ module.exports = {
                                              active: beta
                                          },
                                          appearance: {
-                                             theme: "auto",
-                                             accentColor: null,
+                                             theme: "sun",
                                              classColors: [],
+                                             colorPalette: "clear",
+                                             shuffleColors: false,
+                                             holidayEffects: true,
                                              showNonAcademic: true,
-                                             darkModeStart: 18,
-                                             darkModeFinish: 7,
+                                             darkModeStart: 946778400000,
+                                             darkModeFinish: 946738800000,
                                              weightedGPA: true,
-                                             regularizeClassGraphs: true
+                                             regularizeClassGraphs: true,
+                                             showMaxGPA: false
                                          },
                                          alerts: {
                                              lastUpdated: [],
@@ -704,7 +818,9 @@ module.exports = {
                                          },
                                          weights: {},
                                          grades: {},
+                                         updatedGradeHistory: [],
                                          addedAssignments: {},
+                                         editedAssignments: {},
                                          sortingData: {
                                              dateSort: [], categorySort: []
                                          },
@@ -772,69 +888,42 @@ module.exports = {
         let lc_username = username.toLowerCase();
         let user = db.get("deletedUsers").find({username: lc_username}).value();
         return !!user;
-    }, setTheme: function (username, theme, darkModeStart, darkModeStartAmPm, darkModeFinish, darkModeFinishAmPm) {
+    }, setTheme: function (username, theme, darkModeStart, darkModeFinish, holidayEffects, blurEffects) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         user.get("appearance").set("theme", theme).write();
         let message = theme.replace(/^\w/, c => c.toUpperCase()) + " theme enabled!";
         if (theme === "auto") {
-            darkModeStart = parseInt(darkModeStart);
-            darkModeFinish = parseInt(darkModeFinish);
-            if (darkModeStartAmPm === "PM") {
-                if (darkModeStart !== 12) {
-                    darkModeStart += 12;
-                }
-            } else if (darkModeStart === 12) {
-                darkModeStart -= 12;
-            }
-            if (darkModeFinishAmPm === "PM") {
-                if (darkModeFinish !== 12) {
-                    darkModeFinish += 12;
-                }
-            } else if (darkModeFinish === 12) {
-                darkModeFinish += 12;
-            }
-            if (darkModeStart === darkModeFinish) {
-                user.get("appearance").set("theme", "light").write();
-                return {success: true, message: "Light theme enabled!"};
-            }
-            if ((darkModeStart < 0 || darkModeStart > 24) && (darkModeFinish < 0 || darkModeFinish > 24)) {
-                return {success: false, message: "Invalid Start and End Time"};
-            }
-            if (darkModeStart < 0 || darkModeStart > 24) {
-                return {success: false, message: "Invalid Start Time"};
-            }
-            if (darkModeFinish < 0 || darkModeFinish > 24) {
-                return {success: false, message: "Invalid Finish Time"};
-            }
-            user.get("appearance").set("darkModeStart", parseInt(darkModeStart)).write();
-            user.get("appearance").set("darkModeFinish", parseInt(darkModeFinish)).write();
-            if (darkModeStartAmPm === "PM") {
-                if (darkModeStart !== 12) {
-                    darkModeStart -= 12;
-                }
-            }
-            if (darkModeFinishAmPm === "PM") {
-                if (darkModeFinish !== 12) {
-                    darkModeFinish -= 12;
-                }
-            }
-            if (darkModeStart === 0) {
-                darkModeStart = 12;
-            }
-            if (darkModeFinish === 24) {
-                darkModeFinish = 12;
-            }
-            message = "Dark theme enabled from " + darkModeStart + " " + darkModeStartAmPm + " to " + darkModeFinish + " " + darkModeFinishAmPm + ".";
+            darkModeStart = new Date("0/" + darkModeStart);
+            darkModeFinish = new Date("0/" + darkModeFinish);
+            user.get("appearance").set("darkModeStart", darkModeStart.getTime()).write();
+            user.get("appearance").set("darkModeFinish", darkModeFinish.getTime()).write();
+            message = "Dark theme enabled from " + darkModeStart.toLocaleTimeString() + " to " + darkModeFinish.toLocaleTimeString() + ".";
+        }
+        if (theme === "sun") {
+            message = "Dark theme enabled from sunset to sunrise.";
+        }
+        if (holidayEffects !== user.get("appearance").get("holidayEffects").value()) {
+            message = "Holiday effects " + (holidayEffects ? "enabled" : "disabled") + "!";
+            user.get("appearance").set("holidayEffects", holidayEffects).write();
+        }
+        if (blurEffects !== user.get("appearance").get("blurEffects").value()) {
+            message = this.setBlur(lc_username, blurEffects).message;
         }
         return {success: true, message: message};
     }, getUser: function (username) {
         let lc_username = username.toLowerCase();
-        let user = db.get("users").find({username: lc_username}).value();
-        return user;
-    },
-
-    checkUpdateBackground: function (username) {
+        return db.get("users").find({username: lc_username}).value();
+    }, setShowMaxGPA: function (username, value) {
+        let lc_username = username.toLowerCase();
+        let user = db.get("users").find({username: lc_username});
+        if ([true, false].includes(value)) {
+            user.get("appearance").set("showMaxGPA", value).write();
+            return {success: true};
+        } else {
+            return {success: false};
+        }
+    }, checkUpdateBackground: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         let syncStatus = user.get("updatedInBackground").value();
@@ -863,7 +952,7 @@ module.exports = {
     updateGradeHistory: async function (acc_username, school_password) {
         let lc_username = acc_username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
-        let grade_history_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password, true);
+        let grade_history_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password, "", "", true);
         if (grade_history_update_status.success) {
             let current_years = Object.keys(userRef.get("grades").value());
             let years = Object.keys(grade_history_update_status.new_grades);
@@ -902,15 +991,15 @@ module.exports = {
                                 } else if (classes[k].grades.length) {
                                     oldRef = grade_history_update_status.new_grades[years[i]][semesters[j]][k];
                                 } else {
-                                    oldRef.overall_percent = grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_percent;
-                                    oldRef.overall_letter = grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_letter;
+                                    oldRef.set("overall_percent", grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_percent).write();
+                                    oldRef.set("overall_letter", grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_letter).write();
                                 }
                             }
                         }
                     }
                 }
             }
-            this.bringUpToDate(lc_username);
+            this.bringUpToDate(lc_username, false);
             userRef.get("updatedGradeHistory").push(Date.now()).write();
             return {success: true, message: "Updated grade history!"};
         }
@@ -932,8 +1021,9 @@ module.exports = {
                 user.set("updatedInBackground", "failed").write();
             }
 
-            // TODO optimize (don't need grade history every time)
-            await this.updateGradeHistory(acc_username, school_password);
+            if (resp.updateHistory) {
+                await this.updateGradeHistory(acc_username, school_password);
+            }
         });
     },
 
@@ -941,7 +1031,16 @@ module.exports = {
         let lc_username = acc_username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
 
-        let grade_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password);
+        let {term: oldTerm, semester: oldSemester} = this.getMostRecentTermData(lc_username);
+        let term_data_if_locked = {term: oldTerm, semester: oldSemester};
+        let data_if_locked = "";
+        if (oldTerm && oldSemester) {
+            data_if_locked = userRef.get("grades").value()[oldTerm][oldSemester].map(class_data => _.omit(class_data, ["grades"]));
+        } else {
+            term_data_if_locked = "";
+        }
+
+        let grade_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password, data_if_locked, term_data_if_locked);
         if (!grade_update_status.success) {
             //error updating grades
             return grade_update_status;
@@ -950,24 +1049,69 @@ module.exports = {
             userRef.value().appearance.classColors.pop();
         }
 
-        //TODO Confirm This works
-        let {term: oldTerm, semester: oldSemester} = this.getMostRecentTermData(lc_username);
         let newTerm = Object.keys(grade_update_status.new_grades)[0];
         let newSemester = Object.keys(grade_update_status.new_grades[newTerm])[0];
         if (!(newTerm in userRef.get("grades").value())) {
             userRef.get("grades").set(newTerm, {}).write();
         }
-        userRef.get("grades").get(newTerm).set(newSemester, grade_update_status.new_grades[newTerm][newSemester]).write();
+        let oldGrades = userRef.get("grades").get(newTerm).get(newSemester).value();
+        let oldPSAIDs = [];
+        if (oldGrades) {
+            oldPSAIDs = oldGrades.map(x => x.grades.map(y => y.psaid)).filter(id => !!id); // Remove undefined (before
+                                                                                           // we scraped psaids)
+        }
+        let newGrades = grade_update_status.new_grades[newTerm][newSemester];
+        let newPSAIDs = newGrades.map(x => x.grades.map(y => y.psaid));
+        let fixDicts = false;
+        for (let i = 0; i < newPSAIDs.length - oldPSAIDs.length; i++) {
+            oldPSAIDs.push([]);
+            fixDicts = true;
+        }
+        let added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [newGrades[index].class_name, newPSAIDs[index]]).filter(data => data[1].length));
+        let modified = {};
+        let removed = {};
+        let overall = {};
+        if (oldGrades) {
+            added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [newGrades[index].class_name, newPSAIDs[index].filter(psaid => !oldPSAIDs[index].includes(psaid))]).filter(data => data[1].length));
+            modified = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => newPSAIDs[index].includes(assignmentData.psaid) && !_.isEqual(assignmentData, newGrades[index].grades.find(assignment => assignment.psaid === assignmentData.psaid)))]).filter(data => data[1].length));
+            removed = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => assignmentData.psaid && !newPSAIDs[index].includes(assignmentData.psaid))]).filter(data => data[1].length));
+            overall = Object.fromEntries(oldGrades.map((classData, index) => {
+                let clone = Object.assign({}, classData);
+                delete clone.grades;
+                delete clone.class_name;
+                let newClone = Object.assign({}, newGrades[index]);
+                delete newClone.grades;
+                delete newClone.class_name;
+                return [classData.class_name, Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v))];
+            }).filter(data => Object.keys(data[1]).length));
+        }
+        let changeData = {
+            added: added, modified: modified, removed: removed, overall: overall
+        };
+        userRef.get("grades").get(newTerm).set(newSemester, newGrades).write();
+        if (fixDicts) {
+            this.initAddedAssignments(lc_username);
+            this.initWeights(lc_username);
+            this.initEditedAssignments(lc_username);
+        }
         this.bringUpToDate(lc_username);
-        if (newTerm !== oldTerm && newSemester !== oldSemester) {
-            this.setColorPalette(lc_username, "default");
+        let updateHistory = false;
+        if ((newTerm !== oldTerm && newSemester !== oldSemester) || !userRef.get("updatedGradeHistory").value().length) {
+            this.setColorPalette(lc_username, userRef.get("appearance").get("colorPalette").value(), userRef.get("appearance").get("shuffleColors").value());
             this.resetSortData(lc_username);
+            updateHistory = true;
         }
 
         let time = Date.now();
-        userRef.get("alerts").get("lastUpdated").push(time).write();
+        userRef.get("alerts").get("lastUpdated").push({timestamp: time, changeData: changeData}).write();
         userRef.set("updatedInBackground", "already done").write();
-        return {success: true, message: "Updated grades!", grades: grade_update_status.new_grades, time: time};
+        return {
+            success: true,
+            message: "Updated grades!",
+            grades: grade_update_status.new_grades,
+            updateHistory: updateHistory,
+            updateData: {timestamp: time, changeData: changeData}
+        };
     },
 
     addDbClass: function (term, semester, className, teacherName) {
@@ -975,30 +1119,31 @@ module.exports = {
         let modClassName = "[\"" + className + "\"]";
 
         if (!Object.keys(classesRef.get(term).get(semester).value()).includes(className)) {
-            // Set default AP/Honors to classes with names that suggest it
-            let classtype = "none";
-            if (className.includes("AP")) {
-                classtype = "ap";
-            } else if (className.includes("Honors")) {
-                classtype = "honors";
-            } else if (className === "Teaching Assistant") {
-                classtype = "non-academic";
+            // Update classes from catalog
+            let catalogClass = catalog.find({class_name: className}).value();
+            classesRef.set(modClassName, {}).write();
+            if (catalogClass) {
+                classesRef.get(modClassName).set("department", catalogClass.department).write();
+                classesRef.get(modClassName).set("grade_levels", catalogClass.grade_levels).write();
+                classesRef.get(modClassName).set("credits", catalogClass.credits).write();
+                classesRef.get(modClassName).set("terms", catalogClass.terms).write();
+                classesRef.get(modClassName).set("description", catalogClass.description).write();
+                classesRef.get(modClassName).set("uc_csuClassType", catalogClass.uc_csuClassType).write();
+                classesRef.get(modClassName).set("classType", catalogClass.classType).write();
+            } else {
+                classesRef.get(className).set("department", "").write();
+                classesRef.get(className).set("credits", "").write();
+                classesRef.get(className).set("terms", "").write();
+                classesRef.get(className).set("description", "").write();
+                classesRef.get(className).set("uc_csuClassType", "").write();
+                classesRef.get(className).set("classType", "").write();
             }
-
-            classesRef.get(term).get(semester).set(modClassName, {
-                classType: classtype
-            }).write();
         }
         if (!teacherName) {
             return;
         }
         classesRef.get(term).get(semester).get(modClassName).set(teacherName, {
-            weights: {}, //TODO Weights
-            hasWeights: null, //TODO Has weights
-            suggestions: [] // assignments: {}, //TODO populate assignments by some kind of identifier (points
-            // possible + assignment name
-            // should be enough to differentiate assignments)
-            // overallGrades: [] //TODO populate with overall grades of users (for average) length will give # in class
+            weights: {}, hasWeights: null, suggestions: [], assignments: {}, overall_grades: []
         }).write();
     },
 
@@ -1010,32 +1155,28 @@ module.exports = {
         classesRef.get(term).set(semester,{}).write();
     },
 
-    setColorPalette: function (username, preset) {
-        let light, saturation, hues, shuffle;
+    setColorPalette: function (username, preset, shuffle) {
+        let light, saturation, hues = [0, 30, 60, 120, 180, 240, 270, 300];
         switch (preset) {
-            case "default":
-                light = 0.5;
+            case "pale":
+                light = 0.8;
                 saturation = 0.7;
-                hues = [0, 30, 60, 120, 180, 240, 270, 300];
-                shuffle = true;
                 break;
             case "pastel":
-                light = 0.8;
+                light = 0.7;
                 saturation = 0.8;
-                hues = [0, 30, 90, 120, 180, 240, 270, 300];
-                shuffle = true;
                 break;
-            case "dark":
-                light = 0.4;
-                saturation = 0.4;
-                hues = [0, 30, 60, 120, 180, 240, 270, 300];
-                shuffle = true;
-                break;
-            case "rainbow":
-                light = 0.5;
+            case "clear":
+                light = 0.6;
                 saturation = 0.7;
-                hues = [0, 30, 60, 120, 180, 240, 270, 300];
-                shuffle = false;
+                break;
+            case "bright":
+                light = 0.5;
+                saturation = 0.8;
+                break;
+            case "dull":
+                light = 0.4;
+                saturation = 0.7;
                 break;
             default:
                 return {success: false, message: "Invalid preset"};
@@ -1049,6 +1190,7 @@ module.exports = {
         }
         userRef.get("appearance").set("classColors", classColors).write();
         userRef.get("appearance").set("colorPalette", preset).write();
+        userRef.get("appearance").set("shuffleColors", shuffle).write();
         return {success: true, message: classColors};
     },
 
@@ -1062,7 +1204,7 @@ module.exports = {
 
     deleteUser: function (username) {
         let lc_username = username.toLowerCase();
-        if (this.userExists(lc_username)) {
+        if (this.userExists(lc_username) && !this.getUser(lc_username).isAdmin) {
             this.prepForDeletion(lc_username);
             db.get("deletedUsers").push(db.get("users").find({username: lc_username}).value()).write();
             db.get("users").remove({username: lc_username}).write();
@@ -1071,7 +1213,7 @@ module.exports = {
             db.get("deletedUsers").remove({username: lc_username}).write();
             return {success: true, message: "Deleted " + lc_username + " forever"};
         }
-        return {success: false, message: "User does not exist."};
+        return {success: false, message: "User could not be deleted."};
     },
 
     prepForDeletion: function (username) {
@@ -1100,8 +1242,11 @@ module.exports = {
         return {success: false, message: "User does not exist."};
     },
 
-    removeAdmin: function (username) {
+    removeAdmin: function (username, requester) {
         let lc_username = username.toLowerCase();
+        if (lc_username === requester) {
+            return {success: false, message: "Could not remove admin privileges."};
+        }
         if (this.userExists(lc_username)) {
             db.get("users").find({username: lc_username}).assign({isAdmin: false}).write();
             return {success: true, message: "Removed admin privileges."};
@@ -1228,7 +1373,7 @@ module.exports = {
             let result = "";
             for (let i = 1; i < versionNameArray.length; i++) {
                 if (versionNameArray[i][0] !== "Beta") {
-                    if (i >= end) {
+                    if (i >= end && result) {
                         break;
                     }
                     result += changelogArray[i];
@@ -1312,7 +1457,7 @@ module.exports = {
                 } else {
                     // Prevents changelog file errors from crashing server
                     if (!item.content["Unfiled"]) {
-                        item.title = "This shouldn't have happened. Send a bug report in Settings > Help > Feedback Form. ERR #" + lineno;
+                        item.title = "This shouldn't have happened. Send a bug report in More > Send Feedback. ERR #" + lineno;
                         item.content["Unfiled"] = [];
                     }
                     item.content["Unfiled"].push(line.substring(2));
@@ -1451,10 +1596,39 @@ module.exports = {
         return {success: true, message: "Successfully updated added assignments"};
     },
 
+    updateEditedAssignments: function (username, editedAssignments) {
+        let userRef = db.get("users").find({username: username.toLowerCase()});
+        let {term, semester} = this.getMostRecentTermData(username);
+        userRef.get("editedAssignments").get(term).set(semester, editedAssignments).write();
+        return {success: true, message: "Successfully updated edited assignments"};
+    },
+
+    migrateLastUpdated: function (username) {
+        let userRef = db.get("users").find({username: username.toLowerCase()});
+
+        // Migrate
+        let copy = JSON.parse(JSON.stringify(userRef.get("alerts").get("lastUpdated").value()));
+        if (copy.filter(d => typeof d === "number").length) {
+            let updated = [];
+            for (let i = 0; i < copy.length; i++) {
+                if (typeof copy[i] === "number") {
+                    updated.push({timestamp: copy[i], changeData: {}});
+                } else {
+                    updated.push(copy[i]);
+                }
+            }
+            userRef.get("alerts").set("lastUpdated", updated).write();
+        }
+    },
+
     initAddedAssignments: function (username) {
         let temp = {};
         let userRef = db.get("users").find({username: username.toLowerCase()});
         let current = userRef.get("addedAssignments").value();
+        if (!current) {
+            userRef.set("addedAssignments", {}).write();
+            current = userRef.get("addedAssignments").value();
+        }
         let years = Object.keys(userRef.get("grades").value());
         for (let i = 0; i < years.length; i++) {
             let semesters = Object.keys(userRef.get("grades").get(years[i]).value());
@@ -1463,7 +1637,7 @@ module.exports = {
                 temp[years[i]][semesters[j]] = current[years[i]] ? current[years[i]][semesters[j]] || {} : {};
                 let classes = userRef.get("grades").get(years[i]).get(semesters[j]).map(d => d.class_name).value();
                 for (let k = 0; k < classes.length; k++) {
-                    temp[years[i]][semesters[j]][classes[k]] = current[years[i]] ? current[years[i]][semesters[j]] ? current[years[i]][semesters[j]][classes[k]] || [] : [] : [];
+                    temp[years[i]][semesters[j]][classes[k]] = [];
                 }
             }
         }
@@ -1474,6 +1648,10 @@ module.exports = {
         let temp = {};
         let userRef = db.get("users").find({username: username.toLowerCase()});
         let current = userRef.get("weights").value();
+        if (!current) {
+            userRef.set("weights", {}).write();
+            current = userRef.get("weights").value();
+        }
         let reference = userRef.get("grades").value();
         let years = Object.keys(reference);
         for (let i = 0; i < years.length; i++) {
@@ -1490,6 +1668,29 @@ module.exports = {
             }
         }
         userRef.set("weights", temp).write();
+    },
+
+    initEditedAssignments: function (username) {
+        let temp = {};
+        let userRef = db.get("users").find({username: username.toLowerCase()});
+        let current = userRef.get("editedAssignments").value();
+        if (!current) {
+            userRef.set("editedAssignments", {}).write();
+            current = userRef.get("editedAssignments").value();
+        }
+        let years = Object.keys(userRef.get("grades").value());
+        for (let i = 0; i < years.length; i++) {
+            let semesters = Object.keys(userRef.get("grades").get(years[i]).value());
+            temp[years[i]] = {};
+            for (let j = 0; j < semesters.length; j++) {
+                temp[years[i]][semesters[j]] = current[years[i]] ? current[years[i]][semesters[j]] || {} : {};
+                let classes = userRef.get("grades").get(years[i]).get(semesters[j]).map(d => d.class_name).value();
+                for (let k = 0; k < classes.length; k++) {
+                    temp[years[i]][semesters[j]][classes[k]] = {};
+                }
+            }
+        }
+        userRef.set("editedAssignments", temp).write();
     },
 
     resetSortData: function (username) {
@@ -1561,10 +1762,18 @@ module.exports = {
         return {success: true, message: "Password updated."};
     },
 
-    setBlurAmount: function (username, blurAmount) {
+    setBlur: function (username, enabled) {
         let user = db.get("users").find({username: username.toLowerCase()});
-        user.get("appearance").set("blurAmount", blurAmount).write();
-        return {success: true, message: "blurAmount updated"};
+        user.get("appearance").set("blurEffects", enabled).write();
+        return {success: true, message: "Blur effects " + (enabled ? "enabled" : "disabled") + "!"};
+    },
+
+    getSunriseAndSunset: function () {
+        const SAN_JOSE_CA = {lat: 37, lng: -122};
+        let times = SunCalc.getTimes(new Date(), SAN_JOSE_CA.lat, SAN_JOSE_CA.lng);
+        let sunrise = new Date("0/" + times.sunrise.getHours() + ":" + times.sunrise.getMinutes());
+        let sunset = new Date("0/" + times.sunset.getHours() + ":" + times.sunset.getMinutes());
+        return {sunrise: sunrise, sunset: sunset};
     }
 
 };

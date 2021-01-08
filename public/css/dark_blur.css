@@ -1,0 +1,30 @@
+/* Not Firefox */
+@supports (backdrop-filter: blur(0.1rem)) {
+    #termSwitcher {
+        box-shadow: inset 0 0 20px black;
+    }
+
+    #termSwitcher > div {
+        box-shadow: inset 0 0 50px black;
+    }
+
+    #termSwitcher > div:hover {
+        box-shadow: inset 0 0 100px black;
+    }
+
+    #termSwitcher > div > div:hover, #termSwitcher > div > div.active {
+        opacity: 1 !important;
+    }
+
+    #termSwitcher:hover, #termSwitcher.hover {
+        box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.1), 0 0 20px 1px black;
+    }
+
+    #termSwitcher::after {
+        box-shadow: inset 0 0 50px black, 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+
+    #termSwitcher:hover::after {
+        box-shadow: none;
+    }
+}
