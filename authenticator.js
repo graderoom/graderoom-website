@@ -16,7 +16,7 @@ const SunCalc = require("suncalc");
 const roundsToGenerateSalt = 10;
 
 // Change this when updateDB changes
-const dbUserVersion = 1;
+const dbUserVersion = 2;
 
 // Change this when updateAllDB changes
 const dbClassVersion = 1;
@@ -195,11 +195,7 @@ module.exports = {
         }
         let version = classRef.get("version").value();
 
-        // Add more if/else to add db updates
-        if (version <= dbClassVersion) {
-            // Add the stuff next time
-        }
-        if (version <= 0) {
+        if (version === 0) {
 
             // Fix Calculus BC AP with space
             let badData = classRef.get("Calculus BC AP ").value();
@@ -257,7 +253,12 @@ module.exports = {
             }
 
             // Update class db version
+            console.log("Updating classdb to version 1");
             classRef.set("version", 1).write();
+
+        }
+
+        if (version === 1) {
 
         }
 
@@ -279,16 +280,15 @@ module.exports = {
             userRef.set("version", 0).write();
         }
         let version = userRef.get("version").value();
+        if (version === 0) {
 
-        if (version <= dbUserVersion) {
-            // Throw stuff in here next time
-        }
-        if (version <= 0) {
+            // Update version to 1
+            console.log("Updating user to version 1");
 
             // Update change data with ps_locked
             let lastUpdateds = userRef.get("alerts").get("lastUpdated").value();
-            for (let i = 0; i < lastUpdateds.length; i++) {
-                if ('ps_locked' in lastUpdateds[i]) continue;
+            for (let i = 0; i < lastUpdated.length; i++) {
+                if ('ps_locked' in lastUpdated[i]) continue;
                 // This is really sketch but it should work
                 let cutoff = new Date(2020, 11, 18).getTime(); // Dec 18, 2020 is when grades locked in 2020
                 lastUpdateds[i].ps_locked = lastUpdateds[i].timestamp >= cutoff; // Hopefully pushed before grades unlocked
@@ -462,8 +462,38 @@ module.exports = {
                 userRef.get("appearance").unset("accentColor").write();
             }
 
-            // Update version to 1
+            // Save update
             userRef.set("version", 1).write();
+            version = 1;
+
+        }
+
+        if (version === 1) {
+
+            // Update user to version 2
+            console.log("Updating user to version 2");
+
+            // Fix lastupdated ps_locked issue
+            let lastUpdated = userRef.get("alerts").get("lastUpdated").value();
+            let lastUpdatedRef = userRef.get("alerts").get("lastUpdated");
+            for (let i = 0; i < lastUpdated.length; i++) {
+                let cutoff = new Date(2020, 11, 18).getTime(); // Dec 18, 2020 is when grades locked in 2020
+                lastUpdated[i].ps_locked = lastUpdated[i].timestamp >= cutoff;
+                let changeData = lastUpdated[i].changeData;
+                if (!('overall' in changeData)) continue; // Skip these too
+                let bad_version = Object.values(changeData.overall).filter(o => o.ps_locked === true || Object.keys(o).length === 0).length !== 0;
+                if (bad_version) {
+                    lastUpdatedRef.nth(i).get("changeData").set("overall", {}).write(); // Deletes ps_locked from wrong place
+                }
+            }
+
+            // Save update
+            userRef.set("version", 2).write();
+            version = 2;
+        }
+
+        if (version === 2) {
+
         }
 
         this.bringUpToDate(username, false);
@@ -1058,8 +1088,12 @@ module.exports = {
                 let newClone = Object.assign({}, newGrades[index]);
                 delete newClone.grades;
                 delete newClone.class_name;
-                return [classData.class_name, Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v))];
+                return [classData.class_name, Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v || k === "ps_locked"))];
             }).filter(data => Object.keys(data[1]).length));
+        }
+        let ps_locked = Object.values(overall).filter(o => o.ps_locked === true).length !== 0;
+        if (ps_locked) {
+            overall = {}; // It's not possible to get this data when PowerSchool is locked
         }
         let changeData = {
             added: added, modified: modified, removed: removed, overall: overall
@@ -1079,7 +1113,7 @@ module.exports = {
         }
 
         let time = Date.now();
-        userRef.get("alerts").get("lastUpdated").push({timestamp: time, changeData: changeData}).write();
+        userRef.get("alerts").get("lastUpdated").push({timestamp: time, changeData: changeData, ps_locked: ps_locked}).write();
         userRef.set("updatedInBackground", "already done").write();
         return {
             success: true,
@@ -1484,8 +1518,8 @@ module.exports = {
                         resultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
                         betaResultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
                         for (let k = 0; k < items[i].content[Object.keys(items[i].content)[j]].length; k++) {
-                            resultHTML += "<ul class=\"body\">" + items[i].content[Object.keys(items[i].content)[j]][k] + "</ul>";
-                            betaResultHTML += "<ul class=\"body\">" + items[i].content[Object.keys(items[i].content)[j]][k] + "</ul>";
+                            resultHTML += "<span class=\"body\">" + items[i].content[Object.keys(items[i].content)[j]][k] + "</span>";
+                            betaResultHTML += "<span class=\"body\">" + items[i].content[Object.keys(items[i].content)[j]][k] + "</span>";
                         }
                         resultHTML += "</div>";
                         betaResultHTML += "</div>";
