@@ -506,12 +506,13 @@ module.exports = {
                     let teacherName = user.grades[_term][_semester][i].teacher_name;
 
                     //Add all semesters to db
-                    if (!dbContainsTerm(term,semester)) {
-                        this.addDbTerm(term, semester);
+                    if (!dbContainsTerm(_term, _semester)) {
+                        this.addDbTerm(_term, _semester);
+                        console.log("adding term");
                     }
                     //Add all classes to db
-                    if (!dbContainsClass(term, semester, className, teacherName)) {
-                        this.addDbClass(term, semester, className, teacherName);
+                    if (!dbContainsClass(_term, _semester, className, teacherName)) {
+                        this.addDbClass(_term, _semester, className, teacherName);
                     }
 
                     // Ignore if no teacher (means no assignments)
