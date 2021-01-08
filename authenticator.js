@@ -505,6 +505,8 @@ module.exports = {
                     let className = user.grades[_term][_semester][i].class_name;
                     let teacherName = user.grades[_term][_semester][i].teacher_name;
 
+                    console.log(_term + " | " + _semester + " | " + className + " | " + teacherName + " | " + dbContainsClass(_term, _semester, className, teacherName));
+
                     //Add all semesters to db
                     if (!dbContainsTerm(_term, _semester)) {
                         this.addDbTerm(_term, _semester);
@@ -1116,34 +1118,34 @@ module.exports = {
     },
 
     addDbClass: function (term, semester, className, teacherName) {
-        let classesRef = db.get("classes");
+        let classesSemesterRef = db.get("classes").get(term).get(semester);
         let modClassName = "[\"" + className + "\"]";
 
-        if (!Object.keys(classesRef.get(term).get(semester).value()).includes(className)) {
+        if (!Object.keys(classesSemesterRef.value()).includes(className)) {
             // Update classes from catalog
             let catalogClass = catalog.find({class_name: className}).value();
-            classesRef.set(modClassName, {}).write();
+            classesSemesterRef.set(modClassName, {}).write();
             if (catalogClass) {
-                classesRef.get(modClassName).set("department", catalogClass.department).write();
-                classesRef.get(modClassName).set("grade_levels", catalogClass.grade_levels).write();
-                classesRef.get(modClassName).set("credits", catalogClass.credits).write();
-                classesRef.get(modClassName).set("terms", catalogClass.terms).write();
-                classesRef.get(modClassName).set("description", catalogClass.description).write();
-                classesRef.get(modClassName).set("uc_csuClassType", catalogClass.uc_csuClassType).write();
-                classesRef.get(modClassName).set("classType", catalogClass.classType).write();
+                classesSemesterRef.get(modClassName).set("department", catalogClass.department).write();
+                classesSemesterRef.get(modClassName).set("grade_levels", catalogClass.grade_levels).write();
+                classesSemesterRef.get(modClassName).set("credits", catalogClass.credits).write();
+                classesSemesterRef.get(modClassName).set("terms", catalogClass.terms).write();
+                classesSemesterRef.get(modClassName).set("description", catalogClass.description).write();
+                classesSemesterRef.get(modClassName).set("uc_csuClassType", catalogClass.uc_csuClassType).write();
+                classesSemesterRef.get(modClassName).set("classType", catalogClass.classType).write();
             } else {
-                classesRef.get(className).set("department", "").write();
-                classesRef.get(className).set("credits", "").write();
-                classesRef.get(className).set("terms", "").write();
-                classesRef.get(className).set("description", "").write();
-                classesRef.get(className).set("uc_csuClassType", "").write();
-                classesRef.get(className).set("classType", "").write();
+                classesSemesterRef.get(modClassName).set("department", "").write();
+                classesSemesterRef.get(modClassName).set("credits", "").write();
+                classesSemesterRef.get(modClassName).set("terms", "").write();
+                classesSemesterRef.get(modClassName).set("description", "").write();
+                classesSemesterRef.get(modClassName).set("uc_csuClassType", "").write();
+                classesSemesterRef.get(modClassName).set("classType", "").write();
             }
         }
         if (!teacherName) {
             return;
         }
-        classesRef.get(term).get(semester).get(modClassName).set(teacherName, {
+        classesSemesterRef.get(modClassName).set(teacherName, {
             weights: {}, hasWeights: null, suggestions: [], assignments: {}, overall_grades: []
         }).write();
     },
