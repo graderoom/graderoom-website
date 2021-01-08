@@ -54,7 +54,7 @@
 - Course type language has been updated
 - Weight verification status has been added to the left side</ul>
 - Weight accuracy is determined by verification of weights
-- Your weights are verified if <span class="changelog-inline-setoff">Weights Verified <i class="fa fa-check-circle"></i></span> is displayed in the upper right corner of the class page
+- Your weights are verified if <span class="changelog-inline-setoff">Weights Verified <i class="fa fa-check-circle"></i></span> is displayed in the upper left corner of the class page
 - If your weights are not verified, <span class="changelog-inline-setoff">Weights Unverified <i class="fa fa-exclamation-circle"></i></span> will be displayed
 - Verification of your weights will occur more quickly if you send feedback through <span class="changelog-inline-setoff">More > Send Feedback</span><ol type="1">
 - Choose the option <span class="changelog-inline-setoff">Submit weights</span>
