@@ -45,9 +45,26 @@
 <!-- Admin Navbar -->
 <% include ../partials/admin/admin_navbar.ejs %>
 
+<!-- Term Switcher -->
+<div id="termSwitcher" class="blur">
+    <% for (let i = 0; i < JSON.parse(termsAndSemesters).length; i++) { %>
+        <div id="<%= JSON.parse(termsAndSemesters)[i][0]; %>" <% if (term===JSON.parse(termsAndSemesters)[i][0]) { %> class="active" <% } %>>
+            <%= JSON.parse(termsAndSemesters)[i][0]; %>
+            <% for (let j = 0; j < JSON.parse(termsAndSemesters)[i][1].length; j++) { %>
+                <div onclick="window.location.href='/classes/?term=<%= JSON.parse(termsAndSemesters)[i][0]; %>&semester=<%= JSON.parse(termsAndSemesters)[i][1][j]; %>'"
+                     id="<%= JSON.parse(termsAndSemesters)[i][0]; %><%= JSON.parse(termsAndSemesters)[i][1][j]; %>"
+                     <% if (term===JSON.parse(termsAndSemesters)[i][0] && semester===JSON.parse(termsAndSemesters)[i][1][j]) { %> class="active" <% } %>>
+                     <%= JSON.parse(termsAndSemesters)[i][1][j] %>
+                </div>
+            <% } %>
+        </div>
+    <% } %>
+</div>
+
 <br>
 <!-- Main Screen -->
 <div id="weightsCard" class="container" style="border-radius:0.5rem">
+    <h5 style="font-size: 1.5rem; text-align:center"><%= term %> | <%= semester %> </h5>
     <span class="accordion" id="bigAccordionForms">
         <hr>
         <% for (let i = 0; i < Object.keys(classData).length; i++) { %>
@@ -359,13 +376,11 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
     let classes = <%- JSON.stringify(classData) %>;
+    let term = "<%= term %>";
+    let semester = "<%= semester %>";
 
-    $(".form-group").each(function () {
-        if (!$($(this)[0].previousElementSibling).hasClass("fa-plus")) {
-            console.log(this, $($(this)[0].parentNode)[0].children)[1];
-            //$(this).css("margin-left", $($($(this)[0].parentNode)[0].children)[1].offsetLeft - $($(this)[0].parentNode)[0].offsetLeft);
-        }
-    });
+    $("#termSwitcher").addClass("hover");
+    setTimeout(() => $("#termSwitcher").removeClass("hover"), 2000);
 
     // TODO restructure! this is not good code
     function ajaxPostWeightsDatabaseForm(classIndex, teacherIndex, suggestionIndex, fieldIDsToClear, messagesDivID, async, isUCForm = false) {
@@ -408,12 +423,12 @@
                 // console.log(weights);
                 // console.log(hasWeights);
                 formData = {
-                    className: className, teacherName: teacherName, weights: weights, hasWeights: hasWeights
+                    term: term, semester: semester, className: className, teacherName: teacherName, weights: weights, hasWeights: hasWeights
                 };
             } else {
                 let classType = $(formID).find("select")[0].value.trim();
                 formData = {
-                    className: className, classType: classType
+                    term: term, semester: semester, className: className, classType: classType
                 };
             }
 
@@ -534,7 +549,7 @@
         $(element).attr("size", size);
     }
 
-    let user = <%- userRef %>;
+    let appearance = <%- appearance; %>;
     let checkingTheme;
     let theme = appearance.theme;
     let darkModeStart = appearance.darkModeStart;

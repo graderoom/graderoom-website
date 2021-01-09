@@ -64,13 +64,13 @@ module.exports = function (app, passport) {
                     addedAssignments: JSON.stringify(req.user.addedAssignments[term][semester]),
                     editedAssignments: JSON.stringify(req.user.editedAssignments[term][semester]),
                     gradeHistory: JSON.stringify(gradeHistoryLetters),
-                    //FIX TO MAKE getRelClassData work for multiple semesters!!! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     relevantClassData: JSON.stringify(authenticator.getRelClassData(req.user.username, term, semester)),
                     sortingData: JSON.stringify(req.user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     beta: JSON.stringify(server.needsBetaKeyToSignUp),
                     betaFeatures: JSON.stringify(req.user.betaFeatures),
+                    term: term,
+                    semester: semester,
                     termsAndSemesters: JSON.stringify(Object.keys(req.user.grades).map(x => [x, Object.keys(req.user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
                     _: _,
                     sunset: sunset,
@@ -96,6 +96,8 @@ module.exports = function (app, passport) {
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     beta: JSON.stringify(server.needsBetaKeyToSignUp),
                     betaFeatures: JSON.stringify(req.user.betaFeatures),
+                    term: "",
+                    semester: "",
                     termsAndSemesters: JSON.stringify([]),
                     _: _,
                     sunset: sunset,
@@ -201,6 +203,8 @@ module.exports = function (app, passport) {
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     beta: server.needsBetaKeyToSignUp,
                     betaFeatures: JSON.stringify(user.betaFeatures),
+                    term: term,
+                    semester: semester,
                     termsAndSemesters: JSON.stringify(Object.keys(user.grades).map(x => [x, Object.keys(user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
                     sunset: sunset,
                     sunrise: sunrise,
@@ -226,6 +230,8 @@ module.exports = function (app, passport) {
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     beta: server.needsBetaKeyToSignUp,
                     betaFeatures: JSON.stringify(user.betaFeatures),
+                    term: "",
+                    semester: "",
                     termsAndSemesters: JSON.stringify([]),
                     sunset: sunset,
                     sunrise: sunrise,
@@ -592,16 +598,8 @@ module.exports = function (app, passport) {
         }
     });
 
-    //FIX THIS TO NOT BE HARD CODED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     app.post("/updateclassweights", [isAdmin], (req, res) => {
-        let term = "20-21" //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        let semester = "S1"; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        let className = req.body.className;
-        let teacherName = req.body.teacherName;
-        let hasWeights = req.body.hasWeights;
-        let weights = req.body.weights;
-        let resp = authenticator.updateWeightsInClassDb(term, semester, className, teacherName, hasWeights, weights);
+        let resp = authenticator.updateWeightsInClassDb(req.body.term, req.body.semester, req.body.className, req.body.teacherName, req.body.hasWeights,  req.body.weights);
         if (resp.success) {
             res.status(200).send(resp);
         } else {
@@ -609,14 +607,8 @@ module.exports = function (app, passport) {
         }
     });
 
-    //FIX THIS TO NOT BE HARD CODED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     app.post("/updateclasstype", [isAdmin], (req, res) => {
-        let term = "20-21" //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        let semester = "S1"; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        let className = req.body.className;
-        let classType = req.body.classType;
-        let resp = authenticator.updateClassTypeInClassDb(term, semester, className, classType);
+        let resp = authenticator.updateClassTypeInClassDb(req.body.term, req.body.semester, req.body.className, req.body.classType);
         if (resp.success) {
             res.status(200).send(resp);
         } else {
@@ -625,7 +617,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/updateuccsuclasstype", [isAdmin], (req, res) => {
-        let resp = authenticator.updateUCCSUClassTypeInClassDb(req.body.className, req.body.classType);
+        let resp = authenticator.updateUCCSUClassTypeInClassDb(req.body.term, req.body.semester, req.body.className, req.body.classType);
         if (resp.success) {
             res.status(200).send(resp);
         } else {
@@ -770,20 +762,30 @@ module.exports = function (app, passport) {
 
     });
 
-    //FIX THIS TO NOT BE HARD CODED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     app.get("/classes", [isAdmin], (req, res) => {
         let user = authenticator.getUser(req.user.username);
         let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
+        
+        let {term, semester} = authenticator.getClassesMostRecentTermData();
+        if (req.query.term && req.query.semester) {
+            if ((term === req.query.term && semester === req.query.semester) || !req.user.betaFeatures.active || !authenticator.semesterExists(req.user.username, req.query.term, req.query.semester)) {
+                res.redirect("/classes");
+                return;
+            }
+            term = req.query.term;
+            semester = req.query.semester;
+        }
 
         res.render("admin/classes.ejs", {
-            userRef: JSON.stringify(user),
             username: req.user.username,
             page: "classes",
-            classData: authenticator.getAllClassData()["20-21"]["S1"], //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            classData: authenticator.getAllClassData()[term][semester],
             sessionTimeout: Date.parse(req.session.cookie._expires),
             appearance: JSON.stringify(req.user.appearance),
             beta: server.needsBetaKeyToSignUp,
+            term: term,
+            semester: semester,
+            termsAndSemesters: JSON.stringify(Object.keys(authenticator.getAllClassData()).map(x => [x, Object.keys(authenticator.getAllClassData()[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
             sunset: sunset,
             sunrise: sunrise,
             _: _
