@@ -508,6 +508,9 @@ tr:hover .toolTab {
     box-shadow: black 0 0 2px 1px;
 }
 
+#classLinks {
+    box-shadow: 0 0 10px 2px #333333;
+}
 /* Mobile Stuff */
 @media only screen and (max-width: 991px) {
     #table-1 table {

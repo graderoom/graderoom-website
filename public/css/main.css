@@ -349,7 +349,7 @@ table thead tr th:last-child {
 .changelog-container .changelog-item {
     border-radius: 1rem;
     margin-top: 1rem;
-    padding: 0.1rem 0.5rem 2rem 0.5rem;
+    padding: 0.1rem 0.5rem 1rem 0.5rem;
 }
 
 .changelog-container .changelog-item:first-child {
@@ -1001,6 +1001,7 @@ label.label-active {
     font-weight: 500;
     transition: background-color 250ms ease, opacity 250ms ease;
     border-radius: 0.5rem;
+    font-size: 0.9rem;
 }
 
 #classLinks li.nav-item.active {

@@ -42,6 +42,19 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 4.3.0] - 2021-01-09
+### Added
+- Department display in class info section
+
+### Improved
+- Word choice in class info
+- Styling of class navbar
+- Auto disabled snow no longer changes background color
+
+### Fixed
+- Issue where snow background in light mode would not disappear properly after holiday effects were disabled
+- Issue where legend items on overview chart were sometimes clickable
+
 ## [Beta 4.2.0] - 2021-01-08
 ### Added
 - Changelog can now emphasize important information <span class="changelog-inline-setoff">like this</span>

@@ -315,10 +315,10 @@
                             } %>
                             <span>
                                 <% if (classType !== "Unknown") { %>
-                                    <span>Bellarmine <%= classType %> course</span><br>
+                                    <span>BCP <%= classType %> course</span><br>
                                 <% } %>
                                 <span><%= uc_classType %> course</span><br>
-                                <span>Weights
+                                <span id="verified<%= i %>">Weights
                                     <% let custom = JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].custom; %>
                                     <% if (custom) { %>Unverified
                                     <% } else { %>Verified
@@ -326,7 +326,12 @@
                                     <i class="fa fa-<% if (custom) { %>exclamation-circle<% } else { %>check-circle<% } %>"></i>
                                 </span>
                             </span>
-                            <span style="text-align: right">Teacher: <%= JSON.parse(gradeData)[i].teacher_name || "Unknown" %></span>
+                            <span style="text-align: right">
+                                <span>Teacher: <%= JSON.parse(gradeData)[i].teacher_name || "Unknown" %></span><br>
+                                <% if (JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].department) { %>
+                                <span>Department: <%= JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].department; %></span>
+                                <% } %>
+                            </span>
                         </div>
                         <div class="chartAndWeights">
                             <div id="chart-container<%= i + offset; %>" class="chart chart-container">
@@ -3141,7 +3146,7 @@
                         }, animation: {
                             easing: "easeOutCubic"
                         }, legend: {
-                            display: true, position: "top", labels: {
+                            onClick: (e) => e.stopPropagation(), display: true, position: "top", labels: {
                                 usePointStyle: true,
                                 fontColor: (darkMode ? "white" : "black"),
                                 fontFamily: "Verdana",
