@@ -624,6 +624,7 @@ module.exports = {
         let relClasses = {};
         for (let i = 0; i < userClasses.length; i++) {
             relClasses[userClasses[i][0]] = {
+                "department": classes[userClasses[i][0]]["department"],
                 "classType": classes[userClasses[i][0]]["classType"],
                 "uc_csuClassType": classes[userClasses[i][0]]["uc_csuClassType"],
                 "weights": userClasses[i][1] ? classes[userClasses[i][0]][userClasses[i][1]]["weights"] : null,
@@ -1525,9 +1526,12 @@ module.exports = {
                         betaResultHTML += "</div>";
                     }
                 } else {
+                    if (!items[i].content["Default"]) {
+                        items[i].content["Default"] = [];
+                    }
                     for (let j = 0; j < items[i].content["Default"].length; j++) {
-                        resultHTML += "<ul class=\"body\">" + items[i].content["Default"][j] + "</ul>";
-                        betaResultHTML += "<ul class=\"body\">" + items[i].content["Default"][j] + "</ul>";
+                        resultHTML += "<span class=\"body\">" + items[i].content["Default"][j] + "</span>";
+                        betaResultHTML += "<span class=\"body\">" + items[i].content["Default"][j] + "</span>";
                     }
                 }
                 resultHTML += "</div>";
