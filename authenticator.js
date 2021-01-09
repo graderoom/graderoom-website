@@ -166,7 +166,9 @@ module.exports = {
 
     /* class database */
     getAllClassData: function () {
-        return db.get("classes").value();
+        let classes = db.get("classes").value();
+        delete classes["version"];
+        return classes;
     },
 
     /* user functions
@@ -246,21 +248,9 @@ module.exports = {
             // Update class db version
             classRef.set("version", 1).write();
         }
+        //Clear classes to migrate to semester system
         if (version < 2) {
-            //Migrate classes to semester system
-            if (!classes.hasOwnProperty("20-21")){
-                //Clear Suggestions:
-                for (let i = 0; i < Object.keys(classes).length; i++) {
-                    let className = Object.keys(classes)[i];
-                    for (let j = 1; j < Object.keys(classes[className]).length; j++) { //start at 1 to skip classType
-                        let teacherName = Object.keys(classes[className])[j];
-                        classes[className][teacherName]["suggestions"] = [];
-                    }
-                }
-                //Add current weights for all semesters
-                db.set("classes", {"20-21": {"S1": classes}}).write();
-            }
-            
+            db.set("classes",{}).write();
             // Update class db version
             classRef.set("version", 2).write();
         }
@@ -505,8 +495,6 @@ module.exports = {
                     let className = user.grades[_term][_semester][i].class_name;
                     let teacherName = user.grades[_term][_semester][i].teacher_name;
 
-                    console.log(_term + " | " + _semester + " | " + className + " | " + teacherName + " | " + dbContainsClass(_term, _semester, className, teacherName));
-
                     //Add all semesters to db
                     if (!dbContainsTerm(_term, _semester)) {
                         this.addDbTerm(_term, _semester);
@@ -599,8 +587,15 @@ module.exports = {
         return {term: term, semester: semester};
     },
 
+    getClassesMostRecentTermData: function () {
+        let terms = Object.keys(this.getAllClassData());
+        let term = terms[terms.map(t => parseInt(t.substring(0, 2))).reduce((maxIndex, term, index, arr) => term > arr[maxIndex] ? index : maxIndex, 0)];
+        let semesters = Object.keys(this.getAllClassData()[term]);
+        let semester = semesters[semesters.map(s => parseInt(s.substring(1))).reduce((maxIndex, semester, index, arr) => semester > arr[maxIndex] ? index : maxIndex, 0)];
+        return {term: term, semester: semester};
+    },
+
     getRelClassData: function (username, term, semester) {
-        //TODO
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         let userClasses = [];
@@ -616,7 +611,6 @@ module.exports = {
         let relClasses = {};
         for (let i = 0; i < userClasses.length; i++) {
             //Give priority for data from target term & semester, in case class is in multiple semesters
-            //NEED TO FIX IF SAME CLASS IN MULTIPLE SEMESTERS TO ACCOUNT FOR POTENTIALLY DIFFERENT WEIGHTS
             if ((userClasses[i][0] === term && userClasses[i][1] === semester) || !relClasses.hasOwnProperty(userClasses[i][2])) {
                 relClasses[userClasses[i][2]] = {
                     "classType": classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]]["classType"],
@@ -626,9 +620,10 @@ module.exports = {
                 };
             }
         }
-        // console.log(relClasses);
         return relClasses;
-    }, updateWeightsInClassDb: function (term, semester, className, teacherName, hasWeights, weights) {
+    }, 
+    
+    updateWeightsInClassDb: function (term, semester, className, teacherName, hasWeights, weights) {
         let classDb = db.get("classes");
         if (weights || hasWeights === "false") {
             if (hasWeights === "false") {
@@ -652,7 +647,9 @@ module.exports = {
         return {
             success: true, message: "Updated weights for " + className + " | " + teacherName, suggestion: suggestionNum
         };
-    }, deleteSuggestionInClassDb: function (term, semester, className, teacherName, hasWeights, weights) {
+    }, 
+    
+    deleteSuggestionInClassDb: function (term, semester, className, teacherName, hasWeights, weights) {
         let deleted = false;
         let classRef = db.get("classes");
         let suggestionNum = 0;
@@ -686,7 +683,9 @@ module.exports = {
             return {success: true, suggestion: suggestionNum};
         }
         return {success: false, suggestion: null};
-    }, addWeightsSuggestion: function (username, term, semester, className, teacherName, hasWeights, weights) {
+    }, 
+    
+    addWeightsSuggestion: function (username, term, semester, className, teacherName, hasWeights, weights) {
         let lc_username = username.toLowerCase();
         let classDb = db.get("classes");
 
@@ -728,18 +727,22 @@ module.exports = {
                 }
             }
         }
-    }, updateClassTypeInClassDb: function (term, semester, className, classType) {
+    }, 
+    
+    updateClassTypeInClassDb: function (term, semester, className, classType) {
         let classDb = db.get("classes");
         classDb.get(term).get(semester).get(className).set("classType", classType).write();
         return {success: true, message: "Set class type of " + className + " to " + classType};
-    }, updateUCCSUClassTypeInClassDb: function (className, classType) {
+    }, 
+    
+    updateUCCSUClassTypeInClassDb: function (term, semester, className, classType) {
         let classDb = db.get("classes");
-        classDb.get(className).set("uc_csuClassType", classType).write();
+        classDb.get(term).get(semester).get(className).set("uc_csuClassType", classType).write();
         return {success: true, message: "Set uc class type of " + className + " to " + classType};
-    }
+    },
 
-    //Need to add Try Catches to error check when updating db values
-    , addNewUser: function (username, password, schoolUsername, isAdmin, beta = false) {
+    //Need to add Try Catches to error check when updating db values    
+    addNewUser: function (username, password, schoolUsername, isAdmin, beta = false) {
 
         let lc_username = username.toLowerCase();
         return new Promise((resolve, reject) => {
