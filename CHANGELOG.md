@@ -42,6 +42,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 4.2.2] - 2021-01-10
+### Fixed
+ - Issue with UC/CSU GPA calculation
+
 ## [Beta 4.2.1] - 2021-01-09
 ### Added
 - Department display in class info section
