@@ -1533,41 +1533,43 @@
                 offset = offset || 0;
                 min = min || 0;
                 max = max || Infinity;
-                elements.each(function () {
-                    let element = $(this);
+                setTimeout(function () {
+                    elements.each(function () {
+                        let element = $(this);
 
-                    // Add element to measure pixel length of text
-                    let id = btoa(Math.floor(Math.random() * Math.pow(2, 64)));
-                    let tag = $("<span id=\"" + id + "\">" + element.val() + "</span>").css({
-                                                                                                "display": "none",
-                                                                                                "font-family": element.css("font-family"),
-                                                                                                "font-size": element.css("font-size")
-                                                                                            }).appendTo("body");
+                        // Add element to measure pixel length of text
+                        let id = btoa(Math.floor(Math.random() * Math.pow(2, 64)));
+                        let tag = $("<span id=\"" + id + "\">" + element.val() + "</span>").css({
+                                                                                                    "display": "none",
+                                                                                                    "font-family": element.css("font-family"),
+                                                                                                    "font-size": element.css("font-size")
+                                                                                                }).appendTo("body");
 
-                    // Adjust element width on keydown
-                    function update() {
+                        // Adjust element width on keydown
+                        function update() {
 
-                        // Give browser time to add current letter
-                        setTimeout(function () {
+                            // Give browser time to add current letter
+                            setTimeout(function () {
 
-                            // Prevent whitespace from being collapsed
-                            tag.html(element.val().replace(/ /g, "&nbsp;"));
+                                // Prevent whitespace from being collapsed
+                                tag.html(element.val().replace(/ /g, "&nbsp;"));
 
-                            // Clamp length and prevent text from scrolling
-                            let size = Math.max(min, Math.min(max, tag.width() + offset));
-                            if (size < max) {
-                                element.scrollLeft(0);
-                            }
+                                // Clamp length and prevent text from scrolling
+                                let size = Math.max(min, Math.min(max, tag.width() + offset));
+                                if (size < max) {
+                                    element.scrollLeft(0);
+                                }
 
-                            // Apply width to element
-                            element.width(size);
+                                // Apply width to element
+                                element.width(size);
 
-                        }, 0);
-                    }
+                            }, 0);
+                        }
 
-                    update();
-                    element.keydown(update);
-                });
+                        update();
+                        element.keydown(update);
+                    });
+                }, 0);
             }
 
             function remToPixels(rem) {

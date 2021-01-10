@@ -50,6 +50,7 @@
 - Word choice in class info
 - Styling of class navbar
 - Auto disabled snow no longer changes background color
+- Significantly improved initial load time
 
 ### Fixed
 - Issue where snow background in light mode would not disappear properly after holiday effects were disabled
