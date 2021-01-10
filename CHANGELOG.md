@@ -44,7 +44,7 @@
 
 ## [Beta 4.2.2] - 2021-01-10
 ### Fixed
- - Issue with UC/CSU GPA calculation
+- Issue with UC/CSU GPA calculation
 
 ## [Beta 4.2.1] - 2021-01-09
 ### Added
