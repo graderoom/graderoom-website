@@ -1155,10 +1155,15 @@ module.exports = {
 
     addDbTerm: function (term, semester){
         let classesRef = db.get("classes");
-        if (!Object.keys(classesRef.value()).includes(term)){
-            classesRef.set(term,{}).write()
-        }
-        classesRef.get(term).set(semester,{}).write();
+        if (!classesRef.has(term).value()){
+            classesRef.set(term,{[semester]:{}}).write();
+        } else if (classesRef.get(term).has("S1").value() && semester == "S2") {
+            classesRef.get(term).set(semester,classesRef.get(term).get("S1").value()).write();
+        } else if (classesRef.get(term).has("S2").value() && semester == "S1") {
+            classesRef.get(term).set(semester,classesRef.get(term).get("S2").value()).write();
+        } else {
+            classesRef.get(term).set(semester,{}).write();
+        }``
     },
 
     setColorPalette: function (username, preset, shuffle) {
