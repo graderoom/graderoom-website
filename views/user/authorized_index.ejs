@@ -664,6 +664,9 @@
             let recentlyAddedAssignment;
             let recentlyAddedAssignmentDiv;
 
+            let totaltime = 0;
+            let count = 0;
+
             function setupColorStuff() {
                 // Class links
                 $.makeArray($("#classLinks a.nav-link")).slice(1).forEach((x, i) => $(x).css("color", colors[i]));
@@ -1522,39 +1525,27 @@
                 min = min || 0;
                 max = max || Infinity;
                 
-                let tag;
-                if (elements.length>0) {
-                    tag = $("<span> </span>").css({"display": "none",
+                if (elements.length<1)
+                    return;
+                    
+                let tag = $("<span> </span>").css({"display": "none",
                                                     "font-family": $(elements[0]).css("font-family"),
                                                     "font-size": $(elements[0]).css("font-size")}).appendTo("body");
-                }
 
                 elements.each(function () {
                     let element = $(this);
 
-                    // Adjust element width on keydown
                     function update() {
-                        // Give browser time to add current letter
-                        setTimeout(function () {
-
-                            //Update tag
                             tag.text(element.val());
-
-                            // Clamp length and prevent text from scrolling
                             let size = Math.max(min, Math.min(max, tag.width() + offset));
-                            size = Math.max(min, Math.min(max, size + offset));
                             if (size < max) {
                                 element.scrollLeft(0);
                             }
-
-                            // Apply width to element
-                            element.width(size);
-
-                        }, 0);
+                            element.width(size);     
                     }
 
                     update();
-                    element.keydown(update);
+                    element.keydown(function(){setTimeout(update(),0)});
                 });
             }
 
@@ -2213,10 +2204,6 @@
                     let dropdown = $(categorySelectReferences[i]);
                     let categories = Object.keys(weights[_data[i].class_name]["weights"]);
 
-                    // Adjust widths
-                    adjust($(".addAssignmentName input"), 0, remToPixels(8), remToPixels(12));
-                    adjust($(".addAssignmentScore input"), 0, remToPixels(2), remToPixels(4));
-
                     // Set up categories
                     if (!$(dropdown).find("option").length) {
                         for (let j = 0; j < categories.length; j++) {
@@ -2229,6 +2216,10 @@
                         $("#addAssignmentForm" + i + " input").val("").trigger("input").trigger("blur");
                     });
                 }
+                
+                //Adjust widths
+                adjust($(".addAssignmentName input"), 0, remToPixels(8), remToPixels(12));
+                adjust($(".addAssignmentScore input"), 0, remToPixels(2), remToPixels(4));
             }
 
             function setupClassTables(classIndex) {
@@ -2344,10 +2335,10 @@
                             // Move rows
                             for (let j = 0; j < assignmentData.length; j++) {
                                 $($(`.categoryTable${i} .categoryStart + tbody`)[categories.indexOf(assignmentCategories[j])]).append(rowDivs[j]);
-
-                                // Bind listeners
-                                adjust($($(`.categoryAssignmentScore${i}`)[j]).find(".dynamic-input"), 0, remToPixels(2), remToPixels(4));
                             }
+
+                            //Bind listeners
+                            adjust($($(`.assignmentScore${i}`)).find(".dynamic-input"), 0, remToPixels(2), remToPixels(4));
 
                             // Remove extra rows
                             for (let j = assignmentData.length; j < rowDivs.length; j++) {
@@ -2463,10 +2454,11 @@
                             // Add missing rows
                             for (let j = rowDivs.length; j < assignmentData.length; j++) {
                                 $(`#table${i}`).append(row);
-
-                                // Bind listeners
-                                adjust($($(`.assignmentScore${i}`)[j]).find(".dynamic-input"), 0, remToPixels(2), remToPixels(4));
                             }
+
+                            //Bind listeners
+                            adjust($($(`.assignmentScore${i}`)).find(".dynamic-input"), 0, remToPixels(2), remToPixels(4));
+
 
                             // Remove extra rows
                             for (let j = assignmentData.length; j < rowDivs.length; j++) {
