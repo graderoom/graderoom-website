@@ -90,7 +90,6 @@
                                        class="fa fa-exclamation-triangle"
                                        style="display: none; margin-left: 0.2rem">
                                         <span class="popup-bottom">
-                                            Does not match calculated grade
                                         </span>
                                     </i></span>
                             </a>
@@ -199,10 +198,12 @@
                                                         style="color: <%= accentColor; %>">University of
                                                     California System</span><br>and the<br><span
                                                         style="color: <%= accentColor; %>">California State
-                                                    University System</span>.<br> This metric is not affected by the weighted GPA setting.</span></i></span></h5>
+                                                    University System</span>.<br> This metric is not affected by the
+                                                weighted GPA setting.</span></i></span></h5>
                                 <h5 id="GPA-display-uc">----
                                     <% if (JSON.parse(appearance).showMaxGPA) { %>/----
-                                    <% } %></h5>
+                                    <% } %>
+                                </h5>
                             </div>
                         </div>
                         <div id="chart-container-1" class="chart chart-container text-center">
@@ -271,7 +272,7 @@
                                     break;
 
                                 case "none":
-                                    classType = "None";
+                                    classType = "Regular";
                                     break;
 
                                 case "non-academic":
@@ -297,16 +298,30 @@
                                     break;
 
                                 case "":
-                                    uc_classType = "Not UC Approved";
+                                    uc_classType = "Not a UC Approved";
                                     break;
 
                                 default:
                                     break;
                             } %>
-                            <span>Teacher: <%= JSON.parse(gradeData)[i].teacher_name || "Unknown" %></span>
                             <span>
-                                <span>BCP Weighting: <%= classType %></span><br>
-                                <span><%= uc_classType %></span>
+                                <% if (classType !== "Unknown") { %>
+                                    <span>BCP <%= classType %> course</span><br>
+                                <% } %>
+                                <span><%= uc_classType %> course</span><br>
+                                <span id="verified<%= i %>">Weights
+                                    <% let custom = JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].custom; %>
+                                    <% if (custom) { %>Unverified
+                                    <% } else { %>Verified
+                                    <% } %>
+                                    <i class="fa fa-<% if (custom) { %>exclamation-circle<% } else { %>check-circle<% } %>"></i>
+                                </span>
+                            </span>
+                            <span style="text-align: right">
+                                <span>Teacher: <%= JSON.parse(gradeData)[i].teacher_name || "Unknown" %></span><br>
+                                <% if (JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].department) { %>
+                                <span>Department: <%= JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].department; %></span>
+                                <% } %>
                             </span>
                         </div>
                         <div class="chartAndWeights">
@@ -417,10 +432,7 @@
                                                         <i id="incorrectOverallGrade<%= i + offset; %>"
                                                            class="fa fa-exclamation-circle"
                                                            style="margin-left: 0.2rem; vertical-align: middle">
-                                                            <span class="popup-bottom-left always-show">
-                                                                <% let grade = JSON.parse(gradeData)[i].overall_percent + "%"; %>
-                                                                Grade in PowerSchool:
-                                                                <nobr><%= grade + " (" + JSON.parse(gradeData)[i].overall_letter + ")"; %></nobr>
+                                                            <span class="popup-left-bottom always-show">
                                                             </span>
                                                         </i>
                                                     </span>
@@ -501,9 +513,11 @@
                                 </form>
                             </div>
                             <div style="align-self: center;">
-                                <span id="addedOption<%= i + offset; %>"><span class="square" style="color: green"></span>
+                                <span id="addedOption<%= i + offset; %>"><span class="square"
+                                                                               style="color: green"></span>
                                     Added</span>
-                                <span id="modifiedOption<%= i + offset; %>"><span class="square" style="margin-left: 0.5rem; color: deepskyblue"></span>
+                                <span id="modifiedOption<%= i + offset; %>"><span class="square"
+                                                                                  style="margin-left: 0.5rem; color: deepskyblue"></span>
                                     Modified</span>
                             </div>
                             <div class="tableOptionsContainer">
@@ -1035,9 +1049,9 @@
                     $.ajax({
                                method: "POST", url: "/updateShowMaxGPA", data: {showMaxGPA: JSON.stringify(showMaxGPA)}
                            }).done(() => {
-                               setupOverallGPA();
-                               setupCumulativeGPA();
-                               setupUC_CSU_GPA();
+                        setupOverallGPA();
+                        setupCumulativeGPA();
+                        setupUC_CSU_GPA();
                     });
                 } else {
                     setupOverallGPA();
@@ -1049,7 +1063,13 @@
             function setupIncorrectGradeMessages(classIndex) {
                 for (let i = 0; i < _data.length; i++) {
                     if (classIndex === undefined || classIndex === i) {
-                        $("#incorrectOverallGrade" + i + " span").html(`Grade in PowerSchool: <nobr>` + _data[i].overall_percent + `% (` + _data[i].overall_letter + `)</nobr>`);
+                        if (alerts.lastUpdated.slice(-1)[0].ps_locked) {
+                            $("#incorrectOverallGrade" + i + " span").html(`Send feedback to verify weights<br><small>More > Send Feedback</small>`);
+                            $("#incorrectOverviewGrade" + i + " span").html(`PowerSchool is locked`);
+                        } else {
+                            $("#incorrectOverallGrade" + i + " span").html(`Grade in PowerSchool: <nobr>` + _data[i].overall_percent + `% (` + _data[i].overall_letter + `)</nobr>`);
+                            $("#incorrectOverviewGrade" + i + " span").html(`Does not match calculated grade`);
+                        }
                         if (!correctCalc(i)) {
                             $("#incorrectOverviewGrade" + i).css("display", "inline-block");
                             $("#incorrectOverallGrade" + i).css("display", "inline-block");
@@ -1081,7 +1101,7 @@
             }
 
             function setupUC_CSU_GPA() {
-                let out  = $('#GPA-display-uc');
+                let out = $('#GPA-display-uc');
 
                 // First we need to determine which years are 9-11
                 // We use graduation year for this
@@ -1937,12 +1957,12 @@
                 }
                 delete _editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
                 if (notMassReset) {
-                        $.ajax({
-                                   type: "POST",
-                                   url: "/updateEditedAssignments",
-                                   data: {data: JSON.stringify(editedAssignments)},
-                                   async: true
-                               });
+                    $.ajax({
+                               type: "POST",
+                               url: "/updateEditedAssignments",
+                               data: {data: JSON.stringify(editedAssignments)},
+                               async: true
+                           });
                     refreshWithoutReload(false, classIndex);
                 }
             }
@@ -2494,11 +2514,11 @@
                             // Color names based on grade changes
                             let textColor;
                             if (latestChange) {
-                                if(_data[i].class_name in latestChange.added && Object.values(latestChange.added[_data[i].class_name]).includes(assignmentPSAIDs[j])) {
+                                if (_data[i].class_name in latestChange.added && Object.values(latestChange.added[_data[i].class_name]).includes(assignmentPSAIDs[j])) {
                                     $('#addedOption' + i).show();
                                     textColor = "green";
                                 }
-                                if(_data[i].class_name in latestChange.modified && latestChange.modified[_data[i].class_name].filter(m => m.psaid === assignmentPSAIDs[j]).length) {
+                                if (_data[i].class_name in latestChange.modified && latestChange.modified[_data[i].class_name].filter(m => m.psaid === assignmentPSAIDs[j]).length) {
                                     $('#modifiedOption' + i).show();
                                     textColor = "deepskyblue";
                                 }
@@ -2664,7 +2684,7 @@
             function setupOverviewTable(changedClassIndex) {
                 for (let i = 0; i < parsedData.length; i++) {
                     if (changedClassIndex === undefined || changedClassIndex === i) {
-                        let [overallGrade, overallLetter] = correctCalc(i) ? [getOverallGrade(i), getLetterGrade(getOverallGrade(i))] : [_data[i].overall_percent, _data[i].overall_letter];
+                        let [overallGrade, overallLetter] = (correctCalc(i) || alerts.lastUpdated.slice(-1)[0].ps_locked) ? [getOverallGrade(i), getLetterGrade(getOverallGrade(i))] : [_data[i].overall_percent, _data[i].overall_letter];
                         let assignmentData = parsedData[i].rawData;
                         let lastIndex = assignmentData.length - 1;
                         let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(2);
@@ -3117,7 +3137,7 @@
                         }, animation: {
                             easing: "easeOutCubic"
                         }, legend: {
-                            display: true, position: "top", labels: {
+                            onClick: (e) => e.stopPropagation(), display: true, position: "top", labels: {
                                 usePointStyle: true,
                                 fontColor: (darkMode ? "white" : "black"),
                                 fontFamily: "Verdana",
@@ -3145,7 +3165,7 @@
                                         if (tooltipItems[0].index >= chartData[tooltipItems[0].datasetIndex].mixedData.length) {
                                             return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + _data[tooltipItems[0].datasetIndex].overall_percent + "% (" + _data[tooltipItems[0].datasetIndex].overall_letter + ")";
                                         }
-                                        return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " N/A [Inaccurate weights]";
+                                        return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " N/A [Unverified weights]";
                                     }
                                     return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + tooltipItems[0].value + "% (" + getLetterGrade(tooltipItems[0].value) + ")";
                                 }, label: function (tooltipItem) {
