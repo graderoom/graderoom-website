@@ -1521,7 +1521,13 @@
                 offset = offset || 0;
                 min = min || 0;
                 max = max || Infinity;
-                let tag = $("<span> </span>").css({"display": "none"}).appendTo("body");
+                
+                let tag;
+                if (elements.length>0) {
+                    tag = $("<span> </span>").css({"display": "none",
+                                                    "font-family": $(elements[0]).css("font-family"),
+                                                    "font-size": $(elements[0]).css("font-size")}).appendTo("body");
+                }
 
                 elements.each(function () {
                     let element = $(this);
@@ -1533,8 +1539,6 @@
 
                             //Update tag
                             tag.text(element.val());
-                            tag.css({"font-family": element.css("font-family"),
-                                    "font-size": element.css("font-size")});
 
                             // Clamp length and prevent text from scrolling
                             let size = Math.max(min, Math.min(max, tag.width() + offset));
