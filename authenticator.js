@@ -16,7 +16,7 @@ const SunCalc = require("suncalc");
 const roundsToGenerateSalt = 10;
 
 // Change this when updateDB changes
-const dbUserVersion = 1;
+const dbUserVersion = 2;
 
 // Change this when updateAllDB changes
 const dbClassVersion = 1;
@@ -189,7 +189,8 @@ module.exports = {
         }
         let version = classRef.get("version").value();
 
-        if (version < 1) {
+        if (version === 0) {
+
             // Fix Calculus BC AP with space
             let badData = classRef.get("Calculus BC AP ").value();
             if (badData) {
@@ -246,17 +247,14 @@ module.exports = {
             }
 
             // Update class db version
+            console.log("Updating classdb to version 1");
             classRef.set("version", 1).write();
         }
         //Clear classes to migrate to semester system
-        if (version < 2) {
+        if (version === 1) {
             db.set("classes",{}).write();
             // Update class db version
             classRef.set("version", 2).write();
-        }
-        // Add more if/else to add db updates
-        if (version < dbClassVersion) {
-            // Add the stuff next time
         }
 
         let users = db.get("users").value();
@@ -283,16 +281,15 @@ module.exports = {
             userRef.set("version", 0).write();
         }
         let version = userRef.get("version").value();
+        if (version === 0) {
 
-        if (version <= dbUserVersion) {
-            // Throw stuff in here next time
-        }
-        if (version <= 0) {
+            // Update version to 1
+            console.log("Updating user to version 1");
 
             // Update change data with ps_locked
             let lastUpdateds = userRef.get("alerts").get("lastUpdated").value();
-            for (let i = 0; i < lastUpdateds.length; i++) {
-                if ('ps_locked' in lastUpdateds[i]) continue;
+            for (let i = 0; i < lastUpdated.length; i++) {
+                if ('ps_locked' in lastUpdated[i]) continue;
                 // This is really sketch but it should work
                 let cutoff = new Date(2020, 11, 18).getTime(); // Dec 18, 2020 is when grades locked in 2020
                 lastUpdateds[i].ps_locked = lastUpdateds[i].timestamp >= cutoff; // Hopefully pushed before grades unlocked
@@ -466,8 +463,38 @@ module.exports = {
                 userRef.get("appearance").unset("accentColor").write();
             }
 
-            // Update version to 1
+            // Save update
             userRef.set("version", 1).write();
+            version = 1;
+
+        }
+
+        if (version === 1) {
+
+            // Update user to version 2
+            console.log("Updating user to version 2");
+
+            // Fix lastupdated ps_locked issue
+            let lastUpdated = userRef.get("alerts").get("lastUpdated").value();
+            let lastUpdatedRef = userRef.get("alerts").get("lastUpdated");
+            for (let i = 0; i < lastUpdated.length; i++) {
+                let cutoff = new Date(2020, 11, 18).getTime(); // Dec 18, 2020 is when grades locked in 2020
+                lastUpdated[i].ps_locked = lastUpdated[i].timestamp >= cutoff;
+                let changeData = lastUpdated[i].changeData;
+                if (!('overall' in changeData)) continue; // Skip these too
+                let bad_version = Object.values(changeData.overall).filter(o => o.ps_locked === true || Object.keys(o).length === 0).length !== 0;
+                if (bad_version) {
+                    lastUpdatedRef.nth(i).get("changeData").set("overall", {}).write(); // Deletes ps_locked from wrong place
+                }
+            }
+
+            // Save update
+            userRef.set("version", 2).write();
+            version = 2;
+        }
+
+        if (version === 2) {
+
         }
 
         this.bringUpToDate(username, false);
@@ -613,6 +640,7 @@ module.exports = {
             //Give priority for data from target term & semester, in case class is in multiple semesters
             if ((userClasses[i][0] === term && userClasses[i][1] === semester) || !relClasses.hasOwnProperty(userClasses[i][2])) {
                 relClasses[userClasses[i][2]] = {
+                    "department": classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]]["department"],
                     "classType": classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]]["classType"],
                     "uc_csuClassType":  classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]]["uc_csuClassType"],
                     "weights": userClasses[i][3] ? classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]][userClasses[i][3]]["weights"] : null,
@@ -699,10 +727,9 @@ module.exports = {
         for (let i = 0; i < Object.keys(weights).length; i++) {
             modWeights[Object.keys(weights)[i]] = isNaN(parseFloat(Object.values(weights)[i])) ? null : parseFloat(Object.values(weights)[i]);
         }
-
+        // console.log(classDb.get(term).get(semester).get(className).get(teacherName).get("suggestions").value());
         //delete any old suggestions for user
         deleteUserSuggestion(lc_username, term, semester, className, teacherName);
-
         let suggestionIndex = getSuggestionIndex(term, semester, className, teacherName, {
             "weights": modWeights, "hasWeights": hasWeights
         });
@@ -727,6 +754,7 @@ module.exports = {
                 }
             }
         }
+        // console.log(classDb.get(term).get(semester).get(className).get(teacherName).get("suggestions").value());
     }, 
     
     updateClassTypeInClassDb: function (term, semester, className, classType) {
@@ -1088,8 +1116,12 @@ module.exports = {
                 let newClone = Object.assign({}, newGrades[index]);
                 delete newClone.grades;
                 delete newClone.class_name;
-                return [classData.class_name, Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v))];
+                return [classData.class_name, Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v || k === "ps_locked"))];
             }).filter(data => Object.keys(data[1]).length));
+        }
+        let ps_locked = Object.values(overall).filter(o => o.ps_locked === true).length !== 0;
+        if (ps_locked) {
+            overall = {}; // It's not possible to get this data when PowerSchool is locked
         }
         let changeData = {
             added: added, modified: modified, removed: removed, overall: overall
@@ -1109,7 +1141,7 @@ module.exports = {
         }
 
         let time = Date.now();
-        userRef.get("alerts").get("lastUpdated").push({timestamp: time, changeData: changeData}).write();
+        userRef.get("alerts").get("lastUpdated").push({timestamp: time, changeData: changeData, ps_locked: ps_locked}).write();
         userRef.set("updatedInBackground", "already done").write();
         return {
             success: true,
@@ -1283,6 +1315,7 @@ module.exports = {
 
             if (addSuggestion && teacherName) {
                 this.addWeightsSuggestion(term, semester, username, className, teacherName, hasWeights, weights);
+                console.log("ran");
             }
         }
 
@@ -1527,16 +1560,19 @@ module.exports = {
                         resultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
                         betaResultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
                         for (let k = 0; k < items[i].content[Object.keys(items[i].content)[j]].length; k++) {
-                            resultHTML += "<ul class=\"body\">" + items[i].content[Object.keys(items[i].content)[j]][k] + "</ul>";
-                            betaResultHTML += "<ul class=\"body\">" + items[i].content[Object.keys(items[i].content)[j]][k] + "</ul>";
+                            resultHTML += "<span class=\"body\">" + items[i].content[Object.keys(items[i].content)[j]][k] + "</span>";
+                            betaResultHTML += "<span class=\"body\">" + items[i].content[Object.keys(items[i].content)[j]][k] + "</span>";
                         }
                         resultHTML += "</div>";
                         betaResultHTML += "</div>";
                     }
                 } else {
+                    if (!items[i].content["Default"]) {
+                        items[i].content["Default"] = [];
+                    }
                     for (let j = 0; j < items[i].content["Default"].length; j++) {
-                        resultHTML += "<ul class=\"body\">" + items[i].content["Default"][j] + "</ul>";
-                        betaResultHTML += "<ul class=\"body\">" + items[i].content["Default"][j] + "</ul>";
+                        resultHTML += "<span class=\"body\">" + items[i].content["Default"][j] + "</span>";
+                        betaResultHTML += "<span class=\"body\">" + items[i].content["Default"][j] + "</span>";
                     }
                 }
                 resultHTML += "</div>";
@@ -1821,7 +1857,7 @@ function containsClass(obj, list) {
 function dbContainsClass(term, semester, class_name, teacher_name) {
     if (dbContainsTerm(term, semester)) {
         let classes = db.get("classes").value();
-        if (classes[class_name] && classes[class_name][teacher_name]) {
+        if (classes[term][semester][class_name] && classes[term][semester][class_name][teacher_name]) {
             return true;
         }
     }
@@ -1856,10 +1892,10 @@ function deleteUserSuggestion(username, term, semester, class_name, teacher_name
         //remove user from list of usernames
         if (usernames.includes(lc_username)) {
             classRef.get(term).get(semester).get(class_name).get(teacher_name).get("suggestions").nth(i).get("usernames").pull(lc_username).write();
-        }
-        //remove suggestions if no other users suggested it
-        if (usernames.length < 1) {
-            classRef.get(term).get(semester).get(class_name).get(teacher_name).get("suggestions").pullAt(i).write();
+            //remove suggestions if no other users suggested it
+            if (usernames.length <= 1) {
+                classRef.get(term).get(semester).get(class_name).get(teacher_name).get("suggestions").pullAt(i).write();
+            }
         }
     }
 }

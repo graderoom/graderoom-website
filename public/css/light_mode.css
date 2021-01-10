@@ -497,6 +497,10 @@ tr:hover .toolTab {
     color: #AAAAAA;
 }
 
+#classLinks {
+    box-shadow: 0 0 10px 2px #BBBBBB;
+}
+
 #classLinks li.nav-item {
     margin: 0.2rem;
     padding: 0;
@@ -515,6 +519,15 @@ tr:hover .toolTab {
     padding: 0.5rem;
     border-radius: 0.5rem;
     background-color: #333333;
+}
+
+.changelog-inline-setoff {
+    background-color: white;
+    box-shadow: #333333 0 0 3px 1px;
+}
+
+.changelog-inline-setoff.big-one {
+    background-color: transparent;
 }
 
 /* Mobile Stuff */

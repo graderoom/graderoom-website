@@ -114,6 +114,9 @@
                     </div>
                     <i class="fa" aria-hidden="true"></i>
                 </h5>
+                <% if (!Object.entries(classData[className]).find(([c, t]) => _.isObject(t) && !Array.isArray(t) && Object.keys(classData[className][c]["weights"]).length)) { %>
+                    <i class="fa fa-exclamation-circle" style="padding-top: 8px; margin-bottom: 0.5rem; margin-left: 0.5rem; margin-right: 0.5rem; font-size: 1.1rem; line-height: 1.2rem"></i>
+                <% } %>
                 <span id="classMessage<%= i %>" class="alert alert-success font-weight-bold"
                       style="margin: auto 0 auto 0.75rem; width: fit-content; display:none; justify-content: center; padding: 0.1rem;">
                     <div style="display: none" class="sk-chase-mini">
@@ -215,6 +218,7 @@
                                 <%= teacherName %>
                                 <i style="text-indent: 0 !important;" class="fa" aria-hidden="true"></i>
                             </h5>
+
                             <span id="suggestionMessage<%= i %><%= j %>" class="alert alert-success font-weight-bold"
                                   style="margin: auto 0 auto 0.75rem; width: fit-content; display:none; justify-content: center; padding: 0.1rem;">
                                 <div style="display: none" class="sk-chase-mini">
@@ -236,7 +240,7 @@
                                 let weights;
                                 let hasWeights;
                                 let marginLeft;
-                                if (z == -1) {
+                                if (z === -1) {
                                     weights = classData[className][teacherName]["weights"];
                                     hasWeights = classData[className][teacherName]["hasWeights"];
                                     marginLeft = 4;
@@ -245,7 +249,7 @@
                                     hasWeights = classData[className][teacherName]["suggestions"][z]["hasWeights"];
                                     marginLeft = 6;
                                 }
-                            if (z == 0) { %>
+                            if (z === 0) { %>
                                 <h5 id="suggestion-header<%= i %><%= j %>" style="margin: 0 0 0.5rem 4rem;">
                                     Suggestions:
                                 </h5>

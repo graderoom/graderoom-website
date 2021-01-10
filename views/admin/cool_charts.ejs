@@ -279,7 +279,7 @@
         pointHoverBorderColor: "purple",
         pointHoverBorderWidth: 2
     }
-    let activePercentageData = userData.map((t, i) => ({x: t.x, y: uniqueUsersData[i].y / t.y}));
+    let activePercentageData = userData.map((t, i) => ({x: t.x, y: +(uniqueUsersData[i].y / t.y * 100).toFixed(4)}));
     let activePercentageDataset = {
         label: "Active Percentage",
         yAxisID: "percent",
@@ -339,7 +339,7 @@
                             fontFamily: "Verdana",
                             fontSize: "13",
                             callback: function (value) {
-                                return value.toLocaleString('de-DE', {style: 'percent'});
+                                return (value / 100).toLocaleString('de-DE', {style: 'percent'});
                             }
                         }, gridLines: {
                             color: (document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
