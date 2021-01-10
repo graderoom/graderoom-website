@@ -166,7 +166,9 @@ module.exports = {
 
     /* class database */
     getAllClassData: function () {
-        return db.get("classes").value();
+        let classes = db.get("classes").value();
+        delete classes["version"];
+        return classes;
     },
 
     /* user functions
@@ -179,14 +181,6 @@ module.exports = {
         let startTime = Date.now();
         console.log("" + startTime + " | Started Database Update");
 
-        let users = db.get("users").value();
-
-        for (let i = 0; i < users.length; i++) {
-            console.log("" + Date.now() + " | Updating User: " + (i + 1) + " of " + users.length);
-            this.updateDB(users[i].username);
-        }
-
-        //Update classes to include suggestions key
         let classRef = db.get("classes");
         let classes = db.get("classes").value();
 
@@ -255,12 +249,19 @@ module.exports = {
             // Update class db version
             console.log("Updating classdb to version 1");
             classRef.set("version", 1).write();
-
         }
-
+        //Clear classes to migrate to semester system
         if (version === 1) {
-
+            db.set("classes",{}).write();
+            // Update class db version
+            classRef.set("version", 2).write();
         }
+
+        let users = db.get("users").value();
+        for (let i = 0; i < users.length; i++) {
+            console.log("" + Date.now() + " | Updating User: " + (i + 1) + " of " + users.length);
+            this.updateDB(users[i].username);
+        }    
 
         let endTime = Date.now();
         console.log("" + endTime + " | Database Updated in " + (endTime - startTime) + "ms");
@@ -521,9 +522,14 @@ module.exports = {
                     let className = user.grades[_term][_semester][i].class_name;
                     let teacherName = user.grades[_term][_semester][i].teacher_name;
 
+                    //Add all semesters to db
+                    if (!dbContainsTerm(_term, _semester)) {
+                        this.addDbTerm(_term, _semester);
+                        console.log("adding term");
+                    }
                     //Add all classes to db
-                    if (!dbContainsClass(className, teacherName)) {
-                        this.addDbClass(className, teacherName);
+                    if (!dbContainsClass(_term, _semester, className, teacherName)) {
+                        this.addDbClass(_term, _semester, className, teacherName);
                     }
 
                     // Ignore if no teacher (means no assignments)
@@ -552,9 +558,9 @@ module.exports = {
                     }
 
                     //Updates weights from classes db
-                    if (userRef.get("weights").get(_term).get(_semester).get(className).get("custom").value() === false && dbContainsClass(className, teacherName)) {
-                        if (classes[className][teacherName]["hasWeights"] == "false" || Object.keys(classes[className][teacherName]["weights"]).length > 0) {
-                            this.updateWeightsForClass(username, _term, _semester, className, classes[className][teacherName]["hasWeights"], classes[className][teacherName]["weights"], false, false);
+                    if (userRef.get("weights").get(_term).get(_semester).get(className).get("custom").value() === false && dbContainsClass(_term, _semester, className, teacherName)) {
+                        if (classes[_term][_semester][className][teacherName]["hasWeights"] == "false" || Object.keys(classes[_term][_semester][className][teacherName]["weights"]).length > 0) {
+                            this.updateWeightsForClass(username, _term, _semester, className, classes[_term][_semester][className][teacherName]["hasWeights"], classes[_term][_semester][className][teacherName]["weights"], false, false);
                         }
                     }
 
@@ -573,16 +579,16 @@ module.exports = {
                     }
 
                     //Add user's weights as suggestions
-                    this.addWeightsSuggestion(lc_username, className, teacherName, user.weights[_term][_semester][className]["hasWeights"], user.weights[_term][_semester][className]["weights"]);
+                    this.addWeightsSuggestion(lc_username, _term, _semester, className, teacherName, user.weights[_term][_semester][className]["hasWeights"], user.weights[_term][_semester][className]["weights"]);
 
                     //Set custom to not custom if it is same as classes db
-                    if (user.weights[_term][_semester][className]["custom"] && dbContainsClass(className, teacherName)) {
+                    if (user.weights[_term][_semester][className]["custom"] && dbContainsClass(_term, _semester, className, teacherName)) {
                         user.weights[_term][_semester][className]["custom"] = isCustom({
                                                                                            "weights": user.weights[_term][_semester][className]["weights"],
                                                                                            "hasWeights": user.weights[_term][_semester][className]["hasWeights"]
                                                                                        }, {
-                                                                                           "weights": classes[className][teacherName]["weights"],
-                                                                                           "hasWeights": classes[className][teacherName]["hasWeights"]
+                                                                                           "weights": classes[_term][_semester][className][teacherName]["weights"],
+                                                                                           "hasWeights": classes[_term][_semester][className][teacherName]["hasWeights"]
                                                                                        });
                     }
                 }
@@ -608,31 +614,44 @@ module.exports = {
         return {term: term, semester: semester};
     },
 
-    getRelClassData: function (username) {
-        //TODO
+    getClassesMostRecentTermData: function () {
+        let terms = Object.keys(this.getAllClassData());
+        let term = terms[terms.map(t => parseInt(t.substring(0, 2))).reduce((maxIndex, term, index, arr) => term > arr[maxIndex] ? index : maxIndex, 0)];
+        let semesters = Object.keys(this.getAllClassData()[term]);
+        let semester = semesters[semesters.map(s => parseInt(s.substring(1))).reduce((maxIndex, semester, index, arr) => semester > arr[maxIndex] ? index : maxIndex, 0)];
+        return {term: term, semester: semester};
+    },
+
+    getRelClassData: function (username, term, semester) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         let userClasses = [];
         for (let i = 0; i < Object.keys(userRef.get("grades").value()).length; i++) {
-            let term = Object.keys(userRef.get("grades").value())[i];
-            for (let j = 0; j < Object.keys(userRef.get("grades").value()[term]).length; j++) {
-                let semester = Object.keys(userRef.get("grades").value()[term])[j];
-                userRef.get("grades").get(term).get(semester).value().forEach(classRef => userClasses.push([classRef.class_name, classRef.teacher_name]));
+            let t = Object.keys(userRef.get("grades").value())[i];
+            for (let j = 0; j < Object.keys(userRef.get("grades").value()[t]).length; j++) {
+                let s = Object.keys(userRef.get("grades").value()[t])[j];
+                userRef.get("grades").get(t).get(s).value().forEach(classRef => userClasses.push([t, s, classRef.class_name, classRef.teacher_name]));
             }
         }
+        
         let classes = db.get("classes").value();
         let relClasses = {};
         for (let i = 0; i < userClasses.length; i++) {
-            relClasses[userClasses[i][0]] = {
-                "department": classes[userClasses[i][0]]["department"],
-                "classType": classes[userClasses[i][0]]["classType"],
-                "uc_csuClassType": classes[userClasses[i][0]]["uc_csuClassType"],
-                "weights": userClasses[i][1] ? classes[userClasses[i][0]][userClasses[i][1]]["weights"] : null,
-                "hasWeights": userClasses[i][1] ? classes[userClasses[i][0]][userClasses[i][1]]["hasWeights"] : null
-            };
+            //Give priority for data from target term & semester, in case class is in multiple semesters
+            if ((userClasses[i][0] === term && userClasses[i][1] === semester) || !relClasses.hasOwnProperty(userClasses[i][2])) {
+                relClasses[userClasses[i][2]] = {
+                    "department": classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]]["department"],
+                    "classType": classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]]["classType"],
+                    "uc_csuClassType":  classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]]["uc_csuClassType"],
+                    "weights": userClasses[i][3] ? classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]][userClasses[i][3]]["weights"] : null,
+                    "hasWeights": userClasses[i][3] ? classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]][userClasses[i][3]]["hasWeights"] : null
+                };
+            }
         }
         return relClasses;
-    }, updateWeightsInClassDb: function (className, teacherName, hasWeights, weights) {
+    }, 
+    
+    updateWeightsInClassDb: function (term, semester, className, teacherName, hasWeights, weights) {
         let classDb = db.get("classes");
         if (weights || hasWeights === "false") {
             if (hasWeights === "false") {
@@ -647,16 +666,18 @@ module.exports = {
             for (let i = 0; i < Object.keys(weights).length; i++) {
                 modWeights[Object.keys(weights)[i]] = parseFloat(Object.values(weights)[i]);
             }
-            classDb.get(className).get(teacherName).set("weights", modWeights).write(); //Overwrites existing weights
-            classDb.get(className).get(teacherName).set("hasWeights", hasWeights).write();
+            classDb.get(term).get(semester).get(className).get(teacherName).set("weights", modWeights).write(); //Overwrites existing weights
+            classDb.get(term).get(semester).get(className).get(teacherName).set("hasWeights", hasWeights).write();
         } else {
             return {success: false, message: "One weight required!"};
         }
-        let suggestionNum = this.deleteSuggestionInClassDb(className, teacherName, hasWeights, weights).suggestion;
+        let suggestionNum = this.deleteSuggestionInClassDb(term, semester, className, teacherName, hasWeights, weights).suggestion;
         return {
             success: true, message: "Updated weights for " + className + " | " + teacherName, suggestion: suggestionNum
         };
-    }, deleteSuggestionInClassDb: function (className, teacherName, hasWeights, weights) {
+    }, 
+    
+    deleteSuggestionInClassDb: function (term, semester, className, teacherName, hasWeights, weights) {
         let deleted = false;
         let classRef = db.get("classes");
         let suggestionNum = 0;
@@ -676,7 +697,7 @@ module.exports = {
             modWeights[Object.keys(weights)[i]] = isNaN(parseFloat(Object.values(weights)[i])) ? null : parseFloat(Object.values(weights)[i]);
         }
 
-        classRef.get(className).get(teacherName).get("suggestions").remove(function (e) {
+        classRef.get(term).get(semester).get(className).get(teacherName).get("suggestions").remove(function (e) {
             let shouldDelete = compareWeights({
                                                   "weights": e.weights, "hasWeights": e.hasWeights
                                               }, {"weights": modWeights, "hasWeights": hasWeights});
@@ -690,7 +711,9 @@ module.exports = {
             return {success: true, suggestion: suggestionNum};
         }
         return {success: false, suggestion: null};
-    }, addWeightsSuggestion: function (username, className, teacherName, hasWeights, weights) {
+    }, 
+    
+    addWeightsSuggestion: function (username, term, semester, className, teacherName, hasWeights, weights) {
         let lc_username = username.toLowerCase();
         let classDb = db.get("classes");
 
@@ -704,27 +727,26 @@ module.exports = {
         for (let i = 0; i < Object.keys(weights).length; i++) {
             modWeights[Object.keys(weights)[i]] = isNaN(parseFloat(Object.values(weights)[i])) ? null : parseFloat(Object.values(weights)[i]);
         }
-
+        // console.log(classDb.get(term).get(semester).get(className).get(teacherName).get("suggestions").value());
         //delete any old suggestions for user
-        deleteUserSuggestion(lc_username, className, teacherName);
-
-        let suggestionIndex = getSuggestionIndex(className, teacherName, {
+        deleteUserSuggestion(lc_username, term, semester, className, teacherName);
+        let suggestionIndex = getSuggestionIndex(term, semester, className, teacherName, {
             "weights": modWeights, "hasWeights": hasWeights
         });
         if (suggestionIndex != -1) {
             //Add username to existing suggestion
-            classDb.get(className).get(teacherName).get("suggestions").nth(suggestionIndex).get("usernames").push(lc_username).write();
+            classDb.get(term).get(semester).get(className).get(teacherName).get("suggestions").nth(suggestionIndex).get("usernames").push(lc_username).write();
         } else {
             //Add suggestion if doesn't already exist
-            let classWeights = classDb.get(className).get(teacherName).get("weights").value();
-            let classHasWeights = classDb.get(className).get(teacherName).get("hasWeights").value();
+            let classWeights = classDb.get(term).get(semester).get(className).get(teacherName).get("weights").value();
+            let classHasWeights = classDb.get(term).get(semester).get(className).get(teacherName).get("hasWeights").value();
             //Test if same as class weights
             if (!compareWeights({"weights": classWeights, "hasWeights": classHasWeights}, {
                 "weights": modWeights, "hasWeights": hasWeights
             })) {
                 //Test if all weights are null
                 if (!Object.values(modWeights).every(x => x === null) || hasWeights == "false") {
-                    classDb.get(className).get(teacherName).get("suggestions").push({
+                    classDb.get(term).get(semester).get(className).get(teacherName).get("suggestions").push({
                                                                                         "usernames": [lc_username],
                                                                                         "weights": modWeights,
                                                                                         "hasWeights": hasWeights
@@ -732,18 +754,23 @@ module.exports = {
                 }
             }
         }
-    }, updateClassTypeInClassDb: function (className, classType) {
+        // console.log(classDb.get(term).get(semester).get(className).get(teacherName).get("suggestions").value());
+    }, 
+    
+    updateClassTypeInClassDb: function (term, semester, className, classType) {
         let classDb = db.get("classes");
-        classDb.get(className).set("classType", classType).write();
+        classDb.get(term).get(semester).get(className).set("classType", classType).write();
         return {success: true, message: "Set class type of " + className + " to " + classType};
-    }, updateUCCSUClassTypeInClassDb: function (className, classType) {
+    }, 
+    
+    updateUCCSUClassTypeInClassDb: function (term, semester, className, classType) {
         let classDb = db.get("classes");
-        classDb.get(className).set("uc_csuClassType", classType).write();
+        classDb.get(term).get(semester).get(className).set("uc_csuClassType", classType).write();
         return {success: true, message: "Set uc class type of " + className + " to " + classType};
-    }
+    },
 
-    //Need to add Try Catches to error check when updating db values
-    , addNewUser: function (username, password, schoolUsername, isAdmin, beta = false) {
+    //Need to add Try Catches to error check when updating db values    
+    addNewUser: function (username, password, schoolUsername, isAdmin, beta = false) {
 
         let lc_username = username.toLowerCase();
         return new Promise((resolve, reject) => {
@@ -1125,37 +1152,50 @@ module.exports = {
         };
     },
 
-    addDbClass: function (className, teacherName) {
-        let classesRef = db.get("classes");
+    addDbClass: function (term, semester, className, teacherName) {
+        let classesSemesterRef = db.get("classes").get(term).get(semester);
         let modClassName = "[\"" + className + "\"]";
 
-        if (!Object.keys(classesRef.value()).includes(className)) {
+        if (!Object.keys(classesSemesterRef.value()).includes(className)) {
             // Update classes from catalog
             let catalogClass = catalog.find({class_name: className}).value();
-            classesRef.set(modClassName, {}).write();
+            classesSemesterRef.set(modClassName, {}).write();
             if (catalogClass) {
-                classesRef.get(modClassName).set("department", catalogClass.department).write();
-                classesRef.get(modClassName).set("grade_levels", catalogClass.grade_levels).write();
-                classesRef.get(modClassName).set("credits", catalogClass.credits).write();
-                classesRef.get(modClassName).set("terms", catalogClass.terms).write();
-                classesRef.get(modClassName).set("description", catalogClass.description).write();
-                classesRef.get(modClassName).set("uc_csuClassType", catalogClass.uc_csuClassType).write();
-                classesRef.get(modClassName).set("classType", catalogClass.classType).write();
+                classesSemesterRef.get(modClassName).set("department", catalogClass.department).write();
+                classesSemesterRef.get(modClassName).set("grade_levels", catalogClass.grade_levels).write();
+                classesSemesterRef.get(modClassName).set("credits", catalogClass.credits).write();
+                classesSemesterRef.get(modClassName).set("terms", catalogClass.terms).write();
+                classesSemesterRef.get(modClassName).set("description", catalogClass.description).write();
+                classesSemesterRef.get(modClassName).set("uc_csuClassType", catalogClass.uc_csuClassType).write();
+                classesSemesterRef.get(modClassName).set("classType", catalogClass.classType).write();
             } else {
-                classesRef.get(className).set("department", "").write();
-                classesRef.get(className).set("credits", "").write();
-                classesRef.get(className).set("terms", "").write();
-                classesRef.get(className).set("description", "").write();
-                classesRef.get(className).set("uc_csuClassType", "").write();
-                classesRef.get(className).set("classType", "").write();
+                classesSemesterRef.get(modClassName).set("department", "").write();
+                classesSemesterRef.get(modClassName).set("credits", "").write();
+                classesSemesterRef.get(modClassName).set("terms", "").write();
+                classesSemesterRef.get(modClassName).set("description", "").write();
+                classesSemesterRef.get(modClassName).set("uc_csuClassType", "").write();
+                classesSemesterRef.get(modClassName).set("classType", "").write();
             }
         }
         if (!teacherName) {
             return;
         }
-        classesRef.get(modClassName).set(teacherName, {
+        classesSemesterRef.get(modClassName).set(teacherName, {
             weights: {}, hasWeights: null, suggestions: [], assignments: {}, overall_grades: []
         }).write();
+    },
+
+    addDbTerm: function (term, semester){
+        let classesRef = db.get("classes");
+        if (!classesRef.has(term).value()){
+            classesRef.set(term,{[semester]:{}}).write();
+        } else if (classesRef.get(term).has("S1").value() && semester == "S2") {
+            classesRef.get(term).set(semester,classesRef.get(term).get("S1").value()).write();
+        } else if (classesRef.get(term).has("S2").value() && semester == "S1") {
+            classesRef.get(term).set(semester,classesRef.get(term).get("S2").value()).write();
+        } else {
+            classesRef.get(term).set(semester,{}).write();
+        }``
     },
 
     setColorPalette: function (username, preset, shuffle) {
@@ -1274,17 +1314,18 @@ module.exports = {
             teacherName = clsRef.value().teacher_name;
 
             if (addSuggestion && teacherName) {
-                this.addWeightsSuggestion(username, className, teacherName, hasWeights, weights);
+                this.addWeightsSuggestion(term, semester, username, className, teacherName, hasWeights, weights);
+                console.log("ran");
             }
         }
 
         if (custom == null) {
-            if (teacherName != null && dbContainsClass(className, teacherName)) {
+            if (teacherName != null && dbContainsClass(term, semester, className, teacherName)) {
                 custom = isCustom({
                                       "weights": weights, "hasWeights": hasWeights
                                   }, {
-                                      "weights": classes[className][teacherName]["weights"],
-                                      "hasWeights": classes[className][teacherName]["hasWeights"]
+                                      "weights": classes[term][semester][className][teacherName]["weights"],
+                                      "hasWeights": classes[term][semester][className][teacherName]["hasWeights"]
                                   });
             } else {
                 custom = true;
@@ -1813,36 +1854,48 @@ function containsClass(obj, list) {
     return false;
 }
 
-function dbContainsClass(class_name, teacher_name) {
-    let classes = db.get("classes").value();
-    return classes[class_name] && classes[class_name][teacher_name];
-
+function dbContainsClass(term, semester, class_name, teacher_name) {
+    if (dbContainsTerm(term, semester)) {
+        let classes = db.get("classes").value();
+        if (classes[term][semester][class_name] && classes[term][semester][class_name][teacher_name]) {
+            return true;
+        }
+    }
+    return false;
 }
 
-function getSuggestionIndex(class_name, teacher_name, weight) {
+function dbContainsTerm(term, semester) {
+    let classes = db.get("classes").value();
+    if (classes[term] && classes[term][semester]) {
+            return true;
+    }   
+    return false;
+}
+
+function getSuggestionIndex(term, semester, class_name, teacher_name, weight) {
     // Returns index if suggestion with same weight found, else returns -1
     let classes = db.get("classes").value();
-    for (let i = 0; i < classes[class_name][teacher_name]["suggestions"].length; i++) {
-        if (compareWeights(weight, classes[class_name][teacher_name]["suggestions"][i])) {
+    for (let i = 0; i < classes[term][semester][class_name][teacher_name]["suggestions"].length; i++) {
+        if (compareWeights(weight, classes[term][semester][class_name][teacher_name]["suggestions"][i])) {
             return i;
         }
     }
     return -1;
 }
 
-function deleteUserSuggestion(username, class_name, teacher_name) {
+function deleteUserSuggestion(username, term, semester, class_name, teacher_name) {
     let lc_username = username.toLowerCase();
     let classes = db.get("classes").value();
     let classRef = db.get("classes");
-    for (let i = 0; i < classes[class_name][teacher_name]["suggestions"].length; i++) {
-        let usernames = classes[class_name][teacher_name]["suggestions"][i].usernames;
+    for (let i = 0; i < classes[term][semester][class_name][teacher_name]["suggestions"].length; i++) {
+        let usernames = classes[term][semester][class_name][teacher_name]["suggestions"][i].usernames;
         //remove user from list of usernames
         if (usernames.includes(lc_username)) {
-            classRef.get(class_name).get(teacher_name).get("suggestions").nth(i).get("usernames").pull(lc_username).write();
-        }
-        //remove suggestions if no other users suggested it
-        if (usernames.length < 1) {
-            classRef.get(class_name).get(teacher_name).get("suggestions").pullAt(i).write();
+            classRef.get(term).get(semester).get(class_name).get(teacher_name).get("suggestions").nth(i).get("usernames").pull(lc_username).write();
+            //remove suggestions if no other users suggested it
+            if (usernames.length <= 1) {
+                classRef.get(term).get(semester).get(class_name).get(teacher_name).get("suggestions").pullAt(i).write();
+            }
         }
     }
 }

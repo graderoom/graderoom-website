@@ -113,25 +113,16 @@
             <% if (JSON.parse(betaFeatures).showTermSwitcher) { %>
                 <div id="termSwitcher" class="blur">
                     <% for (let i = 0; i < JSON.parse(termsAndSemesters).length; i++) { %>
-                        <div id="<%= JSON.parse(termsAndSemesters)[i][0]; %>"><%= JSON.parse(termsAndSemesters)[i][0]; %>
+                        <div id="<%= JSON.parse(termsAndSemesters)[i][0]; %>" <% if (term===JSON.parse(termsAndSemesters)[i][0]) { %> class="active" <% } %>>
+                            <%= JSON.parse(termsAndSemesters)[i][0]; %>
                             <% for (let j = 0; j < JSON.parse(termsAndSemesters)[i][1].length; j++) { %>
                                 <div onclick="window.location.href='/' + (window.location.href.indexOf('usernameToRender') === -1 ? '?' : 'viewuser?' + window.location.href.slice(window.location.href.indexOf('usernameToRender'),window.location.href.indexOf('&') === -1 ? undefined : window.location.href.indexOf('&')) + '&') + 'term=<%= JSON.parse(termsAndSemesters)[i][0]; %>&semester=<%= JSON.parse(termsAndSemesters)[i][1][j]; %>'"
-                                     id="<%= JSON.parse(termsAndSemesters)[i][0]; %><%= JSON.parse(termsAndSemesters)[i][1][j]; %>"><%= JSON.parse(termsAndSemesters)[i][1][j] %></div>
+                                    id="<%= JSON.parse(termsAndSemesters)[i][0]; %><%= JSON.parse(termsAndSemesters)[i][1][j]; %>"
+                                    <% if (term===JSON.parse(termsAndSemesters)[i][0] && semester===JSON.parse(termsAndSemesters)[i][1][j]) { %> class="active" <% } %>>
+                                    <%= JSON.parse(termsAndSemesters)[i][1][j] %>
+                                </div>
                             <% } %>
                         </div>
-                        <script>
-                            props = window.location.href.includes("?") ? Object.fromEntries(window.location.href.split("?")[1].split("&").map(prop => prop.split("="))) : {};
-                            if ("term" in props && "semester" in props) {
-                                $("#" + props["term"]).addClass("active");
-                                $("#" + props["term"] + props["semester"]).addClass("active");
-                                $("#recentChangesNavBtn").hide();
-                                oldSemester = true;
-                            } else {
-                                let termsAndSemesters = <%- termsAndSemesters %>;
-                                $("#" + termsAndSemesters.slice(-1)[0][0]).addClass("active");
-                                $("#" + termsAndSemesters.slice(-1)[0][0] + termsAndSemesters.slice(-1)[0][1].slice(-1)[0]).addClass("active");
-                            }
-                        </script>
                     <% } %>
                 </div>
             <% } %>
