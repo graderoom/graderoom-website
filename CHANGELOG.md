@@ -52,7 +52,7 @@
 ### Improved
 - If a page refresh is necessary to display updated grades, the sync log now displays after the refresh is complete
 - Weight verification is now based on more accurate logic
-- Cumulative GPAs now includes current semester
+- Cumulative GPAs now include current semester
 - Styling and helpfulness of error messages
 
 ### Fixed
