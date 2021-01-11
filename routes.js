@@ -37,7 +37,7 @@ module.exports = function (app, passport) {
                 gradeHistoryLetters[t] = {};
                 for (let j = 0; j < Object.keys(req.user.grades[t]).length; j++) {
                     let s = Object.keys(req.user.grades[t])[j];
-                    if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) >= semester.substring(1))) {
+                    if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) > semester.substring(1))) {
                         continue;
                     }
                     gradeHistoryLetters[t][s] = [];
@@ -169,7 +169,7 @@ module.exports = function (app, passport) {
                 gradeHistoryLetters[t] = {};
                 for (let j = 0; j < Object.keys(user.grades[t]).length; j++) {
                     let s = Object.keys(user.grades[t])[j];
-                    if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) >= semester.substring(1))) {
+                    if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) > semester.substring(1))) {
                         continue;
                     }
                     gradeHistoryLetters[t][s] = [];
@@ -763,9 +763,8 @@ module.exports = function (app, passport) {
     });
 
     app.get("/classes", [isAdmin], (req, res) => {
-        let user = authenticator.getUser(req.user.username);
         let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
-        
+
         let {term, semester} = authenticator.getClassesMostRecentTermData();
         if (req.query.term && req.query.semester) {
             if ((term === req.query.term && semester === req.query.semester) || !req.user.betaFeatures.active || !authenticator.semesterExists(req.user.username, req.query.term, req.query.semester)) {

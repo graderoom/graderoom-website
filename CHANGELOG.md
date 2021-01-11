@@ -42,9 +42,26 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 4.3.0] - 2021-01-11
+### Added
+- <span class="changelog-inline-setoff">GPA Details display</span>
+- Currently, this display only displays details about the Semester GPA
+- In the next major update, the display will be expanded to show both the Cumulative and UC/CSU GPA calculations to help with troubleshooting issues
+- If you notice an error, please report it in <span class="changelog-inline-setoff">More > Send Feedback</span> and your issue will promptly be resolved
+
+### Improved
+- If a page refresh is necessary to display updated grades, the sync log now displays after the refresh is complete
+- Weight verification is now based on more accurate logic
+- Cumulative GPAs now includes current semester
+- Styling and helpfulness of error messages
+
+### Fixed
+- An issue where reverting to verified weights didn't remove the revert button in all cases
+
 ## [Beta 4.2.2] - 2021-01-10
 ### Improved
 - Scores in class tables now populate instantly
+- Updated some old changelog versions with the new UI
 
 ### Fixed
 - Issue with UC/CSU GPA calculation

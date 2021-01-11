@@ -1,0 +1,191 @@
+<!-- Transcript Card -->
+<div class="blurred-login" id="gpaDetailsCardDisplay">
+    <div class="blurred-background"></div>
+    <div class="col-sm-11 col-md-10 col-lg-9 col-xl-8 mx-auto">
+        <div id="gpaDetailsCard" class="card card-signin my-5">
+            <btn class="btn btn-md"
+                 onclick="closeForm('gpaDetailsCardDisplay')"
+                 style="width: fit-content; width: -moz-fit-content; margin-bottom:0">
+                <i class="fa fa-close" aria-hidden="true"></i> Close
+            </btn>
+            <div class="card-body" style="padding: 2rem">
+                <h1 class="card-title text-center changelog-title">
+                    <span class="fa fa-list"></span> GPA Details
+                </h1>
+                <div id="gpa-details-container">
+                    <div class="card-footer" style="display: none">
+                        <h3>Semester GPA</h3>
+                        <p>Your semester GPA is calculated using your courses from the current
+                            semester: <%= term; %> <%= semester; %></p>
+                        <p>First, we determine the weighting of each course: AP, Honors, Regular, or Non-Academic.
+                            A letter grade beginning with A will earn you 4 GPA points, a B 3 points, a C 2 points, a D
+                            1 point, and an F 0 points.
+                            Honors and AP courses will earn a bonus GPA point. Non-Academic courses will not be counted
+                            towards your GPA.
+                        </p>
+                        <p>Next, we determine the number of credits earned by completing each course. Most courses you
+                            take will be worth 5.0 credits, but some courses may be worth fewer credits.
+                            A larger number of credits means that the course has a greater impact on your GPA, and vice
+                            versa.
+                        </p>
+                        <p>We multiply each GPA point with the number of credits earned in the course, getting the
+                            number of "credit points" in the course. We add up these numbers for all the courses taken
+                            and get a value of "total credit points".
+                        </p>
+                        <p>Finally, we divide the "total credit points" by the total number of credits in all courses to
+                            get the GPA.
+                        </p>
+                        <div id="semesterGpaDetails" class="gpa-details">
+                            <table class="gpa-details-table">
+                                <tr class="gpa-details-table-header">
+                                    <th>Course</th>
+                                    <th>Course Type</th>
+                                    <th>Grade Earned</th>
+                                    <th>GPA Points</th>
+                                    <th colspan="2"><b>×</b></th>
+                                    <th>Credits</th>
+                                    <th colspan="2"><b>=</b></th>
+                                    <th>Credit Points</th>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer" style="display: none">
+                        <h3>Cumulative GPA</h3>
+
+                        <div id="cumulativeGpaDetails" class="gpa-details">
+                            <table class="gpa-details-table">
+                                <tr class="gpa-details-table-header">
+                                    <th>Course</th>
+                                    <th>Course Type</th>
+                                    <th>Grade Earned</th>
+                                    <th>GPA Points</th>
+                                    <th colspan="2"><b>×</b></th>
+                                    <th>Credits</th>
+                                    <th colspan="2"><b>=</b></th>
+                                    <th>Credit Points</th>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer" style="display: none">
+                        <h3>UC/CSU GPA</h3>
+                        <div id="uc_csuGpaDetails" class="gpa-details">
+                            <table class="gpa-details-table">
+                                <tr class="gpa-details-table-header">
+                                    <th>Course</th>
+                                    <th>Course Type</th>
+                                    <th>Grade Earned</th>
+                                    <th>GPA Points</th>
+                                    <th colspan="2"><b>×</b></th>
+                                    <th>Credits</th>
+                                    <th colspan="2"><b>=</b></th>
+                                    <th>Credit Points</th>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let sections = $("#gpaDetailsCard .card-footer");
+
+    function setupGpaDetails(setup = false, show = true) {
+        if (setup) {
+            setupSemesterGpaDetails();
+        }
+        if (show) {
+            showCard('#gpaDetailsCardDisplay');
+        }
+    }
+
+    function setupSemesterGpaDetails() {
+        // Semester GPA
+        // Get table
+        let semesterGpaDetailsTable = $('#semesterGpaDetails table');
+
+        // Remove all rows except the header row
+        semesterGpaDetailsTable.find('tr:not(.gpa-details-table-header)').remove();
+
+        // Keep track of total points
+        let totalCredits = 0;
+        let totalCreditPoints = 0;
+
+        // Now add the rows
+        for (let i = 0; i < _data.length; i++) {
+            let class_name = _data[i].class_name;
+            let class_type = relClassData[class_name].classType;
+            let addHonors = 0;
+
+            switch (class_type) {
+                case "ap":
+                    class_type = "AP";
+                    addHonors = 1;
+                    break;
+                case "honors":
+                    class_type = "Honors";
+                    addHonors = 1;
+                    break;
+                case "none":
+                    class_type = "Regular";
+                    break;
+                case "non-academic":
+                    class_type = "Non-Academic";
+                    break;
+                default:
+                    class_type = "?";
+                    break;
+            }
+
+            let letter_grade = _data[i].overall_letter;
+            let gpaPoints = getGPA(letter_grade) + addHonors;
+            let credits = relClassData[class_name].credits;
+            let terms = relClassData[class_name].terms;
+
+            let creditPoints;
+
+            if (credits && terms) {
+                credits = credits / terms;
+                totalCredits += credits;
+                credits = credits.toFixed(2)
+                creditPoints = gpaPoints * credits;
+                totalCreditPoints += creditPoints;
+                creditPoints = creditPoints.toFixed(2)
+            } else {
+                totalCredits += 5;
+                totalCreditPoints += gpaPoints * 5;
+                credits = "5.00?";
+                creditPoints = (gpaPoints * 5).toFixed(2) + "?";
+            }
+
+            creditPoints = `<td>` + gpaPoints.toFixed(1) + `</td><td colspan="2"><b>×</b></td><td>` + credits + `</td><td colspan="2"><b>=</b></td><td><b>` + creditPoints + `</b></td>`;
+
+            // Create and add row
+            let row = $(`<tr><td>` + class_name + `</td><td>` + class_type + `</td><td>` + letter_grade + `</td>` + creditPoints + `</tr>`);
+            semesterGpaDetailsTable.append(row);
+        }
+
+        // Create footers
+        let quotient = (totalCreditPoints / totalCredits).toFixed(3);
+        totalCreditPoints = totalCreditPoints.toFixed(2);
+        totalCredits = totalCredits.toFixed(2);
+
+        let totals = $(`<tr><th colspan="5">TOTALS</th><th colspan="3">` + totalCredits + ` <small>CREDITS</small></th><th colspan="2">` + totalCreditPoints + ` <small style="white-space: nowrap">CREDIT PTS</small></th></tr>`)
+        semesterGpaDetailsTable.append(totals);
+
+        let final = $(`<tr><th colspan="5">GPA Calculation (Total Credit Points ÷ Total Credits)</th><th>` + totalCreditPoints + `</th><th>÷</th><th>` + totalCredits + `</th><th>=</th><th>` + quotient + `</th></tr>`)
+        semesterGpaDetailsTable.append(final);
+
+
+        // Show the section
+        $(sections[0]).show();
+    }
+
+    function setupCumulativeGpaDetails() {
+       // $(sections[1]).show();
+    }
+</script>

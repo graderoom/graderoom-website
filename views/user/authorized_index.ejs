@@ -205,6 +205,7 @@
                                     <% } %>
                                 </h5>
                             </div>
+                            <button class="btn btn-med" id="gpaDetailsBtn" onclick="setupGpaDetails()"><i class="fa fa-list"></i> View Details</button>
                         </div>
                         <div id="chart-container-1" class="chart chart-container text-center">
                             <button id="reset-zoom-1"
@@ -309,12 +310,20 @@
                                     <span>BCP <%= classType %> course</span><br>
                                 <% } %>
                                 <span><%= uc_classType %> course</span><br>
-                                <span id="verified<%= i %>">Weights
-                                    <% let custom = JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].custom; %>
-                                    <% if (custom) { %>Unverified
+                                <span id="verified<%= i %>" class="popup">Weights
+                                    <% let unverified = JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].hasWeights === null || (JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].hasWeights === "true" && Object.values(JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].weights).filter(w => w === null).length !== 0); %>
+                                    <% if (unverified) { %>Unverified
                                     <% } else { %>Verified
                                     <% } %>
-                                    <i class="fa fa-<% if (custom) { %>exclamation-circle<% } else { %>check-circle<% } %>"></i>
+                                    <i class="fa fa-<% if (unverified) { %>exclamation-circle<% } else { %>check-circle<% } %>">
+                                        <span class="popup-right">
+                                            <% if (unverified) { %>
+                                            Send feedback to verify weights<br><small>More > Send Feedback</small>
+                                            <% } else { %>
+                                            Weights for this course have been verified by an admin
+                                            <% } %>
+                                        </span>
+                                    </i>
                                 </span>
                             </span>
                             <span style="text-align: right">
@@ -366,7 +375,7 @@
                                                                 class="fa fa-undo"
                                                                 onclick="resetWeights(<%= i + offset; %>); $('#weights<%= i + offset; %>').submit();">
                                                             <span class="popup-top">Revert
-                                                                to Crowdsourced Default</span>
+                                                                to Verified Weights</span>
                                                         </i>
                                                     </span>
                                                     <span class="popup">
@@ -430,7 +439,7 @@
                                                 <th colspan="4">
                                                     <span class="popup">
                                                         <i id="incorrectOverallGrade<%= i + offset; %>"
-                                                           class="fa fa-exclamation-circle"
+                                                           class="fa fa-exclamation-triangle"
                                                            style="margin-left: 0.2rem; vertical-align: middle">
                                                             <span class="popup-left-bottom always-show">
                                                             </span>
@@ -805,6 +814,7 @@
                 setupWeightsTableListeners();
                 setupInputListeners();
                 setupAddAssignments();
+                setupGpaDetails(true, false);
             }
             $("#termSwitcher").addClass("hover");
             setTimeout(() => $("#termSwitcher").removeClass("hover"), 2000);
@@ -996,6 +1006,7 @@
                                     clearInterval(checking);
                                     if (cardsDisplayed.length === 0 || cardsDisplayed[cardsDisplayed.length - 1] === "updateGradesDisplay") {
                                         $(".updateGradesMessage").find(".messageTxt").text("Refreshing...");
+                                        sessionStorage.setItem("showSyncLog", "true");
                                         setTimeout(() => window.reload(), 400);
                                     } else {
                                         $(".updateGradesMessage").find(".messageTxt").css("cursor", "pointer").text("Click here to refresh").click(function (e) {
@@ -1013,6 +1024,10 @@
                                 clearInterval(checking);
                                 showLatest(false);
                                 setupLastUpdated();
+                                if (sessionStorage.getItem("showSyncLog") === "true") {
+                                    setupGradeChanges(true, true);
+                                    sessionStorage.removeItem("showSyncLog");
+                                }
                             } else if (message.message === "Did not sync") {
                                 $(".updateGradesMessage").find(".messageTxt").text("Syncing...");
                                 $(".fa-refresh").addClass("fa-spin").css("opacity", 0.5);
@@ -1067,13 +1082,13 @@
                 for (let i = 0; i < _data.length; i++) {
                     if (classIndex === undefined || classIndex === i) {
                         if (alerts.lastUpdated.slice(-1)[0].ps_locked) {
-                            $("#incorrectOverallGrade" + i + " span").html(`Send feedback to verify weights<br><small>More > Send Feedback</small>`);
-                            $("#incorrectOverviewGrade" + i + " span").html(`PowerSchool is locked`);
+                            $("#incorrectOverallGrade" + i + " span").html(`PowerSchool is locked. Calculated grade may be inaccurate.`);
+                            $("#incorrectOverviewGrade" + i + " span").html(`PowerSchool is locked. Calculated grade may be inaccurate.`);
                         } else {
                             $("#incorrectOverallGrade" + i + " span").html(`Grade in PowerSchool: <nobr>` + _data[i].overall_percent + `% (` + _data[i].overall_letter + `)</nobr>`);
-                            $("#incorrectOverviewGrade" + i + " span").html(`Does not match calculated grade`);
+                            $("#incorrectOverviewGrade" + i + " span").html(`Does not match calculated grade. Incorrect weights.`);
                         }
-                        if (!correctCalc(i)) {
+                        if (!correctCalc(i) || alerts.lastUpdated.slice(-1)[0].ps_locked) {
                             $("#incorrectOverviewGrade" + i).css("display", "inline-block");
                             $("#incorrectOverallGrade" + i).css("display", "inline-block");
                         } else {
@@ -1093,7 +1108,7 @@
                 if (correctDecimalPlaces == realOverallGrade && calculatedOverallLetter === realOverallLetter) {
                     return true;
                 }
-                return !weights[data[classIndex].class_name].custom;
+                return alerts.lastUpdated.slice(-1)[0].ps_locked && (relClassData[data[classIndex].class_name].hasWeights === "false" || Object.values(relClassData[data[classIndex].class_name].weights).filter(w => w !== null).length !== 0);
             }
 
             function countDecimals(value) {
@@ -1438,13 +1453,11 @@
                         let enableReset = weights[className]["custom"];
                         //if custom and both haveWeights, enable reset only if db had diff value to give to user's weights
                         //stop reset from showing if custom is due to user having more categories than classes db
-                        if (enableReset && relClassData[className]["hasWeights"] !== "false") {
+                        if (enableReset && relClassData[className]["hasWeights"] === "true") {
                             enableReset = false;
                             let keys = Object.keys(weights[className]["weights"]);
                             for (let i = 0; i < keys.length; i++) {
-                                if (weights[className]["hasWeights"] === "false" && keys[i] in relClassData[className]["weights"]) {
-                                    enableReset = true;
-                                } else if (relClassData[className]["weights"] && (keys[i] in relClassData[className]["weights"]) && weights[className]["weights"][keys[i]] != relClassData[className]["weights"][keys[i]]) {
+                                if (relClassData[className]["weights"] && (keys[i] in relClassData[className]["weights"]) && weights[className]["weights"][keys[i]] != relClassData[className]["weights"][keys[i]]) {
                                     enableReset = true;
                                 }
                             }
@@ -1525,10 +1538,10 @@
                 offset = offset || 0;
                 min = min || 0;
                 max = max || Infinity;
-                
+
                 if (elements.length<1)
                     return;
-                    
+
                 // Add element to measure pixel length of text
                 let tag = $("<span> </span>").css({"display": "none",
                                                     "font-family": $(elements[0]).css("font-family"),
@@ -1540,7 +1553,7 @@
 
                     function update() {
                             tag.text(element.val());
-                            
+
                             // Clamp length and prevent text from scrolling
                             let size = Math.max(min, Math.min(max, tag.width() + offset));
                             if (size < max) {
@@ -1548,7 +1561,7 @@
                             }
 
                             // Apply width to element
-                            element.width(size);     
+                            element.width(size);
                     }
 
                     update();
@@ -2223,7 +2236,7 @@
                         $("#addAssignmentForm" + i + " input").val("").trigger("input").trigger("blur");
                     });
                 }
-                
+
                 //Adjust widths
                 adjust($(".addAssignmentName input"), 0, remToPixels(8), remToPixels(12));
                 adjust($(".addAssignmentScore input"), 0, remToPixels(2), remToPixels(4));
@@ -2680,7 +2693,7 @@
             function setupOverviewTable(changedClassIndex) {
                 for (let i = 0; i < parsedData.length; i++) {
                     if (changedClassIndex === undefined || changedClassIndex === i) {
-                        let [overallGrade, overallLetter] = (correctCalc(i) || alerts.lastUpdated.slice(-1)[0].ps_locked) ? [getOverallGrade(i), getLetterGrade(getOverallGrade(i))] : [_data[i].overall_percent, _data[i].overall_letter];
+                        let [overallGrade, overallLetter] = (correctCalc(i)) ? [getOverallGrade(i), getLetterGrade(getOverallGrade(i))] : [_data[i].overall_percent, _data[i].overall_letter];
                         let assignmentData = parsedData[i].rawData;
                         let lastIndex = assignmentData.length - 1;
                         let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(2);
@@ -3329,7 +3342,7 @@
                                         if (tooltipItems[0].index >= chartData[id].mixedData.length) {
                                             return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + _data[id].overall_percent + "% (" + _data[id].overall_letter + ")";
                                         }
-                                        return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " N/A [Inaccurate weights]";
+                                        return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " N/A [Unverified weights]";
                                     }
                                     return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + tooltipItems[0].value + "% (" + getLetterGrade(tooltipItems[0].value) + ")";
                                 }, label: function (tooltipItem) {
@@ -3585,7 +3598,7 @@
 
                             let weightData = $(form).serializeArray();
                             let weightURI = {};
-                            jQuery.map(weightData, function (n, i) {
+                            jQuery.map(weightData, function (n) {
                                 if (n.name !== "hasWeights") {
                                     weightURI[n.name] = isNaN(parseFloat(n.value)) ? null : parseFloat(n.value);
                                 }
@@ -3595,7 +3608,7 @@
                             }
                             let formData = {
                                 "className": className,
-                                "hasWeights": hasWeights,
+                                "hasWeights": JSON.stringify(hasWeights),
                                 "newWeights": JSON.stringify(weightURI)
                             };
 

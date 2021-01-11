@@ -43,11 +43,11 @@ nav .btn:hover {
 }
 
 td {
-    border-color: #333333 !important;
+    border-color: #333333;
 }
 
 th {
-    border-color: #333333 !important;
+    border-color: #333333;
 }
 
 ::placeholder {
@@ -511,6 +511,11 @@ tr:hover .toolTab {
 #classLinks {
     box-shadow: 0 0 10px 2px #333333;
 }
+
+.gpa-details-table th, .gpa-details-table td, .gpa-details-table, .gpa-details-table tr {
+    border: 1px solid #888888;
+}
+
 /* Mobile Stuff */
 @media only screen and (max-width: 991px) {
     #table-1 table {

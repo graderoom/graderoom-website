@@ -184,7 +184,7 @@ module.exports = {
         let classRef = db.get("classes");
         let classes = db.get("classes").value();
 
-        if (!('version' in classes)) {
+        if (!("version" in classes)) {
             classRef.set("version", 0).write();
         }
         let version = classRef.get("version").value();
@@ -253,7 +253,7 @@ module.exports = {
         }
         //Clear classes to migrate to semester system
         if (version === 1) {
-            db.set("classes",{}).write();
+            db.set("classes", {}).write();
             // Update class db version
             classRef.set("version", 2).write();
         }
@@ -262,7 +262,7 @@ module.exports = {
         for (let i = 0; i < users.length; i++) {
             console.log("" + Date.now() + " | Updating User: " + (i + 1) + " of " + users.length);
             this.updateDB(users[i].username);
-        }    
+        }
 
         let endTime = Date.now();
         console.log("" + endTime + " | Database Updated in " + (endTime - startTime) + "ms");
@@ -278,7 +278,7 @@ module.exports = {
         let user = userRef.value();
 
         // Add db versioning
-        if (!('version' in user)) {
+        if (!("version" in user)) {
             userRef.set("version", 0).write();
         }
         let version = userRef.get("version").value();
@@ -289,11 +289,14 @@ module.exports = {
 
             // Update change data with ps_locked
             let lastUpdateds = userRef.get("alerts").get("lastUpdated").value();
-            for (let i = 0; i < lastUpdated.length; i++) {
-                if ('ps_locked' in lastUpdated[i]) continue;
+            for (let i = 0; i < lastUpdateds.length; i++) {
+                if ("ps_locked" in lastUpdateds[i]) {
+                    continue;
+                }
                 // This is really sketch but it should work
                 let cutoff = new Date(2020, 11, 18).getTime(); // Dec 18, 2020 is when grades locked in 2020
-                lastUpdateds[i].ps_locked = lastUpdateds[i].timestamp >= cutoff; // Hopefully pushed before grades unlocked
+                lastUpdateds[i].ps_locked = lastUpdateds[i].timestamp >= cutoff; // Hopefully pushed before grades
+                                                                                 // unlocked
             }
 
             if (!Array.isArray(userRef.get("updatedGradeHistory").value())) {
@@ -482,10 +485,13 @@ module.exports = {
                 let cutoff = new Date(2020, 11, 18).getTime(); // Dec 18, 2020 is when grades locked in 2020
                 lastUpdated[i].ps_locked = lastUpdated[i].timestamp >= cutoff;
                 let changeData = lastUpdated[i].changeData;
-                if (!('overall' in changeData)) continue; // Skip these too
+                if (!("overall" in changeData)) {
+                    continue;
+                } // Skip these too
                 let bad_version = Object.values(changeData.overall).filter(o => o.ps_locked === true || Object.keys(o).length === 0).length !== 0;
                 if (bad_version) {
-                    lastUpdatedRef.nth(i).get("changeData").set("overall", {}).write(); // Deletes ps_locked from wrong place
+                    lastUpdatedRef.nth(i).get("changeData").set("overall", {}).write(); // Deletes ps_locked from wrong
+                                                                                        // place
                 }
             }
 
@@ -519,7 +525,7 @@ module.exports = {
                     continue;
                 }
                 for (let i = 0; i < user.grades[_term][_semester].length; i++) {
-                    console.log("" + Date.now() + " | Bringing class up to date: " + (i + 1) + " of " + user.grades[_term][_semester].length);
+                    console.log("" + Date.now() + " | Bringing class up to date: " + (i + 1) + " of " + user.grades[_term][_semester].length + " in " + term + " " + semester);
                     let className = user.grades[_term][_semester][i].class_name;
                     let teacherName = user.grades[_term][_semester][i].teacher_name;
 
@@ -634,7 +640,7 @@ module.exports = {
                 userRef.get("grades").get(t).get(s).value().forEach(classRef => userClasses.push([t, s, classRef.class_name, classRef.teacher_name]));
             }
         }
-        
+
         let classes = db.get("classes").value();
         let relClasses = {};
         for (let i = 0; i < userClasses.length; i++) {
@@ -643,15 +649,17 @@ module.exports = {
                 relClasses[userClasses[i][2]] = {
                     "department": classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]]["department"],
                     "classType": classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]]["classType"],
-                    "uc_csuClassType":  classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]]["uc_csuClassType"],
+                    "uc_csuClassType": classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]]["uc_csuClassType"],
                     "weights": userClasses[i][3] ? classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]][userClasses[i][3]]["weights"] : null,
-                    "hasWeights": userClasses[i][3] ? classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]][userClasses[i][3]]["hasWeights"] : null
+                    "hasWeights": userClasses[i][3] ? classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]][userClasses[i][3]]["hasWeights"] : null,
+                    "credits": classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]]["credits"],
+                    "terms": classes[userClasses[i][0]][userClasses[i][1]][userClasses[i][2]]["terms"]
                 };
             }
         }
         return relClasses;
-    }, 
-    
+    },
+
     updateWeightsInClassDb: function (term, semester, className, teacherName, hasWeights, weights) {
         let classDb = db.get("classes");
         if (weights || hasWeights === "false") {
@@ -667,7 +675,9 @@ module.exports = {
             for (let i = 0; i < Object.keys(weights).length; i++) {
                 modWeights[Object.keys(weights)[i]] = parseFloat(Object.values(weights)[i]);
             }
-            classDb.get(term).get(semester).get(className).get(teacherName).set("weights", modWeights).write(); //Overwrites existing weights
+            classDb.get(term).get(semester).get(className).get(teacherName).set("weights", modWeights).write(); //Overwrites
+                                                                                                                // existing
+                                                                                                                // weights
             classDb.get(term).get(semester).get(className).get(teacherName).set("hasWeights", hasWeights).write();
         } else {
             return {success: false, message: "One weight required!"};
@@ -676,8 +686,8 @@ module.exports = {
         return {
             success: true, message: "Updated weights for " + className + " | " + teacherName, suggestion: suggestionNum
         };
-    }, 
-    
+    },
+
     deleteSuggestionInClassDb: function (term, semester, className, teacherName, hasWeights, weights) {
         let deleted = false;
         let classRef = db.get("classes");
@@ -712,8 +722,8 @@ module.exports = {
             return {success: true, suggestion: suggestionNum};
         }
         return {success: false, suggestion: null};
-    }, 
-    
+    },
+
     addWeightsSuggestion: function (username, term, semester, className, teacherName, hasWeights, weights) {
         let lc_username = username.toLowerCase();
         let classDb = db.get("classes");
@@ -748,29 +758,29 @@ module.exports = {
                 //Test if all weights are null
                 if (!Object.values(modWeights).every(x => x === null) || hasWeights == "false") {
                     classDb.get(term).get(semester).get(className).get(teacherName).get("suggestions").push({
-                                                                                        "usernames": [lc_username],
-                                                                                        "weights": modWeights,
-                                                                                        "hasWeights": hasWeights
-                                                                                    }).write();
+                                                                                                                "usernames": [lc_username],
+                                                                                                                "weights": modWeights,
+                                                                                                                "hasWeights": hasWeights
+                                                                                                            }).write();
                 }
             }
         }
         // console.log(classDb.get(term).get(semester).get(className).get(teacherName).get("suggestions").value());
-    }, 
-    
+    },
+
     updateClassTypeInClassDb: function (term, semester, className, classType) {
         let classDb = db.get("classes");
         classDb.get(term).get(semester).get(className).set("classType", classType).write();
         return {success: true, message: "Set class type of " + className + " to " + classType};
-    }, 
-    
+    },
+
     updateUCCSUClassTypeInClassDb: function (term, semester, className, classType) {
         let classDb = db.get("classes");
         classDb.get(term).get(semester).get(className).set("uc_csuClassType", classType).write();
         return {success: true, message: "Set uc class type of " + className + " to " + classType};
     },
 
-    //Need to add Try Catches to error check when updating db values    
+    //Need to add Try Catches to error check when updating db values
     addNewUser: function (username, password, schoolUsername, isAdmin, beta = false) {
 
         let lc_username = username.toLowerCase();
@@ -1142,7 +1152,9 @@ module.exports = {
         }
 
         let time = Date.now();
-        userRef.get("alerts").get("lastUpdated").push({timestamp: time, changeData: changeData, ps_locked: ps_locked}).write();
+        userRef.get("alerts").get("lastUpdated").push({
+                                                          timestamp: time, changeData: changeData, ps_locked: ps_locked
+                                                      }).write();
         userRef.set("updatedInBackground", "already done").write();
         return {
             success: true,
@@ -1186,17 +1198,18 @@ module.exports = {
         }).write();
     },
 
-    addDbTerm: function (term, semester){
+    addDbTerm: function (term, semester) {
         let classesRef = db.get("classes");
-        if (!classesRef.has(term).value()){
-            classesRef.set(term,{[semester]:{}}).write();
+        if (!classesRef.has(term).value()) {
+            classesRef.set(term, {[semester]: {}}).write();
         } else if (classesRef.get(term).has("S1").value() && semester == "S2") {
-            classesRef.get(term).set(semester,classesRef.get(term).get("S1").value()).write();
+            classesRef.get(term).set(semester, classesRef.get(term).get("S1").value()).write();
         } else if (classesRef.get(term).has("S2").value() && semester == "S1") {
-            classesRef.get(term).set(semester,classesRef.get(term).get("S2").value()).write();
+            classesRef.get(term).set(semester, classesRef.get(term).get("S2").value()).write();
         } else {
-            classesRef.get(term).set(semester,{}).write();
-        }``
+            classesRef.get(term).set(semester, {}).write();
+        }
+        ``;
     },
 
     setColorPalette: function (username, preset, shuffle) {
@@ -1310,12 +1323,12 @@ module.exports = {
         }
         let teacherName;
 
-        let clsRef = userRef.get("grades").get(term).get(semester).get("grades").find({class_name: className});
+        let clsRef = userRef.get("grades").get(term).get(semester).find({class_name: className});
         if (clsRef.value()) {
             teacherName = clsRef.value().teacher_name;
 
             if (addSuggestion && teacherName) {
-                this.addWeightsSuggestion(term, semester, username, className, teacherName, hasWeights, weights);
+                this.addWeightsSuggestion(username, term, semester, className, teacherName, hasWeights, weights);
                 console.log("ran");
             }
         }
@@ -1868,8 +1881,8 @@ function dbContainsClass(term, semester, class_name, teacher_name) {
 function dbContainsTerm(term, semester) {
     let classes = db.get("classes").value();
     if (classes[term] && classes[term][semester]) {
-            return true;
-    }   
+        return true;
+    }
     return false;
 }
 
@@ -1914,16 +1927,16 @@ function compareWeights(weight1, weight2) {
 function isCustom(weight, defWeight) {
     //Only checks if weight 2 has the same values for all keys in weight 1
     //Returns true even if weight 2 has extra weights
-    if (weight["hasWeights"] != defWeight["hasWeights"]) {
+    if (eval(weight["hasWeights"]) != eval(defWeight["hasWeights"])) {
         return true;
-    } else if ((eval(weight["hasWeights"]) == eval(defWeight["hasWeights"])) && (eval(defWeight["hasWeights"]) == false)) {
+    }
+    if ((eval(weight["hasWeights"]) == eval(defWeight["hasWeights"])) && (eval(defWeight["hasWeights"]) == false)) {
         return false;
-    } else {
-        let keys = Object.keys(weight["weights"]);
-        for (let i = 0; i < keys.length; i++) {
-            if ((!keys[i] in defWeight["weights"]) || weight["weights"][keys[i]] != defWeight["weights"][keys[i]]) {
-                return true;
-            }
+    }
+    let keys = Object.keys(weight["weights"]);
+    for (let i = 0; i < keys.length; i++) {
+        if ((!keys[i] in defWeight["weights"]) || weight["weights"][keys[i]] != defWeight["weights"][keys[i]]) {
+            return true;
         }
     }
     return false;

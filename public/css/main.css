@@ -301,7 +301,7 @@ table thead tr th:last-child {
 }
 
 #shortcutsDisplay .card-body .card-body {
-    overflow-y:scroll;
+    overflow-y: scroll;
     max-height: 70vh;
 }
 
@@ -370,6 +370,10 @@ table thead tr th:last-child {
 
 .changelog-container .fixed {
     background-color: rgba(255, 180, 0, 0.5);
+}
+
+.changelog-container a {
+    color: currentColor !Important;
 }
 
 .changelog-container .known-issues * {
@@ -969,7 +973,7 @@ i span {
 }
 
 .fa-exclamation-triangle {
-    color: #EED202 !important;
+    color: orange !important;
 }
 
 .fa-spinner {
@@ -999,8 +1003,7 @@ label.label-active {
 
 #classLinks li.nav-item {
     font-weight: 500;
-    transition: background-color 250ms ease, opacity 250ms ease;
-    border-radius: 0.5rem;
+    transition: background-color 100ms ease, border-radius 400ms ease, box-shadow 250ms ease;
     font-size: 0.9rem;
 }
 
@@ -1009,7 +1012,11 @@ label.label-active {
 }
 
 #classLinks li.nav-item:not(.active):hover {
-    opacity: 0.5;
+    box-shadow: inset 0 0 1px 1px #333333;
+}
+
+#classLinks li.nav-item:not(.active):hover, #classLinks li.nav-item.active {
+    border-radius: 0.5rem;
 }
 
 .nav-item {
@@ -2456,8 +2463,13 @@ input:disabled {
     display: inline-block;
     border-radius: 0.5rem;
     padding: 0 0.5rem;
-    margin: 0;
+    margin: 0 0.1rem;
     font-size: 0.5rem;
+}
+
+#gpaDetailsBtn {
+    width: 100%;
+    border-radius: 0.5rem;
 }
 
 .changelog-inline-setoff.big-one {
@@ -2469,6 +2481,82 @@ input:disabled {
 
 .changelog-container ul {
     padding-left: 0;
+}
+
+.gpa-details-table th {
+    max-width: 10rem;
+    font-size: 0.7rem;
+    text-align: center;
+}
+
+.gpa-details-table td {
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: 0.8rem;
+}
+
+.gpa-details-table th, .gpa-details-table td, .gpa-details-table, .gpa-details-table tr {
+    padding: 0.5rem;
+}
+
+.gpa-details-table tr:first-child th:nth-child(3) {
+    width: 3rem;
+}
+
+.gpa-details-table tr td:not(:first-child) {
+    text-align: center;
+}
+
+.gpa-details-table tr td:nth-last-child(1),
+.gpa-details-table tr td:nth-last-child(2),
+.gpa-details-table tr td:nth-last-child(3),
+.gpa-details-table tr td:nth-last-child(4),
+.gpa-details-table tr td:nth-last-child(5) {
+    padding: 0.2rem 0.5rem;
+    border: none;
+}
+
+.gpa-details-table tr td:nth-last-child(4) {
+    width: 3rem;
+}
+
+.gpa-details-table tr:first-child th:nth-last-child(1),
+.gpa-details-table tr:first-child th:nth-last-child(2),
+.gpa-details-table tr:first-child th:nth-last-child(3),
+.gpa-details-table tr:first-child th:nth-last-child(4),
+.gpa-details-table tr:first-child th:nth-last-child(5) {
+    border: none;
+}
+
+.gpa-details-table tr:last-child th:first-child {
+    text-align: right;
+}
+
+.gpa-details-table tr:last-child th:nth-last-child(1),
+.gpa-details-table tr:last-child th:nth-last-child(2),
+.gpa-details-table tr:last-child th:nth-last-child(3),
+.gpa-details-table tr:last-child th:nth-last-child(4),
+.gpa-details-table tr:last-child th:nth-last-child(5) {
+    padding: 0.2rem 0.5rem;
+    border: none;
+    text-align: center;
+}
+
+.gpa-details-table tr:nth-last-child(2) th:first-child {
+   text-align: right;
+}
+
+.gpa-details-table tr:last-child th:last-child {
+    color: green;
+    font-size: 1rem;
+}
+
+#gpa-details-container {
+    max-height: 60vh; overflow-y: scroll;
+}
+
+#gpa-details-container p {
+    font-size: 0.7rem;
 }
 
 /*#about-container {*/
