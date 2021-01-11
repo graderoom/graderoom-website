@@ -166,7 +166,7 @@ module.exports = {
 
     /* class database */
     getAllClassData: function () {
-        let classes = db.get("classes").value();
+        let classes = Object.assign({}, db.get("classes").value());
         delete classes["version"];
         return classes;
     },
@@ -249,6 +249,7 @@ module.exports = {
             // Update class db version
             console.log("Updating classdb to version 1");
             classRef.set("version", 1).write();
+            version===1;
         }
         //Clear classes to migrate to semester system
         if (version === 1) {

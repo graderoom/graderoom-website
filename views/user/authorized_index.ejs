@@ -1519,6 +1519,7 @@
                 }
             }
 
+            //Requires elements to have same font-family & font-size
             function adjust(elements, offset, min, max) {
                 // Initialize parameters
                 offset = offset || 0;
@@ -1528,24 +1529,30 @@
                 if (elements.length<1)
                     return;
                     
+                // Add element to measure pixel length of text
                 let tag = $("<span> </span>").css({"display": "none",
                                                     "font-family": $(elements[0]).css("font-family"),
                                                     "font-size": $(elements[0]).css("font-size")}).appendTo("body");
 
+                //Adjust element width on keydown
                 elements.each(function () {
                     let element = $(this);
 
                     function update() {
                             tag.text(element.val());
+                            
+                            // Clamp length and prevent text from scrolling
                             let size = Math.max(min, Math.min(max, tag.width() + offset));
                             if (size < max) {
                                 element.scrollLeft(0);
                             }
+
+                            // Apply width to element
                             element.width(size);     
                     }
 
                     update();
-                    element.keydown(function(){setTimeout(update(),0)});
+                    element.keydown(function(){setTimeout(update(),0)}); // Give browser time to add current letter
                 });
             }
 
