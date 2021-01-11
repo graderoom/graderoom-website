@@ -42,12 +42,12 @@ nav .btn:hover {
     color: #333333;
 }
 
-td {
+td, th {
     border-color: #333333;
 }
 
-th {
-    border-color: #333333;
+.weights td, .weights th {
+    border-color: #333333 !important;
 }
 
 ::placeholder {
@@ -510,6 +510,10 @@ tr:hover .toolTab {
 
 #classLinks {
     box-shadow: 0 0 10px 2px #333333;
+}
+
+#classLinks li.nav-item:not(.active):hover {
+    box-shadow: inset 0 0 1px 1px black;
 }
 
 .gpa-details-table th, .gpa-details-table td, .gpa-details-table, .gpa-details-table tr {

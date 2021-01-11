@@ -515,6 +515,10 @@ tr:hover .toolTab {
     background-color: #333333;
 }
 
+#classLinks li.nav-item:not(.active):hover {
+    box-shadow: inset 0 0 1px 1px #333333;
+}
+
 #gradeChangesContainer span.class-name {
     padding: 0.5rem;
     border-radius: 0.5rem;

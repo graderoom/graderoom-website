@@ -1011,10 +1011,6 @@ label.label-active {
     font-weight: bolder;
 }
 
-#classLinks li.nav-item:not(.active):hover {
-    box-shadow: inset 0 0 1px 1px #333333;
-}
-
 #classLinks li.nav-item:not(.active):hover, #classLinks li.nav-item.active {
     border-radius: 0.5rem;
 }
