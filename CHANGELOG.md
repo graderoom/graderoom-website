@@ -43,6 +43,9 @@
 - None
 
 ## [Beta 4.2.2] - 2021-01-10
+### Improved
+- Scores in class tables now populate instantly
+
 ### Fixed
 - Issue with UC/CSU GPA calculation
 
@@ -1486,7 +1489,7 @@
 - If your account still exists, you will be asked to sync your grades with PowerSchool to recover your data
 - Please inform anyone affected by this issue to create a new account
 - The Graderoom Team apologizes for the great inconvenience this has caused and has taken strict measures to prevent a similar event from occurring again
-- <em>[Beta]</em> Request another beta key by emailing <a href="mailto: support@graderoom.me">support@graderoom.me</a> or asking a developer directly
+- <em>[Beta]</em> Request another beta key by emailing <span class="changelog-inline-setoff"><a href="mailto:support@graderoom.me">support@graderoom.me</a></span> or asking a developer directly
 
 ## [Beta 1.2.2] - 2020-03-02
 ### Added
@@ -1743,7 +1746,7 @@
 
 ## [Beta 0.4.0] - 2020-01-29
 ### Added
-- Beta site at <a href="https://beta.graderoom.me">this link</a><ul>
+- Beta site at <span class="changelog-inline-setoff"><a href="https://beta.graderoom.me">this link</a></span><ul>
 - Both sites still require beta keys
 - Your data will not transfer over
 - Features will be released first to the beta site once a stable version is released
