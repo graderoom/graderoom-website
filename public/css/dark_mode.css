@@ -46,7 +46,7 @@ td, th {
     border-color: #333333;
 }
 
-.weights td, .weights th {
+.weights td, .weights th, th.admin, td.admin {
     border-color: #333333 !important;
 }
 
