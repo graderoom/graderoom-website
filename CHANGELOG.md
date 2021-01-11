@@ -42,6 +42,27 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 4.2.2] - 2021-01-10
+### Improved
+- Scores in class tables now populate instantly
+
+### Fixed
+- Issue with UC/CSU GPA calculation
+
+## [Beta 4.2.1] - 2021-01-09
+### Added
+- Department display in class info section
+
+### Improved
+- Word choice in class info
+- Styling of class navbar
+- Auto disabled snow no longer changes background color
+- Significantly improved initial load time
+
+### Fixed
+- Issue where snow background in light mode would not disappear properly after holiday effects were disabled
+- Issue where legend items on overview chart were sometimes clickable
+
 ## [Beta 4.2.0] - 2021-01-08
 ### Added
 - Changelog can now emphasize important information <span class="changelog-inline-setoff">like this</span>
@@ -1468,7 +1489,7 @@
 - If your account still exists, you will be asked to sync your grades with PowerSchool to recover your data
 - Please inform anyone affected by this issue to create a new account
 - The Graderoom Team apologizes for the great inconvenience this has caused and has taken strict measures to prevent a similar event from occurring again
-- <em>[Beta]</em> Request another beta key by emailing <a href="mailto: support@graderoom.me">support@graderoom.me</a> or asking a developer directly
+- <em>[Beta]</em> Request another beta key by emailing <span class="changelog-inline-setoff"><a href="mailto:support@graderoom.me">support@graderoom.me</a></span> or asking a developer directly
 
 ## [Beta 1.2.2] - 2020-03-02
 ### Added
@@ -1718,14 +1739,14 @@
 - Check the box in the sync grades card
 - You will then be prompted to enter both your school password and your Graderoom password
 - Your school password will be used to encrypt your Graderoom password and securely store it</ul>
-  
+
 ### Improved
 - When you open the sync grades card, the graderoom password field is focused
 - If the sync fails, the field is refocused
 
 ## [Beta 0.4.0] - 2020-01-29
 ### Added
-- Beta site at <a href="https://beta.graderoom.me">this link</a><ul>
+- Beta site at <span class="changelog-inline-setoff"><a href="https://beta.graderoom.me">this link</a></span><ul>
 - Both sites still require beta keys
 - Your data will not transfer over
 - Features will be released first to the beta site once a stable version is released
@@ -1876,7 +1897,7 @@
 ## [Beta 0.2.13] - 2019-12-02
 ### Added
 - Subtabs in appearance settings
-- Button to edit weights from missing weight message 
+- Button to edit weights from missing weight message
 - HTTPS
 
 ### Fixed
