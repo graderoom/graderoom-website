@@ -10,7 +10,7 @@
             </btn>
             <div class="card-body">
                 <h1 class="card-title text-center changelog-title">
-                    <span class="fa fa-book"></span>Changelog
+                    <span class="fa fa-book"></span> Changelog
                 </h1>
                 <div class="changelog-legend" style="overflow: visible;">
                     <div class="changelog-container">
@@ -55,14 +55,15 @@
     let previousVersion;
     let changelogArray;
     let changelogReferences;
-    let numDisplayed = 4;
+    let onScreenVersion = "Known Issues";
 
     function showChangelog() {
         $.ajax({
                    url: "/changelog", type: "GET", async: true
                }).done(function (response) {
+            let onScreenBeforeSetup = onScreenVersion;
             if (cardsDisplayed.includes("changelogDisplay")) {
-                cardsDisplayed.splice(cardsDisplayed.indexOf("changelogDisplay"),1);
+                cardsDisplayed.splice(cardsDisplayed.indexOf("changelogDisplay"), 1);
             }
             cardsDisplayed.push("changelogDisplay");
             $(".blurred-background").each(function () {
@@ -74,18 +75,19 @@
             changelogReferences = changelogArray.map(x => $(x));
             changelogContainer.html(changelogReferences);
             let versions = $("#changelogDisplay .changelog-item");
-            let onScreenVersion = $(versions[getOnScreenVersionIndex()])[0].childNodes[0].childNodes[0].innerText;
             changelogContainer.animate({scrollTop: 0}, () => {
                 versionNames = [];
                 versionOffsets = {};
                 for (let version of versions) {
-                    let title = $(version).find(".header")[0].innerText;
-                    versionNames.push(title.substring(0, title.indexOf("\n")));
+                    versionNames.push($(version).find(".title")[0].innerText);
                     versionOffsets[versionNames.slice(-1)[0]] = $(version).offset().top - changelogContainer.offset().top;
                 }
-                changelogReferences.forEach((x, index) => x.css("display", index >= numDisplayed ? "none" : ""));
-                scrollToVersion(onScreenVersion, 0);
+                scrollToNextStable(false);
+                scrollToPrevStable(false);
+                scrollToNextAnnouncement(false);
+                scrollToPrevAnnouncement(false);
                 stableVersionNames = versionNames.filter(n => n.substring(0, 6) === "Stable" || n === "Known Issues");
+                scrollToVersion(onScreenBeforeSetup, 0);
             });
             let fixedIn = versions.find(".content").children(".body").children("strong");
             for (let i = 0; i < fixedIn.length; i++) {
@@ -107,7 +109,8 @@
     }
 
     function scrollToNextStable(scroll = true) {
-        let version = versionNames.find((v, index) => index > getOnScreenVersionIndex() && v.substring(0, 6) === "Stable");
+        let onScreenVersionIndex = getOnScreenVersionIndex();
+        let version = versionNames.find((v, index) => index > onScreenVersionIndex && v.substring(0, 6) === "Stable");
         if (version) {
             if (scroll) {
                 scrollToVersion(version);
@@ -119,7 +122,8 @@
     }
 
     function scrollToPrevStable(scroll = true) {
-        let version = versionNames.slice().reverse().find((v, index, arr) => (index >= arr.length - getOnScreenVersionIndex()) && v.substring(0, 6) === "Stable");
+        let onScreenVersionIndex = getOnScreenVersionIndex();
+        let version = versionNames.slice().reverse().find((v, index, arr) => (index >= arr.length - onScreenVersionIndex) && v.substring(0, 6) === "Stable");
         if (version) {
             if (scroll) {
                 scrollToVersion(version);
@@ -135,7 +139,8 @@
     }
 
     function scrollToNextAnnouncement(scroll = true) {
-        let version = versionNames.find((v, index) => index > getOnScreenVersionIndex() && v.substring(0, 12) === "Announcement");
+        let onScreenVersionIndex = getOnScreenVersionIndex();
+        let version = versionNames.find((v, index) => index > onScreenVersionIndex && v.substring(0, 12) === "Announcement");
         if (version) {
             if (scroll) {
                 scrollToVersion(version);
@@ -147,7 +152,8 @@
     }
 
     function scrollToPrevAnnouncement(scroll = true) {
-        let version = versionNames.slice().reverse().find((v, index, arr) => (index >= arr.length - getOnScreenVersionIndex()) && v.substring(0, 12) === "Announcement");
+        let onScreenVersionIndex = getOnScreenVersionIndex();
+        let version = versionNames.slice().reverse().find((v, index, arr) => (index >= arr.length - onScreenVersionIndex) && v.substring(0, 12) === "Announcement");
         if (version) {
             if (scroll) {
                 scrollToVersion(version);
@@ -165,23 +171,16 @@
             changelogContainer.stop();
         }
         scrolling = true;
-        changelogContainer.animate({scrollTop: versionOffsets[version]}, scrollTime, () => {
-            scrolling = false;
-            scrollToNextStable(false);
-            scrollToPrevStable(false);
-            scrollToNextAnnouncement(false);
-            scrollToPrevAnnouncement(false);
-        });
+        changelogContainer.animate({scrollTop: versionOffsets[version]}, scrollTime);
     }
 
     function getOnScreenVersionIndex() {
         let versions = $("#changelogDisplay .changelog-item");
-        let onScreenVersionIndex;
-        let onScreenOffset;
-        for (let i = 0; i < versions.length; i++) {
-            if (onScreenOffset === undefined || Math.abs($(versions[i]).offset().top - changelogContainer.offset().top) < onScreenOffset) {
-                onScreenOffset = Math.abs($(versions[i]).offset().top - changelogContainer.offset().top);
-                onScreenVersionIndex = i;
+        let onScreenVersionIndex = 0;
+        for (let i = 0; i < versions.length - 1; i++) {
+            let onScreenOffset = Math.abs($(versions[i]).offset().top - changelogContainer.offset().top);
+            if (Math.abs($(versions[i + 1]).offset().top - changelogContainer.offset().top) < onScreenOffset) {
+                onScreenVersionIndex = i + 1;
             }
         }
         return onScreenVersionIndex;
@@ -197,19 +196,10 @@
         }, 400);
     }
 
-    function loadMore() {
-        if (numDisplayed < changelogArray.length) {
-            changelogReferences[numDisplayed++].show();
-        }
-    }
-
     let fixButtons;
     changelogContainer.scroll(function () {
         setupChangelogLegend();
-        let gracePeriod = 100;
-        if (Math.abs(this.scrollTop - this.scrollHeight + this.offsetHeight) < gracePeriod) {
-            loadMore();
-        }
+        onScreenVersion = versionNames[getOnScreenVersionIndex()];
         scrolling = true;
         clearTimeout(fixButtons);
         fixButtons = setTimeout(() => {

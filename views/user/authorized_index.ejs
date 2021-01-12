@@ -85,14 +85,11 @@
                         <li class="nav-item" id="link<%= i + offset; %>">
                             <a class="nav-link" style="color: <%= JSON.parse(appearance).classColors[i]; %>"
                                onclick="showPage(<%= i + offset; %>)"><%= (JSON.parse(gradeData)[i].class_name); %>
-                                <br><%= (JSON.parse(gradeData)[i].overall_percent + '%'); %>
-                                (<%= (JSON.parse(gradeData)[i].overall_letter); %>)
                                 <span class="popup">
                                     <i id="incorrectOverviewGrade<%= i + offset; %>"
                                        class="fa fa-exclamation-triangle"
                                        style="display: none; margin-left: 0.2rem">
                                         <span class="popup-bottom">
-                                            Does not match calculated grade
                                         </span>
                                     </i></span>
                             </a>
@@ -116,25 +113,16 @@
             <% if (JSON.parse(betaFeatures).showTermSwitcher) { %>
                 <div id="termSwitcher" class="blur">
                     <% for (let i = 0; i < JSON.parse(termsAndSemesters).length; i++) { %>
-                        <div id="<%= JSON.parse(termsAndSemesters)[i][0]; %>"><%= JSON.parse(termsAndSemesters)[i][0]; %>
+                        <div id="<%= JSON.parse(termsAndSemesters)[i][0]; %>" <% if (term===JSON.parse(termsAndSemesters)[i][0]) { %> class="active" <% } %>>
+                            <%= JSON.parse(termsAndSemesters)[i][0]; %>
                             <% for (let j = 0; j < JSON.parse(termsAndSemesters)[i][1].length; j++) { %>
                                 <div onclick="window.location.href='/' + (window.location.href.indexOf('usernameToRender') === -1 ? '?' : 'viewuser?' + window.location.href.slice(window.location.href.indexOf('usernameToRender'),window.location.href.indexOf('&') === -1 ? undefined : window.location.href.indexOf('&')) + '&') + 'term=<%= JSON.parse(termsAndSemesters)[i][0]; %>&semester=<%= JSON.parse(termsAndSemesters)[i][1][j]; %>'"
-                                     id="<%= JSON.parse(termsAndSemesters)[i][0]; %><%= JSON.parse(termsAndSemesters)[i][1][j]; %>"><%= JSON.parse(termsAndSemesters)[i][1][j] %></div>
+                                    id="<%= JSON.parse(termsAndSemesters)[i][0]; %><%= JSON.parse(termsAndSemesters)[i][1][j]; %>"
+                                    <% if (term===JSON.parse(termsAndSemesters)[i][0] && semester===JSON.parse(termsAndSemesters)[i][1][j]) { %> class="active" <% } %>>
+                                    <%= JSON.parse(termsAndSemesters)[i][1][j] %>
+                                </div>
                             <% } %>
                         </div>
-                        <script>
-                            props = window.location.href.includes("?") ? Object.fromEntries(window.location.href.split("?")[1].split("&").map(prop => prop.split("="))) : {};
-                            if ("term" in props && "semester" in props) {
-                                $("#" + props["term"]).addClass("active");
-                                $("#" + props["term"] + props["semester"]).addClass("active");
-                                $("#recentChangesNavBtn").hide();
-                                oldSemester = true;
-                            } else {
-                                let termsAndSemesters = <%- termsAndSemesters %>;
-                                $("#" + termsAndSemesters.slice(-1)[0][0]).addClass("active");
-                                $("#" + termsAndSemesters.slice(-1)[0][0] + termsAndSemesters.slice(-1)[0][1].slice(-1)[0]).addClass("active");
-                            }
-                        </script>
                     <% } %>
                 </div>
             <% } %>
@@ -143,18 +131,18 @@
                 <div id="section-1">
                     <div style="display: flex">
                         <div id="GPA-container">
-                            <div id="weightedGPAToggle">
-                                <form id="weightedGPAForm" action="/weightedGPA" method="post">
+                            <div class="weightedGPAToggle">
+                                <form class="weightedGPAForm" action="/weightedGPA" method="post">
                                     <input name="weightedGPA"
                                            value="<% if (JSON.parse(appearance).weightedGPA) { %>false<% } else { %>true<% } %>"
                                            style="display: none">
-                                    <button onclick="ajaxPostForm('#weightedGPAForm',[],'',true, true)"
+                                    <button onclick="ajaxPostForm('.weightedGPAForm',[],'',true, true)"
                                     <% if (JSON.parse(appearance).weightedGPA) { %> type="button"
                                             <% } %>
                                             class="<% if (JSON.parse(appearance).weightedGPA) { %> active <% } %> btn">
                                         Weighted
                                     </button>
-                                    <button onclick="ajaxPostForm('#weightedGPAForm',[],'',true, true)"
+                                    <button onclick="ajaxPostForm('.weightedGPAForm',[],'',true, true)"
                                     <% if (!JSON.parse(appearance).weightedGPA) { %> type="button"
                                             <% } %>
                                             class="<% if (!JSON.parse(appearance).weightedGPA) { %> active <% } %> btn">
@@ -189,22 +177,20 @@
                                     <% } %>
                                 </h5>
                             </div>
-                            <% if (Object.values(JSON.parse(gradeHistory)).filter(v => Object.values(v).length).length) { %>
-                                <div>
-                                    <h5 class="text-center">Cumulative GPA<span class="popup"><i
-                                                    class="fa fa-question-circle"
-                                                    style="margin-left: 0.4rem"><span
-                                                        class="popup-right-top">Your cumulative GPA
-                                                    is what shows up on your transcript. It does not include pe or
-                                                    summer classes. This cumulative GPA does not include your current
-                                                    semester.</span></i></span></h5>
-                                    <h5 id="GPA-display-cumulative">----
-                                        <% if (JSON.parse(appearance).showMaxGPA) { %>/----
-                                        <% } %>
-                                    </h5>
-                                </div>
-                            <% } %>
-                            <div>
+                            <div style="display: none">
+                                <h5 class="text-center">Cumulative GPA<span class="popup"><i
+                                                class="fa fa-question-circle"
+                                                style="margin-left: 0.4rem"><span
+                                                    class="popup-right-top">Your cumulative GPA
+                                                is what shows up on your transcript. It does not include pe or
+                                                summer classes. This cumulative GPA does not include your current
+                                                semester.</span></i></span></h5>
+                                <h5 id="GPA-display-cumulative">----
+                                    <% if (JSON.parse(appearance).showMaxGPA) { %>/----
+                                    <% } %>
+                                </h5>
+                            </div>
+                            <div style="display: none">
                                 <h5 class="text-center">UC/CSU GPA<span class="popup"><i class="fa fa-question-circle"
                                                                                          style="margin-left: 0.4rem"><span
                                                     class="popup-right-top">This is your GPA as calculated by
@@ -212,12 +198,14 @@
                                                         style="color: <%= accentColor; %>">University of
                                                     California System</span><br>and the<br><span
                                                         style="color: <%= accentColor; %>">California State
-                                                    University System</span>.<br> This metric uses grades from
-                                                10<sup>th</sup>
-                                                and 11<sup>th</sup> grade and only includes certain classes.</span></i></span>
+                                                    University System</span>.<br> This metric is not affected by the
+                                                weighted GPA setting.</span></i></span></h5>
+                                <h5 id="GPA-display-uc">----
+                                    <% if (JSON.parse(appearance).showMaxGPA) { %>/----
+                                    <% } %>
                                 </h5>
-                                <h5 id="GPA-display-uc">Coming Soon!</h5>
                             </div>
+                            <button class="btn btn-med" id="gpaDetailsBtn" onclick="setupGpaDetails()"><i class="fa fa-list"></i> View Details</button>
                         </div>
                         <div id="chart-container-1" class="chart chart-container text-center">
                             <button id="reset-zoom-1"
@@ -285,17 +273,65 @@
                                     break;
 
                                 case "none":
-                                    classType = "None";
+                                    classType = "Regular";
                                     break;
 
                                 case "non-academic":
                                     classType = "Non-Academic";
+                                    break;
+
+                                default:
+                                    classType = "Unknown";
+                                    break;
+                            } %>
+                            <% let uc_classType = JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].uc_csuClassType %>
+                            <% switch (uc_classType) {
+                                case "uc_hon":
+                                    uc_classType = "UC Approved Honors";
+                                    break;
+
+                                case "uc_ap":
+                                    uc_classType = "UC Approved AP";
+                                    break;
+
+                                case "uc":
+                                    uc_classType = "UC Approved Regular";
+                                    break;
+
+                                case "":
+                                    uc_classType = "Not a UC Approved";
+                                    break;
 
                                 default:
                                     break;
                             } %>
-                            <span>Special Weighting: <%= classType %></span>
-                            <span>Teacher: <%= JSON.parse(gradeData)[i].teacher_name || "Unknown" %></span>
+                            <span>
+                                <% if (classType !== "Unknown") { %>
+                                    <span>BCP <%= classType %> course</span><br>
+                                <% } %>
+                                <span><%= uc_classType %> course</span><br>
+                                <span id="verified<%= i %>" class="popup">Weights
+                                    <% let unverified = JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].hasWeights === null || (JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].hasWeights === "true" && Object.values(JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].weights).filter(w => w === null).length !== 0); %>
+                                    <% if (unverified) { %>Unverified
+                                    <% } else { %>Verified
+                                    <% } %>
+                                    <i class="fa fa-<% if (unverified) { %>exclamation-circle<% } else { %>check-circle<% } %>">
+                                        <span class="popup-right">
+                                            <% if (unverified) { %>
+                                            Send feedback to verify weights<br><small>More > Send Feedback</small>
+                                            <% } else { %>
+                                            Weights for this course have been verified by an admin
+                                            <% } %>
+                                        </span>
+                                    </i>
+                                </span>
+                            </span>
+                            <span style="text-align: right">
+                                <span>Teacher: <%= JSON.parse(gradeData)[i].teacher_name || "Unknown" %></span><br>
+                                <% if (JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].department) { %>
+                                <span>Department: <%= JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].department; %></span>
+                                <% } %>
+                            </span>
                         </div>
                         <div class="chartAndWeights">
                             <div id="chart-container<%= i + offset; %>" class="chart chart-container">
@@ -339,7 +375,7 @@
                                                                 class="fa fa-undo"
                                                                 onclick="resetWeights(<%= i + offset; %>); $('#weights<%= i + offset; %>').submit();">
                                                             <span class="popup-top">Revert
-                                                                to Crowdsourced Default</span>
+                                                                to Verified Weights</span>
                                                         </i>
                                                     </span>
                                                     <span class="popup">
@@ -403,12 +439,9 @@
                                                 <th colspan="4">
                                                     <span class="popup">
                                                         <i id="incorrectOverallGrade<%= i + offset; %>"
-                                                           class="fa fa-exclamation-circle"
+                                                           class="fa fa-exclamation-triangle"
                                                            style="margin-left: 0.2rem; vertical-align: middle">
-                                                            <span class="popup-bottom-left always-show">
-                                                                <% let grade = JSON.parse(gradeData)[i].overall_percent + "%"; %>
-                                                                Grade in PowerSchool:
-                                                                <nobr><%= grade + " (" + JSON.parse(gradeData)[i].overall_letter + ")"; %></nobr>
+                                                            <span class="popup-left-bottom always-show">
                                                             </span>
                                                         </i>
                                                     </span>
@@ -487,6 +520,14 @@
                                         </tr>
                                     </table>
                                 </form>
+                            </div>
+                            <div style="align-self: center;">
+                                <span id="addedOption<%= i + offset; %>"><span class="square"
+                                                                               style="color: green"></span>
+                                    Added</span>
+                                <span id="modifiedOption<%= i + offset; %>"><span class="square"
+                                                                                  style="margin-left: 0.5rem; color: deepskyblue"></span>
+                                    Modified</span>
                             </div>
                             <div class="tableOptionsContainer">
                                 <div class="tableOptions">
@@ -632,6 +673,9 @@
             let recentlyAddedAssignment;
             let recentlyAddedAssignmentDiv;
 
+            let totaltime = 0;
+            let count = 0;
+
             function setupColorStuff() {
                 // Class links
                 $.makeArray($("#classLinks a.nav-link")).slice(1).forEach((x, i) => $(x).css("color", colors[i]));
@@ -737,8 +781,10 @@
             let cardsDisplayed = [];
             let minCardZIndex = 25;
             let charts = [];
-            let currentTab = 1;
-            let maxTab = $(".tabcontent").length;
+            let currentSettingsTab = 1;
+            let maxSettingsTab = $("#settingsCardDisplay .tabcontent").length;
+            let currentGpaDetailsTab = 1;
+            let maxGpaDetailsTab;
             let darkMode;
             let colors = appearance.classColors;
             let darkModeStart = appearance.darkModeStart;
@@ -759,6 +805,8 @@
             let showMaxGPA = appearance.showMaxGPA;
             let recentChangeText = "";
 
+            let latestChange;
+
             // This should only happen once
             let {dateSort, categorySort} = <%- sortingData; %>;
             if (data.length) {
@@ -768,6 +816,7 @@
                 setupWeightsTableListeners();
                 setupInputListeners();
                 setupAddAssignments();
+                setupGpaDetails(true, false);
             }
             $("#termSwitcher").addClass("hover");
             setTimeout(() => $("#termSwitcher").removeClass("hover"), 2000);
@@ -959,6 +1008,7 @@
                                     clearInterval(checking);
                                     if (cardsDisplayed.length === 0 || cardsDisplayed[cardsDisplayed.length - 1] === "updateGradesDisplay") {
                                         $(".updateGradesMessage").find(".messageTxt").text("Refreshing...");
+                                        sessionStorage.setItem("showSyncLog", "true");
                                         setTimeout(() => window.reload(), 400);
                                     } else {
                                         $(".updateGradesMessage").find(".messageTxt").css("cursor", "pointer").text("Click here to refresh").click(function (e) {
@@ -976,6 +1026,10 @@
                                 clearInterval(checking);
                                 showLatest(false);
                                 setupLastUpdated();
+                                if (sessionStorage.getItem("showSyncLog") === "true") {
+                                    setupGradeChanges(true, true);
+                                    sessionStorage.removeItem("showSyncLog");
+                                }
                             } else if (message.message === "Did not sync") {
                                 $(".updateGradesMessage").find(".messageTxt").text("Syncing...");
                                 $(".fa-refresh").addClass("fa-spin").css("opacity", 0.5);
@@ -1015,24 +1069,30 @@
                     $.ajax({
                                method: "POST", url: "/updateShowMaxGPA", data: {showMaxGPA: JSON.stringify(showMaxGPA)}
                            }).done(() => {
-                        $("#GPA-display").text(getOverallGPA());
-                        if (Object.keys(gradeHistoryLetters).length) {
-                            $("#GPA-display-cumulative").text(getCumulativeGPA());
-                        }
+                        setupOverallGPA();
+                        setupCumulativeGPA();
+                        setupUC_CSU_GPA();
+                        setupGpaDetails(true, false);
                     });
                 } else {
-                    $("#GPA-display").text(getOverallGPA());
-                    if (Object.keys(gradeHistoryLetters).length) {
-                        $("#GPA-display-cumulative").text(getCumulativeGPA());
-                    }
+                    setupOverallGPA();
+                    setupCumulativeGPA();
+                    setupUC_CSU_GPA();
+                    setupGpaDetails(true, false);
                 }
             }
 
             function setupIncorrectGradeMessages(classIndex) {
                 for (let i = 0; i < _data.length; i++) {
                     if (classIndex === undefined || classIndex === i) {
-                        $("#incorrectOverallGrade" + i + " span").html(`Grade in PowerSchool: <nobr>` + _data[i].overall_percent + `% (` + _data[i].overall_letter + `)</nobr>`);
-                        if (!correctCalc(i)) {
+                        if (alerts.lastUpdated.slice(-1)[0].ps_locked) {
+                            $("#incorrectOverallGrade" + i + " span").html(`PowerSchool is locked. Calculated grade may be inaccurate.`);
+                            $("#incorrectOverviewGrade" + i + " span").html(`PowerSchool is locked. Calculated grade may be inaccurate.`);
+                        } else {
+                            $("#incorrectOverallGrade" + i + " span").html(`Grade in PowerSchool: <nobr>` + _data[i].overall_percent + `% (` + _data[i].overall_letter + `)</nobr>`);
+                            $("#incorrectOverviewGrade" + i + " span").html(`Does not match calculated grade. Incorrect weights.`);
+                        }
+                        if (!correctCalc(i) || alerts.lastUpdated.slice(-1)[0].ps_locked) {
                             $("#incorrectOverviewGrade" + i).css("display", "inline-block");
                             $("#incorrectOverallGrade" + i).css("display", "inline-block");
                         } else {
@@ -1049,7 +1109,10 @@
                 let calculatedOverallGrade = getOverallGrade(classIndex);
                 let correctDecimalPlaces = getOverallGrade(classIndex).toFixed(countDecimals(realOverallGrade));
                 let calculatedOverallLetter = getLetterGrade(calculatedOverallGrade);
-                return (correctDecimalPlaces == realOverallGrade && calculatedOverallLetter === realOverallLetter);
+                if (correctDecimalPlaces == realOverallGrade && calculatedOverallLetter === realOverallLetter) {
+                    return true;
+                }
+                return alerts.lastUpdated.slice(-1)[0].ps_locked && (relClassData[data[classIndex].class_name].hasWeights === "false" || Object.values(relClassData[data[classIndex].class_name].weights).filter(w => w !== null).length !== 0);
             }
 
             function countDecimals(value) {
@@ -1059,7 +1122,135 @@
                 return value.toString().split(".")[1].length || 0;
             }
 
-            function getCumulativeGPA() {
+            function setupUC_CSU_GPA() {
+                let out = $('#GPA-display-uc');
+
+                // First we need to determine which years are 9-11
+                // We use graduation year for this
+                let gradYear = personalInfo.graduationYear;
+                let ninth = gradYear - 3;
+                let tenth = gradYear - 2;
+                let eleventh = gradYear - 1;
+
+                // Convert years into terms
+                ninth = (ninth - 2001) + "-" + (ninth - 2000); // 19-20
+                tenth = (tenth - 2001) + "-" + (tenth - 2000);
+                eleventh = (eleventh - 2001) + "-" + (eleventh - 2000);
+
+                // Add up points
+                let basePoints = 0;
+                let tenthHonorsPoints = 0;
+                let eleventhHonorsPoints = 0;
+
+                let maxPoints = 0;
+                let maxTenthHonorsPoints = 0;
+                let maxEleventhHonorsPoints = 0;
+
+                let numClasses = 0;
+
+                // Ninth Summer
+                if (ninth in gradeHistoryLetters && "S3" in gradeHistoryLetters[ninth]) {
+                    let classes = gradeHistoryLetters[ninth]["S3"];
+                    for (let c = 0; c < classes.length; c++) {
+                        let classData = Object.entries(classes[c])[0];
+                        let classType = relClassData[classData[0]].uc_csuClassType;
+                        let uc;
+                        [uc, classType] = classType.split("_");
+                        if (uc === "uc" && !([false, "CR", "W"]).includes(classData[1])) {
+                            numClasses++;
+                            let points = getGPA(classData[1]);
+                            basePoints += points;
+                            maxPoints += 4;
+                            if ((["hon", "ap"]).includes(classType)) {
+                                if (points >= 2) {
+                                    tenthHonorsPoints++;
+                                }
+                                maxTenthHonorsPoints++;
+                            }
+                        }
+                    }
+                }
+
+                // Tenth
+                let classesCounted = [];
+                if (tenth in gradeHistoryLetters) {
+                    let semesters = Object.keys(gradeHistoryLetters[tenth]);
+                    for (let s = 0; s < semesters.length; s++) {
+                        let classes = gradeHistoryLetters[tenth][semesters[s]];
+                        for (let c = 0; c < classes.length; c++) {
+                            let classData = Object.entries(classes[c])[0];
+                            let classType = relClassData[classData[0]].uc_csuClassType;
+                            let uc;
+                            [uc, classType] = classType.split("_");
+                            if (uc === "uc" && !([false, "CR", "W"]).includes(classData[1])) {
+                                classesCounted.push(classData[0]);
+                                let points = getGPA(classData[1]);
+                                basePoints += points;
+                                maxPoints += 4;
+                                if ((["hon", "ap"]).includes(classType)) {
+                                    if (points >= 2) {
+                                        tenthHonorsPoints++;
+                                    }
+                                    maxTenthHonorsPoints++;
+                                }
+                            }
+                        }
+                    }
+                }
+                numClasses += classesCounted.length;
+
+                // Eleventh
+                classesCounted = [];
+                if (eleventh in gradeHistoryLetters) {
+                    let semesters = Object.keys(gradeHistoryLetters[eleventh]);
+                    for (let s = 0; s < semesters.length; s++) {
+                        let classes = gradeHistoryLetters[eleventh][semesters[s]];
+                        for (let c = 0; c < classes.length; c++) {
+                            let classData = Object.entries(classes[c])[0];
+                            let classType = relClassData[classData[0]].uc_csuClassType;
+                            let uc;
+                            [uc, classType] = classType.split("_");
+                            if (uc === "uc" && !([false, "CR", "W"]).includes(classData[1])) {
+                                classesCounted.push(classData[0]);
+                                let points = getGPA(classData[1]);
+                                basePoints += points;
+                                maxPoints += 4;
+                                if ((["hon", "ap"]).includes(classType)) {
+                                    if (points >= 2) {
+                                        eleventhHonorsPoints++;
+                                    }
+                                    maxEleventhHonorsPoints++;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                numClasses += classesCounted.length;
+
+                // Cap points at 4 in 10th and 8 total
+                tenthHonorsPoints = Math.min(4, tenthHonorsPoints);
+                eleventhHonorsPoints = Math.min(8 - tenthHonorsPoints, eleventhHonorsPoints);
+                let GPA = basePoints + tenthHonorsPoints + eleventhHonorsPoints;
+
+                maxTenthHonorsPoints = Math.min(4, maxTenthHonorsPoints);
+                maxEleventhHonorsPoints = Math.min(8 - maxTenthHonorsPoints, maxEleventhHonorsPoints);
+                let max = maxPoints + maxTenthHonorsPoints + maxEleventhHonorsPoints;
+
+                // Dived by numClasses
+                GPA /= numClasses;
+                max /= numClasses;
+
+                if (GPA && max) {
+                    out.text(GPA.toFixed(3) + (showMaxGPA ? "/" + max.toFixed(3) : "")).parent().show();
+                    return true;
+                }
+                out.parent().hide();
+                return false;
+            }
+
+            function setupCumulativeGPA() {
+                let out = $('#GPA-display-cumulative');
                 let GPA = 0.0;
                 let max = 0.0;
                 let numClasses = 0;
@@ -1069,7 +1260,7 @@
                     let semesters = Object.keys(gradeHistoryLetters[term]);
                     for (let s = 0; s < semesters.length; s++) {
                         let semester = semesters[s];
-                        if (semester === "S3") continue;
+                        if (semester === "S3") continue; // Ignore summer
                         let classes = gradeHistoryLetters[term][semester];
                         for (let c = 0; c < classes.length; c++) {
                             let classData = Object.entries(classes[c])[0];
@@ -1088,10 +1279,17 @@
                 }
                 GPA /= numClasses;
                 max /= numClasses;
-                return GPA.toFixed(3) + (showMaxGPA ? "/" + max.toFixed(3) : "");
+
+                if (GPA && max) {
+                    out.text(GPA.toFixed(3) + (showMaxGPA ? "/" + max.toFixed(3) : "")).parent().show();
+                    return true;
+                }
+                out.parent().hide();
+                return false;
             }
 
-            function getOverallGPA() {
+            function setupOverallGPA() {
+                let out = $('#GPA-display');
                 let GPA = 0.0;
                 let max = 0.0;
                 let numClasses = _data.length;
@@ -1111,7 +1309,13 @@
                 }
                 GPA /= numClasses;
                 max /= numClasses;
-                return GPA.toFixed(3) + (showMaxGPA ? "/" + max.toFixed(3) : "");
+
+                if (GPA && max) {
+                    out.text(GPA.toFixed(3) + (showMaxGPA ? "/" + max.toFixed(3) : "")).parent().show();
+                    return true;
+                }
+                out.parent().hide();
+                return false;
             }
 
             function getGPA(letterGrade) {
@@ -1253,13 +1457,11 @@
                         let enableReset = weights[className]["custom"];
                         //if custom and both haveWeights, enable reset only if db had diff value to give to user's weights
                         //stop reset from showing if custom is due to user having more categories than classes db
-                        if (enableReset && relClassData[className]["hasWeights"] !== "false") {
+                        if (enableReset && relClassData[className]["hasWeights"] === "true") {
                             enableReset = false;
                             let keys = Object.keys(weights[className]["weights"]);
                             for (let i = 0; i < keys.length; i++) {
-                                if (weights[className]["hasWeights"] === "false" && keys[i] in relClassData[className]["weights"]) {
-                                    enableReset = true;
-                                } else if (relClassData[className]["weights"] && (keys[i] in relClassData[className]["weights"]) && weights[className]["weights"][keys[i]] != relClassData[className]["weights"][keys[i]]) {
+                                if (relClassData[className]["weights"] && (keys[i] in relClassData[className]["weights"]) && weights[className]["weights"][keys[i]] != relClassData[className]["weights"][keys[i]]) {
                                     enableReset = true;
                                 }
                             }
@@ -1308,18 +1510,21 @@
                             }
                         }
                         let overallGrade = getOverallGrade(i);
-                        let assignmentData = parsedData[i].rawData;
-                        let lastIndex = assignmentData.length - 1;
-                        let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(2);
+                        let delta;
                         let color;
-                        if (delta > 0) {
-                            delta = "<i class=\"fa fa-caret-up\"></i>" + delta + "%";
-                            color = "green";
-                        } else if (delta < 0) {
-                            delta = "<i class=\"fa fa-caret-down\"></i>" + delta + "%";
-                            color = "red";
+                        if (latestChange) {
+                            if (latestChange.overall && _data[i].class_name in latestChange.overall && 'overall_percent' in latestChange.overall[_data[i].class_name]) {
+                                delta = +(_data[i].overall_percent - latestChange.overall[_data[i].class_name].overall_percent).toFixed(2);
+                            }
+                            if (delta > 0) {
+                                delta = "<i class=\"fa fa-caret-up\"></i>" + delta + "%";
+                                color = "green";
+                            } else if (delta < 0) {
+                                delta = "<i class=\"fa fa-caret-down\"></i>" + delta + "%";
+                                color = "red";
+                            }
                         }
-                        delta = (delta ? (" <div style=\"display: inline-block; margin-left: 1rem; color: " + color + "\">" + delta + "</div>") : "");
+                        delta = (delta ? (" <div style=\"cursor: pointer; display: inline-block; margin-left: 1rem; color: " + color + "\" onclick=\"setupGradeChanges()\">" + delta + "</div>") : "");
                         if (overallGrade) {
                             document.getElementById("weightTableOverallGrade" + i).innerHTML = (+(overallGrade.toFixed(2))).toString() + "% (" + getLetterGrade(overallGrade) + ")" + delta;
                         } else {
@@ -1331,31 +1536,27 @@
                 }
             }
 
+            //Requires elements to have same font-family & font-size
             function adjust(elements, offset, min, max) {
-
                 // Initialize parameters
                 offset = offset || 0;
                 min = min || 0;
                 max = max || Infinity;
+
+                if (elements.length<1)
+                    return;
+
+                // Add element to measure pixel length of text
+                let tag = $("<span> </span>").css({"display": "none",
+                                                    "font-family": $(elements[0]).css("font-family"),
+                                                    "font-size": $(elements[0]).css("font-size")}).appendTo("body");
+
+                //Adjust element width on keydown
                 elements.each(function () {
                     let element = $(this);
 
-                    // Add element to measure pixel length of text
-                    let id = btoa(Math.floor(Math.random() * Math.pow(2, 64)));
-                    let tag = $("<span id=\"" + id + "\">" + element.val() + "</span>").css({
-                                                                                                "display": "none",
-                                                                                                "font-family": element.css("font-family"),
-                                                                                                "font-size": element.css("font-size")
-                                                                                            }).appendTo("body");
-
-                    // Adjust element width on keydown
                     function update() {
-
-                        // Give browser time to add current letter
-                        setTimeout(function () {
-
-                            // Prevent whitespace from being collapsed
-                            tag.html(element.val().replace(/ /g, "&nbsp;"));
+                            tag.text(element.val());
 
                             // Clamp length and prevent text from scrolling
                             let size = Math.max(min, Math.min(max, tag.width() + offset));
@@ -1365,12 +1566,10 @@
 
                             // Apply width to element
                             element.width(size);
-
-                        }, 0);
                     }
 
                     update();
-                    element.keydown(update);
+                    element.keydown(function(){setTimeout(update(),0)}); // Give browser time to add current letter
                 });
             }
 
@@ -1770,12 +1969,12 @@
                 }
                 delete _editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
                 if (notMassReset) {
-                        $.ajax({
-                                   type: "POST",
-                                   url: "/updateEditedAssignments",
-                                   data: {data: JSON.stringify(editedAssignments)},
-                                   async: true
-                               });
+                    $.ajax({
+                               type: "POST",
+                               url: "/updateEditedAssignments",
+                               data: {data: JSON.stringify(editedAssignments)},
+                               async: true
+                           });
                     refreshWithoutReload(false, classIndex);
                 }
             }
@@ -2029,10 +2228,6 @@
                     let dropdown = $(categorySelectReferences[i]);
                     let categories = Object.keys(weights[_data[i].class_name]["weights"]);
 
-                    // Adjust widths
-                    adjust($(".addAssignmentName input"), 0, remToPixels(8), remToPixels(12));
-                    adjust($(".addAssignmentScore input"), 0, remToPixels(2), remToPixels(4));
-
                     // Set up categories
                     if (!$(dropdown).find("option").length) {
                         for (let j = 0; j < categories.length; j++) {
@@ -2045,6 +2240,10 @@
                         $("#addAssignmentForm" + i + " input").val("").trigger("input").trigger("blur");
                     });
                 }
+
+                //Adjust widths
+                adjust($(".addAssignmentName input"), 0, remToPixels(8), remToPixels(12));
+                adjust($(".addAssignmentScore input"), 0, remToPixels(2), remToPixels(4));
             }
 
             function setupClassTables(classIndex) {
@@ -2059,6 +2258,7 @@
                         let assignmentPercents;
                         let assignmentExcludes;
                         let assignmentAdds;
+                        let assignmentPSAIDs;
                         let rowDivs;
                         let row;
                         let assignmentDateDivs;
@@ -2086,6 +2286,7 @@
                             assignmentPercents = categorySortedData[i].assignmentPercents;
                             assignmentExcludes = categorySortedData[i].assignmentExcludes;
                             assignmentAdds = categorySortedData[i].assignmentAdds;
+                            assignmentPSAIDs = categorySortedData[i].assignmentPSAIDs;
 
                             rowDivs = $(`.categoryClassTableRow${i}`);
                             row = `<tr class="categoryClassTableRow${i}">
@@ -2158,10 +2359,10 @@
                             // Move rows
                             for (let j = 0; j < assignmentData.length; j++) {
                                 $($(`.categoryTable${i} .categoryStart + tbody`)[categories.indexOf(assignmentCategories[j])]).append(rowDivs[j]);
-
-                                // Bind listeners
-                                adjust($($(`.categoryAssignmentScore${i}`)[j]).find(".dynamic-input"), 0, remToPixels(2), remToPixels(4));
                             }
+
+                            //Bind listeners
+                            adjust($($(`.assignmentScore${i}`)).find(".dynamic-input"), 0, remToPixels(2), remToPixels(4));
 
                             // Remove extra rows
                             for (let j = assignmentData.length; j < rowDivs.length; j++) {
@@ -2209,6 +2410,7 @@
                             assignmentPercents = parsedData[i].assignmentPercents;
                             assignmentExcludes = parsedData[i].assignmentExcludes;
                             assignmentAdds = parsedData[i].assignmentAdds;
+                            assignmentPSAIDs = parsedData[i].assignmentPSAIDs;
 
                             rowDivs = $(`.classTableRow${i}`);
                             row = `<tr class="classTableRow${i}">
@@ -2276,10 +2478,11 @@
                             // Add missing rows
                             for (let j = rowDivs.length; j < assignmentData.length; j++) {
                                 $(`#table${i}`).append(row);
-
-                                // Bind listeners
-                                adjust($($(`.assignmentScore${i}`)[j]).find(".dynamic-input"), 0, remToPixels(2), remToPixels(4));
                             }
+
+                            //Bind listeners
+                            adjust($($(`.assignmentScore${i}`)).find(".dynamic-input"), 0, remToPixels(2), remToPixels(4));
+
 
                             // Remove extra rows
                             for (let j = assignmentData.length; j < rowDivs.length; j++) {
@@ -2306,6 +2509,7 @@
                             $(`#modAllTab${i}`).css("visibility", "hidden").children("span").children("i").addClass("disabled");
                             $(`#table${i}`).removeClass("unround-top-right").show();
                         }
+                        $('#addedOption' + i + ', #modifiedOption' + i).hide();
                         // Rows
                         for (let j = 0; j < assignmentData.length; j++) {
                             let assignmentIndex;
@@ -2320,8 +2524,26 @@
                             // Set up dates
                             $(assignmentDateDivs[assignmentIndex]).text(assignmentDates[j]);
 
+                            // Color names based on grade changes
+                            let textColor;
+                            if (latestChange) {
+                                if (_data[i].class_name in latestChange.added && Object.values(latestChange.added[_data[i].class_name]).includes(assignmentPSAIDs[j])) {
+                                    $('#addedOption' + i).show();
+                                    textColor = "green";
+                                }
+                                if (_data[i].class_name in latestChange.modified && latestChange.modified[_data[i].class_name].filter(m => m.psaid === assignmentPSAIDs[j]).length) {
+                                    $('#modifiedOption' + i).show();
+                                    textColor = "deepskyblue";
+                                }
+                            }
+
                             // Set up names
                             $(assignmentNameDivs[assignmentIndex]).text(assignmentNames[j]);
+                            if (textColor) {
+                                $(assignmentNameDivs[assignmentIndex]).css('color', textColor).css('font-weight', 'bold');
+                            } else {
+                                $(assignmentNameDivs[assignmentIndex]).css('color', '').css('font-weight', '');
+                            }
 
                             // Set up categories
                             let dropdown = $(assignmentCategoryDivs[assignmentIndex]).children("select");
@@ -2475,7 +2697,7 @@
             function setupOverviewTable(changedClassIndex) {
                 for (let i = 0; i < parsedData.length; i++) {
                     if (changedClassIndex === undefined || changedClassIndex === i) {
-                        let overallGrade = _data[i].overall_percent;
+                        let [overallGrade, overallLetter] = (correctCalc(i)) ? [getOverallGrade(i), getLetterGrade(getOverallGrade(i))] : [_data[i].overall_percent, _data[i].overall_letter];
                         let assignmentData = parsedData[i].rawData;
                         let lastIndex = assignmentData.length - 1;
                         let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(2);
@@ -2490,8 +2712,8 @@
                         }
                         delta = (delta ? (" <div class=\"delta\" style=\"color: " + color + "\">" + delta + "</div>") : "");
                         if (overallGrade) {
-                            document.getElementById("overviewChart" + i).innerHTML = "<div class=\"overallGrade\">" + (+(overallGrade.toFixed(2))).toString() + "%" + "</div><div class=\"overallLetter\">" + _data[i].overall_letter + "</div>" + delta;
-                            document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>` + _data[i].overall_percent + ` (` + _data[i].overall_letter + `)<span class="popup"><i id="incorrectOverviewGrade` + i + `"class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-bottom">Does not match calculated grade</span></i></span>`;
+                            document.getElementById("overviewChart" + i).innerHTML = "<div class=\"overallGrade\">" + (+(overallGrade.toFixed(2))).toString() + "%" + "</div><div class=\"overallLetter\">" + overallLetter + "</div>" + delta;
+                            document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>` + (+(overallGrade.toFixed(2))).toString() + "%" + ` (` + overallLetter + `)<span class="popup"><i id="incorrectOverviewGrade` + i + `"class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-bottom">Does not match calculated grade</span></i></span>`;
                         } else {
                             document.getElementById("overviewChart" + i).innerHTML = "N/A";
                             document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>N/A<span class="popup"><i id="incorrectOverviewGrade` + i + `"class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-bottom">Does not match calculated grade</span></i></span>`;
@@ -2714,6 +2936,7 @@
                         assignmentScoresParsed = classData.map(x => parseScore(x.points_gotten, x.points_possible));
                         assignmentCategories = classData.map(x => x.category);
                         let assignmentExcludes = classData.map(x => x.exclude);
+                        let assignmentPSAIDs = classData.map(x => x.psaid);
                         let assignmentAdds = classData.map((grade, index) => aData[i][index] !== undefined);
                         let rawData = overallGradeSteps.map((grade, index) => grade === false ? (index >= 0 ? excludedGradeSteps.shift() : 100) : grade);
                         parsedData[i] = {
@@ -2723,6 +2946,7 @@
                             assignmentScoresParsed: assignmentScoresParsed,
                             assignmentCategories: assignmentCategories,
                             assignmentExcludes: assignmentExcludes,
+                            assignmentPSAIDs: assignmentPSAIDs,
                             assignmentAdds: assignmentAdds,
                             rawData: rawData
                         };
@@ -2736,6 +2960,7 @@
                             assignmentScoresParsed: assignmentScoresParsed.map((x, index, arr) => arr[sortHelper[index]]),
                             assignmentCategories: assignmentCategories.map((x, index, arr) => arr[sortHelper[index]]),
                             assignmentExcludes: assignmentExcludes.map((x, index, arr) => arr[sortHelper[index]]),
+                            assignmentPSAIDs: assignmentPSAIDs.map((x, index, arr) => arr[sortHelper[index]]),
                             assignmentAdds: assignmentAdds.map((x, index, arr) => arr[sortHelper[index]]),
                             rawData: categoryGradeSteps.map((x, index, arr) => arr[sortHelper[index]]),
                             originalIndices: sortHelper
@@ -2925,7 +3150,7 @@
                         }, animation: {
                             easing: "easeOutCubic"
                         }, legend: {
-                            display: true, position: "top", labels: {
+                            onClick: (e) => e.stopPropagation(), display: true, position: "top", labels: {
                                 usePointStyle: true,
                                 fontColor: (darkMode ? "white" : "black"),
                                 fontFamily: "Verdana",
@@ -2953,7 +3178,7 @@
                                         if (tooltipItems[0].index >= chartData[tooltipItems[0].datasetIndex].mixedData.length) {
                                             return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + _data[tooltipItems[0].datasetIndex].overall_percent + "% (" + _data[tooltipItems[0].datasetIndex].overall_letter + ")";
                                         }
-                                        return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " N/A [Inaccurate weights]";
+                                        return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " N/A [Unverified weights]";
                                     }
                                     return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + tooltipItems[0].value + "% (" + getLetterGrade(tooltipItems[0].value) + ")";
                                 }, label: function (tooltipItem) {
@@ -3121,7 +3346,7 @@
                                         if (tooltipItems[0].index >= chartData[id].mixedData.length) {
                                             return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + _data[id].overall_percent + "% (" + _data[id].overall_letter + ")";
                                         }
-                                        return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " N/A [Inaccurate weights]";
+                                        return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " N/A [Unverified weights]";
                                     }
                                     return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + tooltipItems[0].value + "% (" + getLetterGrade(tooltipItems[0].value) + ")";
                                 }, label: function (tooltipItem) {
@@ -3207,11 +3432,17 @@
                     // down arrow
                 } else if (e.key === "ArrowLeft") {
                     // left arrow
-                    if (cardsDisplayed.slice(-1)[0] === "settingsCardDisplay") {
-                        if (currentTab === 1) {
-                            openTab(maxTab);
+                    if (cardsDisplayed.slice(-1)[0] === "gpaDetailsCardDisplay") {
+                        if (currentGpaDetailsTab === 1) {
+                            openGpaDetailsTab(maxGpaDetailsTab);
                         } else {
-                            openTab(currentTab - 1);
+                            openGpaDetailsTab(currentGpaDetailsTab - 1);
+                        }
+                    } else if (cardsDisplayed.slice(-1)[0] === "settingsCardDisplay") {
+                        if (currentSettingsTab === 1) {
+                            openTab(maxSettingsTab);
+                        } else {
+                            openTab(currentSettingsTab - 1);
                         }
                     } else if (cardsDisplayed.length === 0) {
                         if (currentPage === -1) {
@@ -3222,11 +3453,17 @@
                     }
                 } else if (e.key === "ArrowRight") {
                     // right arrow
-                    if (cardsDisplayed.slice(-1)[0] === "settingsCardDisplay") {
-                        if (currentTab === maxTab) {
+                    if (cardsDisplayed.slice(-1)[0] === "gpaDetailsCardDisplay") {
+                        if (currentGpaDetailsTab === maxGpaDetailsTab) {
+                            openGpaDetailsTab(1);
+                        } else {
+                            openGpaDetailsTab(currentGpaDetailsTab + 1);
+                        }
+                    } else if (cardsDisplayed.slice(-1)[0] === "settingsCardDisplay") {
+                        if (currentSettingsTab === maxSettingsTab) {
                             openTab(1);
                         } else {
-                            openTab(currentTab + 1);
+                            openTab(currentSettingsTab + 1);
                         }
                     } else if (cardsDisplayed.length === 0) {
                         if (currentPage === _data.length - 1) {
@@ -3377,7 +3614,7 @@
 
                             let weightData = $(form).serializeArray();
                             let weightURI = {};
-                            jQuery.map(weightData, function (n, i) {
+                            jQuery.map(weightData, function (n) {
                                 if (n.name !== "hasWeights") {
                                     weightURI[n.name] = isNaN(parseFloat(n.value)) ? null : parseFloat(n.value);
                                 }
@@ -3387,7 +3624,7 @@
                             }
                             let formData = {
                                 "className": className,
-                                "hasWeights": hasWeights,
+                                "hasWeights": JSON.stringify(hasWeights),
                                 "newWeights": JSON.stringify(weightURI)
                             };
 

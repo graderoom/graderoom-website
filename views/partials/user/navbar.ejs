@@ -208,6 +208,9 @@
 <% if (page === "home") { %>
     <% include recent_changes.ejs %>
 <% } %>
+<% if (page === "home") { %>
+    <% include gpa_details.ejs %>
+<% } %>
 
 <!-- Custom JavaScript -->
 <script>
@@ -263,9 +266,9 @@
                 $.ajax({
                            type: "POST", url: $(form).attr("action"), data: formData, async: _async
                        }).done(function (response) {
-                    if (formID === "#weightedGPAForm") {
+                    if (formID === ".weightedGPAForm") {
                         appearance.weightedGPA = !appearance.weightedGPA;
-                        $("#weightedGPAForm button").each(function () {
+                        $(".weightedGPAForm button").each(function () {
                             $(this).toggleClass("active");
                             if ($(this).prop("type") === "submit") {
                                 $(this).prop("type", "button");
@@ -305,8 +308,8 @@
                             setTimeout(() => window.reload(), 400);
                         } else {
                             alerts.lastUpdated.push(JSON.parse(response.updateData));
-                            refreshWithoutReload(true);
                             setupGradeChanges();
+                            refreshWithoutReload(true);
                             setupLastUpdated();
                         }
                     } else {
@@ -395,10 +398,7 @@
                                 $("#light_snowfall").attr("media", "not all");
                             }
                         } else {
-                            $('#lights-disabled-message').hide();
-                            $('#snow-disabled-message').hide();
-                            $("#snow-fall").hide();
-                            $(".lightrope").hide();
+                            disableSnow();
                         }
                     }
 
@@ -473,7 +473,7 @@
         if (id === "#settingsCardDisplay") {
             $($("#school_email").val(schoolUsername)[0].form).find('button').prop("disabled", true);
             checkLabel($("#school_email"));
-            openTab(currentTab);
+            openTab(currentSettingsTab);
             updateTutorialProgress();
             $("#blur-range-picker").val(appearance.blurAmount || 4);
         }

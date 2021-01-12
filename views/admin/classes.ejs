@@ -45,19 +45,79 @@
 <!-- Admin Navbar -->
 <% include ../partials/admin/admin_navbar.ejs %>
 
+<!-- Term Switcher -->
+<div id="termSwitcher" class="blur">
+    <% for (let i = 0; i < JSON.parse(termsAndSemesters).length; i++) { %>
+        <div id="<%= JSON.parse(termsAndSemesters)[i][0]; %>" <% if (term===JSON.parse(termsAndSemesters)[i][0]) { %> class="active" <% } %>>
+            <%= JSON.parse(termsAndSemesters)[i][0]; %>
+            <% for (let j = 0; j < JSON.parse(termsAndSemesters)[i][1].length; j++) { %>
+                <div onclick="window.location.href='/classes/?term=<%= JSON.parse(termsAndSemesters)[i][0]; %>&semester=<%= JSON.parse(termsAndSemesters)[i][1][j]; %>'"
+                     id="<%= JSON.parse(termsAndSemesters)[i][0]; %><%= JSON.parse(termsAndSemesters)[i][1][j]; %>"
+                     <% if (term===JSON.parse(termsAndSemesters)[i][0] && semester===JSON.parse(termsAndSemesters)[i][1][j]) { %> class="active" <% } %>>
+                     <%= JSON.parse(termsAndSemesters)[i][1][j] %>
+                </div>
+            <% } %>
+        </div>
+    <% } %>
+</div>
+
 <br>
 <!-- Main Screen -->
 <div id="weightsCard" class="container" style="border-radius:0.5rem">
+    <h5 style="font-size: 1.5rem; text-align:center"><%= term %> | <%= semester %> </h5>
     <span class="accordion" id="bigAccordionForms">
         <hr>
         <% for (let i = 0; i < Object.keys(classData).length; i++) { %>
             <% let className = Object.keys(classData)[i]; %>
-            <label style="display: flex; cursor: pointer" class="accordian-label collapsed" data-toggle="collapse"
+            <label style="display: flex; cursor: pointer" class="accordion-label collapsed" data-toggle="collapse"
                    href="#accordionForms<%= i %>">
                 <h5 style="font-size: 1.5rem !important;"><%= className %>
+                    <% let type = ""; %>
+                    <% switch (classData[className].classType) {
+                        case "":
+                            break;
+                        case "non-academic":
+                            type = "NA";
+                            break;
+                        case "none":
+                            type = "NONE";
+                            break;
+                        case "ap":
+                            type = "AP";
+                            break;
+                        case "honors":
+                            type = "HONORS";
+                            break;
+                        default:
+                            break;
+                    } %>
+                    <% let ucType; %>
+                    <% switch (classData[className].uc_csuClassType) {
+                        case "":
+                            ucType = "NOTUC"
+                            break;
+                        case "uc":
+                            ucType = "UC";
+                            break;
+                        case "uc_ap":
+                            ucType = "UCAP";
+                            break;
+                        case "uc_hon":
+                            ucType = "UCHONORS";
+                            break;
+                        default:
+                            break;
+                    } %>
+                    <div style="display: inline-flex; flex-flow: column-reverse; align-items: center; justify-content: center">
+                        <span style="font-size: 0.5rem"><%= type %></span>
+                        <span style="font-size: 0.5rem"><%= ucType %></span>
+                    </div>
                     <i class="fa" aria-hidden="true"></i>
                 </h5>
-                <span id="weightMessage<%= i %>" class="alert alert-success font-weight-bold"
+                <% if (!Object.entries(classData[className]).find(([c, t]) => _.isObject(t) && !Array.isArray(t) && Object.keys(classData[className][c]["weights"]).length)) { %>
+                    <i class="fa fa-exclamation-circle" style="padding-top: 8px; margin-bottom: 0.5rem; margin-left: 0.5rem; margin-right: 0.5rem; font-size: 1.1rem; line-height: 1.2rem"></i>
+                <% } %>
+                <span id="classMessage<%= i %>" class="alert alert-success font-weight-bold"
                       style="margin: auto 0 auto 0.75rem; width: fit-content; display:none; justify-content: center; padding: 0.1rem;">
                     <div style="display: none" class="sk-chase-mini">
                         <div class="sk-chase-dot mini"></div>
@@ -73,11 +133,11 @@
 
             <span class="accordion collapse collapse-underline" id="accordionForms<%= i %>"
                   data-parent="#bigAccordionForms">
-                <form id="weights<%= i %>" class="form-ajax form-weights form-signin" action="/updateclasstype"
+                <form id="classTypeForm<%= i %>" class="form-ajax form-weights form-signin" action="/updateclasstype"
                       method="post" style="display: flex; justify-content: right;">
                     <div>
                         <label>Class Type:</label>
-                        <select onchange="ajaxPostWeightsDatabaseForm('<%= i %>',null,null,[],'#weightMessage<%= i %>',true); $('#weights<%= i %>').submit()"
+                        <select oninput="ajaxPostWeightsDatabaseForm('<%= i %>',null,null,[],'#classMessage<%= i %>',true); $('#classTypeForm<%= i %>').submit()"
                                 class="minimal" style="margin: 0; padding: 0 1.7rem 0 0.5rem"
                                 id="classType<%= i %>">
                             <option value="" disabled hidden
@@ -113,17 +173,53 @@
                         </select>
                     </div>
                 </form>
+                <div style="width: 100%"></div>
+                <form id="ucClassType<%= i %>" class="form-ajax form-weights form-signin" action="/updateuccsuclasstype"
+                      method="post" style="display: flex; justify-content: right;">
+                    <div>
+                        <label>UC Class Type:</label>
+                        <select oninput="ajaxPostWeightsDatabaseForm('<%= i %>',null,null,[],'#classMessage<%= i %>',true,true); $('#ucClassType<%= i %>').submit()"
+                                class="minimal" style="margin: 0; padding: 0 1.7rem 0 0.5rem"
+                                id="ucClassType<%= i %>">
+                            <option value=""
+                            <% if (classData[className].uc_csuClassType === "") { %> selected
+                                    <% } %>
+                            >
+                                Not UC Approved
+                            </option>
+                            <option value="uc"
+                            <% if (classData[className].uc_csuClassType === "uc") { %> selected
+                                    <% } %>
+                            >
+                                UC Approved
+                            </option>
+                            <option value="uc_ap"
+                            <% if (classData[className].uc_csuClassType === "uc_ap") { %> selected
+                                    <% } %>
+                            >
+                                UC Approved AP
+                            </option>
+                            <option value="uc_hon"
+                            <% if (classData[className].classType === "uc_hon") { %> selected
+                                    <% } %>
+                            >
+                                UC Approved Honors
+                            </option>
+                        </select>
+                    </div>
+                </form>
                 <% for (let j = 0; j < Object.keys(classData[className]).length; j++) { %>
                     <% let teacherName = Object.keys(classData[className])[j]; %>
-                    <% if (teacherName != "classType") { %>
+                    <% if (_.isObject(classData[className][teacherName]) && !Array.isArray(classData[className][teacherName])) { %>
                         <div class="break"></div>
-                        <label class="accordian-label" data-toggle="collapse" href="#collapse<%= i %><%= j %>"
+                        <label class="accordion-label" data-toggle="collapse" href="#collapse<%= i %><%= j %>"
                                style="display: flex; margin: 0 0 0 2rem; cursor: pointer">
                             <h5 style="cursor: pointer" class="weightname" id="<%= teacherName %>">
                                 <%= teacherName %>
                                 <i style="text-indent: 0 !important;" class="fa" aria-hidden="true"></i>
                             </h5>
-                            <span id="weightMessage<%= i %><%= j %>" class="alert alert-success font-weight-bold"
+
+                            <span id="suggestionMessage<%= i %><%= j %>" class="alert alert-success font-weight-bold"
                                   style="margin: auto 0 auto 0.75rem; width: fit-content; display:none; justify-content: center; padding: 0.1rem;">
                                 <div style="display: none" class="sk-chase-mini">
                                     <div class="sk-chase-dot mini"></div>
@@ -144,7 +240,7 @@
                                 let weights;
                                 let hasWeights;
                                 let marginLeft;
-                                if (z == -1) {
+                                if (z === -1) {
                                     weights = classData[className][teacherName]["weights"];
                                     hasWeights = classData[className][teacherName]["hasWeights"];
                                     marginLeft = 4;
@@ -153,12 +249,12 @@
                                     hasWeights = classData[className][teacherName]["suggestions"][z]["hasWeights"];
                                     marginLeft = 6;
                                 }
-                            if (z == 0) { %>
+                            if (z === 0) { %>
                                 <h5 id="suggestion-header<%= i %><%= j %>" style="margin: 0 0 0.5rem 4rem;">
                                     Suggestions:
                                 </h5>
                             <% } %>
-                            <form id="weights<%= i %><%= j %><%= z %>" class="form-ajax form-weights form-signin"
+                            <form id="suggestion<%= i %><%= j %><%= z %>" class="form-ajax form-weights form-signin"
                                   action="/updateclassweights" method="post"
                                   style="margin: 0 0 0 <%= marginLeft %>rem; width: 100%">
                                 <suggestionIndex style="display: none;"><%= z %></suggestionIndex>
@@ -250,7 +346,7 @@
                                 <% if (z == -1) { %>
                                     <div class="formSubmitButton" style="width: 100%; display: none">
                                         <button type="submit" class="btn btn-default btn-med"
-                                                onclick="ajaxPostWeightsDatabaseForm('<%= i %>','<%= j %>','<%= z %>',[],'#weightMessage<%= i %><%= j %>',true);">
+                                                onclick="ajaxPostWeightsDatabaseForm('<%= i %>','<%= j %>','<%= z %>',[],'#suggestionMessage<%= i %><%= j %>',true);">
                                             <i class="fa fa-refresh" aria-hidden="true"></i>
                                             Update
                                         </button>
@@ -258,7 +354,7 @@
                                 <% } else { %>
                                     <div class="formSubmitButton" style="width: 100%; display: block;">
                                         <button type="submit" class="btn btn-default btn-med approve_btn"
-                                                onclick="ajaxPostWeightsDatabaseForm('<%= i %>','<%= j %>','<%= z %>',[],'#weightMessage<%= i %><%= j %>',true);">
+                                                onclick="ajaxPostWeightsDatabaseForm('<%= i %>','<%= j %>','<%= z %>',[],'#suggestionMessage<%= i %><%= j %>',true);">
                                             <i class="fa fa-check" aria-hidden="true"></i>
                                             Approve
                                         </button>
@@ -284,20 +380,22 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
     let classes = <%- JSON.stringify(classData) %>;
+    let term = "<%= term %>";
+    let semester = "<%= semester %>";
 
-    $(".form-group").each(function () {
-        if (!$($(this)[0].previousElementSibling).hasClass("fa-plus")) {
-            $(this).css("margin-left", $($($(this)[0].parentNode)[0].children)[1].offsetLeft - $($(this)[0].parentNode)[0].offsetLeft);
-        }
-    });
+    $("#termSwitcher").addClass("hover");
+    setTimeout(() => $("#termSwitcher").removeClass("hover"), 2000);
 
-    function ajaxPostWeightsDatabaseForm(classIndex, teacherIndex, suggestionIndex, fieldIDsToClear, messagesDivID, async) {
+    // TODO restructure! this is not good code
+    function ajaxPostWeightsDatabaseForm(classIndex, teacherIndex, suggestionIndex, fieldIDsToClear, messagesDivID, async, isUCForm = false) {
         // Get the form.
         let formID;
         if (suggestionIndex) {
-            formID = "#weights" + classIndex + teacherIndex + suggestionIndex;
+            formID = "#suggestion" + classIndex + teacherIndex + suggestionIndex;
+        } else if (isUCForm) {
+            formID = "#ucClassType" + classIndex;
         } else {
-            formID = "#weights" + classIndex;
+            formID = "#classTypeForm" + classIndex;
         }
         $(formID).submit(function (event) {
             event.preventDefault();
@@ -329,12 +427,12 @@
                 // console.log(weights);
                 // console.log(hasWeights);
                 formData = {
-                    className: className, teacherName: teacherName, weights: weights, hasWeights: hasWeights
+                    term: term, semester: semester, className: className, teacherName: teacherName, weights: weights, hasWeights: hasWeights
                 };
             } else {
                 let classType = $(formID).find("select")[0].value.trim();
                 formData = {
-                    className: className, classType: classType
+                    term: term, semester: semester, className: className, classType: classType
                 };
             }
 
@@ -376,15 +474,15 @@
 
                 //Update class weight for approved suggestions
                 if (teacherIndex && parseInt($(formID).find("suggestionindex").html()) != -1) {
-                    $("#weights" + classIndex + teacherIndex + "-1").find(".form-group").slice(0, -1).remove(); //Remove all categories
+                    $("#suggestion" + classIndex + teacherIndex + "-1").find(".form-group").slice(0, -1).remove(); //Remove all categories
                     $("#check" + classIndex + teacherIndex + "-1").prop("checked", !hasWeights); //Update hasWeights
                     for (let i = 0; i < Object.keys(weights).length; i++) {
                         addCategory(document.createElement("dummy"), classIndex, teacherIndex, "-1");
                         $($("#category" + classIndex + teacherIndex + "-1" + i).find("input")[0]).val(Object.keys(weights)[i]); //Add Category names
                         $($("#category" + classIndex + teacherIndex + "-1" + i).find("input")[1]).val(Object.values(weights)[i]); //Add category weights
                     }
-                    $("#weights" + classIndex + teacherIndex + "-1" + " .form-group .form-control").css("border-color", "unset").addClass("text-view");
-                    $("#weights" + classIndex + teacherIndex + "-1" + " .formSubmitButton").hide();
+                    $("#suggestion" + classIndex + teacherIndex + "-1" + " .form-group .form-control").css("border-color", "unset").addClass("text-view");
+                    $("#suggestion" + classIndex + teacherIndex + "-1" + " .formSubmitButton").hide();
                 } else {
                     $(formID + " .formSubmitButton").hide();
                 }
@@ -392,7 +490,7 @@
                 //Remove suggestion
                 if (response.suggestion != null) {
                     try {
-                        $("#weights" + classIndex + teacherIndex + response.suggestion).remove();
+                        $("#suggestion" + classIndex + teacherIndex + response.suggestion).remove();
                         //remove Suggestion header if no more suggestions
                         if ($("#collapse" + classIndex + teacherIndex).find("form").length <= 1) {
                             $("#suggestion-header" + classIndex + teacherIndex).remove();
@@ -434,7 +532,7 @@
 
     function addCategory(element, classIndex, teacherIndex, suggestionIndex) {
         if (!(element).hasAttribute("disabled")) {
-            let classDiv = "#weights" + classIndex + teacherIndex + suggestionIndex;
+            let classDiv = "#suggestion" + classIndex + teacherIndex + suggestionIndex;
             let newCategory = $("<div class=\"form-group\" id=\"category" + classIndex + teacherIndex + suggestionIndex + ($($(classDiv)[0].children)[1].children.length - 1) + "\"" + "style=\"text-indent: 3rem; display: inline-flex;" + "align-items: flex-end;" + ($($(classDiv)[0].children)[1].children.length > 1 ? "margin-left: " + ($($($(classDiv)[0].children)[1].children)[1].offsetLeft - $(classDiv)[0].offsetLeft) + "px" : "") + "\">" + "<input size=\"2\" style=\"font-size: 0.9rem; margin-right: 0 !important; width: fit-content; white-space: nowrap; margin-bottom: 0;\"" + "class=\" disableable form-control\"" + "oninput=\"this.classList.remove('text-view'); showSubmitButton(this); resizeInput(this);\"" + "required" + ">" + ":&nbsp;</input>" + "<input style=\"margin: 0; border-color: lightcoral!important;\"" + "type=\"number\"" + "min=\"0\"" + "step=\"0.1\"" + "class=\"form-control disableable\"" + "oninput=\"this.classList.remove('text-view'); showSubmitButton(this); \">" + "<span class=\"fa fa-minus disableable\" onclick=\"removeCategory(this)\"" + "style=\"text-indent: 1rem; color: red; cursor: pointer;\"></span>" + "</div>");
             $($($(classDiv)[0].children)[1]).append(newCategory);
             showSubmitButton($(classDiv));
@@ -455,7 +553,7 @@
         $(element).attr("size", size);
     }
 
-    let user = <%- userRef %>;
+    let appearance = <%- appearance; %>;
     let checkingTheme;
     let theme = appearance.theme;
     let darkModeStart = appearance.darkModeStart;
@@ -511,8 +609,8 @@
         }
         if (appearance.holidayEffects) {
             init = performance.now();
-            $('#lights-disabled-message').hide();
-            $('#snow-disabled-message').hide();
+            $("#lights-disabled-message").hide();
+            $("#snow-disabled-message").hide();
             $("#snow-fall").show();
             $(".lightrope").show();
             if (!darkMode) {
@@ -521,8 +619,8 @@
                 $("#light_snowfall").attr("media", "not all");
             }
         } else {
-            $('#lights-disabled-message').hide();
-            $('#snow-disabled-message').hide();
+            $("#lights-disabled-message").hide();
+            $("#snow-disabled-message").hide();
             $("#snow-fall").hide();
             $(".lightrope").hide();
         }

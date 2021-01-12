@@ -35,10 +35,13 @@ class ClassGrade:
         teacher_name: string
         overall_percent: float
         overall_letter: string
+        student_id: string
+        section_id: string
+        ps_locked: boolean
         grades: list of dictionaries of individual assignments
     """
 
-    def __init__(self, class_name, teacher_name, overall_percent, overall_letter, student_id, section_id):
+    def __init__(self, class_name, teacher_name, overall_percent, overall_letter, student_id, section_id, ps_locked):
         """Inits ClassGrade with PowerSchool class information"""
         self.class_name = class_name
         self.teacher_name = teacher_name
@@ -46,6 +49,7 @@ class ClassGrade:
         self.overall_letter = overall_letter
         self.student_id = student_id
         self.section_id = section_id
+        self.ps_locked = ps_locked
         self.grades = []
 
     def as_dict(self):
@@ -57,6 +61,7 @@ class ClassGrade:
             'overall_letter': self.overall_letter,
             'student_id': self.student_id,
             'section_id': self.section_id,
+            'ps_locked': self.ps_locked,
             'grades': self.grades
         }
 
@@ -368,7 +373,7 @@ class PowerschoolScraper:
                     else:
                         local_class = ClassGrade(class_name, False,
                                                  overall_percent,
-                                                 overall_letter, False, False)
+                                                 overall_letter, False, False, False)
                         semester_classes.append(local_class.as_dict())
 
             # Finalize data for the selected year
@@ -487,7 +492,7 @@ class PowerschoolScraper:
         if (class_name and teacher_name and overall_percent
                 and (overall_letter != '-')):
             local_class = ClassGrade(class_name, teacher_name,
-                                     overall_percent, overall_letter, None, None)
+                                     overall_percent, overall_letter, None, None, False)
         else:
             return
 
@@ -552,7 +557,7 @@ class PowerschoolScraper:
             overall_letter = data['overall_letter']
             student_id = data['student_id']
             section_id = data['section_id']
-            local_class = ClassGrade(class_name, teacher_name, overall_percent, overall_letter, student_id, section_id)
+            local_class = ClassGrade(class_name, teacher_name, overall_percent, overall_letter, student_id, section_id, True)
 
             local_class = parse_class(local_class, self.get_class('https://powerschool.bcp.org/', local_class))
             if (len(local_class['grades']) > 0):

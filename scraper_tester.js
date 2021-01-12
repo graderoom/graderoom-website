@@ -37,5 +37,7 @@ module.exports = {
         let get_history = credentials.get("get_history").value();
         let resp = await scraper.loginAndScrapeGrades(school_username, password, data_if_locked, term_data_if_locked, get_history);
         console.log(resp);
+        console.log(resp.new_grades);
+        console.log(Object.values(resp.new_grades)[0]);
     }
 }
