@@ -42,7 +42,91 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 4.4.0] - 2021-01-12
+### Added
+- UC/CSU GPA
+- Clicking grade deltas now open sync log
+- Added and modified assignments are colored in class tables
+- Changelog can now emphasize important information <span class="changelog-inline-setoff">like this</span>
+- <span class="changelog-inline-setoff">GPA Details display</span><ul>
+- This card displays details behind the calculations of your GPAs
+- Currently, the UC/CSU GPA details is not yet available
+
+### Improved
+- Grade deltas on class pages now display changes on latest sync with changes
+- Sync Log now indicates when PowerSchool was locked during sync
+- Charts no longer display [Inaccurate weights] when weights are accurate
+- Charts no longer become dashed when powerschool is locked and weights are correct
+- Navigation bar no longer displays grades in pre-loading stage<ul>
+- This prevents incorrect grades from showing briefly in the case of locked PowerSchool</ul>
+- Incorrect grade messages no longer display when weights are accurate
+- Incorrect grade messages have been updated to always display accurate information
+- Rearranged class info<ul>
+- Teacher has been moved to the right side
+- Course types have been moved to the left side
+- Course type language has been updated
+- Weight verification status has been added to the left side</ul>
+- Weight accuracy is determined by verification of weights
+- Your weights are verified if <span class="changelog-inline-setoff">Weights Verified <i class="fa fa-check-circle"></i></span> is displayed in the upper left corner of the class page
+- If your weights are not verified, <span class="changelog-inline-setoff">Weights Unverified <i class="fa fa-exclamation-circle"></i></span> will be displayed
+- Verification of your weights will occur more quickly if you send feedback through <span class="changelog-inline-setoff">More > Send Feedback</span><ol type="1">
+- Choose the option <span class="changelog-inline-setoff">Submit weights</span>
+- Include the class name and teacher name of the course you would like weights to be verified for
+- You should see the weights become verified shortly</ol>
+- Changelog now has all versions when opened
+- Changelog now remains on same version even after the page is resized or changelog is closed and reopened
+- Changelog legend is much more responsive
+- Styling of class navbar
+- Auto disabled snow no longer changes background color
+- Significantly improved initial load time
+- Scores in class tables now populate instantly
+- Updated some old changelog versions with the new UI
+- If a page refresh is necessary to display updated grades, the sync log now displays after the refresh is complete
+- Weight verification is now based on more accurate logic
+- Cumulative GPAs now include current semester
+- Styling and helpfulness of error messages
+- <em>[Beta]</em> Increased size of fps display as requested
+
+### Fixed
+- Issue with snowfall
+- Issue where snow background in light mode would not disappear properly after holiday effects were disabled
+- Issue where legend items on overview chart were sometimes clickable
+- An issue where reverting to verified weights didn't remove the revert button in all cases
+- <em>[Beta]</em> Issue with fps display
+
+## [Beta 4.3.1] - 2021-01-12
+### Added
+- GPA details page now has sections<ul>
+- Just like the tabs in the Settings page, these sections can be switched using the arrow keys</ul>
+- Cumulative GPA details are now available in the GPA details page
+- GPA details now respond to the weighted GPA settings 
+- A toggle has been added to GPA details to make it easier to switch between the two
+
+### Fixed
+- Styling issues with tables in dark mode
+- Non-Academic, credit, and dropped courses are no longer included in the GPA details page
+
+## [Beta 4.3.0] - 2021-01-11
+### Added
+- <span class="changelog-inline-setoff">GPA Details display</span>
+- Currently, this display only displays details about the Semester GPA
+- In the next major update, the display will be expanded to show both the Cumulative and UC/CSU GPA calculations to help with troubleshooting issues
+- If you notice an error, please report it in <span class="changelog-inline-setoff">More > Send Feedback</span> and your issue will promptly be resolved
+
+### Improved
+- If a page refresh is necessary to display updated grades, the sync log now displays after the refresh is complete
+- Weight verification is now based on more accurate logic
+- Cumulative GPAs now include current semester
+- Styling and helpfulness of error messages
+
+### Fixed
+- An issue where reverting to verified weights didn't remove the revert button in all cases
+
 ## [Beta 4.2.2] - 2021-01-10
+### Improved
+- Scores in class tables now populate instantly
+- Updated some old changelog versions with the new UI
+
 ### Fixed
 - Issue with UC/CSU GPA calculation
 
@@ -1486,7 +1570,7 @@
 - If your account still exists, you will be asked to sync your grades with PowerSchool to recover your data
 - Please inform anyone affected by this issue to create a new account
 - The Graderoom Team apologizes for the great inconvenience this has caused and has taken strict measures to prevent a similar event from occurring again
-- <em>[Beta]</em> Request another beta key by emailing <a href="mailto: support@graderoom.me">support@graderoom.me</a> or asking a developer directly
+- <em>[Beta]</em> Request another beta key by emailing <span class="changelog-inline-setoff"><a href="mailto:support@graderoom.me">support@graderoom.me</a></span> or asking a developer directly
 
 ## [Beta 1.2.2] - 2020-03-02
 ### Added
@@ -1743,7 +1827,7 @@
 
 ## [Beta 0.4.0] - 2020-01-29
 ### Added
-- Beta site at <a href="https://beta.graderoom.me">this link</a><ul>
+- Beta site at <span class="changelog-inline-setoff"><a href="https://beta.graderoom.me">this link</a></span><ul>
 - Both sites still require beta keys
 - Your data will not transfer over
 - Features will be released first to the beta site once a stable version is released

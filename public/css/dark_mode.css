@@ -42,11 +42,11 @@ nav .btn:hover {
     color: #333333;
 }
 
-td {
-    border-color: #333333 !important;
+td, th {
+    border-color: #333333;
 }
 
-th {
+.weights td, .weights th, th.admin, td.admin, th.overview, td.overview {
     border-color: #333333 !important;
 }
 
@@ -127,7 +127,7 @@ th {
     background-color: #191919;
 }
 
-#weightedGPAToggle button:not(.active) {
+.weightedGPAToggle button:not(.active) {
     background-color: black;
 }
 
@@ -511,6 +511,15 @@ tr:hover .toolTab {
 #classLinks {
     box-shadow: 0 0 10px 2px #333333;
 }
+
+#classLinks li.nav-item:not(.active):hover {
+    box-shadow: inset 0 0 1px 1px black;
+}
+
+.gpa-details-table th, .gpa-details-table td, .gpa-details-table, .gpa-details-table tr {
+    border: 1px solid #888888;
+}
+
 /* Mobile Stuff */
 @media only screen and (max-width: 991px) {
     #table-1 table {

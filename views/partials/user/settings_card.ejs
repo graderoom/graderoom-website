@@ -704,6 +704,7 @@
 <script type="text/javascript">
 
     let checkingFirstName;
+    let settingsBtns = $("#settingsCardDisplay .tablinks");
 
     function checkFirstName(inputID, messageDivID) {
         const firstNameRegex = new RegExp("^[a-zA-Z]*$");
@@ -860,25 +861,19 @@
 
     function openTab(tabIndex) {
         // Declare all variables
-        let i, tabcontent, tablinks;
-        let tabName = "settings-" + tabIndex;
+        let tabName = "#settings-" + tabIndex;
 
         // Get all elements with class="tabcontent" and hide them
-        tabcontent = document.getElementsByClassName("tabcontent");
-        for (i = 0; i < tabcontent.length; i++) {
-            tabcontent[i].style.display = "none";
-        }
+        $("#settingsCardDisplay .tabcontent").hide();
 
         // Get all elements with class="tablinks" and remove the class "active"
-        tablinks = document.getElementsByClassName("tablinks");
-        for (i = 0; i < tablinks.length; i++) {
-            tablinks[i].classList.remove("active");
-        }
+        $("#settingsCardDisplay .tablinks").removeClass("active");
+
 
         // Show the current tab, and add an "active" class to the button that opened the tab
-        document.getElementById(tabName).style.display = "block";
-        document.getElementById("btn-" + tabIndex).classList.add("active");
-        currentTab = tabIndex;
+        $(tabName).show();
+        $(settingsBtns[tabIndex - 1]).addClass('active');
+        currentSettingsTab = tabIndex;
     }
 
     function checkLabel(input) {
