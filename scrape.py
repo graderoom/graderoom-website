@@ -327,7 +327,7 @@ class PowerschoolScraper:
                 continue
 
             # Cut the year from the link text
-            year = year_link.text[:5]
+            year = year_link.text.strip()[:5]
 
             # Ensure it exists, then fetch the year link
             if not link['href']:
