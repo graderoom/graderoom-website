@@ -141,7 +141,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/weightedGPA", [isLoggedIn], (req, res) => {
-        let weightedGPA = req.body.weightedGPA === "true";
+        let weightedGPA = req.body.weightedGPA[0] === "true";
         authenticator.setWeightedGPA(req.user.username, weightedGPA);
         res.sendStatus(200);
     });

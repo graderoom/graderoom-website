@@ -46,7 +46,7 @@ td, th {
     border-color: #333333;
 }
 
-.weights td, .weights th, th.admin, td.admin {
+.weights td, .weights th, th.admin, td.admin, th.overview, td.overview {
     border-color: #333333 !important;
 }
 
@@ -127,7 +127,7 @@ td, th {
     background-color: #191919;
 }
 
-#weightedGPAToggle button:not(.active) {
+.weightedGPAToggle button:not(.active) {
     background-color: black;
 }
 

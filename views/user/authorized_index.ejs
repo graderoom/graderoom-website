@@ -131,18 +131,18 @@
                 <div id="section-1">
                     <div style="display: flex">
                         <div id="GPA-container">
-                            <div id="weightedGPAToggle">
-                                <form id="weightedGPAForm" action="/weightedGPA" method="post">
+                            <div class="weightedGPAToggle">
+                                <form class="weightedGPAForm" action="/weightedGPA" method="post">
                                     <input name="weightedGPA"
                                            value="<% if (JSON.parse(appearance).weightedGPA) { %>false<% } else { %>true<% } %>"
                                            style="display: none">
-                                    <button onclick="ajaxPostForm('#weightedGPAForm',[],'',true, true)"
+                                    <button onclick="ajaxPostForm('.weightedGPAForm',[],'',true, true)"
                                     <% if (JSON.parse(appearance).weightedGPA) { %> type="button"
                                             <% } %>
                                             class="<% if (JSON.parse(appearance).weightedGPA) { %> active <% } %> btn">
                                         Weighted
                                     </button>
-                                    <button onclick="ajaxPostForm('#weightedGPAForm',[],'',true, true)"
+                                    <button onclick="ajaxPostForm('.weightedGPAForm',[],'',true, true)"
                                     <% if (!JSON.parse(appearance).weightedGPA) { %> type="button"
                                             <% } %>
                                             class="<% if (!JSON.parse(appearance).weightedGPA) { %> active <% } %> btn">
@@ -781,8 +781,10 @@
             let cardsDisplayed = [];
             let minCardZIndex = 25;
             let charts = [];
-            let currentTab = 1;
-            let maxTab = $(".tabcontent").length;
+            let currentSettingsTab = 1;
+            let maxSettingsTab = $("#settingsCardDisplay .tabcontent").length;
+            let currentGpaDetailsTab = 1;
+            let maxGpaDetailsTab;
             let darkMode;
             let colors = appearance.classColors;
             let darkModeStart = appearance.darkModeStart;
@@ -1070,11 +1072,13 @@
                         setupOverallGPA();
                         setupCumulativeGPA();
                         setupUC_CSU_GPA();
+                        setupGpaDetails(true, false);
                     });
                 } else {
                     setupOverallGPA();
                     setupCumulativeGPA();
                     setupUC_CSU_GPA();
+                    setupGpaDetails(true, false);
                 }
             }
 
@@ -3428,11 +3432,17 @@
                     // down arrow
                 } else if (e.key === "ArrowLeft") {
                     // left arrow
-                    if (cardsDisplayed.slice(-1)[0] === "settingsCardDisplay") {
-                        if (currentTab === 1) {
-                            openTab(maxTab);
+                    if (cardsDisplayed.slice(-1)[0] === "gpaDetailsCardDisplay") {
+                        if (currentGpaDetailsTab === 1) {
+                            openGpaDetailsTab(maxGpaDetailsTab);
                         } else {
-                            openTab(currentTab - 1);
+                            openGpaDetailsTab(currentGpaDetailsTab - 1);
+                        }
+                    } else if (cardsDisplayed.slice(-1)[0] === "settingsCardDisplay") {
+                        if (currentSettingsTab === 1) {
+                            openTab(maxSettingsTab);
+                        } else {
+                            openTab(currentSettingsTab - 1);
                         }
                     } else if (cardsDisplayed.length === 0) {
                         if (currentPage === -1) {
@@ -3443,11 +3453,17 @@
                     }
                 } else if (e.key === "ArrowRight") {
                     // right arrow
-                    if (cardsDisplayed.slice(-1)[0] === "settingsCardDisplay") {
-                        if (currentTab === maxTab) {
+                    if (cardsDisplayed.slice(-1)[0] === "gpaDetailsCardDisplay") {
+                        if (currentGpaDetailsTab === maxGpaDetailsTab) {
+                            openGpaDetailsTab(1);
+                        } else {
+                            openGpaDetailsTab(currentGpaDetailsTab + 1);
+                        }
+                    } else if (cardsDisplayed.slice(-1)[0] === "settingsCardDisplay") {
+                        if (currentSettingsTab === maxSettingsTab) {
                             openTab(1);
                         } else {
-                            openTab(currentTab + 1);
+                            openTab(currentSettingsTab + 1);
                         }
                     } else if (cardsDisplayed.length === 0) {
                         if (currentPage === _data.length - 1) {

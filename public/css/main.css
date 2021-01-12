@@ -2048,34 +2048,51 @@ body::-webkit-scrollbar {
     white-space: nowrap;
 }
 
-#weightedGPAToggle {
+#gpa-details-container > .card-footer {
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+}
+
+#gpa-details-container > .card-footer > .gpa-details {
+    align-self: center;
+}
+
+#gpaDetailsCard .weightedGPAToggle form {
+    padding: 1rem;
+    top: 0;
+    right: 0;
+    position: absolute;
+}
+
+.weightedGPAToggle {
     border-radius: 0.5rem;
 }
 
-#weightedGPAToggle form {
+.weightedGPAToggle form {
     display: flex;
     border-radius: 0.5rem;
 }
 
-#weightedGPAToggle button {
+.weightedGPAToggle button {
     width: 6rem;
     margin: 0;
     padding: 0.5rem 0;
 }
 
-#weightedGPAToggle button:first-of-type {
+.weightedGPAToggle button:first-of-type {
     border-radius: 0.5rem 0 0 0.5rem;
 }
 
-#weightedGPAToggle button:last-of-type {
+.weightedGPAToggle button:last-of-type {
     border-radius: 0 0.5rem 0.5rem 0;
 }
 
-#weightedGPAToggle button.active {
+.weightedGPAToggle button.active {
     pointer-events: none;
 }
 
-#GPA-container > div:not(#weightedGPAToggle) {
+#GPA-container > div:not(.weightedGPAToggle) {
     width: 12rem;
     padding: 1rem 0.5rem;
     border-radius: 0.5rem;
@@ -2548,7 +2565,16 @@ input:disabled {
 }
 
 #gpa-details-container {
-    max-height: 60vh; overflow-y: scroll;
+    max-height: 60vh;
+}
+
+#gpaDetailsCardDisplay .card-body {
+    display: flex;
+    flex-flow:column;
+}
+
+#gpa-details-container .tab {
+    margin-right: 0;
 }
 
 #gpa-details-container p {

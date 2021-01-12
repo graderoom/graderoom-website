@@ -205,7 +205,7 @@ table thead tr th {
     background-color: white;
 }
 
-#weightedGPAToggle button:not(.active) {
+.weightedGPAToggle button:not(.active) {
     background-color: white;
 }
 
