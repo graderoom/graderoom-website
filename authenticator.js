@@ -249,13 +249,14 @@ module.exports = {
             // Update class db version
             console.log("Updating classdb to version 1");
             classRef.set("version", 1).write();
-            version===1;
+            version = 1;
         }
         //Clear classes to migrate to semester system
         if (version === 1) {
             db.set("classes",{}).write();
             // Update class db version
             classRef.set("version", 2).write();
+            version = 2;
         }
 
         let users = db.get("users").value();
