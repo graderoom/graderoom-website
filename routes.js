@@ -501,10 +501,10 @@ module.exports = function (app, passport) {
         } else {
 
             resp = await authenticator.addNewUser(username, password, s_email, false);
-            authenticator.setColorPalette(username, "clear", false);
             console.log("nonbeta: " + resp);
 
         }
+        authenticator.setColorPalette(username, "clear", false);
 
         if (!resp.success) {
             req.flash("signupMessage", resp.message);
