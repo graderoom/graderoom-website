@@ -16,10 +16,10 @@ const SunCalc = require("suncalc");
 const roundsToGenerateSalt = 10;
 
 // Change this when updateDB changes
-const dbUserVersion = 2;
+const dbUserVersion = 3;
 
 // Change this when updateAllDB changes
-const dbClassVersion = 1;
+const dbClassVersion = 2;
 
 db.defaults({users: [], keys: [], classes: {}, deletedUsers: []}).write();
 
@@ -247,7 +247,7 @@ module.exports = {
             }
 
             // Update class db version
-            console.log("Updating classdb to version 1");
+            console.log("Updated classdb to version 1");
             classRef.set("version", 1).write();
             version = 1;
         }
@@ -257,7 +257,28 @@ module.exports = {
             // Update class db version
             classRef.set("version", 2).write();
             version = 2;
+            console.log("Updated classdb to version 2");
         }
+
+        if (version === 2) {
+            let classesToFix = classRef.value();
+            let terms = Object.keys(classesToFix);
+            for (let i = 0; i < terms.length; i++) {
+                if (!terms[i].includes("\n\n")) continue;
+                let oldTerm;
+                let realTerm = terms[i].substring(2,4);
+                realTerm = realTerm + "-" + (parseInt(realTerm) + 1)
+
+                oldTerm = classesToFix[terms[i]];
+                classRef.set(realTerm, oldTerm).write();
+                classRef.unset(terms[i]).write();
+            }
+            // Do the thing to make it work
+            classRef.set("version", 3).write();
+            version = 3;
+            console.log("Updated classdb to version 3");
+        }
+        
 
         let users = db.get("users").value();
         for (let i = 0; i < users.length; i++) {
@@ -502,7 +523,38 @@ module.exports = {
         }
 
         if (version === 2) {
+            let gradesToFix = user.grades;
+            let terms = Object.keys(gradesToFix);
+            for (let i = 0; i < terms.length; i++) {
+                if (!terms[i].includes("\n\n")) continue;
+                let oldTerm;
+                let realTerm = terms[i].substring(2,4);
+                realTerm = realTerm + "-" + (parseInt(realTerm) + 1)
 
+                oldTerm = user.grades[terms[i]];
+                userRef.get("grades").set(realTerm, oldTerm).write();
+                userRef.get("grades").unset(terms[i]).write();
+
+                if (terms[i] in user.weights) {
+                    oldTerm = user.weights[terms[i]];
+                    userRef.get("weights").set(realTerm, oldTerm).write();
+                    userRef.get("weights").unset(terms[i]).write();
+                }
+                if (terms[i] in user.addedAssignments) {
+                    oldTerm = user.addedAssignments[terms[i]];
+                    userRef.get("addedAssignments").set(realTerm, oldTerm).write();
+                    userRef.get("addedAssignments").unset(terms[i]).write();
+                }
+                if (terms[i] in user.editedAssignments) {
+                    oldTerm = user.editedAssignments[terms[i]];
+                    userRef.get("editedAssignments").set(realTerm, oldTerm).write();
+                    userRef.get("editedAssignments").unset(terms[i]).write();
+                }
+            }
+
+            // Save update
+            userRef.set("version", 3).write();
+            version = 3;
         }
 
         this.bringUpToDate(username, false);
@@ -1045,6 +1097,9 @@ module.exports = {
                     }
                 }
             }
+            this.initAddedAssignments(lc_username);
+            this.initWeights(lc_username);
+            this.initEditedAssignments(lc_username);
             this.bringUpToDate(lc_username, false);
             userRef.get("updatedGradeHistory").push(Date.now()).write();
             return {success: true, message: "Updated grade history!"};
@@ -1146,7 +1201,7 @@ module.exports = {
         }
         this.bringUpToDate(lc_username);
         let updateHistory = false;
-        if ((newTerm !== oldTerm && newSemester !== oldSemester) || !userRef.get("updatedGradeHistory").value().length) {
+        if ((newTerm !== oldTerm || newSemester !== oldSemester) || !userRef.get("updatedGradeHistory").value().length) {
             this.setColorPalette(lc_username, userRef.get("appearance").get("colorPalette").value(), userRef.get("appearance").get("shuffleColors").value());
             this.resetSortData(lc_username);
             updateHistory = true;
