@@ -16,7 +16,7 @@ const SunCalc = require("suncalc");
 const roundsToGenerateSalt = 10;
 
 // Change this when updateDB changes
-const dbUserVersion = 6;
+const dbUserVersion = 7;
 
 // Change this when updateAllDB changes
 const dbClassVersion = 2;
@@ -615,6 +615,29 @@ module.exports = {
             console.log("Updated user to version 6");
             userRef.set("version", 6).write();
             version = 6;
+        }
+
+        if (version === 6) {
+            // Fix lastupdated ps_locked issue
+            let lastUpdated = userRef.get("alerts").get("lastUpdated").value();
+            let lastUpdatedRef = userRef.get("alerts").get("lastUpdated");
+            for (let i = 0; i < lastUpdated.length; i++) {
+                let changeData = lastUpdated[i].changeData;
+                if (("overall" in changeData)) {
+                    let classes = Object.keys(changeData.overall);
+                    for (let j = 0; j < classes.length; j++) {
+                        if (!Object.keys(changeData.overall[classes[j]]).length) {
+                            lastUpdatedRef.nth(i).get("changeData").get("overall").unset(classes[j]).write();
+                        }
+                    }
+                }
+            }
+
+
+            // Save update
+            console.log("Updated user to version 7");
+            userRef.set("version", 7).write();
+            version = 7;
         }
 
         this.bringUpToDate(username, false);
