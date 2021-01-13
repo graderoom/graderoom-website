@@ -294,6 +294,11 @@
         if (show && recentChange || force) {
             showCard("#gradeChangesCardDisplay");
         }
-        latestChange = alerts.lastUpdated.filter(d => Object.keys(d.changeData).length && [...new Set([...Object.keys(d.changeData.added), ...Object.keys(d.changeData.modified), ...Object.keys(d.changeData.removed), ...Object.keys(d.changeData.overall)])].length).slice(-1)[0].changeData;
+        latestChange = alerts.lastUpdated.filter(d => Object.keys(d.changeData).length && [...new Set([...Object.keys(d.changeData.added), ...Object.keys(d.changeData.modified), ...Object.keys(d.changeData.removed), ...Object.keys(d.changeData.overall)])].length).slice(-1)[0];
+        if (latestChange) {
+            latestChange = latestChange.changeData;
+        } else {
+            latestChange = undefined;
+        }
     }
-</script>
+</script

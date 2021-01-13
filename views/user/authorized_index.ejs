@@ -1085,14 +1085,14 @@
             function setupIncorrectGradeMessages(classIndex) {
                 for (let i = 0; i < _data.length; i++) {
                     if (classIndex === undefined || classIndex === i) {
-                        if (alerts.lastUpdated.slice(-1)[0].ps_locked) {
+                        if (alerts.lastUpdated.slice(-1)[0] && alerts.lastUpdated.slice(-1)[0].ps_locked) {
                             $("#incorrectOverallGrade" + i + " span").html(`PowerSchool is locked. Calculated grade may be inaccurate.`);
                             $("#incorrectOverviewGrade" + i + " span").html(`PowerSchool is locked. Calculated grade may be inaccurate.`);
                         } else {
                             $("#incorrectOverallGrade" + i + " span").html(`Grade in PowerSchool: <nobr>` + _data[i].overall_percent + `% (` + _data[i].overall_letter + `)</nobr>`);
                             $("#incorrectOverviewGrade" + i + " span").html(`Does not match calculated grade. Incorrect weights.`);
                         }
-                        if (!correctCalc(i) || alerts.lastUpdated.slice(-1)[0].ps_locked) {
+                        if (!correctCalc(i) || (alerts.lastUpdated.slice(-1)[0] && alerts.lastUpdated.slice(-1)[0].ps_locked)) {
                             $("#incorrectOverviewGrade" + i).css("display", "inline-block");
                             $("#incorrectOverallGrade" + i).css("display", "inline-block");
                         } else {
@@ -1112,6 +1112,7 @@
                 if (correctDecimalPlaces == realOverallGrade && calculatedOverallLetter === realOverallLetter) {
                     return true;
                 }
+                if (!alerts.lastUpdated.slice(-1)[0]) return false;
                 return alerts.lastUpdated.slice(-1)[0].ps_locked && (relClassData[data[classIndex].class_name].hasWeights === "false" || Object.values(relClassData[data[classIndex].class_name].weights).filter(w => w !== null).length !== 0);
             }
 
