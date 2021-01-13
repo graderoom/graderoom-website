@@ -1209,7 +1209,7 @@ module.exports = {
         if (ps_locked) {
             overall = {}; // It's not possible to get this data when PowerSchool is locked
         } else {
-            delete overall.ps_locked;
+            delete overall.forEach(o => delete o.ps_locked);
         }
         let changeData = {
             added: added, modified: modified, removed: removed, overall: overall
