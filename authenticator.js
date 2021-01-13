@@ -1141,6 +1141,7 @@ module.exports = {
         let lc_username = acc_username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         let grade_history_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password, "", "", "true");
+        let changeData = {}
         if (grade_history_update_status.success) {
             let current_years = Object.keys(userRef.get("grades").value());
             let years = Object.keys(grade_history_update_status.new_grades);
@@ -1167,7 +1168,6 @@ module.exports = {
                     let current_semesters = Object.keys(userRef.get("grades").get(years[i]).value());
                     let semesters = Object.keys(grade_history_update_status.new_grades[years[i]]);
                     for (let j = 0; j < semesters.length; j++) {
-                        let save = false;
                         if (!current_semesters.includes(semesters[j])) {
                             userRef.get("grades").get(years[i]).set(semesters[j], grade_history_update_status.new_grades[years[i]][semesters[j]]).write();
                         } else {
@@ -1178,7 +1178,6 @@ module.exports = {
                                 if (!oldRef.value()) {
                                     userRef.get("grades").get(years[i]).get(semesters[j]).splice(k, 0, grade_history_update_status.new_grades[years[i]][semesters[j]][k]).write();
                                 } else if (classes[k].grades.length) {
-                                    save = true;
                                     userRef.get("grades").get(years[i]).get(semesters[j]).splice(k, 1, grade_history_update_status.new_grades[years[i]][semesters[j]][k]).write();
                                 } else {
                                     oldRef.set("overall_percent", grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_percent).write();
@@ -1204,21 +1203,20 @@ module.exports = {
                                     return [classData.class_name, Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v))];
                                 }).filter(data => Object.keys(data[1]).length));
                             }
-                            let changeData = {
+                            changeData = {
                                 added: {}, modified: {}, removed: {}, overall: overall
                             };
-
-                            let time = Date.now();
-                            userRef.get("alerts").get("lastUpdated").push({
-                                                                              timestamp: time,
-                                                                              changeData: changeData,
-                                                                              ps_locked: false
-                                                                          }).write();
-
                         }
                     }
                 }
             }
+
+            let time = Date.now();
+            userRef.get("alerts").get("lastUpdated").push({
+                                                              timestamp: time,
+                                                              changeData: changeData,
+                                                              ps_locked: false
+                                                          }).write();
             this.initAddedAssignments(lc_username);
             this.initWeights(lc_username);
             this.initEditedAssignments(lc_username);

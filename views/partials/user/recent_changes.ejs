@@ -72,7 +72,7 @@
                 startDate = alerts.lastUpdated[i].timestamp;
                 noDataStreak++;
                 if (i === alerts.lastUpdated.length - 1) {
-                    recentChangeText = " No Data.";
+                    recentChangeText = "";
                 }
                 if (i === 0) {
                     startDate = new Date(startDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
