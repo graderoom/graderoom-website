@@ -425,8 +425,8 @@ class PowerschoolScraper:
                     # Split combined letter grade and percent text
                     # into two separate values
                     letter_and_percent = link.text
-                    if link.text == '[ i ]':
-                        overall_letter = '-'
+                    if letter_and_percent == '[ i ]':
+                        overall_letter = False
                         overall_percent = False
                     else:
                         for i, charac in enumerate(letter_and_percent):
@@ -489,8 +489,7 @@ class PowerschoolScraper:
 
         # Create a ClassGrade object to hold assignment data
         # Ensure all data is present, otherwise skip the class
-        if (class_name and teacher_name and overall_percent
-                and (overall_letter != '-')):
+        if (class_name and teacher_name and overall_percent is not None and overall_letter is not None):
             local_class = ClassGrade(class_name, teacher_name,
                                      overall_percent, overall_letter, None, None, False)
         else:
@@ -507,7 +506,12 @@ class PowerschoolScraper:
         local_class.student_id = student_id
         local_class.section_id = section_id
 
-        all_classes.append(parse_class(local_class, self.get_class(url, local_class)))
+        # Remove classes with no grades
+        local_class = parse_class(local_class, self.get_class(url, local_class))
+        if local_class['grades'] == []:
+            return
+
+        all_classes.append(local_class)
 
     def get_class(self, url, local_class):
 
