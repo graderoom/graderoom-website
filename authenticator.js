@@ -16,7 +16,7 @@ const SunCalc = require("suncalc");
 const roundsToGenerateSalt = 10;
 
 // Change this when updateDB changes
-const dbUserVersion = 5;
+const dbUserVersion = 6;
 
 // Change this when updateAllDB changes
 const dbClassVersion = 2;
@@ -594,6 +594,29 @@ module.exports = {
             version = 5;
         }
 
+        if (version === 5) {
+            // Fix lastupdated ps_locked issue
+            let lastUpdated = userRef.get("alerts").get("lastUpdated").value();
+            let lastUpdatedRef = userRef.get("alerts").get("lastUpdated");
+            for (let i = 0; i < lastUpdated.length; i++) {
+                let changeData = lastUpdated[i].changeData;
+                if (("overall" in changeData)) {
+                    let classes = Object.keys(changeData.overall);
+                    for (let j = 0; j < classes.length; j++) {
+                        if ("ps_locked" in changeData.overall[classes[j]]) {
+                            lastUpdatedRef.nth(i).get("changeData").get("overall").get(classes[j]).unset("ps_locked").write();
+                        }
+                    }
+                }
+            }
+
+
+            // Save update
+            console.log("Updated user to version 6");
+            userRef.set("version", 6).write();
+            version = 6;
+        }
+
         this.bringUpToDate(username, false);
 
     }, bringUpToDate: function (username, onlyLatest = true) {
@@ -1126,9 +1149,11 @@ module.exports = {
                                     temp = temp.splice(k, 0, grade_history_update_status.new_grades[years[i]][semesters[j]][k]);
                                 } else if (classes[k].grades.length) {
                                     oldRef = grade_history_update_status.new_grades[years[i]][semesters[j]][k];
+                                    userRef.get("grades").get(years[i]).get(semesters[j]).find({class_name: classes[k].class_name}).write();
                                 } else {
-                                    oldRef.set("overall_percent", grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_percent).write();
-                                    oldRef.set("overall_letter", grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_letter).write();
+                                    oldRef.overall_percent = grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_percent;
+                                    oldRef.overall_letter = grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_letter;
+                                    userRef.get("grades").get(years[i]).get(semesters[j]).find({class_name: classes[k].class_name}).write();
                                 }
                             }
                         }
