@@ -16,10 +16,10 @@ const SunCalc = require("suncalc");
 const roundsToGenerateSalt = 10;
 
 // Change this when updateDB changes
-const dbUserVersion = 2;
+const dbUserVersion = 7;
 
 // Change this when updateAllDB changes
-const dbClassVersion = 1;
+const dbClassVersion = 2;
 
 db.defaults({users: [], keys: [], classes: {}, deletedUsers: []}).write();
 
@@ -247,7 +247,7 @@ module.exports = {
             }
 
             // Update class db version
-            console.log("Updating classdb to version 1");
+            console.log("Updated classdb to version 1");
             classRef.set("version", 1).write();
             version = 1;
         }
@@ -257,7 +257,28 @@ module.exports = {
             // Update class db version
             classRef.set("version", 2).write();
             version = 2;
+            console.log("Updated classdb to version 2");
         }
+
+        if (version === 2) {
+            let classesToFix = classRef.value();
+            let terms = Object.keys(classesToFix);
+            for (let i = 0; i < terms.length; i++) {
+                if (!terms[i].includes("\n\n")) continue;
+                let oldTerm;
+                let realTerm = terms[i].substring(2,4);
+                realTerm = realTerm + "-" + (parseInt(realTerm) + 1)
+
+                oldTerm = classesToFix[terms[i]];
+                classRef.set(realTerm, oldTerm).write();
+                classRef.unset(terms[i]).write();
+            }
+            // Do the thing to make it work
+            classRef.set("version", 3).write();
+            version = 3;
+            console.log("Updated classdb to version 3");
+        }
+
 
         let users = db.get("users").value();
         for (let i = 0; i < users.length; i++) {
@@ -284,9 +305,6 @@ module.exports = {
         }
         let version = userRef.get("version").value();
         if (version === 0) {
-
-            // Update version to 1
-            console.log("Updating user to version 1");
 
             // Update change data with ps_locked
             let lastUpdateds = userRef.get("alerts").get("lastUpdated").value();
@@ -469,15 +487,13 @@ module.exports = {
             }
 
             // Save update
+            console.log("Updated user to version 1");
             userRef.set("version", 1).write();
             version = 1;
 
         }
 
         if (version === 1) {
-
-            // Update user to version 2
-            console.log("Updating user to version 2");
 
             // Fix lastupdated ps_locked issue
             let lastUpdated = userRef.get("alerts").get("lastUpdated").value();
@@ -497,12 +513,131 @@ module.exports = {
             }
 
             // Save update
+            console.log("Updated user to version 2");
             userRef.set("version", 2).write();
             version = 2;
         }
 
         if (version === 2) {
+            // Fix lastupdated ps_locked issue
+            let lastUpdated = userRef.get("alerts").get("lastUpdated").value();
+            let lastUpdatedRef = userRef.get("alerts").get("lastUpdated");
+            for (let i = 0; i < lastUpdated.length; i++) {
+                let changeData = lastUpdated[i].changeData;
+                if (("overall" in changeData) && "ps_locked" in changeData.overall) {
+                    lastUpdatedRef.get("changeData").get("overall").unset("ps_locked").write();
+                }
+            }
 
+
+            // Save update
+            console.log("Updated user to version 3");
+            userRef.set("version", 3).write();
+            version = 3;
+        }
+
+        if (version === 3) {
+
+            // Fix class db
+            let gradesToFix = user.grades;
+            let terms = Object.keys(gradesToFix);
+            for (let i = 0; i < terms.length; i++) {
+                if (!terms[i].includes("\n\n")) continue;
+                let oldTerm;
+                let realTerm = terms[i].substring(2, 4);
+                realTerm = realTerm + "-" + (parseInt(realTerm) + 1)
+
+                oldTerm = user.grades[terms[i]];
+                userRef.get("grades").set(realTerm, oldTerm).write();
+                userRef.get("grades").unset(terms[i]).write();
+                if (terms[i] in user.weights) {
+                    oldTerm = user.weights[terms[i]];
+                    userRef.get("weights").set(realTerm, oldTerm).write();
+                    userRef.get("weights").unset(terms[i]).write();
+                }
+                if (terms[i] in user.addedAssignments) {
+                    oldTerm = user.addedAssignments[terms[i]];
+                    userRef.get("addedAssignments").set(realTerm, oldTerm).write();
+                    userRef.get("addedAssignments").unset(terms[i]).write();
+                }
+                if (terms[i] in user.editedAssignments) {
+                    oldTerm = user.editedAssignments[terms[i]];
+                    userRef.get("editedAssignments").set(realTerm, oldTerm).write();
+                    userRef.get("editedAssignments").unset(terms[i]).write();
+                }
+            }
+
+            // Save update
+            console.log("Updated user to version 4");
+            userRef.set("version", 4).write();
+            version = 4;
+        }
+
+        if (version === 4) {
+            // Fix lastupdated ps_locked issue
+            let lastUpdated = userRef.get("alerts").get("lastUpdated").value();
+            let lastUpdatedRef = userRef.get("alerts").get("lastUpdated");
+            for (let i = 0; i < lastUpdated.length; i++) {
+                let changeData = lastUpdated[i].changeData;
+                if (("overall" in changeData)) {
+                    let classes = Object.keys(changeData.overall);
+                    for (let j = 0; j < classes.length; j++) {
+                        lastUpdatedRef.get("changeData").get("overall").get(classes[j]).unset("ps_locked").write();
+                    }
+                }
+            }
+
+
+            // Save update
+            console.log("Updated user to version 5");
+            userRef.set("version", 5).write();
+            version = 5;
+        }
+
+        if (version === 5) {
+            // Fix lastupdated ps_locked issue
+            let lastUpdated = userRef.get("alerts").get("lastUpdated").value();
+            let lastUpdatedRef = userRef.get("alerts").get("lastUpdated");
+            for (let i = 0; i < lastUpdated.length; i++) {
+                let changeData = lastUpdated[i].changeData;
+                if (("overall" in changeData)) {
+                    let classes = Object.keys(changeData.overall);
+                    for (let j = 0; j < classes.length; j++) {
+                        if ("ps_locked" in changeData.overall[classes[j]]) {
+                            lastUpdatedRef.nth(i).get("changeData").get("overall").get(classes[j]).unset("ps_locked").write();
+                        }
+                    }
+                }
+            }
+
+
+            // Save update
+            console.log("Updated user to version 6");
+            userRef.set("version", 6).write();
+            version = 6;
+        }
+
+        if (version === 6) {
+            // Fix lastupdated ps_locked issue
+            let lastUpdated = userRef.get("alerts").get("lastUpdated").value();
+            let lastUpdatedRef = userRef.get("alerts").get("lastUpdated");
+            for (let i = 0; i < lastUpdated.length; i++) {
+                let changeData = lastUpdated[i].changeData;
+                if (("overall" in changeData)) {
+                    let classes = Object.keys(changeData.overall);
+                    for (let j = 0; j < classes.length; j++) {
+                        if (!Object.keys(changeData.overall[classes[j]]).length) {
+                            lastUpdatedRef.nth(i).get("changeData").get("overall").unset(classes[j]).write();
+                        }
+                    }
+                }
+            }
+
+
+            // Save update
+            console.log("Updated user to version 7");
+            userRef.set("version", 7).write();
+            version = 7;
         }
 
         this.bringUpToDate(username, false);
@@ -996,9 +1131,10 @@ module.exports = {
     },
 
     updateGradeHistory: async function (acc_username, school_password) {
+        console.log("Updating grade history...");
         let lc_username = acc_username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
-        let grade_history_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password, "", "", true);
+        let grade_history_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password, "", "", "true");
         if (grade_history_update_status.success) {
             let current_years = Object.keys(userRef.get("grades").value());
             let years = Object.keys(grade_history_update_status.new_grades);
@@ -1036,15 +1172,20 @@ module.exports = {
                                     temp = temp.splice(k, 0, grade_history_update_status.new_grades[years[i]][semesters[j]][k]);
                                 } else if (classes[k].grades.length) {
                                     oldRef = grade_history_update_status.new_grades[years[i]][semesters[j]][k];
+                                    userRef.get("grades").get(years[i]).get(semesters[j]).find({class_name: classes[k].class_name}).write();
                                 } else {
-                                    oldRef.set("overall_percent", grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_percent).write();
-                                    oldRef.set("overall_letter", grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_letter).write();
+                                    oldRef.overall_percent = grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_percent;
+                                    oldRef.overall_letter = grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_letter;
+                                    userRef.get("grades").get(years[i]).get(semesters[j]).find({class_name: classes[k].class_name}).write();
                                 }
                             }
                         }
                     }
                 }
             }
+            this.initAddedAssignments(lc_username);
+            this.initWeights(lc_username);
+            this.initEditedAssignments(lc_username);
             this.bringUpToDate(lc_username, false);
             userRef.get("updatedGradeHistory").push(Date.now()).write();
             return {success: true, message: "Updated grade history!"};
@@ -1089,7 +1230,9 @@ module.exports = {
         let grade_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password, data_if_locked, term_data_if_locked);
         if (!grade_update_status.success) {
             //error updating grades
-            return grade_update_status;
+            this.setColorPalette(lc_username, userRef.get("appearance").get("colorPalette").value(), userRef.get("appearance").get("shuffleColors").value());
+            this.resetSortData(lc_username);
+            return Object.assign({}, grade_update_status, {updateHistory: true});
         }
         for (let i = grade_update_status.new_grades.length; i < userRef.value().appearance.classColors.length; i++) {
             userRef.value().appearance.classColors.pop();
@@ -1134,6 +1277,8 @@ module.exports = {
         let ps_locked = Object.values(overall).filter(o => o.ps_locked === true).length !== 0;
         if (ps_locked) {
             overall = {}; // It's not possible to get this data when PowerSchool is locked
+        } else {
+            delete overall.forEach(o => delete o.ps_locked);
         }
         let changeData = {
             added: added, modified: modified, removed: removed, overall: overall
@@ -1146,7 +1291,7 @@ module.exports = {
         }
         this.bringUpToDate(lc_username);
         let updateHistory = false;
-        if ((newTerm !== oldTerm && newSemester !== oldSemester) || !userRef.get("updatedGradeHistory").value().length) {
+        if ((newTerm !== oldTerm || newSemester !== oldSemester) || !userRef.get("updatedGradeHistory").value().length || userRef.get("updatedGradeHistory").value().slice(-1)[0] < new Date(2021, 0, 11).getTime()) {
             this.setColorPalette(lc_username, userRef.get("appearance").get("colorPalette").value(), userRef.get("appearance").get("shuffleColors").value());
             this.resetSortData(lc_username);
             updateHistory = true;

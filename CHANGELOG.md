@@ -92,6 +92,7 @@
 - Issue where snow background in light mode would not disappear properly after holiday effects were disabled
 - Issue where legend items on overview chart were sometimes clickable
 - An issue where reverting to verified weights didn't remove the revert button in all cases
+- Issues for new users
 - <em>[Beta]</em> Issue with fps display
 
 ## [Beta 4.3.1] - 2021-01-12
@@ -105,6 +106,7 @@
 ### Fixed
 - Styling issues with tables in dark mode
 - Non-Academic, credit, and dropped courses are no longer included in the GPA details page
+- Issues for new users
 
 ## [Beta 4.3.0] - 2021-01-11
 ### Added
