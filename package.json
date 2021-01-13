@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "echo \"Running HTTP Server in production mode\" && sudo node graderoom.js true",
-    "scrape_test": "node -e \"require('./scraper_tester').external_scrape()\"",
+    "scrape_test": "node -e \"require('./npm_commands').external_scrape()\"",
+    "purge_db": "node -e \"require('./npm_commands').purge_db()\"",
+    "backup_db": "node -e \"require('./npm_commands').backup_db()\"",
     "send_custom_email": "node -e \"require('./emailSender').sendCustomEmail()\""
   },
   "author": "",

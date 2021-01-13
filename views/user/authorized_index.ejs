@@ -997,15 +997,20 @@
             }
 
             async function checkUpdateBackground() {
-                let checking = window.setInterval(function () {
+                let time = 1000;
+
+                let checking = function () {
                     $.get("/checkUpdateBackground", function (message, status) {
                         if (status === "success") {
-                            if (message.message === "Sync Complete!") {
+                            console.log(message.message);
+                            if (message.message === "Syncing History...") {
+                                $(".updateGradesMessage").find(".messageTxt").text("Syncing Grade History...");
+                                setTimeout(checking, time * 10); // Try to avoid spamming reqs while server is processing. Really need to find a better way soon
+                            } else if (message.message === "Sync Complete!") {
                                 let newData = {
                                     grades: JSON.parse(message.grades), weights: JSON.parse(message.weights)
                                 };
                                 if (!updateData(newData).updated) {
-                                    clearInterval(checking);
                                     if (cardsDisplayed.length === 0 || cardsDisplayed[cardsDisplayed.length - 1] === "updateGradesDisplay") {
                                         $(".updateGradesMessage").find(".messageTxt").text("Refreshing...");
                                         sessionStorage.setItem("showSyncLog", "true");
@@ -1021,9 +1026,9 @@
                                     alerts.lastUpdated.push(JSON.parse(message.updateData));
                                     setupGradeChanges();
                                     refreshWithoutReload(true);
+                                    setTimeout(checking, time / 2); // This one can be quick
                                 }
                             } else if (message.message === "Already Synced!") {
-                                clearInterval(checking);
                                 showLatest(false);
                                 setupLastUpdated();
                                 if (sessionStorage.getItem("showSyncLog") === "true") {
@@ -1033,27 +1038,25 @@
                             } else if (message.message === "Did not sync") {
                                 $(".updateGradesMessage").find(".messageTxt").text("Syncing...");
                                 $(".fa-refresh").addClass("fa-spin").css("opacity", 0.5);
+                                setTimeout(checking, time);
                             } else if (message.message === "Cannot access grades.") {
                                 $("#syncNoData").show();
-                                clearInterval(checking);
                                 $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
                                 showLatest(false);
                                 setupLastUpdated();
                             } else if (message.message === "Sync Failed.") {
                                 $("#syncFailure").show();
-                                clearInterval(checking);
                                 $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
                                 setupLastUpdated();
                                 showLatest(false);
                             } else if (message.message === "Not syncing") {
-                                clearInterval(checking);
                                 setupLastUpdated();
                             }
                         }
-                    }).fail(() => {
-                        clearInterval(checking);
                     });
-                }, 1000);
+                }
+
+                window.setTimeout(checking, time);
             }
 
             function disableScrolling() {
