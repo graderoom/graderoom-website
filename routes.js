@@ -501,6 +501,7 @@ module.exports = function (app, passport) {
         } else {
 
             resp = await authenticator.addNewUser(username, password, s_email, false);
+            authenticator.setColorPalette(username, "clear", false);
             console.log("nonbeta: " + resp);
 
         }
@@ -543,7 +544,7 @@ module.exports = function (app, passport) {
         }
         let resp = await authenticator.updateGrades(req.user.username, pass);
         if (resp.updateHistory) {
-            await authenticator.updateGradeHistory(req.user.username, pass);
+            resp = await authenticator.updateGradeHistory(req.user.username, pass);
         }
         let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
         if (resp.success || resp.message === "No class data." || resp.message === "Error scraping grades." || resp.message === "Powerschool is locked.") {

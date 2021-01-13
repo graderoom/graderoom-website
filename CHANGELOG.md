@@ -42,6 +42,15 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 4.4.1] - 2021-01-13
+### Added
+- Graderoom now displays when it is syncing grade history
+- This takes up to 30 seconds when it occurs
+
+### Fixed
+- Issues with syncing
+- Issues for new users
+
 ## [Stable 4.4.0] - 2021-01-12
 ### Added
 - UC/CSU GPA

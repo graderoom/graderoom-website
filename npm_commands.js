@@ -39,5 +39,36 @@ module.exports = {
         console.log(resp);
         console.log(resp.new_grades);
         console.log(Object.values(resp.new_grades)[0]);
+    },
+
+    purge_db: function () {
+        if (process.env.NODE_ENV === 'production') {
+            console.log("THIS IS PROD DON'T DO IT");
+            return;
+        }
+        // Backup
+        authenticator.backupdb();
+
+        // Delete all non-admins
+        let users = authenticator.db.get("users").value();
+        let usersRef = authenticator.db.get("users");
+        let remainingUsers = [];
+        for (let i = 0; i < users.length; i++) {
+            console.log('checking ' + users[i].username);
+            if (users[i].isAdmin) {
+                remainingUsers.push(users[i].username);
+                continue;
+            }
+            console.log('deleted ' + users[i].username);
+            usersRef.splice(i--, 1).write();
+        }
+        console.log("\nRemaining Users: " + remainingUsers.length);
+        for (let i = 0; i < remainingUsers.length; i++) {
+            console.log(remainingUsers[i]);
+        }
+    },
+
+    backup_db: function () {
+        authenticator.backupdb();
     }
 }

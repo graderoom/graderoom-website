@@ -264,10 +264,12 @@ module.exports = {
             let classesToFix = classRef.value();
             let terms = Object.keys(classesToFix);
             for (let i = 0; i < terms.length; i++) {
-                if (!terms[i].includes("\n\n")) continue;
+                if (!terms[i].includes("\n\n")) {
+                    continue;
+                }
                 let oldTerm;
-                let realTerm = terms[i].substring(2,4);
-                realTerm = realTerm + "-" + (parseInt(realTerm) + 1)
+                let realTerm = terms[i].substring(2, 4);
+                realTerm = realTerm + "-" + (parseInt(realTerm) + 1);
 
                 oldTerm = classesToFix[terms[i]];
                 classRef.set(realTerm, oldTerm).write();
@@ -542,10 +544,12 @@ module.exports = {
             let gradesToFix = user.grades;
             let terms = Object.keys(gradesToFix);
             for (let i = 0; i < terms.length; i++) {
-                if (!terms[i].includes("\n\n")) continue;
+                if (!terms[i].includes("\n\n")) {
+                    continue;
+                }
                 let oldTerm;
                 let realTerm = terms[i].substring(2, 4);
-                realTerm = realTerm + "-" + (parseInt(realTerm) + 1)
+                realTerm = realTerm + "-" + (parseInt(realTerm) + 1);
 
                 oldTerm = user.grades[terms[i]];
                 userRef.get("grades").set(realTerm, oldTerm).write();
@@ -1119,6 +1123,8 @@ module.exports = {
             return {success: false, message: "Sync Failed."};
         } else if (syncStatus === "updating") {
             return {success: false, message: "Did not sync"};
+        } else if (syncStatus === "history") {
+            return {success: false, message: "Syncing History..."};
         } else {
             return {success: false, message: "Not syncing"};
         }
@@ -1161,24 +1167,54 @@ module.exports = {
                     let current_semesters = Object.keys(userRef.get("grades").get(years[i]).value());
                     let semesters = Object.keys(grade_history_update_status.new_grades[years[i]]);
                     for (let j = 0; j < semesters.length; j++) {
+                        let save = false;
                         if (!current_semesters.includes(semesters[j])) {
                             userRef.get("grades").get(years[i]).set(semesters[j], grade_history_update_status.new_grades[years[i]][semesters[j]]).write();
                         } else {
                             let classes = grade_history_update_status.new_grades[years[i]][semesters[j]];
+                            let oldGrades = userRef.get("grades").get(years[i]).get(semesters[j]).cloneDeep().value();
                             for (let k = 0; k < classes.length; k++) {
-                                let oldRef = userRef.get("grades").get(years[i]).get(semesters[j]).find({class_name: classes[k].class_name}).value();
-                                if (!oldRef) {
-                                    let temp = userRef.get("grades").get(years[i]).get(semesters[j]).value();
-                                    temp = temp.splice(k, 0, grade_history_update_status.new_grades[years[i]][semesters[j]][k]);
+                                let oldRef = userRef.get("grades").get(years[i]).get(semesters[j]).nth(k);
+                                if (!oldRef.value()) {
+                                    userRef.get("grades").get(years[i]).get(semesters[j]).splice(k, 0, grade_history_update_status.new_grades[years[i]][semesters[j]][k]).write();
                                 } else if (classes[k].grades.length) {
-                                    oldRef = grade_history_update_status.new_grades[years[i]][semesters[j]][k];
-                                    userRef.get("grades").get(years[i]).get(semesters[j]).find({class_name: classes[k].class_name}).write();
+                                    save = true;
+                                    userRef.get("grades").get(years[i]).get(semesters[j]).splice(k, 1, grade_history_update_status.new_grades[years[i]][semesters[j]][k]).write();
                                 } else {
-                                    oldRef.overall_percent = grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_percent;
-                                    oldRef.overall_letter = grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_letter;
-                                    userRef.get("grades").get(years[i]).get(semesters[j]).find({class_name: classes[k].class_name}).write();
+                                    oldRef.set("overall_percent", grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_percent).write();
+                                    oldRef.set("overall_letter", grade_history_update_status.new_grades[years[i]][semesters[j]][k].overall_letter).write();
                                 }
                             }
+                            let newGrades = userRef.get("grades").get(years[i]).get(semesters[j]).value();
+                            let overall = {};
+                            if (oldGrades) {
+                                overall = Object.fromEntries(oldGrades.map((classData, index) => {
+                                    let clone = Object.assign({}, classData);
+                                    delete clone.grades;
+                                    delete clone.class_name;
+                                    delete clone.ps_locked;
+                                    delete clone.student_id;
+                                    delete clone.section_id;
+                                    delete clone.teacher_name;
+                                    let newClone = Object.assign({}, newGrades.find(g => g.class_name === classData.class_name));
+                                    delete newClone.grades;
+                                    delete newClone.class_name;
+                                    delete newClone.ps_locked;
+                                    delete newClone.teacher_name;
+                                    return [classData.class_name, Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v))];
+                                }).filter(data => Object.keys(data[1]).length));
+                            }
+                            let changeData = {
+                                added: {}, modified: {}, removed: {}, overall: overall
+                            };
+
+                            let time = Date.now();
+                            userRef.get("alerts").get("lastUpdated").push({
+                                                                              timestamp: time,
+                                                                              changeData: changeData,
+                                                                              ps_locked: false
+                                                                          }).write();
+
                         }
                     }
                 }
@@ -1200,16 +1236,16 @@ module.exports = {
         this.updateGrades(acc_username, school_password).then(async (resp) => {
             lc_username = acc_username.toLowerCase();
             user = db.get("users").find({username: lc_username});
+            if (resp.updateHistory) {
+                user.set("updatedInBackground", "history").write();
+                resp = await this.updateGradeHistory(acc_username, school_password);
+            }
             if (resp.success) {
                 user.set("updatedInBackground", "complete").write();
             } else if (resp.message === "No class data.") {
                 user.set("updatedInBackground", "no data").write();
             } else {
                 user.set("updatedInBackground", "failed").write();
-            }
-
-            if (resp.updateHistory) {
-                await this.updateGradeHistory(acc_username, school_password);
             }
         });
     },
@@ -1230,12 +1266,8 @@ module.exports = {
         let grade_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password, data_if_locked, term_data_if_locked);
         if (!grade_update_status.success) {
             //error updating grades
-            this.setColorPalette(lc_username, userRef.get("appearance").get("colorPalette").value(), userRef.get("appearance").get("shuffleColors").value());
             this.resetSortData(lc_username);
             return Object.assign({}, grade_update_status, {updateHistory: true});
-        }
-        for (let i = grade_update_status.new_grades.length; i < userRef.value().appearance.classColors.length; i++) {
-            userRef.value().appearance.classColors.pop();
         }
 
         let newTerm = Object.keys(grade_update_status.new_grades)[0];
@@ -1278,7 +1310,9 @@ module.exports = {
         if (ps_locked) {
             overall = {}; // It's not possible to get this data when PowerSchool is locked
         } else {
-            delete overall.forEach(o => delete o.ps_locked);
+            for (let i = 0; i < Object.keys(overall).length; i++) {
+                delete overall[Object.keys(overall)[i]].ps_locked;
+            }
         }
         let changeData = {
             added: added, modified: modified, removed: removed, overall: overall
@@ -1292,7 +1326,6 @@ module.exports = {
         this.bringUpToDate(lc_username);
         let updateHistory = false;
         if ((newTerm !== oldTerm || newSemester !== oldSemester) || !userRef.get("updatedGradeHistory").value().length || userRef.get("updatedGradeHistory").value().slice(-1)[0] < new Date(2021, 0, 11).getTime()) {
-            this.setColorPalette(lc_username, userRef.get("appearance").get("colorPalette").value(), userRef.get("appearance").get("shuffleColors").value());
             this.resetSortData(lc_username);
             updateHistory = true;
         }
