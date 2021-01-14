@@ -61,8 +61,8 @@
 
     function disableSnow() {
         clearInterval(dynamicDisplayInterval);
-        $('#lights-disabled-message').hide();
-        $('#snow-disabled-message').hide();
+        $("#lights-disabled-message").hide();
+        $("#snow-disabled-message").hide();
         $("#snow-fall").hide();
         $(".lightrope").hide();
         $("#light_snowfall").attr("media", "not all");
@@ -112,27 +112,29 @@
                 }
             }, 1);
             <% } %>
-            dynamicDisplayInterval = setInterval(() => {
+            setInterval(() => {
                 if (_1sTempFps.length > 2) {
                     _1sAverage = _1sTempFps.reduce((a, b) => a + b) / _1sTempFps.length;
                     _1sTempFps = _1sTempFps.slice(-2);
-                    if (performance.now() - init < 10000) {
-                        return;
-                    } // Wait 10 seconds before making fps-based changes
-                    if (_1sAverage < 20 && showingLights) {
-                        $(".lightrope li").css("animation-play-state", "paused");
-                        showingLights = false;
-                        $("#lights-disabled-message").fadeIn("fast");
-                        init = performance.now();
-                        return;
-                    }
-                    if (_1sAverage < 20 && !showingLights) {
-                        $("#snow-fall").fadeOut("slow");
-                        $("#snow-disabled-message").fadeIn("fast");
-                    } else if (!showingLights) {
-                        $("#snow-fall").fadeIn("slow");
-                        $("#snow-disabled-message").fadeOut("fast");
-                    }
+                }
+            }, 1000);
+            dynamicDisplayInterval = setInterval(() => {
+                if (performance.now() - init < 10000) {
+                    return;
+                } // Wait 10 seconds before making fps-based changes
+                if (_1sAverage < 20 && showingLights) {
+                    $(".lightrope li").css("animation-play-state", "paused");
+                    showingLights = false;
+                    $("#lights-disabled-message").fadeIn("fast");
+                    init = performance.now();
+                    return;
+                }
+                if (_1sAverage < 20 && !showingLights) {
+                    $("#snow-fall").fadeOut("slow");
+                    $("#snow-disabled-message").fadeIn("fast");
+                } else if (!showingLights) {
+                    $("#snow-fall").fadeIn("slow");
+                    $("#snow-disabled-message").fadeOut("fast");
                 }
             }, 1000);
 

@@ -16,7 +16,7 @@ const SunCalc = require("suncalc");
 const roundsToGenerateSalt = 10;
 
 // Change this when updateDB changes
-const dbUserVersion = 7;
+const dbUserVersion = 8;
 
 // Change this when updateAllDB changes
 const dbClassVersion = 2;
@@ -642,6 +642,29 @@ module.exports = {
             console.log("Updated user to version 7");
             userRef.set("version", 7).write();
             version = 7;
+        }
+
+        if (version === 7) {
+                // Fix lastupdated ps_locked issue
+                let lastUpdated = userRef.get("alerts").get("lastUpdated").value();
+                let lastUpdatedRef = userRef.get("alerts").get("lastUpdated");
+                for (let i = 0; i < lastUpdated.length; i++) {
+                    let changeData = lastUpdated[i].changeData;
+                    if (("overall" in changeData)) {
+                        let classes = Object.keys(changeData.overall);
+                        for (let j = 0; j < classes.length; j++) {
+                            if (!Object.keys(changeData.overall[classes[j]]).length) {
+                                lastUpdatedRef.nth(i).get("changeData").get("overall").unset(classes[j]).write();
+                            }
+                        }
+                    }
+                }
+
+
+                // Save update
+                console.log("Updated user to version 8");
+                userRef.set("version", 8).write();
+                version = 8;
         }
 
         this.bringUpToDate(username, false);
@@ -1282,7 +1305,8 @@ module.exports = {
         let newGrades = grade_update_status.new_grades[newTerm][newSemester];
         let newPSAIDs = newGrades.map(x => x.grades.map(y => y.psaid));
         let fixDicts = false;
-        for (let i = 0; i < newPSAIDs.length - oldPSAIDs.length; i++) {
+        let add = newPSAIDs.length - oldPSAIDs.length;
+        for (let i = 0; i < add; i++) {
             oldPSAIDs.push([]);
             fixDicts = true;
         }
@@ -1310,6 +1334,9 @@ module.exports = {
         } else {
             for (let i = 0; i < Object.keys(overall).length; i++) {
                 delete overall[Object.keys(overall)[i]].ps_locked;
+                if (!Object.keys(overall[Object.keys(overall)[i]]).length) {
+                    delete overall[Object.keys(overall)[i]];
+                }
             }
         }
         let changeData = {
