@@ -42,6 +42,13 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 4.4.2] - 2021-01-14
+### Fixed
+- Issues with sync log display
+- Issue with syncing when assignments were added to once-empty courses in PowerSchool
+- Issue with syncing when only ungraded assignments were in a class in PowerSchool
+- <em>[Beta]</em> An issue with the fps display freezing after changing holiday effect settings
+
 ## [Stable 4.4.1] - 2021-01-13
 ### Added
 - Graderoom now displays when it is syncing grade history
