@@ -888,20 +888,11 @@
                         }, 500);
                         if (appearance.holidayEffects) {
                             init = performance.now();
-                            $('#lights-disabled-message').hide();
-                            $('#snow-disabled-message').hide();
-                            $("#snow-fall").show();
-                            $(".lightrope").show();
                             if (darkMode === false) {
                                 $("#light_snowfall").attr("media", "");
                             } else if (darkMode) {
                                 $("#light_snowfall").attr("media", "not all");
                             }
-                        } else {
-                            $('#lights-disabled-message').hide();
-                            $('#snow-disabled-message').hide();
-                            $("#snow-fall").hide();
-                            $(".lightrope").hide();
                         }
                     }
                 } else {
@@ -922,20 +913,11 @@
                         }, 500);
                         if (appearance.holidayEffects) {
                             init = performance.now();
-                            $('#lights-disabled-message').hide();
-                            $('#snow-disabled-message').hide();
-                            $("#snow-fall").show();
-                            $(".lightrope").show();
                             if (darkMode === false) {
                                 $("#light_snowfall").attr("media", "");
                             } else if (darkMode) {
                                 $("#light_snowfall").attr("media", "not all");
                             }
-                        } else {
-                            $('#lights-disabled-message').hide();
-                            $('#snow-disabled-message').hide();
-                            $("#snow-fall").hide();
-                            $(".lightrope").hide();
                         }
                     }
                 }
@@ -1108,6 +1090,7 @@
             function correctCalc(classIndex) {
                 let realOverallGrade = data[classIndex].overall_percent;
                 let realOverallLetter = data[classIndex].overall_letter;
+                if (realOverallGrade === false || realOverallLetter === false) return true;
                 let calculatedOverallGrade = getOverallGrade(classIndex);
                 let correctDecimalPlaces = getOverallGrade(classIndex).toFixed(countDecimals(realOverallGrade));
                 let calculatedOverallLetter = getLetterGrade(calculatedOverallGrade);
@@ -1119,6 +1102,7 @@
             }
 
             function countDecimals(value) {
+                if (value === false) return 0;
                 if (Math.floor(value) === value) {
                     return 0;
                 }

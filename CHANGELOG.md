@@ -42,6 +42,11 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 4.4.3] - 2021-01-19
+### Improved
+- Classes with solely ungraded assignments can now be viewed
+- Snow disappears instead of freezing when tabbed out
+
 ## [Stable 4.4.2] - 2021-01-14
 ### Fixed
 - Issues with sync log display
@@ -1656,7 +1661,7 @@
 ### Removed
 - Removed beta key requirement for stable site
 
-## [Beta 0.12.0] - 2020-02-25
+## [Beta 0.11.1] - 2020-02-25
 ### Improved
 - Username display is now name display
 - Auto theme settings are now saved

@@ -59,7 +59,7 @@ module.exports = function (app, passport) {
                     appearance: JSON.stringify(req.user.appearance),
                     alerts: JSON.stringify(req.user.alerts),
                     gradeSync: !!req.user.schoolPassword,
-                    gradeData: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter))),
+                    gradeData: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
                     weightData: JSON.stringify(req.user.weights[term][semester]),
                     addedAssignments: JSON.stringify(req.user.addedAssignments[term][semester]),
                     editedAssignments: JSON.stringify(req.user.editedAssignments[term][semester]),

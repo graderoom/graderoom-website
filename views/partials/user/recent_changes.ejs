@@ -170,16 +170,20 @@
                 if (modifiedClasses[j] in overallChanges) {
                     if ("overall_percent" in overallChanges[modifiedClasses[j]]) {
                         let oldPercent = overallChanges[modifiedClasses[j]].overall_percent;
+                        if (oldPercent === false) oldPercent = 100;
                         let newPercent = alerts.lastUpdated.find((d, index) => index > i && "overall" in d.changeData && modifiedClasses[j] in d.changeData.overall && "overall_percent" in d.changeData.overall[modifiedClasses[j]]);
                         if (newPercent) {
                             newPercent = newPercent.changeData.overall[modifiedClasses[j]].overall_percent;
                         }
-                        if (!newPercent) {
+                        if (!newPercent && newPercent !== 0) {
                             newPercent = data[realIndex].overall_percent;
                         }
+                        if (newPercent === false) newPercent = 100;
                         let delta = newPercent - oldPercent;
-                        delta = (delta > 0 ? "+" : "") + +(delta).toFixed(3) + "%";
-                        card += ` <span>(` + delta + `)</span>`;
+                        if (delta) {
+                            delta = (delta > 0 ? "+" : "") + +(delta).toFixed(3) + "%";
+                            card += ` <span>(` + delta + `)</span>`;
+                        }
                     }
                     card += `</span><span>`;
                     if ("overall_letter" in overallChanges[modifiedClasses[j]]) {
@@ -191,7 +195,9 @@
                         if (!newLetter) {
                             newLetter = data[realIndex].overall_letter;
                         }
-                        card += `<span>(` + oldLetter + `) → (` + newLetter + `)</span>`;
+                        if (newLetter) {
+                            card += `<span>(` + oldLetter + `) → (` + newLetter + `)</span>`;
+                        }
                     }
                     card += `</span>`;
                 } else {

@@ -119,7 +119,7 @@
                 }
             }, 1000);
             dynamicDisplayInterval = setInterval(() => {
-                if (performance.now() - init < 10000) {
+                if (performance.now() - init < 10000 || !renderNextFrame) {
                     return;
                 } // Wait 10 seconds before making fps-based changes
                 if (_1sAverage < 20 && showingLights) {
@@ -184,6 +184,7 @@
             window.addEventListener("focus", play);
 
             function stop() {
+                $("#snow-fall").hide();
                 renderNextFrame = false;
             }
 
@@ -192,6 +193,7 @@
                 renderNextFrame = true;
                 _1sTempFps = [];
                 lastCalledTime = undefined;
+                $("#snow-fall").show();
             }
         }
 
