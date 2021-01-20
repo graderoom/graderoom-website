@@ -1108,6 +1108,7 @@
             function correctCalc(classIndex) {
                 let realOverallGrade = data[classIndex].overall_percent;
                 let realOverallLetter = data[classIndex].overall_letter;
+                if (realOverallGrade === false || realOverallLetter === false) return true;
                 let calculatedOverallGrade = getOverallGrade(classIndex);
                 let correctDecimalPlaces = getOverallGrade(classIndex).toFixed(countDecimals(realOverallGrade));
                 let calculatedOverallLetter = getLetterGrade(calculatedOverallGrade);
@@ -1119,6 +1120,7 @@
             }
 
             function countDecimals(value) {
+                if (value === false) return 0;
                 if (Math.floor(value) === value) {
                     return 0;
                 }
