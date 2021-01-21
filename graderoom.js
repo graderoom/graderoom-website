@@ -11,7 +11,7 @@ const passport = require("passport");
 const dbConn = require("./authenticator.js");
 const fs = require("fs");
 
-const productionEnv = process.env.NODE_ENV === 'production';
+const productionEnv = process.env.NODE_ENV === "production";
 
 module.exports.needsBetaKeyToSignUp = true; //todo
 
@@ -71,5 +71,28 @@ dbConn.backupdb();
 dbConn.watchChangelog();
 const httpServer = http.createServer(app);
 httpServer.listen(httpPort, () => {
+    if (process.platform === "win32") { // If on windows print ip for testing mobile app locally (mac ppl can comment this out when test)
+        "use strict";
+
+        const {networkInterfaces} = require("os");
+
+        const nets = networkInterfaces();
+        const results = {};
+
+        for (const name of Object.keys(nets)) {
+            for (const net of nets[name]) {
+                // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+                if (net.family === "IPv4" && !net.internal) {
+                    if (!results[name]) {
+                        results[name] = [];
+                    }
+                    results[name].push(net.address);
+                }
+            }
+        }
+
+        console.log("Server IPs: ");
+        console.table(results);
+    }
     console.log("HTTP Server running on port " + httpPort);
 });
