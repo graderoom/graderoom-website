@@ -2249,12 +2249,12 @@ input:disabled {
     pointer-events: none;
 }
 
-#syncFailure, #syncNoData {
+.syncFailure, .syncNoData {
     margin-right: 0.5rem;
     cursor: default;
 }
 
-#syncFailure.popup, #syncNoData.popup, #gradeSyncEnabled.popup {
+.syncFailure.popup, .syncNoData.popup, .gradeSyncEnabled.popup {
     z-index: unset;
 }
 

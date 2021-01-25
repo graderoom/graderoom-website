@@ -645,26 +645,26 @@ module.exports = {
         }
 
         if (version === 7) {
-                // Fix lastupdated ps_locked issue
-                let lastUpdated = userRef.get("alerts").get("lastUpdated").value();
-                let lastUpdatedRef = userRef.get("alerts").get("lastUpdated");
-                for (let i = 0; i < lastUpdated.length; i++) {
-                    let changeData = lastUpdated[i].changeData;
-                    if (("overall" in changeData)) {
-                        let classes = Object.keys(changeData.overall);
-                        for (let j = 0; j < classes.length; j++) {
-                            if (!Object.keys(changeData.overall[classes[j]]).length) {
-                                lastUpdatedRef.nth(i).get("changeData").get("overall").unset(classes[j]).write();
-                            }
+            // Fix lastupdated ps_locked issue
+            let lastUpdated = userRef.get("alerts").get("lastUpdated").value();
+            let lastUpdatedRef = userRef.get("alerts").get("lastUpdated");
+            for (let i = 0; i < lastUpdated.length; i++) {
+                let changeData = lastUpdated[i].changeData;
+                if (("overall" in changeData)) {
+                    let classes = Object.keys(changeData.overall);
+                    for (let j = 0; j < classes.length; j++) {
+                        if (!Object.keys(changeData.overall[classes[j]]).length) {
+                            lastUpdatedRef.nth(i).get("changeData").get("overall").unset(classes[j]).write();
                         }
                     }
                 }
+            }
 
 
-                // Save update
-                console.log("Updated user to version 8");
-                userRef.set("version", 8).write();
-                version = 8;
+            // Save update
+            console.log("Updated user to version 8");
+            userRef.set("version", 8).write();
+            version = 8;
         }
 
         if (version === 8) {
@@ -1066,14 +1066,16 @@ module.exports = {
         });
 
     }, login: function (username, password) {
-        let lc_username = username.toLowerCase();
-        let user = db.get("users").find({username: lc_username}).value();
-        if (bcrypt.compareSync(password, user.password)) {
-            return {success: true, message: "Login Successful"};
-        } else {
-            return {success: false, message: "Incorrect Graderoom password."};
+        let user;
+        if (this.userExists(username) || this.emailExists(username)) {
+            user = this.getUser(username);
+            if (bcrypt.compareSync(password, user.password)) {
+                return {success: true, message: "Login Successful"};
+            } else {
+                return {success: false, message: "Incorrect Graderoom password."};
+            }
         }
-
+        return {success: false, message: "Invalid credentials."};
     }, changePassword: async function (username, oldPassword, password) {
         let lc_username = username.toLowerCase();
         if (!this.login(username, oldPassword).success) {
@@ -1119,8 +1121,14 @@ module.exports = {
         let user = db.get("users").find({schoolUsername: lc_email}).value();
         return !!user;
     }, userDeleted: function (username) {
+        let isEmail = validateEmail(username);
         let lc_username = username.toLowerCase();
-        let user = db.get("deletedUsers").find({username: lc_username}).value();
+        let user;
+        if (isEmail) {
+            user = db.get("deletedUsers").find({schoolUsername: lc_username}).value();
+        } else {
+            user = db.get("deletedUsers").find({username: lc_username}).value();
+        }
         return !!user;
     }, setTheme: function (username, theme, darkModeStart, darkModeFinish, holidayEffects, blurEffects) {
         let lc_username = username.toLowerCase();
@@ -1146,7 +1154,11 @@ module.exports = {
         }
         return {success: true, message: message};
     }, getUser: function (username) {
+        let isEmail = validateEmail(username);
         let lc_username = username.toLowerCase();
+        if (isEmail) {
+            return db.get("users").find({schoolUsername: lc_username}).value();
+        }
         return db.get("users").find({username: lc_username}).value();
     }, setShowMaxGPA: function (username, value) {
         let lc_username = username.toLowerCase();
@@ -1190,7 +1202,7 @@ module.exports = {
         let lc_username = acc_username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         let grade_history_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password, "", "", "true");
-        let changeData = {}
+        let changeData = {};
         if (grade_history_update_status.success) {
             let current_years = Object.keys(userRef.get("grades").value());
             let years = Object.keys(grade_history_update_status.new_grades);
@@ -1262,9 +1274,7 @@ module.exports = {
 
             let time = Date.now();
             userRef.get("alerts").get("lastUpdated").push({
-                                                              timestamp: time,
-                                                              changeData: changeData,
-                                                              ps_locked: false
+                                                              timestamp: time, changeData: changeData, ps_locked: false
                                                           }).write();
             this.initAddedAssignments(lc_username);
             this.initWeights(lc_username);

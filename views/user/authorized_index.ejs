@@ -1021,12 +1021,12 @@
                                 $(".fa-refresh").addClass("fa-spin").css("opacity", 0.5);
                                 setTimeout(checking, time);
                             } else if (message.message === "Cannot access grades.") {
-                                $("#syncNoData").show();
+                                $(".syncNoData").show();
                                 $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
                                 showLatest(false);
                                 setupLastUpdated();
                             } else if (message.message === "Sync Failed.") {
-                                $("#syncFailure").show();
+                                $(".syncFailure").show();
                                 $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
                                 setupLastUpdated();
                                 showLatest(false);

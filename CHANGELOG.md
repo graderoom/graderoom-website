@@ -42,6 +42,12 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 4.4.4] - 2021-01-25
+### Improved
+- Sign-in can now be completed with either your school email or your username
+- Popups have improved readability in dark mode
+- Sync issues now display in the sync log as well as the sync card
+
 ## [Stable 4.4.3] - 2021-01-19
 ### Improved
 - Classes with solely ungraded assignments can now be viewed

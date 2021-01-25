@@ -257,8 +257,8 @@
                     $("#updateGradesDisplay input").blur();
                     shortcutsEnabled = false;
                     $("#loadingDisplay").show();
-                    $("#syncFailure").hide();
-                    $("#syncNoData").hide();
+                    $(".syncFailure").hide();
+                    $(".syncNoData").hide();
                     $(form).find("button").prop("disabled", true).find("div").addClass("loading");
                 }
 
@@ -280,19 +280,19 @@
                         return;
                     }
                     if (response.gradeSyncEnabled) {
-                        $("#syncGradesDiv").hide();
-                        $("#gradeSyncDiv").show();
-                        $("#gradeSyncEnabled").show();
+                        $(".syncGradesDiv").hide();
+                        $(".gradeSyncDiv").show();
+                        $(".gradeSyncEnabled").show();
                         gradeSync = true;
                         setupTutorialPopups();
                     }
                     if (response.message && (response.message === "No class data." || response.message === "Powerschool is locked.")) {
-                        $("#syncNoData").show();
+                        $(".syncNoData").show();
                         $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
                         $(formMessagesDiv).find(".sk-chase-mini").hide();
                         setupLastUpdated();
                     } else if (response.message && response.message === "Error scraping grades.") {
-                        $("#syncFailure").show();
+                        $(".syncFailure").show();
                         $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
                         $(formMessagesDiv).find(".sk-chase-mini").hide();
                         setupLastUpdated();
