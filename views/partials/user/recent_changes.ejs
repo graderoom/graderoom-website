@@ -206,7 +206,7 @@
                         if (newPercent === false) newPercent = 100;
                         let delta = newPercent - oldPercent;
                         if (delta) {
-                            delta = (delta > 0 ? "+" : "") + +(delta).toFixed(3) + "%";
+                            delta = (delta > 0 ? "+" : "") + (Math.round(delta * 1000) / 1000) + "%";
                             card += ` <span>(` + delta + `)</span>`;
                         }
                     }

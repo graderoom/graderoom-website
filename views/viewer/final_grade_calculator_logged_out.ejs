@@ -186,7 +186,7 @@
 
         let grade;
         if (finalWeight > 0) {
-            grade = +((goal - (currentGrade * (100 - finalWeight) / 100)) / finalWeight * 100).toFixed(3);
+            grade = Math.round((goal - (currentGrade * (100 - finalWeight) / 100)) / finalWeight * 100 * 1000) / 1000;
         } else {
             grade = 0;
         }

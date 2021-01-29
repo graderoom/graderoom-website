@@ -176,13 +176,13 @@
             $("#specialFinal").hide();
             $("#pointFinal").hide();
         } else if (weights[data[Object.keys(data)[$(this)[0].selectedIndex - 1]].class_name]["hasWeights"] === "false") {
-            currentGradeDiv.val(+(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
-            currentGradeDiv.prop("defaultValue", +(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
+            currentGradeDiv.val(Math.round(getOverallGrade($(this)[0].selectedIndex - 1) * 1000) / 1000);
+            currentGradeDiv.prop("defaultValue", Math.round(getOverallGrade($(this)[0].selectedIndex - 1) * 1000) / 1000);
             $("#specialFinal").hide();
             $("#pointFinal").show();
         } else {
-            currentGradeDiv.val(+(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
-            currentGradeDiv.prop("defaultValue", +(getOverallGrade($(this)[0].selectedIndex - 1).toFixed(3)));
+            currentGradeDiv.val(Math.round(getOverallGrade($(this)[0].selectedIndex - 1) * 1000) / 1000);
+            currentGradeDiv.prop("defaultValue", Math.round(getOverallGrade($(this)[0].selectedIndex - 1) * 1000) / 1000);
             $("#specialFinal").show();
             $("#pointFinal").hide();
             manageChooseWeight($(this)[0].selectedIndex - 1);
@@ -317,8 +317,8 @@
 
         // Get the text field
         let message = finalWeightDiv;
-        $(message).val(parseFloat(finalWeight.toFixed(8)));
-        $(message).prop("defaultValue", parseFloat(finalWeight.toFixed(8)));
+        $(message).val(Math.round(finalWeight * 100000000) / 100000000);
+        $(message).prop("defaultValue", Math.round(finalWeight * 100000000) / 100000000);
 
         // Submit the form
         form.submit();
@@ -399,7 +399,7 @@
         }
 
         //TODO Finish these messages
-        let grade = +((goal - (currentGrade * (100 - finalWeight) / 100)) / finalWeight * 100).toFixed(3);
+        let grade = Math.round((goal - (currentGrade * (100 - finalWeight) / 100)) / finalWeight * 100 * 1000) / 1000;
         if (grade == null) {
             return;
         }
@@ -575,7 +575,7 @@
         if (totalPossible === 0) {
             return 0;
         }
-        return +((totalGotten / totalPossible * 100).toFixed(3));
+        return Math.round(totalGotten / totalPossible * 100 * 1000) / 1000;
     }
 
 

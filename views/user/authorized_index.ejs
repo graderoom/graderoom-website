@@ -1092,7 +1092,8 @@
                 let realOverallLetter = data[classIndex].overall_letter;
                 if (realOverallGrade === false || realOverallLetter === false) return true;
                 let calculatedOverallGrade = getOverallGrade(classIndex);
-                let correctDecimalPlaces = getOverallGrade(classIndex).toFixed(countDecimals(realOverallGrade));
+                let tenToThePower = Math.pow(10, countDecimals(realOverallGrade));
+                let correctDecimalPlaces = Math.round(getOverallGrade(classIndex) * tenToThePower) / tenToThePower;
                 let calculatedOverallLetter = getLetterGrade(calculatedOverallGrade);
                 if (correctDecimalPlaces == realOverallGrade && calculatedOverallLetter === realOverallLetter) {
                     return true;
@@ -1229,7 +1230,7 @@
                 max /= numClasses;
 
                 if (GPA && max) {
-                    out.text(GPA.toFixed(3) + (showMaxGPA ? "/" + max.toFixed(3) : "")).parent().show();
+                    out.text((Math.round(GPA * 1000) / 1000).toFixed(3) + (showMaxGPA ? "/" + (Math.round(max * 1000) / 1000).toFixed(3) : "")).parent().show();
                     return true;
                 }
                 out.parent().hide();
@@ -1268,7 +1269,7 @@
                 max /= numClasses;
 
                 if (GPA && max) {
-                    out.text(GPA.toFixed(3) + (showMaxGPA ? "/" + max.toFixed(3) : "")).parent().show();
+                    out.text((Math.round(GPA * 1000) / 1000).toFixed(3) + (showMaxGPA ? "/" + (Math.round(max * 1000) / 1000).toFixed(3) : "")).parent().show();
                     return true;
                 }
                 out.parent().hide();
@@ -1298,7 +1299,7 @@
                 max /= numClasses;
 
                 if (GPA && max) {
-                    out.text(GPA.toFixed(3) + (showMaxGPA ? "/" + max.toFixed(3) : "")).parent().show();
+                    out.text((Math.round(GPA * 1000) / 1000).toFixed(3) + (showMaxGPA ? "/" + (Math.round(max * 1000) / 1000).toFixed(3) : "")).parent().show();
                     return true;
                 }
                 out.parent().hide();
@@ -1348,7 +1349,7 @@
                         }
                         for (let j = 0; j < Object.keys(result).length; j++) {
                             let weight = Object.keys(result)[j];
-                            result[weight] = +(result[weight] / totalPossible * 100).toFixed(2) || 0;
+                            result[weight] = (Math.round(result[weight] / totalPossible * 100 * 100) / 100) || 0;
                             $("#weightTableWeight" + i + j + " input").attr("placeholder", result[weight]);
                         }
                     }
@@ -1488,7 +1489,7 @@
 
                             document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
                             let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
-                            document.getElementById("weightTablePoints" + i + j).textContent = +categoryGottenAndPossible.gotten.toFixed(4) + ((categoryGottenAndPossible.possible !== 0) ? ("/" + +(categoryGottenAndPossible.possible.toFixed(4))) : "");
+                            document.getElementById("weightTablePoints" + i + j).textContent = Math.round(categoryGottenAndPossible.gotten * 10000) / 10000 + ((categoryGottenAndPossible.possible !== 0) ? ("/" + Math.round(categoryGottenAndPossible.possible * 10000) / 10000) : "");
                             let categoryGrade = getCategoryGrade(i, tableCategories[j]);
                             if (categoryGottenAndPossible.possible !== 0) {
                                 document.getElementById("weightTableGrade" + i + j).textContent = categoryGrade + "% (" + getLetterGrade(categoryGrade) + ")";
@@ -1501,7 +1502,7 @@
                         let color;
                         if (latestChange) {
                             if (latestChange.overall && _data[i].class_name in latestChange.overall && 'overall_percent' in latestChange.overall[_data[i].class_name]) {
-                                delta = +(_data[i].overall_percent - latestChange.overall[_data[i].class_name].overall_percent).toFixed(2);
+                                delta = Math.round((_data[i].overall_percent - latestChange.overall[_data[i].class_name].overall_percent) * 100) / 100;
                             }
                             if (delta > 0) {
                                 delta = "<i class=\"fa fa-caret-up\"></i>" + delta + "%";
@@ -1513,7 +1514,7 @@
                         }
                         delta = (delta ? (" <div style=\"cursor: pointer; display: inline-block; margin-left: 1rem; color: " + color + "\" onclick=\"setupGradeChanges()\">" + delta + "</div>") : "");
                         if (overallGrade) {
-                            document.getElementById("weightTableOverallGrade" + i).innerHTML = (+(overallGrade.toFixed(2))).toString() + "% (" + getLetterGrade(overallGrade) + ")" + delta;
+                            document.getElementById("weightTableOverallGrade" + i).innerHTML = (Math.round(overallGrade * 100) / 100).toString() + "% (" + getLetterGrade(overallGrade) + ")" + delta;
                         } else {
                             document.getElementById("weightTableOverallGrade" + i).innerHTML = "--" + delta;
                         }
@@ -1592,7 +1593,7 @@
                     addPossible = 0;
                 }
                 let addExclude = $(`#addExclude${classIndex}`).prop("checked");
-                let addPercent = +(addGotten / addPossible * 100).toFixed(2) || false;
+                let addPercent = (Math.round(addGotten / addPossible * 100 * 100) / 100) || false;
                 if (addPercent === Infinity) {
                     addPercent = false;
                 }
@@ -1651,7 +1652,7 @@
                         assignment.points_possible = 0;
                     }
                     if ((assignment.points_gotten || assignment.points_gotten === 0) && assignment.points_possible) {
-                        assignment.grade_percent = +(parseFloat(assignment.points_gotten / assignment.points_possible * 100)).toFixed(2);
+                        assignment.grade_percent = Math.round(assignment.points_gotten / assignment.points_possible * 100 * 100) / 100;
                     } else {
                         assignment.grade_percent = false;
                     }
@@ -1660,7 +1661,7 @@
                     }
 
                     doRefresh = false;
-                    if (temp != assignment.points_gotten) {
+                    if (temp !== assignment.points_gotten) {
                         doRefresh = true;
                     }
 
@@ -1686,7 +1687,7 @@
                         pointsPossible = 0;
                     }
                     if ((assignment.points_gotten || assignment.points_gotten === 0) && pointsPossible) {
-                        assignment.grade_percent = +(parseFloat(assignment.points_gotten / pointsPossible * 100)).toFixed(2);
+                        assignment.grade_percent = Math.round(assignment.points_gotten / pointsPossible * 100 * 100) / 100;
                     } else {
                         assignment.grade_percent = false;
                     }
@@ -1740,13 +1741,13 @@
                         assignment.points_possible = false;
                     }
                     if (assignment.points_possible && assignment.points_gotten) {
-                        assignment.grade_percent = +parseFloat(assignment.points_gotten / assignment.points_possible * 100).toFixed(2);
+                        assignment.grade_percent = Math.round(assignment.points_gotten / assignment.points_possible * 100 * 100) / 100;
                     } else {
                         assignment.grade_percent = false;
                     }
 
                     doRefresh = false;
-                    if (temp != assignment.points_possible) {
+                    if (temp !== assignment.points_possible) {
                         doRefresh = true;
                     }
 
@@ -1770,15 +1771,13 @@
                         assignment.points_possible = false;
                     }
                     if (assignment.points_possible && pointsGotten) {
-                        assignment.grade_percent = +parseFloat(pointsGotten / assignment.points_possible * 100).toFixed(2);
+                        assignment.grade_percent = Math.round(pointsGotten / assignment.points_possible * 100 * 100) / 100;
                     } else {
                         assignment.grade_percent = false;
                     }
 
-                    doRefresh = false;
-                    if (temp != assignment.points_possible && assignment.points_possible != _data[classIndex].grades[assignmentIndex].points_possible) {
-                        doRefresh = true;
-                    }
+
+                    doRefresh = temp !== assignment.points_possible && assignment.points_possible !== _data[classIndex].grades[assignmentIndex].points_possible;
 
                     cleanEdits(classIndex, assignmentIndex);
 
@@ -2637,8 +2636,8 @@
                             $(assignmentPercentDivs[assignmentIndex]).html("<div style=\"display: flex; align-items: center; justify-content: center;\"><div>" + percent + "</div><div style=\"margin-left: 0.4rem\">" + letterGrade + "</div></div>");
 
                             // Set up coloring and gain/loss
-                            let display = +isNaN(parseFloat(assignmentData[j]).toFixed(2)) ? +parseFloat(assignmentData[assignmentData.length - 1]).toFixed(2) : parseFloat(assignmentData[j]).toFixed(2);
-                            let delta = (assignmentData[j] - (assignmentData[j - 1] || 100)).toFixed(2);
+                            let display = +isNaN(Math.round(assignmentData[j] * 100) / 100) ? (Math.round(assignmentData[assignmentData.length - 1] * 100) / 100) : (Math.round(assignmentData[j] * 100) / 100);
+                            let delta = Math.round((assignmentData[j] - (assignmentData[j - 1] || 100)) * 100) / 100;
                             if (categorySort[i] && assignmentCategories[j] !== assignmentCategories[j - 1]) {
                                 delta = assignmentData[j] - 100;
                             }
@@ -2687,7 +2686,7 @@
                         let [overallGrade, overallLetter] = (correctCalc(i)) ? [getOverallGrade(i), getLetterGrade(getOverallGrade(i))] : [_data[i].overall_percent, _data[i].overall_letter];
                         let assignmentData = parsedData[i].rawData;
                         let lastIndex = assignmentData.length - 1;
-                        let delta = +(assignmentData[lastIndex] - assignmentData[lastIndex - 1]).toFixed(2);
+                        let delta = Math.round(assignmentData[lastIndex] - assignmentData[lastIndex - 1] * 100) / 100;
                         let color;
 
                         if (delta > 0) {
@@ -2699,8 +2698,8 @@
                         }
                         delta = (delta ? (" <div class=\"delta\" style=\"color: " + color + "\">" + delta + "</div>") : "");
                         if (overallGrade) {
-                            document.getElementById("overviewChart" + i).innerHTML = "<div class=\"overallGrade\">" + (+(overallGrade.toFixed(2))).toString() + "%" + "</div><div class=\"overallLetter\">" + overallLetter + "</div>" + delta;
-                            document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>` + (+(overallGrade.toFixed(2))).toString() + "%" + ` (` + overallLetter + `)<span class="popup"><i id="incorrectOverviewGrade` + i + `"class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-bottom">Does not match calculated grade</span></i></span>`;
+                            document.getElementById("overviewChart" + i).innerHTML = "<div class=\"overallGrade\">" + (Math.round(overallGrade * 100) / 100).toString() + "%" + "</div><div class=\"overallLetter\">" + overallLetter + "</div>" + delta;
+                            document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>` + (Math.round(overallGrade * 100) / 100).toString() + "%" + ` (` + overallLetter + `)<span class="popup"><i id="incorrectOverviewGrade` + i + `"class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-bottom">Does not match calculated grade</span></i></span>`;
                         } else {
                             document.getElementById("overviewChart" + i).innerHTML = "N/A";
                             document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>N/A<span class="popup"><i id="incorrectOverviewGrade` + i + `"class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-bottom">Does not match calculated grade</span></i></span>`;
@@ -2731,7 +2730,7 @@
                 if (totalPossible === 0) {
                     return null;
                 }
-                return +(totalGotten / totalPossible * 100).toFixed(2);
+                return Math.round(totalGotten / totalPossible * 100 * 100) / 100;
             }
 
             function cleanEdits(classIndex, assignmentIndex) {
@@ -2870,9 +2869,9 @@
                                                 value.weight = 0;
                                                 continue;
                                             }
-                                            overallPercent += value.weight * (value.totalPossible !== 0 ? +(value.totalGotten / value.totalPossible * 100).toFixed(2) : 100);
+                                            overallPercent += value.weight * (value.totalPossible !== 0 ? Math.round(value.totalGotten / value.totalPossible * 100 * 100) / 100 : 100);
                                         }
-                                        let total = +(overallPercent / totalWeightValue).toFixed(2);
+                                        let total = Math.round(overallPercent / totalWeightValue * 100) / 100;
                                         overallGradeSteps.push(total);
                                     } else {
                                         overallGradeSteps.push(overallGradeSteps.filter(x => x).slice(-1)[0] || 100);
@@ -2883,13 +2882,13 @@
                                 }
                                 if (doesntHaveWeights) {
                                     if (categoryGrades[grade.category]) {
-                                        categoryGradeSteps.push((categoryGrades[grade.category].totalPossible !== 0 ? +(categoryGrades[grade.category].totalGotten / categoryGrades[grade.category].totalPossible * 100).toFixed(2) : 100));
+                                        categoryGradeSteps.push((categoryGrades[grade.category].totalPossible !== 0 ? Math.round(categoryGrades[grade.category].totalGotten / categoryGrades[grade.category].totalPossible * 100 * 100) / 100 : 100));
                                     } else {
                                         categoryGradeSteps.push(100);
                                     }
                                 } else {
                                     if (totalPossiblesAndGottens[category]) {
-                                        categoryGradeSteps.push((totalPossiblesAndGottens[category].totalPossible !== 0 ? +(totalPossiblesAndGottens[category].totalGotten / totalPossiblesAndGottens[category].totalPossible * 100).toFixed(2) : 100));
+                                        categoryGradeSteps.push((totalPossiblesAndGottens[category].totalPossible !== 0 ? Math.round(totalPossiblesAndGottens[category].totalGotten / totalPossiblesAndGottens[category].totalPossible * 100 * 100) / 100 : 100));
                                     } else {
                                         categoryGradeSteps.push(100);
                                     }
@@ -3176,7 +3175,7 @@
                                         return;
                                     }
                                     if (tooltipItem.index >= chartData[tooltipItem.datasetIndex].mixedData.length) {
-                                        let delta = +(_data[tooltipItem.datasetIndex].overall_percent - chartData[tooltipItem.datasetIndex].mixedData.slice(-1)[0].y).toFixed(2);
+                                        let delta = Math.round((_data[tooltipItem.datasetIndex].overall_percent - chartData[tooltipItem.datasetIndex].mixedData.slice(-1)[0].y) * 100) / 100;
                                         if (delta > 0) {
                                             delta = "+" + delta;
                                         }
@@ -3344,7 +3343,7 @@
                                         return;
                                     }
                                     if (tooltipItem.index >= chartData[id].mixedData.length) {
-                                        let delta = +(_data[id].overall_percent - chartData[id].mixedData.slice(-1)[0].y).toFixed(2);
+                                        let delta = Math.round((_data[id].overall_percent - chartData[id].mixedData.slice(-1)[0].y) * 100) / 100;
                                         if (delta > 0) {
                                             delta = "+" + delta;
                                         }

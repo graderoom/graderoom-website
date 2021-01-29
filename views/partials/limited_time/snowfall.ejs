@@ -102,12 +102,12 @@
 
             go();
 
-            <% if (page == "home" && JSON.parse(betaFeatures).showFps) { %>
+            <% if (page === "home" && JSON.parse(betaFeatures).showFps) { %>
             setInterval(() => {
                 if (renderNextFrame) {
                     let fpsDisplay = ``;
-                    fpsDisplay += `&nbsp;1S AVG: ` + (_1sAverage < 100 ? `&nbsp;` : ``) + (_1sAverage < 10 ? `&nbsp;` : ``) + _1sAverage.toFixed(0) + `FPS<br>`;
-                    fpsDisplay += `INSTANT: ` + (fps < 100 ? `&nbsp;` : ``) + (fps < 10 ? `&nbsp;` : ``) + fps.toFixed(0) + `FPS`;
+                    fpsDisplay += `&nbsp;1S AVG: ` + (_1sAverage < 100 ? `&nbsp;` : ``) + (_1sAverage < 10 ? `&nbsp;` : ``) + Math.round(_1sAverage) + `FPS<br>`;
+                    fpsDisplay += `INSTANT: ` + (fps < 100 ? `&nbsp;` : ``) + (fps < 10 ? `&nbsp;` : ``) + Math.round(fps) + `FPS`;
                     $("#fps").html(fpsDisplay);
                 }
             }, 1);

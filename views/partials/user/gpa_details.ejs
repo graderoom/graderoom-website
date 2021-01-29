@@ -192,21 +192,21 @@
             if (credits && terms) {
                 credits = credits / terms;
                 totalCredits += credits;
-                credits = credits.toFixed(2)
+                credits = (Math.round(credits * 100) / 100).toFixed(2);
                 creditPoints = gpaPoints * credits;
                 totalCreditPoints += creditPoints;
-                creditPoints = creditPoints.toFixed(2)
+                creditPoints = (Math.round(creditPoints * 100) / 100).toFixed(2);
             } else {
                 totalCredits += 5;
                 totalCreditPoints += gpaPoints * 5;
                 credits = "5.00?";
-                creditPoints = (gpaPoints * 5).toFixed(2) + "?";
+                creditPoints = (Math.round(gpaPoints * 5 * 100) / 100).toFixed(2) + "?";
             }
 
             if (addHonors) {
-                gpaPoints = (gpaPoints - addHonors).toFixed(1) + " <b>(+1.0)</b>";
+                gpaPoints = (Math.round((gpaPoints - addHonors) * 10) / 10).toFixed(1) + " <b>(+1.0)</b>";
             } else {
-                gpaPoints = gpaPoints.toFixed(1);
+                gpaPoints = (Math.round(gpaPoints * 10) / 10).toFixed(1);
             }
 
             creditPoints = `<td>` + gpaPoints + `</td><td colspan="2"><b>×</b></td><td>` + credits + `</td><td colspan="2"><b>=</b></td><td><b>` + creditPoints + `</b></td>`;
@@ -217,9 +217,9 @@
         }
 
         // Create footers
-        let quotient = (totalCreditPoints / totalCredits).toFixed(3);
-        totalCreditPoints = totalCreditPoints.toFixed(2);
-        totalCredits = totalCredits.toFixed(2);
+        let quotient = (Math.round((totalCreditPoints / totalCredits) * 1000) / 1000).toFixed(3);
+        totalCreditPoints = (Math.round(totalCreditPoints * 100) / 100).toFixed(2);
+        totalCredits = (Math.round(totalCredits * 100) / 100).toFixed(2);
 
         let totals = $(`<tr><th colspan="5">TOTALS</th><th colspan="3">` + totalCredits + ` <small>CREDITS</small></th><th colspan="2">` + totalCreditPoints + ` <small style="white-space: nowrap">CREDIT PTS</small></th></tr>`)
         semesterGpaDetailsTable.append(totals);
@@ -306,21 +306,21 @@
                     if (credits && terms) {
                         credits = credits / terms;
                         totalCredits += credits;
-                        credits = credits.toFixed(2)
+                        credits = (Math.round(credits * 100) / 100).toFixed(2);
                         creditPoints = gpaPoints * credits;
                         totalCreditPoints += creditPoints;
-                        creditPoints = creditPoints.toFixed(2)
+                        creditPoints = (Math.round(creditPoints * 100) / 100).toFixed(2);
                     } else {
                         totalCredits += 5;
                         totalCreditPoints += gpaPoints * 5;
                         credits = "5.00?";
-                        creditPoints = (gpaPoints * 5).toFixed(2) + "?";
+                        creditPoints = (Math.round(gpaPoints * 5 * 100) / 100).toFixed(2) + "?";
                     }
 
                     if (addHonors) {
-                        gpaPoints = (gpaPoints - addHonors).toFixed(1) + " <b>(+1.0)</b>";
+                        gpaPoints = (Math.round((gpaPoints - addHonors) * 100) / 100).toFixed(2) + " <b>(+1.0)</b>";
                     } else {
-                        gpaPoints = gpaPoints.toFixed(1);
+                        gpaPoints = (Math.round(gpaPoints * 10) / 10).toFixed(1);
                     }
 
                     creditPoints = `<td>` + gpaPoints + `</td><td colspan="2"><b>×</b></td><td>` + credits + `</td><td colspan="2"><b>=</b></td><td><b>` + creditPoints + `</b></td>`;
@@ -333,9 +333,9 @@
         }
 
         // Create footers
-        let quotient = (totalCreditPoints / totalCredits).toFixed(3);
-        totalCreditPoints = totalCreditPoints.toFixed(2);
-        totalCredits = totalCredits.toFixed(2);
+        let quotient = (Math.round(totalCreditPoints / totalCredits * 1000) / 1000).toFixed(3);
+        totalCreditPoints = (Math.round(totalCreditPoints * 100) / 100).toFixed(2);
+        totalCredits = (Math.round(totalCredits * 100) / 100).toFixed(2);
 
         let totals = $(`<tr><th colspan="5">TOTALS</th><th colspan="3">` + totalCredits + ` <small>CREDITS</small></th><th colspan="2">` + totalCreditPoints + ` <small style="white-space: nowrap">CREDIT PTS</small></th></tr>`)
         cumulativeGpaDetailsTable.append(totals);
