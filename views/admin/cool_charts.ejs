@@ -279,7 +279,7 @@
         pointHoverBorderColor: "purple",
         pointHoverBorderWidth: 2
     }
-    let activePercentageData = userData.map((t, i) => ({x: t.x, y: +(uniqueUsersData[i].y / t.y * 100).toFixed(4)}));
+    let activePercentageData = userData.map((t, i) => ({x: t.x, y: Math.round(uniqueUsersData[i].y / t.y * 100 * 10000) / 10000}));
     let activePercentageDataset = {
         label: "Active Percentage",
         yAxisID: "percent",

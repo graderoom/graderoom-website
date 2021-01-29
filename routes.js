@@ -1,7 +1,6 @@
 let server = require("./graderoom.js");
 let authenticator = require("./authenticator.js");
 let emailSender = require("./emailSender.js");
-let passport = require("./passport.js");
 let _ = require("lodash");
 
 module.exports = function (app, passport) {
@@ -581,9 +580,10 @@ module.exports = function (app, passport) {
     });
 
 
-    //FIX THIS TO LET ANY WEIGHTS BE EDITED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //must be called via client side ajax+js
+    //FIX THIS TO LET ANY WEIGHTS BE
+    // EDITED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // must be called via client side ajax+js
     app.post("/updateweights", [isLoggedIn, inRecentTerm], async (req, res) => {
         let className = req.body.className;
         let hasWeights = req.body.hasWeights;
@@ -600,7 +600,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/updateclassweights", [isAdmin], (req, res) => {
-        let resp = authenticator.updateWeightsInClassDb(req.body.term, req.body.semester, req.body.className, req.body.teacherName, req.body.hasWeights,  req.body.weights);
+        let resp = authenticator.updateWeightsInClassDb(req.body.term, req.body.semester, req.body.className, req.body.teacherName, req.body.hasWeights, req.body.weights);
         if (resp.success) {
             res.status(200).send(resp);
         } else {
@@ -963,21 +963,17 @@ module.exports = function (app, passport) {
     });
 
     /** Api stuff (maybe temp) */
-    app.get("/api/login/success", (req, res) => {
-        if (req.isAuthenticated) {
+    app.get("/api/status", (req, res) => {
+        if (req.isAuthenticated()) {
             res.sendStatus(200);
         } else {
             res.sendStatus(401);
         }
     });
 
-    app.get("/api/login/failure", (req, res) => {
-        res.sendStatus(401);
+    app.post("/api/login", passport.authenticate("local-login"), (req, res) => {
+        res.sendStatus(200);
     });
-
-    app.post("/api/login", passport.authenticate("local-login", {
-        successRedirect: "/api/login/success", failureRedirect: "/api/login/failure", failureFlash: true
-    }));
     /** End api stuff */
 
     // general web app

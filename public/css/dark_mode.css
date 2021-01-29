@@ -269,8 +269,7 @@ tr.addAssignmentAnimation {
 .popup span.popup-left-bottom,
 .popup span.popup-left,
 .popup span.popup-left-top {
-    font-weight: bolder;
-    background: black;
+    background: #222222;
 }
 
 .school-username {
