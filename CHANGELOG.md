@@ -42,7 +42,7 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Stable 4.4.6] - 2021-01-29
+## [Stable 4.4.6] - 2021-01-30
 ### Fixed
 - An issue with page refreshing when it was not necessary
 - An issue where some extra weights were displayed if a second semester course matched a first semester course
