@@ -68,6 +68,7 @@ require("./routes.js")(app, passport); // load our routes and pass in our app an
 dbConn.backupdb();
 dbConn.updateAllDB();
 dbConn.backupdb();
+dbConn.readChangelog("CHANGELOG.md");
 dbConn.watchChangelog();
 const httpServer = http.createServer(app);
 httpServer.listen(httpPort, () => {
