@@ -12,6 +12,7 @@ const crypto = require("crypto");
 const readline = require("readline");
 const fs = require("fs");
 const SunCalc = require("suncalc");
+const md5 = require("md5");
 
 const roundsToGenerateSalt = 10;
 
@@ -761,14 +762,16 @@ module.exports = {
                     }
 
                     //Remove any weights that don't exist in user grades
-                    for (let j = 0; j < Object.keys(user.weights[_term][_semester][className]["weights"]).length; j++) {
+                    let max = Object.keys(user.weights[_term][_semester][className]["weights"]).length
+                    for (let j = 0; j < max; j++) {
                         if (!goodWeights.includes(Object.keys(user.weights[_term][_semester][className]["weights"])[j])) {
-                            delete user.weights[_term][_semester][className]["weights"][Object.keys(user.weights[_term][_semester][className]["weights"])[j]];
+                            delete user.weights[_term][_semester][className]["weights"][Object.keys(user.weights[_term][_semester][className]["weights"])[j--]];
+                            max--;
                         }
                     }
 
                     //Set to point-based if only one category exists (& category is null)
-                    if (Object.keys(user.weights[_term][_semester][className]["weights"]).length == 1) {
+                    if (Object.keys(user.weights[_term][_semester][className]["weights"]).length === 1) {
                         if (user.weights[_term][_semester][className]["weights"][Object.keys(user.weights[_term][_semester][className]["weights"])[0]] == null) {
                             user.weights[_term][_semester][className]["hasWeights"] = "false";
                         }
@@ -1700,19 +1703,21 @@ module.exports = {
     },
 
     watchChangelog: function () {
-        // Check for changelog updates every second (This should be light)
-        let lastUpdated = Date.now();
-        const checking = () => {
-            let _lastUpdated = Date.parse(fs.statSync("CHANGELOG.md").mtime);
-            if (lastUpdated < _lastUpdated) {
-                lastUpdated = _lastUpdated;
-                console.log("Updating changelog.");
-                this.readChangelog();
+        let md5Previous = null;
+        let fsWait = false;
+        fs.watch("CHANGELOG.md", (event, filename) => {
+            if (filename) {
+                if (fsWait) return;
+                fsWait = setTimeout(() => {
+                    fsWait = false;
+                }, 100);
+                const md5Current = md5(fs.readFileSync("CHANGELOG.md"));
+                if (md5Current === md5Previous) {
+                    return;
+                }
+                md5Previous = md5Current;
+                console.log(`${filename} file Changed`);
             }
-        };
-        // Do it once
-        this.readChangelog().then(() => {
-            setInterval(checking, 1000);
         });
     },
 
