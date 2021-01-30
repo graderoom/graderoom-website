@@ -18,7 +18,8 @@
                     Sync Log
                 </h1>
                 <div class="updateGradesMessage alert alert-info"
-                     style="display:block; cursor: pointer;" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">
+                     style="display:block; cursor: pointer;"
+                     onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">
                     <div style="display: flex; justify-content: flex-start; align-items: flex-start; flex-flow: column">
                         <div style="display:none" class="sk-chase-mini">
                             <div class="sk-chase-dot mini"></div>
@@ -195,7 +196,9 @@
                 if (modifiedClasses[j] in overallChanges) {
                     if ("overall_percent" in overallChanges[modifiedClasses[j]]) {
                         let oldPercent = overallChanges[modifiedClasses[j]].overall_percent;
-                        if (oldPercent === false) oldPercent = 100;
+                        if (oldPercent === false) {
+                            oldPercent = 100;
+                        }
                         let newPercent = alerts.lastUpdated.find((d, index) => index > i && "overall" in d.changeData && modifiedClasses[j] in d.changeData.overall && "overall_percent" in d.changeData.overall[modifiedClasses[j]]);
                         if (newPercent) {
                             newPercent = newPercent.changeData.overall[modifiedClasses[j]].overall_percent;
@@ -203,7 +206,9 @@
                         if (!newPercent && newPercent !== 0) {
                             newPercent = data[realIndex].overall_percent;
                         }
-                        if (newPercent === false) newPercent = 100;
+                        if (newPercent === false) {
+                            newPercent = 100;
+                        }
                         let delta = newPercent - oldPercent;
                         if (delta) {
                             delta = (delta > 0 ? "+" : "") + (Math.round(delta * 1000) / 1000) + "%";
@@ -221,6 +226,9 @@
                             newLetter = data[realIndex].overall_letter;
                         }
                         if (newLetter) {
+                            if (!oldLetter) {
+                                oldLetter = "N/A";
+                            }
                             card += `<span>(` + oldLetter + `) → (` + newLetter + `)</span>`;
                         }
                     }

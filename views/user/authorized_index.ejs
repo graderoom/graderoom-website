@@ -963,7 +963,7 @@
             }
 
             function updateData(newData) {
-                if (!newData.grades || !newData.weights) {
+                if (!(newData.grades) || !(newData.weights)) {
                     return {updated: true};
                 }
                 if (document.location.href.includes('term') && document.location.href.includes('semester')) {

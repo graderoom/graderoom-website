@@ -12,6 +12,7 @@ const crypto = require("crypto");
 const readline = require("readline");
 const fs = require("fs");
 const SunCalc = require("suncalc");
+const md5 = require("md5");
 
 const roundsToGenerateSalt = 10;
 
@@ -761,14 +762,16 @@ module.exports = {
                     }
 
                     //Remove any weights that don't exist in user grades
-                    for (let j = 0; j < Object.keys(user.weights[_term][_semester][className]["weights"]).length; j++) {
+                    let max = Object.keys(user.weights[_term][_semester][className]["weights"]).length;
+                    for (let j = 0; j < max; j++) {
                         if (!goodWeights.includes(Object.keys(user.weights[_term][_semester][className]["weights"])[j])) {
-                            delete user.weights[_term][_semester][className]["weights"][Object.keys(user.weights[_term][_semester][className]["weights"])[j]];
+                            delete user.weights[_term][_semester][className]["weights"][Object.keys(user.weights[_term][_semester][className]["weights"])[j--]];
+                            max--;
                         }
                     }
 
                     //Set to point-based if only one category exists (& category is null)
-                    if (Object.keys(user.weights[_term][_semester][className]["weights"]).length == 1) {
+                    if (Object.keys(user.weights[_term][_semester][className]["weights"]).length === 1) {
                         if (user.weights[_term][_semester][className]["weights"][Object.keys(user.weights[_term][_semester][className]["weights"])[0]] == null) {
                             user.weights[_term][_semester][className]["hasWeights"] = "false";
                         }
@@ -1699,143 +1702,192 @@ module.exports = {
         }
     },
 
-    watchChangelog: function () {
-        // Check for changelog updates every second (This should be light)
-        let lastUpdated = Date.now();
-        const checking = () => {
-            let _lastUpdated = Date.parse(fs.statSync("CHANGELOG.md").mtime);
-            if (lastUpdated < _lastUpdated) {
-                lastUpdated = _lastUpdated;
-                console.log("Updating changelog.");
-                this.readChangelog();
-            }
-        };
-        // Do it once
-        this.readChangelog().then(() => {
-            setInterval(checking, 1000);
+    readChangelog: function (filename) {
+        async function read() {
+            let resultHTML = "";
+            let betaResultHTML = "";
+            let items = [];
+            let bodyCount = -1;
+            let item = {title: "", date: "", content: {}};
+            versionNameArray = [];
+            const line_counter = ((i = 0) => () => ++i)();
+            let lineReader = readline.createInterface({
+                                                          input: fs.createReadStream(filename)
+                                                      });
+            lineReader.on("line", (line, lineno = line_counter()) => {
+                if (line.substring(0, 3) === "###") {
+                    item.content[line.substring(4)] = [];
+                    bodyCount++;
+                } else if (line.substring(0, 2) === "##") {
+                    if (item.title !== "") {
+                        if (item.title !== "Known Issues") {
+                            versionNameArray.push(item.title.split(" "));
+                        } else {
+                            versionNameArray.push(["Known Issues", ""]);
+                        }
+                        items.push(item);
+                        item = {title: "", date: "", content: {}};
+                        bodyCount = -1;
+                    }
+                    item.title = line.substring(4, line.indexOf("]"));
+                    item.date = line.substring(line.indexOf("-") + 2);
+                } else if (line.substring(0, 1) === "-") {
+                    if (item.title === "Known Issues" || item.title.substring(0, 12) === "Announcement") {
+                        if (!item.content["Default"]) {
+                            item.content["Default"] = [];
+                        }
+                        item.content["Default"].push(line.substring(2));
+                    } else if (item.content[Object.keys(item.content)[bodyCount]]) {
+                        item.content[Object.keys(item.content)[bodyCount]].push(line.substring(2));
+                    } else {
+                        // Prevents changelog file errors from crashing server
+                        if (!item.content["Unfiled"]) {
+                            item.title = "This shouldn't have happened. Send a bug report in More > Send Feedback. ERR #" + lineno;
+                            item.content["Unfiled"] = [];
+                        }
+                        item.content["Unfiled"].push(line.substring(2));
+                    }
+                }
+            }).on("close", () => {
+                items.push(item);
+                versionNameArray.push(item.title.split(" "));
+                let currentVersionFound = false;
+                let betaCurrentVersionFound = false;
+                for (let i = 0; i < items.length; i++) {
+                    resultHTML += "<div class=\"changelog-item";
+                    betaResultHTML += "<div class=\"changelog-item";
+                    if (items[i].title.substring(0, 4) === "Beta") {
+                        if (!betaCurrentVersionFound) {
+                            betaResultHTML += " current";
+                            betaCurrentVersionFound = true;
+                        }
+                        resultHTML += "\">";
+                        betaResultHTML += "\">";
+                    } else if (items[i].title.substring(0, 6) === "Stable") {
+                        if (!currentVersionFound) {
+                            resultHTML += " current\">";
+                            currentVersionFound = true;
+                        } else {
+                            resultHTML += " stable\">";
+                        }
+                        if (!betaCurrentVersionFound) {
+                            betaResultHTML += " current\">";
+                            betaCurrentVersionFound = true;
+                        } else {
+                            betaResultHTML += " stable\">";
+                        }
+                    } else if (items[i].title.substring(0, 12) === "Announcement") {
+                        betaResultHTML += " announcement\">";
+                        resultHTML += " announcement\">";
+                    } else if (items[i].title.substring(0, 12) === "Known Issues") {
+                        betaResultHTML += " known-issues\">";
+                        resultHTML += " known-issues\">";
+                    } else {
+                        betaResultHTML += "\">";
+                        resultHTML += "\">";
+                    }
+                    resultHTML += "<div class=\"header\">";
+                    resultHTML += "<div class=\"title\">" + items[i].title + "</div>";
+                    resultHTML += "<div class=\"date\">" + items[i].date + "</div>";
+                    resultHTML += "</div>";
+                    resultHTML += "<div class=\"content\">";
+                    betaResultHTML += "<div class=\"header\">";
+                    betaResultHTML += "<div class=\"title\">" + items[i].title + "</div>";
+                    betaResultHTML += "<div class=\"date\">" + items[i].date + "</div>";
+                    betaResultHTML += "</div>";
+                    betaResultHTML += "<div class=\"content\">";
+                    if (items[i].title !== "Known Issues" && items[i].title.substring(0, 12) !== "Announcement") {
+                        for (let j = 0; j < Object.keys(items[i].content).length; j++) {
+                            resultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
+                            betaResultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
+                            for (let k = 0; k < items[i].content[Object.keys(items[i].content)[j]].length; k++) {
+                                resultHTML += "<span class=\"body\">" + items[i].content[Object.keys(items[i].content)[j]][k] + "</span>";
+                                betaResultHTML += "<span class=\"body\">" + items[i].content[Object.keys(items[i].content)[j]][k] + "</span>";
+                            }
+                            resultHTML += "</div>";
+                            betaResultHTML += "</div>";
+                        }
+                    } else {
+                        if (!items[i].content["Default"]) {
+                            items[i].content["Default"] = [];
+                        }
+                        for (let j = 0; j < items[i].content["Default"].length; j++) {
+                            resultHTML += "<span class=\"body\">" + items[i].content["Default"][j] + "</span>";
+                            betaResultHTML += "<span class=\"body\">" + items[i].content["Default"][j] + "</span>";
+                        }
+                    }
+                    resultHTML += "</div>";
+                    resultHTML += "</div>|";
+                    betaResultHTML += "</div>";
+                    betaResultHTML += "</div>|";
+                }
+                changelogArray = resultHTML.split("|");
+                betaChangelogArray = betaResultHTML.split("|");
+            });
+        }
+
+        read().then(() => {
+            console.log(`${filename} parsed`);
         });
     },
 
-    readChangelog: async function () {
-        let resultHTML = "";
-        let betaResultHTML = "";
-        let items = [];
-        let bodyCount = -1;
-        let item = {title: "", date: "", content: {}};
-        versionNameArray = [];
-        const line_counter = ((i = 0) => () => ++i)();
-        let lineReader = readline.createInterface({
-                                                      input: fs.createReadStream("CHANGELOG.md")
-                                                  });
-        lineReader.on("line", (line, lineno = line_counter()) => {
-            if (line.substring(0, 3) === "###") {
-                item.content[line.substring(4)] = [];
-                bodyCount++;
-            } else if (line.substring(0, 2) === "##") {
-                if (item.title !== "") {
-                    if (item.title !== "Known Issues") {
-                        versionNameArray.push(item.title.split(" "));
-                    } else {
-                        versionNameArray.push(["Known Issues", ""]);
-                    }
-                    items.push(item);
-                    item = {title: "", date: "", content: {}};
-                    bodyCount = -1;
+    watchChangelog: function () {
+        let md5Previous = null;
+        let fsWait = false;
+        fs.watch("CHANGELOG.md", (event, filename) => {
+            if (filename) {
+                if (fsWait) {
+                    return;
                 }
-                item.title = line.substring(4, line.indexOf("]"));
-                item.date = line.substring(line.indexOf("-") + 2);
-            } else if (line.substring(0, 1) === "-") {
-                if (item.title === "Known Issues" || item.title.substring(0, 12) === "Announcement") {
-                    if (!item.content["Default"]) {
-                        item.content["Default"] = [];
-                    }
-                    item.content["Default"].push(line.substring(2));
-                } else if (item.content[Object.keys(item.content)[bodyCount]]) {
-                    item.content[Object.keys(item.content)[bodyCount]].push(line.substring(2));
-                } else {
-                    // Prevents changelog file errors from crashing server
-                    if (!item.content["Unfiled"]) {
-                        item.title = "This shouldn't have happened. Send a bug report in More > Send Feedback. ERR #" + lineno;
-                        item.content["Unfiled"] = [];
-                    }
-                    item.content["Unfiled"].push(line.substring(2));
-                }
-            }
-        }).on("close", () => {
-            items.push(item);
-            versionNameArray.push(item.title.split(" "));
-            let currentVersionFound = false;
-            let betaCurrentVersionFound = false;
-            for (let i = 0; i < items.length; i++) {
-                resultHTML += "<div class=\"changelog-item";
-                betaResultHTML += "<div class=\"changelog-item";
-                if (items[i].title.substring(0, 4) === "Beta") {
-                    if (!betaCurrentVersionFound) {
-                        betaResultHTML += " current";
-                        betaCurrentVersionFound = true;
-                    }
-                    resultHTML += "\">";
-                    betaResultHTML += "\">";
-                } else if (items[i].title.substring(0, 6) === "Stable") {
-                    if (!currentVersionFound) {
-                        resultHTML += " current\">";
-                        currentVersionFound = true;
-                    } else {
-                        resultHTML += " stable\">";
-                    }
-                    if (!betaCurrentVersionFound) {
-                        betaResultHTML += " current\">";
-                        betaCurrentVersionFound = true;
-                    } else {
-                        betaResultHTML += " stable\">";
-                    }
-                } else if (items[i].title.substring(0, 12) === "Announcement") {
-                    betaResultHTML += " announcement\">";
-                    resultHTML += " announcement\">";
-                } else if (items[i].title.substring(0, 12) === "Known Issues") {
-                    betaResultHTML += " known-issues\">";
-                    resultHTML += " known-issues\">";
-                } else {
-                    betaResultHTML += "\">";
-                    resultHTML += "\">";
-                }
-                resultHTML += "<div class=\"header\">";
-                resultHTML += "<div class=\"title\">" + items[i].title + "</div>";
-                resultHTML += "<div class=\"date\">" + items[i].date + "</div>";
-                resultHTML += "</div>";
-                resultHTML += "<div class=\"content\">";
-                betaResultHTML += "<div class=\"header\">";
-                betaResultHTML += "<div class=\"title\">" + items[i].title + "</div>";
-                betaResultHTML += "<div class=\"date\">" + items[i].date + "</div>";
-                betaResultHTML += "</div>";
-                betaResultHTML += "<div class=\"content\">";
-                if (items[i].title !== "Known Issues" && items[i].title.substring(0, 12) !== "Announcement") {
-                    for (let j = 0; j < Object.keys(items[i].content).length; j++) {
-                        resultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
-                        betaResultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
-                        for (let k = 0; k < items[i].content[Object.keys(items[i].content)[j]].length; k++) {
-                            resultHTML += "<span class=\"body\">" + items[i].content[Object.keys(items[i].content)[j]][k] + "</span>";
-                            betaResultHTML += "<span class=\"body\">" + items[i].content[Object.keys(items[i].content)[j]][k] + "</span>";
+                fsWait = setTimeout(() => {
+                    fsWait = false;
+                }, 100);
+                fs.access(filename, fs.F_OK, (err) => {
+                    const _readChangelog = this.readChangelog;
+                    let waiting;
+                    let read = function () {
+                        if (waiting) {
+                            clearTimeout(waiting);
                         }
-                        resultHTML += "</div>";
-                        betaResultHTML += "</div>";
+                        const md5Current = md5(fs.readFileSync(filename));
+                        if (md5Current === md5Previous) {
+                            return;
+                        }
+                        md5Previous = md5Current;
+                        console.log(`${filename} modified, reading...`);
+                        _readChangelog(filename);
+                    };
+                    if (err) {
+                        if (fs.existsSync(filename)) {
+                            return;
+                        }
+                        console.log(`${filename} not found`);
+                        let waitFormula = function (index) {
+                            return 500 * Math.ceil(-(40 / (index + 4)) + 10);
+                        };
+                        let wait = function () {
+                            let waitTime = waitFormula(waitIndex) / 1000;
+                            waitIndex++;
+                            if (!fs.existsSync(filename)) {
+                                if (waiting) {
+                                    clearTimeout(waiting);
+                                }
+                                console.log(`Try ${waitIndex} | Waiting for ${waitTime} seconds...`);
+                                waiting = setTimeout(wait, waitFormula(waitIndex));
+                            }
+                        };
+                        let waitIndex = 1;
+                        let waitTime = waitFormula(waitIndex) / 1000;
+                        if (waiting) {
+                            clearTimeout(waiting);
+                        }
+                        console.log(`Try ${waitIndex} | Waiting for ${waitTime} seconds...`);
+                        waiting = setTimeout(wait, waitFormula(waitIndex));
+                    } else {
+                        read();
                     }
-                } else {
-                    if (!items[i].content["Default"]) {
-                        items[i].content["Default"] = [];
-                    }
-                    for (let j = 0; j < items[i].content["Default"].length; j++) {
-                        resultHTML += "<span class=\"body\">" + items[i].content["Default"][j] + "</span>";
-                        betaResultHTML += "<span class=\"body\">" + items[i].content["Default"][j] + "</span>";
-                    }
-                }
-                resultHTML += "</div>";
-                resultHTML += "</div>|";
-                betaResultHTML += "</div>";
-                betaResultHTML += "</div>|";
+                });
             }
-            changelogArray = resultHTML.split("|");
-            betaChangelogArray = betaResultHTML.split("|");
         });
     },
 
@@ -2236,4 +2288,3 @@ function makeKey(length) {
     }
     return result;
 }
-
