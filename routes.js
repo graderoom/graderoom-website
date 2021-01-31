@@ -956,7 +956,7 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.post("/api/login", passport.authenticate("local-login"), (req, res) => {
+    app.post("/api/login", passport.authenticate("local-login", {}), (req, res) => {
         res.sendStatus(200);
     });
     /** End api stuff */
