@@ -117,6 +117,10 @@ nav label {
     margin: 0;
 }
 
+nav {
+    z-index: 0;
+}
+
 nav .btn {
     margin: .5rem;
 }
@@ -330,7 +334,6 @@ table thead tr th:last-child {
 }
 
 .changelog-container .body {
-    font-size: 80%;
     font-weight: normal;
     display: list-item;
     margin: 0 0 0 2rem;

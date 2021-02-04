@@ -89,7 +89,7 @@
                                     <i id="incorrectOverviewGrade<%= i + offset; %>"
                                        class="fa fa-exclamation-triangle"
                                        style="display: none; margin-left: 0.2rem">
-                                        <span class="popup-bottom">
+                                        <span class="popup-top">
                                         </span>
                                     </i></span>
                             </a>
@@ -111,20 +111,7 @@
                 <span></span>
             </div>
             <% if (JSON.parse(betaFeatures).showTermSwitcher) { %>
-                <div id="termSwitcher" class="blur">
-                    <% for (let i = 0; i < JSON.parse(termsAndSemesters).length; i++) { %>
-                        <div id="<%= JSON.parse(termsAndSemesters)[i][0]; %>" <% if (term===JSON.parse(termsAndSemesters)[i][0]) { %> class="active" <% } %>>
-                            <%= JSON.parse(termsAndSemesters)[i][0]; %>
-                            <% for (let j = 0; j < JSON.parse(termsAndSemesters)[i][1].length; j++) { %>
-                                <div onclick="window.location.href='/' + (window.location.href.indexOf('usernameToRender') === -1 ? '?' : 'viewuser?' + window.location.href.slice(window.location.href.indexOf('usernameToRender'),window.location.href.indexOf('&') === -1 ? undefined : window.location.href.indexOf('&')) + '&') + 'term=<%= JSON.parse(termsAndSemesters)[i][0]; %>&semester=<%= JSON.parse(termsAndSemesters)[i][1][j]; %>'"
-                                    id="<%= JSON.parse(termsAndSemesters)[i][0]; %><%= JSON.parse(termsAndSemesters)[i][1][j]; %>"
-                                    <% if (term===JSON.parse(termsAndSemesters)[i][0] && semester===JSON.parse(termsAndSemesters)[i][1][j]) { %> class="active" <% } %>>
-                                    <%= JSON.parse(termsAndSemesters)[i][1][j] %>
-                                </div>
-                            <% } %>
-                        </div>
-                    <% } %>
-                </div>
+                <% include ../partials/user/term_switcher.ejs %>
             <% } %>
             <!-- Overview Section -->
             <% if (JSON.parse(gradeData).length) { %>
@@ -204,7 +191,9 @@
                                     <% } %>
                                 </h5>
                             </div>
-                            <button class="btn btn-med" id="gpaDetailsBtn" onclick="setupGpaDetails()"><i class="fa fa-list"></i> View Details</button>
+                            <button class="btn btn-med" id="gpaDetailsBtn" onclick="setupGpaDetails()"><i
+                                        class="fa fa-list"></i> View Details
+                            </button>
                         </div>
                         <div id="chart-container-1" class="chart chart-container text-center">
                             <button id="reset-zoom-1"
@@ -310,16 +299,27 @@
                                 <% } %>
                                 <span><%= uc_classType %> course</span><br>
                                 <span id="verified<%= i %>" class="popup">Weights
-                                    <% let unverified = JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].hasWeights === null || (JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].hasWeights === "true" && Object.values(JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].weights).filter(w => w === null).length !== 0); %>
+                                    <% let weightDict = JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]; %>
+                                    <% let unverified = weightDict.hasWeights === null || (weightDict.hasWeights === "true" && Object.values(weightDict.weights).filter(w => w === null).length !== 0); %>
                                     <% if (unverified) { %>Unverified
                                     <% } else { %>Verified
                                     <% } %>
                                     <i class="fa fa-<% if (unverified) { %>exclamation-circle<% } else { %>check-circle<% } %>">
-                                        <span class="popup-right">
+                                        <span class="popup-right" <% if (!unverified) { %>style="min-width: unset"
+                                                <% } %>
+                                        >
                                             <% if (unverified) { %>
-                                            Send feedback to verify weights<br><small>More > Send Feedback</small>
+                                                Send feedback to verify weights<br><small>More > Send Feedback</small>
                                             <% } else { %>
-                                            Weights for this course have been verified by an admin
+                                                <table class="class-table">
+                                                    <% let weights = Object.entries(weightDict.weights); %>
+                                                    <% for (let i = 0; i < weights.length; i++) { %>
+                                                        <tr>
+                                                            <td title="<%= weights[i][0] %>"><%= weights[i][0] %></td>
+                                                            <td><%= weights[i][1] %></td>
+                                                        </tr>
+                                                    <% } %>
+                                                </table>
                                             <% } %>
                                         </span>
                                     </i>
@@ -328,7 +328,7 @@
                             <span style="text-align: right">
                                 <span>Teacher: <%= JSON.parse(gradeData)[i].teacher_name || "Unknown" %></span><br>
                                 <% if (JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].department) { %>
-                                <span>Department: <%= JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].department; %></span>
+                                    <span>Department: <%= JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].department; %></span>
                                 <% } %>
                             </span>
                         </div>
@@ -966,7 +966,7 @@
                 if (!(newData.grades) || !(newData.weights)) {
                     return {updated: true};
                 }
-                if (document.location.href.includes('term') && document.location.href.includes('semester')) {
+                if (document.location.href.includes("term") && document.location.href.includes("semester")) {
                     return {updated: true};
                 }
                 if (_.isEqual(_data.map(c => c.class_name), newData.grades.map(c => c.class_name)) && _.isEqual(weights, newData.weights)) {
@@ -1035,7 +1035,7 @@
                             }
                         }
                     });
-                }
+                };
 
                 window.setTimeout(checking, time);
             }
@@ -1074,7 +1074,8 @@
                             $("#incorrectOverviewGrade" + i + " span").html(`PowerSchool is locked. Calculated grade may be inaccurate.`);
                         } else {
                             $("#incorrectOverallGrade" + i + " span").html(`Grade in PowerSchool: <nobr>` + _data[i].overall_percent + `% (` + _data[i].overall_letter + `)</nobr>`);
-                            $("#incorrectOverviewGrade" + i + " span").html(`Does not match calculated grade. Incorrect weights.`);
+                            $("#incorrectOverviewGrade" + i + " span").html(`Does not match calculated grade. Use verified weights.`);
+                            $("#verified" + i + " span").addClass("always-show");
                         }
                         if (!correctCalc(i) || (alerts.lastUpdated.slice(-1)[0] && alerts.lastUpdated.slice(-1)[0].ps_locked)) {
                             $("#incorrectOverviewGrade" + i).css("display", "inline-block");
@@ -1082,6 +1083,7 @@
                         } else {
                             $("#incorrectOverviewGrade" + i).hide();
                             $("#incorrectOverallGrade" + i).hide();
+                            $("#verified" + i + " span").removeClass("always-show");
                         }
                     }
                 }
@@ -1090,7 +1092,9 @@
             function correctCalc(classIndex) {
                 let realOverallGrade = data[classIndex].overall_percent;
                 let realOverallLetter = data[classIndex].overall_letter;
-                if (realOverallGrade === false || realOverallLetter === false) return true;
+                if (realOverallGrade === false || realOverallLetter === false) {
+                    return true;
+                }
                 let calculatedOverallGrade = getOverallGrade(classIndex);
                 let tenToThePower = Math.pow(10, countDecimals(realOverallGrade));
                 let correctDecimalPlaces = Math.round(getOverallGrade(classIndex) * tenToThePower) / tenToThePower;
@@ -1098,12 +1102,16 @@
                 if (correctDecimalPlaces == realOverallGrade && calculatedOverallLetter === realOverallLetter) {
                     return true;
                 }
-                if (!alerts.lastUpdated.slice(-1)[0]) return false;
+                if (!alerts.lastUpdated.slice(-1)[0]) {
+                    return false;
+                }
                 return alerts.lastUpdated.slice(-1)[0].ps_locked && (relClassData[data[classIndex].class_name].hasWeights === "false" || Object.values(relClassData[data[classIndex].class_name].weights).filter(w => w !== null).length !== 0);
             }
 
             function countDecimals(value) {
-                if (value === false) return 0;
+                if (value === false) {
+                    return 0;
+                }
                 if (Math.floor(value) === value) {
                     return 0;
                 }
@@ -1111,7 +1119,7 @@
             }
 
             function setupUC_CSU_GPA() {
-                let out = $('#GPA-display-uc');
+                let out = $("#GPA-display-uc");
 
                 // First we need to determine which years are 9-11
                 // We use graduation year for this
@@ -1238,7 +1246,7 @@
             }
 
             function setupCumulativeGPA() {
-                let out = $('#GPA-display-cumulative');
+                let out = $("#GPA-display-cumulative");
                 let GPA = 0.0;
                 let max = 0.0;
                 let numClasses = 0;
@@ -1248,7 +1256,9 @@
                     let semesters = Object.keys(gradeHistoryLetters[term]);
                     for (let s = 0; s < semesters.length; s++) {
                         let semester = semesters[s];
-                        if (semester === "S3") continue; // Ignore summer
+                        if (semester === "S3") {
+                            continue;
+                        } // Ignore summer
                         let classes = gradeHistoryLetters[term][semester];
                         for (let c = 0; c < classes.length; c++) {
                             let classData = Object.entries(classes[c])[0];
@@ -1277,7 +1287,7 @@
             }
 
             function setupOverallGPA() {
-                let out = $('#GPA-display');
+                let out = $("#GPA-display");
                 let GPA = 0.0;
                 let max = 0.0;
                 let numClasses = _data.length;
@@ -1374,7 +1384,7 @@
                         let classCategories = Object.keys(weights[className]["weights"]);
                         let classWeights = Object.values(weights[className]["weights"]);
                         for (let i = 0; i < classCategories.length; i++) {
-                            overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i]
+                            overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i];
                         }
                         overallGrade /= getTotalWeight(classIndex);
                     }
@@ -1488,6 +1498,7 @@
                             }
 
                             document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
+                            document.getElementById("weightTableCategory" + i + j).title = tableCategories[j];
                             let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
                             document.getElementById("weightTablePoints" + i + j).textContent = Math.round(categoryGottenAndPossible.gotten * 10000) / 10000 + ((categoryGottenAndPossible.possible !== 0) ? ("/" + Math.round(categoryGottenAndPossible.possible * 10000) / 10000) : "");
                             let categoryGrade = getCategoryGrade(i, tableCategories[j]);
@@ -1501,7 +1512,7 @@
                         let delta;
                         let color;
                         if (latestChange) {
-                            if (latestChange.overall && _data[i].class_name in latestChange.overall && 'overall_percent' in latestChange.overall[_data[i].class_name]) {
+                            if (latestChange.overall && _data[i].class_name in latestChange.overall && "overall_percent" in latestChange.overall[_data[i].class_name]) {
                                 delta = Math.round((_data[i].overall_percent - latestChange.overall[_data[i].class_name].overall_percent) * 100) / 100;
                             }
                             if (delta > 0) {
@@ -1531,33 +1542,38 @@
                 min = min || 0;
                 max = max || Infinity;
 
-                if (elements.length<1)
+                if (elements.length < 1) {
                     return;
+                }
 
                 // Add element to measure pixel length of text
-                let tag = $("<span> </span>").css({"display": "none",
-                                                    "font-family": $(elements[0]).css("font-family"),
-                                                    "font-size": $(elements[0]).css("font-size")}).appendTo("body");
+                let tag = $("<span> </span>").css({
+                                                      "display": "none",
+                                                      "font-family": $(elements[0]).css("font-family"),
+                                                      "font-size": $(elements[0]).css("font-size")
+                                                  }).appendTo("body");
 
                 //Adjust element width on keydown
                 elements.each(function () {
                     let element = $(this);
 
                     function update() {
-                            tag.text(element.val());
+                        tag.text(element.val());
 
-                            // Clamp length and prevent text from scrolling
-                            let size = Math.max(min, Math.min(max, tag.width() + offset));
-                            if (size < max) {
-                                element.scrollLeft(0);
-                            }
+                        // Clamp length and prevent text from scrolling
+                        let size = Math.max(min, Math.min(max, tag.width() + offset));
+                        if (size < max) {
+                            element.scrollLeft(0);
+                        }
 
-                            // Apply width to element
-                            element.width(size);
+                        // Apply width to element
+                        element.width(size);
                     }
 
                     update();
-                    element.keydown(function(){setTimeout(update(),0)}); // Give browser time to add current letter
+                    element.keydown(function () {
+                        setTimeout(update(), 0);
+                    }); // Give browser time to add current letter
                 });
             }
 
@@ -1814,7 +1830,7 @@
                     let assignment = _addedAssignments[_data[classIndex].class_name][aData[classIndex][assignmentIndex]];
 
                     assignment.category = $(element).find("option:selected").text();
-
+                    $(element).attr('title', assignment.category);
                 } else {
                     let assignment = _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid];
 
@@ -1827,6 +1843,7 @@
                     assignment.category = $(element).find("option:selected").text();
 
                     cleanEdits(classIndex, assignmentIndex);
+                    $(element).attr('title', assignment.category);
                 }
             }
 
@@ -2495,7 +2512,7 @@
                             $(`#modAllTab${i}`).css("visibility", "hidden").children("span").children("i").addClass("disabled");
                             $(`#table${i}`).removeClass("unround-top-right").show();
                         }
-                        $('#addedOption' + i + ', #modifiedOption' + i).hide();
+                        $("#addedOption" + i + ", #modifiedOption" + i).hide();
                         // Rows
                         for (let j = 0; j < assignmentData.length; j++) {
                             let assignmentIndex;
@@ -2514,11 +2531,11 @@
                             let textColor;
                             if (latestChange) {
                                 if (_data[i].class_name in latestChange.added && Object.values(latestChange.added[_data[i].class_name]).includes(assignmentPSAIDs[j])) {
-                                    $('#addedOption' + i).show();
+                                    $("#addedOption" + i).show();
                                     textColor = "green";
                                 }
                                 if (_data[i].class_name in latestChange.modified && latestChange.modified[_data[i].class_name].filter(m => m.psaid === assignmentPSAIDs[j]).length) {
-                                    $('#modifiedOption' + i).show();
+                                    $("#modifiedOption" + i).show();
                                     textColor = "deepskyblue";
                                 }
                             }
@@ -2526,9 +2543,9 @@
                             // Set up names
                             $(assignmentNameDivs[assignmentIndex]).text(assignmentNames[j]);
                             if (textColor) {
-                                $(assignmentNameDivs[assignmentIndex]).css('color', textColor).css('font-weight', 'bold');
+                                $(assignmentNameDivs[assignmentIndex]).css("color", textColor).css("font-weight", "bold");
                             } else {
-                                $(assignmentNameDivs[assignmentIndex]).css('color', '').css('font-weight', '');
+                                $(assignmentNameDivs[assignmentIndex]).css("color", "").css("font-weight", "");
                             }
 
                             // Set up categories
@@ -2548,6 +2565,7 @@
 
                             // Select assignment category
                             $(dropdown.find("option")[categories.indexOf(assignmentCategories[j])]).prop("selected", true);
+                            $(dropdown).attr('title', assignmentCategories[j]);
 
                             // Set up excludes
                             if (assignmentExcludes[j]) {
@@ -2699,10 +2717,10 @@
                         delta = (delta ? (" <div class=\"delta\" style=\"color: " + color + "\">" + delta + "</div>") : "");
                         if (overallGrade) {
                             document.getElementById("overviewChart" + i).innerHTML = "<div class=\"overallGrade\">" + (Math.round(overallGrade * 100) / 100).toString() + "%" + "</div><div class=\"overallLetter\">" + overallLetter + "</div>" + delta;
-                            document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>` + (Math.round(overallGrade * 100) / 100).toString() + "%" + ` (` + overallLetter + `)<span class="popup"><i id="incorrectOverviewGrade` + i + `"class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-bottom">Does not match calculated grade</span></i></span>`;
+                            document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>` + (Math.round(overallGrade * 100) / 100).toString() + "%" + ` (` + overallLetter + `)<span class="popup"><i id="incorrectOverviewGrade` + i + `"class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-top">Does not match calculated grade</span></i></span>`;
                         } else {
                             document.getElementById("overviewChart" + i).innerHTML = "N/A";
-                            document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>N/A<span class="popup"><i id="incorrectOverviewGrade` + i + `"class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-bottom">Does not match calculated grade</span></i></span>`;
+                            document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>N/A<span class="popup"><i id="incorrectOverviewGrade` + i + `"class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-top">Does not match calculated grade</span></i></span>`;
                         }
                     }
                 }

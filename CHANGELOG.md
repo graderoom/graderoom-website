@@ -42,6 +42,14 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 4.4.7] - 2021-02-03
+### Added
+- Verified weights now display in popup on verification checkmark
+
+### Improved
+- Category dropdowns and weight tables now display full name of category on hover
+- Increased text size in changelog display
+
 ## [Stable 4.4.6] - 2021-01-30
 ### Fixed
 - An issue with page refreshing when it was not necessary
