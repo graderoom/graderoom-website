@@ -415,7 +415,7 @@
                 $.ajax({
                            url: "/emailAvailable", type: "POST", async: false, data: {schoolUsername: bcpEmail}
                        }).done((response) => {
-                    if (response.startsWith("<")) {  // If logged out
+                    if (response.startsWith("<!")) {  // If logged out
                         $(".session-timeout").show();
                         $("body").find("*").not(".session-timeout").remove();
                         return;
@@ -485,7 +485,7 @@
                 $.ajax({
                            url: "/betaKeyValid", type: "POST", async: false, data: {betaKey: betakey}
                        }).done((response) => {
-                    if (response.startsWith("<")) {  // If logged out
+                    if (response.startsWith("<!")) {  // If logged out
                         $(".session-timeout").show();
                         $("body").find("*").not(".session-timeout").remove();
                         return;

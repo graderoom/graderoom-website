@@ -265,7 +265,7 @@
                 $.ajax({
                            type: "POST", url: $(form).attr("action"), data: formData, async: _async
                        }).done(function (response) {
-                    if (response.startsWith("<")) {  // If logged out
+                    if (response.startsWith("<!")) {  // If logged out
                         $(".session-timeout").show();
                         $("body").find("*").not(".session-timeout").remove();
                         return;

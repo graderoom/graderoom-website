@@ -61,7 +61,7 @@
         $.ajax({
                    url: "/changelog", type: "GET", async: true
                }).done(function (response) {
-            if (response.startsWith("<")) {  // If logged out
+            if (response.startsWith("<!")) {  // If logged out
                 $(".session-timeout").show();
                 $("body").find("*").not(".session-timeout").remove();
                 return;

@@ -42,6 +42,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 4.5.1] - 2021-02-28
+### Fixed
+- Issue with auto-logout occuring when it was not supposed to
+
 ## [Beta 4.5.0] - 2021-02-27
 ### Added
 - Verified weights now display in popup on hover of verification checkmark
