@@ -502,7 +502,7 @@ tr:hover .toolTab {
     border-color: black;
 }
 
-.changelog-inline-setoff {
+.changelog-inline-setoff, .changelog-panel {
     background-color: #333333;
     box-shadow: black 0 0 2px 1px;
 }

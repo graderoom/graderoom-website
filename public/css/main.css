@@ -117,6 +117,10 @@ nav label {
     margin: 0;
 }
 
+nav {
+    z-index: 0;
+}
+
 nav .btn {
     margin: .5rem;
 }
@@ -330,7 +334,6 @@ table thead tr th:last-child {
 }
 
 .changelog-container .body {
-    font-size: 80%;
     font-weight: normal;
     display: list-item;
     margin: 0 0 0 2rem;
@@ -1001,6 +1004,14 @@ label.label-active {
     border-radius: 0 0 0.5rem 0.5rem;
 }
 
+.navbar {
+    z-index: 18;
+}
+
+#classLinks span {
+    z-index: 19;
+}
+
 #classLinks li.nav-item {
     font-weight: 500;
     transition: background-color 100ms ease, border-radius 400ms ease, box-shadow 250ms ease;
@@ -1237,6 +1248,50 @@ tbody tr {
 
 .slider-container > label:first-child {
     margin: 0;
+}
+
+#notificationPanel {
+    position: fixed;
+    z-index: 19;
+    top: 0;
+    right: -20rem;
+    width: 20rem;
+    height: 100%;
+    transition: all 500ms ease;
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 1rem 0 0 1rem;
+}
+
+#notificationPanel::after {
+    position: absolute;
+    top: 7rem;
+    right: 20rem;
+    width: 3rem;
+    height: 3rem;
+    padding: 0.1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: FontAwesome;
+    content: "\f0f3";
+    transition: all 500ms ease;
+    text-align: center;
+    border-radius: 1rem 0 0 1rem;
+    background-color: inherit;
+    box-shadow: inherit;
+}
+
+#notificationPanel:hover, #notificationPanel.hover {
+    right: 0;
+    background-color: rgba(0,0,0,0.9);
+}
+
+#notificationPanel:hover::after, #notificationPanel.hover::after {
+    right: -2rem;
+}
+
+.notification-card {
+
 }
 
 #termSwitcher {
@@ -2477,7 +2532,15 @@ input:disabled {
     border-radius: 0.5rem;
     padding: 0 0.5rem;
     margin: 0 0.1rem;
-    font-size: 0.5rem;
+}
+
+.changelog-panel {
+    font-weight: bold;
+    display: inline-block;
+    border-radius: 0.5rem;
+    padding: 0 0.5rem;
+    margin-top: 0.5rem;
+    transform: translateX(-1rem);
 }
 
 #gpaDetailsBtn {
@@ -2586,6 +2649,38 @@ input:disabled {
 /*    border-right: 1px solid white;*/
 /*    margin-right: 2rem;*/
 /*}*/
+
+/* System Theme */
+.show-when-system-theme-not-supported {
+    display: block;
+}
+
+.disable-when-system-theme-not-supported {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+@media (prefers-color-scheme: dark) {
+    .show-when-system-theme-not-supported {
+        display: none;
+    }
+
+    .disable-when-system-theme-not-supported {
+        pointer-events: unset;
+        opacity: unset;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .show-when-system-theme-not-supported {
+        display: none;
+    }
+
+    .disable-when-system-theme-not-supported {
+        pointer-events: unset;
+        opacity: unset;
+    }
+}
 
 /* Firefox */
 @supports not (backdrop-filter: blur(0.1rem)) {

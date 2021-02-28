@@ -61,6 +61,11 @@
         $.ajax({
                    url: "/changelog", type: "GET", async: true
                }).done(function (response) {
+            if (response.startsWith("<")) {  // If logged out
+                $(".session-timeout").show();
+                $("body").find("*").not(".session-timeout").remove();
+                return;
+            }
             let onScreenBeforeSetup = onScreenVersion;
             if (cardsDisplayed.includes("changelogDisplay")) {
                 cardsDisplayed.splice(cardsDisplayed.indexOf("changelogDisplay"), 1);

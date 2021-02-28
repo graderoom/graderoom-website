@@ -20,7 +20,7 @@
     }
 </style>
 <style id="light_snowfall"
-<% if (!JSON.parse(appearance).holidayEffects || theme) { %> media="not all"
+<% if (!JSON.parse(appearance).holidayEffects || theme !== false) { %> media="not all"
         <% } %>
 >
     #snow-fall-bg {

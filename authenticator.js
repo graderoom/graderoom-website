@@ -32,7 +32,7 @@ let versionNameArray = [];
 let tutorialKeys = ["homeSeen", "navinfoSeen", "moreSeen", "settingsSeen"];
 
 // Update this list with new beta features
-let betaFeatureKeys = ["showTermSwitcher", "showFps"];
+let betaFeatureKeys = ["showTermSwitcher", "showFps", "showNotificationPanel"];
 
 module.exports = {
 

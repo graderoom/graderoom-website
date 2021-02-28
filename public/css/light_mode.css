@@ -525,7 +525,7 @@ tr:hover .toolTab {
     background-color: #333333;
 }
 
-.changelog-inline-setoff {
+.changelog-inline-setoff, .changelog-panel {
     background-color: white;
     box-shadow: #333333 0 0 3px 1px;
 }

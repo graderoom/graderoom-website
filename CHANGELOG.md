@@ -42,6 +42,25 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 4.5.0] - 2021-02-27
+### Added
+- Verified weights now display in popup on hover of verification checkmark
+- New <span class="changelog-inline-setoff">Match System Theme</span> option that will match your device's theme preference<ul>
+- Due to browser limitations, Graderoom will load in dark theme before quickly switching to the system theme
+- If a system theme is unavailable, dark theme will be used
+- When your system theme is changed, please allow a few seconds for Graderoom to change its theme
+- Graderoom will load into an unthemed state for a few moments in between each switch</ul>
+- <em>[Beta]</em> Notification Panel beta feature (Not Complete)
+
+### Improved
+- Category dropdowns and weight tables now display full name of category on hover
+- Increased text size in changelog display
+- <span class="changelog-inline-setoff">Support for <a target="_blank" href="https://github.com/graderoom/app-releases/releases">Graderoom App</a></span>
+- Attempting any action without a valid cookie will automatically log you out
+
+### Fixed
+- Issue with automatic and sun themes not changing to dark on some browsers
+
 ## [Stable 4.4.6] - 2021-01-30
 ### Fixed
 - An issue with page refreshing when it was not necessary
