@@ -42,6 +42,29 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 4.5.1] - 2021-02-28
+### Fixed
+- Issue with auto-logout occuring when it was not supposed to
+
+## [Beta 4.5.0] - 2021-02-27
+### Added
+- Verified weights now display in popup on hover of verification checkmark
+- New <span class="changelog-inline-setoff">Match System Theme</span> option that will match your device's theme preference<ul>
+- Due to browser limitations, Graderoom will load in dark theme before quickly switching to the system theme
+- If a system theme is unavailable, dark theme will be used
+- When your system theme is changed, please allow a few seconds for Graderoom to change its theme
+- Graderoom will load into an unthemed state for a few moments in between each switch</ul>
+- <em>[Beta]</em> Notification Panel beta feature (Not Complete)
+
+### Improved
+- Category dropdowns and weight tables now display full name of category on hover
+- Increased text size in changelog display
+- <span class="changelog-inline-setoff">Support for <a target="_blank" href="https://github.com/graderoom/app-releases/releases">Graderoom App</a></span>
+- Attempting any action without a valid cookie will automatically log you out
+
+### Fixed
+- Issue with automatic and sun themes not changing to dark on some browsers
+
 ## [Stable 4.4.6] - 2021-01-30
 ### Fixed
 - An issue with page refreshing when it was not necessary
@@ -142,7 +165,7 @@
 - GPA details page now has sections<ul>
 - Just like the tabs in the Settings page, these sections can be switched using the arrow keys</ul>
 - Cumulative GPA details are now available in the GPA details page
-- GPA details now respond to the weighted GPA settings 
+- GPA details now respond to the weighted GPA settings
 - A toggle has been added to GPA details to make it easier to switch between the two
 
 ### Fixed
@@ -1864,7 +1887,7 @@
 - Check the box in the sync grades card
 - You will then be prompted to enter both your school password and your Graderoom password
 - Your school password will be used to encrypt your Graderoom password and securely store it</ul>
-  
+
 ### Improved
 - When you open the sync grades card, the graderoom password field is focused
 - If the sync fails, the field is refocused
@@ -2022,7 +2045,7 @@
 ## [Beta 0.2.13] - 2019-12-02
 ### Added
 - Subtabs in appearance settings
-- Button to edit weights from missing weight message 
+- Button to edit weights from missing weight message
 - HTTPS
 
 ### Fixed
