@@ -963,7 +963,7 @@
                 $.ajax({
                            url: "/UpdateTutorialStatus", type: "POST", async: true, data: {action: action}
                        }).done((response) => {
-                    if (response.startsWith("<!")) {  // If logged out
+                    if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                         $(".session-timeout").show();
                         $("body").find("*").not(".session-timeout").remove();
                         return;
@@ -1068,7 +1068,7 @@
                     $.ajax({
                                method: "POST", url: "/updateShowMaxGPA", data: {showMaxGPA: JSON.stringify(showMaxGPA)}
                            }).done((response) => {
-                        if (response.startsWith("<!")) {  // If logged out
+                        if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                             $(".session-timeout").show();
                             $("body").find("*").not(".session-timeout").remove();
                             return;
@@ -1650,7 +1650,7 @@
                            url: "/updateAddedAssignments",
                            data: {data: JSON.stringify(addedAssignments)}
                        }).done(function (response) {
-                    if (response.startsWith("<!")) {  // If logged out
+                    if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                         $(".session-timeout").show();
                         $("body").find("*").not(".session-timeout").remove();
                         return;
@@ -3665,7 +3665,7 @@
                             $.ajax({
                                        type: "POST", url: "/updateWeights", data: formData
                                    }).done((response) => {
-                                if (response.startsWith("<!")) {  // If logged out
+                                if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                                     $(".session-timeout").show();
                                     $("body").find("*").not(".session-timeout").remove();
                                     return;

@@ -782,7 +782,7 @@
             $.ajax({
                        url: "/setFirstName", type: "POST", async: true, data: {firstName: firstName}
                    }).done((response) => {
-                if (response.startsWith("<!")) {  // If logged out
+                if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                     $(".session-timeout").show();
                     $("body").find("*").not(".session-timeout").remove();
                     return;
@@ -872,7 +872,7 @@
                    data: {preset: palette, shuffleColors: JSON.stringify($("#shuffleToggle").is(":checked"))},
                    async: true
                }).done((response) => {
-            if (response.startsWith("<!")) {  // If logged out
+            if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                 $(".session-timeout").show();
                 $("body").find("*").not(".session-timeout").remove();
                 return;
@@ -1086,7 +1086,7 @@
         $.ajax({
                    url: "/resetTutorial", type: "POST", async: true
                }).done((response) => {
-            if (response.startsWith("<!")) {  // If logged out
+            if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                 $(".session-timeout").show();
                 $("body").find("*").not(".session-timeout").remove();
                 return;

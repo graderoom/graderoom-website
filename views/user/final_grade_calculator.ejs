@@ -492,7 +492,7 @@
         $.ajax({
                    url: "/UpdateTutorialStatus", type: "POST", async: true, data: {action: action}
                }).done((response) => {
-            if (response.startsWith("<!")) {  // If logged out
+            if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                 $(".session-timeout").show();
                 $("body").find("*").not(".session-timeout").remove();
                 return;
