@@ -973,7 +973,25 @@ module.exports = function (app, passport) {
         res.status(200).send(JSON.stringify(settings));
     });
 
-    app.get("/api/grades", [isApiLoggedIn], (req, res) => {
+    app.get("/api/general", [isApiLoggedIn], (req, res) => {
+        let gradeHistoryLetters = {};
+        let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
+        for (let i = 0; i < Object.keys(req.user.grades).length; i++) {
+            let t = Object.keys(req.user.grades)[i];
+            gradeHistoryLetters[t] = {};
+            for (let j = 0; j < Object.keys(req.user.grades[t]).length; j++) {
+                let s = Object.keys(req.user.grades[t])[j];
+                if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) > semester.substring(1))) {
+                    continue;
+                }
+                gradeHistoryLetters[t][s] = [];
+                for (let k = 0; k < req.user.grades[t][s].length; k++) {
+                    let next = {};
+                    next[req.user.grades[t][s][k].class_name] = req.user.grades[t][s][k].overall_letter;
+                    gradeHistoryLetters[t][s].push(next);
+                }
+            }
+        }
         let data = {
             termsAndSemesters: JSON.stringify(Object.keys(req.user.grades).map(term => {
                 let semesters = Object.keys(req.user.grades[term]);
@@ -992,6 +1010,11 @@ module.exports = function (app, passport) {
             relevantClassData: JSON.stringify(authenticator.getRelClassData(req.user.username, term, semester))
         };
         res.status(200).send(JSON.stringify(data));
+    });
+
+    app.get("/api/grades", [isApiLoggedIn], (req, res) => {
+        let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
+        res.status(200).send(JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)));
     });
 
     app.get("/api/checkUpdateBackground", [isApiLoggedIn], (req, res) => {
