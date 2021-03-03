@@ -1343,11 +1343,9 @@ module.exports = {
         }
         let newGrades = grade_update_status.new_grades[newTerm][newSemester];
         let newPSAIDs = newGrades.map(x => x.grades.map(y => y.psaid));
-        let fixDicts = false;
         let add = newPSAIDs.length - oldPSAIDs.length;
         for (let i = 0; i < add; i++) {
             oldPSAIDs.push([]);
-            fixDicts = true;
         }
         let added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [newGrades[index].class_name, newPSAIDs[index]]).filter(data => data[1].length));
         let modified = {};
@@ -1382,11 +1380,9 @@ module.exports = {
             added: added, modified: modified, removed: removed, overall: overall
         };
         userRef.get("grades").get(newTerm).set(newSemester, newGrades).write();
-        if (fixDicts) {
-            this.initAddedAssignments(lc_username);
-            this.initWeights(lc_username);
-            this.initEditedAssignments(lc_username);
-        }
+        this.initAddedAssignments(lc_username);
+        this.initWeights(lc_username);
+        this.initEditedAssignments(lc_username);
         this.bringUpToDate(lc_username);
         let updateHistory = false;
         if ((newTerm !== oldTerm || newSemester !== oldSemester) || !userRef.get("updatedGradeHistory").value().length || userRef.get("updatedGradeHistory").value().slice(-1)[0] < new Date(2021, 0, 11).getTime()) {

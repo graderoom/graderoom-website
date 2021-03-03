@@ -42,6 +42,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 4.5.2] - 2021-03-02
+### Fixed
+- An issue that prevented viewing grades in some cases
+
 ## [Beta 4.5.1] - 2021-02-28
 ### Fixed
 - Issue with auto-logout occuring when it was not supposed to
