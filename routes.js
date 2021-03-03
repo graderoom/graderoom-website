@@ -192,7 +192,7 @@ module.exports = function (app, passport) {
                     appearance: JSON.stringify(user.appearance),
                     alerts: JSON.stringify(user.alerts),
                     gradeSync: !!user.schoolPassword,
-                    gradeData: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter))),
+                    gradeData: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
                     weightData: JSON.stringify(user.weights[term][semester]),
                     addedAssignments: JSON.stringify(user.addedAssignments[term][semester]),
                     editedAssignments: JSON.stringify(user.editedAssignments[term][semester]),
@@ -338,7 +338,7 @@ module.exports = function (app, passport) {
         if (term && semester && resp.message === "Sync Complete!") {
             res.status(200).send({
                                      message: resp.message,
-                                     grades: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter))),
+                                     grades: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
                                      weights: JSON.stringify(user.weights[term][semester]),
                                      updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
                                  });
@@ -557,7 +557,7 @@ module.exports = function (app, passport) {
                     res.status(200).send({
                                              gradeSyncEnabled: true,
                                              message: resp.message,
-                                             grades: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter))),
+                                             grades: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
                                              weights: JSON.stringify(req.user.weights[term][semester]),
                                              updateData: JSON.stringify(req.user.alerts.lastUpdated.slice(-1)[0])
                                          });
@@ -565,7 +565,7 @@ module.exports = function (app, passport) {
                     res.status(200).send({
                                              gradeSyncEnabled: false,
                                              message: resp.message,
-                                             grades: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter))),
+                                             grades: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
                                              weights: JSON.stringify(req.user.weights[term][semester]),
                                              updateData: JSON.stringify(req.user.alerts.lastUpdated.slice(-1)[0])
                                          });
@@ -652,7 +652,7 @@ module.exports = function (app, passport) {
                     appearance: JSON.stringify(req.user.appearance),
                     alerts: JSON.stringify(req.user.alerts),
                     gradeSync: !!req.user.schoolPassword,
-                    gradeData: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter))),
+                    gradeData: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
                     weightData: JSON.stringify(req.user.weights[term][semester]),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     beta: JSON.stringify(server.needsBetaKeyToSignUp),
@@ -1024,7 +1024,7 @@ module.exports = function (app, passport) {
         if (term && semester && resp.message === "Sync Complete!") {
             res.status(200).send({
                                      message: resp.message,
-                                     grades: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter))),
+                                     grades: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
                                      weights: JSON.stringify(user.weights[term][semester]),
                                      updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
                                  });
