@@ -85,6 +85,7 @@ def parse_class(local_class, raw_data):
         else:
             points_possible = False
         if len(_data["_assignmentscores"]) > 0:
+            exclude = exclude or (_data["_assignmentscores"][0]["isexempt"] == True)
             sort_date = _data["_assignmentscores"][0]["scoreentrydate"]
             sort_date = datetime.strptime(sort_date, "%Y-%m-%d %H:%M:%S").timestamp()
             if "scorepoints" in _data["_assignmentscores"][0]:
