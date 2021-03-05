@@ -42,6 +42,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 4.5.3] - 2021-03-05
+### Fixed
+- Issue with exempt assignments not being excluded
+
 ## [Stable 4.5.2] - 2021-03-02
 ### Fixed
 - An issue that prevented viewing grades in some cases
