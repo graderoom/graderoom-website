@@ -40,7 +40,12 @@
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
-- None
+- Sort by Category does not display scores
+
+## [Announcement 4.5.4] - 2021-03-29
+- PowerSchool recently changed the way they display grades
+- This change has broken some of Graderoom's functionality, specifically showing correct overall grades
+- We are working to address this issue and a fix will be released promptly
 
 ## [Stable 4.5.3] - 2021-03-05
 ### Fixed
