@@ -45,7 +45,8 @@
 ## [Announcement 4.5.4] - 2021-03-29
 - PowerSchool recently changed the way they display grades
 - This change has broken some of Graderoom's functionality, specifically showing correct overall grades
-- We are working to address this issue and a fix will be released promptly
+- The overall grades that display currently are quarter grades from Q3, not your most recent grades
+- We are working to address this issue, and a fix will be released promptly
 
 ## [Stable 4.5.3] - 2021-03-05
 ### Fixed
