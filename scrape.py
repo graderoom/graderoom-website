@@ -421,6 +421,11 @@ class PowerschoolScraper:
                 # by checking the first five letters for "score"
                 if ((link.has_attr('class') and link['class'] == ['bold']) or link.text == '[ i ]') and link['href'][:5] == 'score':
 
+                    # make sure it's not a quarter
+                    semester = str(link['href']).split('&fg=')[1][:2]
+                    if semester.startswith("Q"):
+                        continue
+
                     assignments_link = link['href']
 
                     # Split combined letter grade and percent text
