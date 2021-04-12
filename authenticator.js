@@ -1905,6 +1905,8 @@ module.exports = {
                                 }
                                 console.log(`Try ${waitIndex} | Waiting for ${waitTime} seconds...`);
                                 waiting = setTimeout(wait, waitFormula(waitIndex));
+                            } else {
+                                read();
                             }
                         };
                         let waitIndex = 1;
