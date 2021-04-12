@@ -81,9 +81,8 @@
 - Verified weights that are point-based no longer show an empty table of weights
 - <em>[Mobile]</em> Grid layout of overview is now staggered to reduce wasted space
 - <span class="changelog-inline-setoff"><em>[Beta Feature]</em> Notification Panel</span><ul>
-- All items that were previously displayed in card popups (i.e. Updates, Automatic Syncs) have been moved to the notifications panel
-- Each notification type has a default color
-- Customizability is in the works</ul>
+- Lots of behind-the-scenes changes
+- Will be ready soon</ul>
 - <em>[Beta Feature]</em> New beta features are now automatically enabled if you are already enrolled in the Beta Program<ul>
 - To gain access to beta features, find the 'Join the Beta' button at the bottom of Account Settings
 - Note: This is not the same as having an account at <a href="https://beta.graderoom.me">beta.graderoom.me</a></ul>
