@@ -270,19 +270,6 @@
                         $("body").find("*").not(".session-timeout").remove();
                         return;
                     }
-                    if (formID === ".weightedGPAForm") {
-                        appearance.weightedGPA = !appearance.weightedGPA;
-                        $(".weightedGPAForm button").each(function () {
-                            $(this).toggleClass("active");
-                            if ($(this).prop("type") === "submit") {
-                                $(this).prop("type", "button");
-                            } else {
-                                $(this).prop("type", "");
-                            }
-                        });
-                        setupGPADisplays();
-                        return;
-                    }
                     if (response.gradeSyncEnabled) {
                         $(".syncGradesDiv").hide();
                         $(".gradeSyncDiv").show();

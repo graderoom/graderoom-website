@@ -122,7 +122,7 @@ td, th {
     background-color: rgba(0, 0, 0, 0.8);
 }
 
-#GPA-container > div {
+#GPA-container > div, .weightGPA {
     border: 1px solid black;
     background-color: #191919;
 }
@@ -521,7 +521,7 @@ tr:hover .toolTab {
 
 /* Mobile Stuff */
 @media only screen and (max-width: 991px) {
-    #table-1 table {
+    .block {
         border-radius: 0.5rem;
         background-color: #111111;
     }

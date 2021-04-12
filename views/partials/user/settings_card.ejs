@@ -137,7 +137,7 @@
                                             <% } %>
                                     > Always Dark</label>
                                 <br>
-                                <label class="disable-when-system-theme-not-supported" style="cursor: pointer"> <input
+                                <label class="disable-when-system-theme-not-supported" style="cursor: pointer; align-items: center"><input
                                             style="cursor: inherit" type="radio"
                                             value="system"
                                             name="theme"
@@ -147,6 +147,7 @@
                                     <% if (JSON.parse(appearance).theme === "system") { %> checked
                                             <% } %>
                                     > Match System
+                                    <span id="prefers-color-scheme" style="margin-left: 0.5rem; opacity: 0.5; font-size: 0.6rem;"></span>
                                     <span style="margin-left: 0.5rem;"
                                           class="popup show-when-system-theme-not-supported"><i
                                                 class="fa fa-exclamation-circle"><span

@@ -40,47 +40,59 @@
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
-- Sort by Category does not display scores
+- Sort by Category does not display scores <strong>[Fixed in Beta 4.5.7]</strong>
 
-<! ## [Stable 4.6.0] - 2021-04-08
-<! ### Added
-<! - Verified weights now display in popup on hover of verification checkmark
-<! - New <span class="changelog-inline-setoff">Match System Theme</span> option that will match your device's theme preference<ul>
-<! - Due to browser limitations, Graderoom will load in dark theme before quickly switching to the system theme
-<! - If a system theme is unavailable, dark theme will be used
-<! - When your system theme is changed, please allow a few seconds for Graderoom to change its theme
-<! - Graderoom will load into an unthemed state for a few moments in between each switch</ul>
-<! - <span class="changelog-inline-setoff"><em>[Beta Feature]</em> Notification Panel</span><ul>
-<! - All items that were previously displayed in card popups (i.e. Updates, Automatic Syncs) have been moved to the notifications panel
-<! - Each notification type has a default color
-<! - Customizability is in the works</ul>
-<! - <em>[Beta Feature]</em> New beta features are now automatically enabled if you are already enrolled in the Beta Program<ul>
-<! - To gain access to beta features, find the 'Join the Beta' button at the bottom of Account Settings
-<! - Note: This is not the same as having an account at <a href="https://beta.graderoom.me">beta.graderoom.me</a></ul>
-<! 
-<! ### Improved
-<! - Category dropdowns and weight tables now display full name of category on hover
-<! - Increased text size in changelog display
-<! - Attempting any action without a valid cookie will automatically log you out
-<! - Changes to overall grades no longer count in the number of changes if more changes are present in that class
-<! 
-<! ### Fixed
-<! - Issue with automatic and sun themes not changing to dark on some browsers
-<! - Issue with snowfall
-<! - Issue with the semester GPA caused by classes with an overall grade of N/A
-<! 
-<! ## [Beta 4.5.4] - 2021-04-08
-<! ### Improved
-<! - Detected system theme is now displayed in settings
-<! - Verified weights that are point-based no longer show an empty table of weights
-<! - <em>[Mobile]</em> Grid layout of overview is now staggered to reduce wasted space
-<! - <em>[Beta Feature]</em> New beta features are now automatically enabled if you are already enrolled in the Beta Program<ul>
-<! - To gain access to beta features, find the 'Join the Beta' button at the bottom of Account Settings
-<! - Note: This is not the same as having an account at <a href="https://beta.graderoom.me">beta.graderoom.me</a></ul>
-<! 
-<! ### Fixed
-<! - Issue with overall grades being incorrect
-<! - Issue with 'revert all' buttons
+<## [Stable 4.6.0] - 2021-04-11
+<### Added
+<- Verified weights now display in popup on hover of verification checkmark
+<- New <span class="changelog-inline-setoff">Match System Theme</span> option that will match your device's theme preference<ul>
+<- Due to browser limitations, Graderoom will load in dark theme before quickly switching to the system theme
+<- If a system theme is unavailable, dark theme will be used
+<- When your system theme is changed, please allow a few seconds for Graderoom to change its theme
+<- Graderoom will load into an unthemed state for a few moments in between each switch</ul>
+<- <span class="changelog-inline-setoff"><em>[Beta Feature]</em> Notification Panel (Work in Progress)</span>
+<- <em>[Beta Feature]</em> New beta features are now automatically enabled if you are already enrolled in the Beta Program<ul>
+<- To gain access to beta features, find the 'Join the Beta' button at the bottom of Account Settings
+<- Note: This is not the same as having an account at <a href="https://beta.graderoom.me">beta.graderoom.me</a></ul>
+<
+<### Improved
+<- Weighted GPA is now a switch instead of buttons
+<- Detected system theme is now displayed in settings
+<- Verified weights that are point-based no longer show an empty table of weights
+<- <em>[Mobile]</em> Grid layout of overview is now staggered to reduce wasted space
+<- Category dropdowns and weight tables now display full name of category on hover
+<- Increased text size in changelog display
+<- Attempting any action without a valid cookie will automatically log you out
+<- Changes to overall grades no longer count in the number of changes if more changes are present in that class
+<
+<### Fixed
+<- Issue with automatic and sun themes not changing to dark on some browsers
+<- Issue with snowfall
+<- Issue with the semester GPA caused by classes with an overall grade of N/A
+
+## [Beta 4.5.7] - 2021-04-11
+### Added
+- UC GPA details are now available under GPA Details
+
+### Improved
+- Changes in overall grade are no longer added to total change count if assignment changes are present
+- Weighted GPA is now a switch instead of buttons
+- Detected system theme is now displayed in settings
+- Verified weights that are point-based no longer show an empty table of weights
+- <em>[Mobile]</em> Grid layout of overview is now staggered to reduce wasted space
+- <span class="changelog-inline-setoff"><em>[Beta Feature]</em> Notification Panel</span><ul>
+- All items that were previously displayed in card popups (i.e. Updates, Automatic Syncs) have been moved to the notifications panel
+- Each notification type has a default color
+- Customizability is in the works</ul>
+- <em>[Beta Feature]</em> New beta features are now automatically enabled if you are already enrolled in the Beta Program<ul>
+- To gain access to beta features, find the 'Join the Beta' button at the bottom of Account Settings
+- Note: This is not the same as having an account at <a href="https://beta.graderoom.me">beta.graderoom.me</a></ul>
+
+### Fixed
+- Issue where 'Sort by Category' did not display assignment scores
+- Issue where user could manually sync grades while they were auto-syncing
+- Issue with overall grades being incorrect
+- Issue with 'revert all' buttons
 
 ## [Stable 4.5.6] - 2021-04-08
 ### Fixed

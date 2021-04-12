@@ -1,3 +1,115 @@
-<div id="notificationPanel" class="blur">
+<div id="notifications" class="blur">
 
 </div>
+<div id="notificationPanel" class="blur">
+    <h3>Notifications</h3>
+    <div id="dismissed-notifications">
+        <div class="divider">Important</div>
+        <hr>
+        <div id="important-notifications">
+        </div>
+        <div class="divider">Unread</div>
+        <hr>
+        <div id="unread-notifications">
+        </div>
+        <div class="divider">All</div>
+        <hr>
+        <div id="all-notifications">
+        </div>
+    </div>
+</div>
+
+<script>
+    let notifications = {"Important": [], "Unread": [], "All": []};
+
+    function setupNotificationPanel() {
+        showChangelog(createChangelogNotifications);
+        let numNotifications = notifications["Unread"].length;
+        document.getElementById("notificationPanel").setAttribute("count", numNotifications ? numNotifications : "");
+    }
+
+    function createChangelogNotifications(_versionNames) {
+        for (let i = 1; i < _versionNames.length; i++) {
+            let version = _versionNames[i];
+            if (version.startsWith("Stable")) {
+                createUnread(version, "Stable", version, `<span style="cursor: pointer" onclick="onScreenVersion = '` + version + `'; showChangelog()"><b><i class="fa fa-external-link-square"></i> Open Changelog</b></span>`);
+            } else if (version.startsWith("Beta")) {
+                createUnread(version, "Beta", version, `<span style="cursor: pointer" onclick="onScreenVersion = '` + version + `'; showChangelog()"><b><i class="fa fa-external-link-square"></i> Open Changelog</b></span>`);
+            } else if (version.startsWith("Announcement")) {
+                createImportant(version, "Announcement", version, `<span style="cursor: pointer" onclick="onScreenVersion = '` + version + `'; showChangelog()"><b><i class="fa fa-external-link-square"></i> Open Changelog</b></span>`);
+            }
+        }
+    }
+
+    function createImportant(id, type, title, message, date) {
+        notifications["Important"].push({id: id, timestamp: date, notification: createNotification(type, title, message, false, true, true), read: false});
+    }
+
+    function createUnread(id, type, title, message, date) {
+        notifications["Unread"].push({id: id, timestamp: date, notification: createNotification(type, title, message, true, true, false), read: false});
+    }
+
+    function createNotification(type, title, message, readable = true, pinnable = false, pinned = false) {
+        let _type = type.toLowerCase();
+        let notification = document.createElement("div");
+        notification.classList.add("notification-card", _type);
+
+        let header = document.createElement("span");
+        header.classList.add("notification-header");
+
+        let badge = document.createElement("span");
+        badge.classList.add("notification-badge");
+
+        let _title = document.createElement("span");
+        _title.classList.add("notification-title");
+        _title.innerText = title;
+
+        header.appendChild(badge);
+        header.appendChild(_title);
+
+        let body = document.createElement("div");
+        body.classList.add("notification-body");
+
+        let _message = document.createElement("span");
+        _message.classList.add("notification-message");
+        _message.innerHTML = message;
+
+        body.appendChild(_message);
+
+        if (readable) {
+            let closeBtn = document.createElement("span");
+            closeBtn.classList.add("notification-close");
+            closeBtn.setAttribute("title", "Dismiss");
+            body.appendChild(closeBtn);
+        }
+
+        if (pinnable) {
+            let pinBtn = document.createElement("span");
+            pinBtn.classList.add("notification-pin");
+            pinBtn.setAttribute("title", "Move to Important");
+            if (pinned) {
+                pinBtn.classList.add("pinned");
+                pinBtn.setAttribute("title", "Move to Unread");
+            }
+            body.appendChild(pinBtn);
+        }
+
+        notification.appendChild(header);
+        notification.appendChild(body);
+
+        return notification;
+    }
+
+    function read() {
+
+    }
+
+    function pin() {
+
+    }
+
+    function unpin() {
+
+    }
+
+</script>
