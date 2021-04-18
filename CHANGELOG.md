@@ -42,7 +42,7 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Stable 4.7.0] - 2021-04-17
+## [Stable 4.7.0] - 2021-04-18
 ### Added
 - UC GPA details are now available under GPA Details
 - Verified weights now display in popup on hover of verification checkmark
@@ -58,10 +58,6 @@
 - Weighted GPA is now a switch instead of buttons
 - Detected system theme is now displayed in settings
 - Verified weights that are point-based no longer show an empty table of weights
-- Lots of behind-the-scenes changes
-- Will be ready soon</ul>
-- To gain access to beta features, find the 'Join the Beta' button at the bottom of Account Settings
-- Note: This is not the same as having an account at <a href="https://beta.graderoom.me">beta.graderoom.me</a></ul>
 - Category dropdowns and weight tables now display full name of category on hover
 - Increased text size in changelog display
 - Attempting any action without a valid cookie will automatically log you out
