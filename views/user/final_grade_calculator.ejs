@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
     <% let theme; %>
-    <% let zeroTime = new Date("0/"); %>
+    <% let zeroTime = new Date(0); %>
     <% zeroTime.setHours(new Date().getHours()); %>
     <% zeroTime.setMinutes(new Date().getMinutes()); %>
     <% zeroTime = zeroTime.getTime(); %>
@@ -18,6 +18,9 @@
         <% theme = false; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/light_mode.css">
     <% } else if (JSON.parse(appearance).theme === "auto" && (((JSON.parse(appearance).darkModeStart < JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) && (zeroTime < JSON.parse(appearance).darkModeFinish))) || ((JSON.parse(appearance).darkModeStart > JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) || (zeroTime < JSON.parse(appearance).darkModeFinish))))) { %>
+        <% theme = true; %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
+    <% } else if (JSON.parse(appearance).theme === "system") { %>
         <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
     <% } else if ((zeroTime >= sunset.getTime()) || (zeroTime <= sunrise.getTime())) { %>
@@ -32,8 +35,8 @@
           <% if (!JSON.parse(appearance).blurEffects) { %>disabled
             <% } %>
     >
-    <link id="blur_overrides" rel="stylesheet" type="text/css"
-          href="public/css/<%= (theme ? "dark" : "light"); %>_blur.css"
+    <link id="blur_overrides" rel="stylesheet" type="text/css" <% if (theme === true) { %>
+          href="public/css/dark_blur.css"<% } else if (theme === false) { %> href="public/css/light_blur.css"<% } %>
           <% if (!JSON.parse(appearance).blurEffects) { %>disabled
             <% } %>
     >
@@ -489,6 +492,11 @@
         $.ajax({
                    url: "/UpdateTutorialStatus", type: "POST", async: true, data: {action: action}
                }).done((response) => {
+            if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
+                $(".session-timeout").show();
+                $("body").find("*").not(".session-timeout").remove();
+                return;
+            }
             alerts.tutorialStatus = JSON.parse(response);
             $("#" + action + "Popup").animate({opacity: 0}, 400, function () {
                 $(this).removeClass("always-show").css("opacity", "");
@@ -589,33 +597,62 @@
     let darkModeFinish = appearance.darkModeFinish;
 
     function setAutoTheme() {
-        if (theme !== "auto") {
-            clearInterval(checkingTheme);
+        let zeroTime = new Date(0);
+        zeroTime.setHours(new Date().getHours());
+        zeroTime.setMinutes(new Date().getMinutes());
+        zeroTime = zeroTime.getTime();
+        if (theme !== "auto" && theme !== "sun" && theme !== "system") {
+            if (checkingTheme) {
+                clearInterval(checkingTheme);
+            }
             return;
         }
-        darkModeStart = parseInt(darkModeStart);
-        darkModeFinish = parseInt(darkModeFinish);
-        if (theme === "dark" || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) >= darkModeStart) && ((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) >= darkModeStart) || ((Date.now() / 1000 / 3600 - 8 + (isDST() ? 1 : 0)) % 24) < darkModeFinish))))) {
+
+        if ((theme === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) || (theme === "sun" && (zeroTime >= sunset || zeroTime <= sunrise)) || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((zeroTime >= darkModeStart) && (zeroTime < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((zeroTime >= darkModeStart) || (zeroTime < darkModeFinish))))))) {
             let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
             darkMode = true;
             if (darkMode !== oldDarkMode) {
                 document.getElementById("fade").disabled = false;
-                $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
                 document.getElementById("pageStyle").setAttribute("href", "../../public/css/dark_mode.css");
+                if (appearance.blurEffects) {
+                    document.getElementById("blur_overrides").setAttribute("href", "../../public/css/dark_blur.css");
+                }
+                $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
+                $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
-                }, 1000);
+                }, 500);
+                if (appearance.holidayEffects) {
+                    init = performance.now();
+                    if (darkMode === false) {
+                        $("#light_snowfall").attr("media", "");
+                    } else if (darkMode) {
+                        $("#light_snowfall").attr("media", "not all");
+                    }
+                }
             }
         } else {
             let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
             darkMode = false;
             if (darkMode !== oldDarkMode) {
                 document.getElementById("fade").disabled = false;
-                $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
                 document.getElementById("pageStyle").setAttribute("href", "../../public/css/light_mode.css");
+                if (appearance.blurEffects) {
+                    document.getElementById("blur_overrides").setAttribute("href", "../../public/css/light_blur.css");
+                }
+                $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
+                $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
-                }, 1000);
+                }, 500);
+                if (appearance.holidayEffects) {
+                    init = performance.now();
+                    if (darkMode === false) {
+                        $("#light_snowfall").attr("media", "");
+                    } else if (darkMode) {
+                        $("#light_snowfall").attr("media", "not all");
+                    }
+                }
             }
         }
     }

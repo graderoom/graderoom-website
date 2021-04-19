@@ -8,8 +8,7 @@
     "start": "echo \"Running HTTP Server in production mode\" && sudo node graderoom.js true",
     "scrape_test": "node -e \"require('./npm_commands').external_scrape()\"",
     "purge_db": "node -e \"require('./npm_commands').purge_db()\"",
-    "backup_db": "node -e \"require('./npm_commands').backup_db()\"",
-    "send_custom_email": "node -e \"require('./emailSender').sendCustomEmail()\""
+    "backup_db": "node -e \"require('./npm_commands').backup_db()\""
   },
   "author": "",
   "license": "ISC",
@@ -22,6 +21,7 @@
     "cookie-parser": "^1.4.5",
     "ejs": "^2.7.3",
     "express": "^4.17.1",
+    "express-rate-limit": "^5.2.6",
     "express-session": "^1.17.1",
     "lodash": "^4.17.20",
     "lowdb": "^1.0.0",

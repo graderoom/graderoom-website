@@ -117,6 +117,10 @@ nav label {
     margin: 0;
 }
 
+nav {
+    z-index: 0;
+}
+
 nav .btn {
     margin: .5rem;
 }
@@ -172,15 +176,15 @@ table thead tr th:last-child {
     word-break: normal;
 }
 
-.class-table:not(#table-1) thead tr:first-child th:nth-last-child(2) {
+.class-table thead tr:first-child th:nth-last-child(2) {
     border-right: none;
 }
 
-.class-table:not(#table-1) tbody tr td:nth-last-child(2) {
+.class-table tbody tr td:nth-last-child(2) {
     border-right: none;
 }
 
-.table:not(#table-1) td {
+.table td {
     vertical-align: middle !important;
 }
 
@@ -330,7 +334,6 @@ table thead tr th:last-child {
 }
 
 .changelog-container .body {
-    font-size: 80%;
     font-weight: normal;
     display: list-item;
     margin: 0 0 0 2rem;
@@ -1001,6 +1004,14 @@ label.label-active {
     border-radius: 0 0 0.5rem 0.5rem;
 }
 
+.navbar {
+    z-index: 18;
+}
+
+#classLinks span {
+    z-index: 19;
+}
+
 #classLinks li.nav-item {
     font-weight: 500;
     transition: background-color 100ms ease, border-radius 400ms ease, box-shadow 250ms ease;
@@ -1237,6 +1248,237 @@ tbody tr {
 
 .slider-container > label:first-child {
     margin: 0;
+}
+
+#notificationPanel {
+    position: fixed;
+    z-index: 19;
+    top: 0;
+    right: -20rem;
+    width: 20rem;
+    height: 100%;
+    transition: all 500ms ease;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 1rem 0 0 1rem;
+}
+
+#notificationPanel::before {
+    position: absolute;
+    top: 7rem;
+    right: 20rem;
+    width: 3rem;
+    height: 3rem;
+    padding: 0.1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: FontAwesome;
+    content: "\f0f3";
+    transition: all 500ms ease;
+    text-align: center;
+    border-radius: 1rem 0 0 1rem;
+    background-color: inherit;
+    box-shadow: inherit;
+}
+
+#notificationPanel::after {
+    content: attr(count);
+    transition: all 500ms ease;
+    font-size: 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    background-color: green;
+    width: fit-content;
+    padding: 0 0.3rem 0 0.25rem;
+    height: fit-content;
+    border-radius: 2rem;
+    border-width: 3px;
+    border-style: solid;
+    border-color: transparent;
+    top: 7.25rem;
+    right: 21.8rem;
+    transform: translateX(100%);
+    background-clip: padding-box;
+}
+
+#notificationPanel.overflowed::after {
+    content: "99+";
+    padding-right: 0.17rem;
+}
+
+#notificationPanel:hover {
+    right: 0;
+    background-color: rgba(17, 17, 17, 0.9);
+    box-shadow: inset 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22);
+}
+
+#notificationPanel:hover::before, #notificationPanel:hover::after {
+    right: -4rem;
+}
+
+#dismissed-notifications {
+    overflow-y: scroll;
+    height: calc(100% - 6rem);
+}
+
+.notification-card {
+    background-color: rgba(51, 51, 51, 0.5);
+    box-shadow: 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22), inset 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22);
+    border-radius: 0.5rem;
+    min-height: 2rem;
+    width: calc(100% - 1.5rem);
+    transition: all 250ms ease;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: space-between;
+    margin: 1rem;
+}
+
+.notification-card span.notification-close, .notification-card span.notification-pin {
+    margin-right: 0.5rem;
+    line-height: 100%;
+    transition: all 250ms ease;
+    color: transparent;
+}
+
+.notification-card div.notification-body {
+    font-size: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    overflow: hidden;
+    max-height: 0;
+    transition: all 500ms ease;
+    width: 100%;
+}
+
+.notification-card div.notification-body .notification-message {
+    margin-left: 2rem;
+    width: calc(100% - 5rem);
+}
+
+.notification-card span.notification-header {
+    font-weight: bold;
+    width: 100%;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    text-align: right;
+    background-color: #111111;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notification-card span.notification-badge {
+    float: left;
+    border-radius: 0.25rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-left: 0.5rem;
+    transition: all 250ms ease;
+}
+
+.notification-card.announcement span.notification-badge {
+    background-color: orange;
+}
+
+.notification-card.stable span.notification-badge {
+    background-color: green;
+}
+
+.notification-card.beta span.notification-badge {
+    background-color: limegreen;
+}
+
+.notification-card.sync span.notification-badge {
+    background-color: blue;
+}
+
+.notification-card.empty-sync span.notification-badge {
+    background-color: lightblue;
+}
+
+.notification-card.error span.notification-badge {
+    background-color: red;
+}
+
+.notification-card:hover span.notification-close:hover {
+    color: #AAAAAA;
+}
+
+.notification-card:hover span.notification-pin:hover {
+    color: #AAAAAA;
+    transform: rotate(45deg);
+}
+
+.notification-card:hover span.notification-pin.pinned {
+    color: #AAAAAA;
+}
+
+.notification-card span.notification-pin.pinned {
+    transform: rotate(45deg);
+}
+
+.notification-card:hover span.notification-pin.pinned:hover {
+    color: #444444;
+    transform: none;
+}
+
+.notification-card:hover span.notification-close, .notification-card:hover span.notification-pin {
+    color: #444444;
+}
+
+.notification-card:hover .notification-header {
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.notification-card:hover .notification-header span.notification-badge {
+    transform: translateY(calc(1.4rem + 200%)) translateX(-0.75rem);
+}
+
+.notification-card:hover div.notification-body {
+    max-height: 5rem;
+    margin: 0.5rem 0;
+}
+
+.notification-card span.notification-close::after {
+    font-family: FontAwesome;
+    content: "\f00d";
+    cursor: pointer;
+}
+
+.notification-card span.notification-pin::after {
+    font-family: FontAwesome;
+    content: "\f08d";
+    transform: none;
+    cursor: pointer;
+}
+
+#dismissed-notifications .divider {
+    width: calc(100% - 1rem);
+    color: #888;
+    text-align: center;
+    margin-top: 1rem;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+#dismissed-notifications hr {
+    color: #888;
+    margin: 0 0.5rem;
+}
+
+#notificationPanel h3 {
+    width: calc(100% - 2rem);
+    height: 4rem;
+    line-height: 4rem;
+    text-align: center;
+    margin: 1rem;
 }
 
 #termSwitcher {
@@ -2058,41 +2300,20 @@ body::-webkit-scrollbar {
     align-self: center;
 }
 
-#gpaDetailsCard .weightedGPAToggle form {
-    padding: 1rem;
+#gpaDetailsCard .weightGPA {
     top: 0;
     right: 0;
     position: absolute;
+    width: 12rem;
+    padding: 1rem 0.5rem;
+    border-radius: 0 0.5rem 0 0.5rem;
 }
 
-.weightedGPAToggle {
+.weightGPA {
     border-radius: 0.5rem;
 }
 
-.weightedGPAToggle form {
-    display: flex;
-    border-radius: 0.5rem;
-}
-
-.weightedGPAToggle button {
-    width: 6rem;
-    margin: 0;
-    padding: 0.5rem 0;
-}
-
-.weightedGPAToggle button:first-of-type {
-    border-radius: 0.5rem 0 0 0.5rem;
-}
-
-.weightedGPAToggle button:last-of-type {
-    border-radius: 0 0.5rem 0.5rem 0;
-}
-
-.weightedGPAToggle button.active {
-    pointer-events: none;
-}
-
-#GPA-container > div:not(.weightedGPAToggle) {
+#GPA-container > div {
     width: 12rem;
     padding: 1rem 0.5rem;
     border-radius: 0.5rem;
@@ -2124,7 +2345,7 @@ body::-webkit-scrollbar {
     justify-content: center;
 }
 
-#table-1 {
+.block {
     display: none;
 }
 
@@ -2477,7 +2698,15 @@ input:disabled {
     border-radius: 0.5rem;
     padding: 0 0.5rem;
     margin: 0 0.1rem;
-    font-size: 0.5rem;
+}
+
+.changelog-panel {
+    font-weight: bold;
+    display: inline-block;
+    border-radius: 0.5rem;
+    padding: 0 0.5rem;
+    margin-top: 0.5rem;
+    transform: translateX(-1rem);
 }
 
 #gpaDetailsBtn {
@@ -2520,43 +2749,38 @@ input:disabled {
     text-align: center;
 }
 
-.gpa-details-table tr td:nth-last-child(1),
-.gpa-details-table tr td:nth-last-child(2),
-.gpa-details-table tr td:nth-last-child(3),
-.gpa-details-table tr td:nth-last-child(4),
-.gpa-details-table tr td:nth-last-child(5) {
+#cumulativeGpaDetails tr td:nth-last-child(1), #semesterGpaDetails tr td:nth-last-child(1),
+#cumulativeGpaDetails tr td:nth-last-child(2), #semesterGpaDetails tr td:nth-last-child(2),
+#cumulativeGpaDetails tr td:nth-last-child(3), #semesterGpaDetails tr td:nth-last-child(3),
+#cumulativeGpaDetails tr td:nth-last-child(4), #semesterGpaDetails tr td:nth-last-child(4),
+#cumulativeGpaDetails tr td:nth-last-child(5), #semesterGpaDetails tr td:nth-last-child(5),
+#cumulativeGpaDetails tr th:nth-last-child(1), #semesterGpaDetails tr th:nth-last-child(1),
+#cumulativeGpaDetails tr th:nth-last-child(2), #semesterGpaDetails tr th:nth-last-child(2),
+#cumulativeGpaDetails tr th:nth-last-child(3), #semesterGpaDetails tr th:nth-last-child(3),
+#cumulativeGpaDetails tr th:nth-last-child(4), #semesterGpaDetails tr th:nth-last-child(4),
+#cumulativeGpaDetails tr th:nth-last-child(5), #semesterGpaDetails tr th:nth-last-child(5) {
     padding: 0.2rem 0.5rem;
     border: none;
+}
+
+#uc_csuGpaDetails tr:last-child th:not(:first-child, :last-child) {
+    border: none;
+}
+
+#uc_csuGpaDetails tr:last-child th:last-child {
+    border-left: none;
 }
 
 .gpa-details-table tr td:nth-last-child(4) {
     width: 3rem;
 }
 
-.gpa-details-table tr:first-child th:nth-last-child(1),
-.gpa-details-table tr:first-child th:nth-last-child(2),
-.gpa-details-table tr:first-child th:nth-last-child(3),
-.gpa-details-table tr:first-child th:nth-last-child(4),
-.gpa-details-table tr:first-child th:nth-last-child(5) {
-    border: none;
-}
-
 .gpa-details-table tr:last-child th:first-child {
     text-align: right;
 }
 
-.gpa-details-table tr:last-child th:nth-last-child(1),
-.gpa-details-table tr:last-child th:nth-last-child(2),
-.gpa-details-table tr:last-child th:nth-last-child(3),
-.gpa-details-table tr:last-child th:nth-last-child(4),
-.gpa-details-table tr:last-child th:nth-last-child(5) {
-    padding: 0.2rem 0.5rem;
-    border: none;
-    text-align: center;
-}
-
 .gpa-details-table tr:nth-last-child(2) th:first-child {
-   text-align: right;
+    text-align: right;
 }
 
 .gpa-details-table tr:last-child th:last-child {
@@ -2570,7 +2794,7 @@ input:disabled {
 
 #gpaDetailsCardDisplay .card-body {
     display: flex;
-    flex-flow:column;
+    flex-flow: column;
 }
 
 #gpa-details-container .tab {
@@ -2586,6 +2810,95 @@ input:disabled {
 /*    border-right: 1px solid white;*/
 /*    margin-right: 2rem;*/
 /*}*/
+
+/* System Theme */
+.show-when-system-theme-not-supported {
+    display: block;
+}
+
+.disable-when-system-theme-not-supported {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+#mobile-overview-grid {
+    width: 100%;
+    height: 100vh;
+    display: none;
+    grid-template-columns: 49% 49%;
+    grid-column-gap: 2%;
+    grid-template-areas: "left" "right";
+}
+
+.block {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: column;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.block .delta {
+    display: none;
+}
+
+.block table {
+    width: 100%;
+}
+
+.block {
+    transition: filter 250ms ease;
+    width: 100%;
+    margin: 0.5rem 0;
+}
+
+.block th {
+    font-size: 1rem;
+    border-top: none;
+    padding: 1rem 2rem;
+}
+
+.block .popup i {
+    display: none !important;
+}
+
+.block:active, .block:hover {
+    filter: drop-shadow(0 0 2px gray);
+}
+
+.left-block .block {
+    grid-area: left;
+    margin-right: 0;
+}
+
+.right-block .block {
+    grid-area: right;
+    margin-left: 0;
+}
+
+@media screen and (prefers-color-scheme: dark) {
+    .show-when-system-theme-not-supported {
+        display: none;
+    }
+
+    .disable-when-system-theme-not-supported {
+        pointer-events: unset;
+        opacity: unset;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .show-when-system-theme-not-supported {
+        display: none;
+    }
+
+    .disable-when-system-theme-not-supported {
+        pointer-events: unset;
+        opacity: unset;
+    }
+}
 
 /* Firefox */
 @supports not (backdrop-filter: blur(0.1rem)) {
@@ -2645,6 +2958,10 @@ input:disabled {
         box-shadow: none;
     }
 
+    #mobile-overview-grid {
+        display: grid;
+    }
+
     #termSwitcher {
         display: none;
     }
@@ -2666,11 +2983,11 @@ input:disabled {
         display: none;
     }
 
-    td, table:not(.weights) th {
+    td, table:not(.block table, .weights) th {
         font-size: 0.6rem;
     }
 
-    .table:not(#table-1, .weights) td, .table:not(#table-1, .weights) th {
+    .table:not(.weights) td, .table:not(.weights) th {
         padding: 0.5rem !important;
         pointer-events: none;
     }
@@ -2769,10 +3086,6 @@ input:disabled {
         opacity: 0;
     }
 
-    #table-1 .delta {
-        display: none;
-    }
-
     .card-body {
         overflow: hidden;
     }
@@ -2819,16 +3132,6 @@ input:disabled {
         height: fit-content;
     }
 
-    #table-1 table {
-        width: calc(50% - 0.5rem);
-        margin: 0.25rem;
-        transition: filter 100ms ease;
-    }
-
-    #table-1 th {
-        font-size: 1rem;
-    }
-
     .overallGrade {
         font-size: 200%;
     }
@@ -2845,16 +3148,6 @@ input:disabled {
         padding: 0.1rem;
     }
 
-    #table-1 .popup i {
-        display: none !important;
-    }
-
-    #table-1 {
-        display: flex;
-        flex-flow: row;
-        flex-wrap: wrap;
-    }
-
     .overview > div {
         display: flex !important;
         align-items: center;
@@ -2864,10 +3157,6 @@ input:disabled {
 
     td.overview {
         padding: 0 0 1rem 0 !important;
-    }
-
-    #table-1 table:active, #table-1 table:hover {
-        filter: drop-shadow(0 0 2px gray);
     }
 
     .backToHome {

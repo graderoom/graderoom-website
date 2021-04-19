@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
     <% let theme; %>
-    <% let zeroTime = new Date("0/"); %>
+    <% let zeroTime = new Date(0); %>
     <% zeroTime.setHours(new Date().getHours()); %>
     <% zeroTime.setMinutes(new Date().getMinutes()); %>
     <% zeroTime = zeroTime.getTime(); %>
@@ -415,6 +415,11 @@
                 $.ajax({
                            url: "/emailAvailable", type: "POST", async: false, data: {schoolUsername: bcpEmail}
                        }).done((response) => {
+                    if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
+                        $(".session-timeout").show();
+                        $("body").find("*").not(".session-timeout").remove();
+                        return;
+                    }
                     if (messageDivID) {
                         // Make sure value is still the same
                         if (bcpEmail === $(inputID)[0].value) {
@@ -480,6 +485,11 @@
                 $.ajax({
                            url: "/betaKeyValid", type: "POST", async: false, data: {betaKey: betakey}
                        }).done((response) => {
+                    if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
+                        $(".session-timeout").show();
+                        $("body").find("*").not(".session-timeout").remove();
+                        return;
+                    }
                     if (messageDivID) {
                         // Make sure value is still the same
                         if (betakey === $(inputID)[0].value) {
@@ -545,7 +555,7 @@
     let darkMode;
 
     function setAutoTheme() {
-        let zeroTime = new Date("0/");
+        let zeroTime = new Date(0);
         zeroTime.setHours(new Date().getHours());
         zeroTime.setMinutes(new Date().getMinutes());
         zeroTime = zeroTime.getTime();
