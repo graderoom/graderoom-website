@@ -29,8 +29,8 @@
 <!-- ------------------------------------------------ Special HTML ------------------------------------------------- -->
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
-<!-- Use the following HTML before information specific to Beta -->
-<!-- <em>[Beta]</em> -->
+<!-- Use the following HTML before information specific to Beta Features -->
+<!-- <em>[Beta Feature]</em> -->
 
 <!-- Use the following HTML before information specific to mobile users -->
 <!-- <em>[Mobile]</em> -->
@@ -42,13 +42,97 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Beta 4.4.7] - 2021-02-03
+## [Stable 4.7.0] - 2021-04-18
 ### Added
-- Verified weights now display in popup on verification checkmark
+- UC GPA details are now available under GPA Details
+- Verified weights now display in popup on hover of verification checkmark
+- New <span class="changelog-inline-setoff">Match System Theme</span> option that will match your device's theme preference<ul>
+- Due to browser limitations, Graderoom will load in dark theme before quickly switching to the system theme
+- If a system theme is unavailable, dark theme will be used
+- When your system theme is changed, please allow a few seconds for Graderoom to change its theme
+- Graderoom will load into an unthemed state for a few moments in between each switch</ul>
+- <em>[Beta Feature]</em> Notification Panel (Not Complete)
+
+### Improved
+- Changes in overall grade are no longer added to total change count if assignment changes are present
+- Weighted GPA is now a switch instead of buttons
+- Detected system theme is now displayed in settings
+- Verified weights that are point-based no longer show an empty table of weights
+- Category dropdowns and weight tables now display full name of category on hover
+- Increased text size in changelog display
+- Attempting any action without a valid cookie will automatically log you out
+- <em>[Mobile]</em> Grid layout of overview is now staggered to reduce wasted space
+- <em>[Beta Feature]</em> New beta features are now automatically enabled if you are already enrolled in the Beta Program<ul>
+
+### Fixed
+- Issue where 'Sort by Category' did not display assignment scores
+- Issue where user could manually sync grades while they were auto-syncing
+- Issue with 'revert all' buttons
+- Issue with auto-logout occuring when it was not supposed to
+- Issue with automatic and sun themes not changing to dark on some browsers
+
+## [Beta 4.6.0] - 2021-04-11
+### Added
+- UC GPA details are now available under GPA Details
+
+### Improved
+- Changes in overall grade are no longer added to total change count if assignment changes are present
+- Weighted GPA is now a switch instead of buttons
+- Detected system theme is now displayed in settings
+- Verified weights that are point-based no longer show an empty table of weights
+- <em>[Mobile]</em> Grid layout of overview is now staggered to reduce wasted space
+- <span class="changelog-inline-setoff"><em>[Beta Feature]</em> Notification Panel</span><ul>
+- Lots of behind-the-scenes changes
+- Will be ready soon</ul>
+- <em>[Beta Feature]</em> New beta features are now automatically enabled if you are already enrolled in the Beta Program<ul>
+- To gain access to beta features, find the 'Join the Beta' button at the bottom of Account Settings
+- Note: This is not the same as having an account at <a href="https://beta.graderoom.me">beta.graderoom.me</a></ul>
+
+### Fixed
+- Issue where 'Sort by Category' did not display assignment scores
+- Issue where user could manually sync grades while they were auto-syncing
+- Issue with 'revert all' buttons
+
+## [Stable 4.5.5] - 2021-04-08
+### Fixed
+- Issue with overall grades being incorrect
+
+## [Announcement 4.5.4] - 2021-03-29
+- PowerSchool recently changed the way they display grades
+- This change has broken some of Graderoom's functionality, specifically showing correct overall grades
+- The overall grades that display currently are quarter grades from Q3, not your most recent grades
+- We are working to address this issue, and a fix will be released promptly
+
+## [Stable 4.5.3] - 2021-03-05
+### Fixed
+- Issue with exempt assignments not being excluded
+
+## [Stable 4.5.2] - 2021-03-02
+### Fixed
+- An issue that prevented viewing grades in some cases
+
+## [Beta 4.5.1] - 2021-02-28
+### Fixed
+- Issue with auto-logout occuring when it was not supposed to
+
+## [Beta 4.5.0] - 2021-02-27
+### Added
+- Verified weights now display in popup on hover of verification checkmark
+- New <span class="changelog-inline-setoff">Match System Theme</span> option that will match your device's theme preference<ul>
+- Due to browser limitations, Graderoom will load in dark theme before quickly switching to the system theme
+- If a system theme is unavailable, dark theme will be used
+- When your system theme is changed, please allow a few seconds for Graderoom to change its theme
+- Graderoom will load into an unthemed state for a few moments in between each switch</ul>
+- <em>[Beta Feature]</em> Notification Panel (Not Complete)
 
 ### Improved
 - Category dropdowns and weight tables now display full name of category on hover
 - Increased text size in changelog display
+- <span class="changelog-inline-setoff">Support for <a target="_blank" href="https://github.com/graderoom/app-releases/releases">Graderoom App</a></span>
+- Attempting any action without a valid cookie will automatically log you out
+
+### Fixed
+- Issue with automatic and sun themes not changing to dark on some browsers
 
 ## [Stable 4.4.6] - 2021-01-30
 ### Fixed
@@ -81,7 +165,7 @@
 - Issues with sync log display
 - Issue with syncing when assignments were added to once-empty courses in PowerSchool
 - Issue with syncing when only ungraded assignments were in a class in PowerSchool
-- <em>[Beta]</em> An issue with the fps display freezing after changing holiday effect settings
+- <em>[Beta Feature]</em> An issue with the fps display freezing after changing holiday effect settings
 
 ## [Stable 4.4.1] - 2021-01-13
 ### Added
@@ -135,7 +219,7 @@
 - Weight verification is now based on more accurate logic
 - Cumulative GPAs now include current semester
 - Styling and helpfulness of error messages
-- <em>[Beta]</em> Increased size of fps display as requested
+- <em>[Beta Feature]</em> Increased size of fps display as requested
 
 ### Fixed
 - Issue with snowfall
@@ -143,7 +227,7 @@
 - Issue where legend items on overview chart were sometimes clickable
 - An issue where reverting to verified weights didn't remove the revert button in all cases
 - Issues for new users
-- <em>[Beta]</em> Issue with fps display
+- <em>[Beta Feature]</em> Issue with fps display
 
 ## [Beta 4.3.1] - 2021-01-12
 ### Added
@@ -217,7 +301,7 @@
 - Changelog now has all versions when opened
 - Changelog now remains on same version even after the page is resized or changelog is closed and reopened
 - Changelog legend is much more responsive
-- <em>[Beta]</em> Increased size of fps display as requested
+- <em>[Beta Feature]</em> Increased size of fps display as requested
 
 ### Fixed
 - An issue where some syncs done after PowerSchool was locked did not display their status correctly
@@ -239,7 +323,7 @@
 
 ### Fixed
 - Issue with snowfall
-- <em>[Beta]</em> Issue with fps display
+- <em>[Beta Feature]</em> Issue with fps display
 
 ## [Stable 4.0.17] - 2020-12-31
 ### Fixed
@@ -288,7 +372,7 @@
 ### Fixed
 - Issue with changing advanced appearance settings
 - Issue where incorrect grade messages sometimes displayed incorrect grades
-- <em>[Beta]</em> Issue with unnecessary refreshes when viewing old semesters
+- <em>[Beta Feature]</em> Issue with unnecessary refreshes when viewing old semesters
 
 ## [Beta 4.0.8] - 2020-12-16
 ### Fixed
@@ -312,7 +396,7 @@
 ### Fixed
 - An issue where incorrect grade messages sometimes displayed incorrect grades
 - Issue with UC/CSU GPA
-- <em>[Beta]</em> Issue with unnecessary refreshes when viewing old semesters
+- <em>[Beta Feature]</em> Issue with unnecessary refreshes when viewing old semesters
 
 ## [Beta 4.0.5] - 2020-12-06
 ### Fixed
@@ -378,7 +462,7 @@
 - Added Keyboard shortcut '`' for the overview page
 - Added numerical shortcuts for all classes (1 corresponds to the first class, 2 to the second, etc.)
 - Keyboard shortcuts now work when caps lock is on</ul>
-- <em>[Beta]</em> New FPS display option
+- <em>[Beta Feature]</em> New FPS display option
 
 ### Improved
 - Tooltabs now react when a row is hovered to draw attention to their existence
@@ -401,13 +485,13 @@
 - Issue where cards would flicker when brought to the front
 - Several issues with Auto Theme
 - An issue with changing school email
-- <em>[Beta]</em> Issue with cumulative GPA in S2 of past years
-- <em>[Beta]</em> Issue with 2019-2020 S1 Data showing -1 in the percent column
-- <em>[Beta]</em> Fixed an issue where a portion of the screen could not be interacted with when blur effects were enabled
-- <em>[Beta]</em> Blur effects are now out of beta! If you had blur effects enabled in the public beta, they will remain enabled
-- <em>[Beta]</em> Fixed several issues when viewing old semesters
-- <em>[Beta]</em> S0 now displays as S3 in the term switcher and is correctly organized chronologically
-- <em>[Beta]</em> An issue with AP Calculus BC displaying twice in S2 of 19-20
+- <em>[Beta Feature]</em> Issue with cumulative GPA in S2 of past years
+- <em>[Beta Feature]</em> Issue with 2019-2020 S1 Data showing -1 in the percent column
+- <em>[Beta Feature]</em> Fixed an issue where a portion of the screen could not be interacted with when blur effects were enabled
+- <em>[Beta Feature]</em> Blur effects are now out of beta! If you had blur effects enabled in the public beta, they will remain enabled
+- <em>[Beta Feature]</em> Fixed several issues when viewing old semesters
+- <em>[Beta Feature]</em> S0 now displays as S3 in the term switcher and is correctly organized chronologically
+- <em>[Beta Feature]</em> An issue with AP Calculus BC displaying twice in S2 of 19-20
 
 ### Removed
 - Panning limits on charts
@@ -429,11 +513,11 @@
 - Issue with auto theme
 - Issue with slow toggling between weighted and unweighted GPAs
 - A fatal issue with sync log after first sync after update
-- <em>[Beta]</em> An issue with AP Calculus BC displaying twice in S2 of 19-20
+- <em>[Beta Feature]</em> An issue with AP Calculus BC displaying twice in S2 of 19-20
 
 ### Removed
 - Removed class links tutorial popup as it interfered with proper functioning of the site
-- <em>[Beta]</em> Removed old semester read-only message as most users of this beta feature already know about this
+- <em>[Beta Feature]</em> Removed old semester read-only message as most users of this beta feature already know about this
 
 ## [Stable 3.8.2] - 2020-11-28
 ### Added
@@ -448,7 +532,7 @@
 - New loading animations on buttons
 - More tutorial popups
 - New dark theme schedule options
-- <em>[Beta]</em> Fps display option in Beta settings
+- <em>[Beta Feature]</em> Fps display option in Beta settings
 
 ### Improved
 - Sync log edge case display improvements
@@ -493,7 +577,7 @@
 - Issue with warning messages after editing any class page
 - Issue where cards would flicker when brought to front
 - Keyboard shortcuts now work when caps lock is on
-- <em>[Beta]</em> S0 now displays as S3 in the term switcher and is correctly organized chronologically
+- <em>[Beta Feature]</em> S0 now displays as S3 in the term switcher and is correctly organized chronologically
 
 ## [Stable 3.6.1] - 2020-11-20
 ### Fixed
@@ -547,7 +631,7 @@
 - Weighting and Teacher Name display
 - Winter snow (Only visible in dark mode)
 - Number of recent changes is shown along with sync status in the main navbar
-- <em>[Beta]</em> FPS display
+- <em>[Beta Feature]</em> FPS display
 
 ### Improved
 - Date is automatically set to current date when adding an assignment
@@ -583,7 +667,7 @@
 
 ### Fixed
 - Issue where refreshing or leaving the page after closing a half-complete feedback form would trigger an alert
-- <em>[Beta]</em> Fixed several issues when viewing old semesters
+- <em>[Beta Feature]</em> Fixed several issues when viewing old semesters
 
 ### Removed
 - Panning limit has been removed from charts
@@ -630,23 +714,23 @@
 ## [Beta 3.3.0] - 2020-10-15
 ### Added
 - Blur effects are now out of beta! Enable them in advanced appearance settings.
-- <em>[Beta]</em> If you had blur effects enabled in the public beta, they will remain enabled.
+- <em>[Beta Feature]</em> If you had blur effects enabled in the public beta, they will remain enabled.
 
 ### Improved
 - Recent Changes now displays a detailed history
 - Integrated overall grades into class navbar and increased size of overview graph
 - Several browser-specific stability improvements
 - Sizing of settings card
-- <em>[Beta]</em> Several styling improvements to term switcher
+- <em>[Beta Feature]</em> Several styling improvements to term switcher
 
 ### Fixed
 - Issue where spamming the sync grades button was possible
 - Several issues with Recent Changes
 - Attempt to prevent keyboard shortcuts from firing when combined with special keys (Ctrl and/or Alt)
-- <em>[Beta]</em> Issue where a portion of the screen could sometimes not be interacted with when blur effects were enabled
+- <em>[Beta Feature]</em> Issue where a portion of the screen could sometimes not be interacted with when blur effects were enabled
 
 ### Removed
-- <em>[Beta]</em> Ability to tweak blur amount
+- <em>[Beta Feature]</em> Ability to tweak blur amount
 
 ## [Beta 3.2.1] - 2020-10-13
 ### Fixed
@@ -657,7 +741,7 @@
 - New 'Recent Changes' Card that displays all modifications, additions, and removals of assignments after each sync
 - Keyboard shortcut 'G' for 'Recent Changes' Card
 - New 'More' section to the main navbar
-- <em>[Beta]</em> Message stating that old semesters are view-only. Edits will not be saved.
+- <em>[Beta Feature]</em> Message stating that old semesters are view-only. Edits will not be saved.
 
 ### Improved
 - Tooltabs now react when a row is hovered to draw attention to their existence
@@ -666,9 +750,9 @@
 
 ### Fixed
 - Issue with logged-in final grade calculator not working for users without grades
-- <em>[Beta]</em> Issue where blur effects would not be applied to elements if interacted with immediately on page load
-- <em>[Beta]</em> Issue with cumulative GPA in S2 of past years
-- <em>[Beta]</em> Issue with 2019-2020 S1 Data showing -1 in the percent column
+- <em>[Beta Feature]</em> Issue where blur effects would not be applied to elements if interacted with immediately on page load
+- <em>[Beta Feature]</em> Issue with cumulative GPA in S2 of past years
+- <em>[Beta Feature]</em> Issue with 2019-2020 S1 Data showing -1 in the percent column
 
 ### Removed
 - Quick Links section of Settings
@@ -677,7 +761,7 @@
 ## [Stable 3.1.0] - 2020-10-02
 ### Added
 - Descriptions to mass modification buttons
-- <em>[Beta]</em> Added blur effect option and blur effect settings
+- <em>[Beta Feature]</em> Added blur effect option and blur effect settings
 
 ### Improved
 - Cumulative GPA now only includes past semesters
@@ -695,7 +779,7 @@
 
 ## [Beta 3.0.6] - 2020-09-21
 ### Added
-- <em>[Beta]</em> Added blur effect option and blur effect settings
+- <em>[Beta Feature]</em> Added blur effect option and blur effect settings
 
 ## [Beta 3.0.5] - 2020-09-14
 ### Fixed
@@ -703,18 +787,18 @@
 
 ## [Stable 3.0.4] - 2020-09-14
 ### Improved
-- <em>[Beta]</em> All beta features are enabled by default when a user joins the beta
+- <em>[Beta Feature]</em> All beta features are enabled by default when a user joins the beta
 
 ### Fixed
 - Issue where grades could not be manually synced
-- <em>[Beta]</em> Issue where old data would not update correctly
+- <em>[Beta Feature]</em> Issue where old data would not update correctly
 
 ## [Stable 3.0.3] - 2020-09-03
 ### Improved
 - Made GPA Displays smaller and added theoretical maximums
 - Moved weighted GPA toggle to homepage
-- <em>[Beta]</em> New, less intrusive design for term switcher
-- <em>[Beta]</em> Moved 'Leave Beta' button to Beta Settings
+- <em>[Beta Feature]</em> New, less intrusive design for term switcher
+- <em>[Beta Feature]</em> Moved 'Leave Beta' button to Beta Settings
 
 ### Fixed
 - Issue where new weights would not update automatically after sync
@@ -724,7 +808,7 @@
 ### Added
 - GPA display now indicates if the displayed GPA is weighted or unweighted
 - New public beta. Join by scrolling to the bottom of Account Settings
-- First public beta feature: Enable viewing data from previous semesters
+- <em>[Beta Feature]</em> Enable viewing data from previous semesters
 
 ### Improved
 - Graphs no longer hide data even if regularized
@@ -1497,8 +1581,8 @@
 - Issue where excluded assignments were part of overall grade in point-based classes
 
 ## [Announcement 1.5.1] - 2020-03-20
-- <em>[Beta]</em> During testing, some beta user's weights were lost. Although this data could be restored from the database backups, due to the beta nature of this issue and the relatively small inconvenience this will cause, this weight data will not be recovered
-- <em>[Beta]</em> Send feedback if you have any questions, comments, or concerns
+- During testing, some beta user's weights were lost. Although this data could be restored from the database backups, due to the beta nature of this issue and the relatively small inconvenience this will cause, this weight data will not be recovered
+- Send feedback if you have any questions, comments, or concerns
 
 ## [Beta 1.5.0] - 2020-03-20
 ### Added
@@ -1575,7 +1659,7 @@
 ## [Announcement 1.3.3] - 2020-03-12
 - Auto-population of weights is now in beta
 - To prepare for the wide release, if you know the category weights for your classes, please enter them in the edit weights tab to improve the user experience for other users
-- <em>[Beta]</em> If you find an issue with the auto-populated weights, send feedback in Settings > About > Feedback Form
+- If you find an issue with the auto-populated weights, send feedback in Settings > About > Feedback Form
 
 ## [Beta 1.3.2] - 2020-03-12
 ### Added
@@ -1622,7 +1706,7 @@
 - If your account still exists, you will be asked to sync your grades with PowerSchool to recover your data
 - Please inform anyone affected by this issue to create a new account
 - The Graderoom Team apologizes for the great inconvenience this has caused and has taken strict measures to prevent a similar event from occurring again
-- <em>[Beta]</em> Request another beta key by emailing <span class="changelog-inline-setoff"><a href="mailto:support@graderoom.me">support@graderoom.me</a></span> or asking a developer directly
+- Request another beta key by emailing <span class="changelog-inline-setoff"><a href="mailto:support@graderoom.me">support@graderoom.me</a></span> or asking a developer directly
 
 ## [Beta 1.2.2] - 2020-03-02
 ### Added

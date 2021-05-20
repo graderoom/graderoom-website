@@ -201,7 +201,7 @@ table thead tr th {
     background-color: #333333;
 }
 
-#GPA-container > div {
+#GPA-container > div, .weightGPA {
     background-color: white;
 }
 
@@ -448,7 +448,7 @@ select.minimal:focus {
     background-color: #FFFFFF;
 }
 
-#table-1 {
+.block {
     border-radius: 0.5rem;
     background-color: white;
 }
@@ -525,7 +525,7 @@ tr:hover .toolTab {
     background-color: #333333;
 }
 
-.changelog-inline-setoff {
+.changelog-inline-setoff, .changelog-panel {
     background-color: white;
     box-shadow: #333333 0 0 3px 1px;
 }
@@ -540,9 +540,6 @@ tr:hover .toolTab {
 
 /* Mobile Stuff */
 @media only screen and (max-width: 991px) {
-    #table-1 {
-        background-color: transparent;
-    }
 
     .backToHome {
         background-color: #FFFFFF;

@@ -32,7 +32,7 @@ let versionNameArray = [];
 let tutorialKeys = ["homeSeen", "navinfoSeen", "moreSeen", "settingsSeen"];
 
 // Update this list with new beta features
-let betaFeatureKeys = ["showTermSwitcher", "showFps"];
+let betaFeatureKeys = ["showTermSwitcher", "showFps", "showNotificationPanel"];
 
 module.exports = {
 
@@ -151,10 +151,11 @@ module.exports = {
     addBetaFeature: function (username, features) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
-        userRef.set("betaFeatures", {active: true}).write();
-        Object.keys(features).forEach(feature => {
-            if (betaFeatureKeys.includes(feature)) {
+        betaFeatureKeys.forEach(feature => {
+            if (Object.keys(features).includes(feature)) {
                 userRef.get("betaFeatures").set(feature, true).write();
+            } else {
+                userRef.get("betaFeatures").set(feature, false).write();
             }
         });
     },
@@ -437,21 +438,6 @@ module.exports = {
             // Add sorting data
             this.resetSortData(user.username);
 
-            // Remove any extra tutorial keys
-            let existingKeys = Object.keys(userRef.get("alerts").get("tutorialStatus").value());
-            for (let i = 0; i < existingKeys.length; i++) {
-                if (!tutorialKeys.includes(existingKeys[i])) {
-                    userRef.get("alerts").get("tutorialStatus").unset(existingKeys[i]).write();
-                }
-            }
-
-            // Add tutorial keys
-            for (let i = 0; i < tutorialKeys.length; i++) {
-                if (!userRef.get("alerts").get("tutorialStatus").get(tutorialKeys[i]).value()) {
-                    userRef.get("alerts").get("tutorialStatus").set(tutorialKeys[i], false).write();
-                }
-            }
-
             // Fix dicts
             this.initAddedAssignments(lc_username);
             this.initWeights(lc_username);
@@ -692,6 +678,55 @@ module.exports = {
             console.log("Updated user to version 9");
             userRef.set("version", 9).write();
             version = 9;
+        }
+
+        // if (version === 9) {
+        //     // Add notifications dict
+        //     // userRef.set("notifications", {"Important": [], "Unread": [], "All": []}).write();
+        //
+        //     // Notification format in backend (for reference)
+        //     // {
+        //     //     "type": "announcement"/"stable"/"beta"/"sync"/"empty-sync"/"error"
+        //     //     "id": For changelog stuff, the version code, for everything else, the timestamp doubles as an id
+        //     //     "timestamp": ,
+        //     //     "read": false/true
+        //     // }
+        //
+        //     // Add all changelog notifications and read them until changeloglastseen
+        //
+        //
+        //     // Save update
+        //     console.log("Updated user to version 10");
+        //     userRef.set("version", 10).write();
+        //     version = 10;
+        // }
+
+
+        /** Stuff that happens no matter what */
+            // Remove any extra tutorial keys
+        let existingKeys = Object.keys(userRef.get("alerts").get("tutorialStatus").value());
+        for (let i = 0; i < existingKeys.length; i++) {
+            if (!tutorialKeys.includes(existingKeys[i])) {
+                userRef.get("alerts").get("tutorialStatus").unset(existingKeys[i]).write();
+            }
+        }
+
+        // Add tutorial keys
+        for (let i = 0; i < tutorialKeys.length; i++) {
+            if (!userRef.get("alerts").get("tutorialStatus").get(tutorialKeys[i]).value()) {
+                userRef.get("alerts").get("tutorialStatus").set(tutorialKeys[i], false).write();
+            }
+        }
+
+        // Set all new beta features to true
+        let betaFeatures = userRef.get("betaFeatures").value();
+        if (betaFeatures.active) {
+            for (let i = 0; i < betaFeatureKeys.length; i++) {
+                if (!(betaFeatureKeys[i] in betaFeatures)) {
+                    betaFeatures[betaFeatureKeys[i]] = true;
+                }
+            }
+            userRef.set("betaFeatures", betaFeatures).write();
         }
 
         this.bringUpToDate(username, false);
@@ -1343,11 +1378,9 @@ module.exports = {
         }
         let newGrades = grade_update_status.new_grades[newTerm][newSemester];
         let newPSAIDs = newGrades.map(x => x.grades.map(y => y.psaid));
-        let fixDicts = false;
         let add = newPSAIDs.length - oldPSAIDs.length;
         for (let i = 0; i < add; i++) {
             oldPSAIDs.push([]);
-            fixDicts = true;
         }
         let added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [newGrades[index].class_name, newPSAIDs[index]]).filter(data => data[1].length));
         let modified = {};
@@ -1382,11 +1415,9 @@ module.exports = {
             added: added, modified: modified, removed: removed, overall: overall
         };
         userRef.get("grades").get(newTerm).set(newSemester, newGrades).write();
-        if (fixDicts) {
-            this.initAddedAssignments(lc_username);
-            this.initWeights(lc_username);
-            this.initEditedAssignments(lc_username);
-        }
+        this.initAddedAssignments(lc_username);
+        this.initWeights(lc_username);
+        this.initEditedAssignments(lc_username);
         this.bringUpToDate(lc_username);
         let updateHistory = false;
         if ((newTerm !== oldTerm || newSemester !== oldSemester) || !userRef.get("updatedGradeHistory").value().length || userRef.get("updatedGradeHistory").value().slice(-1)[0] < new Date(2021, 0, 11).getTime()) {
@@ -1859,7 +1890,7 @@ module.exports = {
                     };
                     if (err) {
                         if (fs.existsSync(filename)) {
-                            return;
+                            read();
                         }
                         console.log(`${filename} not found`);
                         let waitFormula = function (index) {
@@ -1874,6 +1905,8 @@ module.exports = {
                                 }
                                 console.log(`Try ${waitIndex} | Waiting for ${waitTime} seconds...`);
                                 waiting = setTimeout(wait, waitFormula(waitIndex));
+                            } else {
+                                read();
                             }
                         };
                         let waitIndex = 1;

@@ -137,6 +137,25 @@
                                             <% } %>
                                     > Always Dark</label>
                                 <br>
+                                <label class="disable-when-system-theme-not-supported" style="cursor: pointer; align-items: center"><input
+                                            style="cursor: inherit" type="radio"
+                                            value="system"
+                                            name="theme"
+                                            onclick="$('#sun-limits-container, #auto-limits-container').hide();
+                                                                               ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
+                                                                               $($(this)[0].form).submit();"
+                                    <% if (JSON.parse(appearance).theme === "system") { %> checked
+                                            <% } %>
+                                    > Match System
+                                    <span id="prefers-color-scheme" style="margin-left: 0.5rem; opacity: 0.5; font-size: 0.6rem;"></span>
+                                    <span style="margin-left: 0.5rem;"
+                                          class="popup show-when-system-theme-not-supported"><i
+                                                class="fa fa-exclamation-circle"><span
+                                                    class="popup-right always-show"
+                                                    style="width: 10rem;">Your
+                                                browser does not support this option.</span></i></span>
+                                </label>
+                                <br>
                                 <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
                                                                        value="sun"
                                                                        name="theme"
@@ -689,6 +708,29 @@
                                     Disabled: Default
                                 </small>
                             </div>
+                            <div class="card-footer">
+                                <label class="slider-container">
+                                    <label style="margin-left: 0;" for="showNotificationPanel">
+                                        Enable Notification Panel
+                                    </label>
+                                    <label class="switch">
+                                        <input id="showNotificationPanel" type="checkbox" name="showNotificationPanel"
+                                        <% if (JSON.parse(betaFeatures).showNotificationPanel) { %>
+                                               checked="checked"
+                                                <% } %>
+                                               onchange="$($(this)[0].form).submit()"
+                                        >
+                                        <span class="slider"></span>
+                                    </label>
+                                </label>
+                                <small>
+                                    Enabled: Adds a notification panel
+                                </small>
+                                <br>
+                                <small>
+                                    Disabled: Default
+                                </small>
+                            </div>
                         </form>
                         <form action="/leavebeta" method="post">
                             <button class="btn btn-sm" type="submit">Leave the beta</button>
@@ -741,6 +783,11 @@
             $.ajax({
                        url: "/setFirstName", type: "POST", async: true, data: {firstName: firstName}
                    }).done((response) => {
+                if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
+                    $(".session-timeout").show();
+                    $("body").find("*").not(".session-timeout").remove();
+                    return;
+                }
                 // Make sure value is still the same
                 if (firstName === $(inputID)[0].value) {
                     $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text(response);
@@ -826,6 +873,11 @@
                    data: {preset: palette, shuffleColors: JSON.stringify($("#shuffleToggle").is(":checked"))},
                    async: true
                }).done((response) => {
+            if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
+                $(".session-timeout").show();
+                $("body").find("*").not(".session-timeout").remove();
+                return;
+            }
             $("#color-scheme-picker div").each(function () {
                 if (this.id === palette) {
                     $(this).find("i").css("opacity", 1);
@@ -872,7 +924,7 @@
 
         // Show the current tab, and add an "active" class to the button that opened the tab
         $(tabName).show();
-        $(settingsBtns[tabIndex - 1]).addClass('active');
+        $(settingsBtns[tabIndex - 1]).addClass("active");
         currentSettingsTab = tabIndex;
     }
 
@@ -1035,6 +1087,11 @@
         $.ajax({
                    url: "/resetTutorial", type: "POST", async: true
                }).done((response) => {
+            if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
+                $(".session-timeout").show();
+                $("body").find("*").not(".session-timeout").remove();
+                return;
+            }
             alerts.tutorialStatus = JSON.parse(response);
             setupTutorialPopups();
             updateTutorialProgress();

@@ -12,24 +12,21 @@
                 <h1 class="card-title text-center changelog-title">
                     <span class="fa fa-list"></span> GPA Details
                 </h1>
-                <div class="weightedGPAToggle">
-                    <form class="weightedGPAForm" action="/weightedGPA" method="post">
-                        <input name="weightedGPA"
-                               value="<% if (JSON.parse(appearance).weightedGPA) { %>false<% } else { %>true<% } %>"
-                               style="display: none">
-                        <button onclick="ajaxPostForm('.weightedGPAForm',[],'',true, true)"
-                        <% if (JSON.parse(appearance).weightedGPA) { %> type="button"
-                                <% } %>
-                                class="<% if (JSON.parse(appearance).weightedGPA) { %> active <% } %> btn">
-                            Weighted
-                        </button>
-                        <button onclick="ajaxPostForm('.weightedGPAForm',[],'',true, true)"
-                        <% if (!JSON.parse(appearance).weightedGPA) { %> type="button"
-                                <% } %>
-                                class="<% if (!JSON.parse(appearance).weightedGPA) { %> active <% } %> btn">
-                            Unweighted
-                        </button>
-                    </form>
+                <div class="weightGPA">
+                    <label style="display: flex; font-size: 1rem; justify-content: center; margin: 0; align-items: flex-start">Weighted GPA
+                        <label class="switch">
+                            <input style="margin: 0; display: flex"
+                                   type="checkbox"
+                                   onchange="appearance.weightedGPA = !appearance.weightedGPA;
+                                               $.ajax({url: '/weightedGPA', method: 'POST', data: {weightedGPA: appearance.weightedGPA}});
+                                                  setupGPADisplays();
+                                                  return;"
+                            <% if (JSON.parse(appearance).weightedGPA) { %> checked
+                                    <% } %>
+                            >
+                            <span class="slider"></span>
+                        </label>
+                    </label>
                 </div>
                 <div class="tab">
                     <btn id="btn-1" class="tablinks active" onclick="openGpaDetailsTab(1)" style="display: none">Semester GPA</btn>
@@ -40,24 +37,24 @@
                     <div id="gpaDetails-1" class="card-footer tabcontent">
                         <h3>Semester GPA</h3>
                         <p>Your semester GPA is calculated using your courses from the current
-                            semester: <%= term; %> <%= semester; %></p>
+                           semester: <%= term; %> <%= semester; %></p>
                         <p>First, we determine the weighting of each course: AP, Honors, Regular, or Non-Academic.
-                            A letter grade beginning with A will earn you 4 GPA points, a B=3 points, a C=2 points, a
-                            D=1 point, and an F=0 points. Non-Academic courses will not be counted
-                            towards your GPA.
-                            For the weighted GPA, Honors and AP courses will earn a bonus GPA point.
+                           A letter grade beginning with A will earn you 4 GPA points, a B=3 points, a C=2 points, a
+                           D=1 point, and an F=0 points. Non-Academic courses will not be counted
+                           towards your GPA.
+                           For the weighted GPA, Honors and AP courses will earn a bonus GPA point.
                         </p>
                         <p>Next, we determine the number of credits earned by completing each course. Most courses you
-                            take will be worth 5.0 credits, but some courses may be worth fewer credits.
-                            A larger number of credits means that the course has a greater impact on your GPA, and vice
-                            versa.
+                           take will be worth 5.0 credits, but some courses may be worth fewer credits.
+                           A larger number of credits means that the course has a greater impact on your GPA, and vice
+                           versa.
                         </p>
                         <p>We multiply each GPA point with the number of credits earned in the course, getting the
-                            number of "credit points" in the course. We add up these numbers for all the courses taken
-                            and get a value of "total credit points".
+                           number of "credit points" in the course. We add up these numbers for all the courses taken
+                           and get a value of "total credit points".
                         </p>
                         <p>Finally, we divide the "total credit points" by the total number of credits in all courses to
-                            get the GPA.
+                           get the GPA.
                         </p>
                         <div id="semesterGpaDetails" class="gpa-details">
                             <table class="gpa-details-table">
@@ -68,22 +65,22 @@
                         <h3>Cumulative GPA</h3>
                         <p>Your cumulative GPA includes all semesters except summer semesters</p>
                         <p>First, we determine the weighting of each course: AP, Honors, Regular, or Non-Academic.
-                            A letter grade beginning with A will earn you 4 GPA points, a B=3 points, a C=2 points, a
-                            D=1 point, and an F=0 points. Non-Academic courses will not be counted
-                            towards your GPA.
-                            For the weighted GPA, Honors and AP courses will earn a bonus GPA point.
+                           A letter grade beginning with A will earn you 4 GPA points, a B=3 points, a C=2 points, a
+                           D=1 point, and an F=0 points. Non-Academic courses will not be counted
+                           towards your GPA.
+                           For the weighted GPA, Honors and AP courses will earn a bonus GPA point.
                         </p>
                         <p>Next, we determine the number of credits earned by completing each course. Most courses you
-                            take will be worth 5.0 credits, but some courses may be worth fewer credits.
-                            A larger number of credits means that the course has a greater impact on your GPA, and vice
-                            versa.
+                           take will be worth 5.0 credits, but some courses may be worth fewer credits.
+                           A larger number of credits means that the course has a greater impact on your GPA, and vice
+                           versa.
                         </p>
                         <p>We multiply each GPA point with the number of credits earned in the course, getting the
-                            number of "credit points" in the course. We add up these numbers for all the courses taken
-                            and get a value of "total credit points".
+                           number of "credit points" in the course. We add up these numbers for all the courses taken
+                           and get a value of "total credit points".
                         </p>
                         <p>Finally, we divide the "total credit points" by the total number of credits in all courses to
-                            get the GPA.
+                           get the GPA.
                         </p>
                         <div id="cumulativeGpaDetails" class="gpa-details">
                             <table class="gpa-details-table">
@@ -92,6 +89,19 @@
                     </div>
                     <div id="gpaDetails-3" class="card-footer tabcontent" style="display: none">
                         <h3>UC/CSU GPA</h3>
+                        <p>Your UC/CSU GPA includes all semesters starting from the summer semester after 9<sup>th</sup> grade up until, and including, the summer after your 11<sup>th</sup> grade</p>
+                        <p>First, we determine the UC Approval of each course.</p>
+                        <p>Next, for all classes approved for the UC GPA, we add up all the GPA Points for each semester.
+                           A letter grade beginning with A will earn you 4 GPA points, a B=3 points, a C=2 points, a
+                           D=1 point, and an F=0 points.</p>
+                        <p>Then, we add one honors point for each semester of UC Approved AP/Honors courses.
+                           The following restrictions apply:</p>
+                        <ul>
+                            <li><p>For the summer after 9<sup>th</sup> grade up until the summer after 10<sup>th</sup> grade, a maximum of 4 honors points may be earned</p></li>
+                            <li><p>The final total of honors points through all semesters may not exceed 8</p></li>
+                            <li><p>Only UC Approved AP/Honors courses in which a student earns a letter grade of C or higher are eligible may be awarded an honors point</p></li>
+                        </ul>
+                        <p>Finally, we add the GPA points and honors points and divide the total by the number of semesters of UC Approved courses taken to get the GPA</p>
                         <div id="uc_csuGpaDetails" class="gpa-details">
                             <table class="gpa-details-table">
                             </table>
@@ -111,7 +121,7 @@
             maxGpaDetailsTab = 0;
             if (setupSemesterGpaDetails()) maxGpaDetailsTab++;
             if (setupCumulativeGpaDetails()) maxGpaDetailsTab++;
-            // if (setupUC_CSUGpaDetails()) maxGpaDetailsTab++;
+            if (setupUC_CSUGpaDetails()) maxGpaDetailsTab++;
 
             if (appearance.weightedGPA) {
                 $(`.weighted`).show();
@@ -221,10 +231,12 @@
         totalCreditPoints = (Math.round(totalCreditPoints * 100) / 100).toFixed(2);
         totalCredits = (Math.round(totalCredits * 100) / 100).toFixed(2);
 
-        let totals = $(`<tr><th colspan="5">TOTALS</th><th colspan="3">` + totalCredits + ` <small>CREDITS</small></th><th colspan="2">` + totalCreditPoints + ` <small style="white-space: nowrap">CREDIT PTS</small></th></tr>`)
+        let totals = $(`<tr><th colspan="5">TOTALS</th><th colspan="3">` + totalCredits + ` <small>CREDITS</small></th><th colspan="2">` + totalCreditPoints +
+            ` <small style="white-space: nowrap">CREDIT PTS</small></th></tr>`)
         semesterGpaDetailsTable.append(totals);
 
-        let final = $(`<tr><th colspan="5"><span class="weighted">Weighted </span>GPA Calculation (Total Credit Points ÷ Total Credits)</th><th>` + totalCreditPoints + `</th><th>÷</th><th>` + totalCredits + `</th><th>=</th><th>` + quotient + `</th></tr>`)
+        let final = $(`<tr><th colspan="5"><span class="weighted">Weighted </span>GPA Calculation (Total Credit Points / Total Credits)</th><th>` + totalCreditPoints + `</th><th>/</th><th>` +
+            totalCredits + `</th><th>=</th><th>` + quotient + `</th></tr>`)
         semesterGpaDetailsTable.append(final);
 
 
@@ -254,18 +266,28 @@
         let years = Object.keys(gradeHistoryLetters).sort((a, b) => a.slice(-2) - b.slice(-2));
         for (let i = 0; i < years.length; i++) {
 
-            // Add a year header
-            let yearHeader = $(`<tr><th colspan="10">` + years[i] + `</th></tr>`);
-            cumulativeGpaDetailsTable.append(yearHeader);
-
             let semesters = Object.keys(gradeHistoryLetters[years[i]]).sort((a, b) => a.slice(-1) - b.slice(-1));
             for (let j = 0; j < semesters.length; j++) {
 
                 if (semesters[j] === "S3") continue;
 
                 // Add a semester header
-                let semesterHeader = $(`<tr><th colspan="10">` + semesters[j] + `</th></tr>`);
+                let semesterHeader = $(`<tr><th colspan="10">` + years[i] + ` | ` + semesters[j] + `</th></tr>`);
                 cumulativeGpaDetailsTable.append(semesterHeader);
+
+                // Add header row
+                let header = $(`<tr>
+                <th>Course</th>
+                <th>Course Type</th>
+                <th>Grade Earned</th>
+                <th><span class="weighted">Weighted<br></span>GPA Points</th>
+                <th colspan="2"><b>×</b></th>
+                <th>Credits</th>
+                <th colspan="2"><b>=</b></th>
+                <th>Credit Points</th>
+                </tr>`);
+
+                cumulativeGpaDetailsTable.append(header);
 
                 for (let k = 0; k < gradeHistoryLetters[years[i]][semesters[j]].length; k++) {
                     let classObject = gradeHistoryLetters[years[i]][semesters[j]][k];
@@ -337,10 +359,12 @@
         totalCreditPoints = (Math.round(totalCreditPoints * 100) / 100).toFixed(2);
         totalCredits = (Math.round(totalCredits * 100) / 100).toFixed(2);
 
-        let totals = $(`<tr><th colspan="5">TOTALS</th><th colspan="3">` + totalCredits + ` <small>CREDITS</small></th><th colspan="2">` + totalCreditPoints + ` <small style="white-space: nowrap">CREDIT PTS</small></th></tr>`)
+        let totals = $(`<tr><th colspan="5">TOTALS</th><th colspan="3">` + totalCredits + ` <small>CREDITS</small></th><th colspan="2">` + totalCreditPoints +
+            ` <small style="white-space: nowrap">CREDIT PTS</small></th></tr>`)
         cumulativeGpaDetailsTable.append(totals);
 
-        let final = $(`<tr><th colspan="5"><span class="weighted">Weighted </span>GPA Calculation (Total Credit Points ÷ Total Credits)</th><th>` + totalCreditPoints + `</th><th>÷</th><th>` + totalCredits + `</th><th>=</th><th>` + quotient + `</th></tr>`)
+        let final = $(`<tr><th colspan="5"><span class="weighted">Weighted </span>GPA Calculation (Total Credit Points / Total Credits)</th><th>` + totalCreditPoints + `</th><th>/</th><th>` +
+            totalCredits + `</th><th>=</th><th>` + quotient + `</th></tr>`)
         cumulativeGpaDetailsTable.append(final);
 
         // Show the button
@@ -353,7 +377,7 @@
     }
 
     function setupUC_CSUGpaDetails() {
-        // Semester GPA
+        // UC/CSU GPA
         // Get table
         let uc_csuGpaDetailsTable = $('#uc_csuGpaDetails table');
 
@@ -374,104 +398,220 @@
 
         let numClasses = 0;
         let basePoints = 0;
-        let tenthHonorsPoints;
-        let eleventhHonorsPoints;
+        let tenthHonorsPoints = 0;
+        let eleventhHonorsPoints = 0;
+
+        // Header row
+        let header = `<tr>
+                <th>Course</th>
+                <th>UC Class Type</th>
+                <th>Grade Earned</th>
+                <th>GPA Points</th>
+                <th>Honors Point</th>
+                <th>Total 10<sup>th</sup> Honors Points</th>
+                <th>Total 11<sup>th</sup> Honors Points</th>
+                </tr>`;
 
         if (ninth in gradeHistoryLetters && "S3" in gradeHistoryLetters[ninth]) {
 
             // Add a header row
-            let header = $(`<tr><th colspan="10">9th grade S3</th></tr>`);
+            let semester_header = $(`<tr><th colspan="10">9th grade S3</th></tr>`);
+            uc_csuGpaDetailsTable.append(semester_header);
             uc_csuGpaDetailsTable.append(header);
 
             let classes = gradeHistoryLetters[ninth]["S3"];
             for (let c = 0; c < classes.length; c++) {
-                let classData = Object.entries(classes[c])[0];
-                if (([false, "CR", "W"]).includes(classData[1])) continue;
-                let classType = relClassData[classData[0]].uc_csuClassType;
+                let classObject = classes[c];
+                let class_name = Object.keys(classObject)[0];
+                let letter_grade = Object.values(classObject)[0];
+                if (([false, "CR", "W"]).includes(letter_grade)) continue;
+                let class_type = relClassData[class_name].uc_csuClassType;
+
+                let uc_class_type;
+                let honors_point = "<b>10<sup>th</sup></b>";
+
+                let gpaPoints = getGPA(letter_grade);
+                gpaPoints = (Math.round(gpaPoints * 10) / 10).toFixed(1);
+
+                switch (class_type) {
+                    case "uc_ap":
+                        uc_class_type = "<b>UC Approved AP</b>";
+                        break;
+                    case "uc_hon":
+                        uc_class_type = "<b>UC Approved Honors</b>";
+                        break;
+                    case "uc":
+                        uc_class_type = "UC Approved Regular";
+                        honors_point = "--";
+                        break;
+                    default:
+                        uc_class_type = "Not UC Approved";
+                        honors_point = "--";
+                        gpaPoints = "0.0";
+                        break;
+                }
+
                 let uc;
-                [uc, classType] = classType.split("_");
-                if (uc === "uc") {
+                [uc, class_type] = class_type.split("_");
+
+                if (uc === "uc" && !([false, "CR", "W"]).includes(letter_grade)) {
                     numClasses++;
-                    let points = getGPA(classData[1]);
+                    let points = getGPA(letter_grade);
                     basePoints += points;
-                    if ((["hon", "ap"]).includes(classType)) {
-                        if (points >= 2) {
+                    if ((["hon", "ap"]).includes(class_type)) {
+                        if (points >= 2 && tenthHonorsPoints < 4) {
                             tenthHonorsPoints++;
                         }
                     }
-                } else {
-
                 }
+
+                // Create and add row
+                let row = $(`<tr><td>` + class_name + `</td><td>` + uc_class_type + `</td><td>` + letter_grade + `</td><td>` + gpaPoints + `</td><td>` + honors_point + `</td><td>` +
+                    tenthHonorsPoints + `</td><td>--</td></tr>`);
+                uc_csuGpaDetailsTable.append(row);
             }
         }
 
         // Tenth
-        let classesCounted = [];
         if (tenth in gradeHistoryLetters) {
             let semesters = Object.keys(gradeHistoryLetters[tenth]).sort((a, b) => a.slice(-1) - b.slice(-1));
             for (let s = 0; s < semesters.length; s++) {
 
                 // Add a header row
-                let header = $(`<tr><th colspan="10">10th grade ` + semesters[s] + `</th></tr>`);
+                let semester_header = $(`<tr><th colspan="10">10th grade ` + semesters[s] + `</th></tr>`);
+                uc_csuGpaDetailsTable.append(semester_header);
                 uc_csuGpaDetailsTable.append(header);
 
                 let classes = gradeHistoryLetters[tenth][semesters[s]];
                 for (let c = 0; c < classes.length; c++) {
-                    let classData = Object.entries(classes[c])[0];
-                    let classType = relClassData[classData[0]].uc_csuClassType;
+                    let classObject = classes[c];
+                    let class_name = Object.keys(classObject)[0];
+                    let letter_grade = Object.values(classObject)[0];
+                    if (([false, "CR", "W"]).includes(letter_grade)) continue;
+                    let class_type = relClassData[class_name].uc_csuClassType;
+
+                    let uc_class_type;
+                    let honors_point = "<b>10<sup>th</sup></b>";
+
+                    let gpaPoints = getGPA(letter_grade);
+                    gpaPoints = (Math.round(gpaPoints * 10) / 10).toFixed(1);
+                    switch (class_type) {
+                        case "uc_ap":
+                            uc_class_type = "<b>UC Approved AP</b>";
+                            break;
+                        case "uc_hon":
+                            uc_class_type = "<b>UC Approved Honors</b>";
+                            break;
+                        case "uc":
+                            uc_class_type = "UC Approved Regular";
+                            honors_point = "--";
+                            break;
+                        default:
+                            uc_class_type = "Not UC Approved";
+                            honors_point = "--";
+                            gpaPoints = "0.0";
+                            break;
+                    }
+
                     let uc;
-                    [uc, classType] = classType.split("_");
-                    if (uc === "uc" && !([false, "CR", "W"]).includes(classData[1])) {
-                        classesCounted.push(classData[0]);
-                        let points = getGPA(classData[1]);
+                    [uc, class_type] = class_type.split("_");
+
+                    if (uc === "uc" && !([false, "CR", "W"]).includes(letter_grade)) {
+                        numClasses++;
+                        let points = getGPA(letter_grade);
                         basePoints += points;
-                        let row = `<tr><th>` + classData[0]
-                        if ((["hon", "ap"]).includes(classType)) {
-                            if (points >= 2) {
+                        if ((["hon", "ap"]).includes(class_type)) {
+                            if (points >= 2 && tenthHonorsPoints < 4) {
                                 tenthHonorsPoints++;
+                            } else {
+                                honors_point = "Max";
                             }
                         }
                     }
+
+                    // Create and add row
+                    let row = $(`<tr><td>` + class_name + `</td><td>` + uc_class_type + `</td><td>` + letter_grade + `</td><td>` + gpaPoints + `</td><td>` + honors_point + `</td><td>` +
+                        tenthHonorsPoints + `</td><td>--</td></tr>`);
+                    uc_csuGpaDetailsTable.append(row);
                 }
             }
         }
-        numClasses += classesCounted.length;
 
         // Eleventh
-        classesCounted = [];
         if (eleventh in gradeHistoryLetters) {
             let semesters = Object.keys(gradeHistoryLetters[eleventh]).sort((a, b) => a.slice(-1) - b.slice(-1));
             for (let s = 0; s < semesters.length; s++) {
 
                 // Add a header row
-                let header = $(`<tr><th colspan="10">11th grade ` + semesters[s] + `</th></tr>`);
+                let semester_header = $(`<tr><th colspan="10">11th grade ` + semesters[s] + `</th></tr>`);
+                uc_csuGpaDetailsTable.append(semester_header);
                 uc_csuGpaDetailsTable.append(header);
 
                 let classes = gradeHistoryLetters[eleventh][semesters[s]];
                 for (let c = 0; c < classes.length; c++) {
-                    let classData = Object.entries(classes[c])[0];
-                    let classType = relClassData[classData[0]].uc_csuClassType;
+                    let classObject = classes[c];
+                    let class_name = Object.keys(classObject)[0];
+                    let letter_grade = Object.values(classObject)[0];
+                    if (([false, "CR", "W"]).includes(letter_grade)) continue;
+                    let class_type = relClassData[class_name].uc_csuClassType;
+
+                    let uc_class_type;
+                    let honors_point = "<b>11<sup>th</sup></b>";
+
+                    let gpaPoints = getGPA(letter_grade);
+                    gpaPoints = (Math.round(gpaPoints * 10) / 10).toFixed(1);
+                    switch (class_type) {
+                        case "uc_ap":
+                            uc_class_type = "<b>UC Approved AP</b>";
+                            break;
+                        case "uc_hon":
+                            uc_class_type = "<b>UC Approved Honors</b>";
+                            break;
+                        case "uc":
+                            uc_class_type = "UC Approved Regular";
+                            honors_point = "--";
+                            break;
+                        default:
+                            uc_class_type = "Not UC Approved";
+                            honors_point = "--";
+                            gpaPoints = "0.0";
+                            break;
+                    }
+
                     let uc;
-                    [uc, classType] = classType.split("_");
-                    if (uc === "uc" && !([false, "CR", "W"]).includes(classData[1])) {
-                        classesCounted.push(classData[0]);
-                        let points = getGPA(classData[1]);
+                    [uc, class_type] = class_type.split("_");
+
+                    if (uc === "uc" && !([false, "CR", "W"]).includes(letter_grade)) {
+                        numClasses++;
+                        let points = getGPA(letter_grade);
                         basePoints += points;
-                        if ((["hon", "ap"]).includes(classType)) {
-                            if (points >= 2) {
+                        if ((["hon", "ap"]).includes(class_type)) {
+                            if (points >= 2 && eleventhHonorsPoints < 8 - tenthHonorsPoints) {
                                 eleventhHonorsPoints++;
+                            } else {
+                                honors_point = "Max";
                             }
                         }
                     }
+
+                    // Create and add row
+                    let row = $(`<tr><td>` + class_name + `</td><td>` + uc_class_type + `</td><td>` + letter_grade + `</td><td>` + gpaPoints + `</td><td>` + honors_point + `</td><td>` +
+                        tenthHonorsPoints + `</td><td>` + eleventhHonorsPoints + `</td></tr>`);
+                    uc_csuGpaDetailsTable.append(row);
                 }
             }
         }
-        numClasses += classesCounted.length;
 
-        let totals = $(`<tr><th colspan="5">TOTALS</th><th colspan="3">` + totalCredits + ` <small>CREDITS</small></th><th colspan="2">` + totalCreditPoints + ` <small style="white-space: nowrap">CREDIT PTS</small></th></tr>`)
+        let totalPoints = basePoints + tenthHonorsPoints + eleventhHonorsPoints;
+
+        let totals = $(`<tr><th colspan="2">TOTAL POINTS</th><th colspan="5">` + basePoints + ` <small>GPA</small> + ` + tenthHonorsPoints + ` <small>10<sup>TH</sup></small> + ` +
+            eleventhHonorsPoints + ` <small>11<sup>TH</sup></small> = ` + totalPoints + ` <small>TOTAL</small></th></tr>`)
         uc_csuGpaDetailsTable.append(totals);
 
-        let final = $(`<tr><th colspan="5">GPA Calculation (Total Credit Points ÷ Total Credits)</th><th>` + totalCreditPoints + `</th><th>÷</th><th>` + totalCredits + `</th><th>=</th><th>` + quotient + `</th></tr>`)
+        let quotient = (Math.round(totalPoints / numClasses * 1000) / 1000).toFixed(3);
+
+        let final = $(`<tr><th colspan="2">GPA Calculation (Total Points / # Semesters of UC Approved Classes)</th><th>` + totalPoints + ` <small>POINTS</small></th><th>/</th><th>` + numClasses +
+            ` <small>CLASSES</small></th><th>=</th><th>` + quotient + `</th></tr>`)
         uc_csuGpaDetailsTable.append(final);
 
         // Show the button

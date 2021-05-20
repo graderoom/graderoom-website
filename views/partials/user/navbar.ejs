@@ -8,13 +8,12 @@
                class="navbar-brand" style="margin: 0;">
                 <h1>
                     <img
-                    <% if (theme) { %>
+                    <% if (theme === true) { %>
                         src="/public/resources/dark_mode/logo.png"
-                    <% } else { %>
+                    <% } else if (theme === false) { %>
                         src="/public/resources/light_mode/logo.png"
                             <% } %>
-                        style="width: 3rem"
-                        alt="logo">
+                        style="width: 3rem">
                     <div class="brand-label">
                         Graderoom
                     </div>
@@ -34,11 +33,11 @@
         <div class="nav-username">
             <div class="text-center">
                 <h5 style="padding-top: 0; white-space: nowrap;<% if (page != "home") { %> cursor: default; <% } %> "
-                    onclick="<% if (page == "home") { %>showCard('#settingsCardDisplay'); openTab(2) <% } %>"><%= username; %></h5>
+                    onclick="<% if (page === "home") { %>showCard('#settingsCardDisplay'); openTab(2) <% } %>"><%= username; %></h5>
                 <label id="nameDisplay"
-                       style="white-space: nowrap;<% if (page == "home") { %> cursor: pointer; <% } %> margin: 0; display: block"><%= JSON.parse(personalInfo).firstName; %> <%= JSON.parse(personalInfo).lastName; %>
+                       style="white-space: nowrap;<% if (page === "home") { %> cursor: pointer; <% } %> margin: 0; display: block"><%= JSON.parse(personalInfo).firstName; %> <%= JSON.parse(personalInfo).lastName; %>
                     '<%= JSON.parse(personalInfo).graduationYear - 2000; %></label>
-                <% if (page == "home") { %>
+                <% if (page === "home") { %>
                     <label style="white-space: nowrap; cursor: pointer; border-radius: 0.5rem; padding: 0.1rem 0.5rem; font-family: Arial, Helvetica, sans-serif"
                            onclick="<% if (JSON.parse(alerts).lastUpdated.length) { %>showCard('#gradeChangesCardDisplay');<% } %>"
                            class="updateGradesMessage alert-info popup">
@@ -64,7 +63,7 @@
     </span>
     <div class="navbar-collapse collapse w-50" id="collapsingNav">
         <ul class="navbar-nav w-100 justify-content-end align-items-end ml-auto">
-            <% if (page == "home") { %>
+            <% if (page === "home") { %>
                 <li class="nav-item dropdown popup">
                     <a class="nav-link dropdown-toggle popup" href="#" id="navbarDropdown" role="button"
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -266,17 +265,9 @@
                 $.ajax({
                            type: "POST", url: $(form).attr("action"), data: formData, async: _async
                        }).done(function (response) {
-                    if (formID === ".weightedGPAForm") {
-                        appearance.weightedGPA = !appearance.weightedGPA;
-                        $(".weightedGPAForm button").each(function () {
-                            $(this).toggleClass("active");
-                            if ($(this).prop("type") === "submit") {
-                                $(this).prop("type", "button");
-                            } else {
-                                $(this).prop("type", "");
-                            }
-                        });
-                        setupGPADisplays();
+                    if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
+                        $(".session-timeout").show();
+                        $("body").find("*").not(".session-timeout").remove();
                         return;
                     }
                     if (response.gradeSyncEnabled) {
@@ -323,7 +314,7 @@
                     if (formID === "#changeSchoolEmail") {
                         schoolUsername = $("#school_email")[0].value;
                         updateNameDisplay(undefined, schoolUsername);
-                        $($("#school_email")[0].form).find('button').prop("disabled", true);
+                        $($("#school_email")[0].form).find("button").prop("disabled", true);
                     }
 
                     // Show the div.
@@ -348,7 +339,7 @@
                                 }, 500);
                             }
                         } else if (response === "Light theme enabled!") {
-                            let autoLimitsContainer = $('#auto-limits-container');
+                            let autoLimitsContainer = $("#auto-limits-container");
                             autoLimitsContainer.hide();
                             document.getElementsByName("theme")[0].setAttribute("checked", "checked");
                             let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
@@ -369,27 +360,29 @@
                         } else if (response.includes("sun")) {
                             theme = "sun";
                         } else if (response.slice(0, 15) === "Holiday effects") {
-                            appearance.holidayEffects = response.slice(16) === "enabled!"
+                            appearance.holidayEffects = response.slice(16) === "enabled!";
                         } else if (response.slice(0, 12) === "Blur effects") {
                             appearance.blurEffects = response.slice(13) === "enabled!";
                             if (!appearance.blurEffects) {
-                                $('#blur_base').prop('disabled', true);
-                                $('#blur_overrides').prop('disabled', true);
+                                $("#blur_base").prop("disabled", true);
+                                $("#blur_overrides").prop("disabled", true);
                             } else {
-                                $('#blur_base').prop('disabled', false);
-                                $('#blur_overrides').prop('disabled', false);
+                                $("#blur_base").prop("disabled", false);
+                                $("#blur_overrides").prop("disabled", false);
                             }
+                        } else if (response.startsWith("System")) {
+                            theme = "system";
                         } else {
                             theme = "auto";
-                            [darkModeStart, darkModeFinish] = response.split('from ')[1].slice(0, -1).split(' to ').map(time => Date.parse("0/" + time));
+                            [darkModeStart, darkModeFinish] = response.split("from ")[1].slice(0, -1).split(" to ").map(time => Date.parse("0/" + time));
                         }
-                        if (theme === "auto" || theme === "sun") {
+                        if (theme === "auto" || theme === "sun" || theme === "system") {
                             checkTime();
                         }
                         if (appearance.holidayEffects) {
                             init = performance.now();
-                            $('#lights-disabled-message').hide();
-                            $('#snow-disabled-message').hide();
+                            $("#lights-disabled-message").hide();
+                            $("#snow-disabled-message").hide();
                             $("#snow-fall").show();
                             $(".lightrope").show();
                             if (darkMode === false) {
@@ -471,7 +464,7 @@
         });
         $(id).fadeIn(100);
         if (id === "#settingsCardDisplay") {
-            $($("#school_email").val(schoolUsername)[0].form).find('button').prop("disabled", true);
+            $($("#school_email").val(schoolUsername)[0].form).find("button").prop("disabled", true);
             checkLabel($("#school_email"));
             openTab(currentSettingsTab);
             updateTutorialProgress();
@@ -513,18 +506,18 @@
             let themeRadioButtons = document.getElementsByName("theme");
             if (theme === "auto") {
                 themeRadioButtons[3].checked = true;
-                $('#auto-limits-container').show();
-                $('#sun-limits-container').hide();
+                $("#auto-limits-container").show();
+                $("#sun-limits-container").hide();
             } else if (theme === "sun") {
                 themeRadioButtons[2].checked = true;
-                $('#auto-limits-container').hide();
-                $('#sun-limits-container').show();
+                $("#auto-limits-container").hide();
+                $("#sun-limits-container").show();
             } else if (theme === "dark") {
                 themeRadioButtons[1].checked = true;
-                $('#auto-limits-container, #sun-limits-container').hide();
+                $("#auto-limits-container, #sun-limits-container").hide();
             } else if (theme === "light") {
                 themeRadioButtons[0].checked = true;
-                $('#auto-limits-container, #sun-limits-container').hide();
+                $("#auto-limits-container, #sun-limits-container").hide();
             }
         } catch (e) {
         }

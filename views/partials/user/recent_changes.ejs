@@ -169,7 +169,18 @@
             let actualTime = new Date(alerts.lastUpdated[i].timestamp).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
 
             let numChanges = 0;
-            modifiedClasses.forEach(c => numChanges += (classNames.indexOf(c) >= 0 ? (newAssignments[c] || []).length + (modifiedAssignments[c] || []).length + (removedAssignments[c] || []).length + (overallChanges[c] ? 1 : 0) : 0));
+            modifiedClasses.forEach(c => {
+                if (classNames.indexOf(c) >= 0) {
+                    let numNewChanges = (newAssignments[c] || []).length;
+                    let modifiedChanges = (modifiedAssignments[c] || []).length;
+                    let removedChanges = (removedAssignments[c] || []).length;
+                    let numAssignmentChanges = numNewChanges + modifiedChanges + removedChanges;
+                    if (numAssignmentChanges === 0) {
+                        numChanges += (overallChanges[c] ? 1 : 0);
+                    }
+                    numChanges += numAssignmentChanges;
+                }
+            });
             if (numChanges === 0) {
                 if (i === alerts.lastUpdated.length - 1) {
                     recentChangeText = " No Changes.";
@@ -330,6 +341,7 @@
             changeCard += `</div>`;
             container.append(changeCard);
         }
+
         if (show && recentChange || force) {
             showCard("#gradeChangesCardDisplay");
         }

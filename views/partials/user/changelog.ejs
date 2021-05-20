@@ -54,23 +54,31 @@
     let nextVersion;
     let previousVersion;
     let changelogArray;
+    let changelogContent = {};
     let changelogReferences;
     let onScreenVersion = "Known Issues";
 
-    function showChangelog() {
+    function showChangelog(callback = false) {
         $.ajax({
                    url: "/changelog", type: "GET", async: true
                }).done(function (response) {
-            let onScreenBeforeSetup = onScreenVersion;
-            if (cardsDisplayed.includes("changelogDisplay")) {
-                cardsDisplayed.splice(cardsDisplayed.indexOf("changelogDisplay"), 1);
+            if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
+                $(".session-timeout").show();
+                $("body").find("*").not(".session-timeout").remove();
+                return;
             }
-            cardsDisplayed.push("changelogDisplay");
-            $(".blurred-background").each(function () {
-                if (cardsDisplayed.includes($($(this).parent())[0].id)) {
-                    $(this).parent().css("z-index", cardsDisplayed.indexOf($($(this).parent())[0].id) + minCardZIndex);
+            let onScreenBeforeSetup = onScreenVersion;
+            if (!callback) {
+                if (cardsDisplayed.includes("changelogDisplay")) {
+                    cardsDisplayed.splice(cardsDisplayed.indexOf("changelogDisplay"), 1);
                 }
-            });
+                cardsDisplayed.push("changelogDisplay");
+                $(".blurred-background").each(function () {
+                    if (cardsDisplayed.includes($($(this).parent())[0].id)) {
+                        $(this).parent().css("z-index", cardsDisplayed.indexOf($($(this).parent())[0].id) + minCardZIndex);
+                    }
+                });
+            }
             changelogArray = response;
             changelogReferences = changelogArray.map(x => $(x));
             changelogContainer.html(changelogReferences);
@@ -81,6 +89,7 @@
                 for (let version of versions) {
                     versionNames.push($(version).find(".title")[0].innerText);
                     versionOffsets[versionNames.slice(-1)[0]] = $(version).offset().top - changelogContainer.offset().top;
+                    changelogContent[versionNames.slice(-1)[0]] = $(version).find(".content")[0].innerHTML;
                 }
                 scrollToNextStable(false);
                 scrollToPrevStable(false);
@@ -88,6 +97,9 @@
                 scrollToPrevAnnouncement(false);
                 stableVersionNames = versionNames.filter(n => n.substring(0, 6) === "Stable" || n === "Known Issues");
                 scrollToVersion(onScreenBeforeSetup, 0);
+                if (callback) {
+                    callback(versionNames);
+                }
             });
             let fixedIn = versions.find(".content").children(".body").children("strong");
             for (let i = 0; i < fixedIn.length; i++) {
@@ -96,7 +108,9 @@
                     scrollToVersion(link[0].innerText.substring(10, link[0].innerText.length - 1));
                 });
             }
-            $("#changelogDisplay").fadeIn(500);
+            if (!callback) {
+                $("#changelogDisplay").fadeIn(500);
+            }
         });
     }
 

@@ -85,6 +85,7 @@ def parse_class(local_class, raw_data):
         else:
             points_possible = False
         if len(_data["_assignmentscores"]) > 0:
+            exclude = exclude or (_data["_assignmentscores"][0]["isexempt"] == True)
             sort_date = _data["_assignmentscores"][0]["scoreentrydate"]
             sort_date = datetime.strptime(sort_date, "%Y-%m-%d %H:%M:%S").timestamp()
             if "scorepoints" in _data["_assignmentscores"][0]:
@@ -419,6 +420,11 @@ class PowerschoolScraper:
                 # Finally, check if it is actually a class grade link
                 # by checking the first five letters for "score"
                 if ((link.has_attr('class') and link['class'] == ['bold']) or link.text == '[ i ]') and link['href'][:5] == 'score':
+
+                    # make sure it's not a quarter
+                    semester = str(link['href']).split('&fg=')[1][:2]
+                    if semester.startswith("Q"):
+                        continue
 
                     assignments_link = link['href']
 

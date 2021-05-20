@@ -27,4 +27,8 @@
     #termSwitcher:hover::after {
         box-shadow: none;
     }
+
+    #notificationPanel::before {
+        box-shadow: inset 0 19px 38px rgba(0,0,0,0.30);
+    }
 }

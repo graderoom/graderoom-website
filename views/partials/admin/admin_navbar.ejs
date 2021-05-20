@@ -1,5 +1,5 @@
 <!-- Admin Nav Bar -->
-<nav class="navbar <% if (theme) { %>navbar-dark<% } else { %>navbar-light<% } %> navbar-expand-lg justify-content-center">
+<nav class="navbar <% if (theme === true) { %>navbar-dark<% } else if (theme === false) { %>navbar-light<% } %> navbar-expand-lg justify-content-center">
     <span class="d-flex w-50 mr-auto">
         <a href="/" class="navbar-brand">
             <h1>

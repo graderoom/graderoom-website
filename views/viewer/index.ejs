@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
     <% let theme; %>
-    <% let zeroTime = new Date("0/"); %>
+    <% let zeroTime = new Date(0); %>
     <% zeroTime.setHours(new Date().getHours()); %>
     <% zeroTime.setMinutes(new Date().getMinutes()); %>
     <% zeroTime = zeroTime.getTime(); %>
@@ -121,7 +121,7 @@
     let darkMode;
 
     function setAutoTheme() {
-        let zeroTime = new Date("0/");
+        let zeroTime = new Date(0);
         zeroTime.setHours(new Date().getHours());
         zeroTime.setMinutes(new Date().getMinutes());
         zeroTime = zeroTime.getTime();
