@@ -302,6 +302,7 @@
                             setupGradeChanges();
                             refreshWithoutReload(true);
                             setupLastUpdated();
+                            setTimeout(() => closeForm("updateGradesDisplay"), 250);
                         }
                     } else {
                         setTimeout(function () {
