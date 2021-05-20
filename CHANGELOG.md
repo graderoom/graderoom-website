@@ -47,7 +47,7 @@
 - To take advantage of this feature, you <b>MUST</b> have synced your grades for each class at least once this semester
 - What you <b>CAN</b> see:<ul type="circle">
 - Changes in assignment scores, categories, dates, and exclusions</ul>
-- What you <b>CANNOT<b> see:<ul type="circle">
+- What you <b>CANNOT</b> see:<ul type="circle">
 - Overall grade changes (There is no way for Graderoom to retrieve this information</ul>
 - <b>HOWEVER</b>, if your category weights are set correctly, the calculated grade is most likely correct.
 - Continue to request weight verification for courses that are either unverified or verified incorrectly<ul type="circle">
