@@ -42,6 +42,13 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 4.7.1] - 2021-05-20
+### Improved
+- Manual sync window now closes itself after a successful sync
+
+### Fixed
+- Issue with Locked Powerschool indicators not displaying correctly in sync log
+
 ## [Stable 4.7.0] - 2021-04-18
 ### Added
 - UC GPA details are now available under GPA Details

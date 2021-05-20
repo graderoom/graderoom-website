@@ -13,11 +13,12 @@ const readline = require("readline");
 const fs = require("fs");
 const SunCalc = require("suncalc");
 const md5 = require("md5");
+const path = require("path");
 
 const roundsToGenerateSalt = 10;
 
 // Change this when updateDB changes
-const dbUserVersion = 9;
+const dbUserVersion = 10;
 
 // Change this when updateAllDB changes
 const dbClassVersion = 2;
@@ -680,7 +681,32 @@ module.exports = {
             version = 9;
         }
 
-        // if (version === 9) {
+        if (version === 9) {
+            // Fix lastupdated ps_locked issue
+            let lastUpdated = userRef.get("alerts").get("lastUpdated").value();
+            let lastUpdatedRef = userRef.get("alerts").get("lastUpdated");
+            for (let i = 0; i < lastUpdated.length; i++) {
+                let cutoff = new Date(2021, 4, 20).getTime(); // May 20, 2021 is when grades locked in 2021
+                if (lastUpdated[i].timestamp < cutoff) {
+                    continue;
+                }
+                let changeData = lastUpdated[i].changeData;
+                let hasOverallChanges = Object.values(changeData.overall).filter(o => Object.keys(o).length > 1).length > 0;
+                if (!("overall" in changeData) || hasOverallChanges) {
+                    continue;
+                }
+                lastUpdatedRef.nth(i).get("changeData").set("overall", {}).write();
+                lastUpdatedRef.nth(i).set("ps_locked", true).write();
+            }
+
+
+            // Save update
+            console.log("Updated user to version 10");
+            userRef.set("version", 10).write();
+            version = 10;
+        }
+
+        // if (version === 10) {
         //     // Add notifications dict
         //     // userRef.set("notifications", {"Important": [], "Unread": [], "All": []}).write();
         //
@@ -696,9 +722,9 @@ module.exports = {
         //
         //
         //     // Save update
-        //     console.log("Updated user to version 10");
-        //     userRef.set("version", 10).write();
-        //     version = 10;
+        //     console.log("Updated user to version 11");
+        //     userRef.set("version", 11).write();
+        //     version = 11;
         // }
 
 
@@ -1397,6 +1423,7 @@ module.exports = {
                 let newClone = Object.assign({}, newGrades[index]);
                 delete newClone.grades;
                 delete newClone.class_name;
+                clone.ps_locked = newClone.ps_locked;
                 return [classData.class_name, Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v || k === "ps_locked"))];
             }).filter(data => Object.keys(data[1]).length));
         }
@@ -1603,7 +1630,6 @@ module.exports = {
 
             if (addSuggestion && teacherName) {
                 this.addWeightsSuggestion(username, term, semester, className, teacherName, hasWeights, weights);
-                console.log("ran");
             }
         }
 
@@ -1865,8 +1891,11 @@ module.exports = {
     watchChangelog: function () {
         let md5Previous = null;
         let fsWait = false;
-        fs.watch("CHANGELOG.md", (event, filename) => {
-            if (filename) {
+        let filePath = path.resolve("CHANGELOG.md");
+        let fileDir = path.dirname(filePath);
+        fs.statSync(fileDir);
+        fs.watch(fileDir, (event, filename) => {
+            if (filename === "CHANGELOG.md") {
                 if (fsWait) {
                     return;
                 }
