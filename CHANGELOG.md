@@ -42,6 +42,17 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Announcement 4.7.2] - 2021-05-20
+- <span class="changelog-inline-setoff">Friendly reminder that you can still sync your grades even though PowerSchool is locked!</span>
+- To take advantage of this feature, you <b>MUST</b> have synced your grades for each class at least once this semester
+- What you <b>CAN</b> see:<ul type="circle">
+- Changes in assignment scores, categories, dates, and exclusions</ul>
+- What you <b>CANNOT<b> see:<ul type="circle">
+- Overall grade changes (There is no way for Graderoom to retrieve this information</ul>
+- <b>HOWEVER</b>, if your category weights are set correctly, the calculated grade is most likely correct.
+- Continue to request weight verification for courses that are either unverified or verified incorrectly<ul type="circle">
+- These verifications are crowdsourced and not official, so they can sometimes be incorrect.</ul>
+
 ## [Stable 4.7.1] - 2021-05-20
 ### Improved
 - Manual sync window now closes itself after a successful sync
