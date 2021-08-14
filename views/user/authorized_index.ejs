@@ -18,7 +18,7 @@
         <% theme = false; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/light_mode.css">
     <% } else if (JSON.parse(appearance).theme === "auto" && (((JSON.parse(appearance).darkModeStart < JSON.parse(appearance).darkModeFinish) &&
-            ((zeroTime >= JSON.parse(appearance).darkModeStart) && (zeroTime < JSON.parse(appearance).darkModeFinish))) ||
+                    ((zeroTime >= JSON.parse(appearance).darkModeStart) && (zeroTime < JSON.parse(appearance).darkModeFinish))) ||
             ((JSON.parse(appearance).darkModeStart > JSON.parse(appearance).darkModeFinish) &&
                     ((zeroTime >= JSON.parse(appearance).darkModeStart) || (zeroTime < JSON.parse(appearance).darkModeFinish))))) { %>
         <% theme = true; %>
@@ -131,7 +131,8 @@
                     <div style="display: flex">
                         <div id="GPA-container">
                             <div id="showMaxGPA">
-                                <label style="display: flex; font-size: 1rem; justify-content: center; margin: 0; align-items: flex-start">Show Max GPA
+                                <label style="display: flex; font-size: 1rem; justify-content: center; margin: 0; align-items: flex-start">Show
+                                                                                                                                           Max GPA
                                     <label class="switch">
                                         <input style="margin: 0; display: flex"
                                                type="checkbox"
@@ -144,7 +145,8 @@
                                 </label>
                             </div>
                             <div class="weightGPA">
-                                <label style="display: flex; font-size: 1rem; justify-content: center; margin: 0; align-items: flex-start">Weighted GPA
+                                <label style="display: flex; font-size: 1rem; justify-content: center; margin: 0; align-items: flex-start">Weighted
+                                                                                                                                           GPA
                                     <label class="switch">
                                         <input style="margin: 0; display: flex"
                                                type="checkbox"
@@ -723,6 +725,32 @@
         </div>
     <!-- Custom JavaScript -->
         <script>
+            let enableLogging = <%= enableLogging ?? false %>;
+            // define a new console
+            var console = (function (oldCons) {
+                return {
+                    log: function (message, ...optionalParams) {
+                        if (enableLogging) {
+                            oldCons.log(message, ...optionalParams);
+                        }
+                    }, info: function (message, ...optionalParams) {
+                        if (enableLogging) {
+                            oldCons.info(message, ...optionalParams);
+                        }
+                    }, warn: function (message, ...optionalParams) {
+                        if (enableLogging) {
+                            oldCons.warn(message, ...optionalParams);
+                        }
+                    }, error: function (message, ...optionalParams) {
+                        if (enableLogging) {
+                            oldCons.error(message, ...optionalParams);
+                        }
+                    }
+                };
+            }(window.console));
+
+            //Then redefine the old console
+            window.console = console;
 
             let refreshing;
             let shortcutsEnabled = true;
@@ -1060,6 +1088,7 @@
             }
 
             async function checkUpdateBackground() {
+                return;
                 let time = 1000;
 
                 let checking = function () {
@@ -1100,8 +1129,8 @@
                                 }
                             } else if (message.message === "Did not sync") {
                                 $(".updateGradesMessage").find(".messageTxt").text("Syncing...");
-                                $("#syncGrades").css("cursor","context-menu");
-                                $("#syncGrades btn").addClass("disabled").css("pointer-events","none");
+                                $("#syncGrades").css("cursor", "context-menu");
+                                $("#syncGrades btn").addClass("disabled").css("pointer-events", "none");
                                 $(".fa-refresh").addClass("fa-spin").css("opacity", 0.5);
                                 setTimeout(checking, time);
                             } else if (message.message === "Cannot access grades.") {
@@ -2838,11 +2867,11 @@
                                 "<div class=\"overallGrade\">" + (Math.round(overallGrade * 100) / 100).toString() + "%" + "</div><div class=\"overallLetter\">" + overallLetter + "</div>" + delta;
                             document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML =
                                 _data[i].class_name + `<br>` + (Math.round(overallGrade * 100) / 100).toString() + "%" + ` (` + overallLetter + `)<span class="popup"><i id="incorrectOverviewGrade` +
-                                i + `"class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-top">Does not match calculated grade</span></i></span>`;
+                                i + `" class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-top">Does not match calculated grade</span></i></span>`;
                         } else {
                             document.getElementById("overviewChart" + i).innerHTML = "N/A";
                             document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>N/A<span class="popup"><i id="incorrectOverviewGrade` + i +
-                                `"class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-top">Does not match calculated grade</span></i></span>`;
+                                `" class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-top">Does not match calculated grade</span></i></span>`;
                         }
                     }
                 }
@@ -2884,7 +2913,7 @@
                     }
                 }
                 if (Object.keys(edited).length === 0) {
-                    delete edited;
+                    delete _editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
                 }
             }
 

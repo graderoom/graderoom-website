@@ -2,7 +2,7 @@
 
 </div>
 <div id="notificationPanel" class="blur">
-    <h3>Notifications</h3>
+    <h3><i class="fa fa-bell"></i> Notifications</h3>
     <div id="dismissed-notifications">
         <div class="divider">Important</div>
         <hr>
@@ -12,19 +12,19 @@
         <hr>
         <div id="unread-notifications">
         </div>
-        <div class="divider">All</div>
+        <div class="divider">Dismissed</div>
         <hr>
-        <div id="all-notifications">
+        <div id="dismissed-notifications">
         </div>
     </div>
 </div>
 
 <script>
-    let notifications = {"Important": [], "Unread": [], "All": []};
+    let notifications = {important: [], unread: [], dismissed: []};
 
     function setupNotificationPanel() {
         showChangelog(createChangelogNotifications);
-        let numNotifications = notifications["Unread"].length;
+        let numNotifications = notifications.unread.length;
         document.getElementById("notificationPanel").setAttribute("count", numNotifications ? numNotifications : "");
     }
 
@@ -42,14 +42,14 @@
     }
 
     function createImportant(id, type, title, message, date) {
-        notifications["Important"].push({id: id, timestamp: date, notification: createNotification(type, title, message, false, true, true), read: false});
+        notifications.important.push({id: id, timestamp: date, notification: createNotification(type, title, message, false, true, true), read: false});
     }
 
     function createUnread(id, type, title, message, date) {
-        notifications["Unread"].push({id: id, timestamp: date, notification: createNotification(type, title, message, true, true, false), read: false});
+        notifications.unread.push({id: id, timestamp: date, notification: createNotification(type, title, message, true, true, false), read: false});
     }
 
-    function createNotification(type, title, message, readable = true, pinnable = false, pinned = false) {
+    function createNotification(type, title, message, dismissible = true, dismissed = false, pinnable = false, pinned = false) {
         let _type = type.toLowerCase();
         let notification = document.createElement("div");
         notification.classList.add("notification-card", _type);
@@ -76,10 +76,15 @@
 
         body.appendChild(_message);
 
-        if (readable) {
+        if (dismissible) {
             let closeBtn = document.createElement("span");
-            closeBtn.classList.add("notification-close");
-            closeBtn.setAttribute("title", "Dismiss");
+            if (dismissed) {
+                closeBtn.classList.add("notification-undismiss");
+                closeBtn.setAttribute("title", "Un-Dismiss");
+            } else {
+                closeBtn.classList.add("notification-dismiss");
+                closeBtn.setAttribute("title", "Dismiss");
+            }
             body.appendChild(closeBtn);
         }
 

@@ -219,7 +219,7 @@
     function ajaxPostForm(formID, fieldIDsToClear, messagesDivID, _async, doInstantly = false) {
         // Get the form.
         let form = $(formID);
-        $(form).submit(function (event) {
+        $(form).on("submit", function (event) {
             event.preventDefault();
             event.stopImmediatePropagation();
 
@@ -253,7 +253,7 @@
                 }
 
                 if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
-                    $("#updateGradesDisplay input").blur();
+                    $("#updateGradesDisplay input").trigger('blur');
                     shortcutsEnabled = false;
                     $("#loadingDisplay").show();
                     $(".syncFailure").hide();

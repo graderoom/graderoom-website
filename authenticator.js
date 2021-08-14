@@ -14,11 +14,13 @@ const fs = require("fs");
 const SunCalc = require("suncalc");
 const md5 = require("md5");
 const path = require("path");
+const stream = require("stream");
+const {userExists} = require("./authenticator");
 
 const roundsToGenerateSalt = 10;
 
 // Change this when updateDB changes
-const dbUserVersion = 10;
+const dbUserVersion = 13;
 
 // Change this when updateAllDB changes
 const dbClassVersion = 2;
@@ -309,6 +311,12 @@ module.exports = {
             userRef.set("version", 0).write();
         }
         let version = userRef.get("version").value();
+
+        function saveUpdate(_version) {
+            userRef.set("version", _version).write();
+            console.log("Updated user to version " + _version);
+        }
+
         if (version === 0) {
 
             // Update change data with ps_locked
@@ -477,10 +485,7 @@ module.exports = {
             }
 
             // Save update
-            console.log("Updated user to version 1");
-            userRef.set("version", 1).write();
-            version = 1;
-
+            saveUpdate(version++);
         }
 
         if (version === 1) {
@@ -503,9 +508,7 @@ module.exports = {
             }
 
             // Save update
-            console.log("Updated user to version 2");
-            userRef.set("version", 2).write();
-            version = 2;
+            saveUpdate(version++);
         }
 
         if (version === 2) {
@@ -521,9 +524,7 @@ module.exports = {
 
 
             // Save update
-            console.log("Updated user to version 3");
-            userRef.set("version", 3).write();
-            version = 3;
+            saveUpdate(version++);
         }
 
         if (version === 3) {
@@ -560,9 +561,7 @@ module.exports = {
             }
 
             // Save update
-            console.log("Updated user to version 4");
-            userRef.set("version", 4).write();
-            version = 4;
+            saveUpdate(version++);
         }
 
         if (version === 4) {
@@ -581,9 +580,7 @@ module.exports = {
 
 
             // Save update
-            console.log("Updated user to version 5");
-            userRef.set("version", 5).write();
-            version = 5;
+            saveUpdate(version++);
         }
 
         if (version === 5) {
@@ -604,9 +601,7 @@ module.exports = {
 
 
             // Save update
-            console.log("Updated user to version 6");
-            userRef.set("version", 6).write();
-            version = 6;
+            saveUpdate(version++);
         }
 
         if (version === 6) {
@@ -627,9 +622,7 @@ module.exports = {
 
 
             // Save update
-            console.log("Updated user to version 7");
-            userRef.set("version", 7).write();
-            version = 7;
+            saveUpdate(version++);
         }
 
         if (version === 7) {
@@ -650,9 +643,7 @@ module.exports = {
 
 
             // Save update
-            console.log("Updated user to version 8");
-            userRef.set("version", 8).write();
-            version = 8;
+            saveUpdate(version++);
         }
 
         if (version === 8) {
@@ -676,9 +667,7 @@ module.exports = {
 
 
             // Save update
-            console.log("Updated user to version 9");
-            userRef.set("version", 9).write();
-            version = 9;
+            saveUpdate(version++);
         }
 
         if (version === 9) {
@@ -701,31 +690,59 @@ module.exports = {
 
 
             // Save update
-            console.log("Updated user to version 10");
-            userRef.set("version", 10).write();
-            version = 10;
+            saveUpdate(version++);
         }
 
-        // if (version === 10) {
-        //     // Add notifications dict
-        //     // userRef.set("notifications", {"Important": [], "Unread": [], "All": []}).write();
-        //
-        //     // Notification format in backend (for reference)
-        //     // {
-        //     //     "type": "announcement"/"stable"/"beta"/"sync"/"empty-sync"/"error"
-        //     //     "id": For changelog stuff, the version code, for everything else, the timestamp doubles as an id
-        //     //     "timestamp": ,
-        //     //     "read": false/true
-        //     // }
-        //
-        //     // Add all changelog notifications and read them until changeloglastseen
-        //
-        //
-        //     // Save update
-        //     console.log("Updated user to version 11");
-        //     userRef.set("version", 11).write();
-        //     version = 11;
-        // }
+        if (version === 10) {
+            // Add notifications dict
+            userRef.set("notifications", {
+                important: [buildStarterNotification(Date.now())], unread: [], dismissed: []
+            }).write();
+
+            // Save update
+            saveUpdate(version++);
+        }
+
+        if (version === 11) {
+            // Fix SS2021
+            let grades = user.grades;
+            let weights = user.weights;
+            let added = user.addedAssignments;
+            let edited = user.editedAssignments;
+
+            let gradesRef = userRef.get("grades");
+            let weightsRef = userRef.get("weights");
+            let addedRef = userRef.get("addedAssignments");
+            let editedRef = userRef.get("editedAssignments");
+
+            let badObjects = [[grades, gradesRef], [weights, weightsRef], [added, addedRef], [edited, editedRef]];
+
+            for (let [object, ref] of badObjects) {
+                for (let key in object) {
+                    if (key.startsWith("SS")) {
+                        let S3;
+                        if ("S1" in object[key]) {
+                            S3 = object[key]["S1"];
+                        }
+                        let start_year = parseInt(key.substring(4)) - 1;
+                        let end_year = start_year + 1;
+                        let real_key = start_year + "-" + end_year;
+                        ref.get(real_key).set("S3", S3).write();
+                        ref.unset(key).write();
+                    }
+                }
+            }
+            // Save update
+            saveUpdate(version++);
+        }
+
+        if (version === 12) {
+            // Add logging var
+            userRef.set("enableLogging", false).write();
+
+            // Save update
+            saveUpdate(version++);
+        }
 
 
         /** Stuff that happens no matter what */
@@ -1080,6 +1097,7 @@ module.exports = {
             let {firstName, lastName, graduationYear} = getPersonalInfo(schoolUsername);
 
             bcrypt.hash(password, roundsToGenerateSalt, function (err, hash) {
+                let now = Date.now();
                 db.get("users").push({
                                          version: dbUserVersion,
                                          username: lc_username,
@@ -1112,7 +1130,10 @@ module.exports = {
                                              policyLastSeen: "never",
                                              termsLastSeen: "never",
                                              remoteAccess: "denied",
-                                             tutorialStatus: Object.fromEntries(tutorialKeys.map(k => [k, false]))
+                                             tutorialStatus: Object.fromEntries(tutorialKeys.map(k => [k, false])),
+                                             notifications: {
+                                                 important: [buildStarterNotification(now)], unread: [], dismissed: []
+                                             }
                                          },
                                          weights: {},
                                          grades: {},
@@ -1122,7 +1143,8 @@ module.exports = {
                                          sortingData: {
                                              dateSort: [], categorySort: []
                                          },
-                                         loggedIn: []
+                                         loggedIn: [now],
+                                         enableLogging: false
                                      }).write();
 
                 return resolve({success: true, message: "User Created"});
@@ -1351,24 +1373,7 @@ module.exports = {
     },
 
     updateGradesBackground: function (acc_username, school_password) {
-        let lc_username = acc_username.toLowerCase();
-        let user = db.get("users").find({username: lc_username});
-        user.set("updatedInBackground", "updating").write();
-        this.updateGrades(acc_username, school_password).then(async (resp) => {
-            lc_username = acc_username.toLowerCase();
-            user = db.get("users").find({username: lc_username});
-            if (resp.updateHistory) {
-                user.set("updatedInBackground", "history").write();
-                resp = await this.updateGradeHistory(acc_username, school_password);
-            }
-            if (resp.success) {
-                user.set("updatedInBackground", "complete").write();
-            } else if (resp.message === "No class data.") {
-                user.set("updatedInBackground", "no data").write();
-            } else {
-                user.set("updatedInBackground", "failed").write();
-            }
-        });
+
     },
 
     updateGrades: async function (acc_username, school_password) {
@@ -1384,86 +1389,90 @@ module.exports = {
             term_data_if_locked = "";
         }
 
-        let grade_update_status = await scraper.loginAndScrapeGrades(userRef.value().schoolUsername, school_password, data_if_locked, term_data_if_locked);
-        if (!grade_update_status.success) {
-            //error updating grades
-            this.resetSortData(lc_username);
-            return Object.assign({}, grade_update_status, {updateHistory: true});
-        }
+        let _stream = new stream.Readable({objectMode: true, read: () => {}});
 
-        let newTerm = Object.keys(grade_update_status.new_grades)[0];
-        let newSemester = Object.keys(grade_update_status.new_grades[newTerm])[0];
-        if (!(newTerm in userRef.get("grades").value())) {
-            userRef.get("grades").set(newTerm, {}).write();
-        }
-        let oldGrades = userRef.get("grades").get(newTerm).get(newSemester).value();
-        let oldPSAIDs = [];
-        if (oldGrades) {
-            oldPSAIDs = oldGrades.map(x => x.grades.map(y => y.psaid)).filter(id => !!id); // Remove undefined (before
-                                                                                           // we scraped psaids)
-        }
-        let newGrades = grade_update_status.new_grades[newTerm][newSemester];
-        let newPSAIDs = newGrades.map(x => x.grades.map(y => y.psaid));
-        let add = newPSAIDs.length - oldPSAIDs.length;
-        for (let i = 0; i < add; i++) {
-            oldPSAIDs.push([]);
-        }
-        let added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [newGrades[index].class_name, newPSAIDs[index]]).filter(data => data[1].length));
-        let modified = {};
-        let removed = {};
-        let overall = {};
-        if (oldGrades) {
-            added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [newGrades[index].class_name, newPSAIDs[index].filter(psaid => !oldPSAIDs[index].includes(psaid))]).filter(data => data[1].length));
-            modified = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => newPSAIDs[index].includes(assignmentData.psaid) && !_.isEqual(assignmentData, newGrades[index].grades.find(assignment => assignment.psaid === assignmentData.psaid)))]).filter(data => data[1].length));
-            removed = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => assignmentData.psaid && !newPSAIDs[index].includes(assignmentData.psaid))]).filter(data => data[1].length));
-            overall = Object.fromEntries(oldGrades.map((classData, index) => {
-                let clone = Object.assign({}, classData);
-                delete clone.grades;
-                delete clone.class_name;
-                let newClone = Object.assign({}, newGrades[index]);
-                delete newClone.grades;
-                delete newClone.class_name;
-                clone.ps_locked = newClone.ps_locked;
-                return [classData.class_name, Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v || k === "ps_locked"))];
-            }).filter(data => Object.keys(data[1]).length));
-        }
-        let ps_locked = Object.values(overall).filter(o => o.ps_locked === true).length !== 0;
-        if (ps_locked) {
-            overall = {}; // It's not possible to get this data when PowerSchool is locked
-        } else {
-            for (let i = 0; i < Object.keys(overall).length; i++) {
-                delete overall[Object.keys(overall)[i]].ps_locked;
-                if (!Object.keys(overall[Object.keys(overall)[i]]).length) {
-                    delete overall[Object.keys(overall)[i--]];
-                }
-            }
-        }
-        let changeData = {
-            added: added, modified: modified, removed: removed, overall: overall
-        };
-        userRef.get("grades").get(newTerm).set(newSemester, newGrades).write();
-        this.initAddedAssignments(lc_username);
-        this.initWeights(lc_username);
-        this.initEditedAssignments(lc_username);
-        this.bringUpToDate(lc_username);
-        let updateHistory = false;
-        if ((newTerm !== oldTerm || newSemester !== oldSemester) || !userRef.get("updatedGradeHistory").value().length || userRef.get("updatedGradeHistory").value().slice(-1)[0] < new Date(2021, 0, 11).getTime()) {
-            this.resetSortData(lc_username);
-            updateHistory = true;
-        }
+        await scraper.loginAndScrapeGrades(_stream, userRef.value().schoolUsername, school_password, data_if_locked, term_data_if_locked);
 
-        let time = Date.now();
-        userRef.get("alerts").get("lastUpdated").push({
-                                                          timestamp: time, changeData: changeData, ps_locked: ps_locked
-                                                      }).write();
-        userRef.set("updatedInBackground", "already done").write();
-        return {
-            success: true,
-            message: "Updated grades!",
-            grades: grade_update_status.new_grades,
-            updateHistory: updateHistory,
-            updateData: {timestamp: time, changeData: changeData}
-        };
+        _stream.on('data', (data) => console.log(data));
+        // if (!grade_update_status.success) {
+        //     //error updating grades
+        //     this.resetSortData(lc_username);
+        //     return Object.assign({}, grade_update_status);
+        // }
+        //
+        // let newTerm = Object.keys(grade_update_status.new_grades)[0];
+        // let newSemester = Object.keys(grade_update_status.new_grades[newTerm])[0];
+        // if (!(newTerm in userRef.get("grades").value())) {
+        //     userRef.get("grades").set(newTerm, {}).write();
+        // }
+        // let oldGrades = userRef.get("grades").get(newTerm).get(newSemester).value();
+        // let oldPSAIDs = [];
+        // if (oldGrades) {
+        //     oldPSAIDs = oldGrades.map(x => x.grades.map(y => y.psaid)).filter(id => !!id); // Remove undefined (before
+        //                                                                                    // we scraped psaids)
+        // }
+        // let newGrades = grade_update_status.new_grades[newTerm][newSemester];
+        // let newPSAIDs = newGrades.map(x => x.grades.map(y => y.psaid));
+        // let add = newPSAIDs.length - oldPSAIDs.length;
+        // for (let i = 0; i < add; i++) {
+        //     oldPSAIDs.push([]);
+        // }
+        // let added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [newGrades[index].class_name, newPSAIDs[index]]).filter(data => data[1].length));
+        // let modified = {};
+        // let removed = {};
+        // let overall = {};
+        // if (oldGrades) {
+        //     added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [newGrades[index].class_name, newPSAIDs[index].filter(psaid => !oldPSAIDs[index].includes(psaid))]).filter(data => data[1].length));
+        //     modified = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => newPSAIDs[index].includes(assignmentData.psaid) && !_.isEqual(assignmentData, newGrades[index].grades.find(assignment => assignment.psaid === assignmentData.psaid)))]).filter(data => data[1].length));
+        //     removed = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => assignmentData.psaid && !newPSAIDs[index].includes(assignmentData.psaid))]).filter(data => data[1].length));
+        //     overall = Object.fromEntries(oldGrades.map((classData, index) => {
+        //         let clone = Object.assign({}, classData);
+        //         delete clone.grades;
+        //         delete clone.class_name;
+        //         let newClone = Object.assign({}, newGrades[index]);
+        //         delete newClone.grades;
+        //         delete newClone.class_name;
+        //         clone.ps_locked = newClone.ps_locked;
+        //         return [classData.class_name, Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v || k === "ps_locked"))];
+        //     }).filter(data => Object.keys(data[1]).length));
+        // }
+        // let ps_locked = Object.values(overall).filter(o => o.ps_locked === true).length !== 0;
+        // if (ps_locked) {
+        //     overall = {}; // It's not possible to get this data when PowerSchool is locked
+        // } else {
+        //     for (let i = 0; i < Object.keys(overall).length; i++) {
+        //         delete overall[Object.keys(overall)[i]].ps_locked;
+        //         if (!Object.keys(overall[Object.keys(overall)[i]]).length) {
+        //             delete overall[Object.keys(overall)[i--]];
+        //         }
+        //     }
+        // }
+        // let changeData = {
+        //     added: added, modified: modified, removed: removed, overall: overall
+        // };
+        // userRef.get("grades").get(newTerm).set(newSemester, newGrades).write();
+        // this.initAddedAssignments(lc_username);
+        // this.initWeights(lc_username);
+        // this.initEditedAssignments(lc_username);
+        // this.bringUpToDate(lc_username);
+        // let updateHistory = false;
+        // if ((newTerm !== oldTerm || newSemester !== oldSemester) || !userRef.get("updatedGradeHistory").value().length || userRef.get("updatedGradeHistory").value().slice(-1)[0] < new Date(2021, 0, 11).getTime()) {
+        //     this.resetSortData(lc_username);
+        //     updateHistory = true;
+        // }
+        //
+        // let time = Date.now();
+        // userRef.get("alerts").get("lastUpdated").push({
+        //                                                   timestamp: time, changeData: changeData, ps_locked: ps_locked
+        //                                               }).write();
+        // userRef.set("updatedInBackground", "already done").write();
+        // return {
+        //     success: true,
+        //     message: "Updated grades!",
+        //     grades: grade_update_status.new_grades,
+        //     updateHistory: updateHistory,
+        //     updateData: {timestamp: time, changeData: changeData}
+        // };
     },
 
     addDbClass: function (term, semester, className, teacherName) {
@@ -2189,6 +2198,14 @@ module.exports = {
         let sunrise = new Date("0/" + times.sunrise.getHours() + ":" + times.sunrise.getMinutes());
         let sunset = new Date("0/" + times.sunset.getHours() + ":" + times.sunset.getMinutes());
         return {sunrise: sunrise, sunset: sunset};
+    },
+
+    setLogging: function (username, value) {
+        if (!userExists(username)) return {success: false, message: "Invalid user"};
+        let user = db.get("users").find({username: username.toLowerCase()});
+        if (typeof value != "boolean") return {success: false, message: "Invalid value"};
+        user.set("enableLogging", value).write();
+        return {success: true, message: "Logging " + (value ? "enabled" : "disabled") + "!"};
     }
 
 };
@@ -2349,4 +2366,21 @@ function makeKey(length) {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
+}
+
+function buildStarterNotification(now) {
+    return {
+        type: "announcement",
+        title: "Welcome to your Notification Center",
+        message: "All future notifications will be found here. You can configure this area however you'd like, using the notification settings accessible from the top right of this panel.",
+        dismissible: true,
+        dismissed: false,
+        pinnable: true,
+        pinned: true,
+        createdDate: [now],
+        dismissedDates: [],
+        pinnedDates: [now],
+        unDismissedDates: [],
+        unPinnedDates: []
+    };
 }

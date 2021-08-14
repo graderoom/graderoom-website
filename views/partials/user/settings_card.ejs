@@ -557,6 +557,26 @@
                 <div class="card-body">
                     <div class="card-footer">
                         <h5>Troubleshooting</h5>
+                        <label style="display: flex; font-size: 1rem; justify-content: flex-start; align-items: center">
+                                <label class="switch">
+                                    <input
+                                            id="enableLoggingToggle"
+                                            style="margin: 0; display: flex"
+                                            type="checkbox"
+                                            name="remoteAccess"
+                                    <% if (enableLogging) { %>
+                                            checked
+                                            <% } %>
+                                            onchange="ajaxPostForm('#enableLogging',[],'',true); $('#remoteAccess').trigger('submit');"
+                                    >
+                                    <span class="slider"></span>
+                                </label>
+                                <label style="margin: 0 0 0 1rem; justify-content: center; align-items: center; cursor: pointer"
+                                       onclick="$('#enableLoggingToggle').trigger('click')">Show Logs in Console<span
+                                            class="popup"><i class="fa fa-question-circle"
+                                                             style="margin-left: 0.4rem"><span
+                                                    class="popup-right-top">Shows logs in console for debugging purposes</span></i></span></label>
+                            </label>
                         <form id="remoteAccess" class="form-signin" action="/setRemoteAccess" method="post">
                             <label style="display: flex; font-size: 1rem; justify-content: flex-start; align-items: center">
                                 <label class="switch">

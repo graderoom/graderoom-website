@@ -21,6 +21,10 @@ def json_format(success, message_or_grades):
     return json.dumps({'success': False, 'message': message_or_grades})
 
 
+def status(progress, message):
+    return json.dumps({'progress': progress, 'message': message})
+
+
 class ClassGrade:
     """Contains information and assignments for a PowerSchool class
 
@@ -136,14 +140,35 @@ class PowerschoolScraper:
     then prints it in a JSON format.
 
     Attributes:
-        email: string
-        password: string
         session: requests session object
+        _progress: number
+        _message: string
     """
 
     def __init__(self):
         """Inits with a session"""
         self.session = requests.Session()
+        self._progress = 0
+        self._message = ""
+        print(status(self._progress, self._message))
+
+    @property
+    def progress(self):
+        return self._progress
+
+    @property
+    def message(self):
+        return self._message
+
+    @progress.setter
+    def progress(self, value):
+        self._progress = value
+        print(status(self._progress, self._message))
+
+    @message.setter
+    def message(self, value):
+        self._message = value
+        print(status(self._progress, self._message))
 
     @staticmethod
     def clean_string(s):
@@ -243,12 +268,15 @@ class PowerschoolScraper:
         }
 
         # First request
+        self.message = "Logging in"
         url = "https://powerschool.bcp.org/guardian/home.html"
         resp = self.session.get(url, headers=headers_1, timeout=10)
         soup = BS(resp.text, "html.parser")
         samlr = soup.find("input", {'name': 'SAMLRequest'}).get('value')
+        self.progress = 5
 
         # Second request
+        self.message = "Logging in."
         url = "https://federation.bcp.org/idp/SSO.saml2"
         data = {
             'RelayState': "/guardian/home.html",
@@ -257,8 +285,10 @@ class PowerschoolScraper:
         resp = self.session.post(url, data=data, headers=headers_2, timeout=10)
         soup = BS(resp.text, "html.parser")
         dynamic_url = soup.find("form", id='ping-login-form').get('action')
+        self.progress = 10
 
         # Third request
+        self.message = "Logging in.."
         dynamic_url = "https://federation.bcp.org" + dynamic_url
         data = {
             'pf.ok': '',
@@ -269,14 +299,18 @@ class PowerschoolScraper:
         resp = self.session.post(dynamic_url, data=data, headers=headers_3,
                                  timeout=10)
         soup = BS(resp.text, "html.parser")
+        self.progress = 15
 
         # If no response, authentication failed (incorrect login)
         samlr = soup.find("input", {'name': 'SAMLResponse'})
         if samlr is None:
+            self.progress = 0
+            self.message = "Login failed."
             print(json_format(False, "Incorrect login details."))
             sys.exit()
 
         # Fourth request
+        self.message = "Logging in..."
         url = 'https://powerschool.bcp.org:443/saml/SSO/alias/pslive'
         samlr = samlr.get('value')
         headers_4['Referer'] = dynamic_url
@@ -289,22 +323,37 @@ class PowerschoolScraper:
         jsession = self.session.cookies.get_dict()['JSESSIONID']
         headers_4['Cookie'] = "JSESSIONID=" + jsession
         resp = self.session.post(url, data=data, headers=headers_4, timeout=10)
+        self.progress = 20
 
         # Check if PowerSchool is locked
         url = 'https://powerschool.bcp.org/guardian/home.html'
         resp = self.session.get(url, timeout=10)
         soup_resp = BS(resp.text, "html.parser")
         table = soup_resp.find("table")
-        rows = list(filter(lambda l: len(l) > 0, list(map(lambda row: list(filter(lambda link: link['href'][:5] == 'score', row.find_all("a"))), table.find_all("tr",class_='center')))))
-        if not table or len(rows) == 0:
-            if (len(list(filter(lambda d: "student_id" in d and "section_id" in d, data_if_locked))) == len(data_if_locked)
-                    and "term" in term_data_if_locked and "semester" in term_data_if_locked):
-                # Scrape locked powerschool with given data
-                return False
-            else:
-                print(json_format(False, "PowerSchool is locked."))
-                sys.exit()
+        self.progress = 25
 
+        if table:
+            self.message = "Logged in!"
+            self.message = "Checking if PowerSchool is locked..."
+            self.progress = 30
+            rows = list(filter(lambda l: len(l) > 0, list(map(lambda row: list(filter(lambda link: link['href'][:5] == 'score', row.find_all("a"))), table.find_all("tr",class_='center')))))
+            if len(rows) == 0:
+                self.message = "PowerSchool is locked."
+                if (len(list(filter(lambda d: "student_id" in d and "section_id" in d, data_if_locked))) == len(data_if_locked)
+                        and "term" in term_data_if_locked and "semester" in term_data_if_locked):
+                    # Scrape locked powerschool with given data
+                    self.message = "Getting data from locked PowerSchool..."
+                    return False
+                else:
+                    self.progress = 0
+                    self.message = "PowerSchool is locked."
+                    sys.exit()
+        else:
+            self.progress = 0
+            self.message = "Login failed."
+            sys.exit()
+
+        self.progress = 30
         return True
 
     def get_history(self):
@@ -459,6 +508,11 @@ class PowerschoolScraper:
         table_cells = main_table.find_all("td")
         term = table_cells[1].text
         semester = table_cells[2].text
+        if term.startswith("SS"):
+            semester = "S0"
+            start_year = int(term[4:]) - 1
+            end_year = start_year + 1
+            term = str(start_year) + "-" + str(end_year)
         semester = "S3" if semester == "S0" else semester
 
         if term is None or semester is None:

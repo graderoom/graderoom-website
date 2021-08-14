@@ -73,7 +73,8 @@ module.exports = function (app, passport) {
                     termsAndSemesters: JSON.stringify(Object.keys(req.user.grades).map(x => [x, Object.keys(req.user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
                     _: _,
                     sunset: sunset,
-                    sunrise: sunrise
+                    sunrise: sunrise,
+                    enableLogging: req.user.enableLogging,
                 });
             } else {
                 res.render("user/authorized_index.ejs", {
@@ -100,7 +101,8 @@ module.exports = function (app, passport) {
                     termsAndSemesters: JSON.stringify([]),
                     _: _,
                     sunset: sunset,
-                    sunrise: sunrise
+                    sunrise: sunrise,
+                    enableLogging: req.user.enableLogging,
                 });
             }
             return;
@@ -207,7 +209,8 @@ module.exports = function (app, passport) {
                     termsAndSemesters: JSON.stringify(Object.keys(user.grades).map(x => [x, Object.keys(user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
                     sunset: sunset,
                     sunrise: sunrise,
-                    _: _
+                    _: _,
+                    enableLogging: true,
                 });
             } else {
                 res.render("user/authorized_index.ejs", {
@@ -234,7 +237,8 @@ module.exports = function (app, passport) {
                     termsAndSemesters: JSON.stringify([]),
                     sunset: sunset,
                     sunrise: sunrise,
-                    _: _
+                    _: _,
+                    enableLogging: true,
                 });
             }
             return;
@@ -1065,6 +1069,7 @@ module.exports = function (app, passport) {
     /** End api stuff */
 
     // general web app
+
     app.get("/*", (req, res) => {
         req.session.returnTo = req.originalUrl;
         res.redirect("/");
