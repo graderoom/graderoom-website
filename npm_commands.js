@@ -5,6 +5,7 @@ const adapter = new FileSync("credentials.json");
 const credentials = low(adapter);
 const authenticator = require("./authenticator");
 const _ = require("lodash");
+const stream = require("stream");
 
 
 credentials.defaults({"graderoom_username": "", "school_username": "", "password": "", "get_history": false}).write();
@@ -35,10 +36,13 @@ module.exports = {
         }
 
         let get_history = credentials.get("get_history").value();
-        let resp = await scraper.loginAndScrapeGrades(school_username, password, data_if_locked, term_data_if_locked, get_history);
-        console.log(resp);
-        console.log(resp.new_grades);
-        console.log(Object.values(resp.new_grades)[0]);
+
+        let _stream = new stream.Readable({objectMode: true, read: () => {}});
+
+        _stream.on('data', (data) => console.log(data));
+
+        await scraper.loginAndScrapeGrades(_stream, school_username, password, data_if_locked, term_data_if_locked, get_history);
+
     },
 
     purge_db: function () {

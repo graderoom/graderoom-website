@@ -53,7 +53,8 @@ if (!dbConn.userExists(ADMIN_USERNAME)) {
 
 // required for passport
 let RedisStore = require("connect-redis")(session);
-let redisClient = redis.createClient();
+let redisPort = httpPort + 383; // 6379 for stable, 6381 for beta
+let redisClient = redis.createClient({port: redisPort});
 let store = new RedisStore({client: redisClient});
 app.use(session({
     store: store,
@@ -87,6 +88,7 @@ io.use(passportSocketIo.authorize({
     store: store,
                                                    }));
 require("./sockets").sockets(io);
+require("./socketManager").setIo(io);
 httpServer.listen(httpPort, () => {
     if (process.platform === "win32") { // If on windows print ip for testing mobile app locally (mac ppl can comment this out when test)
         "use strict";

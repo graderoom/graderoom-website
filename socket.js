@@ -1,31 +1,31 @@
 const authenticator = require("./authenticator");
-
 module.exports = {
-    setup: function (socket, purpose) {
+    setupSocket: function (socket, purpose) {
+        purpose = purpose.toLowerCase(); // Just in case
         switch (purpose) {
-            case "MAIN":
+            case "main":
                 socket.on("settings-change", (data) => {
                     let keys = Object.keys(data);
-                    keys.forEach((key) => {
+                    for (let key of keys) {
                         let value = data[key];
                         let resp;
-                        switch(key) {
+                        switch (key) {
                             case "enableLogging":
-                                resp = authenticator.setLogging(socket.request.user.username, value);
+                                resp = authenticator.setEnableLogging(socket.request.user.username, value);
                                 break;
                         }
                         if (resp.success) {
-                            socket.emit("settings-change-success", resp.message);
+                            socket.emit("success-settingschange", resp);
                         } else {
-                            socket.emit("settings-change-failure", resp.message);
+                            socket.emit("fail-settingschange", resp);
                         }
-                    });
+                    }
                 });
                 break;
-            case "SYNC":
-
-            case "NOTI":
-
+            case "sync":
+                break;
+            case "noti":
+                break;
         }
-    }
+    },
 }

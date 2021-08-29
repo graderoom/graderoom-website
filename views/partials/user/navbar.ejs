@@ -35,7 +35,8 @@
                 <h5 style="padding-top: 0; white-space: nowrap;<% if (page != "home") { %> cursor: default; <% } %> "
                     onclick="<% if (page === "home") { %>showCard('#settingsCardDisplay'); openTab(2) <% } %>"><%= username; %></h5>
                 <label id="nameDisplay"
-                       style="white-space: nowrap;<% if (page === "home") { %> cursor: pointer; <% } %> margin: 0; display: block"><%= JSON.parse(personalInfo).firstName; %> <%= JSON.parse(personalInfo).lastName; %>
+                       style="white-space: nowrap;<% if (page ===
+                               "home") { %> cursor: pointer; <% } %> margin: 0; display: block"><%= JSON.parse(personalInfo).firstName; %> <%= JSON.parse(personalInfo).lastName; %>
                     '<%= JSON.parse(personalInfo).graduationYear - 2000; %></label>
                 <% if (page === "home") { %>
                     <label style="white-space: nowrap; cursor: pointer; border-radius: 0.5rem; padding: 0.1rem 0.5rem; font-family: Arial, Helvetica, sans-serif"
@@ -131,7 +132,7 @@
                     </ul>
                 </li>
                 <li id="syncGrades" class="nav-item popup">
-                    <btn class="btn btn-med" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').focus()">
+                    <btn class="btn btn-med" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').trigger('focus')">
                         <i class="fa fa-refresh" aria-hidden="true"></i>
                         Sync
                     </btn>
@@ -216,6 +217,21 @@
 
     let submittingForms = {};
 
+    function sendData(socket, event, data) {
+        socket.emit(event, data);
+    }
+
+    function changeSetting(name, value, fieldIDsToClear, messagesDivID) {
+        let obj = {};
+        obj[name] = value;
+        sendData(mainSocket, 'settings-change', obj);
+        // Clear fields to clear
+        for (let i = 0; i < fieldIDsToClear.length; i++) {
+            $(fieldIDsToClear[i]).val("");
+            $(fieldIDsToClear[i]).trigger('blur');
+        }
+    }
+
     function ajaxPostForm(formID, fieldIDsToClear, messagesDivID, _async, doInstantly = false) {
         // Get the form.
         let form = $(formID);
@@ -263,8 +279,8 @@
 
                 // Submit the form using AJAX.
                 $.ajax({
-                           type: "POST", url: $(form).attr("action"), data: formData, async: _async
-                       }).done(function (response) {
+                    type: "POST", url: $(form).attr("action"), data: formData, async: _async
+                }).done(function (response) {
                     if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                         $(".session-timeout").show();
                         $("body").find("*").not(".session-timeout").remove();
@@ -399,7 +415,7 @@
                     // Clear fields to clear
                     for (let i = 0; i < fieldIDsToClear.length; i++) {
                         $(fieldIDsToClear[i]).val("");
-                        $(fieldIDsToClear[i]).blur();
+                        $(fieldIDsToClear[i]).trigger('blur');
                         if (formID === "#changePassword") {
                             $($(fieldIDsToClear[i])[0].previousElementSibling).removeClass("label-active");
                             if ($($(fieldIDsToClear[i])[0].previousElementSibling.children[0])) {
@@ -417,13 +433,13 @@
                     if (data.responseText !== "") {
                         if (data.responseText === "Incorrect login details.") {
                             $(message).text("Incorrect school password.");
-                            $("#inputPassword").focus();
+                            $("#inputPassword").trigger('focus');
                         } else {
                             if (formID === "#syncGradesForm") {
-                                $("#inputUserPassword").focus();
+                                $("#inputUserPassword").trigger('focus');
                                 $(".fa-refresh").removeClass("fa-spin").css("opacity", "");
                             } else if (formID === "#gradeSyncForm") {
-                                $("#gradeSyncInputUserPassword").focus();
+                                $("#gradeSyncInputUserPassword").trigger('focus');
                                 $(".fa-refresh").removeClass("fa-spin").css("opacity", "");
                             }
                             $(message).text(data.responseText);

@@ -140,7 +140,7 @@
                       method="post" style="display: flex; justify-content: right;">
                     <div>
                         <label>Class Type:</label>
-                        <select oninput="ajaxPostWeightsDatabaseForm('<%= i %>',null,null,[],'#classMessage<%= i %>',true); $('#classTypeForm<%= i %>').submit()"
+                        <select oninput="ajaxPostWeightsDatabaseForm('<%= i %>',null,null,[],'#classMessage<%= i %>',true); $('#classTypeForm<%= i %>').trigger('submit')"
                                 class="minimal" style="margin: 0; padding: 0 1.7rem 0 0.5rem"
                                 id="classType<%= i %>">
                             <option value="" disabled hidden
@@ -181,7 +181,7 @@
                       method="post" style="display: flex; justify-content: right;">
                     <div>
                         <label>UC Class Type:</label>
-                        <select oninput="ajaxPostWeightsDatabaseForm('<%= i %>',null,null,[],'#classMessage<%= i %>',true,true); $('#ucClassType<%= i %>').submit()"
+                        <select oninput="ajaxPostWeightsDatabaseForm('<%= i %>',null,null,[],'#classMessage<%= i %>',true,true); $('#ucClassType<%= i %>').trigger('submit')"
                                 class="minimal" style="margin: 0; padding: 0 1.7rem 0 0.5rem"
                                 id="ucClassType<%= i %>">
                             <option value=""

@@ -166,7 +166,7 @@
     // Manage changes of currentGradeDiv
     currentGradeDiv.on("input", function () {
         // Submit the form.
-        form.submit();
+        form.trigger('submit');
     });
 
     // Manage changes of chooseClassDiv
@@ -200,20 +200,20 @@
         }
 
         // Submit the form.
-        form.submit();
+        form.trigger('submit');
     });
 
     // Manage changes of goalDiv
     goalDiv.on("input", function () {
         // Submit the form.
-        form.submit();
+        form.trigger('submit');
     });
 
     // Manage changes of chooseLetterGradeDiv
     chooseLetterGradeDiv.on("change", function () {
         goalDiv.val(document.getElementById("chooseLetterGrade").options[$(this)[0].selectedIndex].value);
         goalDiv.prop("defaultValue", document.getElementById("chooseLetterGrade").options[$(this)[0].selectedIndex].value);
-        form.submit();
+        form.trigger('submit');
     });
 
     // Manage changes of finalWeightDiv
@@ -224,7 +224,7 @@
         pointFinalPointsDiv.prop("defaultValue", "");
         $("#chooseWeight")[0].selectedIndex = 0;
         // Submit the form.
-        form.submit();
+        form.trigger('submit');
     });
 
     // Manage changes of finalPointsDiv
@@ -324,7 +324,7 @@
         $(message).prop("defaultValue", Math.round(finalWeight * 100000000) / 100000000);
 
         // Submit the form
-        form.submit();
+        form.trigger('submit');
 
     }
 

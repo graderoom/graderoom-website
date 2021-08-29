@@ -42,6 +42,30 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 4.8.0] - 2021-08-28
+### Added
+- Syncing now has a progress indicator
+- Syncing now displays more useful status information
+- Backend is being migrated to sockets which will be faster and more responsive across multiple devices (including the new mobile apps releasing soon)
+- An option has been added to disable logging in the console (Mostly just a test of the new socket system)
+
+### Improved
+- <em>[Beta Feature]</em> Notification Panel animations have improved
+- <em>[Beta Feature]</em> Notification Panel now opens if mouse hovers anywhere on the right edge of the screen
+
+### Fixed
+- Issue with syncing with PowerSchool that caused users to see a 500 Internal Server Error
+- Issue with summer semesters displaying weirdly
+
+## [Announcement 4.7.3] - 2021-08-28
+- Yes, I am still developing and maintaining this site, even in college
+- Lots of big changes and improvements are coming your way
+- You can expect Saturday night beta releases (starting with the one today) and stable releases either bi- or triweekly on Sunday nights
+- This and all future beta releases will be buggier than prior beta releases to provide beta users with the latest features faster and speed up testing
+- <small>I am also working on an app called <u><a target="_blank" href="https://github.com/BlueBubblesApp/BlueBubbles-Android-App/">BlueBubbles</a></u> that you can check out if you're interested</small>
+- As usual, you can fill out the feedback form or email <u><a href="mailto:support@graderoom.me">support@graderoom.me</a></u> with questions or requests
+- If you want to become a beta tester or contribute to the project, contact me through the above method
+
 ## [Announcement 4.7.2] - 2021-05-20
 - <span class="changelog-inline-setoff">Friendly reminder that you can still sync your grades even though PowerSchool is locked!</span>
 - To take advantage of this feature, you <b>MUST</b> have synced your grades for each class at least once this semester

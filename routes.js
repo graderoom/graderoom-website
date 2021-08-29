@@ -1,7 +1,7 @@
-let server = require("./graderoom.js");
-let authenticator = require("./authenticator.js");
-let emailSender = require("./emailSender.js");
-let _ = require("lodash");
+const server = require("./graderoom.js");
+const authenticator = require("./authenticator.js");
+const emailSender = require("./emailSender.js");
+const _ = require("lodash");
 
 module.exports = function (app, passport) {
 
@@ -24,7 +24,8 @@ module.exports = function (app, passport) {
             let gradeHistoryLetters = {};
             let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
             if (req.query.term && req.query.semester) {
-                if ((term === req.query.term && semester === req.query.semester) || !req.user.betaFeatures.active || !authenticator.semesterExists(req.user.username, req.query.term, req.query.semester)) {
+                if ((term === req.query.term && semester === req.query.semester) || !req.user.betaFeatures.active ||
+                    !authenticator.semesterExists(req.user.username, req.query.term, req.query.semester)) {
                     res.redirect("/");
                     return;
                 }
@@ -70,7 +71,8 @@ module.exports = function (app, passport) {
                     betaFeatures: JSON.stringify(req.user.betaFeatures),
                     term: term,
                     semester: semester,
-                    termsAndSemesters: JSON.stringify(Object.keys(req.user.grades).map(x => [x, Object.keys(req.user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
+                    termsAndSemesters: JSON.stringify(Object.keys(req.user.grades).map(x => [x,
+                        Object.keys(req.user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
                     _: _,
                     sunset: sunset,
                     sunrise: sunrise,
@@ -206,7 +208,8 @@ module.exports = function (app, passport) {
                     betaFeatures: JSON.stringify(user.betaFeatures),
                     term: term,
                     semester: semester,
-                    termsAndSemesters: JSON.stringify(Object.keys(user.grades).map(x => [x, Object.keys(user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
+                    termsAndSemesters: JSON.stringify(Object.keys(user.grades).map(x => [x,
+                        Object.keys(user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
                     sunset: sunset,
                     sunrise: sunrise,
                     _: _,
@@ -333,29 +336,6 @@ module.exports = function (app, passport) {
             sunrise: sunrise
 
         });
-    });
-
-    app.get("/checkUpdateBackground", [isLoggedIn], (req, res) => {
-        let resp = authenticator.checkUpdateBackground(req.user.username);
-        let user = authenticator.getUser(req.user.username);
-        let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
-        if (term && semester && resp.message === "Sync Complete!") {
-            res.status(200).send({
-                                     message: resp.message,
-                                     grades: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
-                                     weights: JSON.stringify(user.weights[term][semester]),
-                                     updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
-                                 });
-        } else if (term && semester && resp.message === "Already Synced!") {
-            res.status(200).send({
-                                     message: resp.message,
-                                     updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
-                                 });
-        } else {
-            res.status(200).send({
-                                     message: resp.message
-                                 });
-        }
     });
 
     app.get("/changelog", [isLoggedIn], async (req, res) => {
@@ -545,41 +525,42 @@ module.exports = function (app, passport) {
                 }
             }
         }
-        let resp = await authenticator.updateGrades(req.user.username, pass);
-        if (resp.updateHistory) {
-            resp = await authenticator.updateGradeHistory(req.user.username, pass);
-        }
+        let _stream = authenticator.updateGrades(req.user.username, pass);
         let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
-        if (resp.success || resp.message === "No class data." || resp.message === "Error scraping grades." || resp.message === "Powerschool is locked.") {
-            if (term && semester) {
-                if (gradeSync) {
-                    let encryptResp = authenticator.encryptAndStore(user, pass, userPass);
-                    if (!encryptResp.success) {
-                        res.status(400).send(encryptResp.message);
-                        return;
+
+        _stream.on("data", (data) => {
+            if (!('success' in data)) return;
+            if (data.success || data.message === "No class data." || data.message === "An Unknown Error occurred. Contact support." || data.message === "PowerSchool is locked.") {
+                if (term && semester) {
+                    if (gradeSync) {
+                        let encryptResp = authenticator.encryptAndStore(user, pass, userPass);
+                        if (!encryptResp.success) {
+                            res.status(400).send(encryptResp.message);
+                            return;
+                        }
+                        res.status(200).send({
+                            gradeSyncEnabled: true,
+                            message: data.message,
+                            grades: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
+                            weights: JSON.stringify(req.user.weights[term][semester]),
+                            updateData: JSON.stringify(req.user.alerts.lastUpdated.slice(-1)[0])
+                        });
+                    } else {
+                        res.status(200).send({
+                            gradeSyncEnabled: false,
+                            message: data.message,
+                            grades: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
+                            weights: JSON.stringify(req.user.weights[term][semester]),
+                            updateData: JSON.stringify(req.user.alerts.lastUpdated.slice(-1)[0])
+                        });
                     }
-                    res.status(200).send({
-                                             gradeSyncEnabled: true,
-                                             message: resp.message,
-                                             grades: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
-                                             weights: JSON.stringify(req.user.weights[term][semester]),
-                                             updateData: JSON.stringify(req.user.alerts.lastUpdated.slice(-1)[0])
-                                         });
                 } else {
-                    res.status(200).send({
-                                             gradeSyncEnabled: false,
-                                             message: resp.message,
-                                             grades: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
-                                             weights: JSON.stringify(req.user.weights[term][semester]),
-                                             updateData: JSON.stringify(req.user.alerts.lastUpdated.slice(-1)[0])
-                                         });
+                    res.status(400).send(data.message);
                 }
             } else {
-                res.status(200).send({message: resp.message});
+                res.status(400).send(data.message);
             }
-        } else {
-            res.status(400).send(resp.message);
-        }
+        });
 
     });
 
@@ -789,7 +770,8 @@ module.exports = function (app, passport) {
             beta: server.needsBetaKeyToSignUp,
             term: term,
             semester: semester,
-            termsAndSemesters: JSON.stringify(Object.keys(authenticator.getAllClassData()).map(x => [x, Object.keys(authenticator.getAllClassData()[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
+            termsAndSemesters: JSON.stringify(Object.keys(authenticator.getAllClassData()).map(x => [x,
+                Object.keys(authenticator.getAllClassData()[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
             sunset: sunset,
             sunrise: sunrise,
             _: _
@@ -1027,20 +1009,20 @@ module.exports = function (app, passport) {
         let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
         if (term && semester && resp.message === "Sync Complete!") {
             res.status(200).send({
-                                     message: resp.message,
-                                     grades: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
-                                     weights: JSON.stringify(user.weights[term][semester]),
-                                     updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
-                                 });
+                message: resp.message,
+                grades: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
+                weights: JSON.stringify(user.weights[term][semester]),
+                updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
+            });
         } else if (term && semester && resp.message === "Already Synced!") {
             res.status(200).send({
-                                     message: resp.message,
-                                     updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
-                                 });
+                message: resp.message,
+                updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
+            });
         } else {
             res.status(200).send({
-                                     message: resp.message
-                                 });
+                message: resp.message
+            });
         }
     });
 
@@ -1053,11 +1035,17 @@ module.exports = function (app, passport) {
 
     app.post("/api/login", (req, res, next) => {
         passport.authenticate("local-login", (err, user) => {
-            if (err) return next(err);
-            if (!user) return res.sendStatus(401);
+            if (err) {
+                return next(err);
+            }
+            if (!user) {
+                return res.sendStatus(401);
+            }
             req.logIn(user, (err) => {
-               if (err) return next(err);
-               return res.sendStatus(200);
+                if (err) {
+                    return next(err);
+                }
+                return res.sendStatus(200);
             });
         })(req, res, next);
     });
@@ -1122,5 +1110,6 @@ function makeKey(length) {
 }
 
 function isDST() {
-    return Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset();
+    return Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !==
+        new Date(Date.now()).getTimezoneOffset();
 }

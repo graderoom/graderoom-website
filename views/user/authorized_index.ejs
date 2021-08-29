@@ -57,6 +57,7 @@
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.7"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
 <% if (JSON.parse(alerts).policyLastSeen === "never" || JSON.parse(alerts).termsLastSeen === "never") { %>
@@ -145,8 +146,7 @@
                                 </label>
                             </div>
                             <div class="weightGPA">
-                                <label style="display: flex; font-size: 1rem; justify-content: center; margin: 0; align-items: flex-start">Weighted
-                                                                                                                                           GPA
+                                <label style="display: flex; font-size: 1rem; justify-content: center; margin: 0; align-items: flex-start">Weighted GPA
                                     <label class="switch">
                                         <input style="margin: 0; display: flex"
                                                type="checkbox"
@@ -413,7 +413,7 @@
                                                                    checked
                                                                     <% } %>
                                                                    onchange="disableInput('check<%= i + offset; %>','weightsTable<%= i + offset; %>'); resetInputs('#weights<%= i +
-                                                                   offset; %>'); $('#weights<%= i + offset; %>').submit();"
+                                                                   offset; %>'); $('#weights<%= i + offset; %>').trigger('submit');"
                                                             >
                                                             <span style="color: <%= JSON.parse(appearance).classColors[i + offset]; %>"
                                                                   class="classSlider slider"></span>
@@ -430,7 +430,7 @@
                                                                 id="reset<%= i + offset; %>"
                                                                 style="margin: 0; cursor: pointer; display:inline-block"
                                                                 class="fa fa-undo"
-                                                                onclick="resetWeights(<%= i + offset; %>); $('#weights<%= i + offset; %>').submit();">
+                                                                onclick="resetWeights(<%= i + offset; %>); $('#weights<%= i + offset; %>').trigger('submit');">
                                                             <span class="popup-top">Revert
                                                                 to Verified Weights</span>
                                                         </i>
@@ -520,7 +520,7 @@
                                     <div class="add-assignment-header">
                                         <div class="addAssignment"
                                              onclick="{$(this).parents('.add-assignment-container').toggleClass('active').parents('div').toggleClass('keep-right'); $('#dateLabel<%= i +
-                                             offset %> + input').focus().blur()}">
+                                             offset %> + input').trigger('focus').trigger('blur')}">
                                             <i class="fa fa-plus"></i>
                                             <span>Add Assignment</span>
                                         </div>
@@ -732,18 +732,26 @@
                     log: function (message, ...optionalParams) {
                         if (enableLogging) {
                             oldCons.log(message, ...optionalParams);
+                        } else {
+                            oldCons.log('Enable Logging to view this log');
                         }
                     }, info: function (message, ...optionalParams) {
                         if (enableLogging) {
                             oldCons.info(message, ...optionalParams);
+                        } else {
+                            oldCons.log('%cEnable Logging to view this log', 'color: cyan;');
                         }
                     }, warn: function (message, ...optionalParams) {
                         if (enableLogging) {
-                            oldCons.warn(message, ...optionalParams);
+                            oldCons.log(`%c${message} ${[...optionalParams].join(" ")}`, `color: yellow;`);
+                        } else {
+                            oldCons.log('%cEnable Logging to view this log', 'color: yellow;');
                         }
                     }, error: function (message, ...optionalParams) {
                         if (enableLogging) {
                             oldCons.error(message, ...optionalParams);
+                        } else {
+                            oldCons.log('%cEnable Logging to view this log', 'color: red;');
                         }
                     }
                 };
@@ -751,6 +759,129 @@
 
             //Then redefine the old console
             window.console = console;
+
+            let mainSocket = io({query: {"purpose": "main"}});
+            let syncSocket = io({query: {"purpose": "sync"}});
+            let notiSocket = io({query: {"purpose": "noti"}});
+
+            mainSocket.onAny((event, data) => {
+                switch (event) {
+                    case "success-settingschange":
+                        let settings = data.settings;
+                        let keys = Object.keys(settings);
+                        for (let key of keys) {
+                            switch (key) {
+                                case "enableLogging":
+                                    enableLogging = settings[key];
+                                    $("#enableLoggingToggle").attr("checked", enableLogging);
+                            }
+                        }
+                        break;
+                }
+            });
+
+            syncSocket.onAny((event, data) => {
+                let messageDiv = $(".updateGradesMessage");
+                switch (event) {
+                    case "info-initialstatus":
+                        let status = data.message;
+                        switch (status) {
+                            case "Sync Failed.":
+                            case "Cannot access grades.":
+                            case "Your PowerSchool account is no longer active.":
+                                messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(status);
+                                break;
+                            case "Syncing history...":
+                                messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(status);
+                                break;
+                            case "Did not sync":
+                                break;
+                            case "Not syncing":
+                            case "Sync Complete!":
+                            case "Already Synced!":
+                                showLatest(false);
+                                setupLastUpdated();
+                                if (sessionStorage.getItem("showSyncLog") === "true") {
+                                    setupGradeChanges(true, true);
+                                    sessionStorage.removeItem("showSyncLog");
+                                }
+                                break;
+                        }
+                        break;
+                    case "progress":
+                        let {progress, message} = data;
+                        messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(message + " (" + progress.toFixed(0) + "%)");
+                        break;
+                    case "progress-history":
+                        break;
+                    case "success":
+                        break;
+                    case "success-history":
+                    case "success-alldata":
+                        let newData = {grades: JSON.parse(data.grades), weights: JSON.parse(data.weights)};
+                        if (!updateData(newData).updated) {
+                            sessionStorage.setItem("showSyncLog", "true");
+                            if (cardsDisplayed.length === 0 || cardsDisplayed[cardsDisplayed.length - 1] === "updateGradesDisplay") {
+                                messageDiv.find(".messageTxt").text("Refreshing...");
+                                setTimeout(() => window.reload(), 400);
+                            } else {
+                                messageDiv.find(".messageTxt").css("cursor", "pointer").text("Click here to refresh").click(function (e) {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    window.reload();
+                                });
+                            }
+                        } else {
+                            alerts.lastUpdated.push(JSON.parse(data.updateData));
+                            setupGradeChanges();
+                            showLatest(false);
+                            refreshWithoutReload(true);
+                        }
+                        break;
+                    case "fail":
+                    case "fail-encryptpass":
+                    case "fail-termsemester":
+                    case "fail-history":
+                    case "fail-general":
+                        messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(data.message);
+                        setupLastUpdated();
+                        showLatest(false);
+                        break;
+                }
+            });
+
+            function logSocket(socket) {
+
+                function displayNicely(...args) {
+                    return [...args].map(arg => {
+                        if (typeof arg === "string") {
+                            return arg;
+                        }
+                        if (Array.isArray(arg)) {
+                            return '[' + arg.join(', ') + ']';
+                        }
+                        let keys = Object.keys(arg);
+                        let values = Object.values(arg);
+                        return '{ ' + keys.map((key, index) => key + ': ' + values[index]).join(', ') + '} ';
+                    })
+                }
+
+                socket.onAny((event, ...args) => {
+                    if (event.startsWith("info")) {
+                        console.info(event + " | " + displayNicely(...args).join(" | "));
+                    } else if (event.startsWith("error")) {
+                        console.error(event + " | " + displayNicely(...args).join(" | "));
+                    } else if (event.startsWith("fail")) {
+                        console.warn(event + " | " + displayNicely(...args).join(" | "));
+                    } else {
+                        console.log(event + " | " + displayNicely(...args).join(" | "));
+                    }
+                });
+            }
+
+            logSocket(mainSocket);
+            logSocket(syncSocket);
+            logSocket(notiSocket);
 
             let refreshing;
             let shortcutsEnabled = true;
@@ -937,7 +1068,6 @@
             if (gradeSync) {
                 $("#syncGradesDiv").hide();
                 $("#gradeSyncDiv").show();
-                checkUpdateBackground();
             } else {
                 $("#gradeSyncDiv").hide();
                 $("#syncGradesDiv").show();
@@ -1085,72 +1215,6 @@
                 }
                 clearTimeout(checkLastUpdated);
                 return {updated: false};
-            }
-
-            async function checkUpdateBackground() {
-                return;
-                let time = 1000;
-
-                let checking = function () {
-                    $.get("/checkUpdateBackground", function (message, status) {
-                        if (status === "success") {
-                            console.log(message.message);
-                            if (message.message === "Syncing History...") {
-                                $(".updateGradesMessage").find(".messageTxt").text("Syncing Grade History...");
-                                setTimeout(checking, time * 10); // Try to avoid spamming reqs while server is processing. Really need to find a better way soon
-                            } else if (message.message === "Sync Complete!") {
-                                let newData = {
-                                    grades: JSON.parse(message.grades), weights: JSON.parse(message.weights)
-                                };
-                                if (!updateData(newData).updated) {
-                                    if (cardsDisplayed.length === 0 || cardsDisplayed[cardsDisplayed.length - 1] === "updateGradesDisplay") {
-                                        $(".updateGradesMessage").find(".messageTxt").text("Refreshing...");
-                                        sessionStorage.setItem("showSyncLog", "true");
-                                        setTimeout(() => window.reload(), 400);
-                                    } else {
-                                        $(".updateGradesMessage").find(".messageTxt").css("cursor", "pointer").text("Click here to refresh").click(function (e) {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            window.reload();
-                                        });
-                                    }
-                                } else {
-                                    alerts.lastUpdated.push(JSON.parse(message.updateData));
-                                    setupGradeChanges();
-                                    refreshWithoutReload(true);
-                                    setTimeout(checking, time / 2); // This one can be quick
-                                }
-                            } else if (message.message === "Already Synced!") {
-                                showLatest(false);
-                                setupLastUpdated();
-                                if (sessionStorage.getItem("showSyncLog") === "true") {
-                                    setupGradeChanges(true, true);
-                                    sessionStorage.removeItem("showSyncLog");
-                                }
-                            } else if (message.message === "Did not sync") {
-                                $(".updateGradesMessage").find(".messageTxt").text("Syncing...");
-                                $("#syncGrades").css("cursor", "context-menu");
-                                $("#syncGrades btn").addClass("disabled").css("pointer-events", "none");
-                                $(".fa-refresh").addClass("fa-spin").css("opacity", 0.5);
-                                setTimeout(checking, time);
-                            } else if (message.message === "Cannot access grades.") {
-                                $(".syncNoData").show();
-                                $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
-                                showLatest(false);
-                                setupLastUpdated();
-                            } else if (message.message === "Sync Failed.") {
-                                $(".syncFailure").show();
-                                $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
-                                setupLastUpdated();
-                                showLatest(false);
-                            } else if (message.message === "Not syncing") {
-                                setupLastUpdated();
-                            }
-                        }
-                    });
-                };
-
-                window.setTimeout(checking, time);
             }
 
             function disableScrolling() {
@@ -1438,7 +1502,9 @@
             }
 
             function getGPA(letterGrade) {
-                if (([false, "CR", "W"]).includes(letterGrade)) return null;
+                if (([false, "CR", "W"]).includes(letterGrade)) {
+                    return null;
+                }
                 letterGrade = letterGrade.substring(0, 1);
                 if (letterGrade === "A") {
                     return 4;
@@ -1555,13 +1621,13 @@
                             clearTimeout(submittingWeights);
                             submittingWeights = setTimeout(() => {
                                 resetInputs("#weights" + i);
-                                $("#weightTableWeight" + i + j).parents("form").submit();
+                                $("#weightTableWeight" + i + j).parents("form").trigger('submit');
                             }, 400);
                         }).on("keyup", (e) => {
                             e = e || window.event;
                             let keyCode = e.code;
                             if (keyCode === "Enter") {
-                                $("#weightTableWeight" + i + j + " input").blur();
+                                $("#weightTableWeight" + i + j + " input").trigger('blur');
                             }
                         });
                     }
@@ -1708,7 +1774,7 @@
             function setSortMethod(element) {
                 let classIndex = parseFloat($(element)[0].id.substring(6));
                 let method = $(element)[0].selectedOptions[0].value;
-                $(element).blur();
+                $(element).trigger('blur');
                 $($(element)[0].nextElementSibling.children[0]).removeClass(dateSort[classIndex] ? "fa-sort-amount-desc" : "fa-sort-amount-asc").addClass(dateSort[classIndex] ? "fa-sort-amount-asc" :
                     "fa-sort-amount-desc").removeClass("disabled").find("span").text(dateSort[classIndex] ? "Oldest to Newest" : "Newest to Oldest");
                 categorySort[classIndex] = method === "category";
@@ -2309,14 +2375,14 @@
                             e = e || window.event;
                             let keyCode = e.code;
                             if (keyCode === "Enter") {
-                                $(inputs[0]).blur();
+                                $(inputs[0]).trigger('blur');
                             }
                         });
                         $(inputs[1]).on("keyup", (e) => {
                             e = e || window.event;
                             let keyCode = e.code;
                             if (keyCode === "Enter") {
-                                $(inputs[1]).blur();
+                                $(inputs[1]).trigger('blur');
                             }
                         });
                     }
@@ -2327,14 +2393,14 @@
                             e = e || window.event;
                             let keyCode = e.code;
                             if (keyCode === "Enter") {
-                                $(inputs[0]).blur();
+                                $(inputs[0]).trigger('blur');
                             }
                         });
                         $(inputs[1]).on("keyup", (e) => {
                             e = e || window.event;
                             let keyCode = e.code;
                             if (keyCode === "Enter") {
-                                $(inputs[1]).blur();
+                                $(inputs[1]).trigger('blur');
                             }
                         });
                     }
@@ -2700,7 +2766,7 @@
                                 dropdown.on("change", () => {
                                     updateCategory(dropdown);
                                     refreshWithoutReload(true, i);
-                                    dropdown.blur();
+                                    dropdown.trigger('blur');
                                 });
                             }
 
@@ -3695,7 +3761,7 @@
                     }
                     let addAssignment = $($(".addAssignment")[currentPage]);
                     addAssignment.trigger("click");
-                    $(addAssignment.parent().parent().find("input")[0]).focus();
+                    $(addAssignment.parent().parent().find("input")[0]).trigger('focus');
                 } else if (["h", "H"].includes(e.key)) {
                     if (cardsDisplayed.includes("settingsCardDisplay")) {
                         if (cardsDisplayed.indexOf("settingsCardDisplay") !== cardsDisplayed.length - 1) {
@@ -3971,7 +4037,7 @@
 <script>
     // This is very important for mobile
     $("*:not(input:not([type=checkbox],[type=radio]),select)").focus(function () {
-        $(this).blur();
+        $(this).trigger('blur');
     });
 
     function scrollToBottom(div) {

@@ -5,7 +5,7 @@ module.exports = {
         name: "beta",
         script: "graderoom.js",
         exec_mode: "fork",
-        cwd: "/home/ec2_user/graderoom_beta",
+        cwd: "/home/ec2-user/graderoom_beta",
         instances: 1,
         autorestart: true,
         watch: false,

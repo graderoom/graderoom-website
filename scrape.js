@@ -6,7 +6,7 @@ module.exports = {
 
         let pythonPath;
 
-        if (process.platform == "win32") {
+        if (process.platform === "win32") {
             pythonPath = "py";
         } else {
             pythonPath = "python3";
@@ -14,7 +14,7 @@ module.exports = {
 
         let options = {
             mode: "json", // pythonPath: 'path/to/python',
-            // pythonOptions: ['-u'], // get print results in real-time
+            pythonOptions: ['-u'], // get print results in real-time
             // // scriptPath: 'path/to/my/scripts',
             // // scriptPath: 'path/to/my/scripts',
             pythonPath: pythonPath,
@@ -27,11 +27,9 @@ module.exports = {
             readableStream.push(message);
         });
 
-        return new Promise((resolve) => {
-            pyshell.on("close", () => {
-                readableStream.destroy();
-                resolve();
-            });
+        pyshell.on("close", () => {
+            readableStream.destroy();
+            console.log('Destroyed stream');
         });
 
     }
