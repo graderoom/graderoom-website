@@ -755,15 +755,34 @@ module.exports = {
 
         if (version === 13) {
             // Fix 21-22 data
-            let badGrades = userRef.get("grades").get("S1").value();
-            if (badGrades) {
-                userRef.get("grades").set("21-22", {"S1": badGrades}).write();
-                userRef.get("grades").unset("S1").write();
+            let grades = user.grades;
+
+            let gradesRef = userRef.get("grades");
+            let weightsRef = userRef.get("weights");
+            let addedRef = userRef.get("addedAssignments");
+            let editedRef = userRef.get("editedAssignments");
+
+            let realGrades;
+            if ("S1" in grades) {
+                realGrades = Object.values(Object.values(grades.S1)[0])[0];
+                gradesRef.set("21-22", {"S1": realGrades}).write();
+                gradesRef.unset("S1").write();
+
+                let _weights = {};
+                let _added = {};
+                let _edited = {};
+                for (let c of realGrades) {
+                    _weights[c.class_name] = {"weights": {}, hasWeights: false, custom: false};
+                    _added[c.class_name] = [];
+                    _edited[c.class_name] = [];
+                }
+                weightsRef.set("21-22", {"S1": _weights}).write();
+                addedRef.set("21-22", {"S1": _added}).write();
+                editedRef.set("21-22", {"S1": _edited}).write();
             }
 
             saveUpdate(++version);
         }
-
 
         /** Stuff that happens no matter what */
             // Remove any extra tutorial keys
