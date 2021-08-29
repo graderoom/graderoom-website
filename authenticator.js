@@ -18,12 +18,10 @@ const path = require("path");
 const roundsToGenerateSalt = 10;
 
 // Change this when updateDB changes
-const dbUserVersion = 10;
+const dbUserVersion = 14;
+const dbClassVersion = 4;
 
-// Change this when updateAllDB changes
-const dbClassVersion = 2;
-
-db.defaults({users: [], keys: [], classes: {}, deletedUsers: []}).write();
+db.defaults({users: [], keys: [], classes: {version: dbClassVersion}, deletedUsers: []}).write();
 
 let changelogArray = [];
 let betaChangelogArray = [];
@@ -192,6 +190,11 @@ module.exports = {
         }
         let version = classRef.get("version").value();
 
+        function saveUpdate(_version) {
+            classRef.set("version", _version).write();
+            console.log("Updated classdb to version " + _version);
+        }
+
         if (version === 0) {
 
             // Fix Calculus BC AP with space
@@ -250,17 +253,13 @@ module.exports = {
             }
 
             // Update class db version
-            console.log("Updated classdb to version 1");
-            classRef.set("version", 1).write();
-            version = 1;
+            saveUpdate(++version);
         }
         //Clear classes to migrate to semester system
         if (version === 1) {
             db.set("classes", {}).write();
             // Update class db version
-            classRef.set("version", 2).write();
-            version = 2;
-            console.log("Updated classdb to version 2");
+            saveUpdate(++version);
         }
 
         if (version === 2) {
@@ -279,9 +278,20 @@ module.exports = {
                 classRef.unset(terms[i]).write();
             }
             // Do the thing to make it work
-            classRef.set("version", 3).write();
-            version = 3;
-            console.log("Updated classdb to version 3");
+            saveUpdate(++version);
+        }
+
+        if (version === 3) {
+            // Fix summer 2021 issues
+            let classes = classRef.value();
+            if ("SS2021" in classes) {
+                let temp = classRef.get("SS2021").value();
+                if ("S1" in temp) {
+                    classRef.get("20-21").set("S3", temp.S1).write();
+                }
+                classRef.unset("SS2021").write();
+            }
+            saveUpdate(++version);
         }
 
 
@@ -309,6 +319,12 @@ module.exports = {
             userRef.set("version", 0).write();
         }
         let version = userRef.get("version").value();
+
+        function saveUpdate(_version) {
+            userRef.set("version", _version).write();
+            console.log("Updated user to version " + _version);
+        }
+
         if (version === 0) {
 
             // Update change data with ps_locked
@@ -477,10 +493,7 @@ module.exports = {
             }
 
             // Save update
-            console.log("Updated user to version 1");
-            userRef.set("version", 1).write();
-            version = 1;
-
+            saveUpdate(++version);
         }
 
         if (version === 1) {
@@ -503,9 +516,7 @@ module.exports = {
             }
 
             // Save update
-            console.log("Updated user to version 2");
-            userRef.set("version", 2).write();
-            version = 2;
+            saveUpdate(++version);
         }
 
         if (version === 2) {
@@ -521,9 +532,7 @@ module.exports = {
 
 
             // Save update
-            console.log("Updated user to version 3");
-            userRef.set("version", 3).write();
-            version = 3;
+            saveUpdate(++version);
         }
 
         if (version === 3) {
@@ -560,9 +569,7 @@ module.exports = {
             }
 
             // Save update
-            console.log("Updated user to version 4");
-            userRef.set("version", 4).write();
-            version = 4;
+            saveUpdate(++version);
         }
 
         if (version === 4) {
@@ -581,9 +588,7 @@ module.exports = {
 
 
             // Save update
-            console.log("Updated user to version 5");
-            userRef.set("version", 5).write();
-            version = 5;
+            saveUpdate(++version);
         }
 
         if (version === 5) {
@@ -604,9 +609,7 @@ module.exports = {
 
 
             // Save update
-            console.log("Updated user to version 6");
-            userRef.set("version", 6).write();
-            version = 6;
+            saveUpdate(++version);
         }
 
         if (version === 6) {
@@ -627,9 +630,7 @@ module.exports = {
 
 
             // Save update
-            console.log("Updated user to version 7");
-            userRef.set("version", 7).write();
-            version = 7;
+            saveUpdate(++version);
         }
 
         if (version === 7) {
@@ -650,9 +651,7 @@ module.exports = {
 
 
             // Save update
-            console.log("Updated user to version 8");
-            userRef.set("version", 8).write();
-            version = 8;
+            saveUpdate(++version);
         }
 
         if (version === 8) {
@@ -674,11 +673,8 @@ module.exports = {
                 }
             }
 
-
             // Save update
-            console.log("Updated user to version 9");
-            userRef.set("version", 9).write();
-            version = 9;
+            saveUpdate(++version);
         }
 
         if (version === 9) {
@@ -701,32 +697,90 @@ module.exports = {
 
 
             // Save update
-            console.log("Updated user to version 10");
-            userRef.set("version", 10).write();
-            version = 10;
+            saveUpdate(++version);
         }
 
-        // if (version === 10) {
-        //     // Add notifications dict
-        //     // userRef.set("notifications", {"Important": [], "Unread": [], "All": []}).write();
-        //
-        //     // Notification format in backend (for reference)
-        //     // {
-        //     //     "type": "announcement"/"stable"/"beta"/"sync"/"empty-sync"/"error"
-        //     //     "id": For changelog stuff, the version code, for everything else, the timestamp doubles as an id
-        //     //     "timestamp": ,
-        //     //     "read": false/true
-        //     // }
-        //
-        //     // Add all changelog notifications and read them until changeloglastseen
-        //
-        //
-        //     // Save update
-        //     console.log("Updated user to version 11");
-        //     userRef.set("version", 11).write();
-        //     version = 11;
-        // }
+        if (version === 10) {
+            // Add notifications dict
+            userRef.set("notifications", {
+                important: [buildStarterNotification(Date.now())], unread: [], dismissed: []
+            }).write();
 
+            // Save update
+            saveUpdate(++version);
+        }
+
+        if (version === 11) {
+            // Fix SS2021
+            let grades = user.grades;
+            let weights = user.weights;
+            let added = user.addedAssignments;
+            let edited = user.editedAssignments;
+
+            let gradesRef = userRef.get("grades");
+            let weightsRef = userRef.get("weights");
+            let addedRef = userRef.get("addedAssignments");
+            let editedRef = userRef.get("editedAssignments");
+
+            let badObjects = [[grades, gradesRef], [weights, weightsRef], [added, addedRef], [edited, editedRef]];
+
+            for (let [object, ref] of badObjects) {
+                for (let key in object) {
+                    if (key.startsWith("SS")) {
+                        let S3;
+                        if ("S1" in object[key]) {
+                            S3 = object[key]["S1"];
+                        }
+                        let start_year = parseInt(key.substring(4)) - 1;
+                        let end_year = start_year + 1;
+                        let real_key = start_year + "-" + end_year;
+                        ref.get(real_key).set("S3", S3).write();
+                        ref.unset(key).write();
+                    }
+                }
+            }
+            // Save update
+            saveUpdate(++version);
+        }
+
+        if (version === 12) {
+            // Add logging var
+            userRef.set("enableLogging", true).write();
+
+            // Save update
+            saveUpdate(++version);
+        }
+
+        if (version === 13) {
+            // Fix 21-22 data
+            let grades = user.grades;
+
+            let gradesRef = userRef.get("grades");
+            let weightsRef = userRef.get("weights");
+            let addedRef = userRef.get("addedAssignments");
+            let editedRef = userRef.get("editedAssignments");
+
+            let realGrades;
+            if ("S1" in grades) {
+                realGrades = Object.values(Object.values(grades.S1)[0])[0];
+                gradesRef.set("21-22", {"S1": realGrades}).write();
+                gradesRef.unset("S1").write();
+
+                let _weights = {};
+                let _added = {};
+                let _edited = {};
+                for (let c of realGrades) {
+                    _weights[c.class_name] = {"weights": {}, hasWeights: false, custom: false};
+                    _added[c.class_name] = [];
+                    _edited[c.class_name] = [];
+                }
+                weightsRef.set("21-22", {"S1": _weights}).write();
+                addedRef.set("21-22", {"S1": _added}).write();
+                editedRef.set("21-22", {"S1": _edited}).write();
+            }
+
+            saveUpdate(++version);
+        }
 
         /** Stuff that happens no matter what */
             // Remove any extra tutorial keys
@@ -1080,50 +1134,55 @@ module.exports = {
             let {firstName, lastName, graduationYear} = getPersonalInfo(schoolUsername);
 
             bcrypt.hash(password, roundsToGenerateSalt, function (err, hash) {
+                let now = Date.now();
                 db.get("users").push({
-                                         version: dbUserVersion,
-                                         username: lc_username,
-                                         password: hash,
-                                         schoolUsername: schoolUsername.toLowerCase(),
-                                         personalInfo: {
-                                             firstName: firstName, lastName: lastName, graduationYear: graduationYear
-                                         },
-                                         isAdmin: isAdmin,
-                                         betaFeatures: {
-                                             active: beta
-                                         },
-                                         appearance: {
-                                             theme: "sun",
-                                             classColors: [],
-                                             colorPalette: "clear",
-                                             shuffleColors: false,
-                                             holidayEffects: true,
-                                             showNonAcademic: true,
-                                             darkModeStart: 946778400000,
-                                             darkModeFinish: 946738800000,
-                                             weightedGPA: true,
-                                             regularizeClassGraphs: true,
-                                             showMaxGPA: false
-                                         },
-                                         alerts: {
-                                             lastUpdated: [],
-                                             updateGradesReminder: "daily",
-                                             latestSeen: versionNameArray[1] ? beta ? versionNameArray[1][1] : versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1] : "1.0.0",
-                                             policyLastSeen: "never",
-                                             termsLastSeen: "never",
-                                             remoteAccess: "denied",
-                                             tutorialStatus: Object.fromEntries(tutorialKeys.map(k => [k, false]))
-                                         },
-                                         weights: {},
-                                         grades: {},
-                                         updatedGradeHistory: [],
-                                         addedAssignments: {},
-                                         editedAssignments: {},
-                                         sortingData: {
-                                             dateSort: [], categorySort: []
-                                         },
-                                         loggedIn: []
-                                     }).write();
+                    version: dbUserVersion,
+                    username: lc_username,
+                    password: hash,
+                    schoolUsername: schoolUsername.toLowerCase(),
+                    personalInfo: {
+                        firstName: firstName, lastName: lastName, graduationYear: graduationYear
+                    },
+                    isAdmin: isAdmin,
+                    betaFeatures: {
+                        active: beta
+                    },
+                    appearance: {
+                        theme: "sun",
+                        classColors: [],
+                        colorPalette: "clear",
+                        shuffleColors: false,
+                        holidayEffects: true,
+                        showNonAcademic: true,
+                        darkModeStart: 946778400000,
+                        darkModeFinish: 946738800000,
+                        weightedGPA: true,
+                        regularizeClassGraphs: true,
+                        showMaxGPA: false
+                    },
+                    alerts: {
+                        lastUpdated: [],
+                        updateGradesReminder: "daily",
+                        latestSeen: versionNameArray[1] ? beta ? versionNameArray[1][1] : versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1] : "1.0.0",
+                        policyLastSeen: "never",
+                        termsLastSeen: "never",
+                        remoteAccess: "denied",
+                        tutorialStatus: Object.fromEntries(tutorialKeys.map(k => [k, false])),
+                        notifications: {
+                            important: [buildStarterNotification(now)], unread: [], dismissed: []
+                        }
+                    },
+                    weights: {},
+                    grades: {},
+                    updatedGradeHistory: [],
+                    addedAssignments: {},
+                    editedAssignments: {},
+                    sortingData: {
+                        dateSort: [], categorySort: []
+                    },
+                    loggedIn: [now],
+                    enableLogging: true
+                }).write();
 
                 return resolve({success: true, message: "User Created"});
             });
@@ -1217,9 +1276,9 @@ module.exports = {
             message = this.setBlur(lc_username, blurEffects).message;
         }
         return {success: true, message: message};
-    }, getUser: function (username) {
-        let isEmail = validateEmail(username);
-        let lc_username = username.toLowerCase();
+    }, getUser: function (usernameOrEmail) {
+        let isEmail = validateEmail(usernameOrEmail);
+        let lc_username = usernameOrEmail.toLowerCase();
         if (isEmail) {
             return db.get("users").find({schoolUsername: lc_username}).value();
         }
@@ -2349,4 +2408,21 @@ function makeKey(length) {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
+}
+
+function buildStarterNotification(now) {
+    return {
+        type: "announcement",
+        title: "Welcome to your Notification Center",
+        message: "All future notifications will be found here. You can configure this area however you'd like, using the notification settings accessible from the top right of this panel.",
+        dismissible: true,
+        dismissed: false,
+        pinnable: true,
+        pinned: true,
+        createdDate: [now],
+        dismissedDates: [],
+        pinnedDates: [now],
+        unDismissedDates: [],
+        unPinnedDates: []
+    };
 }

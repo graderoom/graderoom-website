@@ -1,7 +1,7 @@
 import json
 import requests
 import sys
-from bs4 import BeautifulSoup as BS
+from bs4 import BeautifulSoup as bS
 from datetime import datetime
 
 
@@ -85,7 +85,7 @@ def parse_class(local_class, raw_data):
         else:
             points_possible = False
         if len(_data["_assignmentscores"]) > 0:
-            exclude = exclude or (_data["_assignmentscores"][0]["isexempt"] == True)
+            exclude = exclude or _data["_assignmentscores"][0]["isexempt"]
             sort_date = _data["_assignmentscores"][0]["scoreentrydate"]
             sort_date = datetime.strptime(sort_date, "%Y-%m-%d %H:%M:%S").timestamp()
             if "scorepoints" in _data["_assignmentscores"][0]:
@@ -245,7 +245,7 @@ class PowerschoolScraper:
         # First request
         url = "https://powerschool.bcp.org/guardian/home.html"
         resp = self.session.get(url, headers=headers_1, timeout=10)
-        soup = BS(resp.text, "html.parser")
+        soup = bS(resp.text, "html.parser")
         samlr = soup.find("input", {'name': 'SAMLRequest'}).get('value')
 
         # Second request
@@ -255,7 +255,7 @@ class PowerschoolScraper:
             'SAMLRequest': samlr,
         }
         resp = self.session.post(url, data=data, headers=headers_2, timeout=10)
-        soup = BS(resp.text, "html.parser")
+        soup = bS(resp.text, "html.parser")
         dynamic_url = soup.find("form", id='ping-login-form').get('action')
 
         # Third request
@@ -268,7 +268,7 @@ class PowerschoolScraper:
         }
         resp = self.session.post(dynamic_url, data=data, headers=headers_3,
                                  timeout=10)
-        soup = BS(resp.text, "html.parser")
+        soup = bS(resp.text, "html.parser")
 
         # If no response, authentication failed (incorrect login)
         samlr = soup.find("input", {'name': 'SAMLResponse'})
@@ -288,12 +288,12 @@ class PowerschoolScraper:
         # Manually add cookie
         jsession = self.session.cookies.get_dict()['JSESSIONID']
         headers_4['Cookie'] = "JSESSIONID=" + jsession
-        resp = self.session.post(url, data=data, headers=headers_4, timeout=10)
+        self.session.post(url, data=data, headers=headers_4, timeout=10)
 
         # Check if PowerSchool is locked
         url = 'https://powerschool.bcp.org/guardian/home.html'
         resp = self.session.get(url, timeout=10)
-        soup_resp = BS(resp.text, "html.parser")
+        soup_resp = bS(resp.text, "html.parser")
         table = soup_resp.find("table")
         rows = list(filter(lambda l: len(l) > 0, list(map(lambda row: list(filter(lambda link: link['href'][:5] == 'score', row.find_all("a"))), table.find_all("tr",class_='center')))))
         if not table or len(rows) == 0:
@@ -311,7 +311,7 @@ class PowerschoolScraper:
         """Uses a session to grab all available grade data on powerschool"""
         url = 'https://powerschool.bcp.org/guardian/termgrades.html'
         resp = self.session.get(url, timeout=10)
-        soup_resp = BS(resp.text, "html.parser")
+        soup_resp = bS(resp.text, "html.parser")
 
         # Begin organizing response data
         all_history = {}
@@ -335,7 +335,7 @@ class PowerschoolScraper:
                 continue
             url = 'https://powerschool.bcp.org/guardian/'
             resp = self.session.get(url + link['href'], timeout=10)
-            soup_resp = BS(resp.text, "html.parser")
+            soup_resp = bS(resp.text, "html.parser")
 
             # Begin parsing data
             main_table = soup_resp.find("table")
@@ -391,7 +391,7 @@ class PowerschoolScraper:
         """Uses a session to grab current semester grade data"""
         url = 'https://powerschool.bcp.org/guardian/home.html'
         resp = self.session.get(url, timeout=10)
-        soup_resp = BS(resp.text, "html.parser")
+        soup_resp = bS(resp.text, "html.parser")
 
         # Begin organizing response data
         all_classes = []
@@ -453,12 +453,17 @@ class PowerschoolScraper:
         # Fetch the current term and semester
         url = 'https://powerschool.bcp.org/guardian/myschedulematrix.html'
         resp = self.session.get(url, timeout=10)
-        soup_resp = BS(resp.text, "html.parser")
+        soup_resp = bS(resp.text, "html.parser")
 
         main_table = soup_resp.find("table")
         table_cells = main_table.find_all("td")
-        term = table_cells[1].text
-        semester = table_cells[2].text
+        term = table_cells[0].text
+        semester = table_cells[1].text
+        if term.startswith("SS"):
+            semester = "S0"
+            start_year = int(term[4:]) - 1
+            end_year = start_year + 1
+            term = str(start_year) + "-" + str(end_year)
         semester = "S3" if semester == "S0" else semester
 
         if term is None or semester is None:
@@ -481,7 +486,7 @@ class PowerschoolScraper:
             overall_letter: Float
         """
         grades_resp = self.session.get(url, timeout=10)
-        grades_soup = BS(grades_resp.text, 'html.parser')
+        grades_soup = bS(grades_resp.text, 'html.parser')
 
         # The two tables in the page. info is top, grades is bottom
         class_tables = grades_soup.find_all('table')
@@ -495,7 +500,7 @@ class PowerschoolScraper:
 
         # Create a ClassGrade object to hold assignment data
         # Ensure all data is present, otherwise skip the class
-        if (class_name and teacher_name and overall_percent is not None and overall_letter is not None):
+        if class_name and teacher_name and overall_percent is not None and overall_letter is not None:
             local_class = ClassGrade(class_name, teacher_name,
                                      overall_percent, overall_letter, None, None, False)
         else:
@@ -514,8 +519,8 @@ class PowerschoolScraper:
 
         # Remove classes with no grades
         local_class = parse_class(local_class, self.get_class(url, local_class))
-        if local_class['grades'] == []:
-            return
+        if not local_class['grades']:
+            return False
 
         all_classes.append(local_class)
 
@@ -541,9 +546,7 @@ class PowerschoolScraper:
         # Declare likely start and end dates for each semester to
         # determine data to send request with
 
-        dates = []
-        dates.append(datetime(now.year - 4, 1, 1))
-        dates.append(datetime(now.year + 4, 1, 1))
+        dates = [datetime(now.year - 4, 1, 1), datetime(now.year + 4, 1, 1)]
         [start_date, end_date] = dates
 
         start_date = json.dumps(start_date.strftime("%Y-%m-%d"))
@@ -570,7 +573,7 @@ class PowerschoolScraper:
             local_class = ClassGrade(class_name, teacher_name, overall_percent, overall_letter, student_id, section_id, True)
 
             local_class = parse_class(local_class, self.get_class('https://powerschool.bcp.org/', local_class))
-            if (len(local_class['grades']) > 0):
+            if len(local_class['grades']) > 0:
                 all_classes.append(local_class)
 
         # Add term and semester data
