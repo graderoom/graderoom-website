@@ -50,6 +50,7 @@
 - An option has been added to disable logging in the console (Mostly just a test of the new socket system)
 
 ### Improved
+- Login sessions persist through server restarts (max 4 hours)
 - <em>[Beta Feature]</em> Notification Panel animations have improved
 - <em>[Beta Feature]</em> Notification Panel now opens if mouse hovers anywhere on the right edge of the screen
 
