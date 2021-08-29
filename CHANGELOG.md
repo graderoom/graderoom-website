@@ -42,6 +42,11 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 4.8.1] - 2021-08-29
+### Fixed
+- Issue with syncing with PowerSchool that caused users to see a 500 Internal Server Error
+- Issue with summer semesters displaying weirdly
+
 ## [Beta 4.8.0] - 2021-08-28
 ### Added
 - Syncing now has a progress indicator
