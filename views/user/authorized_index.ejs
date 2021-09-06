@@ -53,9 +53,13 @@
     <script src="https://cdn.jsdelivr.net/npm/moment@2.24.0/moment.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.7"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/1.1.1/chartjs-plugin-zoom.min.js"
+            integrity="sha512-NxlWEbNbTV6acWnTsWRLIiwzOw0IwHQOYUCKBiu/NqZ+5jSy7gjMbpYI+/4KvaNuZ1qolbw+Vnd76pbIUYEG8g=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
 </head>
@@ -120,9 +124,7 @@
                 <i class="fa fa-arrow-left"></i>
                 <span></span>
             </div>
-            <% if (JSON.parse(betaFeatures).showTermSwitcher) { %>
-                <% include ../partials/user/term_switcher.ejs %>
-            <% } %>
+            <% include ../partials/user/term_switcher.ejs %>
             <% if (JSON.parse(betaFeatures).showNotificationPanel) { %>
                 <% include ../partials/user/notification_panel.ejs %>
             <% } %>
@@ -774,8 +776,19 @@
                                 case "enableLogging":
                                     enableLogging = settings[key];
                                     $("#enableLoggingToggle").attr("checked", enableLogging);
+                                    break;
+                                case "animateWhenUnfocused":
+                                    appearance.animateWhenUnfocused = settings[key];
+                                    $("#animateWhenUnfocused").attr("checked", appearance.animateWhenUnfocused);
+                                    break;
+                                case "showFps":
+                                    appearance.showFps = settings[key];
+                                    $("#showFps").attr("checked", appearance.showFps);
+                                    break;
                             }
                         }
+                        let _refresh = data.refresh ?? false;
+                        if (_refresh) window.reload();
                         break;
                 }
             });
@@ -991,6 +1004,9 @@
             let weights = <%- weightData; %>;
             let relClassData = <%- relevantClassData; %>;
             let gradeHistoryLetters = <%- gradeHistory; %>;
+            let term = "<%= term %>";
+            let semester = "<%= semester %>";
+            let betaFeatures = <%- betaFeatures %>;
             let chartData = [];
             let parsedData = [];
             let categorySortedData = [];
@@ -1123,7 +1139,7 @@
                             document.getElementById("fade").disabled = true;
                             setupClassTables();
                         }, 500);
-                        if (appearance.holidayEffects) {
+                        if (appearance.seasonalEffects) {
                             init = performance.now();
                             if (darkMode === false) {
                                 $("#light_snowfall").attr("media", "");
@@ -1148,7 +1164,7 @@
                             document.getElementById("fade").disabled = true;
                             setupClassTables();
                         }, 500);
-                        if (appearance.holidayEffects) {
+                        if (appearance.seasonalEffects) {
                             init = performance.now();
                             if (darkMode === false) {
                                 $("#light_snowfall").attr("media", "");
@@ -1819,19 +1835,18 @@
                 _addedAssignments[_data[classIndex].class_name].push(JSON.parse(JSON.stringify(assignmentObject)));
                 addedAssignments[_data[classIndex].class_name].push(JSON.parse(JSON.stringify(assignmentObject)));
                 $.ajax({
-                    type: "POST", url: "/updateAddedAssignments", data: {data: JSON.stringify(addedAssignments)}
+                    type: "POST", url: "/updateAddedAssignments", data: {data: JSON.stringify(addedAssignments), term: term, semester: semester}
                 }).done(function (response) {
                     if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                         $(".session-timeout").show();
                         $("body").find("*").not(".session-timeout").remove();
-                        return;
+                    } else {
+                        let addAssignment = $($(".addAssignment")[currentPage]);
+                        addAssignment.trigger("click");
+                        recentlyAddedAssignment = assignmentObject;
+                        refreshWithoutReload(true, classIndex);
                     }
                 });
-
-                let addAssignment = $($(".addAssignment")[currentPage]);
-                addAssignment.trigger("click");
-                recentlyAddedAssignment = assignmentObject;
-                refreshWithoutReload(true, classIndex);
             }
 
             function updatePointsGotten(element) {
@@ -2104,7 +2119,7 @@
                 $.ajax({
                     type: "POST",
                     url: "/updateEditedAssignments",
-                    data: {data: JSON.stringify(editedAssignments)},
+                    data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
                     async: true
                 });
                 refreshWithoutReload(false, classIndex);
@@ -2127,7 +2142,7 @@
                     $.ajax({
                         type: "POST",
                         url: "/updateEditedAssignments",
-                        data: {data: JSON.stringify(editedAssignments)},
+                        data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
                         async: true
                     });
                 }
@@ -2179,7 +2194,7 @@
                     $.ajax({
                         type: "POST",
                         url: "/updateEditedAssignments",
-                        data: {data: JSON.stringify(editedAssignments)},
+                        data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
                         async: true
                     });
                     refreshWithoutReload(false, classIndex);
@@ -2195,7 +2210,7 @@
                 $.ajax({
                     type: "POST",
                     url: "/updateAddedAssignments",
-                    data: {data: JSON.stringify(addedAssignments)},
+                    data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
                     async: true
                 });
                 refreshWithoutReload(false, classIndex);
@@ -2217,7 +2232,7 @@
                 $.ajax({
                     type: "POST",
                     url: "/updateAddedAssignments",
-                    data: {data: JSON.stringify(addedAssignments)},
+                    data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
                     async: true
                 });
                 refreshWithoutReload(false, classIndex);
@@ -2253,7 +2268,7 @@
                     $.ajax({
                         type: "POST",
                         url: "/updateAddedAssignments",
-                        data: {data: JSON.stringify(addedAssignments)},
+                        data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
                         async: true
                     });
                     refreshWithoutReload(false, classIndex);
@@ -2269,13 +2284,13 @@
                 $.ajax({
                     type: "POST",
                     url: "/updateEditedAssignments",
-                    data: {data: JSON.stringify(editedAssignments)},
+                    data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
                     async: true
                 });
                 $.ajax({
                     type: "POST",
                     url: "/updateAddedAssignments",
-                    data: {data: JSON.stringify(addedAssignments)},
+                    data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
                     async: true
                 });
                 refreshWithoutReload(false, classIndex);
@@ -2297,13 +2312,13 @@
                 $.ajax({
                     type: "POST",
                     url: "/updateEditedAssignments",
-                    data: {data: JSON.stringify(editedAssignments)},
+                    data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
                     async: true
                 });
                 $.ajax({
                     type: "POST",
                     url: "/updateAddedAssignments",
-                    data: {data: JSON.stringify(addedAssignments)},
+                    data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
                     async: true
                 });
                 refreshWithoutReload(false, classIndex);
@@ -2340,7 +2355,7 @@
                         $.ajax({
                             type: "POST",
                             url: "/updateAddedAssignments",
-                            data: {data: JSON.stringify(addedAssignments)},
+                            data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
                             async: true
                         });
                     }
@@ -2357,7 +2372,7 @@
                         $.ajax({
                             type: "POST",
                             url: "/updateEditedAssignments",
-                            data: {data: JSON.stringify(editedAssignments)},
+                            data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
                             async: true
                         });
                     }
@@ -3205,13 +3220,23 @@
             function renderAllCharts(classIndex) {
                 if (_data && _data.length && !mobile) {
                     renderOverviewChart();
-                    $("#chart-1").click(function (e) {
-                        let activePoints = charts[0].getElementsAtEvent(e);
-                        let activeDataSet = charts[0].getDatasetAtEvent(e);
 
-                        if (activePoints.length > 0) {
-                            let clickedDatasetIndex = activeDataSet[0]._datasetIndex;
-                            showPage(clickedDatasetIndex);
+                    let offsetX, offsetY, zoneRadius = 1;
+                    $("#chart-1").on('mousedown', function (e) {
+                        offsetX = e.offsetX;
+                        offsetY = e.offsetY;
+                    }).on('mouseup', function (e) {
+                        // Only register click to move to page if pointer doesn't move more than 1 pixel(s) between mousedown and mouseup
+                        if (Math.abs(e.offsetX - offsetX) < zoneRadius && Math.abs(e.offsetY - offsetY) < zoneRadius) {
+                            let activePoints = charts[0].getElementsAtEventForMode(e, 'nearest', {intersect: false}, true);
+                            let activeDataSet = charts[0].getElementsAtEventForMode(e, 'nearest', {intersect: false}, true);
+
+                            if (activePoints.length > 0) {
+                                let clickedDatasetIndex = activeDataSet[0].datasetIndex;
+                                if (clickedDatasetIndex < _data.length) {
+                                    showPage(clickedDatasetIndex);
+                                }
+                            }
                         }
                     });
                     for (let i = 0; i < _data.length; i++) {
@@ -3223,16 +3248,7 @@
             }
 
             function resetZoom(id) {
-                // After experimenting, any chart without 28 keys does not reset, so rerender it
-                if (Object.keys(charts[id + 1]).length !== 28) {
-                    if (id >= 0) {
-                        renderChart(id);
-                    } else {
-                        renderOverviewChart();
-                    }
-                } else {
-                    charts[id + 1].resetZoom();
-                }
+                charts[id + 1].resetZoom();
             }
 
             let hoveredDatasetIndex = -1;
@@ -3282,7 +3298,8 @@
                         pointHoverRadius: 7,
                         pointHoverBackgroundColor: _colors[i],
                         pointHoverBorderColor: _colors[i],
-                        pointHoverBorderWidth: 2
+                        pointHoverBorderWidth: 2,
+                        yAxisID: 'yAxis',
                     });
                 }
                 let possibles;
@@ -3294,7 +3311,7 @@
                     possibles = possibles.map(element => Object.values(element)[0]);
                     for (let i = 0; i < possibles.length; i++) {
                         let mixedData = [];
-                        for (let j = startDate; j <= endDate; j += (endDate - startDate) / 100) {
+                        for (let j = startDate; j <= endDate + 7 * 24 * 60 * 60 * 1000; j += (endDate - startDate) / 100) {
                             mixedData.push({x: new Date(j), y: possibles[i]});
                         }
                         dataset.push({
@@ -3312,7 +3329,8 @@
                             pointHoverRadius: 0,
                             pointHoverBackgroundColor: "transparent",
                             pointHoverBorderColor: darkMode ? "white" : "black",
-                            pointHoverBorderWidth: 0
+                            pointHoverBorderWidth: 0,
+                            yAxisID: 'yAxis',
                         });
                     }
                 }
@@ -3332,13 +3350,13 @@
                                         continue;
                                     }
                                     let dataset = this.data.datasets[i];
-                                    dataset.borderWidth = 3;
-                                    dataset.pointRadius = 3;
+                                    dataset.borderWidth = 6;
+                                    dataset.pointRadius = 6;
                                 }
                                 this.update(1000);
                                 return;
                             }
-                            let datasetIndex = activeElements[0]._datasetIndex;
+                            let datasetIndex = activeElements[0].datasetIndex;
                             let activeDataset = this.data.datasets[datasetIndex];
                             for (let i = 0; i < this.data.datasets.length; i++) {
                                 if (i >= chartData.length) {
@@ -3357,118 +3375,122 @@
                             }
                             this.update(100);
                         }, scales: {
-                            xAxes: [{
+                            xAxis: {
                                 type: "time", time: {
                                     unit: chartData.filter(d => new Date(d.assignmentDates.slice(-1)[0]).getMonth() !== new Date(d.assignmentDates[0]).getMonth()).length ? "month" : "day"
                                 }, ticks: {
-                                    fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "13"
-                                }, gridLines: {
+                                    color: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "13"
+                                }, grid: {
                                     color: (darkMode ? "#555555" : "#CCCCCC")
                                 }
-                            }], yAxes: [{
+                            }, yAxis: {
+                                suggestedMax: appearance.regularizeClassGraphs ? 110 : undefined,
+                                suggestedMin: appearance.regularizeClassGraphs ? 70 : undefined,
                                 ticks: {
-                                    suggestedMax: appearance.regularizeClassGraphs ? 110 : undefined,
-                                    suggestedMin: appearance.regularizeClassGraphs ? 70 : undefined,
-                                    fontColor: (darkMode ? "white" : "black"),
+                                    color: (darkMode ? "white" : "black"),
                                     fontFamily: "Verdana",
                                     fontSize: "12"
-                                }, gridLines: {
+                                }, grid: {
                                     color: (darkMode ? "#555555" : "#CCCCCC"), drawBorder: false
                                 }
-                            }]
+                            }
                         }, animation: {
                             easing: "easeOutCubic"
-                        }, legend: {
-                            onClick: (e) => e.stopPropagation(), display: true, position: "top", labels: {
-                                usePointStyle: true,
-                                fontColor: (darkMode ? "white" : "black"),
-                                fontFamily: "Verdana",
-                                boxWidth: 20,
-                                fontSize: 13,
-                                filter: function (item) {
-                                    return !item.text.includes("undefined");
-                                }
-                            }
-                        }, tooltips: {
-                            enabled: true,
-                            mode: "nearest",
-                            intersect: false,
-                            displayColors: true,
-                            caretSize: 10,
-                            callbacks: {
-                                title: function (tooltipItems, data) {
-                                    if (tooltipItems[0].datasetIndex >= chartData.length) {
-                                        return possibles[tooltipItems[0].datasetIndex - chartData.length] + "% (" + possibleLabels[tooltipItems[0].datasetIndex - chartData.length] + ")";
-                                    }
-                                    if (!correctCalc(tooltipItems[0].datasetIndex)) {
-                                        if (!chartData[tooltipItems[0].datasetIndex].mixedData.length) {
-                                            return "Unknown Date " + _data[tooltipItems[0].datasetIndex].overall_percent + "% (" + _data[tooltipItems[0].datasetIndex].overall_letter + ")";
-                                        }
-                                        if (tooltipItems[0].index >= chartData[tooltipItems[0].datasetIndex].mixedData.length) {
-                                            return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + _data[tooltipItems[0].datasetIndex].overall_percent + "% (" +
-                                                _data[tooltipItems[0].datasetIndex].overall_letter + ")";
-                                        }
-                                        return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " N/A [Unverified weights]";
-                                    }
-                                    return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + tooltipItems[0].value + "% (" + getLetterGrade(tooltipItems[0].value) + ")";
-                                }, label: function (tooltipItem) {
-                                    if (tooltipItem.datasetIndex >= chartData.length) {
-                                        return;
-                                    }
-                                    if (!chartData[tooltipItem.datasetIndex].mixedData.length) {
-                                        return;
-                                    }
-                                    if (tooltipItem.index >= chartData[tooltipItem.datasetIndex].mixedData.length) {
-                                        let delta = Math.round((_data[tooltipItem.datasetIndex].overall_percent - chartData[tooltipItem.datasetIndex].mixedData.slice(-1)[0].y) * 100) / 100;
-                                        if (delta > 0) {
-                                            delta = "+" + delta;
-                                        }
-                                        return delta + "% (To Match PowerSchool)";
-                                    }
-                                    return ["[" + chartData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.index] + "] " +
-                                    chartData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.index] + ((chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] !== false &&
-                                        chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, 2) !== "--") ?
-                                        (" - " + chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.index] + "% ") : (" ")) +
-                                    ((chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length -
-                                        2)) !== "/0" ? ("(" + chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index] + ")") : ("(" +
-                                        chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].substring(0, chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.index].length -
-                                            2) + ")"))];
-                                }
-                            }
                         }, responsive: true, maintainAspectRatio: false, plugins: {
+                            legend: {
+                                display: true, position: "top",
+                                labels: {
+                                    usePointStyle: true,
+                                    color: (darkMode ? "white" : "black"),
+                                    fontFamily: "Verdana",
+                                    boxWidth: 20,
+                                    fontSize: 13,
+                                    filter: function (item) {
+                                        return !item.text.includes("undefined");
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                enabled: true,
+                                mode: "nearest",
+                                intersect: false,
+                                displayColors: true,
+                                caretSize: 10,
+                                callbacks: {
+                                    title: function (tooltipItems, data) {
+                                        if (tooltipItems[0].datasetIndex >= chartData.length) {
+                                            return possibles[tooltipItems[0].datasetIndex - chartData.length] + "% (" + possibleLabels[tooltipItems[0].datasetIndex - chartData.length] + ")";
+                                        }
+                                        if (!correctCalc(tooltipItems[0].datasetIndex)) {
+                                            if (!chartData[tooltipItems[0].datasetIndex].mixedData.length) {
+                                                return "Unknown Date " + _data[tooltipItems[0].datasetIndex].overall_percent + "% (" + _data[tooltipItems[0].datasetIndex].overall_letter + ")";
+                                            }
+                                            if (tooltipItems[0].index >= chartData[tooltipItems[0].datasetIndex].mixedData.length) {
+                                                return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + _data[tooltipItems[0].datasetIndex].overall_percent + "% (" +
+                                                    _data[tooltipItems[0].datasetIndex].overall_letter + ")";
+                                            }
+                                            return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " N/A [Unverified weights]";
+                                        }
+                                        return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + tooltipItems[0].formattedValue + "% (" +
+                                            getLetterGrade(tooltipItems[0].formattedValue) + ")";
+                                    }, label: function (tooltipItem) {
+                                        if (tooltipItem.datasetIndex >= chartData.length) {
+                                            return;
+                                        }
+                                        if (!chartData[tooltipItem.datasetIndex].mixedData.length) {
+                                            return;
+                                        }
+                                        if (tooltipItem.dataIndex >= chartData[tooltipItem.datasetIndex].mixedData.length) {
+                                            let delta = Math.round((_data[tooltipItem.datasetIndex].overall_percent - chartData[tooltipItem.datasetIndex].mixedData.slice(-1)[0].y) * 100) / 100;
+                                            if (delta > 0) {
+                                                delta = "+" + delta;
+                                            }
+                                            return delta + "% (To Match PowerSchool)";
+                                        }
+                                        return ["[" + chartData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.dataIndex] + "] " +
+                                        chartData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.dataIndex] +
+                                        ((chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.dataIndex] !== false &&
+                                            chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, 2) !== "--") ?
+                                            (" - " + chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.dataIndex] + "% ") : (" ")) +
+                                        ((chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].substring(chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].length -
+                                            2)) !== "/0" ? ("(" + chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex] + ")") : ("(" +
+                                            chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].length -
+                                                2) + ")"))];
+                                    }
+                                }
+                            },
                             zoom: {
                                 zoom: {
-                                    enabled: true, mode: "xy", speed: 0.05, onZoom: ({chart}) => {
+                                    wheel: {
+                                        enabled: true, speed: 0.05,
+                                    },
+                                    pinch: {
+                                        enabled: true,
+                                        threshold: 100,
+                                    },
+                                    drag: {enabled: true,},
+                                    mode: "xy",
+                                    onZoom: ({chart}) => {
                                         $("#reset-zoom-1").show();
 
                                         // Disable hovering and tooltips to make animation smoother
                                         chart.options.hover.mode = null;
-                                        chart.options.tooltips.enabled = false;
+                                        chart.options.plugins.tooltip.enabled = false;
                                     }, onZoomComplete: ({chart}) => {
                                         chart.options.hover.mode = "nearest";
-                                        chart.options.tooltips.enabled = true;
+                                        chart.options.plugins.tooltip.enabled = true;
                                     }
-                                }, pan: {
-                                    enabled: true, mode: "xy", speed: 0.05, onPan: ({chart}) => {
-                                        $("#reset-zoom-1").show();
-
-                                        // Disable hovering and tooltips to make animation smoother
-                                        chart.options.hover.mode = null;
-                                        chart.options.tooltips.enabled = false;
-                                    }, onPanComplete: ({chart}) => {
-                                        chart.options.hover.mode = "nearest";
-                                        chart.options.tooltips.enabled = true;
-                                    }
-                                }
+                                },
                             }
                         }
                     }
                 });
             }
 
-            Chart.pluginService.register({
+            Chart.register({
+                id: 'hideLoading',
                 afterRender: chartInstance => {
-                    $(`#chart-container${chartInstance.chart.ctx.canvas.id.substring(5)} .chart-placeholder`).remove();
+                    $(`#chart-container${chartInstance.ctx.canvas.id.substring(5)} .chart-placeholder`).remove();
                 }
             });
 
@@ -3494,7 +3516,6 @@
                     }
                 }
                 dataset.push({
-                    label: "chartData[id]",
                     backgroundColor: "transparent",
                     pointBackgroundColor: _colors[id],
                     pointBorderColor: _colors[id],
@@ -3509,7 +3530,8 @@
                     pointHoverRadius: 7,
                     pointHoverBackgroundColor: _colors[id],
                     pointHoverBorderColor: _colors[id],
-                    pointHoverBorderWidth: 2
+                    pointHoverBorderWidth: 2,
+                    yAxisID: 'yAxis',
                 });
                 let possibles;
                 let possibleLabels;
@@ -3520,7 +3542,7 @@
                     possibles = possibles.map(element => Object.values(element)[0]);
                     for (let i = 0; i < possibles.length; i++) {
                         let mixedData = [];
-                        for (let j = startDate; j <= endDate; j += (endDate - startDate) / 100) {
+                        for (let j = startDate; j <= endDate + 7 * 24 * 60 * 60 * 1000; j += (endDate - startDate) / 100) {
                             mixedData.push({x: new Date(j), y: possibles[i]});
                         }
                         dataset.push({
@@ -3538,7 +3560,8 @@
                             pointHoverRadius: 0,
                             pointHoverBackgroundColor: "transparent",
                             pointHoverBorderColor: darkMode ? "white" : "black",
-                            pointHoverBorderWidth: 0
+                            pointHoverBorderWidth: 0,
+                            yAxisID: 'yAxis',
                         });
                     }
                 }
@@ -3549,92 +3572,94 @@
                         hover: {
                             mode: "nearest", intersect: false
                         }, scales: {
-                            xAxes: [{
+                            xAxis: {
                                 type: "time", time: {
                                     unit: new Date(chartData[id].assignmentDates.slice(-1)[0]).getMonth() === new Date(chartData[id].assignmentDates[0]).getMonth() ? "day" : "month"
                                 }, ticks: {
-                                    fontColor: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "13"
-                                }, gridLines: {
+                                    color: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "13"
+                                }, grid: {
                                     color: (darkMode ? "#555555" : "#CCCCCC")
                                 }
-                            }], yAxes: [{
-                                ticks: {
+                            }, yAxis: {
                                     suggestedMax: appearance.regularizeClassGraphs ? 110 : undefined,
                                     suggestedMin: appearance.regularizeClassGraphs ? 70 : undefined,
-                                    fontColor: (darkMode ? "white" : "black"),
+                                ticks: {
+                                    color: (darkMode ? "white" : "black"),
                                     fontFamily: "Verdana",
                                     fontSize: "12"
-                                }, gridLines: {
+                                }, grid: {
                                     color: (darkMode ? "#555555" : "#CCCCCC"), drawBorder: false
                                 }
-                            }]
+                            }
                         }, animation: {
                             easing: "easeOutCubic"
-                        }, legend: {
-                            display: false
-                        }, tooltips: {
-                            enabled: true, position: "nearest", intersect: false, displayColors: false, callbacks: {
-                                title: function (tooltipItems) {
-                                    if (tooltipItems[0].datasetIndex >= 1) {
-                                        return possibles[tooltipItems[0].datasetIndex - 1] + "% (" + possibleLabels[tooltipItems[0].datasetIndex - 1] + ")";
-                                    }
-                                    if (!correctCalc(id)) {
-                                        if (!chartData[id].mixedData.length) {
-                                            return "Unknown Date " + _data[id].overall_percent + "% (" + _data[id].overall_letter + ")";
+                        }, responsive: true, maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }, tooltip: {
+                                enabled: true, position: "nearest", intersect: false, displayColors: false, callbacks: {
+                                    title: function (tooltipItems) {
+                                        if (tooltipItems[0].datasetIndex >= 1) {
+                                            return possibles[tooltipItems[0].datasetIndex - 1] + "% (" + possibleLabels[tooltipItems[0].datasetIndex - 1] + ")";
                                         }
-                                        if (tooltipItems[0].index >= chartData[id].mixedData.length) {
-                                            return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + _data[id].overall_percent + "% (" + _data[id].overall_letter + ")";
+                                        if (!correctCalc(id)) {
+                                            if (!chartData[id].mixedData.length) {
+                                                return "Unknown Date " + _data[id].overall_percent + "% (" + _data[id].overall_letter + ")";
+                                            }
+                                            if (tooltipItems[0].index >= chartData[id].mixedData.length) {
+                                                return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + _data[id].overall_percent + "% (" + _data[id].overall_letter + ")";
+                                            }
+                                            return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " N/A [Unverified weights]";
                                         }
-                                        return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " N/A [Unverified weights]";
-                                    }
-                                    return moment(tooltipItems[0].xLabel).format("MM/DD/YY") + " " + tooltipItems[0].value + "% (" + getLetterGrade(tooltipItems[0].value) + ")";
-                                }, label: function (tooltipItem) {
-                                    if (tooltipItem.datasetIndex >= 1) {
-                                        return;
-                                    }
-                                    if (!chartData[tooltipItem.datasetIndex].mixedData.length) {
-                                        return;
-                                    }
-                                    if (tooltipItem.index >= chartData[id].mixedData.length) {
-                                        let delta = Math.round((_data[id].overall_percent - chartData[id].mixedData.slice(-1)[0].y) * 100) / 100;
-                                        if (delta > 0) {
-                                            delta = "+" + delta;
+                                        return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + tooltipItems[0].formattedValue + "% (" + getLetterGrade(tooltipItems[0].formattedValue) + ")";
+                                    }, label: function (tooltipItem) {
+                                        if (tooltipItem.datasetIndex >= 1) {
+                                            return;
                                         }
-                                        return delta + "% (To Match PowerSchool)";
+                                        if (!chartData[tooltipItem.datasetIndex].mixedData.length) {
+                                            return;
+                                        }
+                                        if (tooltipItem.dataIndex >= chartData[id].mixedData.length) {
+                                            let delta = Math.round((_data[id].overall_percent - chartData[id].mixedData.slice(-1)[0].y) * 100) / 100;
+                                            if (delta > 0) {
+                                                delta = "+" + delta;
+                                            }
+                                            return delta + "% (To Match PowerSchool)";
+                                        }
+                                        return ["[" + chartData[id].assignmentCategories[tooltipItem.dataIndex] + "] " + chartData[id].assignmentNames[tooltipItem.dataIndex] +
+                                        ((chartData[id].assignmentPercents[tooltipItem.dataIndex] !== false && chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, 2) !== "--") ?
+                                            (" - " + chartData[id].assignmentPercents[tooltipItem.dataIndex] + "% ") : (" ")) +
+                                        ((chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].length - 2)) !== "/0" ?
+                                            ("(" + chartData[id].assignmentScoresParsed[tooltipItem.dataIndex] + ")") :
+                                            ("(" + chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].length - 2) +
+                                                ")"))];
                                     }
-                                    return ["[" + chartData[id].assignmentCategories[tooltipItem.index] + "] " + chartData[id].assignmentNames[tooltipItem.index] +
-                                    ((chartData[id].assignmentPercents[tooltipItem.index] !== false && chartData[id].assignmentScoresParsed[tooltipItem.index].substring(0, 2) !== "--") ?
-                                        (" - " + chartData[id].assignmentPercents[tooltipItem.index] + "% ") : (" ")) +
-                                    ((chartData[id].assignmentScoresParsed[tooltipItem.index].substring(chartData[id].assignmentScoresParsed[tooltipItem.index].length - 2)) !== "/0" ?
-                                        ("(" + chartData[id].assignmentScoresParsed[tooltipItem.index] + ")") :
-                                        ("(" + chartData[id].assignmentScoresParsed[tooltipItem.index].substring(0, chartData[id].assignmentScoresParsed[tooltipItem.index].length - 2) + ")"))];
                                 }
-                            }
-                        }, responsive: true, maintainAspectRatio: false, plugins: {
+                            },
                             zoom: {
                                 zoom: {
-                                    enabled: true, mode: "xy", speed: 0.05, onZoom: ({chart}) => {
+                                    wheel: {
+                                        enabled: true, speed: 0.05,
+                                    },
+                                    pinch: {
+                                        enabled: true,
+                                        threshold: 100,
+                                    },
+                                    drag: {enabled: true,
+                                    },
+                                    mode: "xy",
+                                    onZoom: ({chart}) => {
                                         $("#reset-zoom" + id).show();
 
                                         // Disable hovering and tooltips to make animation smoother
                                         chart.options.hover.mode = null;
-                                        chart.options.tooltips.enabled = false;
+                                        chart.options.plugins.tooltip.enabled = false;
                                     }, onZoomComplete: ({chart}) => {
                                         chart.options.hover.mode = "nearest";
-                                        chart.options.tooltips.enabled = true;
+                                        chart.options.plugins.tooltip.enabled = true;
                                     }
-                                }, pan: {
-                                    enabled: true, mode: "xy", speed: 0.05, onPan: ({chart}) => {
-                                        $("#reset-zoom" + id).show();
-
-                                        // Disable hovering and tooltips to make animation smoother
-                                        chart.options.hover.mode = null;
-                                        chart.options.tooltips.enabled = false;
-                                    }, onPanComplete: ({chart}) => {
-                                        chart.options.hover.mode = "nearest";
-                                        chart.options.tooltips.enabled = true;
-                                    }
-                                }
+                                },
                             }
                         }
                     }
@@ -3869,7 +3894,9 @@
                             let formData = {
                                 "className": className,
                                 "hasWeights": JSON.stringify(hasWeights),
-                                "newWeights": JSON.stringify(weightURI)
+                                "newWeights": JSON.stringify(weightURI),
+                                "term": term,
+                                "semester": semester,
                             };
 
                             $.ajax({
@@ -3973,7 +4000,7 @@
 
                         // Disable tooltips and hover
                         chart.options.hover.mode = null;
-                        chart.options.tooltips.enabled = false;
+                        chart.options.plugins.tooltip.enabled = false;
                     });
                 } else {
                     charts.forEach(chart => {
@@ -3983,7 +4010,7 @@
 
                         // Enabled tooltips and hover
                         chart.options.hover.mode = "nearest";
-                        chart.options.tooltips.enabled = true;
+                        chart.options.plugins.tooltip.enabled = true;
                     });
                 }
 

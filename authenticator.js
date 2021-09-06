@@ -20,7 +20,7 @@ const socketManager = require("./socketManager");
 const roundsToGenerateSalt = 10;
 
 // Change this when updateDB changes
-const dbUserVersion = 14;
+const dbUserVersion = 18;
 const dbClassVersion = 4;
 
 db.defaults({users: [], keys: [], classes: {version: dbClassVersion}, deletedUsers: []}).write();
@@ -33,7 +33,7 @@ let versionNameArray = [];
 let tutorialKeys = ["homeSeen", "navinfoSeen", "moreSeen", "settingsSeen"];
 
 // Update this list with new beta features
-let betaFeatureKeys = ["showTermSwitcher", "showFps", "showNotificationPanel"];
+let betaFeatureKeys = ["showNotificationPanel"];
 
 module.exports = {
 
@@ -784,8 +784,51 @@ module.exports = {
             saveUpdate(++version);
         }
 
+        if (version === 14) {
+            // Fix 21-22 data
+            let addedRef = userRef.get("addedAssignments");
+            let editedRef = userRef.get("editedAssignments");
+
+            let added = user.addedAssignments;
+            let edited = user.editedAssignments;
+
+            let badObjects = [[added, addedRef], [edited, editedRef]];
+
+            for (let [obj, ref] of badObjects) {
+                if ("21-22" in obj && "S1" in obj["21-22"]) {
+                    let entries = Object.entries(obj["21-22"]["S1"]);
+                    for (let [key, value] of entries) {
+                        if (Array.isArray(value)) {
+                            ref.get("21-22").get("S1").set(key, {}).write();
+                        }
+                    }
+                }
+            }
+
+            saveUpdate(++version);
+        }
+
+        if (version === 15) {
+            userRef.get("appearance").set("animateWhenUnfocused", false).write();
+
+            saveUpdate(++version);
+        }
+
+        if (version === 16) {
+            userRef.get("appearance").set("seasonalEffects", user.appearance.holidayEffects).write();
+            userRef.get("appearance").unset("holidayEffects").write();
+
+            saveUpdate(++version);
+        }
+
+        if (version === 17) {
+            userRef.get("appearance").set("showFps", false).write();
+
+            saveUpdate(++version);
+        }
+
         /** Stuff that happens no matter what */
-            // Remove any extra tutorial keys
+        // Remove any extra tutorial keys
         let existingKeys = Object.keys(userRef.get("alerts").get("tutorialStatus").value());
         for (let i = 0; i < existingKeys.length; i++) {
             if (!tutorialKeys.includes(existingKeys[i])) {
@@ -800,6 +843,15 @@ module.exports = {
             }
         }
 
+        // Remove extra beta features
+        let existingFeatures = Object.keys(userRef.get("betaFeatures").value());
+        for (let i = 0; i < existingFeatures.length; i++) {
+            if (existingFeatures[i] === "active") continue;
+            if (!betaFeatureKeys.includes(existingFeatures[i])) {
+                userRef.get("betaFeatures").unset(existingFeatures[i]).write();
+            }
+        }
+
         // Set all new beta features to true
         let betaFeatures = userRef.get("betaFeatures").value();
         if (betaFeatures.active) {
@@ -811,24 +863,22 @@ module.exports = {
             userRef.set("betaFeatures", betaFeatures).write();
         }
 
-        this.bringUpToDate(username, false);
+        this.bringUpToDate(username);
 
-    }, bringUpToDate: function (username, onlyLatest = true) {
+    }, bringUpToDate: function (username, term, semester) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
         let classes = db.get("classes").value();
 
-        let {term, semester} = this.getMostRecentTermData(lc_username);
-
         for (let g = 0; g < Object.keys(user.grades).length; g++) {
             let _term = Object.keys(user.grades)[g];
-            if (onlyLatest && _term !== term) {
+            if (term && _term !== term) {
                 continue;
             }
             for (let h = 0; h < Object.keys(user.grades[_term]).length; h++) {
                 let _semester = Object.keys(user.grades[_term])[h];
-                if (onlyLatest && _semester !== semester) {
+                if (semester && _semester !== semester) {
                     continue;
                 }
                 for (let i = 0; i < user.grades[_term][_semester].length; i++) {
@@ -1154,13 +1204,15 @@ module.exports = {
                         classColors: [],
                         colorPalette: "clear",
                         shuffleColors: false,
-                        holidayEffects: true,
+                        seasonalEffects: true,
                         showNonAcademic: true,
                         darkModeStart: 946778400000,
                         darkModeFinish: 946738800000,
                         weightedGPA: true,
                         regularizeClassGraphs: true,
-                        showMaxGPA: false
+                        showMaxGPA: false,
+                        animateWhenUnfocused: false,
+                        showFps: false,
                     },
                     alerts: {
                         lastUpdated: [],
@@ -1255,7 +1307,7 @@ module.exports = {
             user = db.get("deletedUsers").find({username: lc_username}).value();
         }
         return !!user;
-    }, setTheme: function (username, theme, darkModeStart, darkModeFinish, holidayEffects, blurEffects) {
+    }, setTheme: function (username, theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         user.get("appearance").set("theme", theme).write();
@@ -1270,9 +1322,9 @@ module.exports = {
         if (theme === "sun") {
             message = "Dark theme enabled from sunset to sunrise.";
         }
-        if (holidayEffects !== user.get("appearance").get("holidayEffects").value()) {
-            message = "Holiday effects " + (holidayEffects ? "enabled" : "disabled") + "!";
-            user.get("appearance").set("holidayEffects", holidayEffects).write();
+        if (seasonalEffects !== user.get("appearance").get("seasonalEffects").value()) {
+            message = "Seasonal effects " + (seasonalEffects ? "enabled" : "disabled") + "!";
+            user.get("appearance").set("seasonalEffects", seasonalEffects).write();
         }
         if (blurEffects !== user.get("appearance").get("blurEffects").value()) {
             message = this.setBlur(lc_username, blurEffects).message;
@@ -1415,7 +1467,7 @@ module.exports = {
                     this.initAddedAssignments(lc_username);
                     this.initWeights(lc_username);
                     this.initEditedAssignments(lc_username);
-                    this.bringUpToDate(lc_username, false);
+                    this.bringUpToDate(lc_username);
                     userRef.get("updatedGradeHistory").push(Date.now()).write();
                     socketManager.emitToRoom(lc_username, "sync", "success-history", data.message);
                 } else {
@@ -1512,7 +1564,7 @@ module.exports = {
                     this.initAddedAssignments(lc_username);
                     this.initWeights(lc_username);
                     this.initEditedAssignments(lc_username);
-                    this.bringUpToDate(lc_username);
+                    this.bringUpToDate(lc_username, newTerm, newSemester);
                     let updateHistory = false;
                     if ((newTerm !== oldTerm || newSemester !== oldSemester) || !userRef.get("updatedGradeHistory").value().length || userRef.get("updatedGradeHistory").value().slice(-1)[0] <
                         new Date(2021, 0, 11).getTime()) {
@@ -1702,6 +1754,10 @@ module.exports = {
         }
         let teacherName;
 
+        let grades = userRef.get("grades").value();
+        if (!(term in grades) || !(semester in grades[term])) {
+            return {success: false, message: "Invalid term or semester."};
+        }
         let clsRef = userRef.get("grades").get(term).get(semester).find({class_name: className});
         if (clsRef.value()) {
             teacherName = clsRef.value().teacher_name;
@@ -2082,18 +2138,26 @@ module.exports = {
         sortDataRef.set("categorySort", categorySort).write();
     },
 
-    updateAddedAssignments: function (username, addedAssignments) {
+    updateAddedAssignments: function (username, addedAssignments, term, semester) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
-        let {term, semester} = this.getMostRecentTermData(username);
-        userRef.get("addedAssignments").get(term).set(semester, addedAssignments).write();
-        return {success: true, message: "Successfully updated added assignments"};
+        let added = userRef.get("addedAssignments").value();
+        if (term in added && semester in added[term]) {
+            userRef.get("addedAssignments").get(term).set(semester, addedAssignments).write();
+            return {success: true, message: "Successfully updated added assignments"};
+        } else {
+            return {success: false, message: "Invalid term or semester"};
+        }
     },
 
-    updateEditedAssignments: function (username, editedAssignments) {
+    updateEditedAssignments: function (username, editedAssignments, term, semester) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
-        let {term, semester} = this.getMostRecentTermData(username);
-        userRef.get("editedAssignments").get(term).set(semester, editedAssignments).write();
-        return {success: true, message: "Successfully updated edited assignments"};
+        let edited = userRef.get("editedAssignments").value();
+        if (term in edited && semester in edited[term]) {
+            userRef.get("editedAssignments").get(term).set(semester, editedAssignments).write();
+            return {success: true, message: "Successfully updated edited assignments"};
+        } else {
+            return {success: false, message: "Invalid term or semester"};
+        }
     },
 
     migrateLastUpdated: function (username) {
@@ -2280,6 +2344,30 @@ module.exports = {
         user.set("enableLogging", value).write();
         return {success: true, message: "Logging " + (value ? "enabled" : "disabled") + "!", settings: {enableLogging: value}};
     },
+
+    setAnimateWhenUnfocused: function (username, value) {
+        if (!this.userExists(username)) {
+            return {success: false, message: "Invalid user"};
+        }
+        let user = db.get("users").find({username: username.toLowerCase()});
+        if (typeof value != "boolean") {
+            return {success: false, message: "Invalid value", settings: {animateWhenUnfocused: value}};
+        }
+        user.get("appearance").set("animateWhenUnfocused", value).write();
+        return {success: true, message: "Animation " + (value ? "enabled" : "disabled") + " when window is not in focus!", settings: {animateWhenUnfocused: value}, refresh: true};
+    },
+
+    setShowFps: function (username, value) {
+        if (!this.userExists(username)) {
+            return {success: false, message: "Invalid user"};
+        }
+        let user = db.get("users").find({username: username.toLowerCase()});
+        if (typeof value != "boolean") {
+            return {success: false, message: "Invalid value", settings: {showFps: value}};
+        }
+        user.get("appearance").set("showFps", value).write();
+        return {success: true, message: "Refresh Rate Display " + (value ? "enabled" : "disabled") + "!", settings: {showFps: value}, refresh: true};
+    }
 
 };
 

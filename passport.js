@@ -39,7 +39,7 @@ module.exports = function (passport) {
 
         let userRef = authent.getUserRef(username);
         let user = userRef.value();
-        if ('updatedInBackground' in user) {
+        if (user && 'updatedInBackground' in user) {
             userRef.set("updatedInBackground", "updating").write();
         }
 

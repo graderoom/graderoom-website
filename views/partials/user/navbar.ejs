@@ -179,6 +179,8 @@
 <% } %>
 <% if (page === "home") { %>
     <% const lightsMonth = 11; /* 11 is December */ %>
+    <% const winterStart = 10; %>
+    <% const winterEnd = 2; %>
     <% include settings_card.ejs %>
 <% } %>
 <% if (page === "home") { %>
@@ -376,9 +378,9 @@
                             }
                         } else if (response.includes("sun")) {
                             theme = "sun";
-                        } else if (response.slice(0, 15) === "Holiday effects") {
-                            appearance.holidayEffects = response.slice(16) === "enabled!";
-                        } else if (response.slice(0, 12) === "Blur effects") {
+                        } else if (response.startsWith("Seasonal effects")) {
+                            appearance.seasonalEffects = response.slice(17) === "enabled!";
+                        } else if (response.startsWith("Blur effects")) {
                             appearance.blurEffects = response.slice(13) === "enabled!";
                             if (!appearance.blurEffects) {
                                 $("#blur_base").prop("disabled", true);
@@ -396,10 +398,8 @@
                         if (theme === "auto" || theme === "sun" || theme === "system") {
                             checkTime();
                         }
-                        if (appearance.holidayEffects) {
+                        if (appearance.seasonalEffects) {
                             init = performance.now();
-                            $("#lights-disabled-message").hide();
-                            $("#snow-disabled-message").hide();
                             $("#snow-fall").show();
                             $(".lightrope").show();
                             if (darkMode === false) {

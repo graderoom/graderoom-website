@@ -1517,26 +1517,33 @@ tbody tr {
 }
 
 #termSwitcher {
+    overflow: visible;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
     position: fixed;
     z-index: 19;
     top: 50%;
     left: -6rem;
-    width: 6rem;
+    width: 8rem;
+    min-height: 12rem;
     height: unset;
-    padding: 0.5rem;
-    transition: all 400ms ease;
+    padding: 0.5rem 2.5rem 0.5rem 0.5rem;
+    transition: 250ms all 150ms ease;
     transform: translateY(-50%);
     text-align: center;
-    border-radius: 0 2rem 2rem 0;
+    border-radius: 0 1rem 1rem 0;
 }
 
-#termSwitcher::after {
+#termSwitcher::before {
+    z-index: 2;
     font-weight: 500;
     position: absolute;
     top: 50%;
-    left: 6rem;
-    width: 2rem;
-    height: 12rem;
+    left: 3rem;
+    width: 5rem;
+    min-height: 12rem;
+    height: 100%;
     padding: 0.1rem;
     content: "Term Switcher";
     transition: all 500ms ease;
@@ -1551,17 +1558,21 @@ tbody tr {
 }
 
 #termSwitcher:hover, #termSwitcher.hover {
+    min-height: 12rem;
+    padding-right: 0.5rem;
+    height: unset;
+    width: 6rem;
     left: 0;
 }
 
-#termSwitcher:hover::after, #termSwitcher.hover::after {
-    left: -2rem;
+#termSwitcher:hover::before, #termSwitcher.hover::before {
+    left: -6rem;
 }
 
 #termSwitcher > div {
     padding: 1rem;
     cursor: default;
-    transition: all 400ms ease;
+    transition: all 300ms ease;
     opacity: 0.5;
     border-radius: 2rem;
 }
@@ -1577,7 +1588,7 @@ tbody tr {
 #termSwitcher > div > div {
     height: 0;
     cursor: pointer;
-    transition: all 400ms ease;
+    transition: all 250ms ease;
     color: transparent;
 }
 
@@ -1590,6 +1601,12 @@ tbody tr {
 #termSwitcher > div > div:hover, #termSwitcher > div > div.active {
     font-size: 1.4rem;
     height: 2.3rem;
+    opacity: 1;
+}
+
+#termSwitcher > div > div.active {
+    cursor: default;
+    pointer-events: none;
 }
 
 .slider {
@@ -2166,6 +2183,11 @@ td.addAssignmentScore {
     margin-bottom: auto !important;
 }
 
+.fps-chart-container {
+    width: 120px;
+    height: 100px;
+}
+
 @keyframes expand-assignment-wizard {
     0% {
         width: 0;
@@ -2690,12 +2712,6 @@ input:disabled {
     justify-content: center;
 }
 
-#advancedAppearance {
-    display: flex;
-    align-items: stretch;
-    justify-content: space-between;
-}
-
 .tutorial-popup {
     z-index: 1;
 }
@@ -2854,6 +2870,19 @@ input:disabled {
 .disable-when-system-theme-not-supported {
     pointer-events: none;
     opacity: 0.5;
+}
+
+#performance-issues-messages {
+    max-height: 10rem;
+    overflow: scroll;
+}
+
+.performance-issue {
+    border-radius: 1rem;
+    padding: 1rem;
+    display: block;
+    margin: 0.5rem 0;
+    width: fit-content;
 }
 
 #mobile-overview-grid {

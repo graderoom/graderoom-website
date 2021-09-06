@@ -249,10 +249,10 @@
                                     <span class="slider"></span>
                                 </label>
                                 <label for="blurEffectsToggle">
-                                    <span>Enable Blur Effects</span> <span class="popup"><i
+                                    <span>Enable Blur and Transparency Effects</span> <span class="popup"><i
                                                 class="fa fa-question-circle"><span
                                                     class="popup-right-bottom">When enabled, adds blur and
-                                                translucency effects across the site.
+                                                transparency effects across the site.
                                             </span></i></span> <span class="popup hide-in-firefox"><i
                                                 class="fa fa-exclamation-triangle">
                                             <span class="popup-right-bottom">WARNING: Causes lag on slower
@@ -266,35 +266,28 @@
                             </label>
                             <label class="slider-container">
                                 <label class="switch">
-                                    <input id="holidayEffectsToggle" type="checkbox"
-                                           name="enableHolidayEffects"
-                                    <% if (JSON.parse(appearance).holidayEffects) { %>
+                                    <input id="seasonalEffectsToggle" type="checkbox"
+                                           name="enableSeasonalEffects"
+                                    <% if (JSON.parse(appearance).seasonalEffects) { %>
                                            checked
                                             <% } %>
                                            onchange="ajaxPostForm('#chooseTheme',[],'#themeMessage',true); $($(this)[0].form).trigger('submit');"
                                     >
                                     <span class="slider"></span>
                                 </label>
-                                <label for="holidayEffectsToggle">
-                                    Enable Holiday Effects
+                                <label for="seasonalEffectsToggle">
+                                    <span>Enable Seasonal Effects</span> <span class="popup"><i
+                                                class="fa fa-question-circle"><span
+                                                    class="popup-right-bottom">When enabled, adds seasonal effects across the site.
+                                            </span></i></span>
                                 </label>
                             </label>
-                            <div>
-                                <div style="font-size: 0.5rem; display: none"
-                                     id="snow-disabled-message">
-                                    Winter Snow was disabled to improve performance<br>
-                                </div>
-                                <% if (new Date().getMonth() === lightsMonth) { %>
-                                    <div style="font-size: 0.5rem; display: none"
-                                         id="lights-disabled-message">
-                                        Christmas Lights were paused to improve performance
-                                    </div>
-                                <% } %>
-                            </div>
                         </form>
                     </div>
                     <div class="card-footer">
-                        <h5>Advanced</h5>
+                        <h5>Display
+                        <br>
+                        <small style="opacity: 0.5">Changing these settings will immediately refresh the page.</small></h5>
                         <form id="advancedAppearance" action="/advancedAppearance" method="post">
                             <div>
                                 <label class="slider-container">
@@ -307,7 +300,7 @@
                                         <% if (JSON.parse(appearance).regularizeClassGraphs) { %>
                                                 checked="checked"
                                                 <% } %>
-                                                onchange="$('#advancedSubmit').prop('disabled', $(this).prop('checked') === appearance.regularizeClassGraphs && $('#showNonAcademicCheckbox').prop('checked') === appearance.showNonAcademic)"
+                                                onchange="$(this).closest('form').trigger('submit')"
                                         >
                                         <span class="slider"></span>
                                     </label>
@@ -332,7 +325,7 @@
                                             id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
                                         <% if (JSON.parse(appearance).showNonAcademic) { %> checked="checked"
                                                 <% } %>
-                                            onchange="$('#advancedSubmit').prop('disabled', $(this).prop('checked') === appearance.showNonAcademic && $('#classGraphRegularizationToggle').prop('checked') === appearance.regularizeClassGraphs)"
+                                                onchange="$(this).closest('form').trigger('submit')"
                                         >
                                         <span class="slider"></span>
                                     </label>
@@ -345,11 +338,56 @@
                                     </label>
                                 </label>
                             </div>
-                            <button id="advancedSubmit" class="btn-default btn btn-sm" type="submit"
-                                    disabled>
-                                Apply & Refresh Page
-                            </button>
                         </form>
+                    </div>
+                    <div class="card-footer">
+                        <h5>Performance
+                        <br>
+                        <small style="opacity: 0.5">Changing these settings will immediately refresh the page.</small></h5>
+                        <label class="slider-container">
+                            <label class="switch">
+                                <input id="animateWhenUnfocused" type="checkbox" name="animateWhenUnfocused"
+                                <% if (JSON.parse(appearance).animateWhenUnfocused) { %>
+                                       checked="checked"
+                                        <% } %>
+                                       onchange="changeSetting('animateWhenUnfocused', !appearance.animateWhenUnfocused, [], '')"
+                                >
+                                <span class="slider"></span>
+                            </label>
+                            <label for="animateWhenUnfocused">
+                                Don't Pause Effects When Window is not in Focus <span class="popup"><i
+                                            class="fa fa-question-circle"><span
+                                                class="popup-top-left">When enabled, certain animations and effects that are usually paused to conserve resources will continue to play even if you are on a different tab or window.
+                                            </span></i></span> <span class="popup hide-in-firefox"><i
+                                            class="fa fa-exclamation-triangle">
+                                            <span class="popup-right-bottom">WARNING: This can cause issues such as the horizontal snow line</span></i></span>
+                            </label>
+                        </label>
+                        <label class="slider-container">
+                            <label class="switch">
+                                <input id="showFps" type="checkbox" name="showFps"
+                                <% if (JSON.parse(appearance).showFps) { %>
+                                       checked="checked"
+                                        <% } %>
+                                       onchange="changeSetting('showFps', !appearance.showFps, [], '')"
+                                >
+                                <span class="slider"></span>
+                            </label>
+                            <label for="showFps">
+                                Display Real-time Refresh Rate <span class="popup"><i
+                                            class="fa fa-question-circle"><span
+                                                class="popup-right-bottom">When enabled, displays FPS in the bottom left corner of the screen
+                                            </span></i></span>
+                            </label>
+                        </label>
+                        <hr>
+                        <div>
+                            <h6>Performance Issue Log <span class="popup"><i
+                                            class="fa fa-question-circle"><span
+                                                class="popup-right-bottom">Performance issues will be displayed here
+                                            </span></i></span></h6>
+                            <div id="performance-issues-messages"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -683,52 +721,6 @@
                         </div>
                         <br>
                         <form id="betaFeatures" action="/betaFeatures" method="post">
-                            <div class="card-footer">
-                                <label class="slider-container">
-                                    <label style="margin-left: 0;" for="showTermSwitcher">
-                                        Enable viewing data from previous semesters
-                                    </label>
-                                    <label class="switch">
-                                        <input id="showTermSwitcher" type="checkbox" name="showTermSwitcher"
-                                        <% if (JSON.parse(betaFeatures).showTermSwitcher) { %>
-                                               checked="checked"
-                                                <% } %>
-                                               onchange="$($(this)[0].form).trigger('submit')"
-                                        >
-                                        <span class="slider"></span>
-                                    </label>
-                                </label>
-                                <small>
-                                    Enabled: Adds an additional navigation bar to view older grade data
-                                </small>
-                                <br>
-                                <small>
-                                    Disabled: Default
-                                </small>
-                            </div>
-                            <div class="card-footer">
-                                <label class="slider-container">
-                                    <label style="margin-left: 0;" for="showFps">
-                                        Enable FPS display
-                                    </label>
-                                    <label class="switch">
-                                        <input id="showFps" type="checkbox" name="showFps"
-                                        <% if (JSON.parse(betaFeatures).showFps) { %>
-                                               checked="checked"
-                                                <% } %>
-                                               onchange="$($(this)[0].form).trigger('submit')"
-                                        >
-                                        <span class="slider"></span>
-                                    </label>
-                                </label>
-                                <small>
-                                    Enabled: Displays FPS in the bottom left corner of the screen
-                                </small>
-                                <br>
-                                <small>
-                                    Disabled: Default
-                                </small>
-                            </div>
                             <div class="card-footer">
                                 <label class="slider-container">
                                     <label style="margin-left: 0;" for="showNotificationPanel">

@@ -16,4 +16,11 @@
         backdrop-filter: blur(0.2rem);
     }
 
+    #termSwitcher > div.blur {
+        backdrop-filter: blur(1rem);
+    }
+
+    #notificationPanel:not(:hover) {
+        backdrop-filter: none;
+    }
 }

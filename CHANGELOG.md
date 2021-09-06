@@ -42,6 +42,51 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 4.9.0] - 2021-09-05
+### Added
+- Appearance Settings Changes<ul>
+- Renamed 'Blur Effects' to 'Blur and Transparency Effects'
+- Moved 'Advanced' settings into 'Display'
+- Added 'Performance' settings<ul>
+- Option to keep all effects and animations running even if the window is not in focus
+- Option to show current framerate<ul>
+- This option enables an overlay on the bottom left corner of the screen with metrics and a 10 second history of your framerate in the form of a chart</ul></ul>
+- Added 'Performance Issues Log' that logs framerate drops (This does not persist through a refresh)
+- Added disclaimers that certain settings immediately refresh the page</ul>
+- <span class="changelog-inline-setoff">Term Switcher</span><ul>
+- Now, you can view grades from past semesters!
+- Use the selector on the left side of your screen to view your old data
+- All functions are supported on old semesters, but your sorting modes will not be saved for old semesters
+- However, all added and edited assignments, as well as modified weights WILL be saved in old semesters</ul>
+- Syncing now has a progress indicator
+- Syncing now displays more useful status information
+- Backend is being migrated to sockets which will be faster and more responsive across multiple devices (including the new mobile apps releasing soon)
+- An option has been added to disable logging in the console
+
+### Improved
+- The server has been optimized to handle a greater load of requests
+- Updated charts<ul>
+- Now, you can select an area of the chart with your mouse to zoom into
+- You can click class names in the legend to hide specific classes from the chart
+- General visual updates and speedy optimizations</ul>
+- Improved blur and transparency effects
+- Improved winter holiday effects (You'll see them starting November)
+- Certain settings, when changed, immediately apply to all logged-in devices (This functionality will be rolled out to all parts of the site in the near future)
+- Login sessions persist through server restarts (max 4 hours)
+- <em>[Beta Feature]</em> Notification Panel animations have improved
+- <em>[Beta Feature]</em> Notification Panel now opens if mouse hovers anywhere on the right edge of the screen
+
+### Fixed
+- Server error caused by having added or edited an assignment in the 21-22 S1 term before the 4.8.1 update
+
+### Removed
+- <em>[Beta Feature]</em> Show FPS (Moved to stable)
+- <em>[Beta Feature]</em> Show Term Switcher (Moved to stable)
+
+## [Beta 4.8.2] - 2021-09-05
+### Fixed
+- Issue where entering an invalid username in the login screen caused an error
+
 ## [Stable 4.8.1] - 2021-08-29
 ### Fixed
 - Issue with syncing with PowerSchool that caused users to see a 500 Internal Server Error
@@ -66,7 +111,6 @@
 ## [Announcement 4.7.3] - 2021-08-28
 - Yes, I am still developing and maintaining this site, even in college
 - Lots of big changes and improvements are coming your way
-- You can expect Saturday night beta releases (starting with the one today) and stable releases either bi- or triweekly on Sunday nights
 - This and all future beta releases will be buggier than prior beta releases to provide beta users with the latest features faster and speed up testing
 - <small>I am also working on an app called <u><a target="_blank" href="https://github.com/BlueBubblesApp/BlueBubbles-Android-App/">BlueBubbles</a></u> that you can check out if you're interested</small>
 - As usual, you can fill out the feedback form or email <u><a href="mailto:support@graderoom.me">support@graderoom.me</a></u> with questions or requests
