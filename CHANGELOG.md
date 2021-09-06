@@ -62,6 +62,7 @@
 - Syncing now displays more useful status information
 - Backend is being migrated to sockets which will be faster and more responsive across multiple devices (including the new mobile apps releasing soon)
 - An option has been added to disable logging in the console
+- Tutorial popups for new chart features
 
 ### Improved
 - The server has been optimized to handle a greater load of requests

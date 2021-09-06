@@ -2408,7 +2408,7 @@ body::-webkit-scrollbar {
 
 #chart-container-1 {
     position: relative;
-    width: 75%;
+    width: 100%;
     height: 70vh;
 }
 
@@ -2883,6 +2883,19 @@ input:disabled {
     display: block;
     margin: 0.5rem 0;
     width: fit-content;
+}
+
+#legendPopup {
+    position: absolute;
+    left: 0;
+    top: 2rem;
+}
+
+#zoomPopup {
+    position: absolute;
+    left: 75%;
+    top: 5rem;
+    height: fit-content;
 }
 
 #mobile-overview-grid {
