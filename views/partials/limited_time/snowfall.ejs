@@ -69,7 +69,7 @@
     let showingLights = <%= new Date().getMonth() === lightsMonth; %>;
     let init;
 
-    <% if (page == "home") { %>
+    <% if (page == "home" && JSON.parse(appearance).showFps) { %>
     let chart = new Chart(document.getElementById("fps-chart"), {
         data: {
             datasets: [{
@@ -184,7 +184,6 @@
                     fpsDisplay += `&nbsp;&nbsp;INSTANT: ${(fps < 100 ? `&nbsp;` : ``) + (fps < 10 ? `&nbsp;` : ``) + Math.round(fps)}FPS`;
                     $("#fps").html(fpsDisplay);
 
-                    <% if (page === "home") { %>
                     if (_10sTempFps.length > 0) {
                         chart.data.datasets[0].data = _10sTempFps;
                         chart.data.datasets[1].data = [{
@@ -195,7 +194,6 @@
                         }, {x: _10sTempFps.slice(-1)[0].x, y: LOW_PERFORMANCE}];
                         chart.update(1);
                     }
-                    <% } %>
                 }
             }, 1);
             <% } %>

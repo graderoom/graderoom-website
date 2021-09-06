@@ -811,8 +811,12 @@
                                 break;
                             case "Did not sync":
                                 break;
-                            case "Not syncing":
                             case "Sync Complete!":
+                                showLatest(false);
+                                setupLastUpdated();
+                                setupGradeChanges(true, true);
+                                break;
+                            case "Not syncing":
                             case "Already Synced!":
                                 showLatest(false);
                                 setupLastUpdated();

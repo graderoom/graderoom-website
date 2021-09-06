@@ -85,6 +85,7 @@
 
 ## [Beta 4.8.2] - 2021-09-05
 ### Fixed
+- Issue where sync log wouldn't show up after successful sync that did not require a refresh
 - Issue where entering an invalid username in the login screen caused an error
 
 ## [Stable 4.8.1] - 2021-08-29
