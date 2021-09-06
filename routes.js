@@ -1,7 +1,7 @@
-let server = require("./graderoom.js");
-let authenticator = require("./authenticator.js");
-let emailSender = require("./emailSender.js");
-let _ = require("lodash");
+const server = require("./graderoom.js");
+const authenticator = require("./authenticator.js");
+const emailSender = require("./emailSender.js");
+const _ = require("lodash");
 
 module.exports = function (app, passport) {
 
@@ -24,7 +24,8 @@ module.exports = function (app, passport) {
             let gradeHistoryLetters = {};
             let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
             if (req.query.term && req.query.semester) {
-                if ((term === req.query.term && semester === req.query.semester) || !req.user.betaFeatures.active || !authenticator.semesterExists(req.user.username, req.query.term, req.query.semester)) {
+                if ((term === req.query.term && semester === req.query.semester) || !req.user.betaFeatures.active ||
+                    !authenticator.semesterExists(req.user.username, req.query.term, req.query.semester)) {
                     res.redirect("/");
                     return;
                 }
@@ -70,10 +71,12 @@ module.exports = function (app, passport) {
                     betaFeatures: JSON.stringify(req.user.betaFeatures),
                     term: term,
                     semester: semester,
-                    termsAndSemesters: JSON.stringify(Object.keys(req.user.grades).map(x => [x, Object.keys(req.user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
+                    termsAndSemesters: JSON.stringify(Object.keys(req.user.grades).map(x => [x,
+                        Object.keys(req.user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
                     _: _,
                     sunset: sunset,
-                    sunrise: sunrise
+                    sunrise: sunrise,
+                    enableLogging: req.user.enableLogging,
                 });
             } else {
                 res.render("user/authorized_index.ejs", {
@@ -100,7 +103,8 @@ module.exports = function (app, passport) {
                     termsAndSemesters: JSON.stringify([]),
                     _: _,
                     sunset: sunset,
-                    sunrise: sunrise
+                    sunrise: sunrise,
+                    enableLogging: req.user.enableLogging,
                 });
             }
             return;
@@ -108,7 +112,7 @@ module.exports = function (app, passport) {
         res.render("viewer/index.ejs", {
             message: req.flash("loginMessage"),
             beta: server.needsBetaKeyToSignUp,
-            appearance: JSON.stringify({holidayEffects: true}),
+            appearance: JSON.stringify({seasonalEffects: true}),
             page: "login",
             sunset: sunset,
             sunrise: sunrise
@@ -204,10 +208,12 @@ module.exports = function (app, passport) {
                     betaFeatures: JSON.stringify(user.betaFeatures),
                     term: term,
                     semester: semester,
-                    termsAndSemesters: JSON.stringify(Object.keys(user.grades).map(x => [x, Object.keys(user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
+                    termsAndSemesters: JSON.stringify(Object.keys(user.grades).map(x => [x,
+                        Object.keys(user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
                     sunset: sunset,
                     sunrise: sunrise,
-                    _: _
+                    _: _,
+                    enableLogging: true,
                 });
             } else {
                 res.render("user/authorized_index.ejs", {
@@ -234,7 +240,8 @@ module.exports = function (app, passport) {
                     termsAndSemesters: JSON.stringify([]),
                     sunset: sunset,
                     sunrise: sunrise,
-                    _: _
+                    _: _,
+                    enableLogging: true,
                 });
             }
             return;
@@ -331,36 +338,13 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.get("/checkUpdateBackground", [isLoggedIn], (req, res) => {
-        let resp = authenticator.checkUpdateBackground(req.user.username);
-        let user = authenticator.getUser(req.user.username);
-        let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
-        if (term && semester && resp.message === "Sync Complete!") {
-            res.status(200).send({
-                                     message: resp.message,
-                                     grades: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
-                                     weights: JSON.stringify(user.weights[term][semester]),
-                                     updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
-                                 });
-        } else if (term && semester && resp.message === "Already Synced!") {
-            res.status(200).send({
-                                     message: resp.message,
-                                     updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
-                                 });
-        } else {
-            res.status(200).send({
-                                     message: resp.message
-                                 });
-        }
-    });
-
     app.get("/changelog", [isLoggedIn], async (req, res) => {
         let result = authenticator.changelog(server.needsBetaKeyToSignUp);
         res.status(200).send(result);
     });
 
     app.post("/updateAppearance", [isLoggedIn], (req, res) => {
-        let resp = authenticator.setTheme(req.user.username, req.body.theme, req.body.darkModeStart, req.body.darkModeFinish, req.body.enableHolidayEffects === "on", req.body.blurEffects === "on");
+        let resp = authenticator.setTheme(req.user.username, req.body.theme, req.body.darkModeStart, req.body.darkModeFinish, req.body.enableSeasonalEffects === "on", req.body.blurEffects === "on");
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
@@ -422,7 +406,6 @@ module.exports = function (app, passport) {
     });
 
     app.post("/changeschoolemail", [isLoggedIn], (req, res) => {
-
         let new_school_email = req.body.school_email;
         let resp = authenticator.changeSchoolEmail(req.user.username, new_school_email);
         if (resp.success) {
@@ -432,9 +415,11 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.post("/updateAddedAssignments", [isLoggedIn, inRecentTerm], (req, res) => {
+    app.post("/updateAddedAssignments", [isLoggedIn], (req, res) => {
         let data = req.body.data;
-        let resp = authenticator.updateAddedAssignments(req.user.username, JSON.parse(data));
+        let term = req.body.term;
+        let semester = req.body.semester;
+        let resp = authenticator.updateAddedAssignments(req.user.username, JSON.parse(data), term, semester);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
@@ -442,9 +427,11 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.post("/updateEditedAssignments", [isLoggedIn, inRecentTerm], (req, res) => {
+    app.post("/updateEditedAssignments", [isLoggedIn], (req, res) => {
         let data = req.body.data;
-        let resp = authenticator.updateEditedAssignments(req.user.username, JSON.parse(data));
+        let term = req.body.term;
+        let semester = req.body.semester;
+        let resp = authenticator.updateEditedAssignments(req.user.username, JSON.parse(data), term, semester);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
@@ -467,7 +454,7 @@ module.exports = function (app, passport) {
         res.render("viewer/signup.ejs", {
             message: req.flash("signupMessage"),
             beta: server.needsBetaKeyToSignUp,
-            appearance: JSON.stringify({holidayEffects: true}),
+            appearance: JSON.stringify({seasonalEffects: true}),
             page: "signup",
             sunset: sunset,
             sunrise: sunrise
@@ -541,41 +528,42 @@ module.exports = function (app, passport) {
                 }
             }
         }
-        let resp = await authenticator.updateGrades(req.user.username, pass);
-        if (resp.updateHistory) {
-            resp = await authenticator.updateGradeHistory(req.user.username, pass);
-        }
+        let _stream = authenticator.updateGrades(req.user.username, pass);
         let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
-        if (resp.success || resp.message === "No class data." || resp.message === "Error scraping grades." || resp.message === "Powerschool is locked.") {
-            if (term && semester) {
-                if (gradeSync) {
-                    let encryptResp = authenticator.encryptAndStore(user, pass, userPass);
-                    if (!encryptResp.success) {
-                        res.status(400).send(encryptResp.message);
-                        return;
+
+        _stream.on("data", (data) => {
+            if (!('success' in data)) return;
+            if (data.success || data.message === "No class data." || data.message === "An Unknown Error occurred. Contact support." || data.message === "PowerSchool is locked.") {
+                if (term && semester) {
+                    if (gradeSync) {
+                        let encryptResp = authenticator.encryptAndStore(user, pass, userPass);
+                        if (!encryptResp.success) {
+                            res.status(400).send(encryptResp.message);
+                            return;
+                        }
+                        res.status(200).send({
+                            gradeSyncEnabled: true,
+                            message: data.message,
+                            grades: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
+                            weights: JSON.stringify(req.user.weights[term][semester]),
+                            updateData: JSON.stringify(req.user.alerts.lastUpdated.slice(-1)[0])
+                        });
+                    } else {
+                        res.status(200).send({
+                            gradeSyncEnabled: false,
+                            message: data.message,
+                            grades: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
+                            weights: JSON.stringify(req.user.weights[term][semester]),
+                            updateData: JSON.stringify(req.user.alerts.lastUpdated.slice(-1)[0])
+                        });
                     }
-                    res.status(200).send({
-                                             gradeSyncEnabled: true,
-                                             message: resp.message,
-                                             grades: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
-                                             weights: JSON.stringify(req.user.weights[term][semester]),
-                                             updateData: JSON.stringify(req.user.alerts.lastUpdated.slice(-1)[0])
-                                         });
                 } else {
-                    res.status(200).send({
-                                             gradeSyncEnabled: false,
-                                             message: resp.message,
-                                             grades: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
-                                             weights: JSON.stringify(req.user.weights[term][semester]),
-                                             updateData: JSON.stringify(req.user.alerts.lastUpdated.slice(-1)[0])
-                                         });
+                    res.status(400).send(data.message);
                 }
             } else {
-                res.status(200).send({message: resp.message});
+                res.status(400).send(data.message);
             }
-        } else {
-            res.status(400).send(resp.message);
-        }
+        });
 
     });
 
@@ -584,15 +572,15 @@ module.exports = function (app, passport) {
     // EDITED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // must be called via client side ajax+js
-    app.post("/updateweights", [isLoggedIn, inRecentTerm], async (req, res) => {
+    app.post("/updateweights", [isLoggedIn], async (req, res) => {
         let className = req.body.className;
         let hasWeights = req.body.hasWeights;
         let newWeights = JSON.parse(req.body.newWeights);
-        let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
-
+        let term = req.body.term;
+        let semester = req.body.semester;
         let resp = authenticator.updateWeightsForClass(req.user.username, term, semester, className, hasWeights, newWeights);
         if (resp.success) {
-            authenticator.bringUpToDate(req.user.username);
+            authenticator.bringUpToDate(req.user.username, term, semester);
             res.status(200).send(resp.message);
         } else {
             res.status(400).send(resp.message);
@@ -682,7 +670,7 @@ module.exports = function (app, passport) {
         } else {
             req.session.returnTo = req.originalUrl;
             res.render("viewer/final_grade_calculator_logged_out.ejs", {
-                appearance: JSON.stringify({holidayEffects: true}),
+                appearance: JSON.stringify({seasonalEffects: true}),
                 page: "logged_out_calc",
                 beta: JSON.stringify(server.needsBetaKeyToSignUp),
                 sunset: sunset,
@@ -785,7 +773,8 @@ module.exports = function (app, passport) {
             beta: server.needsBetaKeyToSignUp,
             term: term,
             semester: semester,
-            termsAndSemesters: JSON.stringify(Object.keys(authenticator.getAllClassData()).map(x => [x, Object.keys(authenticator.getAllClassData()[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
+            termsAndSemesters: JSON.stringify(Object.keys(authenticator.getAllClassData()).map(x => [x,
+                Object.keys(authenticator.getAllClassData()[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
             sunset: sunset,
             sunrise: sunrise,
             _: _
@@ -864,7 +853,7 @@ module.exports = function (app, passport) {
             // req.flash('forgotPasswordMsg', 'Invalid token.')
             res.status(404).render("password_reset/reset_password_404.ejs", {
                 sunset: sunset,
-                appearance: JSON.stringify({holidayEffects: true}),
+                appearance: JSON.stringify({seasonalEffects: true}),
                 sunrise: sunrise,
                 page: "password404"
             });
@@ -875,7 +864,7 @@ module.exports = function (app, passport) {
             message: req.flash("resetPasswordMsg"),
             token: resetToken,
             gradeSync: gradeSync,
-            appearance: JSON.stringify({holidayEffects: true}),
+            appearance: JSON.stringify({seasonalEffects: true}),
             sunset: sunset,
             sunrise: sunrise,
             page: "passwordReset"
@@ -896,7 +885,7 @@ module.exports = function (app, passport) {
         if (!resp.success && resp.message === "Invalid token.") {
             res.status(404).render("password_reset/reset_password_404.ejs", {
                 sunset: sunset,
-                appearance: JSON.stringify({holidayEffects: true}),
+                appearance: JSON.stringify({seasonalEffects: true}),
                 sunrise: sunrise,
                 page: "password404"
             });
@@ -908,7 +897,7 @@ module.exports = function (app, passport) {
             return;
         }
         res.render("password_reset/reset_password_success.ejs", {
-            appearance: JSON.stringify({holidayEffects: true}),
+            appearance: JSON.stringify({seasonalEffects: true}),
             sunset: sunset,
             sunrise: sunrise,
             page: "passwordResetSuccess"
@@ -927,7 +916,7 @@ module.exports = function (app, passport) {
         res.status(200).render("password_reset/forgot_password.ejs", {
             message: req.flash("forgotPasswordMsg"),
             sunset: sunset,
-            appearance: JSON.stringify({holidayEffects: true}),
+            appearance: JSON.stringify({seasonalEffects: true}),
             page: "passwordForgot",
             sunrise: sunrise
         });
@@ -1023,20 +1012,20 @@ module.exports = function (app, passport) {
         let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
         if (term && semester && resp.message === "Sync Complete!") {
             res.status(200).send({
-                                     message: resp.message,
-                                     grades: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
-                                     weights: JSON.stringify(user.weights[term][semester]),
-                                     updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
-                                 });
+                message: resp.message,
+                grades: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
+                weights: JSON.stringify(user.weights[term][semester]),
+                updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
+            });
         } else if (term && semester && resp.message === "Already Synced!") {
             res.status(200).send({
-                                     message: resp.message,
-                                     updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
-                                 });
+                message: resp.message,
+                updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
+            });
         } else {
             res.status(200).send({
-                                     message: resp.message
-                                 });
+                message: resp.message
+            });
         }
     });
 
@@ -1049,11 +1038,17 @@ module.exports = function (app, passport) {
 
     app.post("/api/login", (req, res, next) => {
         passport.authenticate("local-login", (err, user) => {
-            if (err) return next(err);
-            if (!user) return res.sendStatus(401);
+            if (err) {
+                return next(err);
+            }
+            if (!user) {
+                return res.sendStatus(401);
+            }
             req.logIn(user, (err) => {
-               if (err) return next(err);
-               return res.sendStatus(200);
+                if (err) {
+                    return next(err);
+                }
+                return res.sendStatus(200);
             });
         })(req, res, next);
     });
@@ -1065,6 +1060,7 @@ module.exports = function (app, passport) {
     /** End api stuff */
 
     // general web app
+
     app.get("/*", (req, res) => {
         req.session.returnTo = req.originalUrl;
         res.redirect("/");
@@ -1093,8 +1089,6 @@ module.exports = function (app, passport) {
         if (!props.term && !props.semester) {
             return next();
         }
-        res.redirect("/");
-
     }
 
     function isAdmin(req, res, next) {
@@ -1117,5 +1111,6 @@ function makeKey(length) {
 }
 
 function isDST() {
-    return Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset();
+    return Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !==
+        new Date(Date.now()).getTimezoneOffset();
 }

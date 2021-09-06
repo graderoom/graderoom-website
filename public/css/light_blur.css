@@ -1,30 +1,24 @@
 /* Not Firefox */
 @supports (backdrop-filter: blur(0.1rem)) {
     #termSwitcher {
-        box-shadow: inset 0 0 20px white;
+        box-shadow: rgba(51, 51, 51, 0.2) 0 0 2px 1px, inset rgba(255, 255, 255, 0.5) 0 0 200px 5px;
     }
 
     #termSwitcher > div {
-        box-shadow: inset 0 0 50px white;
-    }
-
-    #termSwitcher > div:hover {
-        box-shadow: inset 0 0 100px white;
+        box-shadow: rgba(51, 51, 51, 0.6) 0 0 1px 1px;
     }
 
     #termSwitcher > div > div:hover, #termSwitcher > div > div.active {
         opacity: 1 !important;
     }
 
-    #termSwitcher:hover, #termSwitcher.hover {
-        box-shadow: inset 0 0 100px rgba(255, 255, 255, 0.1), 0 0 20px 1px white;
+    .dropdown-menu {
+        border: 1px solid #333333;
+        color: rgba(0, 0, 0, 0.7);
+        box-shadow: inset rgba(255, 255, 255, 0.2) 0 0 1000px 2px;
     }
 
-    #termSwitcher::after {
-        box-shadow: inset 0 0 50px white, 0 0 1px rgba(0, 0, 0, 0.1);
-    }
-
-    #termSwitcher:hover::after {
-        box-shadow: none;
+    .dropdown-divider {
+        border-color: #999999;
     }
 }

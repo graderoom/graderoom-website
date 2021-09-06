@@ -97,19 +97,19 @@
     // Manage changes of currentGradeDiv
     currentGradeDiv.on("input", function () {
         // Submit the form.
-        form.submit();
+        form.trigger('submit');
     });
 
     // Manage changes of goalDiv
     goalDiv.on("input", function () {
         // Submit the form.
-        form.submit();
+        form.trigger('submit');
     });
 
     // Manage changes of finalWeightDiv
     finalWeightDiv.on("input", function () {
         // Submit the form.
-        form.submit();
+        form.trigger('submit');
     });
 
     form.submit(function (event) {
@@ -278,7 +278,7 @@
                 }, 500);
             }
         }
-        if (appearance.holidayEffects) {
+        if (appearance.seasonalEffects) {
             init = performance.now();
             $('#lights-disabled-message').hide();
             $('#snow-disabled-message').hide();

@@ -103,23 +103,26 @@ td, th {
 }
 
 #termSwitcher {
-    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid black;
+    background-color: #191919;
+}
+
+#termSwitcher::before {
+    border: 1px solid black;
 }
 
 #termSwitcher > div {
-    background-color: rgba(50, 50, 50, 1);
+    border: 1px solid black;
+    background-color: #292929;
 }
 
 #termSwitcher > div:hover {
-    background-color: rgba(50, 50, 50, 0.6);
-}
-
-#termSwitcher > div > div:hover, #termSwitcher > div > div.active {
-    opacity: 1 !important;
+    border: 1px solid black;
+    background-color: #222222;
 }
 
 #termSwitcher:hover, #termSwitcher.hover {
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: #191919;
 }
 
 #GPA-container > div, .weightGPA {

@@ -2,11 +2,11 @@ let {PythonShell} = require("python-shell");
 
 module.exports = {
 
-    loginAndScrapeGrades: function (email, password, data_if_locked, term_data_if_locked, get_history=false) {
+    loginAndScrapeGrades: function (readableStream, email, password, data_if_locked, term_data_if_locked, get_history = false) {
 
         let pythonPath;
 
-        if (process.platform == "win32") {
+        if (process.platform === "win32") {
             pythonPath = "py";
         } else {
             pythonPath = "python3";
@@ -14,35 +14,22 @@ module.exports = {
 
         let options = {
             mode: "json", // pythonPath: 'path/to/python',
-            // pythonOptions: ['-u'], // get print results in real-time
+            pythonOptions: ['-u'], // get print results in real-time
             // // scriptPath: 'path/to/my/scripts',
             // // scriptPath: 'path/to/my/scripts',
-            pythonPath: pythonPath, args: [email, password, JSON.stringify(data_if_locked), JSON.stringify(term_data_if_locked), get_history]
+            pythonPath: pythonPath,
+            args: [email, password, JSON.stringify(data_if_locked), JSON.stringify(term_data_if_locked), get_history]
         };
 
-        return new Promise(function (resolve) {
+        const pyshell = new PythonShell("./scrape.py", options);
 
-            PythonShell.run("./scrape.py", options, (err, results) => {
+        pyshell.on("message", (message) => {
+            readableStream.push(message);
+        });
 
-                // console.log("results");
-                // console.log(results);
-
-                let resp = results[0];
-
-                if (err) {
-                    // Error for when the python process fails
-                    console.error("ERROR:" + err);
-                    resolve({success: false, message: "Error getting grades."});
-                } else if (resp.success === true) {
-                    resolve(resp);
-                } else {
-                    // Error when scraping PowerSchool
-                    console.error("ERROR:" + resp.message);
-                    resolve(resp);
-                }
-
-            });
-
+        pyshell.on("close", () => {
+            readableStream.destroy();
+            console.log('Destroyed stream');
         });
 
     }

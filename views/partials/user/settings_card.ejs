@@ -121,7 +121,7 @@
                                                                        name="theme"
                                                                        onclick="$('#sun-limits-container, #auto-limits-container').hide();
                                                                                ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
-                                                                               $($(this)[0].form).submit();"
+                                                                               $($(this)[0].form).trigger('submit');"
                                     <% if (JSON.parse(appearance).theme === "light") { %> checked
                                             <% } %>
                                     > Always Light
@@ -132,7 +132,7 @@
                                                                        name="theme"
                                                                        onclick="$('#sun-limits-container, #auto-limits-container').hide();
                                                                                ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
-                                                                               $($(this)[0].form).submit();"
+                                                                               $($(this)[0].form).trigger('submit');"
                                     <% if (JSON.parse(appearance).theme === "dark") { %> checked
                                             <% } %>
                                     > Always Dark</label>
@@ -143,7 +143,7 @@
                                             name="theme"
                                             onclick="$('#sun-limits-container, #auto-limits-container').hide();
                                                                                ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
-                                                                               $($(this)[0].form).submit();"
+                                                                               $($(this)[0].form).trigger('submit');"
                                     <% if (JSON.parse(appearance).theme === "system") { %> checked
                                             <% } %>
                                     > Match System
@@ -162,7 +162,7 @@
                                                                        onclick="$('#auto-limits-container').hide();
                                                                        $('#sun-limits-container').show();
                                                                        ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
-                                                                               $($(this)[0].form).submit();"
+                                                                               $($(this)[0].form).trigger('submit');"
                                     <% if (JSON.parse(appearance).theme === "sun") { %> checked
                                             <% } %>
                                     > Dark from Sunset to Sunrise</label>
@@ -197,12 +197,13 @@
                                                                        onclick="$('#auto-limits-container').show().css('display','flex');
                                                                                 $('#sun-limits-container').hide();
                                                                                ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
-                                                                               $($(this)[0].form).submit();"
+                                                                               $($(this)[0].form).trigger('submit');"
                                     <% if (JSON.parse(appearance).theme === "auto") { %> checked
                                             <% } %>
                                     > Dark on Custom Schedule</label>
                                 <div id="auto-limits-container"
-                                     style="<% if (JSON.parse(appearance).theme !== "auto") { %>display: none;<% } else { %>display: flex;<% } %>font-size: 0.9rem; margin-bottom: 0; align-items: stretch">
+                                     style="<% if (JSON.parse(appearance).theme !==
+                                             "auto") { %>display: none;<% } else { %>display: flex;<% } %>font-size: 0.9rem; margin-bottom: 0; align-items: stretch">
                                     <label class="form-group" id="autoLimits"
                                            style="display: flex; white-space: nowrap;">
                                         <label style="vertical-align: center; width: 8rem">
@@ -215,7 +216,7 @@
                                                type="time"
                                                class="text-center form-control dont-clear" name="darkModeStart"
                                                onchange="ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
-                                                                               $($(this)[0].form).submit();"
+                                                                               $($(this)[0].form).trigger('submit');"
                                                value="<%= ("0" + _startDate.getHours()).slice(-2) + ":" + ("0" + _startDate.getMinutes()).slice(-2) %>"
                                         >
                                         <label style="margin-left: 0.25rem">
@@ -226,7 +227,7 @@
                                                type="time"
                                                class="text-center form-control dont-clear" name="darkModeFinish"
                                                onchange="ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
-                                                                               $($(this)[0].form).submit();"
+                                                                               $($(this)[0].form).trigger('submit');"
                                                value="<%= ("0" + _endDate.getHours()).slice(-2) + ":" + ("0" + _endDate.getMinutes()).slice(-2) %>"
                                         >
                                     </label>
@@ -243,15 +244,15 @@
                                     <% if (JSON.parse(appearance).blurEffects) { %>
                                             checked="checked"
                                             <% } %>
-                                            onchange="ajaxPostForm('#chooseTheme',[],'#themeMessage',true); $($(this)[0].form).submit();"
+                                            onchange="ajaxPostForm('#chooseTheme',[],'#themeMessage',true); $($(this)[0].form).trigger('submit');"
                                     >
                                     <span class="slider"></span>
                                 </label>
                                 <label for="blurEffectsToggle">
-                                    <span>Enable Blur Effects</span> <span class="popup"><i
+                                    <span>Enable Blur and Transparency Effects</span> <span class="popup"><i
                                                 class="fa fa-question-circle"><span
                                                     class="popup-right-bottom">When enabled, adds blur and
-                                                translucency effects across the site.
+                                                transparency effects across the site.
                                             </span></i></span> <span class="popup hide-in-firefox"><i
                                                 class="fa fa-exclamation-triangle">
                                             <span class="popup-right-bottom">WARNING: Causes lag on slower
@@ -265,35 +266,28 @@
                             </label>
                             <label class="slider-container">
                                 <label class="switch">
-                                    <input id="holidayEffectsToggle" type="checkbox"
-                                           name="enableHolidayEffects"
-                                    <% if (JSON.parse(appearance).holidayEffects) { %>
+                                    <input id="seasonalEffectsToggle" type="checkbox"
+                                           name="enableSeasonalEffects"
+                                    <% if (JSON.parse(appearance).seasonalEffects) { %>
                                            checked
                                             <% } %>
-                                           onchange="ajaxPostForm('#chooseTheme',[],'#themeMessage',true); $($(this)[0].form).submit();"
+                                           onchange="ajaxPostForm('#chooseTheme',[],'#themeMessage',true); $($(this)[0].form).trigger('submit');"
                                     >
                                     <span class="slider"></span>
                                 </label>
-                                <label for="holidayEffectsToggle">
-                                    Enable Holiday Effects
+                                <label for="seasonalEffectsToggle">
+                                    <span>Enable Seasonal Effects</span> <span class="popup"><i
+                                                class="fa fa-question-circle"><span
+                                                    class="popup-right-bottom">When enabled, adds seasonal effects across the site.
+                                            </span></i></span>
                                 </label>
                             </label>
-                            <div>
-                                <div style="font-size: 0.5rem; display: none"
-                                     id="snow-disabled-message">
-                                    Winter Snow was disabled to improve performance<br>
-                                </div>
-                                <% if (new Date().getMonth() === lightsMonth) { %>
-                                    <div style="font-size: 0.5rem; display: none"
-                                         id="lights-disabled-message">
-                                        Christmas Lights were paused to improve performance
-                                    </div>
-                                <% } %>
-                            </div>
                         </form>
                     </div>
                     <div class="card-footer">
-                        <h5>Advanced</h5>
+                        <h5>Display
+                        <br>
+                        <small style="opacity: 0.5">Changing these settings will immediately refresh the page.</small></h5>
                         <form id="advancedAppearance" action="/advancedAppearance" method="post">
                             <div>
                                 <label class="slider-container">
@@ -306,7 +300,7 @@
                                         <% if (JSON.parse(appearance).regularizeClassGraphs) { %>
                                                 checked="checked"
                                                 <% } %>
-                                                onchange="$('#advancedSubmit').prop('disabled', $(this).prop('checked') === appearance.regularizeClassGraphs && $('#showNonAcademicCheckbox').prop('checked') === appearance.showNonAcademic)"
+                                                onchange="$(this).closest('form').trigger('submit')"
                                         >
                                         <span class="slider"></span>
                                     </label>
@@ -331,7 +325,7 @@
                                             id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
                                         <% if (JSON.parse(appearance).showNonAcademic) { %> checked="checked"
                                                 <% } %>
-                                            onchange="$('#advancedSubmit').prop('disabled', $(this).prop('checked') === appearance.showNonAcademic && $('#classGraphRegularizationToggle').prop('checked') === appearance.regularizeClassGraphs)"
+                                                onchange="$(this).closest('form').trigger('submit')"
                                         >
                                         <span class="slider"></span>
                                     </label>
@@ -344,11 +338,56 @@
                                     </label>
                                 </label>
                             </div>
-                            <button id="advancedSubmit" class="btn-default btn btn-sm" type="submit"
-                                    disabled>
-                                Apply & Refresh Page
-                            </button>
                         </form>
+                    </div>
+                    <div class="card-footer">
+                        <h5>Performance
+                        <br>
+                        <small style="opacity: 0.5">Changing these settings will immediately refresh the page.</small></h5>
+                        <label class="slider-container">
+                            <label class="switch">
+                                <input id="animateWhenUnfocused" type="checkbox" name="animateWhenUnfocused"
+                                <% if (JSON.parse(appearance).animateWhenUnfocused) { %>
+                                       checked="checked"
+                                        <% } %>
+                                       onchange="changeSetting('animateWhenUnfocused', !appearance.animateWhenUnfocused, [], '')"
+                                >
+                                <span class="slider"></span>
+                            </label>
+                            <label for="animateWhenUnfocused">
+                                Don't Pause Effects When Window is not in Focus <span class="popup"><i
+                                            class="fa fa-question-circle"><span
+                                                class="popup-top-left">When enabled, certain animations and effects that are usually paused to conserve resources will continue to play even if you are on a different tab or window.
+                                            </span></i></span> <span class="popup hide-in-firefox"><i
+                                            class="fa fa-exclamation-triangle">
+                                            <span class="popup-right-bottom">WARNING: This can cause issues such as the horizontal snow line</span></i></span>
+                            </label>
+                        </label>
+                        <label class="slider-container">
+                            <label class="switch">
+                                <input id="showFps" type="checkbox" name="showFps"
+                                <% if (JSON.parse(appearance).showFps) { %>
+                                       checked="checked"
+                                        <% } %>
+                                       onchange="changeSetting('showFps', !appearance.showFps, [], '')"
+                                >
+                                <span class="slider"></span>
+                            </label>
+                            <label for="showFps">
+                                Display Real-time Refresh Rate <span class="popup"><i
+                                            class="fa fa-question-circle"><span
+                                                class="popup-right-bottom">When enabled, displays FPS in the bottom left corner of the screen
+                                            </span></i></span>
+                            </label>
+                        </label>
+                        <hr>
+                        <div>
+                            <h6>Performance Issue Log <span class="popup"><i
+                                            class="fa fa-question-circle"><span
+                                                class="popup-right-bottom">Performance issues will be displayed here
+                                            </span></i></span></h6>
+                            <div id="performance-issues-messages"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -557,6 +596,26 @@
                 <div class="card-body">
                     <div class="card-footer">
                         <h5>Troubleshooting</h5>
+                        <label style="display: flex; font-size: 1rem; justify-content: flex-start; align-items: center">
+                            <label class="switch">
+                                <input
+                                        id="enableLoggingToggle"
+                                        style="margin: 0; display: flex"
+                                        type="checkbox"
+                                        name="remoteAccess"
+                                <% if (enableLogging) { %>
+                                        checked
+                                        <% } %>
+                                        onchange="changeSetting('enableLogging', !enableLogging, [],'');"
+                                >
+                                <span class="slider"></span>
+                            </label>
+                            <label style="margin: 0 0 0 1rem; justify-content: center; align-items: center; cursor: pointer"
+                                   onclick="$('#enableLoggingToggle').trigger('click')">Show Logs in Console<span
+                                        class="popup"><i class="fa fa-question-circle"
+                                                         style="margin-left: 0.4rem"><span
+                                                class="popup-right-top">Shows logs in console for debugging purposes.</span></i></span></label>
+                        </label>
                         <form id="remoteAccess" class="form-signin" action="/setRemoteAccess" method="post">
                             <label style="display: flex; font-size: 1rem; justify-content: flex-start; align-items: center">
                                 <label class="switch">
@@ -568,13 +627,13 @@
                                     <% if (JSON.parse(alerts).remoteAccess === "allowed") { %>
                                             checked
                                             <% } %>
-                                            onchange="ajaxPostForm('#remoteAccess',[],'',true); $('#remoteAccess').submit();"
+                                            onchange="ajaxPostForm('#remoteAccess',[],'',true); $('#remoteAccess').trigger('submit');"
                                     >
                                     <span class="slider"></span>
                                 </label>
                                 <label style="margin: 0 0 0 1rem; justify-content: center; align-items: center; cursor: pointer"
                                        onclick="$('#remoteAccessToggle').trigger('click')">Allow
-                                    Remote Access<span
+                                                                                           Remote Access<span
                                             class="popup"><i class="fa fa-question-circle"
                                                              style="margin-left: 0.4rem"><span
                                                     class="popup-right-top">When enabled, developers can view your
@@ -630,9 +689,9 @@
                     <div class="card-footer">
                         <h5>Description</h5>
                         <p>Graderoom is an advanced grade visualizer designed to help students better understand their
-                            grades. Graderoom was created by students at Bellarmine College Preparatory in San Jose, CA,
-                            but is in no way affiliated with the school or it's faculty and staff. We welcome feedback
-                            from our users and are actively working on features and improvements.
+                           grades. Graderoom was created by students at Bellarmine College Preparatory in San Jose, CA,
+                           but is in no way affiliated with the school or it's faculty and staff. We welcome feedback
+                           from our users and are actively working on features and improvements.
                         </p>
                     </div>
                     <div class="card-footer">
@@ -657,57 +716,11 @@
                         <div class="card-footer">
                             <h5>Thanks for trying out new features before they're released!</h5>
                             <p>Your choices to enable the features listed below contribute to the speed at which these
-                                features are officially released. We will continue to add more features as time goes on.
+                               features are officially released. We will continue to add more features as time goes on.
                             </p>
                         </div>
                         <br>
                         <form id="betaFeatures" action="/betaFeatures" method="post">
-                            <div class="card-footer">
-                                <label class="slider-container">
-                                    <label style="margin-left: 0;" for="showTermSwitcher">
-                                        Enable viewing data from previous semesters
-                                    </label>
-                                    <label class="switch">
-                                        <input id="showTermSwitcher" type="checkbox" name="showTermSwitcher"
-                                        <% if (JSON.parse(betaFeatures).showTermSwitcher) { %>
-                                               checked="checked"
-                                                <% } %>
-                                               onchange="$($(this)[0].form).submit()"
-                                        >
-                                        <span class="slider"></span>
-                                    </label>
-                                </label>
-                                <small>
-                                    Enabled: Adds an additional navigation bar to view older grade data
-                                </small>
-                                <br>
-                                <small>
-                                    Disabled: Default
-                                </small>
-                            </div>
-                            <div class="card-footer">
-                                <label class="slider-container">
-                                    <label style="margin-left: 0;" for="showFps">
-                                        Enable FPS display
-                                    </label>
-                                    <label class="switch">
-                                        <input id="showFps" type="checkbox" name="showFps"
-                                        <% if (JSON.parse(betaFeatures).showFps) { %>
-                                               checked="checked"
-                                                <% } %>
-                                               onchange="$($(this)[0].form).submit()"
-                                        >
-                                        <span class="slider"></span>
-                                    </label>
-                                </label>
-                                <small>
-                                    Enabled: Displays FPS in the bottom left corner of the screen
-                                </small>
-                                <br>
-                                <small>
-                                    Disabled: Default
-                                </small>
-                            </div>
                             <div class="card-footer">
                                 <label class="slider-container">
                                     <label style="margin-left: 0;" for="showNotificationPanel">
@@ -718,7 +731,7 @@
                                         <% if (JSON.parse(betaFeatures).showNotificationPanel) { %>
                                                checked="checked"
                                                 <% } %>
-                                               onchange="$($(this)[0].form).submit()"
+                                               onchange="$($(this)[0].form).trigger('submit')"
                                         >
                                         <span class="slider"></span>
                                     </label>
@@ -781,8 +794,8 @@
                 return;
             }
             $.ajax({
-                       url: "/setFirstName", type: "POST", async: true, data: {firstName: firstName}
-                   }).done((response) => {
+                url: "/setFirstName", type: "POST", async: true, data: {firstName: firstName}
+            }).done((response) => {
                 if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                     $(".session-timeout").show();
                     $("body").find("*").not(".session-timeout").remove();
@@ -794,7 +807,7 @@
                     icon.attr("class", "fa fa-check-circle");
                     $(inputID).css("border-bottom-color", "");
                     personalInfo.firstName = firstName;
-                    updateNameDisplay(firstName);
+                    updateNameDisplay(firstName, schoolUsername);
                 }
             }).fail((data) => {
                 // Make sure value is still the same
@@ -826,11 +839,13 @@
         firstName = firstName.substring(0, 1).toUpperCase() + firstName.substring(1).toLowerCase();
 
         // Last Name
-        let lastName = bcpEmail.indexOf(".") === -1 ? "" : bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? bcpEmail.substring(bcpEmail.indexOf(".") + 1) : bcpEmail.substring(bcpEmail.indexOf(".") + 1, bcpEmail.indexOf(bcpEmail.match(/\d/)));
+        let lastName = bcpEmail.indexOf(".") === -1 ? "" :
+            bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? bcpEmail.substring(bcpEmail.indexOf(".") + 1) : bcpEmail.substring(bcpEmail.indexOf(".") + 1, bcpEmail.indexOf(bcpEmail.match(/\d/)));
         lastName = lastName.substring(0, 1).toUpperCase() + lastName.substring(1).toLowerCase();
 
         // Graduation Year
-        let graduationYear = bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? "" : bcpEmail.indexOf("@") === -1 ? bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/))) : bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/)), bcpEmail.indexOf("@"));
+        let graduationYear = bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? "" :
+            bcpEmail.indexOf("@") === -1 ? bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/))) : bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/)), bcpEmail.indexOf("@"));
         if (graduationYear) {
             graduationYear = parseInt(graduationYear);
             graduationYear += 2000;
@@ -843,7 +858,7 @@
         if ($("#gradeSyncDiv").css("display") === "block" && !$("#gradeSyncToggle").prop("checked")) {
             gradeSync = false;
             ajaxPostForm("#gradeSync", [], "", true);
-            $("#gradeSync").submit();
+            $("#gradeSync").trigger('submit');
             $("#gradeSyncDiv").hide();
             $("#syncGradesDiv").show();
             $(".gradeSyncEnabled").hide();
@@ -868,11 +883,11 @@
         let buttons = $("#color-scheme-picker button");
         buttons.prop("disabled", true);
         $.ajax({
-                   url: "/setColorPalette",
-                   type: "POST",
-                   data: {preset: palette, shuffleColors: JSON.stringify($("#shuffleToggle").is(":checked"))},
-                   async: true
-               }).done((response) => {
+            url: "/setColorPalette",
+            type: "POST",
+            data: {preset: palette, shuffleColors: JSON.stringify($("#shuffleToggle").is(":checked"))},
+            async: true
+        }).done((response) => {
             if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                 $(".session-timeout").show();
                 $("body").find("*").not(".session-timeout").remove();
@@ -1085,8 +1100,8 @@
 
     function resetTutorial() {
         $.ajax({
-                   url: "/resetTutorial", type: "POST", async: true
-               }).done((response) => {
+            url: "/resetTutorial", type: "POST", async: true
+        }).done((response) => {
             if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                 $(".session-timeout").show();
                 $("body").find("*").not(".session-timeout").remove();

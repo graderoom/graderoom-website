@@ -6,6 +6,7 @@ const flash = require("connect-flash");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
+const redis = require("redis");
 const session = require("express-session");
 const passport = require("passport");
 const dbConn = require("./authenticator.js");
@@ -51,7 +52,12 @@ if (!dbConn.userExists(ADMIN_USERNAME)) {
 }
 
 // required for passport
+let RedisStore = require("connect-redis")(session);
+let redisPort = httpPort + 383; // 6379 for stable, 6381 for beta
+let redisClient = redis.createClient({port: redisPort});
+let store = new RedisStore({client: redisClient});
 app.use(session({
+    store: store,
                     secret: "secret", // session secret //TODO CHANGE
                     resave: true, saveUninitialized: true, cookie: {maxAge: 4 * 60 * 60 * 1000} //4 hours
                 }));
@@ -70,7 +76,19 @@ dbConn.updateAllDB();
 dbConn.backupdb();
 dbConn.readChangelog("CHANGELOG.md");
 dbConn.watchChangelog();
+
 const httpServer = http.createServer(app);
+const io = require("socket.io")(httpServer);
+const passportSocketIo = require("passport.socketio");
+io.use(passportSocketIo.authorize({
+    key: "connect.sid",
+    passport: passport,
+    cookieParser: cookieParser,
+    secret: "secret",
+    store: store,
+                                                   }));
+require("./sockets").sockets(io);
+require("./socketManager").setIo(io);
 httpServer.listen(httpPort, () => {
     if (process.platform === "win32") { // If on windows print ip for testing mobile app locally (mac ppl can comment this out when test)
         "use strict";
