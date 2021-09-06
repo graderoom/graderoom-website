@@ -289,8 +289,10 @@
             <% } %>
 
             function stop() {
-                $("#snow-fall").hide();
-                $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-info font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Snow disabled by window unfocus</small>`));
+                if (today.getMonth() >= winterStart || today.getMonth() < winterEnd) {
+                    $("#snow-fall").hide();
+                    $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-info font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Snow disabled by window unfocus</small>`));
+                }
                 renderNextFrame = false;
             }
 
@@ -299,8 +301,10 @@
                 renderNextFrame = true;
                 _10sTempFps = [];
                 lastCalledTime = undefined;
-                $("#snow-fall").show();
-                $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-info font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Snow reenabled by window focus</small>`));
+                if (today.getMonth() >= winterStart || today.getMonth() < winterEnd) {
+                    $("#snow-fall").show();
+                    $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-info font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Snow reenabled by window focus</small>`));
+                }
             }
         }
 
