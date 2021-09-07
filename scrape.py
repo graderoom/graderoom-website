@@ -94,6 +94,8 @@ def parse_class(local_class, raw_data):
             sort_date = datetime.strptime(sort_date, "%Y-%m-%d %H:%M:%S").timestamp()
             if "scorepoints" in _data["_assignmentscores"][0]:
                 points_gotten = _data["_assignmentscores"][0]["scorepoints"]
+                if "weight" in _data["_assignmentscores"][0]:
+                    points_gotten = points_gotten * _data["_assignmentscores"][0]["weight"]
             else:
                 points_gotten = False
             if "scorepercent" in _data["_assignmentscores"][0]:
@@ -358,6 +360,8 @@ class PowerschoolScraper:
         """Uses a session to grab all available grade data on powerschool"""
         url = 'https://powerschool.bcp.org/guardian/termgrades.html'
         resp = self.session.get(url, timeout=10)
+        self.progress = 35
+        self.message = 'Searching for courses...'
         soup_resp = bS(resp.text, "html.parser")
 
         # Begin organizing response data
@@ -367,11 +371,18 @@ class PowerschoolScraper:
         year_list = soup_resp.find("ul", class_='tabs')
         year_links = year_list.find_all("li")
 
+        total_term_count = len(year_links)
+        scraped_term_count = 0
+        initial_progress = self.progress
+        max_progress = 100
+        self.message = 'Synced ' + str(scraped_term_count) + ' of ' + str(total_term_count) + ' terms...'
+        self.progress = initial_progress + (max_progress - initial_progress) * scraped_term_count / total_term_count
         for year_link in year_links:
             # Exclude summer school pages by checking for SS in title
             # since they show duplicate data
             link = year_link.find("a")
             if "SS" in str(link):
+                total_term_count -= 1
                 continue
 
             # Cut the year from the link text
@@ -379,6 +390,7 @@ class PowerschoolScraper:
 
             # Ensure it exists, then fetch the year link
             if not link['href']:
+                total_term_count -= 1
                 continue
             url = 'https://powerschool.bcp.org/guardian/'
             resp = self.session.get(url + link['href'], timeout=10)
@@ -428,6 +440,9 @@ class PowerschoolScraper:
             if title != "":
                 year_data["S3" if title == "S0" else title] = semester_classes
                 all_history[year] = year_data
+                scraped_term_count += 1
+            else:
+                total_term_count -= 1
 
         if not all_history:
             print(json_format(False, "No class data."))
@@ -506,7 +521,7 @@ class PowerschoolScraper:
             url = 'https://powerschool.bcp.org/guardian/'
             url = url + assignments_link
             if (self.scrape_class(url, all_classes, overall_percent,
-                              overall_letter)):
+                                  overall_letter)):
                 scraped_course_count += 1
             else:
                 total_course_count -= 1

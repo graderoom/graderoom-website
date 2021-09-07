@@ -42,6 +42,13 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 4.9.1] - 2021-09-06
+### Added
+- Descriptive syncing for grade history
+
+### Fixed
+- Issue with complex weighted assignments, such as VHL homework
+
 ## [Stable 4.9.0] - 2021-09-05
 ### Added
 - Appearance Settings Changes<ul>
