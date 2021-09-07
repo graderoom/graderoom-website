@@ -94,8 +94,8 @@ def parse_class(local_class, raw_data):
             sort_date = datetime.strptime(sort_date, "%Y-%m-%d %H:%M:%S").timestamp()
             if "scorepoints" in _data["_assignmentscores"][0]:
                 points_gotten = _data["_assignmentscores"][0]["scorepoints"]
-                if "weight" in _data["_assignmentscores"][0]:
-                    points_gotten = points_gotten * _data["_assignmentscores"][0]["weight"]
+                if "weight" in _data:
+                    points_gotten = points_gotten * _data["weight"]
             else:
                 points_gotten = False
             if "scorepercent" in _data["_assignmentscores"][0]:
