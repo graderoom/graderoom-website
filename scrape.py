@@ -703,14 +703,15 @@ class BasisWeights:
 
     def add_class(self, class_name):
         if class_name not in self._weights:
-            self._weights[class_name] = {"weights": {}, "hasWeights": False}
+            self._weights[class_name] = {"weights": {}, "hasWeights": "false"}
 
     def add_weight(self, class_name, weight_name, weight_value):
         self.add_class(class_name)
 
         if weight_name not in self._weights[class_name]:
             self._weights[class_name]["weights"][weight_name] = weight_value
-            self._weights[class_name]["hasWeights"] = True
+            if weight_value is not None:
+                self._weights[class_name]["hasWeights"] = "true"
 
 
 class BasisScraper(Scraper):
@@ -816,13 +817,12 @@ class BasisScraper(Scraper):
                 category_name = clean_string(category_name.text)
 
                 category_value = category_soup.find('span', class_='percentage-contrib')
-                if category_value is None:
-                    continue
 
-                category_value = clean_number(category_value.text[1:-2])
+                if category_value is not None:
+                    category_value = clean_number(category_value.text[1:-2])
                 category_id = category_soup['data-id']
 
-                if category_name is not False and category_value is not False:
+                if category_name is not False:
                     weights.add_weight(class_name, category_name, category_value)
                     assignments_soup = grades_soup.find_all('tr', {'data-parent-id': category_id})
                     for assignment_soup in assignments_soup:
@@ -836,6 +836,9 @@ class BasisScraper(Scraper):
                         if assignment_date_time_soup is not None:
                             clean(assignment_date_time_soup)
                             date_time = assignment_date_time_soup.text
+                            if ' ' not in date_time:
+                                date_time += " 12:00am"
+
                             date, time = date_time.split(' ')
                             sort_date = datetime.strptime(date_time, "%m/%d/%y %I:%M%p").timestamp()
                         else:

@@ -1587,6 +1587,10 @@ module.exports = {
                         added: added, modified: modified, removed: removed, overall: overall
                     };
                     userRef.get("grades").get(newTerm).set(newSemester, newGrades).write();
+                    if (userRef.get("school").value() === "basis") {
+                        let newWeights = data.new_weights[newTerm][newSemester];
+                        userRef.get("weights").get(newTerm).set(newSemester, newWeights).write();
+                    }
                     this.initAddedAssignments(lc_username);
                     this.initWeights(lc_username);
                     this.initEditedAssignments(lc_username);
