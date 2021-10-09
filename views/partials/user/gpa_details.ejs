@@ -21,7 +21,7 @@
                                                $.ajax({url: '/weightedGPA', method: 'POST', data: {weightedGPA: appearance.weightedGPA}});
                                                   setupGPADisplays();
                                                   return;"
-                            <% if (JSON.parse(appearance).weightedGPA) { %> checked
+                                    <% if (JSON.parse(appearance).weightedGPA) { %> checked
                                     <% } %>
                             >
                             <span class="slider"></span>
@@ -119,9 +119,15 @@
     function setupGpaDetails(setup = false, show = true) {
         if (setup) {
             maxGpaDetailsTab = 0;
-            if (setupSemesterGpaDetails()) maxGpaDetailsTab++;
-            if (setupCumulativeGpaDetails()) maxGpaDetailsTab++;
-            if (setupUC_CSUGpaDetails()) maxGpaDetailsTab++;
+            if (setupSemesterGpaDetails()) {
+                maxGpaDetailsTab++;
+            }
+            if (setupCumulativeGpaDetails()) {
+                maxGpaDetailsTab++;
+            }
+            if (setupUC_CSUGpaDetails()) {
+                maxGpaDetailsTab++;
+            }
 
             if (appearance.weightedGPA) {
                 $(`.weighted`).show();
@@ -164,9 +170,13 @@
         for (let i = 0; i < _data.length; i++) {
             let class_name = _data[i].class_name;
             let letter_grade = _data[i].overall_letter;
-            if (([false, "CR", "W"]).includes(letter_grade)) continue;
+            if (([false, "CR", "W"]).includes(letter_grade)) {
+                continue;
+            }
             let class_type = relClassData[class_name].classType;
-            if (class_type === "non-academic") continue;
+            if (class_type === "non-academic") {
+                continue;
+            }
             let addHonors = 0;
 
             switch (class_type) {
@@ -251,6 +261,9 @@
     }
 
     function setupCumulativeGpaDetails() {
+        if (school === "basis") {
+            return false;
+        }
         // Semester GPA
         // Get table
         let cumulativeGpaDetailsTable = $('#cumulativeGpaDetails table');
@@ -269,7 +282,9 @@
             let semesters = Object.keys(gradeHistoryLetters[years[i]]).sort((a, b) => a.slice(-1) - b.slice(-1));
             for (let j = 0; j < semesters.length; j++) {
 
-                if (semesters[j] === "S3") continue;
+                if (semesters[j] === "S3") {
+                    continue;
+                }
 
                 // Add a semester header
                 let semesterHeader = $(`<tr><th colspan="10">` + years[i] + ` | ` + semesters[j] + `</th></tr>`);
@@ -293,9 +308,13 @@
                     let classObject = gradeHistoryLetters[years[i]][semesters[j]][k];
                     let class_name = Object.keys(classObject)[0];
                     let letter_grade = Object.values(classObject)[0];
-                    if (([false, "CR", "W"]).includes(letter_grade)) continue;
+                    if (([false, "CR", "W"]).includes(letter_grade)) {
+                        continue;
+                    }
                     let class_type = relClassData[class_name].classType;
-                    if (class_type === "non-academic") continue;
+                    if (class_type === "non-academic") {
+                        continue;
+                    }
                     let addHonors = 0;
 
                     switch (class_type) {
@@ -377,6 +396,9 @@
     }
 
     function setupUC_CSUGpaDetails() {
+        if (school === "basis") {
+            return false;
+        }
         // UC/CSU GPA
         // Get table
         let uc_csuGpaDetailsTable = $('#uc_csuGpaDetails table');
@@ -424,7 +446,9 @@
                 let classObject = classes[c];
                 let class_name = Object.keys(classObject)[0];
                 let letter_grade = Object.values(classObject)[0];
-                if (([false, "CR", "W"]).includes(letter_grade)) continue;
+                if (([false, "CR", "W"]).includes(letter_grade)) {
+                    continue;
+                }
                 let class_type = relClassData[class_name].uc_csuClassType;
 
                 let uc_class_type;
@@ -487,7 +511,9 @@
                     let classObject = classes[c];
                     let class_name = Object.keys(classObject)[0];
                     let letter_grade = Object.values(classObject)[0];
-                    if (([false, "CR", "W"]).includes(letter_grade)) continue;
+                    if (([false, "CR", "W"]).includes(letter_grade)) {
+                        continue;
+                    }
                     let class_type = relClassData[class_name].uc_csuClassType;
 
                     let uc_class_type;
@@ -552,7 +578,9 @@
                     let classObject = classes[c];
                     let class_name = Object.keys(classObject)[0];
                     let letter_grade = Object.values(classObject)[0];
-                    if (([false, "CR", "W"]).includes(letter_grade)) continue;
+                    if (([false, "CR", "W"]).includes(letter_grade)) {
+                        continue;
+                    }
                     let class_type = relClassData[class_name].uc_csuClassType;
 
                     let uc_class_type;

@@ -17,7 +17,10 @@
     <% } else if (JSON.parse(appearance).theme === "light") { %>
         <% theme = false; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/light_mode.css">
-    <% } else if (JSON.parse(appearance).theme === "auto" && (((JSON.parse(appearance).darkModeStart < JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) && (zeroTime < JSON.parse(appearance).darkModeFinish))) || ((JSON.parse(appearance).darkModeStart > JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) || (zeroTime < JSON.parse(appearance).darkModeFinish))))) { %>
+    <% } else if (JSON.parse(appearance).theme === "auto" && (((JSON.parse(appearance).darkModeStart < JSON.parse(appearance).darkModeFinish) &&
+                    ((zeroTime >= JSON.parse(appearance).darkModeStart) && (zeroTime < JSON.parse(appearance).darkModeFinish))) ||
+            ((JSON.parse(appearance).darkModeStart > JSON.parse(appearance).darkModeFinish) &&
+                    ((zeroTime >= JSON.parse(appearance).darkModeStart) || (zeroTime < JSON.parse(appearance).darkModeFinish))))) { %>
         <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
     <% } else if (JSON.parse(appearance).theme === "system") { %>
@@ -84,7 +87,7 @@
         <% let classPage = -1; %>
         <i id="pageNumber" style="display:none"><%= classPage; %></i>
 
-        <!-- Class Links -->
+    <!-- Class Links -->
         <% if (JSON.parse(gradeData).length > 0) { %>
             <ul id="classLinks" class="nav nav-fill" style="color: #BBBBBB">
                 <li class="nav-item" id="link-1">
@@ -115,7 +118,7 @@
         <script>
             let oldSemester = false;
         </script>
-        <!-- Main Screen -->
+    <!-- Main Screen -->
         <div class="container">
             <div class="backToHome" style="display: none" onclick="showPage(-1)">
                 <i class="fa fa-arrow-left"></i>
@@ -129,82 +132,84 @@
             <% if (JSON.parse(gradeData).length) { %>
                 <div id="section-1">
                     <div style="display: flex">
-                        <div id="GPA-container">
-                            <div id="showMaxGPA">
-                                <label style="display: flex; font-size: 1rem; justify-content: center; margin: 0; align-items: flex-start">Show
-                                    Max GPA
-                                    <label class="switch">
-                                        <input style="margin: 0; display: flex"
-                                               type="checkbox"
-                                               onchange="showMaxGPA = $(this).is(':checked'); setupGPADisplays(true)"
-                                        <% if (JSON.parse(appearance).showMaxGPA) { %> checked
-                                                <% } %>
-                                        >
-                                        <span class="slider"></span>
+                        <% if (school !== "basis") { %>
+                            <div id="GPA-container">
+                                <div id="showMaxGPA">
+                                    <label style="display: flex; font-size: 1rem; justify-content: center; margin: 0; align-items: flex-start">Show
+                                                                                                                                               Max GPA
+                                        <label class="switch">
+                                            <input style="margin: 0; display: flex"
+                                                   type="checkbox"
+                                                   onchange="showMaxGPA = $(this).is(':checked'); setupGPADisplays(true)"
+                                            <% if (JSON.parse(appearance).showMaxGPA) { %> checked
+                                                    <% } %>
+                                            >
+                                            <span class="slider"></span>
+                                        </label>
                                     </label>
-                                </label>
-                            </div>
-                            <div class="weightGPA">
-                                <label style="display: flex; font-size: 1rem; justify-content: center; margin: 0; align-items: flex-start">Weighted
-                                    GPA
-                                    <label class="switch">
-                                        <input style="margin: 0; display: flex"
-                                               type="checkbox"
-                                               onchange="appearance.weightedGPA = !appearance.weightedGPA;
+                                </div>
+                                <div class="weightGPA">
+                                    <label style="display: flex; font-size: 1rem; justify-content: center; margin: 0; align-items: flex-start">Weighted
+                                                                                                                                               GPA
+                                        <label class="switch">
+                                            <input style="margin: 0; display: flex"
+                                                   type="checkbox"
+                                                   onchange="appearance.weightedGPA = !appearance.weightedGPA;
                                                $.ajax({url: '/weightedGPA', method: 'POST', data: {weightedGPA: appearance.weightedGPA}});
                                                   setupGPADisplays();
                                                   return;"
-                                        <% if (JSON.parse(appearance).weightedGPA) { %> checked
-                                                <% } %>
-                                        >
-                                        <span class="slider"></span>
+                                            <% if (JSON.parse(appearance).weightedGPA) { %> checked
+                                                    <% } %>
+                                            >
+                                            <span class="slider"></span>
+                                        </label>
                                     </label>
-                                </label>
-                            </div>
-                            <div>
-                                <% let accentColor = JSON.parse(appearance).classColors[Math.min(JSON.parse(appearance).classColors.length - 1, JSON.parse(gradeData).length)]; %>
-                                <h5 class="text-center">Semester GPA<span
-                                            class="popup"><i class="fa fa-question-circle"
-                                                             style="margin-left: 0.4rem"><span
-                                                    class="popup-right-top">This metric is based on your grades from
+                                </div>
+                                <div>
+                                    <% let accentColor = JSON.parse(appearance).classColors[Math.min(JSON.parse(appearance).classColors.length - 1, JSON.parse(gradeData).length)]; %>
+                                    <h5 class="text-center">Semester GPA<span
+                                                class="popup"><i class="fa fa-question-circle"
+                                                                 style="margin-left: 0.4rem"><span
+                                                        class="popup-right-top">This metric is based on your grades from
                                                 this semester.</span></i></span>
-                                </h5>
-                                <h5 id="GPA-display">----
-                                    <% if (JSON.parse(appearance).showMaxGPA) { %>/----
-                                    <% } %>
-                                </h5>
-                            </div>
-                            <div style="display: none">
-                                <h5 class="text-center">Cumulative GPA<span class="popup"><i
-                                                class="fa fa-question-circle"
-                                                style="margin-left: 0.4rem"><span
-                                                    class="popup-right-top">Your cumulative GPA is calculated from all
+                                    </h5>
+                                    <h5 id="GPA-display">----
+                                        <% if (JSON.parse(appearance).showMaxGPA) { %>/----
+                                        <% } %>
+                                    </h5>
+                                </div>
+                                <div style="display: none">
+                                    <h5 class="text-center">Cumulative GPA<span class="popup"><i
+                                                    class="fa fa-question-circle"
+                                                    style="margin-left: 0.4rem"><span
+                                                        class="popup-right-top">Your cumulative GPA is calculated from all
                                                 your courses taken so far. However, it does not include pe or
                                                 summer classes.</span></i></span></h5>
-                                <h5 id="GPA-display-cumulative">----
-                                    <% if (JSON.parse(appearance).showMaxGPA) { %>/----
-                                    <% } %>
-                                </h5>
-                            </div>
-                            <div style="display: none">
-                                <h5 class="text-center">UC/CSU GPA<span class="popup"><i class="fa fa-question-circle"
-                                                                                         style="margin-left: 0.4rem"><span
-                                                    class="popup-right-top">This is your GPA as calculated by
+                                    <h5 id="GPA-display-cumulative">----
+                                        <% if (JSON.parse(appearance).showMaxGPA) { %>/----
+                                        <% } %>
+                                    </h5>
+                                </div>
+                                <div style="display: none">
+                                    <h5 class="text-center">UC/CSU GPA<span class="popup"><i class="fa fa-question-circle"
+                                                                                             style="margin-left: 0.4rem"><span
+                                                        class="popup-right-top">This is your GPA as calculated by
                                                 the<br><span
-                                                        style="color: <%= accentColor; %>">University of
+                                                            style="color: <%= accentColor; %>">University of
                                                     California System</span><br>and the<br><span
-                                                        style="color: <%= accentColor; %>">California State
+                                                            style="color: <%= accentColor; %>">California State
                                                     University System</span>.<br> This metric is not affected by the
                                                 weighted GPA setting.</span></i></span></h5>
-                                <h5 id="GPA-display-uc">----
-                                    <% if (JSON.parse(appearance).showMaxGPA) { %>/----
-                                    <% } %>
-                                </h5>
+                                    <h5 id="GPA-display-uc">----
+                                        <% if (JSON.parse(appearance).showMaxGPA) { %>/----
+                                        <% } %>
+                                    </h5>
+                                </div>
+                                <button class="btn btn-med" id="gpaDetailsBtn" onclick="setupGpaDetails()"><i
+                                            class="fa fa-list"></i> View Details
+                                </button>
                             </div>
-                            <button class="btn btn-med" id="gpaDetailsBtn" onclick="setupGpaDetails()"><i
-                                        class="fa fa-list"></i> View Details
-                            </button>
-                        </div>
+                        <% } %>
                         <div style="width: 100%" class="popup">
                             <div class="popup-holder">
                                 <span id="legendPopup"
@@ -221,12 +226,12 @@
                                 </span>
                             </div>
                             <div id="chart-container-1" class="chart chart-container text-center">
-                            <button id="reset-zoom-1"
-                                    style="position: absolute; top: 0; right: 0; height: fit-content; display:none"
-                                    class="btn btn-sm" onclick="resetZoom(-1); $(this).hide()">Reset
-                            </button>
-                            <div class="chart chart-placeholder fa fa-spin fa-spinner"></div>
-                            <canvas id="chart-1" style="height: 60vh; width: 60vw;"></canvas>
+                                <button id="reset-zoom-1"
+                                        style="position: absolute; top: 0; right: 0; height: fit-content; display:none"
+                                        class="btn btn-sm" onclick="resetZoom(-1); $(this).hide()">Reset
+                                </button>
+                                <div class="chart chart-placeholder fa fa-spin fa-spinner"></div>
+                                <canvas id="chart-1" style="height: 60vh; width: 60vw;"></canvas>
                             </div>
                         </div>
                     </div>
@@ -239,30 +244,30 @@
                                     <div class="block">
                                         <table>
                                             <thead>
-                                                <tr>
-                                                    <th id="overview<%= i + offset; %>" class="overview"
-                                                        style="cursor: pointer; text-align: center; color: <%= JSON.parse(appearance).classColors[i]; %>"
-                                                        onclick="showPage(<%= i + offset; %>)">
-                                                        <%= JSON.parse(gradeData)[i].class_name; %>
-                                                    </th>
-                                                </tr>
+                                            <tr>
+                                                <th id="overview<%= i + offset; %>" class="overview"
+                                                    style="cursor: pointer; text-align: center; color: <%= JSON.parse(appearance).classColors[i]; %>"
+                                                    onclick="showPage(<%= i + offset; %>)">
+                                                    <%= JSON.parse(gradeData)[i].class_name; %>
+                                                </th>
+                                            </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td class="overview"
-                                                        style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= JSON.parse(appearance).classColors[i]; %>"
-                                                        onclick="showPage(<%= i + offset; %>)">
-                                                        <div id="overviewChart<%= i + offset; %>"
-                                                             style="display:block; font-weight:bolder">
-                                                            <div style="color: <%= JSON.parse(appearance).classColors[i]; %> !important">
-                                                                <div class="overallLetter"><%= JSON.parse(gradeData)[i].overall_letter %></div>
-                                                                <div class="overallGrade"><%= JSON.parse(gradeData)[i].overall_percent %>
-                                                                    %
-                                                                </div>
+                                            <tr>
+                                                <td class="overview"
+                                                    style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= JSON.parse(appearance).classColors[i]; %>"
+                                                    onclick="showPage(<%= i + offset; %>)">
+                                                    <div id="overviewChart<%= i + offset; %>"
+                                                         style="display:block; font-weight:bolder">
+                                                        <div style="color: <%= JSON.parse(appearance).classColors[i]; %> !important">
+                                                            <div class="overallLetter"><%= JSON.parse(gradeData)[i].overall_letter %></div>
+                                                            <div class="overallGrade"><%= JSON.parse(gradeData)[i].overall_percent %>
+                                                                %
                                                             </div>
                                                         </div>
-                                                    </td>
-                                                </tr>
+                                                    </div>
+                                                </td>
+                                            </tr>
                                             </tbody>
                                         </table>
                                     </div>
@@ -277,30 +282,30 @@
                                     <div class="block">
                                         <table>
                                             <thead>
-                                                <tr>
-                                                    <th id="overview<%= i + offset; %>" class="overview"
-                                                        style="cursor: pointer; text-align: center; color: <%= JSON.parse(appearance).classColors[i]; %>"
-                                                        onclick="showPage(<%= i + offset; %>)">
-                                                        <%= JSON.parse(gradeData)[i].class_name; %>
-                                                    </th>
-                                                </tr>
+                                            <tr>
+                                                <th id="overview<%= i + offset; %>" class="overview"
+                                                    style="cursor: pointer; text-align: center; color: <%= JSON.parse(appearance).classColors[i]; %>"
+                                                    onclick="showPage(<%= i + offset; %>)">
+                                                    <%= JSON.parse(gradeData)[i].class_name; %>
+                                                </th>
+                                            </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td class="overview"
-                                                        style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= JSON.parse(appearance).classColors[i]; %>"
-                                                        onclick="showPage(<%= i + offset; %>)">
-                                                        <div id="overviewChart<%= i + offset; %>"
-                                                             style="display:block; font-weight:bolder">
-                                                            <div style="color: <%= JSON.parse(appearance).classColors[i]; %> !important">
-                                                                <div class="overallLetter"><%= JSON.parse(gradeData)[i].overall_letter %></div>
-                                                                <div class="overallGrade"><%= JSON.parse(gradeData)[i].overall_percent %>
-                                                                    %
-                                                                </div>
+                                            <tr>
+                                                <td class="overview"
+                                                    style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= JSON.parse(appearance).classColors[i]; %>"
+                                                    onclick="showPage(<%= i + offset; %>)">
+                                                    <div id="overviewChart<%= i + offset; %>"
+                                                         style="display:block; font-weight:bolder">
+                                                        <div style="color: <%= JSON.parse(appearance).classColors[i]; %> !important">
+                                                            <div class="overallLetter"><%= JSON.parse(gradeData)[i].overall_letter %></div>
+                                                            <div class="overallGrade"><%= JSON.parse(gradeData)[i].overall_percent %>
+                                                                %
                                                             </div>
                                                         </div>
-                                                    </td>
-                                                </tr>
+                                                    </div>
+                                                </td>
+                                            </tr>
                                             </tbody>
                                         </table>
                                     </div>
@@ -317,58 +322,60 @@
             <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
                 <% if (JSON.parse(appearance).showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
                     <span id="section<%= i + offset; %>" class="section" style="display: none;">
-                        <div class="classInfo">
-                            <% let classType = JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].classType %>
-                            <% switch (classType) {
-                                case "honors":
-                                    classType = "Honors";
-                                    break;
+                        <% if (school !== "basis") { %>
+                            <div class="classInfo">
+                                <% let classType = JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].classType %>
+                                <% switch (classType) {
+                                    case "honors":
+                                        classType = "Honors";
+                                        break;
 
-                                case "ap":
-                                    classType = "AP";
-                                    break;
+                                    case "ap":
+                                        classType = "AP";
+                                        break;
 
-                                case "none":
-                                    classType = "Regular";
-                                    break;
+                                    case "none":
+                                        classType = "Regular";
+                                        break;
 
-                                case "non-academic":
-                                    classType = "Non-Academic";
-                                    break;
+                                    case "non-academic":
+                                        classType = "Non-Academic";
+                                        break;
 
-                                default:
-                                    classType = "Unknown";
-                                    break;
-                            } %>
-                            <% let uc_classType = JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].uc_csuClassType %>
-                            <% switch (uc_classType) {
-                                case "uc_hon":
-                                    uc_classType = "UC Approved Honors";
-                                    break;
+                                    default:
+                                        classType = "Unknown";
+                                        break;
+                                } %>
+                                <% let uc_classType = JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].uc_csuClassType %>
+                                <% switch (uc_classType) {
+                                    case "uc_hon":
+                                        uc_classType = "UC Approved Honors";
+                                        break;
 
-                                case "uc_ap":
-                                    uc_classType = "UC Approved AP";
-                                    break;
+                                    case "uc_ap":
+                                        uc_classType = "UC Approved AP";
+                                        break;
 
-                                case "uc":
-                                    uc_classType = "UC Approved Regular";
-                                    break;
+                                    case "uc":
+                                        uc_classType = "UC Approved Regular";
+                                        break;
 
-                                case "":
-                                    uc_classType = "Not a UC Approved";
-                                    break;
+                                    case "":
+                                        uc_classType = "Not a UC Approved";
+                                        break;
 
-                                default:
-                                    break;
-                            } %>
-                            <span>
-                                <% if (classType !== "Unknown") { %>
-                                    <span>BCP <%= classType %> course</span><br>
-                                <% } %>
-                                <span><%= uc_classType %> course</span><br>
+                                    default:
+                                        break;
+                                } %>
+                                <span>
+                                    <% if (classType !== "Unknown") { %>
+                                        <span>BCP <%= classType %> course</span><br>
+                                    <% } %>
+                                    <span><%= uc_classType %> course</span><br>
                                 <span id="verified<%= i %>" class="popup">Weights
                                     <% let weightDict = JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]; %>
-                                    <% let unverified = weightDict.hasWeights === null || (weightDict.hasWeights === "true" && Object.values(weightDict.weights).filter(w => w === null).length !== 0); %>
+                                    <% let unverified = weightDict.hasWeights === null ||
+                                            (weightDict.hasWeights === "true" && Object.values(weightDict.weights).filter(w => w === null).length !== 0); %>
                                     <% if (unverified) { %>Unverified
                                     <% } else { %>Verified
                                     <% } %>
@@ -404,6 +411,7 @@
                                 <% } %>
                             </span>
                         </div>
+                        <% } %>
                         <div class="chartAndWeights">
                             <div id="chart-container<%= i + offset; %>" class="chart chart-container">
                                 <div class="chart-placeholder fa fa-spin fa-spinner"></div>
@@ -427,7 +435,8 @@
                                                             <% if (JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["hasWeights"] === "false") { %>
                                                                    checked
                                                                     <% } %>
-                                                                   onchange="disableInput('check<%= i + offset; %>','weightsTable<%= i + offset; %>'); resetInputs('#weights<%= i + offset; %>'); $('#weights<%= i + offset; %>').trigger('submit');"
+                                                                   onchange="disableInput('check<%= i + offset; %>','weightsTable<%= i + offset; %>'); resetInputs('#weights<%= i +
+                                                                   offset; %>'); $('#weights<%= i + offset; %>').trigger('submit');"
                                                             >
                                                             <span style="color: <%= JSON.parse(appearance).classColors[i + offset]; %>"
                                                                   class="classSlider slider"></span>
@@ -467,14 +476,14 @@
                                         </thead>
                                         <tbody>
 
-                                            <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]).length; j++) { %>
-                                                <tr>
+                                        <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]).length; j++) { %>
+                                            <tr>
                                                     <td id="weightTableCategory<%= i + offset; %><%= j; %>"></td>
-                                                    <% let weights = JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]; %>
-                                                    <% let category = Object.keys(weights)[j]; %>
-                                                    <% let value = weights[category]; %>
-                                                    <td id="weightTableWeight<%= i + offset; %><%= j; %>"
-                                                        class="form-group">
+                                                <% let weights = JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]; %>
+                                                <% let category = Object.keys(weights)[j]; %>
+                                                <% let value = weights[category]; %>
+                                                <td id="weightTableWeight<%= i + offset; %><%= j; %>"
+                                                    class="form-group">
                                                         <input style="<% if (!value && value !== 0) { %> border-color: lightcoral !important; <% } %>"
                                                                value="<%= value; %>"
                                                                type="number"
@@ -488,8 +497,8 @@
                                                     <td id="weightTablePoints<%= i + offset; %><%= j; %>"></td>
                                                     <td id="weightTableGrade<%= i + offset; %><%= j; %>"></td>
                                                 </tr>
-                                            <% } %>
-                                            <script>
+                                        <% } %>
+                                        <script>
                                                 function disableInput(checkBoxID, id) {
                                                     $("#" + id).find(".disableable").each(function () {
                                                         if ($("#" + checkBoxID).is(":checked")) {
@@ -533,7 +542,8 @@
                                 <form id="addAssignmentForm<%= i + offset; %>">
                                     <div class="add-assignment-header">
                                         <div class="addAssignment"
-                                             onclick="{$(this).parents('.add-assignment-container').toggleClass('active').parents('div').toggleClass('keep-right'); $('#dateLabel<%= i + offset %> + input').trigger('focus').trigger('blur')}">
+                                             onclick="{$(this).parents('.add-assignment-container').toggleClass('active').parents('div').toggleClass('keep-right'); $('#dateLabel<%= i +
+                                             offset %> + input').trigger('focus').trigger('blur')}">
                                             <i class="fa fa-plus"></i>
                                             <span>Add Assignment</span>
                                         </div>
@@ -591,14 +601,6 @@
                                         </tr>
                                     </table>
                                 </form>
-                            </div>
-                            <div style="align-self: center;">
-                                <span id="addedOption<%= i + offset; %>"><span class="square"
-                                                                               style="color: green"></span>
-                                    Added</span>
-                                <span id="modifiedOption<%= i + offset; %>"><span class="square"
-                                                                                  style="margin-left: 0.5rem; color: deepskyblue"></span>
-                                    Modified</span>
                             </div>
                             <div class="tableOptionsContainer">
                                 <div class="tableOptions">
@@ -677,12 +679,12 @@
                             <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].weights).length; j++) { %>
                                 <% let category = Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].weights)[j]; %>
                                 <thead class="categoryStart">
-                                    <% if (j > 0) { %>
-                                        <tr class="separator">
+                                <% if (j > 0) { %>
+                                    <tr class="separator">
                                             <td colspan="6"></td>
                                         </tr>
-                                    <% } %>
-                                    <tr>
+                                <% } %>
+                                <tr>
                                         <th colspan="6"><%= category; %></th>
                                         <th class="toolTab categoryModAllTab<%= i + offset %>">
                                             <span class="popup">
@@ -736,7 +738,7 @@
                 } %>
             <% } %>
         </div>
-        <!-- Custom JavaScript -->
+    <!-- Custom JavaScript -->
         <script>
             let enableLogging = <%= enableLogging %>;
             // define a new console
@@ -883,7 +885,7 @@
                 }
             });
 
-            function logSocket(socket) {
+            function logSocket(socket, socketName) {
 
                 function displayNicely(...args) {
                     return [...args].map(arg => {
@@ -901,25 +903,26 @@
 
                 socket.onAny((event, ...args) => {
                     if (event.startsWith("info")) {
-                        console.info(event + " | " + displayNicely(...args).join(" | "));
+                        console.info(socketName + " | " + event + " | " + displayNicely(...args).join(" | "));
                     } else if (event.startsWith("error")) {
-                        console.error(event + " | " + displayNicely(...args).join(" | "));
+                        console.error(socketName + " | " + event + " | " + displayNicely(...args).join(" | "));
                     } else if (event.startsWith("fail")) {
-                        console.warn(event + " | " + displayNicely(...args).join(" | "));
+                        console.warn(socketName + " | " + event + " | " + displayNicely(...args).join(" | "));
                     } else {
-                        console.log(event + " | " + displayNicely(...args).join(" | "));
+                        console.log(socketName + " | " + event + " | " + displayNicely(...args).join(" | "));
                     }
                 });
             }
 
-            logSocket(mainSocket);
-            logSocket(syncSocket);
-            logSocket(notiSocket);
+            logSocket(mainSocket, 'MAIN');
+            logSocket(syncSocket, 'SYNC');
+            logSocket(notiSocket, 'NOTI');
 
             let refreshing;
             let shortcutsEnabled = true;
             let recentlyAddedAssignment;
             let recentlyAddedAssignmentDiv;
+            let school = "<%= school %>";
 
             let totaltime = 0;
             let count = 0;
@@ -993,7 +996,9 @@
                     }
                     for (let i = 0; i < _data.length; i++) {
                         if (changedClassIndex === undefined || changedClassIndex === i) {
-                            $(`#chart-container${changedClassIndex}`).html("<button id=\"reset-zoom" + changedClassIndex + "\" style=\"position: absolute; top: 0; right: 0; height: fit-content; display:none\" class=\"btn btn-sm\" onclick=\"resetZoom(" + changedClassIndex + "); $(this).hide()\">Reset</button><div class=\"chart-placeholder fa fa-spin fa-spinner\"></div><canvas id=\"chart" + changedClassIndex + "\"></canvas>");
+                            $(`#chart-container${changedClassIndex}`).html("<button id=\"reset-zoom" + changedClassIndex +
+                                "\" style=\"position: absolute; top: 0; right: 0; height: fit-content; display:none\" class=\"btn btn-sm\" onclick=\"resetZoom(" + changedClassIndex +
+                                "); $(this).hide()\">Reset</button><div class=\"chart-placeholder fa fa-spin fa-spinner\"></div><canvas id=\"chart" + changedClassIndex + "\"></canvas>");
                         }
                     }
                     refreshing = setTimeout(() => {
@@ -1110,8 +1115,8 @@
                     showLatest(false);
                 } else {
                     $.ajax({
-                               url: "/latestVersionSeen", type: "POST", async: true
-                           });
+                        url: "/latestVersionSeen", type: "POST", async: true
+                    });
                 }
             }
 
@@ -1137,7 +1142,9 @@
                     }
                 }
 
-                if ((theme === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) || (theme === "sun" && (zeroTime >= sunset || zeroTime <= sunrise)) || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((zeroTime >= darkModeStart) && (zeroTime < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((zeroTime >= darkModeStart) || (zeroTime < darkModeFinish))))))) {
+                if ((theme === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) || (theme === "sun" && (zeroTime >= sunset || zeroTime <= sunrise)) ||
+                    (theme === "auto" && (((darkModeStart < darkModeFinish) && ((zeroTime >= darkModeStart) && (zeroTime < darkModeFinish)) ||
+                        ((darkModeStart > darkModeFinish) && ((zeroTime >= darkModeStart) || (zeroTime < darkModeFinish))))))) {
                     let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
                     darkMode = true;
                     if (darkMode !== oldDarkMode) {
@@ -1218,8 +1225,8 @@
                     return;
                 }
                 $.ajax({
-                           url: "/UpdateTutorialStatus", type: "POST", async: true, data: {action: action}
-                       }).done((response) => {
+                    url: "/UpdateTutorialStatus", type: "POST", async: true, data: {action: action}
+                }).done((response) => {
                     if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                         $(".session-timeout").show();
                         $("body").find("*").not(".session-timeout").remove();
@@ -1260,8 +1267,8 @@
             function setupGPADisplays(postNewSettings = false) {
                 if (postNewSettings) {
                     $.ajax({
-                               method: "POST", url: "/updateShowMaxGPA", data: {showMaxGPA: JSON.stringify(showMaxGPA)}
-                           }).done((response) => {
+                        method: "POST", url: "/updateShowMaxGPA", data: {showMaxGPA: JSON.stringify(showMaxGPA)}
+                    }).done((response) => {
                         if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                             $(".session-timeout").show();
                             $("body").find("*").not(".session-timeout").remove();
@@ -1307,7 +1314,7 @@
             function correctCalc(classIndex) {
                 let realOverallGrade = data[classIndex].overall_percent;
                 let realOverallLetter = data[classIndex].overall_letter;
-                if (realOverallGrade === false || realOverallLetter === false) {
+                if (realOverallGrade === false || !realOverallLetter) {
                     return true;
                 }
                 let calculatedOverallGrade = getOverallGrade(classIndex);
@@ -1320,7 +1327,8 @@
                 if (!alerts.lastUpdated.slice(-1)[0]) {
                     return false;
                 }
-                return alerts.lastUpdated.slice(-1)[0].ps_locked && (relClassData[data[classIndex].class_name].hasWeights === "false" || Object.values(relClassData[data[classIndex].class_name].weights).filter(w => w !== null).length !== 0);
+                return alerts.lastUpdated.slice(-1)[0].ps_locked &&
+                    (relClassData[data[classIndex].class_name].hasWeights === "false" || Object.values(relClassData[data[classIndex].class_name].weights).filter(w => w !== null).length !== 0);
             }
 
             function countDecimals(value) {
@@ -1334,6 +1342,9 @@
             }
 
             function setupUC_CSU_GPA() {
+                if (school === "basis") {
+                    return;
+                }
                 let out = $("#GPA-display-uc");
 
                 // First we need to determine which years are 9-11
@@ -1462,6 +1473,9 @@
             }
 
             function setupCumulativeGPA() {
+                if (school === "basis") {
+                    return;
+                }
                 let out = $("#GPA-display-cumulative");
                 let GPA = 0.0;
                 let max = 0.0;
@@ -1503,6 +1517,9 @@
             }
 
             function setupSemesterGPA() {
+                if (school === "basis") {
+                    return;
+                }
                 let out = $("#GPA-display");
                 let GPA = 0.0;
                 let max = 0.0;
@@ -1533,10 +1550,13 @@
             }
 
             function getGPA(letterGrade) {
+                if (!letterGrade) {
+                    return null;
+                }
                 if (([false, "CR", "W"]).includes(letterGrade)) {
                     return null;
                 }
-                letterGrade = letterGrade.substring(0, 1);
+                letterGrade = letterGrade[0];
                 if (letterGrade === "A") {
                     return 4;
                 } else if (letterGrade === "B") {
@@ -1678,7 +1698,8 @@
                             enableReset = false;
                             let keys = Object.keys(weights[className]["weights"]);
                             for (let i = 0; i < keys.length; i++) {
-                                if (relClassData[className]["weights"] && (keys[i] in relClassData[className]["weights"]) && weights[className]["weights"][keys[i]] != relClassData[className]["weights"][keys[i]]) {
+                                if (relClassData[className]["weights"] && (keys[i] in relClassData[className]["weights"]) && weights[className]["weights"][keys[i]] !=
+                                    relClassData[className]["weights"][keys[i]]) {
                                     enableReset = true;
                                 }
                             }
@@ -1719,7 +1740,8 @@
                             document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
                             document.getElementById("weightTableCategory" + i + j).title = tableCategories[j];
                             let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
-                            document.getElementById("weightTablePoints" + i + j).textContent = Math.round(categoryGottenAndPossible.gotten * 10000) / 10000 + ((categoryGottenAndPossible.possible !== 0) ? ("/" + Math.round(categoryGottenAndPossible.possible * 10000) / 10000) : "");
+                            document.getElementById("weightTablePoints" + i + j).textContent = Math.round(categoryGottenAndPossible.gotten * 10000) / 10000 +
+                                ((categoryGottenAndPossible.possible !== 0) ? ("/" + Math.round(categoryGottenAndPossible.possible * 10000) / 10000) : "");
                             let categoryGrade = getCategoryGrade(i, tableCategories[j]);
                             if (categoryGottenAndPossible.possible !== 0) {
                                 document.getElementById("weightTableGrade" + i + j).textContent = categoryGrade + "% (" + getLetterGrade(categoryGrade) + ")";
@@ -1767,10 +1789,10 @@
 
                 // Add element to measure pixel length of text
                 let tag = $("<span> </span>").css({
-                                                      "display": "none",
-                                                      "font-family": $(elements[0]).css("font-family"),
-                                                      "font-size": $(elements[0]).css("font-size")
-                                                  }).appendTo("body");
+                    "display": "none",
+                    "font-family": $(elements[0]).css("font-family"),
+                    "font-size": $(elements[0]).css("font-size")
+                }).appendTo("body");
 
                 //Adjust element width on keydown
                 elements.each(function () {
@@ -1804,7 +1826,8 @@
                 let classIndex = parseFloat($(element)[0].id.substring(6));
                 let method = $(element)[0].selectedOptions[0].value;
                 $(element).trigger("blur");
-                $($(element)[0].nextElementSibling.children[0]).removeClass(dateSort[classIndex] ? "fa-sort-amount-desc" : "fa-sort-amount-asc").addClass(dateSort[classIndex] ? "fa-sort-amount-asc" : "fa-sort-amount-desc").removeClass("disabled").find("span").text(dateSort[classIndex] ? "Oldest to Newest" : "Newest to Oldest");
+                $($(element)[0].nextElementSibling.children[0]).removeClass(dateSort[classIndex] ? "fa-sort-amount-desc" : "fa-sort-amount-asc").addClass(dateSort[classIndex] ? "fa-sort-amount-asc" :
+                    "fa-sort-amount-desc").removeClass("disabled").find("span").text(dateSort[classIndex] ? "Oldest to Newest" : "Newest to Oldest");
                 categorySort[classIndex] = method === "category";
                 postSortData();
                 refreshWithoutReload(true, classIndex);
@@ -1845,10 +1868,10 @@
                 _addedAssignments[_data[classIndex].class_name].push(JSON.parse(JSON.stringify(assignmentObject)));
                 addedAssignments[_data[classIndex].class_name].push(JSON.parse(JSON.stringify(assignmentObject)));
                 $.ajax({
-                           type: "POST",
-                           url: "/updateAddedAssignments",
-                           data: {data: JSON.stringify(addedAssignments), term: term, semester: semester}
-                       }).done(function (response) {
+                    type: "POST",
+                    url: "/updateAddedAssignments",
+                    data: {data: JSON.stringify(addedAssignments), term: term, semester: semester}
+                }).done(function (response) {
                     if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                         $(".session-timeout").show();
                         $("body").find("*").not(".session-timeout").remove();
@@ -1878,7 +1901,8 @@
                     assignmentIndex = $.makeArray($(".categoryGotten" + classIndex)).indexOf(element);
                     if (!dateSort[classIndex]) {
                         let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
-                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 *
+                            assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
                     }
                     assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
                 }
@@ -1969,7 +1993,8 @@
                     assignmentIndex = $.makeArray($(".categoryPossible" + classIndex)).indexOf(element);
                     if (!dateSort[classIndex]) {
                         let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
-                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 *
+                            assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
                     }
                     assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
                 }
@@ -2049,7 +2074,8 @@
                     assignmentIndex = $.makeArray($(".categoryCategory" + classIndex)).indexOf(element[0]);
                     if (!dateSort[classIndex]) {
                         let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
-                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 *
+                            assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
                     }
                     assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
                 }
@@ -2092,7 +2118,8 @@
                     assignmentIndex = $.makeArray($(".categoryExclude" + classIndex)).indexOf(element);
                     if (!dateSort[classIndex]) {
                         let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
-                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 *
+                            assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
                     }
                     assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
                 }
@@ -2125,11 +2152,11 @@
                     resetRow(resetButtons[i], false);
                 }
                 $.ajax({
-                           type: "POST",
-                           url: "/updateEditedAssignments",
-                           data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
-                           async: true
-                       });
+                    type: "POST",
+                    url: "/updateEditedAssignments",
+                    data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
+                    async: true
+                });
                 refreshWithoutReload(false, classIndex);
             }
 
@@ -2148,11 +2175,11 @@
                 }
                 if (!_.isEqual(_editedAssignments, editedAssignments)) {
                     $.ajax({
-                               type: "POST",
-                               url: "/updateEditedAssignments",
-                               data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
-                               async: true
-                           });
+                        type: "POST",
+                        url: "/updateEditedAssignments",
+                        data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
+                        async: true
+                    });
                 }
                 refreshWithoutReload(false, classIndex);
             }
@@ -2180,7 +2207,8 @@
                     assignmentIndex = $.makeArray($(`.categoryResetRow${classIndex}`)).indexOf(element);
                     if (!dateSort[classIndex]) {
                         let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
-                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 *
+                            assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
                     }
                     assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
 
@@ -2199,11 +2227,11 @@
                 delete _editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
                 if (notMassReset) {
                     $.ajax({
-                               type: "POST",
-                               url: "/updateEditedAssignments",
-                               data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
-                               async: true
-                           });
+                        type: "POST",
+                        url: "/updateEditedAssignments",
+                        data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
+                        async: true
+                    });
                     refreshWithoutReload(false, classIndex);
                 }
             }
@@ -2215,11 +2243,11 @@
                     trashRow(trashButtons[i], false);
                 }
                 $.ajax({
-                           type: "POST",
-                           url: "/updateAddedAssignments",
-                           data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
-                           async: true
-                       });
+                    type: "POST",
+                    url: "/updateAddedAssignments",
+                    data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
+                    async: true
+                });
                 refreshWithoutReload(false, classIndex);
             }
 
@@ -2237,11 +2265,11 @@
                     trashRow(trashButtons[i], false);
                 }
                 $.ajax({
-                           type: "POST",
-                           url: "/updateAddedAssignments",
-                           data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
-                           async: true
-                       });
+                    type: "POST",
+                    url: "/updateAddedAssignments",
+                    data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
+                    async: true
+                });
                 refreshWithoutReload(false, classIndex);
             }
 
@@ -2262,7 +2290,8 @@
                     assignmentIndex = $.makeArray($(`.categoryTrashRow${classIndex}`)).indexOf(element);
                     if (!dateSort[classIndex]) {
                         let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
-                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 *
+                            assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
                     }
                     assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
                 }
@@ -2272,11 +2301,11 @@
 
                 if (notMassTrash) {
                     $.ajax({
-                               type: "POST",
-                               url: "/updateAddedAssignments",
-                               data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
-                               async: true
-                           });
+                        type: "POST",
+                        url: "/updateAddedAssignments",
+                        data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
+                        async: true
+                    });
                     refreshWithoutReload(false, classIndex);
                 }
             }
@@ -2288,17 +2317,17 @@
                     saveRow(saveButtons[i], false);
                 }
                 $.ajax({
-                           type: "POST",
-                           url: "/updateEditedAssignments",
-                           data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
-                           async: true
-                       });
+                    type: "POST",
+                    url: "/updateEditedAssignments",
+                    data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
+                    async: true
+                });
                 $.ajax({
-                           type: "POST",
-                           url: "/updateAddedAssignments",
-                           data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
-                           async: true
-                       });
+                    type: "POST",
+                    url: "/updateAddedAssignments",
+                    data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
+                    async: true
+                });
                 refreshWithoutReload(false, classIndex);
             }
 
@@ -2316,17 +2345,17 @@
                     saveRow(saveButtons[i], false);
                 }
                 $.ajax({
-                           type: "POST",
-                           url: "/updateEditedAssignments",
-                           data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
-                           async: true
-                       });
+                    type: "POST",
+                    url: "/updateEditedAssignments",
+                    data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
+                    async: true
+                });
                 $.ajax({
-                           type: "POST",
-                           url: "/updateAddedAssignments",
-                           data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
-                           async: true
-                       });
+                    type: "POST",
+                    url: "/updateAddedAssignments",
+                    data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
+                    async: true
+                });
                 refreshWithoutReload(false, classIndex);
             }
 
@@ -2347,36 +2376,40 @@
                     assignmentIndex = $.makeArray($(`.categorySaveRow${classIndex}`)).indexOf(element);
                     if (!dateSort[classIndex]) {
                         let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
-                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 *
+                            assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
                     }
                     assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
                 }
 
                 // Added
                 if (aData[classIndex][assignmentIndex] !== undefined) {
-                    addedAssignments[_data[classIndex].class_name][aData[classIndex][assignmentIndex]] = JSON.parse(JSON.stringify(_addedAssignments[_data[classIndex].class_name][aData[classIndex][assignmentIndex]]));
+                    addedAssignments[_data[classIndex].class_name][aData[classIndex][assignmentIndex]] =
+                        JSON.parse(JSON.stringify(_addedAssignments[_data[classIndex].class_name][aData[classIndex][assignmentIndex]]));
                     if (notMassSave) {
                         $.ajax({
-                                   type: "POST",
-                                   url: "/updateAddedAssignments",
-                                   data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
-                                   async: true
-                               });
+                            type: "POST",
+                            url: "/updateAddedAssignments",
+                            data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
+                            async: true
+                        });
                     }
-                } else if (_editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid] || editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]) {
+                } else if (_editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid] ||
+                    editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]) {
                     // Edited
                     if (_editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]) {
-                        editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid] = JSON.parse(JSON.stringify(_editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]));
+                        editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid] =
+                            JSON.parse(JSON.stringify(_editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]));
                     } else {
                         delete editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
                     }
                     if (notMassSave) {
                         $.ajax({
-                                   type: "POST",
-                                   url: "/updateEditedAssignments",
-                                   data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
-                                   async: true
-                               });
+                            type: "POST",
+                            url: "/updateEditedAssignments",
+                            data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
+                            async: true
+                        });
                     }
                 }
 
@@ -2443,12 +2476,12 @@
 
             function postSortData() {
                 $.ajax({
-                           type: "POST", url: "/updateSortData", data: {
+                    type: "POST", url: "/updateSortData", data: {
                         sortingData: JSON.stringify({
-                                                        dateSort: dateSort, categorySort: categorySort
-                                                    }), async: true
+                            dateSort: dateSort, categorySort: categorySort
+                        }), async: true
                     }
-                       });
+                });
             }
 
             function setupAddAssignments() {
@@ -2755,16 +2788,14 @@
 
                             // Color names based on grade changes
                             let textColor;
-                            if (latestChange) {
-                                if (_data[i].class_name in latestChange.added && Object.values(latestChange.added[_data[i].class_name]).includes(assignmentPSAIDs[j])) {
-                                    $("#addedOption" + i).show();
-                                    textColor = "green";
-                                }
-                                if (_data[i].class_name in latestChange.modified && latestChange.modified[_data[i].class_name].filter(m => m.psaid === assignmentPSAIDs[j]).length) {
-                                    $("#modifiedOption" + i).show();
-                                    textColor = "deepskyblue";
-                                }
-                            }
+                            // if (latestChange) {
+                            //     if (_data[i].class_name in latestChange.added && Object.values(latestChange.added[_data[i].class_name]).includes(assignmentPSAIDs[j])) {
+                            //         textColor = "green";
+                            //     }
+                            //     if (_data[i].class_name in latestChange.modified && latestChange.modified[_data[i].class_name].filter(m => m.psaid === assignmentPSAIDs[j]).length) {
+                            //         textColor = "deepskyblue";
+                            //     }
+                            // }
 
                             // Set up names
                             $(assignmentNameDivs[assignmentIndex]).text(assignmentNames[j]);
@@ -2856,7 +2887,8 @@
                             }
 
                             // Set up save buttons
-                            if (assignmentAdds[j] && !_.isEqual(_addedAssignments[_data[i].class_name][aData[i][realIndex]], addedAssignments[_data[i].class_name][aData[i][realIndex]]) || !_.isEqual(editedAssignments[_data[i].class_name][_data[i].grades[realIndex].psaid], _editedAssignments[_data[i].class_name][_data[i].grades[realIndex].psaid])) {
+                            if (assignmentAdds[j] && !_.isEqual(_addedAssignments[_data[i].class_name][aData[i][realIndex]], addedAssignments[_data[i].class_name][aData[i][realIndex]]) ||
+                                !_.isEqual(editedAssignments[_data[i].class_name][_data[i].grades[realIndex].psaid], _editedAssignments[_data[i].class_name][_data[i].grades[realIndex].psaid])) {
                                 saveButton.removeClass("disabled");
                                 modTab.css("visibility", "visible");
                                 $(`#modAllTab${i}`).css("visibility", "visible");
@@ -2877,10 +2909,12 @@
                                 letterGrade = " (" + getLetterGrade(percent) + ")";
                                 percent += "%";
                             }
-                            $(assignmentPercentDivs[assignmentIndex]).html("<div style=\"display: flex; align-items: center; justify-content: center;\"><div>" + percent + "</div><div style=\"margin-left: 0.4rem\">" + letterGrade + "</div></div>");
+                            $(assignmentPercentDivs[assignmentIndex]).html("<div style=\"display: flex; align-items: center; justify-content: center;\"><div>" + percent +
+                                "</div><div style=\"margin-left: 0.4rem\">" + letterGrade + "</div></div>");
 
                             // Set up coloring and gain/loss
-                            let display = +isNaN(Math.round(assignmentData[j] * 100) / 100) ? (Math.round(assignmentData[assignmentData.length - 1] * 100) / 100) : (Math.round(assignmentData[j] * 100) / 100);
+                            let display = +isNaN(Math.round(assignmentData[j] * 100) / 100) ? (Math.round(assignmentData[assignmentData.length - 1] * 100) / 100) :
+                                (Math.round(assignmentData[j] * 100) / 100);
                             let delta = Math.round((assignmentData[j] - (assignmentData[j - 1] || 100)) * 100) / 100;
                             if (categorySort[i] && assignmentCategories[j] !== assignmentCategories[j - 1]) {
                                 delta = assignmentData[j] - 100;
@@ -2901,7 +2935,10 @@
                                 bgColor = "";
                                 delta = "±0.000% <i class=\"fa fa-arrows-v\"></i>";
                             }
-                            display = "<div class=\"" + colorClass + "\" style=\"display: flex; justify-content: space-around; align-items: flex-end;\"><div style=\"display: flex; flex-flow: row; justify-content: center; align-items: center\"><div>" + display + "%" + "</div><div style=\"margin-left: 0.4rem\">(" + getLetterGrade(display) + ")</div></div><div class=\"delta\" style=\"font-family: 'Maison Mono',monospace\">" + delta + "</div></div>";
+                            display = "<div class=\"" + colorClass +
+                                "\" style=\"display: flex; justify-content: space-around; align-items: flex-end;\"><div style=\"display: flex; flex-flow: row; justify-content: center; align-items: center\"><div>" +
+                                display + "%" + "</div><div style=\"margin-left: 0.4rem\">(" + getLetterGrade(display) +
+                                ")</div></div><div class=\"delta\" style=\"font-family: 'Maison Mono',monospace\">" + delta + "</div></div>";
                             $(assignmentOverallDivs[assignmentIndex]).html(display).css("font-weight", "bold");
                             $(rowDivs[assignmentIndex]).css("background-color", bgColor);
 
@@ -2942,11 +2979,15 @@
                         }
                         delta = (delta ? (" <div class=\"delta\" style=\"color: " + color + "\">" + delta + "</div>") : "");
                         if (overallGrade) {
-                            document.getElementById("overviewChart" + i).innerHTML = "<div class=\"overallGrade\">" + (Math.round(overallGrade * 100) / 100).toString() + "%" + "</div><div class=\"overallLetter\">" + overallLetter + "</div>" + delta;
-                            document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>` + (Math.round(overallGrade * 100) / 100).toString() + "%" + ` (` + overallLetter + `)<span class="popup"><i id="incorrectOverviewGrade` + i + `" class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-top">Does not match calculated grade</span></i></span>`;
+                            document.getElementById("overviewChart" + i).innerHTML =
+                                "<div class=\"overallGrade\">" + (Math.round(overallGrade * 100) / 100).toString() + "%" + "</div><div class=\"overallLetter\">" + overallLetter + "</div>" + delta;
+                            document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML =
+                                _data[i].class_name + `<br>` + (Math.round(overallGrade * 100) / 100).toString() + "%" + ` (` + overallLetter + `)<span class="popup"><i id="incorrectOverviewGrade` +
+                                i + `" class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-top">Does not match calculated grade</span></i></span>`;
                         } else {
                             document.getElementById("overviewChart" + i).innerHTML = "N/A";
-                            document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>N/A<span class="popup"><i id="incorrectOverviewGrade` + i + `" class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-top">Does not match calculated grade</span></i></span>`;
+                            document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>N/A<span class="popup"><i id="incorrectOverviewGrade` + i +
+                                `" class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-top">Does not match calculated grade</span></i></span>`;
                         }
                     }
                 }
@@ -3012,7 +3053,8 @@
                     if (classIndex === undefined || classIndex === i) {
                         let classData = _data[i];
                         let className = classData.class_name;
-                        let localMissingCategories = Object.keys(weights[className]["weights"]).filter(category => !weights[className]["weights"][category] && weights[className]["weights"][category] !== 0);
+                        let localMissingCategories = Object.keys(weights[className]["weights"]).filter(category => !weights[className]["weights"][category] &&
+                            weights[className]["weights"][category] !== 0);
                         delete unobtainedWeights[className];
                         if (localMissingCategories.length > 0 && weights[className]["hasWeights"] !== "false") {
                             unobtainedWeights[className] = localMissingCategories;
@@ -3126,13 +3168,15 @@
                                 }
                                 if (doesntHaveWeights) {
                                     if (categoryGrades[grade.category]) {
-                                        categoryGradeSteps.push((categoryGrades[grade.category].totalPossible !== 0 ? Math.round(categoryGrades[grade.category].totalGotten / categoryGrades[grade.category].totalPossible * 100 * 100) / 100 : 100));
+                                        categoryGradeSteps.push((categoryGrades[grade.category].totalPossible !== 0 ?
+                                            Math.round(categoryGrades[grade.category].totalGotten / categoryGrades[grade.category].totalPossible * 100 * 100) / 100 : 100));
                                     } else {
                                         categoryGradeSteps.push(100);
                                     }
                                 } else {
                                     if (totalPossiblesAndGottens[category]) {
-                                        categoryGradeSteps.push((totalPossiblesAndGottens[category].totalPossible !== 0 ? Math.round(totalPossiblesAndGottens[category].totalGotten / totalPossiblesAndGottens[category].totalPossible * 100 * 100) / 100 : 100));
+                                        categoryGradeSteps.push((totalPossiblesAndGottens[category].totalPossible !== 0 ?
+                                            Math.round(totalPossiblesAndGottens[category].totalGotten / totalPossiblesAndGottens[category].totalPossible * 100 * 100) / 100 : 100));
                                     } else {
                                         categoryGradeSteps.push(100);
                                     }
@@ -3144,9 +3188,11 @@
                         }
                         let assignmentNames = classData.filter(x => !x.exclude).map(x => x.assignment_name);
                         let assignmentDates = classData.filter(x => !x.exclude).map(x => x.date);
-                        let assignmentTimestamps = classData.filter(x => !x.exclude).map((x, i, arr) => new Date(Date.parse(x.date) + ((24 * 60 * 60 * 1000 / arr.filter(y => x.date === y.date).length + 1) * arr.filter((y, j) => j < i && x.date === y.date).length)));
+                        let assignmentTimestamps = classData.filter(x => !x.exclude).map((x, i, arr) => new Date(Date.parse(x.date) +
+                            ((24 * 60 * 60 * 1000 / arr.filter(y => x.date === y.date).length + 1) * arr.filter((y, j) => j < i && x.date === y.date).length)));
                         let assignmentPercents = classData.filter(x => !x.exclude).map(x => x.grade_percent);
-                        let assignmentScoresParsed = classData.filter(x => !x.exclude).map(x => (x.points_gotten === false ? "--" : x.points_gotten) + "/" + (x.points_possible === false ? "--" : x.points_possible));
+                        let assignmentScoresParsed = classData.filter(x => !x.exclude).map(x => (x.points_gotten === false ? "--" : x.points_gotten) + "/" +
+                            (x.points_possible === false ? "--" : x.points_possible));
                         let assignmentCategories = classData.filter(x => !x.exclude).map(x => x.category);
                         let mixedData = overallGradeSteps.filter(x => x).map((grade, i) => {
                             return {x: assignmentTimestamps[i], y: grade};
@@ -3182,7 +3228,8 @@
                         };
 
                         // This took forever...I am so proud of it - Joel 06/03/20 10:25PM
-                        let sortHelper = Array.apply(null, Array(assignmentCategories.length)).map((x, index) => index).sort((a, b) => categories.indexOf(assignmentCategories[a]) - categories.indexOf(assignmentCategories[b]));
+                        let sortHelper = Array.apply(null, Array(assignmentCategories.length)).map((x, index) => index).sort((a, b) => categories.indexOf(assignmentCategories[a]) -
+                            categories.indexOf(assignmentCategories[b]));
                         categorySortedData[i] = {
                             assignmentNames: assignmentNames.map((x, index, arr) => arr[sortHelper[index]]),
                             assignmentDates: assignmentDates.map((x, index, arr) => arr[sortHelper[index]]),
@@ -3261,32 +3308,32 @@
                     if (!correctCalc(i)) {
                         if (endDate === 0) {
                             _mixedData.push({
-                                                x: new Date(Date.now() - 24 * 60 * 60 * 1000),
-                                                y: _data[i].overall_percent
-                                            });
+                                x: new Date(Date.now() - 24 * 60 * 60 * 1000),
+                                y: _data[i].overall_percent
+                            });
                             _mixedData.push({x: new Date(Date.now()), y: _data[i].overall_percent});
                         } else {
                             _mixedData.push({x: new Date(endDate + 24 * 60 * 60 * 1000), y: _data[i].overall_percent});
                         }
                     }
                     dataset.push({
-                                     label: _data[i].class_name,
-                                     backgroundColor: "transparent",
-                                     pointBackgroundColor: _colors[i],
-                                     pointBorderColor: "transparent",
-                                     borderColor: (correctCalc(i) ? _colors[i] : "darkgray"),
-                                     data: _mixedData,
-                                     cubicInterpolationMode: "monotone",
-                                     borderDash: (correctCalc(i) ? [0, 0] : [3, 3]),
-                                     spanGaps: false,
-                                     pointRadius: 3,
-                                     borderWidth: (correctCalc(i) ? 3 : 1),
-                                     pointHoverRadius: 7,
-                                     pointHoverBackgroundColor: _colors[i],
-                                     pointHoverBorderColor: _colors[i],
-                                     pointHoverBorderWidth: 2,
-                                     yAxisID: "yAxis"
-                                 });
+                        label: _data[i].class_name,
+                        backgroundColor: "transparent",
+                        pointBackgroundColor: _colors[i],
+                        pointBorderColor: "transparent",
+                        borderColor: (correctCalc(i) ? _colors[i] : "darkgray"),
+                        data: _mixedData,
+                        cubicInterpolationMode: "monotone",
+                        borderDash: (correctCalc(i) ? [0, 0] : [3, 3]),
+                        spanGaps: false,
+                        pointRadius: 3,
+                        borderWidth: (correctCalc(i) ? 3 : 1),
+                        pointHoverRadius: 7,
+                        pointHoverBackgroundColor: _colors[i],
+                        pointHoverBorderColor: _colors[i],
+                        pointHoverBorderWidth: 2,
+                        yAxisID: "yAxis"
+                    });
                 }
                 let possibles;
                 let possibleLabels;
@@ -3301,23 +3348,23 @@
                             mixedData.push({x: new Date(j), y: possibles[i]});
                         }
                         dataset.push({
-                                         label: "undefined",
-                                         backgroundColor: "transparent",
-                                         pointBackgroundColor: "transparent",
-                                         pointBorderColor: "transparent",
-                                         borderColor: darkMode ? "white" : "black",
-                                         data: mixedData,
-                                         cubicInterpolationMode: "monotone",
-                                         spanGaps: false,
-                                         borderDash: [10, 10],
-                                         pointRadius: 0,
-                                         borderWidth: 1,
-                                         pointHoverRadius: 0,
-                                         pointHoverBackgroundColor: "transparent",
-                                         pointHoverBorderColor: darkMode ? "white" : "black",
-                                         pointHoverBorderWidth: 0,
-                                         yAxisID: "yAxis"
-                                     });
+                            label: "undefined",
+                            backgroundColor: "transparent",
+                            pointBackgroundColor: "transparent",
+                            pointBorderColor: "transparent",
+                            borderColor: darkMode ? "white" : "black",
+                            data: mixedData,
+                            cubicInterpolationMode: "monotone",
+                            spanGaps: false,
+                            borderDash: [10, 10],
+                            pointRadius: 0,
+                            borderWidth: 1,
+                            pointHoverRadius: 0,
+                            pointHoverBackgroundColor: "transparent",
+                            pointHoverBorderColor: darkMode ? "white" : "black",
+                            pointHoverBorderWidth: 0,
+                            yAxisID: "yAxis"
+                        });
                     }
                 }
                 charts[0] = new Chart(ctx, {
@@ -3409,11 +3456,13 @@
                                                 return "Unknown Date " + _data[tooltipItems[0].datasetIndex].overall_percent + "% (" + _data[tooltipItems[0].datasetIndex].overall_letter + ")";
                                             }
                                             if (tooltipItems[0].index >= chartData[tooltipItems[0].datasetIndex].mixedData.length) {
-                                                return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + _data[tooltipItems[0].datasetIndex].overall_percent + "% (" + _data[tooltipItems[0].datasetIndex].overall_letter + ")";
+                                                return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + _data[tooltipItems[0].datasetIndex].overall_percent + "% (" +
+                                                    _data[tooltipItems[0].datasetIndex].overall_letter + ")";
                                             }
                                             return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " N/A [Unverified weights]";
                                         }
-                                        return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + tooltipItems[0].formattedValue + "% (" + getLetterGrade(tooltipItems[0].formattedValue) + ")";
+                                        return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + tooltipItems[0].formattedValue + "% (" +
+                                            getLetterGrade(tooltipItems[0].formattedValue) + ")";
                                     }, label: function (tooltipItem) {
                                         if (tooltipItem.datasetIndex >= chartData.length) {
                                             return;
@@ -3428,7 +3477,15 @@
                                             }
                                             return delta + "% (To Match PowerSchool)";
                                         }
-                                        return ["[" + chartData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.dataIndex] + "] " + chartData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.dataIndex] + ((chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.dataIndex] !== false && chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, 2) !== "--") ? (" - " + chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.dataIndex] + "% ") : (" ")) + ((chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].substring(chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].length - 2)) !== "/0" ? ("(" + chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex] + ")") : ("(" + chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].length - 2) + ")"))];
+                                        return ["[" + chartData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.dataIndex] + "] " +
+                                        chartData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.dataIndex] +
+                                        ((chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.dataIndex] !== false &&
+                                            chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, 2) !== "--") ?
+                                            (" - " + chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.dataIndex] + "% ") : (" ")) +
+                                        ((chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].substring(chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].length -
+                                            2)) !== "/0" ? ("(" + chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex] + ")") : ("(" +
+                                            chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].length -
+                                                2) + ")"))];
                                     }
                                 }
                             }, zoom: {
@@ -3455,15 +3512,17 @@
             }
 
             Chart.register({
-                               id: "hideLoading", afterRender: chartInstance => {
+                id: "hideLoading", afterRender: chartInstance => {
                     $(`#chart-container${chartInstance.ctx.canvas.id.substring(5)} .chart-placeholder`).remove();
                 }
-                           });
+            });
 
             function renderChart(id) {
                 $("#chart" + id).remove();
                 // if (chartData[id].mixedData.length) {
-                $("#chart-container" + id).html("<button id=\"reset-zoom" + id + "\" style=\"position: absolute; top: 0; right: 0; height: fit-content; display:none\" class=\"btn btn-sm\" onclick=\"resetZoom(" + id + "); $(this).hide()\">Reset</button><div class=\"chart-placeholder fa fa-spin fa-spinner\"></div><canvas id=\"chart" + id + "\"></canvas>");
+                $("#chart-container" + id).html("<button id=\"reset-zoom" + id +
+                    "\" style=\"position: absolute; top: 0; right: 0; height: fit-content; display:none\" class=\"btn btn-sm\" onclick=\"resetZoom(" + id +
+                    "); $(this).hide()\">Reset</button><div class=\"chart-placeholder fa fa-spin fa-spinner\"></div><canvas id=\"chart" + id + "\"></canvas>");
                 let ctx = document.getElementById("chart" + id);
                 let _colors = colors;
                 let startDate = chartData[id].mixedData.reduce((a, b) => Math.min(a, Date.parse(b.x)), Infinity);
@@ -3480,23 +3539,23 @@
                     }
                 }
                 dataset.push({
-                                 backgroundColor: "transparent",
-                                 pointBackgroundColor: _colors[id],
-                                 pointBorderColor: _colors[id],
-                                 borderColor: (correctCalc(id) ? _colors[id] : "darkgray"),
-                                 fill: "start",
-                                 data: _mixedData,
-                                 cubicInterpolationMode: "monotone",
-                                 borderDash: (correctCalc(id) ? [0, 0] : [3, 3]),
-                                 spanGaps: false,
-                                 pointRadius: 3,
-                                 borderWidth: (correctCalc(id) ? 3 : 1),
-                                 pointHoverRadius: 7,
-                                 pointHoverBackgroundColor: _colors[id],
-                                 pointHoverBorderColor: _colors[id],
-                                 pointHoverBorderWidth: 2,
-                                 yAxisID: "yAxis"
-                             });
+                    backgroundColor: "transparent",
+                    pointBackgroundColor: _colors[id],
+                    pointBorderColor: _colors[id],
+                    borderColor: (correctCalc(id) ? _colors[id] : "darkgray"),
+                    fill: "start",
+                    data: _mixedData,
+                    cubicInterpolationMode: "monotone",
+                    borderDash: (correctCalc(id) ? [0, 0] : [3, 3]),
+                    spanGaps: false,
+                    pointRadius: 3,
+                    borderWidth: (correctCalc(id) ? 3 : 1),
+                    pointHoverRadius: 7,
+                    pointHoverBackgroundColor: _colors[id],
+                    pointHoverBorderColor: _colors[id],
+                    pointHoverBorderWidth: 2,
+                    yAxisID: "yAxis"
+                });
                 let possibles;
                 let possibleLabels;
                 if (startDate < endDate) {
@@ -3510,23 +3569,23 @@
                             mixedData.push({x: new Date(j), y: possibles[i]});
                         }
                         dataset.push({
-                                         label: "undefined",
-                                         backgroundColor: "transparent",
-                                         pointBackgroundColor: "transparent",
-                                         pointBorderColor: "transparent",
-                                         borderColor: darkMode ? "white" : "black",
-                                         data: mixedData,
-                                         cubicInterpolationMode: "monotone",
-                                         spanGaps: false,
-                                         borderDash: [10, 10],
-                                         pointRadius: 0,
-                                         borderWidth: 1,
-                                         pointHoverRadius: 0,
-                                         pointHoverBackgroundColor: "transparent",
-                                         pointHoverBorderColor: darkMode ? "white" : "black",
-                                         pointHoverBorderWidth: 0,
-                                         yAxisID: "yAxis"
-                                     });
+                            label: "undefined",
+                            backgroundColor: "transparent",
+                            pointBackgroundColor: "transparent",
+                            pointBorderColor: "transparent",
+                            borderColor: darkMode ? "white" : "black",
+                            data: mixedData,
+                            cubicInterpolationMode: "monotone",
+                            spanGaps: false,
+                            borderDash: [10, 10],
+                            pointRadius: 0,
+                            borderWidth: 1,
+                            pointHoverRadius: 0,
+                            pointHoverBackgroundColor: "transparent",
+                            pointHoverBorderColor: darkMode ? "white" : "black",
+                            pointHoverBorderWidth: 0,
+                            yAxisID: "yAxis"
+                        });
                     }
                 }
                 charts[id + 1] = new Chart(ctx, {
@@ -3570,11 +3629,13 @@
                                                 return "Unknown Date " + _data[id].overall_percent + "% (" + _data[id].overall_letter + ")";
                                             }
                                             if (tooltipItems[0].index >= chartData[id].mixedData.length) {
-                                                return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + _data[id].overall_percent + "% (" + _data[id].overall_letter + ")";
+                                                return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + _data[id].overall_percent + "% (" + _data[id].overall_letter +
+                                                    ")";
                                             }
                                             return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " N/A [Unverified weights]";
                                         }
-                                        return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + tooltipItems[0].formattedValue + "% (" + getLetterGrade(tooltipItems[0].formattedValue) + ")";
+                                        return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + tooltipItems[0].formattedValue + "% (" +
+                                            getLetterGrade(tooltipItems[0].formattedValue) + ")";
                                     }, label: function (tooltipItem) {
                                         if (tooltipItem.datasetIndex >= 1) {
                                             return;
@@ -3589,7 +3650,13 @@
                                             }
                                             return delta + "% (To Match PowerSchool)";
                                         }
-                                        return ["[" + chartData[id].assignmentCategories[tooltipItem.dataIndex] + "] " + chartData[id].assignmentNames[tooltipItem.dataIndex] + ((chartData[id].assignmentPercents[tooltipItem.dataIndex] !== false && chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, 2) !== "--") ? (" - " + chartData[id].assignmentPercents[tooltipItem.dataIndex] + "% ") : (" ")) + ((chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].length - 2)) !== "/0" ? ("(" + chartData[id].assignmentScoresParsed[tooltipItem.dataIndex] + ")") : ("(" + chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].length - 2) + ")"))];
+                                        return ["[" + chartData[id].assignmentCategories[tooltipItem.dataIndex] + "] " + chartData[id].assignmentNames[tooltipItem.dataIndex] +
+                                        ((chartData[id].assignmentPercents[tooltipItem.dataIndex] !== false && chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, 2) !== "--") ?
+                                            (" - " + chartData[id].assignmentPercents[tooltipItem.dataIndex] + "% ") : (" ")) +
+                                        ((chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].length - 2)) !== "/0" ?
+                                            ("(" + chartData[id].assignmentScoresParsed[tooltipItem.dataIndex] + ")") :
+                                            ("(" + chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].length - 2) +
+                                                ")"))];
                                     }
                                 }
                             }, zoom: {
@@ -3851,8 +3918,8 @@
                             };
 
                             $.ajax({
-                                       type: "POST", url: "/updateWeights", data: formData
-                                   }).done((response) => {
+                                type: "POST", url: "/updateWeights", data: formData
+                            }).done((response) => {
                                 if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                                     $(".session-timeout").show();
                                     $("body").find("*").not(".session-timeout").remove();

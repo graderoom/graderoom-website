@@ -5,9 +5,10 @@ from bs4 import BeautifulSoup as bS
 from datetime import datetime
 
 
-def json_format(success, message_or_grades):
+def json_format(success, message_or_grades, weights=None):
     """
     Args:
+        weights: weight data in JSON format
         success: boolean if scraping was successful
         message_or_grades: a message for errors or grade data in JSON format
 
@@ -15,6 +16,8 @@ def json_format(success, message_or_grades):
         A JSON formatted response
     """
 
+    if weights is not None and success:
+        return json.dumps({'success': True, 'new_grades': message_or_grades, 'new_weights': weights})
     if success:
         return json.dumps({'success': True, 'new_grades': message_or_grades})
 
@@ -25,7 +28,25 @@ def status(progress, message):
     return json.dumps({'progress': progress, 'message': message})
 
 
-class ClassGrade:
+def clean_string(s):
+    """Cleans the string"""
+    s = s.strip()
+    if s == "":
+        return False
+    return s
+
+
+def clean_number(n):
+    """Cleans the number"""
+    n = n.strip()
+    try:
+        n = float(n)
+        return n
+    except:
+        return False
+
+
+class PowerSchoolClassGrade:
     """Contains information and assignments for a PowerSchool class
 
     One ClassGrade object is needed for every PowerSchool class scraped
@@ -70,7 +91,7 @@ class ClassGrade:
         }
 
 
-def parse_class(local_class, raw_data):
+def parse_ps_class(local_class, raw_data):
     # Function that takes a Powerschool assignment object and returns
     # a Graderoom assignment object
     def stripper(info):
@@ -134,19 +155,7 @@ def parse_class(local_class, raw_data):
     return local_class.as_dict()
 
 
-class PowerschoolScraper:
-    """Scrapes grade data from PowerSchool
-
-    Using provided Bellarmine credentials, it logs into
-    PowerSchool and scrapes grade and class data,
-    then prints it in a JSON format.
-
-    Attributes:
-        session: requests session object
-        _progress: number
-        _message: string
-    """
-
+class Scraper:
     def __init__(self):
         """Inits with a session"""
         self.session = requests.Session()
@@ -172,24 +181,8 @@ class PowerschoolScraper:
         self._message = value
         print(status(self._progress, self._message))
 
-    @staticmethod
-    def clean_string(s):
-        """Cleans the string"""
-        s = s.strip()
-        if s == "":
-            return False
-        return s
 
-    @staticmethod
-    def clean_number(n):
-        """Cleans the number"""
-        n = n.strip()
-        try:
-            n = float(n)
-            return n
-        except:
-            return False
-
+class PowerschoolScraper(Scraper):
     def login(self, email, _password):
         """Logs into PowerSchool with credentials
 
@@ -383,6 +376,8 @@ class PowerschoolScraper:
             link = year_link.find("a")
             if "SS" in str(link):
                 total_term_count -= 1
+                self.message = 'Synced ' + str(scraped_term_count) + ' of ' + str(total_term_count) + ' terms...'
+                self.progress = initial_progress + (max_progress - initial_progress) * scraped_term_count / total_term_count
                 continue
 
             # Cut the year from the link text
@@ -391,6 +386,8 @@ class PowerschoolScraper:
             # Ensure it exists, then fetch the year link
             if not link['href']:
                 total_term_count -= 1
+                self.message = 'Synced ' + str(scraped_term_count) + ' of ' + str(total_term_count) + ' terms...'
+                self.progress = initial_progress + (max_progress - initial_progress) * scraped_term_count / total_term_count
                 continue
             url = 'https://powerschool.bcp.org/guardian/'
             resp = self.session.get(url + link['href'], timeout=10)
@@ -419,9 +416,9 @@ class PowerschoolScraper:
                 if title != "" and row.find("td", align="left"):
                     data = row.find_all("td")
 
-                    class_name = self.clean_string(data[0].text)
-                    overall_letter = self.clean_string(data[1].text)
-                    overall_percent = self.clean_number(data[2].text)
+                    class_name = clean_string(data[0].text)
+                    overall_letter = clean_string(data[1].text)
+                    overall_percent = clean_number(data[2].text)
 
                     # Scrape links that lead to assignments
                     if row.find("a"):
@@ -431,9 +428,9 @@ class PowerschoolScraper:
                                           overall_percent,
                                           overall_letter)
                     else:
-                        local_class = ClassGrade(class_name, False,
-                                                 overall_percent,
-                                                 overall_letter, False, False, False)
+                        local_class = PowerSchoolClassGrade(class_name, False,
+                                                            overall_percent,
+                                                            overall_letter, False, False, False)
                         semester_classes.append(local_class.as_dict())
 
             # Finalize data for the selected year
@@ -496,6 +493,8 @@ class PowerschoolScraper:
                     semester = str(link['href']).split('&fg=')[1][:2]
                     if semester.startswith("Q"):
                         total_course_count -= 1
+                        self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
+                        self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / total_course_count
                         continue
 
                     assignments_link = link['href']
@@ -516,6 +515,8 @@ class PowerschoolScraper:
             # Ensure link for assignments exists
             if assignments_link is None:
                 total_course_count -= 1
+                self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
+                self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / total_course_count
                 continue
 
             url = 'https://powerschool.bcp.org/guardian/'
@@ -586,8 +587,8 @@ class PowerschoolScraper:
         # Create a ClassGrade object to hold assignment data
         # Ensure all data is present, otherwise skip the class
         if class_name and teacher_name and overall_percent is not None and overall_letter is not None:
-            local_class = ClassGrade(class_name, teacher_name,
-                                     overall_percent, overall_letter, None, None, False)
+            local_class = PowerSchoolClassGrade(class_name, teacher_name,
+                                                overall_percent, overall_letter, None, None, False)
         else:
             return False
 
@@ -603,7 +604,7 @@ class PowerschoolScraper:
         local_class.section_id = section_id
 
         # Remove classes with no grades
-        local_class = parse_class(local_class, self.get_class(url, local_class))
+        local_class = parse_ps_class(local_class, self.get_class(url, local_class))
         if not local_class['grades']:
             return False
 
@@ -656,9 +657,9 @@ class PowerschoolScraper:
             overall_letter = data['overall_letter']
             student_id = data['student_id']
             section_id = data['section_id']
-            local_class = ClassGrade(class_name, teacher_name, overall_percent, overall_letter, student_id, section_id, True)
+            local_class = PowerSchoolClassGrade(class_name, teacher_name, overall_percent, overall_letter, student_id, section_id, True)
 
-            local_class = parse_class(local_class, self.get_class('https://powerschool.bcp.org/', local_class))
+            local_class = parse_ps_class(local_class, self.get_class('https://powerschool.bcp.org/', local_class))
             if len(local_class['grades']) > 0:
                 all_classes.append(local_class)
 
@@ -672,25 +673,246 @@ class PowerschoolScraper:
             print(json_format(False, "No class data."))
 
 
-if __name__ == "__main__":
-    user = sys.argv[1]
-    password = sys.argv[2]
-    data_if_locked = json.loads(sys.argv[3])  # arg must be stringified json
-    term_data_if_locked = json.loads(sys.argv[4])  # arg must be stringified json
-    get_history = sys.argv[5]
-    ps = PowerschoolScraper()
-    try:
-        if ps.login(user, password):
-            if get_history in ['true', 'True', '1']:
-                ps.get_history()
+def clean(_soup):
+    to_delete = _soup.find_all('span', class_='visually-hidden')
+    [t.decompose() for t in to_delete]
+
+
+class BasisClassGrade:
+    def __init__(self, class_name, overall_percent, grades):
+        self.class_name = class_name
+        self.overall_percent = overall_percent
+        self.grades = grades
+
+    @property
+    def as_dict(self):
+        return {
+            "class_name": self.class_name,
+            "overall_percent": self.overall_percent,
+            "grades": self.grades
+        }
+
+
+class BasisWeights:
+    def __init__(self):
+        self._weights = {}
+
+    @property
+    def as_dict(self):
+        return self._weights
+
+    def add_class(self, class_name):
+        if class_name not in self._weights:
+            self._weights[class_name] = {"weights": {}, "hasWeights": False}
+
+    def add_weight(self, class_name, weight_name, weight_value):
+        self.add_class(class_name)
+
+        if weight_name not in self._weights[class_name]:
+            self._weights[class_name]["weights"][weight_name] = weight_value
+            self._weights[class_name]["hasWeights"] = True
+
+
+class BasisScraper(Scraper):
+    def login(self, email, _password):
+        url = "https://app.schoology.com/login?destination=grades/grades"
+
+        payload = {'mail': email,
+                   'pass': _password,
+                   'form_id': 's_user_login_form'}
+
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Cache-Control': 'max-age=0',
+            'Connection': 'keep-alive',
+            'origin': 'https://app.schoology.com',
+            'referer': 'https://app.schoology.com/login?destination=grades/grades',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36 Edg/94.0.992.31',
+        }
+
+        resp = self.session.post(url, headers=headers, data=payload, allow_redirects=False)
+        self.progress = 5
+        self.message = "Logged in!"
+        if len(resp.cookies) == 0:
+            self.progress = 0
+            print(json_format(False, "Incorrect login details."))
+            sys.exit()
+
+        return True
+
+    def get_present(self):
+        url = "https://app.schoology.com/grades/grades"
+
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Cache-Control': 'max-age=0',
+            'Connection': 'keep-alive',
+            'referer': 'https://app.schoology.com/login?destination=grades/grades',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36 Edg/94.0.992.31',
+        }
+
+        resp = self.session.post(url, headers=headers)
+        self.progress = 20
+        self.message = 'Searching for courses...'
+
+        soup = bS(resp.text, 'html.parser')
+
+        classes = soup.find_all('div', class_="gradebook-course")
+
+        all_classes = []
+        weights = BasisWeights()
+        term = None
+
+        total_course_count = len(classes)
+        scraped_course_count = 0
+        initial_progress = self.progress
+        max_progress = 100
+        self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
+        self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / total_course_count
+
+        for class_ in classes:
+            class_name_soup = class_.find('div', class_='gradebook-course-title')
+            clean(class_name_soup)
+            class_name = class_name_soup.text
+            class_name = clean_string(class_name)
+
+            weights.add_class(class_name)
+
+            if 'lunch' in class_name.lower() or 'office' in class_name.lower():
+                total_course_count -= 1
+                self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
+                self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / total_course_count
+                continue
+
+            grades_soup = class_.find('div', class_='gradebook-course-grades')
+            overall_grade_soup = grades_soup.find('span', class_='numeric-grade primary-grade')
+            if overall_grade_soup is None:
+                overall_grade = None
             else:
-                ps.get_present()
+                overall_grade_soup = overall_grade_soup.find('span', class_='rounded-grade')
+                overall_grade = overall_grade_soup['title']
+
+            grades_soup = grades_soup.find('table', role='presentation')
+            term_soup = grades_soup.find('tr', class_='period-row').find('span', class_='title')
+            clean(term_soup)
+            if term is None:
+                term = '-'.join(list(map(lambda t: t[-2:], term_soup.text.split(' - '))))
+                term = clean_string(term)
+
+            categories_soup = grades_soup.find_all('tr', class_='category-row')
+            grades = []
+            for category_soup in categories_soup:
+                clean(category_soup)
+                category_name = category_soup.find('span', class_='title')
+                if category_name is None:
+                    continue
+
+                category_name = clean_string(category_name.text)
+
+                category_value = category_soup.find('span', class_='percentage-contrib')
+                if category_value is None:
+                    continue
+
+                category_value = clean_number(category_value.text[1:-2])
+                category_id = category_soup['data-id']
+
+                if category_name is not False and category_value is not False:
+                    weights.add_weight(class_name, category_name, category_value)
+                    assignments_soup = grades_soup.find_all('tr', {'data-parent-id': category_id})
+                    for assignment_soup in assignments_soup:
+                        assignment_id = assignment_soup['data-id']
+
+                        assignment_name_soup = assignment_soup.find('span', class_='title')
+                        clean(assignment_name_soup)
+                        assignment_name = assignment_name_soup.text
+
+                        assignment_date_time_soup = assignment_soup.find('span', class_='due-date')
+                        if assignment_date_time_soup is not None:
+                            clean(assignment_date_time_soup)
+                            date_time = assignment_date_time_soup.text
+                            date, time = date_time.split(' ')
+                            sort_date = datetime.strptime(date_time, "%m/%d/%y %I:%M%p").timestamp()
+                        else:
+                            date = None
+                            time = None
+                            sort_date = None
+
+                        assignment_grade_soup = assignment_soup.find('td', class_='grade-column')
+
+                        points_gotten_soup = assignment_grade_soup.find('span', class_='rounded-grade')
+                        if points_gotten_soup is not None:
+                            points_gotten = clean_number(points_gotten_soup['title'])
+                        else:
+                            points_gotten = None
+
+                        points_possible_soup = assignment_grade_soup.find('span', class_='max-grade')
+                        if points_possible_soup is not None:
+                            points_possible = clean_number(points_possible_soup.text[3:])
+                        else:
+                            points_possible = None
+
+                        assignment = {"date": date, "time": time, "category": category_name, "assignment_name": assignment_name, "points_possible": points_possible, "points_gotten": points_gotten,
+                                      "psaid": assignment_id, 'sort_date': sort_date}
+
+                        grades.append(assignment)
+
+            no_due_date = list(filter(lambda j: j['sort_date'] is None, grades))
+            no_due_date.reverse()
+            due_date = list(filter(lambda j: j['sort_date'] is not None, grades))
+            grades = sorted(due_date, key=lambda j: j['sort_date'], reverse=True)
+            [grades.insert(0, item) for item in no_due_date]
+            grades = [{key: value for key, value in assignment.items() if key != 'sort_date'} for assignment in grades]
+            all_classes.append(BasisClassGrade(class_name, overall_grade, grades).as_dict)
+            scraped_course_count += 1
+            self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
+            self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / total_course_count
+
+        if term is not None:
+            self.message = 'Sync Complete!'
+            print(json_format(True, {term: {"_": all_classes}}, {term: {"_": weights.as_dict}}))
         else:
-            ps.get_locked(data_if_locked, term_data_if_locked)
-    except requests.Timeout:
-        print(json_format(False, "Could not connect to PowerSchool."))
-    except Exception as e:
-        # Error when something in PowerSchool breaks scraper
-        print(json_format(False, "An Unknown Error occurred. Contact support."))
-        # Uncomment below to print error
-        # print(e)
+            print(json_format(False, "No class data."))
+
+
+if __name__ == "__main__":
+    school = sys.argv[1]
+    user = sys.argv[2]
+    password = sys.argv[3]
+    if school == "basis":
+        bs = BasisScraper()
+        try:
+            if bs.login(user, password):
+                bs.get_present()
+        except requests.Timeout:
+            print(json_format(False, "Could not connect to Schoology."))
+        except Exception as e:
+            # Error when something in PowerSchool breaks scraper
+            print(json_format(False, "An Unknown Error occurred. Contact support."))
+            # Uncomment below to print error
+            print(e)
+    else:
+        data_if_locked = json.loads(sys.argv[4])  # arg must be stringified json
+        term_data_if_locked = json.loads(sys.argv[5])  # arg must be stringified json
+        get_history = sys.argv[6]
+        ps = PowerschoolScraper()
+        try:
+            if ps.login(user, password):
+                if get_history in ['true', 'True', '1']:
+                    ps.get_history()
+                else:
+                    ps.get_present()
+            else:
+                ps.get_locked(data_if_locked, term_data_if_locked)
+        except requests.Timeout:
+            print(json_format(False, "Could not connect to PowerSchool."))
+        except Exception as e:
+            # Error when something in PowerSchool breaks scraper
+            print(json_format(False, "An Unknown Error occurred. Contact support."))
+            # Uncomment below to print error
+            # print(e)

@@ -70,10 +70,18 @@
                                 <span class="popup-left-bottom dont-show" id="passwordConfirmMessage"></span></i>
                         </span>
                     </div>
-                    <div class="form-group input-group">
+                    <div class="form-group">
+                        <label style="margin-right: 0.5rem; margin-left: 0.1rem;" for="school"><i class="fa fa-building-o" style="font-size: 1.5rem"></i></label>
+                        <select style="width: calc(100% - 2.5rem)" name="school" id="school" class="minimal" onchange="checkSchool(this)">
+                            <option value="" selected disabled>Select Your School</option>
+                            <option value="bellarmine">Bellarmine College Preparatory</option>
+                            <option value="basis">Basis Independent Silicon Valley</option>
+                        </select>
+                    </div>
+                    <div id="school-email-div" class="form-group input-group" style="display: none">
                         <i class="email-bg"></i>
                         <label>School Email</label>
-                        <input oninput="checkLabel(this); checkBcpEmail(this, '#emailCheckMessage')"
+                        <input oninput="checkLabel(this); checkEmail(this, '#emailCheckMessage')"
                                type="text" class="form-control" name="school_email" id="schoolEmail">
                         <span class="popup">
                             <i>
@@ -219,12 +227,12 @@
                     return;
                 }
                 $.ajax({
-                           url: "/usernameAvailable", type: "POST", async: false, data: {username: username}
-                       }).done((response) => {
+                    url: "/usernameAvailable", type: "POST", async: false, data: {username: username}
+                }).done((response) => {
                     if (messageDivID) {
                         // Make sure value is still the same
                         if (username === $(inputID)[0].value) {
-                            $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text(response);
+                            $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").html(response);
                             icon.attr("class", "fa fa-check-circle");
                             $(inputID).css("border-bottom-color", "");
                             validateSignup();
@@ -234,7 +242,7 @@
                     if (messageDivID) {
                         // Make sure value is still the same
                         if (username === $(inputID)[0].value) {
-                            $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text(data.responseText);
+                            $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").html(data.responseText);
                             icon.attr("class", "fa fa-exclamation-circle");
                             $(inputID).css("border-bottom-color", "red");
                             invalidateSignup();
@@ -354,45 +362,70 @@
         }
     }
 
-    let checkingBcpEmail;
+    let school;
 
-    function checkBcpEmail(inputID, messageDivID) {
+    function checkSchool(selectDiv) {
+        let value = $(selectDiv).find(":selected").val();
+        if (value !== "") {
+            $("#school-email-div").show();
+        } else {
+            $("#school-email-div").hide();
+        }
+        $("#schoolInput").val(value);
+        if (value !== school) {
+            school = value;
+            checkEmail(emailDiv, '#emailCheckMessage');
+        }
+        return value !== "";
+    }
+
+    let checkingEmail;
+
+    function checkEmail(inputID, messageDivID) {
         const bcpEmailRegex = /^[a-z]+\.[a-z]+[0-9]{2}@bcp.org$/i;
+        const basisEmailRegex = /^[a-z]+_[0-9]{5}@basisindependent.com$/i;
 
-        let bcpEmail = $(inputID)[0].value;
+        let email = $(inputID)[0].value;
         let icon = $($($(inputID)[0].nextElementSibling)[0].firstElementChild);
 
-        // First Name
-        let firstName = bcpEmail.indexOf(".") === -1 ? bcpEmail : bcpEmail.substring(0, bcpEmail.indexOf("."));
-        firstName = firstName.substring(0, 1).toUpperCase() + firstName.substring(1).toLowerCase();
-        $("#firstName").val(firstName);
-        checkLabel("#firstName");
+        let personalInfo = $("#personalInfo");
 
-        // Last Name
-        let lastName = bcpEmail.indexOf(".") === -1 ? "" : bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? bcpEmail.substring(bcpEmail.indexOf(".") + 1) : bcpEmail.substring(bcpEmail.indexOf(".") + 1, bcpEmail.indexOf(bcpEmail.match(/\d/)));
-        lastName = lastName.substring(0, 1).toUpperCase() + lastName.substring(1).toLowerCase();
-        $("#lastName").val(lastName);
-        checkLabel("#lastName");
+        if (school === "bellarmine") {
+            // First Name
+            let firstName = email.indexOf(".") === -1 ? email : email.substring(0, email.indexOf("."));
+            firstName = firstName[0].toUpperCase() + firstName.substring(1).toLowerCase();
+            $("#firstName").val(firstName);
+            checkLabel("#firstName");
 
-        // Graduation Year
-        let graduationYear = bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? "" : bcpEmail.indexOf("@") === -1 ? bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/))) : bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/)), bcpEmail.indexOf("@"));
-        if (graduationYear) {
-            graduationYear = parseInt(graduationYear);
-            graduationYear += 2000;
+            // Last Name
+            let lastName = email.indexOf(".") === -1 ? "" :
+                email.indexOf(email.match(/\d/)) === -1 ? email.substring(email.indexOf(".") + 1) : email.substring(email.indexOf(".") + 1, email.indexOf(email.match(/\d/)));
+            lastName = lastName[0].toUpperCase() + lastName.substring(1).toLowerCase();
+            $("#lastName").val(lastName);
+            checkLabel("#lastName");
+
+            // Graduation Year
+            let graduationYear = email.indexOf(email.match(/\d/)) === -1 ? "" :
+                email.indexOf("@") === -1 ? email.substring(email.indexOf(email.match(/\d/))) : email.substring(email.indexOf(email.match(/\d/)), email.indexOf("@"));
+            if (graduationYear) {
+                graduationYear = parseInt(graduationYear);
+                graduationYear += 2000;
+            }
+            $("#graduationYear").val(graduationYear);
+            checkLabel("#graduationYear");
+        } else {
+            personalInfo.hide();
         }
-        $("#graduationYear").val(graduationYear);
-        checkLabel("#graduationYear");
 
         if (messageDivID) {
             $(messageDivID).addClass("dont-show").removeClass("always-show");
             icon.attr("class", "fa fa-pulse fa-spinner");
             $(inputID).css("border-bottom-color", "blue");
-            if (checkingBcpEmail) {
-                clearTimeout(checkingBcpEmail);
+            if (checkingEmail) {
+                clearTimeout(checkingEmail);
             }
 
-            let personalInfo = $("#personalInfo");
-            if (bcpEmail === "") {
+            if (email === "") {
                 $(messageDivID).addClass("dont-show").removeClass("always-show");
                 icon.attr("class", "");
                 $(inputID).css("border-bottom-color", "");
@@ -400,10 +433,12 @@
                 personalInfo.hide();
                 return false;
             }
-            personalInfo.css("display", "flex");
-            checkingBcpEmail = setTimeout(() => {
-                if (!bcpEmailRegex.test(bcpEmail)) {
-                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("This must be your Bellarmine school email");
+            if (school === "bellarmine") {
+                personalInfo.css("display", "flex");
+            }
+            checkingEmail = setTimeout(() => {
+                if (school === "bellarmine" && !bcpEmailRegex.test(email) || school === "basis" && !basisEmailRegex.test(email)) {
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text(`This must be your ${school[0].toUpperCase() + school.substring(1)} school email`);
                     icon.attr("class", "fa fa-exclamation-circle");
                     $(inputID).css("border-bottom-color", "red");
                     invalidateSignup();
@@ -413,8 +448,8 @@
                 icon.attr("class", "fa fa-check-circle");
                 $(inputID).css("border-bottom-color", "");
                 $.ajax({
-                           url: "/emailAvailable", type: "POST", async: false, data: {schoolUsername: bcpEmail}
-                       }).done((response) => {
+                    url: "/emailAvailable", type: "POST", async: false, data: {schoolUsername: email}
+                }).done((response) => {
                     if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                         $(".session-timeout").show();
                         $("body").find("*").not(".session-timeout").remove();
@@ -422,7 +457,7 @@
                     }
                     if (messageDivID) {
                         // Make sure value is still the same
-                        if (bcpEmail === $(inputID)[0].value) {
+                        if (email === $(inputID)[0].value) {
                             $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text(response);
                             icon.attr("class", "fa fa-check-circle");
                             $(inputID).css("border-bottom-color", "");
@@ -433,7 +468,7 @@
                 }).fail((data) => {
                     if (messageDivID) {
                         // Make sure value is still the same
-                        if (bcpEmail === $(inputID)[0].value) {
+                        if (email === $(inputID)[0].value) {
                             $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text(data.responseText);
                             icon.attr("class", "fa fa-exclamation-circle");
                             $(inputID).css("border-bottom-color", "red");
@@ -483,8 +518,8 @@
                 }
 
                 $.ajax({
-                           url: "/betaKeyValid", type: "POST", async: false, data: {betaKey: betakey}
-                       }).done((response) => {
+                    url: "/betaKeyValid", type: "POST", async: false, data: {betaKey: betakey}
+                }).done((response) => {
                     if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                         $(".session-timeout").show();
                         $("body").find("*").not(".session-timeout").remove();
@@ -519,6 +554,7 @@
     let userDiv = $("#username");
     let passwordDiv = $("#password");
     let confirmDiv = $("#confirmPassword");
+    let schoolDiv = $("#school");
     let emailDiv = $("#schoolEmail");
     let betaDiv = $("#betaKey");
     let signupBtn = $("#signupBtn");
@@ -533,7 +569,11 @@
             invalidateSignup();
             return;
         }
-        if (!checkBcpEmail(emailDiv)) { // Invalid Bcp Email
+        if (!checkSchool(schoolDiv)) {
+            invalidateSignup();
+            return;
+        }
+        if (!checkEmail(emailDiv)) { // Invalid Bcp Email
             invalidateSignup();
             return;
         }

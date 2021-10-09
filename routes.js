@@ -37,7 +37,7 @@ module.exports = function (app, passport) {
                 gradeHistoryLetters[t] = {};
                 for (let j = 0; j < Object.keys(req.user.grades[t]).length; j++) {
                     let s = Object.keys(req.user.grades[t])[j];
-                    if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) > semester.substring(1))) {
+                    if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) > semester.substring(1) && semester !== "_")) {
                         continue;
                     }
                     gradeHistoryLetters[t][s] = [];
@@ -52,6 +52,7 @@ module.exports = function (app, passport) {
             if (term && semester) {
                 res.render("user/authorized_index.ejs", {
                     page: "home",
+                    school: req.user.school,
                     username: req.user.username,
                     schoolUsername: req.user.schoolUsername,
                     isAdmin: req.user.isAdmin,
@@ -81,6 +82,7 @@ module.exports = function (app, passport) {
             } else {
                 res.render("user/authorized_index.ejs", {
                     page: "home",
+                    school: req.user.school,
                     username: req.user.username,
                     schoolUsername: req.user.schoolUsername,
                     isAdmin: req.user.isAdmin,
@@ -172,7 +174,7 @@ module.exports = function (app, passport) {
                 gradeHistoryLetters[t] = {};
                 for (let j = 0; j < Object.keys(user.grades[t]).length; j++) {
                     let s = Object.keys(user.grades[t])[j];
-                    if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) > semester.substring(1))) {
+                    if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) > semester.substring(1) && semester !== "_")) {
                         continue;
                     }
                     gradeHistoryLetters[t][s] = [];
@@ -189,6 +191,7 @@ module.exports = function (app, passport) {
             if (term && semester) {
                 res.render("user/authorized_index.ejs", {
                     page: "home",
+                    school: user.school,
                     username: user.username,
                     schoolUsername: user.schoolUsername,
                     isAdmin: user.isAdmin,
@@ -218,6 +221,7 @@ module.exports = function (app, passport) {
             } else {
                 res.render("user/authorized_index.ejs", {
                     page: "home",
+                    school: user.school,
                     username: user.username,
                     schoolUsername: user.schoolUsername,
                     isAdmin: user.isAdmin,
@@ -469,6 +473,7 @@ module.exports = function (app, passport) {
 
     app.post("/signup", async (req, res, next) => {
 
+        let school = req.body.school;
         let username = req.body.username;
         let password = req.body.password;
         let s_email = req.body.school_email;
@@ -481,12 +486,12 @@ module.exports = function (app, passport) {
         if (server.needsBetaKeyToSignUp) {
 
             let bk = req.body.beta_key;
-            resp = await authenticator.betaAddNewUser(bk, username, password, s_email, false);
+            resp = await authenticator.betaAddNewUser(bk, school, username, password, s_email, false);
             console.log("beta: " + resp);
 
         } else {
 
-            resp = await authenticator.addNewUser(username, password, s_email, false);
+            resp = await authenticator.addNewUser(school, username, password, s_email, false);
             console.log("nonbeta: " + resp);
 
         }
@@ -684,7 +689,7 @@ module.exports = function (app, passport) {
     app.post("/setRemoteAccess", [isLoggedIn], (req, res) => {
         let allowed = req.body.remoteAccess === "on" ? "allowed" : "denied";
         authenticator.setRemoteAccess(req.user.username, allowed);
-        res.status(200).send(allowed.substring(0, 1).toUpperCase() + allowed.substring(1) + " remote access.");
+        res.status(200).send(allowed[0].toUpperCase() + allowed.substring(1) + " remote access.");
     });
 
     app.post("/setFirstName", [isLoggedIn], (req, res) => {
@@ -1068,7 +1073,7 @@ module.exports = function (app, passport) {
 
     // route middleware to ensure user is logged in
     function isLoggedIn(req, res, next) {
-        if (!(["/", "/admin"]).includes(req._parsedOriginalUrl.path) && req.headers.referer.includes("viewuser")) {
+        if (!(["/", "/admin"]).includes(req._parsedOriginalUrl.path) && req.headers.referer && req.headers.referer.includes("viewuser")) {
             res.sendStatus(405);
             return;
         }
@@ -1076,6 +1081,14 @@ module.exports = function (app, passport) {
             return next();
         }
         res.redirect("/");
+    }
+
+    function notSupportedOutsideBell(req, res, next) {
+        if (req.user.school !== "bellarmine") {
+            res.sendStatus(501);
+            return;
+        }
+        return next();
     }
 
     // temp middleware to prevent routes from happening if using query to view old semesters

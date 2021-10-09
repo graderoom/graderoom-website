@@ -20,7 +20,7 @@ const socketManager = require("./socketManager");
 const roundsToGenerateSalt = 10;
 
 // Change this when updateDB changes
-const dbUserVersion = 18;
+const dbUserVersion = 19;
 const dbClassVersion = 4;
 
 db.defaults({users: [], keys: [], classes: {version: dbClassVersion}, deletedUsers: []}).write();
@@ -56,7 +56,7 @@ module.exports = {
 
     /* beta key functions */
 
-    betaAddNewUser: async function (betaKey, username, password, schoolUsername, isAdmin) {
+    betaAddNewUser: async function (betaKey, school, username, password, schoolUsername, isAdmin) {
         let asbk = db.get("keys").find({betaKey: betaKey}).value();
         if (asbk) {
 
@@ -64,7 +64,7 @@ module.exports = {
                 return {success: false, message: "Beta key already claimed."};
             }
 
-            let r = await this.addNewUser(username, password, schoolUsername, isAdmin, true);
+            let r = await this.addNewUser(school, username, password, schoolUsername, isAdmin, true);
             if (r.success === true) {
                 db.get("keys").find({betaKey: betaKey}).set("claimed", true).write();
                 db.get("keys").find({betaKey: betaKey}).set("claimedBy", username).write();
@@ -827,8 +827,15 @@ module.exports = {
             saveUpdate(++version);
         }
 
+        if (version === 18) {
+            // Multischool support
+            userRef.set("school", "bellarmine").write();
+
+            saveUpdate(++version);
+        }
+
         /** Stuff that happens no matter what */
-        // Remove any extra tutorial keys
+            // Remove any extra tutorial keys
         let existingKeys = Object.keys(userRef.get("alerts").get("tutorialStatus").value());
         for (let i = 0; i < existingKeys.length; i++) {
             if (!tutorialKeys.includes(existingKeys[i])) {
@@ -846,7 +853,9 @@ module.exports = {
         // Remove extra beta features
         let existingFeatures = Object.keys(userRef.get("betaFeatures").value());
         for (let i = 0; i < existingFeatures.length; i++) {
-            if (existingFeatures[i] === "active") continue;
+            if (existingFeatures[i] === "active") {
+                continue;
+            }
             if (!betaFeatureKeys.includes(existingFeatures[i])) {
                 userRef.get("betaFeatures").unset(existingFeatures[i]).write();
             }
@@ -975,6 +984,9 @@ module.exports = {
         }
         let terms = Object.keys(userRef.get("grades").value());
         let term = terms[terms.map(t => parseInt(t.substring(0, 2))).reduce((maxIndex, term, index, arr) => term > arr[maxIndex] ? index : maxIndex, 0)];
+        if (userRef.get("school").value() === "basis") {
+            return {term: term, semester: "_"};
+        }
         let semesters = Object.keys(userRef.get("grades").get(term).value());
         let semester = semesters[semesters.map(s => parseInt(s.substring(1))).reduce((maxIndex, semester, index, arr) => semester > arr[maxIndex] ? index : maxIndex, 0)];
         return {term: term, semester: semester};
@@ -1140,7 +1152,7 @@ module.exports = {
     },
 
     //Need to add Try Catches to error check when updating db values
-    addNewUser: function (username, password, schoolUsername, isAdmin, beta = false) {
+    addNewUser: function (school, username, password, schoolUsername, isAdmin, beta = false) {
 
         let lc_username = username.toLowerCase();
         return new Promise((resolve, reject) => {
@@ -1178,16 +1190,17 @@ module.exports = {
                     return {success: false, message: message};
                 }
 
-                if (!validateEmail(schoolUsername)) {
-                    return resolve({success: false, message: "This must be your Bellarmine school email."});
+                if (!validateEmail(schoolUsername, school)) {
+                    return resolve({success: false, message: `This must be your ${school[0].toUpperCase() + school.substring(1)} school email.`});
                 }
             }
             // Set up personal info with EXACT same algorithm as on signup page
-            let {firstName, lastName, graduationYear} = getPersonalInfo(schoolUsername);
+            let {firstName, lastName, graduationYear} = getPersonalInfo(schoolUsername, school);
 
             bcrypt.hash(password, roundsToGenerateSalt, function (err, hash) {
                 let now = Date.now();
                 db.get("users").push({
+                    school: school,
                     version: dbUserVersion,
                     username: lc_username,
                     password: hash,
@@ -1394,78 +1407,87 @@ module.exports = {
                 if (data.success) {
                     let current_years = Object.keys(userRef.get("grades").value());
                     let years = Object.keys(data.new_grades);
-                    let weights = userRef.get("weights").value();
-                    for (let i = 0; i < years.length; i++) {
-                        if (!(years[i] in weights)) {
-                            weights[years[i]] = {};
-                            let semesters = Object.keys(data.new_grades[years[i]]);
-                            for (let j = 0; j < semesters.length; j++) {
-                                weights[years[i]][semesters[j]] = {};
-                            }
-                        } else {
-                            let current_semesters = Object.keys(weights[years[i]]);
-                            let semesters = Object.keys(data.new_grades[years[i]]);
-                            for (let j = 0; j < semesters.length; j++) {
-                                if (!current_semesters.includes(semesters[j])) {
-                                    weights[years[i]][semesters[j]] = {};
-                                }
-                            }
-                        }
-                        if (!current_years.includes(years[i])) {
-                            userRef.get("grades").set(years[i], data.new_grades[years[i]]).write();
-                        } else {
-                            let current_semesters = Object.keys(userRef.get("grades").get(years[i]).value());
-                            let semesters = Object.keys(data.new_grades[years[i]]);
-                            for (let j = 0; j < semesters.length; j++) {
-                                if (!current_semesters.includes(semesters[j])) {
-                                    userRef.get("grades").get(years[i]).set(semesters[j], data.new_grades[years[i]][semesters[j]]).write();
+                    let school = userRef.get("school").value();
+                    switch (school) {
+                        case "basis":
+                            let new_weights = data.new_weights;
+                            let term = Object.keys(new_weights)[0];
+                            userRef.get("weights").set(term, {"_": new_weights[term]._}).write();
+                            break;
+                        default:
+                            let weights = userRef.get("weights").value();
+                            for (let i = 0; i < years.length; i++) {
+                                if (!(years[i] in weights)) {
+                                    weights[years[i]] = {};
+                                    let semesters = Object.keys(data.new_grades[years[i]]);
+                                    for (let j = 0; j < semesters.length; j++) {
+                                        weights[years[i]][semesters[j]] = {};
+                                    }
                                 } else {
-                                    let classes = data.new_grades[years[i]][semesters[j]];
-                                    let oldGrades = userRef.get("grades").get(years[i]).get(semesters[j]).cloneDeep().value();
-                                    for (let k = 0; k < classes.length; k++) {
-                                        let oldRef = userRef.get("grades").get(years[i]).get(semesters[j]).nth(k);
-                                        if (!oldRef.value()) {
-                                            userRef.get("grades").get(years[i]).get(semesters[j]).splice(k, 0, data.new_grades[years[i]][semesters[j]][k]).write();
-                                        } else if (classes[k].grades.length) {
-                                            userRef.get("grades").get(years[i]).get(semesters[j]).splice(k, 1, data.new_grades[years[i]][semesters[j]][k]).write();
-                                        } else {
-                                            oldRef.set("overall_percent", data.new_grades[years[i]][semesters[j]][k].overall_percent).write();
-                                            oldRef.set("overall_letter", data.new_grades[years[i]][semesters[j]][k].overall_letter).write();
+                                    let current_semesters = Object.keys(weights[years[i]]);
+                                    let semesters = Object.keys(data.new_grades[years[i]]);
+                                    for (let j = 0; j < semesters.length; j++) {
+                                        if (!current_semesters.includes(semesters[j])) {
+                                            weights[years[i]][semesters[j]] = {};
                                         }
                                     }
-                                    let newGrades = userRef.get("grades").get(years[i]).get(semesters[j]).value();
-                                    let overall = {};
-                                    if (oldGrades) {
-                                        overall = Object.fromEntries(oldGrades.map((classData) => {
-                                            let clone = Object.assign({}, classData);
-                                            delete clone.grades;
-                                            delete clone.class_name;
-                                            delete clone.ps_locked;
-                                            delete clone.student_id;
-                                            delete clone.section_id;
-                                            delete clone.teacher_name;
-                                            let newClone = Object.assign({}, newGrades.find(g => g.class_name === classData.class_name));
-                                            delete newClone.grades;
-                                            delete newClone.class_name;
-                                            delete newClone.ps_locked;
-                                            delete newClone.teacher_name;
-                                            return [classData.class_name, Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v))];
-                                        }).filter(data => Object.keys(data[1]).length));
+                                }
+                                if (!current_years.includes(years[i])) {
+                                    userRef.get("grades").set(years[i], data.new_grades[years[i]]).write();
+                                } else {
+                                    let current_semesters = Object.keys(userRef.get("grades").get(years[i]).value());
+                                    let semesters = Object.keys(data.new_grades[years[i]]);
+                                    for (let j = 0; j < semesters.length; j++) {
+                                        if (!current_semesters.includes(semesters[j])) {
+                                            userRef.get("grades").get(years[i]).set(semesters[j], data.new_grades[years[i]][semesters[j]]).write();
+                                        } else {
+                                            let classes = data.new_grades[years[i]][semesters[j]];
+                                            let oldGrades = userRef.get("grades").get(years[i]).get(semesters[j]).cloneDeep().value();
+                                            for (let k = 0; k < classes.length; k++) {
+                                                let oldRef = userRef.get("grades").get(years[i]).get(semesters[j]).nth(k);
+                                                if (!oldRef.value()) {
+                                                    userRef.get("grades").get(years[i]).get(semesters[j]).splice(k, 0, data.new_grades[years[i]][semesters[j]][k]).write();
+                                                } else if (classes[k].grades.length) {
+                                                    userRef.get("grades").get(years[i]).get(semesters[j]).splice(k, 1, data.new_grades[years[i]][semesters[j]][k]).write();
+                                                } else {
+                                                    oldRef.set("overall_percent", data.new_grades[years[i]][semesters[j]][k].overall_percent).write();
+                                                    oldRef.set("overall_letter", data.new_grades[years[i]][semesters[j]][k].overall_letter).write();
+                                                }
+                                            }
+                                            let newGrades = userRef.get("grades").get(years[i]).get(semesters[j]).value();
+                                            let overall = {};
+                                            if (oldGrades) {
+                                                overall = Object.fromEntries(oldGrades.map((classData) => {
+                                                    let clone = Object.assign({}, classData);
+                                                    delete clone.grades;
+                                                    delete clone.class_name;
+                                                    delete clone.ps_locked;
+                                                    delete clone.student_id;
+                                                    delete clone.section_id;
+                                                    delete clone.teacher_name;
+                                                    let newClone = Object.assign({}, newGrades.find(g => g.class_name === classData.class_name));
+                                                    delete newClone.grades;
+                                                    delete newClone.class_name;
+                                                    delete newClone.ps_locked;
+                                                    delete newClone.teacher_name;
+                                                    return [classData.class_name, Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v))];
+                                                }).filter(data => Object.keys(data[1]).length));
+                                            }
+                                            changeData = {
+                                                added: {}, modified: {}, removed: {}, overall: overall
+                                            };
+                                        }
                                     }
-                                    changeData = {
-                                        added: {}, modified: {}, removed: {}, overall: overall
-                                    };
                                 }
                             }
-                        }
-                    }
+                            this.initWeights(lc_username);
 
+                    }
                     let time = Date.now();
                     userRef.get("alerts").get("lastUpdated").push({
                         timestamp: time, changeData: changeData, ps_locked: false
                     }).write();
                     this.initAddedAssignments(lc_username);
-                    this.initWeights(lc_username);
                     this.initEditedAssignments(lc_username);
                     this.bringUpToDate(lc_username);
                     userRef.get("updatedGradeHistory").push(Date.now()).write();
@@ -1478,7 +1500,7 @@ module.exports = {
             }
         });
 
-        scraper.loginAndScrapeGrades(_stream, userRef.value().schoolUsername, school_password, "", "", "true");
+        scraper.loginAndScrapeGrades(_stream, userRef.value().school, userRef.value().schoolUsername, school_password, "", "", "true");
     },
 
     updateGrades: function (acc_username, school_password) {
@@ -1590,7 +1612,7 @@ module.exports = {
 
         });
 
-        scraper.loginAndScrapeGrades(_stream, userRef.value().schoolUsername, school_password, data_if_locked, term_data_if_locked);
+        scraper.loginAndScrapeGrades(_stream, userRef.value().school, userRef.value().schoolUsername, school_password, data_if_locked, term_data_if_locked);
 
         return _stream;
     },
@@ -1643,7 +1665,7 @@ module.exports = {
     },
 
     setColorPalette: function (username, preset, shuffle) {
-        let light, saturation, hues = [0, 30, 60, 120, 180, 240, 270, 300];
+        let light, saturation, hues = [0, 30, 60, 120, 180, 240, 270, 300, 330, 15, 45, 90, 150, 210, 255, 285, 315, 345];
         switch (preset) {
             case "pale":
                 light = 0.8;
@@ -1922,7 +1944,7 @@ module.exports = {
                     }
                     item.title = line.substring(4, line.indexOf("]"));
                     item.date = line.substring(line.indexOf("-") + 2);
-                } else if (line.substring(0, 1) === "-") {
+                } else if (line[0] === "-") {
                     if (item.title === "Known Issues" || item.title.substring(0, 12) === "Announcement") {
                         if (!item.content["Default"]) {
                             item.content["Default"] = [];
@@ -2386,18 +2408,16 @@ function isAlphaNumeric(str) {
     return true;
 }
 
-function validateEmail(email) {
-    let re = /^[a-z]+\.[a-z]+[0-9]{2}@bcp.org$/i;
-    return re.test(email);
-}
-
-function containsClass(obj, list) {
-    for (let i = 0; i < list.length; i++) {
-        if (list[i].class_name === obj.class_name) {
-            return true;
-        }
+function validateEmail(email, school) {
+    let re;
+    switch (school) {
+        case "basis":
+            re = /^[a-z]+_[0-9]{5}@basisindependent.com$/i;
+            break;
+        default:
+            re = /^[a-z]+\.[a-z]+[0-9]{2}@bcp.org$/i;
     }
-    return false;
+    return re.test(email);
 }
 
 function dbContainsClass(term, semester, class_name, teacher_name) {
@@ -2493,24 +2513,31 @@ function validatePassword(password) {
     return message;
 }
 
-function getPersonalInfo(bcpEmail) {
-    // First Name
-    let firstName = bcpEmail.indexOf(".") === -1 ? bcpEmail : bcpEmail.substring(0, bcpEmail.indexOf("."));
-    firstName = firstName.substring(0, 1).toUpperCase() + firstName.substring(1).toLowerCase();
+function getPersonalInfo(email, school) {
+    let firstName, lastName, graduationYear;
+    switch (school) {
+        case "basis":
+            firstName = email.indexOf("_") === -1 ? email : email.substring(0, email.indexOf("_"));
+            firstName = firstName[0].toUpperCase() + firstName.substring(1).toLowerCase();
+            break;
+        default:
+            // First Name
+            firstName = email.indexOf(".") === -1 ? email : email.substring(0, email.indexOf("."));
+            firstName = firstName[0].toUpperCase() + firstName.substring(1).toLowerCase();
 
-    // Last Name
-    let lastName = bcpEmail.indexOf(".") === -1 ? "" :
-        bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? bcpEmail.substring(bcpEmail.indexOf(".") + 1) : bcpEmail.substring(bcpEmail.indexOf(".") + 1, bcpEmail.indexOf(bcpEmail.match(/\d/)));
-    lastName = lastName.substring(0, 1).toUpperCase() + lastName.substring(1).toLowerCase();
+            // Last Name
+            let lastName = email.indexOf(".") === -1 ? "" :
+                email.indexOf(email.match(/\d/)) === -1 ? email.substring(email.indexOf(".") + 1) : email.substring(email.indexOf(".") + 1, email.indexOf(email.match(/\d/)));
+            lastName = lastName[0].toUpperCase() + lastName.substring(1).toLowerCase();
 
-    // Graduation Year
-    let graduationYear = bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? "" :
-        bcpEmail.indexOf("@") === -1 ? bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/))) : bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/)), bcpEmail.indexOf("@"));
-    if (graduationYear) {
-        graduationYear = parseInt(graduationYear);
-        graduationYear += 2000;
+            // Graduation Year
+            let graduationYear = email.indexOf(email.match(/\d/)) === -1 ? "" :
+                email.indexOf("@") === -1 ? email.substring(email.indexOf(email.match(/\d/))) : email.substring(email.indexOf(email.match(/\d/)), email.indexOf("@"));
+            if (graduationYear) {
+                graduationYear = parseInt(graduationYear);
+                graduationYear += 2000;
+            }
     }
-
     return {firstName, lastName, graduationYear};
 }
 

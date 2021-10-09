@@ -8,7 +8,7 @@ const _ = require("lodash");
 const stream = require("stream");
 
 
-credentials.defaults({"graderoom_username": "", "school_username": "", "password": "", "get_history": false}).write();
+credentials.defaults({"school": "", "graderoom_username": "", "school_username": "", "password": "", "get_history": false}).write();
 
 
 module.exports = {
@@ -18,9 +18,19 @@ module.exports = {
      * @returns {Promise<void>}
      */
     external_scrape: async function () {
-        let graderoom_username = credentials.get("graderoom_username").value()
+        let school = credentials.get("school").value();
         let school_username = credentials.get("school_username").value();
         let password = credentials.get("password").value();
+
+        let _stream = new stream.Readable({objectMode: true, read: () => {}});
+
+        _stream.on('data', (data) => console.log(data));
+        if (school === "basis") {
+            if ([school_username, password].includes("")) throw new Error("Configure credentials.json");
+            await scraper.loginAndScrapeGrades(_stream, school, school_username, password);
+            return;
+        }
+        let graderoom_username = credentials.get("graderoom_username").value();
 
         if ([graderoom_username, school_username, password].includes("")) throw new Error("Configure credentials.json");
 
@@ -37,11 +47,7 @@ module.exports = {
 
         let get_history = credentials.get("get_history").value();
 
-        let _stream = new stream.Readable({objectMode: true, read: () => {}});
-
-        _stream.on('data', (data) => console.log(data));
-
-        await scraper.loginAndScrapeGrades(_stream, school_username, password, data_if_locked, term_data_if_locked, get_history);
+        await scraper.loginAndScrapeGrades(_stream, school, school_username, password, data_if_locked, term_data_if_locked, get_history);
 
     },
 

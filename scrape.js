@@ -2,7 +2,7 @@ let {PythonShell} = require("python-shell");
 
 module.exports = {
 
-    loginAndScrapeGrades: function (readableStream, email, password, data_if_locked, term_data_if_locked, get_history = false) {
+    loginAndScrapeGrades: function (readableStream, school, email, password, data_if_locked = {}, term_data_if_locked = {}, get_history = false) {
 
         let pythonPath;
 
@@ -18,7 +18,7 @@ module.exports = {
             // // scriptPath: 'path/to/my/scripts',
             // // scriptPath: 'path/to/my/scripts',
             pythonPath: pythonPath,
-            args: [email, password, JSON.stringify(data_if_locked), JSON.stringify(term_data_if_locked), get_history]
+            args: [school, email, password, JSON.stringify(data_if_locked), JSON.stringify(term_data_if_locked), get_history]
         };
 
         const pyshell = new PythonShell("./scrape.py", options);

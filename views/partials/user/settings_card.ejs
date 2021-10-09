@@ -845,12 +845,12 @@
     function getPersonalInfo(bcpEmail) {
         // First Name
         let firstName = bcpEmail.indexOf(".") === -1 ? bcpEmail : bcpEmail.substring(0, bcpEmail.indexOf("."));
-        firstName = firstName.substring(0, 1).toUpperCase() + firstName.substring(1).toLowerCase();
+        firstName = firstName[0].toUpperCase() + firstName.substring(1).toLowerCase();
 
         // Last Name
         let lastName = bcpEmail.indexOf(".") === -1 ? "" :
             bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? bcpEmail.substring(bcpEmail.indexOf(".") + 1) : bcpEmail.substring(bcpEmail.indexOf(".") + 1, bcpEmail.indexOf(bcpEmail.match(/\d/)));
-        lastName = lastName.substring(0, 1).toUpperCase() + lastName.substring(1).toLowerCase();
+        lastName = lastName[0].toUpperCase() + lastName.substring(1).toLowerCase();
 
         // Graduation Year
         let graduationYear = bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? "" :
