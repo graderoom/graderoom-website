@@ -42,6 +42,13 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 4.9.2] - 2021-10-08
+### Added
+- Limited support for basis
+
+### Removed
+- Added/Modified indicator text color
+
 ## [Stable 4.9.1] - 2021-09-06
 ### Added
 - Descriptive syncing for grade history

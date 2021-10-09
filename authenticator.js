@@ -1540,6 +1540,8 @@ module.exports = {
                                                                                                        // we scraped psaids)
                     }
                     let newGrades = data.new_grades[newTerm][newSemester];
+                    let newClasses = newGrades.map(x => x.class_name);
+                    oldGrades = oldGrades.filter(x => newClasses.includes(x.class_name));
                     let newPSAIDs = newGrades.map(x => x.grades.map(y => y.psaid));
                     let add = newPSAIDs.length - oldPSAIDs.length;
                     for (let i = 0; i < add; i++) {

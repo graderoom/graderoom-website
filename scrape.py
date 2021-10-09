@@ -862,6 +862,12 @@ class BasisScraper(Scraper):
 
                         grades.append(assignment)
 
+            if len(grades) == 0:
+                total_course_count -= 1
+                self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
+                self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / total_course_count
+                continue
+
             no_due_date = list(filter(lambda j: j['sort_date'] is None, grades))
             no_due_date.reverse()
             due_date = list(filter(lambda j: j['sort_date'] is not None, grades))
