@@ -286,8 +286,8 @@
                     </div>
                     <div class="card-footer">
                         <h5>Display
-                        <br>
-                        <small style="opacity: 0.5">Changing these settings will immediately refresh the page.</small></h5>
+                            <br>
+                            <small style="opacity: 0.5">Changing these settings will immediately refresh the page.</small></h5>
                         <form id="advancedAppearance" action="/advancedAppearance" method="post">
                             <div>
                                 <label class="slider-container">
@@ -325,7 +325,7 @@
                                             id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
                                         <% if (JSON.parse(appearance).showNonAcademic) { %> checked="checked"
                                                 <% } %>
-                                                onchange="$(this).closest('form').trigger('submit')"
+                                            onchange="$(this).closest('form').trigger('submit')"
                                         >
                                         <span class="slider"></span>
                                     </label>
@@ -342,8 +342,8 @@
                     </div>
                     <div class="card-footer">
                         <h5>Performance
-                        <br>
-                        <small style="opacity: 0.5">Changing these settings will immediately refresh the page.</small></h5>
+                            <br>
+                            <small style="opacity: 0.5">Changing these settings will immediately refresh the page.</small></h5>
                         <label class="slider-container">
                             <label class="switch">
                                 <input id="animateWhenUnfocused" type="checkbox" name="animateWhenUnfocused"
@@ -944,7 +944,6 @@
 
         // Get all elements with class="tablinks" and remove the class "active"
         $("#settingsCardDisplay .tablinks").removeClass("active");
-
 
         // Show the current tab, and add an "active" class to the button that opened the tab
         $(tabName).show();

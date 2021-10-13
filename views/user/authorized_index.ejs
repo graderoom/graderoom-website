@@ -3190,7 +3190,8 @@
                         let assignmentDates = classData.filter(x => !x.exclude).map(x => x.date);
                         let assignmentTimestamps = classData.filter(x => !x.exclude).map((x, i, arr) => new Date(Date.parse(x.date) +
                             ((24 * 60 * 60 * 1000 / arr.filter(y => x.date === y.date).length + 1) * arr.filter((y, j) => j < i && x.date === y.date).length)));
-                        let assignmentPercents = classData.filter(x => !x.exclude).map(x => x.grade_percent ?? (x.points_gotten !== false && x.points_possible !== false) ? x.points_gotten / x.points_possible * 100 : null);
+                        let assignmentPercents = classData.filter(x => !x.exclude).map(x => x.grade_percent ?? (x.points_gotten !== false && x.points_possible !== false) ?
+                            x.points_gotten / x.points_possible * 100 : null);
                         let assignmentScoresParsed = classData.filter(x => !x.exclude).map(x => (x.points_gotten === false ? "--" : x.points_gotten) + "/" +
                             (x.points_possible === false ? "--" : x.points_possible));
                         let assignmentCategories = classData.filter(x => !x.exclude).map(x => x.category);
