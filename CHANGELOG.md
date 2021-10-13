@@ -42,6 +42,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Announcement 4.9.3] - 2021-10-12
+- <span style="cursor: pointer" onclick="showCard('#settingsCardDisplay'); openTab(3)" class="changelog-inline-setoff">Click here to join the Graderoom support Discord server!</span>
+- You can also use this invite link: <a href="https://discord.gg/p9kyZxuAmC">https://discord.gg/p9kyZxuAmC</a>
+
 ## [Stable 4.9.2] - 2021-10-08
 ### Added
 - Descriptive syncing for grade history

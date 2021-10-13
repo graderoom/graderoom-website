@@ -2955,6 +2955,11 @@ input:disabled {
     margin-left: 0;
 }
 
+.discord-iframe {
+    width: 100%;
+    height: 300px;
+}
+
 @media screen and (prefers-color-scheme: dark) {
     .show-when-system-theme-not-supported {
         display: none;
