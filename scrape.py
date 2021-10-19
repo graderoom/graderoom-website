@@ -383,6 +383,8 @@ class PowerschoolScraper:
             link = year_link.find("a")
             if "SS" in str(link):
                 total_term_count -= 1
+                self.message = 'Synced ' + str(scraped_term_count) + ' of ' + str(total_term_count) + ' terms...'
+                self.progress = initial_progress + (max_progress - initial_progress) * scraped_term_count / total_term_count
                 continue
 
             # Cut the year from the link text
@@ -391,6 +393,8 @@ class PowerschoolScraper:
             # Ensure it exists, then fetch the year link
             if not link['href']:
                 total_term_count -= 1
+                self.message = 'Synced ' + str(scraped_term_count) + ' of ' + str(total_term_count) + ' terms...'
+                self.progress = initial_progress + (max_progress - initial_progress) * scraped_term_count / total_term_count
                 continue
             url = 'https://powerschool.bcp.org/guardian/'
             resp = self.session.get(url + link['href'], timeout=10)
@@ -495,7 +499,6 @@ class PowerschoolScraper:
                     # make sure it's not a quarter
                     semester = str(link['href']).split('&fg=')[1][:2]
                     if semester.startswith("Q"):
-                        total_course_count -= 1
                         continue
 
                     assignments_link = link['href']
@@ -516,6 +519,8 @@ class PowerschoolScraper:
             # Ensure link for assignments exists
             if assignments_link is None:
                 total_course_count -= 1
+                self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
+                self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / total_course_count
                 continue
 
             url = 'https://powerschool.bcp.org/guardian/'
