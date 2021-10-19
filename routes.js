@@ -761,7 +761,7 @@ module.exports = function (app, passport) {
 
         let {term, semester} = authenticator.getClassesMostRecentTermData();
         if (req.query.term && req.query.semester) {
-            if ((term === req.query.term && semester === req.query.semester) || !req.user.betaFeatures.active || !authenticator.semesterExists(req.user.username, req.query.term, req.query.semester)) {
+            if ((term === req.query.term && semester === req.query.semester) || !req.user.betaFeatures.active || !authenticator.classesSemesterExists(req.query.term, req.query.semester)) {
                 res.redirect("/classes");
                 return;
             }

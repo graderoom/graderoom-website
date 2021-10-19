@@ -492,9 +492,6 @@ class PowerschoolScraper(Scraper):
                     # make sure it's not a quarter
                     semester = str(link['href']).split('&fg=')[1][:2]
                     if semester.startswith("Q"):
-                        total_course_count -= 1
-                        self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
-                        self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / total_course_count
                         continue
 
                     assignments_link = link['href']

@@ -976,6 +976,11 @@ module.exports = {
         return (term in userRef.get("grades").value() && semester in userRef.get("grades").get(term).value());
     },
 
+    classesSemesterExists: function(term, semester) {
+        let classes = this.getAllClassData();
+        return (term in classes && semester in classes[term]);
+    },
+
     getMostRecentTermData: function (username) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
         if (!Object.keys(userRef.get("grades").value()).length) {
