@@ -43,6 +43,9 @@
 - None
 
 ## [Stable 4.9.4] - 2021-10-19
+### Improved
+- Last synced time shows correctly after syncing without a refresh
+
 ### Fixed
 - Syncing for Bellarmine users works again
 
