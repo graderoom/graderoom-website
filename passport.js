@@ -55,7 +55,8 @@ module.exports = function (passport) {
                 return done(null, false, req.flash("loginMessage", "Invalid Credentials"));
             }
 
-            if (bcrypt.compareSync(password, user.password)) {
+            let user = authent.getUser(username);
+            if (user && bcrypt.compareSync(password, user.password)) {
                 authent.setLoggedIn(user.username);
                 if ('schoolPassword' in user) {
                     let resp = authent.decryptAndGet(user.username, password);
