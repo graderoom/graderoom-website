@@ -42,6 +42,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 4.9.5] - 2021-11-28
+### Fixed
+- Login bug
+
 ## [Stable 4.9.4] - 2021-10-19
 ### Improved
 - Last synced time shows correctly after syncing without a refresh
