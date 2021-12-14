@@ -7,9 +7,8 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
     <% let theme; %>
-    <% let zeroTime = new Date(0); %>
-    <% zeroTime.setHours(new Date().getHours()); %>
-    <% zeroTime.setMinutes(new Date().getMinutes()); %>
+    <% let date = new Date(); %>
+    <% let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes()); %>
     <% zeroTime = zeroTime.getTime(); %>
     <% if ((zeroTime >= sunset.getTime()) || (zeroTime <= sunrise.getTime())) { %>
         <% theme = true; %>
@@ -87,6 +86,10 @@
                             <i>
                                 <span class="popup-left-bottom dont-show" id="emailCheckMessage"></span></i>
                         </span>
+                    </div>
+                    <div id="school-name-div" class="form-group input-group" style="display: none">
+                        <i class="school-bg"></i>
+                        <label>School Name (optional)</label>
                     </div>
 
                     <div style="display: none; align-items: center; flex-basis: content" id="personalInfo">
@@ -393,14 +396,14 @@
         if (school === "bellarmine") {
             // First Name
             let firstName = email.indexOf(".") === -1 ? email : email.substring(0, email.indexOf("."));
-            firstName = firstName[0].toUpperCase() + firstName.substring(1).toLowerCase();
+            firstName = firstName.length <= 1 ? firstName.toUpperCase() : firstName[0].toUpperCase() + firstName.substring(1).toLowerCase();
             $("#firstName").val(firstName);
             checkLabel("#firstName");
 
             // Last Name
             let lastName = email.indexOf(".") === -1 ? "" :
                 email.indexOf(email.match(/\d/)) === -1 ? email.substring(email.indexOf(".") + 1) : email.substring(email.indexOf(".") + 1, email.indexOf(email.match(/\d/)));
-            lastName = lastName[0].toUpperCase() + lastName.substring(1).toLowerCase();
+            lastName = lastName.length <= 1 ? lastName.toUpperCase() : lastName[0].toUpperCase() + lastName.substring(1).toLowerCase();
             $("#lastName").val(lastName);
             checkLabel("#lastName");
 

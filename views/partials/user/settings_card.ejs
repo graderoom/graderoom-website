@@ -14,6 +14,7 @@
                 </h1>
             </div>
             <div class="tab">
+                <btn id="btn-0" class="tablinks" onclick="openTab(0)">Donate</btn>
                 <btn id="btn-1" class="tablinks active" onclick="openTab(1)">Appearance</btn>
                 <btn id="btn-2" class="tablinks" onclick="openTab(2)">Account</btn>
                 <btn id="btn-3" class="tablinks" onclick="openTab(3)">Help</btn>
@@ -21,6 +22,51 @@
                 <% if (JSON.parse(betaFeatures).active) { %>
                     <btn id="btn-5" class="tablinks" onclick="openTab(5)">Beta</btn>
                 <% } %>
+            </div>
+            <div id="settings-0" class="tabcontent" style="display: none">
+                <div class="card-body">
+                    <div class="card-footer">
+                        <h5>Want to support Graderoom?</h5>
+                        <div class="donation-container">
+                            <div class="card-footer">
+                                <p>Graderoom is a free service to make your academic lives less stressful and more fun.
+                                    You
+                                    are already showing support just by using this project we made for fun. If you want
+                                    to go
+                                    above
+                                    and
+                                    beyond, feel free to send us a donation using the button below.
+                                </p>
+                            </div>
+                            <div class="card-footer">
+                                <p>Include your name or username in your donation message so we can match the donation
+                                    to your
+                                    Graderoom account
+                                </p>
+                                <div id="donate-button-container"
+                                     style="margin-top: 20px; display: flex; align-items: center; justify-content: center">
+                                    <div id="donate-button"></div>
+                                    <script src="https://www.paypalobjects.com/donate/sdk/donate-sdk.js"
+                                            charset="UTF-8"></script>
+                                    <script>
+                                        PayPal.Donation.Button({
+                                                                   env: 'production',
+                                                                   hosted_button_id: 'UGSEZPLL7RLFY',
+                                                                   image: {
+                                                                       src: 'https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif',
+                                                                       alt: 'Donate with PayPal button',
+                                                                       title: 'PayPal - The safer, easier way to pay online!',
+                                                                   }
+                                                               }).render('#donate-button');
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer" style="display:none">
+                        <h5>Contribute to Graderoom on Github</h5>
+                    </div>
+                </div>
             </div>
             <div id="settings-1" class="tabcontent" style="display: block">
                 <div class="card-body">
@@ -137,7 +183,8 @@
                                             <% } %>
                                     > Always Dark</label>
                                 <br>
-                                <label class="disable-when-system-theme-not-supported" style="cursor: pointer; align-items: center"><input
+                                <label class="disable-when-system-theme-not-supported"
+                                       style="cursor: pointer; align-items: center"><input
                                             style="cursor: inherit" type="radio"
                                             value="system"
                                             name="theme"
@@ -147,7 +194,8 @@
                                     <% if (JSON.parse(appearance).theme === "system") { %> checked
                                             <% } %>
                                     > Match System
-                                    <span id="prefers-color-scheme" style="margin-left: 0.5rem; opacity: 0.5; font-size: 0.6rem;"></span>
+                                    <span id="prefers-color-scheme"
+                                          style="margin-left: 0.5rem; opacity: 0.5; font-size: 0.6rem;"></span>
                                     <span style="margin-left: 0.5rem;"
                                           class="popup show-when-system-theme-not-supported"><i
                                                 class="fa fa-exclamation-circle"><span
@@ -202,8 +250,7 @@
                                             <% } %>
                                     > Dark on Custom Schedule</label>
                                 <div id="auto-limits-container"
-                                     style="<% if (JSON.parse(appearance).theme !==
-                                             "auto") { %>display: none;<% } else { %>display: flex;<% } %>font-size: 0.9rem; margin-bottom: 0; align-items: stretch">
+                                     style="<% if (JSON.parse(appearance).theme !== "auto") { %>display: none;<% } else { %>display: flex;<% } %>font-size: 0.9rem; margin-bottom: 0; align-items: stretch">
                                     <label class="form-group" id="autoLimits"
                                            style="display: flex; white-space: nowrap;">
                                         <label style="vertical-align: center; width: 8rem">
@@ -278,7 +325,8 @@
                                 <label for="seasonalEffectsToggle">
                                     <span>Enable Seasonal Effects</span> <span class="popup"><i
                                                 class="fa fa-question-circle"><span
-                                                    class="popup-right-bottom">When enabled, adds seasonal effects across the site.
+                                                    class="popup-right-bottom">When enabled, adds seasonal effects
+                                                across the site.
                                             </span></i></span>
                                 </label>
                             </label>
@@ -287,7 +335,8 @@
                     <div class="card-footer">
                         <h5>Display
                             <br>
-                            <small style="opacity: 0.5">Changing these settings will immediately refresh the page.</small></h5>
+                            <small style="opacity: 0.5">Changing these settings will immediately refresh the
+                                page.</small></h5>
                         <form id="advancedAppearance" action="/advancedAppearance" method="post">
                             <div>
                                 <label class="slider-container">
@@ -343,7 +392,8 @@
                     <div class="card-footer">
                         <h5>Performance
                             <br>
-                            <small style="opacity: 0.5">Changing these settings will immediately refresh the page.</small></h5>
+                            <small style="opacity: 0.5">Changing these settings will immediately refresh the
+                                page.</small></h5>
                         <label class="slider-container">
                             <label class="switch">
                                 <input id="animateWhenUnfocused" type="checkbox" name="animateWhenUnfocused"
@@ -357,10 +407,13 @@
                             <label for="animateWhenUnfocused">
                                 Don't Pause Effects When Window is not in Focus <span class="popup"><i
                                             class="fa fa-question-circle"><span
-                                                class="popup-top-left">When enabled, certain animations and effects that are usually paused to conserve resources will continue to play even if you are on a different tab or window.
-                                            </span></i></span> <span class="popup hide-in-firefox"><i
+                                                class="popup-top-left">When enabled, certain animations and effects that
+                                            are usually paused to conserve resources will continue to play even if you
+                                            are on a different tab or window.
+                                        </span></i></span> <span class="popup hide-in-firefox"><i
                                             class="fa fa-exclamation-triangle">
-                                            <span class="popup-right-bottom">WARNING: This can cause issues such as the horizontal snow line</span></i></span>
+                                        <span class="popup-right-bottom">WARNING: This can cause issues such as the
+                                            horizontal snow line</span></i></span>
                             </label>
                         </label>
                         <label class="slider-container">
@@ -376,16 +429,17 @@
                             <label for="showFps">
                                 Display Real-time Refresh Rate <span class="popup"><i
                                             class="fa fa-question-circle"><span
-                                                class="popup-right-bottom">When enabled, displays FPS in the bottom left corner of the screen
-                                            </span></i></span>
+                                                class="popup-right-bottom">When enabled, displays FPS in the bottom left
+                                            corner of the screen
+                                        </span></i></span>
                             </label>
                         </label>
                         <hr>
                         <div>
-                            <h6>Performance Issue Log <span class="popup"><i
+                            <h6>Performance Log <span class="popup"><i
                                             class="fa fa-question-circle"><span
                                                 class="popup-right-bottom">Performance issues will be displayed here
-                                            </span></i></span></h6>
+                                        </span></i></span></h6>
                             <div id="performance-issues-messages"></div>
                         </div>
                     </div>
@@ -596,11 +650,13 @@
                 <div class="card-body">
                     <div class="card-footer">
                         <h5 style="padding-bottom: 12px">Join Our Discord Server</h5>
-                        <iframe src="https://discord.com/widget?id=897624313136578590&theme=dark"
+                        <iframe src="https://discord.com/widget?id=897624313136578590&theme=<%= theme ? "dark" : "light" %>"
                                 class="discord-iframe"
                                 allowtransparency="true"
                                 frameborder="0"
-                                sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+                                sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts">
+                            Loading...
+                        </iframe>
                         <br><br>
                         <p>You can also <a href="https://discord.gg/p9kyZxuAmC">click here</a> to join.</p>
                     </div>
@@ -624,7 +680,8 @@
                                    onclick="$('#enableLoggingToggle').trigger('click')">Show Logs in Console<span
                                         class="popup"><i class="fa fa-question-circle"
                                                          style="margin-left: 0.4rem"><span
-                                                class="popup-right-top">Shows logs in console for debugging purposes.</span></i></span></label>
+                                                class="popup-right-top">Shows logs in console for debugging
+                                            purposes.</span></i></span></label>
                         </label>
                         <form id="remoteAccess" class="form-signin" action="/setRemoteAccess" method="post">
                             <label style="display: flex; font-size: 1rem; justify-content: flex-start; align-items: center">
@@ -643,7 +700,7 @@
                                 </label>
                                 <label style="margin: 0 0 0 1rem; justify-content: center; align-items: center; cursor: pointer"
                                        onclick="$('#remoteAccessToggle').trigger('click')">Allow
-                                                                                           Remote Access<span
+                                    Remote Access<span
                                             class="popup"><i class="fa fa-question-circle"
                                                              style="margin-left: 0.4rem"><span
                                                     class="popup-right-top">When enabled, developers can view your
@@ -654,7 +711,8 @@
                     </div>
                     <div class="card-footer">
                         <h5>Email Us</h5>
-                        <p><u><a href="mailto: support@graderoom.me">support@graderoom.me</a></u></p></div>
+                        <p><u><a href="mailto: support@graderoom.me">support@graderoom.me</a></u></p>
+                    </div>
                     <div class="card-footer">
                         <h5>Tutorial Progress
                             <span class="popup">
@@ -698,9 +756,9 @@
                     <div class="card-footer">
                         <h5>Description</h5>
                         <p>Graderoom is an advanced grade visualizer designed to help students better understand their
-                           grades. Graderoom was created by students at Bellarmine College Preparatory in San Jose, CA,
-                           but is in no way affiliated with the school or it's faculty and staff. We welcome feedback
-                           from our users and are actively working on features and improvements.
+                            grades. Graderoom was created by students at Bellarmine College Preparatory in San Jose, CA,
+                            but is in no way affiliated with the school or it's faculty and staff. We welcome feedback
+                            from our users and are actively working on features and improvements.
                         </p>
                     </div>
                     <div class="card-footer">
@@ -725,7 +783,7 @@
                         <div class="card-footer">
                             <h5>Thanks for trying out new features before they're released!</h5>
                             <p>Your choices to enable the features listed below contribute to the speed at which these
-                               features are officially released. We will continue to add more features as time goes on.
+                                features are officially released. We will continue to add more features as time goes on.
                             </p>
                         </div>
                         <br>
@@ -803,8 +861,8 @@
                 return;
             }
             $.ajax({
-                url: "/setFirstName", type: "POST", async: true, data: {firstName: firstName}
-            }).done((response) => {
+                       url: "/setFirstName", type: "POST", async: true, data: {firstName: firstName}
+                   }).done((response) => {
                 if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                     $(".session-timeout").show();
                     $("body").find("*").not(".session-timeout").remove();
@@ -848,13 +906,11 @@
         firstName = firstName[0].toUpperCase() + firstName.substring(1).toLowerCase();
 
         // Last Name
-        let lastName = bcpEmail.indexOf(".") === -1 ? "" :
-            bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? bcpEmail.substring(bcpEmail.indexOf(".") + 1) : bcpEmail.substring(bcpEmail.indexOf(".") + 1, bcpEmail.indexOf(bcpEmail.match(/\d/)));
+        let lastName = bcpEmail.indexOf(".") === -1 ? "" : bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? bcpEmail.substring(bcpEmail.indexOf(".") + 1) : bcpEmail.substring(bcpEmail.indexOf(".") + 1, bcpEmail.indexOf(bcpEmail.match(/\d/)));
         lastName = lastName[0].toUpperCase() + lastName.substring(1).toLowerCase();
 
         // Graduation Year
-        let graduationYear = bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? "" :
-            bcpEmail.indexOf("@") === -1 ? bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/))) : bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/)), bcpEmail.indexOf("@"));
+        let graduationYear = bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? "" : bcpEmail.indexOf("@") === -1 ? bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/))) : bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/)), bcpEmail.indexOf("@"));
         if (graduationYear) {
             graduationYear = parseInt(graduationYear);
             graduationYear += 2000;
@@ -892,11 +948,11 @@
         let buttons = $("#color-scheme-picker button");
         buttons.prop("disabled", true);
         $.ajax({
-            url: "/setColorPalette",
-            type: "POST",
-            data: {preset: palette, shuffleColors: JSON.stringify($("#shuffleToggle").is(":checked"))},
-            async: true
-        }).done((response) => {
+                   url: "/setColorPalette",
+                   type: "POST",
+                   data: {preset: palette, shuffleColors: JSON.stringify($("#shuffleToggle").is(":checked"))},
+                   async: true
+               }).done((response) => {
             if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                 $(".session-timeout").show();
                 $("body").find("*").not(".session-timeout").remove();
@@ -947,7 +1003,7 @@
 
         // Show the current tab, and add an "active" class to the button that opened the tab
         $(tabName).show();
-        $(settingsBtns[tabIndex - 1]).addClass("active");
+        $(settingsBtns[tabIndex]).addClass("active");
         currentSettingsTab = tabIndex;
     }
 
@@ -1108,8 +1164,8 @@
 
     function resetTutorial() {
         $.ajax({
-            url: "/resetTutorial", type: "POST", async: true
-        }).done((response) => {
+                   url: "/resetTutorial", type: "POST", async: true
+               }).done((response) => {
             if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                 $(".session-timeout").show();
                 $("body").find("*").not(".session-timeout").remove();

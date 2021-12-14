@@ -24,7 +24,7 @@ module.exports = function (app, passport) {
             let gradeHistoryLetters = {};
             let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
             if (req.query.term && req.query.semester) {
-                if ((term === req.query.term && semester === req.query.semester) || !req.user.betaFeatures.active ||
+                if ((term === req.query.term && semester === req.query.semester) ||
                     !authenticator.semesterExists(req.user.username, req.query.term, req.query.semester)) {
                     res.redirect("/");
                     return;
@@ -162,7 +162,7 @@ module.exports = function (app, passport) {
             let gradeHistoryLetters = {};
             let {term, semester} = authenticator.getMostRecentTermData(req.query.usernameToRender);
             if (req.query.term && req.query.semester) {
-                if ((term === req.query.term && semester === req.query.semester) || !user.betaFeatures.active || !authenticator.semesterExists(user.username, req.query.term, req.query.semester)) {
+                if ((term === req.query.term && semester === req.query.semester) || !authenticator.semesterExists(user.username, req.query.term, req.query.semester)) {
                     res.redirect("/viewuser?usernameToRender=" + req.query.usernameToRender);
                     return;
                 }
@@ -585,8 +585,8 @@ module.exports = function (app, passport) {
         let semester = req.body.semester;
         let resp = authenticator.updateWeightsForClass(req.user.username, term, semester, className, hasWeights, newWeights);
         if (resp.success) {
-            authenticator.bringUpToDate(req.user.username, term, semester);
             res.status(200).send(resp.message);
+            authenticator.bringUpToDate(req.user.username, term, semester, className);
         } else {
             res.status(400).send(resp.message);
         }

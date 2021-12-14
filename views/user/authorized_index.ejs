@@ -7,9 +7,8 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
     <% let theme; %>
-    <% let zeroTime = new Date(0); %>
-    <% zeroTime.setHours(new Date().getHours()); %>
-    <% zeroTime.setMinutes(new Date().getMinutes()); %>
+    <% let date = new Date(); %>
+    <% let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes()); %>
     <% zeroTime = zeroTime.getTime(); %>
     <% if (JSON.parse(appearance).theme === "dark") { %>
         <% theme = true; %>
@@ -26,7 +25,7 @@
     <% } else if (JSON.parse(appearance).theme === "system") { %>
         <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
-    <% } else if ((zeroTime >= sunset.getTime()) || (zeroTime <= sunrise.getTime())) { %>
+    <% } else if (JSON.parse(appearance).theme === "sun" && ((zeroTime >= sunset.getTime()) || (zeroTime <= sunrise.getTime()))) { %>
         <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
     <% } else { %>
@@ -974,7 +973,6 @@
 
             function refresh(changedClassIndex) {
                 // Trying to be efficient and only change affected data
-                clearTimeout(refreshing);
                 parseData(changedClassIndex);
                 setupWeightsTables(changedClassIndex);
                 setupOverviewTable(changedClassIndex);
@@ -1038,7 +1036,7 @@
             let minCardZIndex = 25;
             let charts = [];
             let currentSettingsTab = 1;
-            let maxSettingsTab = $("#settingsCardDisplay .tabcontent").length;
+            let maxSettingsTab = $("#settingsCardDisplay .tabcontent").length - 1;
             let currentGpaDetailsTab = 1;
             let maxGpaDetailsTab;
             let darkMode;
@@ -1121,9 +1119,8 @@
             }
 
             function setAutoTheme() {
-                let zeroTime = new Date(0);
-                zeroTime.setHours(new Date().getHours());
-                zeroTime.setMinutes(new Date().getMinutes());
+                let date = new Date();
+                let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes());
                 zeroTime = zeroTime.getTime();
                 if (theme !== "auto" && theme !== "sun" && theme !== "system") {
                     if (checkingTheme) {
@@ -1156,6 +1153,7 @@
                         renderAllCharts();
                         $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
                         $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
+                        $(".discord-iframe").attr("src", "https://discord.com/widget?id=897624313136578590&theme=dark");
                         setTimeout(() => {
                             document.getElementById("fade").disabled = true;
                             setupClassTables();
@@ -1184,6 +1182,7 @@
                         setTimeout(() => {
                             document.getElementById("fade").disabled = true;
                             setupClassTables();
+                            $(".discord-iframe").attr("src", "https://discord.com/widget?id=897624313136578590&theme=light");
                         }, 500);
                         if (appearance.seasonalEffects) {
                             init = performance.now();
@@ -3727,7 +3726,7 @@
                             openGpaDetailsTab(currentGpaDetailsTab - 1);
                         }
                     } else if (cardsDisplayed.slice(-1)[0] === "settingsCardDisplay") {
-                        if (currentSettingsTab === 1) {
+                        if (currentSettingsTab === 0) {
                             openTab(maxSettingsTab);
                         } else {
                             openTab(currentSettingsTab - 1);
@@ -3749,7 +3748,7 @@
                         }
                     } else if (cardsDisplayed.slice(-1)[0] === "settingsCardDisplay") {
                         if (currentSettingsTab === maxSettingsTab) {
-                            openTab(1);
+                            openTab(0);
                         } else {
                             openTab(currentSettingsTab + 1);
                         }
@@ -3898,7 +3897,8 @@
                             event.preventDefault();
                             event.stopImmediatePropagation();
                             let hasWeights = !($(form).find("input[name=\"hasWeights\"]")).is(":checked");
-                            let className = _data[$(form)[0].id.substring(7)].class_name;
+                            let classIndex = parseInt($(form)[0].id.substring(7));
+                            let className = _data[classIndex].class_name;
 
                             let weightData = $(form).serializeArray();
                             let weightURI = {};
@@ -3950,7 +3950,7 @@
                                         weights[className]["weights"][weight.name] = parseFloat(weight.value);
                                     }
                                 }
-                                refreshWithoutReload();
+                                refreshWithoutReload(false, classIndex);
                             });
                         });
                         $(form).find("input").prop("disabled", false);

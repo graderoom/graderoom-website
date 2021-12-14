@@ -12,7 +12,22 @@
                 <h1 class="card-title text-center">
                     <i class="fa fa-send"></i> Feedback
                 </h1>
-                <div class="card-footer">
+                <div class="card-footer" id="discordContainer">
+                    <iframe src="https://discord.com/widget?id=897624313136578590&theme=<%= theme ? "dark" : "light" ;%>"
+                            class="discord-iframe"
+                            allowtransparency="true"
+                            frameborder="0"
+                            sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts">
+                        Loading...
+                    </iframe>
+                    <br><br>
+                    <p>You can also <a href="https://discord.gg/p9kyZxuAmC">click here</a> to join.</p>
+                    <p>If you are unable to use discord, <a href="#" style="cursor: pointer"
+                                                            onclick="setupFeedbackForm(true)">click
+                            here to access the Google Form</a></p>
+                </div>
+                <div class="card-footer" id="feedbackContainer" style="display:none">
+                    <p>Or <a href="https://discord.gg/p9kyZxuAmC">click here</a> to join the discord</p>
                     <iframe id="feedbackForm"
                             frameborder="0" marginheight="0" marginwidth="0">Loading…
                     </iframe>
@@ -23,7 +38,11 @@
 </div>
 
 <script>
-    function setupFeedbackForm() {
+    function setupFeedbackForm(show = false) {
         $("#feedbackForm").attr("src", "https://docs.google.com/forms/d/e/1FAIpQLSfBiwyEi3TKH2Kr356ZOtLTUwUml9I9h_bWlOcraVXDyBIzbA/viewform?usp=pp_url&embedded=true&entry.979242080=" + encodeURI(personalInfo.firstName + " " + personalInfo.lastName));
+        if (show) {
+            $("#discordContainer").hide();
+            $("#feedbackContainer").show();
+        }
     }
 </script>

@@ -42,6 +42,24 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 4.9.7] - 2021-12-13
+### Added
+- Limited support for Basis Independent Silicon Valley
+
+### Improved
+- Updating weights for a class is faster now
+- Signup experience
+
+### Fixed
+- Term switcher now works properly for users without beta features enabled
+- Bug with auto themes showing the wrong them on load
+
+## [Announcement 4.9.6] - 2021-12-13
+- <b>Welcome new users!</b>
+- I've been receiving a significant amount of feedback through the Google Form
+- Since I'd like to follow up on reported issues and fix them more quickly, please join the <span style="cursor: pointer" onclick="showCard('#settingsCardDisplay'); openTab(3)" class="changelog-inline-setoff">Discord server</span>
+- The Google Form will continue to be available as an alternative option.
+
 ## [Stable 4.9.5] - 2021-11-28
 ### Fixed
 - Login bug

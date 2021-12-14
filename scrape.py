@@ -732,13 +732,14 @@ class BasisScraper(Scraper):
         }
 
         resp = self.session.post(url, headers=headers, data=payload, allow_redirects=False)
-        self.progress = 5
-        self.message = "Logged in!"
         if len(resp.cookies) == 0:
             self.progress = 0
             print(json_format(False, "Incorrect login details."))
             sys.exit()
 
+
+        self.progress = 5
+        self.message = "Logged in!"
         return True
 
     def get_present(self):
