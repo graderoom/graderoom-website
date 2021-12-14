@@ -42,6 +42,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 4.9.8] - 2021-12-14
+### Fixed
+- Bug that caused all users created after the 4.9.7 update to not have last names
+
 ## [Stable 4.9.7] - 2021-12-13
 ### Added
 - Limited support for Basis Independent Silicon Valley

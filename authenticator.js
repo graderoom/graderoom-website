@@ -20,7 +20,7 @@ const socketManager = require("./socketManager");
 const roundsToGenerateSalt = 10;
 
 // Change this when updateDB changes
-const dbUserVersion = 19;
+const dbUserVersion = 20;
 const dbClassVersion = 4;
 
 db.defaults({users: [], keys: [], classes: {version: dbClassVersion}, deletedUsers: []}).write();
@@ -829,6 +829,30 @@ module.exports = {
         if (version === 18) {
             // Multischool support
             userRef.set("school", "bellarmine").write();
+
+            saveUpdate(++version);
+        }
+
+        if (version === 19) {
+            if (user.school !== "basis") {
+                let email = user.schoolUsername;
+                if (!("lastName" in user.personalInfo)) {
+                    // Last Name
+                    let lastName = email.indexOf(".") === -1 ? "" : email.indexOf(email.match(/\d/)) === -1 ? email.substring(email.indexOf(".") + 1) : email.substring(email.indexOf(".") + 1, email.indexOf(email.match(/\d/)));
+                    lastName = lastName[0].toUpperCase() + lastName.substring(1).toLowerCase();
+                    userRef.get("personalInfo").set("lastName", lastName).write();
+                }
+
+                if (!("graduationYear" in user.personalInfo)) {
+                    // Graduation Year
+                    let graduationYear = email.indexOf(email.match(/\d/)) === -1 ? "" : email.indexOf("@") === -1 ? email.substring(email.indexOf(email.match(/\d/))) : email.substring(email.indexOf(email.match(/\d/)), email.indexOf("@"));
+                    if (graduationYear) {
+                        graduationYear = parseInt(graduationYear);
+                        graduationYear += 2000;
+                    }
+                    userRef.get("personalInfo").set("graduationYear", graduationYear).write();
+                }
+            }
 
             saveUpdate(++version);
         }
@@ -2542,12 +2566,12 @@ function getPersonalInfo(email, school) {
             firstName = firstName[0].toUpperCase() + firstName.substring(1).toLowerCase();
 
             // Last Name
-            let lastName = email.indexOf(".") === -1 ? "" :
+            lastName = email.indexOf(".") === -1 ? "" :
                 email.indexOf(email.match(/\d/)) === -1 ? email.substring(email.indexOf(".") + 1) : email.substring(email.indexOf(".") + 1, email.indexOf(email.match(/\d/)));
             lastName = lastName[0].toUpperCase() + lastName.substring(1).toLowerCase();
 
             // Graduation Year
-            let graduationYear = email.indexOf(email.match(/\d/)) === -1 ? "" :
+            graduationYear = email.indexOf(email.match(/\d/)) === -1 ? "" :
                 email.indexOf("@") === -1 ? email.substring(email.indexOf(email.match(/\d/))) : email.substring(email.indexOf(email.match(/\d/)), email.indexOf("@"));
             if (graduationYear) {
                 graduationYear = parseInt(graduationYear);
