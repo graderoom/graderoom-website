@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const http = require("http");
-const httpPort = 5998; //process.env.PORT || 8080;
+const httpPort = 5996; //process.env.PORT || 8080;
 const flash = require("connect-flash");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
@@ -14,7 +14,7 @@ const fs = require("fs");
 
 const productionEnv = process.env.NODE_ENV === "production";
 
-module.exports.needsBetaKeyToSignUp = true; //todo
+module.exports.needsBetaKeyToSignUp = false; //todo
 
 app.use("/public/", express.static("./public"));
 require("./passport")(passport); // pass passport for configuration
