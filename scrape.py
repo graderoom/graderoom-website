@@ -330,7 +330,7 @@ class PowerschoolScraper(Scraper):
             self.message = "Logged in!"
             self.message = "Checking if PowerSchool is locked..."
             self.progress = 30
-            rows = list(filter(lambda l: len(l) > 0, list(map(lambda row: list(filter(lambda link: link['href'][:5] == 'score' and link.text.startswith("S"), row.find_all("a"))), table.find_all("tr", class_='center')))))
+            rows = list(filter(lambda l: len(l) > 0, list(map(lambda row: list(filter(lambda link: link['href'][:5] == 'score' and link['href'][link['href'].index('&fg')+4] == 'S', row.find_all("a"))), table.find_all("tr", class_='center')))))
             if len(rows) == 0:
                 self.message = "PowerSchool is locked."
                 if (len(list(filter(lambda d: "student_id" in d and "section_id" in d, data_if_locked))) == len(data_if_locked)
@@ -941,4 +941,4 @@ if __name__ == "__main__":
             # Error when something in PowerSchool breaks scraper
             print(json_format(False, "An Unknown Error occurred. Contact support."))
             # Uncomment below to print error
-            # print(e)
+            print(e)
