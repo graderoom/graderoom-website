@@ -42,6 +42,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 4.9.10] - 2021-12-17
+### Fixed
+- Syncing with locked PowerSchool works again
+
 ## [Announcement 4.9.9] - 2021-12-16
 - First, thank you all for using Graderoom
 - Due to the huge influx of users, my server crashed at some point before 5:54 PM today, and the database decided to delete itself
