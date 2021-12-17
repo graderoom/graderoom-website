@@ -42,6 +42,16 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Announcement 4.9.9] - 2021-12-16
+- First, thank you all for using Graderoom
+- Due to the huge influx of users, my server crashed at some point before 5:54 PM today, and the database decided to delete itself
+- <b>Luckily, I do have a backup system in place so all data created before 12/14/21 at 9:48:35 PM will still be here</b>
+- <b>If you know anyone whose account may have been lost, please inform them that this happened</b>
+- The server and database library I use for this app were not designed to handle this large of a userbase, which is what caused this
+- Over break, I will make changes to the software to prevent this from happening again
+- Hardware-wise, better servers cost money, and I do not yet know if I plan to monetize Graderoom to support a more high-end server. Let me know if you have any feedback on this.
+- -Joel
+
 ## [Stable 4.9.8] - 2021-12-14
 ### Fixed
 - Bug that caused all users created after the 4.9.7 update to not have last names
