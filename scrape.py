@@ -330,7 +330,7 @@ class PowerschoolScraper(Scraper):
             self.message = "Logged in!"
             self.message = "Checking if PowerSchool is locked..."
             self.progress = 30
-            rows = list(filter(lambda l: len(l) > 0, list(map(lambda row: list(filter(lambda link: link['href'][:5] == 'score', row.find_all("a"))), table.find_all("tr", class_='center')))))
+            rows = list(filter(lambda l: len(l) > 0, list(map(lambda row: list(filter(lambda link: link['href'][:5] == 'score' and link.text.startswith("S"), row.find_all("a"))), table.find_all("tr", class_='center')))))
             if len(rows) == 0:
                 self.message = "PowerSchool is locked."
                 if (len(list(filter(lambda d: "student_id" in d and "section_id" in d, data_if_locked))) == len(data_if_locked)
@@ -646,6 +646,12 @@ class PowerschoolScraper(Scraper):
     def get_locked(self, class_data, term_data):
         # Begin organizing response data
         all_classes = []
+        total_course_count = len(class_data)
+        scraped_course_count = 0
+        initial_progress = self.progress
+        max_progress = 90
+        self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
+        self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / total_course_count
 
         for data in class_data:
             class_name = data['class_name']
@@ -659,14 +665,27 @@ class PowerschoolScraper(Scraper):
             local_class = parse_ps_class(local_class, self.get_class('https://powerschool.bcp.org/', local_class))
             if len(local_class['grades']) > 0:
                 all_classes.append(local_class)
+                scraped_course_count += 1
+                self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
+                self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / total_course_count
+            else:
+                total_course_count -= 1
+                self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
+                self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / total_course_count
 
         # Add term and semester data
+        self.progress = 95
+        self.message = 'Fetching term and semester data...'
         term = term_data["term"]
         semester = term_data["semester"]
         if len(all_classes) > 0:
+            self.progress = 100
+            self.message = 'Sync Complete!'
             all_classes = {term: {semester: all_classes}}
             print(json_format(True, all_classes))
         else:
+            self.progress = 0
+            self.message = 'No class data.'
             print(json_format(False, "No class data."))
 
 
@@ -902,7 +921,7 @@ if __name__ == "__main__":
             # Error when something in PowerSchool breaks scraper
             print(json_format(False, "An Unknown Error occurred. Contact support."))
             # Uncomment below to print error
-            print(e)
+            # print(e)
     else:
         data_if_locked = json.loads(sys.argv[4])  # arg must be stringified json
         term_data_if_locked = json.loads(sys.argv[5])  # arg must be stringified json
