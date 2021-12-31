@@ -42,40 +42,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Stable 4.9.16] - 2021-01-24
-### Fixed
-- Resolved an error that was causing a server crash
-
-## [Beta 4.9.15] - 2021-01-23
-### Fixed
-- Issue with enrolling into the beta
-- Issue with changing the "regularize class graphs" setting
-
-## [Beta 4.9.14] - 2021-01-22
-### Fixed
-- Issues where Basis users could not sync
-
-## [Beta 4.9.13] - 2021-01-18
+## [Beta 4.9.10] - 2021-12-27
 ### Improved
 - Migrated to new database library
-- Theme switching has been moved to sockets, and is also much faster
-- Appearance settings sync instantly across devices
-
-### Fixed
-- Issues with resetting weights
-- Assignment percents now always display 2 decimal places. Hover over them to see more.
-
-## [Stable 4.9.12] - 2022-01-07
-### Fixed
-- More crash fixes. Thank you to the users who keep finding new ways to crash the site :)
-
-## [Stable 4.9.11] - 2022-01-06
-### Fixed
-- Server no longer crashes because of an out of memory error (New backend will be in place by Monday. Hang tight!)
-
-## [Stable 4.9.10] - 2021-12-17
-### Fixed
-- Syncing with locked PowerSchool works again
+- 
 
 ## [Announcement 4.9.9] - 2021-12-16
 - First, thank you all for using Graderoom

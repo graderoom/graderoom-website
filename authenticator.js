@@ -1,10 +1,4 @@
-const low = require("lowdb");
 const _ = require("lodash");
-const FileSync = require("lowdb/adapters/FileSync");
-const adapter = new FileSync("user_db.json");
-const db = low(adapter);
-const catalogAdapter = new FileSync("catalog.json");
-const catalog = low(catalogAdapter);
 const bcrypt = require("bcryptjs");
 const scraper = require("./scrape");
 const chroma = require("chroma-js");
@@ -17,27 +11,22 @@ const path = require("path");
 const stream = require("stream");
 const socketManager = require("./socketManager");
 
-const roundsToGenerateSalt = 10;
-
-// Change this when updateDB changes
-const dbUserVersion = 20;
-const dbClassVersion = 4;
-
-db.defaults({users: [], keys: [], classes: {version: dbClassVersion}, deletedUsers: []}).write();
-
-let changelogArray = [];
-let betaChangelogArray = [];
-let versionNameArray = [];
+let _changelogArray = [];
+let _betaChangelogArray = [];
+let _versionNameArray = [];
 
 // Update this list with new tutorial keys
-let tutorialKeys = ["homeSeen", "navinfoSeen", "moreSeen", "settingsSeen", "legendSeen", "zoomSeen"];
+let _tutorialKeys = ["homeSeen", "navinfoSeen", "moreSeen", "settingsSeen", "legendSeen", "zoomSeen"];
 
 // Update this list with new beta features
-let betaFeatureKeys = ["showNotificationPanel"];
+let _betaFeatureKeys = ["showNotificationPanel"];
 
 module.exports = {
-
-    db: db,
+    changelogArray: _changelogArray,
+    betaChangelogArray: _betaChangelogArray,
+    versionNameArray: _versionNameArray,
+    tutorialKeys: _tutorialKeys,
+    betaFeatureKeys: _betaFeatureKeys,
 
     backupdb: function () {
         let today = Date.now();
@@ -146,13 +135,13 @@ module.exports = {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         userRef.get("betaFeatures").set("active", true).write();
-        betaFeatureKeys.forEach(feature => userRef.get("betaFeatures").set(feature, true).write());
+        _betaFeatureKeys.forEach(feature => userRef.get("betaFeatures").set(feature, true).write());
     },
 
     addBetaFeature: function (username, features) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
-        betaFeatureKeys.forEach(feature => {
+        _betaFeatureKeys.forEach(feature => {
             if (Object.keys(features).includes(feature)) {
                 userRef.get("betaFeatures").set(feature, true).write();
             } else {
@@ -861,15 +850,15 @@ module.exports = {
             // Remove any extra tutorial keys
         let existingKeys = Object.keys(userRef.get("alerts").get("tutorialStatus").value());
         for (let i = 0; i < existingKeys.length; i++) {
-            if (!tutorialKeys.includes(existingKeys[i])) {
+            if (!_tutorialKeys.includes(existingKeys[i])) {
                 userRef.get("alerts").get("tutorialStatus").unset(existingKeys[i]).write();
             }
         }
 
         // Add tutorial keys
-        for (let i = 0; i < tutorialKeys.length; i++) {
-            if (!userRef.get("alerts").get("tutorialStatus").get(tutorialKeys[i]).value()) {
-                userRef.get("alerts").get("tutorialStatus").set(tutorialKeys[i], false).write();
+        for (let i = 0; i < _tutorialKeys.length; i++) {
+            if (!userRef.get("alerts").get("tutorialStatus").get(_tutorialKeys[i]).value()) {
+                userRef.get("alerts").get("tutorialStatus").set(_tutorialKeys[i], false).write();
             }
         }
 
@@ -879,7 +868,7 @@ module.exports = {
             if (existingFeatures[i] === "active") {
                 continue;
             }
-            if (!betaFeatureKeys.includes(existingFeatures[i])) {
+            if (!_betaFeatureKeys.includes(existingFeatures[i])) {
                 userRef.get("betaFeatures").unset(existingFeatures[i]).write();
             }
         }
@@ -887,9 +876,9 @@ module.exports = {
         // Set all new beta features to true
         let betaFeatures = userRef.get("betaFeatures").value();
         if (betaFeatures.active) {
-            for (let i = 0; i < betaFeatureKeys.length; i++) {
-                if (!(betaFeatureKeys[i] in betaFeatures)) {
-                    betaFeatures[betaFeatureKeys[i]] = true;
+            for (let i = 0; i < _betaFeatureKeys.length; i++) {
+                if (!(_betaFeatureKeys[i] in betaFeatures)) {
+                    betaFeatures[_betaFeatureKeys[i]] = true;
                 }
             }
             userRef.set("betaFeatures", betaFeatures).write();
@@ -1262,11 +1251,11 @@ module.exports = {
                     alerts: {
                         lastUpdated: [],
                         updateGradesReminder: "daily",
-                        latestSeen: versionNameArray[1] ? beta ? versionNameArray[1][1] : versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1] : "1.0.0",
+                        latestSeen: _versionNameArray[1] ? beta ? _versionNameArray[1][1] : _versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1] : "1.0.0",
                         policyLastSeen: "never",
                         termsLastSeen: "never",
                         remoteAccess: beta ? "allowed" : "denied",
-                        tutorialStatus: Object.fromEntries(tutorialKeys.map(k => [k, false])),
+                        tutorialStatus: Object.fromEntries(_tutorialKeys.map(k => [k, false])),
                         notifications: {
                             important: [buildStarterNotification(now)], unread: [], dismissed: []
                         }
@@ -1917,20 +1906,20 @@ module.exports = {
     whatsNew: function (username, beta) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username}).value();
-        let end = versionNameArray.indexOf(versionNameArray.find(v => v[1] === user.alerts.latestSeen));
+        let end = _versionNameArray.indexOf(_versionNameArray.find(v => v[1] === user.alerts.latestSeen));
         if (end < 2) {
             end = 2;
         }
         if (beta) {
-            return betaChangelogArray.slice(1, end).join("");
+            return _betaChangelogArray.slice(1, end).join("");
         } else {
             let result = "";
-            for (let i = 1; i < versionNameArray.length; i++) {
-                if (versionNameArray[i][0] !== "Beta") {
+            for (let i = 1; i < _versionNameArray.length; i++) {
+                if (_versionNameArray[i][0] !== "Beta") {
                     if (i >= end && result) {
                         break;
                     }
-                    result += changelogArray[i];
+                    result += _changelogArray[i];
                 }
             }
             return result;
@@ -1941,17 +1930,17 @@ module.exports = {
         let lc_username = username.toLowerCase();
         let alertsRef = db.get("users").find({username: lc_username}).get("alerts");
         if (beta) {
-            alertsRef.set("latestSeen", versionNameArray[1][1]).write();
+            alertsRef.set("latestSeen", _versionNameArray[1][1]).write();
         } else {
-            alertsRef.set("latestSeen", versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1]).write();
+            alertsRef.set("latestSeen", _versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1]).write();
         }
     },
 
     changelog: function (beta) {
         if (beta) {
-            return betaChangelogArray;
+            return _betaChangelogArray;
         } else {
-            return changelogArray;
+            return _changelogArray;
         }
     },
 
@@ -1962,7 +1951,7 @@ module.exports = {
             let items = [];
             let bodyCount = -1;
             let item = {title: "", date: "", content: {}};
-            versionNameArray = [];
+            _versionNameArray = [];
             const line_counter = ((i = 0) => () => ++i)();
             let lineReader = readline.createInterface({
                 input: fs.createReadStream(filename)
@@ -1974,9 +1963,9 @@ module.exports = {
                 } else if (line.substring(0, 2) === "##") {
                     if (item.title !== "") {
                         if (item.title !== "Known Issues") {
-                            versionNameArray.push(item.title.split(" "));
+                            _versionNameArray.push(item.title.split(" "));
                         } else {
-                            versionNameArray.push(["Known Issues", ""]);
+                            _versionNameArray.push(["Known Issues", ""]);
                         }
                         items.push(item);
                         item = {title: "", date: "", content: {}};
@@ -2003,7 +1992,7 @@ module.exports = {
                 }
             }).on("close", () => {
                 items.push(item);
-                versionNameArray.push(item.title.split(" "));
+                _versionNameArray.push(item.title.split(" "));
                 let currentVersionFound = false;
                 let betaCurrentVersionFound = false;
                 for (let i = 0; i < items.length; i++) {
@@ -2074,8 +2063,8 @@ module.exports = {
                     betaResultHTML += "</div>";
                     betaResultHTML += "</div>|";
                 }
-                changelogArray = resultHTML.split("|");
-                betaChangelogArray = betaResultHTML.split("|");
+                _changelogArray = resultHTML.split("|");
+                _betaChangelogArray = betaResultHTML.split("|");
             });
         }
 
@@ -2175,7 +2164,7 @@ module.exports = {
 
     updateTutorial: function (username, action) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
-        if (tutorialKeys.includes(action + "Seen")) {
+        if (_tutorialKeys.includes(action + "Seen")) {
             userRef.get("alerts").get("tutorialStatus").set(action + "Seen", true).write();
             return {success: true, message: userRef.get("alerts").get("tutorialStatus").value()};
         } else {

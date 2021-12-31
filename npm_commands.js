@@ -10,11 +10,11 @@ const stream = require("stream");
 
 credentials.defaults({"school": "", "graderoom_username": "", "school_username": "", "password": "", "get_history": false}).write();
 
-
 module.exports = {
     /**
-     * Scrapes grades without writing to user db (for testing only)
-     * Update
+     * Scrapes grades using data from credentials.json.
+     * *For testing purposes only*
+     *
      * @returns {Promise<void>}
      */
     external_scrape: async function () {
@@ -51,6 +51,12 @@ module.exports = {
 
     },
 
+    /**
+     * Backs up and then deletes all non-admin users in the database
+     *
+     * *For testing purposes only.*
+     * *This will not do anything in a production environment.*
+     */
     purge_db: function () {
         if (process.env.NODE_ENV === 'production') {
             console.log("THIS IS PROD DON'T DO IT");
@@ -78,6 +84,9 @@ module.exports = {
         }
     },
 
+    /**
+     * Backs up the database
+     */
     backup_db: function () {
         authenticator.backupdb();
     }
