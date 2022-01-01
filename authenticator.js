@@ -47,7 +47,7 @@ module.exports = {
         backupDb.set("classes", db.get("classes").value()).write();
         backupDb.set("deletedUsers", db.get("deletedUsers").value()).write();
         console.log("" + Date.now() + " | Backed up to " + filename);
-    },
+    }, //TODO
 
     /* beta key functions */
 
@@ -64,10 +64,8 @@ module.exports = {
 
             return r
         }
-        return {success: false, message: "Invalid beta key."};
-
-    },
-
+        return res;
+    }, //TODO
     addNewBetaKey: function (betaKey) {
         db.get("keys").push({
             betaKey: betaKey, claimed: false, claimedBy: ""
@@ -77,32 +75,37 @@ module.exports = {
 
     getAllBetaKeyData: function () {
         return db.get("keys").value();
-    },
+    }, //TODO
+
 
     removeBetaKey: function (betaKey) {
         db.get("keys").remove({
             betaKey: betaKey
         }).write();
         return {success: true, message: "Removed beta key."};
-    },
+    }, //TODO
+
 
     acceptTerms: function (username) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         userRef.get("alerts").set("termsLastSeen", Date.now()).write();
-    },
+    }, //TODO
+
 
     acceptPrivacyPolicy: function (username) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         userRef.get("alerts").set("policyLastSeen", Date.now()).write();
-    },
+    }, //TODO
+
 
     setRemoteAccess: function (username, allowed) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         userRef.get("alerts").set("remoteAccess", allowed).write();
-    },
+    }, //TODO
+
 
     setFirstName: function (username, firstName) {
         // Test it
@@ -115,32 +118,37 @@ module.exports = {
         } else {
             return {success: false, message: "First name must contain only letters"};
         }
-    },
+    }, //TODO
+
 
     setNonAcademic: function (username, value) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         userRef.get("appearance").set("showNonAcademic", value).write();
-    },
+    }, //TODO
+
 
     setRegularizeClassGraphs: function (username, value) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         userRef.get("appearance").set("regularizeClassGraphs", value).write();
-    },
+    }, //TODO
+
 
     setWeightedGPA: function (username, value) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         userRef.get("appearance").set("weightedGPA", value).write();
-    },
+    }, //TODO
+
 
     joinBeta: function (username) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         userRef.get("betaFeatures").set("active", true).write();
         _betaFeatureKeys.forEach(feature => userRef.get("betaFeatures").set(feature, true).write());
-    },
+    }, //TODO
+
 
     addBetaFeature: function (username, features) {
         let lc_username = username.toLowerCase();
@@ -152,20 +160,23 @@ module.exports = {
                 userRef.get("betaFeatures").set(feature, false).write();
             }
         });
-    },
+    }, //TODO
+
 
     leaveBeta: function (username) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         userRef.set("betaFeatures", {"active": false}).write();
-    },
+    }, //TODO
+
 
     /* class database */
     getAllClassData: function () {
         let classes = Object.assign({}, db.get("classes").value());
         delete classes["version"];
         return classes;
-    },
+    }, //TODO
+
 
     /* user functions
      */
@@ -298,7 +309,8 @@ module.exports = {
 
         let endTime = Date.now();
         console.log("" + endTime + " | Database Updated in " + (endTime - startTime) + "ms");
-    },
+    }, //TODO
+
 
     /**
      * CHANGE dbUserVersion whenever you change this function
@@ -990,17 +1002,20 @@ module.exports = {
                 }
             }
         }
-    },
+    }, //TODO
+
 
     semesterExists: function (username, term, semester) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
         return (term in userRef.get("grades").value() && semester in userRef.get("grades").get(term).value());
-    },
+    }, //TODO
+
 
     classesSemesterExists: function(term, semester) {
         let classes = this.getAllClassData();
         return (term in classes && semester in classes[term]);
-    },
+    }, //TODO
+
 
     getMostRecentTermData: function (username) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
@@ -1016,7 +1031,8 @@ module.exports = {
         let semesters = Object.keys(userRef.get("grades").get(term).value());
         let semester = semesters[semesters.map(s => parseInt(s.substring(1))).reduce((maxIndex, semester, index, arr) => semester > arr[maxIndex] ? index : maxIndex, 0)];
         return {term: term, semester: semester};
-    },
+    }, //TODO
+
 
     getClassesMostRecentTermData: function () {
         let terms = Object.keys(this.getAllClassData());
@@ -1024,7 +1040,8 @@ module.exports = {
         let semesters = Object.keys(this.getAllClassData()[term]);
         let semester = semesters[semesters.map(s => parseInt(s.substring(1))).reduce((maxIndex, semester, index, arr) => semester > arr[maxIndex] ? index : maxIndex, 0)];
         return {term: term, semester: semester};
-    },
+    }, //TODO
+
 
     getRelClassData: function (username, term, semester) {
         let lc_username = username.toLowerCase();
@@ -1055,7 +1072,8 @@ module.exports = {
             }
         }
         return relClasses;
-    },
+    }, //TODO
+
 
     updateWeightsInClassDb: function (term, semester, className, teacherName, hasWeights, weights) {
         let classDb = db.get("classes");
@@ -1083,7 +1101,8 @@ module.exports = {
         return {
             success: true, message: "Updated weights for " + className + " | " + teacherName, suggestion: suggestionNum
         };
-    },
+    }, //TODO
+
 
     deleteSuggestionInClassDb: function (term, semester, className, teacherName, hasWeights, weights) {
         let deleted = false;
@@ -1119,7 +1138,8 @@ module.exports = {
             return {success: true, suggestion: suggestionNum};
         }
         return {success: false, suggestion: null};
-    },
+    }, //TODO
+
 
     addWeightsSuggestion: function (username, term, semester, className, teacherName, hasWeights, weights) {
         let lc_username = username.toLowerCase();
@@ -1163,19 +1183,22 @@ module.exports = {
             }
         }
         // console.log(classDb.get(term).get(semester).get(className).get(teacherName).get("suggestions").value());
-    },
+    }, //TODO
+
 
     updateClassTypeInClassDb: function (term, semester, className, classType) {
         let classDb = db.get("classes");
         classDb.get(term).get(semester).get(className).set("classType", classType).write();
         return {success: true, message: "Set class type of " + className + " to " + classType};
-    },
+    }, //TODO
+
 
     updateUCCSUClassTypeInClassDb: function (term, semester, className, classType) {
         let classDb = db.get("classes");
         classDb.get(term).get(semester).get(className).set("uc_csuClassType", classType).write();
         return {success: true, message: "Set uc class type of " + className + " to " + classType};
-    },
+    }, //TODO
+
 
     //Need to add Try Catches to error check when updating db values
     addNewUser: function (school, username, password, schoolUsername, isAdmin, beta = false) {
@@ -2470,18 +2493,16 @@ function validateEmail(email, school) {
     return re.test(email);
 }
 
-function dbContainsClass(term, semester, class_name, teacher_name) {
-    if (dbContainsTerm(term, semester)) {
-        let classes = db.get("classes").value();
-        if (classes[term][semester][class_name] && classes[term][semester][class_name][teacher_name]) {
-            return true;
-        }
+function dbContainsClass(school, term, semester, class_name, teacher_name) {
+    let classes = db.getClasses(school);
+    if (classes[term] && classes[term][semester] && classes[term][semester][class_name] && classes[term][semester][class_name][teacher_name]) {
+        return true;
     }
     return false;
 } //TODO
 
-function dbContainsTerm(term, semester) {
-    let classes = db.get("classes").value();
+function dbContainsTerm(school, term, semester) {
+    let classes = db.getClasses(school);
     if (classes[term] && classes[term][semester]) {
         return true;
     }
@@ -2521,27 +2542,28 @@ function deleteUserSuggestion(username, term, semester, class_name, teacher_name
  * @returns {boolean} true if both weights are identical
  */
 function compareWeights(weight1, weight2) {
-    if (weight1["hasWeights"] != weight2["hasWeights"]) {
+    if (weight1["hasWeights"] !== weight2["hasWeights"]) {
         return false;
-    } else if ((eval(weight1["hasWeights"]) == eval(weight2["hasWeights"])) && (eval(weight2["hasWeights"]) == false)) {
+    } else if (weight1["hasWeights"] === false) {
         return true;
     } else {
         return _.isEqual(weight1["weights"], weight2["weights"]);
     }
 }
 
-function isCustom(weight, defWeight) {
-    //Only checks if weight 2 has the same values for all keys in weight 1
-    //Returns true even if weight 2 has extra weights
-    if (eval(weight["hasWeights"]) != eval(defWeight["hasWeights"])) {
+/**
+ * Determines if given weight is custom in comparison to verifiedWeight. (Allows verified weight to have additional weights.)
+ * @returns {boolean} true if given weight is custom
+ */
+function isCustom(weight, verifiedWeight) {
+    if (weight["hasWeights"] !== verifiedWeight["hasWeights"]) {
         return true;
-    }
-    if ((eval(weight["hasWeights"]) == eval(defWeight["hasWeights"])) && (eval(defWeight["hasWeights"]) == false)) {
+    } else if (weight["hasWeights"] === false) {
         return false;
     }
     let keys = Object.keys(weight["weights"]);
     for (let i = 0; i < keys.length; i++) {
-        if ((!keys[i] in defWeight["weights"]) || weight["weights"][keys[i]] != defWeight["weights"][keys[i]]) {
+        if ((!keys[i] in verifiedWeight["weights"]) || weight["weights"][keys[i]] !== verifiedWeight["weights"][keys[i]]) {
             return true;
         }
     }
