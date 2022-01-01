@@ -12,13 +12,23 @@ const session = require("express-session");
 const passport = require("passport");
 const productionEnv = process.env.NODE_ENV === "production";
 const fs = require("fs");
+const auth = require("./authenticator");
 
 module.exports.needsBetaKeyToSignUp = isBetaServer;
 
+auth.readChangelog("CHANGELOG.md");
+auth.watchChangelog();
+
 // MONGO TIME
 const mongo = require("./dbClient");
-mongo.init(prod = productionEnv, beta = isBetaServer).then(async () => {
-    console.log(await mongo.addNewUser("bellarmine", "adming", "Joel123", "f.f21@bcp.org", true));
+let mongoUrl;
+if (productionEnv) {
+    mongoUrl = process.env.DB_URL;
+} else {
+    mongoUrl = "mongodb://localhost:27017";
+}
+mongo.config(mongoUrl, productionEnv, isBetaServer)
+mongo.init().then(async () => {
     return;
 
     app.use("/public/", express.static("./public"));

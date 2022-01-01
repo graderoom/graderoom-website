@@ -10,6 +10,12 @@ const md5 = require("md5");
 const path = require("path");
 const stream = require("stream");
 const socketManager = require("./socketManager");
+const db = require("./dbClient");
+
+
+// Change this when updateDB changes
+const dbUserVersion = 0;
+const dbClassVersion = 0;
 
 let _changelogArray = [];
 let _betaChangelogArray = [];
@@ -46,19 +52,17 @@ module.exports = {
     /* beta key functions */
 
     betaAddNewUser: async function (betaKey, school, username, password, schoolUsername, isAdmin) {
-        let asbk = db.get("keys").find({betaKey: betaKey}).value();
-        if (asbk) {
+        let res = await db.getBetaKey(betaKey);
+        if (res.success) {
 
-            if (asbk.claimed) {
+            if (res.data.value.claimed) {
                 return {success: false, message: "Beta key already claimed."};
             }
 
-            let r = await this.addNewUser(school, username, password, schoolUsername, isAdmin, true);
-            if (r.success === true) {
-                db.get("keys").find({betaKey: betaKey}).set("claimed", true).write();
-                db.get("keys").find({betaKey: betaKey}).set("claimedBy", username).write();
-            }
-            return r;
+            let res2 = await this.addNewUser(school, username, password, schoolUsername, isAdmin, true);
+            let res3 = await db.
+
+            return r
         }
         return {success: false, message: "Invalid beta key."};
 
@@ -69,7 +73,7 @@ module.exports = {
             betaKey: betaKey, claimed: false, claimedBy: ""
         }).write();
         return {success: true, message: "Added beta key: " + betaKey + "."};
-    },
+    }, //TODO
 
     getAllBetaKeyData: function () {
         return db.get("keys").value();
@@ -887,7 +891,8 @@ module.exports = {
         // This is unnecessary and increases startup time by a lot
         // this.bringUpToDate(username);
 
-    }, bringUpToDate: function (username, term, semester, className) {
+    }, //TODO
+    bringUpToDate: function (username, term, semester, className) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         let user = userRef.value();
@@ -1174,54 +1179,46 @@ module.exports = {
 
     //Need to add Try Catches to error check when updating db values
     addNewUser: function (school, username, password, schoolUsername, isAdmin, beta = false) {
-
+        // Convert username to lowercase
         let lc_username = username.toLowerCase();
-        return new Promise((resolve, reject) => {
 
-            if (this.userExists(lc_username)) {
-                return resolve({success: false, message: "Username already in use."});
+        return new Promise(resolve => {
+
+            // Do not create user if username is not valid
+            if (!isAlphaNumeric(lc_username)) {
+                return resolve({success: false, message: "Username must contain only lowercase letters and numbers."});
             }
 
-            if (this.emailExists(schoolUsername)) {
-                return resolve({success: false, message: "This email address is already associated with an account."});
+            // Do not create user if username is longer than 16 characters
+            if (lc_username.length > 16) {
+                return resolve({success: false, message: "Username must contain 16 or fewer characters."});
             }
 
-            if (this.userDeleted(lc_username)) {
+            // Return descriptive error for password validataion
+            let err = validatePassword(password);
+            if (err) {
+                return resolve({success: false, message: err});
+            }
+
+            // Validate email address
+            if (!validateEmail(schoolUsername, school)) {
                 return resolve({
-                    success: false,
-                    message: "This account has been deleted. Email <a href='mailto:support@graderoom.me'>support@graderoom.me</a> to recover your account."
-                });
+                                   success: false,
+                                   message: `This must be your ${school[0].toUpperCase() + school.substring(1)} school email.`
+                               });
             }
 
-            // Don't check when creating an admin acc
-            if (!isAdmin) {
-                if (!isAlphaNumeric(username)) {
-                    return resolve({
-                        success: false,
-                        message: "Username must contain only lowercase letters and numbers."
-                    });
-                }
-
-                if (username.length > 16) {
-                    return resolve({success: false, message: "Username must contain 16 or fewer characters."});
-                }
-
-                let message = validatePassword(password);
-                if (message) {
-                    return {success: false, message: message};
-                }
-
-                if (!validateEmail(schoolUsername, school)) {
-                    return resolve({success: false, message: `This must be your ${school[0].toUpperCase() + school.substring(1)} school email.`});
-                }
-            }
-            // Set up personal info with EXACT same algorithm as on signup page
+            // Setup personal info with the EXACT same algorithm as the signup page
             let {firstName, lastName, graduationYear} = getPersonalInfo(schoolUsername, school);
 
-            bcrypt.hash(password, roundsToGenerateSalt, function (err, hash) {
+
+            // Hash password
+            bcrypt.hash(password, roundsToGenerateSalt, (err, hash) => {
+                // Get current timestamp for user creation timestamp
                 let now = Date.now();
-                db.get("users").push({
-                    school: school,
+
+                // Create the user json
+                let user = {
                     version: dbUserVersion,
                     username: lc_username,
                     password: hash,
@@ -1246,7 +1243,7 @@ module.exports = {
                         regularizeClassGraphs: true,
                         showMaxGPA: false,
                         animateWhenUnfocused: false,
-                        showFps: false,
+                        showFps: false
                     },
                     alerts: {
                         lastUpdated: [],
@@ -1268,15 +1265,21 @@ module.exports = {
                     sortingData: {
                         dateSort: [], categorySort: []
                     },
-                    loggedIn: [now],
+                    loggedIn: [],
                     enableLogging: true
-                }).write();
+                };
 
-                return resolve({success: true, message: "User Created"});
+                // Actually add the user to the collection
+                db.addUser(user, school).then((result) => {
+                    return resolve(result);
+                });
             });
         });
 
-    }, login: function (username, password) {
+    }, //TODO
+
+
+    login: function (username, password) {
         let user;
         if (this.userExists(username) || this.emailExists(username)) {
             user = this.getUser(username);
@@ -1287,7 +1290,8 @@ module.exports = {
             }
         }
         return {success: false, message: "Invalid credentials."};
-    }, changePassword: async function (username, oldPassword, password) {
+    },  //TODO
+    changePassword: async function (username, oldPassword, password) {
         let lc_username = username.toLowerCase();
         if (!this.login(username, oldPassword).success) {
             return {success: false, message: "Old Password is Incorrect"};
@@ -1308,7 +1312,9 @@ module.exports = {
             this.encryptAndStore(username, schoolPass, password);
         }
         return {success: true, message: "Password Updated"};
-    }, changeSchoolEmail: function (username, schoolUsername) {
+    }, //TODO
+
+    changeSchoolEmail: function (username, schoolUsername) {
         let lc_username = username.toLowerCase();
         if (!validateEmail(schoolUsername)) {
             return {success: false, message: "This must be your Bellarmine College Preparatory school email."};
@@ -1323,15 +1329,21 @@ module.exports = {
         userRef.get("personalInfo").set("lastName", lastName).write();
         userRef.get("personalInfo").set("graduationYear", graduationYear).write();
         return {success: true, message: "School Email Updated"};
-    }, userExists: function (username) {
+    }, //TODO
+
+    userExists: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username}).value();
         return !!user;
-    }, emailExists: function (email) {
+    }, //TODO
+
+    emailExists: function (email) {
         let lc_email = email.toLowerCase();
         let user = db.get("users").find({schoolUsername: lc_email}).value();
         return !!user;
-    }, userDeleted: function (username) {
+    }, //TODO
+
+    userDeleted: function (username) {
         let isEmail = validateEmail(username);
         let lc_username = username.toLowerCase();
         let user;
@@ -1341,7 +1353,9 @@ module.exports = {
             user = db.get("deletedUsers").find({username: lc_username}).value();
         }
         return !!user;
-    }, setTheme: function (username, theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects) {
+    }, //TODO
+
+    setTheme: function (username, theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         user.get("appearance").set("theme", theme).write();
@@ -1364,16 +1378,22 @@ module.exports = {
             message = this.setBlur(lc_username, blurEffects).message;
         }
         return {success: true, message: message};
-    }, getUser: function (usernameOrEmail) {
+    }, //TODO
+
+    getUser: function (usernameOrEmail) {
         let isEmail = validateEmail(usernameOrEmail);
         let lc_username = usernameOrEmail.toLowerCase();
         if (isEmail) {
             return db.get("users").find({schoolUsername: lc_username}).value();
         }
         return db.get("users").find({username: lc_username}).value();
-    }, getUserRef: function (username) {
+    }, //TODO
+
+    getUserRef: function (username) {
         return db.get("users").find({username: username.toLowerCase()});
-    }, setShowMaxGPA: function (username, value) {
+    }, //TODO
+
+    setShowMaxGPA: function (username, value) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         if ([true, false].includes(value)) {
@@ -1382,7 +1402,9 @@ module.exports = {
         } else {
             return {success: false};
         }
-    }, checkUpdateBackground: function (username) {
+    }, //TODO
+
+    checkUpdateBackground: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         let syncStatus = user.get("updatedInBackground").value();
@@ -1404,13 +1426,13 @@ module.exports = {
         } else {
             return {success: false, message: "Not syncing"};
         }
-    },
+    }, //TODO
 
     disableGradeSync: function (username) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
         user.unset("schoolPassword").write();
-    },
+    }, //TODO
 
     updateGradeHistory: function (acc_username, school_password) {
         console.log("Updating grade history...");
@@ -1522,7 +1544,7 @@ module.exports = {
         });
 
         scraper.loginAndScrapeGrades(_stream, userRef.value().school, userRef.value().schoolUsername, school_password, "", "", "true");
-    },
+    }, //TODO
 
     updateGrades: function (acc_username, school_password) {
         let lc_username = acc_username.toLowerCase();
@@ -1644,7 +1666,7 @@ module.exports = {
         scraper.loginAndScrapeGrades(_stream, userRef.value().school, userRef.value().schoolUsername, school_password, data_if_locked, term_data_if_locked);
 
         return _stream;
-    },
+    }, //TODO
 
     addDbClass: function (term, semester, className, teacherName) {
         let classesSemesterRef = db.get("classes").get(term).get(semester);
@@ -1677,7 +1699,7 @@ module.exports = {
         classesSemesterRef.get(modClassName).set(teacherName, {
             weights: {}, hasWeights: null, suggestions: [], assignments: {}, overall_grades: []
         }).write();
-    },
+    }, //TODO
 
     addDbTerm: function (term, semester) {
         let classesRef = db.get("classes");
@@ -1691,7 +1713,7 @@ module.exports = {
             classesRef.get(term).set(semester, {}).write();
         }
         ``;
-    },
+    }, //TODO
 
     setColorPalette: function (username, preset, shuffle) {
         let light, saturation, hues = [0, 30, 60, 120, 180, 240, 270, 300, 330, 15, 45, 90, 150, 210, 255, 285, 315, 345];
@@ -1730,15 +1752,15 @@ module.exports = {
         userRef.get("appearance").set("colorPalette", preset).write();
         userRef.get("appearance").set("shuffleColors", shuffle).write();
         return {success: true, message: classColors};
-    },
+    }, //TODO
 
     getAllUsers: function () {
         return db.get("users").value();
-    },
+    }, //TODO
 
     getDeletedUsers: function () {
         return db.get("deletedUsers").value();
-    },
+    }, //TODO
 
     deleteUser: function (username) {
         let lc_username = username.toLowerCase();
@@ -1752,13 +1774,13 @@ module.exports = {
             return {success: true, message: "Deleted " + lc_username + " forever"};
         }
         return {success: false, message: "User could not be deleted."};
-    },
+    }, //TODO
 
     prepForDeletion: function (username) {
         let lc_username = username.toLowerCase();
         db.get("users").find({username: lc_username}).set("deletedTime", Date.now()).write();
         //`TODO maybe get rid of some info when deleting
-    },
+    }, //TODO
 
     restoreUser: function (username) {
         let lc_username = username.toLowerCase();
@@ -1770,7 +1792,7 @@ module.exports = {
             return {success: true, message: "Restored " + lc_username};
         }
         return {success: false, message: "User does not exist in deleted users."};
-    },
+    }, //TODO
 
     makeAdmin: function (username) {
         let lc_username = username.toLowerCase();
@@ -1779,7 +1801,7 @@ module.exports = {
             return {success: true, message: "Made user admin."};
         }
         return {success: false, message: "User does not exist."};
-    },
+    }, //TODO
 
     removeAdmin: function (username, requester) {
         let lc_username = username.toLowerCase();
@@ -1791,7 +1813,7 @@ module.exports = {
             return {success: true, message: "Removed admin privileges."};
         }
         return {success: false, message: "User does not exist."};
-    },
+    }, //TODO
 
     updateWeightsForClass: function (username, term, semester, className, hasWeights, weights, custom = null, addSuggestion = true) {
 
@@ -1858,7 +1880,7 @@ module.exports = {
         }
         return {success: true, message: "Reset weight for " + className + "."};
         //Important: Do not change first word of message. It is used in frontend to determine if it is custom.
-    },
+    }, //TODO
 
     encryptAndStore: function (username, schoolPass, userPass) {
         let lc_username = username.toLowerCase();
@@ -1879,7 +1901,7 @@ module.exports = {
 
         user.set("schoolPassword", encryptedPass).write();
         return {success: true, message: encryptedPass};
-    },
+    }, //TODO
 
     decryptAndGet: function (username, userPass) {
         let lc_username = username.toLowerCase();
@@ -1901,7 +1923,7 @@ module.exports = {
         let decryptedPass = decipher.update(schoolPass, "hex", "utf8");
         decryptedPass += decipher.final("utf8");
         return {success: true, message: decryptedPass};
-    },
+    }, //TODO
 
     whatsNew: function (username, beta) {
         let lc_username = username.toLowerCase();
@@ -1924,7 +1946,7 @@ module.exports = {
             }
             return result;
         }
-    },
+    }, //TODO
 
     latestVersionSeen: function (username, beta) {
         let lc_username = username.toLowerCase();
@@ -1934,7 +1956,7 @@ module.exports = {
         } else {
             alertsRef.set("latestSeen", _versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1]).write();
         }
-    },
+    }, //TODO
 
     changelog: function (beta) {
         if (beta) {
@@ -1942,7 +1964,7 @@ module.exports = {
         } else {
             return _changelogArray;
         }
-    },
+    }, //TODO
 
     readChangelog: function (filename) {
         async function read() {
@@ -2071,7 +2093,7 @@ module.exports = {
         read().then(() => {
             console.log(`${filename} parsed`);
         });
-    },
+    }, //TODO
 
     watchChangelog: function () {
         let md5Previous = null;
@@ -2136,7 +2158,7 @@ module.exports = {
                 });
             }
         });
-    },
+    }, //TODO
 
     usernameAvailable: function (username) {
         if (!!db.get("users").find({username: username.toLowerCase()}).value()) {
@@ -2148,19 +2170,19 @@ module.exports = {
             };
         }
         return {success: true, message: "Valid Username!"};
-    },
+    }, //TODO
 
     emailAvailable: function (schoolUsername) {
         if (!!db.get("users").find({schoolUsername: schoolUsername.toLowerCase()}).value()) {
             return {success: false, message: "This email address is already associated with an account."};
         }
         return {success: true, message: "Valid email!"};
-    },
+    }, //TODO
 
     setLoggedIn: function (username) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
         userRef.get("loggedIn").push(Date.now()).write();
-    },
+    }, //TODO
 
     updateTutorial: function (username, action) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
@@ -2170,7 +2192,7 @@ module.exports = {
         } else {
             return {success: false, message: "Invalid action: " + action};
         }
-    },
+    }, //TODO
 
     resetTutorial: function (username) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
@@ -2179,7 +2201,7 @@ module.exports = {
             tutorialStatus[key] = false;
         }
         return userRef.get("alerts").get("tutorialStatus").value();
-    },
+    }, //TODO
 
     updateSortData: function (username, sortData) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
@@ -2187,7 +2209,7 @@ module.exports = {
         let sortDataRef = userRef.get("sortingData");
         sortDataRef.set("dateSort", dateSort).write();
         sortDataRef.set("categorySort", categorySort).write();
-    },
+    }, //TODO
 
     updateAddedAssignments: function (username, addedAssignments, term, semester) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
@@ -2198,7 +2220,7 @@ module.exports = {
         } else {
             return {success: false, message: "Invalid term or semester"};
         }
-    },
+    }, //TODO
 
     updateEditedAssignments: function (username, editedAssignments, term, semester) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
@@ -2209,7 +2231,7 @@ module.exports = {
         } else {
             return {success: false, message: "Invalid term or semester"};
         }
-    },
+    }, //TODO
 
     migrateLastUpdated: function (username) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
@@ -2227,7 +2249,7 @@ module.exports = {
             }
             userRef.get("alerts").set("lastUpdated", updated).write();
         }
-    },
+    }, //TODO
 
     initAddedAssignments: function (username) {
         let temp = {};
@@ -2250,7 +2272,7 @@ module.exports = {
             }
         }
         userRef.set("addedAssignments", temp).write();
-    },
+    }, //TODO
 
     initWeights: function (username) {
         let temp = {};
@@ -2276,7 +2298,7 @@ module.exports = {
             }
         }
         userRef.set("weights", temp).write();
-    },
+    }, //TODO
 
     initEditedAssignments: function (username) {
         let temp = {};
@@ -2299,7 +2321,7 @@ module.exports = {
             }
         }
         userRef.set("editedAssignments", temp).write();
-    },
+    }, //TODO
 
     resetSortData: function (username) {
         let userRef = db.get("users").find({username: username.toLowerCase()});
@@ -2308,7 +2330,7 @@ module.exports = {
                 dateSort: [], categorySort: []
             }).write();
         }
-    },
+    }, //TODO
 
     // password reset stuff
     checkToken: function (token, user = undefined) {
@@ -2320,7 +2342,7 @@ module.exports = {
         }
 
         return {valid: user && (user.passwordResetTokenExpire > Date.now()), gradeSync: user && !!user.schoolPassword};
-    },
+    }, //TODO
 
     resetPasswordRequest: function (email) {
 
@@ -2335,7 +2357,7 @@ module.exports = {
         }
 
         return {user: user, token: token}; // determines which email to send
-    },
+    }, //TODO
 
     resetPassword: function (token, newPassword) {
 
@@ -2368,13 +2390,13 @@ module.exports = {
         user.unset("passwordResetToken").write();
 
         return {success: true, message: "Password updated."};
-    },
+    }, //TODO
 
     setBlur: function (username, enabled) {
         let user = db.get("users").find({username: username.toLowerCase()});
         user.get("appearance").set("blurEffects", enabled).write();
         return {success: true, message: "Blur effects " + (enabled ? "enabled" : "disabled") + "!"};
-    },
+    }, //TODO
 
     getSunriseAndSunset: function () {
         const SAN_JOSE_CA = {lat: 37, lng: -122};
@@ -2382,7 +2404,7 @@ module.exports = {
         let sunrise = new Date("0/" + times.sunrise.getHours() + ":" + times.sunrise.getMinutes());
         let sunset = new Date("0/" + times.sunset.getHours() + ":" + times.sunset.getMinutes());
         return {sunrise: sunrise, sunset: sunset};
-    },
+    }, //TODO
 
     setEnableLogging: function (username, value) {
         if (!this.userExists(username)) {
@@ -2394,7 +2416,7 @@ module.exports = {
         }
         user.set("enableLogging", value).write();
         return {success: true, message: "Logging " + (value ? "enabled" : "disabled") + "!", settings: {enableLogging: value}};
-    },
+    }, //TODO
 
     setAnimateWhenUnfocused: function (username, value) {
         if (!this.userExists(username)) {
@@ -2406,7 +2428,7 @@ module.exports = {
         }
         user.get("appearance").set("animateWhenUnfocused", value).write();
         return {success: true, message: "Animation " + (value ? "enabled" : "disabled") + " when window is not in focus!", settings: {animateWhenUnfocused: value}, refresh: true};
-    },
+    }, //TODO
 
     setShowFps: function (username, value) {
         if (!this.userExists(username)) {
@@ -2418,10 +2440,9 @@ module.exports = {
         }
         user.get("appearance").set("showFps", value).write();
         return {success: true, message: "Refresh Rate Display " + (value ? "enabled" : "disabled") + "!", settings: {showFps: value}, refresh: true};
-    }
+    } //TODO
 
 };
-
 
 function isAlphaNumeric(str) {
     let code, i, len;
@@ -2457,7 +2478,7 @@ function dbContainsClass(term, semester, class_name, teacher_name) {
         }
     }
     return false;
-}
+} //TODO
 
 function dbContainsTerm(term, semester) {
     let classes = db.get("classes").value();
@@ -2465,7 +2486,7 @@ function dbContainsTerm(term, semester) {
         return true;
     }
     return false;
-}
+} //TODO
 
 function getSuggestionIndex(term, semester, class_name, teacher_name, weight) {
     // Returns index if suggestion with same weight found, else returns -1
@@ -2476,7 +2497,7 @@ function getSuggestionIndex(term, semester, class_name, teacher_name, weight) {
         }
     }
     return -1;
-}
+} //TODO
 
 function deleteUserSuggestion(username, term, semester, class_name, teacher_name) {
     let lc_username = username.toLowerCase();
@@ -2493,8 +2514,12 @@ function deleteUserSuggestion(username, term, semester, class_name, teacher_name
             }
         }
     }
-}
+} //TODO
 
+/**
+ * Determines if two weights are identical (Both are point-based or have same weight names & values)
+ * @returns {boolean} true if both weights are identical
+ */
 function compareWeights(weight1, weight2) {
     if (weight1["hasWeights"] != weight2["hasWeights"]) {
         return false;
