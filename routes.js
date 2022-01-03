@@ -484,7 +484,6 @@ module.exports = function (app, passport) {
 
         let resp;
         if (server.needsBetaKeyToSignUp) {
-
             let bk = req.body.beta_key;
             resp = await authenticator.betaAddNewUser(bk, school, username, password, s_email, false);
             console.log("beta: " + resp);
@@ -498,7 +497,7 @@ module.exports = function (app, passport) {
         authenticator.setColorPalette(username, "clear", false);
 
         if (!resp.success) {
-            req.flash("signupMessage", resp.message);
+            req.flash("signupMessage", resp.data.message);
             res.redirect("/signup");
         } else {
             passport.authenticate("local-login", {
@@ -697,12 +696,12 @@ module.exports = function (app, passport) {
         res.status(resp.success ? 200 : 400).send(resp.message);
     });
 
-    app.get("/betakeys", [isAdmin], (req, res) => {
+    app.get("/betakeys", [isAdmin], async (req, res) => {
 
         let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
 
         res.render("admin/betakeys.ejs", {
-            betaKeyData: authenticator.getAllBetaKeyData(),
+            betaKeyData: (await authenticator.getAllBetaKeyData()).data.value,
             betaKeySuccessMessage: req.flash("betaKeySuccessMessage"),
             betaKeyFailMessage: req.flash("betaKeyFailMessage"),
             page: "keys",
@@ -729,24 +728,24 @@ module.exports = function (app, passport) {
         let resp = authenticator.addNewBetaKey();
 
         if (resp.success) {
-            req.flash("betaKeySuccessMessage", resp.message);
+            req.flash("betaKeySuccessMessage", resp.data.message);
         } else {
-            req.flash("betaKeyFailMessage", resp.message);
+            req.flash("betaKeyFailMessage", resp.data.message);
         }
 
         res.redirect("/betakeys");
 
     });
 
-    app.post("/deletebetakey", [isAdmin], (req, res) => {
+    app.post("/deletebetakey", [isAdmin], async (req, res) => {
 
         let bk = req.body.beta_key;
-        let resp = authenticator.removeBetaKey(bk);
+        let resp = await authenticator.removeBetaKey(bk);
 
         if (resp.success) {
-            req.flash("betaKeySuccessMessage", resp.message);
+            req.flash("betaKeySuccessMessage", resp.data.message);
         } else {
-            req.flash("betaKeyFailMessage", resp.message);
+            req.flash("betaKeyFailMessage", resp.data.message);
         }
 
         res.redirect("/betakeys");
@@ -825,15 +824,12 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.post("/betakeyValid", (req, res) => {
-        let betakeys = authenticator.getAllBetaKeyData();
-
-        if (betakeys.filter(o => o.betaKey === req.body.betaKey).length === 0) {
-            res.status(400).send("Invalid beta key!");
-        } else if (betakeys.filter(o => o.betaKey === req.body.betaKey && !o.claimed).length === 0) {
-            res.status(400).send("Beta key already claimed!");
+    app.post("/betakeyValid", async (req, res) => {
+        let betaKeyValid = await authenticator.betaKeyValid(req.body.betaKey);
+        if (!betaKeyValid.success) {
+            res.status(400).send(betaKeyValid.data.message);
         } else {
-            res.status(200).send("Valid Key!");
+            res.status(200).send(betaKeyValid.data.message);
         }
     });
 

@@ -44,12 +44,19 @@ module.exports = {
         return await db.addBetaKey(betaKey);
     },
 
-    getAllBetaKeyData: function () {
-        return db.getAllBetaKeys();
+    getAllBetaKeyData: async function () {
+        return await db.getAllBetaKeys();
     },
 
-    removeBetaKey: function (betaKey) {
-        return db.removeBetaKey(betaKey);
+    betaKeyValid: async function (betaKey) {
+        let exists = await db.betaKeyExists(betaKey);
+        if (!exists.success) return {success: false, data: {message: "Invalid beta key!"}};
+        if (exists.data.value.claimed) return {success: false, data: {message: "Beta key already claimed!"}};
+        return {success: true, data: {message: "Valid key!"}};
+    },
+
+    removeBetaKey: async function (betaKey) {
+        return await db.removeBetaKey(betaKey);
     },
 
     acceptTerms: function (username) {

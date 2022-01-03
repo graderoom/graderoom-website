@@ -31,7 +31,7 @@ mongo.config(mongoUrl, productionEnv, isBetaServer)
 mongo.init().then(async () => {
     if (!productionEnv) {
         await require("./dbTests").runAll();
-        return;
+        process.exit(); // TODO Remove this when all functions work
     }
 
     app.use("/public/", express.static("./public"));
@@ -57,7 +57,7 @@ mongo.init().then(async () => {
     let redisClient = redis.createClient({port: redisPort});
     let store = new RedisStore({client: redisClient});
     app.use(session({
-                        store: store, secret: "secret", // session secret //TODO CHANGE
+                        store: store, secret: process.env.SECRET, // session secret
                         resave: true, saveUninitialized: true, cookie: {maxAge: 4 * 60 * 60 * 1000} //4 hours
                     }));
     app.use(passport.initialize());
