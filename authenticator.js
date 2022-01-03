@@ -12,6 +12,7 @@ const stream = require("stream");
 const socketManager = require("./socketManager");
 const db = require("./dbClient");
 
+const roundsToGenerateSalt = 10;
 
 // Change this when updateDB changes
 const dbUserVersion = 0;
@@ -28,63 +29,28 @@ let _tutorialKeys = ["homeSeen", "navinfoSeen", "moreSeen", "settingsSeen", "leg
 let _betaFeatureKeys = ["showNotificationPanel"];
 
 module.exports = {
-    changelogArray: _changelogArray,
-    betaChangelogArray: _betaChangelogArray,
-    versionNameArray: _versionNameArray,
-    tutorialKeys: _tutorialKeys,
-    betaFeatureKeys: _betaFeatureKeys,
-
-    backupdb: function () {
-        let today = Date.now();
-        let filename = "user_db_backup" + today + ".json";
-        const backupAdapter = new FileSync(filename);
-        const backupDb = low(backupAdapter);
-        backupDb.defaults({
-            users: [], keys: [], classes: {}, deletedUsers: []
-        }).write();
-        backupDb.set("users", db.get("users").value()).write();
-        backupDb.set("keys", db.get("keys").value()).write();
-        backupDb.set("classes", db.get("classes").value()).write();
-        backupDb.set("deletedUsers", db.get("deletedUsers").value()).write();
-        console.log("" + Date.now() + " | Backed up to " + filename);
-    }, //TODO
-
-    /* beta key functions */
-
     betaAddNewUser: async function (betaKey, school, username, password, schoolUsername, isAdmin) {
-        let res = await db.getBetaKey(betaKey);
-        if (res.success) {
-
-            if (res.data.value.claimed) {
-                return {success: false, message: "Beta key already claimed."};
-            }
-
-            let res2 = await this.addNewUser(school, username, password, schoolUsername, isAdmin, true);
-            let res3 = await db.
-
-            return r
+        let lc_username = username.toLowerCase();
+        let lc_schoolUsername = schoolUsername.toLowerCase();
+        let res = await db.claimBetaKey(school, betaKey, lc_username);
+        if (!res.success) {
+            return res;
         }
-        return res;
-    }, //TODO
-    addNewBetaKey: function (betaKey) {
-        db.get("keys").push({
-            betaKey: betaKey, claimed: false, claimedBy: ""
-        }).write();
-        return {success: true, message: "Added beta key: " + betaKey + "."};
-    }, //TODO
+
+        return await this.addNewUser(school, lc_username, password, lc_schoolUsername, isAdmin, true);
+    },
+    addNewBetaKey: async function () {
+        let betaKey = makeKey(7);
+        return await db.addBetaKey(betaKey);
+    },
 
     getAllBetaKeyData: function () {
-        return db.get("keys").value();
-    }, //TODO
-
+        return db.getAllBetaKeys();
+    },
 
     removeBetaKey: function (betaKey) {
-        db.get("keys").remove({
-            betaKey: betaKey
-        }).write();
-        return {success: true, message: "Removed beta key."};
-    }, //TODO
-
+        return db.removeBetaKey(betaKey);
+    },
 
     acceptTerms: function (username) {
         let lc_username = username.toLowerCase();
@@ -992,12 +958,12 @@ module.exports = {
                     //Set custom to not custom if it is same as classes db
                     if (user.weights[_term][_semester][_className]["custom"] && dbContainsClass(_term, _semester, _className, teacherName)) {
                         user.weights[_term][_semester][_className]["custom"] = isCustom({
-                            "weights": user.weights[_term][_semester][_className]["weights"],
-                            "hasWeights": user.weights[_term][_semester][_className]["hasWeights"]
-                        }, {
-                            "weights": classes[_term][_semester][_className][teacherName]["weights"],
-                            "hasWeights": classes[_term][_semester][_className][teacherName]["hasWeights"]
-                        });
+                                                                                            "weights": user.weights[_term][_semester][_className]["weights"],
+                                                                                            "hasWeights": user.weights[_term][_semester][_className]["hasWeights"]
+                                                                                        }, {
+                                                                                            "weights": classes[_term][_semester][_className][teacherName]["weights"],
+                                                                                            "hasWeights": classes[_term][_semester][_className][teacherName]["hasWeights"]
+                                                                                        });
                     }
                 }
             }
@@ -1011,7 +977,7 @@ module.exports = {
     }, //TODO
 
 
-    classesSemesterExists: function(term, semester) {
+    classesSemesterExists: function (term, semester) {
         let classes = this.getAllClassData();
         return (term in classes && semester in classes[term]);
     }, //TODO
@@ -1103,7 +1069,6 @@ module.exports = {
         };
     }, //TODO
 
-
     deleteSuggestionInClassDb: function (term, semester, className, teacherName, hasWeights, weights) {
         let deleted = false;
         let classRef = db.get("classes");
@@ -1126,8 +1091,8 @@ module.exports = {
 
         classRef.get(term).get(semester).get(className).get(teacherName).get("suggestions").remove(function (e) {
             let shouldDelete = compareWeights({
-                "weights": e.weights, "hasWeights": e.hasWeights
-            }, {"weights": modWeights, "hasWeights": hasWeights});
+                                                  "weights": e.weights, "hasWeights": e.hasWeights
+                                              }, {"weights": modWeights, "hasWeights": hasWeights});
             deleted = deleted || shouldDelete;
             if (!deleted) {
                 suggestionNum++;
@@ -1175,10 +1140,10 @@ module.exports = {
                 //Test if all weights are null
                 if (!Object.values(modWeights).every(x => x === null) || hasWeights == "false") {
                     classDb.get(term).get(semester).get(className).get(teacherName).get("suggestions").push({
-                        "usernames": [lc_username],
-                        "weights": modWeights,
-                        "hasWeights": hasWeights
-                    }).write();
+                                                                                                                "usernames": [lc_username],
+                                                                                                                "weights": modWeights,
+                                                                                                                "hasWeights": hasWeights
+                                                                                                            }).write();
                 }
             }
         }
@@ -1199,8 +1164,6 @@ module.exports = {
         return {success: true, message: "Set uc class type of " + className + " to " + classType};
     }, //TODO
 
-
-    //Need to add Try Catches to error check when updating db values
     addNewUser: function (school, username, password, schoolUsername, isAdmin, beta = false) {
         // Convert username to lowercase
         let lc_username = username.toLowerCase();
@@ -1293,14 +1256,13 @@ module.exports = {
                 };
 
                 // Actually add the user to the collection
-                db.addUser(user, school).then((result) => {
+                db.addUser(school, user).then((result) => {
                     return resolve(result);
                 });
             });
         });
 
-    }, //TODO
-
+    },
 
     login: function (username, password) {
         let user;
@@ -1352,30 +1314,6 @@ module.exports = {
         userRef.get("personalInfo").set("lastName", lastName).write();
         userRef.get("personalInfo").set("graduationYear", graduationYear).write();
         return {success: true, message: "School Email Updated"};
-    }, //TODO
-
-    userExists: function (username) {
-        let lc_username = username.toLowerCase();
-        let user = db.get("users").find({username: lc_username}).value();
-        return !!user;
-    }, //TODO
-
-    emailExists: function (email) {
-        let lc_email = email.toLowerCase();
-        let user = db.get("users").find({schoolUsername: lc_email}).value();
-        return !!user;
-    }, //TODO
-
-    userDeleted: function (username) {
-        let isEmail = validateEmail(username);
-        let lc_username = username.toLowerCase();
-        let user;
-        if (isEmail) {
-            user = db.get("deletedUsers").find({schoolUsername: lc_username}).value();
-        } else {
-            user = db.get("deletedUsers").find({username: lc_username}).value();
-        }
-        return !!user;
     }, //TODO
 
     setTheme: function (username, theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects) {
@@ -1462,14 +1400,14 @@ module.exports = {
         let lc_username = acc_username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});
         let _stream = new stream.Readable({
-            objectMode: true, read: () => {
+                                              objectMode: true, read: () => {
             }
-        });
+                                          });
 
         _stream.on("data", (data) => {
             console.log(data);
             let changeData = {};
-            if ('success' in data) {
+            if ("success" in data) {
                 if (data.success) {
                     let current_years = Object.keys(userRef.get("grades").value());
                     let years = Object.keys(data.new_grades);
@@ -1551,8 +1489,10 @@ module.exports = {
                     }
                     let time = Date.now();
                     userRef.get("alerts").get("lastUpdated").push({
-                        timestamp: time, changeData: changeData, ps_locked: false
-                    }).write();
+                                                                      timestamp: time,
+                                                                      changeData: changeData,
+                                                                      ps_locked: false
+                                                                  }).write();
                     this.initAddedAssignments(lc_username);
                     this.initEditedAssignments(lc_username);
                     this.bringUpToDate(lc_username);
@@ -1583,14 +1523,14 @@ module.exports = {
         }
 
         let _stream = new stream.Readable({
-            objectMode: true, read: () => {
+                                              objectMode: true, read: () => {
             }
-        });
+                                          });
 
         _stream.on("data", (data) => {
             console.log(data);
 
-            if ('success' in data) {
+            if ("success" in data) {
                 if (!data.success) {
                     socketManager.emitToRoom(lc_username, "sync", "fail", data.message);
                 } else {
@@ -1602,8 +1542,11 @@ module.exports = {
                     let oldGrades = userRef.get("grades").get(newTerm).get(newSemester).value();
                     let oldPSAIDs = [];
                     if (oldGrades) {
-                        oldPSAIDs = oldGrades.map(x => x.grades.map(y => y.psaid)).filter(id => !!id); // Remove undefined (before
-                                                                                                       // we scraped psaids)
+                        oldPSAIDs = oldGrades.map(x => x.grades.map(y => y.psaid)).filter(id => !!id); // Remove
+                                                                                                       // undefined
+                                                                                                       // (before we
+                                                                                                       // scraped
+                                                                                                       // psaids)
                     }
                     let newGrades = data.new_grades[newTerm][newSemester];
                     let newClasses = newGrades.map(x => x.class_name);
@@ -1620,13 +1563,9 @@ module.exports = {
                     let removed = {};
                     let overall = {};
                     if (oldGrades) {
-                        added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [newGrades[index].class_name,
-                            newPSAIDs[index].filter(psaid => !oldPSAIDs[index].includes(psaid))]).filter(data => data[1].length));
-                        modified = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name,
-                            classData.grades.filter(assignmentData => newPSAIDs[index].includes(assignmentData.psaid) &&
-                                !_.isEqual(assignmentData, newGrades[index].grades.find(assignment => assignment.psaid === assignmentData.psaid)))]).filter(data => data[1].length));
-                        removed = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name,
-                            classData.grades.filter(assignmentData => assignmentData.psaid && !newPSAIDs[index].includes(assignmentData.psaid))]).filter(data => data[1].length));
+                        added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [newGrades[index].class_name, newPSAIDs[index].filter(psaid => !oldPSAIDs[index].includes(psaid))]).filter(data => data[1].length));
+                        modified = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => newPSAIDs[index].includes(assignmentData.psaid) && !_.isEqual(assignmentData, newGrades[index].grades.find(assignment => assignment.psaid === assignmentData.psaid)))]).filter(data => data[1].length));
+                        removed = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => assignmentData.psaid && !newPSAIDs[index].includes(assignmentData.psaid))]).filter(data => data[1].length));
                         overall = Object.fromEntries(oldGrades.map((classData, index) => {
                             let clone = Object.assign({}, classData);
                             delete clone.grades;
@@ -1662,22 +1601,23 @@ module.exports = {
                     this.initEditedAssignments(lc_username);
                     this.bringUpToDate(lc_username, newTerm, newSemester);
                     let updateHistory = false;
-                    if ((newTerm !== oldTerm || newSemester !== oldSemester) || !userRef.get("updatedGradeHistory").value().length || userRef.get("updatedGradeHistory").value().slice(-1)[0] <
-                        new Date(2021, 0, 11).getTime()) {
+                    if ((newTerm !== oldTerm || newSemester !== oldSemester) || !userRef.get("updatedGradeHistory").value().length || userRef.get("updatedGradeHistory").value().slice(-1)[0] < new Date(2021, 0, 11).getTime()) {
                         this.resetSortData(lc_username);
                         updateHistory = true;
                     }
 
                     let time = Date.now();
                     userRef.get("alerts").get("lastUpdated").push({
-                        timestamp: time, changeData: changeData, ps_locked: ps_locked
-                    }).write();
+                                                                      timestamp: time,
+                                                                      changeData: changeData,
+                                                                      ps_locked: ps_locked
+                                                                  }).write();
                     userRef.set("updatedInBackground", "already done").write();
                     if (updateHistory) {
                         this.updateGradeHistory(lc_username, school_password);
                     }
                     socketManager.emitToRoom(lc_username, "sync", "success", {
-                        message: "Updated grades!",
+                        message: "Updated grades!"
                     });
                 }
             } else {
@@ -1739,7 +1679,8 @@ module.exports = {
     }, //TODO
 
     setColorPalette: function (username, preset, shuffle) {
-        let light, saturation, hues = [0, 30, 60, 120, 180, 240, 270, 300, 330, 15, 45, 90, 150, 210, 255, 285, 315, 345];
+        let light, saturation,
+            hues = [0, 30, 60, 120, 180, 240, 270, 300, 330, 15, 45, 90, 150, 210, 255, 285, 315, 345];
         switch (preset) {
             case "pale":
                 light = 0.8;
@@ -1866,11 +1807,11 @@ module.exports = {
         if (custom == null) {
             if (teacherName != null && dbContainsClass(term, semester, className, teacherName)) {
                 custom = isCustom({
-                    "weights": weights, "hasWeights": hasWeights
-                }, {
-                    "weights": classes[term][semester][className][teacherName]["weights"],
-                    "hasWeights": classes[term][semester][className][teacherName]["hasWeights"]
-                });
+                                      "weights": weights, "hasWeights": hasWeights
+                                  }, {
+                                      "weights": classes[term][semester][className][teacherName]["weights"],
+                                      "hasWeights": classes[term][semester][className][teacherName]["hasWeights"]
+                                  });
             } else {
                 custom = true;
             }
@@ -1999,8 +1940,8 @@ module.exports = {
             _versionNameArray = [];
             const line_counter = ((i = 0) => () => ++i)();
             let lineReader = readline.createInterface({
-                input: fs.createReadStream(filename)
-            });
+                                                          input: fs.createReadStream(filename)
+                                                      });
             lineReader.on("line", (line, lineno = line_counter()) => {
                 if (line.substring(0, 3) === "###") {
                     item.content[line.substring(4)] = [];
@@ -2438,7 +2379,11 @@ module.exports = {
             return {success: false, message: "Invalid value", settings: {enableLogging: value}};
         }
         user.set("enableLogging", value).write();
-        return {success: true, message: "Logging " + (value ? "enabled" : "disabled") + "!", settings: {enableLogging: value}};
+        return {
+            success: true,
+            message: "Logging " + (value ? "enabled" : "disabled") + "!",
+            settings: {enableLogging: value}
+        };
     }, //TODO
 
     setAnimateWhenUnfocused: function (username, value) {
@@ -2450,7 +2395,12 @@ module.exports = {
             return {success: false, message: "Invalid value", settings: {animateWhenUnfocused: value}};
         }
         user.get("appearance").set("animateWhenUnfocused", value).write();
-        return {success: true, message: "Animation " + (value ? "enabled" : "disabled") + " when window is not in focus!", settings: {animateWhenUnfocused: value}, refresh: true};
+        return {
+            success: true,
+            message: "Animation " + (value ? "enabled" : "disabled") + " when window is not in focus!",
+            settings: {animateWhenUnfocused: value},
+            refresh: true
+        };
     }, //TODO
 
     setShowFps: function (username, value) {
@@ -2462,7 +2412,12 @@ module.exports = {
             return {success: false, message: "Invalid value", settings: {showFps: value}};
         }
         user.get("appearance").set("showFps", value).write();
-        return {success: true, message: "Refresh Rate Display " + (value ? "enabled" : "disabled") + "!", settings: {showFps: value}, refresh: true};
+        return {
+            success: true,
+            message: "Refresh Rate Display " + (value ? "enabled" : "disabled") + "!",
+            settings: {showFps: value},
+            refresh: true
+        };
     } //TODO
 
 };
@@ -2552,7 +2507,8 @@ function compareWeights(weight1, weight2) {
 }
 
 /**
- * Determines if given weight is custom in comparison to verifiedWeight. (Allows verified weight to have additional weights.)
+ * Determines if given weight is custom in comparison to verifiedWeight. (Allows verified weight to have additional
+ * weights.)
  * @returns {boolean} true if given weight is custom
  */
 function isCustom(weight, verifiedWeight) {
@@ -2602,13 +2558,11 @@ function getPersonalInfo(email, school) {
             firstName = firstName[0].toUpperCase() + firstName.substring(1).toLowerCase();
 
             // Last Name
-            lastName = email.indexOf(".") === -1 ? "" :
-                email.indexOf(email.match(/\d/)) === -1 ? email.substring(email.indexOf(".") + 1) : email.substring(email.indexOf(".") + 1, email.indexOf(email.match(/\d/)));
+            lastName = email.indexOf(".") === -1 ? "" : email.indexOf(email.match(/\d/)) === -1 ? email.substring(email.indexOf(".") + 1) : email.substring(email.indexOf(".") + 1, email.indexOf(email.match(/\d/)));
             lastName = lastName[0].toUpperCase() + lastName.substring(1).toLowerCase();
 
             // Graduation Year
-            graduationYear = email.indexOf(email.match(/\d/)) === -1 ? "" :
-                email.indexOf("@") === -1 ? email.substring(email.indexOf(email.match(/\d/))) : email.substring(email.indexOf(email.match(/\d/)), email.indexOf("@"));
+            graduationYear = email.indexOf(email.match(/\d/)) === -1 ? "" : email.indexOf("@") === -1 ? email.substring(email.indexOf(email.match(/\d/))) : email.substring(email.indexOf(email.match(/\d/)), email.indexOf("@"));
             if (graduationYear) {
                 graduationYear = parseInt(graduationYear);
                 graduationYear += 2000;

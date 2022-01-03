@@ -29,7 +29,10 @@ if (productionEnv) {
 }
 mongo.config(mongoUrl, productionEnv, isBetaServer)
 mongo.init().then(async () => {
-    return;
+    if (!productionEnv) {
+        await require("./dbTests").runAll();
+        return;
+    }
 
     app.use("/public/", express.static("./public"));
     require("./passport")(passport); // pass passport for configuration

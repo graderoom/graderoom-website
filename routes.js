@@ -726,10 +726,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/newbetakey", [isAdmin], (req, res) => {
-
-        // let bk = req.body.beta_key;
-        let bk = makeKey(7);
-        let resp = authenticator.addNewBetaKey(bk);
+        let resp = authenticator.addNewBetaKey();
 
         if (resp.success) {
             req.flash("betaKeySuccessMessage", resp.message);
