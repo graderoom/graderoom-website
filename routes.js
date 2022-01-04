@@ -465,12 +465,6 @@ module.exports = function (app, passport) {
         });
     });
 
-    // app.post('/signup', isAdmin, passport.authenticate('local-signup', {
-    //     successRedirect : '/', // redirect to the secure profile section
-    //     failureRedirect : '/signup', // redirect back to the signup page if there is an error
-    //     failureFlash : true // allow flash messages
-    // }));
-
     app.post("/signup", async (req, res, next) => {
 
         let school = req.body.school;

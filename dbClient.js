@@ -4,7 +4,7 @@ let _url;
 let _prod;
 let _beta;
 let _testing;
-let connectionCount = 0;
+let _client;
 
 // Shared constants to avoid typo bugs
 const SCHOOL_NAMES = ["bellarmine", "basis"];
@@ -40,11 +40,13 @@ module.exports = {
      * @param beta
      * @param testing
      */
-    config: (url, prod, beta, testing = false) => {
+    config: async (url, prod, beta, testing = false) => {
         _url = url ?? _url;
         _prod = prod ?? _prod;
         _beta = beta ?? _beta;
         _testing = testing ?? _testing;
+        _client?.close();
+        _client = await MongoClient.connect(_url);
     },
     init: () => connectAndThen(_init),
     addUser: (school, user) => validateSchoolAndThenConnectAndThen(_addUser, school, user),
@@ -78,12 +80,10 @@ module.exports = {
  * @returns {Promise<{success: boolean, data: Object}>}
  */
 const connectAndThen = (func, ...args) => {
-    return new Promise(resolve => MongoClient.connect(_url).then(client => {
-        console.log(`${++connectionCount} mongo connections active`);
-        func(db(client), ...args).then(async (_data) => {
+    return new Promise(resolve =>
+        func(db(_client), ...args).then(async (_data) => {
             let success = "success" in _data && typeof _data.success === "boolean" ? _data.success : false;
             let data = "data" in _data && _data.data.constructor === Object ? _data.data : {};
-            await client.close().then(() => {
                 if ("log" in data && !_prod) {
                     console.log(data.log);
                     delete data.log;
@@ -92,10 +92,7 @@ const connectAndThen = (func, ...args) => {
                     // Remove the _id attribute of the value if necessary
                     data.value = removeId(data.value);
                 }
-                console.log(`${--connectionCount} mongo connections active`);
                 return resolve({success: success, data: data});
-            });
-        });
     }));
 };
 
@@ -169,18 +166,6 @@ const _userExists = async (db, school, {username, schoolUsername}) => {
     };
 };
 
-const _addBetaKey = async (db, betaKey) => {
-    if ((await _betaKeyExists(db, betaKey)).success) {
-        return {
-            success: false, data: {log: `Beta key ${betaKey} already exists.`, message: "Beta key already exists."}
-        };
-    }
-    await db.collection(BETAKEYS_COLLECTION_NAME).insertOne({
-                                                                betaKey: betaKey, claimed: false, claimedBy: ""
-                                                            });
-    return {success: true, data: {log: `Added betaKey ${betaKey}`, message: "Beta Key Added"}};
-};
-
 const _getUser = async (db, school, {username, schoolUsername}) => {
     let user = await db.collection(userCollection(school)).findOne({
                                                                        $or: [{
@@ -202,23 +187,35 @@ const _getAllUsers = async (db, school) => {
     return {success: true, data: {value: await db.collection(userCollection(school)).find({}).toArray()}};
 };
 
-const _removeUser = async (db, school, {username, schoolUsername}) => {
+const _updateUser = async (db, school, username, property, value) => {
+    let res = await db.collection(userCollection(school)).findOneAndUpdate()
+}
+
+const _removeUser = async (db, school, username) => {
     let res = await db.collection(userCollection(school)).deleteOne({
-                                                                        $or: [{
                                                                             username: username
-                                                                        }, {
-                                                                            schoolUsername: schoolUsername
-                                                                        }]
                                                                     });
     if (res.deletedCount === 1) {
         return {success: true, data: {log: `Deleted user ${username}.`, message: "Deleted user."}};
     }
     return {
         success: false, data: {
-            log: `Could not delete user with given parameters: username=${username}, schoolUsername=${schoolUsername}`,
+            log: `Could not delete user with given parameters: username=${username}`,
             message: "User could not be deleted"
         }
     };
+};
+
+const _addBetaKey = async (db, betaKey) => {
+    if ((await _betaKeyExists(db, betaKey)).success) {
+        return {
+            success: false, data: {log: `Beta key ${betaKey} already exists.`, message: "Beta key already exists."}
+        };
+    }
+    await db.collection(BETAKEYS_COLLECTION_NAME).insertOne({
+                                                                betaKey: betaKey, claimed: false, claimedBy: ""
+                                                            });
+    return {success: true, data: {log: `Added betaKey ${betaKey}`, message: "Beta Key Added"}};
 };
 
 const _betaKeyExists = async (db, betaKey) => {
@@ -230,6 +227,10 @@ const _betaKeyExists = async (db, betaKey) => {
         success: false, data: {log: `No betaKey found with given parameters: betaKey=${betaKey}`}
     };
 };
+
+const _betaKeyValid = async (db, betaKey) => {
+
+}
 
 const _getBetaKey = async (db, betaKey) => {
     let _betaKey = await db.collection(BETAKEYS_COLLECTION_NAME).findOne({betaKey: betaKey});

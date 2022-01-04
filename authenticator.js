@@ -2356,8 +2356,6 @@ module.exports = {
         user.assign({"password": hashedPass}).write();
 
         user.unset("passwordResetTokenExpire").write();
-        // apparently the "reference" continuously runs the intial query?
-        // when unsetting the token first, nothing else will write
         user.unset("passwordResetToken").write();
 
         return {success: true, message: "Password updated."};

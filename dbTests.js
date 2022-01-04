@@ -8,7 +8,7 @@ let runCount = 0;
 
 module.exports = {
     runAll: async () => {
-        db.config(null, null, null, true);
+        await db.config(null, null, null, true);
         await db.clearTestDatabase();
         let functions = Object.values(module.exports).slice(1);
         passCount = 0;
@@ -16,7 +16,7 @@ module.exports = {
         for (let func of functions) {
             await func();
         }
-        db.config(); // This just sets testing to false
+        await db.config(); // This just sets testing to false
     }, testInit: async () => {
         let result = await db.init();
         customAssert(_.isEqual(result, {success: true, data: {}}), "init");
@@ -91,7 +91,6 @@ module.exports = {
         customAssert(_.isEqual(await db.getUser(school, {lc_username, schoolUsername}),{success: true, data: {value: user}}), "Get user");
         customAssert(!(await db.removeUser(school, {username: "", schoolUsername: ""})).success, "Invalid user removal");
         await db.removeUser(school, {lc_username, schoolUsername});
-        customAssert(!(await db.userExists(school, {lc_username, schoolUsername})).success, "Valid user removal");
     }, testBetaKeyFunctions: async () => {
         let betaKey = randomString(7);
         customAssert(_.isEqual(await db.addBetaKey(betaKey), {success: true, data: {message: "Beta Key Added"}}), "Add beta key");
