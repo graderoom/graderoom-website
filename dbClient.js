@@ -38,21 +38,21 @@ module.exports = {
         console.log(`Connected to mongodb at url: ${_url}`);
     },
     init: () => connectAndThen(_init),
-    addUser: (school, username, password, schoolUsername, isAdmin, beta = false, betaKey) => validateSchoolAndThenConnectAndThen(_addUser, school, h.lower(username), password, h.lower(schoolUsername), isAdmin, beta, betaKey),
-    userExists: (school, {
-        username, schoolUsername
-    }) => validateSchoolAndThenConnectAndThen(_userExists, school, {
+    addUser: (school, username, password, schoolUsername, isAdmin, beta = false, betaKey) => connectAndThen(_addUser, school, h.lower(username), password, h.lower(schoolUsername), isAdmin, beta, betaKey),
+    userExists: ({
+                     username, schoolUsername
+                 }) => connectAndThen(_userExists, {
         username: h.lower(username), schoolUsername: h.lower(schoolUsername)
     }),
-    getUser: (school, {
-        username, schoolUsername
-    }) => validateSchoolAndThenConnectAndThen(_getUser, school, {
+    getUser: ({
+                  username, schoolUsername
+              }) => connectAndThen(_getUser, {
         username: h.lower(username), schoolUsername: h.lower(schoolUsername)
     }),
-    getAllUsers: (school) => validateSchoolAndThenConnectAndThen(_getAllUsers, school),
-    acceptTerms: (school, username) => validateSchoolAndThenConnectAndThen(_acceptTerms, school, username),
-    acceptPrivacyPolicy: (school, username) => validateSchoolAndThenConnectAndThen(_acceptPrivacyPolicy, school, username),
-    removeUser: (school, username) => validateSchoolAndThenConnectAndThen(_removeUser, school, h.lower(username)),
+    getAllUsers: () => connectAndThen(_getAllUsers),
+    acceptTerms: (username) => connectAndThen(_acceptTerms, h.lower(username)),
+    acceptPrivacyPolicy: (username) => connectAndThen(_acceptPrivacyPolicy, h.lower(username)),
+    removeUser: (username) => connectAndThen(_removeUser, h.lower(username)),
     addBetaKey: (betaKey) => connectAndThen(_addBetaKey, betaKey),
     betaKeyExists: (betaKey) => connectAndThen(_betaKeyExists, betaKey),
     betaKeyValid: (betaKey) => connectAndThen(_betaKeyValid, betaKey),
@@ -60,9 +60,9 @@ module.exports = {
     getAllBetaKeys: () => connectAndThen(_getAllBetaKeys),
     claimBetaKey: (betaKey, username) => connectAndThen(_claimBetaKey, betaKey, h.lower(username)),
     removeBetaKey: (betaKey) => connectAndThen(_removeBetaKey, betaKey),
-    joinBeta: (school, username) => validateSchoolAndThenConnectAndThen(_joinBeta, school, username),
-    updateBetaFeatures: (school, username, features) => validateSchoolAndThenConnectAndThen(_updateBetaFeatures, school, username, features),
-    leaveBeta: (school, username) => validateSchoolAndThenConnectAndThen(_leaveBeta, school, username),
+    joinBeta: (username) => connectAndThen(_joinBeta, h.lower(username)),
+    updateBetaFeatures: (username, features) => connectAndThen(_updateBetaFeatures, h.lower(username), features),
+    leaveBeta: (username) => connectAndThen(_leaveBeta, h.lower(username)),
     clearTestDatabase: () => connectAndThen(_clearTestDatabase)
 };
 
@@ -92,20 +92,6 @@ const connectAndThen = (func, ...args) => {
     }));
 };
 
-const validateSchoolAndThenConnectAndThen = (func, school, ...args) => {
-    if (!SCHOOL_NAMES.includes(school)) {
-        console.log(`Invalid school: ${school}`);
-        return {
-            success: false, data: {message: "School does not exist"}
-        };
-    }
-    return new Promise(resolve => {
-        connectAndThen(func, school, ...args).then(result => {
-            return resolve(result);
-        });
-    });
-};
-
 const db = client => client.db(_testing ? TEST_DATABASE_NAME : _beta ? BETA_DATABASE_NAME : STABLE_DATABASE_NAME);
 
 const _init = async (db) => {
@@ -118,13 +104,12 @@ const _init = async (db) => {
             await db.createCollection(BETAKEYS_COLLECTION_NAME);
         }
     }
+    // Create the user collection if it doesn't exist
+    if (!collectionNames.includes(USERS_COLLECTION_NAME)) {
+        await db.createCollection(USERS_COLLECTION_NAME);
+    }
 
     for (let name of SCHOOL_NAMES) {
-        // Create the user collection if it doesn't exist
-        if (!collectionNames.includes(h.userCollection(name))) {
-            await db.createCollection(h.userCollection(name));
-        }
-
         // Create the classes collection if it doesn't exist
         if (!collectionNames.includes(h.classesCollection(name))) {
             await db.createCollection(h.classesCollection(name));
@@ -147,8 +132,8 @@ const _addUser = async (db, school, username, password, schoolUsername, isAdmin,
         return createUser;
     }
     let user = createUser.data.value;
-    if (!(await _userExists(db, school, {username: user.username, schoolUsername: user.schoolUsername})).success) {
-        await db.collection(h.userCollection(school)).insertOne(user);
+    if (!(await _userExists(db, {username: user.username, schoolUsername: user.schoolUsername})).success) {
+        await db.collection(USERS_COLLECTION_NAME).insertOne(user);
         return {success: true, data: {log: `Created user ${user.username} in ${school}`, message: "User Created"}};
     } else {
         return {
@@ -160,8 +145,8 @@ const _addUser = async (db, school, username, password, schoolUsername, isAdmin,
     }
 };
 
-const _userExists = async (db, school, {username, schoolUsername}) => {
-    let userExists = await db.collection(h.userCollection(school)).findOne({$or: [{username: username}, {schoolUsername: schoolUsername}]});
+const _userExists = async (db, {username, schoolUsername}) => {
+    let userExists = await db.collection(USERS_COLLECTION_NAME).findOne({$or: [{username: username}, {schoolUsername: schoolUsername}]});
     if (!!userExists) {
         return {
             success: true,
@@ -174,8 +159,8 @@ const _userExists = async (db, school, {username, schoolUsername}) => {
     };
 };
 
-const _getUser = async (db, school, {username, schoolUsername}) => {
-    let user = await db.collection(h.userCollection(school)).findOne({
+const _getUser = async (db, {username, schoolUsername}) => {
+    let user = await db.collection(USERS_COLLECTION_NAME).findOne({
                                                                          $or: [{
                                                                              username: username
                                                                          }, {
@@ -191,28 +176,28 @@ const _getUser = async (db, school, {username, schoolUsername}) => {
     return {success: true, data: {value: user}};
 };
 
-const _getAllUsers = async (db, school) => {
-    return {success: true, data: {value: await db.collection(h.userCollection(school)).find({}).toArray()}};
+const _getAllUsers = async (db) => {
+    return {success: true, data: {value: await db.collection(USERS_COLLECTION_NAME).find({}).toArray()}};
 };
 
-const _acceptTerms = async (db, school, username) => {
-    let res = await db.collection(h.userCollection(school)).findOneAndUpdate({username: username}, {$set: {alerts: {termsLastSeen: Date.now()}}});
+const _acceptTerms = async (db, username) => {
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {alerts: {termsLastSeen: Date.now()}}});
     if (res.ok) {
         return {success: true, data: {log: `Accepted terms for ${username} in ${school}`}};
     }
     return {success: false, data: {log: `Error accepting terms for ${username} in ${school}`}};
 };
 
-const _acceptPrivacyPolicy = async (db, school, username) => {
-    let res = await db.collection(h.userCollection(school)).findOneAndUpdate({username: username}, {$set: {alerts: {$set: {policyLastSeen: Date.now()}}}});
+const _acceptPrivacyPolicy = async (db, username) => {
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {alerts: {$set: {policyLastSeen: Date.now()}}}});
     if (res.ok) {
         return {success: true, data: {log: `Accepted policy for ${username} in ${school}`}};
     }
     return {success: false, data: {log: `Error accepting policy for ${username} in ${school}`}};
 };
 
-const _removeUser = async (db, school, username) => {
-    let res = await db.collection(h.userCollection(school)).deleteOne({
+const _removeUser = async (db, username) => {
+    let res = await db.collection(USERS_COLLECTION_NAME).deleteOne({
                                                                           username: username
                                                                       });
     if (res.deletedCount === 1) {
@@ -252,8 +237,12 @@ const _betaKeyExists = async (db, betaKey) => {
 
 const _betaKeyValid = async (db, betaKey) => {
     let exists = await _betaKeyExists(db, betaKey);
-    if (!exists.success) return {success: false, data: {message: "Invalid beta key!"}};
-    if (exists.data.value.claimed) return {success: false, data: {message: "Beta key already claimed!"}};
+    if (!exists.success) {
+        return {success: false, data: {message: "Invalid beta key!"}};
+    }
+    if (exists.data.value.claimed) {
+        return {success: false, data: {message: "Beta key already claimed!"}};
+    }
     return {success: true, data: {message: "Valid key!"}};
 };
 
@@ -308,26 +297,26 @@ const _removeBetaKey = async (db, betaKey) => {
     };
 };
 
-const _joinBeta = async (db, school, username) => {
+const _joinBeta = async (db, username) => {
     let featureObject = h.betaFeatures();
-    let res = await db.collection(h.userCollection(school)).findOneAndUpdate({username: username}, {$set: {betaFeatures: featureObject}});
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {betaFeatures: featureObject}});
     if (res.ok) {
         return {success: true, data: {log: `Joined beta for ${username} in ${school}`}};
     }
     return {success: false, data: {log: `Error joining beta for ${username} in ${school}`}};
 };
 
-const _updateBetaFeatures = async (db, school, username, features) => {
+const _updateBetaFeatures = async (db, username, features) => {
     let featureObject = h.betaFeatures(features);
-    let res = await db.collection(h.userCollection(school)).findOneAndUpdate({username: username}, {$set: {betaFeatures: featureObject}});
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {betaFeatures: featureObject}});
     if (res.ok) {
         return {success: true, data: {log: `Updated beta features for ${username} in ${school}`}};
     }
     return {success: false, data: {log: `Updated beta features for ${username} in ${school}`}};
 };
 
-const _leaveBeta = async (db, school, username) => {
-    let res = await db.collection(h.userCollection(school)).findOneAndUpdate({username: username}, {$set: {betaFeatures: {active: false}}});
+const _leaveBeta = async (db, username) => {
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {betaFeatures: {active: false}}});
     if (res.ok) {
         return {success: true, data: {log: `Left beta for ${username} in ${school}`}};
     }

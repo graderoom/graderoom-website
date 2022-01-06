@@ -32,12 +32,12 @@ module.exports = {
         let school = "bellarmine";
 
         customAssert(_.isEqual(await db.addUser(school, username, password, schoolUsername, false), {success: true, data: {message: "User Created"}}), "User created");
-        customAssert(await db.userExists(school, {username: username}), "User exists with username");
-        customAssert(await db.userExists(school, {schoolUsername: schoolUsername}), "User exists with schoolUsername");
-        customAssert(await db.userExists(school, {username, schoolUsername}), "User exists with both");
-        customAssert((await db.getUser(school, {username, schoolUsername})).success, "Get user");
-        customAssert(!(await db.removeUser(school, "")).success, "Invalid user removal");
-        customAssert((await db.removeUser(school, username)).success, "Valid user removal");
+        customAssert(await db.userExists({username: username}), "User exists with username");
+        customAssert(await db.userExists({schoolUsername: schoolUsername}), "User exists with schoolUsername");
+        customAssert(await db.userExists({username, schoolUsername}), "User exists with both");
+        customAssert((await db.getUser({username, schoolUsername})).success, "Get user");
+        customAssert(!(await db.removeUser("")).success, "Invalid user removal");
+        customAssert((await db.removeUser(username)).success, "Valid user removal");
     }, testBetaKeyFunctions: async () => {
         let res = await db.addBetaKey();
         customAssert(res.success, "Add beta key");

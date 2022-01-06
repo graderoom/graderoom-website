@@ -22,10 +22,6 @@ let _tutorialKeys = ["homeSeen", "navinfoSeen", "moreSeen", "settingsSeen", "leg
 // Update this list with new beta features
 let _betaFeatureKeys = ["showNotificationPanel"];
 
-exports.userCollection = (school) => {
-    return school + "_" + USERS_COLLECTION_NAME;
-};
-
 exports.classesCollection = (school) => {
     return school + "_" + CLASSES_COLLECTION_NAME;
 }
@@ -141,6 +137,7 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
             // Create the user json
             let user = {
                 version: dbUserVersion,
+                school: school,
                 username: username,
                 password: hash,
                 schoolUsername: schoolUsername.toLowerCase(),
