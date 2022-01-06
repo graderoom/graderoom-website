@@ -3,27 +3,27 @@ const path = require("path");
 const fs = require("fs");
 const md5 = require("md5");
 const readline = require("readline");
-const USERS_COLLECTION_NAME = "users";
-const CLASSES_COLLECTION_NAME = "classes";
+exports.USERS_COLLECTION_NAME = "users";
+exports.CLASSES_COLLECTION_NAME = "classes";
 
-const roundsToGenerateSalt = 10;
+exports.roundsToGenerateSalt = 10;
 
 // Change this when updateDB changes
 const dbUserVersion = 0;
 const dbClassVersion = 0;
 
-let _changelogArray = [];
-let _betaChangelogArray = [];
-let _versionNameArray = [];
+exports._changelogArray = [];
+exports._betaChangelogArray = [];
+exports._versionNameArray = [];
 
 // Update this list with new tutorial keys
-let _tutorialKeys = ["homeSeen", "navinfoSeen", "moreSeen", "settingsSeen", "legendSeen", "zoomSeen"];
+exports._tutorialKeys = ["homeSeen", "navinfoSeen", "moreSeen", "settingsSeen", "legendSeen", "zoomSeen"];
 
 // Update this list with new beta features
-let _betaFeatureKeys = ["showNotificationPanel"];
+exports._betaFeatureKeys = ["showNotificationPanel"];
 
 exports.classesCollection = (school) => {
-    return school + "_" + CLASSES_COLLECTION_NAME;
+    return school + "_" + this.CLASSES_COLLECTION_NAME;
 }
 
 exports.removeId = (value) => {
@@ -45,17 +45,13 @@ exports.makeKey = (length) => {
 
 exports.betaFeatures = (betaFeatures) => {
     let obj = {active: true};
-    for (let feature of _betaFeatureKeys) {
-        if (!betaFeatures || betaFeatures.includes(feature)) {
-            obj[feature] = true;
-        } else {
-            obj[feature] = false;
-        }
+    for (let feature of this._betaFeatureKeys) {
+        obj[feature] = !!(!betaFeatures || betaFeatures.includes(feature));
     }
     return obj;
 }
 
-const validateUsername = (str) => {
+exports.validateUsername = (str) => {
     let code, i, len;
 
     for (i = 0, len = str.length; i < len; i++) {
@@ -68,7 +64,7 @@ const validateUsername = (str) => {
     return true;
 }
 
-const validatePassword = (password) => {
+exports.validatePassword = (password) => {
     const lowerCaseRegex = new RegExp("^(?=.*[a-z])");
     const upperCaseRegex = new RegExp("^(?=.*[A-Z])");
     const numericRegex = new RegExp("^(?=.*[0-9])");
@@ -87,7 +83,7 @@ const validatePassword = (password) => {
     return message;
 }
 
-const validateEmail = (email, school) => {
+exports.validateEmail = (email, school) => {
     let re;
     switch (school) {
         case "basis":
@@ -102,7 +98,7 @@ const validateEmail = (email, school) => {
 exports.makeUser = async (school, username, password, schoolUsername, isAdmin, beta) => {
     return new Promise(resolve => {
         // Do not create user if username is not valid
-        if (!validateUsername(username)) {
+        if (!this.validateUsername(username)) {
             return resolve({success: false, message: "Username must contain only lowercase letters and numbers."});
         }
 
@@ -112,13 +108,13 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
         }
 
         // Return descriptive error for password validataion
-        let err = validatePassword(password);
+        let err = this.validatePassword(password);
         if (err) {
             return resolve({success: false, message: err});
         }
 
         // Validate email address
-        if (!validateEmail(schoolUsername, school)) {
+        if (!this.validateEmail(schoolUsername, school)) {
             return resolve({
                                success: false,
                                message: `This must be your ${school[0].toUpperCase() + school.substring(1)} school email.`
@@ -130,7 +126,7 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
 
 
         // Hash password
-        bcrypt.hash(password, roundsToGenerateSalt, (err, hash) => {
+        bcrypt.hash(password, this.roundsToGenerateSalt, (err, hash) => {
             // Get current timestamp for user creation timestamp
             let now = Date.now();
 
@@ -166,11 +162,11 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
                 alerts: {
                     lastUpdated: [],
                     updateGradesReminder: "daily",
-                    latestSeen: _versionNameArray[1] ? beta ? _versionNameArray[1][1] : _versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1] : "1.0.0",
+                    latestSeen: this._versionNameArray[1] ? beta ? this._versionNameArray[1][1] : this._versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1] : "1.0.0",
                     policyLastSeen: "never",
                     termsLastSeen: "never",
                     remoteAccess: beta ? "allowed" : "denied",
-                    tutorialStatus: Object.fromEntries(_tutorialKeys.map(k => [k, false])),
+                    tutorialStatus: Object.fromEntries(this._tutorialKeys.map(k => [k, false])),
                     notifications: {
                         important: [buildStarterNotification(now)], unread: [], dismissed: []
                     }
@@ -261,9 +257,9 @@ exports.watchChangelog = () => {
 
 exports.changelog = (beta) => {
     if (beta) {
-        return _betaChangelogArray;
+        return this._betaChangelogArray;
     } else {
-        return _changelogArray;
+        return this._changelogArray;
     }
 };
 
@@ -274,7 +270,7 @@ exports.readChangelog = (filename) => {
         let items = [];
         let bodyCount = -1;
         let item = {title: "", date: "", content: {}};
-        _versionNameArray = [];
+        this._versionNameArray = [];
         const line_counter = ((i = 0) => () => ++i)();
         let lineReader = readline.createInterface({
                                                       input: fs.createReadStream(filename)
@@ -286,9 +282,9 @@ exports.readChangelog = (filename) => {
             } else if (line.substring(0, 2) === "##") {
                 if (item.title !== "") {
                     if (item.title !== "Known Issues") {
-                        _versionNameArray.push(item.title.split(" "));
+                        this._versionNameArray.push(item.title.split(" "));
                     } else {
-                        _versionNameArray.push(["Known Issues", ""]);
+                        this._versionNameArray.push(["Known Issues", ""]);
                     }
                     items.push(item);
                     item = {title: "", date: "", content: {}};
@@ -315,7 +311,7 @@ exports.readChangelog = (filename) => {
             }
         }).on("close", () => {
             items.push(item);
-            _versionNameArray.push(item.title.split(" "));
+            this._versionNameArray.push(item.title.split(" "));
             let currentVersionFound = false;
             let betaCurrentVersionFound = false;
             for (let i = 0; i < items.length; i++) {
@@ -386,8 +382,8 @@ exports.readChangelog = (filename) => {
                 betaResultHTML += "</div>";
                 betaResultHTML += "</div>|";
             }
-            _changelogArray = resultHTML.split("|");
-            _betaChangelogArray = betaResultHTML.split("|");
+            this._changelogArray = resultHTML.split("|");
+            this._betaChangelogArray = betaResultHTML.split("|");
         });
     }
 
@@ -413,7 +409,7 @@ const buildStarterNotification = (now) => {
     };
 }
 
-const getPersonalInfo = (email, school) => {
+exports.getPersonalInfo = (email, school) => {
     let firstName, lastName, graduationYear;
     switch (school) {
         case "basis":

@@ -8,7 +8,7 @@ module.exports = function (app, passport) {
     // normal routes ===============================================================
 
     // show the home page (will also have our login links)
-    app.get("/", (req, res) => {
+    app.get("/", async (req, res) => {
 
         let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
 
@@ -22,7 +22,7 @@ module.exports = function (app, passport) {
             }
 
             let gradeHistoryLetters = {};
-            let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
+            let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data;
             if (req.query.term && req.query.semester) {
                 if ((term === req.query.term && semester === req.query.semester) ||
                     !authenticator.semesterExists(req.user.username, req.query.term, req.query.semester)) {
@@ -151,16 +151,16 @@ module.exports = function (app, passport) {
         res.sendStatus(200);
     });
 
-    app.get("/viewuser", [isAdmin], (req, res) => {
+    app.get("/viewuser", [isAdmin], async (req, res) => {
         if (req.query.usernameToRender) {
-            let user = authenticator.getUser(req.query.usernameToRender);
+            let user = (await dbClient.getUser({username: req.query.usernameToRender})).data.value;
             if (user.alerts.remoteAccess === "denied") {
                 res.redirect("/");
                 return;
             }
 
             let gradeHistoryLetters = {};
-            let {term, semester} = authenticator.getMostRecentTermData(req.query.usernameToRender);
+            let {term, semester} = (await dbClient.getMostRecentTermData(req.query.usernameToRender)).data;
             if (req.query.term && req.query.semester) {
                 if ((term === req.query.term && semester === req.query.semester) || !authenticator.semesterExists(user.username, req.query.term, req.query.semester)) {
                     res.redirect("/viewuser?usernameToRender=" + req.query.usernameToRender);
@@ -401,17 +401,17 @@ module.exports = function (app, passport) {
 
         let old_pass = req.body.oldPass;
         let new_pass = req.body.password;
-        let resp = await authenticator.changePassword(req.user.username, old_pass, new_pass);
+        let resp = await dbClient.changePassword(req.user.username, old_pass, new_pass);
         if (resp.success) {
-            res.status(200).send(resp.message);
+            res.status(200).send(resp.data.message);
         } else {
-            res.status(400).send(resp.message);
+            res.status(400).send(resp.data.message);
         }
     });
 
     app.post("/changeschoolemail", [isLoggedIn], (req, res) => {
         let new_school_email = req.body.school_email;
-        let resp = authenticator.changeSchoolEmail(req.user.username, new_school_email);
+        let resp = dbClient.changeSchoolEmail(req.user.username, new_school_email);
         if (resp.success) {
             res.status(200).send(resp.message);
         } else {
@@ -522,7 +522,7 @@ module.exports = function (app, passport) {
             }
         }
         let _stream = authenticator.updateGrades(req.user.username, pass);
-        let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
+        let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data;
 
         _stream.on("data", (data) => {
             if (!('success' in data)) return;
@@ -616,13 +616,13 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.get("/finalgradecalculator", (req, res) => {
+    app.get("/finalgradecalculator", async (req, res) => {
 
         let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
 
         if (req.isAuthenticated()) {
 
-            let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
+            let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data;
             if (term && semester) {
                 res.render("user/final_grade_calculator.ejs", {
                     page: "calc",
@@ -949,9 +949,9 @@ module.exports = function (app, passport) {
         res.status(200).send(JSON.stringify(settings));
     });
 
-    app.get("/api/general", [isApiLoggedIn], (req, res) => {
+    app.get("/api/general", [isApiLoggedIn], async (req, res) => {
         let gradeHistoryLetters = {};
-        let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
+        let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data;
         for (let i = 0; i < Object.keys(req.user.grades).length; i++) {
             let t = Object.keys(req.user.grades)[i];
             gradeHistoryLetters[t] = {};
@@ -988,30 +988,30 @@ module.exports = function (app, passport) {
         res.status(200).send(JSON.stringify(data));
     });
 
-    app.get("/api/grades", [isApiLoggedIn], (req, res) => {
-        let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
+    app.get("/api/grades", [isApiLoggedIn], async (req, res) => {
+        let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data;
         res.status(200).send(JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)));
     });
 
-    app.get("/api/checkUpdateBackground", [isApiLoggedIn], (req, res) => {
-        let resp = authenticator.checkUpdateBackground(req.user.username);
-        let user = authenticator.getUser(req.user.username);
-        let {term, semester} = authenticator.getMostRecentTermData(req.user.username);
-        if (term && semester && resp.message === "Sync Complete!") {
+    app.get("/api/checkUpdateBackground", [isApiLoggedIn], async (req, res) => {
+        let resp = await dbClient.getSyncStatus(req.user.username);
+        let user = (await dbClient.getUser({username: req.user.username})).data.value;
+        let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data;
+        if (term && semester && resp.data.message === "Sync Complete!") {
             res.status(200).send({
-                message: resp.message,
+                message: resp.data.message,
                 grades: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
                 weights: JSON.stringify(user.weights[term][semester]),
                 updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
             });
-        } else if (term && semester && resp.message === "Already Synced!") {
+        } else if (term && semester && resp.data.message === "Already Synced!") {
             res.status(200).send({
-                message: resp.message,
+                message: resp.data.message,
                 updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
             });
         } else {
             res.status(200).send({
-                message: resp.message
+                message: resp.data.message
             });
         }
     });

@@ -1,6 +1,6 @@
 // load all the things we need
 const LocalStrategy = require("passport-local").Strategy;
-const authent = require("./authenticator.js");
+const dbClient = require("./dbClient");
 const bcrypt = require("bcryptjs");
 const socketManager = require("./socketManager");
 module.exports = function (passport) {
@@ -17,9 +17,12 @@ module.exports = function (passport) {
     });
 
     // used to deserialize the user
-    passport.deserializeUser(function (username, done) {
-        let usr = authent.getUser(username);
-        return done(null, usr);
+    passport.deserializeUser(async function (username, done) {
+        let res = await dbClient.getUser({username: username});
+        if (res.success) {
+            return done(null, res.data.value);
+        }
+        return done(null, null);
     });
 
     // =========================================================================
@@ -44,25 +47,22 @@ module.exports = function (passport) {
         }
 
         // asynchronous
-        process.nextTick(function () {
+        process.nextTick(async function () {
 
             // if no user is found, return the message
-            if (authent.userDeleted(username)) {
-                return done(null, false, req.flash("loginMessage", "The account <b>" + username +
-                    "</b> has been deleted. Email <a href='mailto:support@graderoom.me'>support@graderoom.me</a> to recover your account."));
-            }
-            if (!authent.userExists(username) && !authent.emailExists(username)) {
+            let res = await dbClient.userExists({username: username, schoolUsername: username});
+            if (!res.success) {
                 return done(null, false, req.flash("loginMessage", "Invalid Credentials"));
             }
 
-            let user = authent.getUser(username);
+            let user = res.data.value;
             if (user && bcrypt.compareSync(password, user.password)) {
                 authent.setLoggedIn(user.username);
                 if ('schoolPassword' in user) {
                     let resp = authent.decryptAndGet(user.username, password);
                     let schoolPass = resp.message;
                     let _stream = authent.updateGrades(user.username, schoolPass);
-                    let {term, semester} = authent.getMostRecentTermData(user.username);
+                    let {term, semester} = (await dbClient.getMostRecentTermData(user.username)).data;
 
                     _stream.on("data", (data) => {
                         if (!('success' in data)) {

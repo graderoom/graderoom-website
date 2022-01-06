@@ -51,13 +51,6 @@ module.exports = {
     }, //TODO
 
 
-    leaveBeta: function (username) {
-        let lc_username = username.toLowerCase();
-        let userRef = db.get("users").find({username: lc_username});
-        userRef.set("betaFeatures", {"active": false}).write();
-    }, //TODO
-
-
     /* class database */
     getAllClassData: function () {
         let classes = Object.assign({}, db.get("classes").value());
@@ -905,23 +898,6 @@ module.exports = {
     }, //TODO
 
 
-    getMostRecentTermData: function (username) {
-        let userRef = db.get("users").find({username: username.toLowerCase()});
-        if (!Object.keys(userRef.get("grades").value()).length) {
-            // Don't give data if new acc
-            return {term: false, semester: false};
-        }
-        let terms = Object.keys(userRef.get("grades").value());
-        let term = terms[terms.map(t => parseInt(t.substring(0, 2))).reduce((maxIndex, term, index, arr) => term > arr[maxIndex] ? index : maxIndex, 0)];
-        if (userRef.get("school").value() === "basis") {
-            return {term: term, semester: "_"};
-        }
-        let semesters = Object.keys(userRef.get("grades").get(term).value());
-        let semester = semesters[semesters.map(s => parseInt(s.substring(1))).reduce((maxIndex, semester, index, arr) => semester > arr[maxIndex] ? index : maxIndex, 0)];
-        return {term: term, semester: semester};
-    }, //TODO
-
-
     getClassesMostRecentTermData: function () {
         let terms = Object.keys(this.getAllClassData());
         let term = terms[terms.map(t => parseInt(t.substring(0, 2))).reduce((maxIndex, term, index, arr) => term > arr[maxIndex] ? index : maxIndex, 0)];
@@ -1086,70 +1062,6 @@ module.exports = {
         return {success: true, message: "Set uc class type of " + className + " to " + classType};
     }, //TODO
 
-    addNewUser: function (school, username, password, schoolUsername, isAdmin, beta = false) {
-        // Convert username to lowercase
-
-        return new Promise(resolve => {
-                // Actually add the user to the collection
-                db.addUser(school, username, password, schoolUsername, isAdmin, beta).then((result) => {
-                    return resolve(result);
-                });
-        });
-
-    },
-
-    login: function (username, password) {
-        let user;
-        if (this.userExists(username) || this.emailExists(username)) {
-            user = this.getUser(username);
-            if (bcrypt.compareSync(password, user.password)) {
-                return {success: true, message: "Login Successful"};
-            } else {
-                return {success: false, message: "Incorrect Graderoom password."};
-            }
-        }
-        return {success: false, message: "Invalid credentials."};
-    },  //TODO
-    changePassword: async function (username, oldPassword, password) {
-        let lc_username = username.toLowerCase();
-        if (!this.login(username, oldPassword).success) {
-            return {success: false, message: "Old Password is Incorrect"};
-        }
-
-        let message = validatePassword(password);
-        if (message) {
-            return {success: false, message: message};
-        }
-        let user = db.get("users").find({username: lc_username});
-        let schoolPass;
-        if (user.get("schoolPassword").value()) {
-            schoolPass = this.decryptAndGet(username, oldPassword).message;
-        }
-        let hashedPass = bcrypt.hashSync(password, roundsToGenerateSalt);
-        user.assign({password: hashedPass}).write();
-        if (schoolPass) {
-            this.encryptAndStore(username, schoolPass, password);
-        }
-        return {success: true, message: "Password Updated"};
-    }, //TODO
-
-    changeSchoolEmail: function (username, schoolUsername) {
-        let lc_username = username.toLowerCase();
-        if (!validateEmail(schoolUsername)) {
-            return {success: false, message: "This must be your Bellarmine College Preparatory school email."};
-        }
-        let userRef = db.get("users").find({username: lc_username});
-        if (userRef.get("schoolUsername").value() !== schoolUsername && this.emailExists(schoolUsername)) {
-            return {success: false, message: "This email is already associated with an account."};
-        }
-        userRef.assign({schoolUsername: schoolUsername.toLowerCase()}).write();
-        let {firstName, lastName, graduationYear} = getPersonalInfo(schoolUsername);
-        userRef.get("personalInfo").set("firstName", firstName).write();
-        userRef.get("personalInfo").set("lastName", lastName).write();
-        userRef.get("personalInfo").set("graduationYear", graduationYear).write();
-        return {success: true, message: "School Email Updated"};
-    }, //TODO
-
     setTheme: function (username, theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects) {
         let lc_username = username.toLowerCase();
         let user = db.get("users").find({username: lc_username});
@@ -1175,15 +1087,6 @@ module.exports = {
         return {success: true, message: message};
     }, //TODO
 
-    getUser: function (usernameOrEmail) {
-        let isEmail = validateEmail(usernameOrEmail);
-        let lc_username = usernameOrEmail.toLowerCase();
-        if (isEmail) {
-            return db.get("users").find({schoolUsername: lc_username}).value();
-        }
-        return db.get("users").find({username: lc_username}).value();
-    }, //TODO
-
     getUserRef: function (username) {
         return db.get("users").find({username: username.toLowerCase()});
     }, //TODO
@@ -1196,30 +1099,6 @@ module.exports = {
             return {success: true};
         } else {
             return {success: false};
-        }
-    }, //TODO
-
-    checkUpdateBackground: function (username) {
-        let lc_username = username.toLowerCase();
-        let user = db.get("users").find({username: lc_username});
-        let syncStatus = user.get("updatedInBackground").value();
-        if (syncStatus === "complete") {
-            user.set("updatedInBackground", "already done").write();
-            return {success: true, message: "Sync Complete!"};
-        } else if (syncStatus === "already done") {
-            return {success: true, message: "Already Synced!"};
-        } else if (syncStatus === "no data") {
-            return {success: false, message: "Cannot access grades."};
-        } else if (syncStatus === "failed") {
-            return {success: false, message: "Sync Failed."};
-        } else if (syncStatus === "updating") {
-            return {success: false, message: "Did not sync"};
-        } else if (syncStatus === "history") {
-            return {success: false, message: "Syncing History..."};
-        } else if (syncStatus === "account-inactive") {
-            return {success: false, message: "Your PowerSchool account is no longer active."};
-        } else {
-            return {success: false, message: "Not syncing"};
         }
     }, //TODO
 

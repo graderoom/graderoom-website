@@ -3,7 +3,7 @@ const low = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync");
 const adapter = new FileSync("credentials.json");
 const credentials = low(adapter);
-const authenticator = require("./authenticator");
+const dbClient = require("./dbClient");
 const _ = require("lodash");
 const stream = require("stream");
 
@@ -36,7 +36,7 @@ module.exports = {
 
         let userRef = authenticator.db.get("users").find({username: graderoom_username});
 
-        let {term: oldTerm, semester: oldSemester} = authenticator.getMostRecentTermData(graderoom_username);
+        let {term: oldTerm, semester: oldSemester} = (await dbClient.getMostRecentTermData(graderoom_username)).data;
         let term_data_if_locked = {term: oldTerm, semester: oldSemester};
         let data_if_locked = [];
         if (oldTerm && oldSemester) {
