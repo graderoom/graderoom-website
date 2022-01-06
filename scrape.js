@@ -21,16 +21,22 @@ module.exports = {
             args: [school, email, password, JSON.stringify(data_if_locked), JSON.stringify(term_data_if_locked), get_history]
         };
 
-        const pyshell = new PythonShell("./scrape.py", options);
+        try {
+            const pyshell = new PythonShell("./scrape.py", options);
 
-        pyshell.on("message", (message) => {
-            readableStream.push(message);
-        });
+            pyshell.on("message", (message) => {
+                readableStream.push(message);
+            });
 
-        pyshell.on("close", () => {
+            pyshell.on("close", () => {
+                readableStream.destroy();
+                console.log('Destroyed stream');
+            });
+        } catch (e) {
+            console.log("Server ran out of memory probably");
+            readableStream.push(JSON.stringify({success: false, message: 'Something went wrong.'}));
             readableStream.destroy();
-            console.log('Destroyed stream');
-        });
+        }
 
     }
 
