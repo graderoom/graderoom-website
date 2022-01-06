@@ -12,12 +12,12 @@ const session = require("express-session");
 const passport = require("passport");
 const productionEnv = process.env.NODE_ENV === "production";
 const fs = require("fs");
-const auth = require("./authenticator");
+const h = require("./dbHelpers");
 
-module.exports.needsBetaKeyToSignUp = isBetaServer;
+module.exports.beta = isBetaServer;
 
-auth.readChangelog("CHANGELOG.md");
-auth.watchChangelog();
+h.readChangelog("CHANGELOG.md");
+h.watchChangelog();
 
 // MONGO TIME
 const mongo = require("./dbClient");

@@ -1,5 +1,5 @@
 const server = require("./graderoom.js");
-const authenticator = require("./authenticator.js");
+const dbClient = require("./dbClient.js");
 const emailSender = require("./emailSender.js");
 const _ = require("lodash");
 
@@ -68,7 +68,7 @@ module.exports = function (app, passport) {
                     relevantClassData: JSON.stringify(authenticator.getRelClassData(req.user.username, term, semester)),
                     sortingData: JSON.stringify(req.user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    beta: JSON.stringify(server.needsBetaKeyToSignUp),
+                    beta: JSON.stringify(server.beta),
                     betaFeatures: JSON.stringify(req.user.betaFeatures),
                     term: term,
                     semester: semester,
@@ -98,7 +98,7 @@ module.exports = function (app, passport) {
                     relevantClassData: JSON.stringify({}),
                     sortingData: JSON.stringify(req.user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    beta: JSON.stringify(server.needsBetaKeyToSignUp),
+                    beta: JSON.stringify(server.beta),
                     betaFeatures: JSON.stringify(req.user.betaFeatures),
                     term: "",
                     semester: "",
@@ -113,7 +113,7 @@ module.exports = function (app, passport) {
         }
         res.render("viewer/index.ejs", {
             message: req.flash("loginMessage"),
-            beta: server.needsBetaKeyToSignUp,
+            beta: server.beta,
             appearance: JSON.stringify({seasonalEffects: true}),
             page: "login",
             sunset: sunset,
@@ -122,18 +122,18 @@ module.exports = function (app, passport) {
     });
 
     app.post("/joinbeta", [isLoggedIn], (req, res) => {
-        authenticator.joinBeta(req.user.username);
+        dbClient.joinBeta(req.user.username);
         authenticator.setRemoteAccess(req.user.username, req.body.activateWithRemoteAccess === "on" ? "allowed" : "denied");
         res.redirect("/");
     });
 
     app.post("/betafeatures", [isLoggedIn], (req, res) => {
-        authenticator.addBetaFeature(req.user.username, req.body);
+        dbClient.updateBetaFeatures(req.user.school, req.user.username, req.body);
         res.redirect("/");
     });
 
     app.post("/leavebeta", [isLoggedIn], (req, res) => {
-        authenticator.leaveBeta(req.user.username);
+        dbClient.leaveBeta(req.user.school, req.user.username);
         res.redirect("/");
     });
 
@@ -207,7 +207,7 @@ module.exports = function (app, passport) {
                     relevantClassData: JSON.stringify(authenticator.getRelClassData(req.query.usernameToRender, term, semester)),
                     sortingData: JSON.stringify(user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    beta: server.needsBetaKeyToSignUp,
+                    beta: server.beta,
                     betaFeatures: JSON.stringify(user.betaFeatures),
                     term: term,
                     semester: semester,
@@ -237,7 +237,7 @@ module.exports = function (app, passport) {
                     relevantClassData: JSON.stringify({}),
                     sortingData: JSON.stringify(user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    beta: server.needsBetaKeyToSignUp,
+                    beta: server.beta,
                     betaFeatures: JSON.stringify(user.betaFeatures),
                     term: "",
                     semester: "",
@@ -335,7 +335,7 @@ module.exports = function (app, passport) {
             adminFailMessage: req.flash("adminFailMessage"),
             sessionTimeout: Date.parse(req.session.cookie._expires),
             appearance: JSON.stringify(req.user.appearance),
-            beta: server.needsBetaKeyToSignUp,
+            beta: server.beta,
             sunset: sunset,
             sunrise: sunrise
 
@@ -343,7 +343,7 @@ module.exports = function (app, passport) {
     });
 
     app.get("/changelog", [isLoggedIn], async (req, res) => {
-        let result = authenticator.changelog(server.needsBetaKeyToSignUp);
+        let result = authenticator.changelog(server.beta);
         res.status(200).send(result);
     });
 
@@ -379,12 +379,12 @@ module.exports = function (app, passport) {
     });
 
     app.post("/acceptPrivacyPolicy", [isLoggedIn], (req, res) => {
-        authenticator.acceptPrivacyPolicy(req.user.username);
+        dbClient.acceptPrivacyPolicy(req.user.username);
         res.redirect("/");
     });
 
     app.post("/acceptTerms", [isLoggedIn], (req, res) => {
-        authenticator.acceptTerms(req.user.username);
+        dbClient.acceptTerms(req.user.username);
         res.redirect("/");
     });
 
@@ -457,7 +457,7 @@ module.exports = function (app, passport) {
 
         res.render("viewer/signup.ejs", {
             message: req.flash("signupMessage"),
-            beta: server.needsBetaKeyToSignUp,
+            beta: server.beta,
             appearance: JSON.stringify({seasonalEffects: true}),
             page: "signup",
             sunset: sunset,
@@ -474,19 +474,14 @@ module.exports = function (app, passport) {
 
         console.log("Trying to create user: " + username);
 
-        //check if can create here (i.e. username not in use)
-
         let resp;
-        if (server.needsBetaKeyToSignUp) {
+        if (server.beta) {
             let bk = req.body.beta_key;
-            resp = await authenticator.betaAddNewUser(bk, school, username, password, s_email, false);
+            resp = await dbClient.addUser(school, username, password, s_email, false, server.beta, bk);
             console.log("beta: " + resp);
-
         } else {
-
-            resp = await authenticator.addNewUser(school, username, password, s_email, false);
+            resp = await dbClient.addUser(school, username, password, s_email, false);
             console.log("nonbeta: " + resp);
-
         }
         authenticator.setColorPalette(username, "clear", false);
 
@@ -641,7 +636,7 @@ module.exports = function (app, passport) {
                     gradeData: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
                     weightData: JSON.stringify(req.user.weights[term][semester]),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    beta: JSON.stringify(server.needsBetaKeyToSignUp),
+                    beta: JSON.stringify(server.beta),
                     sunset: sunset,
                     sunrise: sunrise
 
@@ -659,7 +654,7 @@ module.exports = function (app, passport) {
                     gradeData: JSON.stringify({}),
                     weightData: JSON.stringify({}),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    beta: JSON.stringify(server.needsBetaKeyToSignUp),
+                    beta: JSON.stringify(server.beta),
                     sunset: sunset,
                     sunrise: sunrise
 
@@ -670,7 +665,7 @@ module.exports = function (app, passport) {
             res.render("viewer/final_grade_calculator_logged_out.ejs", {
                 appearance: JSON.stringify({seasonalEffects: true}),
                 page: "logged_out_calc",
-                beta: JSON.stringify(server.needsBetaKeyToSignUp),
+                beta: JSON.stringify(server.beta),
                 sunset: sunset,
                 sunrise: sunrise
 
@@ -695,13 +690,13 @@ module.exports = function (app, passport) {
         let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
 
         res.render("admin/betakeys.ejs", {
-            betaKeyData: (await authenticator.getAllBetaKeyData()).data.value,
+            betaKeyData: (await dbClient.getAllBetaKeys()).data.value,
             betaKeySuccessMessage: req.flash("betaKeySuccessMessage"),
             betaKeyFailMessage: req.flash("betaKeyFailMessage"),
             page: "keys",
             sessionTimeout: Date.parse(req.session.cookie._expires),
             appearance: JSON.stringify(req.user.appearance),
-            beta: server.needsBetaKeyToSignUp,
+            beta: server.beta,
             sunset: sunset,
             sunrise: sunrise,
             username: req.user.username
@@ -710,11 +705,11 @@ module.exports = function (app, passport) {
     });
 
     app.get("/latestVersion", [isLoggedIn], (req, res) => {
-        res.status(200).send(authenticator.whatsNew(req.user.username, server.needsBetaKeyToSignUp));
+        res.status(200).send(authenticator.whatsNew(req.user.username, server.beta));
     });
 
     app.post("/latestVersionSeen", [isLoggedIn], (req, res) => {
-        authenticator.latestVersionSeen(req.user.username, server.needsBetaKeyToSignUp);
+        authenticator.latestVersionSeen(req.user.username, server.beta);
         res.sendStatus(200);
     });
 
@@ -734,7 +729,7 @@ module.exports = function (app, passport) {
     app.post("/deletebetakey", [isAdmin], async (req, res) => {
 
         let bk = req.body.beta_key;
-        let resp = await authenticator.removeBetaKey(bk);
+        let resp = await dbClient.removeBetaKey(bk);
 
         if (resp.success) {
             req.flash("betaKeySuccessMessage", resp.data.message);
@@ -765,7 +760,7 @@ module.exports = function (app, passport) {
             classData: authenticator.getAllClassData()[term][semester],
             sessionTimeout: Date.parse(req.session.cookie._expires),
             appearance: JSON.stringify(req.user.appearance),
-            beta: server.needsBetaKeyToSignUp,
+            beta: server.beta,
             term: term,
             semester: semester,
             termsAndSemesters: JSON.stringify(Object.keys(authenticator.getAllClassData()).map(x => [x,
@@ -819,7 +814,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/betakeyValid", async (req, res) => {
-        let betaKeyValid = await authenticator.betaKeyValid(req.body.betaKey);
+        let betaKeyValid = await dbClient.betaKeyValid(req.body.betaKey);
         if (!betaKeyValid.success) {
             res.status(400).send(betaKeyValid.data.message);
         } else {
@@ -946,7 +941,7 @@ module.exports = function (app, passport) {
             alerts: JSON.stringify(req.user.alerts),
             gradeSync: !!req.user.schoolPassword,
             sortingData: JSON.stringify(req.user.sortingData),
-            beta: server.needsBetaKeyToSignUp,
+            beta: server.beta,
             betaFeatures: JSON.stringify(req.user.betaFeatures),
             sunset: sunset,
             sunrise: sunrise

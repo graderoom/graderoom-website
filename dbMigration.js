@@ -1,7 +1,7 @@
 //setup lowDB
 const low = require("lowdb");
-const FileSync = require ("lowdb/adapters/FileSync");
-const adapter  = new FileSync("user_db.json");
+const FileSync = require("lowdb/adapters/FileSync");
+const adapter = new FileSync("user_db.json");
 const db = low(adapter);
 
 //setup mongodb
@@ -20,7 +20,7 @@ const userCollection = (school) => {
 
 const classesCollection = (school) => {
     return school + "_" + CLASSES_COLLECTION_NAME;
-}
+};
 
 //migrate function
 async function migrate(client) {
@@ -77,7 +77,7 @@ async function migrate(client) {
 
                 let school;
                 if (semester === "_") {
-                    school = "basis"
+                    school = "basis";
                 } else {
                     school = "bellarmine";
                 }
@@ -94,8 +94,8 @@ MongoClient.connect(mongoUrl).then((client) => {
         console.log("Finished!");
     }).catch((err) => {
         console.log(err);
-    }).finally(() => {
-        client.close();
+    }).finally(async () => {
+        await client.close();
     });
 });
 

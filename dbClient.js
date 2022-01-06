@@ -1,4 +1,5 @@
 const {MongoClient} = require("mongodb");
+const bcrypt = require("bcryptjs");
 
 let _url;
 let _prod;
@@ -16,21 +17,8 @@ const STABLE_DATABASE_NAME = "stable";
 const BETA_DATABASE_NAME = "beta";
 const TEST_DATABASE_NAME = "test";
 
-const userCollection = (school) => {
-    return school + "_" + USERS_COLLECTION_NAME;
-};
-
-const classesCollection = (school) => {
-    return school + "_" + CLASSES_COLLECTION_NAME;
-}
-
-const removeId = (value) => {
-    if ("_id" in value) {
-        delete value._id;
-    }
-    return value;
-};
-
+const h = require("./dbHelpers");
+const {makeUser} = require("./dbHelpers");
 
 module.exports = {
     /**
@@ -47,25 +35,34 @@ module.exports = {
         _testing = testing ?? _testing;
         _client?.close();
         _client = await MongoClient.connect(_url);
+        console.log(`Connected to mongodb at url: ${_url}`);
     },
     init: () => connectAndThen(_init),
-    addUser: (school, user) => validateSchoolAndThenConnectAndThen(_addUser, school, user),
+    addUser: (school, username, password, schoolUsername, isAdmin, beta = false, betaKey) => validateSchoolAndThenConnectAndThen(_addUser, school, h.lower(username), password, h.lower(schoolUsername), isAdmin, beta, betaKey),
     userExists: (school, {
         username, schoolUsername
-    }) => validateSchoolAndThenConnectAndThen(_userExists, school, {username, schoolUsername}),
-    getUser: (school, {username, schoolUsername}) => validateSchoolAndThenConnectAndThen(_getUser, school, {
-        username, schoolUsername
+    }) => validateSchoolAndThenConnectAndThen(_userExists, school, {
+        username: h.lower(username), schoolUsername: h.lower(schoolUsername)
     }),
-    getAllUsers: (school) => validateSchoolAndThenConnectAndThen(_getAllUsers, school), /* TODO update user functions */
-    removeUser: (school, {
+    getUser: (school, {
         username, schoolUsername
-    }) => validateSchoolAndThenConnectAndThen(_removeUser, school, {username, schoolUsername}),
+    }) => validateSchoolAndThenConnectAndThen(_getUser, school, {
+        username: h.lower(username), schoolUsername: h.lower(schoolUsername)
+    }),
+    getAllUsers: (school) => validateSchoolAndThenConnectAndThen(_getAllUsers, school),
+    acceptTerms: (school, username) => validateSchoolAndThenConnectAndThen(_acceptTerms, school, username),
+    acceptPrivacyPolicy: (school, username) => validateSchoolAndThenConnectAndThen(_acceptPrivacyPolicy, school, username),
+    removeUser: (school, username) => validateSchoolAndThenConnectAndThen(_removeUser, school, h.lower(username)),
     addBetaKey: (betaKey) => connectAndThen(_addBetaKey, betaKey),
     betaKeyExists: (betaKey) => connectAndThen(_betaKeyExists, betaKey),
+    betaKeyValid: (betaKey) => connectAndThen(_betaKeyValid, betaKey),
     getBetaKey: (betaKey) => connectAndThen(_getBetaKey, betaKey),
     getAllBetaKeys: () => connectAndThen(_getAllBetaKeys),
-    claimBetaKey: (betaKey, username) => connectAndThen(_claimBetaKey, betaKey, username),
+    claimBetaKey: (betaKey, username) => connectAndThen(_claimBetaKey, betaKey, h.lower(username)),
     removeBetaKey: (betaKey) => connectAndThen(_removeBetaKey, betaKey),
+    joinBeta: (school, username) => validateSchoolAndThenConnectAndThen(_joinBeta, school, username),
+    updateBetaFeatures: (school, username, features) => validateSchoolAndThenConnectAndThen(_updateBetaFeatures, school, username, features),
+    leaveBeta: (school, username) => validateSchoolAndThenConnectAndThen(_leaveBeta, school, username),
     clearTestDatabase: () => connectAndThen(_clearTestDatabase)
 };
 
@@ -80,19 +77,18 @@ module.exports = {
  * @returns {Promise<{success: boolean, data: Object}>}
  */
 const connectAndThen = (func, ...args) => {
-    return new Promise(resolve =>
-        func(db(_client), ...args).then(async (_data) => {
-            let success = "success" in _data && typeof _data.success === "boolean" ? _data.success : false;
-            let data = "data" in _data && _data.data.constructor === Object ? _data.data : {};
-                if ("log" in data && !_prod) {
-                    console.log(data.log);
-                    delete data.log;
-                }
-                if ("value" in data) {
-                    // Remove the _id attribute of the value if necessary
-                    data.value = removeId(data.value);
-                }
-                return resolve({success: success, data: data});
+    return new Promise(resolve => func(db(_client), ...args).then(async (_data) => {
+        let success = "success" in _data && typeof _data.success === "boolean" ? _data.success : false;
+        let data = "data" in _data && _data.data.constructor === Object ? _data.data : {};
+        if ("log" in data && !_prod) {
+            console.log(data.log);
+            delete data.log;
+        }
+        if ("value" in data) {
+            // Remove the _id attribute of the value if necessary
+            data.value = h.removeId(data.value);
+        }
+        return resolve({success: success, data: data});
     }));
 };
 
@@ -125,22 +121,34 @@ const _init = async (db) => {
 
     for (let name of SCHOOL_NAMES) {
         // Create the user collection if it doesn't exist
-        if (!collectionNames.includes(userCollection(name))) {
-            await db.createCollection(userCollection(name));
+        if (!collectionNames.includes(h.userCollection(name))) {
+            await db.createCollection(h.userCollection(name));
         }
 
         // Create the classes collection if it doesn't exist
-        if (!collectionNames.includes(classesCollection(name))) {
-            await db.createCollection(classesCollection(name));
+        if (!collectionNames.includes(h.classesCollection(name))) {
+            await db.createCollection(h.classesCollection(name));
         }
     }
 
     return {success: true};
 };
 
-const _addUser = async (db, school, user) => {
+const _addUser = async (db, school, username, password, schoolUsername, isAdmin, beta, betaKey) => {
+    if (beta) {
+        let res = await db.claimBetaKey(school, betaKey, username);
+        if (!res.success) {
+            return res;
+        }
+    }
+    let createUser = await makeUser(school, username, password, schoolUsername, isAdmin, beta);
+    if (!createUser.success) {
+        console.log(createUser.message);
+        return createUser;
+    }
+    let user = createUser.data.value;
     if (!(await _userExists(db, school, {username: user.username, schoolUsername: user.schoolUsername})).success) {
-        await db.collection(userCollection(school)).insertOne(user);
+        await db.collection(h.userCollection(school)).insertOne(user);
         return {success: true, data: {log: `Created user ${user.username} in ${school}`, message: "User Created"}};
     } else {
         return {
@@ -153,7 +161,7 @@ const _addUser = async (db, school, user) => {
 };
 
 const _userExists = async (db, school, {username, schoolUsername}) => {
-    let userExists = await db.collection(userCollection(school)).findOne({$or: [{username: username}, {schoolUsername: schoolUsername}]});
+    let userExists = await db.collection(h.userCollection(school)).findOne({$or: [{username: username}, {schoolUsername: schoolUsername}]});
     if (!!userExists) {
         return {
             success: true,
@@ -167,13 +175,13 @@ const _userExists = async (db, school, {username, schoolUsername}) => {
 };
 
 const _getUser = async (db, school, {username, schoolUsername}) => {
-    let user = await db.collection(userCollection(school)).findOne({
-                                                                       $or: [{
-                                                                           username: username
-                                                                       }, {
-                                                                           schoolUsername: schoolUsername
-                                                                       }]
-                                                                   });
+    let user = await db.collection(h.userCollection(school)).findOne({
+                                                                         $or: [{
+                                                                             username: username
+                                                                         }, {
+                                                                             schoolUsername: schoolUsername
+                                                                         }]
+                                                                     });
     if (!user) {
         return {
             success: false,
@@ -184,17 +192,29 @@ const _getUser = async (db, school, {username, schoolUsername}) => {
 };
 
 const _getAllUsers = async (db, school) => {
-    return {success: true, data: {value: await db.collection(userCollection(school)).find({}).toArray()}};
+    return {success: true, data: {value: await db.collection(h.userCollection(school)).find({}).toArray()}};
 };
 
-const _updateUser = async (db, school, username, property, value) => {
-    let res = await db.collection(userCollection(school)).findOneAndUpdate()
-}
+const _acceptTerms = async (db, school, username) => {
+    let res = await db.collection(h.userCollection(school)).findOneAndUpdate({username: username}, {$set: {alerts: {termsLastSeen: Date.now()}}});
+    if (res.ok) {
+        return {success: true, data: {log: `Accepted terms for ${username} in ${school}`}};
+    }
+    return {success: false, data: {log: `Error accepting terms for ${username} in ${school}`}};
+};
+
+const _acceptPrivacyPolicy = async (db, school, username) => {
+    let res = await db.collection(h.userCollection(school)).findOneAndUpdate({username: username}, {$set: {alerts: {$set: {policyLastSeen: Date.now()}}}});
+    if (res.ok) {
+        return {success: true, data: {log: `Accepted policy for ${username} in ${school}`}};
+    }
+    return {success: false, data: {log: `Error accepting policy for ${username} in ${school}`}};
+};
 
 const _removeUser = async (db, school, username) => {
-    let res = await db.collection(userCollection(school)).deleteOne({
-                                                                            username: username
-                                                                    });
+    let res = await db.collection(h.userCollection(school)).deleteOne({
+                                                                          username: username
+                                                                      });
     if (res.deletedCount === 1) {
         return {success: true, data: {log: `Deleted user ${username}.`, message: "Deleted user."}};
     }
@@ -206,16 +226,18 @@ const _removeUser = async (db, school, username) => {
     };
 };
 
-const _addBetaKey = async (db, betaKey) => {
+const _addBetaKey = async (db) => {
+    let betaKey = h.makeKey(7);
     if ((await _betaKeyExists(db, betaKey)).success) {
         return {
             success: false, data: {log: `Beta key ${betaKey} already exists.`, message: "Beta key already exists."}
         };
     }
-    await db.collection(BETAKEYS_COLLECTION_NAME).insertOne({
-                                                                betaKey: betaKey, claimed: false, claimedBy: ""
-                                                            });
-    return {success: true, data: {log: `Added betaKey ${betaKey}`, message: "Beta Key Added"}};
+    let document = {
+        betaKey: betaKey, claimed: false, claimedBy: ""
+    };
+    await db.collection(BETAKEYS_COLLECTION_NAME).insertOne(document);
+    return {success: true, data: {log: `Added betaKey ${betaKey}`, message: "Beta Key Added", value: document}};
 };
 
 const _betaKeyExists = async (db, betaKey) => {
@@ -229,8 +251,11 @@ const _betaKeyExists = async (db, betaKey) => {
 };
 
 const _betaKeyValid = async (db, betaKey) => {
-
-}
+    let exists = await _betaKeyExists(db, betaKey);
+    if (!exists.success) return {success: false, data: {message: "Invalid beta key!"}};
+    if (exists.data.value.claimed) return {success: false, data: {message: "Beta key already claimed!"}};
+    return {success: true, data: {message: "Valid key!"}};
+};
 
 const _getBetaKey = async (db, betaKey) => {
     let _betaKey = await db.collection(BETAKEYS_COLLECTION_NAME).findOne({betaKey: betaKey});
@@ -254,12 +279,12 @@ const _claimBetaKey = async (db, betaKey, username) => {
             success: false, data: {log: `Beta key ${betaKey} already claimed.`, message: "Beta key already claimed."}
         };
     }
-    let key = await db.collection(BETAKEYS_COLLECTION_NAME).findOneAndUpdate({$and: [{betaKey: betaKey}, {claimed: false}]}, {
+    let res2 = await db.collection(BETAKEYS_COLLECTION_NAME).findOneAndUpdate({$and: [{betaKey: betaKey}, {claimed: false}]}, {
         $set: {
             claimed: true, claimedBy: username
         }
     });
-    if (!!key) {
+    if (res2.ok) {
         return {success: true, data: {log: `${betaKey} successfully claimed by ${username}`}};
     }
     return {
@@ -281,6 +306,32 @@ const _removeBetaKey = async (db, betaKey) => {
             message: "Beta key could not be deleted"
         }
     };
+};
+
+const _joinBeta = async (db, school, username) => {
+    let featureObject = h.betaFeatures();
+    let res = await db.collection(h.userCollection(school)).findOneAndUpdate({username: username}, {$set: {betaFeatures: featureObject}});
+    if (res.ok) {
+        return {success: true, data: {log: `Joined beta for ${username} in ${school}`}};
+    }
+    return {success: false, data: {log: `Error joining beta for ${username} in ${school}`}};
+};
+
+const _updateBetaFeatures = async (db, school, username, features) => {
+    let featureObject = h.betaFeatures(features);
+    let res = await db.collection(h.userCollection(school)).findOneAndUpdate({username: username}, {$set: {betaFeatures: featureObject}});
+    if (res.ok) {
+        return {success: true, data: {log: `Updated beta features for ${username} in ${school}`}};
+    }
+    return {success: false, data: {log: `Updated beta features for ${username} in ${school}`}};
+};
+
+const _leaveBeta = async (db, school, username) => {
+    let res = await db.collection(h.userCollection(school)).findOneAndUpdate({username: username}, {$set: {betaFeatures: {active: false}}});
+    if (res.ok) {
+        return {success: true, data: {log: `Left beta for ${username} in ${school}`}};
+    }
+    return {success: false, data: {log: `Error leaving beta for ${username} in ${school}`}};
 };
 
 const _clearTestDatabase = async (db) => {
