@@ -1,5 +1,6 @@
 const {MongoClient} = require("mongodb");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 
 let _url;
 let _prod;
@@ -10,6 +11,7 @@ let _client;
 // Shared constants to avoid typo bugs
 const SCHOOL_NAMES = ["bellarmine", "basis"];
 const USERS_COLLECTION_NAME = "users";
+const ARCHIVED_USERS_COLLECTION_NAME = "archived_users";
 const CLASSES_COLLECTION_NAME = "classes";
 const BETAKEYS_COLLECTION_NAME = "betakeys";
 
@@ -21,12 +23,21 @@ const MAIN_PURPOSE = "main";
 const SYNC_PURPOSE = "sync";
 const NOTI_PURPOSE = "noti";
 
-const {makeUser, validatePassword, makeKey, lower, removeId, classesCollection,
-    roundsToGenerateSalt, validateEmail, getPersonalInfo
+const {
+    makeUser,
+    validatePassword,
+    makeKey,
+    lower,
+    removeId,
+    classesCollection,
+    roundsToGenerateSalt,
+    validateEmail,
+    getPersonalInfo
 } = require("./dbHelpers");
 const _ = require("lodash");
 const stream = require("stream");
 const socketManager = require("./socketManager");
+const scraper = require("./scrape");
 
 module.exports = {
     /**
@@ -58,13 +69,26 @@ module.exports = {
         username: lower(username), schoolUsername: lower(schoolUsername)
     }),
     getAllUsers: () => safe(_getAllUsers),
+    userArchived: ({username, schoolUsername}) => safe(_userArchived, {
+        username: lower(username), schoolUsername: lower(schoolUsername)
+    }),
+    archiveUser: (username) => safe(_archiveUser, lower(username)),
+    getAllArchivedUsers: () => safe(_getAllArchivedUsers),
+    unarchiveUser: (username) => safe(_unarchiveUser, lower(username)),
+    removeUser: (username) => safe(_removeUser, lower(username)),
+    removeUserFromArchive: (username) => safe(_removeUserFromArchive, lower(username)),
     getMostRecentTermData: (username) => safe(_getMostRecentTermData, lower(username)),
     login: (username, password) => safe(_login, lower(username), password),
+    encryptAndStoreSchoolPassword: (username, schoolPassword, password) => safe(_encryptAndStoreSchoolPassword, lower(username), schoolPassword, password),
+    decryptAndGetSchoolPassword: (username, password) => safe(_decryptAndGetSchoolPassword, lower(username), password),
     acceptTerms: (username) => safe(_acceptTerms, lower(username)),
     acceptPrivacyPolicy: (username) => safe(_acceptPrivacyPolicy, lower(username)),
     changePassword: (username, oldPassword, newPassword) => safe(_changePassword, lower(username), oldPassword, newPassword),
     changeSchoolEmail: (username, schoolUsername) => safe(_changeSchoolEmail, lower(username), lower(schoolUsername)),
-    removeUser: (username) => safe(_removeUser, lower(username)),
+    makeAdmin: (username) => safe(_makeAdmin, lower(username)),
+    removeAdmin: (username, requester) => safe(_removeAdmin, lower(username), lower(requester)),
+    updateGrades: (username, schoolPassword) => safe(_updateGrades, lower(username), schoolPassword),
+    updateGradeHistory: (username, schoolPassword) => safe(_updateGradeHistory, lower(username), schoolPassword),
     getSyncStatus: (username) => safe(_getSyncStatus, lower(username)),
     addBetaKey: (betaKey) => safe(_addBetaKey, betaKey),
     betaKeyExists: (betaKey) => safe(_betaKeyExists, betaKey),
@@ -90,19 +114,26 @@ module.exports = {
  * @returns {Promise<{success: boolean, data: Object}>}
  */
 const safe = (func, ...args) => {
-    return new Promise(resolve => func(db(_client), ...args).then(async (_data) => {
-        let success = "success" in _data && typeof _data.success === "boolean" ? _data.success : false;
-        let data = "data" in _data && _data.data.constructor === Object ? _data.data : {};
-        if ("log" in data && !_prod) {
-            console.log(data.log);
-            delete data.log;
+    return new Promise(resolve => {
+        try {
+            func(db(_client), ...args).then(async (_data) => {
+                let success = "success" in _data && typeof _data.success === "boolean" ? _data.success : false;
+                let data = "data" in _data && _data.data.constructor === Object ? _data.data : {};
+                if ("log" in data && !_prod) {
+                    console.log(data.log);
+                    delete data.log;
+                }
+                if ("value" in data) {
+                    // Remove the _id attribute of the value if it exists
+                    data.value = removeId(data.value);
+                }
+                return resolve({success: success, data: data});
+            });
+        } catch (e) {
+            console.log(e);
+            return resolve({success: false, data: {message: "Something went wrong"}});
         }
-        if ("value" in data) {
-            // Remove the _id attribute of the value if it exists
-            data.value = removeId(data.value);
-        }
-        return resolve({success: success, data: data});
-    }));
+    });
 };
 
 const db = client => client.db(_testing ? TEST_DATABASE_NAME : _beta ? BETA_DATABASE_NAME : STABLE_DATABASE_NAME);
@@ -120,6 +151,10 @@ const _init = async (db) => {
     // Create the user collection if it doesn't exist
     if (!collectionNames.includes(USERS_COLLECTION_NAME)) {
         await db.createCollection(USERS_COLLECTION_NAME);
+    }
+    // Create the deleted user collection if it doesn't exist
+    if (!collectionNames.includes(ARCHIVED_USERS_COLLECTION_NAME)) {
+        await db.createCollection(ARCHIVED_USERS_COLLECTION_NAME);
     }
 
     for (let name of SCHOOL_NAMES) {
@@ -145,6 +180,10 @@ const _addUser = async (db, school, username, password, schoolUsername, isAdmin,
         return createUser;
     }
     let user = createUser.data.value;
+    return await __addUser(db, user);
+};
+
+const __addUser = async (db, user) => {
     if (!(await _userExists(db, {username: user.username, schoolUsername: user.schoolUsername})).success) {
         await db.collection(USERS_COLLECTION_NAME).insertOne(user);
         return {success: true, data: {log: `Created user ${user.username} in ${school}`, message: "User Created"}};
@@ -174,12 +213,12 @@ const _userExists = async (db, {username, schoolUsername}) => {
 
 const _getUser = async (db, {username, schoolUsername}) => {
     let user = await db.collection(USERS_COLLECTION_NAME).findOne({
-                                                                         $or: [{
-                                                                             username: username
-                                                                         }, {
-                                                                             schoolUsername: schoolUsername
-                                                                         }]
-                                                                     });
+                                                                      $or: [{
+                                                                          username: username
+                                                                      }, {
+                                                                          schoolUsername: schoolUsername
+                                                                      }]
+                                                                  });
     if (!user) {
         return {
             success: false,
@@ -193,18 +232,99 @@ const _getAllUsers = async (db) => {
     return {success: true, data: {value: await db.collection(USERS_COLLECTION_NAME).find({}).toArray()}};
 };
 
+const _userArchived = async (db, {username, schoolUsername}) => {
+    let userExists = await db.collection(ARCHIVED_USERS_COLLECTION_NAME).findOne({$or: [{username: username}, {schoolUsername: schoolUsername}]});
+    if (!!userExists) {
+        return {
+            success: true, data: {
+                log: `Archived user with username=${username}, schoolUsername=${schoolUsername} found`,
+                value: userExists
+            }
+        };
+    }
+    return {
+        success: false,
+        data: {log: `No archived user found with given parameters: username=${username}, schoolUsername=${schoolUsername}`}
+    };
+};
+
+const _archiveUser = async (db, username) => {
+    let res = await _getUser(db, {username: username});
+    if (!res.success) {
+        return res;
+    }
+    await db.collection(ARCHIVED_USERS_COLLECTION_NAME).insertOne(res.data.value);
+    let res2 = await _removeUser(db, username);
+    if (!res2.success) {
+        return res2;
+    }
+    return {success: true, data: {log: `Archived user ${username}.`, message: "Archived user."}};
+};
+
+const _getAllArchivedUsers = async (db) => {
+    return {success: true, data: {value: await db.collection(ARCHIVED_USERS_COLLECTION_NAME).find({}).toArray()}};
+};
+
+const _unarchiveUser = async (db, username) => {
+    let res = await _userArchived(db, username);
+    if (!res.success) {
+        return res;
+    }
+    let res2 = await __addUser(db, res.data.value);
+    if (!res2.success) {
+        return res2;
+    }
+    let res3 = await _removeUserFromArchive(db, username);
+    if (!res3.success) {
+        return res3;
+    }
+    return {success: true, data: {log: `Unarchived user ${username}.`, message: "Unarchived user."}};
+};
+
+const _removeUser = async (db, username) => {
+    let res = await db.collection(USERS_COLLECTION_NAME).deleteOne({
+                                                                       username: username
+                                                                   });
+    if (res.deletedCount === 1) {
+        return {success: true, data: {log: `Deleted user ${username}.`, message: "Deleted user."}};
+    }
+    return {
+        success: false, data: {
+            log: `Could not delete user with given parameters: username=${username}`,
+            message: "User could not be deleted"
+        }
+    };
+};
+
+const _removeUserFromArchive = async (db, username) => {
+    let res = await db.collection(ARCHIVED_USERS_COLLECTION_NAME).deleteOne({
+                                                                                username: username
+                                                                            });
+    if (res.deletedCount === 1) {
+        return {success: true, data: {log: `Deleted archived user ${username}.`, message: "Deleted archived user."}};
+    }
+    return {
+        success: false, data: {
+            log: `Could not delete archived user with given parameters: username=${username}`,
+            message: "Archived user could not be deleted"
+        }
+    };
+};
+
 const _getMostRecentTermData = async (db, username) => {
     let res = await _getUser(db, {username: username});
-    if (!res.success) return res;
+    if (!res.success) {
+        return res;
+    }
     let user = res.data.value;
     return __getMostRecentTermData(user);
-}
+};
 
 const __getMostRecentTermData = (user) => {
     let grades = user.grades;
     let terms = Object.keys(grades);
     if (terms.length === 0) {
-        return {success: false, data: {term: false, semester: false, log: `User ${username} has no grades!`}}
+        return {success: false, data: {term: false, semester: false, log: `User ${username} has no grades!`}};
     }
     let term = terms[terms.map(t => parseInt(t.substring(0, 2))).reduce((maxIndex, term, index, arr) => term > arr[maxIndex] ? index : maxIndex, 0)];
     if (user.school === "basis") {
@@ -213,45 +333,99 @@ const __getMostRecentTermData = (user) => {
     let semesters = Object.keys(grades[term]);
     let semester = semesters[semesters.map(s => parseInt(s.substring(1))).reduce((maxIndex, semester, index, arr) => semester > arr[maxIndex] ? index : maxIndex, 0)];
     return {success: true, data: {term: term, semester: semester}};
-}
+};
 
 const _login = async (db, username, password) => {
-    return new Promise(async resolve => {
-        let res = await _userExists(db, {username: username});
-        if (!res.success) return resolve({success: false, data: {message: "Invalid credentials."}});
-        let user = res.data.value;
+    let res = await _userExists(db, {username: username});
+    if (!res.success) {
+        return {success: false, data: {message: "Invalid credentials."}};
+    }
+    let user = res.data.value;
+    return await __login(user, password);
+};
+
+const __login = async (user, password) => {
+    return new Promise(resolve => {
         bcrypt.compare(password, user.password, (err, success) => {
             if (err) {
-                return resolve({success: false, data: {log: err, message: "Something went wrong"}})
+                return resolve({success: false, data: {log: err, message: "Something went wrong"}});
             }
             if (!success) {
                 return resolve({
-                    success: false,
-                    data: {log: `Login failed for ${username}`, message: "Incorrect Graderoom password."}
-                });
+                                   success: false,
+                                   data: {log: `Login failed for ${username}`, message: "Incorrect Graderoom password."}
+                               });
             }
             return resolve({
-                success: true,
-                data: {log: `Login success for ${username}`, message: "Login Successful", value: user}
-            });
+                               success: true,
+                               data: {log: `Login success for ${username}`, message: "Login Successful", value: user}
+                           });
         });
     });
+};
+
+const _encryptAndStoreSchoolPassword = async (db, username, schoolPassword, password) => {
+    let res = await _userExists(db, {username: username});
+    if (!res.success) {
+        return res;
+    }
+    let user = res.data.value;
+    let res2 = __login(user, password);
+    if (!res2.success) {
+        return res2;
+    }
+
+    let resizedIV = Buffer.allocUnsafe(16);
+    let iv = crypto.createHash("sha256").update("myHashedIV").digest();
+    iv.copy(resizedIV);
+    let key = crypto.createHash("sha256").update(password).digest();
+    let cipher = crypto.createCipheriv("aes256", key, resizedIV);
+    let encryptedPass = cipher.update(schoolPassword, "utf8", "hex");
+    encryptedPass += cipher.final("hex");
+
+    await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {schoolPassword: encryptedPass}});
+    return {success: true, data: {log: `Stored school password for ${username}`}};
+};
+
+const _decryptAndGetSchoolPassword = async (db, username, password) => {
+    let res = await _userExists(db, {username: username});
+    if (!res.success) {
+        return res;
+    }
+    let user = res.data.value;
+    let res2 = __login(user, password);
+    if (!res2.success) {
+        return res2;
+    }
+
+    let resizedIV = Buffer.allocUnsafe(16);
+    let iv = crypto.createHash("sha256").update("myHashedIV").digest();
+    iv.copy(resizedIV);
+    let key = crypto.createHash("sha256").update(password).digest();
+    let decipher = crypto.createDecipheriv("aes256", key, resizedIV);
+
+    let schoolPassword = user.schoolPassword;
+
+    let decryptedPass = decipher.update(schoolPassword, "hex", "utf8");
+    decryptedPass += decipher.final("utf8");
+
+    return {success: true, data: {value: decryptedPass}};
 }
 
 const _acceptTerms = async (db, username) => {
-    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {'alerts.termsLastSeen': Date.now()}});
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {"alerts.termsLastSeen": Date.now()}});
     if (res.ok) {
-        return {success: true, data: {log: `Accepted terms for ${username} in ${school}`}};
+        return {success: true, data: {log: `Accepted terms for ${username}`}};
     }
-    return {success: false, data: {log: `Error accepting terms for ${username} in ${school}`}};
+    return {success: false, data: {log: `Error accepting terms for ${username}`}};
 };
 
 const _acceptPrivacyPolicy = async (db, username) => {
-    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {'alerts.policyLastSeen': Date.now()}});
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {"alerts.policyLastSeen": Date.now()}});
     if (res.ok) {
-        return {success: true, data: {log: `Accepted policy for ${username} in ${school}`}};
+        return {success: true, data: {log: `Accepted policy for ${username}`}};
     }
-    return {success: false, data: {log: `Error accepting policy for ${username} in ${school}`}};
+    return {success: false, data: {log: `Error accepting policy for ${username}`}};
 };
 
 const _changePassword = async (db, username, oldPassword, newPassword) => {
@@ -266,7 +440,7 @@ const _changePassword = async (db, username, oldPassword, newPassword) => {
         }
         let user = res.data.value;
         let schoolPassword;
-        if ('schoolPassword' in user) {
+        if ("schoolPassword" in user) {
             let res2 = await _decryptAndGetSchoolPassword(db, username, oldPassword);
             if (!res2.success) {
                 return resolve(res2);
@@ -279,7 +453,10 @@ const _changePassword = async (db, username, oldPassword, newPassword) => {
             }
             let res3 = await db.findOneAndUpdate({username: username}, {$set: {password: hash}});
             if (!res3.ok) {
-                return resolve({success: false, data: {log: `Error updating password`, message: "Something went wrong"}});
+                return resolve({
+                                   success: false,
+                                   data: {log: `Error updating password`, message: "Something went wrong"}
+                               });
             }
             if (schoolPassword) {
                 let res4 = await _encryptAndStoreSchoolPassword(db, username, schoolPassword, newPassword);
@@ -287,14 +464,19 @@ const _changePassword = async (db, username, oldPassword, newPassword) => {
                     return resolve(res4);
                 }
             }
-            return resolve({success: true, data: {log: `Changed password for ${username}`, message: "Password Updated"}});
+            return resolve({
+                               success: true,
+                               data: {log: `Changed password for ${username}`, message: "Password Updated"}
+                           });
         });
     });
-}
+};
 
 const _changeSchoolEmail = async (db, username, schoolUsername) => {
     let res = await _getUser(db, {username: username});
-    if (!res.success) return res;
+    if (!res.success) {
+        return res;
+    }
     let user = res.data.value;
     if (!validateEmail(schoolUsername, user.school)) {
         return {success: false, data: {message: "This must be your school email."}};
@@ -303,26 +485,37 @@ const _changeSchoolEmail = async (db, username, schoolUsername) => {
         return {success: false, data: {message: "This email is already associated with an account."}};
     }
     let {firstName, lastName, graduationYear} = getPersonalInfo(schoolUsername, user.school);
-    let res2 = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {schoolUsername: schoolUsername, personalInfo: {firstName: firstName, lastName: lastName, graduationYear: graduationYear}}});
+    let res2 = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {
+        $set: {
+            schoolUsername: schoolUsername,
+            personalInfo: {firstName: firstName, lastName: lastName, graduationYear: graduationYear}
+        }
+    });
     if (!res2.ok) {
         return {success: false, data: {log: `Error updating school email`, message: "Something went wrong"}};
     }
     return {success: true, data: {log: `Changed school username for ${username}`, message: "School Email Updated"}};
-}
+};
 
-const _removeUser = async (db, username) => {
-    let res = await db.collection(USERS_COLLECTION_NAME).deleteOne({
-                                                                          username: username
-                                                                      });
-    if (res.deletedCount === 1) {
-        return {success: true, data: {log: `Deleted user ${username}.`, message: "Deleted user."}};
+const _makeAdmin = async (db, username) => {
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {isAdmin: true}});
+    if (res.ok) {
+        return {success: true, data: {log: `Made ${username} admin`, message: "Made user admin"}};
     }
-    return {
-        success: false, data: {
-            log: `Could not delete user with given parameters: username=${username}`,
-            message: "User could not be deleted"
-        }
-    };
+    return {success: false, data: {log: `Error making ${username} admin`, message: "Something went wrong"}};
+};
+
+const _removeAdmin = async (db, username, requester) => {
+    if (username === requester) {
+        return {
+            success: false, data: {log: `Cannot remove own admin for ${username}`, message: "Cannot remove own admin"}
+        };
+    }
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {isAdmin: false}});
+    if (res.ok) {
+        return {success: true, data: {log: `Made ${username} not admin`, message: "Made user not admin"}};
+    }
+    return {success: false, data: {log: `Error making ${username} not admin`, message: "Something went wrong"}};
 };
 
 const _updateGrades = async (db, username, schoolPassword) => {
@@ -339,21 +532,248 @@ const _updateGrades = async (db, username, schoolPassword) => {
     } else {
         termDataIfLocked = "";
     }
-    let _stream = new stream.Readable({objectMode: true, read: () => {}});
-    _stream.on("data", (data) => {
+    let _stream = new stream.Readable({
+                                          objectMode: true, read: () => {
+        }
+                                      });
+    _stream.on("data", async (data) => {
         console.log(data);
         if ("success" in data) {
             if (!data.success) {
-                socketManager.emitToRoom(username, )
-            }
-        }
-    })
-}
+                socketManager.emitToRoom(username, SYNC_PURPOSE, "fail", data.message);
+            } else {
+                let newTerm = Object.keys(data.new_grades)[0];
+                let newSemester = Object.keys(data.new_grades[newTerm])[0];
+                if (!(newTerm in user.grades)) {
+                    let setString = `grades.${newTerm}`;
+                    let setMap = {};
+                    setMap[setString] = {};
+                    await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: setString});
+                }
+                let newGrades = data.new_grades[newTerm][newSemester];
+                let newClasses = newGrades.map(c => c.class_name);
+                let oldPSAIDs = [];
+                let oldGrades;
+                if (newTerm in user.grades && newSemester in user.grades[newTerm]) {
+                    oldGrades = user.grades[newTerm][newSemester];
+                    // Filter out classes that we don't have anymore
+                    // Idk how this would happen but it was in the code
+                    oldGrades = oldGrades.filter(c => newClasses.includes(c.class_name));
 
+                    // filtering id => !!id removes undefined psaids (before we scraped them)
+                    // Idk if this is relevant but I'm keeping it for now TODO
+                    oldPSAIDs = oldGrades.map(c => c.grades.map(g => g.psaid)).filter(id => !!id);
+                }
+                let newPSAIDs = newGrades.map(c => c.grades.map(g => g.psaid));
+
+                // Make the two arrays the same length
+                oldPSAIDs.push(...Array(newPSAIDs.length - oldPSAIDs.length).fill([]));
+
+                // Calculate changes
+                let added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [newGrades[index].class_name, newPSAIDs[index]]).filter(data => data[1].length));
+                let modified = {};
+                let removed = {};
+                let overall = {};
+
+                if (oldGrades) {
+                    added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [newGrades[index].class_name, newPSAIDs[index].filter(psaid => !oldPSAIDs[index].includes(psaid))]).filter(data => data[1].length));
+                    modified = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => newPSAIDs[index].includes(assignmentData.psaid) && !_.isEqual(assignmentData, newGrades[index].grades.find(assignment => assignment.psaid === assignmentData.psaid)))]).filter(data => data[1].length));
+                    removed = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => assignmentData.psaid && !newPSAIDs[index].includes(assignmentData.psaid))]).filter(data => data[1].length));
+                    overall = Object.fromEntries(oldGrades.map((classData, index) => {
+                        let clone = Object.assign({}, classData);
+                        delete clone.grades;
+                        delete clone.class_name;
+                        let newClone = Object.assign({}, newGrades[index]);
+                        delete newClone.grades;
+                        delete newClone.class_name;
+                        clone.ps_locked = newClone.ps_locked;
+                        return [classData.class_name, Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v || k === "ps_locked"))];
+                    }).filter(data => Object.keys(data[1]).length));
+                }
+
+                let ps_locked = Object.values(overall).filter(o => o.ps_locked === true).length !== 0;
+                if (ps_locked) {
+                    overall = {}; // It's not possible to get this data when PowerSchool is locked
+                } else {
+                    for (let i = 0; i < Object.keys(overall).length; i++) {
+                        delete overall[Object.keys(overall)[i]].ps_locked;
+                        if (!Object.keys(overall[Object.keys(overall)[i]]).length) {
+                            delete overall[Object.keys(overall)[i--]];
+                        }
+                    }
+                }
+                let changeData = {
+                    added: added, modified: modified, removed: removed, overall: overall
+                };
+                let setString2 = `grades.${newTerm}.${newSemester}`;
+                let setMap2 = {};
+                setMap2[setString2] = newGrades;
+                await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: setMap2});
+                if (user.school === "basis") {
+                    let newWeights = data.new_weights[newTerm][newSemester];
+                    let setString3 = `weights.${newTerm}.${newSemester}`;
+                    let setMap3 = {};
+                    setMap3[setString3] = newWeights;
+                    await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: setMap3});
+                }
+                _initAddedAssignments(db, username);
+                _initWeights(db, username);
+                _initEditedAssignments(db, username);
+                _bringUpToDate(db, username, newTerm, newSemester);
+
+                let updateHistory = false;
+                if ((newTerm !== oldTerm || newSemester !== oldSemester) || !user.updatedGradeHistory.length) {
+                    _resetSortData(db, username);
+                    updateHistory = true;
+                }
+
+                let time = Date.now();
+                await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {
+                    $set: {updatedInBackground: "already done"},
+                    $push: {"alerts.lastUpdated": {timestamp: time, changeData: changeData, ps_locked: ps_locked}}
+                });
+
+                if (updateHistory) {
+                    await _updateGradeHistory(db, username, schoolPassword);
+                }
+
+                socketManager.emitToRoom(username, SYNC_PURPOSE, "success", {message: "Updated grades!"});
+            }
+        } else {
+            socketManager.emitToRoom(username, SYNC_PURPOSE, "progress", data);
+        }
+    });
+
+    scraper.loginAndScrapeGrades(_stream, user.school, user.schoolUsername, schoolPassword, dataIfLocked, termDataIfLocked);
+
+    return {success: true, data: {stream: _stream}};
+};
+
+const _updateGradeHistory = async (db, username, schoolPassword) => {
+    let res = await _getUser(db, {username: username});
+    if (!res.success) {
+        return res;
+    }
+    let user = res.data.value;
+    let _stream = new stream.Readable({
+                                          objectMode: true, read: () => {
+        }
+                                      });
+    _stream.on("data", async (data) => {
+        console.log(data);
+        let changeData = {};
+        if ("success" in data) {
+            if (data.success) {
+                let currentYears = Object.keys(user.grades);
+                let newYears = Object.keys(data.new_grades);
+                let school = user.school;
+                switch (school) {
+                    case "basis":
+                        let newWeights = data.new_weights;
+                        let term = Object.keys(newWeights)[0];
+                        let setString = `grades.${term}._`;
+                        let setMap = {};
+                        setMap[setString] = newWeights[term]._;
+                        await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: setMap});
+                        break;
+                    case "bellarmine":
+                        let currentWeights = user.weights;
+                        for (let i = 0; i < newYears.length; i++) {
+                            if (!(newYears[i] in currentWeights)) {
+                                currentWeights[newYears[i]] = {};
+                                let newSemesters = Object.keys(data.new_grades[newYears[i]]);
+                                for (let j = 0; j < newSemesters.length; j++) {
+                                    currentWeights[newYears[i]][newSemesters[j]] = {};
+                                }
+                            } else {
+                                let currentSemesters = Object.keys(currentWeights[newYears[i]]);
+                                let newSemesters = Object.keys(data.new_grades[newYears[i]]);
+                                for (let j = 0; j < newSemesters.length; j++) {
+                                    if (!currentSemesters.includes(newSemesters[j])) {
+                                        currentWeights[newYears[i]][newSemesters[j]] = {};
+                                    }
+                                }
+                            }
+                            if (!currentYears.includes(newYears[i])) {
+                                let setString = `grades.${newYears[i]}`;
+                                let setMap = {};
+                                setMap[setString] = data.new_grades[newYears[i]];
+                                await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: setMap});
+                            } else {
+                                let currentSemesters = Object.keys(user.grades[newYears[i]]);
+                                let newSemesters = Object.keys(data.new_grades[newYears[i]]);
+                                for (let j = 0; j < newSemesters.length; j++) {
+                                    if (!currentSemesters.includes(newSemesters[j])) {
+                                        let setString = `grades.${newYears[i]}.${newSemesters[j]}`;
+                                        let setMap = {};
+                                        setMap[setString] = data.new_grades[newYears[i]][newSemesters[j]];
+                                        await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {});
+                                    } else {
+                                        let newClasses = data.new_grades[newYears[i]][newSemesters[j]];
+                                        let oldClasses = user.grades[newYears[i]][newSemesters[j]];
+                                        for (let k = 0; k < newClasses.length; k++) {
+                                            let className = newClasses[k].class_name;
+                                            let oldClass = oldClasses?.find(c => c.class_name === className);
+                                            if (oldClass && !newClasses[k].grades.length) {
+                                                newClasses[k].grades = oldClass.grades;
+                                            }
+                                        }
+                                        let setString = `grades.${newYears[i]}.${newSemesters[j]}`;
+                                        let setMap = {};
+                                        setMap[setString] = newClasses;
+                                        await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: setMap});
+
+                                        let overall = {};
+                                        if (oldClasses) {
+                                            overall = Object.fromEntries(oldClasses.map((classData) => {
+                                                let clone = Object.assign({}, classData);
+                                                delete clone.grades;
+                                                delete clone.class_name;
+                                                delete clone.ps_locked;
+                                                delete clone.student_id;
+                                                delete clone.section_id;
+                                                delete clone.teacher_name;
+                                                let newClone = Object.assign({}, newClasses.find(g => g.class_name === classData.class_name));
+                                                delete newClone.grades;
+                                                delete newClone.class_name;
+                                                delete newClone.ps_locked;
+                                                delete newClone.teacher_name;
+                                                return [classData.class_name, Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v))];
+                                            }).filter(data => Object.keys(data[1]).length));
+                                        }
+                                        changeData = {
+                                            added: {}, modified: {}, removed: {}, overall: overall
+                                        };
+                                    }
+                                }
+                            }
+                        }
+                        _initWeights(db, username);
+                }
+                let time = Date.now();
+                await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {
+                    $push: {updatedGradeHistory: time},
+                    $push: {"alerts.lastUpdated": {timestamp: time, changeData: changeData, ps_locked: false}}
+                });
+                this.initAddedAssignments(username);
+                this.initEditedAssignments(username);
+                this.bringUpToDate(username);
+
+                socketManager.emitToRoom(username, "sync", "success-history", data.message);
+            } else {
+                socketManager.emitToRoom(username, "sync", "fail-history", data.message);
+            }
+        } else {
+            socketManager.emitToRoom(username, "sync", "progress-history", data);
+        }
+    });
+
+    scraper.loginAndScrapeGrades(_stream, user.school, user.schoolUsername, schoolPassword, "", "", "true");
+};
 
 const _getRelClassData = async (db, username, term, semester) => {
-
-}
+    //TODO
+};
 
 const _getSyncStatus = async (db, username) => {
     let res = await _getUser(db, {username: username});
@@ -363,8 +783,7 @@ const _getSyncStatus = async (db, username) => {
     let user = res.data.value;
     let syncStatus = user.updatedInBackground;
     if (syncStatus === "complete") {
-        let res2 = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {updatedInBackground: 'already done'}});
-        if (!res2.ok) return res2;
+        await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {updatedInBackground: "already done"}});
         return {success: true, data: {message: "Sync Complete!"}};
     } else if (syncStatus === "already done") {
         return {success: true, data: {message: "Already Synced!"}};
@@ -381,7 +800,7 @@ const _getSyncStatus = async (db, username) => {
     } else {
         return {success: false, data: {message: "Not syncing"}};
     }
-}
+};
 
 const _addBetaKey = async (db) => {
     let betaKey = makeKey(7);

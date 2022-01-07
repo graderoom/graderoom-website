@@ -264,67 +264,67 @@ module.exports = function (app, passport) {
         res.redirect("/admin");
     });
 
-    app.post("/deleteUser", [isAdmin], (req, res) => {
+    app.post("/deleteUser", [isAdmin], async (req, res) => {
         let username = req.body.deleteUser;
         console.log("Got request to delete: " + username);
 
-        let resp = authenticator.deleteUser(username);
+        let resp = await dbClient.archiveUser(username);
         console.log(resp);
         if (resp.success) {
-            req.flash("adminSuccessMessage", resp.message);
+            req.flash("adminSuccessMessage", resp.data.message);
         } else {
-            req.flash("adminFailMessage", resp.message);
+            req.flash("adminFailMessage", resp.data.message);
         }
 
         res.redirect("/admin");
     });
 
-    app.post("/restoreUser", [isAdmin], (req, res) => {
+    app.post("/restoreUser", [isAdmin], async (req, res) => {
         let username = req.body.restoreUser;
-        let resp = authenticator.restoreUser(username);
+        let resp = await dbClient.unarchiveUser(username);
         if (resp.success) {
-            req.flash("adminSuccessMessage", resp.message);
+            req.flash("adminSuccessMessage", resp.data.message);
         } else {
-            req.flash("adminFailMessage", resp.message);
+            req.flash("adminFailMessage", resp.data.message);
         }
 
         res.redirect("/admin");
     });
 
-    app.post("/makeadmin", [isAdmin], (req, res) => {
+    app.post("/makeadmin", [isAdmin], async (req, res) => {
         let username = req.body.newAdminUser;
         console.log("Got request to make admin: " + username);
 
-        let resp = authenticator.makeAdmin(username);
+        let resp = await dbClient.makeAdmin(username);
         console.log(resp);
         if (resp.success) {
-            req.flash("adminSuccessMessage", resp.message);
+            req.flash("adminSuccessMessage", resp.data.message);
         } else {
-            req.flash("adminFailMessage", resp.message);
+            req.flash("adminFailMessage", resp.data.message);
         }
 
         res.redirect("/admin");
     });
 
-    app.post("/removeadmin", [isAdmin], (req, res) => {
+    app.post("/removeadmin", [isAdmin], async (req, res) => {
         let username = req.body.removeAdminUser;
         console.log("Got request to remove admin: " + username);
 
-        let resp = authenticator.removeAdmin(username, req.user.username);
+        let resp = await dbClient.removeAdmin(username, req.user.username);
         console.log(resp);
         if (resp.success) {
-            req.flash("adminSuccessMessage", resp.message);
+            req.flash("adminSuccessMessage", resp.data.message);
         } else {
-            req.flash("adminFailMessage", resp.message);
+            req.flash("adminFailMessage", resp.data.message);
         }
 
         res.redirect("/admin");
     });
 
-    app.get("/admin", [isAdmin], (req, res) => {
+    app.get("/admin", [isAdmin], async (req, res) => {
         // admin panel TODO
-        let allUsers = authenticator.getAllUsers();
-        let deletedUsers = authenticator.getDeletedUsers();
+        let allUsers = (await dbClient.getAllUsers()).data.value;
+        let deletedUsers = (await dbClient.getAllArchivedUsers()).data.value;
         let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
         res.render("admin/admin.ejs", {
             page: "admin",
@@ -506,32 +506,32 @@ module.exports = function (app, passport) {
         let userPass = req.body.user_password;
         if (userPass) {
             if (!gradeSync) {
-                let resp = authenticator.decryptAndGet(user, userPass);
+                let resp = await dbClient.decryptAndGetSchoolPassword(user, userPass);
                 if (resp.success) {
-                    pass = resp.message;
+                    pass = resp.data.value;
                 } else {
-                    res.status(400).send(resp.message);
+                    res.status(400).send(resp.data.message);
                     return;
                 }
             } else {
-                let resp = authenticator.login(user, userPass);
+                let resp = await dbClient.login(user, userPass);
                 if (!resp.success) {
-                    res.status(400).send(resp.message);
+                    res.status(400).send(resp.data.message);
                     return;
                 }
             }
         }
-        let _stream = authenticator.updateGrades(req.user.username, pass);
+        let _stream = (await dbClient.updateGrades(req.user.username, pass)).data.stream;
         let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data;
 
-        _stream.on("data", (data) => {
+        _stream.on("data", async (data) => {
             if (!('success' in data)) return;
             if (data.success || data.message === "No class data." || data.message === "An Unknown Error occurred. Contact support." || data.message === "PowerSchool is locked.") {
                 if (term && semester) {
                     if (gradeSync) {
-                        let encryptResp = authenticator.encryptAndStore(user, pass, userPass);
+                        let encryptResp = await dbClient.encryptAndStoreSchoolPassword(user, pass, userPass);
                         if (!encryptResp.success) {
-                            res.status(400).send(encryptResp.message);
+                            res.status(400).send(encryptResp.data.message);
                             return;
                         }
                         res.status(200).send({
@@ -771,9 +771,9 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.get("/charts", [isAdmin], (req, res) => {
+    app.get("/charts", [isAdmin], async (req, res) => {
         let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
-        let allUsers = authenticator.getAllUsers();
+        let allUsers = (await dbClient.getAllUsers()).data.value;
         res.render("admin/cool_charts.ejs", {
             username: req.user.username,
             appearance: JSON.stringify(req.user.appearance),

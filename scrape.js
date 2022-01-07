@@ -34,7 +34,7 @@ module.exports = {
             });
         } catch (e) {
             console.log("Server ran out of memory probably");
-            readableStream.push({success: false, message: 'Something went wrong'});
+            readableStream.push(JSON.stringify({success: false, message: 'Something went wrong'}));
             readableStream.destroy();
         }
 

@@ -59,8 +59,8 @@ module.exports = function (passport) {
             if (user && bcrypt.compareSync(password, user.password)) {
                 authent.setLoggedIn(user.username);
                 if ('schoolPassword' in user) {
-                    let resp = authent.decryptAndGet(user.username, password);
-                    let schoolPass = resp.message;
+                    let resp = await dbClient.decryptAndGetSchoolPassword(user.username, password);
+                    let schoolPass = resp.data.value;
                     let _stream = authent.updateGrades(user.username, schoolPass);
                     let {term, semester} = (await dbClient.getMostRecentTermData(user.username)).data;
 
