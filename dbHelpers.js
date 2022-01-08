@@ -122,7 +122,7 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
         }
 
         // Setup personal info with the EXACT same algorithm as the signup page
-        let {firstName, lastName, graduationYear} = getPersonalInfo(schoolUsername, school);
+        let {firstName, lastName, graduationYear} = this.getPersonalInfo(schoolUsername, school);
 
 
         // Hash password
@@ -442,4 +442,21 @@ exports.shuffleArray = (array) => {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
     }
+}
+
+function buildStarterNotification(now) {
+    return {
+        type: "announcement",
+        title: "Welcome to your Notification Center",
+        message: "All future notifications will be found here. You can configure this area however you'd like, using the notification settings accessible from the top right of this panel.",
+        dismissible: true,
+        dismissed: false,
+        pinnable: true,
+        pinned: true,
+        createdDate: [now],
+        dismissedDates: [],
+        pinnedDates: [now],
+        unDismissedDates: [],
+        unPinnedDates: []
+    };
 }

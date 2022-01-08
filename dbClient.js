@@ -135,7 +135,9 @@ module.exports = {
     checkPasswordResetToken: (token) => safe(_checkPasswordResetToken, token),
     resetPasswordRequest: (schoolUsername) => safe(_resetPasswordRequest, lower(schoolUsername)),
     resetPassword: (token, newPassword) => safe(_resetPassword, token, newPassword),
-    clearTestDatabase: () => safe(_clearTestDatabase)
+    clearTestDatabase: () => safe(_clearTestDatabase),
+    addWeightsSuggestion: (username, term, semester, className, teacherName, hasWeights, weights) => 
+                           safe(_addWeightsSuggestion, lower(username), term, semester, className, teacherName, hasWeights, weights),
 };
 
 /**
@@ -262,7 +264,7 @@ const _addUser = async (db, school, username, password, schoolUsername, isAdmin,
 const __addUser = async (db, user) => {
     if (!(await _userExists(db, {username: user.username, schoolUsername: user.schoolUsername})).success) {
         await db.collection(USERS_COLLECTION_NAME).insertOne(user);
-        return {success: true, data: {log: `Created user ${user.username} in ${school}`, message: "User Created"}};
+        return {success: true, data: {log: `Created user ${user.username}`, message: "User Created"}};
     } else {
         return {
             success: false, data: {
@@ -1520,4 +1522,39 @@ const _clearTestDatabase = async (db) => {
         return {success: false, data: {log: `Cannot drop non-testing databases`}};
     }
     return {success: await db.dropDatabase(), data: {log: `Dropped test database`}};
+};
+
+const _addWeightsSuggestion = async (db, username, term, semester, className, teacherName, hasWeights, weights) => {
+    if (typeof hasWeights !== "boolean") {
+        return {success: false, data: {message: "Something went wrong", log: `Invalid hasWeights values: ${hasWeights}`}};
+    }
+
+    //Modify weights
+    let modWeights = {};
+    for (let key in weights) {
+        if (hasWeights === false) {
+            modWeights[key] = null; // 
+        } else {
+            modWeights[key] = parseFloat(weights[key]);
+            if (isNaN(modWeights[key])) {
+                return {success: false, data: {message: "Something went wrong", log: `Invalid weights values: ${weights[key]}`}};
+            }
+        }
+    }
+    if (Object.values(modWeights).every(x => x === null) && hasWeights) {
+        return {success: false, data: {message: "Something went wrong", log: `Invalid weights suggestion. hasWeights is true & all weights are null`}};
+    }
+
+    //Get School
+    let res = await _getUser(db, {username: username});
+    if (!res.success) {
+        return res;
+    }
+    let school = res.data.value.school;
+    
+    //Delete Old Suggestion
+    let suggestions = await db.collection(classesCollection(school)).findOne({term: term, semester: semester, className: className, teachers: {$elemMatch:{teacher: teacherName}}});
+
+    //if not same as class weights:
+    //add to existing suggestion or add new suggestion
 };
