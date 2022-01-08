@@ -369,7 +369,7 @@ class PowerschoolScraper(Scraper):
         initial_progress = self.progress
         max_progress = 100
         self.message = 'Synced ' + str(scraped_term_count) + ' of ' + str(total_term_count) + ' terms...'
-        self.progress = initial_progress + (max_progress - initial_progress) * scraped_term_count / total_term_count
+        self.progress = initial_progress + (max_progress - initial_progress) * scraped_term_count / (1 if total_term_count == 0 else total_term_count)
         for year_link in year_links:
             # Exclude summer school pages by checking for SS in title
             # since they show duplicate data
@@ -377,7 +377,7 @@ class PowerschoolScraper(Scraper):
             if "SS" in str(link):
                 total_term_count -= 1
                 self.message = 'Synced ' + str(scraped_term_count) + ' of ' + str(total_term_count) + ' terms...'
-                self.progress = initial_progress + (max_progress - initial_progress) * scraped_term_count / total_term_count
+                self.progress = initial_progress + (max_progress - initial_progress) * scraped_term_count / (1 if total_term_count == 0 else total_term_count)
                 continue
 
             # Cut the year from the link text
@@ -387,7 +387,7 @@ class PowerschoolScraper(Scraper):
             if not link['href']:
                 total_term_count -= 1
                 self.message = 'Synced ' + str(scraped_term_count) + ' of ' + str(total_term_count) + ' terms...'
-                self.progress = initial_progress + (max_progress - initial_progress) * scraped_term_count / total_term_count
+                self.progress = initial_progress + (max_progress - initial_progress) * scraped_term_count / (1 if total_term_count == 0 else total_term_count)
                 continue
             url = 'https://powerschool.bcp.org/guardian/'
             resp = self.session.get(url + link['href'], timeout=10)
@@ -472,7 +472,7 @@ class PowerschoolScraper(Scraper):
         initial_progress = self.progress
         max_progress = 90
         self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
-        self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / total_course_count
+        self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / (1 if total_course_count == 0 else total_course_count)
 
         # Iterate over each row and fetch data for that class
         for class_row in class_rows:
@@ -513,7 +513,7 @@ class PowerschoolScraper(Scraper):
             if assignments_link is None:
                 total_course_count -= 1
                 self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
-                self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / total_course_count
+                self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / (1 if total_course_count == 0 else total_course_count)
                 continue
 
             url = 'https://powerschool.bcp.org/guardian/'
@@ -525,7 +525,7 @@ class PowerschoolScraper(Scraper):
                 total_course_count -= 1
 
             self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
-            self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / total_course_count
+            self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / (1 if total_course_count == 0 else total_course_count)
 
         # Fetch the current term and semester
         url = 'https://powerschool.bcp.org/guardian/myschedulematrix.html'
@@ -651,7 +651,7 @@ class PowerschoolScraper(Scraper):
         initial_progress = self.progress
         max_progress = 90
         self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
-        self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / total_course_count
+        self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / (1 if total_course_count == 0 else total_course_count)
 
         for data in class_data:
             class_name = data['class_name']
@@ -667,11 +667,11 @@ class PowerschoolScraper(Scraper):
                 all_classes.append(local_class)
                 scraped_course_count += 1
                 self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
-                self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / total_course_count
+                self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / (1 if total_course_count == 0 else total_course_count)
             else:
                 total_course_count -= 1
                 self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
-                self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / total_course_count
+                self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / (1 if total_course_count == 0 else total_course_count)
 
         # Add term and semester data
         self.progress = 95
@@ -792,7 +792,7 @@ class BasisScraper(Scraper):
         initial_progress = self.progress
         max_progress = 100
         self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
-        self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / total_course_count
+        self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / (1 if total_course_count == 0 else total_course_count)
 
         for class_ in classes:
             class_name_soup = class_.find('div', class_='gradebook-course-title')
@@ -805,7 +805,7 @@ class BasisScraper(Scraper):
             if 'lunch' in class_name.lower() or 'office' in class_name.lower():
                 total_course_count -= 1
                 self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
-                self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / total_course_count
+                self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / (1 if total_course_count == 0 else total_course_count)
                 continue
 
             grades_soup = class_.find('div', class_='gradebook-course-grades')
@@ -885,7 +885,7 @@ class BasisScraper(Scraper):
             if len(grades) == 0:
                 total_course_count -= 1
                 self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
-                self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / total_course_count
+                self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / (1 if total_course_count == 0 else total_course_count)
                 continue
 
             no_due_date = list(filter(lambda j: j['sort_date'] is None, grades))
@@ -897,7 +897,7 @@ class BasisScraper(Scraper):
             all_classes.append(BasisClassGrade(class_name, overall_grade, grades).as_dict)
             scraped_course_count += 1
             self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
-            self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / total_course_count
+            self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / (1 if total_course_count == 0 else total_course_count)
 
         if term is not None:
             self.message = 'Sync Complete!'
@@ -941,4 +941,4 @@ if __name__ == "__main__":
             # Error when something in PowerSchool breaks scraper
             print(json_format(False, "An Unknown Error occurred. Contact support."))
             # Uncomment below to print error
-            print(e)
+            # print(e)

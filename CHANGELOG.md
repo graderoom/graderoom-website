@@ -42,6 +42,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 4.9.12] - 2022-01-07
+### Fixed
+- More crash fixes. Thank you to the users who keep finding new ways to crash the site :)
+
 ## [Stable 4.9.11] - 2022-01-06
 ### Fixed
 - Server no longer crashes because of an out of memory error (New backend will be in place by Monday. Hang tight!)
