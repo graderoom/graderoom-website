@@ -35,16 +35,12 @@ module.exports = function (passport) {
         passReqToCallback: true
         // allows us to pass in the req from our route (lets us check if
         // a user is logged in or not)
-    }, function (req, username, password, done) {
+    }, async function (req, username, password, done) {
         if (username) {
             username = username.toLowerCase();
         }
 
-        let userRef = authent.getUserRef(username);
-        let user = userRef.value();
-        if (user && 'updatedInBackground' in user) {
-            userRef.set("updatedInBackground", "updating").write();
-        }
+        await dbClient.setSyncStatus(username, updating);
 
         // asynchronous
         process.nextTick(async function () {
@@ -57,7 +53,7 @@ module.exports = function (passport) {
 
             let user = res.data.value;
             if (user && bcrypt.compareSync(password, user.password)) {
-                authent.setLoggedIn(user.username);
+                await dbClient.setLoggedIn(user.username);
                 if ('schoolPassword' in user) {
                     let resp = await dbClient.decryptAndGetSchoolPassword(user.username, password);
                     let schoolPass = resp.data.value;

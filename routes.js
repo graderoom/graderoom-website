@@ -2,6 +2,7 @@ const server = require("./graderoom.js");
 const dbClient = require("./dbClient.js");
 const emailSender = require("./emailSender.js");
 const _ = require("lodash");
+const SunCalc = require("suncalc");
 
 module.exports = function (app, passport) {
 
@@ -10,7 +11,7 @@ module.exports = function (app, passport) {
     // show the home page (will also have our login links)
     app.get("/", async (req, res) => {
 
-        let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
+        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
 
         if (req.isAuthenticated()) {
 
@@ -24,8 +25,7 @@ module.exports = function (app, passport) {
             let gradeHistoryLetters = {};
             let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data;
             if (req.query.term && req.query.semester) {
-                if ((term === req.query.term && semester === req.query.semester) ||
-                    !authenticator.semesterExists(req.user.username, req.query.term, req.query.semester)) {
+                if ((term === req.query.term && semester === req.query.semester) || !authenticator.semesterExists(req.user.username, req.query.term, req.query.semester)) {
                     res.redirect("/");
                     return;
                 }
@@ -72,12 +72,11 @@ module.exports = function (app, passport) {
                     betaFeatures: JSON.stringify(req.user.betaFeatures),
                     term: term,
                     semester: semester,
-                    termsAndSemesters: JSON.stringify(Object.keys(req.user.grades).map(x => [x,
-                        Object.keys(req.user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
+                    termsAndSemesters: JSON.stringify(Object.keys(req.user.grades).map(x => [x, Object.keys(req.user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
                     _: _,
                     sunset: sunset,
                     sunrise: sunrise,
-                    enableLogging: req.user.enableLogging,
+                    enableLogging: req.user.enableLogging
                 });
             } else {
                 res.render("user/authorized_index.ejs", {
@@ -106,7 +105,7 @@ module.exports = function (app, passport) {
                     _: _,
                     sunset: sunset,
                     sunrise: sunrise,
-                    enableLogging: req.user.enableLogging,
+                    enableLogging: req.user.enableLogging
                 });
             }
             return;
@@ -121,33 +120,33 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.post("/joinbeta", [isLoggedIn], (req, res) => {
-        dbClient.joinBeta(req.user.username);
-        authenticator.setRemoteAccess(req.user.username, req.body.activateWithRemoteAccess === "on" ? "allowed" : "denied");
+    app.post("/joinbeta", [isLoggedIn], async (req, res) => {
+        await dbClient.joinBeta(req.user.username);
+        await dbClient.setRemoteAccess(req.user.username, req.body.activateWithRemoteAccess === "on" ? "allowed" : "denied");
         res.redirect("/");
     });
 
-    app.post("/betafeatures", [isLoggedIn], (req, res) => {
-        dbClient.updateBetaFeatures(req.user.school, req.user.username, req.body);
+    app.post("/betafeatures", [isLoggedIn], async (req, res) => {
+        await dbClient.updateBetaFeatures(req.user.school, req.user.username, req.body);
         res.redirect("/");
     });
 
-    app.post("/leavebeta", [isLoggedIn], (req, res) => {
-        dbClient.leaveBeta(req.user.school, req.user.username);
+    app.post("/leavebeta", [isLoggedIn], async (req, res) => {
+        await dbClient.leaveBeta(req.user.school, req.user.username);
         res.redirect("/");
     });
 
-    app.post("/advancedAppearance", [isLoggedIn], (req, res) => {
+    app.post("/advancedAppearance", [isLoggedIn], async (req, res) => {
         let show = req.body.showNonAcademic === "on";
-        authenticator.setNonAcademic(req.user.username, show);
+        await dbClient.setShowNonAcademic(req.user.username, show);
         let regularize = req.body.regularizeClassGraphs === "on";
-        authenticator.setRegularizeClassGraphs(req.user.username, regularize);
+        await dbClient.setRegularizeClassGraphs(req.user.username, regularize);
         res.redirect("/");
     });
 
-    app.post("/weightedGPA", [isLoggedIn], (req, res) => {
+    app.post("/weightedGPA", [isLoggedIn], async (req, res) => {
         let weightedGPA = req.body.weightedGPA;
-        authenticator.setWeightedGPA(req.user.username, weightedGPA);
+        await dbClient.setWeightedGPA(req.user.username, weightedGPA);
         res.sendStatus(200);
     });
 
@@ -186,7 +185,7 @@ module.exports = function (app, passport) {
                 }
             }
 
-            let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
+            let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
 
             if (term && semester) {
                 res.render("user/authorized_index.ejs", {
@@ -211,12 +210,11 @@ module.exports = function (app, passport) {
                     betaFeatures: JSON.stringify(user.betaFeatures),
                     term: term,
                     semester: semester,
-                    termsAndSemesters: JSON.stringify(Object.keys(user.grades).map(x => [x,
-                        Object.keys(user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
+                    termsAndSemesters: JSON.stringify(Object.keys(user.grades).map(x => [x, Object.keys(user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
                     sunset: sunset,
                     sunrise: sunrise,
                     _: _,
-                    enableLogging: true,
+                    enableLogging: true
                 });
             } else {
                 res.render("user/authorized_index.ejs", {
@@ -245,7 +243,7 @@ module.exports = function (app, passport) {
                     sunset: sunset,
                     sunrise: sunrise,
                     _: _,
-                    enableLogging: true,
+                    enableLogging: true
                 });
             }
             return;
@@ -281,7 +279,7 @@ module.exports = function (app, passport) {
 
     app.post("/restoreUser", [isAdmin], async (req, res) => {
         let username = req.body.restoreUser;
-        let resp = await dbClient.unarchiveUser(username);
+        let resp = await dbClient.unArchiveUser(username);
         if (resp.success) {
             req.flash("adminSuccessMessage", resp.data.message);
         } else {
@@ -325,7 +323,7 @@ module.exports = function (app, passport) {
         // admin panel TODO
         let allUsers = (await dbClient.getAllUsers()).data.value;
         let deletedUsers = (await dbClient.getAllArchivedUsers()).data.value;
-        let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
+        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
         res.render("admin/admin.ejs", {
             page: "admin",
             username: req.user.username,
@@ -347,17 +345,17 @@ module.exports = function (app, passport) {
         res.status(200).send(result);
     });
 
-    app.post("/updateAppearance", [isLoggedIn], (req, res) => {
-        let resp = authenticator.setTheme(req.user.username, req.body.theme, req.body.darkModeStart, req.body.darkModeFinish, req.body.enableSeasonalEffects === "on", req.body.blurEffects === "on");
+    app.post("/updateAppearance", [isLoggedIn], async (req, res) => {
+        let resp = await dbClient.setTheme(req.user.username, req.body.theme, req.body.darkModeStart, req.body.darkModeFinish, req.body.enableSeasonalEffects === "on", req.body.blurEffects === "on");
         if (resp.success) {
-            res.status(200).send(resp.message);
+            res.status(200).send(resp.data.message);
         } else {
-            res.status(400).send(resp.message);
+            res.status(400).send(resp.data.message);
         }
     });
 
-    app.post("/updateShowMaxGPA", [isLoggedIn], (req, res) => {
-        let resp = authenticator.setShowMaxGPA(req.user.username, JSON.parse(req.body.showMaxGPA));
+    app.post("/updateShowMaxGPA", [isLoggedIn], async (req, res) => {
+        let resp = await dbClient.setShowMaxGPA(req.user.username, JSON.parse(req.body.showMaxGPA));
         if (resp.success) {
             res.sendStatus(200);
         } else {
@@ -365,34 +363,34 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.post("/updateTutorialStatus", [isLoggedIn], (req, res) => {
-        let resp = authenticator.updateTutorial(req.user.username, req.body.action);
+    app.post("/updateTutorialStatus", [isLoggedIn], async (req, res) => {
+        let resp = await dbClient.updateTutorial(req.user.username, req.body.action);
         if (resp.success) {
-            res.status(200).send(JSON.stringify(resp.message));
+            res.status(200).send(JSON.stringify(resp.data.message));
         } else {
             res.sendStatus(400);
         }
     });
 
-    app.post("/resetTutorial", [isLoggedIn], (req, res) => {
-        res.status(200).send(JSON.stringify(authenticator.resetTutorial(req.user.username)));
+    app.post("/resetTutorial", [isLoggedIn], async (req, res) => {
+        res.status(200).send(JSON.stringify(await dbClient.resetTutorial(req.user.username)));
     });
 
-    app.post("/acceptPrivacyPolicy", [isLoggedIn], (req, res) => {
-        dbClient.acceptPrivacyPolicy(req.user.username);
+    app.post("/acceptPrivacyPolicy", [isLoggedIn], async (req, res) => {
+        await dbClient.acceptPrivacyPolicy(req.user.username);
         res.redirect("/");
     });
 
-    app.post("/acceptTerms", [isLoggedIn], (req, res) => {
-        dbClient.acceptTerms(req.user.username);
+    app.post("/acceptTerms", [isLoggedIn], async (req, res) => {
+        await dbClient.acceptTerms(req.user.username);
         res.redirect("/");
     });
 
-    app.post("/disableGradeSync", [isLoggedIn], (req, res) => {
-        try {
-            authenticator.disableGradeSync(req.user.username);
+    app.post("/disableGradeSync", [isLoggedIn], async (req, res) => {
+        let resp = await dbClient.disableGradeSync(req.user.username);
+        if (resp.success) {
             res.sendStatus(200);
-        } catch {
+        } else {
             res.sendStatus(400);
         }
     });
@@ -409,37 +407,37 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.post("/changeschoolemail", [isLoggedIn], (req, res) => {
+    app.post("/changeschoolemail", [isLoggedIn], async (req, res) => {
         let new_school_email = req.body.school_email;
-        let resp = dbClient.changeSchoolEmail(req.user.username, new_school_email);
+        let resp = await dbClient.changeSchoolEmail(req.user.username, new_school_email);
         if (resp.success) {
-            res.status(200).send(resp.message);
+            res.status(200).send(resp.data.message);
         } else {
-            res.status(400).send(resp.message);
+            res.status(400).send(resp.data.message);
         }
     });
 
-    app.post("/updateAddedAssignments", [isLoggedIn], (req, res) => {
+    app.post("/updateAddedAssignments", [isLoggedIn], async (req, res) => {
         let data = req.body.data;
         let term = req.body.term;
         let semester = req.body.semester;
-        let resp = authenticator.updateAddedAssignments(req.user.username, JSON.parse(data), term, semester);
+        let resp = await dbClient.updateAddedAssignments(req.user.username, JSON.parse(data), term, semester);
         if (resp.success) {
-            res.status(200).send(resp.message);
+            res.sendStatus(200);
         } else {
-            res.status(400).send(resp.message);
+            res.sendStatus(400);
         }
     });
 
-    app.post("/updateEditedAssignments", [isLoggedIn], (req, res) => {
+    app.post("/updateEditedAssignments", [isLoggedIn], async (req, res) => {
         let data = req.body.data;
         let term = req.body.term;
         let semester = req.body.semester;
-        let resp = authenticator.updateEditedAssignments(req.user.username, JSON.parse(data), term, semester);
+        let resp = await dbClient.updateEditedAssignments(req.user.username, JSON.parse(data), term, semester);
         if (resp.success) {
-            res.status(200).send(resp.message);
+            res.sendStatus(200);
         } else {
-            res.status(400).send(resp.message);
+            res.sendStatus(400);
         }
     });
 
@@ -453,7 +451,7 @@ module.exports = function (app, passport) {
     // SIGNUP =================================
     // show the signup form
     app.get("/signup", (req, res) => {
-        let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
+        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
 
         res.render("viewer/signup.ejs", {
             message: req.flash("signupMessage"),
@@ -483,7 +481,7 @@ module.exports = function (app, passport) {
             resp = await dbClient.addUser(school, username, password, s_email, false);
             console.log("nonbeta: " + resp);
         }
-        authenticator.setColorPalette(username, "clear", false);
+        await dbClient.setColorPalette(username, "clear", false);
 
         if (!resp.success) {
             req.flash("signupMessage", resp.data.message);
@@ -525,7 +523,9 @@ module.exports = function (app, passport) {
         let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data;
 
         _stream.on("data", async (data) => {
-            if (!('success' in data)) return;
+            if (!("success" in data)) {
+                return;
+            }
             if (data.success || data.message === "No class data." || data.message === "An Unknown Error occurred. Contact support." || data.message === "PowerSchool is locked.") {
                 if (term && semester) {
                     if (gradeSync) {
@@ -535,20 +535,20 @@ module.exports = function (app, passport) {
                             return;
                         }
                         res.status(200).send({
-                            gradeSyncEnabled: true,
-                            message: data.message,
-                            grades: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
-                            weights: JSON.stringify(req.user.weights[term][semester]),
-                            updateData: JSON.stringify(req.user.alerts.lastUpdated.slice(-1)[0])
-                        });
+                                                 gradeSyncEnabled: true,
+                                                 message: data.message,
+                                                 grades: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
+                                                 weights: JSON.stringify(req.user.weights[term][semester]),
+                                                 updateData: JSON.stringify(req.user.alerts.lastUpdated.slice(-1)[0])
+                                             });
                     } else {
                         res.status(200).send({
-                            gradeSyncEnabled: false,
-                            message: data.message,
-                            grades: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
-                            weights: JSON.stringify(req.user.weights[term][semester]),
-                            updateData: JSON.stringify(req.user.alerts.lastUpdated.slice(-1)[0])
-                        });
+                                                 gradeSyncEnabled: false,
+                                                 message: data.message,
+                                                 grades: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
+                                                 weights: JSON.stringify(req.user.weights[term][semester]),
+                                                 updateData: JSON.stringify(req.user.alerts.lastUpdated.slice(-1)[0])
+                                             });
                     }
                 } else {
                     res.status(400).send(data.message);
@@ -607,18 +607,18 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.post("/setColorPalette", [isLoggedIn], (req, res) => {
-        let resp = authenticator.setColorPalette(req.user.username, req.body.preset, JSON.parse(req.body.shuffleColors));
+    app.post("/setColorPalette", [isLoggedIn], async (req, res) => {
+        let resp = await dbClient.setColorPalette(req.user.username, req.body.preset, JSON.parse(req.body.shuffleColors));
         if (resp.success) {
-            res.status(200).send(resp.message);
+            res.status(200).send(resp.data.message);
         } else {
-            res.status(400).send(resp.message);
+            res.status(400).send(resp.data.message);
         }
     });
 
     app.get("/finalgradecalculator", async (req, res) => {
 
-        let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
+        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
 
         if (req.isAuthenticated()) {
 
@@ -674,20 +674,20 @@ module.exports = function (app, passport) {
 
     });
 
-    app.post("/setRemoteAccess", [isLoggedIn], (req, res) => {
+    app.post("/setRemoteAccess", [isLoggedIn], async (req, res) => {
         let allowed = req.body.remoteAccess === "on" ? "allowed" : "denied";
-        authenticator.setRemoteAccess(req.user.username, allowed);
+        await dbClient.setRemoteAccess(req.user.username, allowed);
         res.status(200).send(allowed[0].toUpperCase() + allowed.substring(1) + " remote access.");
     });
 
-    app.post("/setFirstName", [isLoggedIn], (req, res) => {
-        let resp = authenticator.setFirstName(req.user.username, req.body.firstName);
-        res.status(resp.success ? 200 : 400).send(resp.message);
+    app.post("/setFirstName", [isLoggedIn], async (req, res) => {
+        let resp = await dbClient.setFirstName(req.user.username, req.body.firstName);
+        res.status(resp.success ? 200 : 400).send(resp.data.message);
     });
 
     app.get("/betakeys", [isAdmin], async (req, res) => {
 
-        let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
+        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
 
         res.render("admin/betakeys.ejs", {
             betaKeyData: (await dbClient.getAllBetaKeys()).data.value,
@@ -704,12 +704,12 @@ module.exports = function (app, passport) {
 
     });
 
-    app.get("/latestVersion", [isLoggedIn], (req, res) => {
-        res.status(200).send(authenticator.whatsNew(req.user.username, server.beta));
+    app.get("/latestVersion", [isLoggedIn], async (req, res) => {
+        res.status(200).send((await dbClient.getWhatsNew(req.user.username)).data.value);
     });
 
-    app.post("/latestVersionSeen", [isLoggedIn], (req, res) => {
-        authenticator.latestVersionSeen(req.user.username, server.beta);
+    app.post("/latestVersionSeen", [isLoggedIn], async (req, res) => {
+        await dbClient.latestVersionSeen(req.user.username, server.beta);
         res.sendStatus(200);
     });
 
@@ -742,7 +742,7 @@ module.exports = function (app, passport) {
     });
 
     app.get("/classes", [isAdmin], (req, res) => {
-        let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
+        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
 
         let {term, semester} = authenticator.getClassesMostRecentTermData();
         if (req.query.term && req.query.semester) {
@@ -763,8 +763,7 @@ module.exports = function (app, passport) {
             beta: server.beta,
             term: term,
             semester: semester,
-            termsAndSemesters: JSON.stringify(Object.keys(authenticator.getAllClassData()).map(x => [x,
-                Object.keys(authenticator.getAllClassData()[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
+            termsAndSemesters: JSON.stringify(Object.keys(authenticator.getAllClassData()).map(x => [x, Object.keys(authenticator.getAllClassData()[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
             sunset: sunset,
             sunrise: sunrise,
             _: _
@@ -772,7 +771,7 @@ module.exports = function (app, passport) {
     });
 
     app.get("/charts", [isAdmin], async (req, res) => {
-        let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
+        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
         let allUsers = (await dbClient.getAllUsers()).data.value;
         res.render("admin/cool_charts.ejs", {
             username: req.user.username,
@@ -786,30 +785,30 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.post("/updateSortData", [isLoggedIn, inRecentTerm], (req, res) => {
+    app.post("/updateSortData", [isLoggedIn, inRecentTerm], async (req, res) => {
         let username = req.user.username;
         let sortData = JSON.parse(req.body.sortingData);
-        authenticator.updateSortData(username, sortData);
+        await dbClient.updateSortData(username, sortData);
         res.sendStatus(200);
     });
 
-    app.post("/usernameAvailable", (req, res) => {
+    app.post("/usernameAvailable", async (req, res) => {
         let username = req.body.username.toLowerCase();
-        let resp = authenticator.usernameAvailable(username);
+        let resp = await dbClient.usernameAvailable(username);
         if (resp.success) {
-            res.status(200).send(resp.message);
+            res.status(200).send(resp.data.message);
         } else {
-            res.status(400).send(resp.message);
+            res.status(400).send(resp.data.message);
         }
     });
 
-    app.post("/emailAvailable", (req, res) => {
+    app.post("/emailAvailable", async (req, res) => {
         let schoolUsername = req.body.schoolUsername.toLowerCase();
-        let resp = authenticator.emailAvailable(schoolUsername);
+        let resp = await dbClient.schoolUsernameAvailable(schoolUsername);
         if (resp.success) {
-            res.status(200).send(resp.message);
+            res.status(200).send(resp.data.message);
         } else {
-            res.status(400).send(resp.message);
+            res.status(400).send(resp.data.message);
         }
     });
 
@@ -829,12 +828,12 @@ module.exports = function (app, passport) {
 
     // password reset
 
-    app.get("/reset_password", (req, res) => {
+    app.get("/reset_password", async (req, res) => {
 
         let resetToken = req.query.token;
-        let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
+        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
 
-        let {valid: validToken, gradeSync: gradeSync} = authenticator.checkToken(resetToken);
+        let {valid: validToken, gradeSync: gradeSync} = (await dbClient.checkPasswordResetToken(resetToken)).data;
         if (!validToken) {
 
             // req.flash('forgotPasswordMsg', 'Invalid token.')
@@ -858,7 +857,7 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.post("/reset_password", (req, res) => {
+    app.post("/reset_password", async (req, res) => {
 
         let resetToken = req.body.token;
         if (!resetToken) {
@@ -866,10 +865,10 @@ module.exports = function (app, passport) {
             return;
         }
 
-        let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
+        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
         let newPass = req.body.password;
-        let resp = authenticator.resetPassword(resetToken, newPass);
-        if (!resp.success && resp.message === "Invalid token.") {
+        let resp = await dbClient.resetPassword(resetToken, newPass);
+        if (!resp.success && resp.data.message === "Invalid token.") {
             res.status(404).render("password_reset/reset_password_404.ejs", {
                 sunset: sunset,
                 appearance: JSON.stringify({seasonalEffects: true}),
@@ -879,7 +878,7 @@ module.exports = function (app, passport) {
             return;
         }
         if (!resp.success) {
-            req.flash("resetPasswordMsg", resp.message);
+            req.flash("resetPasswordMsg", resp.data.message);
             res.redirect("/reset_password?token=" + resetToken);
             return;
         }
@@ -899,7 +898,7 @@ module.exports = function (app, passport) {
             return;
         }
 
-        let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
+        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
         res.status(200).render("password_reset/forgot_password.ejs", {
             message: req.flash("forgotPasswordMsg"),
             sunset: sunset,
@@ -909,15 +908,15 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.post("/forgot_password", (req, res) => {
+    app.post("/forgot_password", async (req, res) => {
         let email = req.body.email;
-        let resp = authenticator.resetPasswordRequest(email);
+        let {user, token} = (await dbClient.resetPasswordRequest(email)).data;
 
-        if (resp.user) {
-            emailSender.sendPasswordResetToAccountOwner(email, "https://" + req.headers.host + "/reset_password?token=" + resp.token, resp.user.personalInfo.firstName);
+        if (user) {
+            emailSender.sendPasswordResetToAccountOwner(email, "https://" + req.headers.host + "/reset_password?token=" + token, user.personalInfo.firstName);
         } else {
             // this doesn't do anything
-            emailSender.sendPasswordResetToNonUser(email, "https://" + req.headers.host + "/reset_password?token=" + resp.token);
+            emailSender.sendPasswordResetToNonUser(email, "https://" + req.headers.host + "/reset_password?token=" + token);
         }
         req.flash("forgotPasswordMsg", "If the email address you entered is associated with an account, you should receive an email containing a link to reset your password. Please make sure to check your spam folder. If you run into any issues, contact <b><a href='mailto:support@graderoom.me'>support@graderoom.me</a></b>.");
         res.redirect("/forgot_password");
@@ -929,7 +928,7 @@ module.exports = function (app, passport) {
     });
 
     app.get("/api/settings", [isApiLoggedIn], (req, res) => {
-        let {sunrise: sunrise, sunset: sunset} = authenticator.getSunriseAndSunset();
+        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
         sunrise = sunrise.getTime();
         sunset = sunset.getTime();
         let settings = {
@@ -999,20 +998,20 @@ module.exports = function (app, passport) {
         let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data;
         if (term && semester && resp.data.message === "Sync Complete!") {
             res.status(200).send({
-                message: resp.data.message,
-                grades: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
-                weights: JSON.stringify(user.weights[term][semester]),
-                updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
-            });
+                                     message: resp.data.message,
+                                     grades: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
+                                     weights: JSON.stringify(user.weights[term][semester]),
+                                     updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
+                                 });
         } else if (term && semester && resp.data.message === "Already Synced!") {
             res.status(200).send({
-                message: resp.data.message,
-                updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
-            });
+                                     message: resp.data.message,
+                                     updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
+                                 });
         } else {
             res.status(200).send({
-                message: resp.data.message
-            });
+                                     message: resp.data.message
+                                 });
         }
     });
 
@@ -1106,6 +1105,13 @@ function makeKey(length) {
 }
 
 function isDST() {
-    return Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !==
-        new Date(Date.now()).getTimezoneOffset();
+    return Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset();
+}
+
+function getSunriseAndSunset() {
+    const SAN_JOSE_CA = {lat: 37, lng: -122};
+    let times = SunCalc.getTimes(new Date(), SAN_JOSE_CA.lat, SAN_JOSE_CA.lng);
+    let sunrise = new Date("0/" + times.sunrise.getHours() + ":" + times.sunrise.getMinutes());
+    let sunset = new Date("0/" + times.sunset.getHours() + ":" + times.sunset.getMinutes());
+    return {sunrise: sunrise, sunset: sunset};
 }

@@ -1,6 +1,10 @@
 const {MongoClient} = require("mongodb");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
+const _ = require("lodash");
+const stream = require("stream");
+const socketManager = require("./socketManager");
+const scraper = require("./scrape");
 
 let _url;
 let _prod;
@@ -32,12 +36,14 @@ const {
     classesCollection,
     roundsToGenerateSalt,
     validateEmail,
-    getPersonalInfo
+    getPersonalInfo,
+    _versionNameArray,
+    _betaChangelogArray,
+    _changelogArray,
+    _tutorialKeys,
+    shuffleArray
 } = require("./dbHelpers");
-const _ = require("lodash");
-const stream = require("stream");
-const socketManager = require("./socketManager");
-const scraper = require("./scrape");
+const SunCalc = require("suncalc");
 
 module.exports = {
     /**
@@ -57,6 +63,8 @@ module.exports = {
         console.log(`Connected to mongodb at url: ${_url}`);
     },
     init: () => safe(_init),
+    usernameAvailable: (username) => safe(_usernameAvailable, lower(username)),
+    schoolUsernameAvailable: (schoolUsername) => safe(_schoolUsernameAvailable, lower(schoolUsername)),
     addUser: (school, username, password, schoolUsername, isAdmin, beta = false, betaKey) => safe(_addUser, school, lower(username), password, lower(schoolUsername), isAdmin, beta, betaKey),
     userExists: ({
                      username, schoolUsername
@@ -74,22 +82,46 @@ module.exports = {
     }),
     archiveUser: (username) => safe(_archiveUser, lower(username)),
     getAllArchivedUsers: () => safe(_getAllArchivedUsers),
-    unarchiveUser: (username) => safe(_unarchiveUser, lower(username)),
+    unArchiveUser: (username) => safe(_unArchiveUser, lower(username)),
     removeUser: (username) => safe(_removeUser, lower(username)),
     removeUserFromArchive: (username) => safe(_removeUserFromArchive, lower(username)),
     getMostRecentTermData: (username) => safe(_getMostRecentTermData, lower(username)),
     login: (username, password) => safe(_login, lower(username), password),
+    setLoggedIn: (username) => safe(_setLoggedIn, lower(username)),
     encryptAndStoreSchoolPassword: (username, schoolPassword, password) => safe(_encryptAndStoreSchoolPassword, lower(username), schoolPassword, password),
     decryptAndGetSchoolPassword: (username, password) => safe(_decryptAndGetSchoolPassword, lower(username), password),
     acceptTerms: (username) => safe(_acceptTerms, lower(username)),
     acceptPrivacyPolicy: (username) => safe(_acceptPrivacyPolicy, lower(username)),
+    setRemoteAccess: (username, value) => safe(_setRemoteAccess, lower(username), lower(value)),
+    setFirstName: (username, value) => safe(_setFirstName, lower(username), value),
+    setShowNonAcademic: (username, value) => safe(_setShowNonAcademic, lower(username), value),
+    setRegularizeClassGraphs: (username, value) => safe(_setRegularizeClassGraphs, lower(username), value),
+    setWeightedGPA: (username, value) => safe(_setWeightedGPA, lower(username), value),
+    setTheme: (username, theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects) => safe(_setTheme, lower(username), lower(theme), darkModeStart, darkModeFinish, seasonalEffects, blurEffects),
+    setShowMaxGPA: (username, value) => safe(_setShowMaxGPA, lower(username), value),
+    setColorPalette: (username, preset, shuffle) => safe(_setColorPalette, lower(username), lower(preset), shuffle),
+    setEnableLogging: (username, value) => safe(_setEnableLogging, lower(username), value),
+    setAnimateWhenUnfocused: (username, value) => safe(_setAnimateWhenUnfocused, lower(username), value),
+    setShowFps: (username, value) => safe(_setShowFps, lower(username), value),
     changePassword: (username, oldPassword, newPassword) => safe(_changePassword, lower(username), oldPassword, newPassword),
     changeSchoolEmail: (username, schoolUsername) => safe(_changeSchoolEmail, lower(username), lower(schoolUsername)),
+    disableGradeSync: (username) => safe(_disableGradeSync, lower(username)),
     makeAdmin: (username) => safe(_makeAdmin, lower(username)),
     removeAdmin: (username, requester) => safe(_removeAdmin, lower(username), lower(requester)),
     updateGrades: (username, schoolPassword) => safe(_updateGrades, lower(username), schoolPassword),
     updateGradeHistory: (username, schoolPassword) => safe(_updateGradeHistory, lower(username), schoolPassword),
+    updateSortData: (username, sortData) => safe(_updateSortData, lower(username), sortData),
+    initAddedAssignments: (username) => safe(_initAddedAssignments, lower(username)),
+    initEditedAssignments: (username) => safe(_initEditedAssignments, lower(username)),
+    initWeights: (username) => safe(_initWeights, lower(username)),
+    updateAddedAssignments: (username, addedAssignments, term, semester) => safe(_updateAddedAssignments, lower(username), addedAssignments, term, semester),
+    updateEditedAssignments: (username, editedAssignments, term, semester) => safe(_updateEditedAssignments, lower(username), editedAssignments, term, semester),
     getSyncStatus: (username) => safe(_getSyncStatus, lower(username)),
+    setSyncStatus: (username, value) => safe(_setSyncStatus, lower(username), value),
+    getWhatsNew: (username) => safe(_getWhatsNew, lower(username)),
+    latestVersionSeen: (username) => safe(_latestVersionSeen, lower(username)),
+    updateTutorial: (username, action) => safe(_updateTutorial, lower(username), action),
+    resetTutorial: (username) => safe(_resetTutorial, lower(username)),
     addBetaKey: (betaKey) => safe(_addBetaKey, betaKey),
     betaKeyExists: (betaKey) => safe(_betaKeyExists, betaKey),
     betaKeyValid: (betaKey) => safe(_betaKeyValid, betaKey),
@@ -100,6 +132,9 @@ module.exports = {
     joinBeta: (username) => safe(_joinBeta, lower(username)),
     updateBetaFeatures: (username, features) => safe(_updateBetaFeatures, lower(username), features),
     leaveBeta: (username) => safe(_leaveBeta, lower(username)),
+    checkPasswordResetToken: (token) => safe(_checkPasswordResetToken, token),
+    resetPasswordRequest: (schoolUsername) => safe(_resetPasswordRequest, lower(schoolUsername)),
+    resetPassword: (token, newPassword) => safe(_resetPassword, token, newPassword),
     clearTestDatabase: () => safe(_clearTestDatabase)
 };
 
@@ -165,6 +200,47 @@ const _init = async (db) => {
     }
 
     return {success: true};
+};
+
+const _usernameAvailable = async (db, username) => {
+    let res = await _userExists(db, {username: username});
+    if (res.success) {
+        return {
+            success: false, data: {log: `${username} is already taken`, message: "This username is already taken!"}
+        };
+    }
+    let res2 = await _userArchived(db, {username: username});
+    if (res2.success) {
+        return {
+            success: false, data: {
+                log: `${username} is archived`,
+                message: "This account has been archived! Email <a href='mailto:support@graderoom.me'>support@graderoom.me</a> to recover your account."
+            }
+        };
+    }
+    return {success: true, data: {message: "Valid Username!"}};
+};
+
+const _schoolUsernameAvailable = async (db, schoolUsername) => {
+    let res = await _userExists(db, {schoolUsername: schoolUsername});
+    if (res.success) {
+        return {
+            success: false, data: {
+                log: `${schoolUsername} is already taken`,
+                message: "This email address is already associated with an account!"
+            }
+        };
+    }
+    let res2 = await _userArchived(db, {schoolUsername: schoolUsername});
+    if (res2.success) {
+        return {
+            success: false, data: {
+                log: `${schoolUsername} is archived`,
+                message: "The account associated with this email address has been archived! Email <a href='mailto:support@graderoom.me'>support@graderoom.me</a> to recover your account."
+            }
+        };
+    }
+    return {success: true, data: {message: "Valid Email!"}};
 };
 
 const _addUser = async (db, school, username, password, schoolUsername, isAdmin, beta, betaKey) => {
@@ -265,7 +341,7 @@ const _getAllArchivedUsers = async (db) => {
     return {success: true, data: {value: await db.collection(ARCHIVED_USERS_COLLECTION_NAME).find({}).toArray()}};
 };
 
-const _unarchiveUser = async (db, username) => {
+const _unArchiveUser = async (db, username) => {
     let res = await _userArchived(db, username);
     if (!res.success) {
         return res;
@@ -336,16 +412,12 @@ const __getMostRecentTermData = (user) => {
 };
 
 const _login = async (db, username, password) => {
-    let res = await _userExists(db, {username: username});
-    if (!res.success) {
-        return {success: false, data: {message: "Invalid credentials."}};
-    }
-    let user = res.data.value;
-    return await __login(user, password);
-};
-
-const __login = async (user, password) => {
-    return new Promise(resolve => {
+    return new Promise(async resolve => {
+        let res = await _userExists(db, {username: username});
+        if (!res.success) {
+            return resolve({success: false, data: {message: "Invalid credentials."}});
+        }
+        let user = res.data.value;
         bcrypt.compare(password, user.password, (err, success) => {
             if (err) {
                 return resolve({success: false, data: {log: err, message: "Something went wrong"}});
@@ -364,15 +436,18 @@ const __login = async (user, password) => {
     });
 };
 
+const _setLoggedIn = async (db, username) => {
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$push: {loggedIn: Date.now()}});
+    if (res.ok) {
+        return {success: true};
+    }
+    return {success: false};
+};
+
 const _encryptAndStoreSchoolPassword = async (db, username, schoolPassword, password) => {
-    let res = await _userExists(db, {username: username});
+    let res = await _login(db, username, password);
     if (!res.success) {
         return res;
-    }
-    let user = res.data.value;
-    let res2 = __login(user, password);
-    if (!res2.success) {
-        return res2;
     }
 
     let resizedIV = Buffer.allocUnsafe(16);
@@ -388,14 +463,9 @@ const _encryptAndStoreSchoolPassword = async (db, username, schoolPassword, pass
 };
 
 const _decryptAndGetSchoolPassword = async (db, username, password) => {
-    let res = await _userExists(db, {username: username});
+    let res = await _login(db, username, password);
     if (!res.success) {
         return res;
-    }
-    let user = res.data.value;
-    let res2 = __login(user, password);
-    if (!res2.success) {
-        return res2;
     }
 
     let resizedIV = Buffer.allocUnsafe(16);
@@ -410,7 +480,7 @@ const _decryptAndGetSchoolPassword = async (db, username, password) => {
     decryptedPass += decipher.final("utf8");
 
     return {success: true, data: {value: decryptedPass}};
-}
+};
 
 const _acceptTerms = async (db, username) => {
     let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {"alerts.termsLastSeen": Date.now()}});
@@ -426,6 +496,252 @@ const _acceptPrivacyPolicy = async (db, username) => {
         return {success: true, data: {log: `Accepted policy for ${username}`}};
     }
     return {success: false, data: {log: `Error accepting policy for ${username}`}};
+};
+
+const _setRemoteAccess = async (db, username, value) => {
+    let allowedValues = ["allowed", "denied"];
+    if (!allowedValues.includes(value)) {
+        return {success: false, data: {message: "Something went wrong", log: `Invalid remote access value: ${value}`}};
+    }
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {"alerts.remoteAccess": value}});
+    if (res.ok) {
+        return {success: true, data: {log: `Set remote access for ${username} to ${value}`}};
+    }
+    return {success: false, data: {log: `Error setting remote access for ${username} to ${value}`}};
+};
+
+const _setFirstName = async (db, username, value) => {
+    let firstNameRegex = new RegExp("^[a-zA-Z]*$");
+    if (firstNameRegex.test(value)) {
+        let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {"personalInfo.firstName": value}});
+        if (res.ok) {
+            return {success: true, data: {message: "Updated first name"}};
+        }
+        return {
+            success: false,
+            data: {log: `Failed to set ${value} as first name for ${username}`, message: "Something went wrong"}
+        };
+    }
+    return {success: false, data: {message: "First name must contain only letters"}};
+};
+
+const _setShowNonAcademic = async (db, username, value) => {
+    if (typeof value !== "boolean") {
+        return {
+            success: false, data: {message: "Something went wrong", log: `Invalid showNonAcademic value: ${value}`}
+        };
+    }
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {"appearance.showNonAcademic": value}});
+    if (res.ok) {
+        return {success: true, data: {log: `Set showNonAcademic to ${value} for ${username}`}};
+    }
+    return {success: false, data: {log: `Error setting showNonAcademic to ${value} for ${username}`}};
+};
+
+const _setRegularizeClassGraphs = async (db, username, value) => {
+    if (typeof value !== false) {
+        return {
+            success: false,
+            data: {message: "Something went wrong", log: `Invalid regularizeClassGraphs value: ${value}`}
+        };
+    }
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {"appearance.regularizeClassGraphs": value}});
+    if (res.ok) {
+        return {success: true, data: {log: `Set regularizeClassGraphs to ${value} for ${username}`}};
+    }
+    return {success: false, data: {log: `Error setting regularizeClassGraphs to ${value} for ${username}`}};
+};
+
+const _setWeightedGPA = async (db, username, value) => {
+    if (typeof value !== "boolean") {
+        return {success: false, data: {message: "Something went wrong", log: `Invalid weightedGPA value: ${value}`}};
+    }
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {"appearance.weightedGPA": value}});
+    if (res.ok) {
+        return {success: true, data: {log: `Set weightedGPA to ${value} for ${username}`}};
+    }
+    return {success: false, data: {log: `Error setting weightedGPA to ${value} for ${username}`}};
+};
+
+const _setTheme = async (db, username, theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects) => {
+    let res = await _userExists(db, {username: username});
+    if (!res.success) {
+        return res;
+    }
+    let user = res.data.value;
+    let allowedValues = ["auto", "sun", "dark", "light", "system"];
+    if (!allowedValues.includes(theme)) {
+        return {success: false, data: {message: "Something went wrong", log: `Invalid theme: ${theme}`}};
+    }
+    if (typeof seasonalEffects !== "boolean") {
+        return {
+            success: false, data: {message: "Something went wrong", log: `Invalid seasonalEffects: ${seasonalEffects}`}
+        };
+    }
+    if (typeof blurEffects !== "boolean") {
+        return {
+            success: false, data: {message: "Something went wrong", log: `Invalid seasonalEffects: ${blurEffects}`}
+        };
+    }
+    let message = theme.replace(/^\w/, c => c.toUpperCase()) + " theme enabled!";
+    if (theme === "auto") {
+        darkModeStart = new Date("0/" + darkModeStart);
+        darkModeFinish = new Date("0/" + darkModeFinish);
+        message = "Dark theme enabled from " + darkModeStart.toLocaleTimeString() + " to " + darkModeFinish.toLocaleTimeString() + ".";
+        darkModeStart = darkModeStart.getTime();
+        darkModeFinish = darkModeFinish.getTime();
+    }
+    if (theme === "sun") {
+        message = "Dark theme enabled from sunset to sunrise.";
+    }
+    if (seasonalEffects !== user.appearance.seasonalEffects) {
+        message = "Seasonal effects " + (seasonalEffects ? "enabled" : "disabled") + "!";
+    }
+    if (blurEffects !== user.appearance.blurEffects) {
+        message = "Blur effects " + (blurEffects ? "enabled" : "disabled");
+    }
+    let res2 = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {
+        $set: {
+            "appearance.theme": theme,
+            "appearance.darkModeStart": darkModeStart,
+            "appearance.darkModeFinish": darkModeFinish,
+            "appearance.seasonalEffects": seasonalEffects,
+            "appearance.blurEffects": blurEffects
+        }
+    });
+    if (res2.ok) {
+        return {success: true, data: {message: message, log: `Updated appearance for ${username}`}};
+    }
+    return {
+        success: false, data: {
+            message: "Something went wrong",
+            log: `Error updating appearance for ${username} with parameters theme=${theme}, darkModeStart=${darkModeStart}, darkModeFinish=${darkModeFinish}, seasonalEffects=${seasonalEffects}, blurEffects=${blurEffects}`
+        }
+    };
+};
+
+const _setShowMaxGPA = async (db, username, value) => {
+    if (typeof value !== "boolean") {
+        return {success: false, data: {message: "Something went wrong", log: `Invalid showMaxGPA value: ${value}`}};
+    }
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {"appearance.showMaxGPA": value}});
+    if (res.ok) {
+        return {success: true, data: {log: `Set showMaxGPA to ${value} for ${username}`}};
+    }
+    return {success: false, data: {log: `Error setting showMaxGPA to ${value} for ${username}`}};
+};
+
+const _setColorPalette = async (db, username, preset, shuffle) => {
+    if (typeof shuffle !== "boolean") {
+        return {success: false, data: {message: `Invalid shuffle value: ${shuffle}`}};
+    }
+    let light, saturation, hues = [0, 30, 60, 120, 180, 240, 270, 300, 330, 15, 45, 90, 150, 210, 255, 285, 315, 345];
+    switch (preset) {
+        case "pale":
+            light = 0.8;
+            saturation = 0.7;
+            break;
+        case "pastel":
+            light = 0.7;
+            saturation = 0.8;
+            break;
+        case "clear":
+            light = 0.6;
+            saturation = 0.7;
+            break;
+        case "bright":
+            light = 0.5;
+            saturation = 0.8;
+            break;
+        case "dull":
+            light = 0.4;
+            saturation = 0.7;
+            break;
+        default:
+            return {success: false, message: "Invalid preset"};
+    }
+    let classColors = hues.map(h => chroma({h: h, s: saturation, l: light}).hex());
+    if (shuffle) {
+        shuffleArray(classColors);
+    }
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {
+        $set: {
+            "appearance.classColors": classColors,
+            "appearance.colorPalette": preset,
+            "appearance.shuffleColors": shuffle
+        }
+    });
+    if (res.ok) {
+        return {success: true, data: {log: `Updated color palette for ${username}`}};
+    }
+    return {
+        success: false,
+        data: {log: `Error updating color palette for ${username} with parameters username=${username}, preset=${preset}, shuffle=${shuffle}`}
+    };
+};
+
+const _setEnableLogging = async (db, username, value) => {
+    if (typeof value !== "boolean") {
+        return {
+            success: false, data: {
+                message: "Invalid value", log: `Invalid enableLogging value: ${value}`, settings: {enableLogging: value}
+            }
+        };
+    }
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {enableLogging: value}});
+    if (res.ok) {
+        return {
+            success: true,
+            data: {message: "Logging " + (value ? "enabled" : "disabled") + "!", settings: {enableLogging: value}}
+        };
+    }
+    return {success: false, data: {message: "Invalid user"}};
+};
+
+const _setAnimateWhenUnfocused = async (db, username, value) => {
+    if (typeof value !== "boolean") {
+        return {
+            success: false, data: {
+                message: "Invalid value",
+                log: `Invalid animateWhenUnfocused value: ${value}`,
+                settings: {animateWhenUnfocused: value}
+            }
+        };
+    }
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {"appearance.animateWhenUnfocused": value}});
+    if (res.ok) {
+        return {
+            success: true,
+            data: {
+                message: "Animation " + (value ? "enabled" : "disabled") + " when window is not in focus!",
+                settings: {animateWhenUnfocused: value},
+                refresh: true
+            }
+        };
+    }
+    return {success: false, data: {message: "Invalid user"}};
+};
+
+const _setShowFps = async (db, username, value) => {
+    if (typeof value !== "boolean") {
+        return {
+            success: false, data: {
+                message: "Invalid value", log: `Invalid showFps value: ${value}`, settings: {showFps: value}
+            }
+        };
+    }
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {"appearance.showFps": value}});
+    if (res.ok) {
+        return {
+            success: true,
+            data: {
+                message: "Refresh Rate Display " + (value ? "enabled" : "disabled") + "!",
+                settings: {showFps: value},
+                refresh: true
+            }
+        };
+    }
+    return {success: false, data: {message: "Invalid user"}};
 };
 
 const _changePassword = async (db, username, oldPassword, newPassword) => {
@@ -495,6 +811,14 @@ const _changeSchoolEmail = async (db, username, schoolUsername) => {
         return {success: false, data: {log: `Error updating school email`, message: "Something went wrong"}};
     }
     return {success: true, data: {log: `Changed school username for ${username}`, message: "School Email Updated"}};
+};
+
+const _disableGradeSync = async (db, username) => {
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$unset: {schoolPassword: ""}});
+    if (res.ok) {
+        return {success: true, data: {log: `Disabled GradeSync for ${username}`}};
+    }
+    return {success: false, data: {log: `Error disabling GradeSync for ${username}`}};
 };
 
 const _makeAdmin = async (db, username) => {
@@ -752,11 +1076,13 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                 }
                 let time = Date.now();
                 await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {
-                    $push: {updatedGradeHistory: time},
-                    $push: {"alerts.lastUpdated": {timestamp: time, changeData: changeData, ps_locked: false}}
+                    $push: {
+                        updatedGradeHistory: time,
+                        "alerts.lastUpdated": {timestamp: time, changeData: changeData, ps_locked: false}
+                    }
                 });
-                this.initAddedAssignments(username);
-                this.initEditedAssignments(username);
+                await _initAddedAssignments(db, username);
+                await _initEditedAssignments(db, username);
                 this.bringUpToDate(username);
 
                 socketManager.emitToRoom(username, "sync", "success-history", data.message);
@@ -771,8 +1097,157 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
     scraper.loginAndScrapeGrades(_stream, user.school, user.schoolUsername, schoolPassword, "", "", "true");
 };
 
-const _getRelClassData = async (db, username, term, semester) => {
-    //TODO
+const _updateSortData = async (db, username, sortData) => {
+    let {dateSort, categorySort} = sortData;
+    if (!dateSort || !categorySort) {
+        return {success: false, data: {log: `Invalid sortData`}};
+    }
+    if (!Array.isArray(dateSort) || !Array.isArray(categorySort)) {
+        return {success: false, data: {log: `dateSort or categorySort is not an array`}};
+    }
+    if (dateSort.filter((e) => typeof e !== "boolean").length !== 0 || categorySort.filter((e) => typeof e !== "boolean").length !== 0) {
+        return {success: false, data: {log: `Invalid arrays dateSort or categorySort`}};
+    }
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {
+        $set: {
+            "sortingData": {dateSort: dateSort, categorySort: categorySort}
+        }
+    });
+    if (res.ok) {
+        return {success: true};
+    }
+    return {success: false};
+};
+
+const _initAddedAssignments = async (db, username) => {
+    let res = await _getUser(db, {username: username});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    let current = user.addedAssignments ?? {};
+
+    let temp = {};
+    let years = Object.keys(user.grades);
+    for (let i = 0; i < years.length; i++) {
+        let semesters = Object.keys(user.grades[years[i]]);
+        temp[years[i]] = {};
+        for (let j = 0; j < semesters.length; j++) {
+            temp[years[i]][semesters[j]] = current[years[i]] ? current[years[i]][semesters[j]] ?? {} : {};
+            let classes = user.grades[years[i]][semesters[j]].map(c => c.class_name);
+            for (let k = 0; k < classes.length; k++) {
+                temp[years[i]][semesters[j]][classes[k]] = [];
+            }
+        }
+    }
+
+    await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {addedAssignments: temp}});
+    return {success: true};
+};
+
+const _initEditedAssignments = async (db, username) => {
+    let res = await _getUser(db, {username: username});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    let current = user.editedAssignments ?? {};
+
+    let temp = {};
+    let years = Object.keys(user.grades);
+    for (let i = 0; i < years.length; i++) {
+        let semesters = Object.keys(user.grades[years[i]]);
+        temp[years[i]] = {};
+        for (let j = 0; j < semesters.length; j++) {
+            temp[years[i]][semesters[j]] = current[years[i]] ? current[years[i]][semesters[j]] ?? {} : {};
+            let classes = user.grades[years[i]][semesters[j]].map(c => c.class_name);
+            for (let k = 0; k < classes.length; k++) {
+                temp[years[i]][semesters[j]][classes[k]] = [];
+            }
+        }
+    }
+
+    await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {editedAssignments: temp}});
+    return {success: true};
+};
+
+const _initWeights = async (db, username) => {
+    let res = await _getUser(db, {username: username});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    let current = user.weights ?? {};
+
+    let temp = {};
+    let years = Object.keys(user.grades);
+    for (let i = 0; i < years.length; i++) {
+        let semesters = Object.keys(user.grades[years[i]]);
+        temp[years[i]] = {};
+        for (let j = 0; j < semesters.length; j++) {
+            temp[years[i]][semesters[j]] = current[years[i]] ? current[years[i]][semesters[j]] ?? {} : {};
+            let classes = user.grades[years[i]][semesters[j]].map(c => c.class_name);
+            for (let k = 0; k < classes.length; k++) {
+                temp[years[i]][semesters[j]][classes[k]] = current[years[i]] ? current[years[i]][semesters[j]] ? current[years[i]][semesters[j]][classes[k]] ?? {
+                    weights: {}, hasWeights: false
+                } : {weights: {}, hasWeights: false} : {weights: {}, hasWeights: false};
+            }
+        }
+    }
+
+    await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {addedAssignments: temp}});
+    return {success: true};
+};
+
+const _updateAddedAssignments = async (db, username, addedAssignments, term, semester) => {
+    let res = await _getUser(db, {username: username});
+    if (!res.success) {
+        return res;
+    }
+
+    // TODO validate addedAssignments
+
+    let user = res.data.value;
+    let oldAddedAssignments = user.addedAssignments;
+    if (!(term in oldAddedAssignments) || !(semester in oldAddedAssignments[term])) {
+        return {
+            success: false,
+            data: {log: `Invalid parameters for updateAddedAssignments: username=${username}, term=${term}, semester=${semester}`}
+        };
+    }
+
+    let setString = `addedAssignments.${term}.${semester}`;
+    let setMap = {};
+    setMap[setString] = addedAssignments;
+    await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: setMap});
+    return {success: true};
+};
+
+const _updateEditedAssignments = async (db, username, editedAssignments, term, semester) => {
+    let res = await _getUser(db, {username: username});
+    if (!res.success) {
+        return res;
+    }
+
+    // TODO validate editedAssignments
+
+    let user = res.data.value;
+    let oldEditedAssignments = user.editedAssignments;
+    if (!(term in oldEditedAssignments) || !(semester in oldEditedAssignments[term])) {
+        return {
+            success: false,
+            data: {log: `Invalid parameters for updateEditedAssignments: username=${username}, term=${term}, semester=${semester}`}
+        };
+    }
+
+    let setString = `editedAssignments.${term}.${semester}`;
+    let setMap = {};
+    setMap[setString] = editedAssignments;
+    await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: setMap});
+    return {success: true};
 };
 
 const _getSyncStatus = async (db, username) => {
@@ -800,6 +1275,73 @@ const _getSyncStatus = async (db, username) => {
     } else {
         return {success: false, data: {message: "Not syncing"}};
     }
+};
+
+const _setSyncStatus = async (db, username, value) => {
+    let allowedValues = ["complete", "already done", "no data", "failed", "updating", "history", "account-inactive", ""];
+    if (!allowedValues.includes(value)) {
+        return {success: false, data: {log: `Invalid sync status: ${value}`}};
+    }
+    let res = await db.collection.findOneAndUpdate({username: username}, {$set: {updatedInBackground: value}});
+    if (res.ok) {
+        return {success: true, data: {log: `Set sync status for ${username} to ${value}`}};
+    }
+    return {success: false, data: {log: `Error setting sync status for ${username} to ${value}`}};
+};
+
+const _getWhatsNew = async (db, username) => {
+    let user = await _getUser(db, {username: username});
+    let end = _versionNameArray.indexOf(_versionNameArray.find(v => v[1] === user.alerts.latestSeen));
+    if (end < 2) {
+        end = 2;
+    }
+    let result;
+    if (_beta) {
+        result = _betaChangelogArray.slice(1, end).join("");
+    } else {
+        result = "";
+        for (let i = 1; i < _versionNameArray.length; i++) {
+            if (_versionNameArray[i][0] !== "Beta") {
+                if (i >= end && result) {
+                    break;
+                }
+                result += _changelogArray[i];
+            }
+        }
+    }
+    return {success: true, data: {value: result}};
+};
+
+const _latestVersionSeen = async (db, username) => {
+    let version;
+    if (_beta) {
+        version = _versionNameArray[1][1];
+    } else {
+        version = _versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1];
+    }
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {"alerts.latestSeen": version}});
+    if (res.ok) {
+        return {success: true, data: {log: `Set latest seen for ${username} to ${version}`}};
+    }
+    return {success: false, data: {log: `Error setting latest seen for ${username} to ${version}`}};
+};
+
+const _updateTutorial = async (db, username, action) => {
+    if (!_tutorialKeys.includes(action)) {
+        return {success: false, data: {log: `Invalid action: ${action}`}};
+    }
+    let setString = `alerts.tutorialStatus.${action}Seen`;
+    let setMap = {};
+    setMap[setString] = true;
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: setMap}, {returnDocument: "after"});
+    return {success: true, data: {value: res.value}};
+};
+
+const _resetTutorial = async (db, username) => {
+    let setMap = {};
+    setMap["alerts.tutorialStatus"] = Object.fromEntries(_tutorialKeys.map(key => [key, false]));
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: setMap}, {returnDocument: "after"});
+    return {success: true, data: {value: res.value}};
 };
 
 const _addBetaKey = async (db) => {
@@ -912,6 +1454,65 @@ const _leaveBeta = async (db, username) => {
         return {success: true, data: {log: `Left beta for ${username} in ${school}`}};
     }
     return {success: false, data: {log: `Error leaving beta for ${username} in ${school}`}};
+};
+
+const _checkPasswordResetToken = async (db, token) => {
+    let user = await db.collection(USERS_COLLECTION_NAME).findOne({passwordResetToken: token});
+    let valid = user && user.passwordResetTokenExpire > Date.now();
+    let gradeSync = !!user.schoolPassword;
+    return {success: true, data: {user: user, valid: valid, gradeSync: gradeSync}};
+};
+
+const _resetPasswordRequest = async (db, schoolUsername) => {
+    let token = makeKey(20);
+
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({schoolUsername: schoolUsername}, {
+        $set: {
+            passwordResetToken: token, passwordResetTokenExpire: Date.now() + 1000 * 60 * 60 * 24
+        }
+    }, {returnDocument: "after"});
+    if (res.ok) {
+        return {success: true, data: {user: res.value, token: token}};
+    }
+    return {success: false};
+};
+
+const _resetPassword = async (db, token, newPassword) => {
+    return new Promise(async resolve => {
+        let res = await _checkPasswordResetToken(db, token);
+        let {user, valid, gradeSync} = res.data;
+        if (!valid) {
+            return resolve({success: false, data: {message: "Invalid token."}});
+        }
+
+        let message = validatePassword(newPassword);
+        if (message) {
+            return resolve({success: false, data: {message: message}});
+        }
+
+        if (gradeSync) {
+            await _disableGradeSync(db, user.username);
+        }
+
+        bcrypt.hash(newPassword, roundsToGenerateSalt, async (err, hash) => {
+            if (err) {
+                return resolve({success: false, data: {log: err, message: "Something went wrong"}});
+            }
+            let res3 = await db.findOneAndUpdate({username: username}, {
+                $set: {password: hash}, $unset: {passwordResetTokenExpire: "", passwordResetToken: ""}
+            });
+            if (!res3.ok) {
+                return resolve({
+                                   success: false,
+                                   data: {log: `Error resetting password`, message: "Something went wrong"}
+                               });
+            }
+            return resolve({
+                               success: true,
+                               data: {log: `Reset password for ${username}`, message: "Password updated."}
+                           });
+        });
+    });
 };
 
 const _clearTestDatabase = async (db) => {

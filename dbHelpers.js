@@ -392,7 +392,7 @@ exports.readChangelog = (filename) => {
     });
 };
 
-const buildStarterNotification = (now) => {
+exports.buildStarterNotification = (now) => {
     return {
         type: "announcement",
         title: "Welcome to your Notification Center",
@@ -436,3 +436,10 @@ exports.getPersonalInfo = (email, school) => {
     }
     return {firstName, lastName, graduationYear};
 };
+
+exports.shuffleArray = (array) => {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
