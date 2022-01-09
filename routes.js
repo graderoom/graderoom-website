@@ -3,6 +3,7 @@ const dbClient = require("./dbClient.js");
 const emailSender = require("./emailSender.js");
 const _ = require("lodash");
 const SunCalc = require("suncalc");
+const {changelog} = require("./dbHelpers");
 
 module.exports = function (app, passport) {
 
@@ -25,7 +26,7 @@ module.exports = function (app, passport) {
             let gradeHistoryLetters = {};
             let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data;
             if (req.query.term && req.query.semester) {
-                if ((term === req.query.term && semester === req.query.semester) || !authenticator.semesterExists(req.user.username, req.query.term, req.query.semester)) {
+                if ((term === req.query.term && semester === req.query.semester) || !(await dbClient.userHasSemester(req.user.username, req.query.term, req.query.semester)).data.value) {
                     res.redirect("/");
                     return;
                 }
@@ -65,7 +66,7 @@ module.exports = function (app, passport) {
                     addedAssignments: JSON.stringify(req.user.addedAssignments[term][semester]),
                     editedAssignments: JSON.stringify(req.user.editedAssignments[term][semester]),
                     gradeHistory: JSON.stringify(gradeHistoryLetters),
-                    relevantClassData: JSON.stringify(authenticator.getRelClassData(req.user.username, term, semester)),
+                    relevantClassData: JSON.stringify((await dbClient.getRelevantClassData(req.user.username, term, semester)).data.value),
                     sortingData: JSON.stringify(req.user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     beta: JSON.stringify(server.beta),
@@ -161,7 +162,7 @@ module.exports = function (app, passport) {
             let gradeHistoryLetters = {};
             let {term, semester} = (await dbClient.getMostRecentTermData(req.query.usernameToRender)).data;
             if (req.query.term && req.query.semester) {
-                if ((term === req.query.term && semester === req.query.semester) || !authenticator.semesterExists(user.username, req.query.term, req.query.semester)) {
+                if ((term === req.query.term && semester === req.query.semester) || !(await dbClient.userHasSemester(user.username, req.query.term, req.query.semester)).data.value) {
                     res.redirect("/viewuser?usernameToRender=" + req.query.usernameToRender);
                     return;
                 }
@@ -203,7 +204,7 @@ module.exports = function (app, passport) {
                     addedAssignments: JSON.stringify(user.addedAssignments[term][semester]),
                     editedAssignments: JSON.stringify(user.editedAssignments[term][semester]),
                     gradeHistory: JSON.stringify(gradeHistoryLetters),
-                    relevantClassData: JSON.stringify(authenticator.getRelClassData(req.query.usernameToRender, term, semester)),
+                    relevantClassData: JSON.stringify((await dbClient.getRelevantClassData(req.user.username, term, semester)).data.value),
                     sortingData: JSON.stringify(user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     beta: server.beta,
@@ -341,7 +342,7 @@ module.exports = function (app, passport) {
     });
 
     app.get("/changelog", [isLoggedIn], async (req, res) => {
-        let result = authenticator.changelog(server.beta);
+        let result = changelog(server.beta);
         res.status(200).send(result);
     });
 
@@ -713,8 +714,8 @@ module.exports = function (app, passport) {
         res.sendStatus(200);
     });
 
-    app.post("/newbetakey", [isAdmin], (req, res) => {
-        let resp = authenticator.addNewBetaKey();
+    app.post("/newbetakey", [isAdmin], async (req, res) => {
+        let resp = await dbClient.addBetaKey();
 
         if (resp.success) {
             req.flash("betaKeySuccessMessage", resp.data.message);
@@ -1073,10 +1074,10 @@ module.exports = function (app, passport) {
     }
 
     // temp middleware to prevent routes from happening if using query to view old semesters
-    function inRecentTerm(req, res, next) {
+    async function inRecentTerm(req, res, next) {
         let url = req.headers.referer;
         let props = Object.fromEntries(url.includes("?") ? url.split("?")[1].split("&").map(prop => prop.split("=")) : []);
-        if (props.term && props.semester && !authenticator.semesterExists(req.user.username, props.term, props.semester)) {
+        if (props.term && props.semester && !(await dbClient.userHasSemester(req.user.username, props.term, props.semester)).data.value) {
             delete props.term;
             delete props.semester;
         }
@@ -1092,21 +1093,6 @@ module.exports = function (app, passport) {
         res.redirect("/");
     }
 };
-
-
-function makeKey(length) {
-    let result = "";
-    let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let charactersLength = characters.length;
-    for (let i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
-}
-
-function isDST() {
-    return Math.max(new Date(new Date(Date.now()).getFullYear(), 0, 1).getTimezoneOffset(), new Date(new Date(Date.now()).getFullYear(), 6, 1).getTimezoneOffset()) !== new Date(Date.now()).getTimezoneOffset();
-}
 
 function getSunriseAndSunset() {
     const SAN_JOSE_CA = {lat: 37, lng: -122};

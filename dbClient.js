@@ -37,11 +37,11 @@ const {
     roundsToGenerateSalt,
     validateEmail,
     getPersonalInfo,
-    _versionNameArray,
-    _betaChangelogArray,
-    _changelogArray,
-    _tutorialKeys,
-    shuffleArray
+    versionNameArray,
+    betaChangelogArray,
+    changelogArray,
+    tutorialKeys,
+    shuffleArray, changelog
 } = require("./dbHelpers");
 const SunCalc = require("suncalc");
 
@@ -86,6 +86,7 @@ module.exports = {
     removeUser: (username) => safe(_removeUser, lower(username)),
     removeUserFromArchive: (username) => safe(_removeUserFromArchive, lower(username)),
     getMostRecentTermData: (username) => safe(_getMostRecentTermData, lower(username)),
+    getRelevantClassData: (username, term, semester) => safe(_getRelevantClassData, lower(username), term, semester),
     login: (username, password) => safe(_login, lower(username), password),
     setLoggedIn: (username) => safe(_setLoggedIn, lower(username)),
     encryptAndStoreSchoolPassword: (username, schoolPassword, password) => safe(_encryptAndStoreSchoolPassword, lower(username), schoolPassword, password),
@@ -111,6 +112,7 @@ module.exports = {
     updateGrades: (username, schoolPassword) => safe(_updateGrades, lower(username), schoolPassword),
     updateGradeHistory: (username, schoolPassword) => safe(_updateGradeHistory, lower(username), schoolPassword),
     updateSortData: (username, sortData) => safe(_updateSortData, lower(username), sortData),
+    userHasSemester: (username, term, semester) => safe(_userHasSemester, lower(username), term, semester),
     initAddedAssignments: (username) => safe(_initAddedAssignments, lower(username)),
     initEditedAssignments: (username) => safe(_initEditedAssignments, lower(username)),
     initWeights: (username) => safe(_initWeights, lower(username)),
@@ -122,7 +124,7 @@ module.exports = {
     latestVersionSeen: (username) => safe(_latestVersionSeen, lower(username)),
     updateTutorial: (username, action) => safe(_updateTutorial, lower(username), action),
     resetTutorial: (username) => safe(_resetTutorial, lower(username)),
-    addBetaKey: (betaKey) => safe(_addBetaKey, betaKey),
+    addBetaKey: () => safe(_addBetaKey),
     betaKeyExists: (betaKey) => safe(_betaKeyExists, betaKey),
     betaKeyValid: (betaKey) => safe(_betaKeyValid, betaKey),
     getBetaKey: (betaKey) => safe(_getBetaKey, betaKey),
@@ -136,8 +138,7 @@ module.exports = {
     resetPasswordRequest: (schoolUsername) => safe(_resetPasswordRequest, lower(schoolUsername)),
     resetPassword: (token, newPassword) => safe(_resetPassword, token, newPassword),
     clearTestDatabase: () => safe(_clearTestDatabase),
-    addWeightsSuggestion: (username, term, semester, className, teacherName, hasWeights, weights) => 
-                           safe(_addWeightsSuggestion, lower(username), term, semester, className, teacherName, hasWeights, weights),
+    addWeightsSuggestion: (username, term, semester, className, teacherName, hasWeights, weights) => safe(_addWeightsSuggestion, lower(username), term, semester, className, teacherName, hasWeights, weights)
 };
 
 /**
@@ -413,6 +414,43 @@ const __getMostRecentTermData = (user) => {
     return {success: true, data: {term: term, semester: semester}};
 };
 
+const _getRelevantClassData = async (db, username, term, semester) => {
+    let res = await _getUser(db, {username: username});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    let userClasses = [];
+    for (let i = 0; i < Object.keys(user.grades).length; i++) {
+        let t = Object.keys(user.grades)[i];
+        for (let j = 0; j < Object.keys(user.grades[t]).length; j++) {
+            let s = Object.keys(user.grades[t])[j];
+            user.grades[t][s].forEach(c => userClasses.push({
+                                                                term: t,
+                                                                semester: s,
+                                                                className: c.class_name,
+                                                                teacherName: c.teacher_name
+                                                            }));
+        }
+    }
+
+    let relClasses = {};
+    for (let i = 0; i < userClasses.length; i++) {
+        relClasses[userClasses[i].className] = {
+            "department": "",
+            "classType": "",
+            "uc_csuClassType": "",
+            "weights": {},
+            "hasWeights": null,
+            "credits": null,
+            "terms": null,
+        };
+    }
+
+    return {success: true, data: {value: relClasses}};
+};
+
 const _login = async (db, username, password) => {
     return new Promise(async resolve => {
         let res = await _userExists(db, {username: username});
@@ -469,6 +507,8 @@ const _decryptAndGetSchoolPassword = async (db, username, password) => {
     if (!res.success) {
         return res;
     }
+
+    let user = res.data.value;
 
     let resizedIV = Buffer.allocUnsafe(16);
     let iv = crypto.createHash("sha256").update("myHashedIV").digest();
@@ -713,8 +753,7 @@ const _setAnimateWhenUnfocused = async (db, username, value) => {
     let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {"appearance.animateWhenUnfocused": value}});
     if (res.ok) {
         return {
-            success: true,
-            data: {
+            success: true, data: {
                 message: "Animation " + (value ? "enabled" : "disabled") + " when window is not in focus!",
                 settings: {animateWhenUnfocused: value},
                 refresh: true
@@ -735,8 +774,7 @@ const _setShowFps = async (db, username, value) => {
     let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {"appearance.showFps": value}});
     if (res.ok) {
         return {
-            success: true,
-            data: {
+            success: true, data: {
                 message: "Refresh Rate Display " + (value ? "enabled" : "disabled") + "!",
                 settings: {showFps: value},
                 refresh: true
@@ -1121,6 +1159,14 @@ const _updateSortData = async (db, username, sortData) => {
     return {success: false};
 };
 
+const _userHasSemester = async (db, username, term, semester) => {
+    let res = await _getUser(db, {username: username});
+    if (!res.success) return res;
+
+    let user = res.data.value;
+    return {success: true, data: {value: term in user.grades && semester in user.grades[term]}};
+}
+
 const _initAddedAssignments = async (db, username) => {
     let res = await _getUser(db, {username: username});
     if (!res.success) {
@@ -1284,7 +1330,7 @@ const _setSyncStatus = async (db, username, value) => {
     if (!allowedValues.includes(value)) {
         return {success: false, data: {log: `Invalid sync status: ${value}`}};
     }
-    let res = await db.collection.findOneAndUpdate({username: username}, {$set: {updatedInBackground: value}});
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {updatedInBackground: value}});
     if (res.ok) {
         return {success: true, data: {log: `Set sync status for ${username} to ${value}`}};
     }
@@ -1292,22 +1338,24 @@ const _setSyncStatus = async (db, username, value) => {
 };
 
 const _getWhatsNew = async (db, username) => {
-    let user = await _getUser(db, {username: username});
-    let end = _versionNameArray.indexOf(_versionNameArray.find(v => v[1] === user.alerts.latestSeen));
+    let res = await _getUser(db, {username: username});
+    if (!res.success) return res;
+    let user = res.data.value;
+    let end = versionNameArray().indexOf(versionNameArray().find(v => v[1] === user.alerts.latestSeen));
     if (end < 2) {
         end = 2;
     }
     let result;
     if (_beta) {
-        result = _betaChangelogArray.slice(1, end).join("");
+        result = betaChangelogArray().slice(1, end).join("");
     } else {
         result = "";
-        for (let i = 1; i < _versionNameArray.length; i++) {
-            if (_versionNameArray[i][0] !== "Beta") {
+        for (let i = 1; i < versionNameArray().length; i++) {
+            if (versionNameArray()[i][0] !== "Beta") {
                 if (i >= end && result) {
                     break;
                 }
-                result += _changelogArray[i];
+                result += changelogArray()[i];
             }
         }
     }
@@ -1317,9 +1365,9 @@ const _getWhatsNew = async (db, username) => {
 const _latestVersionSeen = async (db, username) => {
     let version;
     if (_beta) {
-        version = _versionNameArray[1][1];
+        version = versionNameArray()[1][1];
     } else {
-        version = _versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1];
+        version = versionNameArray().find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1];
     }
     let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {"alerts.latestSeen": version}});
     if (res.ok) {
@@ -1329,7 +1377,7 @@ const _latestVersionSeen = async (db, username) => {
 };
 
 const _updateTutorial = async (db, username, action) => {
-    if (!_tutorialKeys.includes(action)) {
+    if (!tutorialKeys.includes(action)) {
         return {success: false, data: {log: `Invalid action: ${action}`}};
     }
     let setString = `alerts.tutorialStatus.${action}Seen`;
@@ -1341,7 +1389,7 @@ const _updateTutorial = async (db, username, action) => {
 
 const _resetTutorial = async (db, username) => {
     let setMap = {};
-    setMap["alerts.tutorialStatus"] = Object.fromEntries(_tutorialKeys.map(key => [key, false]));
+    setMap["alerts.tutorialStatus"] = Object.fromEntries(tutorialKeys.map(key => [key, false]));
     let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: setMap}, {returnDocument: "after"});
     return {success: true, data: {value: res.value}};
 };
@@ -1357,7 +1405,7 @@ const _addBetaKey = async (db) => {
         betaKey: betaKey, claimed: false, claimedBy: ""
     };
     await db.collection(BETAKEYS_COLLECTION_NAME).insertOne(document);
-    return {success: true, data: {log: `Added betaKey ${betaKey}`, message: "Beta Key Added", value: document}};
+    return {success: true, data: {log: `Added betaKey ${betaKey}`, message: `Beta Key ${betaKey} Added`, value: document}};
 };
 
 const _betaKeyExists = async (db, betaKey) => {
@@ -1526,23 +1574,33 @@ const _clearTestDatabase = async (db) => {
 
 const _addWeightsSuggestion = async (db, username, term, semester, className, teacherName, hasWeights, weights) => {
     if (typeof hasWeights !== "boolean") {
-        return {success: false, data: {message: "Something went wrong", log: `Invalid hasWeights values: ${hasWeights}`}};
+        return {
+            success: false, data: {message: "Something went wrong", log: `Invalid hasWeights values: ${hasWeights}`}
+        };
     }
 
     //Modify weights
     let modWeights = {};
     for (let key in weights) {
         if (hasWeights === false) {
-            modWeights[key] = null; // 
+            modWeights[key] = null; //
         } else {
             modWeights[key] = parseFloat(weights[key]);
             if (isNaN(modWeights[key])) {
-                return {success: false, data: {message: "Something went wrong", log: `Invalid weights values: ${weights[key]}`}};
+                return {
+                    success: false,
+                    data: {message: "Something went wrong", log: `Invalid weights values: ${weights[key]}`}
+                };
             }
         }
     }
     if (Object.values(modWeights).every(x => x === null) && hasWeights) {
-        return {success: false, data: {message: "Something went wrong", log: `Invalid weights suggestion. hasWeights is true & all weights are null`}};
+        return {
+            success: false, data: {
+                message: "Something went wrong",
+                log: `Invalid weights suggestion. hasWeights is true & all weights are null`
+            }
+        };
     }
 
     //Get School
@@ -1551,9 +1609,14 @@ const _addWeightsSuggestion = async (db, username, term, semester, className, te
         return res;
     }
     let school = res.data.value.school;
-    
+
     //Delete Old Suggestion
-    let suggestions = await db.collection(classesCollection(school)).findOne({term: term, semester: semester, className: className, teachers: {$elemMatch:{teacher: teacherName}}});
+    let suggestions = await db.collection(classesCollection(school)).findOne({
+                                                                                 term: term,
+                                                                                 semester: semester,
+                                                                                 className: className,
+                                                                                 teachers: {$elemMatch: {teacher: teacherName}}
+                                                                             });
 
     //if not same as class weights:
     //add to existing suggestion or add new suggestion

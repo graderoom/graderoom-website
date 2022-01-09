@@ -12,23 +12,29 @@ exports.roundsToGenerateSalt = 10;
 const dbUserVersion = 0;
 const dbClassVersion = 0;
 
-exports._changelogArray = [];
-exports._betaChangelogArray = [];
-exports._versionNameArray = [];
+let _changelogArray = [];
+let _betaChangelogArray = [];
+let _versionNameArray = [];
+
+exports.changelogArray = () =>_changelogArray;
+exports.betaChangelogArray = () => _betaChangelogArray;
+exports.versionNameArray = () => _versionNameArray;
 
 // Update this list with new tutorial keys
-exports._tutorialKeys = ["homeSeen", "navinfoSeen", "moreSeen", "settingsSeen", "legendSeen", "zoomSeen"];
+exports.tutorialKeys = ["homeSeen", "navinfoSeen", "moreSeen", "settingsSeen", "legendSeen", "zoomSeen"];
 
 // Update this list with new beta features
-exports._betaFeatureKeys = ["showNotificationPanel"];
+exports.betaFeatureKeys = ["showNotificationPanel"];
 
 exports.classesCollection = (school) => {
     return school + "_" + this.CLASSES_COLLECTION_NAME;
-}
+};
 
 exports.removeId = (value) => {
-    if ("_id" in value) {
-        delete value._id;
+    if (value instanceof Map) {
+        if ("_id" in value) {
+            delete value._id;
+        }
     }
     return value;
 };
@@ -41,15 +47,15 @@ exports.makeKey = (length) => {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
-}
+};
 
 exports.betaFeatures = (betaFeatures) => {
     let obj = {active: true};
-    for (let feature of this._betaFeatureKeys) {
+    for (let feature of this.betaFeatureKeys) {
         obj[feature] = !!(!betaFeatures || betaFeatures.includes(feature));
     }
     return obj;
-}
+};
 
 exports.validateUsername = (str) => {
     let code, i, len;
@@ -62,7 +68,7 @@ exports.validateUsername = (str) => {
         }
     }
     return true;
-}
+};
 
 exports.validatePassword = (password) => {
     const lowerCaseRegex = new RegExp("^(?=.*[a-z])");
@@ -81,7 +87,7 @@ exports.validatePassword = (password) => {
         message = "Your password must include at least one number.";
     }
     return message;
-}
+};
 
 exports.validateEmail = (email, school) => {
     let re;
@@ -93,7 +99,7 @@ exports.validateEmail = (email, school) => {
             re = /^[a-z]+\.[a-z]+[0-9]{2}@bcp.org$/i;
     }
     return re.test(email);
-}
+};
 
 exports.makeUser = async (school, username, password, schoolUsername, isAdmin, beta) => {
     return new Promise(resolve => {
@@ -162,11 +168,11 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
                 alerts: {
                     lastUpdated: [],
                     updateGradesReminder: "daily",
-                    latestSeen: this._versionNameArray[1] ? beta ? this._versionNameArray[1][1] : this._versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1] : "1.0.0",
+                    latestSeen: _versionNameArray[1] ? beta ? _versionNameArray[1][1] : _versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1] : "1.0.0",
                     policyLastSeen: "never",
                     termsLastSeen: "never",
                     remoteAccess: beta ? "allowed" : "denied",
-                    tutorialStatus: Object.fromEntries(this._tutorialKeys.map(k => [k, false])),
+                    tutorialStatus: Object.fromEntries(this.tutorialKeys.map(k => [k, false])),
                     notifications: {
                         important: [buildStarterNotification(now)], unread: [], dismissed: []
                     }
@@ -186,7 +192,7 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
             return resolve({success: true, data: {value: user}});
         });
     });
-}
+};
 
 exports.lower = (str) => (str ?? "").toLowerCase();
 
@@ -257,133 +263,136 @@ exports.watchChangelog = () => {
 
 exports.changelog = (beta) => {
     if (beta) {
-        return this._betaChangelogArray;
+        return _betaChangelogArray;
     } else {
-        return this._changelogArray;
+        return _changelogArray;
     }
 };
 
 exports.readChangelog = (filename) => {
     async function read() {
-        let resultHTML = "";
-        let betaResultHTML = "";
-        let items = [];
-        let bodyCount = -1;
-        let item = {title: "", date: "", content: {}};
-        this._versionNameArray = [];
-        const line_counter = ((i = 0) => () => ++i)();
-        let lineReader = readline.createInterface({
-                                                      input: fs.createReadStream(filename)
-                                                  });
-        lineReader.on("line", (line, lineno = line_counter()) => {
-            if (line.substring(0, 3) === "###") {
-                item.content[line.substring(4)] = [];
-                bodyCount++;
-            } else if (line.substring(0, 2) === "##") {
-                if (item.title !== "") {
-                    if (item.title !== "Known Issues") {
-                        this._versionNameArray.push(item.title.split(" "));
-                    } else {
-                        this._versionNameArray.push(["Known Issues", ""]);
-                    }
-                    items.push(item);
-                    item = {title: "", date: "", content: {}};
-                    bodyCount = -1;
-                }
-                item.title = line.substring(4, line.indexOf("]"));
-                item.date = line.substring(line.indexOf("-") + 2);
-            } else if (line[0] === "-") {
-                if (item.title === "Known Issues" || item.title.substring(0, 12) === "Announcement") {
-                    if (!item.content["Default"]) {
-                        item.content["Default"] = [];
-                    }
-                    item.content["Default"].push(line.substring(2));
-                } else if (item.content[Object.keys(item.content)[bodyCount]]) {
-                    item.content[Object.keys(item.content)[bodyCount]].push(line.substring(2));
-                } else {
-                    // Prevents changelog file errors from crashing server
-                    if (!item.content["Unfiled"]) {
-                        item.title = "This shouldn't have happened. Send a bug report in More > Send Feedback. ERR #" + lineno;
-                        item.content["Unfiled"] = [];
-                    }
-                    item.content["Unfiled"].push(line.substring(2));
-                }
-            }
-        }).on("close", () => {
-            items.push(item);
-            this._versionNameArray.push(item.title.split(" "));
-            let currentVersionFound = false;
-            let betaCurrentVersionFound = false;
-            for (let i = 0; i < items.length; i++) {
-                resultHTML += "<div class=\"changelog-item";
-                betaResultHTML += "<div class=\"changelog-item";
-                if (items[i].title.substring(0, 4) === "Beta") {
-                    if (!betaCurrentVersionFound) {
-                        betaResultHTML += " current";
-                        betaCurrentVersionFound = true;
-                    }
-                    resultHTML += "\">";
-                    betaResultHTML += "\">";
-                } else if (items[i].title.substring(0, 6) === "Stable") {
-                    if (!currentVersionFound) {
-                        resultHTML += " current\">";
-                        currentVersionFound = true;
-                    } else {
-                        resultHTML += " stable\">";
-                    }
-                    if (!betaCurrentVersionFound) {
-                        betaResultHTML += " current\">";
-                        betaCurrentVersionFound = true;
-                    } else {
-                        betaResultHTML += " stable\">";
-                    }
-                } else if (items[i].title.substring(0, 12) === "Announcement") {
-                    betaResultHTML += " announcement\">";
-                    resultHTML += " announcement\">";
-                } else if (items[i].title.substring(0, 12) === "Known Issues") {
-                    betaResultHTML += " known-issues\">";
-                    resultHTML += " known-issues\">";
-                } else {
-                    betaResultHTML += "\">";
-                    resultHTML += "\">";
-                }
-                resultHTML += "<div class=\"header\">";
-                resultHTML += "<div class=\"title\">" + items[i].title + "</div>";
-                resultHTML += "<div class=\"date\">" + items[i].date + "</div>";
-                resultHTML += "</div>";
-                resultHTML += "<div class=\"content\">";
-                betaResultHTML += "<div class=\"header\">";
-                betaResultHTML += "<div class=\"title\">" + items[i].title + "</div>";
-                betaResultHTML += "<div class=\"date\">" + items[i].date + "</div>";
-                betaResultHTML += "</div>";
-                betaResultHTML += "<div class=\"content\">";
-                if (items[i].title !== "Known Issues" && items[i].title.substring(0, 12) !== "Announcement") {
-                    for (let j = 0; j < Object.keys(items[i].content).length; j++) {
-                        resultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
-                        betaResultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
-                        for (let k = 0; k < items[i].content[Object.keys(items[i].content)[j]].length; k++) {
-                            resultHTML += "<span class=\"body\">" + items[i].content[Object.keys(items[i].content)[j]][k] + "</span>";
-                            betaResultHTML += "<span class=\"body\">" + items[i].content[Object.keys(items[i].content)[j]][k] + "</span>";
+        return new Promise(resolve => {
+            let resultHTML = "";
+            let betaResultHTML = "";
+            let items = [];
+            let bodyCount = -1;
+            let item = {title: "", date: "", content: {}};
+            _versionNameArray = [];
+            const line_counter = ((i = 0) => () => ++i)();
+            let lineReader = readline.createInterface({
+                                                          input: fs.createReadStream(filename)
+                                                      });
+            lineReader.on("line", (line, lineno = line_counter()) => {
+                if (line.substring(0, 3) === "###") {
+                    item.content[line.substring(4)] = [];
+                    bodyCount++;
+                } else if (line.substring(0, 2) === "##") {
+                    if (item.title !== "") {
+                        if (item.title !== "Known Issues") {
+                            _versionNameArray.push(item.title.split(" "));
+                        } else {
+                            _versionNameArray.push(["Known Issues", ""]);
                         }
-                        resultHTML += "</div>";
-                        betaResultHTML += "</div>";
+                        items.push(item);
+                        item = {title: "", date: "", content: {}};
+                        bodyCount = -1;
                     }
-                } else {
-                    if (!items[i].content["Default"]) {
-                        items[i].content["Default"] = [];
-                    }
-                    for (let j = 0; j < items[i].content["Default"].length; j++) {
-                        resultHTML += "<span class=\"body\">" + items[i].content["Default"][j] + "</span>";
-                        betaResultHTML += "<span class=\"body\">" + items[i].content["Default"][j] + "</span>";
+                    item.title = line.substring(4, line.indexOf("]"));
+                    item.date = line.substring(line.indexOf("-") + 2);
+                } else if (line[0] === "-") {
+                    if (item.title === "Known Issues" || item.title.substring(0, 12) === "Announcement") {
+                        if (!item.content["Default"]) {
+                            item.content["Default"] = [];
+                        }
+                        item.content["Default"].push(line.substring(2));
+                    } else if (item.content[Object.keys(item.content)[bodyCount]]) {
+                        item.content[Object.keys(item.content)[bodyCount]].push(line.substring(2));
+                    } else {
+                        // Prevents changelog file errors from crashing server
+                        if (!item.content["Unfiled"]) {
+                            item.title = "This shouldn't have happened. Send a bug report in More > Send Feedback. ERR #" + lineno;
+                            item.content["Unfiled"] = [];
+                        }
+                        item.content["Unfiled"].push(line.substring(2));
                     }
                 }
-                resultHTML += "</div>";
-                resultHTML += "</div>|";
-                betaResultHTML += "</div>";
-                betaResultHTML += "</div>|";
-            }
-            this._changelogArray = resultHTML.split("|");
-            this._betaChangelogArray = betaResultHTML.split("|");
+            }).on("close", () => {
+                items.push(item);
+                _versionNameArray.push(item.title.split(" "));
+                let currentVersionFound = false;
+                let betaCurrentVersionFound = false;
+                for (let i = 0; i < items.length; i++) {
+                    resultHTML += "<div class=\"changelog-item";
+                    betaResultHTML += "<div class=\"changelog-item";
+                    if (items[i].title.substring(0, 4) === "Beta") {
+                        if (!betaCurrentVersionFound) {
+                            betaResultHTML += " current";
+                            betaCurrentVersionFound = true;
+                        }
+                        resultHTML += "\">";
+                        betaResultHTML += "\">";
+                    } else if (items[i].title.substring(0, 6) === "Stable") {
+                        if (!currentVersionFound) {
+                            resultHTML += " current\">";
+                            currentVersionFound = true;
+                        } else {
+                            resultHTML += " stable\">";
+                        }
+                        if (!betaCurrentVersionFound) {
+                            betaResultHTML += " current\">";
+                            betaCurrentVersionFound = true;
+                        } else {
+                            betaResultHTML += " stable\">";
+                        }
+                    } else if (items[i].title.substring(0, 12) === "Announcement") {
+                        betaResultHTML += " announcement\">";
+                        resultHTML += " announcement\">";
+                    } else if (items[i].title.substring(0, 12) === "Known Issues") {
+                        betaResultHTML += " known-issues\">";
+                        resultHTML += " known-issues\">";
+                    } else {
+                        betaResultHTML += "\">";
+                        resultHTML += "\">";
+                    }
+                    resultHTML += "<div class=\"header\">";
+                    resultHTML += "<div class=\"title\">" + items[i].title + "</div>";
+                    resultHTML += "<div class=\"date\">" + items[i].date + "</div>";
+                    resultHTML += "</div>";
+                    resultHTML += "<div class=\"content\">";
+                    betaResultHTML += "<div class=\"header\">";
+                    betaResultHTML += "<div class=\"title\">" + items[i].title + "</div>";
+                    betaResultHTML += "<div class=\"date\">" + items[i].date + "</div>";
+                    betaResultHTML += "</div>";
+                    betaResultHTML += "<div class=\"content\">";
+                    if (items[i].title !== "Known Issues" && items[i].title.substring(0, 12) !== "Announcement") {
+                        for (let j = 0; j < Object.keys(items[i].content).length; j++) {
+                            resultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
+                            betaResultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
+                            for (let k = 0; k < items[i].content[Object.keys(items[i].content)[j]].length; k++) {
+                                resultHTML += "<span class=\"body\">" + items[i].content[Object.keys(items[i].content)[j]][k] + "</span>";
+                                betaResultHTML += "<span class=\"body\">" + items[i].content[Object.keys(items[i].content)[j]][k] + "</span>";
+                            }
+                            resultHTML += "</div>";
+                            betaResultHTML += "</div>";
+                        }
+                    } else {
+                        if (!items[i].content["Default"]) {
+                            items[i].content["Default"] = [];
+                        }
+                        for (let j = 0; j < items[i].content["Default"].length; j++) {
+                            resultHTML += "<span class=\"body\">" + items[i].content["Default"][j] + "</span>";
+                            betaResultHTML += "<span class=\"body\">" + items[i].content["Default"][j] + "</span>";
+                        }
+                    }
+                    resultHTML += "</div>";
+                    resultHTML += "</div>|";
+                    betaResultHTML += "</div>";
+                    betaResultHTML += "</div>|";
+                }
+                _changelogArray = resultHTML.split("|");
+                _betaChangelogArray = betaResultHTML.split("|");
+                return resolve();
+            });
         });
     }
 
@@ -407,7 +416,7 @@ exports.buildStarterNotification = (now) => {
         unDismissedDates: [],
         unPinnedDates: []
     };
-}
+};
 
 exports.getPersonalInfo = (email, school) => {
     let firstName, lastName, graduationYear;
@@ -422,13 +431,11 @@ exports.getPersonalInfo = (email, school) => {
             firstName = firstName[0].toUpperCase() + firstName.substring(1).toLowerCase();
 
             // Last Name
-            lastName = email.indexOf(".") === -1 ? "" :
-                       email.indexOf(email.match(/\d/)) === -1 ? email.substring(email.indexOf(".") + 1) : email.substring(email.indexOf(".") + 1, email.indexOf(email.match(/\d/)));
+            lastName = email.indexOf(".") === -1 ? "" : email.indexOf(email.match(/\d/)) === -1 ? email.substring(email.indexOf(".") + 1) : email.substring(email.indexOf(".") + 1, email.indexOf(email.match(/\d/)));
             lastName = lastName[0].toUpperCase() + lastName.substring(1).toLowerCase();
 
             // Graduation Year
-            graduationYear = email.indexOf(email.match(/\d/)) === -1 ? "" :
-                             email.indexOf("@") === -1 ? email.substring(email.indexOf(email.match(/\d/))) : email.substring(email.indexOf(email.match(/\d/)), email.indexOf("@"));
+            graduationYear = email.indexOf(email.match(/\d/)) === -1 ? "" : email.indexOf("@") === -1 ? email.substring(email.indexOf(email.match(/\d/))) : email.substring(email.indexOf(email.match(/\d/)), email.indexOf("@"));
             if (graduationYear) {
                 graduationYear = parseInt(graduationYear);
                 graduationYear += 2000;
@@ -442,7 +449,7 @@ exports.shuffleArray = (array) => {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
     }
-}
+};
 
 function buildStarterNotification(now) {
     return {

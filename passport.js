@@ -40,7 +40,7 @@ module.exports = function (passport) {
             username = username.toLowerCase();
         }
 
-        await dbClient.setSyncStatus(username, updating);
+        await dbClient.setSyncStatus(username, "updating");
 
         // asynchronous
         process.nextTick(async function () {
@@ -57,10 +57,10 @@ module.exports = function (passport) {
                 if ('schoolPassword' in user) {
                     let resp = await dbClient.decryptAndGetSchoolPassword(user.username, password);
                     let schoolPass = resp.data.value;
-                    let _stream = authent.updateGrades(user.username, schoolPass);
+                    let _stream = (await dbClient.updateGrades(user.username, schoolPass)).data.stream;
                     let {term, semester} = (await dbClient.getMostRecentTermData(user.username)).data;
 
-                    _stream.on("data", (data) => {
+                    _stream.on("data", async (data) => {
                         if (!('success' in data)) {
                             return;
                         }
@@ -77,7 +77,7 @@ module.exports = function (passport) {
                                 socketManager.emitToRoom(user.username, "sync", "fail-termsemester", data.message);
                             }
                         } else {
-                            userRef.set("updatedInBackground", "account-inactive").write();
+                            await dbClient.setSyncStatus(user.username, "account-inactive");
                             socketManager.emitToRoom(user.username, "sync", "fail", data.message);
                         }
                     });

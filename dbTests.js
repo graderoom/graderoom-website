@@ -18,6 +18,7 @@ module.exports = {
             await func();
         }
         await db.config(); // This just sets testing to false
+        return {success: passCount === runCount};
     }, testInit: async () => {
         let result = await db.init();
         customAssert(_.isEqual(result, {success: true, data: {}}), "init");

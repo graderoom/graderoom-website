@@ -840,12 +840,6 @@ module.exports = {
     }, //TODO
 
 
-    semesterExists: function (username, term, semester) {
-        let userRef = db.get("users").find({username: username.toLowerCase()});
-        return (term in userRef.get("grades").value() && semester in userRef.get("grades").get(term).value());
-    }, //TODO
-
-
     classesSemesterExists: function (term, semester) {
         let classes = this.getAllClassData();
         return (term in classes && semester in classes[term]);

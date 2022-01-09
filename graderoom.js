@@ -12,12 +12,12 @@ const session = require("express-session");
 const passport = require("passport");
 const productionEnv = process.env.NODE_ENV === "production";
 const fs = require("fs");
-const h = require("./dbHelpers");
+const {watchChangelog, readChangelog, betaChangelogArray} = require("./dbHelpers");
 
 module.exports.beta = isBetaServer;
 
-h.readChangelog("CHANGELOG.md");
-h.watchChangelog();
+readChangelog("CHANGELOG.md");
+watchChangelog();
 
 // MONGO TIME
 const mongo = require("./dbClient");
@@ -29,10 +29,12 @@ if (productionEnv) {
 }
 mongo.config(mongoUrl, productionEnv, isBetaServer).then(() => {
     mongo.init().then(async () => {
-        if (!productionEnv) {
-            await require("./dbTests").runAll();
-            process.exit(); // TODO Remove this when all functions work
+        let pass = await require("./dbTests").runAll();
+        if (!pass) {
+            console.log("Some tests failed. Server will not start. Exiting...");
+            process.exit();
         }
+        console.log('Starting node.js server...');
 
         app.use("/public/", express.static("./public"));
         require("./passport")(passport); // pass passport for configuration

@@ -49,9 +49,9 @@ async function migrate(client) {
 
     // CREATE DATABASE
     console.log("Creating MongoDB Database . . .");
-    let dbNames = await client.db().admin().listDatabases(); 
+    let dbNames = await client.db().admin().listDatabases();
     dbNames = dbNames.databases.map(x => x.name);
-    if (dbNames.includes(DATABASE_NAME)) { 
+    if (dbNames.includes(DATABASE_NAME)) {
         throw "Migration Failed. Database Already Exists: " + DATABASE_NAME; //throw error if db with chosen name already exists
     }
     const mongodb = await client.db(DATABASE_NAME); //create db
@@ -70,7 +70,7 @@ async function migrate(client) {
         }
         restoreUser(username);
     }
-    db.write(); 
+    db.write();
 
     // TRANSFER USERS
     console.log("Migrating users . . .");
@@ -88,11 +88,11 @@ async function migrate(client) {
         delete user["deletedTime"];
 
         //convert string "true" and "false" to booleans
-        user["appearance"]["weightedGPA"] = user["appearance"]["weightedGPA"].toString() === "true"; 
+        user["appearance"]["weightedGPA"] = user["appearance"]["weightedGPA"].toString() === "true";
         for (let term in user["weights"]) {
             for (let semester in user["weights"][term]) {
                 for (let className in user["weights"][term][semester]) {
-                    try {                    
+                    try {
                         user["weights"][term][semester][className]["hasWeights"] = user["weights"][term][semester][className]["hasWeights"].toString() === "true";
                     } catch (e) {
                         let weightValues = Object.values(user["weights"][term][semester][className]["weights"]);
