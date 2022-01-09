@@ -51,7 +51,22 @@ module.exports = {
         customAssert(!(await db.removeBetaKey("")).success, "Invalid beta key removal");
         await db.removeBetaKey(betaKey);
         customAssert(!(await db.betaKeyExists(betaKey)).success, "Valid beta key removal");
-    },
+    }, testClassesFunctions: async() => {
+        await db.addUser("bellarmine", "hippityhop", "123ThisIsAPassword", "hippity.hop22@bcp.org", false);
+        await db.addUser("bellarmine", "hoppityhip", "123ThisIsAPassword", "hoppity.hip22@bcp.org", false);
+
+        await db.addDbClass("bellarmine", "21-22", "S2", "Science", "Alex Smith");
+        await db.addDbClass("bellarmine", "21-22", "S2", "Science", "Alex Smith");
+        await db.addDbClass("basis", "21-22", "S2", "Science", "Alex Smith");
+        await db.addDbClass("bellarmine", "21-22", "S2", "Science", "Bob Jones");
+        await db.addDbClass("bellarmine", "21-22", "S2", "Math", "Sally G");
+
+        await db.addWeightsSuggestion("hippityhop", "21-22", "S2", "Science", "Alex Smith", true, {"Tests": 100});
+        await db.addWeightsSuggestion("hoppityhip", "21-22", "S2", "Science", "Alex Smith", true, {"Tests": 100});
+        await db.addWeightsSuggestion("hoppityhip", "21-22", "S2", "Science", "Bob Jones", true, {"Projects": 100});
+        await db.addWeightsSuggestion("hoppityhip", "21-22", "S2", "Math", "Sally G", true, {"Quizzes": 100});
+        await db.addWeightsSuggestion("hoppityhip", "21-22", "S2", "Math", "Sally G", true, {"Sleep": 100});
+    }
 };
 
 // Helpers

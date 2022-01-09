@@ -582,29 +582,29 @@ module.exports = function (app, passport) {
     });
 
     app.post("/updateclassweights", [isAdmin], (req, res) => {
-        let resp = authenticator.updateWeightsInClassDb(req.body.term, req.body.semester, req.body.className, req.body.teacherName, req.body.hasWeights, req.body.weights);
+        let resp = authenticator.updateWeightsInClassDb(req.body.school, req.body.term, req.body.semester, req.body.className, req.body.teacherName, req.body.hasWeights, req.body.weights);
         if (resp.success) {
-            res.status(200).send(resp);
+            res.status(200).send(resp.data);
         } else {
-            res.status(400).send(resp);
+            res.status(400).send(resp.data);
         }
     });
 
     app.post("/updateclasstype", [isAdmin], (req, res) => {
         let resp = authenticator.updateClassTypeInClassDb(req.body.term, req.body.semester, req.body.className, req.body.classType);
         if (resp.success) {
-            res.status(200).send(resp);
+            res.status(200).send(resp.data);
         } else {
-            res.status(400).send(resp);
+            res.status(400).send(resp.data);
         }
     });
 
     app.post("/updateuccsuclasstype", [isAdmin], (req, res) => {
         let resp = authenticator.updateUCCSUClassTypeInClassDb(req.body.term, req.body.semester, req.body.className, req.body.classType);
         if (resp.success) {
-            res.status(200).send(resp);
+            res.status(200).send(resp.data);
         } else {
-            res.status(400).send(resp);
+            res.status(400).send(resp.data);
         }
     });
 

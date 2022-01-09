@@ -137,15 +137,15 @@ async function migrate(client) {
                                 let weightValues = Object.values(suggestion["weights"]);
                                 weightValues = weightValues.filter(x => x !== null)
                                 if (weightValues.length === 0) {
-                                    suggestion["weights"] = false;
+                                    suggestion["hasWeights"] = false;
                                 } else {
-                                    suggestion["weights"] = true;
+                                    suggestion["hasWeights"] = true;
                                 }
                             }
                         }
 
                         //move data for each teacher into an array with key "teachers"
-                        classData[teacherName]["teacher"] = teacherName;
+                        classData[teacherName]["teacherName"] = teacherName;
                         classData["teachers"].push(classData[teacherName]);
                         delete classData[teacherName];
                     }

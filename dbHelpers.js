@@ -1,3 +1,4 @@
+const _ = require("lodash");
 const bcrypt = require("bcryptjs");
 const path = require("path");
 const fs = require("fs");
@@ -192,6 +193,34 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
             return resolve({success: true, data: {value: user}});
         });
     });
+};
+
+exports.makeClass = (term, semester, className, teacherName, catalogData) => {
+    return {
+        department: catalogData.department ? catalogData.department : "",
+        grade_levels: catalogData.grade_levels ? catalogData.grade_levels : "",
+        credits: catalogData.credits ? catalogData.credits : "",
+        terms: catalogData.terms ? catalogData.terms : "",
+        description: catalogData.description ? catalogData.description : "",
+        uc_csuClassType: catalogData.uc_csuClassType ? catalogData.uc_csuClassType : "",
+        classType: catalogData.classType ? catalogData.classType : "",
+        teachers: [this.makeTeacher(teacherName)],
+        term: term,
+        semester: semester,
+        className: className,
+        version: dbClassVersion
+    }
+};
+
+exports.makeTeacher = (teacherName) => {
+    return {
+        weights: {},
+        hasWeights: null,
+        suggestions: [],
+        assignments: {},
+        overall_grade: [],
+        "teacherName": teacherName
+    };
 };
 
 exports.lower = (str) => (str ?? "").toLowerCase();
@@ -450,6 +479,38 @@ exports.shuffleArray = (array) => {
         [array[i], array[j]] = [array[j], array[i]];
     }
 };
+
+/**
+ * Determines if two weights are identical (Both are point-based or have same weight names & values)
+ * @returns {boolean} true if both weights are identical
+ */
+exports.compareWeights = (weight1, weight2) => {
+    if (weight1.hasWeights !== weight2.hasWeights) {
+        return false;
+    } else if (weight1.hasWeights === false) {
+        return true;
+    } else {
+        return _.isEqual(weight1.weights, weight2.weights);
+    }
+}
+
+exports.fixWeights = (hasWeights, weights) => {
+    if (typeof hasWeights !== "boolean") {
+        throw `Invalid hasWeights value: ${hasWeights}`;
+    }
+    let modWeights = {};
+    for (let key in weights) {
+        if (hasWeights === false) {
+            modWeights[key] = null;
+        } else {
+            modWeights[key] = parseFloat(weights[key]);
+            if (isNaN(modWeights[key])) {
+                throw `Invalid weights values (isNaN): ${weights[key]}`;
+            }
+        }
+    }
+    return [hasWeights, modWeights];
+}
 
 function buildStarterNotification(now) {
     return {

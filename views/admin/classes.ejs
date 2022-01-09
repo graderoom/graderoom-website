@@ -448,8 +448,8 @@
 
             // Submit the form using AJAX.
             $.ajax({
-                       type: "POST", url: $(formID).attr("action"), data: formData, async: async
-                   }).done(function (response) {
+                type: "POST", url: $(formID).attr("action"), data: formData, async: async
+            }).done(function (response) {
                 if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                     $(".session-timeout").show();
                     $("body").find("*").not(".session-timeout").remove();
