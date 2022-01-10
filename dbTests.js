@@ -33,7 +33,10 @@ module.exports = {
         schoolUsername = schoolUsername.toLowerCase();
         let school = "bellarmine";
 
-        customAssert(_.isEqual(await db.addUser(school, username, password, schoolUsername, false), {success: true, data: {message: "User Created"}}), "User created");
+        customAssert(_.isEqual(await db.addUser(school, username, password, schoolUsername, false), {
+            success: true,
+            data: {message: "User Created"}
+        }), "User created");
         customAssert(await db.userExists({username: username}), "User exists with username");
         customAssert(await db.userExists({schoolUsername: schoolUsername}), "User exists with schoolUsername");
         customAssert(await db.userExists({username, schoolUsername}), "User exists with both");
@@ -45,10 +48,16 @@ module.exports = {
         customAssert(res.success, "Add beta key");
         let betaKey = res.data.value.betaKey;
         customAssert((await db.betaKeyExists(betaKey)).success, "Beta key exists");
-        customAssert(_.isEqual(await db.getBetaKey(betaKey),{success: true, data: {value: {betaKey: betaKey, claimed: false, claimedBy: ""}}}), "Get beta key");
+        customAssert(_.isEqual(await db.getBetaKey(betaKey), {
+            success: true,
+            data: {value: {betaKey: betaKey, claimed: false, claimedBy: ""}}
+        }), "Get beta key");
         let username = randomString(8).toLowerCase();
         customAssert((await db.claimBetaKey(betaKey, username)).success, "Beta key claiming");
-        customAssert(_.isEqual(await db.getBetaKey(betaKey),{success: true, data: {value: {betaKey: betaKey, claimed: true, claimedBy: username}}}), "Get claimed beta key");
+        customAssert(_.isEqual(await db.getBetaKey(betaKey), {
+            success: true,
+            data: {value: {betaKey: betaKey, claimed: true, claimedBy: username}}
+        }), "Get claimed beta key");
         customAssert(!(await db.removeBetaKey("")).success, "Invalid beta key removal");
         await db.removeBetaKey(betaKey);
         customAssert(!(await db.betaKeyExists(betaKey)).success, "Valid beta key removal");
@@ -112,3 +121,4 @@ function randomInt(length) {
 function randomBool() {
     return Math.floor(Math.random() * 2) === 0;
 }
+
