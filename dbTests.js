@@ -3,6 +3,7 @@ const _ = require("lodash");
 const assert = require("assert");
 const bcrypt = require("bcryptjs");
 const {makeUser} = require("./dbHelpers");
+const { getMostRecentTermData } = require("./dbClient");
 
 let passCount = 0;
 let runCount = 0;
@@ -66,6 +67,12 @@ module.exports = {
         await db.addWeightsSuggestion("hoppityhip", "21-22", "S2", "Science", "Bob Jones", true, {"Projects": 100});
         await db.addWeightsSuggestion("hoppityhip", "21-22", "S2", "Math", "Sally G", true, {"Quizzes": 100});
         await db.addWeightsSuggestion("hoppityhip", "21-22", "S2", "Math", "Sally G", true, {"Sleep": 100});
+
+        console.log(await db.getMostRecentTermDataInClassDb("bellarmine"));
+        console.log(await db.dbContainsSemester("bellarmine", "21-22", "S2"));
+        console.log(await db.dbContainsSemester("bellarmine", "21-22", "S1"));
+        console.log(await db.dbContainsClass("bellarmine", "21-22", "S2", "Math", "Sally G"));
+        console.log(await db.dbContainsClass("bellarmine", "21-22", "S2", "Math", "Joel J"));
     }
 };
 

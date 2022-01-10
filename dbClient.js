@@ -44,6 +44,7 @@ const {
     shuffleArray, 
     changelog,
     compareWeights,
+    isCustom,
     fixWeights,
     makeTeacher,
     makeClass
@@ -92,7 +93,6 @@ module.exports = {
     removeUser: (username) => safe(_removeUser, lower(username)),
     removeUserFromArchive: (username) => safe(_removeUserFromArchive, lower(username)),
     getMostRecentTermData: (username) => safe(_getMostRecentTermData, lower(username)),
-    getRelevantClassData: (username, term, semester) => safe(_getRelevantClassData, lower(username), term, semester),
     login: (username, password) => safe(_login, lower(username), password),
     setLoggedIn: (username) => safe(_setLoggedIn, lower(username)),
     encryptAndStoreSchoolPassword: (username, schoolPassword, password) => safe(_encryptAndStoreSchoolPassword, lower(username), schoolPassword, password),
@@ -144,12 +144,18 @@ module.exports = {
     resetPasswordRequest: (schoolUsername) => safe(_resetPasswordRequest, lower(schoolUsername)),
     resetPassword: (token, newPassword) => safe(_resetPassword, token, newPassword),
     clearTestDatabase: () => safe(_clearTestDatabase),
+    //finished and should work:
     addWeightsSuggestion: (username, term, semester, className, teacherName, hasWeights, weights) => safe(_addWeightsSuggestion, lower(username), term, semester, className, teacherName, hasWeights, weights),
     addDbClass: (school, term, semester, className, teacherName) => safe(_addDbClass, school, term, semester, className, teacherName),
-    //not tested at all:
+    getMostRecentTermDataInClassDb: (school) => safe(_getMostRecentTermDataInClassDb, school),
+    dbContainsSemester: (school, term, semester) => safe(_dbContainsSemester, school, term, semester),
+    dbContainsClass: (school, term, semester, className, teacherName) => safe(_dbContainsClass, school, term, semester, className, teacherName),
+    //not tested at all (literally haven't attempted to call them once):
     updateWeightsInClassDb: (school, term, semester, className, teacherName, hasWeights, weights) => safe(_updateWeightsInClassDb, school, term, semester, className, teacherName, hasWeights, weights),
     updateClassTypeInClassDb: (school, term, semester, className, classType) => safe(_updateClassTypeInClassDb, school, term, semester, className, classType),
     updateUCCSUClassTypeInClassDb: (school, term, semester, className, classType) => safe(_updateUCCSUClassTypeInClassDb, school, term, semester, className, classType),
+    updateWeightsForClass: (username, term, semester, className, hasWeights, weights) => safe(_updateWeightsForClass, lower(username), term, semester, className, hasWeights, weights),
+    getRelevantClassData: (username, term, semester) => safe(_getRelevantClassData, lower(username), term, semester),
 };
 
 /**
@@ -423,43 +429,6 @@ const __getMostRecentTermData = (user) => {
     let semesters = Object.keys(grades[term]);
     let semester = semesters[semesters.map(s => parseInt(s.substring(1))).reduce((maxIndex, semester, index, arr) => semester > arr[maxIndex] ? index : maxIndex, 0)];
     return {success: true, data: {term: term, semester: semester}};
-};
-
-const _getRelevantClassData = async (db, username, term, semester) => {
-    let res = await _getUser(db, {username: username});
-    if (!res.success) {
-        return res;
-    }
-
-    let user = res.data.value;
-    let userClasses = [];
-    for (let i = 0; i < Object.keys(user.grades).length; i++) {
-        let t = Object.keys(user.grades)[i];
-        for (let j = 0; j < Object.keys(user.grades[t]).length; j++) {
-            let s = Object.keys(user.grades[t])[j];
-            user.grades[t][s].forEach(c => userClasses.push({
-                                                                term: t,
-                                                                semester: s,
-                                                                className: c.class_name,
-                                                                teacherName: c.teacher_name
-                                                            }));
-        }
-    }
-
-    let relClasses = {};
-    for (let i = 0; i < userClasses.length; i++) {
-        relClasses[userClasses[i].className] = {
-            "department": "",
-            "classType": "",
-            "uc_csuClassType": "",
-            "weights": {},
-            "hasWeights": null,
-            "credits": null,
-            "terms": null,
-        };
-    }
-
-    return {success: true, data: {value: relClasses}};
 };
 
 const _login = async (db, username, password) => {
@@ -1611,7 +1580,7 @@ const _addWeightsSuggestion = async (db, username, term, semester, className, te
     }
 
     if ((Object.values(modWeights).every(x => x === null) || Object.keys(weights).length === 0) && hasWeights) {
-        throw `Invalid weights. One weight required. hasWeights: ${hasWeights} weights: ${weights}`;
+        return {success: false, data: {message: "Something went wrong", log: `Invalid weights. One weight required. hasWeights: ${hasWeights} weights: ${weights}`}};
     }
 
     //Get school
@@ -1661,11 +1630,15 @@ const _addWeightsSuggestion = async (db, username, term, semester, className, te
 const _updateWeightsInClassDb = async (db, school, term, semester, className, teacherName, hasWeights, weights) => {
     let modWeights;
     try {
-        [hasWeights, modWeights] = fixAndValidateWeights(hasWeights, weights);
+        [hasWeights, modWeights] = fixWeights(hasWeights, weights);
     } catch (e) {
         return {
             success: false, data: {message: "Something went wrong", log: e.message}
         }
+    }
+
+    if ((Object.values(modWeights).every(x => x === null) || Object.keys(weights).length === 0) && hasWeights) {
+        return {success: false, data: {message: "Something went wrong", log: `Invalid weights. One weight required. hasWeights: ${hasWeights} weights: ${weights}`}};
     }
     
     //Update weights for teacher
@@ -1710,3 +1683,132 @@ const _updateUCCSUClassTypeInClassDb = async(db, school, term, semester, classNa
     }
     return {success: true, data: {message: `Set UC/CSU class type of ${className} to ${classType}`, log: `Set UC/CSU class type of ${className} to ${classType}`}};
 }
+
+const _getMostRecentTermDataInClassDb = async (db, school) => {
+    let res = (await db.collection(classesCollection(school)).find().sort({term: -1, semester:-1}).limit(1).toArray())[0];
+    return {success: true, data: {term: res.term, semester: res.semester}};
+}
+
+const _dbContainsSemester = async (db, school, term, semester) => {
+    let res = await db.collection(classesCollection(school)).findOne({term: term, semester: semester});
+    return {success: true, data: {value: res !== null}};
+}
+
+const _dbContainsClass = async (db, school, term, semester, className, teacherName) => {
+    let res = await db.collection(classesCollection(school)).findOne({term: term, semester: semester, className: className, "teachers.teacherName": teacherName});
+    return {success: true, data: {value: res !== null}};
+}
+
+const _updateWeightsForClass = async (db, username, term, semester, className, hasWeights, weights, custom = null, addSuggestion = true) => {
+    //Get user
+    let res = await _getUser(db, {username: username});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    let school = user.school;
+    let teacherName, currentWeights, teacherData;
+
+    //Verify term, semester, & className exist in grades
+    if (!term in user.grades || !semester in user.grades[term]) {
+        return {success: false, data: {message: "Something went wrong", log: `Failed to update weights.`}};
+    }
+    let userClassData = user.grades[term][semester].find(x => x.class_name === className);
+    if (!userClassData) { //className in grades?
+        return {success: false, data: {message: "Something went wrong", log: `Failed to update weights.`}};
+    }
+    teacherName = userClassData.teacher_name;
+
+    //Verify term, semester, & className exist in weights
+    if (!term in user.weights || !semester in user.weights[term] || !className in user.weights[term][semester]) { //term, semester, className in weights?
+        return {success: false, data: {message: "Something went wrong", log: `Failed to update weights.`}};
+    }
+    currentWeights = user.weights[term][semester][className].weights;
+
+    //Verify classesDB contains class
+    let res2 = await _dbContainsClass(db, school, term, semester, className, teacherName); //teacherName in classDb?
+    if (!res2.data.value) {
+        return {success: false, data: {message: "Something went wrong", log: `Failed to update weights.`}};
+    }
+    let classData = await db.collection(classesCollection(school)).findOne({term: term, semester: semester, className: className, "teachers.teacherName": teacherName}, 
+                                                                           {projection: {"teachers.$": 1}});
+    teacherData = classData.teachers[0];
+
+    //Add Suggestion
+    if (addSuggestion) {
+        await _addWeightsSuggestion(db, username, term, semester, className, teacherName, hasWeights, weights);
+    }
+
+    //Validate & Modify Weights
+    let modWeights;
+    try {
+        [hasWeights, modWeights] = fixWeights(hasWeights, Objects.assign({}, currentWeights, weights));
+    } catch (e) {
+        return { 
+            success: false, data: {message: "Something went wrong", log: e.message}
+        }
+    }
+
+    //Determine Custom
+    if (custom === null) {
+        custom = isCustom({"weights": modWeights, "hasWeights": hasWeights},{"weights": teacherData.weights, "hasWeights": teacherData.hasWeights});
+    }
+
+    //Update weights
+    user.weights[term][semester][className].weights = modWeights;
+    user.weights[term][semester][className].hasWeights = modWeights;
+    user.weights[term][semester][className].custom = custom;
+    let field = `weights.${term}.${semester}`;
+    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {
+        $set: {"field": user.weights[term][semester]}
+    })
+
+    if (custom) {
+        return {success: true, data: {message: `Custom weight set for ${className}.`, log: ``}};
+    }
+    return {success: true, data: {message: `Reset weight for ${className}.`, log: ``}};
+    //Important: Do not change first word of message. It is used in frontend to determine if it is custom.
+};
+
+const _getRelevantClassData = async (db, username, term, semester) => {
+    let res = await _getUser(db, {username: username});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    let userClasses = [];
+    for (let _term in user.grades) {
+        for (let _semester in user.grades[_term]) {
+            user.grades[_term][_semester].forEach(c => userClasses.push({
+                                                                term: _term,
+                                                                semester: _semester,
+                                                                className: c.class_name,
+                                                                teacherName: c.teacher_name
+                                                            }));
+        }
+    }
+
+    let relClasses = {};
+    for (let userClass of userClasses) {
+        //Prioritizes data from specified term & semester for multi-semester classes
+        if ((userClass.term === term && userClass.semester === semester) || !relClasses.hasOwnProperty(userClass.className)) { 
+            let classData = await db.collection(classesCollection(school)).findOne(
+                {term: userClass.term, semester: userClass.semester, className: userClass.className, "teachers.teacherName": userClass.teacherName}, 
+                {projection: {"teachers.$": 1, "department": 1, "classType": 1, "uc_csuClassType": 1, "weights": 1, "hasWeights": 1, "credits": 1, "terms": 1}}
+            );
+            relClasses[userClass.className] = {
+                "department": classData.department,
+                "classType": classData.classType,
+                "uc_csuClassType": classData.uc_csuClassType,
+                "weights": classData.teachers[0].weights,
+                "hasWeights": classData.teachers[0].hasWeights,
+                "credits": classData.credits,
+                "terms": classData.terms,
+            }
+        }
+    }
+
+    return {success: true, data: {value: relClasses}};
+};

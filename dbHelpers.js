@@ -481,7 +481,8 @@ exports.shuffleArray = (array) => {
 };
 
 /**
- * Determines if two weights are identical (Both are point-based or have same weight names & values)
+ * Determines if two weights are identical 
+ * (Both are point-based or have same weight names & values_
  * @returns {boolean} true if both weights are identical
  */
 exports.compareWeights = (weight1, weight2) => {
@@ -489,9 +490,27 @@ exports.compareWeights = (weight1, weight2) => {
         return false;
     } else if (weight1.hasWeights === false) {
         return true;
-    } else {
-        return _.isEqual(weight1.weights, weight2.weights);
     }
+    return _.isEqual(weight1.weights, weight2.weights);
+}
+
+/**
+ * Determines if given weight is custom in comparison to verifiedWeight. 
+ * (Allows verified weight to have additional weights)
+ * @returns {boolean} true if given weight is custom
+ */
+exports.isCustom = (weight, verifiedWeight) => {
+    if (weight.hasWeights !== verifiedWeight.hasWeights) {
+        return true;
+    } else if (weight.hasWeights === false) {
+        return false;
+    }
+    for (let key in weight.weights) {
+        if (!(key in verifiedWeight.weights) || weight.weights[key] !== verifiedWeight.weights[key]) {
+            return true;
+        }
+    }
+    return false;
 }
 
 exports.fixWeights = (hasWeights, weights) => {
@@ -503,9 +522,13 @@ exports.fixWeights = (hasWeights, weights) => {
         if (hasWeights === false) {
             modWeights[key] = null;
         } else {
-            modWeights[key] = parseFloat(weights[key]);
-            if (isNaN(modWeights[key])) {
-                throw `Invalid weights values (isNaN): ${weights[key]}`;
+            if (modWeights[key] === "") {
+                modWeights[key] = null;
+            } else {
+                modWeights[key] = parseFloat(weights[key]);
+                if (isNaN(modWeights[key])) {
+                    throw `Invalid weights values (isNaN): ${weights[key]}`;
+                }
             }
         }
     }
