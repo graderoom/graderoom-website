@@ -1845,10 +1845,6 @@ const _getRelevantClassData = async (db, username, term, semester) => {
     for (let userClass of userClasses) {
         //Prioritizes data from specified term & semester for multi-semester classes
         if ((userClass.term === term && userClass.semester === semester) || !relClasses.hasOwnProperty(userClass.className)) {
-            console.log(userClass.term);
-            console.log(userClass.semester);
-            console.log(userClass.className);
-            console.log(userClass.teacherName);
             let query = {term: userClass.term, semester: userClass.semester, className: userClass.className};
             let projection = {
                 "department": 1,
