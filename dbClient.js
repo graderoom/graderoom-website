@@ -13,16 +13,6 @@ let _testing;
 let _client;
 
 // Shared constants to avoid typo bugs
-const SCHOOL_NAMES = ["bellarmine", "basis"];
-const USERS_COLLECTION_NAME = "users";
-const ARCHIVED_USERS_COLLECTION_NAME = "archived_users";
-const CATALOG_COLLECTION_NAME = "catalog";
-const BETAKEYS_COLLECTION_NAME = "betakeys";
-
-const STABLE_DATABASE_NAME = "stable";
-const BETA_DATABASE_NAME = "beta";
-const TEST_DATABASE_NAME = "test";
-const COMMON_DATABASE_NAME = "common";
 
 const MAIN_PURPOSE = "main";
 const SYNC_PURPOSE = "sync";
@@ -35,7 +25,7 @@ const {
     lower,
     removeId,
     classesCollection,
-    roundsToGenerateSalt,
+    ROUNDS_TO_GENERATE_SALT,
     validateEmail,
     getPersonalInfo,
     versionNameArray,
@@ -48,7 +38,15 @@ const {
     isCustom,
     fixWeights,
     makeTeacher,
-    makeClass
+    makeClass,
+    CLASSES_COLLECTION_NAME,
+    BETAKEYS_COLLECTION_NAME,
+    TEST_DATABASE_NAME,
+    BETA_DATABASE_NAME,
+    USERS_COLLECTION_NAME,
+    ARCHIVED_USERS_COLLECTION_NAME,
+    SCHOOL_NAMES,
+    STABLE_DATABASE_NAME
 } = require("./dbHelpers");
 
 module.exports = {
@@ -148,6 +146,7 @@ module.exports = {
     getMostRecentTermDataInClassDb: (school) => safe(_getMostRecentTermDataInClassDb, school),
     dbContainsSemester: (school, term, semester) => safe(_dbContainsSemester, school, term, semester),
     dbContainsClass: (school, term, semester, className, teacherName) => safe(_dbContainsClass, school, term, semester, className, teacherName), //not tested at all (literally haven't attempted to call them once):
+    getAllClassData: (term, semester) => safe(_getAllClassData, term, semester),
     updateWeightsInClassDb: (school, term, semester, className, teacherName, hasWeights, weights) => safe(_updateWeightsInClassDb, school, term, semester, className, teacherName, hasWeights, weights),
     updateClassTypeInClassDb: (school, term, semester, className, classType) => safe(_updateClassTypeInClassDb, school, term, semester, className, classType),
     updateUCCSUClassTypeInClassDb: (school, term, semester, className, classType) => safe(_updateUCCSUClassTypeInClassDb, school, term, semester, className, classType),
@@ -176,8 +175,12 @@ const safe = (func, ...args) => {
                     delete data.log;
                 }
                 if ("value" in data) {
-                    // Remove the _id attribute of the value if it exists
-                    data.value = removeId(data.value);
+                    if (data.value === null) {
+                        delete data.value;
+                    } else {
+                        // Remove the _id attribute of the value if it exists
+                        data.value = removeId(data.value);
+                    }
                 }
                 return resolve({success: success, data: data});
             });
@@ -780,7 +783,7 @@ const _changePassword = async (db, username, oldPassword, newPassword) => {
             }
             schoolPassword = res2.data.value;
         }
-        bcrypt.hash(newPassword, roundsToGenerateSalt, async (err, hash) => {
+        bcrypt.hash(newPassword, ROUNDS_TO_GENERATE_SALT, async (err, hash) => {
             if (err) {
                 return resolve({success: false, data: {log: err, message: "Something went wrong"}});
             }
@@ -1068,7 +1071,7 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                                 }
                             }
                         }
-                        _initWeights(db, username);
+                        await _initWeights(db, username);
                 }
                 let time = Date.now();
                 await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {
@@ -1496,7 +1499,7 @@ const _resetPassword = async (db, token, newPassword) => {
             await _disableGradeSync(db, user.username);
         }
 
-        bcrypt.hash(newPassword, roundsToGenerateSalt, async (err, hash) => {
+        bcrypt.hash(newPassword, ROUNDS_TO_GENERATE_SALT, async (err, hash) => {
             if (err) {
                 return resolve({success: false, data: {log: err, message: "Something went wrong"}});
             }
@@ -1646,8 +1649,10 @@ const _updateWeightsInClassDb = async (db, school, term, semester, className, te
                                                                                         className: className,
                                                                                         "teachers.teacherName": teacherName
                                                                                     }, {
-                                                                                        $set: {"teachers.$.hasWeights": hasWeights},
-                                                                                        $set: {"teachers.$.weights": modWeights}
+                                                                                        $set: {
+                                                                                            "teachers.$.hasWeights": hasWeights,
+                                                                                            "teachers.$.weights": modWeights
+                                                                                        }
                                                                                     }, {
                                                                                         projection: {
                                                                                             "teachers.$": 1, "_id": 1
@@ -1656,7 +1661,7 @@ const _updateWeightsInClassDb = async (db, school, term, semester, className, te
 
     //Delete any suggestion with same weights
     let suggestionIndex = null;
-    let teacherData = classData.teachers[0].suggestions;
+    let suggestions = classData.teachers[0].suggestions;
     for (let i = 0; i < suggestions.length; i++) {
         if (compareWeights({
                                "weights": suggestions[i].weights, "hasWeights": suggestions[i].hasWeights
@@ -1730,7 +1735,7 @@ const _getMostRecentTermDataInClassDb = async (db, school) => {
 
 const _dbContainsSemester = async (db, school, term, semester) => {
     let res = await db.collection(classesCollection(school)).findOne({term: term, semester: semester});
-    return {success: true, data: {value: res !== null}};
+    return {success: res !== null, data: {value: res}};
 };
 
 const _dbContainsClass = async (db, school, term, semester, className, teacherName) => {
@@ -1740,7 +1745,17 @@ const _dbContainsClass = async (db, school, term, semester, className, teacherNa
                                                                          className: className,
                                                                          "teachers.teacherName": teacherName
                                                                      });
-    return {success: true, data: {value: res !== null}};
+    return {success: res !== null, data: {value: res}};
+};
+
+const _getAllClassData = async (db, term, semester) => {
+    let allData = [];
+    for (let school of SCHOOL_NAMES) {
+        allData.push(...await db.collection(classesCollection(school)).find({
+                                                                                term: term, semester: semester
+                                                                            }).toArray());
+    }
+    return {success: true, data: {value: allData}};
 };
 
 const _updateWeightsForClass = async (db, username, term, semester, className, hasWeights, weights, custom = null, addSuggestion = true) => {
@@ -1791,7 +1806,7 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
     //Validate & Modify Weights
     let modWeights;
     try {
-        [hasWeights, modWeights] = fixWeights(hasWeights, Objects.assign({}, currentWeights, weights));
+        [hasWeights, modWeights] = fixWeights(hasWeights, Object.assign({}, currentWeights, weights));
     } catch (e) {
         return {
             success: false, data: {message: "Something went wrong", log: e.message}
@@ -1809,9 +1824,8 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
     user.weights[term][semester][className].weights = modWeights;
     user.weights[term][semester][className].hasWeights = modWeights;
     user.weights[term][semester][className].custom = custom;
-    let field = `weights.${term}.${semester}`;
     await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {
-        $set: {"field": user.weights[term][semester]}
+        $set: {[`weights.${term}.${semester}`]: user.weights[term][semester]}
     });
 
     if (custom) {

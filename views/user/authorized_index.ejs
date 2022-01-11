@@ -1001,7 +1001,7 @@
                     }
                     refreshing = setTimeout(() => {
                         refresh(changedClassIndex);
-                    }, 400);
+                    }, 100);
                 }
             }
 
@@ -1672,7 +1672,7 @@
                             submittingWeights = setTimeout(() => {
                                 resetInputs("#weights" + i);
                                 $("#weightTableWeight" + i + j).parents("form").trigger("submit");
-                            }, 400);
+                            }, 100);
                         }).on("keyup", (e) => {
                             e = e || window.event;
                             let keyCode = e.code;

@@ -572,12 +572,12 @@ module.exports = function (app, passport) {
         let newWeights = JSON.parse(req.body.newWeights);
         let term = req.body.term;
         let semester = req.body.semester;
-        let resp = authenticator.updateWeightsForClass(req.user.username, term, semester, className, hasWeights, newWeights);
+        let resp = await dbClient.updateWeightsForClass(req.user.username, term, semester, className, hasWeights, newWeights);
         if (resp.success) {
-            res.status(200).send(resp.message);
-            authenticator.bringUpToDate(req.user.username, term, semester, className);
+            res.status(200).send(resp.data.message);
+            await dbClient.bringUpToDate(req.user.username, term, semester, className);
         } else {
-            res.status(400).send(resp.message);
+            res.status(400).send(resp.data.message);
         }
     });
 
@@ -742,7 +742,7 @@ module.exports = function (app, passport) {
 
     });
 
-    app.get("/classes", [isAdmin], (req, res) => {
+    app.get("/classes", [isAdmin], async (req, res) => {
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
 
         let {term, semester} = authenticator.getClassesMostRecentTermData();
@@ -758,7 +758,7 @@ module.exports = function (app, passport) {
         res.render("admin/classes.ejs", {
             username: req.user.username,
             page: "classes",
-            classData: authenticator.getAllClassData()[term][semester],
+            classData: (await dbClient.getAllClassData(term, semester)).data.value,
             sessionTimeout: Date.parse(req.session.cookie._expires),
             appearance: JSON.stringify(req.user.appearance),
             beta: server.beta,

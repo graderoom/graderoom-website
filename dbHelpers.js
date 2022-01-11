@@ -4,10 +4,19 @@ const path = require("path");
 const fs = require("fs");
 const md5 = require("md5");
 const readline = require("readline");
+
 exports.USERS_COLLECTION_NAME = "users";
 exports.CLASSES_COLLECTION_NAME = "classes";
-
-exports.roundsToGenerateSalt = 10;
+exports.ROUNDS_TO_GENERATE_SALT = 10;
+exports.SCHOOL_NAMES = ["bellarmine", "basis"];
+exports.USERS_COLLECTION_NAME = "users";
+exports.ARCHIVED_USERS_COLLECTION_NAME = "archived_users";
+exports.CATALOG_COLLECTION_NAME = "catalog";
+exports.BETAKEYS_COLLECTION_NAME = "betakeys";
+exports.STABLE_DATABASE_NAME = "stable";
+exports.BETA_DATABASE_NAME = "beta";
+exports.TEST_DATABASE_NAME = "test";
+exports.COMMON_DATABASE_NAME = "common";
 
 // Change this when updateDB changes
 const dbUserVersion = 0;
@@ -32,7 +41,7 @@ exports.classesCollection = (school) => {
 };
 
 exports.removeId = (value) => {
-    if (value instanceof Map) {
+    if (value.constructor === Object) {
         if ("_id" in value) {
             delete value._id;
         }
@@ -481,7 +490,7 @@ exports.shuffleArray = (array) => {
 };
 
 /**
- * Determines if two weights are identical 
+ * Determines if two weights are identical
  * (Both are point-based or have same weight names & values_
  * @returns {boolean} true if both weights are identical
  */
@@ -495,7 +504,7 @@ exports.compareWeights = (weight1, weight2) => {
 }
 
 /**
- * Determines if given weight is custom in comparison to verifiedWeight. 
+ * Determines if given weight is custom in comparison to verifiedWeight.
  * (Allows verified weight to have additional weights)
  * @returns {boolean} true if given weight is custom
  */
