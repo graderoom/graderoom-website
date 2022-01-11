@@ -91,7 +91,7 @@ for class_ in classes:
     obj['grade_levels'] = re.findall('[0-9]+', obj['grade_levels'])
     obj['grade_levels'] = [int(i) for i in obj['grade_levels']]
 
-
+    # Update classes that are already in the catalog and create new ones if they don't exist
     db.update_one({'class_name': obj['class_name']}, {'$set': obj}, True)
 
 client.close()

@@ -1,9 +1,6 @@
 const db = require("./dbClient");
 const _ = require("lodash");
 const assert = require("assert");
-const bcrypt = require("bcryptjs");
-const {makeUser} = require("./dbHelpers");
-const { getMostRecentTermData } = require("./dbClient");
 
 let passCount = 0;
 let runCount = 0;

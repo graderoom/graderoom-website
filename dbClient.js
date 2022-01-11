@@ -1,4 +1,4 @@
-const {MongoClient, ReturnDocument} = require("mongodb");
+const {MongoClient} = require("mongodb");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const _ = require("lodash");
@@ -16,12 +16,13 @@ let _client;
 const SCHOOL_NAMES = ["bellarmine", "basis"];
 const USERS_COLLECTION_NAME = "users";
 const ARCHIVED_USERS_COLLECTION_NAME = "archived_users";
-const CLASSES_COLLECTION_NAME = "classes";
+const CATALOG_COLLECTION_NAME = "catalog";
 const BETAKEYS_COLLECTION_NAME = "betakeys";
 
 const STABLE_DATABASE_NAME = "stable";
 const BETA_DATABASE_NAME = "beta";
 const TEST_DATABASE_NAME = "test";
+const COMMON_DATABASE_NAME = "common";
 
 const MAIN_PURPOSE = "main";
 const SYNC_PURPOSE = "sync";
@@ -49,8 +50,6 @@ const {
     makeTeacher,
     makeClass
 } = require("./dbHelpers");
-const SunCalc = require("suncalc");
-const {indexOf} = require("lodash");
 
 module.exports = {
     /**
@@ -1841,33 +1840,39 @@ const _getRelevantClassData = async (db, username, term, semester) => {
         }
     }
 
+    let school = user.school;
     let relClasses = {};
     for (let userClass of userClasses) {
         //Prioritizes data from specified term & semester for multi-semester classes
         if ((userClass.term === term && userClass.semester === semester) || !relClasses.hasOwnProperty(userClass.className)) {
-            let classData = await db.collection(classesCollection(school)).findOne({
-                                                                                       term: userClass.term,
-                                                                                       semester: userClass.semester,
-                                                                                       className: userClass.className,
-                                                                                       "teachers.teacherName": userClass.teacherName
-                                                                                   }, {
-                                                                                       projection: {
-                                                                                           "teachers.$": 1,
-                                                                                           "department": 1,
-                                                                                           "classType": 1,
-                                                                                           "uc_csuClassType": 1,
-                                                                                           "weights": 1,
-                                                                                           "hasWeights": 1,
-                                                                                           "credits": 1,
-                                                                                           "terms": 1
-                                                                                       }
-                                                                                   });
+            console.log(userClass.term);
+            console.log(userClass.semester);
+            console.log(userClass.className);
+            console.log(userClass.teacherName);
+            let query = {term: userClass.term, semester: userClass.semester, className: userClass.className};
+            let projection = {
+                "department": 1,
+                "classType": 1,
+                "uc_csuClassType": 1,
+                "weights": 1,
+                "hasWeights": 1,
+                "credits": 1,
+                "terms": 1
+            };
+            if (userClass.teacherName) {
+                query["teachers.teacher"] = userClass.teacherName;
+                projection["teachers.$"] = 1;
+            }
+
+            let classData = await db.collection(classesCollection(school)).findOne(query, {
+                projection: projection
+            });
             relClasses[userClass.className] = {
                 "department": classData.department,
                 "classType": classData.classType,
                 "uc_csuClassType": classData.uc_csuClassType,
-                "weights": classData.teachers[0].weights,
-                "hasWeights": classData.teachers[0].hasWeights,
+                "weights": user.teacherName ? classData.teachers[0].weights : false,
+                "hasWeights": user.teacherName ? classData.teachers[0].hasWeights : false,
                 "credits": classData.credits,
                 "terms": classData.terms
             };
