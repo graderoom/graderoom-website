@@ -346,15 +346,6 @@ module.exports = function (app, passport) {
         res.status(200).send(result);
     });
 
-    app.post("/updateAppearance", [isLoggedIn], async (req, res) => {
-        let resp = await dbClient.setTheme(req.user.username, req.body.theme, req.body.darkModeStart, req.body.darkModeFinish, req.body.enableSeasonalEffects === "on", req.body.blurEffects === "on");
-        if (resp.success) {
-            res.status(200).send(resp.data.message);
-        } else {
-            res.status(400).send(resp.data.message);
-        }
-    });
-
     app.post("/updateShowMaxGPA", [isLoggedIn], async (req, res) => {
         let resp = await dbClient.setShowMaxGPA(req.user.username, JSON.parse(req.body.showMaxGPA));
         if (resp.success) {

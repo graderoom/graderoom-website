@@ -37,9 +37,6 @@
 <% if (page == "home" && JSON.parse(appearance).showFps) { %>
     <div style="z-index: 999; position: fixed; bottom: 60px; left: 0; pointer-events: none"
          class="fps-chart-container">
-        <canvas id="fps-chart">
-
-        </canvas>
     </div>
     <span style="z-index: 999; position: fixed; bottom: 10px; left: 10px;" id="fps"></span>
 <% } %> <% const winterStart = 10; %> <% const winterEnd = 2; %>
@@ -68,67 +65,6 @@
 
     let showingLights = <%= new Date().getMonth() === lightsMonth; %>;
     let init;
-
-    <% if (page == "home" && JSON.parse(appearance).showFps) { %>
-    let chart = new Chart(document.getElementById("fps-chart"), {
-        data: {
-            datasets: [{
-                backgroundColor: "transparent",
-                pointBorderColor: "transparent",
-                borderColor: "darkgray",
-                data: [],
-                spanGaps: false,
-                pointRadius: 0,
-                borderWidth: 1,
-                yAxisID: "yAxis"
-            }, {
-                backgroundColor: "transparent",
-                pointBorderColor: "transparent",
-                borderColor: "green",
-                data: [],
-                cubicInterpolationMode: "monotone",
-                spanGaps: false,
-                pointRadius: 0,
-                borderWidth: 1,
-                yAxisID: "yAxis"
-            }, {
-                backgroundColor: "transparent",
-                pointBorderColor: "transparent",
-                borderColor: "red",
-                data: [],
-                cubicInterpolationMode: "monotone",
-                spanGaps: false,
-                pointRadius: 0,
-                borderWidth: 1,
-                yAxisID: "yAxis"
-            }]
-        }, type: "line", options: {
-            scales: {
-                xAxis: {
-                    type: "time", ticks: {
-                        display: false
-                    }, grid: {
-                        display: false
-                    }
-                }, yAxis: {
-                    min: 0, max: 200, grid: {
-                        display: false
-                    }
-                }
-            }, responsive: true, maintainAspectRatio: false, gridLines: {
-                display: false
-            }, plugins: {
-                title: {
-                    text: "FPS", display: true
-                }, legend: {
-                    display: false
-                }, tooltip: {
-                    enabled: false
-                }
-            }
-        }
-    });
-    <% } %>
 
     function disableSnow() {
         clearInterval(dynamicDisplayInterval);
@@ -183,17 +119,6 @@
                     fpsDisplay += `&nbsp;&nbsp;10S AVG: ${(_10sAverage < 100 ? `&nbsp;` : ``) + (_10sAverage < 10 ? `&nbsp;` : ``) + Math.round(_10sAverage)}FPS<br>`;
                     fpsDisplay += `&nbsp;&nbsp;INSTANT: ${(fps < 100 ? `&nbsp;` : ``) + (fps < 10 ? `&nbsp;` : ``) + Math.round(fps)}FPS`;
                     $("#fps").html(fpsDisplay);
-
-                    if (_10sTempFps.length > 0) {
-                        chart.data.datasets[0].data = _10sTempFps;
-                        chart.data.datasets[1].data = [{
-                            x: _10sTempFps[0].x, y: _10sAverage
-                        }, {x: _10sTempFps.slice(-1)[0].x, y: _10sAverage}];
-                        chart.data.datasets[2].data = [{
-                            x: _10sTempFps[0].x, y: LOW_PERFORMANCE
-                        }, {x: _10sTempFps.slice(-1)[0].x, y: LOW_PERFORMANCE}];
-                        chart.update(1);
-                    }
                 }
             }, 1);
             <% } %>

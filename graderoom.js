@@ -79,7 +79,7 @@ mongo.config(mongoUrl, productionEnv, isBetaServer).then(() => {
                                               key: "connect.sid",
                                               passport: passport,
                                               cookieParser: cookieParser,
-                                              secret: "secret",
+                                              secret: process.env.SECRET,
                                               store: store
                                           }));
         require("./sockets").sockets(io);

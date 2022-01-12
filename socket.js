@@ -19,11 +19,16 @@ module.exports = {
                                 break;
                             case "showFps":
                                 resp = await dbClient.setShowFps(socket.request.user.username, value);
+                                break;
+                            case "theme":
+                                let {theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects} = value;
+                                resp = await dbClient.setTheme(socket.request.user.username, theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects);
+                                break;
                         }
                         if (resp.success) {
-                            socketManager.emitToRoom(socket.request.user.username, purpose, "success-settingschange", resp);
+                            socketManager.emitToRoom(socket.request.user.username, purpose, "success-settingschange", resp.data);
                         } else {
-                            socketManager.emitToRoom(socket.request.user.username, purpose, "fail-settingschange", resp);
+                            socketManager.emitToRoom(socket.request.user.username, purpose, "fail-settingschange", resp.data);
                         }
                     }
                 });

@@ -16,10 +16,7 @@
     <% } else if (JSON.parse(appearance).theme === "light") { %>
         <% theme = false; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/light_mode.css">
-    <% } else if (JSON.parse(appearance).theme === "auto" && (((JSON.parse(appearance).darkModeStart < JSON.parse(appearance).darkModeFinish) &&
-                    ((zeroTime >= JSON.parse(appearance).darkModeStart) && (zeroTime < JSON.parse(appearance).darkModeFinish))) ||
-            ((JSON.parse(appearance).darkModeStart > JSON.parse(appearance).darkModeFinish) &&
-                    ((zeroTime >= JSON.parse(appearance).darkModeStart) || (zeroTime < JSON.parse(appearance).darkModeFinish))))) { %>
+    <% } else if (JSON.parse(appearance).theme === "auto" && (((JSON.parse(appearance).darkModeStart < JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) && (zeroTime < JSON.parse(appearance).darkModeFinish))) || ((JSON.parse(appearance).darkModeStart > JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) || (zeroTime < JSON.parse(appearance).darkModeFinish))))) { %>
         <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
     <% } else if (JSON.parse(appearance).theme === "system") { %>
@@ -86,7 +83,7 @@
         <% let classPage = -1; %>
         <i id="pageNumber" style="display:none"><%= classPage; %></i>
 
-    <!-- Class Links -->
+        <!-- Class Links -->
         <% if (JSON.parse(gradeData).length > 0) { %>
             <ul id="classLinks" class="nav nav-fill" style="color: #BBBBBB">
                 <li class="nav-item" id="link-1">
@@ -117,7 +114,7 @@
         <script>
             let oldSemester = false;
         </script>
-    <!-- Main Screen -->
+        <!-- Main Screen -->
         <div class="container">
             <div class="backToHome" style="display: none" onclick="showPage(-1)">
                 <i class="fa fa-arrow-left"></i>
@@ -135,7 +132,7 @@
                             <div id="GPA-container">
                                 <div id="showMaxGPA">
                                     <label style="display: flex; font-size: 1rem; justify-content: center; margin: 0; align-items: flex-start">Show
-                                                                                                                                               Max GPA
+                                        Max GPA
                                         <label class="switch">
                                             <input style="margin: 0; display: flex"
                                                    type="checkbox"
@@ -149,7 +146,7 @@
                                 </div>
                                 <div class="weightGPA">
                                     <label style="display: flex; font-size: 1rem; justify-content: center; margin: 0; align-items: flex-start">Weighted
-                                                                                                                                               GPA
+                                        GPA
                                         <label class="switch">
                                             <input style="margin: 0; display: flex"
                                                    type="checkbox"
@@ -170,7 +167,7 @@
                                                 class="popup"><i class="fa fa-question-circle"
                                                                  style="margin-left: 0.4rem"><span
                                                         class="popup-right-top">This metric is based on your grades from
-                                                this semester.</span></i></span>
+                                                    this semester.</span></i></span>
                                     </h5>
                                     <h5 id="GPA-display">----
                                         <% if (JSON.parse(appearance).showMaxGPA) { %>/----
@@ -181,24 +178,26 @@
                                     <h5 class="text-center">Cumulative GPA<span class="popup"><i
                                                     class="fa fa-question-circle"
                                                     style="margin-left: 0.4rem"><span
-                                                        class="popup-right-top">Your cumulative GPA is calculated from all
-                                                your courses taken so far. However, it does not include pe or
-                                                summer classes.</span></i></span></h5>
+                                                        class="popup-right-top">Your cumulative GPA is calculated from
+                                                    all
+                                                    your courses taken so far. However, it does not include pe or
+                                                    summer classes.</span></i></span></h5>
                                     <h5 id="GPA-display-cumulative">----
                                         <% if (JSON.parse(appearance).showMaxGPA) { %>/----
                                         <% } %>
                                     </h5>
                                 </div>
                                 <div style="display: none">
-                                    <h5 class="text-center">UC/CSU GPA<span class="popup"><i class="fa fa-question-circle"
-                                                                                             style="margin-left: 0.4rem"><span
+                                    <h5 class="text-center">UC/CSU GPA<span class="popup"><i
+                                                    class="fa fa-question-circle"
+                                                    style="margin-left: 0.4rem"><span
                                                         class="popup-right-top">This is your GPA as calculated by
-                                                the<br><span
+                                                    the<br><span
                                                             style="color: <%= accentColor; %>">University of
-                                                    California System</span><br>and the<br><span
+                                                        California System</span><br>and the<br><span
                                                             style="color: <%= accentColor; %>">California State
-                                                    University System</span>.<br> This metric is not affected by the
-                                                weighted GPA setting.</span></i></span></h5>
+                                                        University System</span>.<br> This metric is not affected by the
+                                                    weighted GPA setting.</span></i></span></h5>
                                     <h5 id="GPA-display-uc">----
                                         <% if (JSON.parse(appearance).showMaxGPA) { %>/----
                                         <% } %>
@@ -243,30 +242,30 @@
                                     <div class="block">
                                         <table>
                                             <thead>
-                                            <tr>
-                                                <th id="overview<%= i + offset; %>" class="overview"
-                                                    style="cursor: pointer; text-align: center; color: <%= JSON.parse(appearance).classColors[i]; %>"
-                                                    onclick="showPage(<%= i + offset; %>)">
-                                                    <%= JSON.parse(gradeData)[i].class_name; %>
-                                                </th>
-                                            </tr>
+                                                <tr>
+                                                    <th id="overview<%= i + offset; %>" class="overview"
+                                                        style="cursor: pointer; text-align: center; color: <%= JSON.parse(appearance).classColors[i]; %>"
+                                                        onclick="showPage(<%= i + offset; %>)">
+                                                        <%= JSON.parse(gradeData)[i].class_name; %>
+                                                    </th>
+                                                </tr>
                                             </thead>
                                             <tbody>
-                                            <tr>
-                                                <td class="overview"
-                                                    style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= JSON.parse(appearance).classColors[i]; %>"
-                                                    onclick="showPage(<%= i + offset; %>)">
-                                                    <div id="overviewChart<%= i + offset; %>"
-                                                         style="display:block; font-weight:bolder">
-                                                        <div style="color: <%= JSON.parse(appearance).classColors[i]; %> !important">
-                                                            <div class="overallLetter"><%= JSON.parse(gradeData)[i].overall_letter %></div>
-                                                            <div class="overallGrade"><%= JSON.parse(gradeData)[i].overall_percent %>
-                                                                %
+                                                <tr>
+                                                    <td class="overview"
+                                                        style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= JSON.parse(appearance).classColors[i]; %>"
+                                                        onclick="showPage(<%= i + offset; %>)">
+                                                        <div id="overviewChart<%= i + offset; %>"
+                                                             style="display:block; font-weight:bolder">
+                                                            <div style="color: <%= JSON.parse(appearance).classColors[i]; %> !important">
+                                                                <div class="overallLetter"><%= JSON.parse(gradeData)[i].overall_letter %></div>
+                                                                <div class="overallGrade"><%= JSON.parse(gradeData)[i].overall_percent %>
+                                                                    %
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                                    </td>
+                                                </tr>
                                             </tbody>
                                         </table>
                                     </div>
@@ -281,30 +280,30 @@
                                     <div class="block">
                                         <table>
                                             <thead>
-                                            <tr>
-                                                <th id="overview<%= i + offset; %>" class="overview"
-                                                    style="cursor: pointer; text-align: center; color: <%= JSON.parse(appearance).classColors[i]; %>"
-                                                    onclick="showPage(<%= i + offset; %>)">
-                                                    <%= JSON.parse(gradeData)[i].class_name; %>
-                                                </th>
-                                            </tr>
+                                                <tr>
+                                                    <th id="overview<%= i + offset; %>" class="overview"
+                                                        style="cursor: pointer; text-align: center; color: <%= JSON.parse(appearance).classColors[i]; %>"
+                                                        onclick="showPage(<%= i + offset; %>)">
+                                                        <%= JSON.parse(gradeData)[i].class_name; %>
+                                                    </th>
+                                                </tr>
                                             </thead>
                                             <tbody>
-                                            <tr>
-                                                <td class="overview"
-                                                    style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= JSON.parse(appearance).classColors[i]; %>"
-                                                    onclick="showPage(<%= i + offset; %>)">
-                                                    <div id="overviewChart<%= i + offset; %>"
-                                                         style="display:block; font-weight:bolder">
-                                                        <div style="color: <%= JSON.parse(appearance).classColors[i]; %> !important">
-                                                            <div class="overallLetter"><%= JSON.parse(gradeData)[i].overall_letter %></div>
-                                                            <div class="overallGrade"><%= JSON.parse(gradeData)[i].overall_percent %>
-                                                                %
+                                                <tr>
+                                                    <td class="overview"
+                                                        style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= JSON.parse(appearance).classColors[i]; %>"
+                                                        onclick="showPage(<%= i + offset; %>)">
+                                                        <div id="overviewChart<%= i + offset; %>"
+                                                             style="display:block; font-weight:bolder">
+                                                            <div style="color: <%= JSON.parse(appearance).classColors[i]; %> !important">
+                                                                <div class="overallLetter"><%= JSON.parse(gradeData)[i].overall_letter %></div>
+                                                                <div class="overallGrade"><%= JSON.parse(gradeData)[i].overall_percent %>
+                                                                    %
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                                    </td>
+                                                </tr>
                                             </tbody>
                                         </table>
                                     </div>
@@ -371,45 +370,45 @@
                                         <span>BCP <%= classType %> course</span><br>
                                     <% } %>
                                     <span><%= uc_classType %> course</span><br>
-                                <span id="verified<%= i %>" class="popup">Weights
-                                    <% let weightDict = JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]; %>
-                                    <% let unverified = weightDict.hasWeights === null ||
-                                            (weightDict.hasWeights === "true" && Object.values(weightDict.weights).filter(w => w === null).length !== 0); %>
-                                    <% if (unverified) { %>Unverified
-                                    <% } else { %>Verified
-                                    <% } %>
-                                    <i class="fa fa-<% if (unverified) { %>exclamation-circle<% } else { %>check-circle<% } %>">
-                                        <span class="popup-right" <% if (!unverified) { %>style="min-width: unset"
-                                                <% } %>
-                                        >
-                                            <% if (unverified) { %>
-                                                Send feedback to verify weights<br><small>More > Send Feedback</small>
-                                            <% } else { %>
-                                                <% if (weightDict.hasWeights === "true") { %>
-                                                    <table class="class-table">
-                                                        <% let weights = Object.entries(weightDict.weights); %>
-                                                        <% for (let i = 0; i < weights.length; i++) { %>
-                                                            <tr>
-                                                                <td title="<%= weights[i][0] %>"><%= weights[i][0] %></td>
-                                                                <td><%= weights[i][1] %></td>
-                                                            </tr>
-                                                        <% } %>
-                                                    </table>
+                                    <span id="verified<%= i %>" class="popup">Weights
+                                        <% let weightDict = JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]; %>
+                                        <% let unverified = weightDict.hasWeights === null || (weightDict.hasWeights === "true" && Object.values(weightDict.weights).filter(w => w === null).length !== 0); %>
+                                        <% if (unverified) { %>Unverified
+                                        <% } else { %>Verified
+                                        <% } %>
+                                        <i class="fa fa-<% if (unverified) { %>exclamation-circle<% } else { %>check-circle<% } %>">
+                                            <span class="popup-right" <% if (!unverified) { %>style="min-width: unset"
+                                                    <% } %>
+                                            >
+                                                <% if (unverified) { %>
+                                                    Send feedback to verify weights<br><small>More > Send
+                                                        Feedback</small>
                                                 <% } else { %>
-                                                    <span style="width: 6rem">This course is point-based</span>
+                                                    <% if (weightDict.hasWeights === "true") { %>
+                                                        <table class="class-table">
+                                                            <% let weights = Object.entries(weightDict.weights); %>
+                                                            <% for (let i = 0; i < weights.length; i++) { %>
+                                                                <tr>
+                                                                    <td title="<%= weights[i][0] %>"><%= weights[i][0] %></td>
+                                                                    <td><%= weights[i][1] %></td>
+                                                                </tr>
+                                                            <% } %>
+                                                        </table>
+                                                    <% } else { %>
+                                                        <span style="width: 6rem">This course is point-based</span>
+                                                    <% } %>
                                                 <% } %>
-                                            <% } %>
-                                        </span>
-                                    </i>
+                                            </span>
+                                        </i>
+                                    </span>
                                 </span>
-                            </span>
-                            <span style="text-align: right">
-                                <span>Teacher: <%= JSON.parse(gradeData)[i].teacher_name || "Unknown" %></span><br>
-                                <% if (JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].department) { %>
-                                    <span>Department: <%= JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].department; %></span>
-                                <% } %>
-                            </span>
-                        </div>
+                                <span style="text-align: right">
+                                    <span>Teacher: <%= JSON.parse(gradeData)[i].teacher_name || "Unknown" %></span><br>
+                                    <% if (JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].department) { %>
+                                        <span>Department: <%= JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].department; %></span>
+                                    <% } %>
+                                </span>
+                            </div>
                         <% } %>
                         <div class="chartAndWeights">
                             <div id="chart-container<%= i + offset; %>" class="chart chart-container">
@@ -434,8 +433,7 @@
                                                             <% if (JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["hasWeights"] === "false") { %>
                                                                    checked
                                                                     <% } %>
-                                                                   onchange="disableInput('check<%= i + offset; %>','weightsTable<%= i + offset; %>'); resetInputs('#weights<%= i +
-                                                                   offset; %>'); $('#weights<%= i + offset; %>').trigger('submit');"
+                                                                   onchange="disableInput('check<%= i + offset; %>','weightsTable<%= i + offset; %>'); resetInputs('#weights<%= i + offset; %>'); $('#weights<%= i + offset; %>').trigger('submit');"
                                                             >
                                                             <span style="color: <%= JSON.parse(appearance).classColors[i + offset]; %>"
                                                                   class="classSlider slider"></span>
@@ -475,14 +473,14 @@
                                         </thead>
                                         <tbody>
 
-                                        <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]).length; j++) { %>
-                                            <tr>
+                                            <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]).length; j++) { %>
+                                                <tr>
                                                     <td id="weightTableCategory<%= i + offset; %><%= j; %>"></td>
-                                                <% let weights = JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]; %>
-                                                <% let category = Object.keys(weights)[j]; %>
-                                                <% let value = weights[category]; %>
-                                                <td id="weightTableWeight<%= i + offset; %><%= j; %>"
-                                                    class="form-group">
+                                                    <% let weights = JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]; %>
+                                                    <% let category = Object.keys(weights)[j]; %>
+                                                    <% let value = weights[category]; %>
+                                                    <td id="weightTableWeight<%= i + offset; %><%= j; %>"
+                                                        class="form-group">
                                                         <input style="<% if (!value && value !== 0) { %> border-color: lightcoral !important; <% } %>"
                                                                value="<%= value; %>"
                                                                type="number"
@@ -496,8 +494,8 @@
                                                     <td id="weightTablePoints<%= i + offset; %><%= j; %>"></td>
                                                     <td id="weightTableGrade<%= i + offset; %><%= j; %>"></td>
                                                 </tr>
-                                        <% } %>
-                                        <script>
+                                            <% } %>
+                                            <script>
                                                 function disableInput(checkBoxID, id) {
                                                     $("#" + id).find(".disableable").each(function () {
                                                         if ($("#" + checkBoxID).is(":checked")) {
@@ -541,8 +539,7 @@
                                 <form id="addAssignmentForm<%= i + offset; %>">
                                     <div class="add-assignment-header">
                                         <div class="addAssignment"
-                                             onclick="{$(this).parents('.add-assignment-container').toggleClass('active').parents('div').toggleClass('keep-right'); $('#dateLabel<%= i +
-                                             offset %> + input').trigger('focus').trigger('blur')}">
+                                             onclick="{$(this).parents('.add-assignment-container').toggleClass('active').parents('div').toggleClass('keep-right'); $('#dateLabel<%= i + offset %> + input').trigger('focus').trigger('blur')}">
                                             <i class="fa fa-plus"></i>
                                             <span>Add Assignment</span>
                                         </div>
@@ -678,12 +675,12 @@
                             <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].weights).length; j++) { %>
                                 <% let category = Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].weights)[j]; %>
                                 <thead class="categoryStart">
-                                <% if (j > 0) { %>
-                                    <tr class="separator">
+                                    <% if (j > 0) { %>
+                                        <tr class="separator">
                                             <td colspan="6"></td>
                                         </tr>
-                                <% } %>
-                                <tr>
+                                    <% } %>
+                                    <tr>
                                         <th colspan="6"><%= category; %></th>
                                         <th class="toolTab categoryModAllTab<%= i + offset %>">
                                             <span class="popup">
@@ -737,7 +734,7 @@
                 } %>
             <% } %>
         </div>
-    <!-- Custom JavaScript -->
+        <!-- Custom JavaScript -->
         <script>
             let enableLogging = <%= enableLogging %>;
             // define a new console
@@ -797,12 +794,124 @@
                                     appearance.showFps = settings[key];
                                     $("#showFps").attr("checked", appearance.showFps);
                                     break;
+                                case "theme":
+                                    let oldDarkMode;
+                                    switch (settings[key]) {
+                                        case "dark":
+                                            oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
+                                            darkMode = true;
+                                            theme = settings[key];
+                                            if (darkMode !== oldDarkMode) {
+                                                document.getElementById("fade").disabled = false;
+                                                document.getElementById("pageStyle").setAttribute("href", "../../public/css/dark_mode.css");
+                                                document.getElementById("blur_overrides").setAttribute("href", "../../public/css/dark_blur.css");
+                                                renderAllCharts();
+                                                $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
+                                                $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
+                                                $(".discord-iframe").attr("src", "https://discord.com/widget?id=897624313136578590&theme=dark");
+                                                setupClassTables(undefined, true);
+                                                setTimeout(() => {
+                                                    document.getElementById("fade").disabled = true;
+                                                }, 200);
+                                                $(`input[name=theme]`).attr("checked", false);
+                                                $(`input[name=theme][value=${settings[key]}]`).attr("checked", true);
+                                            }
+                                            break;
+                                        case "light":
+                                            let autoLimitsContainer = $("#auto-limits-container");
+                                            autoLimitsContainer.hide();
+                                            document.getElementsByName("theme")[0].setAttribute("checked", "checked");
+                                            oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
+                                            darkMode = false;
+                                            theme = settings[key];
+                                            if (darkMode !== oldDarkMode) {
+                                                document.getElementById("fade").disabled = false;
+                                                document.getElementById("pageStyle").setAttribute("href", "../../public/css/light_mode.css");
+                                                document.getElementById("blur_overrides").setAttribute("href", "../../public/css/light_blur.css");
+                                                renderAllCharts();
+                                                $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
+                                                $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
+                                                $(".discord-iframe").attr("src", "https://discord.com/widget?id=897624313136578590&theme=light");
+                                                setupClassTables(undefined, true);
+                                                setTimeout(() => {
+                                                    document.getElementById("fade").disabled = true;
+                                                }, 200);
+                                            }
+                                            $(`input[name=theme]`).attr("checked", false);
+                                            $(`input[name=theme][value=${settings[key]}]`).attr("checked", true);
+                                            break;
+                                        case "sun":
+                                        case "system":
+                                        case "auto":
+                                            theme = settings[key];
+                                            $(`input[name=theme]`).attr("checked", false);
+                                            $(`input[name=theme][value=${settings[key]}]`).attr("checked", true);
+                                            checkTime();
+                                            break;
+                                    }
+                                    break;
+                                case "darkModeStart":
+                                    darkModeStart = settings[key];
+                                    let _startDate = new Date(darkModeStart);
+                                    $('#darkModeStart').val(("0" + _startDate.getHours()).slice(-2) + ":" + ("0" + _startDate.getMinutes()).slice(-2));
+                                    break;
+                                case "darkModeFinish":
+                                    darkModeFinish = settings[key];
+                                    let _endDate = new Date(darkModeFinish);
+                                    $('#darkModeFinish').val(("0" + _endDate.getHours()).slice(-2) + ":" + ("0" + _endDate.getMinutes()).slice(-2));
+                                    break;
+                                case "seasonalEffects":
+                                    $('#seasonalEffectsToggle').attr('checked', settings[key]);
+                                    appearance.seasonalEffects = settings[key];
+                                    if (settings[key]) {
+                                        init = performance.now();
+                                        $("#snow-fall").show();
+                                        $(".lightrope").show();
+                                        if (darkMode === false) {
+                                            $("#light_snowfall").attr("media", "");
+                                        } else if (darkMode) {
+                                            $("#light_snowfall").attr("media", "not all");
+                                        }
+                                    } else {
+                                        disableSnow();
+                                    }
+                                    break;
+                                case "blurEffects":
+                                    $('#blurEffectsToggle').attr('checked', settings[key]);
+                                    appearance.blurEffects = settings[key];
+                                    if (!appearance.blurEffects) {
+                                        $("#blur_base").prop("disabled", true);
+                                        $("#blur_overrides").prop("disabled", true);
+                                    } else {
+                                        $("#blur_base").prop("disabled", false);
+                                        $("#blur_overrides").prop("disabled", false);
+                                    }
+                                    break;
+                            }
+                            if (appearance.seasonalEffects) {
+                                $("#snow-fall").show();
+                                $(".lightrope").show();
+                                if (darkMode === false) {
+                                    $("#light_snowfall").attr("media", "");
+                                } else if (darkMode) {
+                                    $("#light_snowfall").attr("media", "not all");
+                                }
+                            } else {
+                                disableSnow();
+                            }
+                            if (data.message) {
+                                $("#themeMessage").removeClass("alert-danger").addClass("alert-success").show().text(data.message);
+                            } else {
+                                $("#themeMessage").hide();
                             }
                         }
                         let _refresh = data.refresh ?? false;
                         if (_refresh) {
                             window.reload();
                         }
+                        break;
+
+                    case "fail-settingschange":
                         break;
                 }
             });
@@ -811,7 +920,7 @@
                 let messageDiv = $(".updateGradesMessage");
                 switch (event) {
                     case "info-initialstatus":
-                        let status = data.message;
+                        let status = data.data.message;
                         switch (status) {
                             case "Sync Failed.":
                             case "Cannot access grades.":
@@ -842,7 +951,7 @@
                         }
                         break;
                     case "progress":
-                        let {progress, message} = data;
+                        let {progress, message} = data.data;
                         messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(message + " (" + progress.toFixed(0) + "%)");
                         break;
                     case "progress-history":
@@ -851,7 +960,7 @@
                         break;
                     case "success-history":
                     case "success-alldata":
-                        let newData = {grades: JSON.parse(data.grades), weights: JSON.parse(data.weights)};
+                        let newData = {grades: JSON.parse(data.data.grades), weights: JSON.parse(data.data.weights)};
                         if (!updateData(newData).updated) {
                             sessionStorage.setItem("showSyncLog", "true");
                             if (cardsDisplayed.length === 0 || cardsDisplayed[cardsDisplayed.length - 1] === "updateGradesDisplay") {
@@ -865,7 +974,7 @@
                                 });
                             }
                         } else {
-                            alerts.lastUpdated.push(JSON.parse(data.updateData));
+                            alerts.lastUpdated.push(JSON.parse(data.data.updateData));
                             setupGradeChanges();
                             showLatest(false);
                             refreshWithoutReload(true);
@@ -877,7 +986,7 @@
                     case "fail-termsemester":
                     case "fail-history":
                     case "fail-general":
-                        messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(data.message);
+                        messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(data.data.message);
                         setupLastUpdated();
                         showLatest(false);
                         break;
@@ -891,6 +1000,7 @@
                         if (typeof arg === "string") {
                             return arg;
                         }
+                        return JSON.stringify(arg);
                         if (Array.isArray(arg)) {
                             return "[" + arg.join(", ") + "]";
                         }
@@ -913,9 +1023,9 @@
                 });
             }
 
-            logSocket(mainSocket, 'MAIN');
-            logSocket(syncSocket, 'SYNC');
-            logSocket(notiSocket, 'NOTI');
+            logSocket(mainSocket, "MAIN");
+            logSocket(syncSocket, "SYNC");
+            logSocket(notiSocket, "NOTI");
 
             let refreshing;
             let shortcutsEnabled = true;
@@ -958,8 +1068,7 @@
                 }
 
                 // Get background color
-                let bgColors = $("body").css("background-color").slice(4, -1).split(", ");
-                let bgColor = {r: parseInt(bgColors[0]), g: parseInt(bgColors[0]), b: parseInt(bgColors[0])};
+                let bgColor = {r: 238, g: 238, b: 238};
 
                 // Calculate final color
                 let finalColor = {r: 0, g: 0, b: 0};
@@ -994,9 +1103,7 @@
                     }
                     for (let i = 0; i < _data.length; i++) {
                         if (changedClassIndex === undefined || changedClassIndex === i) {
-                            $(`#chart-container${changedClassIndex}`).html("<button id=\"reset-zoom" + changedClassIndex +
-                                "\" style=\"position: absolute; top: 0; right: 0; height: fit-content; display:none\" class=\"btn btn-sm\" onclick=\"resetZoom(" + changedClassIndex +
-                                "); $(this).hide()\">Reset</button><div class=\"chart-placeholder fa fa-spin fa-spinner\"></div><canvas id=\"chart" + changedClassIndex + "\"></canvas>");
+                            $(`#chart-container${changedClassIndex}`).html("<button id=\"reset-zoom" + changedClassIndex + "\" style=\"position: absolute; top: 0; right: 0; height: fit-content; display:none\" class=\"btn btn-sm\" onclick=\"resetZoom(" + changedClassIndex + "); $(this).hide()\">Reset</button><div class=\"chart-placeholder fa fa-spin fa-spinner\"></div><canvas id=\"chart" + changedClassIndex + "\"></canvas>");
                         }
                     }
                     refreshing = setTimeout(() => {
@@ -1063,6 +1170,11 @@
 
             // This should only happen once
             let {dateSort, categorySort} = <%- sortingData; %>;
+            if (theme === "auto" || theme === "sun" || theme === "system") {
+                checkTime();
+            } else {
+                darkMode = theme === "dark";
+            }
             if (data.length) {
                 setupGradeChanges(false);
                 refreshWithoutReload(true);
@@ -1079,11 +1191,6 @@
 
             $("#termSwitcher").addClass("hover");
             setTimeout(() => $("#termSwitcher").removeClass("hover"), 2000);
-            if (theme === "auto" || theme === "sun" || theme === "system") {
-                checkTime();
-            } else {
-                darkMode = theme === "dark";
-            }
 
             if (alerts.lastUpdated.length !== 0) {
                 try {
@@ -1113,8 +1220,8 @@
                     showLatest(false);
                 } else {
                     $.ajax({
-                        url: "/latestVersionSeen", type: "POST", async: true
-                    });
+                               url: "/latestVersionSeen", type: "POST", async: true
+                           });
                 }
             }
 
@@ -1139,9 +1246,7 @@
                     }
                 }
 
-                if ((theme === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) || (theme === "sun" && (zeroTime >= sunset || zeroTime <= sunrise)) ||
-                    (theme === "auto" && (((darkModeStart < darkModeFinish) && ((zeroTime >= darkModeStart) && (zeroTime < darkModeFinish)) ||
-                        ((darkModeStart > darkModeFinish) && ((zeroTime >= darkModeStart) || (zeroTime < darkModeFinish))))))) {
+                if ((theme === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) || (theme === "sun" && (zeroTime >= sunset || zeroTime <= sunrise)) || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((zeroTime >= darkModeStart) && (zeroTime < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((zeroTime >= darkModeStart) || (zeroTime < darkModeFinish))))))) {
                     let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
                     darkMode = true;
                     if (darkMode !== oldDarkMode) {
@@ -1156,7 +1261,7 @@
                         $(".discord-iframe").attr("src", "https://discord.com/widget?id=897624313136578590&theme=dark");
                         setTimeout(() => {
                             document.getElementById("fade").disabled = true;
-                            setupClassTables();
+                            setupClassTables(undefined, true);
                         }, 500);
                         if (appearance.seasonalEffects) {
                             init = performance.now();
@@ -1181,7 +1286,7 @@
                         $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
                         setTimeout(() => {
                             document.getElementById("fade").disabled = true;
-                            setupClassTables();
+                            setupClassTables(undefined, true);
                             $(".discord-iframe").attr("src", "https://discord.com/widget?id=897624313136578590&theme=light");
                         }, 500);
                         if (appearance.seasonalEffects) {
@@ -1224,8 +1329,8 @@
                     return;
                 }
                 $.ajax({
-                    url: "/UpdateTutorialStatus", type: "POST", async: true, data: {action: action}
-                }).done((response) => {
+                           url: "/UpdateTutorialStatus", type: "POST", async: true, data: {action: action}
+                       }).done((response) => {
                     if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                         $(".session-timeout").show();
                         $("body").find("*").not(".session-timeout").remove();
@@ -1266,8 +1371,8 @@
             function setupGPADisplays(postNewSettings = false) {
                 if (postNewSettings) {
                     $.ajax({
-                        method: "POST", url: "/updateShowMaxGPA", data: {showMaxGPA: JSON.stringify(showMaxGPA)}
-                    }).done((response) => {
+                               method: "POST", url: "/updateShowMaxGPA", data: {showMaxGPA: JSON.stringify(showMaxGPA)}
+                           }).done((response) => {
                         if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                             $(".session-timeout").show();
                             $("body").find("*").not(".session-timeout").remove();
@@ -1326,8 +1431,7 @@
                 if (!alerts.lastUpdated.slice(-1)[0]) {
                     return false;
                 }
-                return alerts.lastUpdated.slice(-1)[0].ps_locked &&
-                    (relClassData[data[classIndex].class_name].hasWeights === "false" || Object.values(relClassData[data[classIndex].class_name].weights).filter(w => w !== null).length !== 0);
+                return alerts.lastUpdated.slice(-1)[0].ps_locked && (relClassData[data[classIndex].class_name].hasWeights === "false" || Object.values(relClassData[data[classIndex].class_name].weights).filter(w => w !== null).length !== 0);
             }
 
             function countDecimals(value) {
@@ -1697,8 +1801,7 @@
                             enableReset = false;
                             let keys = Object.keys(weights[className]["weights"]);
                             for (let i = 0; i < keys.length; i++) {
-                                if (relClassData[className]["weights"] && (keys[i] in relClassData[className]["weights"]) && weights[className]["weights"][keys[i]] !=
-                                    relClassData[className]["weights"][keys[i]]) {
+                                if (relClassData[className]["weights"] && (keys[i] in relClassData[className]["weights"]) && weights[className]["weights"][keys[i]] != relClassData[className]["weights"][keys[i]]) {
                                     enableReset = true;
                                 }
                             }
@@ -1739,8 +1842,7 @@
                             document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
                             document.getElementById("weightTableCategory" + i + j).title = tableCategories[j];
                             let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
-                            document.getElementById("weightTablePoints" + i + j).textContent = Math.round(categoryGottenAndPossible.gotten * 10000) / 10000 +
-                                ((categoryGottenAndPossible.possible !== 0) ? ("/" + Math.round(categoryGottenAndPossible.possible * 10000) / 10000) : "");
+                            document.getElementById("weightTablePoints" + i + j).textContent = Math.round(categoryGottenAndPossible.gotten * 10000) / 10000 + ((categoryGottenAndPossible.possible !== 0) ? ("/" + Math.round(categoryGottenAndPossible.possible * 10000) / 10000) : "");
                             let categoryGrade = getCategoryGrade(i, tableCategories[j]);
                             if (categoryGottenAndPossible.possible !== 0) {
                                 document.getElementById("weightTableGrade" + i + j).textContent = categoryGrade + "% (" + getLetterGrade(categoryGrade) + ")";
@@ -1788,10 +1890,10 @@
 
                 // Add element to measure pixel length of text
                 let tag = $("<span> </span>").css({
-                    "display": "none",
-                    "font-family": $(elements[0]).css("font-family"),
-                    "font-size": $(elements[0]).css("font-size")
-                }).appendTo("body");
+                                                      "display": "none",
+                                                      "font-family": $(elements[0]).css("font-family"),
+                                                      "font-size": $(elements[0]).css("font-size")
+                                                  }).appendTo("body");
 
                 //Adjust element width on keydown
                 elements.each(function () {
@@ -1825,8 +1927,7 @@
                 let classIndex = parseFloat($(element)[0].id.substring(6));
                 let method = $(element)[0].selectedOptions[0].value;
                 $(element).trigger("blur");
-                $($(element)[0].nextElementSibling.children[0]).removeClass(dateSort[classIndex] ? "fa-sort-amount-desc" : "fa-sort-amount-asc").addClass(dateSort[classIndex] ? "fa-sort-amount-asc" :
-                    "fa-sort-amount-desc").removeClass("disabled").find("span").text(dateSort[classIndex] ? "Oldest to Newest" : "Newest to Oldest");
+                $($(element)[0].nextElementSibling.children[0]).removeClass(dateSort[classIndex] ? "fa-sort-amount-desc" : "fa-sort-amount-asc").addClass(dateSort[classIndex] ? "fa-sort-amount-asc" : "fa-sort-amount-desc").removeClass("disabled").find("span").text(dateSort[classIndex] ? "Oldest to Newest" : "Newest to Oldest");
                 categorySort[classIndex] = method === "category";
                 postSortData();
                 refreshWithoutReload(true, classIndex);
@@ -1867,10 +1968,10 @@
                 _addedAssignments[_data[classIndex].class_name].push(JSON.parse(JSON.stringify(assignmentObject)));
                 addedAssignments[_data[classIndex].class_name].push(JSON.parse(JSON.stringify(assignmentObject)));
                 $.ajax({
-                    type: "POST",
-                    url: "/updateAddedAssignments",
-                    data: {data: JSON.stringify(addedAssignments), term: term, semester: semester}
-                }).done(function (response) {
+                           type: "POST",
+                           url: "/updateAddedAssignments",
+                           data: {data: JSON.stringify(addedAssignments), term: term, semester: semester}
+                       }).done(function (response) {
                     if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                         $(".session-timeout").show();
                         $("body").find("*").not(".session-timeout").remove();
@@ -1900,8 +2001,7 @@
                     assignmentIndex = $.makeArray($(".categoryGotten" + classIndex)).indexOf(element);
                     if (!dateSort[classIndex]) {
                         let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
-                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 *
-                            assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
                     }
                     assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
                 }
@@ -1992,8 +2092,7 @@
                     assignmentIndex = $.makeArray($(".categoryPossible" + classIndex)).indexOf(element);
                     if (!dateSort[classIndex]) {
                         let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
-                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 *
-                            assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
                     }
                     assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
                 }
@@ -2073,8 +2172,7 @@
                     assignmentIndex = $.makeArray($(".categoryCategory" + classIndex)).indexOf(element[0]);
                     if (!dateSort[classIndex]) {
                         let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
-                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 *
-                            assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
                     }
                     assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
                 }
@@ -2117,8 +2215,7 @@
                     assignmentIndex = $.makeArray($(".categoryExclude" + classIndex)).indexOf(element);
                     if (!dateSort[classIndex]) {
                         let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
-                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 *
-                            assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
                     }
                     assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
                 }
@@ -2151,11 +2248,11 @@
                     resetRow(resetButtons[i], false);
                 }
                 $.ajax({
-                    type: "POST",
-                    url: "/updateEditedAssignments",
-                    data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
-                    async: true
-                });
+                           type: "POST",
+                           url: "/updateEditedAssignments",
+                           data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
+                           async: true
+                       });
                 refreshWithoutReload(false, classIndex);
             }
 
@@ -2174,11 +2271,11 @@
                 }
                 if (!_.isEqual(_editedAssignments, editedAssignments)) {
                     $.ajax({
-                        type: "POST",
-                        url: "/updateEditedAssignments",
-                        data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
-                        async: true
-                    });
+                               type: "POST",
+                               url: "/updateEditedAssignments",
+                               data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
+                               async: true
+                           });
                 }
                 refreshWithoutReload(false, classIndex);
             }
@@ -2206,8 +2303,7 @@
                     assignmentIndex = $.makeArray($(`.categoryResetRow${classIndex}`)).indexOf(element);
                     if (!dateSort[classIndex]) {
                         let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
-                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 *
-                            assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
                     }
                     assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
 
@@ -2226,11 +2322,11 @@
                 delete _editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
                 if (notMassReset) {
                     $.ajax({
-                        type: "POST",
-                        url: "/updateEditedAssignments",
-                        data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
-                        async: true
-                    });
+                               type: "POST",
+                               url: "/updateEditedAssignments",
+                               data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
+                               async: true
+                           });
                     refreshWithoutReload(false, classIndex);
                 }
             }
@@ -2242,11 +2338,11 @@
                     trashRow(trashButtons[i], false);
                 }
                 $.ajax({
-                    type: "POST",
-                    url: "/updateAddedAssignments",
-                    data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
-                    async: true
-                });
+                           type: "POST",
+                           url: "/updateAddedAssignments",
+                           data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
+                           async: true
+                       });
                 refreshWithoutReload(false, classIndex);
             }
 
@@ -2264,11 +2360,11 @@
                     trashRow(trashButtons[i], false);
                 }
                 $.ajax({
-                    type: "POST",
-                    url: "/updateAddedAssignments",
-                    data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
-                    async: true
-                });
+                           type: "POST",
+                           url: "/updateAddedAssignments",
+                           data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
+                           async: true
+                       });
                 refreshWithoutReload(false, classIndex);
             }
 
@@ -2289,8 +2385,7 @@
                     assignmentIndex = $.makeArray($(`.categoryTrashRow${classIndex}`)).indexOf(element);
                     if (!dateSort[classIndex]) {
                         let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
-                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 *
-                            assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
                     }
                     assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
                 }
@@ -2300,11 +2395,11 @@
 
                 if (notMassTrash) {
                     $.ajax({
-                        type: "POST",
-                        url: "/updateAddedAssignments",
-                        data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
-                        async: true
-                    });
+                               type: "POST",
+                               url: "/updateAddedAssignments",
+                               data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
+                               async: true
+                           });
                     refreshWithoutReload(false, classIndex);
                 }
             }
@@ -2316,17 +2411,17 @@
                     saveRow(saveButtons[i], false);
                 }
                 $.ajax({
-                    type: "POST",
-                    url: "/updateEditedAssignments",
-                    data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
-                    async: true
-                });
+                           type: "POST",
+                           url: "/updateEditedAssignments",
+                           data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
+                           async: true
+                       });
                 $.ajax({
-                    type: "POST",
-                    url: "/updateAddedAssignments",
-                    data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
-                    async: true
-                });
+                           type: "POST",
+                           url: "/updateAddedAssignments",
+                           data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
+                           async: true
+                       });
                 refreshWithoutReload(false, classIndex);
             }
 
@@ -2344,17 +2439,17 @@
                     saveRow(saveButtons[i], false);
                 }
                 $.ajax({
-                    type: "POST",
-                    url: "/updateEditedAssignments",
-                    data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
-                    async: true
-                });
+                           type: "POST",
+                           url: "/updateEditedAssignments",
+                           data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
+                           async: true
+                       });
                 $.ajax({
-                    type: "POST",
-                    url: "/updateAddedAssignments",
-                    data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
-                    async: true
-                });
+                           type: "POST",
+                           url: "/updateAddedAssignments",
+                           data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
+                           async: true
+                       });
                 refreshWithoutReload(false, classIndex);
             }
 
@@ -2375,40 +2470,36 @@
                     assignmentIndex = $.makeArray($(`.categorySaveRow${classIndex}`)).indexOf(element);
                     if (!dateSort[classIndex]) {
                         let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
-                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 *
-                            assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                        assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
                     }
                     assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
                 }
 
                 // Added
                 if (aData[classIndex][assignmentIndex] !== undefined) {
-                    addedAssignments[_data[classIndex].class_name][aData[classIndex][assignmentIndex]] =
-                        JSON.parse(JSON.stringify(_addedAssignments[_data[classIndex].class_name][aData[classIndex][assignmentIndex]]));
+                    addedAssignments[_data[classIndex].class_name][aData[classIndex][assignmentIndex]] = JSON.parse(JSON.stringify(_addedAssignments[_data[classIndex].class_name][aData[classIndex][assignmentIndex]]));
                     if (notMassSave) {
                         $.ajax({
-                            type: "POST",
-                            url: "/updateAddedAssignments",
-                            data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
-                            async: true
-                        });
+                                   type: "POST",
+                                   url: "/updateAddedAssignments",
+                                   data: {data: JSON.stringify(addedAssignments), term: term, semester: semester},
+                                   async: true
+                               });
                     }
-                } else if (_editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid] ||
-                    editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]) {
+                } else if (_editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid] || editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]) {
                     // Edited
                     if (_editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]) {
-                        editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid] =
-                            JSON.parse(JSON.stringify(_editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]));
+                        editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid] = JSON.parse(JSON.stringify(_editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]));
                     } else {
                         delete editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
                     }
                     if (notMassSave) {
                         $.ajax({
-                            type: "POST",
-                            url: "/updateEditedAssignments",
-                            data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
-                            async: true
-                        });
+                                   type: "POST",
+                                   url: "/updateEditedAssignments",
+                                   data: {data: JSON.stringify(editedAssignments), term: term, semester: semester},
+                                   async: true
+                               });
                     }
                 }
 
@@ -2475,12 +2566,12 @@
 
             function postSortData() {
                 $.ajax({
-                    type: "POST", url: "/updateSortData", data: {
+                           type: "POST", url: "/updateSortData", data: {
                         sortingData: JSON.stringify({
-                            dateSort: dateSort, categorySort: categorySort
-                        }), async: true
+                                                        dateSort: dateSort, categorySort: categorySort
+                                                    }), async: true
                     }
-                });
+                       });
             }
 
             function setupAddAssignments() {
@@ -2507,7 +2598,7 @@
                 adjust($(".addAssignmentScore input"), 0, remToPixels(2), remToPixels(4));
             }
 
-            function setupClassTables(classIndex) {
+            function setupClassTables(classIndex, justChangeColors = false) {
                 for (let i = 0; i < parsedData.length; i++) {
                     if (classIndex === undefined || classIndex === i) {
                         let categories = Object.keys(weights[_data[i].class_name]["weights"]);
@@ -2540,17 +2631,22 @@
                         if (categorySort[i]) {
                             // Data
                             assignmentData = categorySortedData[i].rawData;
-                            assignmentDates = categorySortedData[i].assignmentDates;
-                            assignmentNames = categorySortedData[i].assignmentNames;
+                            if (!justChangeColors) {
+                                assignmentDates = categorySortedData[i].assignmentDates;
+                                assignmentNames = categorySortedData[i].assignmentNames;
+                            }
                             assignmentCategories = categorySortedData[i].assignmentCategories;
-                            assignmentScoresParsed = categorySortedData[i].assignmentScoresParsed;
-                            assignmentPercents = categorySortedData[i].assignmentPercents;
-                            assignmentExcludes = categorySortedData[i].assignmentExcludes;
-                            assignmentAdds = categorySortedData[i].assignmentAdds;
-                            assignmentPSAIDs = categorySortedData[i].assignmentPSAIDs;
+                            if (!justChangeColors) {
+                                assignmentScoresParsed = categorySortedData[i].assignmentScoresParsed;
+                                assignmentPercents = categorySortedData[i].assignmentPercents;
+                                assignmentExcludes = categorySortedData[i].assignmentExcludes;
+                                assignmentAdds = categorySortedData[i].assignmentAdds;
+                                assignmentPSAIDs = categorySortedData[i].assignmentPSAIDs;
+                            }
 
                             rowDivs = $(`.categoryClassTableRow${i}`);
-                            row = `<tr class="categoryClassTableRow${i}">
+                            if (!justChangeColors) {
+                                row = `<tr class="categoryClassTableRow${i}">
                                        <td class="categoryAssignmentDate${i}"></td>
                                        <td>
                                            <div class="excludeToggle"
@@ -2613,68 +2709,72 @@
                                        </td>
                                    </tr>`;
 
-                            for (let j = rowDivs.length; j < assignmentData.length; j++) {
-                                rowDivs.push(row);
-                            }
-
-                            // Move rows
-                            for (let j = 0; j < assignmentData.length; j++) {
-                                $($(`.categoryTable${i} .categoryStart + tbody`)[categories.indexOf(assignmentCategories[j])]).append(rowDivs[j]);
-                            }
-
-                            //Bind listeners
-                            adjust($($(`.categoryAssignmentScore${i}`)).find(".dynamic-input"), 0, remToPixels(2), remToPixels(4));
-
-                            // Remove extra rows
-                            for (let j = assignmentData.length; j < rowDivs.length; j++) {
-                                rowDivs[j].remove();
-                            }
-
-                            rowDivs = $(`.categoryClassTableRow${i}`);
-
-                            // Round corners
-                            for (let j = 0; j < rowDivs.length; j++) {
-                                if (j === assignmentCategories.lastIndexOf(assignmentCategories[j])) {
-                                    $(rowDivs[j]).addClass("beforeSeparator");
-                                } else {
-                                    $(rowDivs[j]).removeClass("beforeSeparator");
+                                for (let j = rowDivs.length; j < assignmentData.length; j++) {
+                                    rowDivs.push(row);
                                 }
+
+                                // Move rows
+                                for (let j = 0; j < assignmentData.length; j++) {
+                                    $($(`.categoryTable${i} .categoryStart + tbody`)[categories.indexOf(assignmentCategories[j])]).append(rowDivs[j]);
+                                }
+
+                                //Bind listeners
+                                adjust($($(`.categoryAssignmentScore${i}`)).find(".dynamic-input"), 0, remToPixels(2), remToPixels(4));
+
+                                // Remove extra rows
+                                for (let j = assignmentData.length; j < rowDivs.length; j++) {
+                                    rowDivs[j].remove();
+                                }
+
+                                rowDivs = $(`.categoryClassTableRow${i}`);
+
+                                // Round corners
+                                for (let j = 0; j < rowDivs.length; j++) {
+                                    if (j === assignmentCategories.lastIndexOf(assignmentCategories[j])) {
+                                        $(rowDivs[j]).addClass("beforeSeparator");
+                                    } else {
+                                        $(rowDivs[j]).removeClass("beforeSeparator");
+                                    }
+                                }
+
+                                // Div References
+                                assignmentDateDivs = $(`.categoryAssignmentDate${i}`);
+                                assignmentNameDivs = $(`.categoryAssignmentName${i}`);
+                                assignmentCategoryDivs = $(`.categoryAssignmentCategory${i}`);
+                                excludeDivs = $(`.categoryExclude${i}`);
+                                assignmentScoreDivs = $(`.categoryAssignmentScore${i}`);
+                                modTabDivs = $(`.categoryModTab${i}`);
+                                resetRowDivs = $(`.categoryResetRow${i}`);
+                                trashRowDivs = $(`.categoryTrashRow${i}`);
+                                saveRowDivs = $(`.categorySaveRow${i}`);
+                                assignmentPercentDivs = $(`.categoryAssignmentPercent${i}`);
+                                assignmentOverallDivs = $(`.categoryAssignment${i}`);
+
+                                // Set up visuals
+                                resetCategoryDivs = $(`.resetCategory${i}`);
+                                trashCategoryDivs = $(`.trashCategory${i}`);
+                                saveCategoryDivs = $(`.saveCategory${i}`);
+                                $(`#table${i}`).hide();
+                                $(`.categoryModAllTab${i}`).css("visibility", "hidden").children("span").children("i").addClass("disabled");
+                                $(`.categoryTable${i}`).show();
                             }
-
-                            // Div References
-                            assignmentDateDivs = $(`.categoryAssignmentDate${i}`);
-                            assignmentNameDivs = $(`.categoryAssignmentName${i}`);
-                            assignmentCategoryDivs = $(`.categoryAssignmentCategory${i}`);
-                            excludeDivs = $(`.categoryExclude${i}`);
-                            assignmentScoreDivs = $(`.categoryAssignmentScore${i}`);
-                            modTabDivs = $(`.categoryModTab${i}`);
-                            resetRowDivs = $(`.categoryResetRow${i}`);
-                            trashRowDivs = $(`.categoryTrashRow${i}`);
-                            saveRowDivs = $(`.categorySaveRow${i}`);
-                            assignmentPercentDivs = $(`.categoryAssignmentPercent${i}`);
-                            assignmentOverallDivs = $(`.categoryAssignment${i}`);
-
-                            // Set up visuals
-                            resetCategoryDivs = $(`.resetCategory${i}`);
-                            trashCategoryDivs = $(`.trashCategory${i}`);
-                            saveCategoryDivs = $(`.saveCategory${i}`);
-                            $(`#table${i}`).hide();
-                            $(`.categoryModAllTab${i}`).css("visibility", "hidden").children("span").children("i").addClass("disabled");
-                            $(`.categoryTable${i}`).show();
                         } else {
                             // Data
                             assignmentData = parsedData[i].rawData;
-                            assignmentDates = parsedData[i].assignmentDates;
-                            assignmentNames = parsedData[i].assignmentNames;
-                            assignmentCategories = parsedData[i].assignmentCategories;
-                            assignmentScoresParsed = parsedData[i].assignmentScoresParsed;
-                            assignmentPercents = parsedData[i].assignmentPercents;
-                            assignmentExcludes = parsedData[i].assignmentExcludes;
-                            assignmentAdds = parsedData[i].assignmentAdds;
-                            assignmentPSAIDs = parsedData[i].assignmentPSAIDs;
+                            if (!justChangeColors) {
+                                assignmentDates = parsedData[i].assignmentDates;
+                                assignmentNames = parsedData[i].assignmentNames;
+                                assignmentCategories = parsedData[i].assignmentCategories;
+                                assignmentScoresParsed = parsedData[i].assignmentScoresParsed;
+                                assignmentPercents = parsedData[i].assignmentPercents;
+                                assignmentExcludes = parsedData[i].assignmentExcludes;
+                                assignmentAdds = parsedData[i].assignmentAdds;
+                                assignmentPSAIDs = parsedData[i].assignmentPSAIDs;
+                            }
 
                             rowDivs = $(`.classTableRow${i}`);
-                            row = `<tr class="classTableRow${i}">
+                            if (!justChangeColors) {
+                                row = `<tr class="classTableRow${i}">
                                        <td class="compact assignmentDate${i}"></td>
                                        <td>
                                            <div class="excludeToggle">
@@ -2736,41 +2836,44 @@
                                        </td>
                                    </tr>`;
 
-                            // Add missing rows
-                            for (let j = rowDivs.length; j < assignmentData.length; j++) {
-                                $(`#table${i}`).append(row);
+                                // Add missing rows
+                                for (let j = rowDivs.length; j < assignmentData.length; j++) {
+                                    $(`#table${i}`).append(row);
+                                }
+
+                                //Bind listeners
+                                adjust($($(`.assignmentScore${i}`)).find(".dynamic-input"), 0, remToPixels(2), remToPixels(4));
+
+
+                                // Remove extra rows
+                                for (let j = assignmentData.length; j < rowDivs.length; j++) {
+                                    $(`.classTableRow${i}:last-child`).remove();
+                                }
+
+                                rowDivs = $(`.classTableRow${i}`);
+
+                                // Div References
+                                assignmentDateDivs = $(`.assignmentDate${i}`);
+                                assignmentNameDivs = $(`.assignmentName${i}`);
+                                assignmentCategoryDivs = $(`.assignmentCategory${i}`);
+                                excludeDivs = $(`.exclude${i}`);
+                                assignmentScoreDivs = $(`.assignmentScore${i}`);
+                                modTabDivs = $(`.modTab${i}`);
+                                resetRowDivs = $(`.resetRow${i}`);
+                                trashRowDivs = $(`.trashRow${i}`);
+                                saveRowDivs = $(`.saveRow${i}`);
+                                assignmentPercentDivs = $(`.assignmentPercent${i}`);
+                                assignmentOverallDivs = $(`.assignment${i}`);
+
+                                // Set up visuals
+                                $(`.categoryTable${i}`).hide();
+                                $(`#modAllTab${i}`).css("visibility", "hidden").children("span").children("i").addClass("disabled");
+                                $(`#table${i}`).removeClass("unround-top-right").show();
                             }
-
-                            //Bind listeners
-                            adjust($($(`.assignmentScore${i}`)).find(".dynamic-input"), 0, remToPixels(2), remToPixels(4));
-
-
-                            // Remove extra rows
-                            for (let j = assignmentData.length; j < rowDivs.length; j++) {
-                                $(`.classTableRow${i}:last-child`).remove();
-                            }
-
-                            rowDivs = $(`.classTableRow${i}`);
-
-                            // Div References
-                            assignmentDateDivs = $(`.assignmentDate${i}`);
-                            assignmentNameDivs = $(`.assignmentName${i}`);
-                            assignmentCategoryDivs = $(`.assignmentCategory${i}`);
-                            excludeDivs = $(`.exclude${i}`);
-                            assignmentScoreDivs = $(`.assignmentScore${i}`);
-                            modTabDivs = $(`.modTab${i}`);
-                            resetRowDivs = $(`.resetRow${i}`);
-                            trashRowDivs = $(`.trashRow${i}`);
-                            saveRowDivs = $(`.saveRow${i}`);
-                            assignmentPercentDivs = $(`.assignmentPercent${i}`);
-                            assignmentOverallDivs = $(`.assignment${i}`);
-
-                            // Set up visuals
-                            $(`.categoryTable${i}`).hide();
-                            $(`#modAllTab${i}`).css("visibility", "hidden").children("span").children("i").addClass("disabled");
-                            $(`#table${i}`).removeClass("unround-top-right").show();
                         }
-                        $("#addedOption" + i + ", #modifiedOption" + i).hide();
+                        if (!justChangeColors) {
+                            $("#addedOption" + i + ", #modifiedOption" + i).hide();
+                        }
                         // Rows
                         for (let j = 0; j < assignmentData.length; j++) {
                             let assignmentIndex;
@@ -2781,139 +2884,136 @@
                             } else {
                                 assignmentIndex = assignmentData.length - 1 - j;
                             }
+                            if (!justChangeColors) {
+                                // Set up dates
+                                $(assignmentDateDivs[assignmentIndex]).text(assignmentDates[j]);
 
-                            // Set up dates
-                            $(assignmentDateDivs[assignmentIndex]).text(assignmentDates[j]);
+                                // Color names based on grade changes
+                                let textColor;
+                                // if (latestChange) {
+                                //     if (_data[i].class_name in latestChange.added && Object.values(latestChange.added[_data[i].class_name]).includes(assignmentPSAIDs[j])) {
+                                //         textColor = "green";
+                                //     }
+                                //     if (_data[i].class_name in latestChange.modified && latestChange.modified[_data[i].class_name].filter(m => m.psaid === assignmentPSAIDs[j]).length) {
+                                //         textColor = "deepskyblue";
+                                //     }
+                                // }
 
-                            // Color names based on grade changes
-                            let textColor;
-                            // if (latestChange) {
-                            //     if (_data[i].class_name in latestChange.added && Object.values(latestChange.added[_data[i].class_name]).includes(assignmentPSAIDs[j])) {
-                            //         textColor = "green";
-                            //     }
-                            //     if (_data[i].class_name in latestChange.modified && latestChange.modified[_data[i].class_name].filter(m => m.psaid === assignmentPSAIDs[j]).length) {
-                            //         textColor = "deepskyblue";
-                            //     }
-                            // }
-
-                            // Set up names
-                            $(assignmentNameDivs[assignmentIndex]).text(assignmentNames[j]);
-                            if (textColor) {
-                                $(assignmentNameDivs[assignmentIndex]).css("color", textColor).css("font-weight", "bold");
-                            } else {
-                                $(assignmentNameDivs[assignmentIndex]).css("color", "").css("font-weight", "");
-                            }
-
-                            // Set up categories
-                            let dropdown = $(assignmentCategoryDivs[assignmentIndex]).children("select");
-
-                            // Bind listeners only once
-                            if (!$(dropdown).find("option").length) {
-                                for (let k = 0; k < categories.length; k++) {
-                                    dropdown.append($("<option>").text(categories[k]));
+                                // Set up names
+                                $(assignmentNameDivs[assignmentIndex]).text(assignmentNames[j]);
+                                if (textColor) {
+                                    $(assignmentNameDivs[assignmentIndex]).css("color", textColor).css("font-weight", "bold");
+                                } else {
+                                    $(assignmentNameDivs[assignmentIndex]).css("color", "").css("font-weight", "");
                                 }
-                                dropdown.on("change", () => {
-                                    updateCategory(dropdown);
-                                    refreshWithoutReload(true, i);
-                                    dropdown.trigger("blur");
-                                });
-                            }
 
-                            // Select assignment category
-                            $(dropdown.find("option")[categories.indexOf(assignmentCategories[j])]).prop("selected", true);
-                            $(dropdown).attr("title", assignmentCategories[j]);
+                                // Set up categories
+                                let dropdown = $(assignmentCategoryDivs[assignmentIndex]).children("select");
 
-                            // Set up excludes
-                            if (assignmentExcludes[j]) {
-                                $(excludeDivs[assignmentIndex]).find("label").text("Unexclude").addClass("always-show");
-                            } else {
-                                $(excludeDivs[assignmentIndex]).find("label").text("Exclude").removeClass("always-show");
-                            }
-
-                            // Set up scores
-                            let scoreDiv = $(assignmentScoreDivs[assignmentIndex]);
-                            let score = assignmentScoresParsed[j];
-                            if (score.substring(score.length - 2, score.length) === "--") {
-                                score = score.substring(0, score.length - 2);
-                            }
-                            if (score.substring(0, 2) === "--") {
-                                score = score.substring(2);
-                            }
-                            if (score && score.indexOf("/") === -1) {
-                                score += "/0";
-                            }
-                            score = score.split("/");
-                            let inputs = scoreDiv.find(".dynamic-input");
-                            $(inputs[0]).val(score[0]).trigger("change");
-                            $(inputs[1]).val(score[1]).trigger("change");
-
-                            // Set up tooltab buttons
-                            let modTab = $(modTabDivs[assignmentIndex]);
-                            let resetButton = $(resetRowDivs[assignmentIndex]);
-                            let trashButton = $(trashRowDivs[assignmentIndex]);
-                            let saveButton = $(saveRowDivs[assignmentIndex]);
-                            modTab.css("visibility", "hidden");
-                            let realIndex = categorySort[i] ? categorySortedData[i].originalIndices[j] : j;
-
-                            // Set up trash button
-                            if (assignmentAdds[j]) {
-                                if (recentlyAddedAssignment && _.isEqual(_data[i].grades[realIndex], recentlyAddedAssignment)) {
-                                    recentlyAddedAssignment = undefined;
-                                    recentlyAddedAssignmentDiv = $(resetButton.parents("tr")[0]);
+                                // Bind listeners only once
+                                if (!$(dropdown).find("option").length) {
+                                    for (let k = 0; k < categories.length; k++) {
+                                        dropdown.append($("<option>").text(categories[k]));
+                                    }
+                                    dropdown.on("change", () => {
+                                        updateCategory(dropdown);
+                                        refreshWithoutReload(true, i);
+                                        dropdown.trigger("blur");
+                                    });
                                 }
-                                trashButton.removeClass("disabled");
-                                modTab.css("visibility", "visible");
-                                $(`#modAllTab${i}`).css("visibility", "visible");
-                                $(`#trashAll${i}`).removeClass("disabled");
-                                $($(`.categoryModAllTab${i}`)[categories.indexOf(assignmentCategories[j])]).css("visibility", "visible");
-                                $($(`.trashCategory${i}`)[categories.indexOf(assignmentCategories[j])]).removeClass("disabled");
-                                $(`#table${i}`).addClass("unround-top-right");
-                            } else {
-                                trashButton.addClass("disabled");
-                            }
 
-                            // Set up revert buttons
-                            if (!assignmentAdds[j] && _editedAssignments[_data[i].class_name][_data[i].grades[realIndex].psaid]) {
-                                resetButton.removeClass("disabled");
-                                modTab.css("visibility", "visible");
-                                $(`#modAllTab${i}`).css("visibility", "visible");
-                                $(`#resetAll${i}`).removeClass("disabled");
-                                $($(`.categoryModAllTab${i}`)[categories.indexOf(assignmentCategories[j])]).css("visibility", "visible");
-                                $($(`.resetCategory${i}`)[categories.indexOf(assignmentCategories[j])]).removeClass("disabled");
-                                $(`#table${i}`).addClass("unround-top-right");
-                            } else {
-                                resetButton.addClass("disabled");
-                            }
+                                // Select assignment category
+                                $(dropdown.find("option")[categories.indexOf(assignmentCategories[j])]).prop("selected", true);
+                                $(dropdown).attr("title", assignmentCategories[j]);
 
-                            // Set up save buttons
-                            if (assignmentAdds[j] && !_.isEqual(_addedAssignments[_data[i].class_name][aData[i][realIndex]], addedAssignments[_data[i].class_name][aData[i][realIndex]]) ||
-                                !_.isEqual(editedAssignments[_data[i].class_name][_data[i].grades[realIndex].psaid], _editedAssignments[_data[i].class_name][_data[i].grades[realIndex].psaid])) {
-                                saveButton.removeClass("disabled");
-                                modTab.css("visibility", "visible");
-                                $(`#modAllTab${i}`).css("visibility", "visible");
-                                $(`#saveAll${i}`).removeClass("disabled");
-                                $($(`.categoryModAllTab${i}`)[categories.indexOf(assignmentCategories[j])]).css("visibility", "visible");
-                                $($(`.saveCategory${i}`)[categories.indexOf(assignmentCategories[j])]).removeClass("disabled");
-                                $(`#table${i}`).addClass("unround-top-right");
-                            } else {
-                                saveButton.addClass("disabled");
-                            }
+                                // Set up excludes
+                                if (assignmentExcludes[j]) {
+                                    $(excludeDivs[assignmentIndex]).find("label").text("Unexclude").addClass("always-show");
+                                } else {
+                                    $(excludeDivs[assignmentIndex]).find("label").text("Exclude").removeClass("always-show");
+                                }
 
-                            // Set up percents
-                            let percent = assignmentPercents[j];
-                            let letterGrade = "";
-                            if (isNaN(parseFloat(percent))) {
-                                percent = "--";
-                            } else {
-                                letterGrade = " (" + getLetterGrade(percent) + ")";
-                                percent += "%";
-                            }
-                            $(assignmentPercentDivs[assignmentIndex]).html("<div style=\"display: flex; align-items: center; justify-content: center;\"><div>" + percent +
-                                "</div><div style=\"margin-left: 0.4rem\">" + letterGrade + "</div></div>");
+                                // Set up scores
+                                let scoreDiv = $(assignmentScoreDivs[assignmentIndex]);
+                                let score = assignmentScoresParsed[j];
+                                if (score.substring(score.length - 2, score.length) === "--") {
+                                    score = score.substring(0, score.length - 2);
+                                }
+                                if (score.substring(0, 2) === "--") {
+                                    score = score.substring(2);
+                                }
+                                if (score && score.indexOf("/") === -1) {
+                                    score += "/0";
+                                }
+                                score = score.split("/");
+                                let inputs = scoreDiv.find(".dynamic-input");
+                                $(inputs[0]).val(score[0]).trigger("change");
+                                $(inputs[1]).val(score[1]).trigger("change");
 
+                                // Set up tooltab buttons
+                                let modTab = $(modTabDivs[assignmentIndex]);
+                                let resetButton = $(resetRowDivs[assignmentIndex]);
+                                let trashButton = $(trashRowDivs[assignmentIndex]);
+                                let saveButton = $(saveRowDivs[assignmentIndex]);
+                                modTab.css("visibility", "hidden");
+                                let realIndex = categorySort[i] ? categorySortedData[i].originalIndices[j] : j;
+
+                                // Set up trash button
+                                if (assignmentAdds[j]) {
+                                    if (recentlyAddedAssignment && _.isEqual(_data[i].grades[realIndex], recentlyAddedAssignment)) {
+                                        recentlyAddedAssignment = undefined;
+                                        recentlyAddedAssignmentDiv = $(resetButton.parents("tr")[0]);
+                                    }
+                                    trashButton.removeClass("disabled");
+                                    modTab.css("visibility", "visible");
+                                    $(`#modAllTab${i}`).css("visibility", "visible");
+                                    $(`#trashAll${i}`).removeClass("disabled");
+                                    $($(`.categoryModAllTab${i}`)[categories.indexOf(assignmentCategories[j])]).css("visibility", "visible");
+                                    $($(`.trashCategory${i}`)[categories.indexOf(assignmentCategories[j])]).removeClass("disabled");
+                                    $(`#table${i}`).addClass("unround-top-right");
+                                } else {
+                                    trashButton.addClass("disabled");
+                                }
+
+                                // Set up revert buttons
+                                if (!assignmentAdds[j] && _editedAssignments[_data[i].class_name][_data[i].grades[realIndex].psaid]) {
+                                    resetButton.removeClass("disabled");
+                                    modTab.css("visibility", "visible");
+                                    $(`#modAllTab${i}`).css("visibility", "visible");
+                                    $(`#resetAll${i}`).removeClass("disabled");
+                                    $($(`.categoryModAllTab${i}`)[categories.indexOf(assignmentCategories[j])]).css("visibility", "visible");
+                                    $($(`.resetCategory${i}`)[categories.indexOf(assignmentCategories[j])]).removeClass("disabled");
+                                    $(`#table${i}`).addClass("unround-top-right");
+                                } else {
+                                    resetButton.addClass("disabled");
+                                }
+
+                                // Set up save buttons
+                                if (assignmentAdds[j] && !_.isEqual(_addedAssignments[_data[i].class_name][aData[i][realIndex]], addedAssignments[_data[i].class_name][aData[i][realIndex]]) || !_.isEqual(editedAssignments[_data[i].class_name][_data[i].grades[realIndex].psaid], _editedAssignments[_data[i].class_name][_data[i].grades[realIndex].psaid])) {
+                                    saveButton.removeClass("disabled");
+                                    modTab.css("visibility", "visible");
+                                    $(`#modAllTab${i}`).css("visibility", "visible");
+                                    $(`#saveAll${i}`).removeClass("disabled");
+                                    $($(`.categoryModAllTab${i}`)[categories.indexOf(assignmentCategories[j])]).css("visibility", "visible");
+                                    $($(`.saveCategory${i}`)[categories.indexOf(assignmentCategories[j])]).removeClass("disabled");
+                                    $(`#table${i}`).addClass("unround-top-right");
+                                } else {
+                                    saveButton.addClass("disabled");
+                                }
+
+                                // Set up percents
+                                let percent = assignmentPercents[j];
+                                let letterGrade = "";
+                                if (isNaN(parseFloat(percent))) {
+                                    percent = "--";
+                                } else {
+                                    letterGrade = " (" + getLetterGrade(percent) + ")";
+                                    percent += "%";
+                                }
+                                $(assignmentPercentDivs[assignmentIndex]).html("<div style=\"display: flex; align-items: center; justify-content: center;\"><div>" + percent + "</div><div style=\"margin-left: 0.4rem\">" + letterGrade + "</div></div>");
+                            }
                             // Set up coloring and gain/loss
-                            let display = +isNaN(Math.round(assignmentData[j] * 100) / 100) ? (Math.round(assignmentData[assignmentData.length - 1] * 100) / 100) :
-                                (Math.round(assignmentData[j] * 100) / 100);
+                            let display = +isNaN(Math.round(assignmentData[j] * 100) / 100) ? (Math.round(assignmentData[assignmentData.length - 1] * 100) / 100) : (Math.round(assignmentData[j] * 100) / 100);
                             let delta = Math.round((assignmentData[j] - (assignmentData[j - 1] || 100)) * 100) / 100;
                             if (categorySort[i] && assignmentCategories[j] !== assignmentCategories[j - 1]) {
                                 delta = assignmentData[j] - 100;
@@ -2934,18 +3034,19 @@
                                 bgColor = "";
                                 delta = "±0.000% <i class=\"fa fa-arrows-v\"></i>";
                             }
-                            display = "<div class=\"" + colorClass +
-                                "\" style=\"display: flex; justify-content: space-around; align-items: flex-end;\"><div style=\"display: flex; flex-flow: row; justify-content: center; align-items: center\"><div>" +
-                                display + "%" + "</div><div style=\"margin-left: 0.4rem\">(" + getLetterGrade(display) +
-                                ")</div></div><div class=\"delta\" style=\"font-family: 'Maison Mono',monospace\">" + delta + "</div></div>";
-                            $(assignmentOverallDivs[assignmentIndex]).html(display).css("font-weight", "bold");
+                            if (!justChangeColors) {
+                                display = "<div class=\"" + colorClass + "\" style=\"display: flex; justify-content: space-around; align-items: flex-end;\"><div style=\"display: flex; flex-flow: row; justify-content: center; align-items: center\"><div>" + display + "%" + "</div><div style=\"margin-left: 0.4rem\">(" + getLetterGrade(display) + ")</div></div><div class=\"delta\" style=\"font-family: 'Maison Mono',monospace\">" + delta + "</div></div>";
+                                $(assignmentOverallDivs[assignmentIndex]).html(display).css("font-weight", "bold");
+                            }
                             $(rowDivs[assignmentIndex]).css("background-color", bgColor);
 
                             // Set up exclusion
-                            if (assignmentExcludes[j]) {
-                                $(rowDivs[assignmentIndex]).addClass("excluded").find(".dynamic-input").addClass("excluded");
-                            } else {
-                                $(rowDivs[assignmentIndex]).removeClass("excluded").find(".dynamic-input").removeClass("excluded");
+                            if (!justChangeColors) {
+                                if (assignmentExcludes[j]) {
+                                    $(rowDivs[assignmentIndex]).addClass("excluded").find(".dynamic-input").addClass("excluded");
+                                } else {
+                                    $(rowDivs[assignmentIndex]).removeClass("excluded").find(".dynamic-input").removeClass("excluded");
+                                }
                             }
                         }
                     }
@@ -2978,15 +3079,11 @@
                         }
                         delta = (delta ? (" <div class=\"delta\" style=\"color: " + color + "\">" + delta + "</div>") : "");
                         if (overallGrade) {
-                            document.getElementById("overviewChart" + i).innerHTML =
-                                "<div class=\"overallGrade\">" + (Math.round(overallGrade * 100) / 100).toString() + "%" + "</div><div class=\"overallLetter\">" + overallLetter + "</div>" + delta;
-                            document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML =
-                                _data[i].class_name + `<br>` + (Math.round(overallGrade * 100) / 100).toString() + "%" + ` (` + overallLetter + `)<span class="popup"><i id="incorrectOverviewGrade` +
-                                i + `" class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-top">Does not match calculated grade</span></i></span>`;
+                            document.getElementById("overviewChart" + i).innerHTML = "<div class=\"overallGrade\">" + (Math.round(overallGrade * 100) / 100).toString() + "%" + "</div><div class=\"overallLetter\">" + overallLetter + "</div>" + delta;
+                            document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>` + (Math.round(overallGrade * 100) / 100).toString() + "%" + ` (` + overallLetter + `)<span class="popup"><i id="incorrectOverviewGrade` + i + `" class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-top">Does not match calculated grade</span></i></span>`;
                         } else {
                             document.getElementById("overviewChart" + i).innerHTML = "N/A";
-                            document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>N/A<span class="popup"><i id="incorrectOverviewGrade` + i +
-                                `" class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-top">Does not match calculated grade</span></i></span>`;
+                            document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>N/A<span class="popup"><i id="incorrectOverviewGrade` + i + `" class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-top">Does not match calculated grade</span></i></span>`;
                         }
                     }
                 }
@@ -3052,8 +3149,7 @@
                     if (classIndex === undefined || classIndex === i) {
                         let classData = _data[i];
                         let className = classData.class_name;
-                        let localMissingCategories = Object.keys(weights[className]["weights"]).filter(category => !weights[className]["weights"][category] &&
-                            weights[className]["weights"][category] !== 0);
+                        let localMissingCategories = Object.keys(weights[className]["weights"]).filter(category => !weights[className]["weights"][category] && weights[className]["weights"][category] !== 0);
                         delete unobtainedWeights[className];
                         if (localMissingCategories.length > 0 && weights[className]["hasWeights"] !== "false") {
                             unobtainedWeights[className] = localMissingCategories;
@@ -3167,15 +3263,13 @@
                                 }
                                 if (doesntHaveWeights) {
                                     if (categoryGrades[grade.category]) {
-                                        categoryGradeSteps.push((categoryGrades[grade.category].totalPossible !== 0 ?
-                                            Math.round(categoryGrades[grade.category].totalGotten / categoryGrades[grade.category].totalPossible * 100 * 100) / 100 : 100));
+                                        categoryGradeSteps.push((categoryGrades[grade.category].totalPossible !== 0 ? Math.round(categoryGrades[grade.category].totalGotten / categoryGrades[grade.category].totalPossible * 100 * 100) / 100 : 100));
                                     } else {
                                         categoryGradeSteps.push(100);
                                     }
                                 } else {
                                     if (totalPossiblesAndGottens[category]) {
-                                        categoryGradeSteps.push((totalPossiblesAndGottens[category].totalPossible !== 0 ?
-                                            Math.round(totalPossiblesAndGottens[category].totalGotten / totalPossiblesAndGottens[category].totalPossible * 100 * 100) / 100 : 100));
+                                        categoryGradeSteps.push((totalPossiblesAndGottens[category].totalPossible !== 0 ? Math.round(totalPossiblesAndGottens[category].totalGotten / totalPossiblesAndGottens[category].totalPossible * 100 * 100) / 100 : 100));
                                     } else {
                                         categoryGradeSteps.push(100);
                                     }
@@ -3187,12 +3281,9 @@
                         }
                         let assignmentNames = classData.filter(x => !x.exclude).map(x => x.assignment_name);
                         let assignmentDates = classData.filter(x => !x.exclude).map(x => x.date);
-                        let assignmentTimestamps = classData.filter(x => !x.exclude).map((x, i, arr) => new Date(Date.parse(x.date) +
-                            ((24 * 60 * 60 * 1000 / arr.filter(y => x.date === y.date).length + 1) * arr.filter((y, j) => j < i && x.date === y.date).length)));
-                        let assignmentPercents = classData.filter(x => !x.exclude).map(x => x.grade_percent ?? (x.points_gotten !== false && x.points_possible !== false) ?
-                            x.points_gotten / x.points_possible * 100 : null);
-                        let assignmentScoresParsed = classData.filter(x => !x.exclude).map(x => (x.points_gotten === false ? "--" : x.points_gotten) + "/" +
-                            (x.points_possible === false ? "--" : x.points_possible));
+                        let assignmentTimestamps = classData.filter(x => !x.exclude).map((x, i, arr) => new Date(Date.parse(x.date) + ((24 * 60 * 60 * 1000 / arr.filter(y => x.date === y.date).length + 1) * arr.filter((y, j) => j < i && x.date === y.date).length)));
+                        let assignmentPercents = classData.filter(x => !x.exclude).map(x => x.grade_percent ?? (x.points_gotten !== false && x.points_possible !== false) ? x.points_gotten / x.points_possible * 100 : null);
+                        let assignmentScoresParsed = classData.filter(x => !x.exclude).map(x => (x.points_gotten === false ? "--" : x.points_gotten) + "/" + (x.points_possible === false ? "--" : x.points_possible));
                         let assignmentCategories = classData.filter(x => !x.exclude).map(x => x.category);
                         let mixedData = overallGradeSteps.filter(x => x).map((grade, i) => {
                             return {x: assignmentTimestamps[i], y: grade};
@@ -3228,8 +3319,7 @@
                         };
 
                         // This took forever...I am so proud of it - Joel 06/03/20 10:25PM
-                        let sortHelper = Array.apply(null, Array(assignmentCategories.length)).map((x, index) => index).sort((a, b) => categories.indexOf(assignmentCategories[a]) -
-                            categories.indexOf(assignmentCategories[b]));
+                        let sortHelper = Array.apply(null, Array(assignmentCategories.length)).map((x, index) => index).sort((a, b) => categories.indexOf(assignmentCategories[a]) - categories.indexOf(assignmentCategories[b]));
                         categorySortedData[i] = {
                             assignmentNames: assignmentNames.map((x, index, arr) => arr[sortHelper[index]]),
                             assignmentDates: assignmentDates.map((x, index, arr) => arr[sortHelper[index]]),
@@ -3308,32 +3398,32 @@
                     if (!correctCalc(i)) {
                         if (endDate === 0) {
                             _mixedData.push({
-                                x: new Date(Date.now() - 24 * 60 * 60 * 1000),
-                                y: _data[i].overall_percent
-                            });
+                                                x: new Date(Date.now() - 24 * 60 * 60 * 1000),
+                                                y: _data[i].overall_percent
+                                            });
                             _mixedData.push({x: new Date(Date.now()), y: _data[i].overall_percent});
                         } else {
                             _mixedData.push({x: new Date(endDate + 24 * 60 * 60 * 1000), y: _data[i].overall_percent});
                         }
                     }
                     dataset.push({
-                        label: _data[i].class_name,
-                        backgroundColor: "transparent",
-                        pointBackgroundColor: _colors[i],
-                        pointBorderColor: "transparent",
-                        borderColor: (correctCalc(i) ? _colors[i] : "darkgray"),
-                        data: _mixedData,
-                        cubicInterpolationMode: "monotone",
-                        borderDash: (correctCalc(i) ? [0, 0] : [3, 3]),
-                        spanGaps: false,
-                        pointRadius: 3,
-                        borderWidth: (correctCalc(i) ? 3 : 1),
-                        pointHoverRadius: 7,
-                        pointHoverBackgroundColor: _colors[i],
-                        pointHoverBorderColor: _colors[i],
-                        pointHoverBorderWidth: 2,
-                        yAxisID: "yAxis"
-                    });
+                                     label: _data[i].class_name,
+                                     backgroundColor: "transparent",
+                                     pointBackgroundColor: _colors[i],
+                                     pointBorderColor: "transparent",
+                                     borderColor: (correctCalc(i) ? _colors[i] : "darkgray"),
+                                     data: _mixedData,
+                                     cubicInterpolationMode: "monotone",
+                                     borderDash: (correctCalc(i) ? [0, 0] : [3, 3]),
+                                     spanGaps: false,
+                                     pointRadius: 3,
+                                     borderWidth: (correctCalc(i) ? 3 : 1),
+                                     pointHoverRadius: 7,
+                                     pointHoverBackgroundColor: _colors[i],
+                                     pointHoverBorderColor: _colors[i],
+                                     pointHoverBorderWidth: 2,
+                                     yAxisID: "yAxis"
+                                 });
                 }
                 let possibles;
                 let possibleLabels;
@@ -3348,23 +3438,23 @@
                             mixedData.push({x: new Date(j), y: possibles[i]});
                         }
                         dataset.push({
-                            label: "undefined",
-                            backgroundColor: "transparent",
-                            pointBackgroundColor: "transparent",
-                            pointBorderColor: "transparent",
-                            borderColor: darkMode ? "white" : "black",
-                            data: mixedData,
-                            cubicInterpolationMode: "monotone",
-                            spanGaps: false,
-                            borderDash: [10, 10],
-                            pointRadius: 0,
-                            borderWidth: 1,
-                            pointHoverRadius: 0,
-                            pointHoverBackgroundColor: "transparent",
-                            pointHoverBorderColor: darkMode ? "white" : "black",
-                            pointHoverBorderWidth: 0,
-                            yAxisID: "yAxis"
-                        });
+                                         label: "undefined",
+                                         backgroundColor: "transparent",
+                                         pointBackgroundColor: "transparent",
+                                         pointBorderColor: "transparent",
+                                         borderColor: darkMode ? "white" : "black",
+                                         data: mixedData,
+                                         cubicInterpolationMode: "monotone",
+                                         spanGaps: false,
+                                         borderDash: [10, 10],
+                                         pointRadius: 0,
+                                         borderWidth: 1,
+                                         pointHoverRadius: 0,
+                                         pointHoverBackgroundColor: "transparent",
+                                         pointHoverBorderColor: darkMode ? "white" : "black",
+                                         pointHoverBorderWidth: 0,
+                                         yAxisID: "yAxis"
+                                     });
                     }
                 }
                 charts[0] = new Chart(ctx, {
@@ -3456,13 +3546,11 @@
                                                 return "Unknown Date " + _data[tooltipItems[0].datasetIndex].overall_percent + "% (" + _data[tooltipItems[0].datasetIndex].overall_letter + ")";
                                             }
                                             if (tooltipItems[0].index >= chartData[tooltipItems[0].datasetIndex].mixedData.length) {
-                                                return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + _data[tooltipItems[0].datasetIndex].overall_percent + "% (" +
-                                                    _data[tooltipItems[0].datasetIndex].overall_letter + ")";
+                                                return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + _data[tooltipItems[0].datasetIndex].overall_percent + "% (" + _data[tooltipItems[0].datasetIndex].overall_letter + ")";
                                             }
                                             return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " N/A [Unverified weights]";
                                         }
-                                        return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + tooltipItems[0].formattedValue + "% (" +
-                                            getLetterGrade(tooltipItems[0].formattedValue) + ")";
+                                        return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + tooltipItems[0].formattedValue + "% (" + getLetterGrade(tooltipItems[0].formattedValue) + ")";
                                     }, label: function (tooltipItem) {
                                         if (tooltipItem.datasetIndex >= chartData.length) {
                                             return;
@@ -3477,15 +3565,7 @@
                                             }
                                             return delta + "% (To Match PowerSchool)";
                                         }
-                                        return ["[" + chartData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.dataIndex] + "] " +
-                                        chartData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.dataIndex] +
-                                        ((chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.dataIndex] !== false &&
-                                            chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, 2) !== "--") ?
-                                            (" - " + chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.dataIndex] + "% ") : (" ")) +
-                                        ((chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].substring(chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].length -
-                                            2)) !== "/0" ? ("(" + chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex] + ")") : ("(" +
-                                            chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].length -
-                                                2) + ")"))];
+                                        return ["[" + chartData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.dataIndex] + "] " + chartData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.dataIndex] + ((chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.dataIndex] !== false && chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, 2) !== "--") ? (" - " + chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.dataIndex] + "% ") : (" ")) + ((chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].substring(chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].length - 2)) !== "/0" ? ("(" + chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex] + ")") : ("(" + chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].length - 2) + ")"))];
                                     }
                                 }
                             }, zoom: {
@@ -3512,17 +3592,15 @@
             }
 
             Chart.register({
-                id: "hideLoading", afterRender: chartInstance => {
+                               id: "hideLoading", afterRender: chartInstance => {
                     $(`#chart-container${chartInstance.ctx.canvas.id.substring(5)} .chart-placeholder`).remove();
                 }
-            });
+                           });
 
             function renderChart(id) {
                 $("#chart" + id).remove();
                 // if (chartData[id].mixedData.length) {
-                $("#chart-container" + id).html("<button id=\"reset-zoom" + id +
-                    "\" style=\"position: absolute; top: 0; right: 0; height: fit-content; display:none\" class=\"btn btn-sm\" onclick=\"resetZoom(" + id +
-                    "); $(this).hide()\">Reset</button><div class=\"chart-placeholder fa fa-spin fa-spinner\"></div><canvas id=\"chart" + id + "\"></canvas>");
+                $("#chart-container" + id).html("<button id=\"reset-zoom" + id + "\" style=\"position: absolute; top: 0; right: 0; height: fit-content; display:none\" class=\"btn btn-sm\" onclick=\"resetZoom(" + id + "); $(this).hide()\">Reset</button><div class=\"chart-placeholder fa fa-spin fa-spinner\"></div><canvas id=\"chart" + id + "\"></canvas>");
                 let ctx = document.getElementById("chart" + id);
                 let _colors = colors;
                 let startDate = chartData[id].mixedData.reduce((a, b) => Math.min(a, Date.parse(b.x)), Infinity);
@@ -3539,23 +3617,23 @@
                     }
                 }
                 dataset.push({
-                    backgroundColor: "transparent",
-                    pointBackgroundColor: _colors[id],
-                    pointBorderColor: _colors[id],
-                    borderColor: (correctCalc(id) ? _colors[id] : "darkgray"),
-                    fill: "start",
-                    data: _mixedData,
-                    cubicInterpolationMode: "monotone",
-                    borderDash: (correctCalc(id) ? [0, 0] : [3, 3]),
-                    spanGaps: false,
-                    pointRadius: 3,
-                    borderWidth: (correctCalc(id) ? 3 : 1),
-                    pointHoverRadius: 7,
-                    pointHoverBackgroundColor: _colors[id],
-                    pointHoverBorderColor: _colors[id],
-                    pointHoverBorderWidth: 2,
-                    yAxisID: "yAxis"
-                });
+                                 backgroundColor: "transparent",
+                                 pointBackgroundColor: _colors[id],
+                                 pointBorderColor: _colors[id],
+                                 borderColor: (correctCalc(id) ? _colors[id] : "darkgray"),
+                                 fill: "start",
+                                 data: _mixedData,
+                                 cubicInterpolationMode: "monotone",
+                                 borderDash: (correctCalc(id) ? [0, 0] : [3, 3]),
+                                 spanGaps: false,
+                                 pointRadius: 3,
+                                 borderWidth: (correctCalc(id) ? 3 : 1),
+                                 pointHoverRadius: 7,
+                                 pointHoverBackgroundColor: _colors[id],
+                                 pointHoverBorderColor: _colors[id],
+                                 pointHoverBorderWidth: 2,
+                                 yAxisID: "yAxis"
+                             });
                 let possibles;
                 let possibleLabels;
                 if (startDate < endDate) {
@@ -3569,23 +3647,23 @@
                             mixedData.push({x: new Date(j), y: possibles[i]});
                         }
                         dataset.push({
-                            label: "undefined",
-                            backgroundColor: "transparent",
-                            pointBackgroundColor: "transparent",
-                            pointBorderColor: "transparent",
-                            borderColor: darkMode ? "white" : "black",
-                            data: mixedData,
-                            cubicInterpolationMode: "monotone",
-                            spanGaps: false,
-                            borderDash: [10, 10],
-                            pointRadius: 0,
-                            borderWidth: 1,
-                            pointHoverRadius: 0,
-                            pointHoverBackgroundColor: "transparent",
-                            pointHoverBorderColor: darkMode ? "white" : "black",
-                            pointHoverBorderWidth: 0,
-                            yAxisID: "yAxis"
-                        });
+                                         label: "undefined",
+                                         backgroundColor: "transparent",
+                                         pointBackgroundColor: "transparent",
+                                         pointBorderColor: "transparent",
+                                         borderColor: darkMode ? "white" : "black",
+                                         data: mixedData,
+                                         cubicInterpolationMode: "monotone",
+                                         spanGaps: false,
+                                         borderDash: [10, 10],
+                                         pointRadius: 0,
+                                         borderWidth: 1,
+                                         pointHoverRadius: 0,
+                                         pointHoverBackgroundColor: "transparent",
+                                         pointHoverBorderColor: darkMode ? "white" : "black",
+                                         pointHoverBorderWidth: 0,
+                                         yAxisID: "yAxis"
+                                     });
                     }
                 }
                 charts[id + 1] = new Chart(ctx, {
@@ -3629,13 +3707,11 @@
                                                 return "Unknown Date " + _data[id].overall_percent + "% (" + _data[id].overall_letter + ")";
                                             }
                                             if (tooltipItems[0].index >= chartData[id].mixedData.length) {
-                                                return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + _data[id].overall_percent + "% (" + _data[id].overall_letter +
-                                                    ")";
+                                                return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + _data[id].overall_percent + "% (" + _data[id].overall_letter + ")";
                                             }
                                             return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " N/A [Unverified weights]";
                                         }
-                                        return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + tooltipItems[0].formattedValue + "% (" +
-                                            getLetterGrade(tooltipItems[0].formattedValue) + ")";
+                                        return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + tooltipItems[0].formattedValue + "% (" + getLetterGrade(tooltipItems[0].formattedValue) + ")";
                                     }, label: function (tooltipItem) {
                                         if (tooltipItem.datasetIndex >= 1) {
                                             return;
@@ -3650,13 +3726,7 @@
                                             }
                                             return delta + "% (To Match PowerSchool)";
                                         }
-                                        return ["[" + chartData[id].assignmentCategories[tooltipItem.dataIndex] + "] " + chartData[id].assignmentNames[tooltipItem.dataIndex] +
-                                        ((chartData[id].assignmentPercents[tooltipItem.dataIndex] !== false && chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, 2) !== "--") ?
-                                            (" - " + chartData[id].assignmentPercents[tooltipItem.dataIndex] + "% ") : (" ")) +
-                                        ((chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].length - 2)) !== "/0" ?
-                                            ("(" + chartData[id].assignmentScoresParsed[tooltipItem.dataIndex] + ")") :
-                                            ("(" + chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].length - 2) +
-                                                ")"))];
+                                        return ["[" + chartData[id].assignmentCategories[tooltipItem.dataIndex] + "] " + chartData[id].assignmentNames[tooltipItem.dataIndex] + ((chartData[id].assignmentPercents[tooltipItem.dataIndex] !== false && chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, 2) !== "--") ? (" - " + chartData[id].assignmentPercents[tooltipItem.dataIndex] + "% ") : (" ")) + ((chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].length - 2)) !== "/0" ? ("(" + chartData[id].assignmentScoresParsed[tooltipItem.dataIndex] + ")") : ("(" + chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].length - 2) + ")"))];
                                     }
                                 }
                             }, zoom: {
@@ -3919,8 +3989,8 @@
                             };
 
                             $.ajax({
-                                type: "POST", url: "/updateWeights", data: formData
-                            }).done((response) => {
+                                       type: "POST", url: "/updateWeights", data: formData
+                                   }).done((response) => {
                                 if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                                     $(".session-timeout").show();
                                     $("body").find("*").not(".session-timeout").remove();

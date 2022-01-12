@@ -146,191 +146,182 @@
                     <% } %>
                     <div class="card-footer">
                         <h5>Theme</h5>
-                        <form id="chooseTheme" class="form-signin" action="/updateAppearance" method="post">
-                            <div id="theme">
-                                <div id="themeMessage"
-                                     class="alert alert-success alert-dismissible font-weight-bold"
-                                     style="display:none">
-                                    <div style="display:none" class="sk-chase-mini">
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                    </div>
-                                    <div class="messageTxt"></div>
-                                    <a class="close" onclick="closeMessage('themeMessage')" aria-label="close">X</a>
+                        <div id="theme">
+                            <div id="themeMessage"
+                                 class="alert alert-success alert-dismissible font-weight-bold"
+                                 style="display:none">
+                                <div style="display:none" class="sk-chase-mini">
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
                                 </div>
-                                <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
-                                                                       value="light"
-                                                                       name="theme"
-                                                                       onclick="$('#sun-limits-container, #auto-limits-container').hide();
-                                                                               ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
-                                                                               $($(this)[0].form).trigger('submit');"
-                                    <% if (JSON.parse(appearance).theme === "light") { %> checked
-                                            <% } %>
-                                    > Always Light
-                                </label>
-                                <br>
-                                <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
-                                                                       value="dark"
-                                                                       name="theme"
-                                                                       onclick="$('#sun-limits-container, #auto-limits-container').hide();
-                                                                               ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
-                                                                               $($(this)[0].form).trigger('submit');"
-                                    <% if (JSON.parse(appearance).theme === "dark") { %> checked
-                                            <% } %>
-                                    > Always Dark</label>
-                                <br>
-                                <label class="disable-when-system-theme-not-supported"
-                                       style="cursor: pointer; align-items: center"><input
-                                            style="cursor: inherit" type="radio"
-                                            value="system"
-                                            name="theme"
-                                            onclick="$('#sun-limits-container, #auto-limits-container').hide();
-                                                                               ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
-                                                                               $($(this)[0].form).trigger('submit');"
-                                    <% if (JSON.parse(appearance).theme === "system") { %> checked
-                                            <% } %>
-                                    > Match System
-                                    <span id="prefers-color-scheme"
-                                          style="margin-left: 0.5rem; opacity: 0.5; font-size: 0.6rem;"></span>
-                                    <span style="margin-left: 0.5rem;"
-                                          class="popup show-when-system-theme-not-supported"><i
-                                                class="fa fa-exclamation-circle"><span
-                                                    class="popup-right always-show"
-                                                    style="width: 10rem;">Your
-                                                browser does not support this option.</span></i></span>
-                                </label>
-                                <br>
-                                <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
-                                                                       value="sun"
-                                                                       name="theme"
-                                                                       onclick="$('#auto-limits-container').hide();
-                                                                       $('#sun-limits-container').show();
-                                                                       ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
-                                                                               $($(this)[0].form).trigger('submit');"
-                                    <% if (JSON.parse(appearance).theme === "sun") { %> checked
-                                            <% } %>
-                                    > Dark from Sunset to Sunrise</label>
-                                <div id="sun-limits-container"
-                                     style="<% if (JSON.parse(appearance).theme !== "sun") { %>display: none;<% } %>font-size: 0.9rem; margin-bottom: 0; width: fit-content; width: -moz-fit-content">
-                                    <label class="form-group" id="sunLimits"
-                                           style="display: flex; white-space: nowrap; margin-bottom: 0">
-                                        <label style="vertical-align: center; width: 8rem">
-                                            Dark theme from
-                                        </label>
-                                        <input id="sunModeStart"
-                                               style="padding: 0 0.75rem 0 0.75rem"
-                                               type="time"
-                                               class="text-center form-control"
-                                               value="<%= ("0" + sunset.getHours()).slice(-2) + ":" + ("0" + sunset.getMinutes()).slice(-2) %>"
-                                               disabled>
-                                        <label style="margin-left: 0.25rem">
-                                            to
-                                        </label>
-                                        <input id="sunModeFinish"
-                                               style="padding: 0 0.75rem 0 0.75rem"
-                                               type="time"
-                                               class="text-center form-control"
-                                               value="<%= ("0" + sunrise.getHours()).slice(-2) + ":" + ("0" + sunrise.getMinutes()).slice(-2) %>"
-                                               disabled>
-                                    </label>
-                                </div>
-                                <br>
-                                <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
-                                                                       value="auto"
-                                                                       name="theme"
-                                                                       onclick="$('#auto-limits-container').show().css('display','flex');
-                                                                                $('#sun-limits-container').hide();
-                                                                               ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
-                                                                               $($(this)[0].form).trigger('submit');"
-                                    <% if (JSON.parse(appearance).theme === "auto") { %> checked
-                                            <% } %>
-                                    > Dark on Custom Schedule</label>
-                                <div id="auto-limits-container"
-                                     style="<% if (JSON.parse(appearance).theme !== "auto") { %>display: none;<% } else { %>display: flex;<% } %>font-size: 0.9rem; margin-bottom: 0; align-items: stretch">
-                                    <label class="form-group" id="autoLimits"
-                                           style="display: flex; white-space: nowrap;">
-                                        <label style="vertical-align: center; width: 8rem">
-                                            Dark theme from
-                                        </label>
-                                        <% let _startDate = new Date(JSON.parse(appearance).darkModeStart);
-                                        let _endDate = new Date(JSON.parse(appearance).darkModeFinish); %>
-                                        <input id="darkModeStart"
-                                               style="padding: 0 0.75rem 0 0.75rem"
-                                               type="time"
-                                               class="text-center form-control dont-clear" name="darkModeStart"
-                                               onchange="ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
-                                                                               $($(this)[0].form).trigger('submit');"
-                                               value="<%= ("0" + _startDate.getHours()).slice(-2) + ":" + ("0" + _startDate.getMinutes()).slice(-2) %>"
-                                        >
-                                        <label style="margin-left: 0.25rem">
-                                            to
-                                        </label>
-                                        <input id="darkModeFinish"
-                                               style="padding: 0 0.75rem 0 0.75rem;"
-                                               type="time"
-                                               class="text-center form-control dont-clear" name="darkModeFinish"
-                                               onchange="ajaxPostForm('#chooseTheme',[],'#themeMessage',true);
-                                                                               $($(this)[0].form).trigger('submit');"
-                                               value="<%= ("0" + _endDate.getHours()).slice(-2) + ":" + ("0" + _endDate.getMinutes()).slice(-2) %>"
-                                        >
-                                    </label>
-                                </div>
+                                <div class="messageTxt"></div>
+                                <a class="close" onclick="closeMessage('themeMessage')" aria-label="close">X</a>
                             </div>
-                            <hr>
-                            <label class="slider-container disable-in-firefox">
-                                <label class="switch">
-                                    <input
-                                            id="blurEffectsToggle"
-                                            style="margin: 0; display: flex"
-                                            type="checkbox"
-                                            name="blurEffects"
-                                    <% if (JSON.parse(appearance).blurEffects) { %>
-                                            checked="checked"
-                                            <% } %>
-                                            onchange="ajaxPostForm('#chooseTheme',[],'#themeMessage',true); $($(this)[0].form).trigger('submit');"
-                                    >
-                                    <span class="slider"></span>
-                                </label>
-                                <label for="blurEffectsToggle">
-                                    <span>Enable Blur and Transparency Effects</span> <span class="popup"><i
-                                                class="fa fa-question-circle"><span
-                                                    class="popup-right-bottom">When enabled, adds blur and
-                                                transparency effects across the site.
-                                            </span></i></span> <span class="popup hide-in-firefox"><i
-                                                class="fa fa-exclamation-triangle">
-                                            <span class="popup-right-bottom">WARNING: Causes lag on slower
-                                                devices</span></i></span>
-                                </label>
-                                <span style="margin-left: 0.5rem;" class="popup show-in-firefox"><i
+                            <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
+                                                                   value="light"
+                                                                   name="theme"
+                                                                   onchange="$('#sun-limits-container, #auto-limits-container').hide();
+                                                                               changeSetting('theme', {theme: 'light'})"
+                                <% if (JSON.parse(appearance).theme === "light") { %> checked
+                                        <% } %>
+                                > Always Light
+                            </label>
+                            <br>
+                            <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
+                                                                   value="dark"
+                                                                   name="theme"
+                                                                   onchange="$('#sun-limits-container, #auto-limits-container').hide();
+                                                                               changeSetting('theme', {theme: 'dark'})"
+                                <% if (JSON.parse(appearance).theme === "dark") { %> checked
+                                        <% } %>
+                                > Always Dark</label>
+                            <br>
+                            <label class="disable-when-system-theme-not-supported"
+                                   style="cursor: pointer; align-items: center"><input
+                                        style="cursor: inherit" type="radio"
+                                        value="system"
+                                        name="theme"
+                                        onclick="$('#sun-limits-container, #auto-limits-container').hide();
+                                                                               changeSetting('theme', {theme: 'system'})"
+                                <% if (JSON.parse(appearance).theme === "system") { %> checked
+                                        <% } %>
+                                > Match System
+                                <span id="prefers-color-scheme"
+                                      style="margin-left: 0.5rem; opacity: 0.5; font-size: 0.6rem;"></span>
+                                <span style="margin-left: 0.5rem;"
+                                      class="popup show-when-system-theme-not-supported"><i
                                             class="fa fa-exclamation-circle"><span
                                                 class="popup-right always-show"
                                                 style="width: 10rem;">Your
-                                            browser does not support these effects.</span></i></span>
+                                            browser does not support this option.</span></i></span>
                             </label>
-                            <label class="slider-container">
-                                <label class="switch">
-                                    <input id="seasonalEffectsToggle" type="checkbox"
-                                           name="enableSeasonalEffects"
-                                    <% if (JSON.parse(appearance).seasonalEffects) { %>
-                                           checked
-                                            <% } %>
-                                           onchange="ajaxPostForm('#chooseTheme',[],'#themeMessage',true); $($(this)[0].form).trigger('submit');"
+                            <br>
+                            <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
+                                                                   value="sun"
+                                                                   name="theme"
+                                                                   onchange="$('#auto-limits-container').hide();
+                                                                       $('#sun-limits-container').show();
+                                                                       changeSetting('theme', {theme: 'sun'})"
+                                <% if (JSON.parse(appearance).theme === "sun") { %> checked
+                                        <% } %>
+                                > Dark from Sunset to Sunrise</label>
+                            <div id="sun-limits-container"
+                                 style="<% if (JSON.parse(appearance).theme !== "sun") { %>display: none;<% } %>font-size: 0.9rem; margin-bottom: 0; width: fit-content; width: -moz-fit-content">
+                                <label class="form-group" id="sunLimits"
+                                       style="display: flex; white-space: nowrap; margin-bottom: 0">
+                                    <label style="vertical-align: center; width: 8rem">
+                                        Dark theme from
+                                    </label>
+                                    <input id="sunModeStart"
+                                           style="padding: 0 0.75rem 0 0.75rem"
+                                           type="time"
+                                           class="text-center form-control"
+                                           value="<%= ("0" + sunset.getHours()).slice(-2) + ":" + ("0" + sunset.getMinutes()).slice(-2) %>"
+                                           disabled>
+                                    <label style="margin-left: 0.25rem">
+                                        to
+                                    </label>
+                                    <input id="sunModeFinish"
+                                           style="padding: 0 0.75rem 0 0.75rem"
+                                           type="time"
+                                           class="text-center form-control"
+                                           value="<%= ("0" + sunrise.getHours()).slice(-2) + ":" + ("0" + sunrise.getMinutes()).slice(-2) %>"
+                                           disabled>
+                                </label>
+                            </div>
+                            <br>
+                            <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
+                                                                   value="auto"
+                                                                   name="theme"
+                                                                   onchange="$('#auto-limits-container').show().css('display','flex');
+                                                                                $('#sun-limits-container').hide();
+                                                                       changeSetting('theme', {theme: 'auto', darkModeStart: darkModeStart, darkModeFinish: darkModeFinish})"
+                                <% if (JSON.parse(appearance).theme === "auto") { %> checked
+                                        <% } %>
+                                > Dark on Custom Schedule</label>
+                            <div id="auto-limits-container"
+                                 style="<% if (JSON.parse(appearance).theme !== "auto") { %>display: none;<% } else { %>display: flex;<% } %>font-size: 0.9rem; margin-bottom: 0; align-items: stretch">
+                                <label class="form-group" id="autoLimits"
+                                       style="display: flex; white-space: nowrap;">
+                                    <label style="vertical-align: center; width: 8rem">
+                                        Dark theme from
+                                    </label>
+                                    <% let _startDate = new Date(JSON.parse(appearance).darkModeStart);
+                                    let _endDate = new Date(JSON.parse(appearance).darkModeFinish); %>
+                                    <input id="darkModeStart"
+                                           style="padding: 0 0.75rem 0 0.75rem"
+                                           type="time"
+                                           class="text-center form-control dont-clear" name="darkModeStart"
+                                           onchange="darkModeStart = new Date('0/' + $(this).val()).getTime(); changeSetting('theme', {theme: 'auto', darkModeStart: darkModeStart, darkModeFinish: darkModeFinish})"
+                                           value="<%= ("0" + _startDate.getHours()).slice(-2) + ":" + ("0" + _startDate.getMinutes()).slice(-2) %>"
                                     >
-                                    <span class="slider"></span>
+                                    <label style="margin-left: 0.25rem">
+                                        to
+                                    </label>
+                                    <input id="darkModeFinish"
+                                           style="padding: 0 0.75rem 0 0.75rem;"
+                                           type="time"
+                                           class="text-center form-control dont-clear" name="darkModeFinish"
+                                           onchange="darkModeFinish = new Date('0/' + $(this).val()).getTime(); changeSetting('theme', {theme: 'auto', darkModeStart: darkModeStart, darkModeFinish: darkModeFinish})"
+                                           value="<%= ("0" + _endDate.getHours()).slice(-2) + ":" + ("0" + _endDate.getMinutes()).slice(-2) %>"
+                                    >
                                 </label>
-                                <label for="seasonalEffectsToggle">
-                                    <span>Enable Seasonal Effects</span> <span class="popup"><i
-                                                class="fa fa-question-circle"><span
-                                                    class="popup-right-bottom">When enabled, adds seasonal effects
-                                                across the site.
-                                            </span></i></span>
-                                </label>
+                            </div>
+                        </div>
+                        <hr>
+                        <label class="slider-container disable-in-firefox">
+                            <label class="switch">
+                                <input
+                                        id="blurEffectsToggle"
+                                        style="margin: 0; display: flex"
+                                        type="checkbox"
+                                        name="blurEffects"
+                                <% if (JSON.parse(appearance).blurEffects) { %>
+                                        checked="checked"
+                                        <% } %>
+                                        onchange="changeSetting('theme', {theme: appearance.theme, blurEffects: !appearance.blurEffects})"
+                                >
+                                <span class="slider"></span>
                             </label>
-                        </form>
+                            <label for="blurEffectsToggle">
+                                <span>Enable Blur and Transparency Effects</span> <span class="popup"><i
+                                            class="fa fa-question-circle"><span
+                                                class="popup-right-bottom">When enabled, adds blur and
+                                            transparency effects across the site.
+                                        </span></i></span> <span class="popup hide-in-firefox"><i
+                                            class="fa fa-exclamation-triangle">
+                                        <span class="popup-right-bottom">WARNING: Causes lag on slower
+                                            devices</span></i></span>
+                            </label>
+                            <span style="margin-left: 0.5rem;" class="popup show-in-firefox"><i
+                                        class="fa fa-exclamation-circle"><span
+                                            class="popup-right always-show"
+                                            style="width: 10rem;">Your
+                                        browser does not support these effects.</span></i></span>
+                        </label>
+                        <label class="slider-container">
+                            <label class="switch">
+                                <input id="seasonalEffectsToggle" type="checkbox"
+                                       name="enableSeasonalEffects"
+                                <% if (JSON.parse(appearance).seasonalEffects) { %>
+                                       checked
+                                        <% } %>
+                                       onchange="changeSetting('theme', {theme: appearance.theme, seasonalEffects: !appearance.seasonalEffects})"
+                                >
+                                <span class="slider"></span>
+                            </label>
+                            <label for="seasonalEffectsToggle">
+                                <span>Enable Seasonal Effects</span> <span class="popup"><i
+                                            class="fa fa-question-circle"><span
+                                                class="popup-right-bottom">When enabled, adds seasonal effects
+                                            across the site.
+                                        </span></i></span>
+                            </label>
+                        </label>
                     </div>
                     <div class="card-footer">
                         <h5>Display
@@ -400,7 +391,7 @@
                                 <% if (JSON.parse(appearance).animateWhenUnfocused) { %>
                                        checked="checked"
                                         <% } %>
-                                       onchange="changeSetting('animateWhenUnfocused', !appearance.animateWhenUnfocused, [], '')"
+                                       onchange="changeSetting('animateWhenUnfocused', !appearance.animateWhenUnfocused)"
                                 >
                                 <span class="slider"></span>
                             </label>
@@ -422,7 +413,7 @@
                                 <% if (JSON.parse(appearance).showFps) { %>
                                        checked="checked"
                                         <% } %>
-                                       onchange="changeSetting('showFps', !appearance.showFps, [], '')"
+                                       onchange="changeSetting('showFps', !appearance.showFps)"
                                 >
                                 <span class="slider"></span>
                             </label>
@@ -672,7 +663,7 @@
                                 <% if (enableLogging) { %>
                                         checked
                                         <% } %>
-                                        onchange="changeSetting('enableLogging', !enableLogging, [],'');"
+                                        onchange="changeSetting('enableLogging', !enableLogging);"
                                 >
                                 <span class="slider"></span>
                             </label>

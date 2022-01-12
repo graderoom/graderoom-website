@@ -229,15 +229,8 @@
         socket.emit(event, data);
     }
 
-    function changeSetting(name, value, fieldIDsToClear, messagesDivID) {
-        let obj = {};
-        obj[name] = value;
-        sendData(mainSocket, 'settings-change', obj);
-        // Clear fields to clear
-        for (let i = 0; i < fieldIDsToClear.length; i++) {
-            $(fieldIDsToClear[i]).val("");
-            $(fieldIDsToClear[i]).trigger('blur');
-        }
+    function changeSetting(name, value) {
+        sendData(mainSocket, 'settings-change', {[name]: value});
     }
 
     function ajaxPostForm(formID, fieldIDsToClear, messagesDivID, _async, doInstantly = false) {
@@ -294,6 +287,7 @@
                         $("body").find("*").not(".session-timeout").remove();
                         return;
                     }
+                    console.log(response);
                     if (response.gradeSyncEnabled) {
                         $(".syncGradesDiv").hide();
                         $(".gradeSyncDiv").show();
@@ -344,81 +338,6 @@
 
                     // Show the div.
                     $(formMessagesDiv).show();
-
-                    // Switch mode instantly
-                    if (formID === "#chooseTheme") {
-                        if (response === "Dark theme enabled!") {
-                            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
-                            darkMode = true;
-                            theme = "dark";
-                            if (darkMode !== oldDarkMode) {
-                                document.getElementById("fade").disabled = false;
-                                document.getElementById("pageStyle").setAttribute("href", "../../public/css/dark_mode.css");
-                                document.getElementById("blur_overrides").setAttribute("href", "../../public/css/dark_blur.css");
-                                renderAllCharts();
-                                $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
-                                $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
-                                $(".discord-iframe").attr("src", "https://discord.com/widget?id=897624313136578590&theme=dark");
-                                setTimeout(() => {
-                                    document.getElementById("fade").disabled = true;
-                                    setupClassTables();
-                                }, 500);
-                            }
-                        } else if (response === "Light theme enabled!") {
-                            let autoLimitsContainer = $("#auto-limits-container");
-                            autoLimitsContainer.hide();
-                            document.getElementsByName("theme")[0].setAttribute("checked", "checked");
-                            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
-                            darkMode = false;
-                            theme = "light";
-                            if (darkMode !== oldDarkMode) {
-                                document.getElementById("fade").disabled = false;
-                                document.getElementById("pageStyle").setAttribute("href", "../../public/css/light_mode.css");
-                                document.getElementById("blur_overrides").setAttribute("href", "../../public/css/light_blur.css");
-                                renderAllCharts();
-                                $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
-                                $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
-                                $(".discord-iframe").attr("src", "https://discord.com/widget?id=897624313136578590&theme=light");
-                                setTimeout(() => {
-                                    document.getElementById("fade").disabled = true;
-                                    setupClassTables();
-                                }, 500);
-                            }
-                        } else if (response.includes("sun")) {
-                            theme = "sun";
-                        } else if (response.startsWith("Seasonal effects")) {
-                            appearance.seasonalEffects = response.slice(17) === "enabled!";
-                        } else if (response.startsWith("Blur effects")) {
-                            appearance.blurEffects = response.slice(13) === "enabled!";
-                            if (!appearance.blurEffects) {
-                                $("#blur_base").prop("disabled", true);
-                                $("#blur_overrides").prop("disabled", true);
-                            } else {
-                                $("#blur_base").prop("disabled", false);
-                                $("#blur_overrides").prop("disabled", false);
-                            }
-                        } else if (response.startsWith("System")) {
-                            theme = "system";
-                        } else {
-                            theme = "auto";
-                            [darkModeStart, darkModeFinish] = response.split("from ")[1].slice(0, -1).split(" to ").map(time => Date.parse("0/" + time));
-                        }
-                        if (theme === "auto" || theme === "sun" || theme === "system") {
-                            checkTime();
-                        }
-                        if (appearance.seasonalEffects) {
-                            init = performance.now();
-                            $("#snow-fall").show();
-                            $(".lightrope").show();
-                            if (darkMode === false) {
-                                $("#light_snowfall").attr("media", "");
-                            } else if (darkMode) {
-                                $("#light_snowfall").attr("media", "not all");
-                            }
-                        } else {
-                            disableSnow();
-                        }
-                    }
 
                     // Clear fields to clear
                     for (let i = 0; i < fieldIDsToClear.length; i++) {

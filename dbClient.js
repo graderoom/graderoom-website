@@ -596,43 +596,53 @@ const _setTheme = async (db, username, theme, darkModeStart, darkModeFinish, sea
         return {success: false, data: {message: "Something went wrong", log: `Invalid theme: ${theme}`}};
     }
     if (typeof seasonalEffects !== "boolean") {
-        return {
-            success: false, data: {message: "Something went wrong", log: `Invalid seasonalEffects: ${seasonalEffects}`}
-        };
+        seasonalEffects = user.appearance.seasonalEffects;
     }
     if (typeof blurEffects !== "boolean") {
-        return {
-            success: false, data: {message: "Something went wrong", log: `Invalid seasonalEffects: ${blurEffects}`}
-        };
+        blurEffects = user.appearance.blurEffects;
     }
+    if (typeof darkModeStart !== "number") {
+        darkModeStart = user.appearance.darkModeStart;
+    }
+    if (typeof darkModeFinish !== "number") {
+        darkModeFinish = user.appearance.darkModeFinish;
+    }
+    let data = {theme: theme};
+    let setMap = {"appearance.theme": theme};
     let message = theme.replace(/^\w/, c => c.toUpperCase()) + " theme enabled!";
     if (theme === "auto") {
-        darkModeStart = new Date("0/" + darkModeStart);
-        darkModeFinish = new Date("0/" + darkModeFinish);
+        darkModeStart = new Date(darkModeStart);
+        darkModeFinish = new Date(darkModeFinish);
         message = "Dark theme enabled from " + darkModeStart.toLocaleTimeString() + " to " + darkModeFinish.toLocaleTimeString() + ".";
         darkModeStart = darkModeStart.getTime();
         darkModeFinish = darkModeFinish.getTime();
+        data.darkModeStart = darkModeStart;
+        data.darkModeFinish = darkModeFinish;
+        setMap["appearance.darkModeStart"] = darkModeStart;
+        setMap["appearance.darkModeFinish"] = darkModeFinish;
     }
     if (theme === "sun") {
         message = "Dark theme enabled from sunset to sunrise.";
     }
     if (seasonalEffects !== user.appearance.seasonalEffects) {
+        data = {seasonalEffects: seasonalEffects};
+        setMap = {"appearance.seasonalEffects": seasonalEffects};
         message = "Seasonal effects " + (seasonalEffects ? "enabled" : "disabled") + "!";
     }
     if (blurEffects !== user.appearance.blurEffects) {
-        message = "Blur effects " + (blurEffects ? "enabled" : "disabled");
+        data = {blurEffects: blurEffects};
+        setMap = {"appearance.blurEffects": blurEffects};
+        message = "Blur effects " + (blurEffects ? "enabled" : "disabled") + "!";
     }
     let res2 = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {
-        $set: {
-            "appearance.theme": theme,
-            "appearance.darkModeStart": darkModeStart,
-            "appearance.darkModeFinish": darkModeFinish,
-            "appearance.seasonalEffects": seasonalEffects,
-            "appearance.blurEffects": blurEffects
-        }
+        $set: setMap
     });
     if (res2.ok) {
-        return {success: true, data: {message: message, log: `Updated appearance for ${username}`}};
+        return {
+            success: true, data: {
+                settings: data, message: message, log: `Updated appearance for ${username}`
+            }
+        };
     }
     return {
         success: false, data: {

@@ -58,7 +58,7 @@ module.exports = {
         customAssert((await db.removeBetaKey("")).success, false, "Invalid beta key removal");
         await db.removeBetaKey(betaKey);
         customAssert((await db.betaKeyExists(betaKey)).success, false, "Valid beta key removal");
-    }, testClassesFunctions: async() => {
+    }, testClassesFunctions: async () => {
         await db.addUser("bellarmine", "hippityhop", "123ThisIsAPassword", "hippity.hop22@bcp.org", false);
         await db.addUser("bellarmine", "hoppityhip", "123ThisIsAPassword", "hoppity.hip22@bcp.org", false);
 
