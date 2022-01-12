@@ -146,7 +146,8 @@ module.exports = {
     getMostRecentTermDataInClassDb: (school) => safe(_getMostRecentTermDataInClassDb, school),
     dbContainsSemester: (school, term, semester) => safe(_dbContainsSemester, school, term, semester),
     dbContainsClass: (school, term, semester, className, teacherName) => safe(_dbContainsClass, school, term, semester, className, teacherName), //not tested at all (literally haven't attempted to call them once):
-    getAllClassData: (term, semester) => safe(_getAllClassData, term, semester),
+    getAllClassData: (school, term, semester) => safe(_getAllClassData, school, term, semester),
+    getTermsAndSemestersInClassDb: (school) => safe(_getTermsAndSemestersInClassDb, school),
     updateWeightsInClassDb: (school, term, semester, className, teacherName, hasWeights, weights) => safe(_updateWeightsInClassDb, school, term, semester, className, teacherName, hasWeights, weights),
     updateClassTypeInClassDb: (school, term, semester, className, classType) => safe(_updateClassTypeInClassDb, school, term, semester, className, classType),
     updateUCCSUClassTypeInClassDb: (school, term, semester, className, classType) => safe(_updateUCCSUClassTypeInClassDb, school, term, semester, className, classType),
@@ -166,8 +167,8 @@ module.exports = {
  */
 const safe = (func, ...args) => {
     return new Promise(resolve => {
-        try {
-            func(db(_client), ...args).then(async (_data) => {
+        func(db(_client), ...args)
+            .then(async (_data) => {
                 let success = "success" in _data && typeof _data.success === "boolean" ? _data.success : false;
                 let data = "data" in _data && _data.data.constructor === Object ? _data.data : {};
                 if ("log" in data && !_prod) {
@@ -183,11 +184,10 @@ const safe = (func, ...args) => {
                     }
                 }
                 return resolve({success: success, data: data});
+            }).catch(e => {
+                console.log(e);
+                return resolve({success: false, data: {message: "Something went wrong"}});
             });
-        } catch (e) {
-            console.log(e);
-            return resolve({success: false, data: {message: "Something went wrong"}});
-        }
     });
 };
 
@@ -1730,7 +1730,7 @@ const _getMostRecentTermDataInClassDb = async (db, school) => {
     let res = (await db.collection(classesCollection(school)).find().sort({
                                                                               term: -1, semester: -1
                                                                           }).limit(1).toArray())[0];
-    return {success: true, data: {term: res.term, semester: res.semester}};
+    return {success: true, data: {value: {term: res.term, semester: res.semester}}};
 };
 
 const _dbContainsSemester = async (db, school, term, semester) => {
@@ -1748,15 +1748,36 @@ const _dbContainsClass = async (db, school, term, semester, className, teacherNa
     return {success: res !== null, data: {value: res}};
 };
 
-const _getAllClassData = async (db, term, semester) => {
-    let allData = [];
-    for (let school of SCHOOL_NAMES) {
-        allData.push(...await db.collection(classesCollection(school)).find({
-                                                                                term: term, semester: semester
-                                                                            }).toArray());
+const _getAllClassData = async (db, school, term, semester) => {
+    let res = await db.collection(classesCollection(school)).find({term: term, semester: semester}).toArray();
+    let allData = {}
+    for (let classData of res) {
+        for (let teacherData of classData.teachers) {
+            classData[teacherData.teacherName] = teacherData;
+        }
+        delete classData._id;
+        delete classData.teachers;
+        delete classData.version;
+        delete classData.term;
+        delete classData.semester;
+        allData[classData.className] = classData;
+        delete allData[classData.className].className;
+
     }
     return {success: true, data: {value: allData}};
 };
+
+const _getTermsAndSemestersInClassDb = async (db, school) => {
+    let termsAndSemesters = await db.collection(classesCollection(school)).aggregate([
+        {$group: {
+            _id: "$term",
+            semesters: {$addToSet: "$semester"}
+        }},
+        {$sort: {_id: 1}}
+    ]).toArray();
+    termsAndSemesters = termsAndSemesters.map(x => [x._id, x.semesters.sort()]);
+    return {success: true, data: {value: termsAndSemesters}};
+}
 
 const _updateWeightsForClass = async (db, username, term, semester, className, hasWeights, weights, custom = null, addSuggestion = true) => {
     //Get user
@@ -1870,7 +1891,7 @@ const _getRelevantClassData = async (db, username, term, semester) => {
                 "terms": 1
             };
             if (userClass.teacherName) {
-                query["teachers.teacher"] = userClass.teacherName;
+                query["teachers.teacherName"] = userClass.teacherName;
                 projection["teachers.$"] = 1;
             }
 

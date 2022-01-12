@@ -581,8 +581,9 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.post("/updateclassweights", [isAdmin], (req, res) => {
-        let resp = authenticator.updateWeightsInClassDb(req.body.school, req.body.term, req.body.semester, req.body.className, req.body.teacherName, req.body.hasWeights, req.body.weights);
+    app.post("/updateclassweights", [isAdmin], async (req, res) => {
+        //TODO: get school from frontend
+        let resp = await dbClient.updateWeightsInClassDb("bellarmine", req.body.term, req.body.semester, req.body.className, req.body.teacherName, req.body.hasWeights, req.body.weights);
         if (resp.success) {
             res.status(200).send(resp.data);
         } else {
@@ -590,8 +591,9 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.post("/updateclasstype", [isAdmin], (req, res) => {
-        let resp = authenticator.updateClassTypeInClassDb(req.body.term, req.body.semester, req.body.className, req.body.classType);
+    app.post("/updateclasstype", [isAdmin], async (req, res) => {
+        //TODO: get school from frontend
+        let resp = await dbClient.updateClassTypeInClassDb("bellarmine", req.body.term, req.body.semester, req.body.className, req.body.classType);
         if (resp.success) {
             res.status(200).send(resp.data);
         } else {
@@ -599,8 +601,9 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.post("/updateuccsuclasstype", [isAdmin], (req, res) => {
-        let resp = authenticator.updateUCCSUClassTypeInClassDb(req.body.term, req.body.semester, req.body.className, req.body.classType);
+    app.post("/updateuccsuclasstype", [isAdmin], async (req, res) => {
+        //TODO: get school from frontend
+        let resp = await dbClient.updateUCCSUClassTypeInClassDb("bellarmine", req.body.semester, req.body.className, req.body.classType);
         if (resp.success) {
             res.status(200).send(resp.data);
         } else {
@@ -744,10 +747,11 @@ module.exports = function (app, passport) {
 
     app.get("/classes", [isAdmin], async (req, res) => {
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
-
-        let {term, semester} = authenticator.getClassesMostRecentTermData();
+        //TODO: get school from frontend
+        let {term, semester} = (await (dbClient.getMostRecentTermDataInClassDb("bellarmine"))).data.value;
+        let dbContainsSemester = (await dbClient.dbContainsSemester("bellarmine", req.query.term, req.query.semester)).data.value;
         if (req.query.term && req.query.semester) {
-            if ((term === req.query.term && semester === req.query.semester) || !req.user.betaFeatures.active || !authenticator.classesSemesterExists(req.query.term, req.query.semester)) {
+            if ((term === req.query.term && semester === req.query.semester) || !req.user.betaFeatures.active || !dbContainsSemester) {
                 res.redirect("/classes");
                 return;
             }
@@ -758,13 +762,13 @@ module.exports = function (app, passport) {
         res.render("admin/classes.ejs", {
             username: req.user.username,
             page: "classes",
-            classData: (await dbClient.getAllClassData(term, semester)).data.value,
+            classData: (await dbClient.getAllClassData("bellarmine", term, semester)).data.value,
             sessionTimeout: Date.parse(req.session.cookie._expires),
             appearance: JSON.stringify(req.user.appearance),
             beta: server.beta,
             term: term,
             semester: semester,
-            termsAndSemesters: JSON.stringify(Object.keys(authenticator.getAllClassData()).map(x => [x, Object.keys(authenticator.getAllClassData()[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
+            termsAndSemesters: JSON.stringify((await dbClient.getTermsAndSemestersInClassDb("bellarmine")).data.value),
             sunset: sunset,
             sunrise: sunrise,
             _: _
@@ -1049,7 +1053,7 @@ module.exports = function (app, passport) {
             addedAssignments: JSON.stringify(req.user.addedAssignments[term][semester]),
             editedAssignments: JSON.stringify(req.user.editedAssignments[term][semester]),
             gradeHistory: JSON.stringify(gradeHistoryLetters),
-            relevantClassData: JSON.stringify(authenticator.getRelClassData(req.user.username, term, semester))
+            relevantClassData: JSON.stringify((await dbClient.getRelevantClassData(req.user.username, term, semester)).data.value)
         };
         res.status(200).send(JSON.stringify(data));
     });
