@@ -270,7 +270,7 @@ const _schoolUsernameAvailable = async (db, schoolUsername) => {
 
 const _addUser = async (db, school, username, password, schoolUsername, isAdmin, beta, betaKey) => {
     if (beta) {
-        let res = await _claimBetaKey(db, school, betaKey, username);
+        let res = await _claimBetaKey(db, betaKey, username);
         if (!res.success) {
             return res;
         }
