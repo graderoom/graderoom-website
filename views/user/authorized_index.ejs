@@ -372,7 +372,7 @@
                                     <span><%= uc_classType %> course</span><br>
                                     <span id="verified<%= i %>" class="popup">Weights
                                         <% let weightDict = JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]; %>
-                                        <% let unverified = weightDict.hasWeights === null || (weightDict.hasWeights === "true" && Object.values(weightDict.weights).filter(w => w === null).length !== 0); %>
+                                        <% let unverified = weightDict.hasWeights === null || (weightDict.hasWeights === true && Object.values(weightDict.weights).filter(w => w === null).length !== 0); %>
                                         <% if (unverified) { %>Unverified
                                         <% } else { %>Verified
                                         <% } %>
@@ -384,7 +384,7 @@
                                                     Send feedback to verify weights<br><small>More > Send
                                                         Feedback</small>
                                                 <% } else { %>
-                                                    <% if (weightDict.hasWeights === "true") { %>
+                                                    <% if (weightDict.hasWeights === true) { %>
                                                         <table class="class-table">
                                                             <% let weights = Object.entries(weightDict.weights); %>
                                                             <% for (let i = 0; i < weights.length; i++) { %>
@@ -430,7 +430,7 @@
                                                                    style="margin: 0; display: flex"
                                                                    type="checkbox"
                                                                    name="hasWeights"
-                                                            <% if (JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["hasWeights"] === "false") { %>
+                                                            <% if (JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["hasWeights"] === false) { %>
                                                                    checked
                                                                     <% } %>
                                                                    onchange="disableInput('check<%= i + offset; %>','weightsTable<%= i + offset; %>'); resetInputs('#weights<%= i + offset; %>'); $('#weights<%= i + offset; %>').trigger('submit');"
@@ -1431,7 +1431,7 @@
                 if (!alerts.lastUpdated.slice(-1)[0]) {
                     return false;
                 }
-                return alerts.lastUpdated.slice(-1)[0].ps_locked && (relClassData[data[classIndex].class_name].hasWeights === "false" || Object.values(relClassData[data[classIndex].class_name].weights).filter(w => w !== null).length !== 0);
+                return alerts.lastUpdated.slice(-1)[0].ps_locked && (relClassData[data[classIndex].class_name].hasWeights === false || Object.values(relClassData[data[classIndex].class_name].weights).filter(w => w !== null).length !== 0);
             }
 
             function countDecimals(value) {
@@ -1712,7 +1712,7 @@
                 let className = _data[classIndex].class_name;
                 if (className in weights) {
                     let overallGrade = 0;
-                    if (weights[className]["hasWeights"] === "false" || unobtainedWeights[className]) {
+                    if (weights[className]["hasWeights"] === false || unobtainedWeights[className]) {
                         let points_earned = 0;
                         let points_total = 0;
                         for (let assignment of _data[classIndex]["grades"]) {
@@ -1797,7 +1797,7 @@
                         let enableReset = weights[className]["custom"];
                         //if custom and both haveWeights, enable reset only if db had diff value to give to user's weights
                         //stop reset from showing if custom is due to user having more categories than classes db
-                        if (enableReset && relClassData[className]["hasWeights"] === "true") {
+                        if (enableReset && relClassData[className]["hasWeights"] === true) {
                             enableReset = false;
                             let keys = Object.keys(weights[className]["weights"]);
                             for (let i = 0; i < keys.length; i++) {
@@ -3151,7 +3151,7 @@
                         let className = classData.class_name;
                         let localMissingCategories = Object.keys(weights[className]["weights"]).filter(category => !weights[className]["weights"][category] && weights[className]["weights"][category] !== 0);
                         delete unobtainedWeights[className];
-                        if (localMissingCategories.length > 0 && weights[className]["hasWeights"] !== "false") {
+                        if (localMissingCategories.length > 0 && weights[className]["hasWeights"] !== false) {
                             unobtainedWeights[className] = localMissingCategories;
                         }
                     }
@@ -3213,7 +3213,7 @@
                         let totalPossiblesAndGottens = {}; //by category
                         let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
                         // VERY JANK CHANGE LATER
-                        let doesntHaveWeights = (className in unobtainedWeights) || (weights[className]["hasWeights"] === "false");
+                        let doesntHaveWeights = (className in unobtainedWeights) || (weights[className]["hasWeights"] === false);
                         for (let grade of classData) {
                             let category = grade.category;
                             if (doesntHaveWeights) {
@@ -3924,7 +3924,7 @@
 
             function resetWeights(index) {
                 let className = _data[index].class_name;
-                $("#check" + index).prop("checked", relClassData[className]["hasWeights"] === "false");
+                $("#check" + index).prop("checked", relClassData[className]["hasWeights"] === false);
                 disableInput("check" + index, "weightsTable" + index);
                 let keys = Object.keys(weights[className]["weights"]);
                 for (let i = 0; i < keys.length; i++) {
@@ -3977,7 +3977,7 @@
                                     weightURI[n.name] = isNaN(parseFloat(n.value)) ? null : parseFloat(n.value);
                                 }
                             });
-                            if (_.isEqual(weights[className]["weights"], weightURI) && ((weights[className]["hasWeights"] === "true") === hasWeights)) {
+                            if (_.isEqual(weights[className]["weights"], weightURI) && (weights[className]["hasWeights"] === hasWeights)) {
                                 return;
                             }
                             let formData = {
@@ -4009,10 +4009,10 @@
                                     }
                                 }
                                 if (weightData[0].value === "on") {
-                                    weights[className]["hasWeights"] = "false";
+                                    weights[className]["hasWeights"] = false;
                                     setPointBasedWeights();
                                 } else {
-                                    weights[className]["hasWeights"] = "true";
+                                    weights[className]["hasWeights"] = true;
                                     if (weightData.length === 0) {
                                         return;
                                     }

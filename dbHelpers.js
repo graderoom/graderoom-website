@@ -528,7 +528,7 @@ exports.fixWeights = (hasWeights, weights) => {
     }
     let modWeights = {};
     for (let key in weights) {
-        if (hasWeights === false) {
+        if (hasWeights === false || weights[key] === null) {
             modWeights[key] = null;
         } else {
             if (modWeights[key] === "") {

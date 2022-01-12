@@ -189,6 +189,7 @@ const safe = (func, ...args) => {
             }
             return resolve({success: success, data: data});
         }).catch(e => {
+            console.log("ERROR");
             console.log(e);
             return resolve({success: false, data: {message: "Something went wrong"}});
         });
@@ -1350,43 +1351,49 @@ const _updateClassesForUser = async (db, username, term, semester, className) =>
                 // Add hasWeights: false
                 let hasWeights = neededWeights.length !== 0;
                 let currentWeights = user.weights[_term][_semester][_className];
+                let newWeights = currentWeights;
                 let custom = currentWeights.custom;
 
                 // Update weights from classes db if not custom
-                if (!custom) {
-                    let res2 = await _dbContainsClass(db, user.school, _term, _semester, _className, teacherName);
-                    if (res2.success) {
-                        let dbClass = res2.data;
-                        if (!dbClass[teacherName].hasWeights || Object.keys(dbClass[teacherName].weights).length > 0) {
-                            await _updateWeightsForClass(db, username, _term, _semester, _className, dbClass[teacherName].hasWeights, dbClass[teacherName].weights, false, false);
+                let res2 = await _dbContainsClass(db, user.school, _term, _semester, _className, teacherName);
+                if (res2.success) {
+                    let dbClass = res2.data.value;
+                    let dbTeacher = dbClass.teachers.find(teacher => teacher.teacherName === teacherName);
+                    if (!custom) {
+                        if (!dbTeacher.hasWeights || Object.keys(dbTeacher.weights).length > 0) {
+                            newWeights = dbTeacher.weights;
+                            hasWeights = dbTeacher.hasWeights;
+                        }
+                    } else {
+                        newWeights = Object.fromEntries(neededWeights.map((neededWeight) => [neededWeight, currentWeights.weights[neededWeight] ?? null]));
+
+                        //Set to point-based if only one category exists (& category is null)
+                        let values = Object.values(newWeights);
+                        if (values.length === 1 && values[0] == null) {
+                            hasWeights = false;
+                        }
+
+                        //Add user's weights as suggestions
+                        await _addWeightsSuggestion(db, username, _term, _semester, _className, teacherName, hasWeights, newWeights);
+
+                        //Set custom to not custom if it is same as classes db
+                        if (custom && await _dbContainsClass(db, user.school, _term, _semester, _className, teacherName)) {
+                            custom = isCustom({
+                                                  "weights": user.weights[_term][_semester][_className]["weights"],
+                                                  "hasWeights": user.weights[_term][_semester][_className]["hasWeights"]
+                                              }, {
+                                                  "weights": dbTeacher.weights,
+                                                  "hasWeights": dbTeacher.hasWeights,
+                                              });
                         }
                     }
-                } else {
-                    let newWeights = Object.fromEntries(neededWeights.weights.map((neededWeight) => [neededWeight, currentWeights.weights[neededWeight] ?? null]));
-
-                    //Set to point-based if only one category exists (& category is null)
-                    let values = Object.values(newWeights);
-                    if (values.length === 1 && values[0] == null) {
-                        hasWeights = false;
-                    }
-
-                    //Add user's weights as suggestions
-                    await _addWeightsSuggestion(db, username, _term, _semester, _className, teacherName, hasWeights, newWeights);
-
-                    //Set custom to not custom if it is same as classes db
-                    if (custom && await _dbContainsClass(db, user.school, _term, _semester, _className, teacherName)) {
-                        custom = isCustom({
-                                              "weights": user.weights[_term][_semester][_className]["weights"],
-                                              "hasWeights": user.weights[_term][_semester][_className]["hasWeights"]
-                                          }, {
-                                              "weights": classes[_term][_semester][_className][teacherName]["weights"],
-                                              "hasWeights": classes[_term][_semester][_className][teacherName]["hasWeights"]
-                                          });
-                    }
                 }
+                await _updateWeightsForClass(db, username, _term, _semester, _className, hasWeights, newWeights, false, false);
             }
         }
     }
+
+    return {success: true};
 };
 
 const _updateAddedAssignments = async (db, username, addedAssignments, term, semester) => {
@@ -1968,24 +1975,36 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
 
     //Verify term, semester, & className exist in grades
     if (!term in user.grades || !semester in user.grades[term]) {
-        return {success: false, data: {message: "Something went wrong", log: `Failed to update weights.`}};
+        return {
+            success: false,
+            data: {message: "Something went wrong", log: `Failed to update weights for ${username}. (1)`}
+        };
     }
     let userClassData = user.grades[term][semester].find(x => x.class_name === className);
     if (!userClassData) { //className in grades?
-        return {success: false, data: {message: "Something went wrong", log: `Failed to update weights.`}};
+        return {
+            success: false,
+            data: {message: "Something went wrong", log: `Failed to update weights for ${username}. (2)`}
+        };
     }
     teacherName = userClassData.teacher_name;
 
     //Verify term, semester, & className exist in weights
     if (!term in user.weights || !semester in user.weights[term] || !className in user.weights[term][semester]) { //term, semester, className in weights?
-        return {success: false, data: {message: "Something went wrong", log: `Failed to update weights.`}};
+        return {
+            success: false,
+            data: {message: "Something went wrong", log: `Failed to update weights for ${username}. (3)`}
+        };
     }
     currentWeights = user.weights[term][semester][className].weights;
 
     //Verify classesDB contains class
     let res2 = await _dbContainsClass(db, school, term, semester, className, teacherName); //teacherName in classDb?
     if (!res2.data.value) {
-        return {success: false, data: {message: "Something went wrong", log: `Failed to update weights.`}};
+        return {
+            success: false,
+            data: {message: "Something went wrong", log: `Failed to update weights for ${username}. (4)`}
+        };
     }
     let classData = await db.collection(classesCollection(school)).findOne({
                                                                                term: term,
@@ -2006,7 +2025,7 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
         [hasWeights, modWeights] = fixWeights(hasWeights, Object.assign({}, currentWeights, weights));
     } catch (e) {
         return {
-            success: false, data: {message: "Something went wrong", log: e.message}
+            success: false, data: {message: "Something went wrong", log: e}
         };
     }
 
@@ -2078,8 +2097,8 @@ const _getRelevantClassData = async (db, username, term, semester) => {
                 "department": classData.department,
                 "classType": classData.classType,
                 "uc_csuClassType": classData.uc_csuClassType,
-                "weights": user.teacherName ? classData.teachers[0].weights : false,
-                "hasWeights": user.teacherName ? classData.teachers[0].hasWeights : false,
+                "weights": userClass.teacherName ? classData.teachers[0].weights : false,
+                "hasWeights": userClass.teacherName ? classData.teachers[0].hasWeights : false,
                 "credits": classData.credits,
                 "terms": classData.terms
             };
