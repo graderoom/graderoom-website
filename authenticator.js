@@ -17,50 +17,6 @@ module.exports = {
      * CHANGE dbUserVersion whenever you change this function
      * @param username user to update
      */
-    updateDB: function (username) {
-        let lc_username = username.toLowerCase();
-        let userRef = db.get("users").find({username: lc_username});
-        let user = userRef.value();
-
-        /** Stuff that happens no matter what */
-            // Remove any extra tutorial keys
-        let existingKeys = Object.keys(userRef.get("alerts").get("tutorialStatus").value());
-        for (let i = 0; i < existingKeys.length; i++) {
-            if (!_tutorialKeys.includes(existingKeys[i])) {
-                userRef.get("alerts").get("tutorialStatus").unset(existingKeys[i]).write();
-            }
-        }
-
-        // Add tutorial keys
-        for (let i = 0; i < _tutorialKeys.length; i++) {
-            if (!userRef.get("alerts").get("tutorialStatus").get(_tutorialKeys[i]).value()) {
-                userRef.get("alerts").get("tutorialStatus").set(_tutorialKeys[i], false).write();
-            }
-        }
-
-        // Remove extra beta features
-        let existingFeatures = Object.keys(userRef.get("betaFeatures").value());
-        for (let i = 0; i < existingFeatures.length; i++) {
-            if (existingFeatures[i] === "active") {
-                continue;
-            }
-            if (!_betaFeatureKeys.includes(existingFeatures[i])) {
-                userRef.get("betaFeatures").unset(existingFeatures[i]).write();
-            }
-        }
-
-        // Set all new beta features to true
-        let betaFeatures = userRef.get("betaFeatures").value();
-        if (betaFeatures.active) {
-            for (let i = 0; i < _betaFeatureKeys.length; i++) {
-                if (!(_betaFeatureKeys[i] in betaFeatures)) {
-                    betaFeatures[_betaFeatureKeys[i]] = true;
-                }
-            }
-            userRef.set("betaFeatures", betaFeatures).write();
-        }
-
-    }, //TODO
     bringUpToDate: function (username, term, semester, className) {
         let lc_username = username.toLowerCase();
         let userRef = db.get("users").find({username: lc_username});

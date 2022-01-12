@@ -24,7 +24,7 @@ module.exports = function (app, passport) {
             }
 
             let gradeHistoryLetters = {};
-            let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data;
+            let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data.value;
             if (req.query.term && req.query.semester) {
                 if ((term === req.query.term && semester === req.query.semester) || !(await dbClient.userHasSemester(req.user.username, req.query.term, req.query.semester)).data.value) {
                     res.redirect("/");
@@ -512,7 +512,7 @@ module.exports = function (app, passport) {
             }
         }
         let _stream = (await dbClient.updateGrades(req.user.username, pass)).data.stream;
-        let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data;
+        let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data.value;
 
         _stream.on("data", async (data) => {
             if (!("success" in data)) {
@@ -617,7 +617,7 @@ module.exports = function (app, passport) {
 
         if (req.isAuthenticated()) {
 
-            let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data;
+            let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data.value;
             if (term && semester) {
                 res.render("user/final_grade_calculator.ejs", {
                     page: "calc",
@@ -1012,7 +1012,7 @@ module.exports = function (app, passport) {
 
     app.get("/api/general", [isApiLoggedIn], async (req, res) => {
         let gradeHistoryLetters = {};
-        let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data;
+        let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data.value;
         for (let i = 0; i < Object.keys(req.user.grades).length; i++) {
             let t = Object.keys(req.user.grades)[i];
             gradeHistoryLetters[t] = {};
@@ -1050,14 +1050,14 @@ module.exports = function (app, passport) {
     });
 
     app.get("/api/grades", [isApiLoggedIn], async (req, res) => {
-        let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data;
+        let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data.value;
         res.status(200).send(JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)));
     });
 
     app.get("/api/checkUpdateBackground", [isApiLoggedIn], async (req, res) => {
         let resp = await dbClient.getSyncStatus(req.user.username);
         let user = (await dbClient.getUser({username: req.user.username})).data.value;
-        let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data;
+        let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data.value;
         if (term && semester && resp.data.message === "Sync Complete!") {
             res.status(200).send({
                                      message: resp.data.message,

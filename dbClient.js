@@ -46,7 +46,8 @@ const {
     USERS_COLLECTION_NAME,
     ARCHIVED_USERS_COLLECTION_NAME,
     SCHOOL_NAMES,
-    STABLE_DATABASE_NAME
+    STABLE_DATABASE_NAME,
+    betaFeatureKeys
 } = require("./dbHelpers");
 
 module.exports = {
@@ -75,6 +76,8 @@ module.exports = {
                  }) => safe(_userExists, {
         username: lower(username), schoolUsername: lower(schoolUsername)
     }),
+    fixupUser: (username) => safe(_fixupUser, lower(username)),
+    fixupAllUsers: () => safe(_fixupAllUsers),
     getUser: ({
                   username, schoolUsername
               }) => safe(_getUser, {
@@ -307,6 +310,68 @@ const _userExists = async (db, {username, schoolUsername}) => {
     };
 };
 
+const _fixupUser = async (db, username) => {
+    let res = await _getUser(db, {username: username});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    let existingKeys = Object.keys(user.alerts.tutorialStatus);
+    let temp = _.clone(existingKeys);
+    for (let i = 0; i < existingKeys.length; i++) {
+        if (!tutorialKeys.includes(existingKeys[i])) {
+            delete temp[existingKeys[i]];
+        }
+    }
+
+    // Add tutorial keys
+    for (let i = 0; i < tutorialKeys.length; i++) {
+        if (!(tutorialKeys[i] in temp)) {
+            temp[tutorialKeys[i]] = false;
+        }
+    }
+
+    // Remove extra beta features
+    let betaFeatures = user.betaFeatures;
+    let existingFeatures = Object.keys(betaFeatures);
+    let temp2 = _.clone(existingFeatures);
+    for (let i = 0; i < existingFeatures.length; i++) {
+        if (existingFeatures[i] === "active") {
+            continue;
+        }
+        if (!betaFeatureKeys.includes(existingFeatures[i])) {
+            delete temp2[existingFeatures[i]];
+        }
+    }
+
+    // Set all new beta features to true
+    if (betaFeatures.active) {
+        for (let i = 0; i < betaFeatureKeys.length; i++) {
+            if (!(betaFeatureKeys[i] in temp2)) {
+                temp2[betaFeatureKeys[i]] = true;
+            }
+        }
+    }
+
+    await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {
+        $set: {
+            "alerts.tutorialStatus": temp, "betaFeatures": temp2
+        }
+    });
+
+    return {success: true, data: {log: `Initialized ${username}`}};
+};
+
+const _fixupAllUsers = async (db) => {
+    let {data: {value: users}} = await _getAllUsers(db);
+    let log = "";
+    for (let user of users) {
+        log += (await _fixupUser(db, user.username)).data.log + "\n";
+    }
+    return {success: true, data: {log: log}};
+}
+
 const _getUser = async (db, {username, schoolUsername}) => {
     let user = await db.collection(USERS_COLLECTION_NAME).findOne({
                                                                       $or: [{
@@ -420,15 +485,15 @@ const __getMostRecentTermData = (user) => {
     let grades = user.grades;
     let terms = Object.keys(grades);
     if (terms.length === 0) {
-        return {success: false, data: {term: false, semester: false, log: `User ${username} has no grades!`}};
+        return {success: false, data: {value: {term: false, semester: false}, log: `User ${username} has no grades!`}};
     }
     let term = terms[terms.map(t => parseInt(t.substring(0, 2))).reduce((maxIndex, term, index, arr) => term > arr[maxIndex] ? index : maxIndex, 0)];
     if (user.school === "basis") {
-        return {success: true, data: {term: term, semester: "_"}};
+        return {success: true, data: {value: {term: term, semester: "_"}}};
     }
     let semesters = Object.keys(grades[term]);
     let semester = semesters[semesters.map(s => parseInt(s.substring(1))).reduce((maxIndex, semester, index, arr) => semester > arr[maxIndex] ? index : maxIndex, 0)];
-    return {success: true, data: {term: term, semester: semester}};
+    return {success: true, data: {value: {term: term, semester: semester}}};
 };
 
 const _login = async (db, username, password) => {
