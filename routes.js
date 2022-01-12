@@ -560,6 +560,7 @@ module.exports = function (app, passport) {
     app.post("/updateweights", [isLoggedIn], async (req, res) => {
         let className = req.body.className;
         let hasWeights = JSON.parse(req.body.hasWeights);
+        console.log(hasWeights);
         let newWeights = JSON.parse(req.body.newWeights);
         let term = req.body.term;
         let semester = req.body.semester;
@@ -740,9 +741,9 @@ module.exports = function (app, passport) {
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
         //TODO: get school from frontend
         let {term, semester} = (await (dbClient.getMostRecentTermDataInClassDb("bellarmine"))).data.value;
-        let dbContainsSemester = (await dbClient.dbContainsSemester("bellarmine", req.query.term, req.query.semester)).data.value;
+        let dbContainsSemester = (await dbClient.dbContainsSemester("bellarmine", req.query.term, req.query.semester)).success;
         if (req.query.term && req.query.semester) {
-            if ((term === req.query.term && semester === req.query.semester) || !req.user.betaFeatures.active || !dbContainsSemester) {
+            if ((term === req.query.term && semester === req.query.semester) || !dbContainsSemester) {
                 res.redirect("/classes");
                 return;
             }

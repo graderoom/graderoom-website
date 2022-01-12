@@ -1354,11 +1354,11 @@ const _updateClassesForUser = async (db, username, term, semester, className) =>
                 let newWeights = currentWeights;
                 let custom = currentWeights.custom;
 
-                // Update weights from classes db if not custom
                 let res2 = await _dbContainsClass(db, user.school, _term, _semester, _className, teacherName);
                 if (res2.success) {
                     let dbClass = res2.data.value;
                     let dbTeacher = dbClass.teachers.find(teacher => teacher.teacherName === teacherName);
+                    // Update weights from classes db if not custom
                     if (!custom) {
                         if (!dbTeacher.hasWeights || Object.keys(dbTeacher.weights).length > 0) {
                             newWeights = dbTeacher.weights;
@@ -1377,10 +1377,10 @@ const _updateClassesForUser = async (db, username, term, semester, className) =>
                         await _addWeightsSuggestion(db, username, _term, _semester, _className, teacherName, hasWeights, newWeights);
 
                         //Set custom to not custom if it is same as classes db
-                        if (custom && await _dbContainsClass(db, user.school, _term, _semester, _className, teacherName)) {
+                        if (custom) {
                             custom = isCustom({
-                                                  "weights": user.weights[_term][_semester][_className]["weights"],
-                                                  "hasWeights": user.weights[_term][_semester][_className]["hasWeights"]
+                                                  "weights": newWeights,
+                                                  "hasWeights": hasWeights
                                               }, {
                                                   "weights": dbTeacher.weights,
                                                   "hasWeights": dbTeacher.hasWeights,
@@ -1388,7 +1388,7 @@ const _updateClassesForUser = async (db, username, term, semester, className) =>
                         }
                     }
                 }
-                await _updateWeightsForClass(db, username, _term, _semester, _className, hasWeights, newWeights, false, false);
+                await _updateWeightsForClass(db, username, _term, _semester, _className, hasWeights, newWeights, custom, false);
             }
         }
     }
@@ -2037,17 +2037,16 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
     }
 
     //Update weights
-    user.weights[term][semester][className].weights = modWeights;
-    user.weights[term][semester][className].hasWeights = modWeights;
-    user.weights[term][semester][className].custom = custom;
+    let temp = {weights: modWeights, hasWeights: hasWeights, custom: custom};
+    console.log(temp);
     await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {
-        $set: {[`weights.${term}.${semester}`]: user.weights[term][semester]}
+        $set: {[`weights.${term}.${semester}.${className}`]: temp}
     });
 
     if (custom) {
-        return {success: true, data: {message: `Custom weight set for ${className}.`, log: ``}};
+        return {success: true, data: {message: `Custom weight set for ${className}.`, log: `Custom weight set for ${className}.`}};
     }
-    return {success: true, data: {message: `Reset weight for ${className}.`, log: ``}};
+    return {success: true, data: {message: `Reset weight for ${className}.`, log: `Reset weight for ${className}.`}};
     //Important: Do not change first word of message. It is used in frontend to determine if it is custom.
 };
 
