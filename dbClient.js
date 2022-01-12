@@ -76,8 +76,8 @@ module.exports = {
                  }) => safe(_userExists, {
         username: lower(username), schoolUsername: lower(schoolUsername)
     }),
-    fixupUser: (username) => safe(_fixupUser, lower(username)),
-    fixupAllUsers: () => safe(_fixupAllUsers),
+    updateUser: (username) => safe(_updateUser, lower(username)),
+    updateAllUsers: () => safe(_updateAllUsers),
     getUser: ({
                   username, schoolUsername
               }) => safe(_getUser, {
@@ -122,6 +122,7 @@ module.exports = {
     initAddedAssignments: (username) => safe(_initAddedAssignments, lower(username)),
     initEditedAssignments: (username) => safe(_initEditedAssignments, lower(username)),
     initWeights: (username) => safe(_initWeights, lower(username)),
+    updateClassesForUser: (username, term, semester, className) => safe(_updateClassesForUser, lower(username), term, semester, className),
     updateAddedAssignments: (username, addedAssignments, term, semester) => safe(_updateAddedAssignments, lower(username), addedAssignments, term, semester),
     updateEditedAssignments: (username, editedAssignments, term, semester) => safe(_updateEditedAssignments, lower(username), editedAssignments, term, semester),
     getSyncStatus: (username) => safe(_getSyncStatus, lower(username)),
@@ -145,15 +146,15 @@ module.exports = {
     resetPassword: (token, newPassword) => safe(_resetPassword, token, newPassword),
     clearTestDatabase: () => safe(_clearTestDatabase), //finished and should work:
     addWeightsSuggestion: (username, term, semester, className, teacherName, hasWeights, weights) => safe(_addWeightsSuggestion, lower(username), term, semester, className, teacherName, hasWeights, weights),
-    addDbClass: (school, term, semester, className, teacherName) => safe(_addDbClass, school, term, semester, className, teacherName),
-    getMostRecentTermDataInClassDb: (school) => safe(_getMostRecentTermDataInClassDb, school),
-    dbContainsSemester: (school, term, semester) => safe(_dbContainsSemester, school, term, semester),
-    dbContainsClass: (school, term, semester, className, teacherName) => safe(_dbContainsClass, school, term, semester, className, teacherName), //not tested at all (literally haven't attempted to call them once):
-    getAllClassData: (school, term, semester) => safe(_getAllClassData, school, term, semester),
-    getTermsAndSemestersInClassDb: (school) => safe(_getTermsAndSemestersInClassDb, school),
-    updateWeightsInClassDb: (school, term, semester, className, teacherName, hasWeights, weights) => safe(_updateWeightsInClassDb, school, term, semester, className, teacherName, hasWeights, weights),
-    updateClassTypeInClassDb: (school, term, semester, className, classType) => safe(_updateClassTypeInClassDb, school, term, semester, className, classType),
-    updateUCCSUClassTypeInClassDb: (school, term, semester, className, classType) => safe(_updateUCCSUClassTypeInClassDb, school, term, semester, className, classType),
+    addDbClass: (school, term, semester, className, teacherName) => safe(_addDbClass, lower(school), term, semester, className, teacherName),
+    getMostRecentTermDataInClassDb: (school) => safe(_getMostRecentTermDataInClassDb, lower(school)),
+    dbContainsSemester: (school, term, semester) => safe(_dbContainsSemester, lower(school), term, semester),
+    dbContainsClass: (school, term, semester, className, teacherName) => safe(_dbContainsClass, lower(school), term, semester, className, teacherName), //not tested at all (literally haven't attempted to call them once):
+    getAllClassData: (school, term, semester) => safe(_getAllClassData, lower(school), term, semester),
+    getTermsAndSemestersInClassDb: (school) => safe(_getTermsAndSemestersInClassDb, lower(school)),
+    updateWeightsInClassDb: (school, term, semester, className, teacherName, hasWeights, weights) => safe(_updateWeightsInClassDb, lower(school), term, semester, className, teacherName, hasWeights, weights),
+    updateClassTypeInClassDb: (school, term, semester, className, classType) => safe(_updateClassTypeInClassDb, lower(school), term, semester, className, classType),
+    updateUCCSUClassTypeInClassDb: (school, term, semester, className, classType) => safe(_updateUCCSUClassTypeInClassDb, lower(school), term, semester, className, classType),
     updateWeightsForClass: (username, term, semester, className, hasWeights, weights) => safe(_updateWeightsForClass, lower(username), term, semester, className, hasWeights, weights),
     getRelevantClassData: (username, term, semester) => safe(_getRelevantClassData, lower(username), term, semester)
 };
@@ -170,27 +171,26 @@ module.exports = {
  */
 const safe = (func, ...args) => {
     return new Promise(resolve => {
-        func(db(_client), ...args)
-            .then(async (_data) => {
-                let success = "success" in _data && typeof _data.success === "boolean" ? _data.success : false;
-                let data = "data" in _data && _data.data.constructor === Object ? _data.data : {};
-                if ("log" in data && !_prod) {
-                    console.log(data.log);
-                    delete data.log;
+        func(db(_client), ...args).then(async (_data) => {
+            let success = "success" in _data && typeof _data.success === "boolean" ? _data.success : false;
+            let data = "data" in _data && _data.data.constructor === Object ? _data.data : {};
+            if ("log" in data && !_prod) {
+                console.log(data.log);
+                delete data.log;
+            }
+            if ("value" in data) {
+                if (data.value === null) {
+                    delete data.value;
+                } else {
+                    // Remove the _id attribute of the value if it exists
+                    data.value = removeId(data.value);
                 }
-                if ("value" in data) {
-                    if (data.value === null) {
-                        delete data.value;
-                    } else {
-                        // Remove the _id attribute of the value if it exists
-                        data.value = removeId(data.value);
-                    }
-                }
-                return resolve({success: success, data: data});
-            }).catch(e => {
-                console.log(e);
-                return resolve({success: false, data: {message: "Something went wrong"}});
-            });
+            }
+            return resolve({success: success, data: data});
+        }).catch(e => {
+            console.log(e);
+            return resolve({success: false, data: {message: "Something went wrong"}});
+        });
     });
 };
 
@@ -310,7 +310,7 @@ const _userExists = async (db, {username, schoolUsername}) => {
     };
 };
 
-const _fixupUser = async (db, username) => {
+const _updateUser = async (db, username) => {
     let res = await _getUser(db, {username: username});
     if (!res.success) {
         return res;
@@ -363,14 +363,14 @@ const _fixupUser = async (db, username) => {
     return {success: true, data: {log: `Initialized ${username}`}};
 };
 
-const _fixupAllUsers = async (db) => {
+const _updateAllUsers = async (db) => {
     let {data: {value: users}} = await _getAllUsers(db);
     let log = "";
     for (let user of users) {
-        log += (await _fixupUser(db, user.username)).data.log + "\n";
+        log += (await _updateUser(db, user.username)).data.log + "\n";
     }
     return {success: true, data: {log: log}};
-}
+};
 
 const _getUser = async (db, {username, schoolUsername}) => {
     let user = await db.collection(USERS_COLLECTION_NAME).findOne({
@@ -1029,11 +1029,11 @@ const _updateGrades = async (db, username, schoolPassword) => {
                 await _initAddedAssignments(db, username);
                 await _initWeights(db, username);
                 await _initEditedAssignments(db, username);
-                _bringUpToDate(db, username, newTerm, newSemester);
+                await _updateClassesForUser(db, username, newTerm, newSemester);
 
                 let updateHistory = false;
                 if ((newTerm !== oldTerm || newSemester !== oldSemester) || !user.updatedGradeHistory.length) {
-                    _resetSortData(db, username);
+                    await _resetSortData(db, username);
                     updateHistory = true;
                 }
 
@@ -1157,7 +1157,7 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                 });
                 await _initAddedAssignments(db, username);
                 await _initEditedAssignments(db, username);
-                this.bringUpToDate(username);
+                await _updateClassesForUser(db, username);
 
                 socketManager.emitToRoom(username, "sync", "success-history", data.message);
             } else {
@@ -1191,6 +1191,23 @@ const _updateSortData = async (db, username, sortData) => {
         return {success: true};
     }
     return {success: false};
+};
+
+const _resetSortData = async (db, username) => {
+    let res = await _getUser(db, {username: username});
+    if (!res.success) {
+        return res;
+    }
+
+    await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {
+        $set: {
+            sortingData: {
+                dateSort: [], categorySort: []
+            }
+        }
+    });
+
+    return {success: true};
 };
 
 const _userHasSemester = async (db, username, term, semester) => {
@@ -1284,6 +1301,91 @@ const _initWeights = async (db, username) => {
 
     await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {weights: temp}});
     return {success: true};
+};
+
+const _updateClassesForUser = async (db, username, term, semester, className) => {
+    let res = await _getUser(db, {username: username});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    for (let g = 0; g < Object.keys(user.grades).length; g++) {
+        let _term = Object.keys(user.grades)[g];
+        if (term && _term !== term) {
+            continue;
+        }
+        for (let h = 0; h < Object.keys(user.grades[_term]).length; h++) {
+            let _semester = Object.keys(user.grades[_term])[h];
+            if (semester && _semester !== semester) {
+                continue;
+            }
+            for (let i = 0; i < user.grades[_term][_semester].length; i++) {
+                let _className = user.grades[_term][_semester][i].class_name;
+                if (className && _className !== className) {
+                    continue;
+                }
+                console.log("" + Date.now() + " | Bringing class up to date: " + (i + 1) + " of " + user.grades[_term][_semester].length + " in " + _term + " " + _semester);
+                let teacherName = user.grades[_term][_semester][i].teacher_name;
+
+                //Add all classes to db
+                if (!(await _dbContainsClass(db, user.school, _term, _semester, _className, teacherName)).success) {
+                    await _addDbClass(db, user.school, _term, _semester, _className, teacherName);
+                }
+
+                // Ignore if no teacher (means no assignments)
+                if (!teacherName) {
+                    continue;
+                }
+
+                // Determine needed weights
+                let neededWeights = []; // All weights from the users grades
+                for (let j = 0; j < user.grades[_term][_semester][i].grades.length; j++) {
+                    if (!neededWeights.includes(user.grades[_term][_semester][i].grades[j].category)) {
+                        neededWeights.push(user.grades[_term][_semester][i].grades[j].category);
+                    }
+                }
+
+                // Add hasWeights: false
+                let hasWeights = neededWeights.length !== 0;
+                let currentWeights = user.weights[_term][_semester][_className];
+                let custom = currentWeights.custom;
+
+                // Update weights from classes db if not custom
+                if (!custom) {
+                    let res2 = await _dbContainsClass(db, user.school, _term, _semester, _className, teacherName);
+                    if (res2.success) {
+                        let dbClass = res2.data;
+                        if (!dbClass[teacherName].hasWeights || Object.keys(dbClass[teacherName].weights).length > 0) {
+                            await _updateWeightsForClass(db, username, _term, _semester, _className, dbClass[teacherName].hasWeights, dbClass[teacherName].weights, false, false);
+                        }
+                    }
+                } else {
+                    let newWeights = Object.fromEntries(neededWeights.weights.map((neededWeight) => [neededWeight, currentWeights.weights[neededWeight] ?? null]));
+
+                    //Set to point-based if only one category exists (& category is null)
+                    let values = Object.values(newWeights);
+                    if (values.length === 1 && values[0] == null) {
+                        hasWeights = false;
+                    }
+
+                    //Add user's weights as suggestions
+                    await _addWeightsSuggestion(db, username, _term, _semester, _className, teacherName, hasWeights, newWeights);
+
+                    //Set custom to not custom if it is same as classes db
+                    if (custom && await _dbContainsClass(db, user.school, _term, _semester, _className, teacherName)) {
+                        custom = isCustom({
+                                              "weights": user.weights[_term][_semester][_className]["weights"],
+                                              "hasWeights": user.weights[_term][_semester][_className]["hasWeights"]
+                                          }, {
+                                              "weights": classes[_term][_semester][_className][teacherName]["weights"],
+                                              "hasWeights": classes[_term][_semester][_className][teacherName]["hasWeights"]
+                                          });
+                    }
+                }
+            }
+        }
+    }
 };
 
 const _updateAddedAssignments = async (db, username, addedAssignments, term, semester) => {
@@ -1825,7 +1927,7 @@ const _dbContainsClass = async (db, school, term, semester, className, teacherNa
 
 const _getAllClassData = async (db, school, term, semester) => {
     let res = await db.collection(classesCollection(school)).find({term: term, semester: semester}).toArray();
-    let allData = {}
+    let allData = {};
     for (let classData of res) {
         for (let teacherData of classData.teachers) {
             classData[teacherData.teacherName] = teacherData;
@@ -1843,16 +1945,14 @@ const _getAllClassData = async (db, school, term, semester) => {
 };
 
 const _getTermsAndSemestersInClassDb = async (db, school) => {
-    let termsAndSemesters = await db.collection(classesCollection(school)).aggregate([
-        {$group: {
-            _id: "$term",
-            semesters: {$addToSet: "$semester"}
-        }},
-        {$sort: {_id: 1}}
-    ]).toArray();
+    let termsAndSemesters = await db.collection(classesCollection(school)).aggregate([{
+        $group: {
+            _id: "$term", semesters: {$addToSet: "$semester"}
+        }
+    }, {$sort: {_id: 1}}]).toArray();
     termsAndSemesters = termsAndSemesters.map(x => [x._id, x.semesters.sort()]);
     return {success: true, data: {value: termsAndSemesters}};
-}
+};
 
 const _updateWeightsForClass = async (db, username, term, semester, className, hasWeights, weights, custom = null, addSuggestion = true) => {
     //Get user

@@ -566,7 +566,7 @@ module.exports = function (app, passport) {
         let resp = await dbClient.updateWeightsForClass(req.user.username, term, semester, className, hasWeights, newWeights);
         if (resp.success) {
             res.status(200).send(resp.data.message);
-            await dbClient.bringUpToDate(req.user.username, term, semester, className);
+            await dbClient.updateClassesForUser(req.user.username, term, semester, className);
         } else {
             res.status(400).send(resp.data.message);
         }

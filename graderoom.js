@@ -34,7 +34,7 @@ mongo.config(mongoUrl, productionEnv, isBetaServer).then(() => {
             console.log("Some tests failed. Server will not start. Exiting...");
             process.exit();
         }
-        await mongo.fixupAllUsers();
+        await mongo.updateAllUsers();
         console.log('Starting node.js server...');
 
         app.use("/public/", express.static("./public"));
