@@ -1,6 +1,7 @@
 const {MongoClient} = require("mongodb");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
+const chroma = require("chroma-js");
 const _ = require("lodash");
 const stream = require("stream");
 const socketManager = require("./socketManager");
@@ -268,7 +269,7 @@ const _schoolUsernameAvailable = async (db, schoolUsername) => {
 
 const _addUser = async (db, school, username, password, schoolUsername, isAdmin, beta, betaKey) => {
     if (beta) {
-        let res = await db.claimBetaKey(school, betaKey, username);
+        let res = await _claimBetaKey(db, school, betaKey, username);
         if (!res.success) {
             return res;
         }

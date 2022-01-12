@@ -30,11 +30,12 @@ const classesCollection = (school) => {
 //connection & migrate
 MongoClient.connect(mongoUrl).then((client) => {
     migrate(client).then(() => {
-        console.log("Updating lowDB json file . . .");
-        filedb.set("users", db.get("users").value()).write();
-        filedb.set("keys", db.get("keys").value()).write();
-        filedb.set("classes", db.get("classes").value()).write();
-        filedb.set("deletedUsers", db.get("deletedUsers").value()).write();
+        // Don't update db to prevent bad data from being written
+        // console.log("Updating lowDB json file . . .");
+        // filedb.set("users", db.get("users").value()).write();
+        // filedb.set("keys", db.get("keys").value()).write();
+        // filedb.set("classes", db.get("classes").value()).write();
+        // filedb.set("deletedUsers", db.get("deletedUsers").value()).write();
         console.log("Finished!");
     }).catch((err) => {
         console.log(err);
