@@ -16,7 +16,7 @@ module.exports = {
             await func();
         }
         await db.config(); // This just sets testing to false
-        return {success: passCount === runCount};
+        return passCount === runCount;
     }, testInit: async () => {
         let result = await db.init();
         customAssert(result, {success: true, data: {}}, "init");
@@ -68,7 +68,8 @@ module.exports = {
         await db.addDbClass("bellarmine", "21-22", "S2", "Science", "Bob Jones");
         await db.addDbClass("bellarmine", "21-22", "S2", "Math", "Sally G");
 
-        customAssert((await db.getAllClassData("21-22", "S2")).data.value.length, 3, "Add db classes");
+        customAssert(Object.keys((await db.getAllClassData("bellarmine", "21-22", "S2")).data.value), ["Science", "Math"], "Add db classes");
+        customAssert(Object.keys((await db.getAllClassData("basis", "21-22", "S2")).data.value), ["Science"], "Add db classes");
 
         await db.addWeightsSuggestion("hippityhop", "21-22", "S2", "Science", "Alex Smith", true, {"Tests": 100});
         await db.addWeightsSuggestion("hoppityhip", "21-22", "S2", "Science", "Alex Smith", true, {"Tests": 100});

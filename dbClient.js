@@ -35,6 +35,7 @@ const {
     tutorialKeys,
     shuffleArray,
     changelog,
+    betaFeatures,
     compareWeights,
     isCustom,
     fixWeights,
@@ -2041,7 +2042,6 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
 
     //Update weights
     let temp = {weights: modWeights, hasWeights: hasWeights, custom: custom};
-    console.log(temp);
     await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {
         $set: {[`weights.${term}.${semester}.${className}`]: temp}
     });

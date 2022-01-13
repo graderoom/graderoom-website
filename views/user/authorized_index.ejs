@@ -997,16 +997,7 @@
 
                 function displayNicely(...args) {
                     return [...args].map(arg => {
-                        if (typeof arg === "string") {
-                            return arg;
-                        }
                         return JSON.stringify(arg);
-                        if (Array.isArray(arg)) {
-                            return "[" + arg.join(", ") + "]";
-                        }
-                        let keys = Object.keys(arg);
-                        let values = Object.values(arg);
-                        return "{ " + keys.map((key, index) => key + ": " + values[index]).join(", ") + "} ";
                     });
                 }
 
@@ -3003,14 +2994,16 @@
 
                                 // Set up percents
                                 let percent = assignmentPercents[j];
+                                let roundPercent = "--";
                                 let letterGrade = "";
                                 if (isNaN(parseFloat(percent))) {
                                     percent = "--";
                                 } else {
                                     letterGrade = " (" + getLetterGrade(percent) + ")";
+                                    roundPercent = (Math.round(100 * percent) / 100).toFixed(2) + "%";
                                     percent += "%";
                                 }
-                                $(assignmentPercentDivs[assignmentIndex]).html("<div style=\"display: flex; align-items: center; justify-content: center;\"><div>" + percent + "</div><div style=\"margin-left: 0.4rem\">" + letterGrade + "</div></div>");
+                                $(assignmentPercentDivs[assignmentIndex]).html("<div style=\"display: flex; align-items: center; justify-content: center;\"><div title=\"" + percent + "\">" + roundPercent + "</div><div style=\"margin-left: 0.4rem\">" + letterGrade + "</div></div>");
                             }
                             // Set up coloring and gain/loss
                             let display = +isNaN(Math.round(assignmentData[j] * 100) / 100) ? (Math.round(assignmentData[assignmentData.length - 1] * 100) / 100) : (Math.round(assignmentData[j] * 100) / 100);

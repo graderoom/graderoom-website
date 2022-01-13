@@ -51,6 +51,10 @@
 - Theme switching has been moved to sockets, and is also much faster
 - Appearance settings sync instantly across devices
 
+### Fixed
+- Issues with resetting weights
+- Assignment percents now always display 2 decimal places. Hover over them to see more.
+
 ## [Stable 4.9.12] - 2022-01-07
 ### Fixed
 - More crash fixes. Thank you to the users who keep finding new ways to crash the site :)
