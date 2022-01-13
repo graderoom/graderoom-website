@@ -142,7 +142,7 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
 
 
         // Hash password
-        bcrypt.hash(password, this.roundsToGenerateSalt, (err, hash) => {
+        bcrypt.hash(password, this.ROUNDS_TO_GENERATE_SALT, (err, hash) => {
             // Get current timestamp for user creation timestamp
             let now = Date.now();
 

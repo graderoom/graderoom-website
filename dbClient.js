@@ -487,7 +487,7 @@ const __getMostRecentTermData = (user) => {
     let grades = user.grades;
     let terms = Object.keys(grades);
     if (terms.length === 0) {
-        return {success: false, data: {value: {term: false, semester: false}, log: `User ${username} has no grades!`}};
+        return {success: false, data: {value: {term: false, semester: false}, log: `User ${user.username} has no grades!`}};
     }
     let term = terms[terms.map(t => parseInt(t.substring(0, 2))).reduce((maxIndex, term, index, arr) => term > arr[maxIndex] ? index : maxIndex, 0)];
     if (user.school === "basis") {

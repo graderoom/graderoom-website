@@ -146,7 +146,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/weightedGPA", [isLoggedIn], async (req, res) => {
-        let weightedGPA = req.body.weightedGPA;
+        let weightedGPA = JSON.parse(req.body.weightedGPA);
         await dbClient.setWeightedGPA(req.user.username, weightedGPA);
         res.sendStatus(200);
     });
