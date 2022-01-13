@@ -177,7 +177,7 @@
             finalWeightDiv.prop("defaultValue", "");
             $("#specialFinal").hide();
             $("#pointFinal").hide();
-        } else if (weights[data[Object.keys(data)[$(this)[0].selectedIndex - 1]].class_name]["hasWeights"] === "false") {
+        } else if (!weights[data[Object.keys(data)[$(this)[0].selectedIndex - 1]].class_name]["hasWeights"]) {
             currentGradeDiv.val(Math.round(getOverallGrade($(this)[0].selectedIndex - 1) * 1000) / 1000);
             currentGradeDiv.prop("defaultValue", Math.round(getOverallGrade($(this)[0].selectedIndex - 1) * 1000) / 1000);
             $("#specialFinal").hide();
@@ -550,7 +550,7 @@
         let className = data[classIndex].class_name;
         if (className in weights) {
             let overallGrade = 0;
-            if (weights[className]["hasWeights"] === "false") {
+            if (!weights[className]["hasWeights"]) {
                 let points_earned = 0;
                 let points_total = 0;
                 for (let assignment of data[classIndex]["grades"]) {

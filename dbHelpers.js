@@ -524,20 +524,16 @@ exports.isCustom = (weight, verifiedWeight) => {
 
 exports.fixWeights = (hasWeights, weights) => {
     if (typeof hasWeights !== "boolean") {
-        throw `Invalid hasWeights value: ${hasWeights}`;
+        throw `ERROR: invalid hasWeights type: ${typeof hasWeights}`;
     }
     let modWeights = {};
     for (let key in weights) {
-        if (hasWeights === false || weights[key] === null) {
+        if (hasWeights === false || weights[key] === null || modWeights[key] === "") {
             modWeights[key] = null;
         } else {
-            if (modWeights[key] === "") {
-                modWeights[key] = null;
-            } else {
-                modWeights[key] = parseFloat(weights[key]);
-                if (isNaN(modWeights[key])) {
-                    throw `Invalid weights values (isNaN): ${weights[key]}`;
-                }
+            modWeights[key] = parseFloat(weights[key]);
+            if (isNaN(modWeights[key])) {
+                throw `ERROR: invalid weights values (isNaN): ${weights[key]}`;
             }
         }
     }

@@ -160,7 +160,7 @@ module.exports = function (app, passport) {
             }
 
             let gradeHistoryLetters = {};
-            let {term, semester} = (await dbClient.getMostRecentTermData(req.query.usernameToRender)).data;
+            let {term, semester} = (await dbClient.getMostRecentTermData(req.query.usernameToRender)).data.value;
             if (req.query.term && req.query.semester) {
                 if ((term === req.query.term && semester === req.query.semester) || !(await dbClient.userHasSemester(user.username, req.query.term, req.query.semester)).data.value) {
                     res.redirect("/viewuser?usernameToRender=" + req.query.usernameToRender);
@@ -204,7 +204,7 @@ module.exports = function (app, passport) {
                     addedAssignments: JSON.stringify(user.addedAssignments[term][semester]),
                     editedAssignments: JSON.stringify(user.editedAssignments[term][semester]),
                     gradeHistory: JSON.stringify(gradeHistoryLetters),
-                    relevantClassData: JSON.stringify((await dbClient.getRelevantClassData(req.user.username, term, semester)).data.value),
+                    relevantClassData: JSON.stringify((await dbClient.getRelevantClassData(req.query.usernameToRender, term, semester)).data.value),
                     sortingData: JSON.stringify(user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     beta: server.beta,
@@ -255,12 +255,6 @@ module.exports = function (app, passport) {
     app.get("/logout", [isLoggedIn], (req, res) => {
         req.logout();
         res.redirect("/");
-    });
-
-    app.post("/bringAllUpToDate", [isAdmin], (req, res) => {
-        authenticator.updateAllDB();
-        req.flash("adminSuccessMessage", "Brought all users up to date");
-        res.redirect("/admin");
     });
 
     app.post("/deleteUser", [isAdmin], async (req, res) => {
@@ -575,7 +569,7 @@ module.exports = function (app, passport) {
 
     app.post("/updateclassweights", [isAdmin], async (req, res) => {
         //TODO: get school from frontend
-        let resp = await dbClient.updateWeightsInClassDb("bellarmine", req.body.term, req.body.semester, req.body.className, req.body.teacherName, req.body.hasWeights, req.body.weights);
+        let resp = await dbClient.updateWeightsInClassDb("bellarmine", req.body.term, req.body.semester, req.body.className, req.body.teacherName, JSON.parse(req.body.hasWeights), req.body.weights);
         if (resp.success) {
             res.status(200).send(resp.data);
         } else {
@@ -595,7 +589,7 @@ module.exports = function (app, passport) {
 
     app.post("/updateuccsuclasstype", [isAdmin], async (req, res) => {
         //TODO: get school from frontend
-        let resp = await dbClient.updateUCCSUClassTypeInClassDb("bellarmine", req.body.semester, req.body.className, req.body.classType);
+        let resp = await dbClient.updateUCCSUClassTypeInClassDb("bellarmine", req.body.term, req.body.semester, req.body.className, req.body.classType);
         if (resp.success) {
             res.status(200).send(resp.data);
         } else {
@@ -841,7 +835,6 @@ module.exports = function (app, passport) {
             userData: JSON.stringify(userData),
             uniqueUsersData: JSON.stringify(uniqueUsersData),
             activePercentageData: JSON.stringify(activePercentageData),
-            dataset: JSON.stringify(dataset),
             sunset: sunset,
             sunrise: sunrise,
             _: _

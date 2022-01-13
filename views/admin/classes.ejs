@@ -319,7 +319,7 @@
                                             type="checkbox"
                                             class="form-control"
                                             name="hasWeights"
-                                    <% try { if (hasWeights == "false") { %>
+                                    <% try { if (!hasWeights) { %>
                                             checked
                                             <% }} catch (e) {
                                             } %>

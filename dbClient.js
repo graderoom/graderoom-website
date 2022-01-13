@@ -429,7 +429,7 @@ const _getAllArchivedUsers = async (db) => {
 };
 
 const _unArchiveUser = async (db, username) => {
-    let res = await _userArchived(db, username);
+    let res = await _userArchived(db, {username: username});
     if (!res.success) {
         return res;
     }
@@ -864,7 +864,7 @@ const _changePassword = async (db, username, oldPassword, newPassword) => {
             if (err) {
                 return resolve({success: false, data: {log: err, message: "Something went wrong"}});
             }
-            let res3 = await db.findOneAndUpdate({username: username}, {$set: {password: hash}});
+            let res3 = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {password: hash}});
             if (!res3.ok) {
                 return resolve({
                                    success: false,
@@ -1349,7 +1349,10 @@ const _updateClassesForUser = async (db, username, term, semester, className) =>
                 }
 
                 // Add hasWeights: false
-                let hasWeights = neededWeights.length !== 0;
+                let hasWeights = user.weights[_term][_semester][_className].hasWeights;
+                if (neededWeights.length === 1) {
+                    hasWeights = false;
+                }
                 let currentWeights = user.weights[_term][_semester][_className];
                 let newWeights = currentWeights;
                 let custom = currentWeights.custom;
@@ -1688,7 +1691,7 @@ const _resetPassword = async (db, token, newPassword) => {
             if (err) {
                 return resolve({success: false, data: {log: err, message: "Something went wrong"}});
             }
-            let res3 = await db.findOneAndUpdate({username: username}, {
+            let res3 = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {
                 $set: {password: hash}, $unset: {passwordResetTokenExpire: "", passwordResetToken: ""}
             });
             if (!res3.ok) {
@@ -1814,7 +1817,7 @@ const _updateWeightsInClassDb = async (db, school, term, semester, className, te
         [hasWeights, modWeights] = fixWeights(hasWeights, weights);
     } catch (e) {
         return {
-            success: false, data: {message: "Something went wrong", log: e.message}
+            success: false, data: {message: "Something went wrong", log: e}
         };
     }
 
@@ -1828,7 +1831,7 @@ const _updateWeightsInClassDb = async (db, school, term, semester, className, te
     }
 
     //Update weights for teacher
-    let classData = await db.collection(classesCollection(school)).findOneAndUpdate({
+    let classData = (await db.collection(classesCollection(school)).findOneAndUpdate({
                                                                                         term: term,
                                                                                         semester: semester,
                                                                                         className: className,
@@ -1841,8 +1844,8 @@ const _updateWeightsInClassDb = async (db, school, term, semester, className, te
                                                                                     }, {
                                                                                         projection: {
                                                                                             "teachers.$": 1, "_id": 1
-                                                                                        }, returnDocument: "after"
-                                                                                    });
+                                                                                        }
+                                                                                    })).value;
 
     //Delete any suggestion with same weights
     let suggestionIndex = null;
