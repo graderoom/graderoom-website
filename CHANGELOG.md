@@ -42,7 +42,7 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Beta 4.9.13] - 2021-01-17
+## [Beta 4.9.13] - 2021-01-18
 ### Improved
 - Migrated to new database library
 - Theme switching has been moved to sockets, and is also much faster

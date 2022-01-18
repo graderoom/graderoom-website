@@ -12,7 +12,7 @@ const session = require("express-session");
 const passport = require("passport");
 const productionEnv = process.env.NODE_ENV === "production";
 const fs = require("fs");
-const {watchChangelog, readChangelog, betaChangelogArray} = require("./dbHelpers");
+const {watchChangelog, readChangelog} = require("./dbHelpers");
 
 module.exports.beta = isBetaServer;
 
