@@ -29,10 +29,12 @@ if (productionEnv) {
 }
 mongo.config(mongoUrl, productionEnv, isBetaServer).then(() => {
     mongo.init().then(async () => {
-        let pass = await require("./dbTests").runAll();
-        if (!pass) {
-            console.log("Some tests failed. Server will not start. Exiting...");
-            process.exit();
+        if (!productionEnv) {
+            let pass = await require("./dbTests").runAll();
+            if (!pass) {
+                console.log("Some tests failed. Server will not start. Exiting...");
+                process.exit();
+            }
         }
         await mongo.updateAllUsers();
         console.log('Starting node.js server...');
