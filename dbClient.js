@@ -1053,7 +1053,7 @@ const _updateGrades = async (db, username, schoolPassword) => {
                 socketManager.emitToRoom(username, SYNC_PURPOSE, "success", {message: "Updated grades!"});
             }
         } else {
-            socketManager.emitToRoom(username, SYNC_PURPOSE, "progress", data);
+            socketManager.emitToRoom(username, SYNC_PURPOSE, "progress", {data: data});
         }
     });
 

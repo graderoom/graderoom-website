@@ -34,8 +34,11 @@
           <% if (!JSON.parse(appearance).blurEffects) { %>disabled
             <% } %>
     >
-    <link id="blur_overrides" rel="stylesheet" type="text/css" <% if (theme === true) { %>
-          href="public/css/dark_blur.css"<% } else if (theme === false) { %> href="public/css/light_blur.css"<% } %>
+    <link id="blur_overrides" rel="stylesheet" type="text/css"
+    <% if (theme === true) { %>
+          href="public/css/dark_blur.css"
+    <% } else if (theme === false) { %> href="public/css/light_blur.css"
+            <% } %>
           <% if (!JSON.parse(appearance).blurEffects) { %>disabled
             <% } %>
     >
@@ -50,13 +53,19 @@
 <!-- Term Switcher -->
 <div id="termSwitcher" class="blur">
     <% for (let i = 0; i < JSON.parse(termsAndSemesters).length; i++) { %>
-        <div id="<%= JSON.parse(termsAndSemesters)[i][0]; %>" <% if (term===JSON.parse(termsAndSemesters)[i][0]) { %> class="active" <% } %>>
+        <div id="<%= JSON.parse(termsAndSemesters)[i][0]; %>"
+        <% if (term === JSON.parse(termsAndSemesters)[i][0]) { %> class="active"
+                <% } %>
+        >
             <%= JSON.parse(termsAndSemesters)[i][0]; %>
             <% for (let j = 0; j < JSON.parse(termsAndSemesters)[i][1].length; j++) { %>
-                <div onclick="window.location.href='/classes/?term=<%= JSON.parse(termsAndSemesters)[i][0]; %>&semester=<%= JSON.parse(termsAndSemesters)[i][1][j]; %>'"
+                <div onclick="window.location.href='/classes/?school=<%=school%>&term=<%= JSON.parse(termsAndSemesters)[i][0]; %>&semester=<%= JSON.parse(termsAndSemesters)[i][1][j]; %>'"
                      id="<%= JSON.parse(termsAndSemesters)[i][0]; %><%= JSON.parse(termsAndSemesters)[i][1][j]; %>"
-                     <% if (term===JSON.parse(termsAndSemesters)[i][0] && semester===JSON.parse(termsAndSemesters)[i][1][j]) { %> class="active" <% } %>>
-                     <%= JSON.parse(termsAndSemesters)[i][1][j] %>
+                <% if (term === JSON.parse(termsAndSemesters)[i][0] && semester === JSON.parse(termsAndSemesters)[i][1][j]) { %>
+                     class="active"
+                        <% } %>
+                >
+                    <%= JSON.parse(termsAndSemesters)[i][1][j] %>
                 </div>
             <% } %>
         </div>
@@ -66,7 +75,12 @@
 <br>
 <!-- Main Screen -->
 <div id="weightsCard" class="container" style="border-radius:0.5rem">
-    <h5 style="font-size: 1.5rem; text-align:center"><%= term %> | <%= semester %> </h5>
+    <h5 style="font-size: 1.5rem; text-align:center">
+        <select id="school-select" class="minimal" onchange="switchSchool()">
+            <% for (let i = 0; i < schools.length; i++) { %>
+                <option value="<%= schools[i] %>" <% if (schools[i] === school) { %>selected<% } %>><%= schools[i] %></option>
+            <% } %>
+        </select> | <%= term %> | <%= semester %> </h5>
     <span class="accordion" id="bigAccordionForms">
         <hr>
         <% for (let i = 0; i < Object.keys(classData).length; i++) { %>
@@ -117,7 +131,8 @@
                     <i class="fa" aria-hidden="true"></i>
                 </h5>
                 <% if (!Object.entries(classData[className]).find(([c, t]) => _.isObject(t) && !Array.isArray(t) && Object.keys(classData[className][c]["weights"]).length)) { %>
-                    <i class="fa fa-exclamation-circle" style="padding-top: 8px; margin-bottom: 0.5rem; margin-left: 0.5rem; margin-right: 0.5rem; font-size: 1.1rem; line-height: 1.2rem"></i>
+                    <i class="fa fa-exclamation-circle"
+                       style="padding-top: 8px; margin-bottom: 0.5rem; margin-left: 0.5rem; margin-right: 0.5rem; font-size: 1.1rem; line-height: 1.2rem"></i>
                 <% } %>
                 <span id="classMessage<%= i %>" class="alert alert-success font-weight-bold"
                       style="margin: auto 0 auto 0.75rem; width: fit-content; display:none; justify-content: center; padding: 0.1rem;">
@@ -379,7 +394,6 @@
 </body>
 
 <!-- Custom JavaScript -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
     let classes = <%- JSON.stringify(classData) %>;
     let term = "<%= term %>";
@@ -387,6 +401,13 @@
 
     $("#termSwitcher").addClass("hover");
     setTimeout(() => $("#termSwitcher").removeClass("hover"), 2000);
+
+    function switchSchool() {
+        let selectedSchool = $("#school-select option:selected").val();
+        let currentParams = new URL(window.location.href).searchParams;
+        currentParams.append("school", selectedSchool);
+        window.location.href = "/classes?" + currentParams.toString();
+    }
 
     // TODO restructure! this is not good code
     function ajaxPostWeightsDatabaseForm(classIndex, teacherIndex, suggestionIndex, fieldIDsToClear, messagesDivID, async, isUCForm = false) {
@@ -429,7 +450,12 @@
                 // console.log(weights);
                 // console.log(hasWeights);
                 formData = {
-                    term: term, semester: semester, className: className, teacherName: teacherName, weights: weights, hasWeights: hasWeights
+                    term: term,
+                    semester: semester,
+                    className: className,
+                    teacherName: teacherName,
+                    weights: weights,
+                    hasWeights: hasWeights
                 };
             } else {
                 let classType = $(formID).find("select")[0].value.trim();
@@ -448,8 +474,8 @@
 
             // Submit the form using AJAX.
             $.ajax({
-                type: "POST", url: $(formID).attr("action"), data: formData, async: async
-            }).done(function (response) {
+                       type: "POST", url: $(formID).attr("action"), data: formData, async: async
+                   }).done(function (response) {
                 if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                     $(".session-timeout").show();
                     $("body").find("*").not(".session-timeout").remove();

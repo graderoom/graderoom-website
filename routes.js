@@ -3,7 +3,7 @@ const dbClient = require("./dbClient.js");
 const emailSender = require("./emailSender.js");
 const _ = require("lodash");
 const SunCalc = require("suncalc");
-const {changelog} = require("./dbHelpers");
+const {changelog, SCHOOL_NAMES} = require("./dbHelpers");
 
 module.exports = function (app, passport) {
 
@@ -734,8 +734,16 @@ module.exports = function (app, passport) {
     app.get("/classes", [isAdmin], async (req, res) => {
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
         //TODO: get school from frontend
-        let {term, semester} = (await (dbClient.getMostRecentTermDataInClassDb("bellarmine"))).data.value;
-        let dbContainsSemester = (await dbClient.dbContainsSemester("bellarmine", req.query.term, req.query.semester)).success;
+
+        let school = req.query.school ?? "bellarmine";
+        if (!SCHOOL_NAMES.includes(school)) {
+            res.redirect("/classes");
+            return;
+        }
+
+        let {term, semester} = (await (dbClient.getMostRecentTermDataInClassDb(school))).data.value;
+
+        let dbContainsSemester = (await dbClient.dbContainsSemester(school, req.query.term, req.query.semester)).success;
         if (req.query.term && req.query.semester) {
             if ((term === req.query.term && semester === req.query.semester) || !dbContainsSemester) {
                 res.redirect("/classes");
@@ -748,13 +756,15 @@ module.exports = function (app, passport) {
         res.render("admin/classes.ejs", {
             username: req.user.username,
             page: "classes",
-            classData: (await dbClient.getAllClassData("bellarmine", term, semester)).data.value,
+            classData: (await dbClient.getAllClassData(school, term, semester)).data.value,
             sessionTimeout: Date.parse(req.session.cookie._expires),
             appearance: JSON.stringify(req.user.appearance),
             beta: server.beta,
+            schools: SCHOOL_NAMES,
+            school: school,
             term: term,
             semester: semester,
-            termsAndSemesters: JSON.stringify((await dbClient.getTermsAndSemestersInClassDb("bellarmine")).data.value),
+            termsAndSemesters: JSON.stringify((await dbClient.getTermsAndSemestersInClassDb(school)).data.value),
             sunset: sunset,
             sunrise: sunrise,
             _: _
