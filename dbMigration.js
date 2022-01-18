@@ -15,9 +15,9 @@ db.set("deletedUsers", filedb.get("deletedUsers").value()).write();
 
 //setup mongodb
 const {MongoClient} = require("mongodb");
-mongoUrl = "mongodb://localhost:27017";
+mongoUrl = process.env.NODE_ENV === "production" ? process.env.DB_URL : "mongodb://localhost:27017";
 
-const DATABASE_NAME = "migrated";
+const DATABASE_NAME = process.env.port === "5998" ? "beta" : "stable";
 
 const SCHOOL_NAMES = ["bellarmine", "basis"];
 const USERS_COLLECTION_NAME = "users";
