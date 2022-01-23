@@ -338,7 +338,7 @@ const _updateUser = async (db, username) => {
     // Remove extra beta features
     let betaFeatures = user.betaFeatures;
     let existingFeatures = Object.keys(betaFeatures);
-    let temp2 = _.clone(existingFeatures);
+    let temp2 = _.clone(betaFeatures);
     for (let i = 0; i < existingFeatures.length; i++) {
         if (existingFeatures[i] === "active") {
             continue;
@@ -629,7 +629,7 @@ const _setShowNonAcademic = async (db, username, value) => {
 };
 
 const _setRegularizeClassGraphs = async (db, username, value) => {
-    if (typeof value !== false) {
+    if (typeof value !== "boolean") {
         return {
             success: false,
             data: {message: "Something went wrong", log: `Invalid regularizeClassGraphs value: ${value}`}
@@ -1628,9 +1628,9 @@ const _joinBeta = async (db, username) => {
     let featureObject = betaFeatures();
     let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {betaFeatures: featureObject}});
     if (res.ok) {
-        return {success: true, data: {log: `Joined beta for ${username} in ${school}`}};
+        return {success: true, data: {log: `Joined beta for ${username}`}};
     }
-    return {success: false, data: {log: `Error joining beta for ${username} in ${school}`}};
+    return {success: false, data: {log: `Error joining beta for ${username}`}};
 };
 
 const _updateBetaFeatures = async (db, username, features) => {
