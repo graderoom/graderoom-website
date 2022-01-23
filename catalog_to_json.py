@@ -34,7 +34,7 @@ with open('catalog.html', 'w') as f:
 soup = BS(content, 'html.parser')
 classes = soup.find_all('div', class_='card')
 
-url = "mongodb://localhost:27017"  # TODO change this for prod
+url = process.env.DB_URL ?? "mongodb://localhost:27017"
 database_name = "common"
 collection_name = "catalog"
 client = MongoClient(url)

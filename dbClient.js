@@ -1084,7 +1084,7 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                     case "basis":
                         let newWeights = data.new_weights;
                         let term = Object.keys(newWeights)[0];
-                        await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {[`grades.${term}._`]: newWeights[term]._}});
+                        await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {[`weights.${term}._`]: newWeights[term]._}});
                         break;
                     case "bellarmine":
                         let currentWeights = user.weights;
