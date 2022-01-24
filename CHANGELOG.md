@@ -42,6 +42,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 4.9.16] - 2021-01-24
+### Fixed
+- Resolved an error that was causing a server crash
+
 ## [Beta 4.9.15] - 2021-01-23
 ### Fixed
 - Issue with enrolling into the beta
