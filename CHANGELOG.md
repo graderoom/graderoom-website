@@ -42,6 +42,15 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 4.9.15] - 2021-01-23
+### Fixed
+- Issue with enrolling into the beta
+- Issue with changing the "regularize class graphs" setting
+
+## [Beta 4.9.14] - 2021-01-22
+### Fixed
+- Issues where Basis users could not sync
+
 ## [Beta 4.9.13] - 2021-01-18
 ### Improved
 - Migrated to new database library
