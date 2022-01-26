@@ -77,130 +77,134 @@
         </h6>
         <hr>
         <h1>Users</h1>
-        <table class="table rounded-table" style="width: 100% !important;">
-            <thead>
-                <tr>
-                    <th class="admin">Username</th>
-                    <th class="admin">Name</th>
-                    <th class="admin">Account Created</th>
-                    <th class="admin">Last Logged In</th>
-                    <th class="admin">Attributes</th>
-                    <th class="admin">Render User Site</th>
-                    <th class="admin">Archive User</th>
-                    <th class="admin">Change Admin Privileges</th>
-                </tr>
-            </thead>
-
-            <% for (let u of userList) { %>
-                <tr>
-                    <td class="admin"><%= u.username %> </td>
-                    <td class="admin"><%= u.personalInfo.firstName + " " + u.personalInfo.lastName + " '" + (u.personalInfo.graduationYear - 2000) %></td>
-                    <td class="admin">
-                        <%= new Date(u.loggedIn[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) ;%>
-                    </td>
-                    <td class="admin">
-                        <% if (new Date(u.loggedIn.slice(-1)[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
-                            Never Logged In
-                        <% } else { %>
-                            <%= new Date(u.loggedIn.slice(-1)[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) %>
-                        <% } %>
-                    </td>
-                    <td class="admin">
-                        <% if (Object.keys(u).includes("schoolPassword")) { %> GradeSync<br>
-                        <% } %>
-                        <% if (u.isAdmin) { %> Admin<br>
-                        <% } %>
-                        <% if (new Date(u.alerts.termsLastSeen).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
-                            Terms not Seen<br>
-                        <% } %>
-                        <% if (new Date(u.alerts.policyLastSeen).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
-                            Policy not Seen<br>
-                        <% } %>
-                        <% if (u.betaFeatures.active) { %>
-                            Beta<br>
-                        <% } %>
-                        <%= u.loggedIn.length; %> logins<br>
-                        <%= u.alerts.lastUpdated.length; %> syncs
-                    </td>
-                    <td class="admin">
-                        <% if (u.alerts.remoteAccess === "allowed") { %>
-                            <form action="/viewuser" method="get" style="display: inline-block;">
-                                <button type="submit" name="usernameToRender" class="btn btn-sm admin"
-                                        value="<%= u.username; %>">
-                                    Render User Site
-                                </button>
-                            </form>
-                        <% } else { %>
-                            Remote Access Denied
-                        <% } %>
-                    </td>
-                    <td class="admin">
-                        <% if (!u.isAdmin) { %>
-                            <form action="/deleteuser" method="post">
-                                <button type="submit" name="deleteUser" class="btn btn-sm admin"
-                                        value="<%= u.username %>">Delete User
-                                </button>
-                            </form>
-                        <% } else { %>
-                            Cannot Delete Admin
-                        <% } %>
-                    </td>
-
-                    <td class="admin">
-                        <% if (u.username != username) { %>
-                            <% if (u.isAdmin) { %>
-                                <form action="/removeadmin" method="post">
-                                    <button type="submit" name="removeAdminUser" class="btn btn-sm admin"
-                                            value="<%= u.username %>">Remove Admin Privileges
+        <div style="max-height: 100vh; overflow: auto">
+            <table class="table rounded-table" style="width: 100% !important;">
+                <thead>
+                    <tr>
+                        <th class="admin">Username</th>
+                        <th class="admin">Name</th>
+                        <th class="admin">Account Created</th>
+                        <th class="admin">Last Logged In</th>
+                        <th class="admin">Attributes</th>
+                        <th class="admin">Render User Site</th>
+                        <th class="admin">Archive User</th>
+                        <th class="admin">Change Admin Privileges</th>
+                    </tr>
+                </thead>
+                <% for (let u of userList) { %>
+                    <tr>
+                        <td class="admin"><%= u.username %> </td>
+                        <td class="admin"><%= u.personalInfo.firstName + " " + u.personalInfo.lastName + " '" + (u.personalInfo.graduationYear - 2000) %></td>
+                        <td class="admin">
+                            <%= new Date(u.loggedIn[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) ;%>
+                        </td>
+                        <td class="admin">
+                            <% if (new Date(u.loggedIn.slice(-1)[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
+                                Never Logged In
+                            <% } else { %>
+                                <%= new Date(u.loggedIn.slice(-1)[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) %>
+                            <% } %>
+                        </td>
+                        <td class="admin">
+                            <% if (Object.keys(u).includes("schoolPassword")) { %> GradeSync<br>
+                            <% } %>
+                            <% if (u.isAdmin) { %> Admin<br>
+                            <% } %>
+                            <% if (new Date(u.alerts.termsLastSeen).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
+                                Terms not Seen<br>
+                            <% } %>
+                            <% if (new Date(u.alerts.policyLastSeen).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
+                                Policy not Seen<br>
+                            <% } %>
+                            <% if (u.betaFeatures.active) { %>
+                                Beta<br>
+                            <% } %>
+                            <%= u.loggedIn.length; %> logins<br>
+                            <%= u.alerts.lastUpdated.length; %> syncs
+                        </td>
+                        <td class="admin">
+                            <% if (u.alerts.remoteAccess === "allowed") { %>
+                                <form action="/viewuser" method="get" style="display: inline-block;">
+                                    <button type="submit" name="usernameToRender" class="btn btn-sm admin"
+                                            value="<%= u.username; %>">
+                                        Render User Site
                                     </button>
                                 </form>
                             <% } else { %>
-                                <form action="/makeadmin" method="post">
-                                    <button type="submit" name="newAdminUser" class="btn btn-sm admin"
-                                            value="<%= u.username %>">Make User Admin
+                                Remote Access Denied
+                            <% } %>
+                        </td>
+                        <td class="admin">
+                            <% if (!u.isAdmin) { %>
+                                <form action="/archiveUser" method="post">
+                                    <button type="submit" name="deleteUser" class="btn btn-sm admin"
+                                            value="<%= u.username %>">Archive User
                                     </button>
                                 </form>
+                            <% } else { %>
+                                Cannot Delete Admin
                             <% } %>
-                        <% } else { %>
-                            Cannot Remove Admin Privileges
-                        <% } %>
-                    </td>
-                </tr>
-            <% } %>
-        </table>
+                        </td>
+
+                        <td class="admin">
+                            <% if (u.username != username) { %>
+                                <% if (u.isAdmin) { %>
+                                    <form action="/removeadmin" method="post">
+                                        <button type="submit" name="removeAdminUser" class="btn btn-sm admin"
+                                                value="<%= u.username %>">Remove Admin Privileges
+                                        </button>
+                                    </form>
+                                <% } else { %>
+                                    <form action="/makeadmin" method="post">
+                                        <button type="submit" name="newAdminUser" class="btn btn-sm admin"
+                                                value="<%= u.username %>">Make User Admin
+                                        </button>
+                                    </form>
+                                <% } %>
+                            <% } else { %>
+                                Cannot Remove Admin Privileges
+                            <% } %>
+                        </td>
+                    </tr>
+                <% } %>
+            </table>
+        </div>
         <hr>
         <h1>Archived Users</h1>
-        <table class="table rounded-table" style="width: 100% !important;">
-            <thead>
-                <tr>
-                    <th class="admin">Username</th>
-                    <th class="admin">School Username</th>
-                    <th class="admin">Restore User</th>
-                    <th class="admin">Delete Forever</th>
-                </tr>
-            </thead>
+        <div style="max-height: 100vh; overflow: auto"></div>
+            <table class="table rounded-table" style="width: 100% !important;">
+                <thead>
+                    <tr>
+                        <th class="admin">Username</th>
+                        <th class="admin">School Username</th>
+                        <th class="admin">Restore User</th>
+                        <th class="admin">Delete Forever</th>
+                    </tr>
+                </thead>
 
-            <% for (let u of deletedUserList) { %>
-                <tr>
-                    <td class="admin"><%= u.username %> </td>
-                    <td class="admin"><%= u.schoolUsername %></td>
-                    <td class="admin">
-                        <form action="/restoreUser" method="post">
-                            <button type="submit" name="restoreUser" class="btn btn-sm admin"
-                                    value="<%= u.username %>">Restore User
-                            </button>
-                        </form>
-                    </td>
-                    <td class="admin">
-                        <form action="/deleteuser" method="post">
-                            <button type="submit" name="deleteUser" class="btn btn-sm admin"
-                                    value="<%= u.username %>">Delete Forever
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            <% } %>
-        </table>
+                <% for (let u of deletedUserList) { %>
+                    <tr>
+                        <td class="admin"><%= u.username %> </td>
+                        <td class="admin"><%= u.schoolUsername %></td>
+                        <td class="admin">
+                            <form action="/restoreUser" method="post">
+                                <button type="submit" name="restoreUser" class="btn btn-sm admin"
+                                        value="<%= u.username %>">Restore User
+                                </button>
+                            </form>
+                        </td>
+                        <td class="admin">
+                            <form action="/deleteuser" method="post">
+                                <button type="submit" name="deleteUser" class="btn btn-sm admin"
+                                        value="<%= u.username %>">Delete Forever
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                <% } %>
+            </table>
+        <div style="max-height: 100px; overflow: auto"></div>
+
     </div>
 </div>
 <script>

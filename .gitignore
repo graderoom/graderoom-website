@@ -15,3 +15,4 @@ user_db*.json
 /graderoom.log
 /_credentials.json
 config/
+*.rdb

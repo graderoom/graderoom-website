@@ -257,9 +257,9 @@ module.exports = function (app, passport) {
         res.redirect("/");
     });
 
-    app.post("/deleteUser", [isAdmin], async (req, res) => {
+    app.post("/archiveUser", [isAdmin], async (req, res) => {
         let username = req.body.deleteUser;
-        console.log("Got request to delete: " + username);
+        console.log("Got request to archive: " + username);
 
         let resp = await dbClient.archiveUser(username);
         console.log(resp);
@@ -275,6 +275,21 @@ module.exports = function (app, passport) {
     app.post("/restoreUser", [isAdmin], async (req, res) => {
         let username = req.body.restoreUser;
         let resp = await dbClient.unArchiveUser(username);
+        if (resp.success) {
+            req.flash("adminSuccessMessage", resp.data.message);
+        } else {
+            req.flash("adminFailMessage", resp.data.message);
+        }
+
+        res.redirect("/admin");
+    });
+
+    app.post("/deleteUser", [isAdmin], async(req, res) => {
+        let username = req.body.deleteUser;
+        console.log("Got request to permanently delete: " + username);
+
+        let resp = await dbClient.removeUserFromArchive(username);
+        console.log(resp);
         if (resp.success) {
             req.flash("adminSuccessMessage", resp.data.message);
         } else {
@@ -350,9 +365,9 @@ module.exports = function (app, passport) {
     });
 
     app.post("/updateTutorialStatus", [isLoggedIn], async (req, res) => {
-        let resp = await dbClient.updateTutorial(req.user.username, req.body.action);
+        let resp = await dbClient.updateTutorial(req.user.username, req.body.action + "Seen");
         if (resp.success) {
-            res.status(200).send(JSON.stringify(resp.data.message));
+            res.status(200).send(JSON.stringify(resp.data.value));
         } else {
             res.sendStatus(400);
         }

@@ -320,18 +320,15 @@ const _updateUser = async (db, username) => {
     }
 
     let user = res.data.value;
-    let existingKeys = Object.keys(user.alerts.tutorialStatus);
-    let temp = _.clone(existingKeys);
-    for (let i = 0; i < existingKeys.length; i++) {
-        if (!tutorialKeys.includes(existingKeys[i])) {
-            delete temp[existingKeys[i]];
-        }
-    }
 
-    // Add tutorial keys
-    for (let i = 0; i < tutorialKeys.length; i++) {
-        if (!(tutorialKeys[i] in temp)) {
-            temp[tutorialKeys[i]] = false;
+    //Remove old & add missing tutorial keys
+    let existingKeys = Object.keys(user.alerts.tutorialStatus);
+    let temp = {};
+    for (let tutorialKey of tutorialKeys) {
+        if (tutorialKey in existingKeys) {
+            temp[tutorialKeys] = user.alerts.tutorialStatus[tutorialKeys];
+        } else {
+            temp[tutorialKey] = false;
         }
     }
 
@@ -1527,7 +1524,7 @@ const _updateTutorial = async (db, username, action) => {
         return {success: false, data: {log: `Invalid action: ${action}`}};
     }
 
-    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {[`alerts.tutorialStatus.${action}Seen`]: true}}, {returnDocument: "after"});
+    let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {[`alerts.tutorialStatus.${action}`]: true}}, {returnDocument: "after"});
     return {success: true, data: {value: res.value}};
 };
 
