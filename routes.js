@@ -561,11 +561,6 @@ module.exports = function (app, passport) {
 
     });
 
-
-    //FIX THIS TO LET ANY WEIGHTS BE
-    // EDITED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // must be called via client side ajax+js
     app.post("/updateweights", [isLoggedIn], async (req, res) => {
         let className = req.body.className;
         let hasWeights = JSON.parse(req.body.hasWeights);

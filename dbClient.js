@@ -325,8 +325,8 @@ const _updateUser = async (db, username) => {
     let existingKeys = Object.keys(user.alerts.tutorialStatus);
     let temp = {};
     for (let tutorialKey of tutorialKeys) {
-        if (tutorialKey in existingKeys) {
-            temp[tutorialKeys] = user.alerts.tutorialStatus[tutorialKeys];
+        if (existingKeys.includes(tutorialKey)) {
+            temp[tutorialKey] = user.alerts.tutorialStatus[tutorialKey];
         } else {
             temp[tutorialKey] = false;
         }
@@ -1360,11 +1360,9 @@ const _updateClassesForUser = async (db, username, term, semester, className) =>
                     let dbClass = res2.data.value;
                     let dbTeacher = dbClass.teachers.find(teacher => teacher.teacherName === teacherName);
                     // Update weights from classes db if not custom
-                    if (!custom) {
-                        if (!dbTeacher.hasWeights || Object.keys(dbTeacher.weights).length > 0) {
-                            newWeights = dbTeacher.weights;
-                            hasWeights = dbTeacher.hasWeights;
-                        }
+                    if (!custom && (dbTeacher.hasWeights === false || Object.keys(dbTeacher.weights).length > 0)) {
+                        newWeights = dbTeacher.weights;
+                        hasWeights = dbTeacher.hasWeights;``
                     } else {
                         newWeights = Object.fromEntries(neededWeights.map((neededWeight) => [neededWeight, currentWeights.weights[neededWeight] ?? null]));
 
