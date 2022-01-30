@@ -775,6 +775,31 @@
             let syncSocket = io({query: {"purpose": "sync"}});
             let notiSocket = io({query: {"purpose": "noti"}});
 
+            function logSocket(socket, socketName) {
+
+                function displayNicely(...args) {
+                    return [...args].map(arg => {
+                        return JSON.stringify(arg);
+                    });
+                }
+
+                socket.onAny((event, ...args) => {
+                    if (event.startsWith("info")) {
+                        console.info(socketName + " | " + event + " | " + displayNicely(...args).join(" | "));
+                    } else if (event.startsWith("error")) {
+                        console.error(socketName + " | " + event + " | " + displayNicely(...args).join(" | "));
+                    } else if (event.startsWith("fail")) {
+                        console.warn(socketName + " | " + event + " | " + displayNicely(...args).join(" | "));
+                    } else {
+                        console.log(socketName + " | " + event + " | " + displayNicely(...args).join(" | "));
+                    }
+                });
+            }
+
+            logSocket(mainSocket, "MAIN");
+            logSocket(syncSocket, "SYNC");
+            logSocket(notiSocket, "NOTI");
+
             mainSocket.onAny((event, data) => {
                 switch (event) {
                     case "success-settingschange":
@@ -913,6 +938,10 @@
 
                     case "fail-settingschange":
                         break;
+
+                    case "refresh":
+                        window.reload();
+                        break;
                 }
             });
 
@@ -920,7 +949,7 @@
                 let messageDiv = $(".updateGradesMessage");
                 switch (event) {
                     case "info-initialstatus":
-                        let status = data.data.message;
+                        let status = data.message;
                         switch (status) {
                             case "Sync Failed.":
                             case "Cannot access grades.":
@@ -933,6 +962,7 @@
                                 messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(status);
                                 break;
                             case "Did not sync":
+                                clearTimeout(checkLastUpdated);
                                 break;
                             case "Sync Complete!":
                                 showLatest(false);
@@ -951,7 +981,7 @@
                         }
                         break;
                     case "progress":
-                        let {progress, message} = data.data;
+                        let {progress, message} = data;
                         messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(message + " (" + progress.toFixed(0) + "%)");
                         break;
                     case "progress-history":
@@ -960,7 +990,7 @@
                         break;
                     case "success-history":
                     case "success-alldata":
-                        let newData = {grades: JSON.parse(data.data.grades), weights: JSON.parse(data.data.weights)};
+                        let newData = {grades: JSON.parse(data.grades), weights: JSON.parse(data.weights)};
                         if (!updateData(newData).updated) {
                             sessionStorage.setItem("showSyncLog", "true");
                             if (cardsDisplayed.length === 0 || cardsDisplayed[cardsDisplayed.length - 1] === "updateGradesDisplay") {
@@ -974,7 +1004,7 @@
                                 });
                             }
                         } else {
-                            alerts.lastUpdated.push(JSON.parse(data.data.updateData));
+                            alerts.lastUpdated.push(JSON.parse(data.updateData));
                             setupGradeChanges();
                             showLatest(false);
                             refreshWithoutReload(true);
@@ -986,37 +1016,12 @@
                     case "fail-termsemester":
                     case "fail-history":
                     case "fail-general":
-                        messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(data.data.message);
+                        messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(data.message);
                         setupLastUpdated();
                         showLatest(false);
                         break;
                 }
             });
-
-            function logSocket(socket, socketName) {
-
-                function displayNicely(...args) {
-                    return [...args].map(arg => {
-                        return JSON.stringify(arg);
-                    });
-                }
-
-                socket.onAny((event, ...args) => {
-                    if (event.startsWith("info")) {
-                        console.info(socketName + " | " + event + " | " + displayNicely(...args).join(" | "));
-                    } else if (event.startsWith("error")) {
-                        console.error(socketName + " | " + event + " | " + displayNicely(...args).join(" | "));
-                    } else if (event.startsWith("fail")) {
-                        console.warn(socketName + " | " + event + " | " + displayNicely(...args).join(" | "));
-                    } else {
-                        console.log(socketName + " | " + event + " | " + displayNicely(...args).join(" | "));
-                    }
-                });
-            }
-
-            logSocket(mainSocket, "MAIN");
-            logSocket(syncSocket, "SYNC");
-            logSocket(notiSocket, "NOTI");
 
             let refreshing;
             let shortcutsEnabled = true;

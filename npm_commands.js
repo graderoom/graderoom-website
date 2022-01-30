@@ -36,7 +36,7 @@ module.exports = {
 
         let userRef = authenticator.db.get("users").find({username: graderoom_username});
 
-        let {term: oldTerm, semester: oldSemester} = (await dbClient.getMostRecentTermData(graderoom_username)).data;
+        let {term: oldTerm, semester: oldSemester} = (await dbClient.getMostRecentTermData(graderoom_username)).data.value;
         let term_data_if_locked = {term: oldTerm, semester: oldSemester};
         let data_if_locked = [];
         if (oldTerm && oldSemester) {

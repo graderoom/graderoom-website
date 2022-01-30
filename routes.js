@@ -4,6 +4,7 @@ const emailSender = require("./emailSender.js");
 const _ = require("lodash");
 const SunCalc = require("suncalc");
 const {changelog, SCHOOL_NAMES} = require("./dbHelpers");
+const socketManager = require("./socketManager");
 
 module.exports = function (app, passport) {
 
@@ -284,7 +285,7 @@ module.exports = function (app, passport) {
         res.redirect("/admin");
     });
 
-    app.post("/deleteUser", [isAdmin], async(req, res) => {
+    app.post("/deleteUser", [isAdmin], async (req, res) => {
         let username = req.body.deleteUser;
         console.log("Got request to permanently delete: " + username);
 
@@ -501,11 +502,11 @@ module.exports = function (app, passport) {
 
         let gradeSync = req.body.savePassword === "on";
         let pass = req.body.school_password;
-        let user = req.user.username;
+        let username = req.user.username;
         let userPass = req.body.user_password;
         if (userPass) {
             if (!gradeSync) {
-                let resp = await dbClient.decryptAndGetSchoolPassword(user, userPass);
+                let resp = await dbClient.decryptAndGetSchoolPassword(username, userPass);
                 if (resp.success) {
                     pass = resp.data.value;
                 } else {
@@ -513,7 +514,7 @@ module.exports = function (app, passport) {
                     return;
                 }
             } else {
-                let resp = await dbClient.login(user, userPass);
+                let resp = await dbClient.login(username, userPass);
                 if (!resp.success) {
                     res.status(400).send(resp.data.message);
                     return;
@@ -521,38 +522,39 @@ module.exports = function (app, passport) {
             }
         }
         let _stream = (await dbClient.updateGrades(req.user.username, pass)).data.stream;
-        let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data.value;
 
         _stream.on("data", async (data) => {
             if (!("success" in data)) {
                 return;
             }
             if (data.success || data.message === "No class data." || data.message === "An Unknown Error occurred. Contact support." || data.message === "PowerSchool is locked.") {
-                if (term && semester) {
-                    if (gradeSync) {
-                        let encryptResp = await dbClient.encryptAndStoreSchoolPassword(user, pass, userPass);
-                        if (!encryptResp.success) {
-                            res.status(400).send(encryptResp.data.message);
-                            return;
-                        }
-                        res.status(200).send({
-                                                 gradeSyncEnabled: true,
-                                                 message: data.message,
-                                                 grades: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
-                                                 weights: JSON.stringify(req.user.weights[term][semester]),
-                                                 updateData: JSON.stringify(req.user.alerts.lastUpdated.slice(-1)[0])
-                                             });
-                    } else {
-                        res.status(200).send({
-                                                 gradeSyncEnabled: false,
-                                                 message: data.message,
-                                                 grades: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
-                                                 weights: JSON.stringify(req.user.weights[term][semester]),
-                                                 updateData: JSON.stringify(req.user.alerts.lastUpdated.slice(-1)[0])
-                                             });
+                let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data.value;
+
+                if (gradeSync) {
+                    let encryptResp = await dbClient.encryptAndStoreSchoolPassword(username, pass, userPass);
+                    if (!encryptResp.success) {
+                        res.status(400).send(encryptResp.data.message);
+                        return;
                     }
+                }
+                let user = (await dbClient.getUser({username: username})).data.value;
+                if (term && semester) {
+                    res.status(200).send({
+                                             gradeSyncEnabled: gradeSync,
+                                             message: data.message,
+                                             grades: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
+                                             weights: JSON.stringify(user.weights[term][semester]),
+                                             updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
+                                         });
                 } else {
-                    res.status(400).send(data.message);
+                    console.log(user.grades);
+                    // res.status(200).send({
+                    //                              gradeSyncEnabled: gradeSync,
+                    //                              message: data.message,
+                    //                              grades: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
+                    //                              weights: JSON.stringify(user.weights[term][semester]),
+                    //                              updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
+                    //                          });
                 }
             } else {
                 res.status(400).send(data.message);
@@ -841,8 +843,7 @@ module.exports = function (app, passport) {
             }).length).length
         }));
         let activePercentageData = userData.map((t, i) => ({
-            x: t.x,
-            y: Math.round(uniqueUsersData[i].y / t.y * 100 * 10000) / 10000
+            x: t.x, y: Math.round(uniqueUsersData[i].y / t.y * 100 * 10000) / 10000
         }));
         res.render("admin/cool_charts.ejs", {
             username: req.user.username,

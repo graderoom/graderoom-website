@@ -21,7 +21,7 @@ module.exports = {
             let username = socket.request.user.username;
             if (purpose === "sync") {
                 let res = await getSyncStatus(socket.request.user.username);
-                socket.emit("info-initialstatus", res);
+                socket.emit("info-initialstatus", res.data);
             }
             let roomName = username + "-" + purpose;
             socket.join(roomName);

@@ -943,7 +943,7 @@ const _updateGrades = async (db, username, schoolPassword) => {
         return res;
     }
     let user = res.data.value;
-    let {term: oldTerm, semester: oldSemester} = __getMostRecentTermData(user);
+    let {term: oldTerm, semester: oldSemester} = __getMostRecentTermData(user).data.value;
     let termDataIfLocked = {term: oldTerm, semester: oldSemester};
     let dataIfLocked = "";
     if (oldTerm && oldSemester) {
@@ -1050,7 +1050,7 @@ const _updateGrades = async (db, username, schoolPassword) => {
                 socketManager.emitToRoom(username, SYNC_PURPOSE, "success", {message: "Updated grades!"});
             }
         } else {
-            socketManager.emitToRoom(username, SYNC_PURPOSE, "progress", {data: data});
+            socketManager.emitToRoom(username, SYNC_PURPOSE, "progress", data);
         }
     });
 

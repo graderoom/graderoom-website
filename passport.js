@@ -3,6 +3,7 @@ const LocalStrategy = require("passport-local").Strategy;
 const dbClient = require("./dbClient");
 const bcrypt = require("bcryptjs");
 const socketManager = require("./socketManager");
+const {getSyncStatus} = require("./dbClient");
 module.exports = function (passport) {
 
     // =========================================================================
@@ -58,13 +59,13 @@ module.exports = function (passport) {
                     let resp = await dbClient.decryptAndGetSchoolPassword(user.username, password);
                     let schoolPass = resp.data.value;
                     let _stream = (await dbClient.updateGrades(user.username, schoolPass)).data.stream;
-                    let {term, semester} = (await dbClient.getMostRecentTermData(user.username)).data;
 
                     _stream.on("data", async (data) => {
                         if (!('success' in data)) {
                             return;
                         }
                         if (data.success) {
+                            let {term, semester} = (await dbClient.getMostRecentTermData(user.username)).data.value;
                             if (term && semester) {
                                 socketManager.emitToRoom(user.username, "sync", "success-alldata", {
                                     gradeSyncEnabled: true,
@@ -74,7 +75,7 @@ module.exports = function (passport) {
                                     updateData: JSON.stringify(req.user.alerts.lastUpdated.slice(-1)[0])
                                 });
                             } else {
-                                socketManager.emitToRoom(user.username, "sync", "fail-termsemester", data.message);
+                                socketManager.emitToRoom(user.username, "main", "refresh", data.message);
                             }
                         } else {
                             await dbClient.setSyncStatus(user.username, "account-inactive");
