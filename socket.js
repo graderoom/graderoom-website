@@ -2,6 +2,9 @@ const dbClient = require("./dbClient");
 const socketManager = require("./socketManager");
 module.exports = {
     setupSocket: function (socket, purpose) {
+        if (process.env.NODE_ENV !== "production") {
+            logSocket(socket, purpose);
+        }
         purpose = purpose.toLowerCase(); // Just in case
         switch (purpose) {
             case "main":
@@ -34,9 +37,56 @@ module.exports = {
                 });
                 break;
             case "sync":
+                socket.on("start-update", async (data) => {
+                    let username = socket.request.user.username;
+                    let gradeSync = data.gradeSync;
+                    let schoolPass = data.schoolPassword;
+                    let userPass = data.userPassword;
+
+                    if (userPass) {
+                        if (gradeSync) {
+                            let resp = await dbClient.login(username, userPass);
+                            if (!resp.success) {
+                                socketManager.emitToRoom(username, purpose, "fail-general", resp.data.message);
+                                return;
+                            }
+                        } else {
+                            let resp = await dbClient.decryptAndGetSchoolPassword(username, userPass);
+                            if (resp.success) {
+                                schoolPass = resp.data.value;
+                            } else {
+                                socketManager.emitToRoom(username, purpose, "fail-general", resp.data.message);
+                                return;
+                            }
+                        }
+                    }
+
+                    await dbClient.updateGrades(username, schoolPass, userPass, gradeSync);
+                })
                 break;
             case "noti":
                 break;
         }
     },
+}
+
+function logSocket(socket, socketName) {
+
+    function displayNicely(...args) {
+        return [...args].map(arg => {
+            return JSON.stringify(arg);
+        });
+    }
+
+    socket.onAny((event, ...args) => {
+        if (event.startsWith("info")) {
+            console.info(socketName + " | " + event + " | " + displayNicely(...args).join(" | "));
+        } else if (event.startsWith("error")) {
+            console.error(socketName + " | " + event + " | " + displayNicely(...args).join(" | "));
+        } else if (event.startsWith("fail")) {
+            console.warn(socketName + " | " + event + " | " + displayNicely(...args).join(" | "));
+        } else {
+            console.log(socketName + " | " + event + " | " + displayNicely(...args).join(" | "));
+        }
+    });
 }

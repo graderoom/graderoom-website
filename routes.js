@@ -498,75 +498,9 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.post("/update", [isLoggedIn, inRecentTerm], async (req, res) => {
-
-        let gradeSync = req.body.savePassword === "on";
-        let pass = req.body.school_password;
-        let username = req.user.username;
-        let userPass = req.body.user_password;
-        if (userPass) {
-            if (!gradeSync) {
-                let resp = await dbClient.decryptAndGetSchoolPassword(username, userPass);
-                if (resp.success) {
-                    pass = resp.data.value;
-                } else {
-                    res.status(400).send(resp.data.message);
-                    return;
-                }
-            } else {
-                let resp = await dbClient.login(username, userPass);
-                if (!resp.success) {
-                    res.status(400).send(resp.data.message);
-                    return;
-                }
-            }
-        }
-        let _stream = (await dbClient.updateGrades(req.user.username, pass)).data.stream;
-
-        _stream.on("data", async (data) => {
-            if (!("success" in data)) {
-                return;
-            }
-            if (data.success || data.message === "No class data." || data.message === "An Unknown Error occurred. Contact support." || data.message === "PowerSchool is locked.") {
-                let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data.value;
-
-                if (gradeSync) {
-                    let encryptResp = await dbClient.encryptAndStoreSchoolPassword(username, pass, userPass);
-                    if (!encryptResp.success) {
-                        res.status(400).send(encryptResp.data.message);
-                        return;
-                    }
-                }
-                let user = (await dbClient.getUser({username: username})).data.value;
-                if (term && semester) {
-                    res.status(200).send({
-                                             gradeSyncEnabled: gradeSync,
-                                             message: data.message,
-                                             grades: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
-                                             weights: JSON.stringify(user.weights[term][semester]),
-                                             updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
-                                         });
-                } else {
-                    console.log(user.grades);
-                    // res.status(200).send({
-                    //                              gradeSyncEnabled: gradeSync,
-                    //                              message: data.message,
-                    //                              grades: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
-                    //                              weights: JSON.stringify(user.weights[term][semester]),
-                    //                              updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
-                    //                          });
-                }
-            } else {
-                res.status(400).send(data.message);
-            }
-        });
-
-    });
-
     app.post("/updateweights", [isLoggedIn], async (req, res) => {
         let className = req.body.className;
         let hasWeights = JSON.parse(req.body.hasWeights);
-        console.log(hasWeights);
         let newWeights = JSON.parse(req.body.newWeights);
         let term = req.body.term;
         let semester = req.body.semester;
@@ -580,8 +514,8 @@ module.exports = function (app, passport) {
     });
 
     app.post("/updateclassweights", [isAdmin], async (req, res) => {
-        //TODO: get school from frontend
-        let resp = await dbClient.updateWeightsInClassDb("bellarmine", req.body.term, req.body.semester, req.body.className, req.body.teacherName, JSON.parse(req.body.hasWeights), req.body.weights);
+        let school = req.query.school ?? "bellarmine";
+        let resp = await dbClient.updateWeightsInClassDb(school, req.body.term, req.body.semester, req.body.className, req.body.teacherName, JSON.parse(req.body.hasWeights), req.body.weights);
         if (resp.success) {
             res.status(200).send(resp.data);
         } else {
@@ -590,8 +524,8 @@ module.exports = function (app, passport) {
     });
 
     app.post("/updateclasstype", [isAdmin], async (req, res) => {
-        //TODO: get school from frontend
-        let resp = await dbClient.updateClassTypeInClassDb("bellarmine", req.body.term, req.body.semester, req.body.className, req.body.classType);
+        let school = req.query.school ?? "bellarmine";
+        let resp = await dbClient.updateClassTypeInClassDb(school, req.body.term, req.body.semester, req.body.className, req.body.classType);
         if (resp.success) {
             res.status(200).send(resp.data);
         } else {
@@ -600,8 +534,8 @@ module.exports = function (app, passport) {
     });
 
     app.post("/updateuccsuclasstype", [isAdmin], async (req, res) => {
-        //TODO: get school from frontend
-        let resp = await dbClient.updateUCCSUClassTypeInClassDb("bellarmine", req.body.term, req.body.semester, req.body.className, req.body.classType);
+        let school = req.query.school ?? "bellarmine";
+        let resp = await dbClient.updateUCCSUClassTypeInClassDb(school, req.body.term, req.body.semester, req.body.className, req.body.classType);
         if (resp.success) {
             res.status(200).send(resp.data);
         } else {

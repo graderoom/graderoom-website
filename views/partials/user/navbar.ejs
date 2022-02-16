@@ -230,7 +230,40 @@
     }
 
     function changeSetting(name, value) {
-        sendData(mainSocket, 'settings-change', {[name]: value});
+        sendData(mainSocket, "settings-change", {[name]: value});
+    }
+
+    function updateGrades(password, schoolPassword, gradeSync) {
+
+        let _gradeSync = !schoolPassword;
+
+        let messageBox = $(".updateGradesMessage");
+        let message = $(".updateGradesMessage.alert .messageTxt");
+
+        clearTimeout(checkLastUpdated);
+
+        $(".fa-refresh").addClass("fa-spin").css("opacity", 0.5);
+
+        messageBox.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
+
+        $(message).text("");
+
+        $("#updateGradesDisplay input").trigger("blur");
+
+        shortcutsEnabled = false;
+
+        $("#loadingDisplay").show();
+
+        $(".syncFailure").hide();
+        $(".syncNoData").hide();
+
+        $(`${_gradeSync ? "#syncGradesForm" : "#gradeSyncForm"}`).find("button").prop("disabled", true).find("div").addClass("loading");
+
+        sendData(syncSocket, "start-update", {
+            gradeSync: gradeSync, schoolPassword: schoolPassword, userPassword: password
+        });
+
+        return false;
     }
 
     function ajaxPostForm(formID, fieldIDsToClear, messagesDivID, _async, doInstantly = false) {
@@ -256,27 +289,10 @@
                 // Get the messages.
                 formMessagesDiv = $(messagesDivID);
                 $(formMessagesDiv).find(".sk-chase-mini").css("display", "inline-block");
-                if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
-                    clearTimeout(checkLastUpdated);
-                    $(".fa-refresh").addClass("fa-spin").css("opacity", 0.5);
-                    $(".updateGradesMessage").removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
-                    message = $(".updateGradesMessage.alert .messageTxt");
-                    $(message).text("");
-                } else {
-                    message = $(formMessagesDiv).find(".messageTxt");
-                    $(message).text("");
-                    $(formMessagesDiv).removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
-                    $(formMessagesDiv).show();
-                }
-
-                if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
-                    $("#updateGradesDisplay input").trigger('blur');
-                    shortcutsEnabled = false;
-                    $("#loadingDisplay").show();
-                    $(".syncFailure").hide();
-                    $(".syncNoData").hide();
-                    $(form).find("button").prop("disabled", true).find("div").addClass("loading");
-                }
+                message = $(formMessagesDiv).find(".messageTxt");
+                $(message).text("");
+                $(formMessagesDiv).removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
+                $(formMessagesDiv).show();
 
                 // Submit the form using AJAX.
                 $.ajax({
@@ -288,47 +304,11 @@
                         return;
                     }
                     console.log(response);
-                    if (response.gradeSyncEnabled) {
-                        $(".syncGradesDiv").hide();
-                        $(".gradeSyncDiv").show();
-                        $(".gradeSyncEnabled").show();
-                        gradeSync = true;
-                        setupTutorialPopups();
-                    }
-                    if (response.message && (response.message === "No class data." || response.message === "Powerschool is locked.")) {
-                        $(".syncNoData").show();
-                        $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
+                    setTimeout(function () {
+                        $(message).text(response);
                         $(formMessagesDiv).find(".sk-chase-mini").hide();
-                        setupLastUpdated();
-                    } else if (response.message && response.message === "Error scraping grades.") {
-                        $(".syncFailure").show();
-                        $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
-                        $(formMessagesDiv).find(".sk-chase-mini").hide();
-                        setupLastUpdated();
-                    } else if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
-                        $(formMessagesDiv).find(".sk-chase-mini").hide();
-                        let newData = {
-                            grades: JSON.parse(response.grades), weights: JSON.parse(response.weights)
-                        };
-                        clearTimeout(checkLastUpdated);
-                        if (!updateData(newData).updated) {
-                            $(formMessagesDiv).find(".messageTxt").text("Refresh to see the latest updates.");
-                            $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-danger").addClass("alert-success");
-                            setTimeout(() => window.reload(), 400);
-                        } else {
-                            alerts.lastUpdated.push(JSON.parse(response.updateData));
-                            setupGradeChanges();
-                            refreshWithoutReload(true);
-                            setupLastUpdated();
-                            setTimeout(() => closeForm("updateGradesDisplay"), 250);
-                        }
-                    } else {
-                        setTimeout(function () {
-                            $(message).text(response);
-                            $(formMessagesDiv).find(".sk-chase-mini").hide();
-                            $(formMessagesDiv).removeClass("alert-info").removeClass("alert-danger").addClass("alert-success");
-                        }, 500);
-                    }
+                        $(formMessagesDiv).removeClass("alert-info").removeClass("alert-danger").addClass("alert-success");
+                    }, 500);
 
                     if (formID === "#changeSchoolEmail") {
                         schoolUsername = $("#school_email")[0].value;
@@ -342,7 +322,7 @@
                     // Clear fields to clear
                     for (let i = 0; i < fieldIDsToClear.length; i++) {
                         $(fieldIDsToClear[i]).val("");
-                        $(fieldIDsToClear[i]).trigger('blur');
+                        $(fieldIDsToClear[i]).trigger("blur");
                         if (formID === "#changePassword") {
                             $($(fieldIDsToClear[i])[0].previousElementSibling).removeClass("label-active");
                             if ($($(fieldIDsToClear[i])[0].previousElementSibling.children[0])) {
@@ -360,13 +340,13 @@
                     if (data.responseText !== "") {
                         if (data.responseText === "Incorrect login details.") {
                             $(message).text("Incorrect school password.");
-                            $("#inputPassword").trigger('focus');
+                            $("#inputPassword").trigger("focus");
                         } else {
                             if (formID === "#syncGradesForm") {
-                                $("#inputUserPassword").trigger('focus');
+                                $("#inputUserPassword").trigger("focus");
                                 $(".fa-refresh").removeClass("fa-spin").css("opacity", "");
                             } else if (formID === "#gradeSyncForm") {
-                                $("#gradeSyncInputUserPassword").trigger('focus');
+                                $("#gradeSyncInputUserPassword").trigger("focus");
                                 $(".fa-refresh").removeClass("fa-spin").css("opacity", "");
                             }
                             $(message).text(data.responseText);
@@ -386,12 +366,6 @@
                         clearTimeout(checkLastUpdated);
                     }
 
-                }).always(function () {
-                    if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
-                        $(form).find("button").prop("disabled", false).find("div").removeClass("loading");
-                        $("#loadingDisplay").hide();
-                        shortcutsEnabled = true;
-                    }
                 });
             }, (doInstantly ? 0 : 400));
         });

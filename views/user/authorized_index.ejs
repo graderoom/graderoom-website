@@ -987,6 +987,54 @@
                     case "progress-history":
                         break;
                     case "success":
+                        let formMessagesDiv = $(".updateGradesMessage.alert .messageTxt");
+                        if (data.gradeSyncEnabled) {
+                            $(".syncGradesDiv").hide();
+                            $(".gradeSyncDiv").show();
+                            $(".gradeSyncEnabled").show();
+                            gradeSync = true;
+                            setupTutorialPopups();
+                        }
+                        if (data.message && (data.message === "No class data." || data.message === "Powerschool is locked.")) {
+                            $(".syncNoData").show();
+                            $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
+                            $(formMessagesDiv).find(".sk-chase-mini").hide();
+                            setupLastUpdated();
+                        } else if (data.message && data.message === "Error scraping grades.") {
+                            $(".syncFailure").show();
+                            $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
+                            $(formMessagesDiv).find(".sk-chase-mini").hide();
+                            setupLastUpdated();
+                        } else {
+                            $(formMessagesDiv).find(".sk-chase-mini").hide();
+                            let newData = {
+                                grades: JSON.parse(data.grades), weights: JSON.parse(data.weights)
+                            };
+                            clearTimeout(checkLastUpdated);
+                            if (!updateData(newData).updated) {
+                                $(formMessagesDiv).find(".messageTxt").text("Refresh to see the latest updates.");
+                                $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-danger").addClass("alert-success");
+                                setTimeout(() => window.reload(), 400);
+                            } else {
+                                alerts.lastUpdated.push(JSON.parse(data.updateData));
+                                setupGradeChanges();
+                                refreshWithoutReload(true);
+                                setupLastUpdated();
+                                setTimeout(() => closeForm("updateGradesDisplay"), 250);
+                            }
+                        }
+
+                        $(formMessagesDiv).show();
+
+                        let fieldIDsToClear = ["#inputPassword", "#inputUserPassword", "#gradeSyncInputUserPassword"];
+                        for (let i = 0; i < fieldIDsToClear.length; i++) {
+                            $(fieldIDsToClear[i]).val("");
+                            $(fieldIDsToClear[i]).trigger("blur");
+                        }
+
+                        $("#gradeSyncForm, #syncGradesForm").find("button").prop("disabled", false).find("div").removeClass("loading");
+                        $("#loadingDisplay").hide();
+                        shortcutsEnabled = true;
                         break;
                     case "success-history":
                     case "success-alldata":
@@ -1016,8 +1064,7 @@
                     case "fail-termsemester":
                     case "fail-history":
                     case "fail-general":
-                        messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(data.message);
-                        setupLastUpdated();
+                        messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(data);
                         showLatest(false);
                         break;
                 }

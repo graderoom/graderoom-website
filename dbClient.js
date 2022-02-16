@@ -117,9 +117,10 @@ module.exports = {
     disableGradeSync: (username) => safe(_disableGradeSync, lower(username)),
     makeAdmin: (username) => safe(_makeAdmin, lower(username)),
     removeAdmin: (username, requester) => safe(_removeAdmin, lower(username), lower(requester)),
-    updateGrades: (username, schoolPassword) => safe(_updateGrades, lower(username), schoolPassword),
+    updateGrades: (username, schoolPassword, userPassword, gradeSync) => safe(_updateGrades, lower(username), schoolPassword, userPassword, gradeSync),
     updateGradeHistory: (username, schoolPassword) => safe(_updateGradeHistory, lower(username), schoolPassword),
     updateSortData: (username, sortData) => safe(_updateSortData, lower(username), sortData),
+    resetSortData: (username) => safe(_resetSortData, lower(username)),
     userHasSemester: (username, term, semester) => safe(_userHasSemester, lower(username), term, semester),
     initAddedAssignments: (username) => safe(_initAddedAssignments, lower(username)),
     initEditedAssignments: (username) => safe(_initEditedAssignments, lower(username)),
@@ -485,7 +486,9 @@ const __getMostRecentTermData = (user) => {
     let grades = user.grades;
     let terms = Object.keys(grades);
     if (terms.length === 0) {
-        return {success: false, data: {value: {term: false, semester: false}, log: `User ${user.username} has no grades!`}};
+        return {
+            success: false, data: {value: {term: false, semester: false}, log: `User ${user.username} has no grades!`}
+        };
     }
     let term = terms[terms.map(t => parseInt(t.substring(0, 2))).reduce((maxIndex, term, index, arr) => term > arr[maxIndex] ? index : maxIndex, 0)];
     if (user.school === "basis") {
@@ -937,7 +940,7 @@ const _removeAdmin = async (db, username, requester) => {
     return {success: false, data: {log: `Error making ${username} not admin`, message: "Something went wrong"}};
 };
 
-const _updateGrades = async (db, username, schoolPassword) => {
+const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSync) => {
     let res = await _getUser(db, {username: username});
     if (!res.success) {
         return res;
@@ -955,10 +958,17 @@ const _updateGrades = async (db, username, schoolPassword) => {
                                           objectMode: true, read: () => {
         }
                                       });
+
     _stream.on("data", async (data) => {
-        console.log(data);
         if ("success" in data) {
             if (!data.success) {
+                if (data.message !== "Incorrect login details." && gradeSync) {
+                    let encryptResp = await _encryptAndStoreSchoolPassword(db, username, schoolPassword, userPassword);
+                    if (!encryptResp.success) {
+                        socketManager.emitToRoom(username, SYNC_PURPOSE, "fail", encryptResp.data.message);
+                        return;
+                    }
+                }
                 socketManager.emitToRoom(username, SYNC_PURPOSE, "fail", data.message);
             } else {
                 let newTerm = Object.keys(data.new_grades)[0];
@@ -1048,6 +1058,25 @@ const _updateGrades = async (db, username, schoolPassword) => {
                 }
 
                 socketManager.emitToRoom(username, SYNC_PURPOSE, "success", {message: "Updated grades!"});
+
+                let _res = await _getUser(db, {username: username});
+                let _user = _res.data.value;
+
+                if (gradeSync) {
+                    let encryptResp = await _encryptAndStoreSchoolPassword(db, username, schoolPassword, userPassword);
+                    if (!encryptResp.success) {
+                        res.status(400).send(encryptResp.data.message);
+                        return;
+                    }
+                }
+
+                socketManager.emitToRoom(username, SYNC_PURPOSE, "success", {
+                    gradeSyncEnabled: gradeSync,
+                    message: data.message,
+                    grades: JSON.stringify(_user.grades[newTerm][newSemester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
+                    weights: JSON.stringify(_user.weights[newTerm][newSemester]),
+                    updateData: JSON.stringify(_user.alerts.lastUpdated.slice(-1)[0])
+                });
             }
         } else {
             socketManager.emitToRoom(username, SYNC_PURPOSE, "progress", data);
@@ -1362,7 +1391,8 @@ const _updateClassesForUser = async (db, username, term, semester, className) =>
                     // Update weights from classes db if not custom
                     if (!custom && (dbTeacher.hasWeights === false || Object.keys(dbTeacher.weights).length > 0)) {
                         newWeights = dbTeacher.weights;
-                        hasWeights = dbTeacher.hasWeights;``
+                        hasWeights = dbTeacher.hasWeights;
+                        ``;
                     } else {
                         newWeights = Object.fromEntries(neededWeights.map((neededWeight) => [neededWeight, currentWeights.weights[neededWeight] ?? null]));
 
@@ -1378,11 +1408,9 @@ const _updateClassesForUser = async (db, username, term, semester, className) =>
                         //Set custom to not custom if it is same as classes db
                         if (custom) {
                             custom = isCustom({
-                                                  "weights": newWeights,
-                                                  "hasWeights": hasWeights
+                                                  "weights": newWeights, "hasWeights": hasWeights
                                               }, {
-                                                  "weights": dbTeacher.weights,
-                                                  "hasWeights": dbTeacher.hasWeights,
+                                                  "weights": dbTeacher.weights, "hasWeights": dbTeacher.hasWeights
                                               });
                         }
                     }
@@ -1828,20 +1856,20 @@ const _updateWeightsInClassDb = async (db, school, term, semester, className, te
 
     //Update weights for teacher
     let classData = (await db.collection(classesCollection(school)).findOneAndUpdate({
-                                                                                        term: term,
-                                                                                        semester: semester,
-                                                                                        className: className,
-                                                                                        "teachers.teacherName": teacherName
-                                                                                    }, {
-                                                                                        $set: {
-                                                                                            "teachers.$.hasWeights": hasWeights,
-                                                                                            "teachers.$.weights": modWeights
-                                                                                        }
-                                                                                    }, {
-                                                                                        projection: {
-                                                                                            "teachers.$": 1, "_id": 1
-                                                                                        }
-                                                                                    })).value;
+                                                                                         term: term,
+                                                                                         semester: semester,
+                                                                                         className: className,
+                                                                                         "teachers.teacherName": teacherName
+                                                                                     }, {
+                                                                                         $set: {
+                                                                                             "teachers.$.hasWeights": hasWeights,
+                                                                                             "teachers.$.weights": modWeights
+                                                                                         }
+                                                                                     }, {
+                                                                                         projection: {
+                                                                                             "teachers.$": 1, "_id": 1
+                                                                                         }
+                                                                                     })).value;
 
     //Delete any suggestion with same weights
     let suggestionIndex = null;
@@ -2042,7 +2070,10 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
     });
 
     if (custom) {
-        return {success: true, data: {message: `Custom weight set for ${className}.`, log: `Custom weight set for ${className}.`}};
+        return {
+            success: true,
+            data: {message: `Custom weight set for ${className}.`, log: `Custom weight set for ${className}.`}
+        };
     }
     return {success: true, data: {message: `Reset weight for ${className}.`, log: `Reset weight for ${className}.`}};
     //Important: Do not change first word of message. It is used in frontend to determine if it is custom.

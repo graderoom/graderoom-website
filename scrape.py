@@ -441,6 +441,9 @@ class PowerschoolScraper(Scraper):
             else:
                 total_term_count -= 1
 
+            self.message = 'Synced ' + str(scraped_term_count) + ' of ' + str(total_term_count) + ' terms...'
+            self.progress = initial_progress + (max_progress - initial_progress) * scraped_term_count / (1 if total_term_count == 0 else total_term_count)
+
         if not all_history:
             print(json_format(False, "No class data."))
         else:

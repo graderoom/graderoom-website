@@ -58,7 +58,7 @@
                                 style="margin-left: 0.5rem; cursor: pointer;" class="fa fa-pencil"
                                 onclick="showCard('#settingsCardDisplay'); openTab(2)"></i></h5>
                     <br>
-                    <form id="syncGradesForm" class="form-signin" action="/update" method="post">
+                    <form id="syncGradesForm" onsubmit="event.preventDefault(); updateGrades($('#inputUserPassword').val(), $('#inputPassword').val(), $('#savePasswordToggle').is(':checked'));" class="form-signin">
                         <div class="form-group input-group">
                             <i class="lock-bg"></i>
                             <label>School Password</label>
@@ -91,8 +91,7 @@
                             </span>
                         </label>
                         <div class="text-center">
-                            <button class="btn btn-lg btn-default" type="submit"
-                                    onclick="ajaxPostForm('#syncGradesForm',['#inputUserPassword','#inputPassword'],'.updateGradesMessage', true)">
+                            <button class="btn btn-lg btn-default" type="submit">
                                 Sign In
                                 <div>
                                     <span></span>
@@ -104,7 +103,7 @@
                     </form>
                 </div>
                 <div id="gradeSyncDiv" style="display: none">
-                    <form id="gradeSyncForm" class="form-signin" action="/update" method="post">
+                    <form id="gradeSyncForm" onsubmit="event.preventDefault(); updateGrades($('#gradeSyncInputUserPassword').val());" class="form-signin">
                         <h5>Enter your Graderoom password</h5>
                         <br>
                         <div class="input-group form-group">
@@ -115,8 +114,7 @@
                                    id="gradeSyncInputUserPassword"
                                    class="form-control" required>
                         </div>
-                        <button class="btn btn-lg btn-default" type="submit"
-                                onclick="ajaxPostForm('#gradeSyncForm',['#gradeSyncInputUserPassword'],'.updateGradesMessage', true)">
+                        <button class="btn btn-lg btn-default" type="submit">
                             Log In
                             <div>
                                 <span></span>
