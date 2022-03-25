@@ -42,7 +42,7 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Beta 4.10.0] - 2022-03-26
+## [Beta 4.10.0] - 2022-03-25
 ### Added
 - Analytics charts (view in More > Analytics)
 - Progress bar to sync status indicator
