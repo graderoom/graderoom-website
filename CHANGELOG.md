@@ -42,6 +42,39 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 4.10.0] - 2022-03-26
+### Added
+- Analytics charts (view in More > Analytics)
+- Progress bar to sync status indicator
+- Newly designed 'Add Assignment' wizard
+- New 'Class Info' card<ul>
+- View the class description and prerequisites as listed on the bcp website
+- View the number of Graderoom users taking the course this semester
+- View the Graderoom class average for the course in the current semester if there are more than 10 Graderoom users in the course this semester.</ul>
+- New Keyboard shortcut 'I' to view the class info of the course currently in view
+
+### Improved
+- Warning logs are orange instead of yellow now for better visibility
+- Warnings no longer show in header bar if there are no verified weights
+- 'Escape' key now dismisses expanded navbar 'more' menu, as well as the new 'Add Assignment' wizard
+- Added an 'Advanced' settings tab because 'Appearance' was getting too cluttered
+- Cleaned up the amount of warning icons
+- Updated class catalog
+- Support error for disabled accounts correctly
+
+### Fixed
+- Issue with tutorial popups not disappearing
+- Issues with weights
+- Issues with sync status messages
+- Issue with grade updates not happening correctly on first sync
+- Issues with UC GPA
+- Issue where changing color palette wouldn't show changes until refresh
+- Issue where classes wouldn't load if show non-academic classes was disabled and a non-academic class was one of your odd-numbered classes
+- <em>[Mobile]</em> Issue where courses showed in semi-reversed order on mobile
+
+### Removed
+- FPS chart
+
 ## [Stable 4.9.16] - 2022-01-24
 ### Fixed
 - Resolved an error that was causing a server crash
@@ -106,7 +139,7 @@
 ## [Announcement 4.9.6] - 2021-12-13
 - <b>Welcome new users!</b>
 - I've been receiving a significant amount of feedback through the Google Form
-- Since I'd like to follow up on reported issues and fix them more quickly, please join the <span style="cursor: pointer" onclick="showCard('#settingsCardDisplay'); openTab(3)" class="changelog-inline-setoff">Discord server</span>
+- Since I'd like to follow up on reported issues and fix them more quickly, please join the <span style="cursor: pointer" onclick="showCard('#settingsCardDisplay'); openTab(4)" class="changelog-inline-setoff">Discord server</span>
 - The Google Form will continue to be available as an alternative option.
 
 ## [Stable 4.9.5] - 2021-11-28
@@ -121,7 +154,7 @@
 - Syncing for Bellarmine users works again
 
 ## [Announcement 4.9.3] - 2021-10-12
-- <span style="cursor: pointer" onclick="showCard('#settingsCardDisplay'); openTab(3)" class="changelog-inline-setoff">Click here to join the Graderoom support Discord server!</span>
+- <span style="cursor: pointer" onclick="showCard('#settingsCardDisplay'); openTab(4)" class="changelog-inline-setoff">Click here to join the Graderoom support Discord server!</span>
 - You can also use this invite link: <a href="https://discord.gg/p9kyZxuAmC">https://discord.gg/p9kyZxuAmC</a>
 
 ## [Stable 4.9.2] - 2021-10-08

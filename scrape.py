@@ -296,6 +296,13 @@ class PowerschoolScraper(Scraper):
         soup = bS(resp.text, "html.parser")
         self.progress = 15
 
+        # check error msg
+        error = soup.find("div", class_='grid-alert error')
+        if error is not None:
+            self.progress = 0
+            print(json_format(False, 'Your account is no longer active.'))
+            sys.exit()
+
         # If no response, authentication failed (incorrect login)
         samlr = soup.find("input", {'name': 'SAMLResponse'})
         if samlr is None:

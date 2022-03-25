@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup as BS
 from pymongo import MongoClient
 import requests
 from requests.structures import CaseInsensitiveDict
+import os
+import time
 
 session = requests.Session()
 
@@ -28,13 +30,19 @@ resp = requests.post("https://b.bcp.org/catalog/home/ajax", headers=headers, dat
 
 content = resp.json()['success']['html']
 
+if (os.path.exists('catalog.html')):
+    time = time.time()
+    filename = f'catalog_old_{time}.html'
+    print(f'Saved catalog to {filename}')
+    os.rename('catalog.html', filename)
+
 with open('catalog.html', 'w') as f:
     f.write(content)
 
 soup = BS(content, 'html.parser')
 classes = soup.find_all('div', class_='card')
 
-url = process.env.DB_URL ?? "mongodb://localhost:27017"
+url = os.getenv("DB_URL") or "mongodb://localhost:27017"
 database_name = "common"
 collection_name = "catalog"
 client = MongoClient(url)
@@ -90,6 +98,9 @@ for class_ in classes:
     # clean up some parts of the data
     obj['grade_levels'] = re.findall('[0-9]+', obj['grade_levels'])
     obj['grade_levels'] = [int(i) for i in obj['grade_levels']]
+
+    # set school
+    obj['school'] = 'bellarmine'
 
     # Update classes that are already in the catalog and create new ones if they don't exist
     db.update_one({'class_name': obj['class_name']}, {'$set': obj}, True)

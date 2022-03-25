@@ -34,14 +34,14 @@ const {
     changelogArray,
     tutorialKeys,
     shuffleArray,
-    changelog,
     betaFeatures,
     compareWeights,
     isCustom,
     fixWeights,
     makeTeacher,
     makeClass,
-    CLASSES_COLLECTION_NAME,
+    COMMON_DATABASE_NAME,
+    CATALOG_COLLECTION_NAME,
     BETAKEYS_COLLECTION_NAME,
     TEST_DATABASE_NAME,
     BETA_DATABASE_NAME,
@@ -199,6 +199,7 @@ const safe = (func, ...args) => {
 };
 
 const db = client => client.db(_testing ? TEST_DATABASE_NAME : _beta ? BETA_DATABASE_NAME : STABLE_DATABASE_NAME);
+const catalog = () => _client.db(COMMON_DATABASE_NAME).collection(CATALOG_COLLECTION_NAME);
 
 const _init = async (db) => {
     // Get list of names of existing collections
@@ -733,7 +734,7 @@ const _setShowMaxGPA = async (db, username, value) => {
 
 const _setColorPalette = async (db, username, preset, shuffle) => {
     if (typeof shuffle !== "boolean") {
-        return {success: false, data: {message: `Invalid shuffle value: ${shuffle}`}};
+        return {success: false, data: {log: `Invalid shuffle value: ${shuffle}`}};
     }
     let light, saturation, hues = [0, 30, 60, 120, 180, 240, 270, 300, 330, 15, 45, 90, 150, 210, 255, 285, 315, 345];
     switch (preset) {
@@ -772,7 +773,7 @@ const _setColorPalette = async (db, username, preset, shuffle) => {
         }
     });
     if (res.ok) {
-        return {success: true, data: {log: `Updated color palette for ${username}`}};
+        return {success: true, data: {log: `Updated color palette for ${username}`, colors: classColors}};
     }
     return {
         success: false,
@@ -1750,7 +1751,7 @@ const _addDbClass = async (db, school, term, semester, className, teacherName) =
             await db.collection(classesCollection(school)).updateOne({_id: classData._id}, {$push: {"teachers": makeTeacher(teacherName)}});
         }
     } else { //class doesn't exist
-        let catalogData = {};
+        let catalogData = catalog().findOne({class_name: className});
         await db.collection(classesCollection(school)).insertOne(makeClass(term, semester, className, teacherName, catalogData));
     }
 
@@ -2093,7 +2094,8 @@ const _getRelevantClassData = async (db, username, term, semester) => {
                                                                             term: _term,
                                                                             semester: _semester,
                                                                             className: c.class_name,
-                                                                            teacherName: c.teacher_name
+                                                                            teacherName: c.teacher_name,
+                overallPercent: c.overall_percent,
                                                                         }));
         }
     }
@@ -2111,24 +2113,47 @@ const _getRelevantClassData = async (db, username, term, semester) => {
                 "weights": 1,
                 "hasWeights": 1,
                 "credits": 1,
-                "terms": 1
+                "terms": 1,
+                "description": 1
             };
             if (userClass.teacherName) {
                 query["teachers.teacherName"] = userClass.teacherName;
                 projection["teachers.$"] = 1;
             }
 
+            let rawData = await catalog().findOne({class_name: userClass.className});
+
             let classData = await db.collection(classesCollection(school)).findOne(query, {
                 projection: projection
             });
+
+            let teachers = (await db.collection(classesCollection(school)).findOne(query, {
+                projection: {teachers: {teacherName: 1}}
+            })).teachers.map(t => t.teacherName);
+
+            let userCountQuery = {
+                [`grades.${userClass.term}.${userClass.semester}`]: {$elemMatch: {class_name: userClass.className, teacher_name: userClass.teacherName}},
+            }
+            let userCountProjection = {
+                [`grades.${userClass.term}.${userClass.semester}.$`]: 1,
+            }
+            let users = await db.collection(USERS_COLLECTION_NAME).find(userCountQuery, {projection: userCountProjection}).toArray();
+
+            let minUsersForAverageCalc = 10;
+            let classAverage = users.length > minUsersForAverageCalc ? users.map(u => u.grades[userClass.term][userClass.semester][0].overall_percent).reduce((a, b) => a + b, 0) / users.length : null;
+
             relClasses[userClass.className] = {
                 "department": classData.department,
-                "classType": classData.classType,
-                "uc_csuClassType": classData.uc_csuClassType,
+                "classType": classData.classType ?? rawData?.classType ?? "",
+                "uc_csuClassType": classData.uc_csuClassType ?? rawData?.uc_csuClassType ?? "",
                 "weights": userClass.teacherName ? classData.teachers[0].weights : false,
                 "hasWeights": userClass.teacherName ? classData.teachers[0].hasWeights : false,
                 "credits": classData.credits,
-                "terms": classData.terms
+                "terms": classData.terms,
+                "description": classData.description,
+                "userCount": users.length,
+                "classAverage": classAverage,
+                "teachers": teachers,
             };
         }
     }

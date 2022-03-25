@@ -1,6 +1,6 @@
 body {
     background-color: #222222;
-    color: #FFFFFF
+    color: #FFFFFF;
 }
 
 hr {
@@ -189,6 +189,14 @@ td, th {
     color: #BBBBBB;
 }
 
+.add-assignment-container {
+    background-color: #333;
+}
+
+.add-assignment-container.active {
+    box-shadow: 0 2px 30px 1px #111;
+}
+
 /* Input Form Background Images */
 
 .form-group .user-bg {
@@ -243,21 +251,6 @@ tr.excluded:hover .excludeToggle .fa-ban {
 
 .fa-undo {
     color: #DDDDDD;
-}
-
-@keyframes addAssignmentAnimation {
-    0%, 100% {
-        background-color: rgba(255, 255, 255, 0.5);
-    }
-    50% {
-        background-color: #333333;
-    }
-}
-
-tr.addAssignmentAnimation {
-    transition: none;
-    animation: addAssignmentAnimation linear 2s;
-    animation-iteration-count: 1.5;
 }
 
 .popup span.popup-top-left,
@@ -404,7 +397,7 @@ select.minimal:focus {
     box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
-.switchDisplayMode, .addAssignment, .tableOptions {
+.switchDisplayMode, .tableOptions {
     background-color: #222222;
 }
 
@@ -455,12 +448,8 @@ select.minimal:focus {
     background-color: #444444;
 }
 
-.addAssignment, .add-assignment-container, .tableOptions {
+.tableOptions {
     background-color: #333333;
-}
-
-.add-assignment-container.active {
-    box-shadow: 0 0 10px 1px #000000;
 }
 
 .class-table th, .class-table td {
@@ -520,6 +509,19 @@ tr:hover .toolTab {
 
 .gpa-details-table th, .gpa-details-table td, .gpa-details-table, .gpa-details-table tr {
     border: 1px solid #888888;
+}
+
+.tableOptions select {
+    cursor: pointer;
+}
+
+.tableOptions .popup {
+    background: #444444;
+}
+
+.tableOptions .popup:hover {
+    background: #222222 !important;
+    border-color: #222222 !important;
 }
 
 /* Mobile Stuff */

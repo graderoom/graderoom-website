@@ -18,6 +18,13 @@ module.exports = {
      * @returns {Promise<void>}
      */
     external_scrape: async function () {
+        let mongoUrl;
+        if (process.env.NODE_ENV === "production") {
+            mongoUrl = process.env.DB_URL;
+        } else {
+            mongoUrl = "mongodb://localhost:27017";
+        }
+        await dbClient.config(mongoUrl, false, false, true);
         let school = credentials.get("school").value();
         let school_username = credentials.get("school_username").value();
         let password = credentials.get("password").value();
@@ -34,13 +41,13 @@ module.exports = {
 
         if ([graderoom_username, school_username, password].includes("")) throw new Error("Configure credentials.json");
 
-        let userRef = authenticator.db.get("users").find({username: graderoom_username});
+        let user = await dbClient.getUser({username: graderoom_username});
 
-        let {term: oldTerm, semester: oldSemester} = (await dbClient.getMostRecentTermData(graderoom_username)).data.value;
+        let {term: oldTerm, semester: oldSemester} = (await dbClient.getMostRecentTermData(graderoom_username)).data;
         let term_data_if_locked = {term: oldTerm, semester: oldSemester};
         let data_if_locked = [];
         if (oldTerm && oldSemester) {
-            data_if_locked = userRef.get("grades").value()[oldTerm][oldSemester].map(class_data => _.omit(class_data, ["grades"]));
+            data_if_locked = user.grades[oldTerm][oldSemester].map(class_data => _.omit(class_data, ["grades"]));
         } else {
             term_data_if_locked = {};
         }

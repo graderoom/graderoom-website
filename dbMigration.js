@@ -22,6 +22,8 @@ const DATABASE_NAME = process.env.port === "5998" ? "beta" : "stable";
 const SCHOOL_NAMES = ["bellarmine", "basis"];
 const USERS_COLLECTION_NAME = "users";
 const CLASSES_COLLECTION_NAME = "classes";
+const COMMON_DATABASE_NAME = "common";
+const CATALOG_COLLECTION_NAME = "catalog";
 
 const classesCollection = (school) => {
     return school + "_" + CLASSES_COLLECTION_NAME;
@@ -46,6 +48,8 @@ MongoClient.connect(mongoUrl).then((client) => {
 
 //migrate function
 async function migrate(client) {
+    const catalog = () => client.db(COMMON_DATABASE_NAME).collection(CATALOG_COLLECTION_NAME);
+
     console.log("Migrating . . .");
 
     // CREATE DATABASE
@@ -98,11 +102,7 @@ async function migrate(client) {
                     } catch (e) {
                         let weightValues = Object.values(user["weights"][term][semester][className]["weights"]);
                         weightValues = weightValues.filter(x => x !== null)
-                        if (weightValues.length === 0) {
-                            user["weights"][term][semester][className]["hasWeights"] = false;
-                        } else {
-                            user["weights"][term][semester][className]["hasWeights"] = true;
-                        }
+                        user["weights"][term][semester][className]["hasWeights"] = weightValues.length !== 0;
                     }
                 }
             }
@@ -122,10 +122,20 @@ async function migrate(client) {
     for (let term in classes) {
         for (let semester in classes[term]) {
             for (let className in classes[term][semester]) {
+                let catalogData = await catalog().findOne({class_name: className});
                 let classData = classes[term][semester][className];
                 classData["teachers"] = [];
                 //Add teachers, term, semester, and className as fields of each class entry
                 for (let teacherName in classData) {
+                    // Clear these fields if they match the catalog so we can fallback to catalog
+                    if (catalogData != null) {
+                        if (classData.classType === catalogData.classType) {
+                            classData.classType = null;
+                        }
+                        if (classData.uc_csuClassType === catalogData.uc_csuClassType) {
+                            classData.uc_csuClassType = null;
+                        }
+                    }
                     if (!["teachers", "classType", "credits", "department", "description", "terms", "uc_csuClassType", "grade_levels"].includes(teacherName)) { //filter for teachers
                         //convert string "true" and "false" to booleans
                         if (classData[teacherName]["hasWeights"] !== null) {
@@ -137,11 +147,7 @@ async function migrate(client) {
                             } catch (e) {
                                 let weightValues = Object.values(suggestion["weights"]);
                                 weightValues = weightValues.filter(x => x !== null)
-                                if (weightValues.length === 0) {
-                                    suggestion["hasWeights"] = false;
-                                } else {
-                                    suggestion["hasWeights"] = true;
-                                }
+                                suggestion["hasWeights"] = weightValues.length !== 0;
                             }
                         }
 

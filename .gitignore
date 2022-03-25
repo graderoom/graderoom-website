@@ -16,3 +16,4 @@ user_db*.json
 /_credentials.json
 config/
 *.rdb
+catalog_old_*.html

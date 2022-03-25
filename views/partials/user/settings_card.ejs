@@ -15,12 +15,13 @@
             </div>
             <div class="tab">
                 <btn id="btn-0" class="tablinks" onclick="openTab(0)">Donate</btn>
-                <btn id="btn-1" class="tablinks active" onclick="openTab(1)">Appearance</btn>
+                <btn id="btn-1" class="tablinks active" onclick="openTab(1)">General</btn>
                 <btn id="btn-2" class="tablinks" onclick="openTab(2)">Account</btn>
-                <btn id="btn-3" class="tablinks" onclick="openTab(3)">Help</btn>
-                <btn id="btn-4" class="tablinks" onclick="openTab(4)">About</btn>
+                <btn id="btn-3" class="tablinks" onclick="openTab(3)">Advanced</btn>
+                <btn id="btn-4" class="tablinks" onclick="openTab(4)">Help</btn>
+                <btn id="btn-5" class="tablinks" onclick="openTab(5)">About</btn>
                 <% if (JSON.parse(betaFeatures).active) { %>
-                    <btn id="btn-5" class="tablinks" onclick="openTab(5)">Beta</btn>
+                    <btn id="btn-5" class="tablinks" onclick="openTab(6)">Beta</btn>
                 <% } %>
             </div>
             <div id="settings-0" class="tabcontent" style="display: none">
@@ -323,117 +324,6 @@
                             </label>
                         </label>
                     </div>
-                    <div class="card-footer">
-                        <h5>Display
-                            <br>
-                            <small style="opacity: 0.5">Changing these settings will immediately refresh the
-                                page.</small></h5>
-                        <form id="advancedAppearance" action="/advancedAppearance" method="post">
-                            <div>
-                                <label class="slider-container">
-                                    <label class="switch">
-                                        <input
-                                                id="classGraphRegularizationToggle"
-                                                style="margin: 0; display: flex"
-                                                type="checkbox"
-                                                name="regularizeClassGraphs"
-                                        <% if (JSON.parse(appearance).regularizeClassGraphs) { %>
-                                                checked="checked"
-                                                <% } %>
-                                                onchange="$(this).closest('form').trigger('submit')"
-                                        >
-                                        <span class="slider"></span>
-                                    </label>
-                                    <label for="classGraphRegularizationToggle">
-                                        Regularize Class Graphs <span class="popup"><i
-                                                    class="fa fa-question-circle"><span
-                                                        class="popup-right-bottom">When enabled, all class graphs
-                                                    are
-                                                    bounded between at 70 and 110 on the y-axis</span></i></span>
-                                    </label>
-                                </label>
-                                <label class="slider-container">
-                                    <label class="switch"
-                                    <% if (Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
-                                           style="cursor: pointer"
-                                            <% } %>
-                                    >
-                                        <input
-                                        <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
-                                            disabled
-                                                <% } %>
-                                            id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
-                                        <% if (JSON.parse(appearance).showNonAcademic) { %> checked="checked"
-                                                <% } %>
-                                            onchange="$(this).closest('form').trigger('submit')"
-                                        >
-                                        <span class="slider"></span>
-                                    </label>
-                                    <label for="showNonAcademicCheckbox"
-                                    <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
-                                           class="disabled"
-                                            <% } %>
-                                    >
-                                        Show Non-Academic Classes
-                                    </label>
-                                </label>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="card-footer">
-                        <h5>Performance
-                            <br>
-                            <small style="opacity: 0.5">Changing these settings will immediately refresh the
-                                page.</small></h5>
-                        <label class="slider-container">
-                            <label class="switch">
-                                <input id="animateWhenUnfocused" type="checkbox" name="animateWhenUnfocused"
-                                <% if (JSON.parse(appearance).animateWhenUnfocused) { %>
-                                       checked="checked"
-                                        <% } %>
-                                       onchange="changeSetting('animateWhenUnfocused', !appearance.animateWhenUnfocused)"
-                                >
-                                <span class="slider"></span>
-                            </label>
-                            <label for="animateWhenUnfocused">
-                                Don't Pause Effects When Window is not in Focus <span class="popup"><i
-                                            class="fa fa-question-circle"><span
-                                                class="popup-top-left">When enabled, certain animations and effects that
-                                            are usually paused to conserve resources will continue to play even if you
-                                            are on a different tab or window.
-                                        </span></i></span> <span class="popup hide-in-firefox"><i
-                                            class="fa fa-exclamation-triangle">
-                                        <span class="popup-right-bottom">WARNING: This can cause issues such as the
-                                            horizontal snow line</span></i></span>
-                            </label>
-                        </label>
-                        <label class="slider-container">
-                            <label class="switch">
-                                <input id="showFps" type="checkbox" name="showFps"
-                                <% if (JSON.parse(appearance).showFps) { %>
-                                       checked="checked"
-                                        <% } %>
-                                       onchange="changeSetting('showFps', !appearance.showFps)"
-                                >
-                                <span class="slider"></span>
-                            </label>
-                            <label for="showFps">
-                                Display Real-time Refresh Rate <span class="popup"><i
-                                            class="fa fa-question-circle"><span
-                                                class="popup-right-bottom">When enabled, displays FPS in the bottom left
-                                            corner of the screen
-                                        </span></i></span>
-                            </label>
-                        </label>
-                        <hr>
-                        <div>
-                            <h6>Performance Log <span class="popup"><i
-                                            class="fa fa-question-circle"><span
-                                                class="popup-right-bottom">Performance issues will be displayed here
-                                        </span></i></span></h6>
-                            <div id="performance-issues-messages"></div>
-                        </div>
-                    </div>
                 </div>
             </div>
             <div id="settings-2" class="tabcontent">
@@ -640,6 +530,121 @@
             <div id="settings-3" class="tabcontent">
                 <div class="card-body">
                     <div class="card-footer">
+                        <h5>Display
+                            <br>
+                            <small style="opacity: 0.5">Changing these settings will immediately refresh the
+                                page.</small></h5>
+                        <form id="advancedAppearance" action="/advancedAppearance" method="post">
+                            <div>
+                                <label class="slider-container">
+                                    <label class="switch">
+                                        <input
+                                                id="classGraphRegularizationToggle"
+                                                style="margin: 0; display: flex"
+                                                type="checkbox"
+                                                name="regularizeClassGraphs"
+                                        <% if (JSON.parse(appearance).regularizeClassGraphs) { %>
+                                                checked="checked"
+                                                <% } %>
+                                                onchange="$(this).closest('form').trigger('submit')"
+                                        >
+                                        <span class="slider"></span>
+                                    </label>
+                                    <label for="classGraphRegularizationToggle">
+                                        Regularize Class Graphs <span class="popup"><i
+                                                    class="fa fa-question-circle"><span
+                                                        class="popup-right-bottom">When enabled, all class graphs
+                                                    are
+                                                    bounded between at 70 and 110 on the y-axis</span></i></span>
+                                    </label>
+                                </label>
+                                <label class="slider-container">
+                                    <label class="switch"
+                                    <% if (Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
+                                           style="cursor: pointer"
+                                            <% } %>
+                                    >
+                                        <input
+                                        <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
+                                            disabled
+                                                <% } %>
+                                            id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
+                                        <% if (JSON.parse(appearance).showNonAcademic) { %> checked="checked"
+                                                <% } %>
+                                            onchange="$(this).closest('form').trigger('submit')"
+                                        >
+                                        <span class="slider"></span>
+                                    </label>
+                                    <label for="showNonAcademicCheckbox"
+                                    <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
+                                           class="disabled"
+                                            <% } %>
+                                    >
+                                        Show Non-Academic Classes
+                                    </label>
+                                </label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer">
+                        <h5>Performance
+                            <br>
+                            <small style="opacity: 0.5">Changing these settings will immediately refresh the
+                                page.</small></h5>
+                        <label class="slider-container">
+                            <label class="switch">
+                                <input id="animateWhenUnfocused" type="checkbox" name="animateWhenUnfocused"
+                                <% if (JSON.parse(appearance).animateWhenUnfocused) { %>
+                                       checked="checked"
+                                        <% } %>
+                                       onchange="changeSetting('animateWhenUnfocused', !appearance.animateWhenUnfocused)"
+                                >
+                                <span class="slider"></span>
+                            </label>
+                            <label for="animateWhenUnfocused">
+                                Don't Pause Effects When Window is not in Focus <span class="popup"><i
+                                            class="fa fa-question-circle"><span
+                                                class="popup-top-left">When enabled, certain animations and effects that
+                                            are usually paused to conserve resources will continue to play even if you
+                                            are on a different tab or window.
+                                        </span></i></span> <span class="popup hide-in-firefox"><i
+                                            class="fa fa-exclamation-triangle">
+                                        <span class="popup-right-bottom">WARNING: This can cause issues such as the
+                                            horizontal snow line</span></i></span>
+                            </label>
+                        </label>
+                        <label class="slider-container">
+                            <label class="switch">
+                                <input id="showFps" type="checkbox" name="showFps"
+                                <% if (JSON.parse(appearance).showFps) { %>
+                                       checked="checked"
+                                        <% } %>
+                                       onchange="changeSetting('showFps', !appearance.showFps)"
+                                >
+                                <span class="slider"></span>
+                            </label>
+                            <label for="showFps">
+                                Display Real-time Refresh Rate <span class="popup"><i
+                                            class="fa fa-question-circle"><span
+                                                class="popup-right-bottom">When enabled, displays FPS in the bottom left
+                                            corner of the screen
+                                        </span></i></span>
+                            </label>
+                        </label>
+                        <hr>
+                        <div>
+                            <h6>Performance Log <span class="popup"><i
+                                            class="fa fa-question-circle"><span
+                                                class="popup-right-bottom">Performance issues will be displayed here
+                                        </span></i></span></h6>
+                            <div id="performance-issues-messages"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="settings-4" class="tabcontent">
+                <div class="card-body">
+                    <div class="card-footer">
                         <h5 style="padding-bottom: 12px">Join Our Discord Server</h5>
                         <iframe src="https://discord.com/widget?id=897624313136578590&theme=<%= theme ? "dark" : "light" %>"
                                 class="discord-iframe"
@@ -742,7 +747,7 @@
                     </div>
                 </div>
             </div>
-            <div id="settings-4" class="tabcontent">
+            <div id="settings-5" class="tabcontent">
                 <div class="card-body">
                     <div class="card-footer">
                         <h5>Description</h5>
@@ -769,7 +774,7 @@
                 </div>
             </div>
             <% if (JSON.parse(betaFeatures).active) { %>
-                <div id="settings-5" class="tabcontent">
+                <div id="settings-6" class="tabcontent">
                     <div class="card-body">
                         <div class="card-footer">
                             <h5>Thanks for trying out new features before they're released!</h5>

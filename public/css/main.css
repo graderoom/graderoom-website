@@ -578,7 +578,7 @@ table thead tr th:last-child {
 }
 
 .popup {
-    z-index: 2;
+    /* z-index: 2; */
 }
 
 #color-scheme-picker-container {
@@ -653,6 +653,7 @@ table thead tr th:last-child {
 .popup span.popup-left-bottom,
 .popup span.popup-left,
 .popup span.popup-left-top {
+    z-index: 99;
     font-family: "Montserrat", sans-serif;
     font-size: small;
     position: absolute;
@@ -1202,10 +1203,6 @@ tr:hover .toolTab {
     display: none !important;
 }
 
-tbody tr {
-    height: 100%;
-}
-
 .table th {
     border-top: none;
 }
@@ -1702,6 +1699,7 @@ input:checked + .slider:before {
 .form-weights .disabled {
     border-bottom: none !important;
     color: #999999 !important;
+    pointer-events: none;
 }
 
 .form-weights input[type="checkbox"] {
@@ -1940,99 +1938,41 @@ tr:hover .excludeToggle .fa-ban {
     display: none;
 }
 
-.add-assignment-container {
-    z-index: 3;
-    margin-bottom: 0.5rem;
-    transition: all 400ms ease;
-    border-radius: 0.5rem;
-}
-
-.add-assignment-container.active {
-    position: absolute;
-    width: fit-content;
-    width: -moz-fit-content;
-}
-
-.add-assignment-container td {
-    padding: 0.5rem;
-    border: none;
-}
-
-.add-assignment-container .excludeToggle input:not([type="checkbox"]) {
-    min-width: 11rem;
-}
-
-.add-assignment-container .input-group {
-    margin-bottom: 0;
-}
-
-.add-assignment-container .input-group label {
-    font-size: 1rem;
-    font-style: unset;
-}
-
-.add-assignment-container .addExclude {
-    margin-left: 1rem;
-}
-
 .options-container {
+    margin-bottom: 1rem;
+}
+
+.class-info {
+    margin: 0.5rem;
+    border-radius: 0.5rem;
     display: flex;
-    justify-content: space-between;
+    align-items: center;
 }
 
 .tableOptionsContainer {
     display: flex;
     align-self: flex-start;
+    height: 5rem;
 }
 
-.options-container.keep-right {
-    display: block;
-}
-
-.options-container.keep-right .tableOptions {
-    margin-left: auto;
-}
-
-.addAssignment {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    flex-flow: row;
-    justify-content: space-between;
-    width: fit-content;
-    width: -moz-fit-content;
-    margin: auto 0;
-    padding: 1rem;
-    cursor: pointer;
+.tableOptions .popup {
+    width: 3rem;
+    height: 3rem;
     border-radius: 0.5rem;
-}
-
-.add-assignment-header button {
-    position: relative;
-    display: none;
-    margin: 0.5rem 0.5rem 0;
-}
-
-.add-assignment-container.active .add-assignment-header button {
-    display: block;
-}
-
-.add-assignment-header {
     display: flex;
-    align-items: center;
-    flex-flow: row;
-    justify-content: space-between;
-    height: 100%;
+    justify-content: center;
 }
 
-.assignmentWizard input:not([type="checkbox"]) {
-    height: 2.5rem;
+.tableOptions .popup-top {
+    bottom: 2rem;
 }
 
-.addAssignmentDate {
-    width: 13rem;
-    padding: 0;
+.tableOptions .popup:not(:last-child) {
+    margin-right: 1rem;
+}
+
+.tableOptions:first-child {
+    margin-right: 1rem;
 }
 
 .switchDisplayMode {
@@ -2050,183 +1990,52 @@ tr:hover .excludeToggle .fa-ban {
     border-radius: 0.5rem;
 }
 
-.assignmentWizard {
-    display: flex;
-    flex-flow: row;
-    width: 0;
-    height: 0;
-    margin-bottom: 0;
-    transition: all 250ms ease;
+@keyframes addAssignmentAnimation {
+    0% {
+        opacity: 0.5;
+        transform: translateY(2.5rem) scale(0.1);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(calc(50% + 3.3rem)) scale(1.15) translateX(-50%);
+    }
+    100% {
+        transform: translateY(calc(50% + 2.5rem)) scale(1) translateX(-50%);
+    }
+}
+
+.add-assignment-container {
     opacity: 0;
-}
-
-.assignmentWizard .input-group {
-    align-items: center;
-}
-
-.assignmentWizard .input-group input {
-    text-align: left;
-}
-
-.assignmentWizard .input-group label {
-    left: 0.5rem;
-}
-
-.assignmentWizard .input-group label.label-active {
-    font-size: xx-small;
-    top: 0;
-    left: 0.5rem;
-}
-
-.addAssignment .fa-plus {
-    -moz-transition: -moz-transform 100ms linear;
-    -o-transition: -o-transform 100ms linear;
-    -webkit-transition: -webkit-transform 100ms linear;
-    transition: transform 100ms linear;
-    vertical-align: middle;
-}
-
-.addAssignment span {
-    line-height: 0;
-    width: 0;
-    height: 0;
-    -moz-transition: all 250ms linear;
-    -o-transition: all 250ms linear;
-    -webkit-transition: all 250ms linear;
-    transition: all 250ms linear;
-    text-align: center;
-    opacity: 0;
-}
-
-.add-assignment-container.active .addAssignment {
-    transform: none;
-}
-
-.add-assignment-container.active .addAssignment .fa-plus {
-    transform: scale(1.25) rotate(45deg);
-}
-
-.add-assignment-container td {
-    margin: 0;
-}
-
-td.addAssignmentCategory {
-    display: flex;
-    flex-flow: column;
-    width: fit-content;
-    width: -moz-fit-content;
-}
-
-td.addAssignmentScore {
-    display: flex;
-    flex-flow: column;
-    width: fit-content;
-    width: -moz-fit-content;
-    margin-right: 0;
-}
-
-.addAssignmentCategory label {
-    font-size: 0.6rem;
-    margin-top: -0.5rem;
-}
-
-.addAssignmentScore label {
-    font-size: 0.6rem;
+    pointer-events: none;
     position: absolute;
-    transform: translateY(-0.5rem);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    transition: all 150ms ease;
+    transform: scale(0.1);
+    width: 20rem;
 }
 
-.addAssignmentScore input {
-    height: 0.8rem;
-}
-
-@keyframes expand-add-assignment {
-    0% {
-        width: 0;
-        margin-left: 0;
-        opacity: 0;
-    }
-    25% {
-        width: 8rem;
-        margin-left: 0.5rem;
-    }
-    50% {
-        width: 8rem;
-        margin-left: 0.5rem;
-    }
-    75% {
-        width: 8rem;
-        margin-left: 0.5rem;
-        opacity: 0.5;
-    }
-    100% {
-        width: 8rem;
-        margin-left: 0.5rem;
-        opacity: 1;
-        font-weight: 500;
-    }
-}
-
-.add-assignment-container:hover .addAssignment span, .add-assignment-container.active .addAssignment span {
-    font-weight: 500;
-    width: 8rem;
-    margin-left: 0.5rem;
-    animation: expand-add-assignment 250ms linear;
+.add-assignment-container.active {
+    pointer-events: all;
     opacity: 1;
+    animation: addAssignmentAnimation 150ms ease;
+    transform: translateY(calc(50% + 2.5rem)) translateX(-50%);
 }
 
-.assignmentWizard tr {
-    display: none;
+.addAssignmentName, .addAssignmentDate, .addAssignmentCategory {
+    top: 1rem;
 }
 
-.addAssignmentDate {
-    margin-bottom: auto !important;
+.addAssignmentName label, .addAssignmentDate label, .addAssignmentCategory label {
+    left: 0.3rem;
 }
 
-.fps-chart-container {
-    width: 120px;
-    height: 100px;
+.addAssignmentName input, .addAssignmentDate input {
+    text-align: left !important;
 }
 
-@keyframes expand-assignment-wizard {
-    0% {
-        width: 0;
-        margin-left: 0;
-        opacity: 0;
-    }
-    25% {
-        margin-left: 0.5rem;
-        opacity: 0;
-    }
-    50% {
-        margin-left: 0.5rem;
-        opacity: 0.5;
-    }
-    75% {
-        margin-left: 0.5rem;
-        opacity: 0.75;
-    }
-    100% {
-        width: 100%;
-        height: 100%;
-        margin-left: 0.5rem;
-        opacity: 1;
-        padding: 0.5rem;
-        display: block;
-    }
-}
-
-.add-assignment-container.active .assignmentWizard {
-    width: 100%;
-    height: 100%;
-    margin-left: 0.5rem;
-    padding: 0.5rem;
-    animation: expand-assignment-wizard 400ms;
-    opacity: 1;
-}
-
-.add-assignment-container.active tr {
-    display: flex;
+.addCategory {
+    margin: 0.5rem 0 0 0 !important;
 }
 
 .tableOptions {
@@ -2236,13 +2045,21 @@ td.addAssignmentScore {
     justify-content: center;
     width: fit-content;
     width: -moz-fit-content;
-    margin-bottom: 0.5rem;
     padding: 0.1rem 1rem;
+    margin: 0.5rem 0;
     border-radius: 0.5rem;
 }
 
+.tableOptions:first-child {
+    margin-left: auto;
+}
+
 .tableOptions select {
-    margin: 0 1rem;
+    margin-left: 1rem;
+}
+
+.add-assignment-container input {
+     /* width: 0; */
 }
 
 .popup-holder > span {
@@ -2540,6 +2357,113 @@ input:disabled {
     cursor: default;
 }
 
+.updateGradesMessage span {
+    display: block;
+    content: '';
+    height: 0.2rem;
+    margin-top: -0.2rem;
+    transform: translateY(0.1rem);
+    width: 0;
+    background-color: blue;
+    border-radius: 2rem;]
+}
+
+#classInfoDescriptionHeader {
+    font-weight: bold;
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+}
+
+#classInfoTopHalf {
+    display: flex;
+    justify-content: space-between;
+    margin: 0.5rem 0 1rem 0;
+}
+
+#classInfoTopHalf > div {
+    border-radius: 1rem;
+    padding: 1.5rem 2rem;
+}
+
+#classInfoTopLeft {
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+#classInfoTopRight {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-flow: column;
+}
+
+#classInfoGraderoomUsers {
+    font-weight: bold;
+    text-align: center;
+    display: flex;
+    flex-flow: column;
+}
+
+#classInfoGraderoomUsers span:first-child {
+    font-size: 3rem;
+}
+
+#classInfoAverage {
+    text-align: center;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#classInfoAverage span:nth-child(2) {
+    font-weight: bold;
+    font-size: 2rem;
+}
+
+#classInfoName {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+#classInfoTeacher, #classInfoClassType, #classInfoUCClassType {
+    padding-bottom: 0.25rem;
+}
+
+#classInfoBody .card-footer, #classInfoBody ul {
+    border-radius: 1rem;
+}
+
+#classInfoBody ul::before {
+    content: "Other Teachers:";
+    display: block;
+    position: relative;
+    font-weight: bold;
+    left: -1rem;
+    padding: 0;
+}
+
+#classInfoBody ul {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+#classInfoTeacher::before {
+    content: "Teacher: ";
+}
+
+#classInfoOtherTeachersHeader {
+    font-weight: bold;
+}
+
+.classInfo-description-header {
+    font-weight: bold;
+}
+
 #syncPopup {
     pointer-events: none;
 }
@@ -2721,6 +2645,7 @@ input:disabled {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-flow: row;
     width: 100%;
     margin: 0 auto;
     padding: 0.25rem 0.5rem;
@@ -2945,6 +2870,11 @@ input:disabled {
     filter: drop-shadow(0 0 2px gray);
 }
 
+.tableOptions .popup {
+    cursor: pointer;
+    transition: all 150ms ease;
+}
+
 .left-block .block {
     grid-area: left;
     margin-right: 0;
@@ -3083,6 +3013,14 @@ input:disabled {
         display: none;
     }
 
+    .addAssignment, .add-assignment-container {
+        display: none !important;
+    }
+
+    #fps {
+        display: none !Important;
+    }
+
     td, table:not(.block table, .weights) th {
         font-size: 0.6rem;
     }
@@ -3160,10 +3098,6 @@ input:disabled {
     }
 
     #GPA-container, .chart-container, #classLinks {
-        display: none;
-    }
-
-    .add-assignment-container, .tableOptions {
         display: none;
     }
 

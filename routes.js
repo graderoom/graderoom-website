@@ -546,9 +546,9 @@ module.exports = function (app, passport) {
     app.post("/setColorPalette", [isLoggedIn], async (req, res) => {
         let resp = await dbClient.setColorPalette(req.user.username, req.body.preset, JSON.parse(req.body.shuffleColors));
         if (resp.success) {
-            res.status(200).send(resp.data.message);
+            res.status(200).send(resp.data.colors);
         } else {
-            res.status(400).send(resp.data.message);
+            res.sendStatus(400);
         }
     });
 
@@ -717,7 +717,7 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.get("/charts", [isAdmin], async (req, res) => {
+    app.get("/charts", [isLoggedIn], async (req, res) => {
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
         let allUsers = (await dbClient.getAllUsers()).data.value;
         let loginDates = allUsers.map(u => u.loggedIn.map(d => {
@@ -776,11 +776,9 @@ module.exports = function (app, passport) {
                 return (vTime <= t.x.getTime()) && (vTime >= (t.x.getTime() - (14 * 24 * 60 * 60 * 1000)));
             }).length).length
         }));
-        let activePercentageData = userData.map((t, i) => ({
-            x: t.x, y: Math.round(uniqueUsersData[i].y / t.y * 100 * 10000) / 10000
-        }));
-        res.render("admin/cool_charts.ejs", {
+        res.render("user/cool_charts.ejs", {
             username: req.user.username,
+            personalInfo: JSON.stringify(req.user.personalInfo),
             appearance: JSON.stringify(req.user.appearance),
             sessionTimeout: Date.parse(req.session.cookie._expires),
             page: "charts",
@@ -789,7 +787,6 @@ module.exports = function (app, passport) {
             syncData: JSON.stringify(syncData),
             userData: JSON.stringify(userData),
             uniqueUsersData: JSON.stringify(uniqueUsersData),
-            activePercentageData: JSON.stringify(activePercentageData),
             sunset: sunset,
             sunrise: sunrise,
             _: _

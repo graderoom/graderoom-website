@@ -269,21 +269,6 @@ tr.excluded:hover .excludeToggle .fa-ban {
     color: black;
 }
 
-@keyframes addAssignmentAnimation {
-    0%, 100% {
-        background-color: transparent;
-    }
-    50% {
-        background-color: #DDDDDD;
-    }
-}
-
-tr.addAssignmentAnimation {
-    transition: none;
-    animation: addAssignmentAnimation linear 2s;
-    animation-iteration-count: 1.5;
-}
-
 .popup span.popup-top-left,
 .popup span.popup-top,
 .popup span.popup-top-right,
@@ -360,6 +345,23 @@ input:checked + .slider:before {
     border-color: lightcoral;
 }
 
+.add-assignment-container {
+    background-color: white;
+}
+
+.add-assignment-container.active {
+    box-shadow: 0 2px 30px 1px #888;
+}
+
+.tableOptions .popup {
+    background-color: #EEE;
+}
+
+.tableOptions .popup:hover {
+    background: #AAA !important;
+    border-color: #AAA !important;
+}
+
 .weightsTable input.text-view {
     border-color: white;
 }
@@ -414,7 +416,7 @@ select.minimal:focus {
     box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.5);
 }
 
-.switchDisplayMode, .addAssignment, .tableOptions {
+.switchDisplayMode, .tableOptions {
     background-color: #FFFFFF;
 }
 
@@ -452,14 +454,6 @@ select.minimal:focus {
 .block {
     border-radius: 0.5rem;
     background-color: white;
-}
-
-.add-assignment-container {
-    background-color: #FFFFFF;
-}
-
-.add-assignment-container.active {
-    box-shadow: 0 0 10px 1px darkgray;
 }
 
 .class-table th, .class-table td {
