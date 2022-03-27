@@ -966,9 +966,17 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                 if (data.message !== "Incorrect login details." && gradeSync) {
                     let encryptResp = await _encryptAndStoreSchoolPassword(db, username, schoolPassword, userPassword);
                     if (!encryptResp.success) {
+                        await _setSyncStatus(db, username, "failed");
                         socketManager.emitToRoom(username, SYNC_PURPOSE, "fail", encryptResp.data.message);
                         return;
                     }
+                }
+                if (data.message === "Your account is no longer active.") {
+                    await _setSyncStatus(db, username, "account-inactive");
+                } else if (data.message === "No class data.") {
+                    await _setSyncStatus(db, username, "no data");
+                } else {
+                    await _setSyncStatus(db, username, "failed");
                 }
                 socketManager.emitToRoom(username, SYNC_PURPOSE, "fail", data.message);
             } else {
@@ -1055,9 +1063,11 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                 });
 
                 if (updateHistory) {
+                    await _setSyncStatus(db, username, "history");
                     await _updateGradeHistory(db, username, schoolPassword);
                 }
 
+                await _setSyncStatus(db, username, "complete");
                 socketManager.emitToRoom(username, SYNC_PURPOSE, "success", {message: "Updated grades!"});
 
                 let _res = await _getUser(db, {username: username});
@@ -1080,6 +1090,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                 });
             }
         } else {
+            await _setSyncStatus(db, username, "updating");
             socketManager.emitToRoom(username, SYNC_PURPOSE, "progress", data);
         }
     });
@@ -1319,16 +1330,35 @@ const _initWeights = async (db, username) => {
         let semesters = Object.keys(user.grades[years[i]]);
         temp[years[i]] = {};
         for (let j = 0; j < semesters.length; j++) {
-            temp[years[i]][semesters[j]] = current[years[i]] ? current[years[i]][semesters[j]] ?? {} : {};
+            temp[years[i]][semesters[j]] = current[years[i]]?.[semesters[j]] ?? {};
             let classes = user.grades[years[i]][semesters[j]].map(c => c.class_name);
             for (let k = 0; k < classes.length; k++) {
-                temp[years[i]][semesters[j]][classes[k]] = current[years[i]] ? current[years[i]][semesters[j]] ? current[years[i]][semesters[j]][classes[k]] ?? {
-                    weights: {}, hasWeights: false
-                } : {weights: {}, hasWeights: false} : {weights: {}, hasWeights: false};
+                if (classes[k] in current[years[i]]?.[semesters[j]]) {
+                    // Make sure weights match grades
+                    let goodWeights = new Set(user.grades[years[i]][semesters[j]][k].grades.map(g => g.category));
+                    temp[years[i]][semesters[j]][classes[k]].weights = current[years[i]][semesters[j]][classes[k]].weights;
+                    temp[years[i]][semesters[j]][classes[k]].hasWeights = current[years[i]][semesters[j]][classes[k]].hasWeights;
+                    let weightKeys = Object.keys(temp[years[i]][semesters[j]][classes[k]].weights);
+                    for (let l = 0; l < weightKeys.length; l++) {
+                        if (!goodWeights.has(weightKeys[l])) {
+                            delete temp[years[i]][semesters[j]][classes[k]].weights[weightKeys[l]];
+                        }
+                    }
+                    weightKeys = Object.keys(temp[years[i]][semesters[j]][classes[k]].weights);
+                    for (let l = 0; l < goodWeights.length; l++) {
+                        if (!weightKeys.includes(goodWeights[l])) {
+                            temp[years[i]][semesters[j]][classes[k]].weights[goodWeights[l]] = null;
+                        }
+                    }
+                } else {
+                    temp[years[i]][semesters[j]][classes[k]] = {weights: {}, hasWeights: false};
+                }
             }
         }
     }
 
+    console.log(JSON.stringify(current));
+    console.log(JSON.stringify(temp));
     await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {weights: temp}});
     return {success: true};
 };
@@ -1552,12 +1582,12 @@ const _updateTutorial = async (db, username, action) => {
     }
 
     let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {[`alerts.tutorialStatus.${action}`]: true}}, {returnDocument: "after"});
-    return {success: true, data: {value: res.value}};
+    return {success: true, data: {value: res.value.alerts.tutorialStatus}};
 };
 
 const _resetTutorial = async (db, username) => {
     let res = await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {"alerts.tutorialStatus": Object.fromEntries(tutorialKeys.map(key => [key, false]))}}, {returnDocument: "after"});
-    return {success: true, data: {value: res.value}};
+    return {success: true, data: {value: res.value.alerts.tutorialStatus}};
 };
 
 const _addBetaKey = async (db) => {
@@ -2139,21 +2169,22 @@ const _getRelevantClassData = async (db, username, term, semester) => {
             }
             let users = await db.collection(USERS_COLLECTION_NAME).find(userCountQuery, {projection: userCountProjection}).toArray();
 
-            let minUsersForAverageCalc = 10;
-            let classAverage = users.length > minUsersForAverageCalc ? users.map(u => u.grades[userClass.term][userClass.semester][0].overall_percent).reduce((a, b) => a + b, 0) / users.length : null;
+            let minUsersForAverageCalc = 9;
+            let classAverage = users.length >= minUsersForAverageCalc ? users.map(u => u.grades[userClass.term][userClass.semester][0].overall_percent).reduce((a, b) => a + b, 0) / users.length : null;
 
             relClasses[userClass.className] = {
-                "department": classData.department,
+                "department": rawData?.department ?? classData?.department ?? "",
                 "classType": classData.classType ?? rawData?.classType ?? "",
                 "uc_csuClassType": classData.uc_csuClassType ?? rawData?.uc_csuClassType ?? "",
                 "weights": userClass.teacherName ? classData.teachers[0].weights : false,
                 "hasWeights": userClass.teacherName ? classData.teachers[0].hasWeights : false,
-                "credits": classData.credits,
-                "terms": classData.terms,
-                "description": classData.description,
+                "credits": rawData?.credits ?? classData?.credits,
+                "terms": rawData?.terms ?? classData?.terms,
+                "description": rawData?.description,
                 "userCount": users.length,
                 "classAverage": classAverage,
                 "teachers": teachers,
+                "gradeLevels": rawData?.grade_levels,
             };
         }
     }

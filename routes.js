@@ -375,7 +375,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/resetTutorial", [isLoggedIn], async (req, res) => {
-        res.status(200).send(JSON.stringify(await dbClient.resetTutorial(req.user.username)));
+        res.status(200).send(JSON.stringify((await dbClient.resetTutorial(req.user.username)).data.value));
     });
 
     app.post("/acceptPrivacyPolicy", [isLoggedIn], async (req, res) => {

@@ -31,7 +31,7 @@ exports.betaChangelogArray = () => _betaChangelogArray;
 exports.versionNameArray = () => _versionNameArray;
 
 // Update this list with new tutorial keys
-exports.tutorialKeys = ["homeSeen", "navinfoSeen", "moreSeen", "settingsSeen", "legendSeen", "zoomSeen"];
+exports.tutorialKeys = ["homeSeen", "navinfoSeen", "moreSeen", "settingsSeen", "legendSeen"];
 
 // Update this list with new beta features
 exports.betaFeatureKeys = ["showNotificationPanel"];

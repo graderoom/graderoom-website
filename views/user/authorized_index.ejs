@@ -216,13 +216,6 @@
                                     <span class="gotIt"></span>
                                 </span>
                             </div>
-                            <div class="popup-holder">
-                                <span id="zoomPopup"
-                                      class="nav-popups popup-top-right tutorial-popup">
-                                    Now, you can click on the chart and drag to make a box to zoom in
-                                    <span class="gotIt"></span>
-                                </span>
-                            </div>
                             <div id="chart-container-1" class="chart chart-container text-center">
                                 <button id="reset-zoom-1"
                                         style="position: absolute; top: 0; right: 0; height: fit-content; display:none"
@@ -948,9 +941,9 @@
 
             syncSocket.onAny((event, data) => {
                 let messageDiv = $(".updateGradesMessage");
+                let progressDiv = $(".updateGradesMessage > span");
                 switch (event) {
                     case "info-initialstatus":
-                        messageDiv.find("span").css("width", "0");
                         let status = data.message;
                         switch (status) {
                             case "Sync Failed.":
@@ -983,14 +976,16 @@
                         }
                         break;
                     case "progress":
+                        if (checkLastUpdated) {
+                            clearTimeout(checkLastUpdated);
+                        }
                         let {progress, message} = data;
+                        progressDiv.css('opacity', '0.5').css("width", `${progress}%`);
                         messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(message);
-                        messageDiv.find("span").css("width", `${progress}%`);
                         break;
                     case "progress-history":
                         break;
                     case "success":
-                        messageDiv.find("span").css("width", "0");
                         let formMessagesDiv = $(".updateGradesMessage.alert .messageTxt");
                         if (data.gradeSyncEnabled) {
                             $(".syncGradesDiv").hide();
@@ -1009,7 +1004,7 @@
                             $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
                             $(formMessagesDiv).find(".sk-chase-mini").hide();
                             setupLastUpdated();
-                        } else {
+                        } else if (!data.message) {
                             $(formMessagesDiv).find(".sk-chase-mini").hide();
                             let newData = {
                                 grades: JSON.parse(data.grades), weights: JSON.parse(data.weights)
@@ -1022,6 +1017,7 @@
                             } else {
                                 alerts.lastUpdated.push(JSON.parse(data.updateData));
                                 setupGradeChanges();
+                                showLatest(false);
                                 refreshWithoutReload(true);
                                 setupLastUpdated();
                                 setTimeout(() => closeForm("updateGradesDisplay"), 250);
@@ -1041,8 +1037,6 @@
                         shortcutsEnabled = true;
                         break;
                     case "success-history":
-                    case "success-alldata":
-                        messageDiv.find("span").css("width", "0");
                         let newData = {grades: JSON.parse(data.grades), weights: JSON.parse(data.weights)};
                         if (!updateData(newData).updated) {
                             sessionStorage.setItem("showSyncLog", "true");
@@ -1069,7 +1063,6 @@
                     case "fail-termsemester":
                     case "fail-history":
                     case "fail-general":
-                        messageDiv.find("span").css("width", "0");
                         if (gradeSync) {
                             $("#inputUserPassword").trigger("focus");
                         } else {
@@ -3642,7 +3635,7 @@
                                         enabled: true, speed: 0.05
                                     }, pinch: {
                                         enabled: true, threshold: 100
-                                    }, drag: {enabled: true}, mode: "xy", onZoom: ({chart}) => {
+                                    }, drag: {enabled: false}, mode: "xy", onZoom: ({chart}) => {
                                         $("#reset-zoom-1").show();
 
                                         // Disable hovering and tooltips to make animation smoother
@@ -3652,7 +3645,19 @@
                                         chart.options.hover.mode = "nearest";
                                         chart.options.plugins.tooltip.enabled = true;
                                     }
-                                }
+                                },
+                                pan: {
+                                    enabled: true,
+                                    onPan: ({chart}) => {
+                                        $("#reset-zoom-1").show();
+                                        // Disable hovering and tooltips to make animation smoother
+                                        chart.options.hover.mode = null;
+                                        chart.options.plugins.tooltip.enabled = false;
+                                    }, onPanComplete: ({chart}) => {
+                                        chart.options.hover.mode = "nearest";
+                                        chart.options.plugins.tooltip.enabled = true;
+                                    }
+                                },
                             }
                         }
                     }
@@ -3804,9 +3809,9 @@
                                     }, pinch: {
                                         enabled: true, threshold: 100
                                     }, drag: {
-                                        enabled: true
+                                        enabled: false
                                     }, mode: "xy", onZoom: ({chart}) => {
-                                        $("#reset-zoom" + id).show();
+                                        $(`#reset-zoom${id}`).show();
 
                                         // Disable hovering and tooltips to make animation smoother
                                         chart.options.hover.mode = null;
@@ -3815,8 +3820,20 @@
                                         chart.options.hover.mode = "nearest";
                                         chart.options.plugins.tooltip.enabled = true;
                                     }
-                                }
-                            }
+                                },
+                                pan: {
+                                    enabled: true,
+                                    onPan: ({chart}) => {
+                                        $(`#reset-zoom${id}`).show();
+                                        // Disable hovering and tooltips to make animation smoother
+                                        chart.options.hover.mode = null;
+                                        chart.options.plugins.tooltip.enabled = false;
+                                    }, onPanComplete: ({chart}) => {
+                                        chart.options.hover.mode = "nearest";
+                                        chart.options.plugins.tooltip.enabled = true;
+                                    }
+                                },
+                            },
                         }
                     }
                 });
@@ -4063,9 +4080,11 @@
                 let teachers = relData.teachers;
                 let classType = relData.classType;
                 let ucClassType = relData.uc_csuClassType;
+                let gradeLevels = relData.gradeLevels;
+                let credits = relData.credits;
 
                 let parts = [];
-                let headers = ["Prerequisites:", "Pre-requisites/Comments:", "Teacher: Staff", "Staff: Staff", "Course Content:", "(Reviewed "];
+                let headers = ["Prerequisites:", "Pre-requisites/Comments:", "Teacher: Staff", "Staff: Staff", "Course Content:", "", "(Reviewed "];
 
                 let startHeader = -1;
                 let startBody = -1;
@@ -4105,7 +4124,9 @@
                 parts.push("");
 
                 let _description = "";
+                let _thereIsData = false;
                 for (let i = 0; i < parts.length; i++) {
+                    if (parts[i].trim().length > 0) _thereIsData = true;
                     if (i % 2 == 0) {
                         // These are the headers
                         _description += `<p class="classInfo-description-header">${parts[i]}</p>`;
@@ -4132,6 +4153,8 @@
                 let classInfoUserCount = $("#classInfoGraderoomUsers");
                 let classInfoClassAverage = $("#classInfoAverage");
                 let classInfoDescription = $("#classInfoDescription");
+                let classInfoYears = $("#classInfoYears");
+                let classInfoCredits = $("#classInfoCredits");
 
                 classInfoClassName.text(className);
                 if (teacherName) {
@@ -4195,11 +4218,59 @@
                 }
                 classInfoUserCount.html(`<span>${userCount}</span><span>Graderoom User${userCount > 1 ? "s" : ""}<br>this semester</span>`);
                 if (classAverage != null) {
-                    classInfoClassAverage.show().html(`<span>Graderoom User<br>Class Average:</span><span>${classAverage}% (${getLetterGrade(classAverage)})</span>`);
+                    classInfoClassAverage.addClass('visible').html(`<span>Graderoom User<br>Class Average:</span><span>${classAverage}% (${getLetterGrade(classAverage)})</span>`);
                 } else {
-                    classInfoClassAverage.hide();
+                    classInfoClassAverage.removeClass('visible');
                 }
                 classInfoDescription.html(_description);
+                if (_thereIsData) {
+                    $("#classInfoBody .card-footer").show();
+                } else {
+                    $("#classInfoBody .card-footer").hide();
+                }
+
+                let _yearsText = "";
+                let count = gradeLevels.length;
+                for (let i = 0; i < gradeLevels.length; i++) {
+                    switch (gradeLevels[i]) {
+                        case 9:
+                            _yearsText += "Freshmen";
+                            break;
+                        case 10:
+                            _yearsText += "Sophomores";
+                            break;
+                        case 11:
+                            _yearsText += "Juniors";
+                            break;
+                        case 12:
+                            _yearsText += "Seniors";
+                            break;
+                        default:
+                            count--;
+                            continue;
+                    }
+                    if (count > 2 && i < gradeLevels.length - 1) {
+                        _yearsText += ",";
+                    }
+                    if (i < gradeLevels.length - 1) {
+                        _yearsText += " ";
+                    }
+                    if (i == gradeLevels.length - 2) {
+                        _yearsText += "and ";
+                    }
+                }
+
+                if (gradeLevels && _yearsText) {
+                    classInfoYears.show().text(_yearsText + " take this course.");
+                } else {
+                    classInfoYears.hide();
+                }
+
+                if (credits) {
+                    classInfoCredits.show().text(`${credits} credit ${credits == 10 ? "(Year-long)" : credits == 5 ? "(Semester-long)" : ""} course`);
+                } else {
+                    classInfoCredits.hide();
+                }
 
                 // Styling
                 $("#classInfoTopHalf > div, #classInfoBody > .card-footer, #classInfoBody > ul").css("background-color", withAlpha(colors[index], 10));

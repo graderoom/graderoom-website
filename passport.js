@@ -58,30 +58,7 @@ module.exports = function (passport) {
                 if ('schoolPassword' in user) {
                     let resp = await dbClient.decryptAndGetSchoolPassword(user.username, password);
                     let schoolPass = resp.data.value;
-                    let _stream = (await dbClient.updateGrades(user.username, schoolPass)).data.stream;
-
-                    _stream.on("data", async (data) => {
-                        if (!('success' in data)) {
-                            return;
-                        }
-                        if (data.success) {
-                            let {term, semester} = (await dbClient.getMostRecentTermData(user.username)).data.value;
-                            if (term && semester) {
-                                socketManager.emitToRoom(user.username, "sync", "success-alldata", {
-                                    gradeSyncEnabled: true,
-                                    message: data.message,
-                                    grades: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
-                                    weights: JSON.stringify(req.user.weights[term][semester]),
-                                    updateData: JSON.stringify(req.user.alerts.lastUpdated.slice(-1)[0])
-                                });
-                            } else {
-                                socketManager.emitToRoom(user.username, "main", "refresh", data.message);
-                            }
-                        } else {
-                            await dbClient.setSyncStatus(user.username, "account-inactive");
-                            socketManager.emitToRoom(user.username, "sync", "fail", data.message);
-                        }
-                    });
+                    await dbClient.updateGrades(user.username, schoolPass);
                 }
                 return done(null, user);
             }

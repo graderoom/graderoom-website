@@ -1844,7 +1844,6 @@ input:checked + .slider:before {
 }
 
 .ignored, .ignored * {
-    text-decoration: line-through;
     opacity: 0.5;
 }
 
@@ -2357,15 +2356,20 @@ input:disabled {
     cursor: default;
 }
 
-.updateGradesMessage span {
+.updateGradesMessage > span {
+    transition: all 200ms ease;
     display: block;
-    content: '';
-    height: 0.2rem;
-    margin-top: -0.2rem;
-    transform: translateY(0.1rem);
+    content: "";
+    box-sizing: content-box;
+    height: 1.1rem;
+    margin-bottom: -1.3rem;
+    transform: translateY(-0.13rem) translateX(-0.5rem);
+    z-index: -1;
+    opacity: 0;
     width: 0;
-    background-color: blue;
-    border-radius: 2rem;]
+    background-color: currentColor;
+    border-radius: 0.5rem;
+    padding: 0.1rem 0.5rem;
 }
 
 #classInfoDescriptionHeader {
@@ -2378,11 +2382,40 @@ input:disabled {
     display: flex;
     justify-content: space-between;
     margin: 0.5rem 0 1rem 0;
+    flex-wrap: wrap;
+}
+
+#classInfoBody {
+    max-height: 60vh;
+    overflow: scroll;
 }
 
 #classInfoTopHalf > div {
     border-radius: 1rem;
     padding: 1.5rem 2rem;
+    margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
+    margin-right: 0.5rem;
+}
+
+#classInfoCredits {
+    font-weight: bold;
+}
+
+#classInfoAverage, #classInfoTeacher {
+    display: none;
+}
+
+#classInfoYears {
+    font-style: italic;
+}
+
+#classInfoTopHalf > div.visible {
+    display: flex !important;
+}
+
+#classInfoTopHalf > div.visible:last-of-type {
+    margin-right: 0;
 }
 
 #classInfoTopLeft {

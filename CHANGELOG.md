@@ -42,6 +42,27 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 4.11.0] - 2022-03-27
+### Added
+- You can now see what grade levels take a course in the 'Class Info' card
+- You can now see how many credits a course is worth in the 'Class Info' card
+- Ability to pan charts
+
+### Improved
+- Sync progress indicator looks much better now
+- 'Class Info' card no longer overflows off-screen
+- Detection of sections of class descriptions
+
+### Fixed
+- Issue where some course descriptions were not displayed
+- Issue where it was possible to have weights missing from the weights table
+- Issue with sync status tutorial popup
+- Issue with resetting tutorial
+- Issues with initial sync status being displayed incorrectly sometimes
+
+### Removed
+- Ability to zoom in on a section of the chart by drawing a box (in favor of allowing panning)
+
 ## [Beta 4.10.0] - 2022-03-25
 ### Added
 - Analytics charts (view in More > Analytics)
