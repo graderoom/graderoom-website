@@ -2159,7 +2159,7 @@ const _getRelevantClassData = async (db, username, term, semester) => {
 
             let teachers = (await db.collection(classesCollection(school)).findOne(query, {
                 projection: {teachers: {teacherName: 1}}
-            })).teachers.map(t => t.teacherName);
+            })).teachers.map(t => t.teacherName).filter(t => t);
 
             let userCountQuery = {
                 [`grades.${userClass.term}.${userClass.semester}`]: {$elemMatch: {class_name: userClass.className, teacher_name: userClass.teacherName}},

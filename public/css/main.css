@@ -2401,11 +2401,6 @@ input:disabled {
 #classInfoCredits {
     font-weight: bold;
 }
-
-#classInfoAverage, #classInfoTeacher {
-    display: none;
-}
-
 #classInfoYears {
     font-style: italic;
 }
@@ -2491,6 +2486,10 @@ input:disabled {
 
 #classInfoOtherTeachersHeader {
     font-weight: bold;
+}
+
+#classInfoAverage, #classInfoTeacher {
+    display: none;
 }
 
 .classInfo-description-header {
