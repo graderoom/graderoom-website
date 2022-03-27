@@ -4218,7 +4218,7 @@
                 }
                 classInfoUserCount.html(`<span>${userCount}</span><span>Graderoom User${userCount > 1 ? "s" : ""}<br>this semester</span>`);
                 if (classAverage != null) {
-                    classInfoClassAverage.addClass('visible').html(`<span>Graderoom User<br>Class Average:</span><span>${round(classAverage * 100) / 100}% (${getLetterGrade(classAverage)})</span>`);
+                    classInfoClassAverage.addClass('visible').html(`<span>Graderoom User<br>Class Average:</span><span>${Math.round(classAverage * 100) / 100}% (${getLetterGrade(classAverage)})</span>`);
                 } else {
                     classInfoClassAverage.removeClass('visible');
                 }
