@@ -4115,11 +4115,11 @@
 
                 let reviewed = description.substring(startHeader);
                 let reviewedEnd = reviewed.indexOf(")");
-                reviewed = reviewed.substring(0, reviewedEnd + 1);
+                reviewed = reviewed.substring(0, reviewedEnd + 1).trim();
                 parts.push(reviewed);
                 parts.push("");
 
-                let ucApproval = description.substring(startHeader + reviewedEnd + 1);
+                let ucApproval = description.substring(startHeader + reviewedEnd + 1).trim();
                 if (ucApproval.startsWith("*")) {
                     ucApproval = ucApproval.substring(1);
                 }
