@@ -1466,6 +1466,9 @@
             }
 
             function correctCalc(classIndex) {
+                if (data[classIndex].grades.length == 0) {
+                    return false;
+                }
                 let realOverallGrade = data[classIndex].overall_percent;
                 let realOverallLetter = data[classIndex].overall_letter;
                 if (realOverallGrade === false || !realOverallLetter) {

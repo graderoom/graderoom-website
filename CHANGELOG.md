@@ -59,6 +59,7 @@
 - Issue with sync status tutorial popup
 - Issue with resetting tutorial
 - Issues with initial sync status being displayed incorrectly sometimes
+- Issue where older semesters would show grades as "N/A" even if Graderoom had the data
 
 ### Removed
 - Ability to zoom in on a section of the chart by drawing a box (in favor of allowing panning)
