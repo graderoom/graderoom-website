@@ -1,0 +1,15 @@
+* {
+    animation: random-fonts;
+    animation-delay: 5s;
+    animation-duration: 25s;
+    animation-timing-function: linear;
+}
+
+@keyframes random-fonts {
+    0% {
+        font-family: "Comic Sans MS", sans-serif;
+    }
+    20% {
+        font-family: "Webdings", fantasy;
+    }
+}

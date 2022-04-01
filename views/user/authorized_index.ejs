@@ -730,6 +730,15 @@
         </div>
         <!-- Custom JavaScript -->
         <script>
+
+            if (localStorage.getItem("playedAprilFools") === null && new Date().getMonth() == 3 && new Date().getDate() == 1) {
+                $('head').append($(`
+        <link id="aprilFools" rel="stylesheet" type="text/css" href="../../public/css/april_fools.css">`));
+                setTimeout(() => {$("#aprilFools").remove();
+                    localStorage.setItem("playedAprilFools", "");
+                    }, 20000);
+            }
+
             let enableLogging = <%= enableLogging %>;
             // define a new console
             var console = (function (oldCons) {

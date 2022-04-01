@@ -1336,7 +1336,7 @@ const _initWeights = async (db, username) => {
                 if (classes[k] in current[years[i]]?.[semesters[j]]) {
                     // Make sure weights match grades
                     let goodWeights = new Set(user.grades[years[i]][semesters[j]][k].grades.map(g => g.category));
-                    temp[years[i]][semesters[j]][classes[k]].weights = current[years[i]][semesters[j]][classes[k]].weights;
+                    temp[years[i]][semesters[j]][classes[k]].weights = _.clone(current[years[i]][semesters[j]][classes[k]].weights);
                     temp[years[i]][semesters[j]][classes[k]].hasWeights = current[years[i]][semesters[j]][classes[k]].hasWeights;
                     let weightKeys = Object.keys(temp[years[i]][semesters[j]][classes[k]].weights);
                     for (let l = 0; l < weightKeys.length; l++) {
@@ -1357,8 +1357,6 @@ const _initWeights = async (db, username) => {
         }
     }
 
-    console.log(JSON.stringify(current));
-    console.log(JSON.stringify(temp));
     await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {$set: {weights: temp}});
     return {success: true};
 };

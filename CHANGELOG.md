@@ -42,6 +42,44 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 5.0.0] - 2022-04-01 - April Fools!
+### Added
+- Updated to new database
+- Appearance settings now sync instantly across devices
+- Analytics charts (view in More > Analytics)
+- Progress bar to sync status indicator
+- Newly designed 'Add Assignment' wizard
+- New 'Class Info' card<ul>
+- View the class description and prerequisites as listed on the bcp website
+- View the number of Graderoom users taking the course this semester
+- View the Graderoom class average for the course in the current semester if there are more than 10 Graderoom users in the course this semester.</ul>
+- New Keyboard shortcut 'I' to view the class info of the course currently in view
+- You can now see what grade levels take a course in the 'Class Info' card
+- You can now see how many credits a course is worth in the 'Class Info' card
+- Ability to pan charts
+
+### Improved
+- Assignment percents now always display 2 decimal places. Hover over them to see more.
+- Warning logs are orange instead of yellow now for better visibility
+- Warnings no longer show in header bar if there are no verified weights
+- 'Escape' key now dismisses expanded navbar 'more' menu, as well as the new 'Add Assignment' wizard
+- Added an 'Advanced' settings tab because 'Appearance' was getting too cluttered
+- Cleaned up the amount of warning icons
+- Updated class catalog
+- Support error for disabled accounts correctly
+
+### Fixed
+- Issue where it was possible to have weights missing from the weights table
+- Issues with initial sync status being displayed incorrectly sometimes
+- Issue where older semesters would show grades as "N/A" even if Graderoom had the data
+
+### Removed
+- Ability to zoom in on a section of the chart by drawing a box (in favor of allowing panning)
+
+## [Beta 4.11.1] - 2022-04-01
+### Fixed
+- Issue where some categories were created out of thin air apparently
+
 ## [Beta 4.11.0] - 2022-03-27
 ### Added
 - You can now see what grade levels take a course in the 'Class Info' card
