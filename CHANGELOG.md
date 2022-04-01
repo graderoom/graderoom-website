@@ -52,10 +52,10 @@
 - New 'Class Info' card<ul>
 - View the class description and prerequisites as listed on the bcp website
 - View the number of Graderoom users taking the course this semester
-- View the Graderoom class average for the course in the current semester if there are more than 10 Graderoom users in the course this semester.</ul>
+- View the Graderoom class average for the course in the current semester if there are 9 or more Graderoom users in the course this semester.
+- View what grade levels take the course
+- View how many credits the course is worth</ul>
 - New Keyboard shortcut 'I' to view the class info of the course currently in view
-- You can now see what grade levels take a course in the 'Class Info' card
-- You can now see how many credits a course is worth in the 'Class Info' card
 - Ability to pan charts
 
 ### Improved
