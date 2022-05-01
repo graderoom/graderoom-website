@@ -1333,25 +1333,26 @@ const _initWeights = async (db, username) => {
             temp[years[i]][semesters[j]] = current[years[i]]?.[semesters[j]] ?? {};
             let classes = user.grades[years[i]][semesters[j]].map(c => c.class_name);
             for (let k = 0; k < classes.length; k++) {
-                if (classes[k] in current[years[i]]?.[semesters[j]]) {
-                    // Make sure weights match grades
-                    let goodWeights = new Set(user.grades[years[i]][semesters[j]][k].grades.map(g => g.category));
+                if (current[years[i]]?.[semesters[j]]?.[classes[k]] === undefined) {
+                    temp[years[i]][semesters[j]][classes[k]] = {weights: {}, hasWeights: false};
+                } else {
                     temp[years[i]][semesters[j]][classes[k]].weights = _.clone(current[years[i]][semesters[j]][classes[k]].weights);
                     temp[years[i]][semesters[j]][classes[k]].hasWeights = current[years[i]][semesters[j]][classes[k]].hasWeights;
-                    let weightKeys = Object.keys(temp[years[i]][semesters[j]][classes[k]].weights);
-                    for (let l = 0; l < weightKeys.length; l++) {
-                        if (!goodWeights.has(weightKeys[l])) {
-                            delete temp[years[i]][semesters[j]][classes[k]].weights[weightKeys[l]];
-                        }
+                }
+
+                let goodWeights = new Set(user.grades[years[i]][semesters[j]][k].grades.map(g => g.category));
+                // Make sure weights match grades
+                let weightKeys = Object.keys(temp[years[i]][semesters[j]][classes[k]].weights);
+                for (let l = 0; l < weightKeys.length; l++) {
+                    if (!goodWeights.has(weightKeys[l])) {
+                        delete temp[years[i]][semesters[j]][classes[k]].weights[weightKeys[l]];
                     }
-                    weightKeys = Object.keys(temp[years[i]][semesters[j]][classes[k]].weights);
-                    for (let l = 0; l < goodWeights.length; l++) {
-                        if (!weightKeys.includes(goodWeights[l])) {
-                            temp[years[i]][semesters[j]][classes[k]].weights[goodWeights[l]] = null;
-                        }
+                }
+                weightKeys = Object.keys(temp[years[i]][semesters[j]][classes[k]].weights);
+                for (let l = 0; l < goodWeights.length; l++) {
+                    if (!weightKeys.includes(goodWeights[l])) {
+                        temp[years[i]][semesters[j]][classes[k]].weights[goodWeights[l]] = null;
                     }
-                } else {
-                    temp[years[i]][semesters[j]][classes[k]] = {weights: {}, hasWeights: false};
                 }
             }
         }

@@ -42,6 +42,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 5.0.1] - 2022-05-01
+### Fixed
+- Issue where new users could not sync
+
 ## [Stable 5.0.0] - 2022-04-01 - April Fools!
 ### Added
 - Updated to new database
