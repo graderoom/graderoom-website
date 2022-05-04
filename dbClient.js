@@ -362,11 +362,13 @@ const _updateUser = async (db, username) => {
         }
     }
 
-    await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {
-        $set: {
-            "alerts.tutorialStatus": temp, "betaFeatures": temp2
-        }
-    });
+    if (!_.isEqual(temp, user.alerts.tutorialStatus) || !_.isEqual(temp2, user.betaFeatures)) {
+        await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {
+            $set: {
+                "alerts.tutorialStatus": temp, "betaFeatures": temp2
+            }
+        });
+    }
 
     return {success: true, data: {log: `Initialized ${username}`}};
 };
@@ -374,7 +376,6 @@ const _updateUser = async (db, username) => {
 const _updateAllUsers = async (db) => {
     let {data: {value: users}} = await _getAllUsers(db);
     for (let user of users) {
-        console.log(user.username);
         console.log((await _updateUser(db, user.username)).data.log);
     }
     return {success: true};
