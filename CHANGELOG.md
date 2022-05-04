@@ -42,6 +42,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 5.0.2] - 2022-05-02
+### Fixed
+- Issue where users could not reset their passwords
+
 ## [Stable 5.0.1] - 2022-05-01
 ### Fixed
 - Issue where new users could not sync

@@ -1741,6 +1741,8 @@ const _resetPassword = async (db, token, newPassword) => {
             await _disableGradeSync(db, user.username);
         }
 
+        let username = user.username;
+
         bcrypt.hash(newPassword, ROUNDS_TO_GENERATE_SALT, async (err, hash) => {
             if (err) {
                 return resolve({success: false, data: {log: err, message: "Something went wrong"}});
