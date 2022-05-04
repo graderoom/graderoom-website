@@ -177,9 +177,15 @@ const safe = (func, ...args) => {
         func(db(_client), ...args).then(async (_data) => {
             let success = "success" in _data && typeof _data.success === "boolean" ? _data.success : false;
             let data = "data" in _data && _data.data.constructor === Object ? _data.data : {};
-            if ("log" in data && !_prod) {
-                console.log(data.log);
+            if ("log" in data) {
+                if (!_prod) {
+                    console.log(data.log);
+                }
                 delete data.log;
+            }
+            if ("prodLog" in data) {
+                console.log(data.prodLog);
+                delete data.prodLog;
             }
             if ("value" in data) {
                 if (data.value === null) {
@@ -367,11 +373,10 @@ const _updateUser = async (db, username) => {
 
 const _updateAllUsers = async (db) => {
     let {data: {value: users}} = await _getAllUsers(db);
-    let log = "";
     for (let user of users) {
-        log += (await _updateUser(db, user.username)).data.log + "\n";
+        console.log((await _updateUser(db, user.username)).data.log);
     }
-    return {success: true, data: {log: log}};
+    return {success: true};
 };
 
 const _getUser = async (db, {username, schoolUsername}) => {
