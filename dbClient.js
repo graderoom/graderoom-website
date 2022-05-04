@@ -368,7 +368,7 @@ const __updateUser = async (db, user) => {
     }
 
     if (!_.isEqual(temp, user.alerts.tutorialStatus) || !_.isEqual(temp2, user.betaFeatures)) {
-        await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {
+        await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: user.username}, {
             $set: {
                 "alerts.tutorialStatus": temp, "betaFeatures": temp2
             }
