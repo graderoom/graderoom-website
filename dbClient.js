@@ -328,7 +328,12 @@ const _updateUser = async (db, username) => {
     }
 
     let user = res.data.value;
+    await __updateUser(db, user);
 
+    return {success: true, data: {log: `Initialized ${username}`}};
+};
+
+const __updateUser = async (db, user) => {
     //Remove old & add missing tutorial keys
     let existingKeys = Object.keys(user.alerts.tutorialStatus);
     let temp = {};
@@ -369,14 +374,14 @@ const _updateUser = async (db, username) => {
             }
         });
     }
-
-    return {success: true, data: {log: `Initialized ${username}`}};
-};
+}
 
 const _updateAllUsers = async (db) => {
     let {data: {value: users}} = await _getAllUsers(db);
-    for (let user of users) {
-        console.log((await _updateUser(db, user.username)).data.log);
+    for (let i = 0; i < users.length; i++) {
+        let user = users[i];
+        console.log(`Updating ${user.username} (${i} of ${users.length})`);
+        await __updateUser(db, user);
     }
     return {success: true};
 };
