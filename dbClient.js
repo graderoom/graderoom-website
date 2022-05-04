@@ -374,6 +374,7 @@ const _updateUser = async (db, username) => {
 const _updateAllUsers = async (db) => {
     let {data: {value: users}} = await _getAllUsers(db);
     for (let user of users) {
+        console.log(user.username);
         console.log((await _updateUser(db, user.username)).data.log);
     }
     return {success: true};
