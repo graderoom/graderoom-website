@@ -298,7 +298,7 @@ class PowerschoolScraper(Scraper):
 
         # check error msg
         error = soup.find("div", class_='grid-alert error')
-        if "Your account is disabled. Please contact your system administrator." in error.text:
+        if error and "Your account is disabled. Please contact your system administrator." in error.text:
             self.progress = 0
             print(json_format(False, 'Your account is no longer active.'))
             sys.exit()
