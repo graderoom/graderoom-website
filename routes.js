@@ -154,21 +154,35 @@ module.exports = function (app, passport) {
 
     app.get("/viewuser", [isAdmin], async (req, res) => {
         if (req.query.usernameToRender) {
-            let user = (await dbClient.getUser({username: req.query.usernameToRender})).data.value;
-            if (user.alerts.remoteAccess === "denied") {
-                res.redirect("/");
-                return;
-            }
-
             let gradeHistoryLetters = {};
             let {term, semester} = (await dbClient.getMostRecentTermData(req.query.usernameToRender)).data.value;
             if (req.query.term && req.query.semester) {
-                if ((term === req.query.term && semester === req.query.semester) || !(await dbClient.userHasSemester(user.username, req.query.term, req.query.semester)).data.value) {
+                if ((term === req.query.term && semester === req.query.semester) || !(await dbClient.userHasSemester(req.query.usernameToRender, req.query.term, req.query.semester)).data.value) {
                     res.redirect("/viewuser?usernameToRender=" + req.query.usernameToRender);
                     return;
                 }
                 term = req.query.term;
                 semester = req.query.semester;
+            }
+            let projection = {
+                school: 1,
+                schoolUsername: 1,
+                isAdmin: 1,
+                personalInfo: 1,
+                appearance: 1,
+                alerts: 1,
+                schoolPassword: 1,
+                grades: 1,
+                [`weights.${term}.${semester}`]: 1,
+                [`addedAssignments.${term}.${semester}`]: 1,
+                [`editedAssignments.${term}.${semester}`]: 1,
+                sortingData: 1,
+                betaFeatures: 1,
+            };
+            let user = (await dbClient.getUser({username: req.query.usernameToRender}, projection)).data.value;
+            if (user.alerts.remoteAccess === "denied") {
+                res.redirect("/");
+                return;
             }
             for (let i = 0; i < Object.keys(user.grades).length; i++) {
                 let t = Object.keys(user.grades)[i];
@@ -332,8 +346,19 @@ module.exports = function (app, passport) {
 
     app.get("/admin", [isAdmin], async (req, res) => {
         // admin panel TODO
-        let allUsers = (await dbClient.getAllUsers()).data.value;
-        let deletedUsers = (await dbClient.getAllArchivedUsers()).data.value;
+        let projection = {
+            username: 1,
+            schoolUsername: 1,
+            personalInfo: 1,
+            loggedIn: 1,
+            'alerts.termsLastSeen': 1,
+            'alerts.policyLastSeen': 1,
+            'alerts.lastUpdated': 1,
+            'alerts.remoteAccess': 1,
+            'betaFeatures.active': 1,
+        };
+        let allUsers = (await dbClient.getAllUsers(projection)).data.value;
+        let deletedUsers = (await dbClient.getAllArchivedUsers(projection)).data.value;
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
         res.render("admin/admin.ejs", {
             page: "admin",
@@ -719,7 +744,11 @@ module.exports = function (app, passport) {
 
     app.get("/charts", [isLoggedIn], async (req, res) => {
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
-        let allUsers = (await dbClient.getAllUsers()).data.value;
+        let projection = {
+            loggedIn: 1,
+            'alerts.lastUpdated': 1,
+        };
+        let allUsers = (await dbClient.getAllUsers(projection)).data.value;
         let loginDates = allUsers.map(u => u.loggedIn.map(d => {
             let date = new Date(d);
             return new Date(date.getFullYear(), date.getMonth(), date.getDate());

@@ -37,7 +37,7 @@ module.exports = {
         customAssert((await db.userExists({username: username})).success, true, "User exists with username");
         customAssert((await db.userExists({schoolUsername: schoolUsername})).success, true, "User exists with schoolUsername");
         customAssert((await db.userExists({username, schoolUsername})).success, true, "User exists with both");
-        customAssert((await db.getUser({username, schoolUsername})).success, true, "Get user");
+        customAssert((await db.getUser(username, {})).success, true, "Get user");
         customAssert((await db.removeUser("")).success, false, "Invalid user removal");
         customAssert((await db.removeUser(username)).success, true, "Valid user removal");
     }, testBetaKeyFunctions: async () => {

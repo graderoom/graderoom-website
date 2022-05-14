@@ -41,12 +41,11 @@ module.exports = {
 
         if ([graderoom_username, school_username, password].includes("")) throw new Error("Configure credentials.json");
 
-        let user = await dbClient.getUser({username: graderoom_username});
-
         let {term: oldTerm, semester: oldSemester} = (await dbClient.getMostRecentTermData(graderoom_username)).data;
         let term_data_if_locked = {term: oldTerm, semester: oldSemester};
         let data_if_locked = [];
         if (oldTerm && oldSemester) {
+            let user = await dbClient.getUser(graderoom_username, {[`grades.${oldTerm}.${oldSemester}`]: 1});
             data_if_locked = user.grades[oldTerm][oldSemester].map(class_data => _.omit(class_data, ["grades"]));
         } else {
             term_data_if_locked = {};

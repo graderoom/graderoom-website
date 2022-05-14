@@ -19,7 +19,7 @@ module.exports = function (passport) {
 
     // used to deserialize the user
     passport.deserializeUser(async function (username, done) {
-        let res = await dbClient.getUser({username: username});
+        let res = await dbClient.getUser(username, {});
         if (res.success) {
             return done(null, res.data.value);
         }
@@ -47,7 +47,7 @@ module.exports = function (passport) {
         process.nextTick(async function () {
 
             // if no user is found, return the message
-            let res = await dbClient.userExists({username: username, schoolUsername: username});
+            let res = await dbClient.userExists({username: username, schoolUsername: username}, true);
             if (!res.success) {
                 return done(null, false, req.flash("loginMessage", "Invalid Credentials"));
             }

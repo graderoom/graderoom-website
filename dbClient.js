@@ -75,22 +75,18 @@ module.exports = {
     addUser: (school, username, password, schoolUsername, isAdmin, beta = false, betaKey) => safe(_addUser, school, lower(username), password, lower(schoolUsername), isAdmin, beta, betaKey),
     userExists: ({
                      username, schoolUsername
-                 }) => safe(_userExists, {
+                 }, includeFullUser = false) => safe(_userExists, {
         username: lower(username), schoolUsername: lower(schoolUsername)
-    }),
+    }, includeFullUser),
     updateUser: (username) => safe(_updateUser, lower(username)),
     updateAllUsers: () => safe(_updateAllUsers),
-    getUser: ({
-                  username, schoolUsername
-              }) => safe(_getUser, {
-        username: lower(username), schoolUsername: lower(schoolUsername)
-    }),
-    getAllUsers: () => safe(_getAllUsers),
+    getUser: (username, projection) => safe(_getUser, lower(username), projection),
+    getAllUsers: (projection) => safe(_getAllUsers, projection),
     userArchived: ({username, schoolUsername}) => safe(_userArchived, {
         username: lower(username), schoolUsername: lower(schoolUsername)
     }),
     archiveUser: (username) => safe(_archiveUser, lower(username)),
-    getAllArchivedUsers: () => safe(_getAllArchivedUsers),
+    getAllArchivedUsers: (projection) => safe(_getAllArchivedUsers, projection),
     unArchiveUser: (username) => safe(_unArchiveUser, lower(username)),
     removeUser: (username) => safe(_removeUser, lower(username)),
     removeUserFromArchive: (username) => safe(_removeUserFromArchive, lower(username)),
@@ -307,8 +303,10 @@ const __addUser = async (db, user) => {
     }
 };
 
-const _userExists = async (db, {username, schoolUsername}) => {
-    let userExists = await db.collection(USERS_COLLECTION_NAME).findOne({$or: [{username: username}, {schoolUsername: schoolUsername}]});
+const _userExists = async (db, {username, schoolUsername}, includeFullUser = false) => {
+    let query = {$or: [{username: username}, {schoolUsername: schoolUsername}]};
+    let projection = includeFullUser ? {} : {username: 1};
+    let userExists = await db.collection(USERS_COLLECTION_NAME).findOne(query, projection);
     if (!!userExists) {
         return {
             success: true,
@@ -322,7 +320,7 @@ const _userExists = async (db, {username, schoolUsername}) => {
 };
 
 const _updateUser = async (db, username) => {
-    let res = await _getUser(db, {username: username});
+    let res = await _getUser(db, username, {"alerts.tutorialStatus": 1, betaFeatures: 1});
     if (!res.success) {
         return res;
     }
@@ -374,10 +372,10 @@ const __updateUser = async (db, user) => {
             }
         });
     }
-}
+};
 
 const _updateAllUsers = async (db) => {
-    let {data: {value: users}} = await _getAllUsers(db);
+    let {data: {value: users}} = await _getAllUsers(db, {username: 1, 'alerts.tutorialStatus': 1, betaFeatures: 1});
     for (let i = 0; i < users.length; i++) {
         let user = users[i];
         console.log(`Updating ${user.username} (${i + 1} of ${users.length})`);
@@ -386,29 +384,30 @@ const _updateAllUsers = async (db) => {
     return {success: true};
 };
 
-const _getUser = async (db, {username, schoolUsername}) => {
-    let user = await db.collection(USERS_COLLECTION_NAME).findOne({
-                                                                      $or: [{
-                                                                          username: username
-                                                                      }, {
-                                                                          schoolUsername: schoolUsername
-                                                                      }]
-                                                                  });
+const _getUser = async (db, username, projection, additionalQuery) => {
+    let query = {username: username};
+    if (!!additionalQuery) {
+        Object.assign(query, additionalQuery);
+    }
+    if (!!projection) {
+        projection.username = 1;
+    }
+    let user = await db.collection(USERS_COLLECTION_NAME).findOne(query, projection);
     if (!user) {
         return {
-            success: false,
-            data: {log: `No user found with given parameters: username=${username}, schoolUsername=${schoolUsername}`}
+            success: false, data: {log: `No user found with given parameters: username=${username}`}
         };
     }
     return {success: true, data: {value: user}};
 };
 
-const _getAllUsers = async (db) => {
-    return {success: true, data: {value: await db.collection(USERS_COLLECTION_NAME).find({}).toArray()}};
+const _getAllUsers = async (db, projection) => {
+    return {success: true, data: {value: await db.collection(USERS_COLLECTION_NAME).find({}, projection).toArray()}};
 };
 
-const _userArchived = async (db, {username, schoolUsername}) => {
-    let userExists = await db.collection(ARCHIVED_USERS_COLLECTION_NAME).findOne({$or: [{username: username}, {schoolUsername: schoolUsername}]});
+const _userArchived = async (db, {username, schoolUsername}, includeFullUser=false) => {
+    let projection = includeFullUser ? {} : {username: 1};
+    let userExists = await db.collection(ARCHIVED_USERS_COLLECTION_NAME).findOne({$or: [{username: username}, {schoolUsername: schoolUsername}]}, projection);
     if (!!userExists) {
         return {
             success: true, data: {
@@ -424,7 +423,7 @@ const _userArchived = async (db, {username, schoolUsername}) => {
 };
 
 const _archiveUser = async (db, username) => {
-    let res = await _getUser(db, {username: username});
+    let res = await _getUser(db, username);
     if (!res.success) {
         return res;
     }
@@ -441,7 +440,7 @@ const _getAllArchivedUsers = async (db) => {
 };
 
 const _unArchiveUser = async (db, username) => {
-    let res = await _userArchived(db, {username: username});
+    let res = await _userArchived(db, username, true);
     if (!res.success) {
         return res;
     }
@@ -487,7 +486,7 @@ const _removeUserFromArchive = async (db, username) => {
 };
 
 const _getMostRecentTermData = async (db, username) => {
-    let res = await _getUser(db, {username: username});
+    let res = await _getUser(db, username, {username: username, grades: 1, school: 1});
     if (!res.success) {
         return res;
     }
@@ -900,7 +899,7 @@ const _changePassword = async (db, username, oldPassword, newPassword) => {
 };
 
 const _changeSchoolEmail = async (db, username, schoolUsername) => {
-    let res = await _getUser(db, {username: username});
+    let res = await _getUser(db, username, {school: 1, schoolUsername: 1});
     if (!res.success) {
         return res;
     }
@@ -954,7 +953,7 @@ const _removeAdmin = async (db, username, requester) => {
 };
 
 const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSync) => {
-    let res = await _getUser(db, {username: username});
+    let res = await _getUser(db, username, {grades: 1, school: 1});
     if (!res.success) {
         return res;
     }
@@ -990,7 +989,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                 } else {
                     await _setSyncStatus(db, username, "failed");
                 }
-                socketManager.emitToRoom(username, SYNC_PURPOSE, "fail", data.message);
+                socketManager.emitToRoom(username, SYNC_PURPOSE, "fail", {gradeSyncEnabled: gradeSync, message: data.message});
             } else {
                 let newTerm = Object.keys(data.new_grades)[0];
                 let newSemester = Object.keys(data.new_grades[newTerm])[0];
@@ -1082,7 +1081,11 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                 await _setSyncStatus(db, username, "complete");
                 socketManager.emitToRoom(username, SYNC_PURPOSE, "success", {message: "Updated grades!"});
 
-                let _res = await _getUser(db, {username: username});
+                let _res = await _getUser(db, username, {
+                    [`grades.${newTerm}.${newSemester}`]: 1,
+                    [`weights.${newTerm}.${newSemester}`]: 1,
+                    "alerts.lastUpdated": {$slice: -1}
+                });
                 let _user = _res.data.value;
 
                 if (gradeSync) {
@@ -1113,7 +1116,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
 };
 
 const _updateGradeHistory = async (db, username, schoolPassword) => {
-    let res = await _getUser(db, {username: username});
+    let res = await _getUser(db, username, {grades: 1, weights: 1});
     if (!res.success) {
         return res;
     }
@@ -1212,9 +1215,9 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                 await _initEditedAssignments(db, username);
                 await _updateClassesForUser(db, username);
 
-                socketManager.emitToRoom(username, "sync", "success-history", data.message);
+                socketManager.emitToRoom(username, "sync", "success-history", data);
             } else {
-                socketManager.emitToRoom(username, "sync", "fail-history", data.message);
+                socketManager.emitToRoom(username, "sync", "fail-history", {message: data.message});
             }
         } else {
             socketManager.emitToRoom(username, "sync", "progress-history", data);
@@ -1247,11 +1250,6 @@ const _updateSortData = async (db, username, sortData) => {
 };
 
 const _resetSortData = async (db, username) => {
-    let res = await _getUser(db, {username: username});
-    if (!res.success) {
-        return res;
-    }
-
     await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: username}, {
         $set: {
             sortingData: {
@@ -1264,7 +1262,7 @@ const _resetSortData = async (db, username) => {
 };
 
 const _userHasSemester = async (db, username, term, semester) => {
-    let res = await _getUser(db, {username: username});
+    let res = await _getUser(db, username, {grades: 1});
     if (!res.success) {
         return res;
     }
@@ -1274,7 +1272,7 @@ const _userHasSemester = async (db, username, term, semester) => {
 };
 
 const _initAddedAssignments = async (db, username) => {
-    let res = await _getUser(db, {username: username});
+    let res = await _getUser(db, username, {addedAssignments: 1, grades: 1});
     if (!res.success) {
         return res;
     }
@@ -1301,7 +1299,7 @@ const _initAddedAssignments = async (db, username) => {
 };
 
 const _initEditedAssignments = async (db, username) => {
-    let res = await _getUser(db, {username: username});
+    let res = await _getUser(db, username, {editedAssignments: 1, grades: 1});
     if (!res.success) {
         return res;
     }
@@ -1328,7 +1326,7 @@ const _initEditedAssignments = async (db, username) => {
 };
 
 const _initWeights = async (db, username) => {
-    let res = await _getUser(db, {username: username});
+    let res = await _getUser(db, username, {weights: 1, grades: 1});
     if (!res.success) {
         return res;
     }
@@ -1375,7 +1373,7 @@ const _initWeights = async (db, username) => {
 };
 
 const _updateClassesForUser = async (db, username, term, semester, className) => {
-    let res = await _getUser(db, {username: username});
+    let res = await _getUser(db, username, {grades: 1, school: 1, weights: 1});
     if (!res.success) {
         return res;
     }
@@ -1466,7 +1464,7 @@ const _updateClassesForUser = async (db, username, term, semester, className) =>
 };
 
 const _updateAddedAssignments = async (db, username, addedAssignments, term, semester) => {
-    let res = await _getUser(db, {username: username});
+    let res = await _getUser(db, username, {addedAssignments: 1});
     if (!res.success) {
         return res;
     }
@@ -1487,7 +1485,7 @@ const _updateAddedAssignments = async (db, username, addedAssignments, term, sem
 };
 
 const _updateEditedAssignments = async (db, username, editedAssignments, term, semester) => {
-    let res = await _getUser(db, {username: username});
+    let res = await _getUser(db, username, {editedAssignments: 1});
     if (!res.success) {
         return res;
     }
@@ -1508,7 +1506,7 @@ const _updateEditedAssignments = async (db, username, editedAssignments, term, s
 };
 
 const _getSyncStatus = async (db, username) => {
-    let res = await _getUser(db, {username: username});
+    let res = await _getUser(db, username, {updatedInBackground: 1});
     if (!res.success) {
         return res;
     }
@@ -1528,7 +1526,7 @@ const _getSyncStatus = async (db, username) => {
     } else if (syncStatus === "history") {
         return {success: false, data: {message: "Syncing History..."}};
     } else if (syncStatus === "account-inactive") {
-        return {success: false, data: {message: "Your PowerSchool account is no longer active."}};
+        return {success: false, data: {message: "Your account is no longer active."}};
     } else {
         return {success: false, data: {message: "Not syncing"}};
     }
@@ -1547,7 +1545,7 @@ const _setSyncStatus = async (db, username, value) => {
 };
 
 const _getWhatsNew = async (db, username) => {
-    let res = await _getUser(db, {username: username});
+    let res = await _getUser(db, username, {"alerts.latestSeen": 1});
     if (!res.success) {
         return res;
     }
@@ -1821,7 +1819,7 @@ const _addWeightsSuggestion = async (db, username, term, semester, className, te
     }
 
     //Get school
-    let res = await _getUser(db, {username: username});
+    let res = await _getUser(db, username, {school: 1});
     if (!res.success) {
         return res;
     }
@@ -2035,7 +2033,9 @@ const _getTermsAndSemestersInClassDb = async (db, school) => {
 
 const _updateWeightsForClass = async (db, username, term, semester, className, hasWeights, weights, custom = null, addSuggestion = true) => {
     //Get user
-    let res = await _getUser(db, {username: username});
+    let query = {[`grades.${term}.${semester}.class_name`]: className};
+    let projection = {school: 1, [`grades.${term}.${semester}.$`]: 1, [`weights.${term}.${semester}.${className}`]: 1};
+    let res = await _getUser(db, username, projection, query);
     if (!res.success) {
         return res;
     }
@@ -2051,8 +2051,8 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
             data: {message: "Something went wrong", log: `Failed to update weights for ${username}. (1)`}
         };
     }
-    let userClassData = user.grades[term][semester].find(x => x.class_name === className);
-    if (!userClassData) { //className in grades?
+    let userClassData = user.grades[0];
+    if (!userClassData || userClassData.class_name !== className) { //className in grades?
         return {
             success: false,
             data: {message: "Something went wrong", log: `Failed to update weights for ${username}. (2)`}
@@ -2124,7 +2124,7 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
 };
 
 const _getRelevantClassData = async (db, username, term, semester) => {
-    let res = await _getUser(db, {username: username});
+    let res = await _getUser(db, username, {grades: 1, school: 1});
     if (!res.success) {
         return res;
     }
@@ -2138,7 +2138,7 @@ const _getRelevantClassData = async (db, username, term, semester) => {
                                                                             semester: _semester,
                                                                             className: c.class_name,
                                                                             teacherName: c.teacher_name,
-                overallPercent: c.overall_percent,
+                                                                            overallPercent: c.overall_percent
                                                                         }));
         }
     }
@@ -2175,11 +2175,15 @@ const _getRelevantClassData = async (db, username, term, semester) => {
             })).teachers.map(t => t.teacherName).filter(t => t);
 
             let userCountQuery = {
-                [`grades.${userClass.term}.${userClass.semester}`]: {$elemMatch: {class_name: userClass.className, teacher_name: userClass.teacherName}},
-            }
+                [`grades.${userClass.term}.${userClass.semester}`]: {
+                    $elemMatch: {
+                        class_name: userClass.className, teacher_name: userClass.teacherName
+                    }
+                }
+            };
             let userCountProjection = {
-                [`grades.${userClass.term}.${userClass.semester}.$`]: 1,
-            }
+                [`grades.${userClass.term}.${userClass.semester}.$`]: 1
+            };
             let users = await db.collection(USERS_COLLECTION_NAME).find(userCountQuery, {projection: userCountProjection}).toArray();
 
             let minUsersForAverageCalc = 9;
@@ -2197,7 +2201,7 @@ const _getRelevantClassData = async (db, username, term, semester) => {
                 "userCount": users.length,
                 "classAverage": classAverage,
                 "teachers": teachers,
-                "gradeLevels": rawData?.grade_levels,
+                "gradeLevels": rawData?.grade_levels
             };
         }
     }
