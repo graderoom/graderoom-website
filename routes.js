@@ -179,7 +179,7 @@ module.exports = function (app, passport) {
                 sortingData: 1,
                 betaFeatures: 1,
             };
-            let user = (await dbClient.getUser({username: req.query.usernameToRender}, projection)).data.value;
+            let user = (await dbClient.getUser(req.query.usernameToRender, projection)).data.value;
             if (user.alerts.remoteAccess === "denied") {
                 res.redirect("/");
                 return;
@@ -1031,7 +1031,7 @@ module.exports = function (app, passport) {
 
     app.get("/api/checkUpdateBackground", [isApiLoggedIn], async (req, res) => {
         let resp = await dbClient.getSyncStatus(req.user.username);
-        let user = (await dbClient.getUser({username: req.user.username})).data.value;
+        let user = (await dbClient.getUser(req.user.username)).data.value;
         let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data.value;
         if (term && semester && resp.data.message === "Sync Complete!") {
             res.status(200).send({
