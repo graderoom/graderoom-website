@@ -953,7 +953,7 @@ const _removeAdmin = async (db, username, requester) => {
 };
 
 const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSync) => {
-    let res = await _getUser(db, username, {grades: 1, school: 1});
+    let res = await _getUser(db, username, {grades: 1, school: 1, updatedGradeHistory: 1, schoolUsername: 1});
     if (!res.success) {
         return res;
     }
