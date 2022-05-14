@@ -42,6 +42,13 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 5.0.3] - 2022-05-13
+### Improved
+- Optimized backend. Things should feel a bit faster now.
+
+### Fixed
+- An issue where entering an invalid PowerSchool password resulted in the wrong error
+
 ## [Stable 5.0.2] - 2022-05-02
 ### Fixed
 - Issue where users could not reset their passwords
