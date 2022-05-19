@@ -42,7 +42,14 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Stable 5.1.0] - 2022-05-19
+## [Stable 5.1.1] - 2022-05-19
+### Improved
+- Layout of analytics page
+
+### Fixed
+- Issue where you could not add assignments if you had previously added one in the recent months
+
+## [Stable 5.1.0] - 2022-05-18
 ### Added
 - More analytics charts: Users by graduation year, Usage by weekday. View in More > Analytics
 - You can now set an added assignment to be excluded before you add it
