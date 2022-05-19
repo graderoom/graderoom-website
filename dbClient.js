@@ -363,7 +363,13 @@ const __version1 = async (db, user) => {
                 let orderedClasses = grades[year][semester].map(g => g.class_name);
                 for (let k = 0; k < orderedClasses.length; k++) {
                     let className = orderedClasses[k];
-                    temp.push(Object.assign({className: className}, weights[year][semester][className]));
+                    temp.push(
+                        {
+                            className: className,
+                            weights: weights?.[year]?.[semester]?.[className]?.weights ?? {},
+                            hasWeights: weights?.[year]?.[semester]?.[className]?.hasWeights ?? false
+                        }
+                    );
                 }
                 weights[year][semester] = temp;
             }
@@ -1572,8 +1578,8 @@ const _initWeights = async (db, username) => {
                 if (existing === -1) {
                     temp[years[i]][semesters[j]][k] = {className: classes[k], weights: {}, hasWeights: false};
                 } else {
-                    temp[years[i]][semesters[j]][k].weights = _.clone(current[years[i]][semesters[j]][existing].weights) ?? {};
-                    temp[years[i]][semesters[j]][k].hasWeights = current[years[i]][semesters[j]][existing].hasWeights ?? false;
+                    temp[years[i]][semesters[j]][k].weights = _.clone(current[years[i]][semesters[j]][existing].weights);
+                    temp[years[i]][semesters[j]][k].hasWeights = current[years[i]][semesters[j]][existing].hasWeights;
                 }
 
                 let categories = user.grades[years[i]][semesters[j]][k].grades.map(g => g.category);
