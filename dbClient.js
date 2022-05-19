@@ -1572,8 +1572,8 @@ const _initWeights = async (db, username) => {
                 if (existing === -1) {
                     temp[years[i]][semesters[j]][k] = {className: classes[k], weights: {}, hasWeights: false};
                 } else {
-                    temp[years[i]][semesters[j]][k].weights = _.clone(current[years[i]][semesters[j]][existing].weights);
-                    temp[years[i]][semesters[j]][k].hasWeights = current[years[i]][semesters[j]][existing].hasWeights;
+                    temp[years[i]][semesters[j]][k].weights = _.clone(current[years[i]][semesters[j]][existing].weights) ?? {};
+                    temp[years[i]][semesters[j]][k].hasWeights = current[years[i]][semesters[j]][existing].hasWeights ?? false;
                 }
 
                 let categories = user.grades[years[i]][semesters[j]][k].grades.map(g => g.category);
