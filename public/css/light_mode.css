@@ -333,6 +333,10 @@ input:checked + .slider:before {
     color: #000000;
 }
 
+.chart-tab {
+    border-color: black;
+}
+
 .table {
     background-color: transparent;
 }

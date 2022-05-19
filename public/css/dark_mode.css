@@ -291,6 +291,10 @@ tr.excluded:hover .excludeToggle .fa-ban {
     color: #BBBBBB;
 }
 
+.chart-tab {
+    border-color: #666666;
+}
+
 .changelog-container .body {
     color: #EEEEEE;
 }

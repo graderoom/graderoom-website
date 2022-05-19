@@ -1176,6 +1176,11 @@ label.label-active {
     font-weight: bold;
 }
 
+.chart-tab {
+    border-width: 1px;
+    border-style: solid;
+}
+
 .tabcontent {
     display: none;
     overflow-x: hidden;

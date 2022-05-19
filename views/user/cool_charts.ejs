@@ -65,8 +65,9 @@
         Usage
     </h1>
     <h4>A user is considered active for 2 weeks after their most recent login</h4>
+    <h6 id="user-desc"></h6>
     <div class="chart-container chart" style="height: unset; width: unset; display: block">
-        <div class="tab" style="border-radius: 0.5rem">
+        <div class="chart-tab tab" style="border-radius: 0.5rem">
             <btn id="btn-0" class="tablinks" onclick="setBounds(0)">5D</btn>
             <btn id="btn-1" class="tablinks" onclick="setBounds(1)">1M</btn>
             <btn id="btn-2" class="tablinks" onclick="setBounds(2)">6M</btn>
@@ -82,17 +83,18 @@
     </div>
     <br>
     <div style="display: flex; justify-content: space-between; flex-wrap: wrap">
-        <div style="width: max(400px, calc(50% - 1rem))">
-    <h4>
-        Usage by day of the week
-    </h4>
-            <h6>All Time</h6>
-    <canvas id="chart-weekdays">
-    </canvas>
-        </div><div style="width: max(400px, calc(50% - 1rem))">
-    <h4>Users breakdown</h4>
-    <h6>Graduation Years update in June of each year</h6>
-    <canvas id="users"></canvas>
+        <div class="chart-container chart" style="width: max(400px, calc(50% - 1rem))">
+            <h4>
+                Usage by day of the week
+            </h4>
+            <h6 id="weekday-desc"></h6>
+            <canvas id="chart-weekdays">
+            </canvas>
+        </div>
+        <div class="chart-container chart" style="width: max(400px, calc(50% - 1rem))">
+            <h4>Users breakdown</h4>
+            <h6>Graduation Years update in June of each year</h6>
+            <canvas id="users"></canvas>
         </div>
     </div>
 </div>
@@ -235,6 +237,11 @@
 
         i += Math.max(diffInDays - 1, 0);
     }
+    let yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    yesterday = yesterday.toDateString();
+    $("#user-desc").text(`${userData.slice(-1)[0].y} total user(s), ${activeUsersData.slice(-1)[0].y} active user(s), as of yesterday, ${yesterday}.`);
+    $("#weekday-desc").text(`${weekdayLoginData.reduce((a, b) => a + b, 0)} logins, ${weekdaySyncData.reduce((a, b) => a + b, 0)} syncs all time`)
 
     let chart;
     let weekdayLoginChart;

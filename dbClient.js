@@ -337,7 +337,7 @@ const _initUser = async (db, username) => {
 };
 
 const _version1 = async (db, username) => {
-    let res = await _getUser(db, username, {weights: 1, addedAssignments: 1, editedAssignments: 1});
+    let res = await _getUser(db, username, {version: 1, weights: 1, addedAssignments: 1, editedAssignments: 1});
     if (!res.success) {
         return res;
     }
@@ -428,6 +428,45 @@ const __version1 = async (db, user) => {
     }
 }
 
+const _version2 = async (db, username) => {
+    let res = await _getUser(db, username, {version: 1, addedAssignments: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await __version2(db, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 2`}};
+}
+
+const __version2 = async (db, user) => {
+    if (user.version === 1) {
+        // Make sure exclude property is in addedAssignments
+        let addedAssignments = user.addedAssignments;
+        let years = Object.keys(addedAssignments);
+        for (let i = 0; i < years.length; i++) {
+            let year = years[i];
+            let semesters = Object.keys(addedAssignments[year]);
+            for (let j = 0; j < semesters.length; j++) {
+                let semester = semesters[j];
+                for (let k = 0; k < addedAssignments[year][semester].length; k++) {
+                    let data = addedAssignments[year][semester][k].data;
+                    for (let l = 0; l < data.length; l++) {
+                        if (!Object.keys(data[l]).includes("exclude")) {
+                            addedAssignments[year][semester][k].data[l].exclude = false;
+                        }
+                    }
+                }
+            }
+        }
+
+        await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: user.username}, {$set: {addedAssignments: addedAssignments}});
+
+        await db.collection(USERS_COLLECTION_NAME).findOneAndUpdate({username: user.username}, {$set: {version: 2}});
+    }
+}
+
 const __initUser = async (db, user) => {
     //Remove old & add missing tutorial keys
     let existingKeys = Object.keys(user.alerts.tutorialStatus);
@@ -476,8 +515,9 @@ const _updateAllUsers = async (db) => {
     for (let i = 0; i < users.length; i++) {
         let user = users[i];
         console.log(`Updating ${user.username} (${i + 1} of ${users.length})`);
-        await _version1(db, user.username);
-        await _initUser(db, user.username);
+        console.log((await _version1(db, user.username)).data.log);
+        console.log((await _version2(db, user.username)).data.log);
+        console.log((await _initUser(db, user.username)).data.log);
     }
     return {success: true};
 };
