@@ -452,6 +452,7 @@ const __version2 = async (db, user) => {
                 let semester = semesters[j];
                 for (let k = 0; k < addedAssignments[year][semester].length; k++) {
                     let data = addedAssignments[year][semester][k].data;
+                    if (!data) data = [];
                     for (let l = 0; l < data.length; l++) {
                         if (!Object.keys(data[l]).includes("exclude")) {
                             addedAssignments[year][semester][k].data[l].exclude = false;
