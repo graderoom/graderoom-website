@@ -42,33 +42,21 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-[//]: # (## [Stable 5.1.0] - 2022-05-19)
+## [Stable 5.1.0] - 2022-05-19
+### Added
+- More analytics charts: Users by graduation year, Usage by weekday. View in More > Analytics
+- You can now set an added assignment to be excluded before you add it
+- Dashed lines at A, B, C, D in addition to the existing A-, B-, C-, D- lines (by request)
 
-[//]: # (### Added)
+### Improved
+- Optimized backend. Things should feel a bit faster now.
+- Upgraded to a paid-tier server
+- Loading time of charts after the first load of the day by anyone (I cache the data now instead of fetching every time)
 
-[//]: # (- More analytics charts: Users by graduation year, Usage by weekday. View in More > Analytics)
-
-[//]: # (- You can now set an added assignment to be excluded before you add it)
-
-[//]: # (- Dashed lines at A, B, C, D in addition to the existing A-, B-, C-, D- lines &#40;by request&#41;)
-
-[//]: # ()
-[//]: # (### Improved)
-
-[//]: # (- Optimized backend. Things should feel a bit faster now.)
-
-[//]: # (- Upgraded to a paid-tier server)
-
-[//]: # (- Loading time of charts after the first load of the day by anyone &#40;I cache the data now instead of fetching every time&#41;)
-
-[//]: # ()
-[//]: # (### Fixed)
-
-[//]: # (- An issue where entering an invalid PowerSchool password resulted in the wrong error)
-
-[//]: # (- Issue with editing weights in some courses)
-
-[//]: # (- Weights reset button displaying when it shouldn't)
+### Fixed
+- An issue where entering an invalid PowerSchool password resulted in the wrong error
+- Issue with editing weights in some courses
+- Weights reset button displaying when it shouldn't
 
 ## [Beta 5.0.4] - 2022-05-18
 ### Added
