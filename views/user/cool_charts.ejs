@@ -62,8 +62,9 @@
 <div class="container">
     <br>
     <h1>
-        Usage Statistics
+        Usage
     </h1>
+    <h4>A user is considered active for 2 weeks after their most recent login</h4>
     <div class="chart-container chart" style="height: unset; width: unset; display: block">
         <div class="tab" style="border-radius: 0.5rem">
             <btn id="btn-0" class="tablinks" onclick="setBounds(0)">5D</btn>
@@ -74,14 +75,31 @@
             <btn id="btn-4" class="tablinks active" onclick="setBounds(5)">MAX</btn>
         </div>
         <button id="reset-zoom-1" style="display:none; position: absolute; right: 0"
-                class="btn btn-sm" onclick="resetZoom('main'); $(this).hide()">Reset
+                class="btn btn-sm" onclick="resetZoom(); $(this).hide()">Reset
         </button>
         <canvas id="chart">
         </canvas>
     </div>
+    <br>
+    <div style="display: flex; justify-content: space-between; flex-wrap: wrap">
+        <div style="width: max(400px, calc(50% - 1rem))">
+    <h4>
+        Usage by day of the week
+    </h4>
+            <h6>All Time</h6>
+    <canvas id="chart-weekdays">
+    </canvas>
+        </div><div style="width: max(400px, calc(50% - 1rem))">
+    <h4>Users breakdown</h4>
+    <h6>Graduation Years update in June of each year</h6>
+    <canvas id="users"></canvas>
+        </div>
+    </div>
 </div>
 
 <script>
+    let colors = ["rgba(255, 99, 132, 0.2)", "rgba(255, 159, 64, 0.2)", "rgba(255, 205, 86, 0.2)", "rgba(75, 192, 192, 0.2)", "rgba(54, 162, 235, 0.2)", "rgba(153, 102, 255, 0.2)", "rgba(201, 203, 207, 0.2)"];
+    let borders = ["rgb(255, 99, 132)", "rgb(255, 159, 64)", "rgb(255, 205, 86)", "rgb(75, 192, 192)", "rgb(54, 162, 235)", "rgb(153, 102, 255)", "rgb(201, 203, 207)"];
 
     let checkingTheme;
     let appearance = <%- appearance; %>;
@@ -170,32 +188,57 @@
     let uniqueLoginData = <%- uniqueLoginData; %>;
     let syncData = <%- syncData; %>;
     let userData = <%- userData; %>;
-    let uniqueUsersData = <%- uniqueUsersData; %>;
+    let activeUsersData = <%- activeUsersData; %>;
+
+    let weekdayLoginData = Array(7).fill(0);
+    let weekdayUniqueLoginData = Array(7).fill(0);
+    let weekdaySyncData = Array(7).fill(0);
+
+    let gradData = <%- gradData %>;
 
     // Fill in holes in loginData
     let length = loginData.length;
     for (let i = 1; i < length; i++) {
-        console.log(`${i} | ${length}`)
         let prevDate = new Date(loginData[i - 1].x);
         let currDate = new Date(loginData[i].x);
+
+        weekdayLoginData[prevDate.getDay()] += loginData[i - 1].y;
+        weekdayUniqueLoginData[prevDate.getDay()] += uniqueLoginData[i - 1].y;
+        weekdaySyncData[prevDate.getDay()] += syncData[i - 1].y;
+        if (i === length - 1) {
+            weekdayLoginData[currDate.getDay()] += loginData[i].y;
+            weekdayUniqueLoginData[currDate.getDay()] += uniqueLoginData[i].y;
+            weekdaySyncData[currDate.getDay()] += syncData[i].y;
+        }
 
         let diffInDays = Math.round((currDate.getTime() - prevDate.getTime()) / (24 * 60 * 60 * 1000));
 
         for (let j = 1; j < diffInDays; j++) {
-            console.log(i + j - 1);
-            loginData.splice(i + j - 1, 0, {x: new Date(prevDate.getTime() + j * 24 * 60 * 60 * 1000).toISOString(), y: 0});
-            uniqueLoginData.splice(i + j - 1, 0, {x: new Date(prevDate.getTime() + j * 24 * 60 * 60 * 1000).toISOString(), y: 0});
-            syncData.splice(i + j - 1, 0, {x: new Date(prevDate.getTime() + j * 24 * 60 * 60 * 1000).toISOString(), y: 0});
-            userData.splice(i + j - 1, 0, {x: new Date(prevDate.getTime() + j * 24 * 60 * 60 * 1000).toISOString(), y: userData[i - 1].y});
-            uniqueUsersData.splice(i + j - 1, 0, {x: new Date(prevDate.getTime() + j * 24 * 60 * 60 * 1000).toISOString(), y: uniqueUsersData[i - 1].y});
+            loginData.splice(i + j - 1, 0, {
+                x: new Date(prevDate.getTime() + j * 24 * 60 * 60 * 1000).toISOString(), y: 0
+            });
+            uniqueLoginData.splice(i + j - 1, 0, {
+                x: new Date(prevDate.getTime() + j * 24 * 60 * 60 * 1000).toISOString(), y: 0
+            });
+            syncData.splice(i + j - 1, 0, {
+                x: new Date(prevDate.getTime() + j * 24 * 60 * 60 * 1000).toISOString(), y: 0
+            });
+            userData.splice(i + j - 1, 0, {
+                x: new Date(prevDate.getTime() + j * 24 * 60 * 60 * 1000).toISOString(), y: userData[i - 1].y
+            });
+            activeUsersData.splice(i + j - 1, 0, {
+                x: new Date(prevDate.getTime() + j * 24 * 60 * 60 * 1000).toISOString(),
+                y: j <= 14 ? activeUsersData[i - 1].y : 0
+            });
             length++;
         }
 
         i += Math.max(diffInDays - 1, 0);
-        console.log(length);
     }
 
     let chart;
+    let weekdayLoginChart;
+    let gradYearChart;
 
     function resetZoom() {
         chart.resetZoom();
@@ -266,13 +309,13 @@
         pointHoverBorderColor: "blue",
         pointHoverBorderWidth: 2
     };
-    let uniqueUsersDataset = {
+    let activeUsersDataset = {
         label: "Active Users",
         backgroundColor: "transparent",
         pointBackgroundColor: "purple",
         pointBorderColor: "transparent",
         borderColor: "purple",
-        data: uniqueUsersData,
+        data: activeUsersData,
         cubicInterpolationMode: "monotone",
         spanGaps: false,
         pointRadius: 1,
@@ -286,7 +329,7 @@
     dataset.push(uniqueLoginDataset);
     dataset.push(syncsDataset);
     dataset.push(numUsersDataset);
-    dataset.push(uniqueUsersDataset);
+    dataset.push(activeUsersDataset);
     let ctx = document.getElementById("chart");
     chart = new Chart(ctx, {
         type: "line", data: {
@@ -317,14 +360,6 @@
                 }
             }, animation: {
                 easing: "easeOutCubic"
-            }, legend: {
-                display: true, position: "top", labels: {
-                    usePointStyle: true,
-                    fontColor: (document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css" ? "white" : "black"),
-                    fontFamily: "Verdana",
-                    boxWidth: 20,
-                    fontSize: 13
-                }
             }, responsive: true, maintainAspectRatio: true, plugins: {
                 legend: {
                     display: true, position: "top", labels: {
@@ -384,7 +419,6 @@
         let now = Date.now();
         const dayLength = 24 * 60 * 60 * 1000;
         now = (now - (now % dayLength)); // Get full day
-        console.log(now);
 
         let min, max, unit;
 
@@ -419,6 +453,111 @@
         chart.options.scales.xAxis.time.unit = unit;
         chart.options.hover.mode = "index";
         chart.update();
+
+        // Also hide the reset button
+        $("#reset-zoom-1").hide();
     }
+
+    ctx = document.getElementById("chart-weekdays");
+    weekdayLoginChart = new Chart(ctx, {
+        type: "bar", data: {
+            labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], datasets: [{
+                label: "Unique Logins",
+                backgroundColor: colors[0],
+                borderColor: borders[0],
+                borderWidth: 1,
+                data: weekdayUniqueLoginData
+            }, {
+                label: "Logins",
+                backgroundColor: colors[3],
+                borderColor: borders[3],
+                borderWidth: 1,
+                data: weekdayLoginData
+            }, {
+                label: "Syncs",
+                backgroundColor: colors[2],
+                borderColor: borders[2],
+                borderWidth: 1,
+                data: weekdaySyncData
+            }]
+        }, options: {
+            scales: {
+                y: {
+                    beginAtZero: true, ticks: {
+                        color: (document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css" ? "white" : "black"),
+                        fontFamily: "Verdana",
+                        fontSize: "13"
+                    }, grid: {
+                        color: (document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
+                    }
+                }, x: {
+                    ticks: {
+                        color: (document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css" ? "white" : "black"),
+                        fontFamily: "Verdana",
+                        fontSize: "12"
+                    }, grid: {
+                        color: (document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
+                    }
+                }
+            }, plugins: {
+                legend: {
+                    display: true, position: "top", labels: {
+                        color: (document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css" ? "white" : "black"),
+                        fontFamily: "Verdana",
+                        boxWidth: 20,
+                        fontSize: 13,
+                        filter: function (item) {
+                            return !item.text.includes("undefined");
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    ctx = document.getElementById("users");
+    let realGradData = gradData.map((g, i) => {
+
+        return {
+            label: g.x, backgroundColor: colors[i], borderColor: borders[i], borderWidth: 1, data: [g.y], stack: "users"
+        };
+    });
+    gradYearChart = new Chart(ctx, {
+        type: "bar", data: {
+            labels: [""], datasets: realGradData
+        }, options: {
+            indexAxis: "y", scales: {
+                y: {
+                    beginAtZero: true, ticks: {
+                        color: (document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css" ? "white" : "black"),
+                        fontFamily: "Verdana",
+                        fontSize: "13"
+                    }, grid: {
+                        color: (document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
+                    }
+                }, x: {
+                    ticks: {
+                        color: (document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css" ? "white" : "black"),
+                        fontFamily: "Verdana",
+                        fontSize: "12"
+                    }, grid: {
+                        color: (document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
+                    }
+                }
+            }, plugins: {
+                legend: {
+                    display: true, position: "left", labels: {
+                        color: (document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css" ? "white" : "black"),
+                        fontFamily: "Verdana",
+                        boxWidth: 20,
+                        fontSize: 13,
+                        filter: function (item) {
+                            return !item.text.includes("undefined");
+                        }
+                    }
+                }
+            }
+        }
+    });
 </script>
 </body>

@@ -744,67 +744,7 @@ module.exports = function (app, passport) {
 
     app.get("/charts", [isLoggedIn], async (req, res) => {
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
-        let projection = {
-            loggedIn: 1,
-            'alerts.lastUpdated': 1,
-        };
-        let allUsers = (await dbClient.getAllUsers(projection)).data.value;
-        let loginDates = allUsers.map(u => u.loggedIn.map(d => {
-            let date = new Date(d);
-            return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        })).reduce((a, b) => a.concat(b));
-        let syncDates = allUsers.map(u => u.alerts.lastUpdated.map(d => {
-            let date = new Date(d.timestamp);
-            return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        })).reduce((a, b) => a.concat(b));
-        loginDates = loginDates.concat(syncDates.filter(t => !loginDates.find(u => u.getTime() === t.getTime()))).sort((a, b) => a.getTime() - b.getTime());
-        syncDates = syncDates.concat(loginDates.filter(t => !syncDates.find(u => u.getTime() === t.getTime()))).sort((a, b) => a.getTime() - b.getTime());
-        let loginData = [];
-        for (let j = 0; j < loginDates.length; j++) {
-            let r = loginData.find(d => d.x.getTime() === loginDates[j].getTime());
-            if (r) {
-                r.y++;
-            } else {
-                loginData.push({x: loginDates[j], y: 1});
-            }
-        }
-        let uniqueLoginDates = allUsers.map(user => [...new Set(user.loggedIn.map(loggedIn => {
-            let date = new Date(loggedIn);
-            return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-        }))].map(loggedIn => new Date(loggedIn))).reduce((a, b) => a.concat(b));
-        uniqueLoginDates = uniqueLoginDates.concat(loginDates.filter(time => !uniqueLoginDates.find(anotherTime => anotherTime.getTime() === time.getTime())));
-        uniqueLoginDates.sort((a, b) => a.getTime() - b.getTime());
-        let uniqueLoginData = [];
-        for (let j = 0; j < uniqueLoginDates.length; j++) {
-            let r = uniqueLoginData.find(d => d.x.getTime() === uniqueLoginDates[j].getTime());
-            if (r) {
-                r.y++;
-            } else {
-                uniqueLoginData.push({x: uniqueLoginDates[j], y: 1});
-            }
-        }
-        let syncData = [];
-        for (let j = 0; j < syncDates.length; j++) {
-            let r = syncData.find(d => d.x.getTime() === syncDates[j].getTime());
-            if (r) {
-                r.y++;
-            } else {
-                syncData.push({x: syncDates[j], y: 1});
-            }
-        }
-        let userData = loginData.map(t => ({
-            x: t.x, y: allUsers.filter(u => {
-                let date = new Date(Math.min(...u.loggedIn));
-                return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() <= t.x.getTime();
-            }).length
-        }));
-        let uniqueUsersData = loginData.map(t => ({
-            x: t.x, y: allUsers.filter(u => u.loggedIn.filter(v => {
-                let vDate = new Date(v);
-                let vTime = new Date(vDate.getFullYear(), vDate.getMonth(), vDate.getDate()).getTime();
-                return (vTime <= t.x.getTime()) && (vTime >= (t.x.getTime() - (14 * 24 * 60 * 60 * 1000)));
-            }).length).length
-        }));
+        let {data: {loginData, uniqueLoginData, syncData, userData, activeUsersData, gradData}} = await dbClient.getChartData();
         res.render("user/cool_charts.ejs", {
             username: req.user.username,
             personalInfo: JSON.stringify(req.user.personalInfo),
@@ -815,7 +755,8 @@ module.exports = function (app, passport) {
             uniqueLoginData: JSON.stringify(uniqueLoginData),
             syncData: JSON.stringify(syncData),
             userData: JSON.stringify(userData),
-            uniqueUsersData: JSON.stringify(uniqueUsersData),
+            activeUsersData: JSON.stringify(activeUsersData),
+            gradData: JSON.stringify(gradData),
             sunset: sunset,
             sunrise: sunrise,
             _: _

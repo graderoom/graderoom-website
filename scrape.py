@@ -721,23 +721,29 @@ class BasisClassGrade:
 
 class BasisWeights:
     def __init__(self):
-        self._weights = {}
+        self._weights = []
 
     @property
-    def as_dict(self):
+    def as_list(self):
         return self._weights
 
     def add_class(self, class_name):
         if class_name not in self._weights:
-            self._weights[class_name] = {"weights": {}, "hasWeights": "false"}
+            self._weights.append({"className": class_name, "weights": {}, "hasWeights": "false"})
 
     def add_weight(self, class_name, weight_name, weight_value):
         self.add_class(class_name)
 
-        if weight_name not in self._weights[class_name]:
-            self._weights[class_name]["weights"][weight_name] = weight_value
-            if weight_value is not None:
-                self._weights[class_name]["hasWeights"] = "true"
+        exists = next((weight for weight in self._weights if weight['className'] == class_name), None)
+        if exists is None:
+            self._weights.append({"className": class_name})
+            index = len(self._weights) - 1
+        else:
+            index = self._weights.index(exists)
+
+        self._weights[index][weight_name] = weight_value
+        if weight_value is not None:
+            self._weights[index]["hasWeights"] = "true"
 
 
 class BasisScraper(Scraper):
@@ -911,7 +917,7 @@ class BasisScraper(Scraper):
 
         if term is not None:
             self.message = 'Sync Complete!'
-            print(json_format(True, {term: {"_": all_classes}}, {term: {"_": weights.as_dict}}))
+            print(json_format(True, {term: {"_": all_classes}}, {term: {"_": weights.as_list}}))
         else:
             print(json_format(False, "No class data."))
 

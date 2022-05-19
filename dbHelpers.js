@@ -540,6 +540,10 @@ exports.fixWeights = (hasWeights, weights) => {
     return [hasWeights, modWeights];
 }
 
+exports.isNotToday = (date) => {
+    return (new Date().toDateString()) !== date.toDateString();
+}
+
 function buildStarterNotification(now) {
     return {
         type: "announcement",

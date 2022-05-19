@@ -394,6 +394,7 @@
                                 </i>
                             </span>
                         <% } %>
+                            <% let classWeights = JSON.parse(weightData).find(w => w.className == JSON.parse(gradeData)[i].class_name); %>
                         <div class="chartAndWeights">
                             <div id="chart-container<%= i + offset; %>" class="chart chart-container">
                                 <div class="chart-placeholder fa fa-spin fa-spinner"></div>
@@ -414,7 +415,7 @@
                                                                    style="margin: 0; display: flex"
                                                                    type="checkbox"
                                                                    name="hasWeights"
-                                                            <% if (JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["hasWeights"] === false) { %>
+                                                            <% if (classWeights.hasWeights === false) { %>
                                                                    checked
                                                                     <% } %>
                                                                    onchange="disableInput('check<%= i + offset; %>','weightsTable<%= i + offset; %>'); resetInputs('#weights<%= i + offset; %>'); $('#weights<%= i + offset; %>').trigger('submit');"
@@ -457,10 +458,10 @@
                                         </thead>
                                         <tbody>
 
-                                            <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]).length; j++) { %>
+                                            <% for (let j = 0; j < Object.keys(classWeights.weights).length; j++) { %>
                                                 <tr>
                                                     <td id="weightTableCategory<%= i + offset; %><%= j; %>"></td>
-                                                    <% let weights = JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name]["weights"]; %>
+                                                    <% let weights = classWeights.weights; %>
                                                     <% let category = Object.keys(weights)[j]; %>
                                                     <% let value = weights[category]; %>
                                                     <td id="weightTableWeight<%= i + offset; %><%= j; %>"
@@ -594,6 +595,7 @@
                                                     </span>
                                                 </div>
                                             </div>
+                                            <div class="add-assignment-score-container">
                                             <div class="form-weights form-signin form-group addAssignmentScore">
                                                 <label>Score:&nbsp;</label>
                                                 <div style="display: inline-flex; justify-content: center; align-items: center">
@@ -605,6 +607,11 @@
                                                             class="form-control dynamic-input"
                                                             type="number" step="0.001"
                                                             placeholder="--">
+                                                </div>
+                                            </div>
+                                                <div class="addAssignmentExcludeToggle">
+                                                    <input id="addAssignmentExclude<%= i + offset %>" type="checkbox">
+                                                    <label for="addAssignmentExclude<%= i + offset %>" style="cursor: pointer !important; margin: 0; display: block; font-weight: bolder; font-size: 0.5rem">Exclude</label>
                                                 </div>
                                             </div>
                                             <div>
@@ -666,8 +673,8 @@
                             </table>
                         </div>
                         <table class="table rounded-table class-table text-center categoryTable<%= i + offset; %>">
-                            <% for (let j = 0; j < Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].weights).length; j++) { %>
-                                <% let category = Object.keys(JSON.parse(weightData)[JSON.parse(gradeData)[i].class_name].weights)[j]; %>
+                            <% for (let j = 0; j < Object.keys(classWeights.weights).length; j++) { %>
+                                <% let category = Object.keys(classWeights.weights)[j]; %>
                                 <thead class="categoryStart">
                                     <% if (j > 0) { %>
                                         <tr class="separator">
@@ -1188,9 +1195,7 @@
             let data = <%- gradeData; %>;
             let aData = data.map(c => Array(c.grades.length).fill(undefined)); // added assignment placeholders will go in here
             let editedAssignments = <%- editedAssignments; %>;
-            let _editedAssignments = JSON.parse(JSON.stringify(editedAssignments)); // Copy to apply edits to edits to
             let addedAssignments = <%- addedAssignments; %>;
-            let _addedAssignments = JSON.parse(JSON.stringify(addedAssignments)); // Copy to apply edits to added assignments to
             let weights = <%- weightData; %>;
             let relClassData = <%- relevantClassData; %>;
             let gradeHistoryLetters = <%- gradeHistory; %>;
@@ -1201,7 +1206,7 @@
             let parsedData = [];
             let categorySortedData = [];
             let unobtainedWeights = {};
-            let tempWeights = {};
+            let tempWeights = [];
             let currentPage = (isNaN(parseInt(sessionStorage.getItem("currentPage"))) ? -1 : parseInt(sessionStorage.getItem("currentPage")));
             let cardsDisplayed = [];
             let minCardZIndex = 25;
@@ -1219,8 +1224,12 @@
             if (!appearance.showNonAcademic && Object.keys(Object.fromEntries(Object.entries(relClassData).filter(([, v]) => v.classType === "non-academic"))).length > 0) {
                 colors = colors.slice(0, data.length).filter(color => relClassData[data[colors.indexOf(color)].class_name].classType !== "non-academic");
                 data = data.filter(grade => relClassData[grade.class_name].classType !== "non-academic");
-                weights = Object.fromEntries(Object.entries(weights).filter(([className]) => relClassData[className].classType !== "non-academic"));
+                weights = weights.filter(weight => relClassData[weight.className].classType !== "non-academic");
+                addedAssignments = addedAssignments.filter(a => relClassData[a.className].classType !== "non-academic");
+                editedAssignments = editedAssignments.filter(e => relClassData[e.className].classType !== "non-academic");
             }
+            let _editedAssignments = JSON.parse(JSON.stringify(editedAssignments)); // Copy to apply edits to edits to
+            let _addedAssignments = JSON.parse(JSON.stringify(addedAssignments)); // Copy to apply edits to added assignments to
             let _data = JSON.parse(JSON.stringify(data)); // Copy to apply edits to assignments to
 
             let changeTransition;
@@ -1743,9 +1752,9 @@
 
             function getTotalWeight(classIndex) {
                 let className = _data[classIndex].class_name;
-                let classWeights = Object.values(weights[className]["weights"]);
+                let classWeights = Object.values(weights[classIndex]["weights"]);
                 let totalWeight = 0;
-                let classCategories = Object.keys(weights[className]["weights"]);
+                let classCategories = Object.keys(weights[classIndex]["weights"]);
                 for (let i = 0; i < classWeights.length; i++) {
                     if (getCategoryGottenAndPossible(classIndex, classCategories[i]).possible !== 0) {
                         totalWeight += Number(classWeights[i]);
@@ -1758,7 +1767,7 @@
                 for (let i = 0; i < _data.length; i++) {
                     if (classIndex === undefined || classIndex === i) {
                         let totalPossible = 0;
-                        let result = Object.fromEntries(Object.entries(weights[_data[i].class_name].weights).map(a => [a[0], 0]));
+                        let result = Object.fromEntries(Object.entries(weights[i].weights).map(a => [a[0], 0]));
                         for (let assignment of _data[i]["grades"]) {
                             if (assignment["points_gotten"] !== false && assignment["points_possible"] !== false && assignment["exclude"] !== true) {
                                 if (!result[assignment.category]) {
@@ -1779,29 +1788,26 @@
 
             function getOverallGrade(classIndex) {
                 let className = _data[classIndex].class_name;
-                if (className in weights) {
-                    let overallGrade = 0;
-                    if (weights[className]["hasWeights"] === false || unobtainedWeights[className]) {
-                        let points_earned = 0;
-                        let points_total = 0;
-                        for (let assignment of _data[classIndex]["grades"]) {
-                            if (assignment["points_gotten"] !== false && assignment["points_possible"] !== false && assignment["exclude"] !== true) {
-                                points_earned += assignment["points_gotten"];
-                                points_total += assignment["points_possible"];
-                            }
+                let overallGrade = 0;
+                if (weights[classIndex]["hasWeights"] === false || unobtainedWeights[className]) {
+                    let points_earned = 0;
+                    let points_total = 0;
+                    for (let assignment of _data[classIndex]["grades"]) {
+                        if (assignment["points_gotten"] !== false && assignment["points_possible"] !== false && assignment["exclude"] !== true) {
+                            points_earned += assignment["points_gotten"];
+                            points_total += assignment["points_possible"];
                         }
-                        overallGrade = points_earned / points_total * 100;
-                    } else {
-                        let classCategories = Object.keys(weights[className]["weights"]);
-                        let classWeights = Object.values(weights[className]["weights"]);
-                        for (let i = 0; i < classCategories.length; i++) {
-                            overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i];
-                        }
-                        overallGrade /= getTotalWeight(classIndex);
                     }
-                    return overallGrade;
+                    overallGrade = points_earned / points_total * 100;
+                } else {
+                    let classCategories = Object.keys(weights[classIndex]["weights"]);
+                    let classWeights = Object.values(weights[classIndex]["weights"]);
+                    for (let i = 0; i < classCategories.length; i++) {
+                        overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i];
+                    }
+                    overallGrade /= getTotalWeight(classIndex);
                 }
-                return null;
+                return overallGrade;
             }
 
             function getLetterGrade(grade) {
@@ -1837,8 +1843,7 @@
 
             function setupWeightsTableListeners() {
                 for (let i = 0; i < _data.length; i++) {
-                    let className = _data[i].class_name;
-                    let tableCategories = Object.keys(weights[className]["weights"]);
+                    let tableCategories = Object.keys(weights[i]["weights"]);
                     for (let j = 0; j < tableCategories.length; j++) {
                         $("#weightTableWeight" + i + j + " input").blur(() => {
                             clearTimeout(submittingWeights);
@@ -1862,15 +1867,15 @@
                     if (classIndex === undefined || classIndex === i) {
                         disableInput("check" + i, "weightsTable" + i);
                         let className = _data[i].class_name;
-                        let tableCategories = Object.keys(weights[className]["weights"]);
-                        let enableReset = weights[className]["custom"] && relClassData[className].hasWeights !== null;
+                        let tableCategories = Object.keys(weights[i]["weights"]);
+                        let enableReset = weights[i]["custom"] && relClassData[className].hasWeights !== null;
                         //if custom and both haveWeights, enable reset only if db had diff value to give to user's weights
                         //stop reset from showing if custom is due to user having more categories than classes db
                         if (enableReset && relClassData[className]["hasWeights"] === true) {
                             enableReset = false;
-                            let keys = Object.keys(weights[className]["weights"]);
-                            for (let i = 0; i < keys.length; i++) {
-                                if (relClassData[className]["weights"] && (keys[i] in relClassData[className]["weights"]) && weights[className]["weights"][keys[i]] != relClassData[className]["weights"][keys[i]]) {
+                            let keys = Object.keys(weights[i]["weights"]);
+                            for (let j = 0; j < keys.length; j++) {
+                                if (keys[j] in relClassData[className]["weights"] && weights[i]["weights"][keys[j]] != relClassData[className]["weights"][keys[j]]) {
                                     enableReset = true;
                                 }
                             }
@@ -2018,7 +2023,7 @@
                 if (addPossible === false && addGotten !== false) {
                     addPossible = 0;
                 }
-                let addExclude = $(`#addExclude${classIndex}`).prop("checked");
+                let addExclude = $(`#addAssignmentExclude${classIndex}`).prop("checked");
                 let addPercent = (Math.round(addGotten / addPossible * 100 * 100) / 100) || false;
                 if (addPercent === Infinity) {
                     addPercent = false;
@@ -2033,8 +2038,8 @@
                     exclude: addExclude
                 };
 
-                _addedAssignments[_data[classIndex].class_name].push(JSON.parse(JSON.stringify(assignmentObject)));
-                addedAssignments[_data[classIndex].class_name].push(JSON.parse(JSON.stringify(assignmentObject)));
+                _addedAssignments[classIndex].data.push(JSON.parse(JSON.stringify(assignmentObject)));
+                addedAssignments[classIndex].data.push(JSON.parse(JSON.stringify(assignmentObject)));
                 $.ajax({
                            type: "POST",
                            url: "/updateAddedAssignments",
@@ -2077,7 +2082,7 @@
                 let doRefresh;
                 if (aData[classIndex][assignmentIndex] !== undefined) {
 
-                    let assignment = _addedAssignments[_data[classIndex].class_name][aData[classIndex][assignmentIndex]];
+                    let assignment = _addedAssignments[classIndex].data[aData[classIndex][assignmentIndex]];
 
                     let temp = assignment.points_gotten;
                     assignment.points_gotten = parseFloat($(element)[0].value);
@@ -2102,12 +2107,12 @@
 
                 } else {
 
-                    let assignment = _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid];
+                    let assignment = _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid];
                     let pointsPossible;
 
                     if (!assignment) {
-                        _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid] = {};
-                        assignment = _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid];
+                        _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid] = {};
+                        assignment = _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid];
                         assignment.points_gotten = _data[classIndex].grades[assignmentIndex].points_gotten;
                         pointsPossible = _data[classIndex].grades[assignmentIndex].points_possible;
                     } else {
@@ -2168,7 +2173,7 @@
                 let doRefresh;
                 if (aData[classIndex][assignmentIndex] !== undefined) {
 
-                    let assignment = _addedAssignments[_data[classIndex].class_name][aData[classIndex][assignmentIndex]];
+                    let assignment = _addedAssignments[classIndex].data[aData[classIndex][assignmentIndex]];
 
                     let temp = assignment.points_possible;
                     assignment.points_possible = parseFloat($(element)[0].value);
@@ -2188,12 +2193,12 @@
 
                 } else {
 
-                    let assignment = _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid];
+                    let assignment = _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid];
                     let pointsGotten;
 
                     if (!assignment) {
-                        _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid] = {};
-                        assignment = _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid];
+                        _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid] = {};
+                        assignment = _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid];
                         assignment.points_possible = _data[classIndex].grades[assignmentIndex].points_possible;
                         pointsGotten = _data[classIndex].grades[assignmentIndex].points_gotten;
                     } else {
@@ -2246,16 +2251,16 @@
                 }
 
                 if (aData[classIndex][assignmentIndex] !== undefined) {
-                    let assignment = _addedAssignments[_data[classIndex].class_name][aData[classIndex][assignmentIndex]];
+                    let assignment = _addedAssignments[classIndex].data[aData[classIndex][assignmentIndex]];
 
                     assignment.category = $(element).find("option:selected").text();
                     $(element).attr("title", assignment.category);
                 } else {
-                    let assignment = _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid];
+                    let assignment = _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid];
 
                     if (!assignment) {
-                        _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid] = {};
-                        assignment = _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid];
+                        _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid] = {};
+                        assignment = _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid];
                         assignment.category = _data[classIndex].grades[assignmentIndex].category;
                     }
 
@@ -2289,15 +2294,15 @@
                 }
 
                 if (aData[classIndex][assignmentIndex] !== undefined) {
-                    let assignment = _addedAssignments[_data[classIndex].class_name][aData[classIndex][assignmentIndex]];
+                    let assignment = _addedAssignments[classIndex].data[aData[classIndex][assignmentIndex]];
 
                     assignment.exclude = !assignment.exclude;
                 } else {
 
-                    let assignment = _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid];
+                    let assignment = _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid];
                     if (!assignment) {
-                        _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid] = {};
-                        assignment = _editedAssignments[_data[classIndex].class_name][_data[classIndex]["grades"][assignmentIndex].psaid];
+                        _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid] = {};
+                        assignment = _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid];
                         assignment.exclude = _data[classIndex].grades[assignmentIndex].exclude;
                     }
 
@@ -2327,7 +2332,7 @@
             function resetCategory(element) {
                 let classes = $(element)[0].className.split(" ");
                 let classIndex = parseFloat(classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "resetCategory")[0].match(/\d+$/)[0]);
-                let categories = Object.keys(weights[_data[classIndex].class_name]["weights"]);
+                let categories = Object.keys(weights[classIndex]["weights"]);
                 let categoryIndex = $.makeArray($(".resetCategory" + classIndex)).indexOf(element);
                 $($(".categoryTable" + classIndex)[categoryIndex]).removeClass("unround-top-right");
                 let category = categories[categoryIndex];
@@ -2361,7 +2366,7 @@
                     }
 
                     // This means that the row was never changed
-                    if (!_editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]) {
+                    if (!_editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid]) {
                         $($(`.resetRow${classIndex}`)[assignmentIndex]).addClass("disabled");
                         return;
                     }
@@ -2376,7 +2381,7 @@
                     assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
 
                     // This means that the row was never changed
-                    if (!_editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]) {
+                    if (!_editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid]) {
                         $($(".categoryResetRow" + classIndex)[assignmentIndex]).addClass("disabled");
                         return;
                     }
@@ -2384,10 +2389,10 @@
 
                 // Reset all edited values
 
-                if (editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]) {
-                    delete editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
+                if (editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid]) {
+                    delete editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid];
                 }
-                delete _editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
+                delete _editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid];
                 if (notMassReset) {
                     $.ajax({
                                type: "POST",
@@ -2417,7 +2422,7 @@
             function trashCategory(element) {
                 let classes = $(element)[0].className.split(" ");
                 let classIndex = parseFloat(classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "trashCategory")[0].match(/\d+$/)[0]);
-                let categories = Object.keys(weights[_data[classIndex].class_name]["weights"]);
+                let categories = Object.keys(weights[classIndex]["weights"]);
                 let categoryIndex = $.makeArray($(".trashCategory" + classIndex)).indexOf(element);
                 $($(".categoryTable" + classIndex)[categoryIndex]).removeClass("unround-top-right");
                 let category = categories[categoryIndex];
@@ -2458,8 +2463,8 @@
                     assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
                 }
                 let addedAssignmentIndex = data[classIndex].grades[assignmentIndex];
-                _addedAssignments[_data[classIndex].class_name].splice(addedAssignmentIndex, 1);
-                addedAssignments[_data[classIndex].class_name].splice(addedAssignmentIndex, 1);
+                _addedAssignments[classIndex].data.splice(addedAssignmentIndex, 1);
+                addedAssignments[classIndex].data.splice(addedAssignmentIndex, 1);
 
                 if (notMassTrash) {
                     $.ajax({
@@ -2496,7 +2501,7 @@
             function saveCategory(element) {
                 let classes = $(element)[0].className.split(" ");
                 let classIndex = parseFloat(classes.filter(x => (x.match(/^.*?(?=\d+)/) || [])[0] === "saveCategory")[0].match(/\d+$/)[0]);
-                let categories = Object.keys(weights[_data[classIndex].class_name]["weights"]);
+                let categories = Object.keys(weights[classIndex]["weights"]);
                 let categoryIndex = $.makeArray($(".saveCategory" + classIndex)).indexOf(element);
                 $($(".categoryTable" + classIndex)[categoryIndex]).removeClass("unround-top-right");
                 let category = categories[categoryIndex];
@@ -2545,7 +2550,7 @@
 
                 // Added
                 if (aData[classIndex][assignmentIndex] !== undefined) {
-                    addedAssignments[_data[classIndex].class_name][aData[classIndex][assignmentIndex]] = JSON.parse(JSON.stringify(_addedAssignments[_data[classIndex].class_name][aData[classIndex][assignmentIndex]]));
+                    addedAssignments[classIndex].data[aData[classIndex][assignmentIndex]] = JSON.parse(JSON.stringify(_addedAssignments[classIndex].data[aData[classIndex][assignmentIndex]]));
                     if (notMassSave) {
                         $.ajax({
                                    type: "POST",
@@ -2554,12 +2559,12 @@
                                    async: true
                                });
                     }
-                } else if (_editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid] || editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]) {
+                } else if (_editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid] || editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid]) {
                     // Edited
-                    if (_editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]) {
-                        editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid] = JSON.parse(JSON.stringify(_editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid]));
+                    if (_editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid]) {
+                        editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid] = JSON.parse(JSON.stringify(_editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid]));
                     } else {
-                        delete editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
+                        delete editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid];
                     }
                     if (notMassSave) {
                         $.ajax({
@@ -2646,7 +2651,7 @@
                 let categorySelectReferences = $(".addCategory");
                 for (let i = 0; i < parsedData.length; i++) {
                     let dropdown = $(categorySelectReferences[i]);
-                    let categories = Object.keys(weights[_data[i].class_name]["weights"]);
+                    let categories = Object.keys(weights[i]["weights"]);
 
                     // Set up categories
                     if (!$(dropdown).find("option").length) {
@@ -2679,7 +2684,7 @@
             function setupClassTables(classIndex, justChangeColors = false) {
                 for (let i = 0; i < parsedData.length; i++) {
                     if (classIndex === undefined || classIndex === i) {
-                        let categories = Object.keys(weights[_data[i].class_name]["weights"]);
+                        let categories = Object.keys(weights[i]["weights"]);
                         let assignmentData;
                         let assignmentDates;
                         let assignmentNames;
@@ -3054,7 +3059,7 @@
                                 }
 
                                 // Set up revert buttons
-                                if (!assignmentAdds[j] && _editedAssignments[_data[i].class_name][_data[i].grades[realIndex].psaid]) {
+                                if (!assignmentAdds[j] && _editedAssignments[i].data[_data[i].grades[realIndex].psaid]) {
                                     resetButton.removeClass("disabled");
                                     modTab.css("visibility", "visible");
                                     $(`#modAllTab${i}`).css("visibility", "visible");
@@ -3067,7 +3072,7 @@
                                 }
 
                                 // Set up save buttons
-                                if (assignmentAdds[j] && !_.isEqual(_addedAssignments[_data[i].class_name][aData[i][realIndex]], addedAssignments[_data[i].class_name][aData[i][realIndex]]) || !_.isEqual(editedAssignments[_data[i].class_name][_data[i].grades[realIndex].psaid], _editedAssignments[_data[i].class_name][_data[i].grades[realIndex].psaid])) {
+                                if (assignmentAdds[j] && !_.isEqual(_addedAssignments[i].data[aData[i][realIndex]], addedAssignments[i].data[aData[i][realIndex]]) || !_.isEqual(editedAssignments[i].data[_data[i].grades[realIndex].psaid], _editedAssignments[i].data[_data[i].grades[realIndex].psaid])) {
                                     saveButton.removeClass("disabled");
                                     modTab.css("visibility", "visible");
                                     $(`#modAllTab${i}`).css("visibility", "visible");
@@ -3195,7 +3200,7 @@
             }
 
             function cleanEdits(classIndex, assignmentIndex) {
-                let edited = _editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
+                let edited = _editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid];
                 let current = data[classIndex].grades.find(g => g.psaid === _data[classIndex].grades[assignmentIndex].psaid);
                 let keys = Object.keys(edited);
                 for (let i = 0; i < keys.length; i++) {
@@ -3205,7 +3210,7 @@
                     }
                 }
                 if (Object.keys(edited).length === 0) {
-                    delete _editedAssignments[_data[classIndex].class_name][_data[classIndex].grades[assignmentIndex].psaid];
+                    delete _editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid];
                 }
             }
 
@@ -3229,9 +3234,10 @@
                     if (classIndex === undefined || classIndex === i) {
                         let classData = _data[i];
                         let className = classData.class_name;
-                        let localMissingCategories = Object.keys(weights[className]["weights"]).filter(category => !weights[className]["weights"][category] && weights[className]["weights"][category] !== 0);
+                        let classWeights = weights[i];
+                        let localMissingCategories = Object.keys(classWeights.weights).filter(category => !classWeights.weights[category] && classWeights.weights[category] !== 0);
                         delete unobtainedWeights[className];
-                        if (localMissingCategories.length > 0 && weights[className]["hasWeights"] !== false) {
+                        if (localMissingCategories.length > 0 && classWeights.hasWeights !== false) {
                             unobtainedWeights[className] = localMissingCategories;
                         }
                     }
@@ -3240,8 +3246,8 @@
                 // Insert added assignments
                 for (let i = 0; i < _data.length; i++) {
                     if (classIndex === undefined || classIndex === i) {
-                        for (let j = 0; j < _addedAssignments[_data[i].class_name].length; j++) {
-                            let assignmentObject = JSON.parse(JSON.stringify(_addedAssignments[_data[i].class_name][j]));
+                        for (let j = 0; j < _addedAssignments[i].data.length; j++) {
+                            let assignmentObject = JSON.parse(JSON.stringify(_addedAssignments[i].data[j]));
                             if (_.findIndex(_data[i].grades, (a) => _.isMatch(a, assignmentObject)) > -1 || _data[i].grades.indexOf(j) > -1) {
                                 continue;
                             }
@@ -3260,12 +3266,12 @@
                 // Apply edits
                 for (let i = 0; i < _data.length; i++) {
                     if (classIndex === undefined || classIndex === i) {
-                        for (let j = 0; j < Object.keys(_editedAssignments[_data[i].class_name]).length; j++) {
-                            let searchID = parseInt(Object.keys(_editedAssignments[_data[i].class_name])[j]);
+                        for (let j = 0; j < Object.keys(_editedAssignments[i].data).length; j++) {
+                            let searchID = parseInt(Object.keys(_editedAssignments[i].data)[j]);
                             let needsEdits = _data[i].grades.find(g => g.psaid === searchID);
-                            Object.assign(needsEdits, _editedAssignments[_data[i].class_name][searchID]);
-                            if (!Object.keys(_editedAssignments[_data[i].class_name][searchID]).length) {
-                                delete _editedAssignments[_data[i].class_name][searchID];
+                            Object.assign(needsEdits, _editedAssignments[i].data[searchID]);
+                            if (!Object.keys(_editedAssignments[i].data[searchID]).length) {
+                                delete _editedAssignments[i].data[searchID];
                             }
                         }
                     }
@@ -3274,7 +3280,8 @@
                 //Add array to each object in parsedData: one for weights (not needed?), one for missing weights
                 //Get data for one class
                 for (let i = 0; i < _data.length; i++) {
-                    let categories = Object.keys(weights[_data[i].class_name]["weights"]);
+                    let classWeights = weights[i];
+                    let categories = Object.keys(classWeights.weights);
                     if (classIndex === undefined || classIndex === i) {
                         //Add sorting vars
                         if (!dateSort[i] && dateSort[i] !== false) {
@@ -3293,7 +3300,7 @@
                         let totalPossiblesAndGottens = {}; //by category
                         let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
                         // VERY JANK CHANGE LATER
-                        let doesntHaveWeights = (className in unobtainedWeights) || (weights[className]["hasWeights"] === false);
+                        let doesntHaveWeights = (className in unobtainedWeights) || (classWeights.hasWeights === false);
                         for (let grade of classData) {
                             let category = grade.category;
                             if (doesntHaveWeights) {
@@ -3308,7 +3315,7 @@
                                 if (typeof totalPossiblesAndGottens[category] === "undefined" && !grade.exclude && grade.points_possible !== false && grade.points_gotten !== false) {
                                     let weightVal = 100;
                                     if (!doesntHaveWeights) {
-                                        weightVal = weights[className]["weights"][category];
+                                        weightVal = classWeights.weights[category];
                                     }
                                     totalPossiblesAndGottens[category] = {
                                         totalPossible: 0, totalGotten: 0, weight: weightVal
@@ -3508,7 +3515,7 @@
                 let possibles;
                 let possibleLabels;
                 if (startDate < endDate) {
-                    possibles = [{"A-": 89.5}, {"B-": 79.5}, {"C-": 69.5}, {"D-": 59.5}];
+                    possibles = [{"A": 92.5}, {"A-": 89.5}, {"B": 82.5}, {"B-": 79.5}, {"C": 72.5}, {"C-": 69.5}, {"D": 62.5}, {"D-": 59.5}];
                     possibles = possibles.filter(element => Object.values(element)[0] > lowScore - 5);
                     possibleLabels = possibles.map(element => Object.keys(element)[0]);
                     possibles = possibles.map(element => Object.values(element)[0]);
@@ -3729,7 +3736,7 @@
                 let possibles;
                 let possibleLabels;
                 if (startDate < endDate) {
-                    possibles = [{"A-": 89.5}, {"B-": 79.5}, {"C-": 69.5}, {"D-": 59.5}];
+                    possibles = [{"A": 92.5}, {"A-": 89.5}, {"B": 82.5}, {"B-": 79.5}, {"C": 72.5}, {"C-": 69.5}, {"D": 62.5}, {"D-": 59.5}];
                     possibles = possibles.filter(element => Object.values(element)[0] > lowScore - 5);
                     possibleLabels = possibles.map(element => Object.keys(element)[0]);
                     possibles = possibles.map(element => Object.values(element)[0]);
@@ -4054,21 +4061,22 @@
 
             function resetWeights(index) {
                 let className = _data[index].class_name;
+                let classWeights = weights[index];
                 $("#check" + index).prop("checked", relClassData[className]["hasWeights"] === false);
                 disableInput("check" + index, "weightsTable" + index);
-                let keys = Object.keys(weights[className]["weights"]);
+                let keys = Object.keys(classWeights.weights);
                 for (let i = 0; i < keys.length; i++) {
                     if (keys[i] in relClassData[className]["weights"]) {
                         $("#weightTableWeight" + index + i + " input").val(relClassData[className]["weights"][keys[i]]);
-                    } else if (tempWeights[className]) {
-                        $("#weightTableWeight" + index + i + " input").val(tempWeights[className][keys[i]]);
+                    } else if (tempWeights[index]) {
+                        $("#weightTableWeight" + index + i + " input").val(tempWeights[index][keys[i]]);
                     }
                 }
 
-                let hasWeights = eval(relClassData[className]["hasWeights"]);
-                if (eval(weights[className]["hasWeights"]) !== eval(hasWeights)) {
+                let hasWeights = relClassData[className]["hasWeights"];
+                if (classWeights.hasWeights !== hasWeights) {
                     if (!hasWeights) {
-                        tempWeights[className] = Object.assign({}, weights[className]["weights"]);
+                        tempWeights[index] = Object.assign({}, classWeights.weights);
                     }
                 }
             }
@@ -4076,14 +4084,14 @@
             //Resets inputs to old weight value when exiting point based
             function resetInputs(form) {
                 let hasWeights = !($(form).find("input[name=\"hasWeights\"]")).is(":checked");
-                let className = _data[$(form)[0].id.substring(7)].class_name;
-                if (eval(weights[className]["hasWeights"]) != eval(hasWeights)) {
+                let classIndex = $(form)[0].id.substring(7);
+                if (weights[classIndex]["hasWeights"] !== hasWeights) {
                     if (!hasWeights) {
-                        tempWeights[className] = Object.assign({}, weights[className]["weights"]);
-                    } else if (tempWeights[className]) {
-                        for (let i = 0; i < Object.keys(weights[className]["weights"]).length; i++) {
+                        tempWeights[classIndex] = Object.assign({}, weights[classIndex]["weights"]);
+                    } else if (tempWeights[classIndex]) {
+                        for (let i = 0; i < Object.keys(weights[classIndex]["weights"]).length; i++) {
                             let weight = $("#weightTableWeight" + $(form)[0].id.substring(7) + i + " input");
-                            weight.val(tempWeights[className][Object.keys(tempWeights[className])[i]]);
+                            weight.val(tempWeights[classIndex][Object.keys(tempWeights[classIndex])[i]]);
                         }
                     }
                 }
@@ -4324,7 +4332,7 @@
                                     weightURI[n.name] = isNaN(parseFloat(n.value)) ? null : parseFloat(n.value);
                                 }
                             });
-                            if (_.isEqual(weights[className]["weights"], weightURI) && (weights[className]["hasWeights"] === hasWeights)) {
+                            if (_.isEqual(weights[classIndex]["weights"], weightURI) && (weights[classIndex]["hasWeights"] === hasWeights)) {
                                 return;
                             }
                             let formData = {
@@ -4344,8 +4352,8 @@
                                     return;
                                 }
                                 // Make sure that the formMessages div has the alert-success class.
-                                weights[className]["custom"] = response.includes("Custom");
-                                for (let i = 0; i < Object.keys(weights[className]["weights"]).length; i++) {
+                                weights[classIndex]["custom"] = response.includes("Custom");
+                                for (let i = 0; i < Object.keys(weights[classIndex]["weights"]).length; i++) {
                                     let weight = $("#weightTableWeight" + $(form)[0].id.substring(7) + i + " input");
                                     if (weight[0].value) {
                                         weight.addClass("text-view");
@@ -4356,15 +4364,15 @@
                                     }
                                 }
                                 if (weightData[0].value === "on") {
-                                    weights[className]["hasWeights"] = false;
+                                    weights[classIndex]["hasWeights"] = false;
                                     setPointBasedWeights();
                                 } else {
-                                    weights[className]["hasWeights"] = true;
+                                    weights[classIndex]["hasWeights"] = true;
                                     if (weightData.length === 0) {
                                         return;
                                     }
                                     for (let weight of weightData) {
-                                        weights[className]["weights"][weight.name] = parseFloat(weight.value);
+                                        weights[classIndex]["weights"][weight.name] = parseFloat(weight.value);
                                     }
                                 }
                                 refreshWithoutReload(false, classIndex);

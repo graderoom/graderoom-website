@@ -2037,6 +2037,23 @@ tr:hover .excludeToggle .fa-ban {
     margin: 0.5rem 0 0 0 !important;
 }
 
+.add-assignment-score-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.addAssignmentScore {
+    margin: 0.5rem 0;
+}
+
+.addAssignmentExcludeToggle {
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+}
+
 .tableOptions {
     z-index: 1;
     display: flex;
