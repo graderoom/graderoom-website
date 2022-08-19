@@ -480,20 +480,23 @@ const _version3 = async (db, username) => {
 const __version3 = async (db, user) => {
         // Fix weight data
         let weights = user.weights;
-        let years = Object.keys(weights);
+        let years = Object.keys(user.grades);
         for (let i = 0; i < years.length; i++) {
             let year = years[i];
-            let semesters = Object.keys(weights[year]);
+            let semesters = Object.keys(user.grades[year]);
             for (let j = 0; j < semesters.length; j++) {
                 let semester = semesters[j];
-                for (let k = 0; k < weights[year][semester].length; k++) {
+                let matchedIndices = [];
+                for (let k = 0; k < user.grades[year][semester].length; k++) {
                     let actualClassName = user.grades[year][semester][k].class_name;
                     let actualWeights = user.grades[year][semester][k].grades.map(g => g.category);
                     // Find matching weights
                     for (let l = 0; l < weights[year][semester].length; l++) {
                         let _weights = Object.keys(weights[year][semester][l].weights);
-                        if (_.isEmpty(_.xor(_weights, actualWeights))) {
+                        if (_.isEmpty(_.xor(_weights, actualWeights)) && !matchedIndices.includes(l)) {
+                            matchedIndices.push(l);
                             weights[year][semester][l].className = actualClassName;
+                            break;
                         }
                     }
                 }
