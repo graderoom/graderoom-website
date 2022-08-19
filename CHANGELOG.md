@@ -40,7 +40,7 @@
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
-- None
+- Class link bar expands on some browsers after scrolling
 
 ## [Stable 5.1.2] - 2022-08-19
 ### Improved
