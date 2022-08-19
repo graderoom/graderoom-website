@@ -497,7 +497,7 @@ table thead tr th:last-child {
     width: auto;
 }
 
-.sticky {
+.nav.sticky {
     position: fixed;
     z-index: 19;
     top: 0;
@@ -698,6 +698,7 @@ table thead tr th:last-child {
 .popup span.popup-left-bottom,
 .popup span.popup-left,
 .popup span.popup-left-top {
+    z-index: 99;
     font-family: "Montserrat", sans-serif;
     font-size: small;
     position: absolute;
@@ -1040,6 +1041,8 @@ label.label-active {
 }
 
 .nav {
+    width: fit-content;
+    width: -moz-max-content;
     margin: auto;
     margin-top: 0 !important;
     margin-bottom: 1rem;
@@ -3213,7 +3216,7 @@ input:disabled {
     }
 
     .card-body {
-        overflow: scroll;
+        overflow: hidden;
     }
 
     #shortcutsDisplay .card-body .card-body {
