@@ -2,8 +2,7 @@
 const LocalStrategy = require("passport-local").Strategy;
 const dbClient = require("./dbClient");
 const bcrypt = require("bcryptjs");
-const socketManager = require("./socketManager");
-const {getSyncStatus} = require("./dbClient");
+const {SyncStatus} = require("./enums");
 module.exports = function (passport) {
 
     // =========================================================================
@@ -54,7 +53,7 @@ module.exports = function (passport) {
             if (user && bcrypt.compareSync(password, user.password)) {
                 await dbClient.setLoggedIn(user.username);
                 if ('schoolPassword' in user) {
-                    await dbClient.setSyncStatus(username, "updating");
+                    await dbClient.setSyncStatus(username, SyncStatus.UPDATING);
                     let resp = await dbClient.decryptAndGetSchoolPassword(user.username, password);
                     let schoolPass = resp.data.value;
                     await dbClient.updateGrades(user.username, schoolPass);

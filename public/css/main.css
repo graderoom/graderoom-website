@@ -210,7 +210,7 @@ table thead tr th:last-child {
     line-height: 1.5;
 }
 
-.changelog-container .announcement {
+.changelog-container .announcement, .changelog-legend-column div.announcement {
     background-color: rgba(255, 0, 0, 0.2) !important;
 }
 
@@ -292,9 +292,54 @@ table thead tr th:last-child {
     border-radius: 0.5rem;
 }
 
+.changelog-parent {
+    display: flex;
+    flex-flow: row;
+}
+
+.changelog-legend-column {
+    border: none;
+    width: 100%;
+    overflow-y: scroll;
+    max-height: 70vh;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.changelog-legend-column::-webkit-scrollbar {
+    display: none;
+}
+
+.changelog-legend-column div {
+    border-radius: 1rem;
+    padding: 0.3rem 0.7rem;
+    margin: 0 0.4rem 0.4rem 0;
+    cursor: pointer !important;
+    border: 1px solid transparent;
+    transition: all 250ms ease;
+}
+
+.changelog-legend-column div.known-issues p {
+    display: none;
+}
+
+.changelog-legend-column div p {
+    margin: 0;
+    opacity: 0.4;
+}
+
+.changelog-legend-column div.current {
+    font-weight: bolder;
+}
+
+.changelog-legend-column div:hover {
+    border: 1px solid currentColor;
+}
+
 .changelog {
     border: none;
     padding: 0;
+    margin-left: 0;
 }
 
 .changelog-container {
@@ -653,7 +698,6 @@ table thead tr th:last-child {
 .popup span.popup-left-bottom,
 .popup span.popup-left,
 .popup span.popup-left-top {
-    z-index: 99;
     font-family: "Montserrat", sans-serif;
     font-size: small;
     position: absolute;
@@ -3159,10 +3203,6 @@ input:disabled {
         display: none;
     }
 
-    .card:not(.non-responsive) {
-        max-height: 80vh;
-    }
-
     .card .tab {
         transition: all 400ms ease;
     }
@@ -3175,11 +3215,7 @@ input:disabled {
     }
 
     .card-body {
-        overflow: hidden;
-    }
-
-    .changelog-container {
-        max-height: 50vh;
+        overflow: scroll;
     }
 
     #shortcutsDisplay .card-body .card-body {

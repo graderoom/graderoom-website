@@ -42,6 +42,17 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 5.1.2] - 2022-08-19
+### Improved
+- New changelog layout
+
+### Fixed
+- Clarify language when no data in PowerSchool
+- Issues with viewing grades after new sync
+- Issues with viewing old grades
+- Issues with viewing grades when any class either had no overall grade or a grade of "CR"
+- No longer show semesters with no valid classes
+
 ## [Stable 5.1.1] - 2022-05-19
 ### Improved
 - Layout of analytics page

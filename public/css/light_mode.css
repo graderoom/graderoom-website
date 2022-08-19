@@ -155,15 +155,19 @@ table thead tr th {
     color: #222222;
 }
 
-.changelog-container .current {
+.changelog-container .changelog-item, .changelog-legend-column div {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.changelog-container .current, .changelog-legend-column div.current {
     background-color: rgba(0, 255, 0, 0.1);
 }
 
-.changelog-container .known-issues {
+.changelog-container .known-issues, .changelog-legend-column div.known-issues {
     background-color: rgba(0, 0, 0, 0.1);
 }
 
-.changelog-container .stable {
+.changelog-container .stable, .changelog-legend-column div.stable {
     background-color: rgba(0, 0, 255, 0.2);
 }
 

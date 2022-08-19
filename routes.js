@@ -4,7 +4,6 @@ const emailSender = require("./emailSender.js");
 const _ = require("lodash");
 const SunCalc = require("suncalc");
 const {changelog, SCHOOL_NAMES} = require("./dbHelpers");
-const socketManager = require("./socketManager");
 
 module.exports = function (app, passport) {
 
@@ -52,6 +51,9 @@ module.exports = function (app, passport) {
             }
 
             if (term && semester) {
+                let validGrades = req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length);
+                let validWeights = req.user.weights[term][semester].filter(weights => validGrades.map(g => g.class_name).includes(weights.className));
+
                 res.render("user/authorized_index.ejs", {
                     page: "home",
                     school: req.user.school,
@@ -62,8 +64,8 @@ module.exports = function (app, passport) {
                     appearance: JSON.stringify(req.user.appearance),
                     alerts: JSON.stringify(req.user.alerts),
                     gradeSync: !!req.user.schoolPassword,
-                    gradeData: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
-                    weightData: JSON.stringify(req.user.weights[term][semester]),
+                    gradeData: JSON.stringify(validGrades),
+                    weightData: JSON.stringify(validWeights),
                     addedAssignments: JSON.stringify(req.user.addedAssignments[term][semester]),
                     editedAssignments: JSON.stringify(req.user.editedAssignments[term][semester]),
                     gradeHistory: JSON.stringify(gradeHistoryLetters),
@@ -74,7 +76,13 @@ module.exports = function (app, passport) {
                     betaFeatures: JSON.stringify(req.user.betaFeatures),
                     term: term,
                     semester: semester,
-                    termsAndSemesters: JSON.stringify(Object.keys(req.user.grades).map(x => [x, Object.keys(req.user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
+                    termsAndSemesters: JSON.stringify(Object.keys(req.user.grades).map(term => {
+                        let semesters = Object.keys(req.user.grades[term]).filter(s => req.user.grades[term][s].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length).length);
+                        let sortedSemesters = semesters.sort((a, b) => {
+                            return a.substring(1) < b.substring(1) ? -1 : 1;
+                        });
+                        return [term, sortedSemesters];
+                    }).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
                     _: _,
                     sunset: sunset,
                     sunrise: sunrise,
@@ -204,6 +212,9 @@ module.exports = function (app, passport) {
             let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
 
             if (term && semester) {
+                let validGrades = user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length);
+                let validWeights = user.weights[term][semester].filter(weights => !weights.className ? true : validGrades.map(g => g.class_name).includes(weights.className));
+
                 res.render("user/authorized_index.ejs", {
                     page: "home",
                     school: user.school,
@@ -214,8 +225,8 @@ module.exports = function (app, passport) {
                     appearance: JSON.stringify(user.appearance),
                     alerts: JSON.stringify(user.alerts),
                     gradeSync: !!user.schoolPassword,
-                    gradeData: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
-                    weightData: JSON.stringify(user.weights[term][semester]),
+                    gradeData: JSON.stringify(validGrades),
+                    weightData: JSON.stringify(validWeights),
                     addedAssignments: JSON.stringify(user.addedAssignments[term][semester]),
                     editedAssignments: JSON.stringify(user.editedAssignments[term][semester]),
                     gradeHistory: JSON.stringify(gradeHistoryLetters),
@@ -226,7 +237,13 @@ module.exports = function (app, passport) {
                     betaFeatures: JSON.stringify(user.betaFeatures),
                     term: term,
                     semester: semester,
-                    termsAndSemesters: JSON.stringify(Object.keys(user.grades).map(x => [x, Object.keys(user.grades[x]).sort((a, b) => a.substring(1) < b.substring(1) ? -1 : 1)]).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
+                    termsAndSemesters: JSON.stringify(Object.keys(user.grades).map(term => {
+                        let semesters = Object.keys(user.grades[term]).filter(s => user.grades[term][s].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length).length);
+                        let sortedSemesters = semesters.sort((a, b) => {
+                            return a.substring(1) < b.substring(1) ? -1 : 1;
+                        });
+                        return [term, sortedSemesters];
+                    }).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
                     sunset: sunset,
                     sunrise: sunrise,
                     _: _,
@@ -947,7 +964,7 @@ module.exports = function (app, passport) {
         }
         let data = {
             termsAndSemesters: JSON.stringify(Object.keys(req.user.grades).map(term => {
-                let semesters = Object.keys(req.user.grades[term]);
+                let semesters = Object.keys(req.user.grades[term]).filter(s => req.user.grades[term][s].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length).length);
                 let sortedSemesters = semesters.sort((a, b) => {
                     return a.substring(1) < b.substring(1) ? -1 : 1;
                 });

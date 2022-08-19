@@ -37,8 +37,13 @@
                         </span>
                     </div>
                 </div>
-                <div class="card changelog">
-                    <div id="changelog-container" class="changelog-container"></div>
+                <div class="changelog-parent">
+                    <div id="changelog-legend-column" class="card changelog-legend-column">
+
+                    </div>
+                    <div class="card changelog">
+                        <div id="changelog-container" class="changelog-container"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -47,8 +52,11 @@
 <script>
 
     let changelogContainer = $("#changelog-container");
+    let changelogLegendColumn = $("#changelog-legend-column");
     let versionOffsets = {};
     let versionNames = [];
+    let versionClasses = []
+    let versionDates = [];
     let stableVersionNames = [];
     let versionDisplayed;
     let nextVersion;
@@ -88,6 +96,8 @@
                 versionOffsets = {};
                 for (let version of versions) {
                     versionNames.push($(version).find(".title")[0].innerText);
+                    versionDates.push($(version).find(".date")[0].innerText);
+                    versionClasses.push($.makeArray(version.classList).filter((c) => c !== "changelog-item")[0] ?? "");
                     versionOffsets[versionNames.slice(-1)[0]] = $(version).offset().top - changelogContainer.offset().top;
                     changelogContent[versionNames.slice(-1)[0]] = $(version).find(".content")[0].innerHTML;
                 }
@@ -99,6 +109,15 @@
                 scrollToVersion(onScreenBeforeSetup, 0);
                 if (callback) {
                     callback(versionNames);
+                }
+                changelogLegendColumn.empty();
+                for (let i = 0; i < versionNames.length; i++) {
+                    let version = versionNames[i];
+                    let extraClass = versionClasses[i];
+                    let date = versionDates[i];
+                    let v = $(`<div class=${extraClass}>${version}<p class="date">${date}</p></div>`);
+                    v.click(() => scrollToVersion(version));
+                    changelogLegendColumn.append(v);
                 }
             });
             let fixedIn = versions.find(".content").children(".body").children("strong");
