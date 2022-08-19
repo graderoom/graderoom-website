@@ -52,6 +52,7 @@
 - Issues with viewing old grades
 - Issues with viewing grades when any class either had no overall grade or a grade of "CR"
 - No longer show semesters with no valid classes
+- Issue with sticky navbar on scroll down
 
 ## [Stable 5.1.1] - 2022-05-19
 ### Improved
