@@ -1009,7 +1009,7 @@
                             gradeSync = true;
                             setupTutorialPopups();
                         }
-                        if (data.message && (data.message === "No class data." || data.message === "Powerschool is locked.")) {
+                        if (data.message && (data.message === "No class data." || data.message === "Powerschool is locked." || data.message === "No PowerSchool grades found.")) {
                             $(".syncNoData").show();
                             $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
                             $(formMessagesDiv).find(".sk-chase-mini").hide();

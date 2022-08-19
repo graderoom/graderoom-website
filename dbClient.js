@@ -1329,6 +1329,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                     await _setSyncStatus(db, username, SyncStatus.ACCOUNT_INACTIVE);
                 } else if (data.message === "No class data.") {
                     await _setSyncStatus(db, username, SyncStatus.NO_DATA);
+                    data.message = `No PowerSchool grades found.`;
                 } else {
                     await _setSyncStatus(db, username, SyncStatus.FAILED);
                 }
@@ -1951,8 +1952,7 @@ const _getSyncStatus = async (db, username) => {
     } else if (syncStatus === SyncStatus.ALREADY_DONE) {
         return {success: true, data: {message: "Already Synced!"}};
     } else if (syncStatus === SyncStatus.NO_DATA) {
-        let {term, semester} = (await _getMostRecentTermData(db, username))?.data?.value;
-        return {success: false, data: {message: `No PowerSchool grades found${term && semester ? ` for term ${term}-${semester}.` : "."}.`}};
+        return {success: false, data: {message: "No PowerSchool grades found."}};
     } else if (syncStatus === SyncStatus.FAILED) {
         return {success: false, data: {message: "Sync Failed."}};
     } else if (syncStatus === SyncStatus.UPDATING) {
