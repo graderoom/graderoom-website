@@ -963,11 +963,11 @@
                         let status = data.message;
                         switch (status) {
                             case "Sync Failed.":
-                            case "Cannot access grades.":
                             case "Your account is no longer active.":
                                 messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(status);
                                 showLatest(false);
                                 break;
+                            case "No PowerSchool grades found for this term.":
                             case "Syncing history...":
                                 messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(status);
                                 break;
@@ -1009,7 +1009,7 @@
                             gradeSync = true;
                             setupTutorialPopups();
                         }
-                        if (data.message && (data.message === "No class data." || data.message === "Powerschool is locked." || data.message === "No PowerSchool grades found.")) {
+                        if (data.message && (data.message === "No class data." || data.message === "Powerschool is locked.")) {
                             $(".syncNoData").show();
                             $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
                             $(formMessagesDiv).find(".sk-chase-mini").hide();
@@ -1092,7 +1092,11 @@
                             $("#gradeSyncInputUserPassword").trigger("focus");
                         }
                         $(".fa-refresh").removeClass("fa-spin").css("opacity", "");
-                        messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(data.message);
+                        if (data.message === "No PowerSchool grades found for this term.") {
+                            messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(data.message);
+                        } else {
+                            messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(data.message);
+                        }
                         showLatest(false);
                         break;
                 }
