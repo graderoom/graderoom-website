@@ -42,58 +42,16 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Beta 5.2.2] - 2022-10-25
-### Added
-- Bellarmine users can now change their last name in addition to their first name
-- Basis users can change their name and graduation year
-
-### Improved
-- Description of grade history syncing on initial sync
-- Clicking on your name in the navigation bar opens account settings
-
-### Fixed
-- Issue with sync status not being accurate if a user logged in with their email rather than their username
-- Issue where toggling beta features on and off did not work
-- Issue where Basis graduation years showed as 'NaN
-- Issue with UC/CSU GPA
-
-## [Beta 5.2.1] - 2022-10-24
-### Fixed
-- Issue where new users could not use the site
-
-## [Beta 5.2.0] - 2022-10-23
-### Added
-- New Donation options
-- Donations now show in account tab
-- Ads to charts and final grade calculator pages
-
+## [Stable 5.1.2] - 2022-05-24
 ### Improved
 - Analytics page no longer requires login
-- Fixed occasional infinite redirecting
-- Links open in new tabs so you don't lose the current state of Graderoom
-- Donate button is shiny now
+- Redesigned login page
 
 ### Fixed
 - Issues with syncing classes that no other user has synced before
 - Issue with edited assignments not saving between page refreshes
-- Issue where having an edited assignment before May 18 resulted in the page not working
-- Issue with wrong theme blur effects being applied after certain theme change actions
-- Issue with class navbar expanding on some browsers
-- Issues with Honors and AP class weighting not being accurate
-- Issues with joining and leaving the beta
-- Issue with category sort causing unrounded delta values.
-
-## [Stable 5.1.2] - 2022-08-19
-### Improved
-- New changelog layout
-
-### Fixed
-- Clarify language when no data in PowerSchool
-- Issues with viewing grades after new sync
-- Issues with viewing old grades
-- Issues with viewing grades when any class either had no overall grade or a grade of "CR"
-- No longer show semesters with no valid classes
-- Issue with sticky navbar on scroll down
+- Issue where having an edited assignment before May 18 resulted in the page not working.<ul>
+- Unfortunately this involved the loss of 24 users' edits.</ul>
 
 ## [Stable 5.1.1] - 2022-05-19
 ### Improved

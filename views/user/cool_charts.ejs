@@ -54,19 +54,24 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6386323369506160"
+            crossorigin="anonymous"></script>
 </head>
 <body>
 
-<!-- Admin Navbar -->
+<% if (page === "charts") { %>
 <% include ../partials/user/navbar.ejs %>
+    <% } else { %>
+        <% include ../partials/viewer/viewer_navbar.ejs %>
+        <% } %>
 <div class="container">
     <br>
-    <h1>
-        Usage
-    </h1>
-    <h4>A user is considered active for 2 weeks after their most recent login</h4>
-    <h6 id="user-desc"></h6>
     <div class="chart-container chart" style="height: unset; width: unset; display: block">
+        <h1>
+            Usage
+        </h1>
+        <h4>A user is considered active for 2 weeks after their most recent login</h4>
+        <h6 id="user-desc"></h6>
         <div class="chart-tab tab" style="border-radius: 0.5rem">
             <btn id="btn-0" class="tablinks" onclick="setBounds(0)">5D</btn>
             <btn id="btn-1" class="tablinks" onclick="setBounds(1)">1M</btn>
@@ -83,7 +88,7 @@
     </div>
     <br>
     <div style="display: flex; justify-content: space-between; flex-wrap: wrap">
-        <div class="chart-container chart" style="width: max(400px, calc(50% - 1rem))">
+        <div class="chart-container chart" style="display: block; width: max(400px, calc(50% - 1rem))">
             <h4>
                 Usage by day of the week
             </h4>
@@ -91,7 +96,7 @@
             <canvas id="chart-weekdays">
             </canvas>
         </div>
-        <div class="chart-container chart" style="width: max(400px, calc(50% - 1rem))">
+        <div class="chart-container chart" style="display: block; width: max(400px, calc(50% - 1rem))">
             <h4>Users breakdown</h4>
             <h6>Graduation Years update in June of each year</h6>
             <canvas id="users"></canvas>
@@ -106,8 +111,8 @@
     let checkingTheme;
     let appearance = <%- appearance; %>;
     let theme = appearance.theme;
-    let darkModeStart = appearance.darkModeStart;
-    let darkModeFinish = appearance.darkModeFinish;
+    let darkModeStart = appearance.darkModeStart ?? null;
+    let darkModeFinish = appearance.darkModeFinish ?? null;
     let sunrise = <%= sunrise.getTime(); %>;
     let sunset = <%= sunset.getTime(); %>;
 
@@ -116,10 +121,8 @@
     }
 
     function setAutoTheme() {
-        let zeroTime = new Date(0);
-        zeroTime.setHours(new Date().getHours());
-        zeroTime.setMinutes(new Date().getMinutes());
-        zeroTime = zeroTime.getTime();
+        let date = new Date();
+        let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes());
         if (theme !== "auto" && theme !== "sun" && theme !== "system") {
             if (checkingTheme) {
                 clearInterval(checkingTheme);

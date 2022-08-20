@@ -24,6 +24,8 @@
     <!-- Javascript imports -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6386323369506160"
+            crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -248,10 +250,8 @@
     let darkMode;
 
     function setAutoTheme() {
-        let zeroTime = new Date(0);
-        zeroTime.setHours(new Date().getHours());
-        zeroTime.setMinutes(new Date().getMinutes());
-        zeroTime = zeroTime.getTime();
+        let date = new Date();
+        let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes());
         if (zeroTime >= sunset || zeroTime <= sunrise) {
             let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
             darkMode = true;

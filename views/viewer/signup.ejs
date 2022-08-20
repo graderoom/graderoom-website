@@ -146,7 +146,7 @@
             </div>
 
             <div class="card-footer text-center">
-                <a href="/">Sign in instead</a>
+                <a href="/login">Sign in instead</a>
             </div>
         </div>
     </div>
@@ -598,10 +598,8 @@
     let darkMode;
 
     function setAutoTheme() {
-        let zeroTime = new Date(0);
-        zeroTime.setHours(new Date().getHours());
-        zeroTime.setMinutes(new Date().getMinutes());
-        zeroTime = zeroTime.getTime();
+        let date = new Date();
+let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes());
         if (zeroTime >= sunset || zeroTime <= sunrise) {
             let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
             darkMode = true;

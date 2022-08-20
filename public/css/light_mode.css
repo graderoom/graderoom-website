@@ -492,8 +492,8 @@ tr:hover .toolTab {
 
 .dropdown-menu {
     border: 1px solid #DDDDDD;
-    background-color: white;
-    box-shadow: 0 0 20px 2px #DDDDDD;
+    background-color: transparent;
+    box-shadow: 0 0 2px 1px #DDDDDD, inset 0 0 10px 200px rgba(255, 255, 255, 0.8);
 }
 
 .dropdown-divider {

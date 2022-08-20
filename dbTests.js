@@ -68,8 +68,8 @@ module.exports = {
         await db.addDbClass("bellarmine", "21-22", "S2", "Science", "Bob Jones");
         await db.addDbClass("bellarmine", "21-22", "S2", "Math", "Sally G");
 
-        customAssert(Object.keys((await db.getAllClassData("bellarmine", "21-22", "S2")).data.value), ["Science", "Math"], "Add db classes");
-        customAssert(Object.keys((await db.getAllClassData("basis", "21-22", "S2")).data.value), ["Science"], "Add db classes");
+        customAssert(Object.keys((await db.getAllClassData("bellarmine", "21-22", "S2")).data.classData), ["Science", "Math"], "Add db classes");
+        customAssert(Object.keys((await db.getAllClassData("basis", "21-22", "S2")).data.classData), ["Science"], "Add db classes");
 
         await db.addWeightsSuggestion("hippityhop", "21-22", "S2", "Science", "Alex Smith", true, {"Tests": 100});
         await db.addWeightsSuggestion("hoppityhip", "21-22", "S2", "Science", "Alex Smith", true, {"Tests": 100});

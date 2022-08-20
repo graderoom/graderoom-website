@@ -121,12 +121,22 @@ module.exports = function (app, passport) {
             return;
         }
         res.render("viewer/index.ejs", {
+            appearance: JSON.stringify({seasonalEffects: true}),
+            page: "logged-out-home",
+            sunset: sunset,
+            sunrise: sunrise
+        });
+    });
+
+    app.get("/login", async (req, res) => {
+        let {sunrise, sunset} = getSunriseAndSunset();
+        res.render("viewer/signin.ejs", {
             message: req.flash("loginMessage"),
             beta: server.beta,
             appearance: JSON.stringify({seasonalEffects: true}),
             page: "login",
             sunset: sunset,
-            sunrise: sunrise
+            sunrise: sunrise,
         });
     });
 
@@ -721,7 +731,6 @@ module.exports = function (app, passport) {
 
     app.get("/classes", [isAdmin], async (req, res) => {
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
-        //TODO: get school from frontend
 
         let school = req.query.school ?? "bellarmine";
         if (!SCHOOL_NAMES.includes(school)) {
@@ -741,10 +750,13 @@ module.exports = function (app, passport) {
             semester = req.query.semester;
         }
 
+        let {classData, catalogData} = (await dbClient.getAllClassData(school, term, semester)).data;
+
         res.render("admin/classes.ejs", {
             username: req.user.username,
             page: "classes",
-            classData: (await dbClient.getAllClassData(school, term, semester)).data.value,
+            classData: classData,
+            catalogData: catalogData,
             sessionTimeout: Date.parse(req.session.cookie._expires),
             appearance: JSON.stringify(req.user.appearance),
             beta: server.beta,
@@ -759,25 +771,41 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.get("/charts", [isLoggedIn], async (req, res) => {
+    app.get("/charts", async (req, res) => {
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
         let {data: {loginData, uniqueLoginData, syncData, userData, activeUsersData, gradData}} = await dbClient.getChartData();
-        res.render("user/cool_charts.ejs", {
-            username: req.user.username,
-            personalInfo: JSON.stringify(req.user.personalInfo),
-            appearance: JSON.stringify(req.user.appearance),
-            sessionTimeout: Date.parse(req.session.cookie._expires),
-            page: "charts",
-            loginData: JSON.stringify(loginData),
-            uniqueLoginData: JSON.stringify(uniqueLoginData),
-            syncData: JSON.stringify(syncData),
-            userData: JSON.stringify(userData),
-            activeUsersData: JSON.stringify(activeUsersData),
-            gradData: JSON.stringify(gradData),
-            sunset: sunset,
-            sunrise: sunrise,
-            _: _
-        });
+        if (req.isAuthenticated()) {
+            res.render("user/cool_charts.ejs", {
+                username: req.user.username,
+                personalInfo: JSON.stringify(req.user.personalInfo),
+                appearance: JSON.stringify(req.user.appearance),
+                sessionTimeout: Date.parse(req.session.cookie._expires),
+                page: "charts",
+                loginData: JSON.stringify(loginData),
+                uniqueLoginData: JSON.stringify(uniqueLoginData),
+                syncData: JSON.stringify(syncData),
+                userData: JSON.stringify(userData),
+                activeUsersData: JSON.stringify(activeUsersData),
+                gradData: JSON.stringify(gradData),
+                sunset: sunset,
+                sunrise: sunrise,
+                _: _
+            });
+        } else {
+            res.render("user/cool_charts.ejs", {
+                page: "charts-logged-out",
+                appearance: JSON.stringify({seasonalEffects: true, theme: 'sun'}),
+                loginData: JSON.stringify(loginData),
+                uniqueLoginData: JSON.stringify(uniqueLoginData),
+                syncData: JSON.stringify(syncData),
+                userData: JSON.stringify(userData),
+                activeUsersData: JSON.stringify(activeUsersData),
+                gradData: JSON.stringify(gradData),
+                sunset: sunset,
+                sunrise: sunrise,
+                _: _
+            });
+        }
     });
 
     app.post("/updateSortData", [isLoggedIn, inRecentTerm], async (req, res) => {

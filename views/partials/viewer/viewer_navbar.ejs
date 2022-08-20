@@ -1,7 +1,7 @@
 <% include ../limited_time/snowfall.ejs %>
 
 <!-- Nav Bar -->
-<nav class="navbar navbar-dark navbar-expand-lg justify-content-center">
+<nav class="navbar <% if (theme) { %>navbar-dark<% } else { %>navbar-light<% } %> navbar-expand-lg justify-content-center">
     <span class="d-flex w-25 mr-auto">
         <a href="/" class="navbar-brand">
             <h1>
@@ -20,12 +20,16 @@
             aria-controls="collapsingNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="navbar-collapse collapse w-25" id="collapsingNav">
+    <div class="navbar-collapse collapse w-50" id="collapsingNav">
         <ul class="navbar-nav w-25 justify-content-end align-items-end ml-auto">
             <li class="nav-item active">
-                <a href="/" class="btn btn-lg">
+                <a href="/<% if (page === "login") { %>signup<% } else {%>login<%}%>" class="btn btn-lg">
                     <i class="fa fa-sign-in" aria-hidden="true"></i>
+                    <% if (page === "login") { %>
+                    Create Account
+                    <% } else { %>
                     Login/Signup
+                    <% } %>
                 </a>
             </li>
         </ul>

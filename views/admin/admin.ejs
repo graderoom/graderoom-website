@@ -221,10 +221,8 @@
     }
 
     function setAutoTheme() {
-        let zeroTime = new Date(0);
-        zeroTime.setHours(new Date().getHours());
-        zeroTime.setMinutes(new Date().getMinutes());
-        zeroTime = zeroTime.getTime();
+        let date = new Date();
+        let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes());
         if (theme !== "auto" && theme !== "sun" && theme !== "system") {
             if (checkingTheme) {
                 clearInterval(checkingTheme);

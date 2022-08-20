@@ -206,13 +206,13 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
 
 exports.makeClass = (term, semester, className, teacherName, catalogData) => {
     return {
-        department: catalogData.department ? catalogData.department : "",
-        grade_levels: catalogData.grade_levels ? catalogData.grade_levels : "",
-        credits: catalogData.credits ? catalogData.credits : "",
-        terms: catalogData.terms ? catalogData.terms : "",
-        description: catalogData.description ? catalogData.description : "",
-        uc_csuClassType: catalogData.uc_csuClassType ? catalogData.uc_csuClassType : "",
-        classType: catalogData.classType ? catalogData.classType : "",
+        department: catalogData?.department ?? "",
+        grade_levels: catalogData?.grade_levels ?? "",
+        credits: catalogData?.credits ?? "",
+        terms: catalogData?.terms ?? "",
+        description: catalogData?.description ?? "",
+        uc_csuClassType: catalogData?.uc_csuClassType ?? "",
+        classType: catalogData?.classType ?? "",
         teachers: [this.makeTeacher(teacherName)],
         term: term,
         semester: semester,

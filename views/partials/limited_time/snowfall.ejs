@@ -24,7 +24,19 @@
         <% } %>
 >
     #snow-fall-bg {
-        background-image: linear-gradient(to top, #E5E5E5 20%, lightblue 80%);
+        background-image: linear-gradient(to top, lightblue 20%, deepskyblue 80%);
+    }
+
+    #snow-fall-bg::after {
+        content: "";
+        width: 100%;
+        height: 100%;
+        display: block;
+        opacity: 0.2;
+        background-repeat: repeat;
+        background-size: 20px;
+        border: 1px;
+        background-image: url("public/resources/common/icon.png");
     }
 </style>
 
