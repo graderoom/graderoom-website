@@ -3,7 +3,9 @@ const dbClient = require("./dbClient.js");
 const emailSender = require("./emailSender.js");
 const _ = require("lodash");
 const SunCalc = require("suncalc");
-const {changelog, SCHOOL_NAMES} = require("./dbHelpers");
+const {changelog} = require("./dbHelpers");
+const {Schools} = require("./enums");
+const showAds = process.env.showAds === "enabled";
 
 module.exports = function (app, passport) {
 
@@ -70,6 +72,7 @@ module.exports = function (app, passport) {
                     editedAssignments: JSON.stringify(req.user.editedAssignments[term][semester]),
                     gradeHistory: JSON.stringify(gradeHistoryLetters),
                     relevantClassData: JSON.stringify((await dbClient.getRelevantClassData(req.user.username, term, semester)).data.value),
+                    donoData: JSON.stringify((await dbClient.getDonoData(req.user.username)).data.value),
                     sortingData: JSON.stringify(req.user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     beta: JSON.stringify(server.beta),
@@ -121,22 +124,23 @@ module.exports = function (app, passport) {
             return;
         }
         res.render("viewer/index.ejs", {
-            appearance: JSON.stringify({seasonalEffects: true}),
-            page: "logged-out-home",
-            sunset: sunset,
-            sunrise: sunrise
-        });
-    });
-
-    app.get("/login", async (req, res) => {
-        let {sunrise, sunset} = getSunriseAndSunset();
-        res.render("viewer/signin.ejs", {
             message: req.flash("loginMessage"),
             beta: server.beta,
             appearance: JSON.stringify({seasonalEffects: true}),
             page: "login",
             sunset: sunset,
             sunrise: sunrise,
+        });
+    });
+
+    app.get("/about", async (req, res) => {
+        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
+
+        res.render("viewer/about.ejs", {
+            appearance: JSON.stringify({seasonalEffects: true}),
+            page: "logged-out-home",
+            sunset: sunset,
+            sunrise: sunrise
         });
     });
 
@@ -147,12 +151,12 @@ module.exports = function (app, passport) {
     });
 
     app.post("/betafeatures", [isLoggedIn], async (req, res) => {
-        await dbClient.updateBetaFeatures(req.user.school, req.user.username, req.body);
+        await dbClient.updateBetaFeatures(req.user.username, req.body);
         res.redirect("/");
     });
 
     app.post("/leavebeta", [isLoggedIn], async (req, res) => {
-        await dbClient.leaveBeta(req.user.school, req.user.username);
+        await dbClient.leaveBeta(req.user.username);
         res.redirect("/");
     });
 
@@ -196,6 +200,7 @@ module.exports = function (app, passport) {
                 [`editedAssignments.${term}.${semester}`]: 1,
                 sortingData: 1,
                 betaFeatures: 1,
+                donoData: 1,
             };
             let user = (await dbClient.getUser(req.query.usernameToRender, projection)).data.value;
             if (user.alerts.remoteAccess === "denied") {
@@ -241,6 +246,7 @@ module.exports = function (app, passport) {
                     editedAssignments: JSON.stringify(user.editedAssignments[term][semester]),
                     gradeHistory: JSON.stringify(gradeHistoryLetters),
                     relevantClassData: JSON.stringify((await dbClient.getRelevantClassData(req.query.usernameToRender, term, semester)).data.value),
+                    donoData: JSON.stringify(user.donoData),
                     sortingData: JSON.stringify(user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     beta: server.beta,
@@ -276,6 +282,7 @@ module.exports = function (app, passport) {
                     editedAssignments: JSON.stringify({}),
                     gradeHistory: JSON.stringify([]),
                     relevantClassData: JSON.stringify({}),
+                    donoData: JSON.stringify(user.donoData),
                     sortingData: JSON.stringify(user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     beta: server.beta,
@@ -383,6 +390,7 @@ module.exports = function (app, passport) {
             'alerts.lastUpdated': 1,
             'alerts.remoteAccess': 1,
             'betaFeatures.active': 1,
+            donoData: 1
         };
         let allUsers = (await dbClient.getAllUsers(projection)).data.value;
         let deletedUsers = (await dbClient.getAllArchivedUsers(projection)).data.value;
@@ -390,8 +398,8 @@ module.exports = function (app, passport) {
         res.render("admin/admin.ejs", {
             page: "admin",
             username: req.user.username,
-            userList: allUsers,
-            deletedUserList: deletedUsers,
+            userList: JSON.stringify(allUsers),
+            deletedUserList: JSON.stringify(deletedUsers),
             adminSuccessMessage: req.flash("adminSuccessMessage"),
             adminFailMessage: req.flash("adminFailMessage"),
             sessionTimeout: Date.parse(req.session.cookie._expires),
@@ -595,6 +603,26 @@ module.exports = function (app, passport) {
         }
     });
 
+    app.post("/addDonation", [isAdmin], async (req, res) => {
+        let data = JSON.parse(req.body.data);
+        let resp = await dbClient.addDonation(data.username, data.platform, data.paidValue, data.receivedValue, data.dateDonated);
+        if (resp.success) {
+            res.status(200).send(resp.data);
+        } else {
+            res.status(400).send(resp.data);
+        }
+    });
+
+    app.post("/removeDonation", [isAdmin], async (req, res) => {
+        let data = req.body;
+        let resp = await dbClient.removeDonation(data.username, data.index);
+        if (resp.success) {
+            res.status(200).send(resp.data);
+        } else {
+            res.status(400).send(resp.data);
+        }
+    });
+
     app.post("/setColorPalette", [isLoggedIn], async (req, res) => {
         let resp = await dbClient.setColorPalette(req.user.username, req.body.preset, JSON.parse(req.body.shuffleColors));
         if (resp.success) {
@@ -655,8 +683,8 @@ module.exports = function (app, passport) {
                 page: "logged_out_calc",
                 beta: JSON.stringify(server.beta),
                 sunset: sunset,
-                sunrise: sunrise
-
+                sunrise: sunrise,
+                showAds: showAds,
             });
         }
 
@@ -733,7 +761,7 @@ module.exports = function (app, passport) {
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
 
         let school = req.query.school ?? "bellarmine";
-        if (!SCHOOL_NAMES.includes(school)) {
+        if (!Object.values(Schools).includes(school)) {
             res.redirect("/classes");
             return;
         }
@@ -760,7 +788,7 @@ module.exports = function (app, passport) {
             sessionTimeout: Date.parse(req.session.cookie._expires),
             appearance: JSON.stringify(req.user.appearance),
             beta: server.beta,
-            schools: SCHOOL_NAMES,
+            schools: Object.values(Schools),
             school: school,
             term: term,
             semester: semester,
@@ -789,6 +817,7 @@ module.exports = function (app, passport) {
                 gradData: JSON.stringify(gradData),
                 sunset: sunset,
                 sunrise: sunrise,
+                showAds: showAds,
                 _: _
             });
         } else {
@@ -803,6 +832,7 @@ module.exports = function (app, passport) {
                 gradData: JSON.stringify(gradData),
                 sunset: sunset,
                 sunrise: sunrise,
+                showAds: showAds,
                 _: _
             });
         }

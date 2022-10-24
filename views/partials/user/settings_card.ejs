@@ -14,7 +14,8 @@
                 </h1>
             </div>
             <div class="tab">
-                <btn id="btn-0" class="tablinks" onclick="openTab(0)">Donate</btn>
+                <btn id="btn-0" class="tablinks" onclick="openTab(0)"><span class="donate"><span class="inner-donate">Donate</span></span>
+                </btn>
                 <btn id="btn-1" class="tablinks active" onclick="openTab(1)">General</btn>
                 <btn id="btn-2" class="tablinks" onclick="openTab(2)">Account</btn>
                 <btn id="btn-3" class="tablinks" onclick="openTab(3)">Advanced</btn>
@@ -27,40 +28,59 @@
             <div id="settings-0" class="tabcontent" style="display: none">
                 <div class="card-body">
                     <div class="card-footer">
-                        <h5>Want to support Graderoom?</h5>
-                        <div class="donation-container">
-                            <div class="card-footer">
-                                <p>Graderoom is a free service to make your academic lives less stressful and more fun.
-                                    You
-                                    are already showing support just by using this project we made for fun. If you want
-                                    to go
-                                    above
-                                    and
-                                    beyond, feel free to send us a donation.
-                                </p>
-                            </div>
-                            <div class="card-footer">
-                                <p>Include your name or username in your donation message so we can match the donation
-                                    to your
-                                    Graderoom account
-                                </p>
-                                <div id="donate-button-container"
-                                     style="margin-top: 20px; display: flex; align-items: center; justify-content: center">
-                                    <div id="donate-button"></div>
-                                    <script src="https://www.paypalobjects.com/donate/sdk/donate-sdk.js"
-                                            charset="UTF-8"></script>
-                                    <script>
-                                        PayPal.Donation.Button({
-                                                                   env: 'production',
-                                                                   hosted_button_id: 'UGSEZPLL7RLFY',
-                                                                   image: {
-                                                                       src: 'https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif',
-                                                                       alt: 'Donate with PayPal button',
-                                                                       title: 'PayPal - The safer, easier way to pay online!',
-                                                                   }
-                                                               }).render('#donate-button');
-                                    </script>
-                                </div>
+                        <h4>Want to support Graderoom?</h4>
+                        <p>Graderoom is a free service to make your academic lives less stressful and more fun.
+                            You
+                            are already showing support just by using this project we made for fun. If you want
+                            to go
+                            above
+                            and
+                            beyond, feel free to send us a donation.
+                        </p>
+                        <br>
+                        <span>Include your name or username in your donation message so we can match the donation
+                            to your
+                            Graderoom account.</span>
+                        <span>After donating, it may take some time before your donation is processed and appears in your Graderoom <a href="#" onclick="openTab(2)">Account tab</a>.</span>
+                    </div>
+                    <div class="donation-container">
+                        <div class="card-footer">
+                            <div id="venmo"></div>
+                            <br>
+                            <span>If the QR Code doesn't work, you can <a target="_blank"
+                                                                          href="https://account.venmo.com/u/jojejo">Click
+                                    Here
+                                    for Venmo</a></span>
+                        </div>
+                        <div class="card-footer">
+                            <div id="zelle"></div>
+                            <br>
+                            <span>If you prefer a different method, feel free to contact me through <a href="#"
+                                                                                                       style="display: inline"
+                                                                                                       onclick="openTab(4)">the
+                                    Help tab</a>.</span>
+                        </div>
+                        <div class="card-footer">
+                            <p>If you would like to use PayPal, use this donate button.
+                                <b>PayPal takes a significant cut of any donation you make</b>, and this will be reflected
+                                in your actual donation amount. Using one of the other methods is highly preferred.
+                            </p>
+                            <div id="donate-button-container"
+                                 style="margin-top: 20px; display: flex; align-items: center; justify-content: center">
+                                <div id="donate-button"></div>
+                                <script src="https://www.paypalobjects.com/donate/sdk/donate-sdk.js"
+                                        charset="UTF-8"></script>
+                                <script>
+                                    PayPal.Donation.Button({
+                                                               env: 'production',
+                                                               hosted_button_id: 'UGSEZPLL7RLFY',
+                                                               image: {
+                                                                   src: 'https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif',
+                                                                   alt: 'Donate with PayPal button',
+                                                                   title: 'PayPal - The safer, easier way to pay online!',
+                                                               }
+                                                           }).render('#donate-button');
+                                </script>
                             </div>
                         </div>
                     </div>
@@ -329,6 +349,11 @@
             <div id="settings-2" class="tabcontent">
                 <div class="card-body">
                     <div class="card-footer">
+                        <h5>Your Donations</h5>
+                        <div id="donations">
+                        </div>
+                    </div>
+                    <div class="card-footer">
                         <h5>PowerSchool Sync Settings</h5>
                         <form id="changeSchoolEmail" class="form-signin"
                               action="/changeschoolemail" method="post">
@@ -385,7 +410,8 @@
                                        onclick="$('#gradeSyncToggle').trigger('click')">GradeSync<span
                                             class="popup"><i class="fa fa-question-circle"
                                                              style="margin-left: 0.4rem"><span
-                                                    class="popup-right-top">When enabled, Graderoom syncs whenever you
+                                                    class="popup-right-top">When enabled, Graderoom syncs whenever
+                                                you
                                                 login</span></i></span></label>
                             </label>
                         </form>
@@ -395,7 +421,8 @@
                             <h5>Personal Info
                                 <span class="popup">
                                     <i class="fa fa-question-circle">
-                                        <span class="popup-right">This information is derived from your school email.
+                                        <span class="popup-right">This information is derived from your school
+                                            email.
                                             You can edit your first name.</span>
                                     </i>
                                 </span>
@@ -412,7 +439,8 @@
                                     <div class="sk-chase-dot mini"></div>
                                 </div>
                                 <div class="messageTxt"></div>
-                                <a class="close" onclick="closeMessage('personalInfoChangeMessage')" aria-label="close">X</a>
+                                <a class="close" onclick="closeMessage('personalInfoChangeMessage')"
+                                   aria-label="close">X</a>
                             </div>
                             <br>
                             <div style="display: flex; align-items: center; flex-basis: content; flex-wrap: wrap"
@@ -421,7 +449,8 @@
                                     <i class="user-bg"></i>
                                     <label class="label-active">First Name</label>
                                     <input oninput="checkLabel(this); checkFirstName(this, '#firstNameCheckMessage')"
-                                           type="text" class="form-control dont-clear" name="first_name" id="firstName"
+                                           type="text" class="form-control dont-clear" name="first_name"
+                                           id="firstName"
                                            value="<%= JSON.parse(personalInfo).firstName; %>">
                                     <span class="popup">
                                         <i>
@@ -437,14 +466,16 @@
                                            value="<%= JSON.parse(personalInfo).lastName; %>" disabled>
                                     <span class="popup">
                                         <i class="fa fa-question-circle">
-                                            <span class="popup-top-left">Changing your Last Name is not supported</span></i>
+                                            <span class="popup-top-left">Changing your Last Name is not
+                                                supported</span></i>
                                     </span>
                                 </div>
                                 <div class="form-group input-group">
                                     <i style="filter: opacity(0.5)" class="user-bg"></i>
                                     <label style="filter: opacity(0.5)" class="label-active">Graduation Year</label>
                                     <input oninput="checkLabel(this);" style="filter: opacity(0.5)"
-                                           type="number" class="form-control" name="graduation_year" id="graduationYear"
+                                           type="number" class="form-control" name="graduation_year"
+                                           id="graduationYear"
                                            value="<%= JSON.parse(personalInfo).graduationYear; %>"
                                            disabled>
                                     <span class="popup">
@@ -503,7 +534,8 @@
                                        class="form-control" required>
                                 <span class="popup">
                                     <i>
-                                        <span class="popup-top-left dont-show" id="passwordConfirmMessage"></span></i>
+                                        <span class="popup-top-left dont-show"
+                                              id="passwordConfirmMessage"></span></i>
                                 </span>
                             </div>
                         </div>
@@ -604,8 +636,10 @@
                             <label for="animateWhenUnfocused">
                                 Don't Pause Effects When Window is not in Focus <span class="popup"><i
                                             class="fa fa-question-circle"><span
-                                                class="popup-top-left">When enabled, certain animations and effects that
-                                            are usually paused to conserve resources will continue to play even if you
+                                                class="popup-top-left">When enabled, certain animations and effects
+                                            that
+                                            are usually paused to conserve resources will continue to play even if
+                                            you
                                             are on a different tab or window.
                                         </span></i></span> <span class="popup hide-in-firefox"><i
                                             class="fa fa-exclamation-triangle">
@@ -626,7 +660,8 @@
                             <label for="showFps">
                                 Display Real-time Refresh Rate <span class="popup"><i
                                             class="fa fa-question-circle"><span
-                                                class="popup-right-bottom">When enabled, displays FPS in the bottom left
+                                                class="popup-right-bottom">When enabled, displays FPS in the bottom
+                                            left
                                             corner of the screen
                                         </span></i></span>
                             </label>
@@ -726,7 +761,8 @@
                                 </div>
                             </div>
                             <button class="btn btn-sm"
-                                    style="margin: 0.1rem; width: fit-content; width: -moz-fit-content" type="submit"
+                                    style="margin: 0.1rem; width: fit-content; width: -moz-fit-content"
+                                    type="submit"
                                     onclick="resetTutorial()">Reset
                             </button>
                         </div>
@@ -751,9 +787,12 @@
                 <div class="card-body">
                     <div class="card-footer">
                         <h5>Description</h5>
-                        <p>Graderoom is an advanced grade visualizer designed to help students better understand their
-                            grades. Graderoom was created by students at Bellarmine College Preparatory in San Jose, CA,
-                            but is in no way affiliated with the school or it's faculty and staff. We welcome feedback
+                        <p>Graderoom is an advanced grade visualizer designed to help students better understand
+                            their
+                            grades. Graderoom was created by students at Bellarmine College Preparatory in San Jose,
+                            CA,
+                            but is in no way affiliated with the school or it's faculty and staff. We welcome
+                            feedback
                             from our users and are actively working on features and improvements.
                         </p>
                     </div>
@@ -778,8 +817,10 @@
                     <div class="card-body">
                         <div class="card-footer">
                             <h5>Thanks for trying out new features before they're released!</h5>
-                            <p>Your choices to enable the features listed below contribute to the speed at which these
-                                features are officially released. We will continue to add more features as time goes on.
+                            <p>Your choices to enable the features listed below contribute to the speed at which
+                                these
+                                features are officially released. We will continue to add more features as time goes
+                                on.
                             </p>
                         </div>
                         <br>
@@ -790,7 +831,8 @@
                                         Enable Notification Panel
                                     </label>
                                     <label class="switch">
-                                        <input id="showNotificationPanel" type="checkbox" name="showNotificationPanel"
+                                        <input id="showNotificationPanel" type="checkbox"
+                                               name="showNotificationPanel"
                                         <% if (JSON.parse(betaFeatures).showNotificationPanel) { %>
                                                checked="checked"
                                                 <% } %>
@@ -1190,6 +1232,29 @@
         }
         for (i; i < emptyBars.length; i++) {
             $(emptyBars[i]).remove();
+        }
+    }
+
+    function setupDonos() {
+        let donoDiv = $("#donations");
+        if (donoData.length === 0) {
+            donoDiv.html(`<div style="text-align: center">Nothing yet</div>`);
+        } else {
+            let donoTable = `<table id="donoTable"><thead><tr><th>Platform</th><th>Amount Paid</th><th>Actual Value</th><th>Date Donated</th></tr></thead><tbody>`;
+            let totalPaid = 0;
+            let totalReceived = 0;
+            for (let i = 0; i < donoData.length; i++) {
+                let platform = donoData[i].platform;
+                let paid = donoData[i].paidValue;
+                let received = donoData[i].receivedValue;
+                totalPaid += paid;
+                totalReceived += received;
+                let date = donoData[i].dateDonated;
+
+                donoTable += `<tr><td class="dono-platform-${platform}">${platform}</td><td>$${paid.toFixed(2)}</td><td>$${received.toFixed(2)}</td><td>${new Date(date).toLocaleDateString()}</td></tr>`;
+            }
+            donoTable += `<tfoot><tr><td style="text-align: right">Total:</td><td>$${totalPaid.toFixed(2)}</td><td>$${totalReceived.toFixed(2)}</td><td></td></tr></tfoot></tbody></table>`;
+            donoDiv.html(donoTable);
         }
     }
 

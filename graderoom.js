@@ -36,6 +36,8 @@ mongo.config(mongoUrl, productionEnv, isBetaServer).then(() => {
                 process.exit();
             }
         }
+
+        await mongo.updateAllClasses();
         await mongo.updateAllUsers();
         console.log('Starting node.js server...');
 

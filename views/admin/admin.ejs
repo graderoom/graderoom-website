@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
     <title>Graderoom</title>
-    <link rel="icon" href="../../public/resources/common/icon.png">
+    <link rel="icon" href="public/resources/common/icon.png">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
@@ -12,25 +12,25 @@
     <% zeroTime = zeroTime.getTime(); %>
     <% if (JSON.parse(appearance).theme === "dark") { %>
         <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else if (JSON.parse(appearance).theme === "light") { %>
         <% theme = false; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/light_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
     <% } else if (JSON.parse(appearance).theme === "auto" && (((JSON.parse(appearance).darkModeStart < JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) && (zeroTime < JSON.parse(appearance).darkModeFinish))) || ((JSON.parse(appearance).darkModeStart > JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) || (zeroTime < JSON.parse(appearance).darkModeFinish))))) { %>
         <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else if (JSON.parse(appearance).theme === "system") { %>
         <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else if (JSON.parse(appearance).theme === "sun" && ((zeroTime >= sunset.getTime()) || (zeroTime <= sunrise.getTime()))) { %>
         <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else { %>
         <% theme = false; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/light_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
     <% } %>
-    <link rel="stylesheet" type="text/css" href="../../public/css/main.css">
-    <link id="blur_base" rel="stylesheet" type="text/css" href="../../public/css/blur.css"
+    <link rel="stylesheet" type="text/css" href="public/css/main.css">
+    <link id="blur_base" rel="stylesheet" type="text/css" href="public/css/blur.css"
           <% if (!JSON.parse(appearance).blurEffects) { %>disabled
             <% } %>
     >
@@ -39,7 +39,7 @@
           <% if (!JSON.parse(appearance).blurEffects) { %>disabled
             <% } %>
     >
-    <link id="fade" rel="stylesheet" type="text/css" href="../../public/css/fade.css" disabled>
+    <link id="fade" rel="stylesheet" type="text/css" href="public/css/fade.css" disabled>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -67,12 +67,11 @@
     <% } %>
 
     <div id="table-container">
-        <h6><%= userList.length %> Total Users,
-            <% let uniqueUsers = userList.filter((u, i, a) => i === a.indexOf(a.find(d => u.schoolUsername === d.schoolUsername))) %>
-            <%= uniqueUsers.length %> Unique Users,
-            <%= uniqueUsers.filter(u => (u.loggedIn.length !== 0 && u.loggedIn.slice(-1)[0] > Date.parse(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())))).length %>
+        <% let users = JSON.parse(userList) %>
+        <h6><%= users.length %> Total Users,
+            <%= users.filter(u => (u.loggedIn.length !== 0 && u.loggedIn.slice(-1)[0] > Date.parse(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())))).length %>
             Logged In Today,
-            <%= uniqueUsers.filter(u => (u.loggedIn.length !== 0 && u.loggedIn.slice(-1)[0] > Date.parse(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())) - 7 * 24 * 60 * 60 * 1000)).length %>
+            <%= users.filter(u => (u.loggedIn.length !== 0 && u.loggedIn.slice(-1)[0] > Date.parse(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())) - 7 * 24 * 60 * 60 * 1000)).length %>
             Logged In This Week
         </h6>
         <hr>
@@ -86,12 +85,12 @@
                         <th class="admin">Account Created</th>
                         <th class="admin">Last Logged In</th>
                         <th class="admin">Attributes</th>
-                        <th class="admin">Render User Site</th>
-                        <th class="admin">Archive User</th>
-                        <th class="admin">Change Admin Privileges</th>
+                        <th class="admin">Actions</th>
+                        <th class="admin">Donations</th>
                     </tr>
                 </thead>
-                <% for (let u of userList) { %>
+                <% for (let i = 0; i < users.length; i++) {
+                let u = users[i]; %>
                     <tr>
                         <td class="admin"><%= u.username %> </td>
                         <td class="admin"><%= u.personalInfo.firstName + " " + u.personalInfo.lastName + " '" + (u.personalInfo.graduationYear - 2000) %></td>
@@ -130,41 +129,78 @@
                                         Render User Site
                                     </button>
                                 </form>
-                            <% } else { %>
-                                Remote Access Denied
+                                <br><br>
                             <% } %>
-                        </td>
-                        <td class="admin">
-                            <% if (!u.isAdmin) { %>
-                                <form action="/archiveUser" method="post">
-                                    <button type="submit" name="deleteUser" class="btn btn-sm admin"
-                                            value="<%= u.username %>">Archive User
-                                    </button>
-                                </form>
-                            <% } else { %>
-                                Cannot Delete Admin
-                            <% } %>
-                        </td>
-
-                        <td class="admin">
-                            <% if (u.username != username) { %>
-                                <% if (u.isAdmin) { %>
-                                    <form action="/removeadmin" method="post">
-                                        <button type="submit" name="removeAdminUser" class="btn btn-sm admin"
-                                                value="<%= u.username %>">Remove Admin Privileges
+                                <button class="btn btn-sm admin" type="button"
+                                      onclick="{$('#add-donation-container<%= i %>').addClass('active').find('.addDonationDate input').trigger('focus').trigger('blur');$('#add-donation-container<%= i %>').find('.addDonationName input').trigger('focus')}">Add Donation</button>
+                                <div class="add-donation-container"
+                                     id="add-donation-container<%= i %>">
+                                    <form id="addDonationForm<%= i; %>">
+                                        <h5>Adding Donation for <%= u.username %></h5>
+                                        <div class="addDonationDate form-weights form-signin input-group form-group">
+                                            <label>Date</label>
+                                            <input class="form-control dynamic-input"
+                                                   type="text"
+                                                   onfocus="this.type='date'; this.valueAsDate = new Date(); checkLabel(this)"
+                                                   onblur="this.type='text'; checkLabel(this)" required>
+                                        </div>
+                                        <div class="addDonationPlatform input-group form-group">
+                                            <label class="label-active">Platform</label>
+                                            <select class="minimal addPlatform">
+                                                <option value="venmo">Venmo</option>
+                                                <option value="zelle">Zelle</option>
+                                                <option value="paypal">PayPal</option>
+                                            </select>
+                                        </div>
+                                        <div class="addDonationPaid form-weights form-signin input-group form-group">
+                                            <label>Paid Amount</label>
+                                            <input class="form-control dynamic-input"
+                                                   type="number"
+                                                   step="0.01"
+                                                   onfocus="checkLabel(this)"
+                                                   oninput="checkLabel(this)"
+                                                   onblur="checkLabel(this)" required>
+                                        </div>
+                                        <div class="addDonationReceived form-weights form-signin input-group form-group">
+                                            <label>Received Amount</label>
+                                            <input class="form-control dynamic-input"
+                                                   type="number"
+                                                   step="0.01"
+                                                   onfocus="checkLabel(this)"
+                                                   oninput="checkLabel(this)"
+                                                   onblur="checkLabel(this)" required>
+                                        </div>
+                                        <div>
+                                            <button type="submit" style="margin: 0" class="btn btn-med">Add</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <br><br>
+                                <% if (!u.isAdmin) { %>
+                                    <form action="/archiveUser" method="post">
+                                        <button type="submit" name="deleteUser" class="btn btn-sm admin"
+                                                value="<%= u.username %>">Archive User
                                         </button>
                                     </form>
-                                <% } else { %>
-                                    <form action="/makeadmin" method="post">
-                                        <button type="submit" name="newAdminUser" class="btn btn-sm admin"
-                                                value="<%= u.username %>">Make User Admin
-                                        </button>
-                                    </form>
+                                    <br>
                                 <% } %>
-                            <% } else { %>
-                                Cannot Remove Admin Privileges
-                            <% } %>
+                                <% if (u.username !== username) { %>
+                                    <% if (u.isAdmin) { %>
+                                        <form action="/removeadmin" method="post">
+                                            <button type="submit" name="removeAdminUser" class="btn btn-sm admin"
+                                                    value="<%= u.username %>">Remove Admin Privileges
+                                            </button>
+                                        </form>
+                                    <% } else { %>
+                                        <form action="/makeadmin" method="post">
+                                            <button type="submit" name="newAdminUser" class="btn btn-sm admin"
+                                                    value="<%= u.username %>">Make User Admin
+                                            </button>
+                                        </form>
+                                    <% } %>
+                                <% } %>
                         </td>
+                        <td class="donations"></td>
                     </tr>
                 <% } %>
             </table>
@@ -182,7 +218,7 @@
                     </tr>
                 </thead>
 
-                <% for (let u of deletedUserList) { %>
+                <% for (let u of JSON.parse(deletedUserList)) { %>
                     <tr>
                         <td class="admin"><%= u.username %> </td>
                         <td class="admin"><%= u.schoolUsername %></td>
@@ -208,6 +244,111 @@
     </div>
 </div>
 <script>
+    let users = <%- userList %>;
+    function checkLabel(input) {
+        let label = $($(input)[0].previousElementSibling);
+        input = $(input);
+        if (input[0].value !== "") {
+            if (!label.hasClass("label-active")) {
+                label.addClass("label-active");
+            }
+        } else {
+            label.removeClass("label-active");
+        }
+    }
+
+    for (let i = 0; i < users.length; i++) {
+        $("#addDonationForm" + i).submit(function (e) {
+            e.preventDefault();
+            addDonation(i);
+            $("#addDonationForm" + i + " input").val("").trigger("input").trigger("blur");
+        });
+    }
+
+    setupDonations();
+
+    function setupDonations(userIndex) {
+        for (let h = 0; h < users.length; h++) {
+            let donoDiv = $($("td.donations")[h]);
+            if (userIndex === undefined || userIndex === h) {
+                let donoData = users[h].donoData;
+                if (donoData.length === 0) {
+                    donoDiv.html('');
+                    continue;
+                }
+                let donoTable = `<table id="donoTable"><thead><tr><th>Platform</th><th>Amount Paid</th><th>Actual Value</th><th>Date Donated</th><th></th></tr></thead><tbody>`;
+                let totalPaid = 0;
+                let totalReceived = 0;
+                for (let i = 0; i < donoData.length; i++) {
+                    let platform = donoData[i].platform;
+                    let paid = donoData[i].paidValue;
+                    let received = donoData[i].receivedValue;
+                    totalPaid += paid;
+                    totalReceived += received;
+                    let date = donoData[i].dateDonated;i
+
+                    donoTable += `<tr><td class="dono-platform-${platform}">${platform}</td><td>$${paid.toFixed(2)}</td><td>$${received.toFixed(2)}</td><td>${new Date(date).toLocaleDateString()}</td><td><button class="btn btn-sm admin" onclick="removeDonation(${h}, ${i})">Delete</button></td></tr>`;
+                }
+                donoTable += `<tfoot><tr><td style="text-align: right">Total:</td><td>$${totalPaid.toFixed(2)}</td><td>$${totalReceived.toFixed(2)}</td><td></td></tr></tfoot></tbody></table>`;
+                donoDiv.html(donoTable);
+            }
+        }
+    }
+
+    function addDonation(userIndex) {
+        let username = users[userIndex].username;
+        let donoDate = $(".addDonationDate input")[userIndex].value.split("-");
+        donoDate = Date.parse(donoDate[1] + "/" + donoDate[2] + "/" + donoDate[0]);
+        let donoPlatform = $(".addDonationPlatform select")[userIndex].selectedOptions[0].value;
+        let donoPaid = parseFloat($(".addDonationPaid input")[userIndex].value);
+        let donoReceived = parseFloat($(".addDonationReceived input")[userIndex].value);
+        let donationObject = {
+            username: username,
+            platform: donoPlatform,
+            paidValue: donoPaid,
+            receivedValue: donoReceived,
+            dateDonated: donoDate,
+        }
+        $.ajax({
+            type: "POST",
+            url: "/addDonation",
+            data: {data: JSON.stringify(donationObject)}
+               }).done(function (response) {
+                   if (typeof response === "string" && response.startsWith("<!")) {
+                       $(".session-timeout").show();
+                       $("body").find("*").not(".session-timeout").remove();
+                   } else {
+                       let donation = $($(".add-donation-container")[userIndex]);
+                       donation.removeClass("active");
+                       users[userIndex].donoData.push(donationObject);
+                       setupDonations(userIndex);
+                   }
+        });
+    }
+
+    function removeDonation(userIndex, donoIndex) {
+        let username = users[userIndex].username;
+        $.ajax({
+                   type: "POST",
+                   url: "/removeDonation",
+                   data: {username: username, index: donoIndex}
+               }).done(function (response) {
+            if (typeof response === "string" && response.startsWith("<!")) {
+                $(".session-timeout").show();
+                $("body").find("*").not(".session-timeout").remove();
+            } else {
+                users[userIndex].donoData.splice(donoIndex, 1);
+                setupDonations(userIndex);
+            }
+        });
+    }
+
+    $(document).mousedown(function (e) {
+        if (!$(e.target).is(".addDonation, .add-donation-container") && !$(e.target).parents(".add-donation-container, .addDonation").length) {
+            $($(".add-donation-container")).removeClass("active");
+        }
+    });
+
     let checkingTheme;
     let appearance = <%- appearance %>;
     let theme = appearance.theme;
@@ -231,13 +372,13 @@
         }
 
         if ((theme === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) || (theme === "sun" && (zeroTime >= sunset || zeroTime <= sunrise)) || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((zeroTime >= darkModeStart) && (zeroTime < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((zeroTime >= darkModeStart) || (zeroTime < darkModeFinish))))))) {
-            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
+            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
             darkMode = true;
             if (darkMode !== oldDarkMode) {
                 document.getElementById("fade").disabled = false;
-                document.getElementById("pageStyle").setAttribute("href", "../../public/css/dark_mode.css");
+                document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
                 if (appearance.blurEffects) {
-                    document.getElementById("blur_overrides").setAttribute("href", "../../public/css/dark_blur.css");
+                    document.getElementById("blur_overrides").setAttribute("href", "public/css/dark_blur.css");
                 }
                 $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
                 $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
@@ -254,13 +395,13 @@
                 }
             }
         } else {
-            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "../../public/css/dark_mode.css";
+            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
             darkMode = false;
             if (darkMode !== oldDarkMode) {
                 document.getElementById("fade").disabled = false;
-                document.getElementById("pageStyle").setAttribute("href", "../../public/css/light_mode.css");
+                document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
                 if (appearance.blurEffects) {
-                    document.getElementById("blur_overrides").setAttribute("href", "../../public/css/light_blur.css");
+                    document.getElementById("blur_overrides").setAttribute("href", "public/css/light_blur.css");
                 }
                 $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
                 $(".navbar").removeClass("navbar-dark").addClass("navbar-light");

@@ -189,11 +189,11 @@ td, th {
     color: #BBBBBB;
 }
 
-.add-assignment-container {
+.add-assignment-container, .add-donation-container {
     background-color: #333;
 }
 
-.add-assignment-container.active {
+.add-assignment-container.active, .add-donation-container.active {
     box-shadow: 0 2px 30px 1px #111;
 }
 
@@ -530,6 +530,52 @@ tr:hover .toolTab {
 .tableOptions .popup:hover {
     background: #222222 !important;
     border-color: #222222 !important;
+}
+
+.donate, .donate-dollar {
+    color: #F5C21B;
+    background: -webkit-gradient(linear, left top, left bottom, from(#F5C21B), to(#D17000));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+    position: relative;
+    font-weight: bold !important;
+}
+
+.donate-dollar {
+    font-family: FontAwesome;
+    background: none;
+    -webkit-text-fill-color: #E3990E;
+}
+
+.donate::before, .donate-dollar::before {
+    -webkit-animation: flare 5s infinite;
+    -webkit-animation-timing-function: linear;
+    background-image: linear-gradient(65deg, transparent 20%, rgba(255, 255, 255, 0.2) 20%, rgba(255, 255, 255, 0.3) 27%, transparent 27%, transparent 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    content: "Donate";
+    color: #FFFFFF;
+    display: block;
+    position: absolute;
+}
+
+.donate-dollar::before {
+    content: "\f155";
+}
+
+.donate::after, .donate-dollar::after {
+    content: "Donate";
+    color: #FFFFFF;
+    display: block;
+    position: absolute;
+    text-shadow: 0 1px #6E4414, 0 2px #6E4414;
+    top: 0;
+    z-index: -1;
+}
+
+.donate-dollar::after {
+    content: "\f155";
 }
 
 /* Mobile Stuff */

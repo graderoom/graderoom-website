@@ -12,32 +12,162 @@
     <% zeroTime = zeroTime.getTime(); %>
     <% if ((zeroTime >= sunset.getTime()) || (zeroTime <= sunrise.getTime())) { %>
         <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/dark_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
     <% } else { %>
         <% theme = false; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="../../public/css/light_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
     <% } %>
-    <link rel="stylesheet" type="text/css" href="../../public/css/main.css">
-    <link id="fade" rel="stylesheet" type="text/css" href="../../public/css/fade.css" disabled>
+    <link rel="stylesheet" type="text/css" href="public/css/main.css">
+    <link id="fade" rel="stylesheet" type="text/css" href="public/css/fade.css" disabled>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="wot-verification" content="5c773c9acca0afa3e00e"/>
     <meta name="google-site-verification" content="V1uOTCUT5-IUFr-emEfyIvawYTz3DklEqorkkO5-nF8"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 </head>
 
-<% include ../partials/viewer/viewer_navbar.ejs %>
-
 <body style="min-height: 100vh">
-    <div id="about-container">
-        <canvas id="chart0"></canvas>
-        <canvas id="chart1"></canvas>
-        <canvas id="chart2"></canvas>
-        <canvas id="chart3"></canvas>
-        <canvas id="chart4"></canvas>
-        <canvas id="chart5"></canvas>
-    </div>
-</body>
+<% include ../partials/limited_time/snowfall.ejs %>
+<div class="container" id="login-container">
+    <div class="col-sm-10 col-md-8 col-lg-6 col-xl-5">
+        <div class="card card-signin my-5 non-responsive" id="signin">
+            <div class="card-body">
+                <h1 class="text-center card-title">
+                    <img src="<% if ((zeroTime >= sunset.getTime()) || (zeroTime <= sunrise.getTime())) { %>/public/resources/dark_mode/logo.png<% } else { %>/public/resources/light_mode/logo.png<% } %>"
+                         width=60rem> Graderoom
+                </h1>
+                <% if (message.length > 0) { %>
+                    <div class="alert alert-danger"><%- message; %></div>
+                <% } else { %><br>
+                <% } %>
+                <br>
+                <form id="login" class="form-signin" action="/login" method="post"
+                      onsubmit="$(this).find('button').prop('disabled', true).find('div').addClass('loading')">
+                    <div class="input-group form-group">
+                        <i class="user-bg"></i>
+                        <label>Username or Email Address</label>
+                        <input oninput="checkLabel(this)" type="text" class="form-control" name="username"
+                               autofocus id="usernameInput">
+                    </div>
+                    <div class="input-group form-group">
+                        <i class="lock-bg"></i>
+                        <label>Password</label>
+                        <input oninput="checkLabel(this)" type="password" class="form-control" name="password">
+                    </div>
 
+                    <a style="color: dimgrey; float: right; margin-top: -25px;" href="/forgot_password">Forgot
+                        password?</a>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-default btn-lg">
+                            <i class="fa fa-sign-in" aria-hidden="true"></i> Login
+                            <div>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <a href="/signup">New User? Create Account</a>
+            </div>
+            <div class="card-footer text-center">
+                <a href="/finalgradecalculator">Final Grade Calculator</a>
+                &nbsp;|&nbsp;
+                <a href="/charts">Usage Statistics</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- JavaScript Imports -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
 <script>
 
+    setTimeout(() => {
+        $("input").each(function () {
+            let input = $(this);
+            if (input[0].value) {
+                input.trigger("input");
+            }
+        });
+        Snowy(true);
+    }, 250);
+
+    function checkLabel(input) {
+        let label = $($(input)[0].previousElementSibling);
+        input = $(input);
+        if (input[0].value !== "") {
+            if (!label.hasClass("label-active")) {
+                label.addClass("label-active");
+            }
+        } else {
+            label.removeClass("label-active");
+        }
+    }
+
+    let sunrise = <%= sunrise.getTime() ;%>;
+    let sunset = <%= sunset.getTime() ;%>;
+    let appearance = <%- appearance; %>;
+    let darkMode;
+
+    function setAutoTheme() {
+        let date = new Date();
+let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes());
+        if (zeroTime >= sunset || zeroTime <= sunrise) {
+            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
+            darkMode = true;
+            if (darkMode !== oldDarkMode) {
+                document.getElementById("fade").disabled = false;
+                document.getElementById("pageStyle").setAttribute("href", "public/css/dark_mode.css");
+                $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
+                $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
+                setTimeout(() => {
+                    document.getElementById("fade").disabled = true;
+                }, 500);
+            }
+        } else {
+            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "public/css/dark_mode.css";
+            darkMode = false;
+            if (darkMode !== oldDarkMode) {
+                document.getElementById("fade").disabled = false;
+                document.getElementById("pageStyle").setAttribute("href", "public/css/light_mode.css");
+                $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
+                $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
+                setTimeout(() => {
+                    document.getElementById("fade").disabled = true;
+                }, 500);
+            }
+        }
+        if (appearance.seasonalEffects) {
+            init = performance.now();
+            $('#lights-disabled-message').hide();
+            $('#snow-disabled-message').hide();
+            $("#snow-fall").show();
+            $(".lightrope").show();
+            if (!darkMode) {
+                $("#light_snowfall").attr("media", "");
+            } else {
+                $("#light_snowfall").attr("media", "not all");
+            }
+        } else {
+            $('#lights-disabled-message').hide();
+            $('#snow-disabled-message').hide();
+            $("#snow-fall").hide();
+            $(".lightrope").hide();
+        }
+    }
+
+    async function checkTime() {
+        setAutoTheme();
+        window.setInterval(function () {
+            setAutoTheme();
+        }, 100);
+    }
 </script>
+</body>
+</html>

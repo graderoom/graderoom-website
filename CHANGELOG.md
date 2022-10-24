@@ -42,16 +42,39 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Stable 5.1.2] - 2022-05-24
+## [Stable 5.2.0] - 2022-10-22
+### Added
+- New Donation options
+- Donations now show in account tab
+- Ads to charts and final grade calculator pages
+
 ### Improved
 - Analytics page no longer requires login
-- Redesigned login page
+- Fixed occasional infinite redirecting
+- Links open in new tabs so you don't lose the current state of Graderoom
+- Donate button is shiny now
 
 ### Fixed
 - Issues with syncing classes that no other user has synced before
 - Issue with edited assignments not saving between page refreshes
-- Issue where having an edited assignment before May 18 resulted in the page not working.<ul>
-- Unfortunately this involved the loss of 24 users' edits.</ul>
+- Issue where having an edited assignment before May 18 resulted in the page not working
+- Issue with wrong theme blur effects being applied after certain theme change actions
+- Issue with class navbar expanding on some browsers
+- Issues with Honors and AP class weighting not being accurate
+- Issues with joining and leaving the beta
+- Issue with category sort causing unrounded delta values.
+
+## [Stable 5.1.2] - 2022-08-19
+### Improved
+- New changelog layout
+
+### Fixed
+- Clarify language when no data in PowerSchool
+- Issues with viewing grades after new sync
+- Issues with viewing old grades
+- Issues with viewing grades when any class either had no overall grade or a grade of "CR"
+- No longer show semesters with no valid classes
+- Issue with sticky navbar on scroll down
 
 ## [Stable 5.1.1] - 2022-05-19
 ### Improved

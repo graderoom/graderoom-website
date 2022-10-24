@@ -205,6 +205,14 @@ table thead tr th:last-child {
     vertical-align: middle;
 }
 
+.add-donation-container {
+    text-align: left;
+}
+
+.addDonationPaid {
+    margin-top: 1rem !important;
+}
+
 .alert .close {
     color: inherit !important;
     font-size: 1rem;
@@ -499,14 +507,11 @@ table thead tr th:last-child {
 }
 
 .nav.sticky {
-    position: fixed;
+    position: sticky;
     z-index: 19;
     top: 0;
-    left: 50%;
     flex-direction: row;
-    width: 100%;
     transition: box-shadow 100ms;
-    transform: translateX(-50%);
 }
 
 .changelog-container .improved {
@@ -1386,7 +1391,7 @@ tr:hover .toolTab {
 #notificationPanel:hover {
     right: 0;
     background-color: rgba(17, 17, 17, 0.9);
-    box-shadow: -8px 0 16px 0 rgba(0,0,0,0.2);
+    box-shadow: -8px 0 16px 0 rgba(0, 0, 0, 0.2);
     padding: 2rem 0 0.5rem 0;
 }
 
@@ -1542,7 +1547,7 @@ tr:hover .toolTab {
 
 #dismissed-notifications .divider {
     width: calc(100% - 1rem);
-    color: #888;
+    color: #888888;
     text-align: center;
     margin-top: 1rem;
     margin-left: 0.5rem;
@@ -1552,7 +1557,7 @@ tr:hover .toolTab {
 }
 
 #dismissed-notifications hr {
-    color: #888;
+    color: #888888;
     margin: 0 0.5rem;
 }
 
@@ -2054,7 +2059,7 @@ tr:hover .excludeToggle .fa-ban {
     }
 }
 
-.add-assignment-container {
+.add-assignment-container, .add-donation-container {
     opacity: 0;
     pointer-events: none;
     position: absolute;
@@ -2065,26 +2070,37 @@ tr:hover .excludeToggle .fa-ban {
     width: 20rem;
 }
 
-.add-assignment-container.active {
+.add-donation-container {
+    z-index: 99;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+}
+
+.add-assignment-container.active, .add-donation-container.active {
     pointer-events: all;
     opacity: 1;
     animation: addAssignmentAnimation 150ms ease;
     transform: translateY(calc(50% + 2.5rem)) translateX(-50%);
 }
 
-.addAssignmentName, .addAssignmentDate, .addAssignmentCategory {
+.add-donation-container.active {
+    transform: translateY(-50%) translateX(-50%) !important;
+}
+
+.addAssignmentName, .addAssignmentDate, .addAssignmentCategory, .addDonationDate, .addDonationPaid, .addDonationReceived, .addDonationPlatform {
     top: 1rem;
 }
 
-.addAssignmentName label, .addAssignmentDate label, .addAssignmentCategory label {
+.addAssignmentName label, .addAssignmentDate label, .addAssignmentCategory label, .addDonationPlatform label, .addDonationDate label, .addDonationPaid label, .addDonationReceived label {
     left: 0.3rem;
 }
 
-.addAssignmentName input, .addAssignmentDate input {
+.addAssignmentName input, .addAssignmentDate input, .addDonationDate input, .addDonationPaid input, .addDonationReceived input {
     text-align: left !important;
 }
 
-.addCategory {
+.addCategory, .addDonationPlatform {
     margin: 0.5rem 0 0 0 !important;
 }
 
@@ -2126,7 +2142,7 @@ tr:hover .excludeToggle .fa-ban {
 }
 
 .add-assignment-container input {
-     /* width: 0; */
+    /* width: 0; */
 }
 
 .popup-holder > span {
@@ -2469,6 +2485,7 @@ input:disabled {
 #classInfoCredits {
     font-weight: bold;
 }
+
 #classInfoYears {
     font-style: italic;
 }
@@ -2751,7 +2768,7 @@ input:disabled {
     display: flex;
     justify-content: center; /* space-between */
     position: absolute;
-    top: 50%;
+    top: 40%;
     left: 50%;
     transform: translateX(-50%) translateY(-50%);
 }
@@ -2895,7 +2912,7 @@ input:disabled {
 #about-container h1 {
     display: flex;
     font-family: "Montserrat", serif;
-    color: #444;
+    color: #444444;
     font-size: 60px;
     justify-content: left;
     align-items: center;
@@ -3011,8 +3028,49 @@ input:disabled {
 .donation-container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: center;
     align-items: stretch;
+}
+
+.donation-container > div {
+    max-width: 350px !important;
+}
+
+.donation-container div.card-footer:not(:last-child) {
+    margin-right: 2rem;
+}
+
+.donation-container div.card-footer:last-child {
+    display: flex;
+    justify-content: flex-start;
+}
+
+#venmo {
+    background: url(../resources/common/venmo.png) no-repeat center/300px;
+    height: 300px;
+    width: 240px;
+    border-radius: 20px;
+    padding: 10px;
+}
+
+#zelle {
+    background: url(../resources/dark_mode/zelle.jpg) no-repeat center/300px;
+    height: 280px;
+    width: 280px;
+    padding: 10px;
+    border-radius: 20px;
+}
+
+@-webkit-keyframes flare {
+    0% {
+        background-position: -18px;
+    }
+    30% {
+        background-position: 50px;
+    }
+    100% {
+        background-position: 108px;
+    }
 }
 
 .donation-container div.card-footer {
@@ -3024,6 +3082,48 @@ input:disabled {
     align-items: center;
     justify-content: center;
     flex-flow: column;
+}
+
+#donoTable {
+    width: 100%;
+}
+
+#donoTable .dono-platform-venmo {
+    color: #008CFF;
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+#donoTable .dono-platform-zelle {
+    color: #671cca;
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+#donoTable .dono-platform-paypal {
+    color: transparent;
+    width: 0;
+}
+
+#donoTable .dono-platform-paypal::before {
+    content: "PayPal";
+    color: #169BD7;
+    font-weight: bold;
+}
+
+#donoTable td {
+    padding: 10px;
+}
+
+#donoTable tfoot tr td {
+    border-top-style: solid;
+    border-top-width: 3px;
+    font-weight: bold;
+}
+
+#donoTable tfoot tr td:not(:last-child) {
+    border-right-style: solid;
+    border-width: 3px;
 }
 
 @media screen and (prefers-color-scheme: dark) {
@@ -3397,4 +3497,12 @@ input:disabled {
         max-height: 30vh;
     }
 
+}
+
+/* Small window stuff */
+@media only screen and (max-height: 730px) {
+    #login-container {
+        position: static;
+        transform: none;
+    }
 }

@@ -50,6 +50,10 @@ table thead tr th {
     border-color: #EEEEEE;
 }
 
+table tfoot tr td {
+    border-color: #EEEEEE;
+}
+
 :disabled {
     background-color: #EEEEEE !important;
 }
@@ -107,7 +111,8 @@ table thead tr th {
 }
 
 .card a {
-    color: #222222;
+    color: #444444;
+    text-decoration: underline !important;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -353,11 +358,11 @@ input:checked + .slider:before {
     border-color: lightcoral;
 }
 
-.add-assignment-container {
+.add-assignment-container, .add-donation-container {
     background-color: white;
 }
 
-.add-assignment-container.active {
+.add-assignment-container.active, .add-donation-container.active {
     box-shadow: 0 2px 30px 1px #888;
 }
 
@@ -539,6 +544,42 @@ tr:hover .toolTab {
 
 .gpa-details-table th, .gpa-details-table td, .gpa-details-table, .gpa-details-table tr {
     border: 1px solid black;
+}
+
+.donate, .donate-dollar {
+    color: #f7ce48;
+    background: -webkit-gradient(linear, left top, left bottom, from(#f7ce48), to(#ff8f0e));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+    position: relative;
+    font-weight: bold !important;
+}
+
+.donate-dollar {
+    font-family: FontAwesome;
+    background: none;
+    -webkit-text-fill-color: #f2b034;
+}
+
+.donate::before, .donate-dollar::before {
+    -webkit-animation: flare 5s infinite;
+    -webkit-animation-timing-function: linear;
+    background-image: linear-gradient(65deg, transparent 20%, rgba(255, 255, 255, 0.6) 20%, rgba(255, 255, 255, 0.8) 27%, transparent 27%, transparent 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    content: "Donate";
+    color: #FFFFFF;
+    display: block;
+    position: absolute;
+}
+
+.donate-dollar::before {
+    content: "";
+}
+
+#donoTable .dono-platform-paypal::before {
+    color: #253B80;
 }
 
 /* Mobile Stuff */

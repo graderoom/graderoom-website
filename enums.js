@@ -9,4 +9,17 @@ module.exports.SyncStatus = {
     NOT_SYNCING: "",
 }
 
+module.exports.Schools = {
+    BELL: "bellarmine",
+    BISV: "basis",
+}
+
+module.exports.Constants = {
+    classTypes: ["non-academic", "none", "ap", "honors"],
+    uc_csuClassTypes: ["not_uc", "uc", "uc_ap", "uc_hon"],
+    donoPlatforms: ["paypal", "venmo", "zelle"]
+}
+
 Object.freeze(module.exports.SyncStatus);
+Object.freeze(module.exports.Schools);
+Object.freeze(module.exports.Constants);

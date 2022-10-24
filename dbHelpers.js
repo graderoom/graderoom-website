@@ -4,11 +4,11 @@ const path = require("path");
 const fs = require("fs");
 const md5 = require("md5");
 const readline = require("readline");
+const {Schools} = require("./enums");
 
 exports.USERS_COLLECTION_NAME = "users";
 exports.CLASSES_COLLECTION_NAME = "classes";
 exports.ROUNDS_TO_GENERATE_SALT = 10;
-exports.SCHOOL_NAMES = ["bellarmine", "basis"];
 exports.USERS_COLLECTION_NAME = "users";
 exports.ARCHIVED_USERS_COLLECTION_NAME = "archived_users";
 exports.CATALOG_COLLECTION_NAME = "catalog";
@@ -19,8 +19,8 @@ exports.TEST_DATABASE_NAME = "test";
 exports.COMMON_DATABASE_NAME = "common";
 
 // Change this when updateDB changes
-const dbUserVersion = 0;
-const dbClassVersion = 0;
+exports.dbUserVersion = 5;
+exports.dbClassVersion = 2;
 
 let _changelogArray = [];
 let _betaChangelogArray = [];
@@ -102,11 +102,14 @@ exports.validatePassword = (password) => {
 exports.validateEmail = (email, school) => {
     let re;
     switch (school) {
-        case "basis":
+        case Schools.BISV:
             re = /^[a-z]+_[0-9]{5}@basisindependent.com$/i;
             break;
-        default:
+        case Schools.BELL:
             re = /^[a-z]+\.[a-z]+[0-9]{2}@bcp.org$/i;
+            break;
+        default:
+            return false;
     }
     return re.test(email);
 };
@@ -148,7 +151,7 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
 
             // Create the user json
             let user = {
-                version: dbUserVersion,
+                version: this.dbUserVersion,
                 school: school,
                 username: username,
                 password: hash,
@@ -196,7 +199,8 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
                     dateSort: [], categorySort: []
                 },
                 loggedIn: [],
-                enableLogging: true
+                enableLogging: true,
+                donoData: [],
             };
 
             return resolve({success: true, data: {value: user}});
@@ -206,18 +210,16 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
 
 exports.makeClass = (term, semester, className, teacherName, catalogData) => {
     return {
-        department: catalogData?.department ?? "",
-        grade_levels: catalogData?.grade_levels ?? "",
-        credits: catalogData?.credits ?? "",
-        terms: catalogData?.terms ?? "",
-        description: catalogData?.description ?? "",
-        uc_csuClassType: catalogData?.uc_csuClassType ?? "",
-        classType: catalogData?.classType ?? "",
+        department: catalogData?.department != null ? null : "",
+        credits: catalogData?.credits != null ? null : "",
+        terms: catalogData?.terms != null ? null : "",
+        uc_csuClassType: catalogData?.uc_csuClassType != null ? null : "",
+        classType: catalogData?.classType != null ? null : "",
         teachers: [this.makeTeacher(teacherName)],
         term: term,
         semester: semester,
         className: className,
-        version: dbClassVersion
+        version: this.dbClassVersion
     }
 };
 
@@ -459,11 +461,11 @@ exports.buildStarterNotification = (now) => {
 exports.getPersonalInfo = (email, school) => {
     let firstName, lastName, graduationYear;
     switch (school) {
-        case "basis":
+        case Schools.BISV:
             firstName = email.indexOf("_") === -1 ? email : email.substring(0, email.indexOf("_"));
             firstName = firstName[0].toUpperCase() + firstName.substring(1).toLowerCase();
             break;
-        default:
+        case Schools.BELL:
             // First Name
             firstName = email.indexOf(".") === -1 ? email : email.substring(0, email.indexOf("."));
             firstName = firstName[0].toUpperCase() + firstName.substring(1).toLowerCase();
@@ -478,6 +480,7 @@ exports.getPersonalInfo = (email, school) => {
                 graduationYear = parseInt(graduationYear);
                 graduationYear += 2000;
             }
+            break;
     }
     return {firstName, lastName, graduationYear};
 };
