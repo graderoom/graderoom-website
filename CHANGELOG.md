@@ -40,7 +40,29 @@
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
-- Class link bar expands on some browsers after scrolling
+- None
+
+## [Beta 5.2.0] - 2022-10-23
+### Added
+- New Donation options
+- Donations now show in account tab
+- Ads to charts and final grade calculator pages
+
+### Improved
+- Analytics page no longer requires login
+- Fixed occasional infinite redirecting
+- Links open in new tabs so you don't lose the current state of Graderoom
+- Donate button is shiny now
+
+### Fixed
+- Issues with syncing classes that no other user has synced before
+- Issue with edited assignments not saving between page refreshes
+- Issue where having an edited assignment before May 18 resulted in the page not working
+- Issue with wrong theme blur effects being applied after certain theme change actions
+- Issue with class navbar expanding on some browsers
+- Issues with Honors and AP class weighting not being accurate
+- Issues with joining and leaving the beta
+- Issue with category sort causing unrounded delta values.
 
 ## [Stable 5.1.2] - 2022-08-19
 ### Improved
