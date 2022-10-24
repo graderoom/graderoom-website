@@ -42,6 +42,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 5.2.1] - 2022-10-24
+### Fixed
+- Issue where new users could not use the site
+
 ## [Beta 5.2.0] - 2022-10-23
 ### Added
 - New Donation options

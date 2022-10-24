@@ -108,6 +108,7 @@ module.exports = function (app, passport) {
                     editedAssignments: JSON.stringify({}),
                     gradeHistory: JSON.stringify([]),
                     relevantClassData: JSON.stringify({}),
+                    donoData: JSON.stringify((await dbClient.getDonoData(req.user.username)).data.value),
                     sortingData: JSON.stringify(req.user.sortingData),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     beta: JSON.stringify(server.beta),
