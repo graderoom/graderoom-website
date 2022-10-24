@@ -42,7 +42,7 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Stable 5.2.0] - 2022-10-22
+## [Beta 5.2.0] - 2022-10-23
 ### Added
 - New Donation options
 - Donations now show in account tab
