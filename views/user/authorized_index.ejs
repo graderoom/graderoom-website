@@ -1052,25 +1052,16 @@
                         shortcutsEnabled = true;
                         break;
                     case "success-history":
-                        let newData = {grades: JSON.parse(data.grades), weights: JSON.parse(data.weights)};
-                        if (!updateData(newData).updated) {
-                            sessionStorage.setItem("showSyncLog", "true");
-                            if (cardsDisplayed.length === 0 || cardsDisplayed[cardsDisplayed.length - 1] === "updateGradesDisplay") {
-                                messageDiv.find(".messageTxt").text("Refreshing...");
-                                setTimeout(() => window.reload(), 400);
-                            } else {
-                                messageDiv.find(".messageTxt").css("cursor", "pointer").text("Click here to refresh").click(function (e) {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    window.reload();
-                                });
-                            }
+                        sessionStorage.setItem("showSyncLog", "true");
+                        if (cardsDisplayed.length === 0 || cardsDisplayed[cardsDisplayed.length - 1] === "updateGradesDisplay") {
+                            messageDiv.find(".messageTxt").text("Refreshing...");
+                            setTimeout(() => window.reload(), 400);
                         } else {
-                            alerts.lastUpdated.push(JSON.parse(data.updateData));
-                            setupGradeChanges();
-                            showLatest(false);
-                            refreshWithoutReload(true);
-                            setupLastUpdated();
+                            messageDiv.find(".messageTxt").css("cursor", "pointer").text("Grade History synced. Click here to refresh").click(function (e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                window.reload();
+                            });
                         }
                         break;
                     case "fail":

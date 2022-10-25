@@ -34,9 +34,14 @@
             <div class="text-center">
                 <h5 style="padding-top: 0; white-space: nowrap;<% if (page != "home") { %> cursor: default; <% } %> "
                     onclick="<% if (page === "home") { %>showCard('#settingsCardDisplay'); openTab(2) <% } %>"><%= username; %></h5>
+                <% let name = [];
+                let {firstName, lastName, graduationYear} = JSON.parse(personalInfo);
+                if (!!firstName) name.push(firstName);
+                if (!!lastName) name.push(lastName);
+                if (!!graduationYear && graduationYear >= 2010) name.push(`'${graduationYear - 2000}`);
+                %>
                 <label id="nameDisplay"
-                       style="white-space: nowrap;<% if (page === "home") { %> cursor: pointer; <% } %> margin: 0; display: block"><%= JSON.parse(personalInfo).firstName; %> <%= JSON.parse(personalInfo).lastName; %>
-                    '<%= JSON.parse(personalInfo).graduationYear - 2000; %></label>
+                       style="white-space: nowrap;<% if (page === "home") { %> cursor: pointer; <% } %> margin: 0; display: block" onclick="<% if (page === "home") { %>showCard('#settingsCardDisplay'); openTab(2) <% } %>"><%= name.join(" "); %></label>
                 <% if (page === "home") { %>
                     <label style="white-space: nowrap; cursor: pointer; border-radius: 0.5rem; padding: 0.1rem 0.5rem; font-family: Arial, Helvetica, sans-serif"
                            onclick="<% if (JSON.parse(alerts).lastUpdated.length) { %>showCard('#gradeChangesCardDisplay');<% } %>"
@@ -321,7 +326,7 @@
 
                     if (formID === "#changeSchoolEmail") {
                         schoolUsername = $("#school_email")[0].value;
-                        updateNameDisplay(undefined, schoolUsername);
+                        updateNameDisplay(schoolUsername);
                         $($("#school_email")[0].form).find("button").prop("disabled", true);
                     }
 

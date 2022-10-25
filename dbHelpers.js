@@ -62,7 +62,7 @@ exports.makeKey = (length) => {
 exports.betaFeatures = (betaFeatures) => {
     let obj = {active: true};
     for (let feature of this.betaFeatureKeys) {
-        obj[feature] = !!(!betaFeatures || betaFeatures.includes(feature));
+        obj[feature] = !!(!Array.isArray(betaFeatures) || betaFeatures.includes(feature));
     }
     return obj;
 };

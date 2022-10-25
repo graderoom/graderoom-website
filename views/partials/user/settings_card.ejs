@@ -22,7 +22,7 @@
                 <btn id="btn-4" class="tablinks" onclick="openTab(4)">Help</btn>
                 <btn id="btn-5" class="tablinks" onclick="openTab(5)">About</btn>
                 <% if (JSON.parse(betaFeatures).active) { %>
-                    <btn id="btn-5" class="tablinks" onclick="openTab(6)">Beta</btn>
+                <btn id="btn-5" class="tablinks" onclick="openTab(6)">Beta</btn>
                 <% } %>
             </div>
             <div id="settings-0" class="tabcontent" style="display: none">
@@ -41,7 +41,8 @@
                         <span>Include your name or username in your donation message so we can match the donation
                             to your
                             Graderoom account.</span>
-                        <span>After donating, it may take some time before your donation is processed and appears in your Graderoom <a href="#" onclick="openTab(2)">Account tab</a>.</span>
+                        <span>After donating, it may take some time before your donation is processed and appears in
+                            your Graderoom <a href="#" onclick="openTab(2)">Account tab</a>.</span>
                     </div>
                     <div class="donation-container">
                         <div class="card-footer">
@@ -49,8 +50,8 @@
                             <br>
                             <span>If the QR Code doesn't work, you can <a target="_blank"
                                                                           href="https://account.venmo.com/u/jojejo">Click
-                                    Here
-                                    for Venmo</a></span>
+                                Here
+                                for Venmo</a></span>
                         </div>
                         <div class="card-footer">
                             <div id="zelle"></div>
@@ -58,11 +59,12 @@
                             <span>If you prefer a different method, feel free to contact me through <a href="#"
                                                                                                        style="display: inline"
                                                                                                        onclick="openTab(4)">the
-                                    Help tab</a>.</span>
+                                Help tab</a>.</span>
                         </div>
                         <div class="card-footer">
                             <p>If you would like to use PayPal, use this donate button.
-                                <b>PayPal takes a significant cut of any donation you make</b>, and this will be reflected
+                                <b>PayPal takes a significant cut of any donation you make</b>, and this will be
+                                reflected
                                 in your actual donation amount. Using one of the other methods is highly preferred.
                             </p>
                             <div id="donate-button-container"
@@ -72,14 +74,14 @@
                                         charset="UTF-8"></script>
                                 <script>
                                     PayPal.Donation.Button({
-                                                               env: 'production',
-                                                               hosted_button_id: 'UGSEZPLL7RLFY',
+                                                               env: "production",
+                                                               hosted_button_id: "UGSEZPLL7RLFY",
                                                                image: {
-                                                                   src: 'https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif',
-                                                                   alt: 'Donate with PayPal button',
-                                                                   title: 'PayPal - The safer, easier way to pay online!',
+                                                                   src: "https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif",
+                                                                   alt: "Donate with PayPal button",
+                                                                   title: "PayPal - The safer, easier way to pay online!"
                                                                }
-                                                           }).render('#donate-button');
+                                                           }).render("#donate-button");
                                 </script>
                             </div>
                         </div>
@@ -92,78 +94,78 @@
             <div id="settings-1" class="tabcontent" style="display: block">
                 <div class="card-body">
                     <% if (JSON.parse(gradeData).length > 0) { %>
-                        <div class="card-footer">
-                            <h5>Color Scheme</h5>
-                            <div id="color-scheme-picker-container">
-                                <div>
-                                    <label class="slider-container">
-                                        <label class="switch">
-                                            <input id="shuffleToggle" type="checkbox"
-                                                   name="shuffleColors" onchange="setColorPalette()"
-                                            <% if (JSON.parse(appearance).shuffleColors) { %>
-                                                   checked
-                                                    <% } %>
-                                            >
-                                            <span class="slider"></span>
-                                        </label>
-                                        <label for="shuffleToggle">
-                                            Shuffle Colors
-                                        </label>
+                    <div class="card-footer">
+                        <h5>Color Scheme</h5>
+                        <div id="color-scheme-picker-container">
+                            <div>
+                                <label class="slider-container">
+                                    <label class="switch">
+                                        <input id="shuffleToggle" type="checkbox"
+                                               name="shuffleColors" onchange="setColorPalette()"
+                                                <% if (JSON.parse(appearance).shuffleColors) { %>
+                                               checked
+                                                <% } %>
+                                        >
+                                        <span class="slider"></span>
                                     </label>
-                                    <hr>
-                                    <div id="color-scheme-picker">
-                                        <div id="pale">
-                                            <button onclick="setColorPalette('pale')"
-                                                    class="btn btn-med">
-                                                Pale
-                                            </button>
-                                            <i class="fa fa-check"
-                                               style="<% if (JSON.parse(appearance).colorPalette !== "pale") { %>opacity: 0;<% } %>"></i>
-                                        </div>
-                                        <div id="pastel">
-                                            <button onclick="setColorPalette('pastel')"
-                                                    class="btn btn-med">
-                                                Pastel
-                                            </button>
-                                            <i class="fa fa-check"
-                                               style="<% if (JSON.parse(appearance).colorPalette !== "pastel") { %>opacity: 0;<% } %>"></i>
-                                        </div>
-                                        <div id="clear">
-                                            <button onclick="setColorPalette('clear')"
-                                                    class="btn btn-med">
-                                                Clear
-                                            </button>
-                                            <i class="fa fa-check"
-                                               style="<% if (JSON.parse(appearance).colorPalette !== "clear") { %>opacity: 0;<% } %>"></i>
-                                        </div>
-                                        <div id="bright">
-                                            <button onclick="setColorPalette('bright')"
-                                                    class="btn btn-med">
-                                                Bright
-                                            </button>
-                                            <i class="fa fa-check"
-                                               style="<% if (JSON.parse(appearance).colorPalette !== "bright") { %>opacity: 0;<% } %>"></i>
-                                        </div>
-                                        <div id="dull">
-                                            <button onclick="setColorPalette('dull')"
-                                                    class="btn btn-med">
-                                                Dull
-                                            </button>
-                                            <i class="fa fa-check"
-                                               style="<% if (JSON.parse(appearance).colorPalette !== "dull") { %>opacity: 0;<% } %>"></i>
-                                        </div>
+                                    <label for="shuffleToggle">
+                                        Shuffle Colors
+                                    </label>
+                                </label>
+                                <hr>
+                                <div id="color-scheme-picker">
+                                    <div id="pale">
+                                        <button onclick="setColorPalette('pale')"
+                                                class="btn btn-med">
+                                            Pale
+                                        </button>
+                                        <i class="fa fa-check"
+                                           style="<% if (JSON.parse(appearance).colorPalette !== "pale") { %>opacity: 0;<% } %>"></i>
+                                    </div>
+                                    <div id="pastel">
+                                        <button onclick="setColorPalette('pastel')"
+                                                class="btn btn-med">
+                                            Pastel
+                                        </button>
+                                        <i class="fa fa-check"
+                                           style="<% if (JSON.parse(appearance).colorPalette !== "pastel") { %>opacity: 0;<% } %>"></i>
+                                    </div>
+                                    <div id="clear">
+                                        <button onclick="setColorPalette('clear')"
+                                                class="btn btn-med">
+                                            Clear
+                                        </button>
+                                        <i class="fa fa-check"
+                                           style="<% if (JSON.parse(appearance).colorPalette !== "clear") { %>opacity: 0;<% } %>"></i>
+                                    </div>
+                                    <div id="bright">
+                                        <button onclick="setColorPalette('bright')"
+                                                class="btn btn-med">
+                                            Bright
+                                        </button>
+                                        <i class="fa fa-check"
+                                           style="<% if (JSON.parse(appearance).colorPalette !== "bright") { %>opacity: 0;<% } %>"></i>
+                                    </div>
+                                    <div id="dull">
+                                        <button onclick="setColorPalette('dull')"
+                                                class="btn btn-med">
+                                            Dull
+                                        </button>
+                                        <i class="fa fa-check"
+                                           style="<% if (JSON.parse(appearance).colorPalette !== "dull") { %>opacity: 0;<% } %>"></i>
                                     </div>
                                 </div>
-                                <div class="text-center" id="classColors">
-                                    <% for (var i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                                        <label id="classColor<%= i; %>"
-                                               style="color: <%= JSON.parse(appearance).classColors[i]; %>;">
-                                            <%= JSON.parse(gradeData)[i].class_name; %>
-                                        </label>
-                                    <% } %>
-                                </div>
+                            </div>
+                            <div class="text-center" id="classColors">
+                                <% for (var i = 0; i < JSON.parse(gradeData).length; i++) { %>
+                                <label id="classColor<%= i; %>"
+                                       style="color: <%= JSON.parse(appearance).classColors[i]; %>;">
+                                    <%= JSON.parse(gradeData)[i].class_name; %>
+                                </label>
+                                <% } %>
                             </div>
                         </div>
+                    </div>
                     <% } %>
                     <div class="card-footer">
                         <h5>Theme</h5>
@@ -187,9 +189,9 @@
                                                                    name="theme"
                                                                    onchange="$('#sun-limits-container, #auto-limits-container').hide();
                                                                                changeSetting('theme', {theme: 'light'})"
-                                <% if (JSON.parse(appearance).theme === "light") { %> checked
-                                        <% } %>
-                                > Always Light
+                                    <% if (JSON.parse(appearance).theme === "light") { %> checked
+                                    <% } %>
+                            > Always Light
                             </label>
                             <br>
                             <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
@@ -197,28 +199,28 @@
                                                                    name="theme"
                                                                    onchange="$('#sun-limits-container, #auto-limits-container').hide();
                                                                                changeSetting('theme', {theme: 'dark'})"
-                                <% if (JSON.parse(appearance).theme === "dark") { %> checked
-                                        <% } %>
-                                > Always Dark</label>
+                                    <% if (JSON.parse(appearance).theme === "dark") { %> checked
+                                    <% } %>
+                            > Always Dark</label>
                             <br>
                             <label class="disable-when-system-theme-not-supported"
                                    style="cursor: pointer; align-items: center"><input
-                                        style="cursor: inherit" type="radio"
-                                        value="system"
-                                        name="theme"
-                                        onclick="$('#sun-limits-container, #auto-limits-container').hide();
+                                    style="cursor: inherit" type="radio"
+                                    value="system"
+                                    name="theme"
+                                    onclick="$('#sun-limits-container, #auto-limits-container').hide();
                                                                                changeSetting('theme', {theme: 'system'})"
-                                <% if (JSON.parse(appearance).theme === "system") { %> checked
-                                        <% } %>
-                                > Match System
+                                    <% if (JSON.parse(appearance).theme === "system") { %> checked
+                                    <% } %>
+                            > Match System
                                 <span id="prefers-color-scheme"
                                       style="margin-left: 0.5rem; opacity: 0.5; font-size: 0.6rem;"></span>
                                 <span style="margin-left: 0.5rem;"
                                       class="popup show-when-system-theme-not-supported"><i
-                                            class="fa fa-exclamation-circle"><span
-                                                class="popup-right always-show"
-                                                style="width: 10rem;">Your
-                                            browser does not support this option.</span></i></span>
+                                        class="fa fa-exclamation-circle"><span
+                                        class="popup-right always-show"
+                                        style="width: 10rem;">Your
+                                    browser does not support this option.</span></i></span>
                             </label>
                             <br>
                             <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
@@ -227,9 +229,9 @@
                                                                    onchange="$('#auto-limits-container').hide();
                                                                        $('#sun-limits-container').show();
                                                                        changeSetting('theme', {theme: 'sun'})"
-                                <% if (JSON.parse(appearance).theme === "sun") { %> checked
-                                        <% } %>
-                                > Dark from Sunset to Sunrise</label>
+                                    <% if (JSON.parse(appearance).theme === "sun") { %> checked
+                                    <% } %>
+                            > Dark from Sunset to Sunrise</label>
                             <div id="sun-limits-container"
                                  style="<% if (JSON.parse(appearance).theme !== "sun") { %>display: none;<% } %>font-size: 0.9rem; margin-bottom: 0; width: fit-content; width: -moz-fit-content">
                                 <label class="form-group" id="sunLimits"
@@ -261,9 +263,9 @@
                                                                    onchange="$('#auto-limits-container').show().css('display','flex');
                                                                                 $('#sun-limits-container').hide();
                                                                        changeSetting('theme', {theme: 'auto', darkModeStart: darkModeStart, darkModeFinish: darkModeFinish})"
-                                <% if (JSON.parse(appearance).theme === "auto") { %> checked
-                                        <% } %>
-                                > Dark on Custom Schedule</label>
+                                    <% if (JSON.parse(appearance).theme === "auto") { %> checked
+                                    <% } %>
+                            > Dark on Custom Schedule</label>
                             <div id="auto-limits-container"
                                  style="<% if (JSON.parse(appearance).theme !== "auto") { %>display: none;<% } else { %>display: flex;<% } %>font-size: 0.9rem; margin-bottom: 0; align-items: stretch">
                                 <label class="form-group" id="autoLimits"
@@ -301,7 +303,7 @@
                                         style="margin: 0; display: flex"
                                         type="checkbox"
                                         name="blurEffects"
-                                <% if (JSON.parse(appearance).blurEffects) { %>
+                                        <% if (JSON.parse(appearance).blurEffects) { %>
                                         checked="checked"
                                         <% } %>
                                         onchange="changeSetting('theme', {theme: appearance.theme, blurEffects: !appearance.blurEffects})"
@@ -310,25 +312,25 @@
                             </label>
                             <label for="blurEffectsToggle">
                                 <span>Enable Blur Effects</span> <span class="popup"><i
-                                            class="fa fa-question-circle"><span
-                                                class="popup-right-bottom">When enabled, adds blur effects across
-                                            the site.
-                                        </span></i></span> <span class="popup hide-in-firefox"><i
-                                            class="fa fa-exclamation-triangle">
-                                        <span class="popup-right-bottom">WARNING: Causes lag on slower
-                                            devices</span></i></span>
+                                    class="fa fa-question-circle"><span
+                                    class="popup-right-bottom">When enabled, adds blur effects across
+                                the site.
+                            </span></i></span> <span class="popup hide-in-firefox"><i
+                                    class="fa fa-exclamation-triangle">
+                                <span class="popup-right-bottom">WARNING: Causes lag on slower
+                                    devices</span></i></span>
                             </label>
                             <span style="margin-left: 0.5rem;" class="popup show-in-firefox"><i
-                                        class="fa fa-exclamation-circle"><span
-                                            class="popup-right always-show"
-                                            style="width: 10rem;">Your
-                                        browser does not support these effects.</span></i></span>
+                                    class="fa fa-exclamation-circle"><span
+                                    class="popup-right always-show"
+                                    style="width: 10rem;">Your
+                                browser does not support these effects.</span></i></span>
                         </label>
                         <label class="slider-container">
                             <label class="switch">
                                 <input id="seasonalEffectsToggle" type="checkbox"
                                        name="enableSeasonalEffects"
-                                <% if (JSON.parse(appearance).seasonalEffects) { %>
+                                        <% if (JSON.parse(appearance).seasonalEffects) { %>
                                        checked
                                         <% } %>
                                        onchange="changeSetting('theme', {theme: appearance.theme, seasonalEffects: !appearance.seasonalEffects})"
@@ -337,10 +339,10 @@
                             </label>
                             <label for="seasonalEffectsToggle">
                                 <span>Enable Seasonal Effects</span> <span class="popup"><i
-                                            class="fa fa-question-circle"><span
-                                                class="popup-right-bottom">When enabled, adds seasonal effects
-                                            across the site.
-                                        </span></i></span>
+                                    class="fa fa-question-circle"><span
+                                    class="popup-right-bottom">When enabled, adds seasonal effects
+                                across the site.
+                            </span></i></span>
                             </label>
                         </label>
                     </div>
@@ -399,7 +401,7 @@
                                             style="margin: 0; display: flex"
                                             type="checkbox"
                                             name="gradeSync"
-                                    <% if (gradeSync) { %>
+                                            <% if (gradeSync) { %>
                                             checked
                                             <% } %>
                                             onchange="manageGradeSyncCheckbox(); setupTutorialPopups()"
@@ -408,11 +410,11 @@
                                 </label>
                                 <label style="margin: 0 0 0 1rem; justify-content: center; align-items: center; cursor: pointer"
                                        onclick="$('#gradeSyncToggle').trigger('click')">GradeSync<span
-                                            class="popup"><i class="fa fa-question-circle"
-                                                             style="margin-left: 0.4rem"><span
-                                                    class="popup-right-top">When enabled, Graderoom syncs whenever
-                                                you
-                                                login</span></i></span></label>
+                                        class="popup"><i class="fa fa-question-circle"
+                                                         style="margin-left: 0.4rem"><span
+                                        class="popup-right-top">When enabled, Graderoom syncs whenever
+                                    you
+                                    login</span></i></span></label>
                             </label>
                         </form>
                     </div>
@@ -423,7 +425,11 @@
                                     <i class="fa fa-question-circle">
                                         <span class="popup-right">This information is derived from your school
                                             email.
-                                            You can edit your first name.</span>
+                                            You can edit
+                                            <% if (school === "bellarmine") { %>your first and last name
+                                            <% } else if (school === "basis") { %>this data
+                                            <% } %>
+                                            .</span>
                                     </i>
                                 </span>
                             </h5>
@@ -459,30 +465,42 @@
                                     </span>
                                 </div>
                                 <div class="form-group input-group">
-                                    <i style="filter: opacity(0.5)" class="user-bg"></i>
-                                    <label style="filter: opacity(0.5)" class="label-active">Last Name</label>
-                                    <input oninput="checkLabel(this);" style="filter: opacity(0.5)"
-                                           type="text" class="form-control" name="last_name" id="lastName"
-                                           value="<%= JSON.parse(personalInfo).lastName; %>" disabled>
+                                    <i class="user-bg"></i>
+                                    <label class="label-active">Last Name</label>
+                                    <input oninput="checkLabel(this); checkLastName(this, '#lastNameCheckMessage')"
+                                           type="text" class="form-control dont-clear" name="last_name" id="lastName"
+                                           value="<%= JSON.parse(personalInfo).lastName; %>">
                                     <span class="popup">
-                                        <i class="fa fa-question-circle">
-                                            <span class="popup-top-left">Changing your Last Name is not
-                                                supported</span></i>
+                                        <i>
+                                            <span class="popup-top-left dont-show"
+                                                  id="lastNameCheckMessage"></span></i>
                                     </span>
                                 </div>
                                 <div class="form-group input-group">
-                                    <i style="filter: opacity(0.5)" class="user-bg"></i>
-                                    <label style="filter: opacity(0.5)" class="label-active">Graduation Year</label>
-                                    <input oninput="checkLabel(this);" style="filter: opacity(0.5)"
+                                    <i <% if (school === "bellarmine") { %> style="filter: opacity(0.5)"<%}%> class="user-bg"></i>
+                                    <label <% if (school === "bellarmine") { %> style="filter: opacity(0.5)"<%}%> class="label-active">Graduation Year</label>
+                                    <input oninput="checkLabel(this); <% if (school === "basis") { %>checkGradYear(this, '#gradYearCheckMessage')<% } %>"
+                                            <% if (school === "bellarmine") { %> style="filter: opacity(0.5)"
+                                            <% } %>
                                            type="number" class="form-control" name="graduation_year"
                                            id="graduationYear"
                                            value="<%= JSON.parse(personalInfo).graduationYear; %>"
-                                           disabled>
+                                           <% if (school === "bellarmine") { %>disabled
+                                            <% } %>
+                                    >
+                                    <% if (school === "bellarmine") { %>
                                     <span class="popup">
                                         <i class="fa fa-question-circle">
                                             <span class="popup-top-left">Changing your Graduation Year is not
                                                 supported</span></i>
                                     </span>
+                                    <% } else if (school === "basis") { %>
+                                    <span class="popup">
+                                        <i>
+                                            <span class="popup-top-left dont-show"
+                                                  id="gradYearCheckMessage"></span></i>
+                                    </span>
+                                    <% } %>
                                 </div>
                             </div>
                         </div>
@@ -548,14 +566,14 @@
                         </div>
                     </form>
                     <% if (!JSON.parse(betaFeatures).active) { %>
-                        <div class="card-footer">
-                            <button class="btn btn-sm" style="margin: 0.1rem"
-                                    onclick="showCard('#activateBetaDisplay');">
-                                <label style="margin: 0; cursor: pointer;">Open Beta Activation Panel
-                                    <span class="fa fa-external-link-square"></span>
-                                </label>
-                            </button>
-                        </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm" style="margin: 0.1rem"
+                                onclick="showCard('#activateBetaDisplay');">
+                            <label style="margin: 0; cursor: pointer;">Open Beta Activation Panel
+                                <span class="fa fa-external-link-square"></span>
+                            </label>
+                        </button>
+                    </div>
                     <% } %>
                 </div>
             </div>
@@ -575,7 +593,7 @@
                                                 style="margin: 0; display: flex"
                                                 type="checkbox"
                                                 name="regularizeClassGraphs"
-                                        <% if (JSON.parse(appearance).regularizeClassGraphs) { %>
+                                                <% if (JSON.parse(appearance).regularizeClassGraphs) { %>
                                                 checked="checked"
                                                 <% } %>
                                                 onchange="$(this).closest('form').trigger('submit')"
@@ -584,31 +602,31 @@
                                     </label>
                                     <label for="classGraphRegularizationToggle">
                                         Regularize Class Graphs <span class="popup"><i
-                                                    class="fa fa-question-circle"><span
-                                                        class="popup-right-bottom">When enabled, all class graphs
-                                                    are
-                                                    bounded between at 70 and 110 on the y-axis</span></i></span>
+                                            class="fa fa-question-circle"><span
+                                            class="popup-right-bottom">When enabled, all class graphs
+                                        are
+                                        bounded between at 70 and 110 on the y-axis</span></i></span>
                                     </label>
                                 </label>
                                 <label class="slider-container">
                                     <label class="switch"
-                                    <% if (Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
+                                            <% if (Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
                                            style="cursor: pointer"
                                             <% } %>
                                     >
                                         <input
-                                        <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
-                                            disabled
+                                                <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
+                                                disabled
                                                 <% } %>
-                                            id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
-                                        <% if (JSON.parse(appearance).showNonAcademic) { %> checked="checked"
+                                                id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
+                                                <% if (JSON.parse(appearance).showNonAcademic) { %> checked="checked"
                                                 <% } %>
-                                            onchange="$(this).closest('form').trigger('submit')"
+                                                onchange="$(this).closest('form').trigger('submit')"
                                         >
                                         <span class="slider"></span>
                                     </label>
                                     <label for="showNonAcademicCheckbox"
-                                    <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
+                                            <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
                                            class="disabled"
                                             <% } %>
                                     >
@@ -626,7 +644,7 @@
                         <label class="slider-container">
                             <label class="switch">
                                 <input id="animateWhenUnfocused" type="checkbox" name="animateWhenUnfocused"
-                                <% if (JSON.parse(appearance).animateWhenUnfocused) { %>
+                                        <% if (JSON.parse(appearance).animateWhenUnfocused) { %>
                                        checked="checked"
                                         <% } %>
                                        onchange="changeSetting('animateWhenUnfocused', !appearance.animateWhenUnfocused)"
@@ -635,22 +653,22 @@
                             </label>
                             <label for="animateWhenUnfocused">
                                 Don't Pause Effects When Window is not in Focus <span class="popup"><i
-                                            class="fa fa-question-circle"><span
-                                                class="popup-top-left">When enabled, certain animations and effects
-                                            that
-                                            are usually paused to conserve resources will continue to play even if
-                                            you
-                                            are on a different tab or window.
-                                        </span></i></span> <span class="popup hide-in-firefox"><i
-                                            class="fa fa-exclamation-triangle">
-                                        <span class="popup-right-bottom">WARNING: This can cause issues such as the
-                                            horizontal snow line</span></i></span>
+                                    class="fa fa-question-circle"><span
+                                    class="popup-top-left">When enabled, certain animations and effects
+                                that
+                                are usually paused to conserve resources will continue to play even if
+                                you
+                                are on a different tab or window.
+                            </span></i></span> <span class="popup hide-in-firefox"><i
+                                    class="fa fa-exclamation-triangle">
+                                <span class="popup-right-bottom">WARNING: This can cause issues such as the
+                                    horizontal snow line</span></i></span>
                             </label>
                         </label>
                         <label class="slider-container">
                             <label class="switch">
                                 <input id="showFps" type="checkbox" name="showFps"
-                                <% if (JSON.parse(appearance).showFps) { %>
+                                        <% if (JSON.parse(appearance).showFps) { %>
                                        checked="checked"
                                         <% } %>
                                        onchange="changeSetting('showFps', !appearance.showFps)"
@@ -659,19 +677,19 @@
                             </label>
                             <label for="showFps">
                                 Display Real-time Refresh Rate <span class="popup"><i
-                                            class="fa fa-question-circle"><span
-                                                class="popup-right-bottom">When enabled, displays FPS in the bottom
-                                            left
-                                            corner of the screen
-                                        </span></i></span>
+                                    class="fa fa-question-circle"><span
+                                    class="popup-right-bottom">When enabled, displays FPS in the bottom
+                                left
+                                corner of the screen
+                            </span></i></span>
                             </label>
                         </label>
                         <hr>
                         <div>
                             <h6>Performance Log <span class="popup"><i
-                                            class="fa fa-question-circle"><span
-                                                class="popup-right-bottom">Performance issues will be displayed here
-                                        </span></i></span></h6>
+                                    class="fa fa-question-circle"><span
+                                    class="popup-right-bottom">Performance issues will be displayed here
+                            </span></i></span></h6>
                             <div id="performance-issues-messages"></div>
                         </div>
                     </div>
@@ -700,7 +718,7 @@
                                         style="margin: 0; display: flex"
                                         type="checkbox"
                                         name="remoteAccess"
-                                <% if (enableLogging) { %>
+                                        <% if (enableLogging) { %>
                                         checked
                                         <% } %>
                                         onchange="changeSetting('enableLogging', !enableLogging);"
@@ -709,10 +727,10 @@
                             </label>
                             <label style="margin: 0 0 0 1rem; justify-content: center; align-items: center; cursor: pointer"
                                    onclick="$('#enableLoggingToggle').trigger('click')">Show Logs in Console<span
-                                        class="popup"><i class="fa fa-question-circle"
-                                                         style="margin-left: 0.4rem"><span
-                                                class="popup-right-top">Shows logs in console for debugging
-                                            purposes.</span></i></span></label>
+                                    class="popup"><i class="fa fa-question-circle"
+                                                     style="margin-left: 0.4rem"><span
+                                    class="popup-right-top">Shows logs in console for debugging
+                                purposes.</span></i></span></label>
                         </label>
                         <form id="remoteAccess" class="form-signin" action="/setRemoteAccess" method="post">
                             <label style="display: flex; font-size: 1rem; justify-content: flex-start; align-items: center">
@@ -722,7 +740,7 @@
                                             style="margin: 0; display: flex"
                                             type="checkbox"
                                             name="remoteAccess"
-                                    <% if (JSON.parse(alerts).remoteAccess === "allowed") { %>
+                                            <% if (JSON.parse(alerts).remoteAccess === "allowed") { %>
                                             checked
                                             <% } %>
                                             onchange="ajaxPostForm('#remoteAccess',[],'',true); $('#remoteAccess').trigger('submit');"
@@ -734,9 +752,9 @@
                                     Remote Access<span
                                             class="popup"><i class="fa fa-question-circle"
                                                              style="margin-left: 0.4rem"><span
-                                                    class="popup-right-top">When enabled, developers can view your
-                                                personal home page to help with
-                                                troubleshooting.</span></i></span></label>
+                                            class="popup-right-top">When enabled, developers can view your
+                                        personal home page to help with
+                                        troubleshooting.</span></i></span></label>
                             </label>
                         </form>
                     </div>
@@ -813,48 +831,48 @@
                 </div>
             </div>
             <% if (JSON.parse(betaFeatures).active) { %>
-                <div id="settings-6" class="tabcontent">
-                    <div class="card-body">
-                        <div class="card-footer">
-                            <h5>Thanks for trying out new features before they're released!</h5>
-                            <p>Your choices to enable the features listed below contribute to the speed at which
-                                these
-                                features are officially released. We will continue to add more features as time goes
-                                on.
-                            </p>
-                        </div>
-                        <br>
-                        <form id="betaFeatures" action="/betaFeatures" method="post">
-                            <div class="card-footer">
-                                <label class="slider-container">
-                                    <label style="margin-left: 0;" for="showNotificationPanel">
-                                        Enable Notification Panel
-                                    </label>
-                                    <label class="switch">
-                                        <input id="showNotificationPanel" type="checkbox"
-                                               name="showNotificationPanel"
-                                        <% if (JSON.parse(betaFeatures).showNotificationPanel) { %>
-                                               checked="checked"
-                                                <% } %>
-                                               onchange="$($(this)[0].form).trigger('submit')"
-                                        >
-                                        <span class="slider"></span>
-                                    </label>
-                                </label>
-                                <small>
-                                    Enabled: Adds a notification panel
-                                </small>
-                                <br>
-                                <small>
-                                    Disabled: Default
-                                </small>
-                            </div>
-                        </form>
-                        <form action="/leavebeta" method="post">
-                            <button class="btn btn-sm" type="submit">Leave the beta</button>
-                        </form>
+            <div id="settings-6" class="tabcontent">
+                <div class="card-body">
+                    <div class="card-footer">
+                        <h5>Thanks for trying out new features before they're released!</h5>
+                        <p>Your choices to enable the features listed below contribute to the speed at which
+                            these
+                            features are officially released. We will continue to add more features as time goes
+                            on.
+                        </p>
                     </div>
+                    <br>
+                    <form id="betaFeatures" action="/betaFeatures" method="post">
+                        <div class="card-footer">
+                            <label class="slider-container">
+                                <label style="margin-left: 0;" for="showNotificationPanel">
+                                    Enable Notification Panel
+                                </label>
+                                <label class="switch">
+                                    <input id="showNotificationPanel" type="checkbox"
+                                           name="showNotificationPanel"
+                                            <% if (JSON.parse(betaFeatures).showNotificationPanel) { %>
+                                           checked="checked"
+                                            <% } %>
+                                           onchange="$($(this)[0].form).trigger('submit')"
+                                    >
+                                    <span class="slider"></span>
+                                </label>
+                            </label>
+                            <small>
+                                Enabled: Adds a notification panel
+                            </small>
+                            <br>
+                            <small>
+                                Disabled: Default
+                            </small>
+                        </div>
+                    </form>
+                    <form action="/leavebeta" method="post">
+                        <button class="btn btn-sm" type="submit">Leave the beta</button>
+                    </form>
                 </div>
+            </div>
             <% } %>
         </div>
     </div>
@@ -864,6 +882,8 @@
 <script type="text/javascript">
 
     let checkingFirstName;
+    let checkingLastName;
+    let checkingGradYear;
     let settingsBtns = $("#settingsCardDisplay .tablinks");
 
     function checkFirstName(inputID, messageDivID) {
@@ -899,7 +919,7 @@
                 return;
             }
             $.ajax({
-                       url: "/setFirstName", type: "POST", async: true, data: {firstName: firstName}
+                       url: "/setPersonalInfo", type: "POST", async: true, data: {firstName: firstName}
                    }).done((response) => {
                 if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                     $(".session-timeout").show();
@@ -912,7 +932,7 @@
                     icon.attr("class", "fa fa-check-circle");
                     $(inputID).css("border-bottom-color", "");
                     personalInfo.firstName = firstName;
-                    updateNameDisplay(firstName, schoolUsername);
+                    updateNameDisplay();
                 }
             }).fail((data) => {
                 // Make sure value is still the same
@@ -925,43 +945,189 @@
         }, 400);
     }
 
-    function updateNameDisplay(firstName, schoolUsername) {
-        if (firstName) {
-            let {temp, lastName, graduationYear} = getPersonalInfo(schoolUsername);
-            $("#nameDisplay").text(firstName + " " + lastName + " '" + (graduationYear - 2000));
-        } else if (schoolUsername) {
+    function checkLastName(inputID, messageDivID) {
+        const lastNameRegex = new RegExp("^[a-zA-Z]*$");
+
+        let lastName = $(inputID)[0].value;
+        let icon = $($($(inputID)[0].nextElementSibling)[0].firstElementChild);
+
+        $(messageDivID).addClass("dont-show").removeClass("always-show");
+        icon.attr("class", "fa fa-pulse fa-spinner");
+        $(inputID).css("border-bottom-color", "blue");
+        if (checkingLastName) {
+            clearTimeout(checkingLastName);
+        }
+
+        if (school === "bellarmine" && lastName.length === 0) {
+            lastName = getPersonalInfo(schoolUsername).lastName;
+            $(messageDivID).addClass("always-show").removeClass("dont-show").css("color", "red").text(`Your name will be set back to ${lastName} when you click outside of the input field`);
+            icon.attr("class", "fa fa-exclamation-circle");
+            $(inputID).css("border-bottom-color", "red").blur(() => {
+                $(inputID).val(lastName);
+                $(inputID).trigger("input");
+                $(inputID).unbind("blur");
+            });
+            return;
+        }
+
+        checkingLastName = setTimeout(() => {
+            if (!lastNameRegex.test(lastName)) {
+                $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Last name must contain only letters...You're name isn't X Æ A-12, is it?");
+                icon.attr("class", "fa fa-exclamation-circle");
+                $(inputID).css("border-bottom-color", "red");
+                return;
+            }
+            $.ajax({
+                       url: "/setPersonalInfo", type: "POST", async: true, data: {lastName: lastName}
+                   }).done((response) => {
+                if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
+                    $(".session-timeout").show();
+                    $("body").find("*").not(".session-timeout").remove();
+                    return;
+                }
+                // Make sure value is still the same
+                if (lastName === $(inputID)[0].value) {
+                    $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text(response);
+                    icon.attr("class", "fa fa-check-circle");
+                    $(inputID).css("border-bottom-color", "");
+                    personalInfo.lastName = lastName;
+                    updateNameDisplay();
+                }
+            }).fail((data) => {
+                // Make sure value is still the same
+                if (lastName === $(inputID)[0].value) {
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").html(data.responseText);
+                    icon.attr("class", "fa fa-exclamation-circle");
+                    $(inputID).css("border-bottom-color", "red");
+                }
+            });
+        }, 400);
+    }
+
+    function checkGradYear(inputID, messageDivID) {
+        const gradYearRegex = new RegExp("^2[0-9][1-9][0-9]$");
+
+        let gradYear = $(inputID)[0].value;
+        let icon = $($($(inputID)[0].nextElementSibling)[0].firstElementChild);
+
+        $(messageDivID).addClass("dont-show").removeClass("always-show");
+        icon.attr("class", "fa fa-pulse fa-spinner");
+        $(inputID).css("border-bottom-color", "blue");
+        if (checkingGradYear) {
+            clearTimeout(checkingGradYear);
+        }
+
+        if (school === "bellarmine" && gradYear.length === 0) {
+            gradYear = getPersonalInfo(schoolUsername).graduationYear;
+            $(messageDivID).addClass("always-show").removeClass("dont-show").css("color", "red").text(`Your graduation year will be set back to ${gradYear} when you click outside of the input field`);
+            icon.attr("class", "fa fa-exclamation-circle");
+            $(inputID).css("border-bottom-color", "red").blur(() => {
+                $(inputID).val(gradYear);
+                $(inputID).trigger("input");
+                $(inputID).unbind("blur");
+            });
+            return;
+        }
+
+        checkingGradYear = setTimeout(() => {
+            if (!gradYearRegex.test(gradYear)) {
+                $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("That doesn't look like a valid graduation year");
+                icon.attr("class", "fa fa-exclamation-circle");
+                $(inputID).css("border-bottom-color", "red");
+                return;
+            }
+            $.ajax({
+                       url: "/setPersonalInfo", type: "POST", async: true, data: {graduationYear: gradYear}
+                   }).done((response) => {
+                if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
+                    $(".session-timeout").show();
+                    $("body").find("*").not(".session-timeout").remove();
+                    return;
+                }
+                // Make sure value is still the same
+                if (gradYear === $(inputID)[0].value) {
+                    $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text(response);
+                    icon.attr("class", "fa fa-check-circle");
+                    $(inputID).css("border-bottom-color", "");
+                    personalInfo.graduationYear = gradYear;
+                    updateNameDisplay();
+                }
+            }).fail((data) => {
+                // Make sure value is still the same
+                if (gradYear === $(inputID)[0].value) {
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").html(data.responseText);
+                    icon.attr("class", "fa fa-exclamation-circle");
+                    $(inputID).css("border-bottom-color", "red");
+                }
+            });
+        }, 400);
+    }
+
+    function updateNameDisplay(schoolUsername) {
+        if (schoolUsername) {
             let {firstName, lastName, graduationYear} = getPersonalInfo(schoolUsername);
-            $("#nameDisplay").text(firstName + " " + lastName + " '" + (graduationYear - 2000));
+            let name = [];
+            if (!!firstName) {
+                name.push(firstName);
+            }
+            if (!!lastName) {
+                name.push(lastName);
+            }
+            if (!!graduationYear && graduationYear > 2010) {
+                name.push(`'${graduationYear - 2000}`);
+            }
+            $("#nameDisplay").text(name.join(" "));
             $("#firstName").val(firstName);
             $("#lastName").val(lastName);
             $("#graduationYear").val(graduationYear);
+        } else {
+            let name = [];
+            if (!!personalInfo.firstName) {
+                name.push(personalInfo.firstName);
+            }
+            if (!!personalInfo.lastName) {
+                name.push(personalInfo.lastName);
+            }
+            if (!!personalInfo.graduationYear && personalInfo.graduationYear > 2010) {
+                name.push(`'${personalInfo.graduationYear - 2000}`);
+            }
+            $("#nameDisplay").text(name.join(" "));
         }
     }
 
-    function getPersonalInfo(bcpEmail) {
-        // First Name
-        let firstName = bcpEmail.indexOf(".") === -1 ? bcpEmail : bcpEmail.substring(0, bcpEmail.indexOf("."));
-        firstName = firstName[0].toUpperCase() + firstName.substring(1).toLowerCase();
+    function getPersonalInfo(email) {
+        if (school === "bellarmine") {
+            // First Name
+            let firstName = email.substring(0, email.indexOf("."));
+            firstName = firstName[0].toUpperCase() + firstName.substring(1).toLowerCase();
 
-        // Last Name
-        let lastName = bcpEmail.indexOf(".") === -1 ? "" : bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? bcpEmail.substring(bcpEmail.indexOf(".") + 1) : bcpEmail.substring(bcpEmail.indexOf(".") + 1, bcpEmail.indexOf(bcpEmail.match(/\d/)));
-        lastName = lastName[0].toUpperCase() + lastName.substring(1).toLowerCase();
+            // Last Name
+            let lastName = email.substring(email.indexOf(".") + 1, email.indexOf(email.match(/\d/)));
+            lastName = lastName[0].toUpperCase() + lastName.substring(1).toLowerCase();
 
-        // Graduation Year
-        let graduationYear = bcpEmail.indexOf(bcpEmail.match(/\d/)) === -1 ? "" : bcpEmail.indexOf("@") === -1 ? bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/))) : bcpEmail.substring(bcpEmail.indexOf(bcpEmail.match(/\d/)), bcpEmail.indexOf("@"));
-        if (graduationYear) {
-            graduationYear = parseInt(graduationYear);
-            graduationYear += 2000;
+            // Graduation Year
+            let graduationYear = email.substring(email.indexOf(email.match(/\d/)), email.indexOf("@"));
+            if (graduationYear) {
+                graduationYear = parseInt(graduationYear);
+                graduationYear += 2000;
+            }
+
+            return {firstName, lastName, graduationYear};
+        } else if (school === "basis") {
+            let firstName = email.indexOf("_") === -1 ? email : email.substring(0, email.indexOf("_"));
+            firstName = firstName[0].toUpperCase() + firstName.substring(1).toLowerCase();
+            let lastName = "";
+            let graduationYear = null;
+
+            return {firstName, lastName, graduationYear};
         }
-
-        return {firstName, lastName, graduationYear};
     }
 
     function manageGradeSyncCheckbox() {
         if ($("#gradeSyncDiv").css("display") === "block" && !$("#gradeSyncToggle").prop("checked")) {
             gradeSync = false;
             ajaxPostForm("#gradeSync", [], "", true);
-            $("#gradeSync").trigger('submit');
+            $("#gradeSync").trigger("submit");
             $("#gradeSyncDiv").hide();
             $("#syncGradesDiv").show();
             $(".gradeSyncEnabled").hide();

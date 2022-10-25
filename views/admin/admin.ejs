@@ -105,7 +105,7 @@
                             <% } %>
                         </td>
                         <td class="admin">
-                            <% if (Object.keys(u).includes("schoolPassword")) { %> GradeSync<br>
+                            <% if ("schoolPassword" in u) { %> GradeSync<br>
                             <% } %>
                             <% if (u.isAdmin) { %> Admin<br>
                             <% } %>

@@ -152,7 +152,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/betafeatures", [isLoggedIn], async (req, res) => {
-        await dbClient.updateBetaFeatures(req.user.username, req.body);
+        await dbClient.updateBetaFeatures(req.user.username, Object.keys(req.body));
         res.redirect("/");
     });
 
@@ -697,8 +697,8 @@ module.exports = function (app, passport) {
         res.status(200).send(allowed[0].toUpperCase() + allowed.substring(1) + " remote access.");
     });
 
-    app.post("/setFirstName", [isLoggedIn], async (req, res) => {
-        let resp = await dbClient.setFirstName(req.user.username, req.body.firstName);
+    app.post("/setPersonalInfo", [isLoggedIn], async (req, res) => {
+        let resp = await dbClient.setPersonalInfo(req.user.username, req.body.firstName, req.body.lastName, req.body.graduationYear);
         res.status(resp.success ? 200 : 400).send(resp.data.message);
     });
 
@@ -1108,7 +1108,7 @@ module.exports = function (app, passport) {
 
     // route middleware to ensure user is logged in
     function isLoggedIn(req, res, next) {
-        if (!(["/", "/admin"]).includes(req._parsedOriginalUrl.path) && req.headers.referer && req.headers.referer.includes("viewuser")) {
+        if (!(["/", "/admin", "/logout"]).includes(req._parsedOriginalUrl.path) && req.headers.referer && req.headers.referer.includes("viewuser")) {
             res.sendStatus(405);
             return;
         }

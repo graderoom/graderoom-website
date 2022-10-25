@@ -105,7 +105,7 @@ module.exports = {
     acceptTerms: (username) => safe(_acceptTerms, lower(username)),
     acceptPrivacyPolicy: (username) => safe(_acceptPrivacyPolicy, lower(username)),
     setRemoteAccess: (username, value) => safe(_setRemoteAccess, lower(username), lower(value)),
-    setFirstName: (username, value) => safe(_setFirstName, lower(username), value),
+    setPersonalInfo: (username, firstName, lastName, graduationYear) => safe(_setPersonalInfo, lower(username), firstName, lastName, graduationYear),
     setShowNonAcademic: (username, value) => safe(_setShowNonAcademic, lower(username), value),
     setRegularizeClassGraphs: (username, value) => safe(_setRegularizeClassGraphs, lower(username), value),
     setWeightedGPA: (username, value) => safe(_setWeightedGPA, lower(username), value),
@@ -181,6 +181,7 @@ module.exports = {
 const safe = (func, ...args) => {
     return new Promise(resolve => {
         func(db(_client), ...args).then(async (_data) => {
+            _data = _data ?? {};
             let success = "success" in _data && typeof _data.success === "boolean" ? _data.success : false;
             let data = "data" in _data && _data.data.constructor === Object ? _data.data : {};
             if ("log" in data) {
@@ -444,7 +445,7 @@ const __version2 = async (db, user) => {
                         data = [];
                     }
                     for (let l = 0; l < data.length; l++) {
-                        if (!Object.keys(data[l]).includes("exclude")) {
+                        if (!("exclude" in data[l])) {
                             addedAssignments[year][semester][k].data[l].exclude = false;
                         }
                     }
@@ -1175,19 +1176,52 @@ const _setRemoteAccess = async (db, username, value) => {
     return {success: false, data: {log: `Error setting remote access for ${username} to ${value}`}};
 };
 
-const _setFirstName = async (db, username, value) => {
-    let firstNameRegex = new RegExp("^[a-zA-Z]*$");
-    if (firstNameRegex.test(value)) {
-        let res = await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {"personalInfo.firstName": value}});
+const _setPersonalInfo = async (db, username, firstName, lastName, graduationYear) => {
+    let school = (await _getUser(db, username)).data.value.school;
+    if (([!!firstName, !!lastName || (school === Schools.BISV && lastName === ""), !!graduationYear || graduationYear === 0]).filter(a => a).length !== 1) {
+        return {success: false, data: {log: `Invalid personal info for ${username}`, message: "Something went wrong"}};
+    }
+    let nameRegex = new RegExp("^[a-zA-Z]*$");
+    if (!!firstName) {
+        if (nameRegex.test(firstName)) {
+            let res = await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {"personalInfo.firstName": firstName}});
+            if (res.matchedCount === 1) {
+                return {success: true, data: {message: "Updated first name"}};
+            }
+            return {
+                success: false,
+                data: {log: `Failed to set ${firstName} as first name for ${username}`, message: "Something went wrong"}
+            };
+        }
+        return {success: false, data: {message: "First name must contain only letters"}};
+    } else if (!!lastName || (school === Schools.BISV && lastName === "")) {
+        if (nameRegex.test(lastName)) {
+            let res = await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {"personalInfo.lastName": lastName}});
+            if (res.matchedCount === 1) {
+                return {success: true, data: {message: "Updated last name"}};
+            }
+            return {
+                success: false,
+                data: {log: `Failed to set ${lastName} as last name for ${username}`, message: "Something went wrong"}
+            };
+        }
+    } else if (!!graduationYear || graduationYear === 0) {
+        if (school === Schools.BELL) {
+            return {success: false, data: {message: "Changing graduation year is not supported"}};
+        }
+
+        if (typeof graduationYear !== "number") {
+            return {success: false, data: {message: "Graduation year must be a number"}};
+        }
+        let res = await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {"personalInfo.graduationYear": graduationYear}});
         if (res.matchedCount === 1) {
-            return {success: true, data: {message: "Updated first name"}};
+            return {success: true, data: {message: "Updated graduation year"}};
         }
         return {
             success: false,
-            data: {log: `Failed to set ${value} as first name for ${username}`, message: "Something went wrong"}
-        };
+            data: {log: `Failed to set ${graduationYear} as graduation year for ${username}`, message: "Something went wrong"}
+        }
     }
-    return {success: false, data: {message: "First name must contain only letters"}};
 };
 
 const _setShowNonAcademic = async (db, username, value) => {
@@ -1781,7 +1815,7 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                 await _initEditedAssignments(db, username);
                 await _updateClassesForUser(db, username);
 
-                socketManager.emitToRoom(username, "sync", "success-history", data);
+                socketManager.emitToRoom(username, "sync", "success-history", {});
             } else {
                 socketManager.emitToRoom(username, "sync", "fail-history", {message: data.message});
             }
@@ -1869,7 +1903,7 @@ const _initAddedAssignments = async (db, username) => {
                     if (!Array.isArray(temp[years[i]][semesters[j]][k].data)) {
                         temp[years[i]][semesters[j]][k].data = [];
                     }
-                    if (Object.keys(temp[years[i]][semesters[j]][k]).includes("assignments")) {
+                    if ("assignments" in temp[years[i]][semesters[j]][k]) {
                         delete temp[years[i]][semesters[j]][k].assignments;
                     }
                 }
@@ -1910,7 +1944,7 @@ const _initEditedAssignments = async (db, username) => {
                     if (!Array.isArray(temp[years[i]][semesters[j]][k].data)) {
                         temp[years[i]][semesters[j]][k].data = [];
                     }
-                    if (Object.keys(temp[years[i]][semesters[j]][k]).includes("assignments")) {
+                    if ("assignments" in temp[years[i]][semesters[j]][k]) {
                         delete temp[years[i]][semesters[j]][k].assignments;
                     }
                 }
@@ -2902,7 +2936,7 @@ const _getRelevantClassData = async (db, username, term, semester) => {
             relClasses[userClass.className] = {
                 "department": classData?.department ?? rawData?.department ?? "",
                 "classType": classData?.classType ?? rawData?.classType ?? "",
-                "uc_csuClassType": classData?.uc_csuClassType ?? rawData?.uc_csuC1lassType ?? "",
+                "uc_csuClassType": classData?.uc_csuClassType ?? rawData?.uc_csuClassType ?? "",
                 "weights": userClass.teacherName ? classData?.teachers[0].weights : false,
                 "hasWeights": userClass.teacherName ? classData?.teachers[0].hasWeights : false,
                 "credits": classData?.credits ?? rawData?.credits,

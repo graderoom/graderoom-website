@@ -42,6 +42,21 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 5.2.2] - 2022-10-25
+### Added
+- Bellarmine users can now change their last name in addition to their first name
+- Basis users can change their name and graduation year
+
+### Improved
+- Description of grade history syncing on initial sync
+- Clicking on your name in the navigation bar opens account settings
+
+### Fixed
+- Issue with sync status not being accurate if a user logged in with their email rather than their username
+- Issue where toggling beta features on and off did not work
+- Issue where Basis graduation years showed as 'NaN
+- Issue with UC/CSU GPA
+
 ## [Beta 5.2.1] - 2022-10-24
 ### Fixed
 - Issue where new users could not use the site
