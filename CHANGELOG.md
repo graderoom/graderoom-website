@@ -42,6 +42,11 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 5.2.3] - 2022-10-26
+### Fixed
+- Unnecessary error when empty Basis graduation year
+- Scraper for basis
+
 ## [Beta 5.2.2] - 2022-10-25
 ### Added
 - Bellarmine users can now change their last name in addition to their first name

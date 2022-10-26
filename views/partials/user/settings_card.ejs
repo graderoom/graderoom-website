@@ -1030,7 +1030,7 @@
         }
 
         checkingGradYear = setTimeout(() => {
-            if (!gradYearRegex.test(gradYear)) {
+            if (gradYear.length !== 0 && !gradYearRegex.test(gradYear)) {
                 $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("That doesn't look like a valid graduation year");
                 icon.attr("class", "fa fa-exclamation-circle");
                 $(inputID).css("border-bottom-color", "red");

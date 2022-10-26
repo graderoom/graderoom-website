@@ -728,22 +728,22 @@ class BasisWeights:
         return self._weights
 
     def add_class(self, class_name):
-        if class_name not in self._weights:
-            self._weights.append({"className": class_name, "weights": {}, "hasWeights": "false"})
+        if len([class_ for class_ in weights if class_["className"] == class_name) == 0:
+            self._weights.append({"className": class_name, "weights": {}, "hasWeights": False})
 
     def add_weight(self, class_name, weight_name, weight_value):
         self.add_class(class_name)
 
         exists = next((weight for weight in self._weights if weight['className'] == class_name), None)
         if exists is None:
-            self._weights.append({"className": class_name})
+            self._weights.append({"className": class_name, "weights": {}, "hasWeights": False})
             index = len(self._weights) - 1
         else:
             index = self._weights.index(exists)
 
-        self._weights[index][weight_name] = weight_value
+        self._weights[index]["weights"][weight_name] = weight_value
         if weight_value is not None:
-            self._weights[index]["hasWeights"] = "true"
+            self._weights[index]["hasWeights"] = True
 
 
 class BasisScraper(Scraper):
