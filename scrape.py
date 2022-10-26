@@ -728,7 +728,7 @@ class BasisWeights:
         return self._weights
 
     def add_class(self, class_name):
-        if len([class_ for class_ in weights if class_["className"] == class_name]) == 0:
+        if len([class_ for class_ in self._weights if class_["className"] == class_name]) == 0:
             self._weights.append({"className": class_name, "weights": {}, "hasWeights": False})
 
     def add_weight(self, class_name, weight_name, weight_value):
@@ -935,7 +935,7 @@ if __name__ == "__main__":
             print(json_format(False, "Could not connect to Schoology."))
         except Exception as e:
             # Error when something in PowerSchool breaks scraper
-            print(json_format(False, e))
+            print(json_format(False, "An Unknown Error occurred. Contact support."))
             # Uncomment below to print error
             # print(e)
     else:
