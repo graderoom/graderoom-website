@@ -935,9 +935,9 @@ if __name__ == "__main__":
             print(json_format(False, "Could not connect to Schoology."))
         except Exception as e:
             # Error when something in PowerSchool breaks scraper
-            print(json_format(False, "An Unknown Error occurred. Contact support."))
+            print(json_format(False, e))
             # Uncomment below to print error
-            print(e)
+            # print(e)
     else:
         data_if_locked = json.loads(sys.argv[4])  # arg must be stringified json
         term_data_if_locked = json.loads(sys.argv[5])  # arg must be stringified json
