@@ -728,7 +728,7 @@ class BasisWeights:
         return self._weights
 
     def add_class(self, class_name):
-        if len([class_ for class_ in weights if class_["className"] == class_name) == 0:
+        if len([class_ for class_ in weights if class_["className"] == class_name]) == 0:
             self._weights.append({"className": class_name, "weights": {}, "hasWeights": False})
 
     def add_weight(self, class_name, weight_name, weight_value):
