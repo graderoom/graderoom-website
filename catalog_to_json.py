@@ -180,7 +180,8 @@ class Catalogger:
             # Trim the end of the description. Get other stuff if possible
             # Regex for "(Reviewed November 2019)" or "(Revised March 2020)" or "(Reviewed Jan 2020)"
             # in the description. Example is Shakespeare 1
-            if (review_re := re.search(r"\([\w\s]*20\d\d\)", desc)) is not None:
+            review_re = re.search(r"\([\w\s]*20\d\d\)", desc)
+            if review_re is not None:
                 # Set review_str if it does not exist
                 review = review_re.group()
                 # Set uc/csu string if it does not exist
@@ -215,11 +216,13 @@ class Catalogger:
             if len(prereq_comm_split) >= 2:
                 # Use -1 index to fix AP Studio Art: Drawing
                 prereq = prereq_comm_split[-1].strip()
-            elif len(prereq_comm_split := prereq.split("rerequisites:")) >= 2:
+            elif len(prereq.split("rerequisites:")) >= 2:
                 # Another case, Ex. Algebra 2 Honors, just has "prerequisites:"
+                prereq_comm_split = prereq.split("rerequisites:")
                 prereq = prereq_comm_split[-1].strip()
-            elif len(prereq_comm_split := prereq.split("rerequisite:")) >= 2:
+            elif len(prereq.split("rerequisite:")) >= 2:
                 # Another case, Ex. Data Science, has "prerequisite:"
+                prereq_comm_split = prereq.split("rerequisite:")
                 prereq = prereq_comm_split[-1].strip()
 
             # Weird case for prereq Ex. Chamber Orchestra
