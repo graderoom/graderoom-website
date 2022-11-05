@@ -1,6 +1,7 @@
 import os
 import re
 import time
+import sys
 
 import requests
 from bs4 import BeautifulSoup as BS
@@ -19,7 +20,7 @@ class Catalogger:
         self.catalog_fname = "catalog.html"
         self.desc_len_min = 50
 
-        self.mango = (os.getenv("DB_URL") is not None)
+        self.mango = (len(sys.argv) > 0)
         if self.mango:
             print("Mango is enabled.")
             url = os.getenv("DB_URL")
@@ -33,7 +34,8 @@ class Catalogger:
         """
         # Do the first non-ajax request to steal cookies
         headers = CaseInsensitiveDict()
-        headers["user-agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36 Edg/97.0.1072.55"
+        headers[
+            "user-agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36 Edg/97.0.1072.55"
         resp = self.session.get(self.url_basic, headers=headers)
         soup = BS(resp.text, 'html.parser')
         data = soup.find('form', id='vars').find_all('input')
@@ -43,7 +45,8 @@ class Catalogger:
 
         # Headers for second request
         headers = CaseInsensitiveDict()
-        headers["user-agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36 Edg/97.0.1072.55"
+        headers[
+            "user-agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36 Edg/97.0.1072.55"
         headers["content-type"] = "application/x-www-form-urlencoded; charset=UTF-8"
         headers["x-requested-with"] = "XMLHttpRequest"
         headers["cookie"] = cookie
@@ -77,14 +80,14 @@ class Catalogger:
             try:
                 with open('catalog.html') as f:
                     content = f.read()
-                    print(f"{'-'*5}Using local {self.catalog_fname} file{'-'*5}")
+                    print(f"{'-' * 5}Using local {self.catalog_fname} file{'-' * 5}")
             except FileNotFoundError:
                 print(f"Could not find {self.catalog_fname}. Downloading a new one")
                 content = self.fetch_catalog()
 
         # Begin parse
         soup = BS(content, 'html.parser')
-        classes = soup.find_all('div', class_='card') # Contains a div for each class in the catalog
+        classes = soup.find_all('div', class_='card')  # Contains a div for each class in the catalog
 
         # Iterate each catalog div
         print(f"{len(classes)} classes found")
@@ -98,10 +101,10 @@ class Catalogger:
             obj['class_name'] = inner_div['title'].strip()
 
             # Hardcode find the rest
-            obj['department'] = data[1].text.strip()               # format: "Mathematics"
-            obj['grade_levels'] = data[2].text.strip()             # format: "Grades: 11;12"
-            obj['credits'] = float(data[3].text.strip()[9:])       # format: "Credits: 5.0"
-            obj['terms'] = int(data[4].text.strip()[7:])           # format: "Terms: 2"
+            obj['department'] = data[1].text.strip()  # format: "Mathematics"
+            obj['grade_levels'] = data[2].text.strip()  # format: "Grades: 11;12"
+            obj['credits'] = float(data[3].text.strip()[9:])  # format: "Credits: 5.0"
+            obj['terms'] = int(data[4].text.strip()[7:])  # format: "Terms: 2"
 
             # Change grade levels from a string to a list of numbers
             obj['grade_levels'] = re.findall('[0-9]+', obj['grade_levels'])
@@ -191,9 +194,9 @@ class Catalogger:
             review = review.replace("Revised", "")
             review = review.replace("(", "")
             review = review.replace(")", "")
-            review = review.replace("reviewed", "") # Astronomy: Sky and Solar System
-            review = review.replace("updated", "") # Chemistry Honors
-            review = review.replace("revised", "") # Data Science
+            review = review.replace("reviewed", "")  # Astronomy: Sky and Solar System
+            review = review.replace("updated", "")  # Chemistry Honors
+            review = review.replace("revised", "")  # Data Science
             review = review.strip()
 
             # Get the uc/csu string for specific cases Ex. Animation 2
@@ -239,7 +242,7 @@ class Catalogger:
             obj['description'] = desc
             obj['prereq'] = prereq
             obj['review'] = review
-            
+
             # set classTypes
             honors_exceptions = ["Adv Comp Sci: Data Structures"]
             if 'AP' in obj['class_name']:
@@ -291,5 +294,6 @@ class Catalogger:
 
 
 if __name__ == '__main__':
+
     catalogger = Catalogger()
     catalogger.parse()
