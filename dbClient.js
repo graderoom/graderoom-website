@@ -7,7 +7,7 @@ const stream = require("stream");
 const socketManager = require("./socketManager");
 const scraper = require("./scrape");
 const {SyncStatus, Schools, Constants} = require("./enums");
-const {dbUserVersion, dbClassVersion} = require("./dbHelpers");
+const {dbUserVersion, dbClassVersion, minDonoAmount, minPremiumAmount} = require("./dbHelpers");
 
 let _url;
 let _prod;
@@ -166,6 +166,17 @@ module.exports = {
     addDonation: (username, platform, paidValue, receivedValue, dateDonated) => safe(_addDonation, lower(username), lower(platform), paidValue, receivedValue, dateDonated),
     removeDonation: (username, index) => safe(_removeDonation, lower(username), index),
     getDonoData: (username) => safe(_getDonoData, lower(username)),
+    getDonoAttributes: (username) => safe(_getDonoAttributes, lower(username)),
+
+    // Sorta API stuff
+    createPairingKey: (username) => safe(_createPairingKey, lower(username)),
+    deletePairingKey: (username) => safe(_deletePairingKey, lower(username)),
+    deleteApiKey: (username) => safe(_deleteApiKey, lower(username)),
+
+    // API STUFF
+    apiPair: (pairKey) => safe(_apiPair, pairKey),
+    apiAuthenticate: (apiKey) => safe(_apiAuth, apiKey),
+    apiInfo: (apiKey) => apiGuard(_apiInfo, apiKey),
 };
 
 /**
@@ -207,6 +218,15 @@ const safe = (func, ...args) => {
             console.log("ERROR");
             console.log(e);
             return resolve({success: false, data: {message: "Something went wrong"}});
+        });
+    });
+};
+
+const apiGuard = (func, apiKey, ...args) => {
+    return new Promise(resolve => {
+        safe(_apiAuth, apiKey).then(data => {
+            if (!data.success) return resolve({success: false, data: {message: "Authentication failed"}});
+            safe(func, apiKey, ...args).then(_data => resolve(_data));
         });
     });
 };
@@ -592,7 +612,25 @@ const _version5 = async (db, username) => {
 
 const __version5 = async (db, user) => {
     if (user.version === 4) {
-        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {$set: {donoData: [], version: 5}})
+        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {$set: {donoData: [], version: 5}});
+    }
+}
+
+const _version6 = async (db, username) => {
+    let res = await _getUser(db, username, {version: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await __version6(db, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 6`}};
+}
+
+const __version6 = async (db, user) => {
+    if (user.version === 5) {
+        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {$set: {api: {}, version: 6}});
     }
 }
 
@@ -671,6 +709,9 @@ const _updateAllUsers = async (db) => {
             }
             if (user.version < 5) {
                 console.log((await _version5(db, user.username)).data.log);
+            }
+            if (user.version < 6) {
+                console.log((await _version6(db, user.username)).data.log);
             }
         }
         console.log((await _initUser(db, user.username)).data.log);
@@ -1075,6 +1116,85 @@ const __getMostRecentTermData = (user) => {
     return {success: true, data: {value: {term: term, semester: semester}}};
 };
 
+const _createPairingKey = async (db, username) => {
+    let res = await _getUser(db, username, {'alerts.lastUpdated': {$slice: -1}});
+    if (!res.success) {
+        return res;
+    }
+    let valid = res.data.value.alerts.lastUpdated.length > 0;
+    if (!valid) {
+        return {success: false, data: {message: "You must sync once successfully to use the API"}};
+    }
+    let pairKey;
+    do {
+        pairKey = makeKey(6);
+    } while ((await _apiPairExists(db, pairKey)).success);
+    let pairKeyExpire = Date.now() + 1000 * 60 * 10;
+    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$unset: {'api.apiKey': '', 'api.apiKeyCreated': ''}, $set: {'api.pairKey': pairKey, 'api.pairKeyExpire': pairKeyExpire}});
+    return {success: true, data: {value: {pairKey: pairKey, pairKeyExpire: pairKeyExpire}}};
+}
+
+const _deletePairingKey = async (db, username) => {
+    let res = await _userExists(db, {username: username});
+    if (!res.success) {
+        return res;
+    }
+
+    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$unset: {'api.pairKey': '', 'api.pairKeyExpire': ''}});
+    return {success: true};
+}
+
+const _deleteApiKey = async (db, username) => {
+    let res = await _userExists(db, {username: username});
+    if (!res.success) {
+        return res;
+    }
+
+    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$unset: {'api.apiKey': '', 'api.apiKeyCreated': ''}});
+    return {success: true};
+}
+
+const _apiPair = async (db, pairKey) => {
+    if (typeof pairKey !== "string" && !(pairKey instanceof String) || pairKey.length !== 6) {
+        return {success: false, data: {message: "Invalid pairing key"}};
+    }
+    let user = await db.collection(USERS_COLLECTION_NAME).findOne({'api.pairKey': pairKey});
+    if (user) {
+        if (user.api.pairKeyExpire > Date.now()) {
+            let apiKey;
+            do {
+                apiKey = makeKey(24);
+            } while ((await _apiAuth(db, apiKey)).success);
+            await db.collection(USERS_COLLECTION_NAME).updateOne({'api.pairKey': pairKey}, {$unset: {'api.pairKey': '', 'api.pairKeyExpire': ''}, $set: {'api.apiKey': apiKey, 'api.apiKeyCreated': Date.now()}})
+            return {success: true, data: {value: apiKey}};
+        }
+        return {success: false, data: {message: "This pairing key has expired"}};
+    }
+    return {success: false, data: {message: "Invalid pairing key"}};
+}
+
+const _apiPairExists = async (db, pairKey) => {
+    let user = await db.collection(USERS_COLLECTION_NAME).findOne({'api.pairKey': pairKey});
+    if (user) {
+        return {success: true};
+    }
+    return {success: false};
+}
+
+const _apiAuth = async (db, apiKey) => {
+    let user = await db.collection(USERS_COLLECTION_NAME).findOne({'api.apiKey': apiKey});
+    if (user) {
+        return {success: true};
+    }
+    return {success: false};
+}
+
+const _apiInfo = async (db, apiKey) => {
+    let user = await db.collection(USERS_COLLECTION_NAME).findOne({'api.apiKey': apiKey}, {school: 1, donoData: 1});
+    let {premium} = (await __getDonoAttributes(user.donoData)).data.value;
+    return {success: true, data: {username: user.username, school: user.school, premium: premium}};
+}
+
 const _login = async (db, username, password) => {
     return new Promise(async resolve => {
         let res = await _userExists(db, {username: username});
@@ -1206,7 +1326,7 @@ const _setPersonalInfo = async (db, username, firstName, lastName, graduationYea
             };
         }
     } else if (!!graduationYear || graduationYear === 0) {
-        if (school === Schools.BELL) {
+        if (school !== Schools.BISV) {
             return {success: false, data: {message: "Changing graduation year is not supported"}};
         }
 
@@ -1583,7 +1703,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                     await _setSyncStatus(db, username, SyncStatus.ACCOUNT_INACTIVE);
                 } else if (data.message === "No class data.") {
                     await _setSyncStatus(db, username, SyncStatus.NO_DATA);
-                    data.message = "No PowerSchool grades found for this term.";
+                    data.message = `No ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"} grades found for this term.`;
                 } else {
                     await _setSyncStatus(db, username, SyncStatus.FAILED);
                 }
@@ -1740,6 +1860,7 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                         await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {[`weights.${term}._`]: newWeights[term]._}});
                         break;
                     case Schools.BELL:
+                    case Schools.NDSJ:
                         let currentWeights = user.weights;
                         for (let i = 0; i < newYears.length; i++) {
                             if (!(newYears[i] in currentWeights)) {
@@ -2223,7 +2344,7 @@ const _updateEditedAssignments = async (db, username, editedAssignments, term, s
 };
 
 const _getSyncStatus = async (db, username) => {
-    let res = await _getUser(db, username, {updatedInBackground: 1});
+    let res = await _getUser(db, username, {updatedInBackground: 1, school: 1});
     if (!res.success) {
         return res;
     }
@@ -2235,7 +2356,7 @@ const _getSyncStatus = async (db, username) => {
     } else if (syncStatus === SyncStatus.ALREADY_DONE) {
         return {success: true, data: {message: "Already Synced!"}};
     } else if (syncStatus === SyncStatus.NO_DATA) {
-        return {success: false, data: {message: "No PowerSchool grades found for this term."}};
+        return {success: false, data: {message: `No ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"} grades found for this term.`}};
     } else if (syncStatus === SyncStatus.FAILED) {
         return {success: false, data: {message: "Sync Failed."}};
     } else if (syncStatus === SyncStatus.UPDATING) {
@@ -2713,6 +2834,9 @@ const _getMostRecentTermDataInClassDb = async (db, school) => {
     let res = (await db.collection(classesCollection(school)).find().sort({
                                                                               term: -1, semester: -1
                                                                           }).limit(1).toArray())[0];
+    if (!res) {
+        return {success: false, data: {message: "No class data"}};
+    }
     return {success: true, data: {value: {term: res.term, semester: res.semester}}};
 };
 
@@ -2942,6 +3066,8 @@ const _getRelevantClassData = async (db, username, term, semester) => {
                 "credits": classData?.credits ?? rawData?.credits,
                 "terms": classData?.terms ?? rawData?.terms,
                 "description": rawData?.description,
+                "prereq": rawData?.prereq,
+                "review": rawData?.review,
                 "userCount": users.length,
                 "classAverage": classAverage,
                 "teachers": teachers,
@@ -2996,4 +3122,17 @@ const _getDonoData = async (db, username) => {
     if (!res.success) return res;
 
     return {success: true, data: {value: res.data.value.donoData}};
+}
+
+const _getDonoAttributes = async (db, username) => {
+    let res = await _getDonoData(db, username);
+    if (!res.success) return res;
+
+    let donos = res.data.value;
+    return __getDonoAttributes(donos);
+}
+
+const __getDonoAttributes = async (donos) => {
+    let totalDonos = donos.map(d => d.receivedValue).reduce((a, b) => a + b, 0);
+    return {success: true, data: {value: {noAds: totalDonos >= minDonoAmount, premium: totalDonos >= minPremiumAmount}}};
 }

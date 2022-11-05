@@ -50,9 +50,7 @@
     <span style="z-index: 999; position: fixed; bottom: 10px; left: 10px;" id="fps"></span>
 <% } %> <% const winterStart = 10; %> <% const winterEnd = 2; %>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-dateFormat/1.0/jquery.dateFormat.min.js"
-        integrity="sha512-YKERjYviLQ2Pog20KZaG/TXt9OO0Xm5HE1m/OkAEBaKMcIbTH1AwHB4//r58kaUDh5b1BWwOZlnIeo0vOl1SEA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-dateFormat/1.0/jquery.dateFormat.min.js"></script>
 <script>
     const today = new Date();
     const winterStart = <%= winterStart %>; // 10 is November
@@ -74,6 +72,7 @@
 
     let showingLights = <%= new Date().getMonth() === lightsMonth; %>;
     let init;
+    let started = false;
 
     function disableSnow() {
         clearInterval(dynamicDisplayInterval);
@@ -83,6 +82,8 @@
     }
 
     function Snowy(start = false) {
+        if (started) return;
+        started = true;
         let snowEnabled = false;
         let lowPerformance = false;
         if (today.getMonth() >= winterStart || today.getMonth() < winterEnd) {

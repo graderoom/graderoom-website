@@ -723,9 +723,23 @@ table thead tr th:last-child {
     position: relative;
 }
 
-.popup i:hover span, input:focus + .popup i span, .popup:hover i span {
+.popup i:hover span, input:focus + .popup i span, .popup:hover i span, .popup:hover > span {
     display: block;
     animation: fadeIn 400ms;
+}
+
+.progress-bar .popup {
+    height: 1rem;
+}
+
+.progress-bar.popup-holder {
+    height: 1rem;
+}
+
+.progress-bar.popup-holder .popup i {
+    display: inline-block;
+    height: 100%;
+    font-style: normal;
 }
 
 .input-group .popup i {
@@ -3023,6 +3037,77 @@ input:disabled {
 .discord-iframe {
     width: 100%;
     height: 300px;
+}
+
+.premium-label {
+    font-size: 0.5rem;
+    left: 1.2rem;
+    top: 4.1rem;
+    position: absolute;
+    width: 60px;
+}
+
+.premium-label::before {
+    text-align: center;
+    display: block;
+}
+
+#donationProgress, #donationProgressOverlay {
+    margin-bottom: -1rem;
+}
+
+#donationProgress .progress-bar {
+    width: 0;
+}
+
+#donationProgressOverlay {
+    border: none;
+}
+
+#donationProgressOverlay .premium-label {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    font-size: unset;
+}
+
+#donationProgressOverlay .premium-label::before {
+    width: 100%;
+}
+
+#donationHoverOverlay {
+    overflow: visible;
+}
+
+#donationProgressOverlay .progress-bar, #donationHoverOverlay .progress-bar {
+    background-color: transparent;
+}
+
+#donationProgressOverlay .progress-bar {
+    border-width: 0 1px;
+    border-style: solid;
+}
+
+#donationProgressOverlay .progress-bar:first-child, #donationHoverOverlay .progress-bar:first-child {
+    border-width: 0 1px 0 0;
+}
+
+#donationProgressOverlay .progress-bar:last-child, #donationHoverOverlay .progress-bar:last-child {
+    border-width: 0 0 0 1px;
+}
+
+#donationProgressOverlay .progress-bar:first-child, #donationHoverOverlay .progress-bar:first-child {
+    width: 12.5%;
+}
+
+#donationProgressOverlay .progress-bar:nth-child(2), #donationProgressOverlay .progress-bar:nth-child(3),
+#donationHoverOverlay .progress-bar:nth-child(2), #donationHoverOverlay .progress-bar:nth-child(3) {
+    width: 25%;
+}
+
+#donationProgressOverlay .progress-bar:nth-child(4), #donationHoverOverlay .progress-bar:nth-child(4) {
+    width: 37.5%;
 }
 
 .donation-container {

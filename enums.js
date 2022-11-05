@@ -12,6 +12,7 @@ module.exports.SyncStatus = {
 module.exports.Schools = {
     BELL: "bellarmine",
     BISV: "basis",
+    NDSJ: "ndsj",
 }
 
 module.exports.Constants = {

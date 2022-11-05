@@ -75,6 +75,7 @@
                             <option value="" selected disabled>Select Your School</option>
                             <option value="bellarmine">Bellarmine College Preparatory</option>
                             <option value="basis">Basis Independent Silicon Valley</option>
+                            <option value="ndsj">Notre Dame San Jose</option>
                         </select>
                     </div>
                     <div id="school-email-div" class="form-group input-group" style="display: none">
@@ -152,13 +153,10 @@
     </div>
 </div>
 <!-- JavaScript Imports -->
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-        crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <% include ../partials/limited_time/snowfall.ejs %>
 <script>
 
@@ -385,8 +383,9 @@
     let checkingEmail;
 
     function checkEmail(inputID, messageDivID) {
-        const bcpEmailRegex = /^[a-z]+\.[a-z]+[0-9]{2}@bcp.org$/i;
-        const basisEmailRegex = /^[a-z]+_[0-9]{5}@basisindependent.com$/i;
+        const bcpEmailRegex = /^[a-z]+\.[a-z]+[0-9]{2}@bcp\.org$/i;
+        const basisEmailRegex = /^[a-z]+_[0-9]{5}@basisindependent\.com$/i;
+        const ndsjEmailRegex = /^[a-z]{2,}[0-9]{2}@ndsj\.org$/i;
 
         let email = $(inputID)[0].value;
         let icon = $($($(inputID)[0].nextElementSibling)[0].firstElementChild);
@@ -416,6 +415,28 @@
             }
             $("#graduationYear").val(graduationYear);
             checkLabel("#graduationYear");
+        } else if (school === "ndsj") {
+            // First Name
+            let firstName = email.substring(0, 1);
+            firstName = firstName.toUpperCase();
+            $("#firstName").val(firstName);
+            checkLabel("#firstName");
+
+            // Last Name
+            let lastName = email.indexOf(email.match(/\d/)) === -1 ? email.substring(1) : email.substring(1, email.indexOf(email.match(/\d/)));
+            lastName = lastName.length <= 1 ? lastName.toUpperCase() : lastName[0].toUpperCase() + lastName.substring(1).toLowerCase();
+            $("#lastName").val(lastName);
+            checkLabel("#lastName");
+
+            // Graduation Year
+            let graduationYear = email.indexOf(email.match(/\d/)) === -1 ? "" :
+                                 email.indexOf("@") === -1 ? email.substring(email.indexOf(email.match(/\d/))) : email.substring(email.indexOf(email.match(/\d/)), email.indexOf("@"));
+            if (graduationYear) {
+                graduationYear = parseInt(graduationYear);
+                graduationYear += 2000;
+            }
+            $("#graduationYear").val(graduationYear);
+            checkLabel("#graduationYear");
         } else {
             personalInfo.hide();
         }
@@ -436,12 +457,12 @@
                 personalInfo.hide();
                 return false;
             }
-            if (school === "bellarmine") {
+            if (school !== "basis") {
                 personalInfo.css("display", "flex");
             }
             checkingEmail = setTimeout(() => {
-                if (school === "bellarmine" && !bcpEmailRegex.test(email) || school === "basis" && !basisEmailRegex.test(email)) {
-                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text(`This must be your ${school[0].toUpperCase() + school.substring(1)} school email`);
+                if (school === "bellarmine" && !bcpEmailRegex.test(email) || school === "basis" && !basisEmailRegex.test(email) || school === "ndsj" && !ndsjEmailRegex.test(email)) {
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text(`This must be your ${school === "ndsj" ? "Notre Dame" : school[0].toUpperCase() + school.substring(1)} school email`);
                     icon.attr("class", "fa fa-exclamation-circle");
                     $(inputID).css("border-bottom-color", "red");
                     invalidateSignup();

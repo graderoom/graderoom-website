@@ -1,0 +1,49 @@
+<div class="blurred-login" id="apiKeyDisplay"
+     style="">
+    <div class="blurred-background"></div>
+    <div class="col-sm-8 col-md-7 col-lg-5 mx-auto">
+        <div id="apiKeyCard" class="card card-signin my-5">
+            <btn class="btn btn-md" onclick="closeForm('apiKeyDisplay')"
+                 style="display:table; width: fit-content; width: -moz-fit-content; margin-bottom:0">
+                <i class="fa fa-close" aria-hidden="true"></i> Close
+            </btn>
+            <div class="card-body">
+                <h1 class="card-title text-center popup" style="margin: 0;"><i class="fa fa-address-book"></i>
+                    API
+                </h1>
+                <br>
+                <div class="card-footer">
+                    <button class="btn btn-med" onclick="getPairingKey()">Generate Pairing Key</button>
+                    <button class="btn btn-med" onclick="deletePairingKey()">Delete Pairing Key</button>
+                    <button class="btn btn-med" onclick="deleteApiKey()">Delete API Key</button>
+                    <p>If the pairing step is complete, you need to refresh the page to view your API Key here</p>
+                    <div id="pairKey">Key: <%= pairKey %></div>
+                    <% let date = new Date(pairKeyExpire); %>
+                    <div id="pairKeyExpire">Expires: <%= pairKeyExpire !== "" ? `${date.toLocaleDateString()} ${date.toLocaleTimeString()}` : "" %></div>
+                    <div id="apiKey">API Key: <%= apiKey %></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getPairingKey() {
+        $.get("/createPairingKey").done((response) => {
+            $("#pairKey").text(`Key: ${response.pairKey}`);
+            let date = new Date(response.pairKeyExpire);
+            $("#pairKeyExpire").text(`Expires: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`);
+        });
+    }
+    function deletePairingKey() {
+        $.get("/deletePairingKey").done(() => {
+            $("#pairKey").text('Key: ');
+            $("#pairKeyExpire").text('Expires: ');
+        });
+    }
+    function deleteApiKey() {
+        $.get("/deleteApiKey").done(() => {
+            $("#apiKey").text('API Key: ');
+        });
+    }
+</script>

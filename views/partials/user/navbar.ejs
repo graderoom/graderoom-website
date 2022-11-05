@@ -17,6 +17,11 @@
                     <div class="brand-label">
                         Graderoom
                     </div>
+                    <% if (premium ?? false) { %>
+                    <div class="premium-label">
+                        PREMIUM
+                    </div>
+                    <% } %>
                 </h1>
             </a>
             <% if (page != "home") { %>
@@ -53,7 +58,7 @@
                                   class="nav-popups popup-bottom-left tutorial-popup"
                                   style="width: 25rem; margin-top: 1rem;"
                             >
-                                The sync status with PowerSchool will be displayed here. Clicking here will open the
+                                The sync status with <% if (school === "basis") { %>Schoology<% } else { %>PowerSchool<% } %> will be displayed here. Clicking here will open the
                                 sync log.
                                 <span class="gotIt"></span>
                             </span>
@@ -156,7 +161,7 @@
                     <div class="popup-holder">
                         <span id="syncPopup"
                               class="nav-popups popup-bottom tutorial-popup">
-                            Sync your grades with PowerSchool
+                            Sync your grades with <% if (school === "basis") { %>Schoology<% } else { %>PowerSchool<% } %>
                         </span>
                     </div>
                 </li>
@@ -232,6 +237,9 @@
 <% } %>
 <% if (page === "home") { %>
     <% include class_info.ejs %>
+<% } %>
+<% if (page === "home" && JSON.parse(alerts).lastUpdated.length > 0) { %>
+    <% include api_key_card.ejs %>
 <% } %>
 
 <!-- Custom JavaScript -->

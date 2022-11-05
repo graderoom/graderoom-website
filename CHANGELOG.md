@@ -42,6 +42,19 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 5.2.4] - 2022-11-05
+### Added
+- Support for new school! (Notre Dame San Jose)
+- New donations section in account tab
+- Basic API key generation and pairing process
+
+### Improved
+- Change language between Schoology and PowerSchool where relevant
+- For BCP users, course info should always work now
+
+### Fixed
+- Errors caused by snowfall on login page
+
 ## [Beta 5.2.3] - 2022-10-26
 ### Fixed
 - Unnecessary error when empty Basis graduation year

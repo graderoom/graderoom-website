@@ -366,6 +366,39 @@ input:checked + .slider:before {
     box-shadow: 0 2px 30px 1px #888;
 }
 
+#donationProgress .progress-bar {
+    background-color: #a1eb37;
+    width: 0;
+}
+
+#donationProgress .progress-bar:nth-child(2) {
+    background-color: #4bdf9e;
+}
+
+#donationProgress .progress-bar:nth-child(3) {
+    background-color: #7a93ff;
+}
+
+#donationProgress .progress-bar:nth-child(4) {
+    background-color: #9e7aff;
+}
+
+#donationProgress .progress-bar:last-child {
+    background-color: #F5F5F5;
+}
+
+#donationProgressOverlay .progress-bar {
+    border-color: #FFF;
+}
+
+#donationProgressOverlay .progress-bar:first-child {
+    color: #555;
+}
+
+#donationProgressOverlay .progress-bar:nth-child(2) {
+    color: #cd4451;
+}
+
 .tableOptions .popup {
     background-color: #EEE;
 }
@@ -434,7 +467,7 @@ select.minimal:focus {
 }
 
 .progress-bar {
-    color: #FFFFFF;
+    color: #444;
     background-color: hsl(210, 48%, 48%);
 }
 
@@ -443,11 +476,11 @@ select.minimal:focus {
 }
 
 .progress {
-    border: 1px #FFFFFF solid;
+    border: 1px white solid;
 }
 
 .progress-bar {
-    color: #FFFFFF;
+    color: #CCC;
     background-color: hsl(210, 48%, 48%);
 }
 
@@ -546,7 +579,7 @@ tr:hover .toolTab {
     border: 1px solid black;
 }
 
-.donate, .donate-dollar {
+.donate, .donate-dollar, .premium-label {
     color: #f7ce48;
     background: -webkit-gradient(linear, left top, left bottom, from(#f7ce48), to(#ff8f0e));
     -webkit-background-clip: text;
@@ -562,7 +595,7 @@ tr:hover .toolTab {
     -webkit-text-fill-color: #f2b034;
 }
 
-.donate::before, .donate-dollar::before {
+.donate::before, .donate-dollar::before, .premium-label::before {
     -webkit-animation: flare 5s infinite;
     -webkit-animation-timing-function: linear;
     background-image: linear-gradient(65deg, transparent 20%, rgba(255, 255, 255, 0.6) 20%, rgba(255, 255, 255, 0.8) 27%, transparent 27%, transparent 100%);
@@ -574,8 +607,8 @@ tr:hover .toolTab {
     position: absolute;
 }
 
-.donate-dollar::before {
-    content: "";
+.premium-label::before {
+    content: "PREMIUM";
 }
 
 #donoTable .dono-platform-paypal::before {

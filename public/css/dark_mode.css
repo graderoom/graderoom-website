@@ -418,7 +418,7 @@ select.minimal:focus {
     background-color: #444444;
 }
 
-.progress-bar {
+#tutorialStatus {
     color: #333333;
     background-color: hsl(210, 48%, 48%);;
 }
@@ -532,7 +532,7 @@ tr:hover .toolTab {
     border-color: #222222 !important;
 }
 
-.donate, .donate-dollar {
+.donate, .donate-dollar, .premium-label {
     color: #F5C21B;
     background: -webkit-gradient(linear, left top, left bottom, from(#F5C21B), to(#D17000));
     -webkit-background-clip: text;
@@ -542,13 +542,45 @@ tr:hover .toolTab {
     font-weight: bold !important;
 }
 
+#donationProgress .progress-bar {
+    background-color: mediumseagreen;
+}
+
+#donationProgress .progress-bar:nth-child(2) {
+    background-color: #005252;
+}
+
+#donationProgress .progress-bar:nth-child(3) {
+    background-color: midnightblue;
+}
+
+#donationProgress .progress-bar:nth-child(4) {
+    background-color: #303;
+}
+
+#donationProgress .progress-bar:last-child {
+    background-color: #222;
+}
+
+#donationProgressOverlay .progress-bar {
+    border-color: #333;
+}
+
+#donationProgressOverlay .progress-bar:first-child {
+    color: #555;
+}
+
+#donationProgressOverlay .progress-bar:nth-child(2) {
+    color: #ff8a8a;
+}
+
 .donate-dollar {
     font-family: FontAwesome;
     background: none;
     -webkit-text-fill-color: #E3990E;
 }
 
-.donate::before, .donate-dollar::before {
+.donate::before, .donate-dollar::before, .premium-label::before {
     -webkit-animation: flare 5s infinite;
     -webkit-animation-timing-function: linear;
     background-image: linear-gradient(65deg, transparent 20%, rgba(255, 255, 255, 0.2) 20%, rgba(255, 255, 255, 0.3) 27%, transparent 27%, transparent 100%);
@@ -564,7 +596,11 @@ tr:hover .toolTab {
     content: "\f155";
 }
 
-.donate::after, .donate-dollar::after {
+.premium-label::before {
+    content: "PREMIUM";
+}
+
+.donate::after, .donate-dollar::after, .premium-label::after {
     content: "Donate";
     color: #FFFFFF;
     display: block;
@@ -574,8 +610,16 @@ tr:hover .toolTab {
     z-index: -1;
 }
 
+.premium-label::after {
+    text-shadow: 0 1px #6E4414;
+}
+
 .donate-dollar::after {
     content: "\f155";
+}
+
+.premium-label::after {
+    content: "PREMIUM";
 }
 
 /* Mobile Stuff */

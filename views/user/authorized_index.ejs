@@ -47,7 +47,7 @@
 
     <!-- JavaScript Imports -->
     <script src="https://cdn.jsdelivr.net/npm/moment@2.24.0/moment.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
@@ -783,7 +783,7 @@
 
             let mainSocket = io({query: {"purpose": "main"}});
             let syncSocket = io({query: {"purpose": "sync"}});
-            let notiSocket = io({query: {"purpose": "noti"}});
+            // let notiSocket = io({query: {"purpose": "noti"}});
 
             function logSocket(socket, socketName) {
 
@@ -808,7 +808,7 @@
 
             logSocket(mainSocket, "MAIN");
             logSocket(syncSocket, "SYNC");
-            logSocket(notiSocket, "NOTI");
+            // logSocket(notiSocket, "NOTI");
 
             mainSocket.onAny((event, data) => {
                 switch (event) {
@@ -967,7 +967,7 @@
                                 messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(status);
                                 showLatest(false);
                                 break;
-                            case "No PowerSchool grades found for this term.":
+                            case `No ${school === "basis" ? "Schoology" : "PowerSchool"} grades found for this term.`:
                             case "Syncing history...":
                                 messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(status);
                                 break;
@@ -1083,7 +1083,7 @@
                             $("#gradeSyncInputUserPassword").trigger("focus");
                         }
                         $(".fa-refresh").removeClass("fa-spin").css("opacity", "");
-                        if (data.message === "No PowerSchool grades found for this term.") {
+                        if (data.message === `No ${school === "basis" ? "Schoology" : "PowerSchool"} grades found for this term.`) {
                             messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(data.message);
                         } else {
                             messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(data.message);
@@ -1471,7 +1471,7 @@
                             $("#incorrectOverallGrade" + i + " span").html(`PowerSchool is locked. Calculated grade may be inaccurate.`);
                             $("#incorrectOverviewGrade" + i + " span").html(`PowerSchool is locked. Calculated grade may be inaccurate.`);
                         } else {
-                            $("#incorrectOverallGrade" + i + " span").html(`Grade in PowerSchool: <nobr>` + _data[i].overall_percent + `% (` + _data[i].overall_letter + `)</nobr>`);
+                            $("#incorrectOverallGrade" + i + " span").html(`Grade in ${school === "basis" ? "Schoology" : "PowerSchool"}: <nobr>` + _data[i].overall_percent + `% (` + _data[i].overall_letter + `)</nobr>`);
                             $("#incorrectOverviewGrade" + i).hide();
                             $("#verified" + i + " span").addClass("always-show");
                         }
@@ -3649,7 +3649,7 @@
                                             if (delta > 0) {
                                                 delta = "+" + delta;
                                             }
-                                            return delta + "% (To Match PowerSchool)";
+                                            return delta + `% (To Match ${school === "basis" ? "Schoology" : "PowerSchool"})`;
                                         }
                                         return ["[" + chartData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.dataIndex] + "] " + chartData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.dataIndex] + ((chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.dataIndex] !== null && chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, 2) !== "--") ? (" - " + Math.round(chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.dataIndex] * 100) / 100 + "% ") : (" ")) + ((chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].substring(chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].length - 2)) !== "/0" ? ("(" + chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex] + ")") : ("(" + chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].length - 2) + ")"))];
                                     }
@@ -3822,7 +3822,7 @@
                                             if (delta > 0) {
                                                 delta = "+" + delta;
                                             }
-                                            return delta + "% (To Match PowerSchool)";
+                                            return delta + `% (To Match ${school === "basis" ? "Schoology" : "PowerSchool"})`;
                                         }
                                         return ["[" + chartData[id].assignmentCategories[tooltipItem.dataIndex] + "] " + chartData[id].assignmentNames[tooltipItem.dataIndex] + ((chartData[id].assignmentPercents[tooltipItem.dataIndex] !== null && chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, 2) !== "--") ? (" - " + Math.round(chartData[id].assignmentPercents[tooltipItem.dataIndex] * 100) / 100 + "% ") : (" ")) + ((chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].length - 2)) !== "/0" ? ("(" + chartData[id].assignmentScoresParsed[tooltipItem.dataIndex] + ")") : ("(" + chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].length - 2) + ")"))];
                                     }
@@ -4101,6 +4101,8 @@
                 let teacherName = _data[index].teacher_name;
                 let relData = relClassData[className];
                 let description = relData.description;
+                let prereq = relData.prereq;
+                let review = relData.review;
                 let classAverage = relData.classAverage;
                 let userCount = relData.userCount;
                 let teachers = relData.teachers;
@@ -4109,45 +4111,13 @@
                 let gradeLevels = relData.gradeLevels;
                 let credits = relData.credits;
 
-                let parts = [];
-                let headers = ["Prerequisites:", "Pre-requisites/Comments:", "Teacher: Staff", "Staff: Staff", "Course Content:", "", "(Reviewed ", "(Revised "];
-
-                let startHeader = -1;
-                let startBody = -1;
-                let endBody = -1;
-                for (let i = 0; i < headers.length; i++) {
-                    if (startHeader == -1) {
-                        startHeader = description.indexOf(headers[i]);
-                        startBody = startHeader + headers[i].length;
-                    }
-                    if (startHeader == -1) {
-                        continue;
-                    }
-                    if (i == headers.length - 1) {
-                        continue;
-                    } // This iteration is just to get the index of the "(Reviewed" part
-                    endBody = description.indexOf(headers[i + 1]);
-                    if (endBody == -1) {
-                        continue;
-                    }
-                    parts.push(description.substring(startHeader, startBody).trim());
-                    parts.push(description.substring(startBody, endBody).trim());
-                    startHeader = -1;
-                    startBody = -1;
+                let parts = ["", description];
+                if (prereq !== "") {
+                    parts.push("Prereqs", prereq);
                 }
-
-                let reviewed = description.substring(startHeader);
-                let reviewedEnd = reviewed.indexOf(")");
-                reviewed = reviewed.substring(0, reviewedEnd + 1).trim();
-                parts.push(reviewed);
-                parts.push("");
-
-                let ucApproval = description.substring(startHeader + reviewedEnd + 1).trim();
-                if (ucApproval.startsWith("*")) {
-                    ucApproval = ucApproval.substring(1);
+                if (review !== "") {
+                    parts.push(`Last updated ${review}`, "");
                 }
-                parts.push(ucApproval);
-                parts.push("");
 
                 let _description = "";
                 let _thereIsData = false;
@@ -4222,11 +4192,12 @@
                         ucClassType = "UC Approved Regular";
                         break;
 
-                    case "":
+                    case "not_uc":
                         ucClassType = "Not a UC Approved";
                         break;
 
                     default:
+                        ucClassType = "Unknown UC";
                         break;
                 }
                 classInfoClassType.text(`BCP ${classType} course`);

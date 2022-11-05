@@ -19,8 +19,11 @@ exports.TEST_DATABASE_NAME = "test";
 exports.COMMON_DATABASE_NAME = "common";
 
 // Change this when updateDB changes
-exports.dbUserVersion = 5;
+exports.dbUserVersion = 6;
 exports.dbClassVersion = 2;
+
+exports.minDonoAmount = 3;
+exports.minPremiumAmount = 5;
 
 let _changelogArray = [];
 let _betaChangelogArray = [];
@@ -103,10 +106,13 @@ exports.validateEmail = (email, school) => {
     let re;
     switch (school) {
         case Schools.BISV:
-            re = /^[a-z]+_[0-9]{5}@basisindependent.com$/i;
+            re = /^[a-z]+_[0-9]{5}@basisindependent\.com$/i;
             break;
         case Schools.BELL:
-            re = /^[a-z]+\.[a-z]+[0-9]{2}@bcp.org$/i;
+            re = /^[a-z]+\.[a-z]+[0-9]{2}@bcp\.org$/i;
+            break;
+        case Schools.NDSJ:
+            re = /^[a-z]{2,}[0-9]{2}@ndsj\.org$/i;
             break;
         default:
             return false;
@@ -201,6 +207,7 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
                 loggedIn: [],
                 enableLogging: true,
                 donoData: [],
+                api: {},
             };
 
             return resolve({success: true, data: {value: user}});
@@ -480,6 +487,24 @@ exports.getPersonalInfo = (email, school) => {
                 graduationYear = parseInt(graduationYear);
                 graduationYear += 2000;
             }
+            break;
+        case Schools.NDSJ:
+            // First Name
+            firstName = email.substring(0, 1).toUpperCase();
+
+            // Last Name
+            lastName = email.indexOf(email.match(/\d/)) === -1 ? email.substring(1) : email.substring(1, email.indexOf(email.match(/\d/)));
+            lastName = lastName.length <= 1 ? lastName.toUpperCase() : lastName[0].toUpperCase() + lastName.substring(1).toLowerCase();
+
+            // Graduation Year
+            graduationYear = email.indexOf(email.match(/\d/)) === -1 ? "" :
+                                 email.indexOf("@") === -1 ? email.substring(email.indexOf(email.match(/\d/))) : email.substring(email.indexOf(email.match(/\d/)), email.indexOf("@"));
+            if (graduationYear) {
+                graduationYear = parseInt(graduationYear);
+                graduationYear += 2000;
+            }
+            break;
+        default:
             break;
     }
     return {firstName, lastName, graduationYear};
