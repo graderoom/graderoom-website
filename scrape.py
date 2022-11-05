@@ -379,7 +379,7 @@ class PowerschoolScraper(Scraper):
         data = {
             'dbpw': _password,
             'credentialType': 'User Id and Password Credential',
-            'account': email,
+            'account': email[:-9], # Remove @ndsj.org
             'pw': _password,
             'serviceName': 'PS Parent Portal',
             'pcasServerUrl': '/',
