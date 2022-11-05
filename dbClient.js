@@ -1836,7 +1836,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
 };
 
 const _updateGradeHistory = async (db, username, schoolPassword) => {
-    let res = await _getUser(db, username, {grades: 1, weights: 1});
+    let res = await _getUser(db, username, {grades: 1, weights: 1, school: 1, schoolUsername: 1});
     if (!res.success) {
         return res;
     }

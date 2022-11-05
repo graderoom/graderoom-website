@@ -385,7 +385,15 @@ class PowerschoolScraper(Scraper):
             'pcasServerUrl': '/',
             'request_locale': 'en_US',
         }
-        self.session.post(url, data=data, headers=headers_1, timeout=10)
+        resp = self.session.post(url, data=data, headers=headers_1, timeout=10)
+        soup = bS(resp.text, 'html.parser')
+
+        error = soup.find("div", class_="feedback-alert")
+        if error is not None and error.text == "Invalid Username or Password!":
+            self.progress = 0
+            print(json_format(False, "Incorrect login details."))
+            sys.exit()
+
         self.progress = 20
 
     def login(self, email: str, _password: str) -> bool:
