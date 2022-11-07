@@ -178,6 +178,8 @@ module.exports = function (app, passport) {
         await dbClient.setShowNonAcademic(req.user.username, show);
         let regularize = req.body.regularizeClassGraphs === "on";
         await dbClient.setRegularizeClassGraphs(req.user.username, regularize);
+        let showPlusMinusLines = req.body.showPlusMinusLines === "on";
+        await dbClient.setShowPlusMinusLines(req.user.username, showPlusMinusLines);
         res.redirect("/");
     });
 
@@ -862,7 +864,8 @@ module.exports = function (app, passport) {
 
     app.get("/charts", async (req, res) => {
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
-        let {data: {loginData, uniqueLoginData, syncData, userData, activeUsersData, gradData}} = await dbClient.getChartData();
+        let resp = dbClient.getChartData();
+        let {data: {loginData, uniqueLoginData, syncData, userData, activeUsersData, gradData}} = resp.constructor.name === "Promise" ? await resp : resp;
         if (req.isAuthenticated()) {
             let {noAds, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
             res.render("user/cool_charts.ejs", {
@@ -1163,7 +1166,7 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.post("/api/info", async (req, res) => {
+    app.get("/api/info", async (req, res) => {
         let apiKey = req.headers['x-api-key'];
         let resp = await dbClient.apiInfo(apiKey);
         if (!resp.success) {
@@ -1175,6 +1178,14 @@ module.exports = function (app, passport) {
         } else {
             res.status(200).send(resp.data);
         }
+    });
+
+    app.get("/api/*", (req, res) => {
+        res.sendStatus(404);
+    });
+
+    app.post("/api/*", (req, res) => {
+        res.sendStatus(404);
     });
 
     // general web app

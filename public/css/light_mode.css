@@ -575,6 +575,10 @@ tr:hover .toolTab {
     background-color: transparent;
 }
 
+.changelog-mono {
+    background-color: #DDD;
+}
+
 .gpa-details-table th, .gpa-details-table td, .gpa-details-table, .gpa-details-table tr {
     border: 1px solid black;
 }

@@ -19,7 +19,7 @@ exports.TEST_DATABASE_NAME = "test";
 exports.COMMON_DATABASE_NAME = "common";
 
 // Change this when updateDB changes
-exports.dbUserVersion = 6;
+exports.dbUserVersion = 7;
 exports.dbClassVersion = 2;
 
 exports.minDonoAmount = 3;
@@ -180,6 +180,7 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
                     darkModeFinish: 946738800000,
                     weightedGPA: true,
                     regularizeClassGraphs: true,
+                    showPlusMinusLines: false,
                     showMaxGPA: false,
                     animateWhenUnfocused: false,
                     showFps: false
@@ -347,20 +348,28 @@ exports.readChangelog = (filename) => {
                     item.title = line.substring(4, line.indexOf("]"));
                     item.date = line.substring(line.indexOf("-") + 2);
                 } else if (line[0] === "-") {
+                    let _line = line.substring(2);
+                    let open = true;
+                    for (let i = 0; i < _line.length; i++) {
+                        if (_line[i] === "`") {
+                            _line = _line.slice(0, i) + `${open ? "<span class='changelog-mono'>" : "</span>"}` + _line.slice(i + 1);
+                            open = !open;
+                        }
+                    }
                     if (item.title === "Known Issues" || item.title.substring(0, 12) === "Announcement") {
                         if (!item.content["Default"]) {
                             item.content["Default"] = [];
                         }
-                        item.content["Default"].push(line.substring(2));
+                        item.content["Default"].push(_line);
                     } else if (item.content[Object.keys(item.content)[bodyCount]]) {
-                        item.content[Object.keys(item.content)[bodyCount]].push(line.substring(2));
+                        item.content[Object.keys(item.content)[bodyCount]].push(_line);
                     } else {
                         // Prevents changelog file errors from crashing server
                         if (!item.content["Unfiled"]) {
                             item.title = "This shouldn't have happened. Send a bug report in More > Send Feedback. ERR #" + lineno;
                             item.content["Unfiled"] = [];
                         }
-                        item.content["Unfiled"].push(line.substring(2));
+                        item.content["Unfiled"].push(_line);
                     }
                 }
             }).on("close", () => {

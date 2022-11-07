@@ -108,6 +108,7 @@ module.exports = {
     setPersonalInfo: (username, firstName, lastName, graduationYear) => safe(_setPersonalInfo, lower(username), firstName, lastName, graduationYear),
     setShowNonAcademic: (username, value) => safe(_setShowNonAcademic, lower(username), value),
     setRegularizeClassGraphs: (username, value) => safe(_setRegularizeClassGraphs, lower(username), value),
+    setShowPlusMinusLines: (username, value) => safe(_setShowPlusMinusLines, lower(username), value),
     setWeightedGPA: (username, value) => safe(_setWeightedGPA, lower(username), value),
     setTheme: (username, theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects) => safe(_setTheme, lower(username), lower(theme), darkModeStart, darkModeFinish, seasonalEffects, blurEffects),
     setShowMaxGPA: (username, value) => safe(_setShowMaxGPA, lower(username), value),
@@ -176,7 +177,7 @@ module.exports = {
     // API STUFF
     apiPair: (pairKey) => safe(_apiPair, pairKey),
     apiAuthenticate: (apiKey) => safe(_apiAuth, apiKey),
-    apiInfo: (apiKey) => apiGuard(_apiInfo, apiKey),
+    apiInfo: (apiKey) => apiGuard(_apiInfo, apiKey)
 };
 
 /**
@@ -225,7 +226,11 @@ const safe = (func, ...args) => {
 const apiGuard = (func, apiKey, ...args) => {
     return new Promise(resolve => {
         safe(_apiAuth, apiKey).then(data => {
-            if (!data.success) return resolve({success: false, data: {message: "Authentication failed"}});
+            if (!data.success) {
+                return resolve({
+                                   success: false, data: {message: data.data.message ?? "Authentication failed"}
+                               });
+            }
             safe(func, apiKey, ...args).then(_data => resolve(_data));
         });
     });
@@ -481,11 +486,7 @@ const __version2 = async (db, user) => {
 
 const _version3 = async (db, username) => {
     let res = await _getUser(db, username, {
-        version: 1,
-        grades: 1,
-        weights: 1,
-        addedAssignments: 1,
-        editedAssignments: 1
+        version: 1, grades: 1, weights: 1, addedAssignments: 1, editedAssignments: 1
     });
     if (!res.success) {
         return res;
@@ -587,7 +588,7 @@ const _version4 = async (db, username) => {
     await __version4(db, user);
 
     return {success: true, data: {log: `Updated ${username} to version 4`}};
-}
+};
 
 const __version4 = async (db, user) => {
     if (user.version === 3) {
@@ -596,7 +597,7 @@ const __version4 = async (db, user) => {
 
         await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {$set: {version: 4}});
     }
-}
+};
 
 const _version5 = async (db, username) => {
     let res = await _getUser(db, username, {version: 1});
@@ -608,13 +609,17 @@ const _version5 = async (db, username) => {
     await __version5(db, user);
 
     return {success: true, data: {log: `Updated ${username} to version 5`}};
-}
+};
 
 const __version5 = async (db, user) => {
     if (user.version === 4) {
-        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {$set: {donoData: [], version: 5}});
+        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {
+            $set: {
+                donoData: [], version: 5
+            }
+        });
     }
-}
+};
 
 const _version6 = async (db, username) => {
     let res = await _getUser(db, username, {version: 1});
@@ -626,11 +631,29 @@ const _version6 = async (db, username) => {
     await __version6(db, user);
 
     return {success: true, data: {log: `Updated ${username} to version 6`}};
-}
+};
 
 const __version6 = async (db, user) => {
     if (user.version === 5) {
         await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {$set: {api: {}, version: 6}});
+    }
+};
+
+const _version7 = async (db, username) => {
+    let res = await _getUser(db, username, {version: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await __version7(db, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 7`}};
+}
+
+const __version7 = async (db, user) => {
+    if (user.version === 6) {
+        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {$set: {'appearance.showPlusMinusLines': false, version: 7}});
     }
 }
 
@@ -713,6 +736,9 @@ const _updateAllUsers = async (db) => {
             if (user.version < 6) {
                 console.log((await _version6(db, user.username)).data.log);
             }
+            if (user.version < 7) {
+                console.log((await _version7(db, user.username)).data.log);
+            }
         }
         console.log((await _initUser(db, user.username)).data.log);
     }
@@ -721,12 +747,7 @@ const _updateAllUsers = async (db) => {
 
 const _classVersion1 = async (db, school, className, term, semester) => {
     let res = await _getClass(db, school, className, term, semester, {
-        version: 1,
-        department: 1,
-        classType: 1,
-        uc_csuClassType: 1,
-        credits: 1,
-        terms: 1
+        version: 1, department: 1, classType: 1, uc_csuClassType: 1, credits: 1, terms: 1
     });
     if (!res.success) {
         return res;
@@ -752,10 +773,10 @@ const __classVersion1 = async (db, school, class_) => {
             if (class_.uc_csuClassType === rawData.uc_csuClassType || class_.uc_csuClassType === "") {
                 update.uc_csuClassType = null;
             }
-            if (class_.credits === rawData.credits || !([1,2,5,10]).includes(class_.terms)) {
+            if (class_.credits === rawData.credits || !([1, 2, 5, 10]).includes(class_.terms)) {
                 update.credits = null;
             }
-            if (_.isEqual(class_.terms, rawData.terms) || !([1,2]).includes(class_.terms)) {
+            if (_.isEqual(class_.terms, rawData.terms) || !([1, 2]).includes(class_.terms)) {
                 update.terms = null;
             }
         }
@@ -763,20 +784,22 @@ const __classVersion1 = async (db, school, class_) => {
                                                                      className: class_.className,
                                                                      term: class_.term,
                                                                      semester: class_.semester
-                                                                 }, {$set: update, $unset: {grade_levels: "", description: ""}});
+                                                                 }, {
+                                                                     $set: update,
+                                                                     $unset: {grade_levels: "", description: ""}
+                                                                 });
 
         await db.collection(classesCollection(school)).updateOne({
-                                                                            className: class_.className,
-                                                                            term: class_.term,
-                                                                            semester: class_.semester
-                                                                        }, {$set: {version: 1}});
+                                                                     className: class_.className,
+                                                                     term: class_.term,
+                                                                     semester: class_.semester
+                                                                 }, {$set: {version: 1}});
     }
 };
 
 const _classVersion2 = async (db, school, className, term, semester) => {
     let res = await _getClass(db, school, className, term, semester, {
-        version: 1,
-        teachers: 1
+        version: 1, teachers: 1
     });
     if (!res.success) {
         return res;
@@ -785,7 +808,8 @@ const _classVersion2 = async (db, school, className, term, semester) => {
     let class_ = res.data.value;
     await __classVersion2(db, school, class_);
 
-    return {success: true, data: {log: `Updated ${className} in ${school} ${term} ${semester} to version 2`}};};
+    return {success: true, data: {log: `Updated ${className} in ${school} ${term} ${semester} to version 2`}};
+};
 
 const __classVersion2 = async (db, school, class_) => {
     if (class_.version === 1) {
@@ -799,25 +823,25 @@ const __classVersion2 = async (db, school, class_) => {
                 let filteredUsernames = [...new Set(usernames)];
 
                 await db.collection(classesCollection(school)).updateOne({
-                                                                                    className: class_.className,
-                                                                                    term: class_.term,
-                                                                                    semester: class_.semester
-                                                                                }, {$set: {[`teachers.${i}.suggestions.${j}.usernames`]: filteredUsernames}});
+                                                                             className: class_.className,
+                                                                             term: class_.term,
+                                                                             semester: class_.semester
+                                                                         }, {$set: {[`teachers.${i}.suggestions.${j}.usernames`]: filteredUsernames}});
             }
         }
 
         await db.collection(classesCollection(school)).updateOne({
-                                                                            className: class_.className,
-                                                                            term: class_.term,
-                                                                            semester: class_.semester
-                                                                        }, {$set: {version: 2}});
+                                                                     className: class_.className,
+                                                                     term: class_.term,
+                                                                     semester: class_.semester
+                                                                 }, {$set: {version: 2}});
     }
-}
+};
 
 const _updateAllClasses = async (db) => {
     for (let school of Object.values(Schools)) {
         let {data: {value: classes}} = await _getAllClasses(db, school, {
-            className: 1, term: 1, semester: 1, version: 1,
+            className: 1, term: 1, semester: 1, version: 1
         });
         for (let i = 0; i < classes.length; i++) {
             let class_ = classes[i];
@@ -855,7 +879,9 @@ const _getUser = async (db, username, projection, additionalQuery) => {
 };
 
 const _getClass = async (db, school, className, term, semester, projection, additionalQuery) => {
-    if (!Object.values(Schools).includes(school)) return {success: false, data: {log: `Invalid school ${school}`}};
+    if (!Object.values(Schools).includes(school)) {
+        return {success: false, data: {log: `Invalid school ${school}`}};
+    }
     let query = {className: className, term: term, semester: semester};
     if (!!additionalQuery) {
         Object.assign(query, additionalQuery);
@@ -875,129 +901,158 @@ const _getClass = async (db, school, className, term, semester, projection, addi
     return {success: true, data: {value: class_}};
 };
 
-const _getAllUsers = async (db, projection) => {
-    return {success: true, data: {value: await db.collection(USERS_COLLECTION_NAME).find({}, projection).toArray()}};
+const _getAllUsers = async (db, projection, query) => {
+    query = query ?? {};
+    return {success: true, data: {value: await db.collection(USERS_COLLECTION_NAME).find(query, {projection: projection}).toArray()}};
 };
 
 const _getAllClasses = async (db, school, projection) => {
-    if (!Object.values(Schools).includes(school)) return {success: false, data: {log: `Invalid school ${school}`}};
+    if (!Object.values(Schools).includes(school)) {
+        return {success: false, data: {log: `Invalid school ${school}`}};
+    }
     return {
-        success: true,
-        data: {value: await db.collection(classesCollection(school)).find({}, projection).toArray()}
+        success: true, data: {value: await db.collection(classesCollection(school)).find({}, projection).toArray()}
     };
 };
 
 const _getChartData = async (db) => {
     if (isNotToday(lastUpdatedCharts)) {
-        let projection = {
-            loggedIn: 1, "alerts.lastUpdated": 1, "personalInfo.graduationYear": 1
-        };
-        let allUsers = (await _getAllUsers(db, projection)).data.value;
-        let loginDates = allUsers.map(u => u.loggedIn.map(d => {
-            let date = new Date(d);
-            return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        })).reduce((a, b) => a.concat(b)).filter(d => isNotToday(d));
-        let syncDates = allUsers.map(u => u.alerts.lastUpdated.map(d => {
-            let date = new Date(d.timestamp);
-            return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        })).reduce((a, b) => a.concat(b)).filter(d => isNotToday(d));
-        loginDates = loginDates.concat(syncDates.filter(t => !loginDates.find(u => u.getTime() === t.getTime()))).sort((a, b) => a.getTime() - b.getTime());
-        syncDates = syncDates.concat(loginDates.filter(t => !syncDates.find(u => u.getTime() === t.getTime()))).sort((a, b) => a.getTime() - b.getTime());
-        loginData = [];
-        for (let j = 0; j < loginDates.length; j++) {
-            let r = loginData.find(d => d.x.getTime() === loginDates[j].getTime());
-            if (r) {
-                r.y++;
-            } else {
-                loginData.push({x: loginDates[j], y: 1});
-            }
-        }
-        let uniqueLoginDates = allUsers.map(user => [...new Set(user.loggedIn.map(loggedIn => {
-            let date = new Date(loggedIn);
-            return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-        }))].map(loggedIn => new Date(loggedIn))).reduce((a, b) => a.concat(b));
-        uniqueLoginDates = uniqueLoginDates.concat(loginDates.filter(time => !uniqueLoginDates.find(anotherTime => anotherTime.getTime() === time.getTime())));
-        uniqueLoginDates = uniqueLoginDates.filter(d => isNotToday(d));
-        uniqueLoginDates.sort((a, b) => a.getTime() - b.getTime());
-        uniqueLoginData = [];
-        for (let j = 0; j < uniqueLoginDates.length; j++) {
-            let r = uniqueLoginData.find(d => d.x.getTime() === uniqueLoginDates[j].getTime());
-            if (r) {
-                r.y++;
-            } else {
-                uniqueLoginData.push({x: uniqueLoginDates[j], y: 1});
-            }
-        }
-        syncData = [];
-        for (let j = 0; j < syncDates.length; j++) {
-            let r = syncData.find(d => d.x.getTime() === syncDates[j].getTime());
-            if (r) {
-                r.y++;
-            } else {
-                syncData.push({x: syncDates[j], y: 1});
-            }
-        }
-        userData = loginData.map(t => ({
-            x: t.x, y: allUsers.filter(u => {
-                let date = new Date(Math.min(...u.loggedIn));
-                return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() <= t.x.getTime();
-            }).length
-        }));
-        activeUsersData = loginData.map(t => ({
-            x: t.x, y: allUsers.filter(u => u.loggedIn.some(v => {
-                let vDate = new Date(v);
-                let vTime = new Date(vDate.getFullYear(), vDate.getMonth(), vDate.getDate()).getTime();
-                return (vTime <= t.x.getTime()) && (vTime >= (t.x.getTime() - (14 * 24 * 60 * 60 * 1000)));
-            })).length
-        }));
-        let today = new Date();
-        let seniorYear = today.getFullYear() + (today.getMonth() > 4 ? 1 : 0);
-        let gradYears = allUsers.map(u => u.personalInfo.graduationYear ?? null);
-        gradData = [];
-        for (let j = 0; j < gradYears.length; j++) {
-            let year = gradYears[j];
-            if (year) {
-                let hsYear = seniorYear - year + 4;
-                if (hsYear === 1) {
-                    year = "Freshman";
-                } else if (hsYear === 2) {
-                    year = "Sophomore";
-                } else if (hsYear === 3) {
-                    year = "Junior";
-                } else if (hsYear === 4) {
-                    year = "Senior";
-                } else if (hsYear > 4) {
-                    year = "Graduate";
+        return new Promise(async resolve => {
+            let projection = {
+                loggedIn: 1, "alerts.lastUpdated": 1, "personalInfo.graduationYear": 1
+            };
+            let query = {
+                $or: [{
+                    'alerts.lastUpdated.timestamp': {
+                        $gte: lastUpdatedCharts.getTime(),
+                        $lt: Date.parse(new Date().toDateString())
+                    }
+                }, {'loggedIn': {$gt: lastUpdatedCharts.getTime(), $lt: Date.parse(new Date().toDateString())}}]
+            };
+            // All users with new data since lastUpdatedCharts but before today
+            let allUsers = (await _getAllUsers(db, projection, query)).data.value;
+            // List of new loginDates after lastUpdatedCharts but not today
+            let loginDates = allUsers.map(u => u.loggedIn.map(d => {
+                let date = new Date(d);
+                return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            })).reduce((a, b) => a.concat(b)).filter(d => d.getTime() >= lastUpdatedCharts.getTime() && isNotToday(d));
+            // List of new syncDates after lastUpdatedCharts but not today
+            let syncDates = allUsers.map(u => u.alerts.lastUpdated.map(d => {
+                let date = new Date(d.timestamp);
+                return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            })).reduce((a, b) => a.concat(b)).filter(d => d.getTime() >= lastUpdatedCharts.getTime() && isNotToday(d));
+            // Add days that don't exist in loginDates that are in sync dates and vice versa and sort them
+            loginDates = loginDates.concat(syncDates.filter(t => !loginDates.find(u => u.getTime() === t.getTime()))).sort((a, b) => a.getTime() - b.getTime());
+            syncDates = syncDates.concat(loginDates.filter(t => !syncDates.find(u => u.getTime() === t.getTime()))).sort((a, b) => a.getTime() - b.getTime());
+            loginData = loginData ?? [];
+            for (let j = 0; j < loginDates.length; j++) {
+                let r = loginData.find(d => d.x.getTime() === loginDates[j].getTime());
+                if (r) {
+                    r.y++;
                 } else {
-                    year = "Other";
+                    loginData.push({x: loginDates[j], y: 1});
                 }
-                let index = gradData.findIndex(d => d.x === `${year}`);
-                if (index === -1) {
-                    index = gradData.length;
-                    gradData.push({x: `${year}`, y: 0});
-                }
-                gradData[index].y++;
-            } else {
-                let unknownIndex = gradData.findIndex(d => d.x === "Unknown");
-                if (unknownIndex === -1) {
-                    unknownIndex = gradData.length;
-                    gradData.push({x: "Unknown", y: 0});
-                }
-                gradData[unknownIndex].y++;
             }
-        }
-        let sortMap = {
-            "Freshman": seniorYear - 3,
-            "Sophomore": seniorYear - 2,
-            "Junior": seniorYear - 1,
-            "Senior": seniorYear,
-            "Graduate": seniorYear + 1,
-            "Unknown": seniorYear + 2
-        };
-        gradData.sort((a, b) => sortMap[a.x] - sortMap[b.x]);
+
+            let uniqueLoginDates = allUsers.map(user => [...new Set(user.loggedIn.filter(d => d >= lastUpdatedCharts.getTime() && d < Date.parse(new Date().toDateString())).map(loggedIn => {
+                let date = new Date(loggedIn);
+                return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+            }))].map(loggedIn => new Date(loggedIn))).reduce((a, b) => a.concat(b));
+            uniqueLoginDates.sort((a, b) => a.getTime() - b.getTime());
+            uniqueLoginData = uniqueLoginData ?? [];
+            for (let j = 0; j < uniqueLoginDates.length; j++) {
+                let r = uniqueLoginData.find(d => d.x.getTime() === uniqueLoginDates[j].getTime());
+                if (r) {
+                    r.y++;
+                } else {
+                    uniqueLoginData.push({x: uniqueLoginDates[j], y: 1});
+                }
+            }
+            syncData = syncData ?? [];
+            for (let j = 0; j < syncDates.length; j++) {
+                let r = syncData.find(d => d.x.getTime() === syncDates[j].getTime());
+                if (r) {
+                    r.y++;
+                } else {
+                    syncData.push({x: syncDates[j], y: 1});
+                }
+            }
+
+            let actualAllUsers = (await _getAllUsers(db, {'loggedIn': 1})).data.value;
+
+            // Might be workaround for this, but I can't figure it out at the moment
+            userData = loginData.map(t => ({
+                x: t.x, y: actualAllUsers.filter(u => {
+                    return Date.parse(new Date(u.loggedIn[0]).toDateString()) <= t.x.getTime();
+                }).length
+            }));
+
+            // No workaround for this. Need all users as far as I can tell
+            activeUsersData = loginData.map(t => ({
+                x: t.x, y: actualAllUsers.filter(u => u.loggedIn.some(v => {
+                    let vTime = Date.parse(new Date(v).toDateString());
+                    return (vTime <= t.x.getTime()) && (vTime >= (t.x.getTime() - (14 * 24 * 60 * 60 * 1000)));
+                })).length
+            }));
+            let today = new Date();
+            let seniorYear = today.getFullYear() + (today.getMonth() > 4 ? 1 : 0);
+            let gradYears = allUsers.map(u => u.personalInfo.graduationYear ?? null);
+            gradData = gradData ?? [];
+            for (let j = 0; j < gradYears.length; j++) {
+                let year = gradYears[j];
+                if (year) {
+                    let hsYear = seniorYear - year + 4;
+                    if (hsYear === 1) {
+                        year = "Freshman";
+                    } else if (hsYear === 2) {
+                        year = "Sophomore";
+                    } else if (hsYear === 3) {
+                        year = "Junior";
+                    } else if (hsYear === 4) {
+                        year = "Senior";
+                    } else if (hsYear > 4) {
+                        year = "Graduate";
+                    } else {
+                        year = "Other";
+                    }
+                    let index = gradData.findIndex(d => d.x === `${year}`);
+                    if (index === -1) {
+                        index = gradData.length;
+                        gradData.push({x: `${year}`, y: 0});
+                    }
+                    gradData[index].y++;
+                } else {
+                    let unknownIndex = gradData.findIndex(d => d.x === "Unknown");
+                    if (unknownIndex === -1) {
+                        unknownIndex = gradData.length;
+                        gradData.push({x: "Unknown", y: 0});
+                    }
+                    gradData[unknownIndex].y++;
+                }
+            }
+            let sortMap = {
+                "Freshman": seniorYear - 3,
+                "Sophomore": seniorYear - 2,
+                "Junior": seniorYear - 1,
+                "Senior": seniorYear,
+                "Graduate": seniorYear + 1,
+                "Unknown": seniorYear + 2
+            };
+            gradData.sort((a, b) => sortMap[a.x] - sortMap[b.x]);
+            lastUpdatedCharts = new Date(Date.parse(new Date().toDateString()));
+            return resolve({
+                success: true, data: {
+                    loginData: loginData,
+                    uniqueLoginData: uniqueLoginData,
+                    syncData: syncData,
+                    userData: userData,
+                    activeUsersData: activeUsersData,
+                    gradData: gradData
+                }
+            });
+        });
     }
 
-    lastUpdatedCharts = new Date();
     return {
         success: true, data: {
             loginData: loginData,
@@ -1117,7 +1172,7 @@ const __getMostRecentTermData = (user) => {
 };
 
 const _createPairingKey = async (db, username) => {
-    let res = await _getUser(db, username, {'alerts.lastUpdated': {$slice: -1}});
+    let res = await _getUser(db, username, {"alerts.lastUpdated": {$slice: -1}});
     if (!res.success) {
         return res;
     }
@@ -1130,9 +1185,13 @@ const _createPairingKey = async (db, username) => {
         pairKey = makeKey(6);
     } while ((await _apiPairExists(db, pairKey)).success);
     let pairKeyExpire = Date.now() + 1000 * 60 * 10;
-    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$unset: {'api.apiKey': '', 'api.apiKeyCreated': ''}, $set: {'api.pairKey': pairKey, 'api.pairKeyExpire': pairKeyExpire}});
+    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {
+        $unset: {
+            "api.apiKey": "", "api.apiKeyCreated": ""
+        }, $set: {"api.pairKey": pairKey, "api.pairKeyExpire": pairKeyExpire}
+    });
     return {success: true, data: {value: {pairKey: pairKey, pairKeyExpire: pairKeyExpire}}};
-}
+};
 
 const _deletePairingKey = async (db, username) => {
     let res = await _userExists(db, {username: username});
@@ -1140,9 +1199,13 @@ const _deletePairingKey = async (db, username) => {
         return res;
     }
 
-    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$unset: {'api.pairKey': '', 'api.pairKeyExpire': ''}});
+    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {
+        $unset: {
+            "api.pairKey": "", "api.pairKeyExpire": ""
+        }
+    });
     return {success: true};
-}
+};
 
 const _deleteApiKey = async (db, username) => {
     let res = await _userExists(db, {username: username});
@@ -1150,50 +1213,61 @@ const _deleteApiKey = async (db, username) => {
         return res;
     }
 
-    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$unset: {'api.apiKey': '', 'api.apiKeyCreated': ''}});
+    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {
+        $unset: {
+            "api.apiKey": "", "api.apiKeyCreated": ""
+        }
+    });
     return {success: true};
-}
+};
 
 const _apiPair = async (db, pairKey) => {
     if (typeof pairKey !== "string" && !(pairKey instanceof String) || pairKey.length !== 6) {
         return {success: false, data: {message: "Invalid pairing key"}};
     }
-    let user = await db.collection(USERS_COLLECTION_NAME).findOne({'api.pairKey': pairKey});
+    let user = await db.collection(USERS_COLLECTION_NAME).findOne({"api.pairKey": pairKey});
     if (user) {
         if (user.api.pairKeyExpire > Date.now()) {
             let apiKey;
             do {
                 apiKey = makeKey(24);
             } while ((await _apiAuth(db, apiKey)).success);
-            await db.collection(USERS_COLLECTION_NAME).updateOne({'api.pairKey': pairKey}, {$unset: {'api.pairKey': '', 'api.pairKeyExpire': ''}, $set: {'api.apiKey': apiKey, 'api.apiKeyCreated': Date.now()}})
+            await db.collection(USERS_COLLECTION_NAME).updateOne({"api.pairKey": pairKey}, {
+                $unset: {
+                    "api.pairKey": "", "api.pairKeyExpire": ""
+                }, $set: {"api.apiKey": apiKey, "api.apiKeyCreated": Date.now()}
+            });
             return {success: true, data: {value: apiKey}};
         }
         return {success: false, data: {message: "This pairing key has expired"}};
     }
     return {success: false, data: {message: "Invalid pairing key"}};
-}
+};
 
 const _apiPairExists = async (db, pairKey) => {
-    let user = await db.collection(USERS_COLLECTION_NAME).findOne({'api.pairKey': pairKey});
+    let user = await db.collection(USERS_COLLECTION_NAME).findOne({"api.pairKey": pairKey});
     if (user) {
         return {success: true};
     }
     return {success: false};
-}
+};
 
 const _apiAuth = async (db, apiKey) => {
-    let user = await db.collection(USERS_COLLECTION_NAME).findOne({'api.apiKey': apiKey});
+    if (typeof apiKey !== "string" && !(apiKey instanceof String) || apiKey.length !== 24) {
+        return {success: false, data: {message: "Invalid API key"}};
+    }
+    let user = await db.collection(USERS_COLLECTION_NAME).findOne({"api.apiKey": apiKey});
     if (user) {
         return {success: true};
     }
     return {success: false};
-}
+};
 
 const _apiInfo = async (db, apiKey) => {
-    let user = await db.collection(USERS_COLLECTION_NAME).findOne({'api.apiKey': apiKey}, {school: 1, donoData: 1});
+    let user = await db.collection(USERS_COLLECTION_NAME).findOne({"api.apiKey": apiKey}, {school: 1, donoData: 1});
     let {premium} = (await __getDonoAttributes(user.donoData)).data.value;
     return {success: true, data: {username: user.username, school: user.school, premium: premium}};
-}
+};
 
 const _login = async (db, username, password) => {
     return new Promise(async resolve => {
@@ -1338,9 +1412,11 @@ const _setPersonalInfo = async (db, username, firstName, lastName, graduationYea
             return {success: true, data: {message: "Updated graduation year"}};
         }
         return {
-            success: false,
-            data: {log: `Failed to set ${graduationYear} as graduation year for ${username}`, message: "Something went wrong"}
-        }
+            success: false, data: {
+                log: `Failed to set ${graduationYear} as graduation year for ${username}`,
+                message: "Something went wrong"
+            }
+        };
     }
 };
 
@@ -1370,6 +1446,20 @@ const _setRegularizeClassGraphs = async (db, username, value) => {
     }
     return {success: false, data: {log: `Error setting regularizeClassGraphs to ${value} for ${username}`}};
 };
+
+const _setShowPlusMinusLines = async (db, username, value) => {
+    if (typeof value !== "boolean") {
+        return {
+            success: false,
+            data: {message: "Something went wrong", log: `Invalid showPlusMinusLines value: ${value}`}
+        };
+    }
+    let res = await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {"appearance.showPlusMinusLines": value}});
+    if (res.matchedCount === 1) {
+        return {success: true, data: {log: `Set showPlusMinusLines to ${value} for ${username}`}};
+    }
+    return {success: false, data: {log: `Error settings showPlusMinusLines to ${value} for ${username}`}};
+}
 
 const _setWeightedGPA = async (db, username, value) => {
     if (typeof value !== "boolean") {
@@ -2356,7 +2446,10 @@ const _getSyncStatus = async (db, username) => {
     } else if (syncStatus === SyncStatus.ALREADY_DONE) {
         return {success: true, data: {message: "Already Synced!"}};
     } else if (syncStatus === SyncStatus.NO_DATA) {
-        return {success: false, data: {message: `No ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"} grades found for this term.`}};
+        return {
+            success: false,
+            data: {message: `No ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"} grades found for this term.`}
+        };
     } else if (syncStatus === SyncStatus.FAILED) {
         return {success: false, data: {message: "Sync Failed."}};
     } else if (syncStatus === SyncStatus.UPDATING) {
@@ -2623,7 +2716,9 @@ const _clearTestDatabase = async (db) => {
 };
 
 const _addDbClass = async (db, school, term, semester, className, teacherName) => {
-    if (!Object.values(Schools).includes(school)) return {success: false, data: {log: `Invalid school ${school}`}};
+    if (!Object.values(Schools).includes(school)) {
+        return {success: false, data: {log: `Invalid school ${school}`}};
+    }
     let classData = await db.collection(classesCollection(school)).findOne({
                                                                                term: term,
                                                                                semester: semester,
@@ -2722,7 +2817,11 @@ const _addWeightsSuggestion = async (db, username, term, semester, className, te
 };
 
 const _updateWeightsInClassDb = async (db, school, term, semester, className, teacherName, hasWeights, weights) => {
-    if (!Object.values(Schools).includes(school)) return {success: false, data: {message: "Something went wrong", log: `Invalid school ${school}`}};
+    if (!Object.values(Schools).includes(school)) {
+        return {
+            success: false, data: {message: "Something went wrong", log: `Invalid school ${school}`}
+        };
+    }
     let modWeights;
     try {
         [hasWeights, modWeights] = fixWeights(hasWeights, weights);
@@ -2785,13 +2884,19 @@ const _updateWeightsInClassDb = async (db, school, term, semester, className, te
 };
 
 const _updateClassTypeInClassDb = async (db, school, term, semester, className, classType) => {
-    if (!Object.values(Schools).includes(school)) return {success: false, data: {message: "Something went wrong", log: `Invalid school ${school}`}};
-    if (!Constants.classTypes.includes(classType)) classType = null;
+    if (!Object.values(Schools).includes(school)) {
+        return {
+            success: false, data: {message: "Something went wrong", log: `Invalid school ${school}`}
+        };
+    }
+    if (!Constants.classTypes.includes(classType)) {
+        classType = null;
+    }
     let res = await db.collection(classesCollection(school)).updateOne({
-                                                                                  term: term,
-                                                                                  semester: semester,
-                                                                                  className: className
-                                                                              }, {$set: {"classType": classType}});
+                                                                           term: term,
+                                                                           semester: semester,
+                                                                           className: className
+                                                                       }, {$set: {"classType": classType}});
     if (res.matchedCount === 0) {
         return {
             success: false,
@@ -2807,13 +2912,19 @@ const _updateClassTypeInClassDb = async (db, school, term, semester, className, 
 };
 
 const _updateUCCSUClassTypeInClassDb = async (db, school, term, semester, className, classType) => {
-    if (!Object.values(Schools).includes(school)) return {success: false, data: {message: "Something went wrong", log: `Invalid school ${school}`}};
-    if (!Constants.uc_csuClassTypes.includes(classType)) classType = null;
+    if (!Object.values(Schools).includes(school)) {
+        return {
+            success: false, data: {message: "Something went wrong", log: `Invalid school ${school}`}
+        };
+    }
+    if (!Constants.uc_csuClassTypes.includes(classType)) {
+        classType = null;
+    }
     let res = await db.collection(classesCollection(school)).updateOne({
-                                                                                  term: term,
-                                                                                  semester: semester,
-                                                                                  className: className
-                                                                              }, {$set: {"uc_csuClassType": classType}});
+                                                                           term: term,
+                                                                           semester: semester,
+                                                                           className: className
+                                                                       }, {$set: {"uc_csuClassType": classType}});
     if (res.matchedCount === 0) {
         return {
             success: false, data: {
@@ -2830,7 +2941,9 @@ const _updateUCCSUClassTypeInClassDb = async (db, school, term, semester, classN
 };
 
 const _getMostRecentTermDataInClassDb = async (db, school) => {
-    if (!Object.values(Schools).includes(school)) return {success: false, data: {log: `Invalid school ${school}`}};
+    if (!Object.values(Schools).includes(school)) {
+        return {success: false, data: {log: `Invalid school ${school}`}};
+    }
     let res = (await db.collection(classesCollection(school)).find().sort({
                                                                               term: -1, semester: -1
                                                                           }).limit(1).toArray())[0];
@@ -2841,13 +2954,17 @@ const _getMostRecentTermDataInClassDb = async (db, school) => {
 };
 
 const _dbContainsSemester = async (db, school, term, semester) => {
-    if (!Object.values(Schools).includes(school)) return {success: false, data: {log: `Invalid school ${school}`}};
+    if (!Object.values(Schools).includes(school)) {
+        return {success: false, data: {log: `Invalid school ${school}`}};
+    }
     let res = await db.collection(classesCollection(school)).findOne({term: term, semester: semester});
     return {success: res !== null, data: {value: res}};
 };
 
 const _dbContainsClass = async (db, school, term, semester, className, teacherName) => {
-    if (!Object.values(Schools).includes(school)) return {success: false, data: {log: `Invalid school ${school}`}};
+    if (!Object.values(Schools).includes(school)) {
+        return {success: false, data: {log: `Invalid school ${school}`}};
+    }
     let res = await db.collection(classesCollection(school)).findOne({
                                                                          term: term,
                                                                          semester: semester,
@@ -2858,7 +2975,9 @@ const _dbContainsClass = async (db, school, term, semester, className, teacherNa
 };
 
 const _getAllClassData = async (db, school, term, semester) => {
-    if (!Object.values(Schools).includes(school)) return {success: false, data: {log: `Invalid school ${school}`}};
+    if (!Object.values(Schools).includes(school)) {
+        return {success: false, data: {log: `Invalid school ${school}`}};
+    }
     let res = await db.collection(classesCollection(school)).find({term: term, semester: semester}).toArray();
     let classNames = [];
     let allData = {};
@@ -2886,7 +3005,9 @@ const _getAllClassData = async (db, school, term, semester) => {
 };
 
 const _getTermsAndSemestersInClassDb = async (db, school) => {
-    if (!Object.values(Schools).includes(school)) return {success: false, data: {log: `Invalid school ${school}`}};
+    if (!Object.values(Schools).includes(school)) {
+        return {success: false, data: {log: `Invalid school ${school}`}};
+    }
     let termsAndSemesters = await db.collection(classesCollection(school)).aggregate([{
         $group: {
             _id: "$term", semesters: {$addToSet: "$semester"}
@@ -3080,59 +3201,96 @@ const _getRelevantClassData = async (db, username, term, semester) => {
 };
 
 const _addDonation = async (db, username, platform, paidValue, receivedValue, dateDonated) => {
-    if (!Constants.donoPlatforms.includes(platform)) return {success: false, data: {message: "Invalid Platform", log: `Invalid platform ${platform}`}};
-    if (typeof paidValue !== "number" || typeof receivedValue !== "number") return {success: false, data: {message: "Invalid payment amounts", log: `Invalid payment amounts paid=${paidValue} received=${receivedValue}`}};
-    if (typeof dateDonated !== "number") return {success: false, data: {message: "Invalid date", log: `Invalid date ${dateDonated}`}};
+    if (!Constants.donoPlatforms.includes(platform)) {
+        return {
+            success: false, data: {message: "Invalid Platform", log: `Invalid platform ${platform}`}
+        };
+    }
+    if (typeof paidValue !== "number" || typeof receivedValue !== "number") {
+        return {
+            success: false, data: {
+                message: "Invalid payment amounts",
+                log: `Invalid payment amounts paid=${paidValue} received=${receivedValue}`
+            }
+        };
+    }
+    if (typeof dateDonated !== "number") {
+        return {
+            success: false, data: {message: "Invalid date", log: `Invalid date ${dateDonated}`}
+        };
+    }
 
     let res = await db.collection(USERS_COLLECTION_NAME).updateOne({
-        username: username,
+                                                                       username: username
 
-                                                         }, {$push: {donoData: {
-                                                             platform: platform,
-                paidValue: paidValue,
-                receivedValue: receivedValue,
-                dateDonated: dateDonated
-            }}});
+                                                                   }, {
+                                                                       $push: {
+                                                                           donoData: {
+                                                                               platform: platform,
+                                                                               paidValue: paidValue,
+                                                                               receivedValue: receivedValue,
+                                                                               dateDonated: dateDonated
+                                                                           }
+                                                                       }
+                                                                   });
 
     if (res.matchedCount === 1) {
         return {success: true, data: {message: `Added donation for ${username}`}};
     }
 
-    return {success: false, data: {log: `Error adding donation for ${username}`, message: `Error adding donation for ${username}`}};
+    return {
+        success: false,
+        data: {log: `Error adding donation for ${username}`, message: `Error adding donation for ${username}`}
+    };
 };
 
 const _removeDonation = async (db, username, index) => {
     let res = await _getUser(db, username, {donoData: 1});
-    if (!res.success) return res;
+    if (!res.success) {
+        return res;
+    }
 
     let donoData = res.data.value.donoData;
     if (index >= 0 && index < donoData.length) {
         donoData.splice(index, 1);
     } else {
-        return {success: false, data: {message: `Failed to remove donation for ${username}`, log: `Index ${index} out of bounds for removing donation for ${username}`}};
+        return {
+            success: false, data: {
+                message: `Failed to remove donation for ${username}`,
+                log: `Index ${index} out of bounds for removing donation for ${username}`
+            }
+        };
     }
 
     await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {donoData: donoData}});
 
-    return {success: true, data: {message: `Removed donation for ${username}`, log: `Removed donation for ${username}`}};
-}
+    return {
+        success: true, data: {message: `Removed donation for ${username}`, log: `Removed donation for ${username}`}
+    };
+};
 
 const _getDonoData = async (db, username) => {
     let res = await _getUser(db, username, {donoData: 1});
-    if (!res.success) return res;
+    if (!res.success) {
+        return res;
+    }
 
     return {success: true, data: {value: res.data.value.donoData}};
-}
+};
 
 const _getDonoAttributes = async (db, username) => {
     let res = await _getDonoData(db, username);
-    if (!res.success) return res;
+    if (!res.success) {
+        return res;
+    }
 
     let donos = res.data.value;
     return __getDonoAttributes(donos);
-}
+};
 
 const __getDonoAttributes = async (donos) => {
     let totalDonos = donos.map(d => d.receivedValue).reduce((a, b) => a + b, 0);
-    return {success: true, data: {value: {noAds: totalDonos >= minDonoAmount, premium: totalDonos >= minPremiumAmount}}};
+    return {
+        success: true, data: {value: {noAds: totalDonos >= minDonoAmount, premium: totalDonos >= minPremiumAmount}}
+    };
 }

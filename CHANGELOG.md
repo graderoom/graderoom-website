@@ -35,12 +35,75 @@
 <!-- Use the following HTML before information specific to mobile users -->
 <!-- <em>[Mobile]</em> -->
 
+<!-- Use the following HTML before information specific to API users -->
+<!-- <em>[API]</em> -->
+
+<!-- Use `` around text to make it monospace -->
 
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
+
+## [Stable 5.3.0] - 2022-11-08
+### Added
+- New Donation options
+- Donations now show in account tab
+- Ads to charts and final grade calculator pages
+- Bellarmine users can now change their last name in addition to their first name
+- Basis users can change their name and graduation year
+- Support for new school! (Notre Dame San Jose)
+- New donations section in account tab
+- Basic API key generation and pairing process
+- Add +/- graph lines as a setting, disabled by default (See Settings > Advanced > Display)
+- Changelog now supports `this kind of text`
+
+### Improved
+- Analytics page no longer requires login
+- Fixed occasional infinite redirecting
+- Links open in new tabs, so you don't lose the current state of Graderoom
+- Donate button is shiny now
+- Description of grade history syncing on initial sync
+- Clicking on your name in the navigation bar opens account settings
+- Change language between Schoology and PowerSchool where relevant
+- For BCP users, course info should always work now
+- When the calculated grade is correct but PowerSchool has a different letter grade, this will no longer be considered an incorrect calculation. (This applies to some BCP religion classes I think).
+- Charts page is slightly more efficient
+
+### Fixed
+- Issues with syncing classes that no other user has synced before
+- Issue with edited assignments not saving between page refreshes
+- Issue where having an edited assignment before May 18 resulted in the page not working
+- Issue with wrong theme blur effects being applied after certain theme change actions
+- Issue with class navbar expanding on some browsers
+- Issues with Honors and AP class weighting not being accurate
+- Issues with joining and leaving the beta
+- Issue with category sort causing unrounded delta values.
+- Issue where new users could not use the site
+- Issue with sync status not being accurate if a user logged in with their email rather than their username
+- Issue where toggling beta features on and off did not work
+- Issue where Basis graduation years showed as 'NaN
+- Issue with UC/CSU GPA
+- Unnecessary error when empty Basis graduation year
+- Scraper for basis
+- Errors caused by snowfall on login page
+- Weighted GPA toggles now sync properly
+- Issue where hovering over the sync status in the nvbar caused a solid colored area to show
+
+## [Beta 5.2.6] - 2022-11-08
+### Added
+- Changelog now supports `this kind of text`
+
+### Improved
+- Rework +/- graph lines into their own setting, disabled by default (See Settings > Advanced > Display)
+- Charts page is slightly more efficient
+- <em>[API]</em> `/api/info` is now a `GET` endpoint
+- <em>[API]</em> Endpoints with base path `/api` that don't exist now correctly return `404`
+
+### Fixed
+- Issue where hovering over the sync status in the nvbar caused a solid colored area to show
+- <em>[API]</em> Issue where requests with empty API key did not cause errors
 
 ## [Beta 5.2.5] - 2022-11-06
 ### Added
@@ -100,7 +163,7 @@
 ### Improved
 - Analytics page no longer requires login
 - Fixed occasional infinite redirecting
-- Links open in new tabs so you don't lose the current state of Graderoom
+- Links open in new tabs, so you don't lose the current state of Graderoom
 - Donate button is shiny now
 
 ### Fixed

@@ -163,6 +163,10 @@ td, th {
     background-color: #222222;
 }
 
+.changelog-mono {
+    background-color: #444;
+}
+
 .form-group input {
     color: white;
 }

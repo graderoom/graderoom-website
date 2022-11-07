@@ -223,6 +223,12 @@ table thead tr th:last-child {
     background-color: rgba(255, 0, 0, 0.2) !important;
 }
 
+.changelog-mono {
+    font-family: monospace;
+    padding: 0 0.2rem;
+    border-radius: 0.2rem;
+}
+
 .blurred-login {
     position: fixed;
     z-index: 1;
@@ -704,7 +710,6 @@ table thead tr th:last-child {
 .popup span.popup-left-bottom,
 .popup span.popup-left,
 .popup span.popup-left-top {
-    z-index: 99;
     font-family: "Montserrat", sans-serif;
     font-size: small;
     position: absolute;
@@ -723,7 +728,7 @@ table thead tr th:last-child {
     position: relative;
 }
 
-.popup i:hover span, input:focus + .popup i span, .popup:hover i span, .popup:hover > span {
+.popup i:hover span, input:focus + .popup i span, .popup:hover i span, .popup:not(.updateGradesMessage):hover > span {
     display: block;
     animation: fadeIn 400ms;
 }
