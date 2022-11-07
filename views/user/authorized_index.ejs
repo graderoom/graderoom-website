@@ -1834,8 +1834,9 @@
                     letter = "D";
                 } else if (grade >= 59.5) {
                     letter = "D-";
+                } else {
+                    letter = "F";
                 }
-                letter = "F";
                 return school === "ndsj" ? letter[0] : letter;
             }
 
