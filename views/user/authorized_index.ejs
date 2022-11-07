@@ -819,15 +819,15 @@
                             switch (key) {
                                 case "enableLogging":
                                     enableLogging = settings[key];
-                                    $("#enableLoggingToggle").attr("checked", enableLogging);
+                                    $("#enableLoggingToggle").prop("checked", enableLogging);
                                     break;
                                 case "animateWhenUnfocused":
                                     appearance.animateWhenUnfocused = settings[key];
-                                    $("#animateWhenUnfocused").attr("checked", appearance.animateWhenUnfocused);
+                                    $("#animateWhenUnfocused").prop("checked", appearance.animateWhenUnfocused);
                                     break;
                                 case "showFps":
                                     appearance.showFps = settings[key];
-                                    $("#showFps").attr("checked", appearance.showFps);
+                                    $("#showFps").prop("checked", appearance.showFps);
                                     break;
                                 case "theme":
                                     let oldDarkMode;
@@ -848,8 +848,8 @@
                                                 setTimeout(() => {
                                                     document.getElementById("fade").disabled = true;
                                                 }, 200);
-                                                $(`input[name=theme]`).attr("checked", false);
-                                                $(`input[name=theme][value=${settings[key]}]`).attr("checked", true);
+                                                $(`input[name=theme]`).prop("checked", false);
+                                                $(`input[name=theme][value=${settings[key]}]`).prop("checked", true);
                                             }
                                             break;
                                         case "light":
@@ -872,15 +872,15 @@
                                                     document.getElementById("fade").disabled = true;
                                                 }, 200);
                                             }
-                                            $(`input[name=theme]`).attr("checked", false);
-                                            $(`input[name=theme][value=${settings[key]}]`).attr("checked", true);
+                                            $(`input[name=theme]`).prop("checked", false);
+                                            $(`input[name=theme][value=${settings[key]}]`).prop("checked", true);
                                             break;
                                         case "sun":
                                         case "system":
                                         case "auto":
                                             theme = settings[key];
-                                            $(`input[name=theme]`).attr("checked", false);
-                                            $(`input[name=theme][value=${settings[key]}]`).attr("checked", true);
+                                            $(`input[name=theme]`).prop("checked", false);
+                                            $(`input[name=theme][value=${settings[key]}]`).prop("checked", true);
                                             checkTime();
                                             break;
                                     }
@@ -896,7 +896,7 @@
                                     $("#darkModeFinish").val(("0" + _endDate.getHours()).slice(-2) + ":" + ("0" + _endDate.getMinutes()).slice(-2));
                                     break;
                                 case "seasonalEffects":
-                                    $("#seasonalEffectsToggle").attr("checked", settings[key]);
+                                    $("#seasonalEffectsToggle").prop("checked", settings[key]);
                                     appearance.seasonalEffects = settings[key];
                                     if (settings[key]) {
                                         init = performance.now();
@@ -912,7 +912,7 @@
                                     }
                                     break;
                                 case "blurEffects":
-                                    $("#blurEffectsToggle").attr("checked", settings[key]);
+                                    $("#blurEffectsToggle").prop("checked", settings[key]);
                                     appearance.blurEffects = settings[key];
                                     if (!appearance.blurEffects) {
                                         $("#blur_base").prop("disabled", true);
@@ -1450,13 +1450,13 @@
                             $("body").find("*").not(".session-timeout").remove();
                             return;
                         }
-                        $(".weightGPA").attr("checked", appearance.weightedGPA);
                         setupSemesterGPA();
                         setupCumulativeGPA();
                         setupUC_CSU_GPA();
                         setupGpaDetails(true, false);
                     });
                 } else {
+                    $(".weightGPA input").prop("checked", appearance.weightedGPA);
                     setupSemesterGPA();
                     setupCumulativeGPA();
                     setupUC_CSU_GPA();
@@ -1494,15 +1494,14 @@
                     return false;
                 }
                 let realOverallGrade = data[classIndex].overall_percent;
-                let realOverallLetter = data[classIndex].overall_letter;
-                if (realOverallGrade === false || !realOverallLetter) {
+                if (realOverallGrade === false) {
                     return true;
                 }
                 let calculatedOverallGrade = getOverallGrade(classIndex);
                 let tenToThePower = Math.pow(10, countDecimals(realOverallGrade));
                 let correctDecimalPlaces = Math.round(getOverallGrade(classIndex) * tenToThePower) / tenToThePower;
-                let calculatedOverallLetter = getLetterGrade(calculatedOverallGrade);
-                if (correctDecimalPlaces == realOverallGrade && calculatedOverallLetter === realOverallLetter) {
+                // If the grade matches, the letter grade doesn't *really* have to match
+                if (correctDecimalPlaces === realOverallGrade) {
                     return true;
                 }
                 if (!alerts.lastUpdated.slice(-1)[0]) {
@@ -1810,32 +1809,34 @@
             }
 
             function getLetterGrade(grade) {
+                let letter = "";
                 if (grade >= 97.5) {
-                    return "A+";
+                    letter = "A+";
                 } else if (grade >= 92.5) {
-                    return "A";
+                    letter = "A";
                 } else if (grade >= 89.5) {
-                    return "A-";
+                    letter = "A-";
                 } else if (grade >= 87.5) {
-                    return "B+";
+                    letter = "B+";
                 } else if (grade >= 82.5) {
-                    return "B";
+                    letter = "B";
                 } else if (grade >= 79.5) {
-                    return "B-";
+                    letter = "B-";
                 } else if (grade >= 77.5) {
-                    return "C+";
+                    letter = "C+";
                 } else if (grade >= 72.5) {
-                    return "C";
+                    letter = "C";
                 } else if (grade >= 69.5) {
-                    return "C-";
+                    letter = "C-";
                 } else if (grade >= 67.5) {
-                    return "D+";
+                    letter = "D+";
                 } else if (grade >= 62.5) {
-                    return "D";
+                    letter = "D";
                 } else if (grade >= 59.5) {
-                    return "D-";
+                    letter = "D-";
                 }
-                return "F";
+                letter = "F";
+                return school === "ndsj" ? letter[0] : letter;
             }
 
             let submittingWeights;
@@ -3148,7 +3149,7 @@
             function setupOverviewTable(changedClassIndex) {
                 for (let i = 0; i < parsedData.length; i++) {
                     if (changedClassIndex === undefined || changedClassIndex === i) {
-                        let [overallGrade, overallLetter] = (correctCalc(i)) ? [getOverallGrade(i), getLetterGrade(getOverallGrade(i))] : [_data[i].overall_percent, _data[i].overall_letter];
+                        let [overallGrade, overallLetter] = (correctCalc(i)) ? [getOverallGrade(i), _data[i].overall_letter] : [_data[i].overall_percent, _data[i].overall_letter];
                         let assignmentData = parsedData[i].rawData;
                         let lastIndex = assignmentData.length - 1;
                         let delta = Math.round(assignmentData[lastIndex] - assignmentData[lastIndex - 1] * 100) / 100;
@@ -3514,7 +3515,13 @@
                 let possibles;
                 let possibleLabels;
                 if (startDate < endDate) {
-                    possibles = [{"A": 92.5}, {"A-": 89.5}, {"B": 82.5}, {"B-": 79.5}, {"C": 72.5}, {"C-": 69.5}, {"D": 62.5}, {"D-": 59.5}];
+                    possibles = [{"A+": 97.5}, {"A": 92.5}, {"A-": 89.5}, {"B+": 87.5}, {"B": 82.5}, {"B-": 79.5}, {"C+": 77.5}, {"C": 72.5}, {"C-": 69.5}, {"D+": 67.5}, {"D": 62.5}, {"D-": 59.5}];
+                    if (school === "bellarmine") {
+                        possibles = possibles.slice(1);
+                    }
+                    if (school === "ndsj") {
+                        possibles = [possibles[1], possibles[4], possibles[7], possibles[10]];
+                    }
                     possibles = possibles.filter(element => Object.values(element)[0] > lowScore - 5);
                     possibleLabels = possibles.map(element => Object.keys(element)[0]);
                     possibles = possibles.map(element => Object.values(element)[0]);
@@ -3735,7 +3742,13 @@
                 let possibles;
                 let possibleLabels;
                 if (startDate < endDate) {
-                    possibles = [{"A": 92.5}, {"A-": 89.5}, {"B": 82.5}, {"B-": 79.5}, {"C": 72.5}, {"C-": 69.5}, {"D": 62.5}, {"D-": 59.5}];
+                    possibles = [{"A+": 97.5}, {"A": 92.5}, {"A-": 89.5}, {"B+": 87.5}, {"B": 82.5}, {"B-": 79.5}, {"C+": 77.5}, {"C": 72.5}, {"C-": 69.5}, {"D+": 67.5}, {"D": 62.5}, {"D-": 59.5}];
+                    if (school === "bellarmine") {
+                        possibles = possibles.slice(1);
+                    }
+                    if (school === "ndsj") {
+                        possibles = [possibles[1], possibles[4], possibles[7], possibles[10]];
+                    }
                     possibles = possibles.filter(element => Object.values(element)[0] > lowScore - 5);
                     possibleLabels = possibles.map(element => Object.keys(element)[0]);
                     possibles = possibles.map(element => Object.values(element)[0]);

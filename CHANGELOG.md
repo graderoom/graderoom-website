@@ -42,6 +42,18 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 5.2.5] - 2022-11-06
+### Added
+- Horizontal lines at B+/C+/D+ for BCP students, and, additionally, A+ for BISV students
+
+### Improved
+- Removed +/- horizontal lines for NSDJ
+- When the calculated grade is correct but PowerSchool has a different letter grade, this will no longer be considered an incorrect calculation. (This applies to some BCP religion classes I think).
+- NDSJ letter grades should no longer have +'s and -'s
+
+### Fixed
+- Weighted GPA toggles now sync properly
+
 ## [Beta 5.2.4] - 2022-11-05
 ### Added
 - Support for new school! (Notre Dame San Jose)
