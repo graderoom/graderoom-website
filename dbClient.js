@@ -958,6 +958,7 @@ const _getChartData = async (db) => {
                 let date = new Date(loggedIn);
                 return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
             }))].map(loggedIn => new Date(loggedIn))).reduce((a, b) => a.concat(b));
+            uniqueLoginDates = uniqueLoginDates.concat(loginDates.filter(time => !uniqueLoginDates.find(anotherTime => anotherTime.getTime() === time.getTime())));
             uniqueLoginDates.sort((a, b) => a.getTime() - b.getTime());
             uniqueLoginData = uniqueLoginData ?? [];
             for (let j = 0; j < uniqueLoginDates.length; j++) {
