@@ -46,6 +46,13 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 5.3.1] - 2022-11-09
+### Added
+- Point-based classes now also show total points earned
+
+### Fixed
+- Issue where classes with only extra credit assignments showed a score of Infinity%
+
 ## [Stable 5.3.0] - 2022-11-08
 ### Added
 - New Donation options

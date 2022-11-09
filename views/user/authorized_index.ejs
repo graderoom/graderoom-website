@@ -1796,12 +1796,13 @@
                             points_total += assignment["points_possible"];
                         }
                     }
+                    if (points_total === 0) return null;
                     overallGrade = points_earned / points_total * 100;
                 } else {
                     let classCategories = Object.keys(weights[classIndex]["weights"]);
                     let classWeights = Object.values(weights[classIndex]["weights"]);
                     for (let i = 0; i < classCategories.length; i++) {
-                        overallGrade += getCategoryGrade(classIndex, classCategories[i]) * classWeights[i];
+                        overallGrade += (getCategoryGrade(classIndex, classCategories[i]) ?? 100) * classWeights[i];
                     }
                     overallGrade /= getTotalWeight(classIndex);
                 }
@@ -1898,6 +1899,9 @@
                             $("#ignoringWeights" + i).hide();
                         }
 
+                        let totalGotten = 0;
+                        let totalPossible = 0;
+
                         for (let j = 0; j < tableCategories.length; j++) {
                             //Set italics of weights
                             if (enableReset) {
@@ -1917,6 +1921,8 @@
                             document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
                             document.getElementById("weightTableCategory" + i + j).title = tableCategories[j];
                             let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
+                            totalGotten += categoryGottenAndPossible.gotten;
+                            totalPossible += categoryGottenAndPossible.possible;
                             document.getElementById("weightTablePoints" + i + j).textContent = Math.round(categoryGottenAndPossible.gotten * 10000) / 10000 + ((categoryGottenAndPossible.possible !== 0) ? ("/" + Math.round(categoryGottenAndPossible.possible * 10000) / 10000) : "");
                             let categoryGrade = getCategoryGrade(i, tableCategories[j]);
                             if (categoryGottenAndPossible.possible !== 0) {
@@ -1940,9 +1946,13 @@
                                 color = "red";
                             }
                         }
-                        delta = (delta ? (" <div style=\"cursor: pointer; display: inline-block; margin-left: 1rem; color: " + color + "\" onclick=\"setupGradeChanges()\">" + delta + "</div>") : "");
+                        delta = (delta ? (" <div style=\"cursor: pointer; display: inline-block; margin: 0 1rem; color: " + color + "\" onclick=\"setupGradeChanges()\">" + delta + "</div>") : "");
                         if (overallGrade) {
-                            document.getElementById("weightTableOverallGrade" + i).innerHTML = (Math.round(overallGrade * 100) / 100).toString() + "% (" + getLetterGrade(overallGrade) + ")" + delta;
+                            let html = `${(Math.round(overallGrade * 100) / 100).toString()}% (${getLetterGrade(overallGrade)})${delta}`;
+                            if (!weights[i].hasWeights && Object.keys(weights[i].weights).length > 1) {
+                                html += ` ${totalGotten}/${totalPossible}`;
+                            }
+                            document.getElementById("weightTableOverallGrade" + i).innerHTML = html;
                         } else {
                             document.getElementById("weightTableOverallGrade" + i).innerHTML = "--" + delta;
                         }
