@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
     <title>Graderoom</title>
-    <link rel="icon" href="public/resources/common/icon.png">
+    <link rel="icon" href="/public/resources/common/icon.png">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
@@ -12,13 +12,13 @@
     <% zeroTime = zeroTime.getTime(); %>
     <% if ((zeroTime >= sunset.getTime()) || (zeroTime <= sunrise.getTime())) { %>
         <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
     <% } else { %>
         <% theme = false; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/light_mode.css">
     <% } %>
-    <link rel="stylesheet" type="text/css" href="public/css/main.css">
-    <link id="fade" rel="stylesheet" type="text/css" href="public/css/fade.css" disabled>
+    <link rel="stylesheet" type="text/css" href="/public/css/main.css">
+    <link id="fade" rel="stylesheet" type="text/css" href="/public/css/fade.css" disabled>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>

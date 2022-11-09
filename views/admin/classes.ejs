@@ -2,9 +2,11 @@
 <html lang="en-US">
 <head>
     <title>Graderoom</title>
-    <link rel="icon" href="public/resources/common/icon.png">
+    <link rel="icon" href="/public/resources/common/icon.png">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
     <% let theme; %>
     <% let date = new Date(); %>
@@ -12,37 +14,37 @@
     <% zeroTime = zeroTime.getTime(); %>
     <% if (JSON.parse(appearance).theme === "dark") { %>
         <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
     <% } else if (JSON.parse(appearance).theme === "light") { %>
         <% theme = false; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/light_mode.css">
     <% } else if (JSON.parse(appearance).theme === "auto" && (((JSON.parse(appearance).darkModeStart < JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) && (zeroTime < JSON.parse(appearance).darkModeFinish))) || ((JSON.parse(appearance).darkModeStart > JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) || (zeroTime < JSON.parse(appearance).darkModeFinish))))) { %>
         <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
     <% } else if (JSON.parse(appearance).theme === "system") { %>
         <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
     <% } else if (JSON.parse(appearance).theme === "sun" && ((zeroTime >= sunset.getTime()) || (zeroTime <= sunrise.getTime()))) { %>
         <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/dark_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
     <% } else { %>
         <% theme = false; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="public/css/light_mode.css">
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/light_mode.css">
     <% } %>
-    <link rel="stylesheet" type="text/css" href="public/css/main.css">
-    <link id="blur_base" rel="stylesheet" type="text/css" href="public/css/blur.css"
+    <link rel="stylesheet" type="text/css" href="/public/css/main.css">
+    <link id="blur_base" rel="stylesheet" type="text/css" href="/public/css/blur.css"
           <% if (!JSON.parse(appearance).blurEffects) { %>disabled
             <% } %>
     >
     <link id="blur_overrides" rel="stylesheet" type="text/css"
     <% if (theme === true) { %>
-          href="public/css/dark_blur.css"
-    <% } else if (theme === false) { %> href="public/css/light_blur.css"
+          href="/public/css/dark_blur.css"
+    <% } else if (theme === false) { %> href="/public/css/light_blur.css"
             <% } %>
           <% if (!JSON.parse(appearance).blurEffects) { %>disabled
             <% } %>
     >
-    <link id="fade" rel="stylesheet" type="text/css" href="public/css/fade.css" disabled>
+    <link id="fade" rel="stylesheet" type="text/css" href="/public/css/fade.css" disabled>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
