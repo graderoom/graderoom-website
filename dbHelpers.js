@@ -8,6 +8,7 @@ const {Schools} = require("./enums");
 
 exports.USERS_COLLECTION_NAME = "users";
 exports.CLASSES_COLLECTION_NAME = "classes";
+exports.CHARTS_COLLECTION_NAME = "charts";
 exports.ROUNDS_TO_GENERATE_SALT = 10;
 exports.USERS_COLLECTION_NAME = "users";
 exports.ARCHIVED_USERS_COLLECTION_NAME = "archived_users";

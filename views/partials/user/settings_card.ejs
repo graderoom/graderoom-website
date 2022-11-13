@@ -346,6 +346,54 @@
                             </label>
                         </label>
                     </div>
+                    <div class="card-footer">
+                        <h5>Charts</h5>
+                        <div>
+                            <label class="slider-container">
+                                <label class="switch">
+                                    <input
+                                            id="classGraphRegularizationToggle"
+                                            style="margin: 0; display: flex"
+                                            type="checkbox"
+                                            name="regularizeClassGraphs"
+                                    <% if (JSON.parse(appearance).regularizeClassGraphs) { %>
+                                            checked="checked"
+                                            <% } %>
+                                            onchange="changeSetting('regularizeClassGraphs', !appearance.regularizeClassGraphs)"
+                                    >
+                                    <span class="slider"></span>
+                                </label>
+                                <label for="classGraphRegularizationToggle">
+                                    Regularize Class Graphs <span class="popup"><i
+                                                class="fa fa-question-circle"><span
+                                                    class="popup-right-bottom">When enabled, all class graphs
+                                                are
+                                                bounded between at 70 and 110 on the y-axis</span></i></span>
+                                </label>
+                            </label>
+                            <label class="slider-container">
+                                <label class="switch">
+                                    <input
+                                            id="showPlusMinusLinesToggle"
+                                            style="margin: 0; display: flex"
+                                            type="checkbox"
+                                            name="showPlusMinusLines"
+                                    <% if (JSON.parse(appearance).showPlusMinusLines) { %>
+                                            checked="checked"
+                                            <% } %>
+                                            onchange="changeSetting('showPlusMinusLines', !appearance.showPlusMinusLines)"
+                                    >
+                                    <span class="slider"></span>
+                                </label>
+                                <label for="showPlusMinusLinesToggle">
+                                    Show horizontal lines at + and - letter grades <span class="popup"><i
+                                                class="fa fa-question-circle"><span
+                                                    class="popup-right-bottom">When enabled, adds additional guide
+                                                lines at the +/- letter grades</span></i></span>
+                                </label>
+                            </label>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div id="settings-2" class="tabcontent">
@@ -380,7 +428,7 @@
                                     <div class="progress-bar popup-holder" role="progressbar">
                                         <span class="popup">
                                             <span class="popup-top">
-                                                $1: Get a donor role on discord and access to a donor chat
+                                                $1: Get a donor role on discord and create high-priority feature requests
                                             </span>
                                         </span>
                                     </div>
@@ -663,81 +711,34 @@
             <div id="settings-3" class="tabcontent">
                 <div class="card-body">
                     <div class="card-footer">
-                        <h5>Display
-                            <br>
-                            <small style="opacity: 0.5">Changing these settings will immediately refresh the
+                        <h5>Display<br><small style="opacity: 0.5">Changing this setting will immediately refresh the
                                 page.</small></h5>
-                        <form id="advancedAppearance" action="/advancedAppearance" method="post">
-                            <div>
-                                <label class="slider-container">
-                                    <label class="switch">
-                                        <input
-                                                id="classGraphRegularizationToggle"
-                                                style="margin: 0; display: flex"
-                                                type="checkbox"
-                                                name="regularizeClassGraphs"
-                                        <% if (JSON.parse(appearance).regularizeClassGraphs) { %>
-                                                checked="checked"
-                                                <% } %>
-                                                onchange="$(this).closest('form').trigger('submit')"
-                                        >
-                                        <span class="slider"></span>
-                                    </label>
-                                    <label for="classGraphRegularizationToggle">
-                                        Regularize Class Graphs <span class="popup"><i
-                                                    class="fa fa-question-circle"><span
-                                                        class="popup-right-bottom">When enabled, all class graphs
-                                                    are
-                                                    bounded between at 70 and 110 on the y-axis</span></i></span>
-                                    </label>
-                                </label>
-                                <label class="slider-container">
-                                    <label class="switch">
-                                        <input
-                                                id="showPlusMinusLinesToggle"
-                                                style="margin: 0; display: flex"
-                                                type="checkbox"
-                                                name="showPlusMinusLines"
-                                        <% if (JSON.parse(appearance).showPlusMinusLines) { %>
-                                                checked="checked"
-                                                <% } %>
-                                                onchange="$(this).closest('form').trigger('submit')"
-                                        >
-                                        <span class="slider"></span>
-                                    </label>
-                                    <label for="showPlusMinusLinesToggle">
-                                        Show horizontal lines at + and - letter grades <span class="popup"><i
-                                                    class="fa fa-question-circle"><span
-                                                        class="popup-right-bottom">When enabled, adds additional guide
-                                                    lines at the +/- letter grades</span></i></span>
-                                    </label>
-                                </label>
-                                <label class="slider-container">
-                                    <label class="switch"
-                                    <% if (Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
-                                           style="cursor: pointer"
-                                            <% } %>
-                                    >
-                                        <input
-                                        <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
-                                            disabled
-                                                <% } %>
-                                            id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
-                                        <% if (JSON.parse(appearance).showNonAcademic) { %> checked="checked"
-                                                <% } %>
-                                            onchange="$(this).closest('form').trigger('submit')"
-                                        >
-                                        <span class="slider"></span>
-                                    </label>
-                                    <label for="showNonAcademicCheckbox"
+                        <form action="/setShowNonAcademic" method="post">
+                            <label class="slider-container">
+                                <label class="switch"
+                                <% if (Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
+                                       style="cursor: pointer"
+                                        <% } %>
+                                >
+                                    <input
                                     <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
-                                           class="disabled"
+                                        disabled
                                             <% } %>
+                                        id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
+                                    <% if (JSON.parse(appearance).showNonAcademic) { %> checked="checked"
+                                            <% } %>
+                                        onchange="$(this).closest('form').trigger('submit')"
                                     >
-                                        Show Non-Academic Classes
-                                    </label>
+                                    <span class="slider"></span>
                                 </label>
-                            </div>
+                                <label for="showNonAcademicCheckbox"
+                                <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
+                                       class="disabled"
+                                        <% } %>
+                                >
+                                    Show Non-Academic Classes
+                                </label>
+                            </label>
                         </form>
                     </div>
                     <div class="card-footer">

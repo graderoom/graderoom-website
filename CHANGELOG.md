@@ -46,6 +46,24 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 5.4.0] - 2022-11-13
+### Added
+- User distribution by school to charts
+- Added other teacher user counts and class averages to class info
+
+### Improved
+- Changing chart-related settings no longer require refreshing the page<ul>
+- These settings have also been moved to the 'General' tab
+- (They also sync across devices in real time in case you do that for some reason)</ul>
+- Charts page now shows old data if new data is still being processed<ul>
+- and no longer stops the server from processing other requests</ul>
+- Charts no longer display empty if there is no data. They show 'No Data' instead
+
+### Fixed
+- Charts page shows correct graduation data
+- GPA displays now properly update after a sync
+- Issue where having a category with only extra credit caused an incorrectly calculated score
+
 ## [Stable 5.3.1] - 2022-11-09
 ### Added
 - Point-based classes now also show total points earned

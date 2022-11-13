@@ -66,7 +66,7 @@
 <% } %>
 <div class="container">
     <br>
-    <div class="chart-container chart" style="height: unset; width: unset; display: block">
+    <div id="big-container" class="chart-container chart" style="height: unset; width: unset; display: block">
         <h1>
             Usage
         </h1>
@@ -97,16 +97,30 @@
             </canvas>
         </div>
         <div class="chart-container chart" style="display: block; width: max(400px, calc(50% - 1rem))">
-            <h4>Users breakdown</h4>
+            <h4>Users breakdown by graduation year</h4>
             <h6>Graduation Years update in June of each year</h6>
             <canvas id="users"></canvas>
+        </div>
+        <div class="chart-container chart" style="display: block; width: max(400px, calc(50% - 1rem))">
+            <h4>Users breakdown by school</h4>
+            <canvas id="schools"></canvas>
         </div>
     </div>
 </div>
 
 <script>
     let colors = ["rgba(255, 99, 132, 0.2)", "rgba(255, 159, 64, 0.2)", "rgba(255, 205, 86, 0.2)", "rgba(75, 192, 192, 0.2)", "rgba(54, 162, 235, 0.2)", "rgba(153, 102, 255, 0.2)", "rgba(201, 203, 207, 0.2)"];
+    let schoolColors = {
+        "bellarmine": "rgba(54, 162, 235, 0.2)",
+        "basis": "rgba(255, 99, 132, 0.2)",
+        "ndsj": "rgba(153, 102, 255, 0.2)",
+    };
     let borders = ["rgb(255, 99, 132)", "rgb(255, 159, 64)", "rgb(255, 205, 86)", "rgb(75, 192, 192)", "rgb(54, 162, 235)", "rgb(153, 102, 255)", "rgb(201, 203, 207)"];
+    let schoolBorders = {
+        "bellarmine": "rgb(54, 162, 235)",
+        "basis": "rgb(255, 99, 132)",
+        "ndsj": "rgb(153, 102, 255)",
+    };
 
     let checkingTheme;
     let appearance = <%- appearance; %>;
@@ -115,6 +129,8 @@
     let darkModeFinish = appearance.darkModeFinish ?? null;
     let sunrise = <%= sunrise.getTime(); %>;
     let sunset = <%= sunset.getTime(); %>;
+    let SchoolAbbr = <%- SchoolAbbr %>;
+    let PrettySchools = <%- PrettySchools %>;
 
     if (theme === "auto" || theme === "sun") {
         checkTime();
@@ -152,6 +168,7 @@
                         $("#light_snowfall").attr("media", "not all");
                     }
                 }
+                setupAllCharts();
             }
         } else {
             let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css";
@@ -175,6 +192,7 @@
                         $("#light_snowfall").attr("media", "not all");
                     }
                 }
+                setupAllCharts();
             }
         }
     }
@@ -200,6 +218,7 @@
     let weekdaySyncData = Array(7).fill(0);
 
     let gradData = <%- gradData %>;
+    let schoolData = <%- schoolData %>;
 
     // Fill in holes in loginData
     let length = loginData.length;
@@ -240,15 +259,14 @@
 
         i += Math.max(diffInDays - 1, 0);
     }
-    let yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    yesterday = yesterday.toDateString();
-    $("#user-desc").text(`${userData.slice(-1)[0].y} total user(s), ${activeUsersData.slice(-1)[0].y} active user(s), as of yesterday, ${yesterday}.`);
+    let updated = new Date(<%= lastUpdated %>);
+    $("#user-desc").text(`${userData.slice(-1)[0].y} total user(s), ${activeUsersData.slice(-1)[0].y} active user(s), as of ${updated.toDateString()}.`);
     $("#weekday-desc").text(`${weekdayLoginData.reduce((a, b) => a + b, 0)} logins, ${weekdaySyncData.reduce((a, b) => a + b, 0)} syncs all time`)
 
     let chart;
     let weekdayLoginChart;
     let gradYearChart;
+    let schoolChart;
 
     function resetZoom() {
         chart.resetZoom();
@@ -340,75 +358,89 @@
     dataset.push(syncsDataset);
     dataset.push(numUsersDataset);
     dataset.push(activeUsersDataset);
-    let ctx = document.getElementById("chart");
-    chart = new Chart(ctx, {
-        type: "line", data: {
-            datasets: dataset
-        }, options: {
-            hover: {
-                mode: "index", intersect: false
-            }, scales: {
-                xAxis: {
-                    type: "time", time: {
-                        unit: "year"
-                    }, ticks: {
-                        color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
-                        fontFamily: "Verdana",
-                        fontSize: "13"
-                    }, grid: {
-                        color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
-                    }
-                }, yAxis: {
-                    ticks: {
-                        color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
-                        fontFamily: "Verdana",
-                        fontSize: "12"
-                    }, grid: {
-                        color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC"),
-                        drawBorder: false
-                    }
-                }
-            }, animation: {
-                easing: "easeOutCubic"
-            }, responsive: true, maintainAspectRatio: true, plugins: {
-                legend: {
-                    display: true, position: "top", labels: {
-                        usePointStyle: true,
-                        color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
-                        fontFamily: "Verdana",
-                        boxWidth: 20,
-                        fontSize: 13,
-                        filter: function (item) {
-                            return !item.text.includes("undefined");
-                        }
-                    }
-                }, tooltip: {
-                    enabled: true, mode: "index", intersect: false, displayColors: true, caretSize: 10, callbacks: {
-                        title: function (tooltipItems) {
-                            return new Date(tooltipItems[0].label).toDateString();
-                        }
-                    }
-                }, zoom: {
-                    zoom: {
-                        wheel: {
-                            enabled: true, speed: 0.05
-                        }, pinch: {
-                            enabled: true, threshold: 100
-                        }, drag: {enabled: true}, mode: "xy", onZoom: ({chart}) => {
-                            $("#reset-zoom-1").show();
 
-                            // Disable hovering and tooltips to make animation smoother
-                            chart.options.hover.mode = null;
-                            chart.options.plugins.tooltip.enabled = false;
-                        }, onZoomComplete: ({chart}) => {
-                            chart.options.hover.mode = "nearest";
-                            chart.options.plugins.tooltip.enabled = true;
+    function setupAllCharts() {
+        setupChart();
+        setupWeekdayChart();
+        setupGradYearChart();
+        setupSchoolChart();
+    }
+
+    setupChart();
+    function setupChart() {
+        let ctx = document.getElementById("chart");
+        if (chart) {
+            chart.destroy();
+        }
+        chart = new Chart(ctx, {
+            type: "line", data: {
+                datasets: dataset
+            }, options: {
+                hover: {
+                    mode: "index", intersect: false
+                }, scales: {
+                    xAxis: {
+                        type: "time", time: {
+                            unit: "year"
+                        }, ticks: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            fontFamily: "Verdana",
+                            fontSize: "13"
+                        }, grid: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
+                        }
+                    }, yAxis: {
+                        ticks: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            fontFamily: "Verdana",
+                            fontSize: "12"
+                        }, grid: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC"),
+                            drawBorder: false
+                        }
+                    }
+                }, animation: {
+                    easing: "easeOutCubic"
+                }, responsive: true, maintainAspectRatio: true, plugins: {
+                    legend: {
+                        display: true, position: "top", labels: {
+                            usePointStyle: true,
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            fontFamily: "Verdana",
+                            boxWidth: 20,
+                            fontSize: 13,
+                            filter: function (item) {
+                                return !item.text.includes("undefined");
+                            }
+                        }
+                    }, tooltip: {
+                        enabled: true, mode: "index", intersect: false, displayColors: true, caretSize: 10, callbacks: {
+                            title: function (tooltipItems) {
+                                return new Date(tooltipItems[0].label).toDateString();
+                            }
+                        }
+                    }, zoom: {
+                        zoom: {
+                            wheel: {
+                                enabled: true, speed: 0.05
+                            }, pinch: {
+                                enabled: true, threshold: 100
+                            }, drag: {enabled: true}, mode: "xy", onZoom: ({chart}) => {
+                                $("#reset-zoom-1").show();
+
+                                // Disable hovering and tooltips to make animation smoother
+                                chart.options.hover.mode = null;
+                                chart.options.plugins.tooltip.enabled = false;
+                            }, onZoomComplete: ({chart}) => {
+                                chart.options.hover.mode = "nearest";
+                                chart.options.plugins.tooltip.enabled = true;
+                            }
                         }
                     }
                 }
             }
-        }
-    });
+        });
+    }
 
     function setBounds(index) {
         // 0 is 5 days
@@ -468,111 +500,184 @@
         $("#reset-zoom-1").hide();
     }
 
-    ctx = document.getElementById("chart-weekdays");
-    weekdayLoginChart = new Chart(ctx, {
-        type: "bar", data: {
-            labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], datasets: [{
-                label: "Unique Logins",
-                backgroundColor: colors[0],
-                borderColor: borders[0],
-                borderWidth: 1,
-                data: weekdayUniqueLoginData
-            }, {
-                label: "Logins",
-                backgroundColor: colors[3],
-                borderColor: borders[3],
-                borderWidth: 1,
-                data: weekdayLoginData
-            }, {
-                label: "Syncs",
-                backgroundColor: colors[2],
-                borderColor: borders[2],
-                borderWidth: 1,
-                data: weekdaySyncData
-            }]
-        }, options: {
-            scales: {
-                y: {
-                    beginAtZero: true, ticks: {
-                        color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
-                        fontFamily: "Verdana",
-                        fontSize: "13"
-                    }, grid: {
-                        color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
+    setupWeekdayChart();
+    function setupWeekdayChart() {
+        let ctx = document.getElementById("chart-weekdays");
+        if (weekdayLoginChart) {
+            weekdayLoginChart.destroy();
+        }
+        weekdayLoginChart = new Chart(ctx, {
+            type: "bar", data: {
+                labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], datasets: [{
+                    label: "Unique Logins",
+                    backgroundColor: colors[0],
+                    borderColor: borders[0],
+                    borderWidth: 1,
+                    data: weekdayUniqueLoginData
+                }, {
+                    label: "Logins",
+                    backgroundColor: colors[3],
+                    borderColor: borders[3],
+                    borderWidth: 1,
+                    data: weekdayLoginData
+                }, {
+                    label: "Syncs",
+                    backgroundColor: colors[2],
+                    borderColor: borders[2],
+                    borderWidth: 1,
+                    data: weekdaySyncData
+                }]
+            }, options: {
+                scales: {
+                    y: {
+                        beginAtZero: true, ticks: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            fontFamily: "Verdana",
+                            fontSize: "13"
+                        }, grid: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
+                        }
+                    }, x: {
+                        ticks: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            fontFamily: "Verdana",
+                            fontSize: "12"
+                        }, grid: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
+                        }
                     }
-                }, x: {
-                    ticks: {
-                        color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
-                        fontFamily: "Verdana",
-                        fontSize: "12"
-                    }, grid: {
-                        color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
-                    }
-                }
-            }, plugins: {
-                legend: {
-                    display: true, position: "top", labels: {
-                        color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
-                        fontFamily: "Verdana",
-                        boxWidth: 20,
-                        fontSize: 13,
-                        filter: function (item) {
-                            return !item.text.includes("undefined");
+                }, plugins: {
+                    legend: {
+                        display: true, position: "top", labels: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            fontFamily: "Verdana",
+                            boxWidth: 20,
+                            fontSize: 13,
+                            filter: function (item) {
+                                return !item.text.includes("undefined");
+                            }
                         }
                     }
                 }
             }
-        }
-    });
+        });
+    }
 
-    ctx = document.getElementById("users");
-    let realGradData = gradData.map((g, i) => {
-
-        return {
-            label: g.x, backgroundColor: colors[i], borderColor: borders[i], borderWidth: 1, data: [g.y], stack: "users"
-        };
-    });
-    gradYearChart = new Chart(ctx, {
-        type: "bar", data: {
-            labels: [""], datasets: realGradData
-        }, options: {
-            indexAxis: "y", scales: {
-                y: {
-                    beginAtZero: true, ticks: {
-                        color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
-                        fontFamily: "Verdana",
-                        fontSize: "13"
-                    }, grid: {
-                        color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
+    setupGradYearChart();
+    function setupGradYearChart() {
+        let ctx = document.getElementById("users");
+        let realGradData = gradData.map((g, i) => {
+            return {
+                label: g.x,
+                backgroundColor: colors[i],
+                borderColor: borders[i],
+                borderWidth: 1,
+                data: [g.y],
+                stack: "users"
+            };
+        });
+        gradYearChart = new Chart(ctx, {
+            type: "bar", data: {
+                labels: [""], datasets: realGradData
+            }, options: {
+                indexAxis: "y", scales: {
+                    y: {
+                        beginAtZero: true, ticks: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            fontFamily: "Verdana",
+                            fontSize: "13"
+                        }, grid: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
+                        }
+                    }, x: {
+                        ticks: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            fontFamily: "Verdana",
+                            fontSize: "12"
+                        }, grid: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
+                        }
                     }
-                }, x: {
-                    ticks: {
-                        color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
-                        fontFamily: "Verdana",
-                        fontSize: "12"
-                    }, grid: {
-                        color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
-                    }
-                }
-            }, plugins: {
-                legend: {
-                    display: true, position: "left", labels: {
-                        color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
-                        fontFamily: "Verdana",
-                        boxWidth: 20,
-                        fontSize: 13,
-                        filter: function (item) {
-                            return !item.text.includes("undefined");
+                }, plugins: {
+                    legend: {
+                        display: true, position: "left", labels: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            fontFamily: "Verdana",
+                            boxWidth: 20,
+                            fontSize: 13,
+                            filter: function (item) {
+                                return !item.text.includes("undefined");
+                            }
                         }
                     }
                 }
             }
-        }
-    });
+        });
+    }
+
+    setupSchoolChart();
+    function setupSchoolChart() {
+        let ctx = document.getElementById("schools");
+        let realSchoolData = schoolData.map((s, i) => {
+            return {
+                label: SchoolAbbr[s.x],
+                backgroundColor: schoolColors[s.x],
+                borderColor: schoolBorders[s.x],
+                borderWidth: 1,
+                data: [s.y],
+                stack: "schools"
+            };
+        });
+        schoolChart = new Chart(ctx, {
+            type: "bar", data: {
+                labels: [""], datasets: realSchoolData
+            }, options: {
+                indexAxis: "y", scales: {
+                    y: {
+                        beginAtZero: true, ticks: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            fontFamily: "Verdana",
+                            fontSize: "13"
+                        }, grid: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
+                        }
+                    }, x: {
+                        ticks: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            fontFamily: "Verdana",
+                            fontSize: "12"
+                        }, grid: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
+                        }
+                    }
+                }, plugins: {
+                    legend: {
+                        display: true, position: "left", labels: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            fontFamily: "Verdana",
+                            boxWidth: 20,
+                            fontSize: 13,
+                            filter: function (item) {
+                                return !item.text.includes("undefined");
+                            },
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                return PrettySchools[tooltipItems[0].dataset.label];
+                            },
+                            label: function (tooltipItem) {
+                                return tooltipItem.parsed.x;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
 </script>
 
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6386323369506160"
-        crossorigin="anonymous"></script>
 <!-- Horizontal -->
 <ins class="adsbygoogle"
      style="display:block"

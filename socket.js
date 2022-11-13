@@ -27,6 +27,12 @@ module.exports = {
                                 let {theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects} = value;
                                 resp = await dbClient.setTheme(socket.request.user.username, theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects);
                                 break;
+                            case "regularizeClassGraphs":
+                                resp = await dbClient.setRegularizeClassGraphs(socket.request.user.username, value);
+                                break;
+                            case "showPlusMinusLines":
+                                resp = await dbClient.setShowPlusMinusLines(socket.request.user.username, value);
+                                break;
                         }
                         if (resp.success) {
                             socketManager.emitToRoom(socket.request.user.username, purpose, "success-settingschange", resp.data);
@@ -73,7 +79,7 @@ module.exports = {
 function logSocket(socket, socketName) {
 
     function displayNicely(...args) {
-        return [...args].map(arg => {
+        return args.map(arg => {
             return JSON.stringify(arg);
         });
     }

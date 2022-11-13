@@ -6,17 +6,14 @@ const _ = require("lodash");
 const stream = require("stream");
 const socketManager = require("./socketManager");
 const scraper = require("./scrape");
-const {SyncStatus, Schools, Constants} = require("./enums");
-const {dbUserVersion, dbClassVersion, minDonoAmount, minPremiumAmount} = require("./dbHelpers");
+const {SyncStatus, Schools, Constants, PrettySchools} = require("./enums");
+const {dbUserVersion, dbClassVersion, minDonoAmount, minPremiumAmount, CHARTS_COLLECTION_NAME} = require("./dbHelpers");
 
 let _url;
 let _prod;
 let _beta;
 let _testing;
 let _client;
-
-let lastUpdatedCharts = new Date(0);
-let loginData, uniqueLoginData, syncData, userData, activeUsersData, gradData;
 
 // Shared constants to avoid typo bugs
 
@@ -256,6 +253,10 @@ const _init = async (db) => {
     // Create the deleted user collection if it doesn't exist
     if (!collectionNames.includes(ARCHIVED_USERS_COLLECTION_NAME)) {
         await db.createCollection(ARCHIVED_USERS_COLLECTION_NAME);
+    }
+    // Create the charts collection if it doesn't exist
+    if (!collectionNames.includes(CHARTS_COLLECTION_NAME)) {
+        await db.createCollection(CHARTS_COLLECTION_NAME);
     }
 
     for (let school of Object.values(Schools)) {
@@ -916,154 +917,189 @@ const _getAllClasses = async (db, school, projection) => {
 };
 
 const _getChartData = async (db) => {
-    if (isNotToday(lastUpdatedCharts)) {
-        return new Promise(async resolve => {
-            let projection = {
-                loggedIn: 1, "alerts.lastUpdated": 1, "personalInfo.graduationYear": 1
-            };
-            let query = {
-                $or: [{
-                    'alerts.lastUpdated.timestamp': {
-                        $gte: lastUpdatedCharts.getTime(),
-                        $lt: Date.parse(new Date().toDateString())
-                    }
-                }, {'loggedIn': {$gt: lastUpdatedCharts.getTime(), $lt: Date.parse(new Date().toDateString())}}]
-            };
-            // All users with new data since lastUpdatedCharts but before today
-            let allUsers = (await _getAllUsers(db, projection, query)).data.value;
-            // List of new loginDates after lastUpdatedCharts but not today
-            let loginDates = allUsers.map(u => u.loggedIn.map(d => {
-                let date = new Date(d);
-                return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-            })).reduce((a, b) => a.concat(b)).filter(d => d.getTime() >= lastUpdatedCharts.getTime() && isNotToday(d));
-            // List of new syncDates after lastUpdatedCharts but not today
-            let syncDates = allUsers.map(u => u.alerts.lastUpdated.map(d => {
-                let date = new Date(d.timestamp);
-                return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-            })).reduce((a, b) => a.concat(b)).filter(d => d.getTime() >= lastUpdatedCharts.getTime() && isNotToday(d));
-            // Add days that don't exist in loginDates that are in sync dates and vice versa and sort them
-            loginDates = loginDates.concat(syncDates.filter(t => !loginDates.find(u => u.getTime() === t.getTime()))).sort((a, b) => a.getTime() - b.getTime());
-            syncDates = syncDates.concat(loginDates.filter(t => !syncDates.find(u => u.getTime() === t.getTime()))).sort((a, b) => a.getTime() - b.getTime());
-            loginData = loginData ?? [];
-            for (let j = 0; j < loginDates.length; j++) {
-                let r = loginData.find(d => d.x.getTime() === loginDates[j].getTime());
-                if (r) {
-                    r.y++;
-                } else {
-                    loginData.push({x: loginDates[j], y: 1});
-                }
-            }
-
-            let uniqueLoginDates = allUsers.map(user => [...new Set(user.loggedIn.filter(d => d >= lastUpdatedCharts.getTime() && d < Date.parse(new Date().toDateString())).map(loggedIn => {
-                let date = new Date(loggedIn);
-                return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-            }))].map(loggedIn => new Date(loggedIn))).reduce((a, b) => a.concat(b));
-            uniqueLoginDates = uniqueLoginDates.concat(loginDates.filter(time => !uniqueLoginDates.find(anotherTime => anotherTime.getTime() === time.getTime())));
-            uniqueLoginDates.sort((a, b) => a.getTime() - b.getTime());
-            uniqueLoginData = uniqueLoginData ?? [];
-            for (let j = 0; j < uniqueLoginDates.length; j++) {
-                let r = uniqueLoginData.find(d => d.x.getTime() === uniqueLoginDates[j].getTime());
-                if (r) {
-                    r.y++;
-                } else {
-                    uniqueLoginData.push({x: uniqueLoginDates[j], y: 1});
-                }
-            }
-            syncData = syncData ?? [];
-            for (let j = 0; j < syncDates.length; j++) {
-                let r = syncData.find(d => d.x.getTime() === syncDates[j].getTime());
-                if (r) {
-                    r.y++;
-                } else {
-                    syncData.push({x: syncDates[j], y: 1});
-                }
-            }
-
-            let actualAllUsers = (await _getAllUsers(db, {'loggedIn': 1})).data.value;
-
-            // Might be workaround for this, but I can't figure it out at the moment
-            userData = loginData.map(t => ({
-                x: t.x, y: actualAllUsers.filter(u => {
-                    return Date.parse(new Date(u.loggedIn[0]).toDateString()) <= t.x.getTime();
-                }).length
-            }));
-
-            // No workaround for this. Need all users as far as I can tell
-            activeUsersData = loginData.map(t => ({
-                x: t.x, y: actualAllUsers.filter(u => u.loggedIn.some(v => {
-                    let vTime = Date.parse(new Date(v).toDateString());
-                    return (vTime <= t.x.getTime()) && (vTime >= (t.x.getTime() - (14 * 24 * 60 * 60 * 1000)));
-                })).length
-            }));
-            let today = new Date();
-            let seniorYear = today.getFullYear() + (today.getMonth() > 4 ? 1 : 0);
-            let gradYears = allUsers.map(u => u.personalInfo.graduationYear ?? null);
-            gradData = gradData ?? [];
-            for (let j = 0; j < gradYears.length; j++) {
-                let year = gradYears[j];
-                if (year) {
-                    let hsYear = seniorYear - year + 4;
-                    if (hsYear === 1) {
-                        year = "Freshman";
-                    } else if (hsYear === 2) {
-                        year = "Sophomore";
-                    } else if (hsYear === 3) {
-                        year = "Junior";
-                    } else if (hsYear === 4) {
-                        year = "Senior";
-                    } else if (hsYear > 4) {
-                        year = "Graduate";
-                    } else {
-                        year = "Other";
-                    }
-                    let index = gradData.findIndex(d => d.x === `${year}`);
-                    if (index === -1) {
-                        index = gradData.length;
-                        gradData.push({x: `${year}`, y: 0});
-                    }
-                    gradData[index].y++;
-                } else {
-                    let unknownIndex = gradData.findIndex(d => d.x === "Unknown");
-                    if (unknownIndex === -1) {
-                        unknownIndex = gradData.length;
-                        gradData.push({x: "Unknown", y: 0});
-                    }
-                    gradData[unknownIndex].y++;
-                }
-            }
-            let sortMap = {
-                "Freshman": seniorYear - 3,
-                "Sophomore": seniorYear - 2,
-                "Junior": seniorYear - 1,
-                "Senior": seniorYear,
-                "Graduate": seniorYear + 1,
-                "Unknown": seniorYear + 2
-            };
-            gradData.sort((a, b) => sortMap[a.x] - sortMap[b.x]);
-            lastUpdatedCharts = new Date(Date.parse(new Date().toDateString()));
-            return resolve({
-                success: true, data: {
-                    loginData: loginData,
-                    uniqueLoginData: uniqueLoginData,
-                    syncData: syncData,
-                    userData: userData,
-                    activeUsersData: activeUsersData,
-                    gradData: gradData
-                }
-            });
-        });
+    let data = await db.collection(CHARTS_COLLECTION_NAME).findOne();
+    if (!data) {
+        data = (await _processChartData(db)).data.value;
+    } else if (isNotToday(data.lastUpdated)) {
+        // Don't wait for this one because we already have old data we can show
+        _processChartData(db);
     }
 
-    return {
-        success: true, data: {
-            loginData: loginData,
-            uniqueLoginData: uniqueLoginData,
-            syncData: syncData,
-            userData: userData,
-            activeUsersData: activeUsersData,
-            gradData: gradData
+    return new Promise(resolve => resolve({
+        success: true, data: data}));
+};
+
+const _processChartData = async (db) => {
+    let data = await db.collection(CHARTS_COLLECTION_NAME).findOne();
+    if (!data) {
+        data = {
+            loginData: [],
+            uniqueLoginData: [],
+            syncData: [],
+            userData: [],
+            activeUsersData: [],
+            gradData: [],
+            schoolData: [],
+            lastUpdated: new Date(0),
         }
+    }
+    if (!data.updating) {
+        await db.collection(CHARTS_COLLECTION_NAME).updateOne({}, {$set: {updating: true}}, {upsert: true});
+    } else {
+        return {success: true, data: {value: data}};
+    }
+    let {loginData, uniqueLoginData, syncData, gradData, schoolData, lastUpdated: lastUpdatedCharts} = data;
+    let projection = {
+        loggedIn: 1, "alerts.lastUpdated": 1, "personalInfo.graduationYear": 1, school: 1
     };
+    let query = {
+        $or: [{
+            'alerts.lastUpdated.timestamp': {
+                $gte: lastUpdatedCharts.getTime(),
+                $lt: Date.parse(new Date().toDateString())
+            }
+        }, {'loggedIn': {$gt: lastUpdatedCharts.getTime(), $lt: Date.parse(new Date().toDateString())}}]
+    };
+    // All users with new data since lastUpdatedCharts but before today
+    let allUsers = (await _getAllUsers(db, projection, query)).data.value;
+    // List of new loginDates after lastUpdatedCharts but not today
+    let loginDates = allUsers.map(u => u.loggedIn.map(d => {
+        let date = new Date(d);
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    })).reduce((a, b) => a.concat(b)).filter(d => d.getTime() >= lastUpdatedCharts.getTime() && isNotToday(d));
+    // List of new syncDates after lastUpdatedCharts but not today
+    let syncDates = allUsers.map(u => u.alerts.lastUpdated.map(d => {
+        let date = new Date(d.timestamp);
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    })).reduce((a, b) => a.concat(b)).filter(d => d.getTime() >= lastUpdatedCharts.getTime() && isNotToday(d));
+    // Add days that don't exist in loginDates that are in sync dates and vice versa and sort them
+    loginDates = loginDates.concat(syncDates.filter(t => !loginDates.find(u => u.getTime() === t.getTime()))).sort((a, b) => a.getTime() - b.getTime());
+    syncDates = syncDates.concat(loginDates.filter(t => !syncDates.find(u => u.getTime() === t.getTime()))).sort((a, b) => a.getTime() - b.getTime());
+    loginData = loginData ?? [];
+    for (let j = 0; j < loginDates.length; j++) {
+        let r = loginData.find(d => d.x.getTime() === loginDates[j].getTime());
+        if (r) {
+            r.y++;
+        } else {
+            loginData.push({x: loginDates[j], y: 1});
+        }
+    }
+
+    let uniqueLoginDates = allUsers.map(user => [...new Set(user.loggedIn.filter(d => d >= lastUpdatedCharts.getTime() && d < Date.parse(new Date().toDateString())).map(loggedIn => {
+        let date = new Date(loggedIn);
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+    }))].map(loggedIn => new Date(loggedIn))).reduce((a, b) => a.concat(b));
+    uniqueLoginDates = uniqueLoginDates.concat(loginDates.filter(time => !uniqueLoginDates.find(anotherTime => anotherTime.getTime() === time.getTime())));
+    uniqueLoginDates.sort((a, b) => a.getTime() - b.getTime());
+    uniqueLoginData = uniqueLoginData ?? [];
+    for (let j = 0; j < uniqueLoginDates.length; j++) {
+        let r = uniqueLoginData.find(d => d.x.getTime() === uniqueLoginDates[j].getTime());
+        if (r) {
+            r.y++;
+        } else {
+            uniqueLoginData.push({x: uniqueLoginDates[j], y: 1});
+        }
+    }
+    syncData = syncData ?? [];
+    for (let j = 0; j < syncDates.length; j++) {
+        let r = syncData.find(d => d.x.getTime() === syncDates[j].getTime());
+        if (r) {
+            r.y++;
+        } else {
+            syncData.push({x: syncDates[j], y: 1});
+        }
+    }
+
+    let actualAllUsers = (await _getAllUsers(db, {'loggedIn': 1})).data.value;
+
+    // Might be workaround for this, but I can't figure it out at the moment
+    let userData = loginData.map(t => ({
+        x: t.x, y: actualAllUsers.filter(u => {
+            return Date.parse(new Date(u.loggedIn[0]).toDateString()) <= t.x.getTime();
+        }).length
+    }));
+
+    // No workaround for this. Need all users as far as I can tell
+    let activeUsersData = loginData.map(t => ({
+        x: t.x, y: actualAllUsers.filter(u => u.loggedIn.some(v => {
+            let vTime = Date.parse(new Date(v).toDateString());
+            return (vTime <= t.x.getTime()) && (vTime >= (t.x.getTime() - (14 * 24 * 60 * 60 * 1000)));
+        })).length
+    }));
+    let today = new Date();
+    let seniorYear = today.getFullYear() + (today.getMonth() > 4 ? 1 : 0);
+    let gradYears = allUsers.filter(u => u.loggedIn[0] >= lastUpdatedCharts.getTime() && u.loggedIn[0] < Date.parse(new Date().toDateString())).map(u => u.personalInfo.graduationYear ?? null);
+    gradData = gradData ?? [];
+    for (let j = 0; j < gradYears.length; j++) {
+        let year = gradYears[j];
+        if (year) {
+            let hsYear = seniorYear - year + 4;
+            if (hsYear === 1) {
+                year = "Freshman";
+            } else if (hsYear === 2) {
+                year = "Sophomore";
+            } else if (hsYear === 3) {
+                year = "Junior";
+            } else if (hsYear === 4) {
+                year = "Senior";
+            } else if (hsYear > 4) {
+                year = "Graduate";
+            } else {
+                year = "Other";
+            }
+            let index = gradData.findIndex(d => d.x === `${year}`);
+            if (index === -1) {
+                index = gradData.length;
+                gradData.push({x: `${year}`, y: 0});
+            }
+            gradData[index].y++;
+        } else {
+            let unknownIndex = gradData.findIndex(d => d.x === "Unknown");
+            if (unknownIndex === -1) {
+                unknownIndex = gradData.length;
+                gradData.push({x: "Unknown", y: 0});
+            }
+            gradData[unknownIndex].y++;
+        }
+    }
+    let sortMap = {
+        "Freshman": seniorYear - 3,
+        "Sophomore": seniorYear - 2,
+        "Junior": seniorYear - 1,
+        "Senior": seniorYear,
+        "Graduate": seniorYear + 1,
+        "Unknown": seniorYear + 2
+    };
+    gradData.sort((a, b) => sortMap[a.x] - sortMap[b.x]);
+
+    let schools = allUsers.filter(u => u.loggedIn[0] >= lastUpdatedCharts.getTime() && u.loggedIn[0] < Date.parse(new Date().toDateString())).map(u => u.school);
+    schoolData = schoolData ?? [];
+    for (let j = 0; j < schools.length; j++) {
+        let school = schools[j];
+        let index = schoolData.findIndex(d => d.x === `${school}`);
+        if (index === -1) {
+            index = schoolData.length;
+            schoolData.push({x: `${school}`, y: 0});
+        }
+        schoolData[index].y++;
+    }
+
+    lastUpdatedCharts = new Date(Date.parse(new Date().toDateString()));
+
+    let value = {
+        loginData: loginData,
+        uniqueLoginData: uniqueLoginData,
+        syncData: syncData,
+        userData: userData,
+        activeUsersData: activeUsersData,
+        gradData: gradData,
+        schoolData: schoolData,
+        lastUpdated: lastUpdatedCharts,
+    };
+
+    await db.collection(CHARTS_COLLECTION_NAME).updateOne({}, {$set: value}, {upsert: true});
+
+    return {success: true, data: {value: value}};
 };
 
 const _userArchived = async (db, {username, schoolUsername}, includeFullUser = false) => {
@@ -1443,7 +1479,7 @@ const _setRegularizeClassGraphs = async (db, username, value) => {
     }
     let res = await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {"appearance.regularizeClassGraphs": value}});
     if (res.matchedCount === 1) {
-        return {success: true, data: {log: `Set regularizeClassGraphs to ${value} for ${username}`}};
+        return {success: true, data: {settings: {regularizeClassGraphs: value}, log: `Set regularizeClassGraphs to ${value} for ${username}`}};
     }
     return {success: false, data: {log: `Error setting regularizeClassGraphs to ${value} for ${username}`}};
 };
@@ -1457,7 +1493,7 @@ const _setShowPlusMinusLines = async (db, username, value) => {
     }
     let res = await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {"appearance.showPlusMinusLines": value}});
     if (res.matchedCount === 1) {
-        return {success: true, data: {log: `Set showPlusMinusLines to ${value} for ${username}`}};
+        return {success: true, data: {settings: {showPlusMinusLines: value}, log: `Set showPlusMinusLines to ${value} for ${username}`}};
     }
     return {success: false, data: {log: `Error settings showPlusMinusLines to ${value} for ${username}`}};
 }
@@ -3164,20 +3200,29 @@ const _getRelevantClassData = async (db, username, term, semester) => {
                 projection: {teachers: {teacherName: 1}}
             }))?.teachers.map(t => t.teacherName).filter(t => t) ?? [];
 
-            let userCountQuery = {
-                [`grades.${userClass.term}.${userClass.semester}`]: {
-                    $elemMatch: {
-                        class_name: userClass.className, teacher_name: userClass.teacherName
+            let classAverages = {};
+            let userCounts = {};
+            for (let teacher of teachers) {
+                let userCountQuery = {
+                    [`grades.${userClass.term}.${userClass.semester}`]: {
+                        $elemMatch: {
+                            class_name: userClass.className, teacher_name: teacher
+                        }
                     }
-                }
-            };
-            let userCountProjection = {
-                [`grades.${userClass.term}.${userClass.semester}.$`]: 1
-            };
-            let users = await db.collection(USERS_COLLECTION_NAME).find(userCountQuery, {projection: userCountProjection}).toArray();
+                };
+                let userCountProjection = {
+                    [`grades.${userClass.term}.${userClass.semester}.$`]: 1
+                };
+                let users = await db.collection(USERS_COLLECTION_NAME).find(userCountQuery, {projection: userCountProjection}).toArray();
 
-            let minUsersForAverageCalc = 9;
-            let classAverage = users.length >= minUsersForAverageCalc ? users.map(u => u.grades[userClass.term][userClass.semester][0].overall_percent).reduce((a, b) => a + b, 0) / users.length : null;
+                let minUsersForAverageCalc = 9;
+                userCounts[teacher] = users.length;
+                if (users.length < minUsersForAverageCalc) {
+                    classAverages[teacher] = null;
+                    continue;
+                }
+                classAverages[teacher] = users.map(u => u.grades[userClass.term][userClass.semester][0].overall_percent).reduce((a, b) => a + b, 0) / users.length;
+            }
 
             relClasses[userClass.className] = {
                 "department": classData?.department ?? rawData?.department ?? "",
@@ -3190,9 +3235,8 @@ const _getRelevantClassData = async (db, username, term, semester) => {
                 "description": rawData?.description,
                 "prereq": rawData?.prereq,
                 "review": rawData?.review,
-                "userCount": users.length,
-                "classAverage": classAverage,
-                "teachers": teachers,
+                "userCounts": userCounts,
+                "classAverages": classAverages,
                 "gradeLevels": rawData?.grade_levels
             };
         }

@@ -58,6 +58,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6386323369506160"
+            crossorigin="anonymous"></script>
 </head>
 <body>
 <% if (JSON.parse(alerts).policyLastSeen === "never" || JSON.parse(alerts).termsLastSeen === "never") { %>
@@ -922,6 +924,16 @@
                                         $("#blur_overrides").prop("disabled", false);
                                     }
                                     break;
+                                case "regularizeClassGraphs":
+                                    $("#classGraphRegularizationToggle").prop("checked", settings[key]);
+                                    appearance.regularizeClassGraphs = settings[key];
+                                    renderAllCharts();
+                                    break;
+                                case "showPlusMinusLines":
+                                    $("#showPlusMinusToggle").prop("checked", settings[key]);
+                                    appearance.showPlusMinusLines = settings[key];
+                                    renderAllCharts();
+                                    break;
                             }
                             if (appearance.seasonalEffects) {
                                 $("#snow-fall").show();
@@ -1032,6 +1044,7 @@
                             } else {
                                 alerts.lastUpdated.push(JSON.parse(data.updateData));
                                 setupGradeChanges();
+                                setupGPADisplays();
                                 showLatest(false);
                                 refreshWithoutReload(true);
                                 setupLastUpdated();
@@ -1754,9 +1767,7 @@
                 let totalWeight = 0;
                 let classCategories = Object.keys(weights[classIndex]["weights"]);
                 for (let i = 0; i < classWeights.length; i++) {
-                    if (getCategoryGottenAndPossible(classIndex, classCategories[i]).possible !== 0) {
-                        totalWeight += Number(classWeights[i]);
-                    }
+                    totalWeight += Number(classWeights[i]);
                 }
                 return totalWeight;
             }
@@ -3638,7 +3649,7 @@
                                 displayColors: true,
                                 caretSize: 10,
                                 callbacks: {
-                                    title: function (tooltipItems, data) {
+                                    title: function (tooltipItems) {
                                         if (tooltipItems[0].datasetIndex >= chartData.length) {
                                             return possibles[tooltipItems[0].datasetIndex - chartData.length] + "% (" + possibleLabels[tooltipItems[0].datasetIndex - chartData.length] + ")";
                                         }
@@ -3712,177 +3723,177 @@
 
             function renderChart(id) {
                 $("#chart" + id).remove();
-                // if (chartData[id].mixedData.length) {
-                $("#chart-container" + id).html("<button id=\"reset-zoom" + id + "\" style=\"position: absolute; top: 0; right: 0; height: fit-content; display:none\" class=\"btn btn-sm\" onclick=\"resetZoom(" + id + "); $(this).hide()\">Reset</button><div class=\"chart-placeholder fa fa-spin fa-spinner\"></div><canvas id=\"chart" + id + "\"></canvas>");
-                let ctx = document.getElementById("chart" + id);
-                let _colors = colors;
-                let startDate = chartData[id].mixedData.reduce((a, b) => Math.min(a, Date.parse(b.x)), Infinity);
-                let endDate = chartData[id].mixedData.reduce((a, b) => Math.max(a, Date.parse(b.x)), 0);
-                let lowScore = chartData[id].mixedData.reduce((a, b) => Math.min(a, b.y), Infinity);
-                let dataset = [];
-                let _mixedData = JSON.parse(JSON.stringify(chartData[id].mixedData));
-                if (!correctCalc(id)) {
-                    if (endDate === 0) {
-                        _mixedData.push({x: new Date(Date.now() - 24 * 60 * 60 * 1000), y: _data[id].overall_percent});
-                        _mixedData.push({x: new Date(Date.now()), y: _data[id].overall_percent});
-                    } else {
-                        _mixedData.push({x: new Date(endDate + 24 * 60 * 60 * 1000), y: _data[id].overall_percent});
-                    }
-                }
-                dataset.push({
-                                 backgroundColor: "transparent",
-                                 pointBackgroundColor: _colors[id],
-                                 pointBorderColor: _colors[id],
-                                 borderColor: (correctCalc(id) ? _colors[id] : "darkgray"),
-                                 fill: "start",
-                                 data: _mixedData,
-                                 cubicInterpolationMode: "monotone",
-                                 borderDash: (correctCalc(id) ? [0, 0] : [3, 3]),
-                                 spanGaps: false,
-                                 pointRadius: 3,
-                                 borderWidth: (correctCalc(id) ? 3 : 1),
-                                 pointHoverRadius: 7,
-                                 pointHoverBackgroundColor: _colors[id],
-                                 pointHoverBorderColor: _colors[id],
-                                 pointHoverBorderWidth: 2,
-                                 yAxisID: "yAxis"
-                             });
-                let possibles;
-                let possibleLabels;
-                if (startDate < endDate) {
-                    possibles = [{"A+": 97.5}, {"A": 92.5}, {"A-": 89.5}, {"B+": 87.5}, {"B": 82.5}, {"B-": 79.5}, {"C+": 77.5}, {"C": 72.5}, {"C-": 69.5}, {"D+": 67.5}, {"D": 62.5}, {"D-": 59.5}];
-                    if (!appearance.showPlusMinusLines) {
-                        possibles = [possibles[1], possibles[4], possibles[7], possibles[10]];
-                    }
-                    possibles = possibles.filter(element => Object.values(element)[0] > lowScore - 5);
-                    possibleLabels = possibles.map(element => Object.keys(element)[0]);
-                    possibles = possibles.map(element => Object.values(element)[0]);
-                    for (let i = 0; i < possibles.length; i++) {
-                        let mixedData = [];
-                        for (let j = startDate; j <= endDate + 7 * 24 * 60 * 60 * 1000; j += (endDate - startDate) / 100) {
-                            mixedData.push({x: new Date(j), y: possibles[i]});
+                if (chartData[id].mixedData.length) {
+                    $("#chart-container" + id).html("<button id=\"reset-zoom" + id + "\" style=\"position: absolute; top: 0; right: 0; height: fit-content; display:none\" class=\"btn btn-sm\" onclick=\"resetZoom(" + id + "); $(this).hide()\">Reset</button><div class=\"chart-placeholder fa fa-spin fa-spinner\"></div><canvas id=\"chart" + id + "\"></canvas>");
+                    let ctx = document.getElementById("chart" + id);
+                    let _colors = colors;
+                    let startDate = chartData[id].mixedData.reduce((a, b) => Math.min(a, Date.parse(b.x)), Infinity);
+                    let endDate = chartData[id].mixedData.reduce((a, b) => Math.max(a, Date.parse(b.x)), 0);
+                    let lowScore = chartData[id].mixedData.reduce((a, b) => Math.min(a, b.y), Infinity);
+                    let dataset = [];
+                    let _mixedData = JSON.parse(JSON.stringify(chartData[id].mixedData));
+                    if (!correctCalc(id)) {
+                        if (endDate === 0) {
+                            _mixedData.push({x: new Date(Date.now() - 24 * 60 * 60 * 1000), y: _data[id].overall_percent});
+                            _mixedData.push({x: new Date(Date.now()), y: _data[id].overall_percent});
+                        } else {
+                            _mixedData.push({x: new Date(endDate + 24 * 60 * 60 * 1000), y: _data[id].overall_percent});
                         }
-                        dataset.push({
-                                         label: "undefined",
-                                         backgroundColor: "transparent",
-                                         pointBackgroundColor: "transparent",
-                                         pointBorderColor: "transparent",
-                                         borderColor: darkMode ? "white" : "black",
-                                         data: mixedData,
-                                         cubicInterpolationMode: "monotone",
-                                         spanGaps: false,
-                                         borderDash: [10, 10],
-                                         pointRadius: 0,
-                                         borderWidth: 1,
-                                         pointHoverRadius: 0,
-                                         pointHoverBackgroundColor: "transparent",
-                                         pointHoverBorderColor: darkMode ? "white" : "black",
-                                         pointHoverBorderWidth: 0,
-                                         yAxisID: "yAxis"
-                                     });
                     }
-                }
-                charts[id + 1] = new Chart(ctx, {
-                    type: "line", data: {
-                        datasets: dataset
-                    }, options: {
-                        hover: {
-                            mode: "nearest", intersect: false
-                        }, scales: {
-                            xAxis: {
-                                type: "time", time: {
-                                    unit: new Date(chartData[id].assignmentDates.slice(-1)[0]).getMonth() === new Date(chartData[id].assignmentDates[0]).getMonth() ? "day" : "month"
-                                }, ticks: {
-                                    color: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "13"
-                                }, grid: {
-                                    color: (darkMode ? "#555555" : "#CCCCCC")
-                                }
-                            }, yAxis: {
-                                suggestedMax: appearance.regularizeClassGraphs ? 110 : undefined,
-                                suggestedMin: appearance.regularizeClassGraphs ? 70 : undefined,
-                                ticks: {
-                                    color: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "12"
-                                },
-                                grid: {
-                                    color: (darkMode ? "#555555" : "#CCCCCC"), drawBorder: false
-                                }
+                    dataset.push({
+                                     backgroundColor: "transparent",
+                                     pointBackgroundColor: _colors[id],
+                                     pointBorderColor: _colors[id],
+                                     borderColor: (correctCalc(id) ? _colors[id] : "darkgray"),
+                                     fill: "start",
+                                     data: _mixedData,
+                                     cubicInterpolationMode: "monotone",
+                                     borderDash: (correctCalc(id) ? [0, 0] : [3, 3]),
+                                     spanGaps: false,
+                                     pointRadius: 3,
+                                     borderWidth: (correctCalc(id) ? 3 : 1),
+                                     pointHoverRadius: 7,
+                                     pointHoverBackgroundColor: _colors[id],
+                                     pointHoverBorderColor: _colors[id],
+                                     pointHoverBorderWidth: 2,
+                                     yAxisID: "yAxis"
+                                 });
+                    let possibles;
+                    let possibleLabels;
+                    if (startDate < endDate) {
+                        possibles = [{"A+": 97.5}, {"A": 92.5}, {"A-": 89.5}, {"B+": 87.5}, {"B": 82.5}, {"B-": 79.5}, {"C+": 77.5}, {"C": 72.5}, {"C-": 69.5}, {"D+": 67.5}, {"D": 62.5}, {"D-": 59.5}];
+                        if (!appearance.showPlusMinusLines) {
+                            possibles = [possibles[1], possibles[4], possibles[7], possibles[10]];
+                        }
+                        possibles = possibles.filter(element => Object.values(element)[0] > lowScore - 5);
+                        possibleLabels = possibles.map(element => Object.keys(element)[0]);
+                        possibles = possibles.map(element => Object.values(element)[0]);
+                        for (let i = 0; i < possibles.length; i++) {
+                            let mixedData = [];
+                            for (let j = startDate; j <= endDate + 7 * 24 * 60 * 60 * 1000; j += (endDate - startDate) / 100) {
+                                mixedData.push({x: new Date(j), y: possibles[i]});
                             }
-                        }, animation: {
-                            easing: "easeOutCubic"
-                        }, responsive: true, maintainAspectRatio: false, plugins: {
-                            legend: {
-                                display: false
-                            }, tooltip: {
-                                enabled: true, position: "nearest", intersect: false, displayColors: false, callbacks: {
-                                    title: function (tooltipItems) {
-                                        if (tooltipItems[0].datasetIndex >= 1) {
-                                            return possibles[tooltipItems[0].datasetIndex - 1] + "% (" + possibleLabels[tooltipItems[0].datasetIndex - 1] + ")";
-                                        }
-                                        if (!correctCalc(id)) {
-                                            if (!chartData[id].mixedData.length) {
-                                                return "Unknown Date " + _data[id].overall_percent + "% (" + _data[id].overall_letter + ")";
-                                            }
-                                            if (tooltipItems[0].index >= chartData[id].mixedData.length) {
-                                                return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + _data[id].overall_percent + "% (" + _data[id].overall_letter + ")";
-                                            }
-                                            return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " N/A [Unverified weights]";
-                                        }
-                                        return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + tooltipItems[0].formattedValue + "% (" + getLetterGrade(tooltipItems[0].formattedValue) + ")";
-                                    }, label: function (tooltipItem) {
-                                        if (tooltipItem.datasetIndex >= 1) {
-                                            return;
-                                        }
-                                        if (!chartData[tooltipItem.datasetIndex].mixedData.length) {
-                                            return;
-                                        }
-                                        if (tooltipItem.dataIndex >= chartData[id].mixedData.length) {
-                                            let delta = Math.round((_data[id].overall_percent - chartData[id].mixedData.slice(-1)[0].y) * 100) / 100;
-                                            if (delta > 0) {
-                                                delta = "+" + delta;
-                                            }
-                                            return delta + `% (To Match ${school === "basis" ? "Schoology" : "PowerSchool"})`;
-                                        }
-                                        return ["[" + chartData[id].assignmentCategories[tooltipItem.dataIndex] + "] " + chartData[id].assignmentNames[tooltipItem.dataIndex] + ((chartData[id].assignmentPercents[tooltipItem.dataIndex] !== null && chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, 2) !== "--") ? (" - " + Math.round(chartData[id].assignmentPercents[tooltipItem.dataIndex] * 100) / 100 + "% ") : (" ")) + ((chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].length - 2)) !== "/0" ? ("(" + chartData[id].assignmentScoresParsed[tooltipItem.dataIndex] + ")") : ("(" + chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].length - 2) + ")"))];
-                                    }
-                                }
-                            }, zoom: {
-                                zoom: {
-                                    wheel: {
-                                        enabled: true, speed: 0.05
-                                    }, pinch: {
-                                        enabled: true, threshold: 100
-                                    }, drag: {
-                                        enabled: false
-                                    }, mode: "xy", onZoom: ({chart}) => {
-                                        $(`#reset-zoom${id}`).show();
-
-                                        // Disable hovering and tooltips to make animation smoother
-                                        chart.options.hover.mode = null;
-                                        chart.options.plugins.tooltip.enabled = false;
-                                    }, onZoomComplete: ({chart}) => {
-                                        chart.options.hover.mode = "nearest";
-                                        chart.options.plugins.tooltip.enabled = true;
-                                    }
-                                },
-                                pan: {
-                                    enabled: true,
-                                    onPan: ({chart}) => {
-                                        $(`#reset-zoom${id}`).show();
-                                        // Disable hovering and tooltips to make animation smoother
-                                        chart.options.hover.mode = null;
-                                        chart.options.plugins.tooltip.enabled = false;
-                                    }, onPanComplete: ({chart}) => {
-                                        chart.options.hover.mode = "nearest";
-                                        chart.options.plugins.tooltip.enabled = true;
-                                    }
-                                },
-                            },
+                            dataset.push({
+                                             label: "undefined",
+                                             backgroundColor: "transparent",
+                                             pointBackgroundColor: "transparent",
+                                             pointBorderColor: "transparent",
+                                             borderColor: darkMode ? "white" : "black",
+                                             data: mixedData,
+                                             cubicInterpolationMode: "monotone",
+                                             spanGaps: false,
+                                             borderDash: [10, 10],
+                                             pointRadius: 0,
+                                             borderWidth: 1,
+                                             pointHoverRadius: 0,
+                                             pointHoverBackgroundColor: "transparent",
+                                             pointHoverBorderColor: darkMode ? "white" : "black",
+                                             pointHoverBorderWidth: 0,
+                                             yAxisID: "yAxis"
+                                         });
                         }
                     }
-                });
-                // } else {
-                //     $("#chart-container" + id).html("<div style=\"height: 100%; font-size: 3rem; font-weight: bold;text-align: center; filter: opacity(0.5); line-height: 100%\">No Data</div>");
-                // }
+                    charts[id + 1] = new Chart(ctx, {
+                        type: "line", data: {
+                            datasets: dataset
+                        }, options: {
+                            hover: {
+                                mode: "nearest", intersect: false
+                            }, scales: {
+                                xAxis: {
+                                    type: "time", time: {
+                                        unit: new Date(chartData[id].assignmentDates.slice(-1)[0]).getMonth() === new Date(chartData[id].assignmentDates[0]).getMonth() ? "day" : "month"
+                                    }, ticks: {
+                                        color: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "13"
+                                    }, grid: {
+                                        color: (darkMode ? "#555555" : "#CCCCCC")
+                                    }
+                                }, yAxis: {
+                                    suggestedMax: appearance.regularizeClassGraphs ? 110 : undefined,
+                                    suggestedMin: appearance.regularizeClassGraphs ? 70 : undefined,
+                                    ticks: {
+                                        color: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "12"
+                                    },
+                                    grid: {
+                                        color: (darkMode ? "#555555" : "#CCCCCC"), drawBorder: false
+                                    }
+                                }
+                            }, animation: {
+                                easing: "easeOutCubic"
+                            }, responsive: true, maintainAspectRatio: false, plugins: {
+                                legend: {
+                                    display: false
+                                }, tooltip: {
+                                    enabled: true, position: "nearest", intersect: false, displayColors: false, callbacks: {
+                                        title: function (tooltipItems) {
+                                            if (tooltipItems[0].datasetIndex >= 1) {
+                                                return possibles[tooltipItems[0].datasetIndex - 1] + "% (" + possibleLabels[tooltipItems[0].datasetIndex - 1] + ")";
+                                            }
+                                            if (!correctCalc(id)) {
+                                                if (!chartData[id].mixedData.length) {
+                                                    return "Unknown Date " + _data[id].overall_percent + "% (" + _data[id].overall_letter + ")";
+                                                }
+                                                if (tooltipItems[0].index >= chartData[id].mixedData.length) {
+                                                    return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + _data[id].overall_percent + "% (" + _data[id].overall_letter + ")";
+                                                }
+                                                return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " N/A [Unverified weights]";
+                                            }
+                                            return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + tooltipItems[0].formattedValue + "% (" + getLetterGrade(tooltipItems[0].formattedValue) + ")";
+                                        }, label: function (tooltipItem) {
+                                            if (tooltipItem.datasetIndex >= 1) {
+                                                return;
+                                            }
+                                            if (!chartData[tooltipItem.datasetIndex].mixedData.length) {
+                                                return;
+                                            }
+                                            if (tooltipItem.dataIndex >= chartData[id].mixedData.length) {
+                                                let delta = Math.round((_data[id].overall_percent - chartData[id].mixedData.slice(-1)[0].y) * 100) / 100;
+                                                if (delta > 0) {
+                                                    delta = "+" + delta;
+                                                }
+                                                return delta + `% (To Match ${school === "basis" ? "Schoology" : "PowerSchool"})`;
+                                            }
+                                            return ["[" + chartData[id].assignmentCategories[tooltipItem.dataIndex] + "] " + chartData[id].assignmentNames[tooltipItem.dataIndex] + ((chartData[id].assignmentPercents[tooltipItem.dataIndex] !== null && chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, 2) !== "--") ? (" - " + Math.round(chartData[id].assignmentPercents[tooltipItem.dataIndex] * 100) / 100 + "% ") : (" ")) + ((chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].length - 2)) !== "/0" ? ("(" + chartData[id].assignmentScoresParsed[tooltipItem.dataIndex] + ")") : ("(" + chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].length - 2) + ")"))];
+                                        }
+                                    }
+                                }, zoom: {
+                                    zoom: {
+                                        wheel: {
+                                            enabled: true, speed: 0.05
+                                        }, pinch: {
+                                            enabled: true, threshold: 100
+                                        }, drag: {
+                                            enabled: false
+                                        }, mode: "xy", onZoom: ({chart}) => {
+                                            $(`#reset-zoom${id}`).show();
+
+                                            // Disable hovering and tooltips to make animation smoother
+                                            chart.options.hover.mode = null;
+                                            chart.options.plugins.tooltip.enabled = false;
+                                        }, onZoomComplete: ({chart}) => {
+                                            chart.options.hover.mode = "nearest";
+                                            chart.options.plugins.tooltip.enabled = true;
+                                        }
+                                    },
+                                    pan: {
+                                        enabled: true,
+                                        onPan: ({chart}) => {
+                                            $(`#reset-zoom${id}`).show();
+                                            // Disable hovering and tooltips to make animation smoother
+                                            chart.options.hover.mode = null;
+                                            chart.options.plugins.tooltip.enabled = false;
+                                        }, onPanComplete: ({chart}) => {
+                                            chart.options.hover.mode = "nearest";
+                                            chart.options.plugins.tooltip.enabled = true;
+                                        }
+                                    },
+                                },
+                            }
+                        }
+                    });
+                } else {
+                    $("#chart-container" + id).html("<div style=\"height: 100%; font-size: 3rem; font-weight: bold;text-align: center; filter: opacity(0.5); line-height: 100%\">No Data</div>");
+                }
             }
 
             function showPage(id) {
@@ -4121,9 +4132,11 @@
                 let description = relData.description;
                 let prereq = relData.prereq;
                 let review = relData.review;
-                let classAverage = relData.classAverage;
-                let userCount = relData.userCount;
-                let teachers = relData.teachers;
+                let classAverages = relData.classAverages;
+                let classAverage = classAverages[teacherName];
+                let userCounts = relData.userCounts;
+                let userCount = userCounts[teacherName];
+                let teachers = Object.keys(classAverages);
                 let classType = relData.classType;
                 let ucClassType = relData.uc_csuClassType;
                 let gradeLevels = relData.gradeLevels;
@@ -4155,7 +4168,9 @@
                     if (teachers[i] === teacherName) {
                         continue;
                     }
-                    _teachers += `<li>${teachers[i]}</li>`;
+                    let count = userCounts[teachers[i]];
+                    let average = classAverages[teachers[i]];
+                    _teachers += `<li>${teachers[i]} - ${count} Graderoom user${count !== 1 ? 's' : ''}${average === null ? '' : ` - ${Math.round(average * 100) / 100}% Average`}</li>`;
                 }
 
                 let classInfoClassName = $("#classInfoName");
@@ -4231,8 +4246,8 @@
                 } else {
                     classInfoTeachers.hide();
                 }
-                classInfoUserCount.html(`<span>${userCount}</span><span>Graderoom User${userCount > 1 ? "s" : ""}<br>this semester</span>`);
-                if (classAverage != null) {
+                classInfoUserCount.html(`<span>${userCount ?? 0}</span><span>Graderoom User${userCount !== 1 ? "s" : ""}<br>this semester</span>`);
+                if (classAverages[teacherName] != null) {
                     classInfoClassAverage.addClass('visible').html(`<span>Graderoom User<br>Class Average:</span><span>${Math.round(classAverage * 100) / 100}% (${getLetterGrade(classAverage)})</span>`);
                 } else {
                     classInfoClassAverage.removeClass('visible');

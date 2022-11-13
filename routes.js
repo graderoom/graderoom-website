@@ -4,7 +4,7 @@ const emailSender = require("./emailSender.js");
 const _ = require("lodash");
 const SunCalc = require("suncalc");
 const {changelog} = require("./dbHelpers");
-const {Schools} = require("./enums");
+const {Schools, PrettySchools, SchoolAbbr} = require("./enums");
 const showAds = process.env.showAds === "enabled";
 
 module.exports = function (app, passport) {
@@ -56,7 +56,7 @@ module.exports = function (app, passport) {
                 let validGrades = req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length);
                 let validWeights = req.user.weights[term][semester].filter(weights => validGrades.map(g => g.class_name).includes(weights.className));
 
-                let {premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
+                let {noAds, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
 
                 res.render("user/authorized_index.ejs", {
                     page: "home",
@@ -97,6 +97,7 @@ module.exports = function (app, passport) {
                     pairKey: req.user.api.pairKey ?? "",
                     pairKeyExpire: req.user.api.pairKeyExpire ?? "",
                     apiKey: req.user.api.apiKey ?? "",
+                    showAds: showAds && !noAds
                 });
             } else {
                 let {premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
@@ -128,6 +129,7 @@ module.exports = function (app, passport) {
                     sunset: sunset,
                     sunrise: sunrise,
                     premium: premium,
+                    showAds: false,
                     enableLogging: req.user.enableLogging,
                     pairKey: req.user.api.pairKey ?? "",
                     pairKeyExpire: req.user.api.pairKeyExpire ?? "",
@@ -173,13 +175,9 @@ module.exports = function (app, passport) {
         res.redirect("/");
     });
 
-    app.post("/advancedAppearance", [isLoggedIn], async (req, res) => {
+    app.post("/setShowNonAcademic", [isLoggedIn], async (req, res) => {
         let show = req.body.showNonAcademic === "on";
         await dbClient.setShowNonAcademic(req.user.username, show);
-        let regularize = req.body.regularizeClassGraphs === "on";
-        await dbClient.setRegularizeClassGraphs(req.user.username, regularize);
-        let showPlusMinusLines = req.body.showPlusMinusLines === "on";
-        await dbClient.setShowPlusMinusLines(req.user.username, showPlusMinusLines);
         res.redirect("/");
     });
 
@@ -864,11 +862,10 @@ module.exports = function (app, passport) {
 
     app.get("/charts", async (req, res) => {
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
-        let resp = dbClient.getChartData();
-        let {data: {loginData, uniqueLoginData, syncData, userData, activeUsersData, gradData}} = resp.constructor.name === "Promise" ? await resp : resp;
+        let {data: {loginData, uniqueLoginData, syncData, userData, activeUsersData, gradData, schoolData, lastUpdated}} = await dbClient.getChartData();
         if (req.isAuthenticated()) {
             let {noAds, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
-            res.render("user/cool_charts.ejs", {
+            res.render("viewer/cool_charts.ejs", {
                 username: req.user.username,
                 personalInfo: JSON.stringify(req.user.personalInfo),
                 appearance: JSON.stringify(req.user.appearance),
@@ -879,15 +876,19 @@ module.exports = function (app, passport) {
                 syncData: JSON.stringify(syncData),
                 userData: JSON.stringify(userData),
                 activeUsersData: JSON.stringify(activeUsersData),
+                schoolData: JSON.stringify(schoolData),
                 gradData: JSON.stringify(gradData),
                 sunset: sunset,
                 sunrise: sunrise,
                 showAds: showAds && !noAds,
                 premium: premium,
+                lastUpdated: lastUpdated.getTime(),
+                SchoolAbbr: JSON.stringify(SchoolAbbr),
+                PrettySchools: JSON.stringify(PrettySchools),
                 _: _
             });
         } else {
-            res.render("user/cool_charts.ejs", {
+            res.render("viewer/cool_charts.ejs", {
                 page: "charts-logged-out",
                 appearance: JSON.stringify({seasonalEffects: true, theme: 'sun'}),
                 loginData: JSON.stringify(loginData),
@@ -895,10 +896,14 @@ module.exports = function (app, passport) {
                 syncData: JSON.stringify(syncData),
                 userData: JSON.stringify(userData),
                 activeUsersData: JSON.stringify(activeUsersData),
+                schoolData: JSON.stringify(schoolData),
                 gradData: JSON.stringify(gradData),
                 sunset: sunset,
                 sunrise: sunrise,
                 showAds: showAds,
+                lastUpdated: lastUpdated.getTime(),
+                SchoolAbbr: JSON.stringify(SchoolAbbr),
+                PrettySchools: JSON.stringify(PrettySchools),
                 premium: false,
                 _: _
             });
