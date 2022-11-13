@@ -4246,7 +4246,7 @@
                 } else {
                     classInfoTeachers.hide();
                 }
-                classInfoUserCount.html(`<span>${userCount ?? 0}</span><span>Graderoom User${userCount !== 1 ? "s" : ""}<br>this semester</span>`);
+                classInfoUserCount.html(`<span>${userCount ?? 1}</span><span>Graderoom User${(userCount ?? 1) !== 1 ? "s" : ""}<br>this semester</span>`);
                 if (classAverages[teacherName] != null) {
                     classInfoClassAverage.addClass('visible').html(`<span>Graderoom User<br>Class Average:</span><span>${Math.round(classAverage * 100) / 100}% (${getLetterGrade(classAverage)})</span>`);
                 } else {
