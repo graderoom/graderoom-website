@@ -664,11 +664,8 @@
                     },
                     tooltip: {
                         callbacks: {
-                            title: function(tooltipItems) {
-                                return PrettySchools[tooltipItems[0].dataset.label];
-                            },
                             label: function (tooltipItem) {
-                                return tooltipItem.parsed.x;
+                                return `${PrettySchools[tooltipItem.dataset.label]}: ${tooltipItem.parsed.x}`;
                             }
                         }
                     }
