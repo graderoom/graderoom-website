@@ -33,6 +33,9 @@ module.exports.SchoolAbbr = {
     basis: "BISV",
     BISV: "BISV",
     "BASIS Independent Silicon Valley": "BISV",
+    ndsj: "NDSJ",
+    NDSJ: "NDSJ",
+    "Notre Dame High School": "NDSJ",
 }
 
 module.exports.Constants = {
