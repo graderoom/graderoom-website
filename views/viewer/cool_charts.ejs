@@ -42,6 +42,10 @@
           <% if (!JSON.parse(appearance).blurEffects) { %>disabled
             <% } %>
     >
+    <link id="reduceMotion" rel="stylesheet" type="text/css" href="/public/css/reduce_motion.css"
+          <% if (!JSON.parse(appearance).reduceMotion) { %>disabled
+            <% } %>
+    >
     <link id="fade" rel="stylesheet" type="text/css" href="/public/css/fade.css" disabled>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://cdn.jsdelivr.net/npm/moment@2.24.0/moment.min.js"></script>
@@ -54,8 +58,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6386323369506160"
-            crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -673,19 +675,5 @@
             }
         });
     }
-</script>
-
-<!-- Horizontal -->
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-client="ca-pub-6386323369506160"
-     data-ad-slot="4407749720"
-     data-ad-format="auto"
-<% if (!showAds) { %>
-     data-adtest="on"
-        <% } %>
-     data-full-width-responsive="true"></ins>
-<script>
-    (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
 </body>

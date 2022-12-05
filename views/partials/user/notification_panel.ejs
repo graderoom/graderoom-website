@@ -1,9 +1,6 @@
-<div id="notifications" class="blur">
-
-</div>
 <div id="notificationPanel" class="blur">
     <h3><i class="fa fa-bell"></i> Notifications</h3>
-    <div id="dismissed-notifications">
+    <div id="notifications">
         <div class="divider">Important</div>
         <hr>
         <div id="important-notifications">
@@ -22,31 +19,56 @@
 <script>
     let notifications = {important: [], unread: [], dismissed: []};
 
-    function setupNotificationPanel() {
-        showChangelog(createChangelogNotifications);
-        let numNotifications = notifications.unread.length;
-        document.getElementById("notificationPanel").setAttribute("count", numNotifications ? numNotifications : "");
+    async function setupNotificationPanel() {
+        await showChangelog(createChangelogNotifications);
+        notifications.important.forEach(n => document.getElementById("important-notifications").appendChild(n.notification));
+        notifications.unread.forEach(n => document.getElementById("unread-notifications").appendChild(n.notification));
+        notifications.dismissed.forEach(n => document.getElementById("dismissed-notifications").appendChild(n.notification));
     }
 
     function createChangelogNotifications(_versionNames) {
-        for (let i = 1; i < _versionNames.length; i++) {
+        for (let i = _versionNames.length - 1; i > 0; i--) {
             let version = _versionNames[i];
             if (version.startsWith("Stable")) {
                 createUnread(version, "Stable", version, `<span style="cursor: pointer" onclick="onScreenVersion = '` + version + `'; showChangelog()"><b><i class="fa fa-external-link-square"></i> Open Changelog</b></span>`);
             } else if (version.startsWith("Beta")) {
                 createUnread(version, "Beta", version, `<span style="cursor: pointer" onclick="onScreenVersion = '` + version + `'; showChangelog()"><b><i class="fa fa-external-link-square"></i> Open Changelog</b></span>`);
             } else if (version.startsWith("Announcement")) {
-                createImportant(version, "Announcement", version, `<span style="cursor: pointer" onclick="onScreenVersion = '` + version + `'; showChangelog()"><b><i class="fa fa-external-link-square"></i> Open Changelog</b></span>`);
+                createUnread(version, "Announcement", version, `<span style="cursor: pointer" onclick="onScreenVersion = '` + version + `'; showChangelog()"><b><i class="fa fa-external-link-square"></i> Open Changelog</b></span>`);
             }
         }
     }
 
     function createImportant(id, type, title, message, date) {
-        notifications.important.push({id: id, timestamp: date, notification: createNotification(type, title, message, false, true, true), read: false});
+        notifications.important.unshift({
+                                         id: id,
+                                         timestamp: date,
+                                         notification: createNotification(type, title, message, true, false, true, true),
+                                         read: false
+                                     });
     }
 
     function createUnread(id, type, title, message, date) {
-        notifications.unread.push({id: id, timestamp: date, notification: createNotification(type, title, message, true, true, false), read: false});
+        notifications.unread.unshift({
+                                      id: id,
+                                      timestamp: date,
+                                      notification: createNotification(type, title, message, true, false, true, false),
+                                      read: false
+                                  });
+        let numNotifications = notifications.unread.length + notifications.important.length;
+        document.getElementById("notificationPanel").setAttribute("count", `${numNotifications}`);
+        if (numNotifications > 99) {
+            document.getElementById("notificationPanel").classList.add("overflowed");
+        } else {
+            document.getElementById("notificationPanel").classList.remove("overflowed");
+        }
+        document.getElementById("notificationPanel").classList.remove("announcement");
+        document.getElementById("notificationPanel").classList.remove("stable");
+        document.getElementById("notificationPanel").classList.remove("beta");
+        document.getElementById("notificationPanel").classList.remove("sync");
+        document.getElementById("notificationPanel").classList.remove("empty-sync");
+        document.getElementById("notificationPanel").classList.remove("error");
+        document.getElementById("notificationPanel").classList.add(type.toLowerCase());
     }
 
     function createNotification(type, title, message, dismissible = true, dismissed = false, pinnable = false, pinned = false) {

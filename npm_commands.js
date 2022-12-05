@@ -33,7 +33,7 @@ module.exports = {
 
         let _stream = new stream.Readable({objectMode: true, read: () => {}});
 
-        _stream.on('data', (data) => console.log(data));
+        _stream.on('data', (data) => console.log(JSON.stringify(data)));
         if (school === "basis") {
             if ([school_username, password].includes("")) throw new Error("Configure credentials.json");
             await scraper.loginAndScrapeGrades(_stream, school, school_username, password);

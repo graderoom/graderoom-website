@@ -702,10 +702,7 @@ class PowerschoolScraper(Scraper):
         local_class.student_id = student_id
         local_class.section_id = section_id
 
-        # Remove classes with no grades
         local_class = parse_ps_class(local_class, self.get_class(url, local_class))
-        if not local_class['grades']:
-            return False
 
         all_classes.append(local_class)
         return True
@@ -936,10 +933,10 @@ class BasisScraper(Scraper):
             grades_soup = class_.find('div', class_='gradebook-course-grades')
             overall_grade_soup = grades_soup.find('span', class_='numeric-grade primary-grade')
             if overall_grade_soup is None:
-                overall_grade = None
+                overall_grade = False
             else:
                 overall_grade_soup = overall_grade_soup.find('span', class_='rounded-grade')
-                overall_grade = overall_grade_soup['title']
+                overall_grade = float(overall_grade_soup['title'][:-1])
 
             grades_soup = grades_soup.find('table', role='presentation')
             term_soup = grades_soup.find('tr', class_='period-row').find('span', class_='title')
@@ -1070,4 +1067,4 @@ if __name__ == "__main__":
             # Error when something in PowerSchool breaks scraper
             print(json_format(False, "An Unknown Error occurred. Contact support."))
             # Uncomment below to print error
-            # print(e)
+#             print(e)

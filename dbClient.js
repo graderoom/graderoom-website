@@ -104,8 +104,10 @@ module.exports = {
     setRemoteAccess: (username, value) => safe(_setRemoteAccess, lower(username), lower(value)),
     setPersonalInfo: (username, firstName, lastName, graduationYear) => safe(_setPersonalInfo, lower(username), firstName, lastName, graduationYear),
     setShowNonAcademic: (username, value) => safe(_setShowNonAcademic, lower(username), value),
+    setShowEmpty: (username, value) => safe(_setShowEmpty, lower(username), value),
     setRegularizeClassGraphs: (username, value) => safe(_setRegularizeClassGraphs, lower(username), value),
     setShowPlusMinusLines: (username, value) => safe(_setShowPlusMinusLines, lower(username), value),
+    setReduceMotion: (username, value) => safe(_setReduceMotion, lower(username), value),
     setWeightedGPA: (username, value) => safe(_setWeightedGPA, lower(username), value),
     setTheme: (username, theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects) => safe(_setTheme, lower(username), lower(theme), darkModeStart, darkModeFinish, seasonalEffects, blurEffects),
     setShowMaxGPA: (username, value) => safe(_setShowMaxGPA, lower(username), value),
@@ -658,6 +660,45 @@ const __version7 = async (db, user) => {
     }
 }
 
+const _version8 = async (db, username) => {
+    let res = await _getUser(db, username, {version: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await __version8(db, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 8`}};
+}
+
+const __version8 = async (db, user) => {
+    if (user.version === 7) {
+        await _initEditedAssignments(db, username);
+        await _initAddedAssignments(db, username);
+
+        await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {version: 8}});
+    }
+}
+
+const _version9 = async (db, username) => {
+    let res = await _getUser(db, username, {version: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await __version9(db, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 9`}};
+}
+
+const __version9 = async (db, user) => {
+    if (user.version === 8) {
+        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {$set: {"appearance.reduceMotion": false, "appearance.showEmpty": true, version: 9}})
+    }
+}
+
 const _initUser = async (db, username) => {
     let res = await _getUser(db, username, {"alerts.tutorialStatus": 1, betaFeatures: 1});
     if (!res.success) {
@@ -739,6 +780,12 @@ const _updateAllUsers = async (db) => {
             }
             if (user.version < 7) {
                 console.log((await _version7(db, user.username)).data.log);
+            }
+            if (user.version < 8) {
+                console.log((await _version8(db, user.username)).data.log);
+            }
+            if (user.version < 9) {
+                console.log((await _version9(db, user.username)).data.log);
             }
         }
         console.log((await _initUser(db, user.username)).data.log);
@@ -1097,7 +1144,7 @@ const _processChartData = async (db) => {
         lastUpdated: lastUpdatedCharts,
     };
 
-    await db.collection(CHARTS_COLLECTION_NAME).updateOne({}, {$set: value}, {upsert: true});
+    await db.collection(CHARTS_COLLECTION_NAME).updateOne({}, {$set: value, $unset: {updating: ""}}, {upsert: true});
 
     return {success: true, data: {value: value}};
 };
@@ -1470,6 +1517,19 @@ const _setShowNonAcademic = async (db, username, value) => {
     return {success: false, data: {log: `Error setting showNonAcademic to ${value} for ${username}`}};
 };
 
+const _setShowEmpty = async (db, username, value) => {
+    if (typeof value !== "boolean") {
+        return {
+            success: false, data: {message: "Something went wrong", log: `Invalid showEmpty value: ${value}`}
+        };
+    }
+    let res = await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {"appearance.showEmpty": value}});
+    if (res.matchedCount === 1) {
+        return {success: true, data: {log: `Set showEmpty to ${value} for ${username}`}};
+    }
+    return {success: false, data: {log: `Error setting showEmpty to ${value} for ${username}`}};
+};
+
 const _setRegularizeClassGraphs = async (db, username, value) => {
     if (typeof value !== "boolean") {
         return {
@@ -1496,6 +1556,20 @@ const _setShowPlusMinusLines = async (db, username, value) => {
         return {success: true, data: {settings: {showPlusMinusLines: value}, log: `Set showPlusMinusLines to ${value} for ${username}`}};
     }
     return {success: false, data: {log: `Error settings showPlusMinusLines to ${value} for ${username}`}};
+}
+
+const _setReduceMotion = async (db, username, value) => {
+    if (typeof value !== "boolean") {
+        return {
+            success: false,
+            data: {message: "Something went wrong", log: `Invalid reduceMotion value: ${value}`}
+        };
+    }
+    let res = await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {"appearance.reduceMotion": value}});
+    if (res.matchedCount === 1) {
+        return {success: true, data: {settings: {reduceMotion: value}, log: `Set reduceMotion to ${value} for ${username}`}};
+    }
+    return {success: false, data: {log: `Error settings reduceMotion to ${value} for ${username}`}};
 }
 
 const _setWeightedGPA = async (db, username, value) => {
@@ -2186,11 +2260,11 @@ const _initEditedAssignments = async (db, username) => {
                 }
                 let existing = current[years[i]]?.[semesters[j]]?.findIndex((c) => c.className === classes[k]) ?? -1;
                 if (existing === -1) {
-                    temp[years[i]][semesters[j]][k] = {className: classes[k], data: []};
+                    temp[years[i]][semesters[j]][k] = {className: classes[k], data: {}};
                 } else {
                     temp[years[i]][semesters[j]][k] = current[years[i]][semesters[j]][existing];
-                    if (!Array.isArray(temp[years[i]][semesters[j]][k].data)) {
-                        temp[years[i]][semesters[j]][k].data = [];
+                    if (Array.isArray(temp[years[i]][semesters[j]][k].data)) {
+                        temp[years[i]][semesters[j]][k].data = {};
                     }
                     if ("assignments" in temp[years[i]][semesters[j]][k]) {
                         delete temp[years[i]][semesters[j]][k].assignments;
@@ -2437,12 +2511,12 @@ const _updateEditedAssignments = async (db, username, editedAssignments, term, s
 
     let allowedKeys = ["assignment_name", "date", "category", "grade_percent", "points_gotten", "points_possible", "exclude"];
     let allowedTypes = {
-        "assignment_name": "string",
-        "category": "string",
-        "grade_percent": "number",
-        "points_gotten": "number",
-        "points_possible": "number",
-        "exclude": "boolean"
+        "assignment_name": ["string"],
+        "category": ["string"],
+        "grade_percent": ["number", "boolean"],
+        "points_gotten": ["number", "boolean"],
+        "points_possible": ["number", "boolean"],
+        "exclude": ["boolean"]
     };
 
     for (let i = 0; i < editedAssignments.length; i++) {
@@ -2452,7 +2526,7 @@ const _updateEditedAssignments = async (db, username, editedAssignments, term, s
             if (!Object.keys(assignment).every((k) => allowedKeys.includes(k))) {
                 return {success: false, data: {prodLog: `editedAssignments has invalid keys`}};
             }
-            if (!Object.entries(assignment).every(([h, k]) => typeof k === allowedTypes[h] || k === null)) {
+            if (!Object.entries(assignment).every(([h, k]) => allowedTypes[h].includes(typeof k) || k === null)) {
                 return {success: false, data: {prodLog: `editedAssignments has invalid values`}};
             }
         }
@@ -3336,6 +3410,6 @@ const _getDonoAttributes = async (db, username) => {
 const __getDonoAttributes = async (donos) => {
     let totalDonos = donos.map(d => d.receivedValue).reduce((a, b) => a + b, 0);
     return {
-        success: true, data: {value: {noAds: totalDonos >= minDonoAmount, premium: totalDonos >= minPremiumAmount}}
+        success: true, data: {value: {plus: totalDonos >= minDonoAmount, premium: totalDonos >= minPremiumAmount}}
     };
 }

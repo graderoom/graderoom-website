@@ -17,10 +17,12 @@
         font-family: monospace;
         font-size: 0.7rem;
         pointer-events: none;
+        background: black;
+        color: white;
     }
 </style>
 <style id="light_snowfall"
-<% if (!JSON.parse(appearance).seasonalEffects || theme !== false) { %> media="not all"
+        <% if (!JSON.parse(appearance).seasonalEffects || theme !== false) { %> media="not all"
         <% } %>
 >
     #snow-fall-bg {
@@ -47,7 +49,7 @@
 </div>
 <% const lightsMonth = 11; /* 11 is December */ %>
 <% if (page == "home" && JSON.parse(appearance).showFps) { %>
-    <span style="z-index: 999; position: fixed; bottom: 10px; left: 10px;" id="fps"></span>
+<span style="z-index: 999; position: fixed; bottom: 10px; left: 10px;" id="fps"></span>
 <% } %> <% const winterStart = 10; %> <% const winterEnd = 2; %>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-dateFormat/1.0/jquery.dateFormat.min.js"></script>
@@ -61,6 +63,7 @@
     const buffer = 10;
     const minSpeed = 0.75 + 0.5 * timeMultiplier;
     const sizeScale = 0.5 + 0.75 * timeMultiplier;
+    const scaleFactor = 10;
 
     let numFlakes;
     let snow = [];
@@ -70,25 +73,28 @@
 
     let dynamicDisplayInterval;
 
-    let showingLights = <%= new Date().getMonth() === lightsMonth; %>;
+    let lightsMonth = <%= lightsMonth; %>;
+    let showingLights = new Date().getMonth() === lightsMonth;
     let init;
     let started = false;
 
+    let lowFps;
+
     function disableSnow() {
-        clearInterval(dynamicDisplayInterval);
         $("#snow-fall").hide();
         $(".lightrope").hide();
-        $("#light_snowfall").attr("media", "not all");
     }
 
     function Snowy(start = false) {
-        if (started) return;
+        if (started) {
+            return;
+        }
         started = true;
         let snowEnabled = false;
         let lowPerformance = false;
-        if (today.getMonth() >= winterStart || today.getMonth() < winterEnd) {
+        if (appearance.seasonalEffects && (today.getMonth() >= winterStart || today.getMonth() < winterEnd)) {
             snowEnabled = true;
-            numFlakes = screenWidth / 5 + screenWidth * timeMultiplier / 5;
+            numFlakes = screenWidth / scaleFactor + screenWidth * timeMultiplier / scaleFactor;
             for (let i = 0; i < numFlakes; ++i) {
                 let flake = new Flake();
                 snow.push(initializeFlake(flake));
@@ -109,6 +115,7 @@
             }
         }
 
+        lowFps = 20;
         if (start) {
 
             init = performance.now();
@@ -120,14 +127,15 @@
 
             go();
 
-            const LOW_PERFORMANCE = 20;
-
             <% if (page === "home" && JSON.parse(appearance).showFps) { %>
             setInterval(() => {
                 if (renderNextFrame) {
-                    let fpsDisplay = `THRESHOLD: ${(LOW_PERFORMANCE < 100 ? `&nbsp;` : ``) + (LOW_PERFORMANCE < 10 ? `&nbsp;` : ``) + Math.round(LOW_PERFORMANCE)}FPS<br>`;
-                    fpsDisplay += `&nbsp;&nbsp;10S AVG: ${(_10sAverage < 100 ? `&nbsp;` : ``) + (_10sAverage < 10 ? `&nbsp;` : ``) + Math.round(_10sAverage)}FPS<br>`;
-                    fpsDisplay += `&nbsp;&nbsp;INSTANT: ${(fps < 100 ? `&nbsp;` : ``) + (fps < 10 ? `&nbsp;` : ``) + Math.round(fps)}FPS`;
+                    let fpsDisplay = `THRESHOLD: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${(lowFps < 100 ? `&nbsp;` : ``) + (lowFps < 10 ? `&nbsp;` : ``) + Math.round(lowFps)}FPS<br>`;
+                    fpsDisplay += `&nbsp;&nbsp;10S AVG: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${(Math.round(_10sAverage) < 100 ? `&nbsp;` : ``)}${(Math.round(_10sAverage) < 10 ? `&nbsp;` : ``)}<span ${_10sAverage < lowFps ? "style=\"color: red; font-weight: bold;\"" : ""}>${Math.round(_10sAverage)}FPS</span><br>`;
+                    fpsDisplay += `FRAMETIME: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${(Math.round(1000 / fps) < 1000 ? `&nbsp;` : ``) + (Math.round(1000 / fps) < 100 ? `&nbsp;` : ``) + (Math.round(1000 / fps) < 10 ? `&nbsp;` : ``) + Math.round(1000 / fps)}MS<br>`;
+                    fpsDisplay += `&nbsp;VIEWPORT: ${screenWidth < 100000 ? `&nbsp;` : ``}${screenWidth < 10000 ? `&nbsp;` : ``}${screenWidth < 1000 ? `&nbsp;` : ``}${screenHeight < 100000 ? `&nbsp;` : ``}${screenHeight < 10000 ? `&nbsp;` : ``}${screenHeight < 1000 ? `&nbsp;` : ``}${screenWidth}x${screenHeight}<br>`;
+                    fpsDisplay += `&nbsp;&nbsp;&nbsp;FLAKES: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${snow.length === 0 ? `&nbsp;N/A` : `${snow.length < 1000 ? `&nbsp;` : ``}${snow.length < 100 ? `&nbsp;` : ``}${snow.length}`}<br>`;
+                    fpsDisplay += `&nbsp;&nbsp;&nbsp;LIGHTS: ${numLights === undefined ? "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;N/A" : `&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${numLights < 1000 ? `&nbsp;` : ``}${numLights < 100 ? `&nbsp;` : ``}${numLights}`}`;
                     $("#fps").html(fpsDisplay);
                 }
             }, 1);
@@ -138,32 +146,34 @@
                     _10sAverage = _10sTempFps.reduce((a, b) => a + b.y, 0) / _10sTempFps.length;
                     _10sTempFps.sort((a, b) => a.x - b.x);
                     _10sTempFps = _10sTempFps.slice(_10sTempFps.findIndex(t => t.x >= performance.now() - 10000));
+                    lowFps = Math.max((lowFps * 999 + _10sAverage / 2) / 1000, lowFps);
                 }
             }, 1);
 
             dynamicDisplayInterval = setInterval(() => {
-                if (performance.now() - init < 10000 || !renderNextFrame) {
+                if (performance.now() - init < 4000 || !renderNextFrame) {
                     return;
-                } // Wait 10 seconds before making fps-based changes
-                if (_10sAverage < LOW_PERFORMANCE && showingLights) {
+                } // Wait 4 seconds before making fps-based changes
+                if (_10sAverage < lowFps && showingLights) {
                     $(".lightrope li").css("animation-play-state", "paused");
                     showingLights = false;
-                    $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-danger font-weight-bold">${$.format.date(Date.now(), "MM/DD/YY hh:mm:ss a")} | Christmas Lights disabled to improve performance</small>`));
-                    init = performance.now();
-                } else if (_10sAverage < LOW_PERFORMANCE && !showingLights) {
+                    $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-danger font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Christmas Lights paused to improve performance</small>`));
+                } else if (_10sAverage < lowFps && !showingLights) {
                     $("#snow-fall").fadeOut("slow");
                     if (snowEnabled) {
                         $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-danger font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Snow disabled to improve performance</small>`));
                     }
                     snowEnabled = false;
-                } else if (!showingLights && (today.getMonth() >= winterStart || today.getMonth() < winterEnd)) {
+                } else if (!snowEnabled && (today.getMonth() >= winterStart || today.getMonth() < winterEnd)) {
                     $("#snow-fall").fadeIn("slow");
-                    if (!snowEnabled) {
-                        $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-success font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Snow reenabled</small>`));
-                    }
+                    $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-success font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Snow reenabled</small>`));
                     snowEnabled = true;
+                } else if (!showingLights && lightsMonth) {
+                    $(".lightrope li").css("animation-play-state", "");
+                    showingLights = true;
+                    $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-success font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Christmas Lights resumed</snall>`));
                 }
-                if (_10sAverage < LOW_PERFORMANCE) {
+                if (_10sAverage < lowFps) {
                     if (!lowPerformance) {
                         $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-danger font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | FPS Dropped below threshold</small>`));
                     }
@@ -225,20 +235,22 @@
 
             function stop() {
                 if (today.getMonth() >= winterStart || today.getMonth() < winterEnd) {
-                    $("#snow-fall").hide();
-                    $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-info font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Snow disabled by window unfocus</small>`));
+                    disableSnow();
+                    $(".lightrope li").css("animation-play-state", "paused");
+                    showingLights = false;
+                    $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-info font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Effects disabled by window unfocus</small>`));
                 }
                 renderNextFrame = false;
             }
 
             function play() {
-                init = performance.now();
                 renderNextFrame = true;
-                _10sTempFps = [];
-                lastCalledTime = undefined;
                 if (today.getMonth() >= winterStart || today.getMonth() < winterEnd) {
-                    $("#snow-fall").show();
-                    $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-info font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Snow reenabled by window focus</small>`));
+                    Snowy();
+                    $("#snow-fall, .lightrope").show();
+                    $(".lightrope li").css("animation-play-state", "");
+                    showingLights === today.getMonth() === lightsMonth;
+                    $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-info font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Effects enabled by window focus</small>`));
                 }
             }
         }
@@ -265,6 +277,7 @@
             canvas.height = screenHeight = window.innerHeight;
             snow.forEach((flake, index) => delete snow[index]);
             snow = [];
+            started = false;
             Snowy();
             <% if (new Date().getMonth() === lightsMonth) { %>
             setupLights();
@@ -275,5 +288,5 @@
 </script>
 
 <% if (new Date().getMonth() === lightsMonth) { %>
-    <% include christmas_lights.ejs %>
+<% include christmas_lights.ejs %>
 <% } %>

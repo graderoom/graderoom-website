@@ -146,9 +146,17 @@ td, th {
     color: #BBBBBB;
 }
 
-.chart-placeholder {
-    opacity: 0.2;
-    color: white !important;
+@keyframes loadSwipe {
+    from {
+        background-position-x: 0;
+    }
+    to {
+        background-position-x: 100vw;
+    }
+}
+
+#chart-container-1 .chart-placeholder::after {
+    color: #AAA;
 }
 
 .changelog, .changelog-legend {
@@ -624,6 +632,74 @@ tr:hover .toolTab {
 
 .premium-label::after {
     content: "PREMIUM";
+}
+
+.navbar .nav-item btn:hover, .navbar .nav-item a:not(.dropdown-toggle):hover {
+    background-color: #9A9A9A !important;
+    border-color: #FFFFFF !important;
+}
+
+.navbar btn.donate-nav-item:hover, btn.donate-nav-item.active {
+    background-color: #210060 !important;
+    border-color: blue !important;
+}
+
+#notificationPanel {
+    background-color: transparent;
+}
+
+#notificationPanel::before {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+#notificationPanel:has(.announcement, .stable, .beta, .sync, .empty-sync, .error)::after {
+    box-shadow: -2px 2px 6px 0 rgba(0, 0, 0, 0.5);
+}
+
+#notificationPanel:hover {
+    background-color: rgba(54, 54, 54, 0.9);
+    box-shadow: -8px 0 16px 0 rgba(0, 0, 0, 0.2);
+}
+
+.notification-card {
+    background-color: rgba(51, 51, 51, 0.5);
+    box-shadow: 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22), inset 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22);
+}
+
+.notification-card span.notification-dismiss, .notification-card span.notification-pin {
+    color: transparent;
+}
+
+.notification-card span.notification-header {
+    background-color: #111111;
+}
+
+.notification-card:hover span.notification-dismiss:hover {
+    color: #FFFFFF;
+}
+
+.notification-card:hover span.notification-pin:hover {
+    color: #FFFFFF;
+}
+
+.notification-card:hover span.notification-pin.pinned {
+    color: #666666;
+}
+
+.notification-card:hover span.notification-pin.pinned:hover {
+    color: #FFFFFF;
+}
+
+.notification-card:hover span.notification-dismiss, .notification-card:hover span.notification-pin {
+    color: #666666;
+}
+
+#notifications .divider {
+    color: #888888;
+}
+
+#notifications hr {
+    color: #888888;
 }
 
 /* Mobile Stuff */

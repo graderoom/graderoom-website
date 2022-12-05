@@ -9,41 +9,33 @@
         <% } %>></ul>
 
 <script>
+    let numLights;
     function setupLights() {
         showingLights = true;
         $('#lights-disabled-message').fadeOut('fast');
         init = performance.now();
-        let randomAddHorizontal = Math.floor(Math.random() * 20) * 2 + 2; // Ensuring even number >= 2
-        let randomAddVertical = Math.floor(Math.random() * 20) * 2 + 2; // Ensuring even number >= 2
-        let numLightsHorizontal = Math.floor(screenWidth / 72 + 0.5) + randomAddHorizontal;
-        let numLightsVertical = Math.floor(screenHeight / 72 + 0.5) + randomAddVertical;
+        let numLightsHorizontal = Math.floor(screenWidth / 72 * 2) / 2 + 4;
+        let numLightsVertical = Math.floor(screenHeight / 72 * 2) / 2 + 4;
+        numLights = Math.floor(2 * numLightsVertical + numLightsHorizontal);
+        let randomExtra = Math.random() * Math.max(numLightsHorizontal, numLightsVertical);
         let lightsRight = $($('.lightrope.right')[0]);
         let lightsBottom = $($('.lightrope.bottom')[0]);
         let lightsLeft = $($('.lightrope.left')[0]);
         lightsRight.html(``);
         lightsBottom.html(``);
         lightsLeft.html(``);
+        for (let light = 0; light < randomExtra; light++) {
+            lightsBottom.append(`<li style="display: none"></li>`);
+            lightsLeft.append(`<li style="display: none"></li>`);
+            lightsRight.append(`<li style="display: none"></li>`);
+        }
         for (let light = 0; light < numLightsHorizontal; light++) {
-            if (light < randomAddHorizontal / 2 - 1 || light > numLightsHorizontal - randomAddHorizontal / 2 + 1) {
-                lightsBottom.append(`<li style="visibility: hidden"></li>`);
-            } else {
-                lightsBottom.append(`<li></li>`);
-            }
+            lightsBottom.append(`<li></li>`);
         }
         for (let light = 0; light < numLightsVertical; light++) {
-            if (light < randomAddVertical / 2 - 1 || light > numLightsVertical - randomAddVertical / 2 + 1) {
-                lightsRight.append(`<li style="visibility: hidden"></li>`);
-                lightsLeft.append(`<li style="visibility: hidden"></li>`);
-            } else {
-                lightsRight.append(`<li></li>`);
-                lightsLeft.append(`<li></li>`);
-            }
+            lightsRight.append(`<li></li>`);
+            lightsLeft.append(`<li></li>`);
         }
 
-        $('.lightrope.right li:first-child').css('margin-left',30 - (screenHeight - (numLightsVertical - randomAddVertical) * 72) - randomAddVertical * 36 + "px");
-        $('.lightrope.bottom li:first-child').css('margin-left',30 - (screenWidth - (numLightsHorizontal - randomAddHorizontal) * 72) - randomAddHorizontal * 36 + "px");
-        $('.lightrope.left li:first-child').css('margin-left',30 - (screenHeight - (numLightsVertical - randomAddVertical) * 72) - randomAddVertical * 36 + "px");
     }
-
-    setupLights();
 </script>

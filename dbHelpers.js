@@ -20,7 +20,7 @@ exports.TEST_DATABASE_NAME = "test";
 exports.COMMON_DATABASE_NAME = "common";
 
 // Change this when updateDB changes
-exports.dbUserVersion = 7;
+exports.dbUserVersion = 9;
 exports.dbClassVersion = 2;
 
 exports.minDonoAmount = 3;
@@ -177,11 +177,13 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
                     shuffleColors: false,
                     seasonalEffects: true,
                     showNonAcademic: true,
+                    showEmpty: true,
                     darkModeStart: 946778400000,
                     darkModeFinish: 946738800000,
                     weightedGPA: true,
                     regularizeClassGraphs: true,
                     showPlusMinusLines: false,
+                    reduceMotion: false,
                     showMaxGPA: false,
                     animateWhenUnfocused: false,
                     showFps: false
