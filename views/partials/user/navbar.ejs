@@ -117,7 +117,7 @@
                             <div class="dropdown-divider"></div>
                             <% if (JSON.parse(alerts).lastUpdated.length) { %>
                                 <li id="recentChangesNavBtn" class="nav-item dropdown-item">
-                                    <btn class="btn btn-med" onclick="setupGradeChanges(true, true)"><i
+                                    <btn class="btn btn-med" onclick="showCard('#gradeChangesCardDisplay')"><i
                                                 class="fa fa-clock-o" aria-hidden="true"></i> Sync Log
                                     </btn>
                                 </li>
@@ -145,7 +145,7 @@
                             </li>
                             <div class="dropdown-divider"></div>
                             <li class="nav-item dropdown-item">
-                                <btn class="btn btn-med" onclick="showCard('#settingsCardDisplay'); openTab(0)"><span class="donate-dollar"><span class="inner-donate-dollar"><i
+                                <btn class="btn btn-med donate-nav-item" onclick="showCard('#settingsCardDisplay'); openTab(0)"><span class="donate-dollar"><span class="inner-donate-dollar"><i
                                                     class="fa fa-dollar" aria-hidden="true"></i></span></span> <span class="donate"><span class="inner-donate">Donate</span></span>
                                 </btn>
                             </li>
@@ -501,5 +501,9 @@
         }
     });
 
+    let appearance = <%- appearance ;%>;
     Snowy(true);
+    if (setupLights) {
+        setupLights();
+    }
 </script>

@@ -143,11 +143,6 @@ table tfoot tr td {
     background-color: #FFFFFF;
 }
 
-.chart-placeholder {
-    opacity: 0.2;
-    color: black !important;
-}
-
 .changelog, .changelog-legend {
     background-color: #FFFFFF;
 }
@@ -366,29 +361,97 @@ input:checked + .slider:before {
     box-shadow: 0 2px 30px 1px #888;
 }
 
-#donationProgress .progress-bar {
-    background-color: #a1eb37;
-    width: 0;
+.navbar btn.donate-nav-item:hover, btn.donate-nav-item.active {
+    background-color: #3F00B2 !important;
+    border-color: blue !important;
+}
+
+#notificationPanel {
+    background-color: transparent;
+}
+
+#notificationPanel::before {
+    border: 1px solid #CCCCCC;
+    background-color: rgba(230, 230, 230, 0.9);
+}
+
+#notificationPanel:has(.announcement, .stable, .beta, .sync, .empty-sync, .error)::after {
+    box-shadow: -2px 2px 6px 0 rgba(0, 0, 0, 0.5);
+}
+
+#notificationPanel:hover {
+    background-color: rgba(230, 230, 230, 0.9);
+    box-shadow: -8px 0 16px 0 rgba(0, 0, 0, 0.2);
+}
+
+.notification-card {
+    background-color: white;
+    box-shadow: 0 19px 38px rgba(200, 200, 200, 0.30), 0 15px 12px rgba(255, 255, 255, 0.22), inset 0 19px 38px rgba(200, 200, 200, 0.30), 0 15px 12px rgba(255, 255, 255, 0.22);
+}
+
+.notification-card span.notification-dismiss, .notification-card span.notification-pin {
+    color: transparent;
+}
+
+.notification-card span.notification-header {
+    background-color: #CCCCCC;
+}
+
+.notification-card:hover span.notification-dismiss:hover {
+    color: #000000;
+}
+
+.notification-card:hover span.notification-pin:hover {
+    color: #000000;
+}
+
+.notification-card:hover span.notification-pin.pinned {
+    color: #AAAAAA;
+}
+
+.notification-card:hover span.notification-pin.pinned:hover {
+    color: #000000;
+}
+
+.notification-card:hover span.notification-dismiss, .notification-card:hover span.notification-pin {
+    color: #AAAAAA;
+}
+
+#notifications .divider {
+    color: #333333;
+}
+
+#notifications hr {
+    color: #333333;
+}
+
+#donationProgress .progress-bar:nth-child(1) {
+    background-color: #FF8800;
+    width: 12.5%;
 }
 
 #donationProgress .progress-bar:nth-child(2) {
-    background-color: #4bdf9e;
+    background-color: #a1eb37;
 }
 
 #donationProgress .progress-bar:nth-child(3) {
-    background-color: #7a93ff;
+    background-color: #4bdf9e;
 }
 
 #donationProgress .progress-bar:nth-child(4) {
+    background-color: #7a93ff;
+}
+
+#donationProgress .progress-bar:nth-child(5) {
     background-color: #9e7aff;
 }
 
 #donationProgress .progress-bar:last-child {
-    background-color: #F5F5F5;
+    background-color: #FFFFFF;
 }
 
 #donationProgressOverlay .progress-bar {
-    border-color: #FFF;
+    border-color: #E5E5E5;
 }
 
 #donationProgressOverlay .progress-bar:first-child {
@@ -397,6 +460,10 @@ input:checked + .slider:before {
 
 #donationProgressOverlay .progress-bar:nth-child(2) {
     color: #cd4451;
+}
+
+#donationHoverOverlay .progress-bar .popup span {
+    color: black;
 }
 
 .tableOptions .popup {

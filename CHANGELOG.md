@@ -46,39 +46,7 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Beta 5.6.0] - 2022-12-10
-### Added
-- <em>[Experiment]</em> Notification Panel<ul>
-- Added keyboard shortcut 'N' for Notification Panel
-- Added Notification Panel settings<ul>
-- Added option for how to show new versions. More coming soon.
-- Added notification panel tutorial</ul>
-- Notifications now sync between devices</ul>
-- Added keyboard shortcuts for more than 9 classes using the '0', '-', and '=' keys
-
-### Improved
-- No longer hide Christmas lights when unfocus
-- All pages should load slightly faster now
-- Overview chart<ul>
-- Tooltip moved below points for better visibility
-- Now detects when the mouse is moved out and returns all chart lines to normal thickness
-- Animates faster and fps should drop less if you decide to continuously move your mouse around inside it
-- Thickness changes are more drastic to help see the whole line
-- Clicks now only open assignment pages if your cursor intersects a point
-- Supports when assignments from different classes have the same date and score and highlights both lines on hover</ul>
-- Changelog doesn't load more times than it needs to
-- Changelog legend now scrolls along with the changelog
-- <em>[Experiment]</em> Notification Panel<ul>
-- Notification Panel now shows on click rather than on hover</ul>
-
-### Fixed
-- Issue where Empty and Non-Academic course counts showed 0 once the respective settings were disabled
-- Issue with 'More' button tutorial popup
-- Issue with a tutorial popup not showing up
-- Issues with infinite redirects
-- <em>[Mobile]</em> Issue where some navbar items were invisible
-
-## [Beta 5.5.0] - 2022-12-04
+## [Stable 5.5.0] - 2022-12-04
 ### Added
 - Navbar 'More' menu now shows when hovering on the 'More' text
 - New animations throughout the site<ul>
@@ -87,7 +55,7 @@
 - Added a setting to enable viewing empty courses, enabled by default</ul>
 - <em>[Experiment]</em> Notification Panel<ul>
 - Updated animations and tweaked some things
-- Added changelog notifications (They're not functional, just placeholder, so you know what they will look like)</ul>
+- Added changelog notifications (They're not functional, just placeholder so you know what they will look like)</ul>
 
 ### Improved
 - Interacting with charts has gotten better! Guidelines no longer get in the way when an assignment is near your cursor.

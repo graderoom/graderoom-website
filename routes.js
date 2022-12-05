@@ -5,7 +5,6 @@ const _ = require("lodash");
 const SunCalc = require("suncalc");
 const {changelog} = require("./dbHelpers");
 const {Schools, PrettySchools, SchoolAbbr} = require("./enums");
-const showAds = process.env.showAds === "enabled";
 
 module.exports = function (app, passport) {
 
@@ -53,10 +52,10 @@ module.exports = function (app, passport) {
             }
 
             if (term && semester) {
-                let validGrades = req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length);
-                let validWeights = req.user.weights[term][semester].filter(weights => validGrades.map(g => g.class_name).includes(weights.className));
+                let filteredGrades = req.user.appearance.showEmpty ? req.user.grades[term][semester] : req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length);
+                let filteredWeights = req.user.weights[term][semester].filter(weights => filteredGrades.map(g => g.class_name).includes(weights.className));
 
-                let {noAds, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
+                let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
 
                 res.render("user/authorized_index.ejs", {
                     page: "home",
@@ -68,8 +67,9 @@ module.exports = function (app, passport) {
                     appearance: JSON.stringify(req.user.appearance),
                     alerts: JSON.stringify(req.user.alerts),
                     gradeSync: !!req.user.schoolPassword,
-                    gradeData: JSON.stringify(validGrades),
-                    weightData: JSON.stringify(validWeights),
+                    gradeData: JSON.stringify(filteredGrades),
+                    weightData: JSON.stringify(filteredWeights),
+                    emptyCount: req.user.grades[term][semester].length - filteredGrades.length,
                     addedAssignments: JSON.stringify(req.user.addedAssignments[term][semester]),
                     editedAssignments: JSON.stringify(req.user.editedAssignments[term][semester]),
                     gradeHistory: JSON.stringify(gradeHistoryLetters),
@@ -97,10 +97,10 @@ module.exports = function (app, passport) {
                     pairKey: req.user.api.pairKey ?? "",
                     pairKeyExpire: req.user.api.pairKeyExpire ?? "",
                     apiKey: req.user.api.apiKey ?? "",
-                    showAds: showAds && !noAds
+                    plus: plus
                 });
             } else {
-                let {premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
+                let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
                 res.render("user/authorized_index.ejs", {
                     page: "home",
                     school: req.user.school,
@@ -113,6 +113,7 @@ module.exports = function (app, passport) {
                     gradeSync: !!req.user.schoolPassword,
                     gradeData: JSON.stringify([]),
                     weightData: JSON.stringify({}),
+                    emptyCount: 0,
                     addedAssignments: JSON.stringify({}),
                     editedAssignments: JSON.stringify({}),
                     gradeHistory: JSON.stringify([]),
@@ -129,7 +130,7 @@ module.exports = function (app, passport) {
                     sunset: sunset,
                     sunrise: sunrise,
                     premium: premium,
-                    showAds: false,
+                    plus: plus,
                     enableLogging: req.user.enableLogging,
                     pairKey: req.user.api.pairKey ?? "",
                     pairKeyExpire: req.user.api.pairKeyExpire ?? "",
@@ -162,24 +163,31 @@ module.exports = function (app, passport) {
     app.post("/joinbeta", [isLoggedIn], async (req, res) => {
         await dbClient.joinBeta(req.user.username);
         await dbClient.setRemoteAccess(req.user.username, req.body.activateWithRemoteAccess === "on" ? "allowed" : "denied");
-        res.redirect("/");
+        res.redirect(req.headers.referer);
     });
 
     app.post("/betafeatures", [isLoggedIn], async (req, res) => {
         await dbClient.updateBetaFeatures(req.user.username, Object.keys(req.body));
-        res.redirect("/");
+        res.redirect(req.headers.referer);
     });
 
     app.post("/leavebeta", [isLoggedIn], async (req, res) => {
         await dbClient.leaveBeta(req.user.username);
-        res.redirect("/");
+        res.redirect(req.headers.referer);
     });
 
     app.post("/setShowNonAcademic", [isLoggedIn], async (req, res) => {
         let show = req.body.showNonAcademic === "on";
         await dbClient.setShowNonAcademic(req.user.username, show);
-        res.redirect("/");
+        res.redirect(req.headers.referer);
     });
+
+    app.post("/setShowEmpty", [isLoggedIn], async (req, res) => {
+        let show = req.body.showEmpty === "on";
+        await dbClient.setShowEmpty(req.user.username, show);
+        console.log(req);
+        res.redirect(req.headers.referer);
+    })
 
     app.post("/weightedGPA", [isLoggedIn], async (req, res) => {
         let weightedGPA = JSON.parse(req.body.weightedGPA);
@@ -217,7 +225,7 @@ module.exports = function (app, passport) {
             };
             let user = (await dbClient.getUser(req.query.usernameToRender, projection)).data.value;
             if (user.alerts.remoteAccess === "denied") {
-                res.redirect("/");
+                res.redirect(req.headers.referer);
                 return;
             }
             for (let i = 0; i < Object.keys(user.grades).length; i++) {
@@ -240,10 +248,10 @@ module.exports = function (app, passport) {
             let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
 
             if (term && semester) {
-                let validGrades = user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length);
-                let validWeights = user.weights[term][semester].filter(weights => !weights.className ? true : validGrades.map(g => g.class_name).includes(weights.className));
+                let filteredGrades = user.appearance.showEmpty ? user.grades[term][semester] : user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length);
+                let filteredWeights = user.weights[term][semester].filter(weights => !weights.className ? true : filteredGrades.map(g => g.class_name).includes(weights.className));
 
-                let {premium} = (await dbClient.getDonoAttributes(user.username)).data.value;
+                let {plus, premium} = (await dbClient.getDonoAttributes(user.username)).data.value;
                 res.render("user/authorized_index.ejs", {
                     page: "home",
                     school: user.school,
@@ -254,8 +262,9 @@ module.exports = function (app, passport) {
                     appearance: JSON.stringify(user.appearance),
                     alerts: JSON.stringify(user.alerts),
                     gradeSync: !!user.schoolPassword,
-                    gradeData: JSON.stringify(validGrades),
-                    weightData: JSON.stringify(validWeights),
+                    gradeData: JSON.stringify(filteredGrades),
+                    weightData: JSON.stringify(filteredWeights),
+                    emptyCount: user.grades[term][semester].length - filteredGrades.length,
                     addedAssignments: JSON.stringify(user.addedAssignments[term][semester]),
                     editedAssignments: JSON.stringify(user.editedAssignments[term][semester]),
                     gradeHistory: JSON.stringify(gradeHistoryLetters),
@@ -277,7 +286,7 @@ module.exports = function (app, passport) {
                     }).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
                     sunset: sunset,
                     sunrise: sunrise,
-                    showAds: false,
+                    plus: plus,
                     premium: premium,
                     _: _,
                     enableLogging: true,
@@ -286,7 +295,7 @@ module.exports = function (app, passport) {
                     apiKey: user.api.apiKey ?? "",
                 });
             } else {
-                let {premium} = (await dbClient.getDonoAttributes(user.username)).data.value;
+                let {plus, premium} = (await dbClient.getDonoAttributes(user.username)).data.value;
                 res.render("user/authorized_index.ejs", {
                     page: "home",
                     school: user.school,
@@ -299,6 +308,7 @@ module.exports = function (app, passport) {
                     gradeSync: !!user.schoolPassword,
                     gradeData: JSON.stringify([]),
                     weightData: JSON.stringify({}),
+                    emptyCount: 0,
                     addedAssignments: JSON.stringify({}),
                     editedAssignments: JSON.stringify({}),
                     gradeHistory: JSON.stringify([]),
@@ -313,7 +323,7 @@ module.exports = function (app, passport) {
                     termsAndSemesters: JSON.stringify([]),
                     sunset: sunset,
                     sunrise: sunrise,
-                    showAds: false,
+                    plus: plus,
                     premium: premium,
                     _: _,
                     enableLogging: true,
@@ -324,12 +334,12 @@ module.exports = function (app, passport) {
             }
             return;
         }
-        res.redirect("/");
+        res.redirect(req.headers.referer);
     });
 
     app.get("/logout", [isLoggedIn], (req, res) => {
         req.logout();
-        res.redirect("/");
+        res.redirect(req.headers.referer);
     });
 
     app.post("/archiveUser", [isAdmin], async (req, res) => {
@@ -493,12 +503,12 @@ module.exports = function (app, passport) {
 
     app.post("/acceptPrivacyPolicy", [isLoggedIn], async (req, res) => {
         await dbClient.acceptPrivacyPolicy(req.user.username);
-        res.redirect("/");
+        res.redirect(req.headers.referer);
     });
 
     app.post("/acceptTerms", [isLoggedIn], async (req, res) => {
         await dbClient.acceptTerms(req.user.username);
-        res.redirect("/");
+        res.redirect(req.headers.referer);
     });
 
     app.post("/disableGradeSync", [isLoggedIn], async (req, res) => {
@@ -692,7 +702,7 @@ module.exports = function (app, passport) {
         if (req.isAuthenticated()) {
 
             let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data.value;
-            let {noAds, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
+            let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
             if (term && semester) {
                 res.render("user/final_grade_calculator.ejs", {
                     page: "calc",
@@ -709,7 +719,7 @@ module.exports = function (app, passport) {
                     beta: JSON.stringify(server.beta),
                     sunset: sunset,
                     sunrise: sunrise,
-                    showAds: showAds && !noAds,
+                    plus: plus,
                     premium: premium,
                 });
             } else {
@@ -728,7 +738,7 @@ module.exports = function (app, passport) {
                     beta: JSON.stringify(server.beta),
                     sunset: sunset,
                     sunrise: sunrise,
-                    showAds: showAds && !noAds,
+                    plus: plus,
                     premium: premium,
                 });
             }
@@ -740,7 +750,6 @@ module.exports = function (app, passport) {
                 beta: JSON.stringify(server.beta),
                 sunset: sunset,
                 sunrise: sunrise,
-                showAds: showAds,
             });
         }
 
@@ -864,7 +873,7 @@ module.exports = function (app, passport) {
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
         let {data: {loginData, uniqueLoginData, syncData, userData, activeUsersData, gradData, schoolData, lastUpdated}} = await dbClient.getChartData();
         if (req.isAuthenticated()) {
-            let {noAds, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
+            let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
             res.render("viewer/cool_charts.ejs", {
                 username: req.user.username,
                 personalInfo: JSON.stringify(req.user.personalInfo),
@@ -880,7 +889,7 @@ module.exports = function (app, passport) {
                 gradData: JSON.stringify(gradData),
                 sunset: sunset,
                 sunrise: sunrise,
-                showAds: showAds && !noAds,
+                plus: plus,
                 premium: premium,
                 lastUpdated: lastUpdated.getTime(),
                 SchoolAbbr: JSON.stringify(SchoolAbbr),
@@ -900,7 +909,6 @@ module.exports = function (app, passport) {
                 gradData: JSON.stringify(gradData),
                 sunset: sunset,
                 sunrise: sunrise,
-                showAds: showAds,
                 lastUpdated: lastUpdated.getTime(),
                 SchoolAbbr: JSON.stringify(SchoolAbbr),
                 PrettySchools: JSON.stringify(PrettySchools),
@@ -987,7 +995,7 @@ module.exports = function (app, passport) {
 
         let resetToken = req.body.token;
         if (!resetToken) {
-            res.redirect("/");
+            res.redirect(req.headers.referer);
             return;
         }
 
@@ -1020,7 +1028,7 @@ module.exports = function (app, passport) {
     app.get("/forgot_password", (req, res) => {
         // dont allow while logged in
         if (req.user) {
-            res.redirect("/");
+            res.redirect(req.headers.referer);
             return;
         }
 
@@ -1197,7 +1205,7 @@ module.exports = function (app, passport) {
 
     app.get("/*", (req, res) => {
         req.session.returnTo = req.originalUrl;
-        res.redirect("/");
+        res.redirect(req.headers.referer);
     });
 
     // route middleware to ensure user is logged in

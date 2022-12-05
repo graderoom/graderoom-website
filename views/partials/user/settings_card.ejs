@@ -14,18 +14,18 @@
                 </h1>
             </div>
             <div class="tab">
-                <btn id="btn-0" class="tablinks" onclick="openTab(0)"><span class="donate"><span class="inner-donate">Donate</span></span>
+                <btn id="btn-0" class="tablinks donate-nav-item" onclick="openTab(0)"><span class="donate"><span class="inner-donate">Donate</span></span>
                 </btn>
-                <btn id="btn-1" class="tablinks active" onclick="openTab(1)">General</btn>
+                <btn id="btn-1" class="tablinks active" onclick="openTab(1)">Appearance</btn>
                 <btn id="btn-2" class="tablinks" onclick="openTab(2)">Account</btn>
                 <btn id="btn-3" class="tablinks" onclick="openTab(3)">Advanced</btn>
                 <btn id="btn-4" class="tablinks" onclick="openTab(4)">Help</btn>
                 <btn id="btn-5" class="tablinks" onclick="openTab(5)">About</btn>
                 <% if (JSON.parse(betaFeatures).active) { %>
-                    <btn id="btn-5" class="tablinks" onclick="openTab(6)">Beta</btn>
+                    <btn id="btn-5" class="tablinks" onclick="openTab(6)">Experiments</btn>
                 <% } %>
             </div>
-            <div id="settings-0" class="tabcontent" style="display: none">
+            <div id="settings-0" class="tabcontent">
                 <div class="card-body">
                     <div class="card-footer">
                         <h4>Want to support Graderoom?</h4>
@@ -91,7 +91,7 @@
                     </div>
                 </div>
             </div>
-            <div id="settings-1" class="tabcontent" style="display: block">
+            <div id="settings-1" class="tabcontent show">
                 <div class="card-body">
                     <% if (JSON.parse(gradeData).length > 0) { %>
                         <div class="card-footer">
@@ -394,6 +394,31 @@
                             </label>
                         </div>
                     </div>
+                    <div class="card-footer">
+                            <h5>Accessibility</h5>
+                            <div>
+                                <label class="slider-container">
+                                    <label class="switch">
+                                        <input
+                                                id="reduceMotionToggle"
+                                                style="margin: 0; display: flex"
+                                                type="checkbox"
+                                                name="reduceMotion"
+                                        <% if (JSON.parse(appearance).reduceMotion) { %>
+                                                checked="checked"
+                                                <% } %>
+                                                onchange="changeSetting('reduceMotion', !appearance.reduceMotion)"
+                                        >
+                                        <span class="slider"></span>
+                                    </label>
+                                    <label for="reduceMotionToggle">
+                                        Reduce Motion <span class="popup"><i
+                                                    class="fa fa-question-circle"><span
+                                                        class="popup-right-bottom">When enabled, animations will be reduced and disabled where possible.</span></i></span>
+                                    </label>
+                                </label>
+                            </div>
+                        </div>
                 </div>
             </div>
             <div id="settings-2" class="tabcontent">
@@ -414,17 +439,27 @@
                                          role="progressbar"></div>
                                     <div class="progress-bar progress-bar-striped progress-bar-animated"
                                          role="progressbar"></div>
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                         role="progressbar"></div>
                                     <div class="progress-bar" role="progressbar"></div>
                                 </div>
                                 <div class="progress" id="donationProgressOverlay">
+                                    <div class="progress-bar" role="progressbar">USER</div>
                                     <div class="progress-bar" role="progressbar">DONOR</div>
-                                    <div class="progress-bar" role="progressbar">NO ADS</div>
+                                    <div class="progress-bar" role="progressbar">PLUS</div>
                                     <div class="progress-bar" role="progressbar">
                                         <div class="premium-label">PREMIUM</div>
                                     </div>
                                     <div class="progress-bar" role="progressbar">😍</div>
                                 </div>
                                 <div class="progress" id="donationHoverOverlay">
+                                    <div class="progress-bar popup-holder" role="progressbar">
+                                        <span class="popup">
+                                            <span class="popup-top">
+                                                $0: Thanks for using Graderoom!
+                                            </span>
+                                        </span>
+                                    </div>
                                     <div class="progress-bar popup-holder" role="progressbar">
                                         <span class="popup">
                                             <span class="popup-top">
@@ -435,14 +470,14 @@
                                     <div class="progress-bar popup-holder" role="progressbar">
                                         <span class="popup">
                                             <span class="popup-top">
-                                                $3: Remove all Graderoom ads when you're logged in
+                                                $3: Unlock all paid features
                                             </span>
                                         </span>
                                     </div>
                                     <div class="progress-bar popup-holder" role="progressbar">
                                         <span class="popup">
                                             <span class="popup-top">
-                                                $5: Get access to premium perks and a more feature-rich API
+                                                $5: Get a shiny <div class="premium-label premium-inline">PREMIUM</div> badge and a more feature-rich API
                                             </span>
                                         </span>
                                     </div>
@@ -691,7 +726,7 @@
                             <% if (!JSON.parse(betaFeatures).active) { %>
                                 <button class="btn btn-sm" style="margin: 0.1rem"
                                         onclick="showCard('#activateBetaDisplay');">
-                                    <label style="margin: 0; cursor: pointer;">Open Beta Activation Panel
+                                    <label style="margin: 0; cursor: pointer;">Enable Experiments
                                         <span class="fa fa-external-link-square"></span>
                                     </label>
                                 </button>
@@ -711,32 +746,36 @@
             <div id="settings-3" class="tabcontent">
                 <div class="card-body">
                     <div class="card-footer">
-                        <h5>Display<br><small style="opacity: 0.5">Changing this setting will immediately refresh the
+                        <h5>Display<br><small style="opacity: 0.5">Changing these settings will immediately refresh the
                                 page.</small></h5>
                         <form action="/setShowNonAcademic" method="post">
                             <label class="slider-container">
-                                <label class="switch"
-                                <% if (Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
-                                       style="cursor: pointer"
-                                        <% } %>
-                                >
-                                    <input
-                                    <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
-                                        disabled
-                                            <% } %>
-                                        id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
+                                <% let nonAcademicCount = Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => JSON.parse(gradeData).find(c => c.class_name === k) && v.classType === "non-academic").length; %>
+                                <label class="switch">
+                                    <input id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
                                     <% if (JSON.parse(appearance).showNonAcademic) { %> checked="checked"
                                             <% } %>
                                         onchange="$(this).closest('form').trigger('submit')"
                                     >
                                     <span class="slider"></span>
                                 </label>
-                                <label for="showNonAcademicCheckbox"
-                                <% if (!Object.keys(Object.fromEntries(Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => v.classType === "non-academic"))).length > 0) { %>
-                                       class="disabled"
-                                        <% } %>
-                                >
-                                    Show Non-Academic Classes
+                                <label for="showNonAcademicCheckbox">
+                                    Show Non-Academic Classes (<%= nonAcademicCount %> this semester)
+                                </label>
+                            </label>
+                        </form>
+                        <form action="/setShowEmpty" method="post">
+                            <label class="slider-container">
+                                <label class="switch">
+                                    <input id="showEmptyCheckbox" type="checkbox" name="showEmpty"
+                                    <% if (JSON.parse(appearance).showEmpty) { %> checked="checked"
+                                            <% } %>
+                                        onchange="$(this).closest('form').trigger('submit')"
+                                    >
+                                    <span class="slider"></span>
+                                </label>
+                                <label for="showEmptyCheckbox">
+                                    Show Credit and Empty Classes (<%= emptyCount %> this semester)
                                 </label>
                             </label>
                         </form>
@@ -781,9 +820,9 @@
                                 <span class="slider"></span>
                             </label>
                             <label for="showFps">
-                                Display Real-time Refresh Rate <span class="popup"><i
+                                Stats for Nerds <span class="popup"><i
                                             class="fa fa-question-circle"><span
-                                                class="popup-right-bottom">When enabled, displays FPS in the bottom
+                                                class="popup-right-bottom">When enabled, displays performance info in the bottom
                                             left
                                             corner of the screen
                                         </span></i></span>
@@ -974,7 +1013,7 @@
                             </div>
                         </form>
                         <form action="/leavebeta" method="post">
-                            <button class="btn btn-sm" type="submit">Leave the beta</button>
+                            <button class="btn btn-sm" type="submit">Disable Experiments</button>
                         </form>
                     </div>
                 </div>
@@ -1307,13 +1346,13 @@
         let tabName = "#settings-" + tabIndex;
 
         // Get all elements with class="tabcontent" and hide them
-        $("#settingsCardDisplay .tabcontent").hide();
+        $("#settingsCardDisplay .tabcontent").removeClass("show");
 
         // Get all elements with class="tablinks" and remove the class "active"
         settingsBtns.removeClass("active");
 
         // Show the current tab, and add an "active" class to the button that opened the tab
-        $(tabName).show();
+        $(tabName).addClass("show");
         $(settingsBtns[tabIndex]).addClass("active");
         currentSettingsTab = tabIndex;
     }
@@ -1513,9 +1552,10 @@
         let donoProgressDiv = $("#donationProgress");
         let progressBars = donoProgressDiv.find("div.progress-bar");
         $(progressBars).css("width", '0');
+        $(progressBars[0]).css("width", "12.5%");
         if (donoData.length === 0) {
             donoDiv.html(`<div style="text-align: center">Nothing yet</div>`);
-            $(progressBars[4]).css("width", "100%");
+            $(progressBars[5]).css("width", "87.5%");
         } else {
             let donoTable = `<table id="donoTable"><thead><tr><th>Platform</th><th>Amount Paid</th><th>Actual Value</th><th>Date Donated</th></tr></thead><tbody>`;
             let totalPaid = 0;
@@ -1535,26 +1575,26 @@
 
             if (totalReceived <= 1) {
                 let width = 12.5 * totalReceived;
-                $(progressBars[0]).css("width", `${width}%`);
-                $(progressBars[4]).css("width", `${100 - width}%`);
-            } else if (totalReceived <= 3) {
-                $(progressBars[0]).css("width", "12.5%");
-                let width = 25 * (totalReceived - 1) / 2;
                 $(progressBars[1]).css("width", `${width}%`);
-                $(progressBars[4]).css("width", `${100 - 12.5 - width}%`);
-            } else if (totalReceived <= 5) {
-                $(progressBars[0]).css("width", "12.5%");
-                $(progressBars[1]).css("width", `25%`);
-                let width = 25 * (totalReceived - 3) / 2;
+                $(progressBars[5]).css("width", `${100 - width}%`);
+            } else if (totalReceived <= 3) {
+                $(progressBars[1]).css("width", "12.5%");
+                let width = 25 * (totalReceived - 1) / 2;
                 $(progressBars[2]).css("width", `${width}%`);
-                $(progressBars[4]).css("width", `${100 - 12.5 - 25 - width}%`);
-            } else {
-                $(progressBars[0]).css("width", "12.5%");
-                $(progressBars[1]).css("width", "25%");
+                $(progressBars[5]).css("width", `${100 - 12.5 - width}%`);
+            } else if (totalReceived <= 5) {
+                $(progressBars[1]).css("width", "12.5%");
                 $(progressBars[2]).css("width", `25%`);
-                let width = 37.5 * Math.min(totalReceived - 5, 3) / 3;
+                let width = 25 * (totalReceived - 3) / 2;
                 $(progressBars[3]).css("width", `${width}%`);
-                $(progressBars[4]).css("width", `${100 - 37.5 - 25 - width}%`);
+                $(progressBars[5]).css("width", `${100 - 12.5 - 25 - width}%`);
+            } else {
+                $(progressBars[1]).css("width", "12.5%");
+                $(progressBars[2]).css("width", "25%");
+                $(progressBars[3]).css("width", `25%`);
+                let width = 37.5 * Math.min(totalReceived - 5, 3) / 3;
+                $(progressBars[4]).css("width", `${width}%`);
+                $(progressBars[5]).css("width", `${100 - 37.5 - 25 - width}%`);
             }
         }
     }

@@ -33,6 +33,9 @@ module.exports = {
                             case "showPlusMinusLines":
                                 resp = await dbClient.setShowPlusMinusLines(socket.request.user.username, value);
                                 break;
+                            case "reduceMotion":
+                                resp = await dbClient.setReduceMotion(socket.request.user.username, value);
+                                break;
                         }
                         if (resp.success) {
                             socketManager.emitToRoom(socket.request.user.username, purpose, "success-settingschange", resp.data);

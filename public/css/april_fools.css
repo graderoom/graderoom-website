@@ -1,4 +1,4 @@
-* {
+*, *::after, *::before {
     animation: random-fonts;
     animation-delay: 5s;
     animation-duration: 25s;

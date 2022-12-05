@@ -39,6 +39,10 @@
           <% if (!JSON.parse(appearance).blurEffects) { %>disabled
             <% } %>
     >
+    <link id="reduceMotion" rel="stylesheet" type="text/css" href="/public/css/reduce_motion.css"
+          <% if (!JSON.parse(appearance).reduceMotion) { %>disabled
+            <% } %>
+    >
     <link id="fade" rel="stylesheet" type="text/css" href="/public/css/fade.css" disabled>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -146,7 +150,6 @@
 
     let data = <%- gradeData; %>;
     let weights = <%- weightData; %>;
-    let appearance = <%- appearance; %>;
 
     // Set up input divs
     let currentGradeDiv = $("#currentGrade");
@@ -592,7 +595,7 @@
 
     function setAutoTheme() {
         let date = new Date();
-let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes());
+        let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes());
         if (theme !== "auto" && theme !== "sun" && theme !== "system") {
             if (checkingTheme) {
                 clearInterval(checkingTheme);
@@ -600,15 +603,13 @@ let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes());
             return;
         }
 
+        let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css";
+        let oldDarkBlur = document.getElementById("blur_overrides").getAttribute("href") === "/public/css/dark_blur.css";
         if ((theme === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) || (theme === "sun" && (zeroTime >= sunset || zeroTime <= sunrise)) || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((zeroTime >= darkModeStart) && (zeroTime < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((zeroTime >= darkModeStart) || (zeroTime < darkModeFinish))))))) {
-            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css";
             darkMode = true;
             if (darkMode !== oldDarkMode) {
                 document.getElementById("fade").disabled = false;
                 document.getElementById("pageStyle").setAttribute("href", "/public/css/dark_mode.css");
-                if (appearance.blurEffects) {
-                    document.getElementById("blur_overrides").setAttribute("href", "/public/css/dark_blur.css");
-                }
                 $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
                 $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
                 setTimeout(() => {
@@ -623,15 +624,14 @@ let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes());
                     }
                 }
             }
+            if (appearance.blurEffects && !oldDarkBlur) {
+                document.getElementById("blur_overrides").setAttribute("href", "/public/css/dark_blur.css");
+            }
         } else {
-            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css";
             darkMode = false;
             if (darkMode !== oldDarkMode) {
                 document.getElementById("fade").disabled = false;
                 document.getElementById("pageStyle").setAttribute("href", "/public/css/light_mode.css");
-                if (appearance.blurEffects) {
-                    document.getElementById("blur_overrides").setAttribute("href", "/public/css/light_blur.css");
-                }
                 $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
                 $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
                 setTimeout(() => {
@@ -645,6 +645,9 @@ let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes());
                         $("#light_snowfall").attr("media", "not all");
                     }
                 }
+            }
+            if (appearance.blurEffects && oldDarkBlur) {
+                document.getElementById("blur_overrides").setAttribute("href", "/public/css/light_blur.css");
             }
         }
     }

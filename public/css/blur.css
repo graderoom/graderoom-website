@@ -6,21 +6,31 @@
 
     .blurred-background {
         backdrop-filter: blur(0.2rem);
+        -webkit-backdrop-filter: blur(0.2rem);
     }
 
     .blur {
         backdrop-filter: blur(0.5rem);
+        -webkit-backdrop-filter: blur(0.5rem);
     }
 
     #termSwitcher.blur {
         backdrop-filter: blur(0.2rem);
+        -webkit-backdrop-filter: blur(0.2rem);
     }
 
     #termSwitcher > div.blur {
         backdrop-filter: blur(1rem);
+        -webkit-backdrop-filter: blur(1rem);
     }
 
     #notificationPanel:not(:hover) {
         backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+
+    .chart-placeholder {
+        backdrop-filter: blur(0.2rem);
+        -webkit-backdrop-filter: blur(3rem);
     }
 }
