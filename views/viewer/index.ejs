@@ -82,6 +82,7 @@
 
 <script>
 
+    let appearance = <%- appearance; %>;
     setTimeout(() => {
         $("input").each(function () {
             let input = $(this);
@@ -90,6 +91,9 @@
             }
         });
         Snowy(true);
+        if (setupLights) {
+            setupLights();
+        }
     }, 250);
 
     function checkLabel(input) {
@@ -106,7 +110,6 @@
 
     let sunrise = <%= sunrise.getTime() ;%>;
     let sunset = <%= sunset.getTime() ;%>;
-    let appearance = <%- appearance; %>;
     let darkMode;
 
     function setAutoTheme() {

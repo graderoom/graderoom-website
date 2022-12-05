@@ -37,5 +37,9 @@
 </nav>
 
 <script>
+    let appearance = <%- appearance; %>;
     Snowy(true);
+    if (setupLights) {
+        setupLights();
+    }
 </script>

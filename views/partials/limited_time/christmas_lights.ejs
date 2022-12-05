@@ -11,6 +11,7 @@
 <script>
     let numLights;
     function setupLights() {
+        if (!appearance.seasonalEffects) return;
         showingLights = true;
         $('#lights-disabled-message').fadeOut('fast');
         init = performance.now();

@@ -76,6 +76,12 @@
 </div>
 
 <script>
+    setTimeout(() => {
+        Snowy(true);
+        if (setupLights) {
+            setupLights();
+        }
+    }, 250);
 
     // Set up input divs
     let currentGradeDiv = $("#currentGrade");
@@ -241,7 +247,6 @@
 
     let sunrise = <%= sunrise.getTime() ;%>;
     let sunset = <%= sunset.getTime() ;%>;
-    let appearance = <%- appearance; %>;
     let darkMode;
 
     function setAutoTheme() {
