@@ -20,6 +20,7 @@
     <link rel="stylesheet" type="text/css" href="/public/css/main.css">
     <link id="fade" rel="stylesheet" type="text/css" href="/public/css/fade.css" disabled>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 </head>
 <body>
 <div class="container h-100 d-flex justify-content-center ">
@@ -160,6 +161,7 @@
 <% include ../partials/limited_time/snowfall.ejs %>
 <script>
 
+    let appearance = <%- appearance; %>;
     setTimeout(() => {
         $("input").each(function () {
             let input = $(this);
@@ -168,6 +170,9 @@
             }
         });
         Snowy(true);
+        if (setupLights) {
+            setupLights();
+        }
     }, 250);
 
     function checkLabel(input) {
@@ -615,12 +620,11 @@
 
     let sunrise = <%= sunrise.getTime() %>;
     let sunset = <%= sunset.getTime() %>;
-    let appearance = <%- appearance %>;
     let darkMode;
 
     function setAutoTheme() {
         let date = new Date();
-let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes());
+        let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes());
         if (zeroTime >= sunset || zeroTime <= sunrise) {
             let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css";
             darkMode = true;
