@@ -67,6 +67,7 @@
 - Clicks now only open assignment pages if your cursor intersects a point
 - Supports when assignments from different classes have the same date and score and highlights both lines on hover</ul>
 - Changelog doesn't load more times than it needs to
+- Changelog legend now scrolls along with the changelog
 - <em>[Experiment]</em> Notification Panel<ul>
 - Notification Panel now shows on click rather than on hover</ul>
 
