@@ -678,10 +678,10 @@ const _version8 = async (db, username) => {
 
 const __version8 = async (db, user) => {
     if (user.version === 7) {
-        await _initEditedAssignments(db, username);
-        await _initAddedAssignments(db, username);
+        await _initEditedAssignments(db, user.username);
+        await _initAddedAssignments(db, user.username);
 
-        await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {version: 8}});
+        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {$set: {version: 8}});
     }
 }
 
