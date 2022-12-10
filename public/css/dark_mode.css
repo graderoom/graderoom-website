@@ -656,7 +656,7 @@ tr:hover .toolTab {
     box-shadow: -2px 2px 6px 0 rgba(0, 0, 0, 0.5);
 }
 
-#notificationPanel:hover {
+#notificationPanel.active {
     background-color: rgba(54, 54, 54, 0.9);
     box-shadow: -8px 0 16px 0 rgba(0, 0, 0, 0.2);
 }
@@ -666,7 +666,10 @@ tr:hover .toolTab {
     box-shadow: 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22), inset 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22);
 }
 
-.notification-card span.notification-dismiss, .notification-card span.notification-pin {
+.notification-card span.notification-dismiss,
+.notification-card span.notification-pin,
+.notification-card span.notification-unpin,
+.notification-card span.notification-undismiss {
     color: transparent;
 }
 
@@ -674,23 +677,17 @@ tr:hover .toolTab {
     background-color: #111111;
 }
 
-.notification-card:hover span.notification-dismiss:hover {
+.notification-card:hover span.notification-dismiss:hover,
+.notification-card:hover span.notification-pin:hover,
+.notification-card:hover span.notification-unpin:hover,
+.notification-card:hover span.notification-undismiss:hover {
     color: #FFFFFF;
 }
 
-.notification-card:hover span.notification-pin:hover {
-    color: #FFFFFF;
-}
-
-.notification-card:hover span.notification-pin.pinned {
-    color: #666666;
-}
-
-.notification-card:hover span.notification-pin.pinned:hover {
-    color: #FFFFFF;
-}
-
-.notification-card:hover span.notification-dismiss, .notification-card:hover span.notification-pin {
+.notification-card:hover span.notification-dismiss,
+.notification-card:hover span.notification-pin,
+.notification-card:hover span.notification-unpin,
+.notification-card:hover span.notification-undismiss {
     color: #666666;
 }
 

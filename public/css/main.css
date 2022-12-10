@@ -290,6 +290,7 @@ table thead tr th:last-child {
     height: 100%;
     position: fixed;
     width: 100%;
+    pointer-events: all;
 }
 
 .btn {
@@ -377,8 +378,8 @@ table thead tr th:last-child {
     padding: 0.3rem 0.7rem;
     margin: 0 0.4rem 0.4rem 0;
     cursor: pointer !important;
-    border: 1px solid transparent;
-    transition: all 250ms ease;
+    transition: opacity 250ms ease;
+    opacity: 0.5;
 }
 
 .changelog-legend-column div.known-issues p {
@@ -390,12 +391,13 @@ table thead tr th:last-child {
     opacity: 0.4;
 }
 
-.changelog-legend-column div.current {
-    font-weight: bolder;
+.changelog-legend-column div.active,
+.changelog-legend-column div:hover {
+    opacity: 1;
 }
 
-.changelog-legend-column div:hover {
-    border: 1px solid currentColor;
+.changelog-legend-column div.active {
+    font-weight: bolder;
 }
 
 .changelog {
@@ -628,7 +630,7 @@ table thead tr th:last-child {
 }
 
 .popup {
-    /* z-index: 2; */
+     z-index: 2;
 }
 
 #color-scheme-picker-container {
@@ -1341,7 +1343,7 @@ tr:hover .toolTab {
     position: fixed;
     z-index: 20;
     top: 0;
-    right: -19rem;
+    right: -20rem;
     width: 20rem;
     height: 100%;
     transition: all 400ms ease;
@@ -1352,7 +1354,7 @@ tr:hover .toolTab {
     position: absolute;
     top: 3rem;
     transform: translateY(11rem);
-    right: 19rem;
+    right: 20rem;
     width: 4rem;
     height: 4rem;
     padding: 0.1rem;
@@ -1369,6 +1371,12 @@ tr:hover .toolTab {
     text-align: center;
     border-radius: 1rem 0 0 1rem;
     box-shadow: inherit;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+#notificationPanel:not(.active):hover::before {
+    opacity: 1;
 }
 
 #notificationPanel::after {
@@ -1380,7 +1388,7 @@ tr:hover .toolTab {
     height: 1.5rem;
     border-radius: 0.75rem;
     top: 14.5rem;
-    right: 21.2rem;
+    right: 22.2rem;
     transform: translateX(100%);
     color: white;
     text-align: center;
@@ -1389,10 +1397,13 @@ tr:hover .toolTab {
     display: block;
     padding: 0 0.3rem;
     background-clip: padding-box;
+    cursor: pointer;
+    font-weight: bold;
 }
 
 #notificationPanel.announcement::after {
     background-color: orange;
+    color: black;
 }
 
 #notificationPanel.stable::after {
@@ -1415,7 +1426,7 @@ tr:hover .toolTab {
     background-color: red;
 }
 
-#notificationPanel:hover::before {
+#notificationPanel.active::before {
     overflow: visible;
     top: 3rem;
     transform: none;
@@ -1426,18 +1437,28 @@ tr:hover .toolTab {
     box-shadow: none;
 }
 
-#notificationPanel:hover::after {
+#notificationPanel.active::after {
     transition: 350ms;
     top: 4.2rem;
     right: 4.2rem;
     box-shadow: none;
+    cursor: default;
 }
 
-#notificationPanel.overflowed:hover::after {
+#notificationPanel.overflowed.active::after {
     right: 4.5rem;
 }
 
+#notificationPanel.empty::after {
+    opacity: 0;
+}
+
+#notificationPanel.empty h3 {
+    transform: translateX(0);
+}
+
 #notificationPanel h3 {
+    transition: all 250ms ease;
     transform: translateX(-0.8rem);
 }
 
@@ -1452,13 +1473,14 @@ tr:hover .toolTab {
     opacity: 0;
     font-size: 1.5rem;
     transform: translateX(-4.9rem) translateY(12.9rem);
+    pointer-events: none;
 }
 
 #notificationPanel.overflowed h3 i {
     transform: translateX(-4.7rem) translateY(12.9rem);
 }
 
-#notificationPanel:hover h3 i {
+#notificationPanel.active h3 i {
     opacity: 1;
     font-size: unset;
     transform: none;
@@ -1469,25 +1491,25 @@ tr:hover .toolTab {
     width: 2rem;
 }
 
-#notificationPanel.overflowed:hover::after {
+#notificationPanel.overflowed.active::after {
     content: attr(count);
     width: fit-content;
     width: -moz-fit-content;
 }
 
-#notificationPanel:hover {
+#notificationPanel.active {
     right: 0;
     padding: 2rem 0 0.5rem 0;
 }
 
-#notifications, #dismissed-notifications {
+#notifications {
     overflow-y: scroll;
     height: calc(100% - 6rem);
 }
 
 .notification-card {
     border-radius: 0.5rem;
-    min-height: 2rem;
+    min-height: 2.5rem;
     width: calc(100% - 1.5rem);
     transition: all 250ms ease;
     display: flex;
@@ -1497,17 +1519,19 @@ tr:hover .toolTab {
     margin: 1rem;
 }
 
-.notification-card span.notification-dismiss, .notification-card span.notification-pin {
+.notification-card span.notification-dismiss,
+.notification-card span.notification-pin,
+.notification-card span.notification-unpin,
+.notification-card span.notification-undismiss {
     margin-right: 0.5rem;
     line-height: 100%;
     transition: all 250ms ease;
 }
 
 .notification-card div.notification-body {
-    font-size: 0.8rem;
     display: flex;
+    align-items: flex-start;
     justify-content: space-between;
-    align-items: center;
     overflow: hidden;
     max-height: 0;
     transition: all 500ms ease;
@@ -1515,8 +1539,9 @@ tr:hover .toolTab {
 }
 
 .notification-card div.notification-body .notification-message {
-    margin-left: 2rem;
-    width: calc(100% - 5rem);
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin: 0.5rem 0.5rem 0.5rem 1rem;
 }
 
 .notification-card span.notification-header {
@@ -1524,19 +1549,27 @@ tr:hover .toolTab {
     width: 100%;
     border-radius: 0.5rem;
     padding: 0.5rem 1rem;
-    text-align: right;
+    text-align: left;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    transition-property: border-radius;
+    transition-delay: 500ms;
+}
+
+.notification-card span.notification-title {
+    width: calc(100% - 0.5rem);
+    padding-left: 1rem;
+    overflow: clip;
 }
 
 .notification-card span.notification-badge {
-    float: left;
     border-radius: 0.25rem;
     width: 0.5rem;
     height: 0.5rem;
-    margin-left: 0.5rem;
     transition: all 250ms ease;
+    position: relative;
+    top: 0;
 }
 
 .notification-card.announcement span.notification-badge {
@@ -1563,32 +1596,32 @@ tr:hover .toolTab {
     background-color: red;
 }
 
-.notification-card:hover span.notification-pin:hover {
-    transform: rotate(45deg);
-}
-
-.notification-card span.notification-pin.pinned {
-    transform: rotate(45deg);
-}
-
-.notification-card:hover span.notification-pin.pinned:hover {
-    transform: none;
+.notification-card:hover {
+    background-color: #333;
 }
 
 .notification-card:hover .notification-header {
     border-radius: 0.5rem 0.5rem 0 0;
-}
-
-.notification-card:hover .notification-header span.notification-badge {
-    transform: translateY(calc(1.4rem + 200%)) translateX(-0.75rem);
+    transition-delay: 0s;
 }
 
 .notification-card:hover div.notification-body {
-    max-height: 5rem;
-    margin: 0.5rem 0;
+    max-height: 10rem;
 }
 
-.notification-card span.notification-pin, .notification-card span.notification-dismiss, .notification-card span.notification-undismiss {
+.notification-card .notification-btns {
+    display: flex;
+    flex-flow: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.notification-card span.notification-pin,
+.notification-card span.notification-unpin,
+.notification-card span.notification-dismiss,
+.notification-card span.notification-undismiss {
+    padding: 0.5rem;
+    margin: 0;
     cursor: pointer;
 }
 
@@ -1600,27 +1633,41 @@ tr:hover .toolTab {
 .notification-card span.notification-pin::after {
     font-family: FontAwesome;
     content: "\f08d";
-    transform: none;
 }
 
 .notification-card span.notification-undismiss::after {
     font-family: FontAwesome;
-    content: "\f3bf";
-    transform: none;
+    content: "\f148";
+}
+
+.notification-card span.notification-unpin::after {
+    font-family: FontAwesome;
+    content: "\f149";
+}
+
+#dismissed-notifications .notification-card {
+    opacity: 0.5;
+}
+
+#dismissed-notifications .notification-card:hover {
+    opacity: 1;
 }
 
 #notifications .divider {
     width: calc(100% - 1rem);
     text-align: center;
-    margin-top: 1rem;
     margin-left: 0.5rem;
     margin-right: 0.5rem;
     font-size: 0.7rem;
     font-weight: bold;
 }
 
+#notifications .divider:not(:first-child) {
+    margin-top: 2rem;
+}
+
 #notifications hr {
-    margin: 0 0.5rem;
+    margin: 0 0.5rem 0.5rem 0.5rem;
 }
 
 #notificationPanel h3 {
@@ -2208,16 +2255,16 @@ tr:hover .excludeToggle .fa-ban {
 }
 
 .add-assignment-container input {
-    /* width: 0; */
+     width: 0;
 }
 
-.popup-holder > span {
+.popup-holder > span, .popup-holder-vert > span {
     font-family: "Montserrat", sans-serif;
     font-weight: bold;
     cursor: context-menu;
 }
 
-.popup-holder > span:not(#syncPopup) {
+.popup-holder > span:not(#syncPopup), .popup-holder-vert > span {
     padding-bottom: 1.2rem !important;
 }
 
@@ -2251,6 +2298,12 @@ tr:hover .excludeToggle .fa-ban {
     position: relative;
     width: 100%;
     height: 0;
+}
+
+.popup-holder-vert {
+    position: absolute;
+    height: 100%;
+    top: 0;
 }
 
 .progress {
@@ -3090,7 +3143,7 @@ input:disabled {
 #legendPopup {
     position: absolute;
     left: 0;
-    top: 2rem;
+    transform: translateX(-90%) translateY(-30%);
 }
 
 #zoomPopup {
@@ -3751,6 +3804,11 @@ input:disabled {
         max-height: 30vh;
     }
 
+    .navbar .nav-item .dropdown-menu {
+        transform: none;
+        opacity: 1;
+        pointer-events: all;
+    }
 }
 
 /* Small window stuff */

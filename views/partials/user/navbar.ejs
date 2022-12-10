@@ -24,7 +24,7 @@
                     <% } %>
                 </h1>
             </a>
-            <% if (page != "home") { %>
+            <% if (page !== "home") { %>
                 <div class="popup-holder">
                     <span id="homePopup"
                           style="width: 20rem"
@@ -40,7 +40,7 @@
                 <h5 style="padding-top: 0; white-space: nowrap;<% if (page != "home") { %> cursor: default; <% } %> "
                     onclick="<% if (page === "home") { %>showCard('#settingsCardDisplay'); openTab(2) <% } %>"><%= username; %></h5>
                 <% let name = [];
-                let {firstName, lastName, graduationYear} = JSON.parse(personalInfo);
+                let {firstName, lastName, graduationYear} = _personalInfo;
                 if (!!firstName) name.push(firstName);
                 if (!!lastName) name.push(lastName);
                 if (!!graduationYear && graduationYear >= 2010) name.push(`'${graduationYear - 2000}`);
@@ -49,21 +49,21 @@
                        style="white-space: nowrap;<% if (page === "home") { %> cursor: pointer; <% } %> margin: 0; display: block" onclick="<% if (page === "home") { %>showCard('#settingsCardDisplay'); openTab(2) <% } %>"><%= name.join(" "); %></label>
                 <% if (page === "home") { %>
                     <label style="white-space: nowrap; cursor: pointer; border-radius: 0.5rem; padding: 0.1rem 0.5rem; font-family: Arial, Helvetica, sans-serif"
-                           onclick="<% if (JSON.parse(alerts).lastUpdated.length) { %>showCard('#gradeChangesCardDisplay');<% } %>"
-                           class="updateGradesMessage alert-info popup">
+                           onclick="<% if (_alerts.lastUpdated.length) { %>showCard('#gradeChangesCardDisplay');<% } %>"
+                           class="updateGradesMessage alert-info">
                         <span></span>
                         <div style="cursor: pointer" class="messageTxt">Loading Sync Status...</div>
-                        <div class="popup-holder">
-                            <span id="navinfoPopup"
-                                  class="nav-popups popup-bottom-left tutorial-popup"
-                                  style="width: 25rem; margin-top: 1rem;"
-                            >
-                                The sync status with <% if (school === "basis") { %>Schoology<% } else { %>PowerSchool<% } %> will be displayed here. Clicking here will open the
-                                sync log.
-                                <span class="gotIt"></span>
-                            </span>
-                        </div>
                     </label>
+                    <span class="popup popup-holder">
+                        <span id="navinfoPopup"
+                              class="nav-popups popup-bottom tutorial-popup"
+                              style="width: 10rem; margin-top: 1rem"
+                        >
+                            The sync status with <% if (school === "basis") { %>Schoology<% } else { %>PowerSchool<% } %> will be displayed here. Clicking here will open the
+                            sync log.
+                            <span class="gotIt"></span>
+                        </span>
+                    </span>
                 <% } %>
             </div>
         </div>
@@ -75,19 +75,21 @@
     <div class="navbar-collapse collapse w-50" id="collapsingNav">
         <ul class="navbar-nav w-100 justify-content-end align-items-end ml-auto">
             <% if (page === "home") { %>
+                <li class="nav-item popup">
+                    <div class="popup-holder-vert">
+                        <span id="morePopup"
+                              class="nav-popups popup-left-bottom tutorial-popup"
+                              style="min-width: 8rem">
+                            Hover here to access other parts of the site. Click to keep the menu open.
+                            <span class="gotIt"></span>
+                        </span>
+                    </div>
+                </li>
                 <li class="nav-item dropdown popup">
                     <a class="nav-link dropdown-toggle popup" href="#" id="navbarDropdown" role="button"
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         More
                     </a>
-                    <div class="popup-holder">
-                        <span id="morePopup"
-                              class="nav-popups popup-bottom-left tutorial-popup"
-                              style="min-width: 8rem">
-                            Click here to access other parts of the site
-                            <span class="gotIt"></span>
-                        </span>
-                    </div>
                     <ul class="dropdown-menu blur" aria-labelledby="navbarDropdown">
                         <% if (isAdmin) { %>
                             <li id="toggleAdmin" class="nav-item toggle-admin dropdown-item">
@@ -115,7 +117,7 @@
                                 </btn>
                             </li>
                             <div class="dropdown-divider"></div>
-                            <% if (JSON.parse(alerts).lastUpdated.length) { %>
+                            <% if (_alerts.lastUpdated.length) { %>
                                 <li id="recentChangesNavBtn" class="nav-item dropdown-item">
                                     <btn class="btn btn-med" onclick="showCard('#gradeChangesCardDisplay')"><i
                                                 class="fa fa-clock-o" aria-hidden="true"></i> Sync Log
@@ -123,15 +125,10 @@
                                 </li>
                             <% } %>
                             <li class="nav-item dropdown-item">
-                                <a class="btn btn-med" href="/finalgradecalculator"><i
-                                            class="fa fa-calculator" aria-hidden="true"></i> Calculator
+                                <a class="btn btn-med" href="/charts"><i
+                                            class="fa fa-line-chart" aria-hidden="true"></i> Analytics
                                 </a>
                             </li>
-                                <li class="nav-item dropdown-item">
-                                    <a class="btn btn-med" href="/charts"><i
-                                                class="fa fa-line-chart" aria-hidden="true"></i> Analytics
-                                    </a>
-                                </li>
                             <div class="dropdown-divider"></div>
                             <li class="nav-item dropdown-item">
                                 <btn class="btn btn-med" onclick="showLatest(true)"><i
@@ -142,6 +139,11 @@
                                 <btn class="btn btn-med" onclick="showChangelog()"><i
                                             class="fa fa-book" aria-hidden="true"></i> Changelog
                                 </btn>
+                            </li>
+                            <li class="nav-item dropdown-item">
+                                <a class="btn btn-med" href="/finalgradecalculator"><i
+                                            class="fa fa-calculator" aria-hidden="true"></i> Calculator
+                                </a>
                             </li>
                             <div class="dropdown-divider"></div>
                             <li class="nav-item dropdown-item">
@@ -200,9 +202,6 @@
     <% include sync_grades_card.ejs %>
 <% } %>
 <% if (page === "home") { %>
-    <% const lightsMonth = 11; /* 11 is December */ %>
-    <% const winterStart = 10; %>
-    <% const winterEnd = 2; %>
     <% include settings_card.ejs %>
 <% } %>
 <% if (page === "home") { %>
@@ -238,8 +237,11 @@
 <% if (page === "home") { %>
     <% include class_info.ejs %>
 <% } %>
-<% if (page === "home" && JSON.parse(alerts).lastUpdated.length > 0) { %>
+<% if (page === "home" && _alerts.lastUpdated.length > 0) { %>
     <% include api_key_card.ejs %>
+<% } %>
+<% if (page === "home") { %>
+    <% include notification_settings_card.ejs %>
 <% } %>
 
 <!-- Custom JavaScript -->
@@ -249,6 +251,10 @@
 
     function sendData(socket, event, data) {
         socket.emit(event, data);
+    }
+
+    function changeNotiSetting(name, value) {
+        sendData(notiSocket, "settings-change", {[name]: value});
     }
 
     function changeSetting(name, value) {
@@ -429,8 +435,9 @@
             closeMessage("themeMessage");
         }
         if (id === "feedbackDisplay") {
-            let oldFrame = $("#feedbackForm").parent();
-            $("#feedbackForm").remove();
+            let feedbackForm = $("#feedbackForm");
+            let oldFrame = feedbackForm.parent();
+            feedbackForm.remove();
             oldFrame.append(`<iframe id="feedbackForm" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>`);
             setupFeedbackForm();
         }
@@ -501,7 +508,7 @@
         }
     });
 
-    let appearance = <%- appearance ;%>;
+    let appearance = <%- JSON.stringify(_appearance); %>;
     Snowy(true);
     if (setupLights) {
         setupLights();

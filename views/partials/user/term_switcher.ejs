@@ -1,19 +1,19 @@
-<% if (JSON.parse(termsAndSemesters).reduce((sum, val) => sum + val[1].length, 0) > 1) { %>
+<% if (_termsAndSemesters.reduce((sum, val) => sum + val[1].length, 0) > 1) { %>
     <div id="termSwitcher" class="blur">
-        <% for (let i = 0; i < JSON.parse(termsAndSemesters).length; i++) { %>
-            <div id="<%= JSON.parse(termsAndSemesters)[i][0]; %>"
-            <% if (term === JSON.parse(termsAndSemesters)[i][0]) { %> class="blur active"
+        <% for (let i = 0; i < _termsAndSemesters.length; i++) { %>
+            <div id="<%= _termsAndSemesters[i][0]; %>"
+            <% if (term === _termsAndSemesters[i][0]) { %> class="blur active"
                  <% } else { %>class = "blur"
                     <% } %>
             >
-                <%= JSON.parse(termsAndSemesters)[i][0]; %>
-                <% for (let j = 0; j < JSON.parse(termsAndSemesters)[i][1].length; j++) { %>
-                    <div onclick="window.location.href='/' + (window.location.href.indexOf('usernameToRender') === -1 ? '?' : 'viewuser?' + window.location.href.slice(window.location.href.indexOf('usernameToRender'),window.location.href.indexOf('&') === -1 ? undefined : window.location.href.indexOf('&')) + '&') + 'term=<%= JSON.parse(termsAndSemesters)[i][0]; %>&semester=<%= JSON.parse(termsAndSemesters)[i][1][j]; %>'"
-                         id="<%= JSON.parse(termsAndSemesters)[i][0]; %><%= JSON.parse(termsAndSemesters)[i][1][j]; %>"
-                    <% if (term === JSON.parse(termsAndSemesters)[i][0] && semester === JSON.parse(termsAndSemesters)[i][1][j]) { %> class="active"
+                <%= _termsAndSemesters[i][0]; %>
+                <% for (let j = 0; j < _termsAndSemesters[i][1].length; j++) { %>
+                    <div onclick="window.location.href='/' + (window.location.href.indexOf('usernameToRender') === -1 ? '?' : 'viewuser?' + window.location.href.slice(window.location.href.indexOf('usernameToRender'),window.location.href.indexOf('&') === -1 ? undefined : window.location.href.indexOf('&')) + '&') + 'term=<%= _termsAndSemesters[i][0]; %>&semester=<%= _termsAndSemesters[i][1][j]; %>'"
+                         id="<%= _termsAndSemesters[i][0]; %><%= _termsAndSemesters[i][1][j]; %>"
+                    <% if (term === _termsAndSemesters[i][0] && semester === _termsAndSemesters[i][1][j]) { %> class="active"
                             <% } %>
                     >
-                        <%= JSON.parse(termsAndSemesters)[i][1][j] %>
+                        <%= _termsAndSemesters[i][1][j] %>
                     </div>
                 <% } %>
             </div>

@@ -21,7 +21,7 @@
                                                $.ajax({url: '/weightedGPA', method: 'POST', data: {weightedGPA: appearance.weightedGPA}});
                                                   setupGPADisplays();
                                                   return;"
-                                    <% if (JSON.parse(appearance).weightedGPA) { %> checked
+                                    <% if (_appearance.weightedGPA) { %> checked
                                     <% } %>
                             >
                             <span class="slider"></span>

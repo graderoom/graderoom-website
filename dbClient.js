@@ -6,8 +6,10 @@ const _ = require("lodash");
 const stream = require("stream");
 const socketManager = require("./socketManager");
 const scraper = require("./scrape");
-const {SyncStatus, Schools, Constants, PrettySchools} = require("./enums");
-const {dbUserVersion, dbClassVersion, minDonoAmount, minPremiumAmount, CHARTS_COLLECTION_NAME} = require("./dbHelpers");
+const {SyncStatus, Schools, Constants} = require("./enums");
+const {dbUserVersion, dbClassVersion, minDonoAmount, minPremiumAmount, CHARTS_COLLECTION_NAME,
+    latestVersion, buildStarterNotifications
+} = require("./dbHelpers");
 
 let _url;
 let _prod;
@@ -115,6 +117,8 @@ module.exports = {
     setEnableLogging: (username, value) => safe(_setEnableLogging, lower(username), value),
     setAnimateWhenUnfocused: (username, value) => safe(_setAnimateWhenUnfocused, lower(username), value),
     setShowFps: (username, value) => safe(_setShowFps, lower(username), value),
+    setShowUpdatePopup: (username, value) => safe(_setShowUpdatePopup, lower(username), value),
+    updateNotification: (username, id, update) => safe(_updateNotification, lower(username), id, update),
     changePassword: (username, oldPassword, newPassword) => safe(_changePassword, lower(username), oldPassword, newPassword),
     changeSchoolEmail: (username, schoolUsername) => safe(_changeSchoolEmail, lower(username), lower(schoolUsername)),
     disableGradeSync: (username) => safe(_disableGradeSync, lower(username)),
@@ -699,6 +703,24 @@ const __version9 = async (db, user) => {
     }
 }
 
+const _version10 = async (db, username) => {
+    let res = await _getUser(db, username, {version: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await __version10(db, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 10`}};
+}
+
+const __version10 = async (db, user) => {
+    if (user.version === 9) {
+        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {$unset: {"notifications": ""}, $set: {"alerts.notificationSettings": {showUpdatePopup: false}, "alerts.notifications": buildStarterNotifications(), version: 10}});
+    }
+}
+
 const _initUser = async (db, username) => {
     let res = await _getUser(db, username, {"alerts.tutorialStatus": 1, betaFeatures: 1});
     if (!res.success) {
@@ -786,6 +808,9 @@ const _updateAllUsers = async (db) => {
             }
             if (user.version < 9) {
                 console.log((await _version9(db, user.username)).data.log);
+            }
+            if (user.version < 10) {
+                console.log((await _version10(db, user.username)).data.log);
             }
         }
         console.log((await _initUser(db, user.username)).data.log);
@@ -1772,6 +1797,56 @@ const _setShowFps = async (db, username, value) => {
     return {success: false, data: {message: "Invalid user"}};
 };
 
+const _setShowUpdatePopup = async (db, username, value) => {
+    if (typeof value !== "boolean") {
+        return {
+            success: false, data: {
+                message: "Invalid value", log: `Invalid showUpdatePopup value: ${value}`, settings: {showUpdatePopup: value}
+            }
+        };
+    }
+    let res = await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {"alerts.notificationSettings.showUpdatePopup": value}});
+    if (res.matchedCount === 1) {
+        return {
+            success: true, data: {
+                settings: {showUpdatePopup: value},
+            }
+        }
+    }
+}
+
+const _updateNotification = async (db, username, id, update) => {
+    if (typeof id !== "string" || Object.keys(update).filter(k => !(["pinned", "dismissed"]).includes(k)).length) {
+        return {success: false, data: {message: "Invalid value", log: `Invalid updateNotification parameters id=${id}, update=${update}`}};
+    }
+    let trimmed = (await db.collection(USERS_COLLECTION_NAME).findOne({username: username}, {projection: {"alerts.notifications.id": 1, "alerts.notifications.pinned": 1, "alerts.notifications.dismissed": 1}})).alerts.notifications;
+    let index = trimmed.findIndex(i => i.id === id);
+    if (index === -1) {
+        return {success: false, data: {message: "Invalid ID", log: `Invalid updateNotification id=${id}`}};
+    }
+
+    let realUpdate = {};
+    let set = {}
+    if ("pinned" in update && update.pinned !== trimmed[index].pinned) {
+        set[`alerts.notifications.${index}.pinned`] = update.pinned;
+        realUpdate.pinned = update.pinned;
+    }
+    if ("dismissed" in update && update.dismissed !== trimmed[index].dismissed) {
+        set[`alerts.notifications.${index}.dismissed`] = update.dismissed;
+        realUpdate.dismissed = update.dismissed;
+    }
+
+    let res = await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: set});
+    if (res.matchedCount === 1) {
+        return {
+            success: true, data: {
+                id: id,
+                update: realUpdate,
+            }
+        }
+    }
+}
+
 const _changePassword = async (db, username, oldPassword, newPassword) => {
     return new Promise(async resolve => {
         let res = await _login(db, username, oldPassword);
@@ -2613,12 +2688,7 @@ const _getWhatsNew = async (db, username) => {
 };
 
 const _latestVersionSeen = async (db, username) => {
-    let version;
-    if (_beta) {
-        version = versionNameArray()[1][1];
-    } else {
-        version = versionNameArray().find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1];
-    }
+    let version = latestVersion(_beta);
     let res = await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {"alerts.latestSeen": version}});
     if (res.matchedCount === 1) {
         return {success: true, data: {log: `Set latest seen for ${username} to ${version}`}};

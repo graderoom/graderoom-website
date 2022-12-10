@@ -10,19 +10,19 @@
     <% let date = new Date(); %>
     <% let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes()); %>
     <% zeroTime = zeroTime.getTime(); %>
-    <% if (JSON.parse(appearance).theme === "dark") { %>
+    <% if (_appearance.theme === "dark") { %>
         <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
-    <% } else if (JSON.parse(appearance).theme === "light") { %>
+    <% } else if (_appearance.theme === "light") { %>
         <% theme = false; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/light_mode.css">
-    <% } else if (JSON.parse(appearance).theme === "auto" && (((JSON.parse(appearance).darkModeStart < JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) && (zeroTime < JSON.parse(appearance).darkModeFinish))) || ((JSON.parse(appearance).darkModeStart > JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) || (zeroTime < JSON.parse(appearance).darkModeFinish))))) { %>
+    <% } else if (_appearance.theme === "auto" && (((_appearance.darkModeStart < _appearance.darkModeFinish) && ((zeroTime >= _appearance.darkModeStart) && (zeroTime < _appearance.darkModeFinish))) || ((_appearance.darkModeStart > _appearance.darkModeFinish) && ((zeroTime >= _appearance.darkModeStart) || (zeroTime < _appearance.darkModeFinish))))) { %>
         <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
-    <% } else if (JSON.parse(appearance).theme === "system") { %>
+    <% } else if (_appearance.theme === "system") { %>
         <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
-    <% } else if (JSON.parse(appearance).theme === "sun" && ((zeroTime >= sunset.getTime()) || (zeroTime <= sunrise.getTime()))) { %>
+    <% } else if (_appearance.theme === "sun" && ((zeroTime >= sunset.getTime()) || (zeroTime <= sunrise.getTime()))) { %>
         <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
     <% } else { %>
@@ -31,16 +31,16 @@
     <% } %>
     <link rel="stylesheet" type="text/css" href="/public/css/main.css">
     <link id="blur_base" rel="stylesheet" type="text/css" href="/public/css/blur.css"
-          <% if (!JSON.parse(appearance).blurEffects) { %>disabled
+          <% if (!_appearance.blurEffects) { %>disabled
             <% } %>
     >
     <link id="blur_overrides" rel="stylesheet" type="text/css" <% if (theme === true) { %>
           href="/public/css/dark_blur.css"<% } else if (theme === false) { %> href="/public/css/light_blur.css"<% } %>
-          <% if (!JSON.parse(appearance).blurEffects) { %>disabled
+          <% if (!_appearance.blurEffects) { %>disabled
             <% } %>
     >
     <link id="reduceMotion" rel="stylesheet" type="text/css" href="/public/css/reduce_motion.css"
-          <% if (!JSON.parse(appearance).reduceMotion) { %>disabled
+          <% if (!_appearance.reduceMotion) { %>disabled
             <% } %>
     >
     <link id="fade" rel="stylesheet" type="text/css" href="/public/css/fade.css" disabled>
@@ -71,7 +71,7 @@
     <% } %>
 
     <div id="table-container">
-        <% let users = JSON.parse(userList) %>
+        <% let users = _userList %>
         <h6><%= users.length %> Total Users,
             <%= users.filter(u => (u.loggedIn.length !== 0 && u.loggedIn.slice(-1)[0] > Date.parse(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())))).length %>
             Logged In Today,
@@ -222,7 +222,7 @@
                     </tr>
                 </thead>
 
-                <% for (let u of JSON.parse(deletedUserList)) { %>
+                <% for (let u of _deletedUserList) { %>
                     <tr>
                         <td class="admin"><%= u.username %> </td>
                         <td class="admin"><%= u.schoolUsername %></td>
@@ -248,7 +248,7 @@
     </div>
 </div>
 <script>
-    let users = <%- userList %>;
+    let users = <%- JSON.stringify(_userList); %>;
     function checkLabel(input) {
         let label = $($(input)[0].previousElementSibling);
         input = $(input);
@@ -354,7 +354,6 @@
     });
 
     let checkingTheme;
-    let appearance = <%- appearance %>;
     let theme = appearance.theme;
     let darkModeStart = appearance.darkModeStart;
     let darkModeFinish = appearance.darkModeFinish;
