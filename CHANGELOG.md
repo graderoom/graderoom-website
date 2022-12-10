@@ -29,8 +29,8 @@
 <!-- ------------------------------------------------ Special HTML ------------------------------------------------- -->
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
-<!-- Use the following HTML before information specific to Beta Features -->
-<!-- <em>[Beta Feature]</em> -->
+<!-- Use the following HTML before information specific to Experiments -->
+<!-- <em>[Experiment]</em> -->
 
 <!-- Use the following HTML before information specific to mobile users -->
 <!-- <em>[Mobile]</em> -->
@@ -45,6 +45,69 @@
 
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
+
+## [Beta 5.6.0] - 2022-12-10
+### Added
+- <em>[Experiment]</em> Notification Panel<ul>
+- Added keyboard shortcut 'N' for Notification Panel
+- Added Notification Panel settings<ul>
+- Added option for how to show new versions. More coming soon.
+- Added notification panel tutorial</ul>
+- Notifications now sync between devices</ul>
+- Added keyboard shortcuts for more than 9 classes using the '0', '-', and '=' keys
+
+### Improved
+- No longer hide Christmas lights when unfocus
+- All pages should load slightly faster now
+- Overview chart<ul>
+- Tooltip moved below points for better visibility
+- Now detects when the mouse is moved out and returns all chart lines to normal thickness
+- Animates faster and fps should drop less if you decide to continuously move your mouse around inside it
+- Thickness changes are more drastic to help see the whole line
+- Clicks now only open assignment pages if your cursor intersects a point
+- Supports when assignments from different classes have the same date and score and highlights both lines on hover</ul>
+- Changelog doesn't load more times than it needs to
+- <em>[Experiment]</em> Notification Panel<ul>
+- Notification Panel now shows on click rather than on hover</ul>
+
+### Fixed
+- Issue where Empty and Non-Academic course counts showed 0 once the respective settings were disabled
+- Issue with 'More' button tutorial popup
+- Issue with a tutorial popup not showing up
+- Issues with infinite redirects
+- <em>[Mobile]</em> Issue where some navbar items were invisible
+
+## [Beta 5.5.0] - 2022-12-04
+### Added
+- Navbar 'More' menu now shows when hovering on the 'More' text
+- New animations throughout the site<ul>
+- Added a 'Reduce Motion' toggle in 'Appearance' settings for those that might not want them</ul>
+- All PowerSchool courses now sync to Graderoom, even if they have no grades<ul>
+- Added a setting to enable viewing empty courses, enabled by default</ul>
+- <em>[Experiment]</em> Notification Panel<ul>
+- Updated animations and tweaked some things
+- Added changelog notifications (They're not functional, just placeholder, so you know what they will look like)</ul>
+
+### Improved
+- Interacting with charts has gotten better! Guidelines no longer get in the way when an assignment is near your cursor.
+- Updated language of 'General' settings to 'Appearance' settings since that's all they were
+- Updated language of 'Beta Features' to 'Experiments' to differentiate from the beta site
+- Those with inactive accounts no longer see errors with their grades
+- Made Christmas Lights more efficient
+- When taking an action that requires refreshing the page, Graderoom will now remain on the term/semester that you were on before making the request.
+- Improved refresh-rate display and renamed it to 'Stats for Nerds'
+
+### Fixed
+- Several issues with adding/editing/removing/saving assignments
+- Issue where some users' pages would not load
+- Issue with analytics not refreshing daily
+- Issue with snow and Christmas Lights not disabling when they should
+- Blur Effects should work on Safari now
+- Issue where blur color was wrong if a user had blur effects enabled while in light theme, turned them off, switched to dark system/sun/custom theme and then enabled blur effects
+- <em>[Mobile]</em> Issue with Donate shiny text in mobile site
+
+### Removed
+- Changelog Legend
 
 ## [Stable 5.4.0] - 2022-11-13
 ### Added
@@ -75,7 +138,6 @@
 ### Added
 - New Donation options
 - Donations now show in account tab
-- Ads to charts and final grade calculator pages
 - Bellarmine users can now change their last name in addition to their first name
 - Basis users can change their name and graduation year
 - Support for new school! (Notre Dame San Jose)
@@ -183,7 +245,6 @@
 ### Added
 - New Donation options
 - Donations now show in account tab
-- Ads to charts and final grade calculator pages
 
 ### Improved
 - Analytics page no longer requires login
