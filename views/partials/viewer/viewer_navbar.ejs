@@ -37,7 +37,7 @@
 </nav>
 
 <script>
-    let appearance = <%- appearance; %>;
+    let appearance = <%- JSON.stringify(_appearance); %>;
     Snowy(true);
     if (setupLights) {
         setupLights();

@@ -20,9 +20,27 @@
                                 page</label>
                         </div>
                         <div style="display: flex; justify-content: center; align-items: center" class="card-footer">
-                            <% for (let c_index = 0; c_index < JSON.parse(gradeData).length; c_index++) { %>
+                            <% for (let c_index = 0; c_index < Math.min(9, _gradeData.length); c_index++) { %>
                                 <% if (c_index !== 0) { %>&nbsp;<% } %>
                                 <label class="key-display"><%= c_index + 1 %></label>
+                            <% } %>
+                            <% for (let c_index = 9; c_index < Math.min(12, _gradeData.length); c_index++) { %>
+                                <%
+                                    let key;
+                                    switch (c_index) {
+                                        case 9:
+                                            key = "0";
+                                            break;
+                                        case 10:
+                                            key = "-";
+                                            break;
+                                        case 11:
+                                            key = "=";
+                                            break;
+
+                                } %>
+                                    &nbsp;
+                                    <label class="key-display"><%= key %></label>
                             <% } %>
                             <label style="margin-bottom: 0; margin-left: auto; text-align: right">Open corresponding
                                 class page</label>
@@ -38,6 +56,10 @@
                             <label class="key-display">W</label>
                             <label style="margin-bottom: 0; margin-left: auto; text-align: right">Show/Hide what's
                                 new</label>
+                        </div>
+                        <div style="display: flex" class="card-footer">
+                            <label class="key-display">N</label>
+                            <label style="margin-bottom: 0; margin-left: auto; text-align: right">Show/Hide notification panel</label>
                         </div>
                         <div style="display: flex" class="card-footer">
                             <label class="key-display">S</label>
@@ -73,7 +95,7 @@
                             <label style="margin-bottom: 0; margin-left: auto; text-align: right">Show/Hide sync
                                 log</label>
                         </div>
-                        <% if (JSON.parse(betaFeatures).active) { %>
+                        <% if (_betaFeatures.active) { %>
                             <div style="display: flex" class="card-footer">
                                 <label class="key-display">E</label>
                                 <label style="margin-bottom: 0; margin-left: auto; text-align: right">Open the Experiments Tab

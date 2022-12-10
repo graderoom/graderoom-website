@@ -3,7 +3,7 @@ const dbClient = require("./dbClient.js");
 const emailSender = require("./emailSender.js");
 const _ = require("lodash");
 const SunCalc = require("suncalc");
-const {changelog} = require("./dbHelpers");
+const {changelog, latestVersion} = require("./dbHelpers");
 const {Schools, PrettySchools, SchoolAbbr} = require("./enums");
 
 module.exports = function (app, passport) {
@@ -52,43 +52,46 @@ module.exports = function (app, passport) {
             }
 
             if (term && semester) {
-                let filteredGrades = req.user.appearance.showEmpty ? req.user.grades[term][semester] : req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length);
+                let filteredGrades = req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length);
                 let filteredWeights = req.user.weights[term][semester].filter(weights => filteredGrades.map(g => g.class_name).includes(weights.className));
 
                 let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
+                let relevantClassData = (await dbClient.getRelevantClassData(req.user.username, term, semester)).data.value
 
+                let termsAndSemesters = Object.keys(req.user.grades).map(term => {
+                    let semesters = Object.keys(req.user.grades[term]).filter(s => req.user.grades[term][s].filter(grades => !(["CR", false]).includes(grades.overall_letter) ||
+                                                                                                                             grades.grades.length).length);
+                    let sortedSemesters = semesters.sort((a, b) => {
+                        return a.substring(1) < b.substring(1) ? -1 : 1;
+                    });
+                    return [term, sortedSemesters];
+                }).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1);
                 res.render("user/authorized_index.ejs", {
                     page: "home",
                     school: req.user.school,
                     username: req.user.username,
                     schoolUsername: req.user.schoolUsername,
                     isAdmin: req.user.isAdmin,
-                    personalInfo: JSON.stringify(req.user.personalInfo),
-                    appearance: JSON.stringify(req.user.appearance),
-                    alerts: JSON.stringify(req.user.alerts),
+                    _personalInfo: req.user.personalInfo,
+                    _appearance: req.user.appearance,
+                    _alerts: req.user.alerts,
                     gradeSync: !!req.user.schoolPassword,
-                    gradeData: JSON.stringify(filteredGrades),
-                    weightData: JSON.stringify(filteredWeights),
+                    _gradeData: req.user.appearance.showEmpty ? req.user.grades[term][semester] : filteredGrades,
+                    _weightData: req.user.appearance.showEmpty ? req.user.weights[term][semester] : filteredWeights,
                     emptyCount: req.user.grades[term][semester].length - filteredGrades.length,
-                    addedAssignments: JSON.stringify(req.user.addedAssignments[term][semester]),
-                    editedAssignments: JSON.stringify(req.user.editedAssignments[term][semester]),
-                    gradeHistory: JSON.stringify(gradeHistoryLetters),
-                    relevantClassData: JSON.stringify((await dbClient.getRelevantClassData(req.user.username, term, semester)).data.value),
-                    donoData: JSON.stringify(req.user.donoData),
-                    sortingData: JSON.stringify(req.user.sortingData),
+                    nonAcademicCount: Object.entries(relevantClassData).filter(([k, v]) => req.user.grades[term][semester].find(c => c.class_name === k) && v.classType === "non-academic").length,
+                    _addedAssignments: req.user.addedAssignments[term][semester],
+                    _editedAssignments: req.user.editedAssignments[term][semester],
+                    _gradeHistory: gradeHistoryLetters,
+                    _relevantClassData: relevantClassData,
+                    _donoData: req.user.donoData,
+                    _sortingData: req.user.sortingData,
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    beta: JSON.stringify(server.beta),
-                    betaFeatures: JSON.stringify(req.user.betaFeatures),
+                    beta: server.beta,
+                    _betaFeatures: req.user.betaFeatures,
                     term: term,
                     semester: semester,
-                    termsAndSemesters: JSON.stringify(Object.keys(req.user.grades).map(term => {
-                        let semesters = Object.keys(req.user.grades[term]).filter(s => req.user.grades[term][s].filter(grades => !(["CR", false]).includes(grades.overall_letter) ||
-                            grades.grades.length).length);
-                        let sortedSemesters = semesters.sort((a, b) => {
-                            return a.substring(1) < b.substring(1) ? -1 : 1;
-                        });
-                        return [term, sortedSemesters];
-                    }).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
+                    _termsAndSemesters: termsAndSemesters,
                     _: _,
                     sunset: sunset,
                     sunrise: sunrise,
@@ -107,25 +110,26 @@ module.exports = function (app, passport) {
                     username: req.user.username,
                     schoolUsername: req.user.schoolUsername,
                     isAdmin: req.user.isAdmin,
-                    personalInfo: JSON.stringify(req.user.personalInfo),
-                    appearance: JSON.stringify(req.user.appearance),
-                    alerts: JSON.stringify(req.user.alerts),
+                    _personalInfo: req.user.personalInfo,
+                    _appearance: req.user.appearance,
+                    _alerts: req.user.alerts,
                     gradeSync: !!req.user.schoolPassword,
-                    gradeData: JSON.stringify([]),
-                    weightData: JSON.stringify({}),
+                    _gradeData: [],
+                    _weightData: {},
                     emptyCount: 0,
-                    addedAssignments: JSON.stringify({}),
-                    editedAssignments: JSON.stringify({}),
-                    gradeHistory: JSON.stringify([]),
-                    relevantClassData: JSON.stringify({}),
-                    donoData: JSON.stringify((await dbClient.getDonoData(req.user.username)).data.value),
-                    sortingData: JSON.stringify(req.user.sortingData),
+                    nonAcademicCount: 0,
+                    _addedAssignments: {},
+                    _editedAssignments: {},
+                    _gradeHistory: [],
+                    _relevantClassData: {},
+                    _donoData: req.user.donoData,
+                    _sortingData: req.user.sortingData,
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    beta: JSON.stringify(server.beta),
-                    betaFeatures: JSON.stringify(req.user.betaFeatures),
+                    beta: server.beta,
+                    _betaFeatures: req.user.betaFeatures,
                     term: "",
                     semester: "",
-                    termsAndSemesters: JSON.stringify([]),
+                    _termsAndSemesters: [],
                     _: _,
                     sunset: sunset,
                     sunrise: sunrise,
@@ -142,7 +146,7 @@ module.exports = function (app, passport) {
         res.render("viewer/index.ejs", {
             message: req.flash("loginMessage"),
             beta: server.beta,
-            appearance: JSON.stringify({seasonalEffects: true}),
+            _appearance: {seasonalEffects: true},
             page: "login",
             sunset: sunset,
             sunrise: sunrise,
@@ -153,7 +157,7 @@ module.exports = function (app, passport) {
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
 
         res.render("viewer/about.ejs", {
-            appearance: JSON.stringify({seasonalEffects: true}),
+            _appearance: {seasonalEffects: true},
             page: "logged-out-home",
             sunset: sunset,
             sunrise: sunrise
@@ -163,30 +167,29 @@ module.exports = function (app, passport) {
     app.post("/joinbeta", [isLoggedIn], async (req, res) => {
         await dbClient.joinBeta(req.user.username);
         await dbClient.setRemoteAccess(req.user.username, req.body.activateWithRemoteAccess === "on" ? "allowed" : "denied");
-        res.redirect(req.headers.referer);
+        res.redirect(req.headers.referer ?? "/");
     });
 
     app.post("/betafeatures", [isLoggedIn], async (req, res) => {
         await dbClient.updateBetaFeatures(req.user.username, Object.keys(req.body));
-        res.redirect(req.headers.referer);
+        res.redirect(req.headers.referer ?? "/");
     });
 
     app.post("/leavebeta", [isLoggedIn], async (req, res) => {
         await dbClient.leaveBeta(req.user.username);
-        res.redirect(req.headers.referer);
+        res.redirect(req.headers.referer ?? "/");
     });
 
     app.post("/setShowNonAcademic", [isLoggedIn], async (req, res) => {
         let show = req.body.showNonAcademic === "on";
         await dbClient.setShowNonAcademic(req.user.username, show);
-        res.redirect(req.headers.referer);
+        res.redirect(req.headers.referer ?? "/");
     });
 
     app.post("/setShowEmpty", [isLoggedIn], async (req, res) => {
         let show = req.body.showEmpty === "on";
         await dbClient.setShowEmpty(req.user.username, show);
-        console.log(req);
-        res.redirect(req.headers.referer);
+        res.redirect(req.headers.referer ?? "/");
     })
 
     app.post("/weightedGPA", [isLoggedIn], async (req, res) => {
@@ -225,7 +228,7 @@ module.exports = function (app, passport) {
             };
             let user = (await dbClient.getUser(req.query.usernameToRender, projection)).data.value;
             if (user.alerts.remoteAccess === "denied") {
-                res.redirect(req.headers.referer);
+                res.redirect(req.headers.referer ?? "/");
                 return;
             }
             for (let i = 0; i < Object.keys(user.grades).length; i++) {
@@ -248,42 +251,46 @@ module.exports = function (app, passport) {
             let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
 
             if (term && semester) {
-                let filteredGrades = user.appearance.showEmpty ? user.grades[term][semester] : user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length);
+                let filteredGrades = user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length);
                 let filteredWeights = user.weights[term][semester].filter(weights => !weights.className ? true : filteredGrades.map(g => g.class_name).includes(weights.className));
 
                 let {plus, premium} = (await dbClient.getDonoAttributes(user.username)).data.value;
+                let relevantClassData = (await dbClient.getRelevantClassData(req.query.usernameToRender, term, semester)).data.value;
+
+                let termsAndSemesters = Object.keys(user.grades).map(term => {
+                    let semesters = Object.keys(user.grades[term]).filter(s => user.grades[term][s].filter(grades => !(["CR", false]).includes(grades.overall_letter) ||
+                                                                                                                     grades.grades.length).length);
+                    let sortedSemesters = semesters.sort((a, b) => {
+                        return a.substring(1) < b.substring(1) ? -1 : 1;
+                    });
+                    return [term, sortedSemesters];
+                }).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1);
                 res.render("user/authorized_index.ejs", {
                     page: "home",
                     school: user.school,
                     username: user.username,
                     schoolUsername: user.schoolUsername,
                     isAdmin: user.isAdmin,
-                    personalInfo: JSON.stringify(user.personalInfo),
-                    appearance: JSON.stringify(user.appearance),
-                    alerts: JSON.stringify(user.alerts),
+                    _personalInfo: user.personalInfo,
+                    _appearance: user.appearance,
+                    _alerts: user.alerts,
                     gradeSync: !!user.schoolPassword,
-                    gradeData: JSON.stringify(filteredGrades),
-                    weightData: JSON.stringify(filteredWeights),
+                    _gradeData: user.appearance.showEmpty ? user.grades[term][semester] : filteredGrades,
+                    _weightData: user.appearance.showEmpty ? user.weights[term][semester] : filteredWeights,
                     emptyCount: user.grades[term][semester].length - filteredGrades.length,
-                    addedAssignments: JSON.stringify(user.addedAssignments[term][semester]),
-                    editedAssignments: JSON.stringify(user.editedAssignments[term][semester]),
-                    gradeHistory: JSON.stringify(gradeHistoryLetters),
-                    relevantClassData: JSON.stringify((await dbClient.getRelevantClassData(req.query.usernameToRender, term, semester)).data.value),
-                    donoData: JSON.stringify(user.donoData),
-                    sortingData: JSON.stringify(user.sortingData),
+                    nonAcademicCount: Object.entries(relevantClassData).filter(([k, v]) => user.grades[term][semester].find(c => c.class_name === k) && v.classType === "non-academic").length,
+                    _addedAssignments: user.addedAssignments[term][semester],
+                    _editedAssignments: user.editedAssignments[term][semester],
+                    _gradeHistory: gradeHistoryLetters,
+                    _relevantClassData: relevantClassData,
+                    _donoData: user.donoData,
+                    _sortingData: user.sortingData,
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     beta: server.beta,
-                    betaFeatures: JSON.stringify(user.betaFeatures),
+                    _betaFeatures: user.betaFeatures,
                     term: term,
                     semester: semester,
-                    termsAndSemesters: JSON.stringify(Object.keys(user.grades).map(term => {
-                        let semesters = Object.keys(user.grades[term]).filter(s => user.grades[term][s].filter(grades => !(["CR", false]).includes(grades.overall_letter) ||
-                            grades.grades.length).length);
-                        let sortedSemesters = semesters.sort((a, b) => {
-                            return a.substring(1) < b.substring(1) ? -1 : 1;
-                        });
-                        return [term, sortedSemesters];
-                    }).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1)),
+                    _termsAndSemesters: termsAndSemesters,
                     sunset: sunset,
                     sunrise: sunrise,
                     plus: plus,
@@ -302,25 +309,26 @@ module.exports = function (app, passport) {
                     username: user.username,
                     schoolUsername: user.schoolUsername,
                     isAdmin: user.isAdmin,
-                    personalInfo: JSON.stringify(user.personalInfo),
-                    appearance: JSON.stringify(user.appearance),
-                    alerts: JSON.stringify(user.alerts),
+                    _personalInfo: user.personalInfo,
+                    _appearance: user.appearance,
+                    _alerts: user.alerts,
                     gradeSync: !!user.schoolPassword,
-                    gradeData: JSON.stringify([]),
-                    weightData: JSON.stringify({}),
+                    _gradeData: [],
+                    _weightData: {},
                     emptyCount: 0,
-                    addedAssignments: JSON.stringify({}),
-                    editedAssignments: JSON.stringify({}),
-                    gradeHistory: JSON.stringify([]),
-                    relevantClassData: JSON.stringify({}),
-                    donoData: JSON.stringify(user.donoData),
-                    sortingData: JSON.stringify(user.sortingData),
+                    nonAcademicCount: 0,
+                    _addedAssignments: {},
+                    _editedAssignments: {},
+                    _gradeHistory: [],
+                    _relevantClassData: {},
+                    _donoData: user.donoData,
+                    _sortingData: user.sortingData,
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     beta: server.beta,
-                    betaFeatures: JSON.stringify(user.betaFeatures),
+                    _betaFeatures: user.betaFeatures,
                     term: "",
                     semester: "",
-                    termsAndSemesters: JSON.stringify([]),
+                    _termsAndSemesters: [],
                     sunset: sunset,
                     sunrise: sunrise,
                     plus: plus,
@@ -334,12 +342,12 @@ module.exports = function (app, passport) {
             }
             return;
         }
-        res.redirect(req.headers.referer);
+        res.redirect(req.headers.referer ?? "/");
     });
 
     app.get("/logout", [isLoggedIn], (req, res) => {
         req.logout();
-        res.redirect(req.headers.referer);
+        res.redirect(req.headers.referer ?? "/");
     });
 
     app.post("/archiveUser", [isAdmin], async (req, res) => {
@@ -434,12 +442,12 @@ module.exports = function (app, passport) {
         res.render("admin/admin.ejs", {
             page: "admin",
             username: req.user.username,
-            userList: JSON.stringify(allUsers),
-            deletedUserList: JSON.stringify(deletedUsers),
+            _userList: allUsers,
+            _deletedUserList: deletedUsers,
             adminSuccessMessage: req.flash("adminSuccessMessage"),
             adminFailMessage: req.flash("adminFailMessage"),
             sessionTimeout: Date.parse(req.session.cookie._expires),
-            appearance: JSON.stringify(req.user.appearance),
+            _appearance: req.user.appearance,
             beta: server.beta,
             sunset: sunset,
             sunrise: sunrise
@@ -503,12 +511,12 @@ module.exports = function (app, passport) {
 
     app.post("/acceptPrivacyPolicy", [isLoggedIn], async (req, res) => {
         await dbClient.acceptPrivacyPolicy(req.user.username);
-        res.redirect(req.headers.referer);
+        res.redirect(req.headers.referer ?? "/");
     });
 
     app.post("/acceptTerms", [isLoggedIn], async (req, res) => {
         await dbClient.acceptTerms(req.user.username);
-        res.redirect(req.headers.referer);
+        res.redirect(req.headers.referer ?? "/");
     });
 
     app.post("/disableGradeSync", [isLoggedIn], async (req, res) => {
@@ -581,7 +589,7 @@ module.exports = function (app, passport) {
         res.render("viewer/signup.ejs", {
             message: req.flash("signupMessage"),
             beta: server.beta,
-            appearance: JSON.stringify({seasonalEffects: true}),
+            _appearance: {seasonalEffects: true},
             page: "signup",
             sunset: sunset,
             sunrise: sunrise
@@ -709,14 +717,14 @@ module.exports = function (app, passport) {
                     username: req.user.username,
                     schoolUsername: req.user.schoolUsername,
                     isAdmin: req.user.isAdmin,
-                    personalInfo: JSON.stringify(req.user.personalInfo),
-                    appearance: JSON.stringify(req.user.appearance),
-                    alerts: JSON.stringify(req.user.alerts),
+                    _personalInfo: req.user.personalInfo,
+                    _appearance: req.user.appearance,
+                    _alerts: req.user.alerts,
                     gradeSync: !!req.user.schoolPassword,
-                    gradeData: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
-                    weightData: JSON.stringify(req.user.weights[term][semester]),
+                    _gradeData: req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length),
+                    _weightData: req.user.weights[term][semester],
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    beta: JSON.stringify(server.beta),
+                    beta: server.beta,
                     sunset: sunset,
                     sunrise: sunrise,
                     plus: plus,
@@ -728,14 +736,14 @@ module.exports = function (app, passport) {
                     username: req.user.username,
                     schoolUsername: req.user.schoolUsername,
                     isAdmin: req.user.isAdmin,
-                    personalInfo: JSON.stringify(req.user.personalInfo),
-                    appearance: JSON.stringify(req.user.appearance),
-                    alerts: JSON.stringify(req.user.alerts),
+                    _personalInfo: req.user.personalInfo,
+                    _appearance: req.user.appearance,
+                    _alerts: req.user.alerts,
                     gradeSync: !!req.user.schoolPassword,
-                    gradeData: JSON.stringify({}),
-                    weightData: JSON.stringify({}),
+                    _gradeData: {},
+                    _weightData: {},
                     sessionTimeout: Date.parse(req.session.cookie._expires),
-                    beta: JSON.stringify(server.beta),
+                    beta: server.beta,
                     sunset: sunset,
                     sunrise: sunrise,
                     plus: plus,
@@ -745,9 +753,9 @@ module.exports = function (app, passport) {
         } else {
             req.session.returnTo = req.originalUrl;
             res.render("viewer/final_grade_calculator_logged_out.ejs", {
-                appearance: JSON.stringify({seasonalEffects: true}),
+                _appearance: {seasonalEffects: true},
                 page: "logged_out_calc",
-                beta: JSON.stringify(server.beta),
+                beta: server.beta,
                 sunset: sunset,
                 sunrise: sunrise,
             });
@@ -776,7 +784,7 @@ module.exports = function (app, passport) {
             betaKeyFailMessage: req.flash("betaKeyFailMessage"),
             page: "keys",
             sessionTimeout: Date.parse(req.session.cookie._expires),
-            appearance: JSON.stringify(req.user.appearance),
+            _appearance: req.user.appearance,
             beta: server.beta,
             sunset: sunset,
             sunrise: sunrise,
@@ -785,8 +793,12 @@ module.exports = function (app, passport) {
 
     });
 
-    app.get("/latestVersion", [isLoggedIn], async (req, res) => {
+    app.get("/whatsNew", [isLoggedIn], async (req, res) => {
         res.status(200).send((await dbClient.getWhatsNew(req.user.username)).data.value);
+    });
+
+    app.get("/latestVersion", [isLoggedIn], async (req, res) => {
+        res.status(200).send(latestVersion(server.beta));
     });
 
     app.post("/latestVersionSeen", [isLoggedIn], async (req, res) => {
@@ -856,13 +868,13 @@ module.exports = function (app, passport) {
             classData: classData,
             catalogData: catalogData,
             sessionTimeout: Date.parse(req.session.cookie._expires),
-            appearance: JSON.stringify(req.user.appearance),
+            _appearance: req.user.appearance,
             beta: server.beta,
             schools: Object.values(Schools),
             school: school,
             term: term,
             semester: semester,
-            termsAndSemesters: JSON.stringify((await dbClient.getTermsAndSemestersInClassDb(school)).data.value),
+            _termsAndSemesters: (await dbClient.getTermsAndSemestersInClassDb(school)).data.value,
             sunset: sunset,
             sunrise: sunrise,
             _: _
@@ -876,42 +888,43 @@ module.exports = function (app, passport) {
             let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
             res.render("viewer/cool_charts.ejs", {
                 username: req.user.username,
-                personalInfo: JSON.stringify(req.user.personalInfo),
-                appearance: JSON.stringify(req.user.appearance),
+                _personalInfo: req.user.personalInfo,
+                _appearance: req.user.appearance,
                 sessionTimeout: Date.parse(req.session.cookie._expires),
                 page: "charts",
-                loginData: JSON.stringify(loginData),
-                uniqueLoginData: JSON.stringify(uniqueLoginData),
-                syncData: JSON.stringify(syncData),
-                userData: JSON.stringify(userData),
-                activeUsersData: JSON.stringify(activeUsersData),
-                schoolData: JSON.stringify(schoolData),
-                gradData: JSON.stringify(gradData),
+                _alerts: req.user.alerts,
+                _loginData: loginData,
+                _uniqueLoginData: uniqueLoginData,
+                _syncData: syncData,
+                _userData: userData,
+                _activeUsersData: activeUsersData,
+                _schoolData: schoolData,
+                _gradData: gradData,
                 sunset: sunset,
                 sunrise: sunrise,
                 plus: plus,
                 premium: premium,
                 lastUpdated: lastUpdated.getTime(),
-                SchoolAbbr: JSON.stringify(SchoolAbbr),
-                PrettySchools: JSON.stringify(PrettySchools),
+                _SchoolAbbr: SchoolAbbr,
+                _PrettySchools: PrettySchools,
                 _: _
             });
         } else {
             res.render("viewer/cool_charts.ejs", {
                 page: "charts-logged-out",
-                appearance: JSON.stringify({seasonalEffects: true, theme: 'sun'}),
-                loginData: JSON.stringify(loginData),
-                uniqueLoginData: JSON.stringify(uniqueLoginData),
-                syncData: JSON.stringify(syncData),
-                userData: JSON.stringify(userData),
-                activeUsersData: JSON.stringify(activeUsersData),
-                schoolData: JSON.stringify(schoolData),
-                gradData: JSON.stringify(gradData),
+                _appearance: {seasonalEffects: true, theme: 'sun'},
+                _loginData: loginData,
+                _uniqueLoginData: uniqueLoginData,
+                _syncData: syncData,
+                _userData: userData,
+                _activeUsersData: activeUsersData,
+                _schoolData: schoolData,
+                _gradData: gradData,
                 sunset: sunset,
                 sunrise: sunrise,
                 lastUpdated: lastUpdated.getTime(),
-                SchoolAbbr: JSON.stringify(SchoolAbbr),
-                PrettySchools: JSON.stringify(PrettySchools),
+                _SchoolAbbr: SchoolAbbr,
+                _PrettySchools: PrettySchools,
                 premium: false,
                 _: _
             });
@@ -972,7 +985,7 @@ module.exports = function (app, passport) {
             // req.flash('forgotPasswordMsg', 'Invalid token.')
             res.status(404).render("password_reset/reset_password_404.ejs", {
                 sunset: sunset,
-                appearance: JSON.stringify({seasonalEffects: true}),
+                _appearance: {seasonalEffects: true},
                 sunrise: sunrise,
                 page: "password404"
             });
@@ -983,7 +996,7 @@ module.exports = function (app, passport) {
             message: req.flash("resetPasswordMsg"),
             token: resetToken,
             gradeSync: gradeSync,
-            appearance: JSON.stringify({seasonalEffects: true}),
+            _appearance: {seasonalEffects: true},
             sunset: sunset,
             sunrise: sunrise,
             page: "passwordReset",
@@ -995,7 +1008,7 @@ module.exports = function (app, passport) {
 
         let resetToken = req.body.token;
         if (!resetToken) {
-            res.redirect(req.headers.referer);
+            res.redirect(req.headers.referer ?? "/");
             return;
         }
 
@@ -1005,7 +1018,7 @@ module.exports = function (app, passport) {
         if (!resp.success && resp.data.message === "Invalid token.") {
             res.status(404).render("password_reset/reset_password_404.ejs", {
                 sunset: sunset,
-                appearance: JSON.stringify({seasonalEffects: true}),
+                _appearance: {seasonalEffects: true},
                 sunrise: sunrise,
                 page: "password404"
             });
@@ -1017,7 +1030,7 @@ module.exports = function (app, passport) {
             return;
         }
         res.render("password_reset/reset_password_success.ejs", {
-            appearance: JSON.stringify({seasonalEffects: true}),
+            _appearance: {seasonalEffects: true},
             sunset: sunset,
             sunrise: sunrise,
             page: "passwordResetSuccess"
@@ -1028,7 +1041,7 @@ module.exports = function (app, passport) {
     app.get("/forgot_password", (req, res) => {
         // dont allow while logged in
         if (req.user) {
-            res.redirect(req.headers.referer);
+            res.redirect(req.headers.referer ?? "/");
             return;
         }
 
@@ -1036,7 +1049,7 @@ module.exports = function (app, passport) {
         res.status(200).render("password_reset/forgot_password.ejs", {
             message: req.flash("forgotPasswordMsg"),
             sunset: sunset,
-            appearance: JSON.stringify({seasonalEffects: true}),
+            _appearance: {seasonalEffects: true},
             page: "passwordForgot",
             sunrise: sunrise
         });
@@ -1205,7 +1218,7 @@ module.exports = function (app, passport) {
 
     app.get("/*", (req, res) => {
         req.session.returnTo = req.originalUrl;
-        res.redirect(req.headers.referer);
+        res.redirect(req.headers.referer ?? "/");
     });
 
     // route middleware to ensure user is logged in

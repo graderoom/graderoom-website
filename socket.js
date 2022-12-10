@@ -74,6 +74,33 @@ module.exports = {
                 })
                 break;
             case "noti":
+                socket.on("settings-change", async (data) => {
+                    let keys = Object.keys(data);
+                    for (let key of keys) {
+                        let value = data[key];
+                        let resp;
+                        switch (key) {
+                            case "showUpdatePopup":
+                                resp = await dbClient.setShowUpdatePopup(socket.request.user.username, value);
+                                break;
+                        }
+                        if (resp.success) {
+                            socketManager.emitToRoom(socket.request.user.username, purpose, "success-settingschange", resp.data);
+                        } else {
+                            socketManager.emitToRoom(socket.request.user.username, purpose, "fail-settingschange", resp.data);
+                        }
+                    }
+                });
+                socket.on("notification-update", async (data) => {
+                    let id = data.id;
+                    let update = data.data;
+                    let resp = await dbClient.updateNotification(socket.request.user.username, id, update);
+                    if (resp.success) {
+                        socketManager.emitToRoom(socket.request.user.username, purpose, "success-notificationupdate", resp.data);
+                    } else {
+                        socketManager.emitToRoom(socket.request.user.username, purpose, "fail-notificationupdate", resp.data);
+                    }
+                });
                 break;
         }
     },

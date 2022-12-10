@@ -161,7 +161,7 @@
 <% include ../partials/limited_time/snowfall.ejs %>
 <script>
 
-    let appearance = <%- appearance; %>;
+    let appearance = <%- JSON.stringify(_appearance); %>;
     setTimeout(() => {
         $("input").each(function () {
             let input = $(this);

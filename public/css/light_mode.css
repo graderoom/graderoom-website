@@ -143,20 +143,12 @@ table tfoot tr td {
     background-color: #FFFFFF;
 }
 
-.changelog, .changelog-legend {
-    background-color: #FFFFFF;
-}
-
-.changelog-legend {
-    box-shadow: 0 0 5px 1px darkgray;
-}
-
 .changelog-container .body {
     color: #222222;
 }
 
 .changelog-container .changelog-item, .changelog-legend-column div {
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(100, 100, 100, 0.1);
 }
 
 .changelog-container .current, .changelog-legend-column div.current {
@@ -223,11 +215,6 @@ table tfoot tr td {
     color: black;
 }
 
-.tutorial-popup {
-    color: hsl(210, 48%, 48%);
-    background: #FFFFFF;
-}
-
 .form-group .email-bg {
     background: url(/public/resources/light_mode/email.png) no-repeat left/27px 20px !important;
 }
@@ -286,6 +273,11 @@ tr.excluded:hover .excludeToggle .fa-ban {
 .popup span.popup-left,
 .popup span.popup-left-top {
     background-color: #FFFFFF;
+}
+
+.popup span.tutorial-popup {
+    color: hsl(210, 48%, 48%);
+    background: rgba(255, 255, 255, 0.7);
 }
 
 td.toolTab {
@@ -379,42 +371,43 @@ input:checked + .slider:before {
     box-shadow: -2px 2px 6px 0 rgba(0, 0, 0, 0.5);
 }
 
-#notificationPanel:hover {
-    background-color: rgba(230, 230, 230, 0.9);
+#notificationPanel.active {
+    background-color: rgba(255, 255, 255, 0.8);
     box-shadow: -8px 0 16px 0 rgba(0, 0, 0, 0.2);
 }
 
 .notification-card {
     background-color: white;
-    box-shadow: 0 19px 38px rgba(200, 200, 200, 0.30), 0 15px 12px rgba(255, 255, 255, 0.22), inset 0 19px 38px rgba(200, 200, 200, 0.30), 0 15px 12px rgba(255, 255, 255, 0.22);
+    box-shadow: 0 1px 10px 1px rgba(0, 0, 50, 0.30);
 }
 
-.notification-card span.notification-dismiss, .notification-card span.notification-pin {
+.notification-card span.notification-dismiss,
+.notification-card span.notification-pin,
+.notification-card span.notification-unpin,
+.notification-card span.notification-undismiss {
     color: transparent;
 }
 
 .notification-card span.notification-header {
-    background-color: #CCCCCC;
+    background-color: #FFF;
 }
 
-.notification-card:hover span.notification-dismiss:hover {
-    color: #000000;
+.notification-card:hover span.notification-dismiss:hover,
+.notification-card:hover span.notification-pin:hover,
+.notification-card:hover span.notification-undismiss:hover,
+.notification-card:hover span.notification-unpin:hover {
+    color: #FFFFFF;
 }
 
-.notification-card:hover span.notification-pin:hover {
-    color: #000000;
-}
-
-.notification-card:hover span.notification-pin.pinned {
+.notification-card:hover span.notification-pin,
+.notification-card:hover span.notification-unpin,
+.notification-card:hover span.notification-dismiss,
+.notification-card:hover span.notification-undismiss {
     color: #AAAAAA;
 }
 
-.notification-card:hover span.notification-pin.pinned:hover {
-    color: #000000;
-}
-
-.notification-card:hover span.notification-dismiss, .notification-card:hover span.notification-pin {
-    color: #AAAAAA;
+.notification-card:hover span.notification-message {
+    color: #E5E5E5;
 }
 
 #notifications .divider {

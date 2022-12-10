@@ -3,7 +3,7 @@
     <div class="blurred-background"></div>
     <div class="col-sm-11 col-md-10 col-lg-9 col-xl-8 mx-auto">
         <div id="termsCard" class="card card-signin my-5">
-            <% if (JSON.parse(alerts).termsLastSeen !== "never") { %>
+            <% if (_alerts.termsLastSeen !== "never") { %>
                 <btn class="btn btn-md"
                      onclick="closeForm('termsDisplay');"
                      style="width: fit-content; width: -moz-fit-content; margin-bottom:0">

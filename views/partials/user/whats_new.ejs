@@ -29,8 +29,13 @@
     let latestContainer = $("#latest-container");
 
     function showLatest(force) {
+        <% if (_betaFeatures.showNotificationPanel) { %>
+            if (!force && !alerts.notificationSettings.showUpdatePopup) {
+                return;
+            }
+        <% } %>
         $.ajax({
-                   url: "/latestVersion", type: "GET", async: true
+                   url: "/whatsNew", type: "GET", async: true
                }).done(function (response) {
             if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                 $(".session-timeout").show();
@@ -58,7 +63,9 @@
                     if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                         $(".session-timeout").show();
                         $("body").find("*").not(".session-timeout").remove();
+                        return;
                     }
+                    alerts.latestSeen = versionTitle;
                 });
             }
         });

@@ -20,7 +20,7 @@ exports.TEST_DATABASE_NAME = "test";
 exports.COMMON_DATABASE_NAME = "common";
 
 // Change this when updateDB changes
-exports.dbUserVersion = 9;
+exports.dbUserVersion = 10;
 exports.dbClassVersion = 2;
 
 exports.minDonoAmount = 3;
@@ -196,9 +196,10 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
                     termsLastSeen: "never",
                     remoteAccess: beta ? "allowed" : "denied",
                     tutorialStatus: Object.fromEntries(this.tutorialKeys.map(k => [k, false])),
-                    notifications: {
-                        important: [buildStarterNotification(now)], unread: [], dismissed: []
-                    }
+                    notifications: this.buildStarterNotifications(),
+                    notificationSettings: {
+                        showUpdatePopup: false,
+                    },
                 },
                 weights: {},
                 grades: {},
@@ -319,6 +320,16 @@ exports.changelog = (beta) => {
         return _changelogArray;
     }
 };
+
+exports.latestVersion = (beta) => {
+    let version;
+    if (beta) {
+        version = _versionNameArray[1][1];
+    } else {
+        version = _versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1];
+    }
+    return version;
+}
 
 exports.readChangelog = (filename) => {
     async function read() {
@@ -460,23 +471,6 @@ exports.readChangelog = (filename) => {
     });
 };
 
-exports.buildStarterNotification = (now) => {
-    return {
-        type: "announcement",
-        title: "Welcome to your Notification Center",
-        message: "All future notifications will be found here. You can configure this area however you'd like, using the notification settings accessible from the top right of this panel.",
-        dismissible: true,
-        dismissed: false,
-        pinnable: true,
-        pinned: true,
-        createdDate: [now],
-        dismissedDates: [],
-        pinnedDates: [now],
-        unDismissedDates: [],
-        unPinnedDates: []
-    };
-};
-
 exports.getPersonalInfo = (email, school) => {
     let firstName, lastName, graduationYear;
     switch (school) {
@@ -584,19 +578,40 @@ exports.isNotToday = (date) => {
     return (new Date().toDateString()) !== date.toDateString();
 }
 
-function buildStarterNotification(now) {
-    return {
+exports.buildStarterNotifications = () => {
+    return [{
+        id: "starter0",
         type: "announcement",
-        title: "Welcome to your Notification Center",
-        message: "All future notifications will be found here. You can configure this area however you'd like, using the notification settings accessible from the top right of this panel.",
+        title: "Hover Me!",
+        message: "Welcome to your Notification Panel! All your notifications will appear here. Use the icon on the right to dismiss this.",
         dismissible: true,
         dismissed: false,
+        important: true,
+        pinnable: false,
+        pinned: true,
+        createdDate: -1,
+    },{
+        id: "starter1",
+        type: "announcement",
+        title: "Hover Me Next!",
+        message: "Some notifications cannot be manually dismissed and require you to take some kind of action.<br><br>" +
+                 "<span style=\"cursor: pointer\" onclick=\"dismissById('starter1')\"><b><i class=\"fa fa-external-link-square\"></i> Click Me to Dismiss!</b></span>",
+        dismissible: false,
+        dismissed: false,
+        important: true,
         pinnable: true,
         pinned: true,
-        createdDate: [now],
-        dismissedDates: [],
-        pinnedDates: [now],
-        unDismissedDates: [],
-        unPinnedDates: []
-    };
+        createdDate: -2,
+    },{
+        id: "starter2",
+        type: "announcement",
+        title: "Hover Me Last!",
+        message: "This is what most of your notifications will look like. The color on the top left signifies the notification type. Most notifications can be pinned or dismissed",
+        dismissible: true,
+        dismissed: false,
+        important: false,
+        pinnable: true,
+        pinned: false,
+        createdDate: -3,
+    }];
 }

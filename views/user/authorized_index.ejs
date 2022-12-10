@@ -10,19 +10,19 @@
     <% let date = new Date(); %>
     <% let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes()); %>
     <% zeroTime = zeroTime.getTime(); %>
-    <% if (JSON.parse(appearance).theme === "dark") { %>
+    <% if (_appearance.theme === "dark") { %>
         <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
-    <% } else if (JSON.parse(appearance).theme === "light") { %>
+    <% } else if (_appearance.theme === "light") { %>
         <% theme = false; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/light_mode.css">
-    <% } else if (JSON.parse(appearance).theme === "auto" && (((JSON.parse(appearance).darkModeStart < JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) && (zeroTime < JSON.parse(appearance).darkModeFinish))) || ((JSON.parse(appearance).darkModeStart > JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) || (zeroTime < JSON.parse(appearance).darkModeFinish))))) { %>
+    <% } else if (_appearance.theme === "auto" && (((_appearance.darkModeStart < _appearance.darkModeFinish) && ((zeroTime >= _appearance.darkModeStart) && (zeroTime < _appearance.darkModeFinish))) || ((_appearance.darkModeStart > _appearance.darkModeFinish) && ((zeroTime >= _appearance.darkModeStart) || (zeroTime < _appearance.darkModeFinish))))) { %>
         <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
-    <% } else if (JSON.parse(appearance).theme === "system") { %>
+    <% } else if (_appearance.theme === "system") { %>
         <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
-    <% } else if (JSON.parse(appearance).theme === "sun" && ((zeroTime >= sunset.getTime()) || (zeroTime <= sunrise.getTime()))) { %>
+    <% } else if (_appearance.theme === "sun" && ((zeroTime >= sunset.getTime()) || (zeroTime <= sunrise.getTime()))) { %>
         <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
     <% } else { %>
@@ -31,7 +31,7 @@
     <% } %>
     <link rel="stylesheet" type="text/css" href="/public/css/main.css">
     <link id="blur_base" rel="stylesheet" type="text/css" href="/public/css/blur.css"
-          <% if (!JSON.parse(appearance).blurEffects) { %>disabled
+          <% if (!_appearance.blurEffects) { %>disabled
             <% } %>
     >
     <link id="blur_overrides" rel="stylesheet" type="text/css"
@@ -39,12 +39,12 @@
           href="/public/css/dark_blur.css"
     <% } else if (theme === false) { %> href="/public/css/light_blur.css"
             <% } %>
-          <% if (!JSON.parse(appearance).blurEffects) { %>disabled
+          <% if (!_appearance.blurEffects) { %>disabled
             <% } %>
     >
     <link id="fade" rel="stylesheet" type="text/css" href="/public/css/fade.css" disabled>
     <link id="reduceMotion" rel="stylesheet" type="text/css" href="/public/css/reduce_motion.css"
-          <% if (!JSON.parse(appearance).reduceMotion) { %>disabled
+          <% if (!_appearance.reduceMotion) { %>disabled
             <% } %>
     >
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -64,15 +64,15 @@
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-<% if (JSON.parse(alerts).policyLastSeen === "never" || JSON.parse(alerts).termsLastSeen === "never") { %>
+<% if (_alerts.policyLastSeen === "never" || _alerts.termsLastSeen === "never") { %>
 
-    <% if (JSON.parse(alerts).termsLastSeen === "never") { %>
+    <% if (_alerts.termsLastSeen === "never") { %>
         <% include ../partials/user/terms_and_conditions.ejs %>
             <script>
                 $("#termsDisplay").show();
             </script>
     <% } %>
-    <% if (JSON.parse(alerts).policyLastSeen === "never") { %>
+    <% if (_alerts.policyLastSeen === "never") { %>
         <% include ../partials/user/privacy_policy.ejs %>
             <script>
                 $("#privacyDisplay").show();
@@ -88,17 +88,17 @@
         <i id="pageNumber" style="display:none"><%= classPage; %></i>
 
         <!-- Class Links -->
-        <% if (JSON.parse(gradeData).length > 0) { %>
+        <% if (_gradeData.length > 0) { %>
             <ul id="classLinks" class="nav nav-fill" style="color: #BBBBBB">
                 <li class="nav-item" id="link-1">
                     <a class="nav-link" onclick="showPage(-1)">Overview</a>
                 </li>
                 <% offset = 0; %>
-                <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                    <% if (JSON.parse(appearance).showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
+                <% for (let i = 0; i < _gradeData.length; i++) { %>
+                    <% if (_appearance.showNonAcademic || _relevantClassData[_gradeData[i].class_name]["classType"] !== "non-academic") { %>
                         <li class="nav-item" id="link<%= i + offset; %>">
-                            <a class="nav-link" style="color: <%= JSON.parse(appearance).classColors[i]; %>"
-                               onclick="showPage(<%= i + offset; %>)"><%= (JSON.parse(gradeData)[i].class_name); %>
+                            <a class="nav-link" style="color: <%= _appearance.classColors[i]; %>"
+                               onclick="showPage(<%= i + offset; %>)"><%= (_gradeData[i].class_name); %>
                                 <span class="popup">
                                     <i id="incorrectOverviewGrade<%= i + offset; %>"
                                        class="fa fa-exclamation-triangle"
@@ -125,11 +125,11 @@
                 <span></span>
             </div>
             <% include ../partials/user/term_switcher.ejs %>
-            <% if (JSON.parse(betaFeatures).showNotificationPanel) { %>
+            <% if (_betaFeatures.showNotificationPanel) { %>
                 <% include ../partials/user/notification_panel.ejs %>
             <% } %>
             <!-- Overview Section -->
-            <% if (JSON.parse(gradeData).length) { %>
+            <% if (_gradeData.length) { %>
                 <div id="section-1" class="section">
                     <div style="display: flex">
                         <% if (school !== "basis") { %>
@@ -141,7 +141,7 @@
                                             <input style="margin: 0; display: flex"
                                                    type="checkbox"
                                                    onchange="showMaxGPA = $(this).is(':checked'); setupGPADisplays(true)"
-                                            <% if (JSON.parse(appearance).showMaxGPA) { %> checked
+                                            <% if (_appearance.showMaxGPA) { %> checked
                                                     <% } %>
                                             >
                                             <span class="slider"></span>
@@ -158,7 +158,7 @@
                                                $.ajax({url: '/weightedGPA', method: 'POST', data: {weightedGPA: appearance.weightedGPA}});
                                                   setupGPADisplays();
                                                   return;"
-                                            <% if (JSON.parse(appearance).weightedGPA) { %> checked
+                                            <% if (_appearance.weightedGPA) { %> checked
                                                     <% } %>
                                             >
                                             <span class="slider"></span>
@@ -166,7 +166,7 @@
                                     </label>
                                 </div>
                                 <div>
-                                    <% let accentColor = JSON.parse(appearance).classColors[Math.min(JSON.parse(appearance).classColors.length - 1, JSON.parse(gradeData).length)]; %>
+                                    <% let accentColor = _appearance.classColors[Math.min(_appearance.classColors.length - 1, _gradeData.length)]; %>
                                     <h5 class="text-center">Semester GPA<span
                                                 class="popup"><i class="fa fa-question-circle"
                                                                  style="margin-left: 0.4rem"><span
@@ -174,7 +174,7 @@
                                                     this semester.</span></i></span>
                                     </h5>
                                     <h5 id="GPA-display">----
-                                        <% if (JSON.parse(appearance).showMaxGPA) { %>/----
+                                        <% if (_appearance.showMaxGPA) { %>/----
                                         <% } %>
                                     </h5>
                                 </div>
@@ -187,7 +187,7 @@
                                                     your courses taken so far. However, it does not include pe or
                                                     summer classes.</span></i></span></h5>
                                     <h5 id="GPA-display-cumulative">----
-                                        <% if (JSON.parse(appearance).showMaxGPA) { %>/----
+                                        <% if (_appearance.showMaxGPA) { %>/----
                                         <% } %>
                                     </h5>
                                 </div>
@@ -203,7 +203,7 @@
                                                         University System</span>.<br> This metric is not affected by the
                                                     weighted GPA setting.</span></i></span></h5>
                                     <h5 id="GPA-display-uc">----
-                                        <% if (JSON.parse(appearance).showMaxGPA) { %>/----
+                                        <% if (_appearance.showMaxGPA) { %>/----
                                         <% } %>
                                     </h5>
                                 </div>
@@ -215,7 +215,7 @@
                         <div style="width: 100%" class="popup">
                             <div class="popup-holder">
                                 <span id="legendPopup"
-                                      class="nav-popups popup-left tutorial-popup">
+                                      class="nav-popups popup-left-top tutorial-popup">
                                     Click on legend items to hide classes
                                     <span class="gotIt"></span>
                                 </span>
@@ -234,8 +234,8 @@
                     <div id="mobile-overview-grid">
                         <% offset = 0; %>
                         <div class="left-block">
-                            <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                                <% if (JSON.parse(appearance).showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
+                            <% for (let i = 0; i < _gradeData.length; i++) { %>
+                                <% if (_appearance.showNonAcademic || _relevantClassData[_gradeData[i].class_name]["classType"] !== "non-academic") { %>
                                     <% if (i % 2 === 1) {
                                         continue;
                                     } %>
@@ -244,22 +244,22 @@
                                             <thead>
                                                 <tr>
                                                     <th id="overview<%= i + offset; %>" class="overview"
-                                                        style="cursor: pointer; text-align: center; color: <%= JSON.parse(appearance).classColors[i]; %>"
+                                                        style="cursor: pointer; text-align: center; color: <%= _appearance.classColors[i]; %>"
                                                         onclick="showPage(<%= i + offset; %>)">
-                                                        <%= JSON.parse(gradeData)[i].class_name; %>
+                                                        <%= _gradeData[i].class_name; %>
                                                     </th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <tr>
                                                     <td class="overview"
-                                                        style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= JSON.parse(appearance).classColors[i]; %>"
+                                                        style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= _appearance.classColors[i]; %>"
                                                         onclick="showPage(<%= i + offset; %>)">
                                                         <div id="overviewChart<%= i + offset; %>"
                                                              style="display:block; font-weight:bolder">
-                                                            <div style="color: <%= JSON.parse(appearance).classColors[i]; %> !important">
-                                                                <div class="overallLetter"><%= JSON.parse(gradeData)[i].overall_letter %></div>
-                                                                <div class="overallGrade"><%= JSON.parse(gradeData)[i].overall_percent %>
+                                                            <div style="color: <%= _appearance.classColors[i]; %> !important">
+                                                                <div class="overallLetter"><%= _gradeData[i].overall_letter %></div>
+                                                                <div class="overallGrade"><%= _gradeData[i].overall_percent %>
                                                                     %
                                                                 </div>
                                                             </div>
@@ -276,30 +276,30 @@
                         </div>
                         <% offset = 0; %>
                         <div class="right-block">
-                            <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                                <% if (JSON.parse(appearance).showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
+                            <% for (let i = 0; i < _gradeData.length; i++) { %>
+                                <% if (_appearance.showNonAcademic || _relevantClassData[_gradeData[i].class_name]["classType"] !== "non-academic") { %>
                                     <% if (i % 2 === 0) continue; %>
                                     <div class="block">
                                         <table>
                                             <thead>
                                                 <tr>
                                                     <th id="overview<%= i + offset; %>" class="overview"
-                                                        style="cursor: pointer; text-align: center; color: <%= JSON.parse(appearance).classColors[i]; %>"
+                                                        style="cursor: pointer; text-align: center; color: <%= _appearance.classColors[i]; %>"
                                                         onclick="showPage(<%= i + offset; %>)">
-                                                        <%= JSON.parse(gradeData)[i].class_name; %>
+                                                        <%= _gradeData[i].class_name; %>
                                                     </th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <tr>
                                                     <td class="overview"
-                                                        style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= JSON.parse(appearance).classColors[i]; %>"
+                                                        style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= _appearance.classColors[i]; %>"
                                                         onclick="showPage(<%= i + offset; %>)">
                                                         <div id="overviewChart<%= i + offset; %>"
                                                              style="display:block; font-weight:bolder">
-                                                            <div style="color: <%= JSON.parse(appearance).classColors[i]; %> !important">
-                                                                <div class="overallLetter"><%= JSON.parse(gradeData)[i].overall_letter %></div>
-                                                                <div class="overallGrade"><%= JSON.parse(gradeData)[i].overall_percent %>
+                                                            <div style="color: <%= _appearance.classColors[i]; %> !important">
+                                                                <div class="overallLetter"><%= _gradeData[i].overall_letter %></div>
+                                                                <div class="overallGrade"><%= _gradeData[i].overall_percent %>
                                                                     %
                                                                 </div>
                                                             </div>
@@ -319,11 +319,11 @@
             <% } %>
             <!-- Class Sections -->
             <% offset = 0; %>
-            <% for (let i = 0; i < JSON.parse(gradeData).length; i++) { %>
-                <% if (JSON.parse(appearance).showNonAcademic || JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]["classType"] !== "non-academic") { %>
+            <% for (let i = 0; i < _gradeData.length; i++) { %>
+                <% if (_appearance.showNonAcademic || _relevantClassData[_gradeData[i].class_name]["classType"] !== "non-academic") { %>
                     <span id="section<%= i + offset; %>" class="section">
                         <% if (school !== "basis") { %>
-                            <% let classType = JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].classType %>
+                            <% let classType = _relevantClassData[_gradeData[i].class_name].classType %>
                             <% switch (classType) {
                                 case "honors":
                                     classType = "Honors";
@@ -345,7 +345,7 @@
                                     classType = "Unknown";
                                     break;
                             } %>
-                            <% let uc_classType = JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name].uc_csuClassType %>
+                            <% let uc_classType = _relevantClassData[_gradeData[i].class_name].uc_csuClassType %>
                             <% switch (uc_classType) {
                                 case "uc_hon":
                                     uc_classType = "UC Approved Honors";
@@ -367,7 +367,7 @@
                                     break;
                             } %>
                             <span id="verified<%= i %>" class="popup">Weights
-                                <% let weightDict = JSON.parse(relevantClassData)[JSON.parse(gradeData)[i].class_name]; %>
+                                <% let weightDict = _relevantClassData[_gradeData[i].class_name]; %>
                                 <% let unverified = weightDict.hasWeights === null || (weightDict.hasWeights === true && Object.values(weightDict.weights).filter(w => w === null).length !== 0); %>
                                 <% if (unverified) { %>Unverified
                                 <% } else { %>Verified
@@ -398,7 +398,7 @@
                                 </i>
                             </span>
                         <% } %>
-                        <% let classWeights = JSON.parse(weightData).find(w => w.className == JSON.parse(gradeData)[i].class_name); %>
+                        <% let classWeights = _weightData.find(w => w.className == _gradeData[i].class_name); %>
                         <div class="chartAndWeights">
                             <div id="chart-container<%= i + offset; %>" class="chart chart-container">
                                 <button id="reset-zoom<%= i + offset %>" style="position: absolute; top: 0; right: 0; height: fit-content; display:none"
@@ -426,7 +426,7 @@
                                                                     <% } %>
                                                                    onchange="disableInput('check<%= i + offset; %>','weightsTable<%= i + offset; %>'); resetInputs('#weights<%= i + offset; %>'); $('#weights<%= i + offset; %>').trigger('submit');"
                                                             >
-                                                            <span style="color: <%= JSON.parse(appearance).classColors[i + offset]; %>"
+                                                            <span style="color: <%= _appearance.classColors[i + offset]; %>"
                                                                   class="classSlider slider"></span>
                                                         </label>
                                                     </label>
@@ -513,7 +513,7 @@
                                                             </span>
                                                         </i>
                                                     </span>
-                                                    <div style="display:none; color: <%= JSON.parse(appearance).classColors[i + offset]; %>"
+                                                    <div style="display:none; color: <%= _appearance.classColors[i + offset]; %>"
                                                          id="weightTableOverallGrade<%= i + offset; %>"
                                                          class="weightOverall">
                                                     </div>
@@ -532,12 +532,12 @@
                                     <select id="sortBy<%= i + offset; %>" class="classic"
                                             onchange="setSortMethod(this)">
                                         <option value="date"
-                                                <% if (!JSON.parse(sortingData).categorySort[i + offset]) { %>selected
+                                                <% if (!_sortingData.categorySort[i + offset]) { %>selected
                                                 <% } %>
                                         >Date
                                         </option>
                                         <option value="category"
-                                                <% if (JSON.parse(sortingData).categorySort[i + offset]) { %>selected
+                                                <% if (_sortingData.categorySort[i + offset]) { %>selected
                                                 <% } %>
                                         >Category
                                         </option>
@@ -546,9 +546,9 @@
                                 <div class="tableOptions">
                                     <span class="popup" onclick="toggleSortDirection(<%= i + offset; %>)">
                                         <i id="sort<%= i + offset %>" style="cursor: pointer; margin: 1rem 0"
-                                           class="fa <% if (JSON.parse(sortingData).dateSort[i + offset]) { %>fa-sort-amount-asc <% } else { %>fa-sort-amount-desc<% } %>">
+                                           class="fa <% if (_sortingData.dateSort[i + offset]) { %>fa-sort-amount-asc <% } else { %>fa-sort-amount-desc<% } %>">
                                             <span class="popup-top">
-                                                <% if (JSON.parse(sortingData).dateSort[i + offset]) { %>
+                                                <% if (_sortingData.dateSort[i + offset]) { %>
                                                     Oldest to Newest
                                                 <% } else { %>
                                                     Newest to Oldest
@@ -792,7 +792,9 @@
             let mainSocket = io({query: {"purpose": "main"}});
             let syncSocket = io({query: {"purpose": "sync"}});
 
-            // let notiSocket = io({query: {"purpose": "noti"}});
+            <% if (_betaFeatures.showNotificationPanel) { %>
+            let notiSocket = io({query: {"purpose": "noti"}});
+            <% } %>
 
             function logSocket(socket, socketName) {
 
@@ -817,7 +819,10 @@
 
             logSocket(mainSocket, "MAIN");
             logSocket(syncSocket, "SYNC");
-            // logSocket(notiSocket, "NOTI");
+
+            <% if (_betaFeatures.showNotificationPanel) { %>
+            logSocket(notiSocket, "NOTI");
+            <% } %>
 
             mainSocket.onAny((event, data) => {
                 switch (event) {
@@ -1139,6 +1144,47 @@
                 }
             });
 
+            <% if (_betaFeatures.showNotificationPanel) { %>
+            notiSocket.onAny((event, data) => {
+                switch (event) {
+                    case "success-settingschange":
+                        let settings = data.settings;
+                        let keys = Object.keys(settings);
+                        for (let key of keys) {
+                            switch (key) {
+                                case "showUpdatePopup":
+                                    $("#updatePopupToggle").prop("chcked", settings[key]);
+                                    alerts.notificationSettings.showUpdatePopup = settings[key];
+                                    showLatest(false);
+                                    break;
+                            }
+                        }
+                        break;
+                    case "success-notificationupdate":
+                        let id = data.id;
+                        let update = data.update;
+                        let updateKeys = Object.keys(update);
+                        for (let key of updateKeys) {
+                            switch (key) {
+                                case "dismissed":
+                                    if (update[key]) {
+                                        dismissById(id, true, false);
+                                    } else {
+                                        undismissById(id, true, false);
+                                    }
+                                    break;
+                                case "pinned":
+                                    if (update[key]) {
+                                        pinById(id, true, false);
+                                    } else {
+                                        unpinById(id, true, false);
+                                    }
+                            }
+                        }
+                }
+            });
+            <% } %>
+
             let refreshing;
             let shortcutsEnabled = true;
             let recentlyAddedAssignment;
@@ -1222,23 +1268,23 @@
 
             let sunrise = <%= sunrise.getTime() %>;
             let sunset = <%= sunset.getTime() %>;
-            let alerts = <%- alerts; %>;
-            let personalInfo = <%- personalInfo; %>;
+            let alerts = <%- JSON.stringify(_alerts); %>;
+            let personalInfo = <%- JSON.stringify(_personalInfo); %>;
             let username = "<%= username; %>";
             let schoolUsername = "<%= schoolUsername; %>";
             let isAdmin = <%= isAdmin; %>;
             let gradeSync = <%= gradeSync; %>;
-            let data = <%- gradeData; %>;
+            let data = <%- JSON.stringify(_gradeData); %>;
             let aData = data.map(c => Array(c.grades.length).fill(undefined)); // added assignment placeholders will go in here
-            let editedAssignments = <%- editedAssignments; %>;
-            let addedAssignments = <%- addedAssignments; %>;
-            let weights = <%- weightData; %>;
-            let relClassData = <%- relevantClassData; %>;
-            let donoData = <%- donoData; %>;
-            let gradeHistoryLetters = <%- gradeHistory; %>;
+            let editedAssignments = <%- JSON.stringify(_editedAssignments); %>;
+            let addedAssignments = <%- JSON.stringify(_addedAssignments); %>;
+            let weights = <%- JSON.stringify(_weightData); %>;
+            let relClassData = <%- JSON.stringify(_relevantClassData); %>;
+            let donoData = <%- JSON.stringify(_donoData); %>;
+            let gradeHistoryLetters = <%- JSON.stringify(_gradeHistory); %>;
             let term = "<%= term %>";
             let semester = "<%= semester %>";
-            let betaFeatures = <%- betaFeatures %>;
+            let betaFeatures = <%- JSON.stringify(_betaFeatures); %>;
             let chartData = [];
             let parsedData = [];
             let categorySortedData = [];
@@ -1279,7 +1325,7 @@
             let latestChange;
 
             // This should only happen once
-            let {dateSort, categorySort} = <%- sortingData; %>;
+            let {dateSort, categorySort} = <%- JSON.stringify(_sortingData); %>;
             if (theme === "auto" || theme === "sun" || theme === "system") {
                 checkTime();
             } else {
@@ -1298,7 +1344,7 @@
                 setupGpaDetails(true, false);
             }
 
-            <% if (JSON.parse(betaFeatures).showNotificationPanel) { %>
+            <% if (_betaFeatures.showNotificationPanel) { %>
             setupNotificationPanel();
             <% } %>
 
@@ -1434,7 +1480,6 @@
                     $("#syncPopup").removeClass("always-show");
                     $(Object.entries(alerts.tutorialStatus).filter(([, k]) => !k).map(([t]) => "#" + t.substring(0, t.length - 4)).join("Popup, ") + "Popup").addClass("always-show");
                 }
-
             }
 
             function updateTutorial(action) {
@@ -3407,8 +3452,8 @@
                     }).on("mouseup", function (e) {
                         // Only register click to move to page if pointer doesn't move more than 1 pixel(s) between mousedown and mouseup
                         if (Math.abs(e.offsetX - offsetX) < zoneRadius && Math.abs(e.offsetY - offsetY) < zoneRadius) {
-                            let activePoints = charts[0].getElementsAtEventForMode(e, "nearest", {intersect: false}, true);
-                            let activeDataSet = charts[0].getElementsAtEventForMode(e, "nearest", {intersect: false}, true);
+                            let activePoints = charts[0].getElementsAtEventForMode(e, "nearest", {intersect: true}, true);
+                            let activeDataSet = charts[0].getElementsAtEventForMode(e, "nearest", {intersect: true}, true);
 
                             if (activePoints.length > 0) {
                                 let clickedDatasetIndex = activeDataSet[0].datasetIndex;
@@ -3556,41 +3601,37 @@
                     }, options: {
                         hover: {
                             mode: "nearest", intersect: false
-                        }, onHover: function onHover(evt, activeElements) {
-                            if (!activeElements || !activeElements.length) {
-                                for (let i = 0; i < this.data.datasets.length; i++) {
-                                    if (i >= chartData.length) {
-                                        continue;
-                                    }
-                                    if (!correctCalc(i)) {
-                                        continue;
-                                    }
-                                    let dataset = this.data.datasets[i];
-                                    dataset.borderWidth = 6;
-                                    dataset.pointRadius = 6;
-                                }
-                                this.update(1000);
-                                return;
-                            }
-                            let datasetIndex = activeElements[0].datasetIndex;
-                            let activeDataset = this.data.datasets[datasetIndex];
+                        }, onHover: function (evt, activeElements) {
+                            let datasetIndices = activeElements.map(a => a.datasetIndex);
                             for (let i = 0; i < this.data.datasets.length; i++) {
                                 if (i >= chartData.length) {
-                                    continue;
-                                }
-                                if (!correctCalc(i)) {
                                     continue;
                                 }
                                 let inactiveDataset = this.data.datasets[i];
                                 inactiveDataset.borderWidth = 3;
                                 inactiveDataset.pointRadius = 3;
                             }
-                            if (datasetIndex < chartData.length && correctCalc(datasetIndex)) {
+                            let hovering = false;
+                            for (let datasetIndex of datasetIndices) {
+                                if (datasetIndex >= chartData.length) continue;
+                                let activeDataset = this.data.datasets[datasetIndex];
                                 activeDataset.borderWidth = 6;
                                 activeDataset.pointRadius = 6;
+                                hovering = true;
                             }
-                            this.update(100);
-                        }, scales: {
+                            if (hovering) {
+                                for (let i = 0; i < this.data.datasets.length; i++) {
+                                    if (i >= chartData.length || datasetIndices.includes(i)) {
+                                        continue;
+                                    }
+                                    let inactiveDataset = this.data.datasets[i];
+                                    inactiveDataset.borderWidth = 1;
+                                    inactiveDataset.pointRadius = 1;
+                                }
+                            }
+                            this.update(0);
+                        },
+                        scales: {
                             xAxis: {
                                 type: "time", time: {
                                     unit: chartData.filter(d => new Date(d.assignmentDates.slice(-1)[0]).getMonth() !== new Date(d.assignmentDates[0]).getMonth()).length ? "month" : "day"
@@ -3621,14 +3662,26 @@
                                     boxWidth: 20,
                                     fontSize: 13,
                                     filter: function (item) {
-                                        return !item.text.includes("undefined");
+                                        return item.text !== "undefined";
                                     }
-                                }
+                                },
+                                onHover: function (event, legendItem, legend) {
+                                    for (let i = 0; i < legend.chart.data.datasets.length; i++) {
+                                        if (i >= chartData.length) {
+                                            continue;
+                                        }
+                                        let inactiveDataset = legend.chart.data.datasets[i];
+                                        inactiveDataset.borderWidth = 3;
+                                        inactiveDataset.pointRadius = 3;
+                                    }
+                                    legend.chart.update(0);
+                                },
                             }, tooltip: {
                                 enabled: true,
                                 mode: "nearest",
                                 intersect: false,
                                 displayColors: true,
+                                yAlign: "top",
                                 caretSize: 10,
                                 callbacks: {
                                     title: function (tooltipItems) {
@@ -3689,7 +3742,24 @@
                                 }
                             }
                         }
-                    }
+                    },
+                    plugins: [{
+                        id: "eventCatcher",
+                        afterEvent: (chart, args, pluginOptions) => {
+                            const event = args.event;
+                            if (event.type === "mouseout") {
+                                for (let i = 0; i < chart.data.datasets.length; i++) {
+                                    if (i >= chartData.length) {
+                                        continue;
+                                    }
+                                    let dataset = chart.data.datasets[i];
+                                    dataset.borderWidth = 3;
+                                    dataset.pointRadius = 3;
+                                }
+                                chart.update(10);
+                            }
+                        }
+                    }]
                 });
             }
 
@@ -3834,6 +3904,7 @@
                                 }, tooltip: {
                                     enabled: true,
                                     position: "nearest",
+                                    yAlign: "top",
                                     intersect: false,
                                     displayColors: false,
                                     callbacks: {
@@ -4060,7 +4131,7 @@
                         showCard("#settingsCardDisplay");
                         openTab(4);
                     }
-                    <% if (JSON.parse(betaFeatures).active) { %>
+                    <% if (_betaFeatures.active) { %>
                 } else if (["e", "E"].includes(e.key)) {
                     if (cardsDisplayed.includes("settingsCardDisplay")) {
                         if (cardsDisplayed.indexOf("settingsCardDisplay") !== cardsDisplayed.length - 1) {
@@ -4082,9 +4153,25 @@
                     } else {
                         setupGradeChanges(true, true);
                     }
+                } else if ((["n", "N"]).includes(e.key)) {
+                    if (cardsDisplayed.length === 0) {
+                        $("#notificationPanel").toggleClass("active");
+                    }
                 } else if (_.inRange(e.key, 1, data.length + 1)) {
                     if (cardsDisplayed.length === 0) {
                         showPage(e.key - 1);
+                    }
+                } else if (e.key === "0" && data.length > 9) {
+                    if (cardsDisplayed.length === 0) {
+                        showPage(10);
+                    }
+                } else if (e.key === "-" && data.length > 10) {
+                    if (cardsDisplayed.length === 0) {
+                        showPage(11);
+                    }
+                } else if (e.key === "=" && data.length > 11) {
+                    if (cardsDisplayed.length === 0) {
+                        showPage(12);
                     }
                 } else if (e.key === "`") {
                     if (cardsDisplayed.length === 0) {
@@ -4511,10 +4598,14 @@
                 }, 1000);
             };
 
-            // Collapse add assignment when click outside
+            // Collapse stuff when click outside
             $(document).mousedown(function (e) {
+                if (cardsDisplayed.length || $(e.target).is('.blurred-background')) return;
                 if (!$(e.target).is(".addAssignment, .add-assignment-container") && !$(e.target).parents(".add-assignment-container, .addAssignment").length && currentPage >= 0 && $($(".add-assignment-container")[currentPage]).hasClass("active")) {
                     $($(".add-assignment-container")[currentPage]).removeClass("active");
+                }
+                if (!$(e.target).is("#notificationPanel") && !$(e.target).parents("#notificationPanel").length && $("#notificationPanel").hasClass("active")) {
+                    $("#notificationPanel").removeClass("active");
                 }
             });
 

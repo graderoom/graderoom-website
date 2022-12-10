@@ -12,19 +12,19 @@
     <% let date = new Date(); %>
     <% let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes()); %>
     <% zeroTime = zeroTime.getTime(); %>
-    <% if (JSON.parse(appearance).theme === "dark") { %>
+    <% if (_appearance.theme === "dark") { %>
         <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
-    <% } else if (JSON.parse(appearance).theme === "light") { %>
+    <% } else if (_appearance.theme === "light") { %>
         <% theme = false; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/light_mode.css">
-    <% } else if (JSON.parse(appearance).theme === "auto" && (((JSON.parse(appearance).darkModeStart < JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) && (zeroTime < JSON.parse(appearance).darkModeFinish))) || ((JSON.parse(appearance).darkModeStart > JSON.parse(appearance).darkModeFinish) && ((zeroTime >= JSON.parse(appearance).darkModeStart) || (zeroTime < JSON.parse(appearance).darkModeFinish))))) { %>
+    <% } else if (_appearance.theme === "auto" && (((_appearance.darkModeStart < _appearance.darkModeFinish) && ((zeroTime >= _appearance.darkModeStart) && (zeroTime < _appearance.darkModeFinish))) || ((_appearance.darkModeStart > _appearance.darkModeFinish) && ((zeroTime >= _appearance.darkModeStart) || (zeroTime < _appearance.darkModeFinish))))) { %>
         <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
-    <% } else if (JSON.parse(appearance).theme === "system") { %>
+    <% } else if (_appearance.theme === "system") { %>
         <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
-    <% } else if (JSON.parse(appearance).theme === "sun" && ((zeroTime >= sunset.getTime()) || (zeroTime <= sunrise.getTime()))) { %>
+    <% } else if (_appearance.theme === "sun" && ((zeroTime >= sunset.getTime()) || (zeroTime <= sunrise.getTime()))) { %>
         <% theme = true; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
     <% } else { %>
@@ -33,7 +33,7 @@
     <% } %>
     <link rel="stylesheet" type="text/css" href="/public/css/main.css">
     <link id="blur_base" rel="stylesheet" type="text/css" href="/public/css/blur.css"
-          <% if (!JSON.parse(appearance).blurEffects) { %>disabled
+          <% if (!_appearance.blurEffects) { %>disabled
             <% } %>
     >
     <link id="blur_overrides" rel="stylesheet" type="text/css"
@@ -41,7 +41,7 @@
           href="/public/css/dark_blur.css"
     <% } else if (theme === false) { %> href="/public/css/light_blur.css"
             <% } %>
-          <% if (!JSON.parse(appearance).blurEffects) { %>disabled
+          <% if (!_appearance.blurEffects) { %>disabled
             <% } %>
     >
     <link id="fade" rel="stylesheet" type="text/css" href="/public/css/fade.css" disabled>
@@ -54,20 +54,20 @@
 
 <!-- Term Switcher -->
 <div id="termSwitcher" class="blur">
-    <% for (let i = 0; i < JSON.parse(termsAndSemesters).length; i++) { %>
-        <div id="<%= JSON.parse(termsAndSemesters)[i][0]; %>"
-        <% if (term === JSON.parse(termsAndSemesters)[i][0]) { %> class="active"
+    <% for (let i = 0; i < _termsAndSemesters.length; i++) { %>
+        <div id="<%= _termsAndSemesters[i][0]; %>"
+        <% if (term === _termsAndSemesters[i][0]) { %> class="active"
                 <% } %>
         >
-            <%= JSON.parse(termsAndSemesters)[i][0]; %>
-            <% for (let j = 0; j < JSON.parse(termsAndSemesters)[i][1].length; j++) { %>
-                <div onclick="window.location.href='/classes/?school=<%=school%>&term=<%= JSON.parse(termsAndSemesters)[i][0]; %>&semester=<%= JSON.parse(termsAndSemesters)[i][1][j]; %>'"
-                     id="<%= JSON.parse(termsAndSemesters)[i][0]; %><%= JSON.parse(termsAndSemesters)[i][1][j]; %>"
-                <% if (term === JSON.parse(termsAndSemesters)[i][0] && semester === JSON.parse(termsAndSemesters)[i][1][j]) { %>
+            <%= _termsAndSemesters[i][0]; %>
+            <% for (let j = 0; j < _termsAndSemesters[i][1].length; j++) { %>
+                <div onclick="window.location.href='/classes/?school=<%=school%>&term=<%= _termsAndSemesters[i][0]; %>&semester=<%= _termsAndSemesters[i][1][j]; %>'"
+                     id="<%= _termsAndSemesters[i][0]; %><%= _termsAndSemesters[i][1][j]; %>"
+                <% if (term === _termsAndSemesters[i][0] && semester === _termsAndSemesters[i][1][j]) { %>
                      class="active"
                         <% } %>
                 >
-                    <%= JSON.parse(termsAndSemesters)[i][1][j] %>
+                    <%= _termsAndSemesters[i][1][j] %>
                 </div>
             <% } %>
         </div>
@@ -635,7 +635,6 @@
         $(element).attr("size", size);
     }
 
-    let appearance = <%- appearance; %>;
     let checkingTheme;
     let theme = appearance.theme;
     let darkModeStart = appearance.darkModeStart;

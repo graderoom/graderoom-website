@@ -28,30 +28,139 @@
 
     let changelogContainer = $("#changelog-container");
     let changelogLegendColumn = $("#changelog-legend-column");
+    let versionDivs;
     let versionOffsets = {};
     let versionNames = [];
     let versionClasses = []
     let versionDates = [];
     let stableVersionNames = [];
     let versionDisplayed;
-    let nextVersion;
-    let previousVersion;
     let changelogArray;
     let changelogContent = {};
     let changelogReferences;
     let onScreenVersion = "Known Issues";
 
-    async function showChangelog(callback = false) {
-        return new Promise(resolve => {
-            $.ajax({
-                       url: "/changelog", type: "GET", async: true
-                   }).done(function (response) {
-                if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
-                    $(".session-timeout").show();
-                    $("body").find("*").not(".session-timeout").remove();
-                    return;
+    function showChangelog(callback) {
+        return new Promise(async resolve => {
+            let latestVersion;
+            if (changelogArray !== undefined) {
+                latestVersion = await $.ajax({
+                                                     url: "/latestVersion", type: "GET", async: true
+                                                 });
+            }
+            if (changelogArray === undefined || !versionNames[1]?.endsWith(latestVersion)) {
+                await $.ajax({
+                                 url: "/changelog", type: "GET", async: true
+                             }).done(function (response) {
+                    if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
+                        $(".session-timeout").show();
+                        $("body").find("*").not(".session-timeout").remove();
+                        return;
+                    }
+                    changelogArray = response;
+                    changelogLegendColumn.empty();
+                });
+            }
+            let onScreenBeforeSetup = onScreenVersion;
+            changelogReferences = changelogArray.map(x => $(x));
+            changelogContainer.html(changelogReferences);
+            versionDivs = $("#changelogDisplay .changelog-item");
+            changelogContainer.animate({scrollTop: 0}, async () => {
+                versionNames = [];
+                versionOffsets = {};
+                <% if (_betaFeatures.showNotificationPanel) { %>
+                let dismissNotifications = true;
+                <% } %>
+                for (let i = 0; i < versionDivs.length; i++) {
+                    let version = versionDivs[i];
+                    let name = $(version).find(".title")[0].innerText;
+                    versionNames.push(name);
+                    <% if (_betaFeatures.showNotificationPanel) { %>
+                    if (!callback) {
+                        if (dismissNotifications && i >= 1) {
+                            dismissById(name, false);
+                        }
+                        if (name.endsWith(alerts.latestSeen)) {
+                            dismissNotifications = false;
+                            updateNotifications();
+                        }
+                    }
+                    <% } %>
+                    let date = $(version).find(".date")[0].innerText;
+                    // Add offset so versions on the same day are ordered correctly in notifications
+                    versionDates.push(new Date(`${date.slice(0, 10)}/0:`).getTime() + versionDivs.length - i);
+                    let class_ = $.makeArray(version.classList).filter((c) => c !== "changelog-item")[0] ?? "";
+                    versionClasses.push(class_);
+                    versionOffsets[name] = $(version).offset().top - changelogContainer.offset().top;
+                    changelogContent[name] = $(version).find(".content")[0].innerHTML;
+                    let v;
+                    if (changelogLegendColumn.children("div").length < versionDivs.length) {
+                        v = $(`<div class="${class_}">${name}<p class="date">${date}</p></div>`);
+                        if (name === onScreenVersion) {
+                            v.addClass("active");
+                        }
+                        v.click(() => scrollToVersion(name));
+                        changelogLegendColumn.append(v);
+                    } else {
+                        v = $(changelogLegendColumn.children("div")[i])
+                    }
+                    versionOffsets[`${name}-legend`] = $(v).offset().top - changelogLegendColumn.offset().top;
                 }
-                let onScreenBeforeSetup = onScreenVersion;
+                <% if (_betaFeatures.showNotificationPanel) { %>
+                if (!callback) {
+                    $.ajax({
+                               url: "/latestVersionSeen", type: "POST", async: true
+                           }).done((response) => {
+                        if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
+                            $(".session-timeout").show();
+                            $("body").find("*").not(".session-timeout").remove();
+                            return;
+                        }
+                        alerts.latestSeen = versionNames[1].substring(versionNames[1].indexOf(" ") + 1);
+                    });
+                }
+                <% } %>
+
+                changelogContainer.unbind("scroll");
+                changelogContainer.on("scroll", function () {
+                    let versionIndex = getOnScreenVersionIndex();
+                    onScreenVersion = versionNames[versionIndex];
+                    if (versionIndex > 0) {
+                        let previousVersionHeight = versionOffsets[onScreenVersion] - versionOffsets[versionNames[versionIndex - 1]];
+                        let previousVersionInvisibleHeight = changelogContainer.offset().top - $(versionDivs[versionIndex - 1]).offset().top;
+                        let previousFractionInvisible = previousVersionInvisibleHeight / previousVersionHeight;
+                        let previousLegendItemHeight = versionOffsets[`${onScreenVersion}-legend`] - versionOffsets[`${versionNames[versionIndex - 1]}-legend`];
+                        let offset = versionOffsets[`${versionNames[versionIndex - 1]}-legend`] + (previousFractionInvisible * previousLegendItemHeight)
+                        changelogLegendColumn.animate({scrollTop: offset}, 0);
+                        if (previousFractionInvisible < 0.5) return;
+                    } else {
+                        changelogLegendColumn.animate({scrollTop: 0}, 0);
+                    }
+                    let legendItem = $(changelogLegendColumn.children("div")[versionIndex]);
+                    if (!legendItem.hasClass("active")) {
+                        changelogLegendColumn.children("div").removeClass("active");
+                        legendItem.addClass("active");
+                    }
+                    scrolling = true;
+                });
+
+                stableVersionNames = versionNames.filter(n => n.substring(0, 6) === "Stable" || n === "Known Issues");
+                scrollToVersion(onScreenBeforeSetup, 500);
+                if (callback) {
+                    callback(versionNames);
+                    return resolve();
+                }
+                let fixedIn = versionDivs.find(".content").children(".body").children("strong");
+                for (let i = 0; i < fixedIn.length; i++) {
+                    let link = $(fixedIn[i]);
+                    link.click(() => {
+                        scrollToVersion(link[0].innerText.substring(10, link[0].innerText.length - 1));
+                    });
+                }
+                resolve();
+            });
+            if (!callback) {
+                $("#changelogDisplay").fadeIn(500);
                 if (!callback) {
                     if (cardsDisplayed.includes("changelogDisplay")) {
                         cardsDisplayed.splice(cardsDisplayed.indexOf("changelogDisplay"), 1);
@@ -63,104 +172,8 @@
                         }
                     });
                 }
-                changelogArray = response;
-                changelogReferences = changelogArray.map(x => $(x));
-                changelogContainer.html(changelogReferences);
-                let versions = $("#changelogDisplay .changelog-item");
-                changelogContainer.animate({scrollTop: 0}, async () => {
-                    versionNames = [];
-                    versionOffsets = {};
-                    for (let version of versions) {
-                        versionNames.push($(version).find(".title")[0].innerText);
-                        versionDates.push($(version).find(".date")[0].innerText);
-                        versionClasses.push($.makeArray(version.classList).filter((c) => c !== "changelog-item")[0] ?? "");
-                        versionOffsets[versionNames.slice(-1)[0]] = $(version).offset().top - changelogContainer.offset().top;
-                        changelogContent[versionNames.slice(-1)[0]] = $(version).find(".content")[0].innerHTML;
-                    }
-                    scrollToNextStable(false);
-                    scrollToPrevStable(false);
-                    scrollToNextAnnouncement(false);
-                    scrollToPrevAnnouncement(false);
-                    stableVersionNames = versionNames.filter(n => n.substring(0, 6) === "Stable" || n === "Known Issues");
-                    scrollToVersion(onScreenBeforeSetup, 0);
-                    if (callback) {
-                        callback(versionNames);
-                    }
-                    resolve();
-                    changelogLegendColumn.empty();
-                    for (let i = 0; i < versionNames.length; i++) {
-                        let version = versionNames[i];
-                        let extraClass = versionClasses[i];
-                        let date = versionDates[i];
-                        let v = $(`<div class="${extraClass}">${version}<p class="date">${date}</p></div>`);
-                        v.click(() => scrollToVersion(version));
-                        changelogLegendColumn.append(v);
-                    }
-                });
-                let fixedIn = versions.find(".content").children(".body").children("strong");
-                for (let i = 0; i < fixedIn.length; i++) {
-                    let link = $(fixedIn[i]);
-                    link.click(() => {
-                        scrollToVersion(link[0].innerText.substring(10, link[0].innerText.length - 1));
-                    });
-                }
-                if (!callback) {
-                    $("#changelogDisplay").fadeIn(500);
-                }
-            });
+            }
         });
-    }
-
-    function scrollToNextVersion() {
-        scrollToVersion(nextVersion);
-    }
-
-    function scrollToPreviousVersion() {
-        scrollToVersion(previousVersion);
-    }
-
-    function scrollToNextStable(scroll = true) {
-        let onScreenVersionIndex = getOnScreenVersionIndex();
-        let version = versionNames.find((v, index) => index > onScreenVersionIndex && v.substring(0, 6) === "Stable");
-        if (version) {
-            if (scroll) {
-                scrollToVersion(version);
-            }
-        }
-    }
-
-    function scrollToPrevStable(scroll = true) {
-        let onScreenVersionIndex = getOnScreenVersionIndex();
-        let version = versionNames.slice().reverse().find((v, index, arr) => (index >= arr.length - onScreenVersionIndex) && v.substring(0, 6) === "Stable");
-        if (version) {
-            if (scroll) {
-                scrollToVersion(version);
-            }
-        }
-    }
-
-    function scrollToCurrent() {
-        scrollToVersion($(".changelog-item.current .header .title")[0].innerText);
-    }
-
-    function scrollToNextAnnouncement(scroll = true) {
-        let onScreenVersionIndex = getOnScreenVersionIndex();
-        let version = versionNames.find((v, index) => index > onScreenVersionIndex && v.substring(0, 12) === "Announcement");
-        if (version) {
-            if (scroll) {
-                scrollToVersion(version);
-            }
-        }
-    }
-
-    function scrollToPrevAnnouncement(scroll = true) {
-        let onScreenVersionIndex = getOnScreenVersionIndex();
-        let version = versionNames.slice().reverse().find((v, index, arr) => (index >= arr.length - onScreenVersionIndex) && v.substring(0, 12) === "Announcement");
-        if (version) {
-            if (scroll) {
-                scrollToVersion(version);
-            }
-        }
     }
 
     let scrolling = false;
@@ -176,18 +189,13 @@
     function getOnScreenVersionIndex() {
         let versions = $("#changelogDisplay .changelog-item");
         let onScreenVersionIndex = 0;
-        for (let i = 0; i < versions.length - 1; i++) {
-            let onScreenOffset = Math.abs($(versions[i]).offset().top - changelogContainer.offset().top);
-            if (Math.abs($(versions[i + 1]).offset().top - changelogContainer.offset().top) < onScreenOffset) {
+        for (let i = versions.length - 2; i >= 0; i--) {
+            if ($(versions[i]).offset().top - changelogContainer.offset().top < 0) {
                 onScreenVersionIndex = i + 1;
+                break;
             }
         }
         return onScreenVersionIndex;
     }
-
-    changelogContainer.scroll(function () {
-        onScreenVersion = versionNames[getOnScreenVersionIndex()];
-        scrolling = true;
-    });
 
 </script>

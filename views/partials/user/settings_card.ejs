@@ -21,7 +21,7 @@
                 <btn id="btn-3" class="tablinks" onclick="openTab(3)">Advanced</btn>
                 <btn id="btn-4" class="tablinks" onclick="openTab(4)">Help</btn>
                 <btn id="btn-5" class="tablinks" onclick="openTab(5)">About</btn>
-                <% if (JSON.parse(betaFeatures).active) { %>
+                <% if (_betaFeatures.active) { %>
                     <btn id="btn-5" class="tablinks" onclick="openTab(6)">Experiments</btn>
                 <% } %>
             </div>
@@ -93,7 +93,7 @@
             </div>
             <div id="settings-1" class="tabcontent show">
                 <div class="card-body">
-                    <% if (JSON.parse(gradeData).length > 0) { %>
+                    <% if (_gradeData.length > 0) { %>
                         <div class="card-footer">
                             <h5>Color Scheme</h5>
                             <div id="color-scheme-picker-container">
@@ -102,7 +102,7 @@
                                         <label class="switch">
                                             <input id="shuffleToggle" type="checkbox"
                                                    name="shuffleColors" onchange="setColorPalette()"
-                                            <% if (JSON.parse(appearance).shuffleColors) { %>
+                                            <% if (_appearance.shuffleColors) { %>
                                                    checked
                                                     <% } %>
                                             >
@@ -120,7 +120,7 @@
                                                 Pale
                                             </button>
                                             <i class="fa fa-check"
-                                               style="<% if (JSON.parse(appearance).colorPalette !== "pale") { %>opacity: 0;<% } %>"></i>
+                                               style="<% if (_appearance.colorPalette !== "pale") { %>opacity: 0;<% } %>"></i>
                                         </div>
                                         <div id="pastel">
                                             <button onclick="setColorPalette('pastel')"
@@ -128,7 +128,7 @@
                                                 Pastel
                                             </button>
                                             <i class="fa fa-check"
-                                               style="<% if (JSON.parse(appearance).colorPalette !== "pastel") { %>opacity: 0;<% } %>"></i>
+                                               style="<% if (_appearance.colorPalette !== "pastel") { %>opacity: 0;<% } %>"></i>
                                         </div>
                                         <div id="clear">
                                             <button onclick="setColorPalette('clear')"
@@ -136,7 +136,7 @@
                                                 Clear
                                             </button>
                                             <i class="fa fa-check"
-                                               style="<% if (JSON.parse(appearance).colorPalette !== "clear") { %>opacity: 0;<% } %>"></i>
+                                               style="<% if (_appearance.colorPalette !== "clear") { %>opacity: 0;<% } %>"></i>
                                         </div>
                                         <div id="bright">
                                             <button onclick="setColorPalette('bright')"
@@ -144,7 +144,7 @@
                                                 Bright
                                             </button>
                                             <i class="fa fa-check"
-                                               style="<% if (JSON.parse(appearance).colorPalette !== "bright") { %>opacity: 0;<% } %>"></i>
+                                               style="<% if (_appearance.colorPalette !== "bright") { %>opacity: 0;<% } %>"></i>
                                         </div>
                                         <div id="dull">
                                             <button onclick="setColorPalette('dull')"
@@ -152,15 +152,15 @@
                                                 Dull
                                             </button>
                                             <i class="fa fa-check"
-                                               style="<% if (JSON.parse(appearance).colorPalette !== "dull") { %>opacity: 0;<% } %>"></i>
+                                               style="<% if (_appearance.colorPalette !== "dull") { %>opacity: 0;<% } %>"></i>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="text-center" id="classColors">
-                                    <% for (var i = 0; i < JSON.parse(gradeData).length; i++) { %>
+                                    <% for (var i = 0; i < _gradeData.length; i++) { %>
                                         <label id="classColor<%= i; %>"
-                                               style="color: <%= JSON.parse(appearance).classColors[i]; %>;">
-                                            <%= JSON.parse(gradeData)[i].class_name; %>
+                                               style="color: <%= _appearance.classColors[i]; %>;">
+                                            <%= _gradeData[i].class_name; %>
                                         </label>
                                     <% } %>
                                 </div>
@@ -189,7 +189,7 @@
                                                                    name="theme"
                                                                    onchange="$('#sun-limits-container, #auto-limits-container').hide();
                                                                                changeSetting('theme', {theme: 'light'})"
-                                <% if (JSON.parse(appearance).theme === "light") { %> checked
+                                <% if (_appearance.theme === "light") { %> checked
                                         <% } %>
                                 > Always Light
                             </label>
@@ -199,7 +199,7 @@
                                                                    name="theme"
                                                                    onchange="$('#sun-limits-container, #auto-limits-container').hide();
                                                                                changeSetting('theme', {theme: 'dark'})"
-                                <% if (JSON.parse(appearance).theme === "dark") { %> checked
+                                <% if (_appearance.theme === "dark") { %> checked
                                         <% } %>
                                 > Always Dark</label>
                             <br>
@@ -210,7 +210,7 @@
                                         name="theme"
                                         onclick="$('#sun-limits-container, #auto-limits-container').hide();
                                                                                changeSetting('theme', {theme: 'system'})"
-                                <% if (JSON.parse(appearance).theme === "system") { %> checked
+                                <% if (_appearance.theme === "system") { %> checked
                                         <% } %>
                                 > Match System
                                 <span id="prefers-color-scheme"
@@ -229,11 +229,11 @@
                                                                    onchange="$('#auto-limits-container').hide();
                                                                        $('#sun-limits-container').show();
                                                                        changeSetting('theme', {theme: 'sun'})"
-                                <% if (JSON.parse(appearance).theme === "sun") { %> checked
+                                <% if (_appearance.theme === "sun") { %> checked
                                         <% } %>
                                 > Dark from Sunset to Sunrise</label>
                             <div id="sun-limits-container"
-                                 style="<% if (JSON.parse(appearance).theme !== "sun") { %>display: none;<% } %>font-size: 0.9rem; margin-bottom: 0; width: fit-content; width: -moz-fit-content">
+                                 style="<% if (_appearance.theme !== "sun") { %>display: none;<% } %>font-size: 0.9rem; margin-bottom: 0; width: fit-content; width: -moz-fit-content">
                                 <label class="form-group" id="sunLimits"
                                        style="display: flex; white-space: nowrap; margin-bottom: 0">
                                     <label style="vertical-align: center; width: 8rem" for="sunModeStart">
@@ -263,18 +263,18 @@
                                                                    onchange="$('#auto-limits-container').show().css('display','flex');
                                                                                 $('#sun-limits-container').hide();
                                                                        changeSetting('theme', {theme: 'auto', darkModeStart: darkModeStart, darkModeFinish: darkModeFinish})"
-                                <% if (JSON.parse(appearance).theme === "auto") { %> checked
+                                <% if (_appearance.theme === "auto") { %> checked
                                         <% } %>
                                 > Dark on Custom Schedule</label>
                             <div id="auto-limits-container"
-                                 style="<% if (JSON.parse(appearance).theme !== "auto") { %>display: none;<% } else { %>display: flex;<% } %>font-size: 0.9rem; margin-bottom: 0; align-items: stretch">
+                                 style="<% if (_appearance.theme !== "auto") { %>display: none;<% } else { %>display: flex;<% } %>font-size: 0.9rem; margin-bottom: 0; align-items: stretch">
                                 <label class="form-group" id="autoLimits"
                                        style="display: flex; white-space: nowrap;">
                                     <label style="vertical-align: center; width: 8rem" for="darkModeStart">
                                         Dark theme from
                                     </label>
-                                    <% let _startDate = new Date(JSON.parse(appearance).darkModeStart);
-                                    let _endDate = new Date(JSON.parse(appearance).darkModeFinish); %>
+                                    <% let _startDate = new Date(_appearance.darkModeStart);
+                                    let _endDate = new Date(_appearance.darkModeFinish); %>
                                     <input id="darkModeStart"
                                            style="padding: 0 0.75rem 0 0.75rem"
                                            type="time"
@@ -303,7 +303,7 @@
                                         style="margin: 0; display: flex"
                                         type="checkbox"
                                         name="blurEffects"
-                                <% if (JSON.parse(appearance).blurEffects) { %>
+                                <% if (_appearance.blurEffects) { %>
                                         checked="checked"
                                         <% } %>
                                         onchange="changeSetting('theme', {theme: appearance.theme, blurEffects: !appearance.blurEffects})"
@@ -330,7 +330,7 @@
                             <label class="switch">
                                 <input id="seasonalEffectsToggle" type="checkbox"
                                        name="enableSeasonalEffects"
-                                <% if (JSON.parse(appearance).seasonalEffects) { %>
+                                <% if (_appearance.seasonalEffects) { %>
                                        checked
                                         <% } %>
                                        onchange="changeSetting('theme', {theme: appearance.theme, seasonalEffects: !appearance.seasonalEffects})"
@@ -356,7 +356,7 @@
                                             style="margin: 0; display: flex"
                                             type="checkbox"
                                             name="regularizeClassGraphs"
-                                    <% if (JSON.parse(appearance).regularizeClassGraphs) { %>
+                                    <% if (_appearance.regularizeClassGraphs) { %>
                                             checked="checked"
                                             <% } %>
                                             onchange="changeSetting('regularizeClassGraphs', !appearance.regularizeClassGraphs)"
@@ -378,7 +378,7 @@
                                             style="margin: 0; display: flex"
                                             type="checkbox"
                                             name="showPlusMinusLines"
-                                    <% if (JSON.parse(appearance).showPlusMinusLines) { %>
+                                    <% if (_appearance.showPlusMinusLines) { %>
                                             checked="checked"
                                             <% } %>
                                             onchange="changeSetting('showPlusMinusLines', !appearance.showPlusMinusLines)"
@@ -404,7 +404,7 @@
                                                 style="margin: 0; display: flex"
                                                 type="checkbox"
                                                 name="reduceMotion"
-                                        <% if (JSON.parse(appearance).reduceMotion) { %>
+                                        <% if (_appearance.reduceMotion) { %>
                                                 checked="checked"
                                                 <% } %>
                                                 onchange="changeSetting('reduceMotion', !appearance.reduceMotion)"
@@ -607,7 +607,7 @@
                                     <input oninput="checkLabel(this); checkFirstName(this, '#firstNameCheckMessage')"
                                            type="text" class="form-control dont-clear" name="first_name"
                                            id="firstName"
-                                           value="<%= JSON.parse(personalInfo).firstName; %>">
+                                           value="<%= _personalInfo.firstName; %>">
                                     <span class="popup">
                                         <i>
                                             <span class="popup-top-left dont-show"
@@ -619,7 +619,7 @@
                                     <label class="label-active" for="lastName">Last Name</label>
                                     <input oninput="checkLabel(this); checkLastName(this, '#lastNameCheckMessage')"
                                            type="text" class="form-control dont-clear" name="last_name" id="lastName"
-                                           value="<%= JSON.parse(personalInfo).lastName; %>">
+                                           value="<%= _personalInfo.lastName; %>">
                                     <span class="popup">
                                         <i>
                                             <span class="popup-top-left dont-show"
@@ -640,7 +640,7 @@
                                             <% } %>
                                            type="number" class="form-control" name="graduation_year"
                                            id="graduationYear"
-                                           value="<%= JSON.parse(personalInfo).graduationYear; %>"
+                                           value="<%= _personalInfo.graduationYear; %>"
                                            <% if (school !== "basis") { %>disabled
                                             <% } %>
                                     >
@@ -721,9 +721,9 @@
                             </button>
                         </div>
                     </form>
-                    <% if (!JSON.parse(betaFeatures).active || JSON.parse(alerts).lastUpdated.length > 0) { %>
+                    <% if (!_betaFeatures.active || _alerts.lastUpdated.length > 0) { %>
                         <div class="card-footer">
-                            <% if (!JSON.parse(betaFeatures).active) { %>
+                            <% if (!_betaFeatures.active) { %>
                                 <button class="btn btn-sm" style="margin: 0.1rem"
                                         onclick="showCard('#activateBetaDisplay');">
                                     <label style="margin: 0; cursor: pointer;">Enable Experiments
@@ -731,7 +731,7 @@
                                     </label>
                                 </button>
                             <% } %>
-                            <% if (JSON.parse(alerts).lastUpdated.length > 0) { %>
+                            <% if (_alerts.lastUpdated.length > 0) { %>
                                 <button class="btn btn-sm" style="margin: 0.1rem"
                                         onclick="showCard('#apiKeyDisplay');">
                                     <label style="margin: 0; cursor: pointer;">Open API Key Panel
@@ -750,10 +750,9 @@
                                 page.</small></h5>
                         <form action="/setShowNonAcademic" method="post">
                             <label class="slider-container">
-                                <% let nonAcademicCount = Object.entries(JSON.parse(relevantClassData)).filter(([k, v]) => JSON.parse(gradeData).find(c => c.class_name === k) && v.classType === "non-academic").length; %>
                                 <label class="switch">
                                     <input id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
-                                    <% if (JSON.parse(appearance).showNonAcademic) { %> checked="checked"
+                                    <% if (_appearance.showNonAcademic) { %> checked="checked"
                                             <% } %>
                                         onchange="$(this).closest('form').trigger('submit')"
                                     >
@@ -768,7 +767,7 @@
                             <label class="slider-container">
                                 <label class="switch">
                                     <input id="showEmptyCheckbox" type="checkbox" name="showEmpty"
-                                    <% if (JSON.parse(appearance).showEmpty) { %> checked="checked"
+                                    <% if (_appearance.showEmpty) { %> checked="checked"
                                             <% } %>
                                         onchange="$(this).closest('form').trigger('submit')"
                                     >
@@ -788,7 +787,7 @@
                         <label class="slider-container">
                             <label class="switch">
                                 <input id="animateWhenUnfocused" type="checkbox" name="animateWhenUnfocused"
-                                <% if (JSON.parse(appearance).animateWhenUnfocused) { %>
+                                <% if (_appearance.animateWhenUnfocused) { %>
                                        checked="checked"
                                         <% } %>
                                        onchange="changeSetting('animateWhenUnfocused', !appearance.animateWhenUnfocused)"
@@ -812,7 +811,7 @@
                         <label class="slider-container">
                             <label class="switch">
                                 <input id="showFps" type="checkbox" name="showFps"
-                                <% if (JSON.parse(appearance).showFps) { %>
+                                <% if (_appearance.showFps) { %>
                                        checked="checked"
                                         <% } %>
                                        onchange="changeSetting('showFps', !appearance.showFps)"
@@ -841,18 +840,6 @@
             </div>
             <div id="settings-4" class="tabcontent">
                 <div class="card-body">
-                    <div class="card-footer">
-                        <h5 style="padding-bottom: 12px">Join Our Discord Server</h5>
-                        <iframe src="https://discord.com/widget?id=897624313136578590&theme=<%= theme ? "dark" : "light" %>"
-                                class="discord-iframe"
-                                allowtransparency="true"
-                                sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
-                                style="border: 0">
-                            Loading...
-                        </iframe>
-                        <br><br>
-                        <p>You can also <a href="https://discord.gg/p9kyZxuAmC">click here</a> to join.</p>
-                    </div>
                     <div class="card-footer">
                         <h5>Troubleshooting</h5>
                         <label style="display: flex; font-size: 1rem; justify-content: flex-start; align-items: center">
@@ -884,7 +871,7 @@
                                             style="margin: 0; display: flex"
                                             type="checkbox"
                                             name="remoteAccess"
-                                    <% if (JSON.parse(alerts).remoteAccess === "allowed") { %>
+                                    <% if (_alerts.remoteAccess === "allowed") { %>
                                             checked
                                             <% } %>
                                             onchange="ajaxPostForm('#remoteAccess',[],'',true); $('#remoteAccess').trigger('submit');"
@@ -901,6 +888,18 @@
                                                 troubleshooting.</span></i></span></label>
                             </label>
                         </form>
+                    </div>
+                    <div class="card-footer">
+                        <h5 style="padding-bottom: 12px">Join Our Discord Server</h5>
+                        <iframe src="https://discord.com/widget?id=897624313136578590&theme=<%= theme ? "dark" : "light" %>"
+                                class="discord-iframe"
+                                allowtransparency="true"
+                                sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
+                                style="border: 0">
+                            Loading...
+                        </iframe>
+                        <br><br>
+                        <p>You can also <a href="https://discord.gg/p9kyZxuAmC">click here</a> to join.</p>
                     </div>
                     <div class="card-footer">
                         <h5>Email Us</h5>
@@ -974,7 +973,7 @@
                     </div>
                 </div>
             </div>
-            <% if (JSON.parse(betaFeatures).active) { %>
+            <% if (_betaFeatures.active) { %>
                 <div id="settings-6" class="tabcontent">
                     <div class="card-body">
                         <div class="card-footer">
@@ -995,7 +994,7 @@
                                     <label class="switch">
                                         <input id="showNotificationPanel" type="checkbox"
                                                name="showNotificationPanel"
-                                        <% if (JSON.parse(betaFeatures).showNotificationPanel) { %>
+                                        <% if (_betaFeatures.showNotificationPanel) { %>
                                                checked="checked"
                                                 <% } %>
                                                onchange="$($(this)[0].form).trigger('submit')"
