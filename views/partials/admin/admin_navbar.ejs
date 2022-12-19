@@ -62,12 +62,12 @@
     </div>
 </nav>
 
-<% include ../user/logged_out.ejs %>
+<%- include('../user/logged_out.ejs', {theme: theme}); %>
 
 <!-- JavaScript Imports -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 
-<% include ../limited_time/snowfall.ejs %>
+<%- include('../limited_time/snowfall.ejs', {theme: theme, page: page}); %>
 
 <!-- Custom JavaScript -->
 <script>

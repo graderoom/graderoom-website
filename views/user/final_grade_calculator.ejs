@@ -53,7 +53,7 @@
 <body>
 
 <!-- Navbar -->
-<% include ../partials/user/navbar.ejs %>
+<%- include('../partials/user/navbar.ejs', {theme: theme, page: page}); %>
 <div class="container h-100 d-flex justify-content-center">
     <div class="col-sm-12 col-md-10 col-lg-9 col-xl-8">
         <div class="card card-signin my-5">

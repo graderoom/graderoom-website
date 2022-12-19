@@ -320,7 +320,7 @@ class PowerschoolScraper(Scraper):
         error = soup.find("div", class_='grid-alert error')
         if error is not None and "Your account is disabled. Please contact your system administrator." in error.text:
             self.progress = 0
-            print(json_format(False, 'Your account is no longer active.'))
+            print(json_format(False, 'Your PowerSchool account is no longer active.'))
             sys.exit()
 
         # If no response, authentication failed (incorrect login)
@@ -379,7 +379,7 @@ class PowerschoolScraper(Scraper):
         data = {
             'dbpw': _password,
             'credentialType': 'User Id and Password Credential',
-            'account': email[:-9] if email.endswith("@ndsj.org") else email, # Remove @ndsj.org
+            'account': email[:-9] if email.endswith("@ndsj.org") else email,  # Remove @ndsj.org
             'pw': _password,
             'serviceName': 'PS Parent Portal',
             'pcasServerUrl': '/',
@@ -436,7 +436,7 @@ class PowerschoolScraper(Scraper):
                     sys.exit()
         else:
             self.progress = 0
-            print(json_format(False, 'Your account is no longer active.'))
+            print(json_format(False, 'Your PowerSchool account is no longer active.'))
             sys.exit()
 
         return True
@@ -757,7 +757,7 @@ class PowerschoolScraper(Scraper):
         for data in class_data:
             class_name = data['class_name']
             teacher_name = data['teacher_name']
-            overall_percent: float or bool = data['overall_percent']
+            overall_percent = data['overall_percent']
             overall_letter = data['overall_letter']
             student_id = data['student_id']
             section_id = data['section_id']
@@ -903,9 +903,15 @@ class BasisScraper(Scraper):
 
         classes = soup.find_all('div', class_="gradebook-course")
 
-        all_classes = []
+        all_classes = {"T1": [], "T2": [], "T3": []}
         weights = BasisWeights()
         term = None
+        t1_start_dict = {"22-23": datetime.strptime("08/17/2022 12:00AM", "%m/%d/%Y %I:%M%p").timestamp()}
+        t2_start_dict = {"22-23": datetime.strptime("12/02/2022 12:00AM", "%m/%d/%Y %I:%M%p").timestamp()}
+        t3_start_dict = {"22-23": datetime.strptime("12/02/2023 12:00AM", "%m/%d/%Y %I:%M%p").timestamp()}  # TODO
+
+        has_t2 = False
+        has_t3 = False
 
         total_course_count = len(classes)
         scraped_course_count = 0
@@ -921,14 +927,14 @@ class BasisScraper(Scraper):
             class_name = class_name_soup.text
             class_name = clean_string(class_name)
 
-            weights.add_class(class_name)
-
-            if 'lunch' in class_name.lower() or 'office' in class_name.lower():
+            if 'lunch' in class_name.lower() or 'office' in class_name.lower() or 'announcements' in class_name.lower():
                 total_course_count -= 1
                 self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
                 self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / (
                     1 if total_course_count == 0 else total_course_count)
                 continue
+
+            weights.add_class(class_name)
 
             grades_soup = class_.find('div', class_='gradebook-course-grades')
             overall_grade_soup = grades_soup.find('span', class_='numeric-grade primary-grade')
@@ -991,13 +997,13 @@ class BasisScraper(Scraper):
                         if points_gotten_soup is not None and points_gotten_soup.has_attr('title'):
                             points_gotten = clean_number(points_gotten_soup['title'])
                         else:
-                            points_gotten = None
+                            points_gotten = False
 
                         points_possible_soup = assignment_grade_soup.find('span', class_='max-grade')
                         if points_possible_soup is not None:
                             points_possible = clean_number(points_possible_soup.text[3:])
                         else:
-                            points_possible = None
+                            points_possible = False
 
                         assignment = {"date": date, "time": time, "category": category_name,
                                       "assignment_name": assignment_name, "points_possible": points_possible,
@@ -1006,28 +1012,47 @@ class BasisScraper(Scraper):
 
                         grades.append(assignment)
 
-            if len(grades) == 0:
-                total_course_count -= 1
-                self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
-                self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / (
-                    1 if total_course_count == 0 else total_course_count)
-                continue
-
             no_due_date = list(filter(lambda j: j['sort_date'] is None, grades))
             no_due_date.reverse()
             due_date = list(filter(lambda j: j['sort_date'] is not None, grades))
             grades = sorted(due_date, key=lambda j: j['sort_date'], reverse=False)
             [grades.insert(0, item) for item in no_due_date]
-            grades = [{key: value for key, value in assignment.items() if key != 'sort_date'} for assignment in grades]
-            all_classes.append(BasisClassGrade(class_name, overall_grade, grades).as_dict)
+
+            t1_grades = [{key: value for key, value in assignment.items() if key != 'sort_date'} for assignment in
+                               grades if
+                               (assignment['sort_date'] is None or assignment['sort_date'] < t2_start_dict[term])]
+            t2_grades = [{key: value for key, value in assignment.items() if key != 'sort_date'} for assignment in
+                         grades if (assignment['sort_date'] is not None and t2_start_dict[term] <= assignment[
+                    'sort_date'] < t3_start_dict[term])]
+            t3_grades = [{key: value for key, value in assignment.items() if key != 'sort_date'} for assignment in
+                         grades if
+                         (assignment['sort_date'] is not None and assignment['sort_date'] >= t3_start_dict[term])]
+
+            if len(t2_grades) > 0:
+                has_t2 = True
+            if len(t3_grades) > 0:
+                has_t3 = True
+
+            all_classes["T1"].append(BasisClassGrade(class_name, overall_grade, t1_grades).as_dict)
+            all_classes["T2"].append(BasisClassGrade(class_name, overall_grade, t2_grades).as_dict)
+            all_classes["T3"].append(BasisClassGrade(class_name, overall_grade, t3_grades).as_dict)
+
             scraped_course_count += 1
             self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
             self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / (
                 1 if total_course_count == 0 else total_course_count)
 
         if term is not None:
+            trimesters = ["T1"]
+            if has_t2 or has_t3: trimesters.append("T2")
+            if has_t3: trimesters.append("T3")
             self.message = 'Sync Complete!'
-            print(json_format(True, {term: {"_": all_classes}}, {term: {"_": weights.as_list}}))
+            ret_weights = {term: {}}
+            ret_classes = {term: {}}
+            for trimester in trimesters:
+                ret_weights[term][trimester] = weights.as_list
+                ret_classes[term][trimester] = all_classes[trimester]
+            print(json_format(True, ret_classes, ret_weights))
         else:
             print(json_format(False, "No class data."))
 
@@ -1047,7 +1072,7 @@ if __name__ == "__main__":
             # Error when something in PowerSchool breaks scraper
             print(json_format(False, "An Unknown Error occurred. Contact support."))
             # Uncomment below to print error
-            # print(e)
+            print(e)
     else:
         data_if_locked: dict = json.loads(sys.argv[4])  # arg must be stringified json
         term_data_if_locked: dict = json.loads(sys.argv[5])  # arg must be stringified json

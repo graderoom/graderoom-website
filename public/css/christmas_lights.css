@@ -1,5 +1,5 @@
 .lightrope {
-        white-space: nowrap;
+    white-space: nowrap;
     position: fixed;
     z-index: 15;
     height: 100vh;
@@ -8,6 +8,10 @@
     padding: 0;
     pointer-events: none;
     margin: 0;
+}
+
+.lightrope.top {
+    left: -108px;
 }
 
 .lightrope.right {
@@ -61,26 +65,6 @@
 .lightrope li:nth-child(7n+5) {
     background: rgba(254, 48, 11, 0.8);
     box-shadow: 0 5px 24px 5px #fe300b, inset 0 0 2px 4px #fe300b;
-}
-
-.lightrope li:nth-child(2n) {
-    animation-duration: 14s;
-}
-
-.lightrope li:nth-child(3n) {
-    animation-duration: 22s;
-}
-
-.lightrope li:nth-child(5n) {
-    animation-duration: 26s;
-}
-
-.lightrope li:nth-child(7n) {
-    animation-duration: 34s;
-}
-
-.lightrope li:nth-child(11n) {
-    animation-duration: 38s;
 }
 
 .lightrope li:nth-child(2n-1) {

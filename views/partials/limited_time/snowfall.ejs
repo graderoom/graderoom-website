@@ -48,7 +48,7 @@
     ></canvas>
 </div>
 <% const lightsMonth = 11; /* 11 is December */ %>
-<% if (page == "home" && _appearance.showFps) { %>
+<% if (_appearance.showFps) { %>
 <span style="z-index: 999; position: fixed; bottom: 10px; left: 10px;" id="fps"></span>
 <% } %> <% const winterStart = 10; %> <% const winterEnd = 2; %>
 
@@ -58,12 +58,12 @@
     const winterStart = <%= winterStart %>; // 10 is November
     const winterEnd = <%= winterEnd %>; // 2 is March
     const timeMultiplier = Math.min((today.getMonth() - winterStart + 12) % 12, (winterEnd - today.getMonth() + 12) % 12) / ((winterEnd - winterStart + 24) % 12);
-    const rotationScale = 1; // Must be 1
+    const rotationScale = 0.01;
     const speedScale = 0.75 + 0.5 * timeMultiplier;
     const buffer = 10;
     const minSpeed = 0.75 + 0.5 * timeMultiplier;
-    const sizeScale = 0.5 + 0.75 * timeMultiplier;
-    const scaleFactor = 10;
+    const sizeScale = 0.4 + 0.2 * timeMultiplier;
+    const scaleFactor = 15;
 
     let numFlakes;
     let snow = [];
@@ -99,16 +99,17 @@
             }
 
             function initializeFlake(flake, initial = true) {
+                flake.size = (150 / (20 + Math.random() * 55)) * sizeScale;
                 if (initial) {
-                    flake.yPos = 2 * Math.random() * (-screenHeight);
+                    flake.yPos = 2 * Math.random() * (-screenHeight) * Math.log1p(flake.size);
                 } else {
                     flake.yPos = Math.random() * (-screenHeight);
                 }
                 flake.xPos = Math.random() * screenWidth;
                 flake.rotation = Math.random() * (Math.PI * 2);
-                flake.size = (100 / (10 + (Math.random() * 100))) * sizeScale;
                 flake.speed = (Math.pow(flake.size * .8, 2) * .15) * speedScale;
                 flake.speed = flake.speed < minSpeed ? minSpeed : flake.speed;
+                flake.rotationSpeed = Math.log1p(flake.size * .8) * rotationScale;
                 return flake;
             }
         }
@@ -125,10 +126,10 @@
 
             go();
 
-            <% if (page === "home" && _appearance.showFps) { %>
+            <% if (_appearance.showFps) { %>
             setInterval(() => {
                 if (renderNextFrame) {
-                    let fpsDisplay = `THRESHOLD: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${(lowFps < 100 ? `&nbsp;` : ``) + (lowFps < 10 ? `&nbsp;` : ``) + Math.round(lowFps)}FPS<br>`;
+                    let fpsDisplay = `LOW LIMIT: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${(lowFps < 100 ? `&nbsp;` : ``) + (lowFps < 10 ? `&nbsp;` : ``) + Math.round(lowFps)}FPS<br>`;
                     fpsDisplay += `&nbsp;&nbsp;10S AVG: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${(Math.round(_10sAverage) < 100 ? `&nbsp;` : ``)}${(Math.round(_10sAverage) < 10 ? `&nbsp;` : ``)}<span ${_10sAverage < lowFps ? "style=\"color: red; font-weight: bold;\"" : ""}>${Math.round(_10sAverage)}FPS</span><br>`;
                     fpsDisplay += `FRAMETIME: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${(Math.round(1000 / fps) < 1000 ? `&nbsp;` : ``) + (Math.round(1000 / fps) < 100 ? `&nbsp;` : ``) + (Math.round(1000 / fps) < 10 ? `&nbsp;` : ``) + Math.round(1000 / fps)}MS<br>`;
                     fpsDisplay += `&nbsp;VIEWPORT: ${screenWidth < 100000 ? `&nbsp;` : ``}${screenWidth < 10000 ? `&nbsp;` : ``}${screenWidth < 1000 ? `&nbsp;` : ``}${screenHeight < 100000 ? `&nbsp;` : ``}${screenHeight < 10000 ? `&nbsp;` : ``}${screenHeight < 1000 ? `&nbsp;` : ``}${screenWidth}x${screenHeight}<br>`;
@@ -191,24 +192,22 @@
                         fpsScale = fps / 60;
                     }
                     $$.clearRect(0, 0, screenWidth, screenHeight);
-                    $$.fillStyle = "transparent";
-                    $$.fillRect(0, 0, screenWidth, screenHeight);
-                    $$.fill();
                     let flake;
                     for (let i = 0; i < snow.length; i++) {
                         flake = snow[i];
-                        flake.rotation += .05 / fpsScale;
+                        flake.rotation += flake.rotationSpeed / fpsScale;
                         flake.rotation = flake.rotation >= Math.PI * 2 ? 0 : flake.rotation;
                         flake.yPos += flake.speed / fpsScale;
-                        flake.xPos += Math.random() * Math.sin(flake.rotation * rotationScale) * (flake.size * .3) / fpsScale;
-                        if (flake.yPos > screenHeight + 50) {
-                            flake = initializeFlake(flake, false);
-                        }
+                        flake.size = Math.min(Math.max((Math.random() > 0.5 ? 0.99 : 1.01) * flake.size, 1), 4);
+                        flake.xPos += Math.sin(flake.rotation) / flake.size / fpsScale;
                         if (flake.xPos > screenWidth + buffer) {
                             flake.xPos = -buffer;
                         }
                         if (flake.xPos < -buffer) {
                             flake.xPos = screenWidth + buffer;
+                        }
+                        if (flake.yPos > screenHeight + 50) {
+                            flake = initializeFlake(flake, false);
                         }
                         flake.draw();
                     }
@@ -244,8 +243,8 @@
         function Flake() {
             this.draw = function () {
                 this.gradient = $$.createRadialGradient(this.xPos, this.yPos, 0, this.xPos, this.yPos, this.size);
-                this.gradient.addColorStop(0, "rgba(255,255,255,1)");
-                this.gradient.addColorStop(1, "rgba(255,255,255,0)");
+                this.gradient.addColorStop(0, "rgb(255,255,255)");
+                this.gradient.addColorStop(1, "rgba(139,194,255,0.84)");
                 $$.moveTo(this.xPos, this.yPos);
                 $$.fillStyle = this.gradient;
                 $$.beginPath();
@@ -274,5 +273,5 @@
 </script>
 
 <% if (new Date().getMonth() === lightsMonth) { %>
-<% include christmas_lights.ejs %>
+<%- include('christmas_lights.ejs', {theme: theme, page: page}); %>
 <% } %>

@@ -1,4 +1,4 @@
-<% include ../limited_time/snowfall.ejs %>
+<%- include('../limited_time/snowfall.ejs', {theme: theme, page: page}); %>
 
 <!-- Nav Bar -->
 <nav class="navbar <% if (theme) { %>navbar-dark<% } else { %>navbar-light<% } %> navbar-expand-lg justify-content-center">
@@ -23,7 +23,7 @@
     <div class="navbar-collapse collapse w-50" id="collapsingNav">
         <ul class="navbar-nav w-25 justify-content-end align-items-end ml-auto">
             <li class="nav-item active">
-                <a href="/<% if (page === "login") { %>signup<% } else {%><%}%>" class="btn btn-lg">
+                <a href="/<% if (page === "login") { %>signup<% } else if (page === "logged_out_calc") { %>?returnTo=%2Ffinalgradecalculator<% } else if (page === "charts-logged-out") { %>?returnTo=%2Fcharts<% } %>" class="btn btn-lg">
                     <i class="fa fa-sign-in" aria-hidden="true"></i>
                     <% if (page === "login") { %>
                     Create Account

@@ -4,13 +4,29 @@ module.exports = {
     setIo: function (_io) {
         io = _io;
     },
-    emitToRoom: function (username, purpose, event, ...args) {
-        keepTrying(() => getRoom(username, purpose), 1000, 5, (socket) => socket.emit(event, ...args), () => console.log(`Failed to send ${event} to ${username}-${purpose} with data ${[...args].join(" | ")}`));
+    emitToRoom: function (username, event, ...args) {
+        keepTrying(() => getRoom(username), 1000, 5, (socket) => socket.emit(event, ...args), () => console.log(`Failed to send ${event} to ${username} with data ${[...args].join(" | ")}`));
     },
+    count: () => getCount(),
+    uniqueCount: (requestingUsername) => getUniqueCount(requestingUsername)
 }
 
-function getRoom(username, purpose) {
-    let roomName = username + "-" + purpose.toLowerCase();
+function getCount() {
+    let time = Date.now();
+    let count = io.engine.clientsCount;
+    console.log(`Count took ${Date.now() - time}ms`);
+    return count;
+}
+
+function getUniqueCount(requestingUsername) {
+    let time = Date.now();
+    let unique = Object.entries(Object.fromEntries(io.sockets.adapter.rooms)).filter(([k, v]) => !v.has(k) && !(!!requestingUsername && k === requestingUsername));
+    console.log(`Unique Count took ${Date.now() - time}ms`);
+    return unique.length + (!!requestingUsername ? 1 : 0);
+}
+
+function getRoom(username) {
+    let roomName = username;
     if (exists(roomName)) {
         return io.to(roomName);
     }

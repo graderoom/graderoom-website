@@ -64,6 +64,7 @@
             let onScreenBeforeSetup = onScreenVersion;
             changelogReferences = changelogArray.map(x => $(x));
             changelogContainer.html(changelogReferences);
+            changelogContainer.append(`<div style="height: 100%"></div>`);
             versionDivs = $("#changelogDisplay .changelog-item");
             changelogContainer.animate({scrollTop: 0}, async () => {
                 versionNames = [];
@@ -83,6 +84,20 @@
                         if (name.endsWith(alerts.latestSeen)) {
                             dismissNotifications = false;
                             updateNotifications();
+                            <% if (_betaFeatures.showNotificationPanel) { %>
+                            if (!callback) {
+                                $.ajax({
+                                           url: "/latestVersionSeen", type: "POST", async: true
+                                       }).done((response) => {
+                                    if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
+                                        $(".session-timeout").show();
+                                        $("body").find("*").not(".session-timeout").remove();
+                                        return;
+                                    }
+                                    alerts.latestSeen = versionNames[1].substring(versionNames[1].indexOf(" ") + 1);
+                                });
+                            }
+                            <% } %>
                         }
                     }
                     <% } %>
@@ -106,20 +121,6 @@
                     }
                     versionOffsets[`${name}-legend`] = $(v).offset().top - changelogLegendColumn.offset().top;
                 }
-                <% if (_betaFeatures.showNotificationPanel) { %>
-                if (!callback) {
-                    $.ajax({
-                               url: "/latestVersionSeen", type: "POST", async: true
-                           }).done((response) => {
-                        if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
-                            $(".session-timeout").show();
-                            $("body").find("*").not(".session-timeout").remove();
-                            return;
-                        }
-                        alerts.latestSeen = versionNames[1].substring(versionNames[1].indexOf(" ") + 1);
-                    });
-                }
-                <% } %>
 
                 changelogContainer.unbind("scroll");
                 changelogContainer.on("scroll", function () {
@@ -160,18 +161,7 @@
                 resolve();
             });
             if (!callback) {
-                $("#changelogDisplay").fadeIn(500);
-                if (!callback) {
-                    if (cardsDisplayed.includes("changelogDisplay")) {
-                        cardsDisplayed.splice(cardsDisplayed.indexOf("changelogDisplay"), 1);
-                    }
-                    cardsDisplayed.push("changelogDisplay");
-                    $(".blurred-background").each(function () {
-                        if (cardsDisplayed.includes($($(this).parent())[0].id)) {
-                            $(this).parent().css("z-index", cardsDisplayed.indexOf($($(this).parent())[0].id) + minCardZIndex);
-                        }
-                    });
-                }
+                showCard("#changelogDisplay");
             }
         });
     }

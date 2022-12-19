@@ -1,6 +1,8 @@
 <head>
     <link rel="stylesheet" type="text/css" href="./public/css/christmas_lights.css">
 </head>
+<ul class="lightrope top" <% if (!_appearance.seasonalEffects && (page === "login" || page === "signup")) { %>style="display: none"
+        <% } %>></ul>
 <ul class="lightrope right" <% if (!_appearance.seasonalEffects) { %>style="display: none"
         <% } %>></ul>
 <ul class="lightrope bottom" <% if (!_appearance.seasonalEffects) { %>style="display: none"
@@ -10,6 +12,7 @@
 
 <script>
     let numLights;
+    let showTop = <%= page === "login" || page === "signup" %>;
     function setupLights() {
         if (!appearance.seasonalEffects) return;
         showingLights = true;
@@ -17,26 +20,35 @@
         init = performance.now();
         let numLightsHorizontal = Math.floor(screenWidth / 72 * 2) / 2 + 4;
         let numLightsVertical = Math.floor(screenHeight / 72 * 2) / 2 + 4;
-        numLights = Math.floor(2 * numLightsVertical + numLightsHorizontal);
+        numLights = Math.floor(2 * numLightsVertical + (showTop ? 2 : 1) * numLightsHorizontal);
         let randomExtra = Math.random() * Math.max(numLightsHorizontal, numLightsVertical);
+        let lightsTop = $($('.lightrope.top')[0]);
         let lightsRight = $($('.lightrope.right')[0]);
         let lightsBottom = $($('.lightrope.bottom')[0]);
         let lightsLeft = $($('.lightrope.left')[0]);
+        if (showTop) {
+            lightsTop.html(``);
+        }
         lightsRight.html(``);
         lightsBottom.html(``);
         lightsLeft.html(``);
         for (let light = 0; light < randomExtra; light++) {
+            if (showTop) {
+                lightsTop.append(`<li style="display: none"></li>`);
+            }
             lightsBottom.append(`<li style="display: none"></li>`);
             lightsLeft.append(`<li style="display: none"></li>`);
             lightsRight.append(`<li style="display: none"></li>`);
         }
         for (let light = 0; light < numLightsHorizontal; light++) {
+            if (showTop) {
+                lightsTop.append(`<li></li>`);
+            }
             lightsBottom.append(`<li></li>`);
         }
         for (let light = 0; light < numLightsVertical; light++) {
             lightsRight.append(`<li></li>`);
             lightsLeft.append(`<li></li>`);
         }
-
     }
 </script>

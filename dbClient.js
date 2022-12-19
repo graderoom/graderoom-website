@@ -7,21 +7,12 @@ const stream = require("stream");
 const socketManager = require("./socketManager");
 const scraper = require("./scrape");
 const {SyncStatus, Schools, Constants} = require("./enums");
-const {dbUserVersion, dbClassVersion, minDonoAmount, minPremiumAmount, CHARTS_COLLECTION_NAME,
-    latestVersion, buildStarterNotifications
-} = require("./dbHelpers");
 
 let _url;
 let _prod;
 let _beta;
 let _testing;
 let _client;
-
-// Shared constants to avoid typo bugs
-
-const MAIN_PURPOSE = "main";
-const SYNC_PURPOSE = "sync";
-const NOTI_PURPOSE = "noti";
 
 const {
     makeUser,
@@ -52,8 +43,11 @@ const {
     USERS_COLLECTION_NAME,
     ARCHIVED_USERS_COLLECTION_NAME,
     STABLE_DATABASE_NAME,
+    CHARTS_COLLECTION_NAME,
+    INTERNAL_API_KEYS_COLLECTION_NAME,
     betaFeatureKeys,
-    isNotToday
+    isNotToday, dbUserVersion, dbClassVersion, minDonoAmount, minPremiumAmount,
+    latestVersion, buildStarterNotifications, notificationButton
 } = require("./dbHelpers");
 
 module.exports = {
@@ -88,6 +82,7 @@ module.exports = {
     getUser: (username, projection) => safe(_getUser, lower(username), projection),
     getAllUsers: (projection) => safe(_getAllUsers, projection),
     getChartData: () => safe(_getChartData),
+    getLoggedInData: (isLoggedIn, username) => safe(_getLoggedInData, isLoggedIn, lower(username)),
     userArchived: ({username, schoolUsername}) => safe(_userArchived, {
         username: lower(username), schoolUsername: lower(schoolUsername)
     }),
@@ -180,8 +175,12 @@ module.exports = {
     // API STUFF
     apiPair: (pairKey) => safe(_apiPair, pairKey),
     apiAuthenticate: (apiKey) => safe(_apiAuth, apiKey),
-    apiInfo: (apiKey) => apiGuard(_apiInfo, apiKey)
-};
+    apiInfo: (apiKey) => apiGuard(_apiInfo, apiKey),
+    apiGradesSlim: (apiKey) => apiGuard(_apiGradesSlim, apiKey),
+
+    // INTERNAL API STUFF (DANGEROUS)
+    internalApiAuthenticate: (apiKey) => safe(_internalApiAuth, apiKey),
+}
 
 /**
  * Executes the given function.
@@ -721,6 +720,68 @@ const __version10 = async (db, user) => {
     }
 }
 
+const _version11 = async (db, username) => {
+    let res = await _getUser(db, username, {version: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await __version11(db, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 11`}};
+}
+
+const __version11 = async (db, user) => {
+    if (user.version === 10) {
+        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {$unset: {"notifications": ""}, $set: {"alerts.notifications": buildStarterNotifications(), version: 11}});
+    }
+}
+
+const _version12 = async (db, username) => {
+    let res = await _getUser(db, username, {version: 1, school: 1, grades: 1, weights: 1}, {school: Schools.BISV});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await __version12(db, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 12`}};
+}
+
+const __version12 = async (db, user) => {
+    if (user.version === 11) {
+        let grades = user.grades;
+        let weights = user.weights;
+        let terms = Object.keys(grades);
+        for (let term of terms) {
+            let oldGrades = grades[term]._;
+            let oldWeights = weights[term]._;
+            if (oldGrades) {
+                grades[term].T1 = oldGrades;
+                delete grades[term]._;
+            }
+            if (oldWeights) {
+                weights[term].T1 = oldWeights;
+                delete weights[term]._;
+            }
+            for (let course of grades[term].T1) {
+                if (course.overall_percent === null) {
+                    course.overall_percent = false;
+                } else if (typeof course.overall_percent === "string" && course.overall_percent.slice(-1)[0] === "%") {
+                    course.overall_percent = parseFloat(course.overall_percent.slice(0, -1));
+                }
+            }
+        }
+
+        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {$set: {grades: grades, weights: weights, version: 12}});
+
+        await _initAddedAssignments(db, user.username);
+        await _initEditedAssignments(db, user.username);
+    }
+}
+
 const _initUser = async (db, username) => {
     let res = await _getUser(db, username, {"alerts.tutorialStatus": 1, betaFeatures: 1});
     if (!res.success) {
@@ -811,6 +872,12 @@ const _updateAllUsers = async (db) => {
             }
             if (user.version < 10) {
                 console.log((await _version10(db, user.username)).data.log);
+            }
+            if (user.version < 11) {
+                console.log((await _version11(db, user.username)).data.log);
+            }
+            if (user.version < 12) {
+                console.log((await _version12(db, user.username)).data.log);
             }
         }
         console.log((await _initUser(db, user.username)).data.log);
@@ -933,6 +1000,21 @@ const _updateAllClasses = async (db) => {
     return {success: true};
 };
 
+const _apiGetUser = async (db, apiKey, projection) => {
+    let query = {"api.apiKey": apiKey};
+    if (!!projection) {
+        projection["api.apiKey"] = 1;
+    }
+    let user = await db.collection(USERS_COLLECTION_NAME).findOne(query, projection);
+    if (!user) {
+        return {
+            success: false,
+            data: {log: `No user found with given parameters: apiKey=${apiKey}`}
+        }
+    }
+    return {success: true, data: {value: user}};
+}
+
 const _getUser = async (db, username, projection, additionalQuery) => {
     let query = {username: username};
     if (!!additionalQuery) {
@@ -1000,6 +1082,10 @@ const _getChartData = async (db) => {
     return new Promise(resolve => resolve({
         success: true, data: data}));
 };
+
+const _getLoggedInData = async (db, isLoggedIn, username) => {
+    return {success: true, data: {value: {count: socketManager.count() + (isLoggedIn ? 1 : 0), uniqueCount: socketManager.uniqueCount(username)}}};
+}
 
 const _processChartData = async (db) => {
     let data = await db.collection(CHARTS_COLLECTION_NAME).findOne();
@@ -1272,9 +1358,6 @@ const __getMostRecentTermData = (user) => {
         };
     }
     let term = terms[terms.map(t => parseInt(t.substring(0, 2))).reduce((maxIndex, term, index, arr) => term > arr[maxIndex] ? index : maxIndex, 0)];
-    if (user.school === Schools.BISV) {
-        return {success: true, data: {value: {term: term, semester: "_"}}};
-    }
     let semesters = Object.keys(grades[term]);
     let semester = semesters[semesters.map(s => parseInt(s.substring(1))).reduce((maxIndex, semester, index, arr) => semester > arr[maxIndex] ? index : maxIndex, 0)];
     return {success: true, data: {value: {term: term, semester: semester}}};
@@ -1373,10 +1456,21 @@ const _apiAuth = async (db, apiKey) => {
 };
 
 const _apiInfo = async (db, apiKey) => {
-    let user = await db.collection(USERS_COLLECTION_NAME).findOne({"api.apiKey": apiKey}, {school: 1, donoData: 1});
+    let user = (await _apiGetUser(db, apiKey, {username: 1, school: 1, donoData: 1})).data.value;
     let {premium} = (await __getDonoAttributes(user.donoData)).data.value;
     return {success: true, data: {username: user.username, school: user.school, premium: premium}};
 };
+
+const _internalApiAuth = async (db, apiKey) => {
+    if (typeof apiKey !== "string" && !(apiKey instanceof String) || apiKey.length !== 64) {
+        return {success: false, data: {message: "Invalid API key"}};
+    }
+    let user = await db.collection(INTERNAL_API_KEYS_COLLECTION_NAME).findOne({"apiKey": apiKey});
+    if (user) {
+        return {success: true};
+    }
+    return {success: false};
+}
 
 const _login = async (db, username, password) => {
     return new Promise(async resolve => {
@@ -1971,11 +2065,11 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                     let encryptResp = await _encryptAndStoreSchoolPassword(db, username, schoolPassword, userPassword);
                     if (!encryptResp.success) {
                         await _setSyncStatus(db, username, SyncStatus.FAILED);
-                        socketManager.emitToRoom(username, SYNC_PURPOSE, "fail", encryptResp.data.message);
+                        socketManager.emitToRoom(username, "sync-fail", encryptResp.data.message);
                         return;
                     }
                 }
-                if (data.message === "Your account is no longer active.") {
+                if (data.message === `Your ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"} account is no longer active.`) {
                     await _setSyncStatus(db, username, SyncStatus.ACCOUNT_INACTIVE);
                 } else if (data.message === "No class data.") {
                     await _setSyncStatus(db, username, SyncStatus.NO_DATA);
@@ -1983,8 +2077,8 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                 } else {
                     await _setSyncStatus(db, username, SyncStatus.FAILED);
                 }
-                socketManager.emitToRoom(username, SYNC_PURPOSE, "fail", {
-                    gradeSyncEnabled: gradeSync, message: data.message
+                socketManager.emitToRoom(username, "sync-fail", {
+                    gradeSyncEnabled: data.message !== "Incorrect login details." && gradeSync, message: data.message
                 });
             } else {
                 let newTerm = Object.keys(data.new_grades)[0];
@@ -2047,10 +2141,13 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                 let changeData = {
                     added: added, modified: modified, removed: removed, overall: overall
                 };
-                await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {[`grades.${newTerm}.${newSemester}`]: newGrades}});
                 if (user.school === Schools.BISV) {
-                    let newWeights = data.new_weights[newTerm][newSemester];
-                    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {[`weights.${newTerm}.${newSemester}`]: newWeights}});
+                    newGrades = data.new_grades[newTerm];
+                    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {[`grades.${newTerm}`]: newGrades}})
+                    let newWeights = data.new_weights[newTerm];
+                    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {[`weights.${newTerm}`]: newWeights}});
+                } else {
+                    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {[`grades.${newTerm}.${newSemester}`]: newGrades}});
                 }
                 await _initAddedAssignments(db, username);
                 await _initWeights(db, username);
@@ -2069,13 +2166,13 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                     $push: {"alerts.lastUpdated": {timestamp: time, changeData: changeData, ps_locked: ps_locked}}
                 });
 
-                if (updateHistory) {
+                if (user.school !== Schools.BISV && updateHistory) {
                     await _setSyncStatus(db, username, SyncStatus.HISTORY);
                     await _updateGradeHistory(db, username, schoolPassword);
                 }
 
                 await _setSyncStatus(db, username, SyncStatus.COMPLETE);
-                socketManager.emitToRoom(username, SYNC_PURPOSE, "success", {message: "Updated grades!"});
+                socketManager.emitToRoom(username, "sync-success", {message: "Updated grades!"});
 
                 let _res = await _getUser(db, username, {
                     [`grades.${newTerm}.${newSemester}`]: 1,
@@ -2092,7 +2189,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                     }
                 }
 
-                socketManager.emitToRoom(username, SYNC_PURPOSE, "success", {
+                socketManager.emitToRoom(username, "sync-success", {
                     gradeSyncEnabled: gradeSync,
                     message: data.message,
                     grades: JSON.stringify(_user.grades[newTerm][newSemester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
@@ -2102,7 +2199,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
             }
         } else {
             await _setSyncStatus(db, username, SyncStatus.UPDATING);
-            socketManager.emitToRoom(username, SYNC_PURPOSE, "progress", data);
+            socketManager.emitToRoom(username, "sync-progress", data);
         }
     });
 
@@ -2212,12 +2309,12 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                 await _initEditedAssignments(db, username);
                 await _updateClassesForUser(db, username);
 
-                socketManager.emitToRoom(username, "sync", "success-history", {});
+                socketManager.emitToRoom(username, "sync-success-history", {});
             } else {
-                socketManager.emitToRoom(username, "sync", "fail-history", {message: data.message});
+                socketManager.emitToRoom(username, "sync-fail-history", {message: data.message});
             }
         } else {
-            socketManager.emitToRoom(username, "sync", "progress-history", data);
+            socketManager.emitToRoom(username, "sync-progress-history", data);
         }
     });
 
@@ -2643,7 +2740,7 @@ const _getSyncStatus = async (db, username) => {
     } else if (syncStatus === SyncStatus.HISTORY) {
         return {success: false, data: {message: "Syncing History..."}};
     } else if (syncStatus === SyncStatus.ACCOUNT_INACTIVE) {
-        return {success: false, data: {message: "Your account is no longer active."}};
+        return {success: false, data: {message: `Your ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"} account is no longer active.`}};
     } else if (syncStatus === SyncStatus.NOT_SYNCING) {
         return {success: false, data: {message: "Not syncing"}};
     }
@@ -3409,6 +3506,19 @@ const _addDonation = async (db, username, platform, paidValue, receivedValue, da
         };
     }
 
+    let notification = {
+        id: `${platform}-${dateDonated}-${paidValue}-${receivedValue}`,
+        type: "donation",
+        title: "Thank You!",
+        message: `We received your donation of $${receivedValue.toFixed(2)}! ${notificationButton(`showCard('#settingsCardDisplay'); openTab(2)`, `View in your Account`)}`,
+        dismissible: true,
+        dismissed: false,
+        important: true,
+        pinnable: true,
+        pinned: true,
+        createdDate: dateDonated,
+    };
+
     let res = await db.collection(USERS_COLLECTION_NAME).updateOne({
                                                                        username: username
 
@@ -3419,11 +3529,13 @@ const _addDonation = async (db, username, platform, paidValue, receivedValue, da
                                                                                paidValue: paidValue,
                                                                                receivedValue: receivedValue,
                                                                                dateDonated: dateDonated
-                                                                           }
+                                                                           },
+                                                                           'alerts.notifications': notification
                                                                        }
                                                                    });
 
     if (res.matchedCount === 1) {
+        socketManager.emitToRoom(username, "notification-new", notification);
         return {success: true, data: {message: `Added donation for ${username}`}};
     }
 
@@ -3440,8 +3552,9 @@ const _removeDonation = async (db, username, index) => {
     }
 
     let donoData = res.data.value.donoData;
+    let donation;
     if (index >= 0 && index < donoData.length) {
-        donoData.splice(index, 1);
+        donation = donoData.splice(index, 1)[0];
     } else {
         return {
             success: false, data: {
@@ -3451,7 +3564,10 @@ const _removeDonation = async (db, username, index) => {
         };
     }
 
-    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {donoData: donoData}});
+    let id = `${donation.platform}-${donation.dateDonated}-${donation.paidValue}-${donation.receivedValue}`;
+    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {donoData: donoData}, $pull: {'alerts.notifications': {id: id}}});
+
+    socketManager.emitToRoom(username, "notification-delete", {id: id});
 
     return {
         success: true, data: {message: `Removed donation for ${username}`, log: `Removed donation for ${username}`}

@@ -49,7 +49,7 @@
 <body>
 
 <!-- Admin Navbar -->
-<% include ../partials/admin/admin_navbar.ejs %>
+<%- include('../partials/admin/admin_navbar.ejs', {theme: theme, page: page}); %>
 
 <!-- Main Screen -->
 <div class="container">
