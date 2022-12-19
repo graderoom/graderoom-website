@@ -1,4 +1,4 @@
-<% include ../limited_time/snowfall.ejs %>
+<%- include('../limited_time/snowfall.ejs', {theme: theme, page: page}); %>
 
 <!-- Nav Bar -->
 <nav class="navbar <% if (theme) { %>navbar-dark<% } else { %>navbar-light<% } %> navbar-expand-lg justify-content-center">
@@ -199,49 +199,49 @@
 
 <!-- Cards -->
 <% if (page === "home") { %>
-    <% include sync_grades_card.ejs %>
+    <%- include('sync_grades_card.ejs', {theme: theme}); %>
 <% } %>
 <% if (page === "home") { %>
-    <% include settings_card.ejs %>
+    <%- include('settings_card.ejs', {theme: theme}); %>
 <% } %>
 <% if (page === "home") { %>
-    <% include changelog.ejs %>
+    <%- include('changelog.ejs', {theme: theme}); %>
 <% } %>
 <% if (page === "home") { %>
-    <% include privacy_policy.ejs %>
+    <%- include('privacy_policy.ejs', {theme: theme}); %>
 <% } %>
 <% if (page === "home") { %>
-    <% include terms_and_conditions.ejs %>
+    <%- include('terms_and_conditions.ejs', {theme: theme}); %>
 <% } %>
 <% if (page === "home") { %>
-    <% include feedback_card.ejs %>
+    <%- include('feedback_card.ejs', {theme: theme}); %>
 <% } %>
 <% if (page === "home") { %>
-    <% include whats_new.ejs %>
+    <%- include('whats_new.ejs', {theme: theme}); %>
 <% } %>
 <% if (page === "home") { %>
-    <% include keyboard_shortcuts.ejs %>
+    <%- include('keyboard_shortcuts.ejs', {theme: theme}); %>
 <% } %>
 <% if (page === "home") { %>
-    <% include activate_beta_card.ejs %>
+    <%- include('activate_beta_card.ejs', {theme: theme}); %>
 <% } %>
 <% if (page === "home" || page === "calc") { %>
-    <% include logged_out.ejs %>
+    <%- include('logged_out.ejs', {theme: theme}); %>
 <% } %>
 <% if (page === "home") { %>
-    <% include recent_changes.ejs %>
+    <%- include('recent_changes.ejs', {theme: theme}); %>
 <% } %>
 <% if (page === "home") { %>
-    <% include gpa_details.ejs %>
+    <%- include('gpa_details.ejs', {theme: theme}); %>
 <% } %>
 <% if (page === "home") { %>
-    <% include class_info.ejs %>
+    <%- include('class_info.ejs', {theme: theme}); %>
 <% } %>
 <% if (page === "home" && _alerts.lastUpdated.length > 0) { %>
-    <% include api_key_card.ejs %>
+    <%- include('api_key_card.ejs', {theme: theme}); %>
 <% } %>
 <% if (page === "home") { %>
-    <% include notification_settings_card.ejs %>
+    <%- include('notification_settings_card.ejs', {theme: theme}); %>
 <% } %>
 
 <!-- Custom JavaScript -->
@@ -249,16 +249,16 @@
 
     let submittingForms = {};
 
-    function sendData(socket, event, data) {
+    function sendData(event, data) {
         socket.emit(event, data);
     }
 
     function changeNotiSetting(name, value) {
-        sendData(notiSocket, "settings-change", {[name]: value});
+        sendData("notification-settings-change", {[name]: value});
     }
 
     function changeSetting(name, value) {
-        sendData(mainSocket, "settings-change", {[name]: value});
+        sendData("settings-change", {[name]: value});
     }
 
     function updateGrades(password, schoolPassword, gradeSync) {
@@ -287,7 +287,7 @@
 
         $(`${_gradeSync ? "#syncGradesForm" : "#gradeSyncForm"}`).find("button").prop("disabled", true).find("div").addClass("loading");
 
-        sendData(syncSocket, "start-update", {
+        sendData("start-update", {
             gradeSync: gradeSync, schoolPassword: schoolPassword, userPassword: password
         });
 
@@ -393,6 +393,7 @@
     }
 
     function showCard(id) {
+        disableScrolling();
         if (cardsDisplayed.includes(id.substring(1))) {
             cardsDisplayed.splice(cardsDisplayed.indexOf(id.substring(1)), 1);
         }
@@ -417,10 +418,13 @@
 
     function closeForm(id) {
         if (cardsDisplayed.length && cardsDisplayed.includes(id)) {
+            for (let i = 0; i < cardsDisplayed.length; i++) {
+                $("#" + cardsDisplayed[i]).finish();
+            }
             cardsDisplayed = cardsDisplayed.filter(c => c !== id);
         }
-        for (let i = 0; i < cardsDisplayed.length; i++) {
-            $("#" + cardsDisplayed[i]).finish();
+        if (!cardsDisplayed.length) {
+            enableScrolling();
         }
         let form = $("#" + id);
         form.fadeOut(100);

@@ -139,7 +139,11 @@ td, th {
 }
 
 .card a {
-    color: #222222;
+     color: #222222;
+}
+
+#signup-container .popup a {
+    color: unset;
 }
 
 .card-footer a {
@@ -505,9 +509,8 @@ tr:hover .toolTab {
 }
 
 .dropdown-menu {
-    border: 1px solid black;
     background-color: #333333;
-    box-shadow: 0 0 20px 2px black;
+    box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.3);
 }
 
 .dropdown-divider {
@@ -666,10 +669,7 @@ tr:hover .toolTab {
     box-shadow: 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22), inset 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22);
 }
 
-.notification-card span.notification-dismiss,
-.notification-card span.notification-pin,
-.notification-card span.notification-unpin,
-.notification-card span.notification-undismiss {
+.notification-card :is(span.notification-pin, span.notification-unpin, span.notification-dismiss, span.notification-undismiss) {
     color: transparent;
 }
 
@@ -677,18 +677,16 @@ tr:hover .toolTab {
     background-color: #111111;
 }
 
-.notification-card:hover span.notification-dismiss:hover,
-.notification-card:hover span.notification-pin:hover,
-.notification-card:hover span.notification-unpin:hover,
-.notification-card:hover span.notification-undismiss:hover {
+.notification-card:hover :is(span.notification-pin, span.notification-unpin, span.notification-dismiss, span.notification-undismiss):hover {
     color: #FFFFFF;
 }
 
-.notification-card:hover span.notification-dismiss,
-.notification-card:hover span.notification-pin,
-.notification-card:hover span.notification-unpin,
-.notification-card:hover span.notification-undismiss {
+.notification-card:hover :is(span.notification-pin, span.notification-unpin, span.notification-dismiss, span.notification-undismiss) {
     color: #666666;
+}
+
+.notification-card:hover, #pinned-notifications .notification-card {
+    background-color: #333;
 }
 
 #notifications .divider {
@@ -697,6 +695,17 @@ tr:hover .toolTab {
 
 #notifications hr {
     color: #888888;
+}
+
+.notification-message span {
+    background-color: #bbb;
+    color: #333;
+}
+
+.notification-message span:hover {
+    outline: 1px solid #bbb;
+    background-color: #333;
+    color: #bbb;
 }
 
 /* Mobile Stuff */

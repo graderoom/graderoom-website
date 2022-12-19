@@ -45,18 +45,9 @@
             let versionTitle = $(response)[0].childNodes[0].childNodes[0].innerText;
             versionTitle = versionTitle.substring(versionTitle.indexOf(" ") + 1);
             if (versionTitle !== alerts.latestSeen || force) {
-                $("#latestDisplay").fadeIn(500);
+                showCard("#latestDisplay");
                 latestContainer.html(response);
                 latestContainer.animate({scrollTop: 0}, 0);
-                if (cardsDisplayed.includes("latestDisplay")) {
-                    cardsDisplayed.splice(cardsDisplayed.indexOf("latestDisplay"), 1);
-                }
-                cardsDisplayed.push("latestDisplay");
-                $(".blurred-background").each(function () {
-                    if (cardsDisplayed.includes($($(this).parent())[0].id)) {
-                        $(this).parent().css("z-index", cardsDisplayed.indexOf($($(this).parent())[0].id) + minCardZIndex);
-                    }
-                });
                 $.ajax({
                            url: "/latestVersionSeen", type: "POST", async: true
                        }).done((response) => {

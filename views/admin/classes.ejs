@@ -50,7 +50,7 @@
 <body>
 
 <!-- Admin Navbar -->
-<% include ../partials/admin/admin_navbar.ejs %>
+<%- include('../partials/admin/admin_navbar.ejs', {theme: theme, page: page}); %>
 
 <!-- Term Switcher -->
 <div id="termSwitcher" class="blur">

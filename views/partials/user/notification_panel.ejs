@@ -28,27 +28,47 @@
 
 <script>
     $("#notificationPanel").on("click", function (e) {
-        if ($(e.target).is("#notificationPanel")) {
+        if ($(e.target).is("#notificationPanel:not(.active)") || (!$(e.target).is(".notification-btns span, .notification-message span, .notification-message span b") && $(e.target).parents("#notificationPanel:not(.active) #pinned-notifications .notification-card").length)) {
+            $("#notifications").animate({scrollTop: 0}, 0);
             $("#notificationPanel").addClass("active");
         }
     });
 
     let notifications = {pinned: [], unread: [], dismissed: []};
 
+    let animationDelay = 250;
+
     async function setupNotificationPanel() {
         for (let notification of alerts.notifications) {
-            createNotification(notification.id, notification.type, notification.title, notification.message, notification.dismissible, notification.dismissed, notification.pinnable, notification.pinned, notification.important, notification.createdDate, notification.dismissedDate, false);
+            createNotificationFromServer(notification, false);
         }
         await showChangelog(createChangelogNotifications);
         updateNotifications();
     }
 
+    function createNotificationFromServer(obj, repaint = true, animateIn = false) {
+        createNotification(obj.id, obj.type, obj.title, obj.message, obj.dismissible, obj.dismissed, obj.pinnable, obj.pinned, obj.important, obj.createdDate, obj.dismissedDate, repaint, animateIn);
+    }
+
     function updateNotifications() {
         let lists = ["pinned", "unread", "dismissed"];
         for (let list of lists) {
-            for (let i = notifications[list].length - 1; i >= 0; i--) {
+            for (let i = 0; i < notifications[list].length; i++) {
+                let children = document.getElementById(`${list}-notifications`).children;
                 let notification = notifications[list][i];
-                document.getElementById(`${list}-notifications`).appendChild(notification.ref);
+                // Only move it if it's in the wrong place
+                if (i === 0) {
+                    document.getElementById(`${list}-notifications`).appendChild(notification.ref);
+                } else if (i >= children.length) {
+                    document.getElementById(`${list}-notifications`).insertBefore(notification.ref, notifications[list][i - 1].ref);
+                } else if (notification.ref.nextElementSibling !== notifications[list][i - 1].ref) {
+                    document.getElementById(`${list}-notifications`).insertBefore(notification.ref, notifications[list][i - 1].ref);
+                }
+                setTimeout(() => {
+                    notification.ref.classList.remove("dismissing");
+                    notification.ref.classList.remove("pinning");
+                    notification.ref.classList.remove("incoming");
+                }, animationDelay);
             }
         }
         updateCounts();
@@ -56,13 +76,15 @@
 
     function createChangelogNotifications(_versionNames) {
         let latestSeenIndex = _versionNames.findIndex(v => v.endsWith(alerts.latestSeen));
-        if (latestSeenIndex === -1) latestSeenIndex = 2;
+        if (latestSeenIndex === -1) {
+            latestSeenIndex = 2;
+        }
         for (let i = 1; i < latestSeenIndex; i++) {
             let version = _versionNames[i];
             if (version.startsWith("Stable")) {
                 createPinned(version, "Stable", version, changelogMessage(version), false, false, true, versionDates[i], false);
             } else if (version.startsWith("Beta")) {
-                <% if (beta) { %>createPinned<% } else { %>createUnread<% } %>(version, "Beta", version, changelogMessage(version), false, false, <%= beta ;%>, versionDates[i], false);
+                <% if (beta) { %>createPinned<% } else { %>createUnread<% } %>(version, "Beta", version, changelogMessage(version), false, false, <%= beta; %>, versionDates[i], false);
             } else if (version.startsWith("Announcement")) {
                 createPinned(version, "Announcement", version, changelogMessage(version), false, false, true, versionDates[i], false);
             }
@@ -72,7 +94,7 @@
             if (version.startsWith("Stable")) {
                 createDismissed(version, "Stable", version, changelogMessage(version), false, false, true, versionDates[i], versionDates[latestSeenIndex], false);
             } else if (version.startsWith("Beta")) {
-                createDismissed(version, "Beta", version, changelogMessage(version), false, false, <%= beta ;%>, versionDates[i], versionDates[latestSeenIndex], false);
+                createDismissed(version, "Beta", version, changelogMessage(version), false, false, <%= beta; %>, versionDates[i], versionDates[latestSeenIndex], false);
             } else if (version.startsWith("Announcement")) {
                 createDismissed(version, "Announcement", version, changelogMessage(version), false, false, true, versionDates[i], versionDates[latestSeenIndex], false);
             }
@@ -107,12 +129,7 @@
         } else {
             document.getElementById("notificationPanel").classList.remove("overflowed");
         }
-        document.getElementById("notificationPanel").classList.remove("announcement");
-        document.getElementById("notificationPanel").classList.remove("stable");
-        document.getElementById("notificationPanel").classList.remove("beta");
-        document.getElementById("notificationPanel").classList.remove("sync");
-        document.getElementById("notificationPanel").classList.remove("empty-sync");
-        document.getElementById("notificationPanel").classList.remove("error");
+        document.getElementById("notificationPanel").classList.remove("announcement", "stable", "beta", "sync", "empty-sync", "error", "donation");
 
         if (numNotifications > 0) {
             document.getElementById("notificationPanel").classList.remove("empty");
@@ -121,16 +138,20 @@
         }
     }
 
-    function createNotification(id, type, title, message, dismissible = true, dismissed = false, pinnable = false, pinned = false, important = false, timestamp, dismissedTimestamp, repaint = true) {
+    function createNotification(id, type, title, message, dismissible = true, dismissed = false, pinnable = false, pinned = false, important = false, timestamp, dismissedTimestamp, repaint = true, animateIn = false) {
         let _type = type.toLowerCase();
         let notification = document.createElement("div");
         notification.classList.add("notification-card", _type);
+        if (important) {
+            notification.classList.add("important");
+        }
 
         let header = document.createElement("span");
         header.classList.add("notification-header");
 
         let badge = document.createElement("span");
         badge.classList.add("notification-badge");
+        badge.title = type[0].toUpperCase() + type.slice(1);
 
         let _title = document.createElement("span");
         _title.classList.add("notification-title");
@@ -198,7 +219,7 @@
                 dismissedTimestamp: dismissedTimestamp,
                 ref: notification,
                 closeRef: closeBtn,
-                pinRef: pinBtn,
+                pinRef: pinBtn
             });
             if (closeBtn) {
                 closeBtn.onclick = () => dismiss("pinned", index);
@@ -223,7 +244,7 @@
                 dismissedTimestamp: dismissedTimestamp,
                 ref: notification,
                 closeRef: closeBtn,
-                pinRef: pinBtn,
+                pinRef: pinBtn
             });
             if (closeBtn) {
                 closeBtn.onclick = () => undismiss(index);
@@ -248,7 +269,7 @@
                 dismissedTimestamp: dismissedTimestamp,
                 ref: notification,
                 closeRef: closeBtn,
-                pinRef: pinBtn,
+                pinRef: pinBtn
             });
             if (closeBtn) {
                 closeBtn.onclick = () => dismiss("unread", index);
@@ -260,7 +281,11 @@
         }
 
         if (repaint) {
+            notification.classList.add("incoming");
             updateNotifications();
+            if (animateIn) {
+                setTimeout(() => updateNotifications(), animationDelay);
+            }
         }
     }
 
@@ -308,7 +333,8 @@
         }
 
         if (repaint) {
-            updateNotifications();
+            setTimeout(() => updateNotifications(), animationDelay);
+            notification.ref.classList.add("dismissing");
         }
     }
 
@@ -355,7 +381,8 @@
         }
 
         if (repaint) {
-            updateNotifications();
+            setTimeout(() => updateNotifications(), animationDelay);
+            notification.ref.classList.add("pinning");
         }
     }
 
@@ -401,7 +428,8 @@
         }
 
         if (repaint) {
-            updateNotifications();
+            setTimeout(() => updateNotifications(), animationDelay);
+            notification.ref.classList.add("pinning");
         }
     }
 
@@ -442,7 +470,8 @@
         }
 
         if (repaint) {
-            updateNotifications();
+            setTimeout(() => updateNotifications(), animationDelay);
+            notification.ref.classList.add("pinning");
         }
     }
 
@@ -456,8 +485,29 @@
         return false;
     }
 
+    function deleteById(id, repaint = true) {
+        let lists = ["pinned", "unread", "dismissed"];
+        for (let list of lists) {
+            for (let i = 0; i < notifications[list].length; i++) {
+                if (notifications[list][i].id === id) {
+                    let notification = notifications[list].splice(i, 1)[0];
+                    batchOnClickUpdate(list, i);
+                    if (repaint) {
+                        setTimeout(() => {
+                            updateNotifications();
+                            notification.ref.remove();
+                        }, animationDelay);
+                        notification.ref.classList.add("dismissing");
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     function sendNotificationUpdate(id, data) {
-        sendData(notiSocket, "notification-update", {id: id, data: data});
+        sendData("notification-update", {id: id, data: data});
     }
 
     function batchOnClickUpdate(list, startIndex) {
@@ -484,8 +534,12 @@
                 return;
         }
         for (let i = startIndex; i < notifications[list].length; i++) {
-            if (notifications[list][i].closeRef) notifications[list][i].closeRef.onclick = () => closeFunction(...closeArgs, i);
-            if (notifications[list][i].pinRef) notifications[list][i].pinRef.onclick = () => pinFunction(...pinArgs, i);
+            if (notifications[list][i].closeRef) {
+                notifications[list][i].closeRef.onclick = () => closeFunction(...closeArgs, i);
+            }
+            if (notifications[list][i].pinRef) {
+                notifications[list][i].pinRef.onclick = () => pinFunction(...pinArgs, i);
+            }
         }
     }
 

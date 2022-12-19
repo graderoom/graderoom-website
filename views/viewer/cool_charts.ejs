@@ -62,7 +62,7 @@
 <body>
 
 <% if (page === "charts") { %>
-    <% include ../partials/user/navbar.ejs %>
+    <%- include('../partials/user/navbar.ejs', {theme: theme, page: page}); %>
 <script>
     let alerts = <%- JSON.stringify(_alerts); %>;
     setupTutorialPopups();
@@ -98,7 +98,7 @@
     });
 </script>
 <% } else { %>
-    <% include ../partials/viewer/viewer_navbar.ejs %>
+    <%- include('../partials/viewer/viewer_navbar.ejs', {theme: theme, page: page}); %>
 <% } %>
 <div class="container">
     <br>
@@ -106,15 +106,16 @@
         <h1>
             Usage
         </h1>
-        <h4>A user is considered active for 2 weeks after their most recent login</h4>
+        <h4>A user is considered 'recently active' for 2 weeks after their most recent login</h4>
         <h6 id="user-desc"></h6>
+        <h6 id="curr-logins"></h6>
         <div class="chart-tab tab" style="border-radius: 0.5rem">
             <btn id="btn-0" class="tablinks" onclick="setBounds(0)">5D</btn>
             <btn id="btn-1" class="tablinks" onclick="setBounds(1)">1M</btn>
-            <btn id="btn-2" class="tablinks" onclick="setBounds(2)">6M</btn>
+            <btn id="btn-2" class="tablinks active" onclick="setBounds(2)">6M</btn>
             <btn id="btn-3" class="tablinks" onclick="setBounds(3)">YTD</btn>
             <btn id="btn-4" class="tablinks" onclick="setBounds(4)">1Y</btn>
-            <btn id="btn-4" class="tablinks active" onclick="setBounds(5)">MAX</btn>
+            <btn id="btn-4" class="tablinks" onclick="setBounds(5)">MAX</btn>
         </div>
         <button id="reset-zoom-1" style="display:none; position: absolute; right: 0"
                 class="btn btn-sm" onclick="resetZoom(); $(this).hide()">Reset
@@ -299,8 +300,10 @@
 
         i += Math.max(diffInDays - 1, 0);
     }
-    let updated = new Date(<%= lastUpdated %>);
-    $("#user-desc").text(`${userData.slice(-1)[0].y} total user(s), ${activeUsersData.slice(-1)[0].y} active user(s), as of ${updated.toDateString()}.`);
+    let updated = new Date(<%= lastUpdated - 24 * 60 * 60 * 1000 %>);
+    let count = <%- JSON.stringify(_loggedInData.data.value) %>;
+    $("#user-desc").text(`${userData.slice(-1)[0].y} total user(s), ${activeUsersData.slice(-1)[0].y} recently active user(s), as of ${updated.toDateString()}.`);
+    $("#curr-logins").text(`${count.count} active session(s). ${count.uniqueCount} currently active user(s).`);
     $("#weekday-desc").text(`${weekdayLoginData.reduce((a, b) => a + b, 0)} logins, ${weekdaySyncData.reduce((a, b) => a + b, 0)} syncs all time`)
 
     let chart;
@@ -412,23 +415,28 @@
         if (chart) {
             chart.destroy();
         }
+        let now = Date.now();
+        const dayLength = 24 * 60 * 60 * 1000;
+        now = (now - (now % dayLength));
         chart = new Chart(ctx, {
             type: "line", data: {
                 datasets: dataset
             }, options: {
                 hover: {
-                    mode: "index", intersect: false
+                    mode: "index", intersect: true
                 }, scales: {
                     xAxis: {
                         type: "time", time: {
-                            unit: "year"
+                            unit: "month"
                         }, ticks: {
                             color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
                             fontFamily: "Verdana",
                             fontSize: "13"
                         }, grid: {
                             color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
-                        }
+                        },
+                        max: now,
+                        min: now - 183 * dayLength,
                     }, yAxis: {
                         ticks: {
                             color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
@@ -440,7 +448,8 @@
                         }
                     }
                 }, animation: {
-                    easing: "easeOutCubic"
+                    easing: "easeOutCubic",
+                    duration: 250,
                 }, responsive: true, maintainAspectRatio: true, plugins: {
                     legend: {
                         display: true, position: "top", labels: {
@@ -454,7 +463,7 @@
                             }
                         }
                     }, tooltip: {
-                        enabled: true, mode: "index", intersect: false, displayColors: true, caretSize: 10, callbacks: {
+                        enabled: true, mode: "index", intersect: false, position: "nearest", displayColors: true, caretSize: 10, callbacks: {
                             title: function (tooltipItems) {
                                 return new Date(tooltipItems[0].label).toDateString();
                             }
@@ -465,14 +474,27 @@
                                 enabled: true, speed: 0.05
                             }, pinch: {
                                 enabled: true, threshold: 100
-                            }, drag: {enabled: true}, mode: "xy", onZoom: ({chart}) => {
+                            }, mode: "xy", onZoom: ({chart}) => {
                                 $("#reset-zoom-1").show();
 
                                 // Disable hovering and tooltips to make animation smoother
                                 chart.options.hover.mode = null;
                                 chart.options.plugins.tooltip.enabled = false;
                             }, onZoomComplete: ({chart}) => {
-                                chart.options.hover.mode = "nearest";
+                                chart.options.hover.mode = "index";
+                                chart.options.plugins.tooltip.enabled = true;
+                            }
+                        },
+                        pan: {
+                            enabled: true,
+                            onPan: ({chart}) => {
+                                $("#reset-zoom-1").show();
+
+                                // Disable hovering and tooltips to make animation smoother
+                                chart.options.hover.mode = null;
+                                chart.options.plugins.tooltip.enabled = false;
+                            }, onPanComplete: ({chart}) => {
+                                chart.options.hover.mode = "index";
                                 chart.options.plugins.tooltip.enabled = true;
                             }
                         }
@@ -534,7 +556,7 @@
         chart.options.scales.xAxis.max = max;
         chart.options.scales.xAxis.time.unit = unit;
         chart.options.hover.mode = "index";
-        chart.update();
+        chart.update(0);
 
         // Also hide the reset button
         $("#reset-zoom-1").hide();

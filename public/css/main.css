@@ -1120,12 +1120,7 @@ label.label-active {
 }
 
 .no-scroll {
-    position: fixed;
     overflow: hidden;
-    width: 100%;
-    height: 100%;
-    padding-right: 13px;
-    padding-bottom: 0;
 }
 
 .number-input {
@@ -1341,7 +1336,7 @@ tr:hover .toolTab {
 
 #notificationPanel {
     position: fixed;
-    z-index: 20;
+    z-index: 17;
     top: 0;
     right: -20rem;
     width: 20rem;
@@ -1395,7 +1390,6 @@ tr:hover .toolTab {
     line-height: 1.4rem;
     margin: 0;
     display: block;
-    padding: 0 0.3rem;
     background-clip: padding-box;
     cursor: pointer;
     font-weight: bold;
@@ -1424,6 +1418,10 @@ tr:hover .toolTab {
 
 #notificationPanel.error::after {
     background-color: red;
+}
+
+#notificationPanel.donation::after {
+    background-color: purple;
 }
 
 #notificationPanel.active::before {
@@ -1500,23 +1498,147 @@ tr:hover .toolTab {
 #notificationPanel.active {
     right: 0;
     padding: 2rem 0 0.5rem 0;
+    z-index: 19;
 }
 
 #notifications {
     overflow-y: scroll;
+    overflow-x: hidden;
     height: calc(100% - 6rem);
+}
+
+.notification-text-field {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0.5rem 0;
+}
+
+.notification-button {
+    cursor: pointer;
+}
+
+.notification-button input {
+    width: 8rem;
+    margin: 0;
+}
+
+.notification-button .form-control {
+    margin: 0 0 0 0.5rem;
 }
 
 .notification-card {
     border-radius: 0.5rem;
     min-height: 2.5rem;
-    width: calc(100% - 1.5rem);
+    width: 17.5rem;
     transition: all 250ms ease;
     display: flex;
     flex-flow: column;
     align-items: center;
     justify-content: space-between;
     margin: 1rem;
+}
+
+.notification-message span {
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    display: inline-block;
+    width: 100%;
+    transition: all 250ms ease;
+    text-align: center;
+}
+
+.notification-card.dismissing {
+    min-height: 0;
+    height: 0;
+    margin: 0;
+    transform: translateX(20rem);
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.notification-card.pinning {
+    min-height: 0;
+    height: 0;
+    margin: 0;
+    transform: translateX(-20rem);
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.notification-card.incoming {
+    min-height: 0;
+    height: 0;
+    margin: 0;
+    transform: translateX(20rem);
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+#notificationPanel:not(.active) .notification-card:is(.pinning, .dismissing) {
+    transform: translateX(20rem);
+}
+
+.notification-card:is(.dismissing, .pinning) span {
+    margin: 0;
+    padding: 0;
+}
+
+#pinned-notifications {
+    transition: all 250ms ease-in-out;
+    position: absolute;
+    transform: translateX(-19rem);
+    top: 18rem;
+    z-index: 2;
+    padding: 0;
+    margin: 0;
+    pointer-events: none;
+}
+
+#notificationPanel:not(.active) #pinned-notifications .notification-card {
+    margin-left: 0;
+    margin-right: 0;
+    cursor: pointer;
+    pointer-events: all;
+}
+
+#notificationPanel:not(.active) #pinned-notifications .notification-card:not(:is(:first-child, :nth-child(2), :nth-child(3))) {
+    display: none;
+}
+
+#notificationPanel.active #pinned-notifications {
+    position: static;
+    transform: none;
+    top: 8.5rem;
+    right: 0.5rem;
+    animation: pinsIntoPlace 200ms ease;
+    pointer-events: all;
+}
+
+#notificationPanel #notifications > div:not(#pinned-notifications) {
+    transition: opacity 100ms ease;
+    opacity: 0;
+}
+
+#notificationPanel.active #notifications > div:not(#pinned-notifications) {
+    transition-delay: 300ms;
+    opacity: 1;
+}
+
+@keyframes pinsIntoPlace {
+    from {
+        position: absolute;
+        transform: translateX(-19rem);
+        top: 10rem;
+    }
+    to {
+        position: absolute;
+        top: 8.5rem;
+        right: 0.5rem;
+        transform: none;
+    }
 }
 
 .notification-card span.notification-dismiss,
@@ -1564,9 +1686,9 @@ tr:hover .toolTab {
 }
 
 .notification-card span.notification-badge {
-    border-radius: 0.25rem;
-    width: 0.5rem;
-    height: 0.5rem;
+    border-radius: 0.375rem;
+    width: 0.75rem;
+    height: 0.75rem;
     transition: all 250ms ease;
     position: relative;
     top: 0;
@@ -1576,53 +1698,87 @@ tr:hover .toolTab {
     background-color: orange;
 }
 
+div:not(#dismissed-notifications) > .notification-card.important.announcement {
+    box-shadow: 0 0 10px 1px orange;
+    outline: 1px solid orange;
+}
+
 .notification-card.stable span.notification-badge {
     background-color: green;
+}
+
+div:not(#dismissed-notifications) > .notification-card.important.stable {
+    box-shadow: 0 0 10px 1px green;
+    outline: 1px solid green;
 }
 
 .notification-card.beta span.notification-badge {
     background-color: limegreen;
 }
 
+div:not(#dismissed-notifications) > .notification-card.important.beta {
+    box-shadow: 0 0 10px 1px limegreen;
+    outline: 1px solid limegreen;
+}
+
 .notification-card.sync span.notification-badge {
     background-color: blue;
+}
+
+div:not(#dismissed-notifications) > .notification-card.important.sync {
+    box-shadow: 0 0 10px 1px blue;
+    outline: 1px solid blue;
 }
 
 .notification-card.empty-sync span.notification-badge {
     background-color: lightblue;
 }
 
+div:not(#dismissed-notifications) > .notification-card.important.empty-sync {
+    box-shadow: 0 0 10px 1px lightblue;
+    outline: 1px solid lightblue;
+}
+
 .notification-card.error span.notification-badge {
     background-color: red;
 }
 
-.notification-card:hover {
-    background-color: #333;
+div:not(#dismissed-notifications) > .notification-card.important.error {
+    box-shadow: 0 0 10px 1px red;
+    outline: 1px solid red;
 }
 
-.notification-card:hover .notification-header {
+.notification-card.donation span.notification-badge {
+    background-color: purple;
+}
+
+div:not(#dismissed-notifications) > .notification-card.important.donation {
+    box-shadow: 0 0 10px 1px purple;
+    outline: 1px solid purple;
+}
+
+.notification-card:hover .notification-header, #pinned-notifications .notification-card .notification-header {
     border-radius: 0.5rem 0.5rem 0 0;
     transition-delay: 0s;
 }
 
-.notification-card:hover div.notification-body {
+.notification-card:hover div.notification-body, #pinned-notifications .notification-card div.notification-body {
     max-height: 10rem;
 }
 
 .notification-card .notification-btns {
+    width: 2.5rem;
     display: flex;
     flex-flow: column;
     align-items: flex-start;
     justify-content: flex-start;
 }
 
-.notification-card span.notification-pin,
-.notification-card span.notification-unpin,
-.notification-card span.notification-dismiss,
-.notification-card span.notification-undismiss {
+.notification-card :is(span.notification-pin, span.notification-unpin, span.notification-dismiss, span.notification-undismiss) {
     padding: 0.5rem;
-    margin: 0;
+    margin: 0 auto;
     cursor: pointer;
+    font-size: 1.5rem;
 }
 
 .notification-card span.notification-dismiss::after {
@@ -1662,8 +1818,8 @@ tr:hover .toolTab {
     font-weight: bold;
 }
 
-#notifications .divider:not(:first-child) {
-    margin-top: 2rem;
+#notifications .divider {
+     margin-top: 0;
 }
 
 #notifications hr {
@@ -1893,12 +2049,12 @@ input:checked + .slider:before {
     color: transparent;
 }
 
-.form-weights input[type="number"] {
+input[type="number"] {
     -moz-appearance: textfield;
 }
 
-.form-weights input[type="number"]::-webkit-outer-spin-button,
-.form-weights input[type="number"]::-webkit-inner-spin-button {
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
@@ -1977,16 +2133,6 @@ input:checked + .slider:before {
     border-bottom: 1px solid;
     margin-bottom: -1px;
     padding: .1rem .1rem;
-}
-
-#weightsCard input[type="number"] {
-    -moz-appearance: textfield;
-}
-
-#weightsCard input[type="number"]::-webkit-outer-spin-button,
-#weightsCard input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
 }
 
 #weightsCard label h5 i::after {
@@ -2162,7 +2308,6 @@ tr:hover .excludeToggle .fa-ban {
     50% {
         opacity: 0.75;
         transform: translateY(calc(50% + 2.6rem)) scale(1.05) translateX(-50%);
-
     }
     70% {
         opacity: 1;
@@ -2213,6 +2358,16 @@ tr:hover .excludeToggle .fa-ban {
     text-align: left !important;
 }
 
+.addedAssignmentAnimation {
+    animation: addedAssignmentFlash 1s ease-in-out both 2;
+}
+
+@keyframes addedAssignmentFlash {
+    50% {
+        background-color: rgba(84, 215, 84, 0.69);
+    }
+}
+
 .addCategory, .addDonationPlatform {
     margin: 0.5rem 0 0 0 !important;
 }
@@ -2254,8 +2409,8 @@ tr:hover .excludeToggle .fa-ban {
     margin-left: 1rem;
 }
 
-.add-assignment-container input {
-     width: 0;
+.add-assignment-container input:not([type=checkbox]) {
+    width: 0;
 }
 
 .popup-holder > span, .popup-holder-vert > span {
@@ -2897,7 +3052,7 @@ input:disabled {
 }
 
 .dropdown {
-    z-index: 19;
+    z-index: 24;
 }
 
 .dropdown-menu {
@@ -2959,13 +3114,19 @@ input:disabled {
     border-radius: 0.5rem;
 }
 
-#login-container {
+#login-container, #signup-container {
     display: flex;
     justify-content: center; /* space-between */
     position: absolute;
-    top: 40%;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(-60%);
+}
+
+#signup-container .card {
+    top: 50%;
+    transform: translateY(-60%);
+    margin: 0 !important;
 }
 
 .recent-changes-date-holder {
@@ -3813,7 +3974,7 @@ input:disabled {
 
 /* Small window stuff */
 @media only screen and (max-height: 730px) {
-    #login-container {
+    #login-container, #signup-container {
         position: static;
         transform: none;
     }

@@ -46,6 +46,41 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 5.7.0] - 2022-12-18
+### Added
+- Support for Trimester separation for BISV students
+- Support for empty courses for BISV students
+- Analytics now show number of users/sessions currently active
+- <em>[Experiment]</em> Notification Panel<ul>
+- Pinned notifications are now actually pinned
+- Notifications have more animations when pinning/unpinning/dismissing/undismissing
+- Notification action buttons are larger
+- Notification actions are way more efficient now
+- Added notifications for Donation Thank You messages</ul>
+
+### Improved
+- Tweaked snow color slightly and improved fps. You probably won't notice.
+- Christmas Lights now have a top row on login/signup pages
+- Changed default analytics chart zoom to 6 months and sped up some animations
+- Analytics chart now allows panning the graph instead of drawing a box for zoom
+- Older semesters that only have overall grades have better-looking overview charts now.
+- Add assignment button is disabled when a class has no weights
+- Class info button now always functions properly
+- Point-based toggle has a normal hitbox now
+- Added assignment animation
+- Users now have only one socket per session for efficiency
+- Notification tutorial
+- Your session should stay alive for longer if you load the page again
+- Background page can no longer be scrolled while a card is displayed
+- Choosing login/signup from charts or final grade calc and then logging in now returns you to the page you were previously on
+
+### Fixed
+- Issue where 'GradeSync Enabled' message would show when incorrect login details were entered
+- Issue with calculation if a weighted category had 0/0 points.
+- Credit/Empty classes no longer show in the overview chart
+- Issue with exclude button not displaying in the 'Add Assignment' popup
+- Issue with CMD+# shortcuts being overridden by Graderoom on Mac
+
 ## [Beta 5.6.0] - 2022-12-10
 ### Added
 - <em>[Experiment]</em> Notification Panel<ul>

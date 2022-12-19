@@ -1,112 +1,103 @@
 const dbClient = require("./dbClient");
 const socketManager = require("./socketManager");
 module.exports = {
-    setupSocket: function (socket, purpose) {
+    setupSocket: function (socket) {
         if (process.env.NODE_ENV !== "production") {
-            logSocket(socket, purpose);
+            logSocket(socket);
         }
-        purpose = purpose.toLowerCase(); // Just in case
-        switch (purpose) {
-            case "main":
-                socket.on("settings-change", async (data) => {
-                    let keys = Object.keys(data);
-                    for (let key of keys) {
-                        let value = data[key];
-                        let resp;
-                        switch (key) {
-                            case "enableLogging":
-                                resp = await dbClient.setEnableLogging(socket.request.user.username, value);
-                                break;
-                            case "animateWhenUnfocused":
-                                resp = await dbClient.setAnimateWhenUnfocused(socket.request.user.username, value);
-                                break;
-                            case "showFps":
-                                resp = await dbClient.setShowFps(socket.request.user.username, value);
-                                break;
-                            case "theme":
-                                let {theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects} = value;
-                                resp = await dbClient.setTheme(socket.request.user.username, theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects);
-                                break;
-                            case "regularizeClassGraphs":
-                                resp = await dbClient.setRegularizeClassGraphs(socket.request.user.username, value);
-                                break;
-                            case "showPlusMinusLines":
-                                resp = await dbClient.setShowPlusMinusLines(socket.request.user.username, value);
-                                break;
-                            case "reduceMotion":
-                                resp = await dbClient.setReduceMotion(socket.request.user.username, value);
-                                break;
-                        }
-                        if (resp.success) {
-                            socketManager.emitToRoom(socket.request.user.username, purpose, "success-settingschange", resp.data);
-                        } else {
-                            socketManager.emitToRoom(socket.request.user.username, purpose, "fail-settingschange", resp.data);
-                        }
-                    }
-                });
-                break;
-            case "sync":
-                socket.on("start-update", async (data) => {
-                    let username = socket.request.user.username;
-                    let gradeSync = data.gradeSync;
-                    let schoolPass = data.schoolPassword;
-                    let userPass = data.userPassword;
+        socket.on("settings-change", async (data) => {
+            let keys = Object.keys(data);
+            for (let key of keys) {
+                let value = data[key];
+                let resp;
+                switch (key) {
+                    case "enableLogging":
+                        resp = await dbClient.setEnableLogging(socket.request.user.username, value);
+                        break;
+                    case "animateWhenUnfocused":
+                        resp = await dbClient.setAnimateWhenUnfocused(socket.request.user.username, value);
+                        break;
+                    case "showFps":
+                        resp = await dbClient.setShowFps(socket.request.user.username, value);
+                        break;
+                    case "theme":
+                        let {theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects} = value;
+                        resp = await dbClient.setTheme(socket.request.user.username, theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects);
+                        break;
+                    case "regularizeClassGraphs":
+                        resp = await dbClient.setRegularizeClassGraphs(socket.request.user.username, value);
+                        break;
+                    case "showPlusMinusLines":
+                        resp = await dbClient.setShowPlusMinusLines(socket.request.user.username, value);
+                        break;
+                    case "reduceMotion":
+                        resp = await dbClient.setReduceMotion(socket.request.user.username, value);
+                        break;
+                }
+                if (resp?.success) {
+                    socketManager.emitToRoom(socket.request.user.username, "success-settings-change", resp.data);
+                } else {
+                    socketManager.emitToRoom(socket.request.user.username, "fail-settings-change", resp.data);
+                }
+            }
+        });
+        socket.on("start-update", async (data) => {
+            let username = socket.request.user.username;
+            let gradeSync = data.gradeSync;
+            let schoolPass = data.schoolPassword;
+            let userPass = data.userPassword;
 
-                    if (userPass) {
-                        if (gradeSync) {
-                            let resp = await dbClient.login(username, userPass);
-                            if (!resp.success) {
-                                socketManager.emitToRoom(username, purpose, "fail-general", {message: resp.data.message});
-                                return;
-                            }
-                        } else {
-                            let resp = await dbClient.decryptAndGetSchoolPassword(username, userPass);
-                            if (resp.success) {
-                                schoolPass = resp.data.value;
-                            } else {
-                                socketManager.emitToRoom(username, purpose, "fail-general", {message: resp.data.message});
-                                return;
-                            }
-                        }
+            if (userPass) {
+                if (gradeSync) {
+                    let resp = await dbClient.login(username, userPass);
+                    if (!resp?.success) {
+                        socketManager.emitToRoom(username, "fail-general", {message: resp.data.message});
+                        return;
                     }
+                } else {
+                    let resp = await dbClient.decryptAndGetSchoolPassword(username, userPass);
+                    if (resp?.success) {
+                        schoolPass = resp.data.value;
+                    } else {
+                        socketManager.emitToRoom(username, "fail-general", {message: resp.data.message});
+                        return;
+                    }
+                }
+            }
 
-                    await dbClient.updateGrades(username, schoolPass, userPass, gradeSync);
-                })
-                break;
-            case "noti":
-                socket.on("settings-change", async (data) => {
-                    let keys = Object.keys(data);
-                    for (let key of keys) {
-                        let value = data[key];
-                        let resp;
-                        switch (key) {
-                            case "showUpdatePopup":
-                                resp = await dbClient.setShowUpdatePopup(socket.request.user.username, value);
-                                break;
-                        }
-                        if (resp.success) {
-                            socketManager.emitToRoom(socket.request.user.username, purpose, "success-settingschange", resp.data);
-                        } else {
-                            socketManager.emitToRoom(socket.request.user.username, purpose, "fail-settingschange", resp.data);
-                        }
-                    }
-                });
-                socket.on("notification-update", async (data) => {
+            await dbClient.updateGrades(username, schoolPass, userPass, gradeSync);
+        })
+        socket.on("notification-settings-change", async (data) => {
+            let keys = Object.keys(data);
+            for (let key of keys) {
+                let value = data[key];
+                let resp;
+                switch (key) {
+                    case "showUpdatePopup":
+                        resp = await dbClient.setShowUpdatePopup(socket.request.user.username, value);
+                        break;
+                }
+                if (resp?.success) {
+                    socketManager.emitToRoom(socket.request.user.username, "success-notification-settings-change", resp.data);
+                } else {
+                    socketManager.emitToRoom(socket.request.user.username, "fail-notification-settings-change", resp.data);
+                }
+            }
+        });
+        socket.on("notification-update", async (data) => {
                     let id = data.id;
                     let update = data.data;
                     let resp = await dbClient.updateNotification(socket.request.user.username, id, update);
-                    if (resp.success) {
-                        socketManager.emitToRoom(socket.request.user.username, purpose, "success-notificationupdate", resp.data);
+                    if (resp?.success) {
+                        socketManager.emitToRoom(socket.request.user.username, "success-notification-update", resp.data);
                     } else {
-                        socketManager.emitToRoom(socket.request.user.username, purpose, "fail-notificationupdate", resp.data);
+                        socketManager.emitToRoom(socket.request.user.username, "fail-notification-update", resp.data);
                     }
                 });
-                break;
-        }
     },
 }
 
-function logSocket(socket, socketName) {
+function logSocket(socket) {
 
     function displayNicely(...args) {
         return args.map(arg => {
@@ -116,13 +107,13 @@ function logSocket(socket, socketName) {
 
     socket.onAny((event, ...args) => {
         if (event.startsWith("info")) {
-            console.info(socketName + " | " + event + " | " + displayNicely(...args).join(" | "));
+            console.info(event + " | " + displayNicely(...args).join(" | "));
         } else if (event.startsWith("error")) {
-            console.error(socketName + " | " + event + " | " + displayNicely(...args).join(" | "));
+            console.error(event + " | " + displayNicely(...args).join(" | "));
         } else if (event.startsWith("fail")) {
-            console.warn(socketName + " | " + event + " | " + displayNicely(...args).join(" | "));
+            console.warn(event + " | " + displayNicely(...args).join(" | "));
         } else {
-            console.log(socketName + " | " + event + " | " + displayNicely(...args).join(" | "));
+            console.log(event + " | " + displayNicely(...args).join(" | "));
         }
     });
 }

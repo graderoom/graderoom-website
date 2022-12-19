@@ -9,6 +9,7 @@ const {Schools} = require("./enums");
 exports.USERS_COLLECTION_NAME = "users";
 exports.CLASSES_COLLECTION_NAME = "classes";
 exports.CHARTS_COLLECTION_NAME = "charts";
+exports.INTERNAL_API_KEYS_COLLECTION_NAME = "internal"
 exports.ROUNDS_TO_GENERATE_SALT = 10;
 exports.USERS_COLLECTION_NAME = "users";
 exports.ARCHIVED_USERS_COLLECTION_NAME = "archived_users";
@@ -20,7 +21,7 @@ exports.TEST_DATABASE_NAME = "test";
 exports.COMMON_DATABASE_NAME = "common";
 
 // Change this when updateDB changes
-exports.dbUserVersion = 10;
+exports.dbUserVersion = 12;
 exports.dbClassVersion = 2;
 
 exports.minDonoAmount = 3;
@@ -582,8 +583,8 @@ exports.buildStarterNotifications = () => {
     return [{
         id: "starter0",
         type: "announcement",
-        title: "Hover Me!",
-        message: "Welcome to your Notification Panel! All your notifications will appear here. Use the icon on the right to dismiss this.",
+        title: "Notification!",
+        message: "This is a pinned notification. Click on it to open the notification panel.",
         dismissible: true,
         dismissed: false,
         important: true,
@@ -593,25 +594,48 @@ exports.buildStarterNotifications = () => {
     },{
         id: "starter1",
         type: "announcement",
-        title: "Hover Me Next!",
-        message: "Some notifications cannot be manually dismissed and require you to take some kind of action.<br><br>" +
-                 "<span style=\"cursor: pointer\" onclick=\"dismissById('starter1')\"><b><i class=\"fa fa-external-link-square\"></i> Click Me to Dismiss!</b></span>",
-        dismissible: false,
+        title: "Hover Me!",
+        message: "Important notifications will glow. Most notifications will have actions on the right. Hover them to see what they do.",
+        dismissible: true,
         dismissed: false,
         important: true,
         pinnable: true,
-        pinned: true,
+        pinned: false,
         createdDate: -2,
     },{
         id: "starter2",
         type: "announcement",
+        title: "Hover Me Next!",
+        message: "Some notifications require you to take some kind of action." +
+                 this.notificationButton(`dismissById('starter2')`, `Click Me to Dismiss!`),
+        dismissible: false,
+        dismissed: false,
+        important: false,
+        pinnable: false,
+        pinned: false,
+        createdDate: -3,
+    },{
+        id: "starter3",
+        type: "announcement",
         title: "Hover Me Last!",
-        message: "This is what most of your notifications will look like. The color on the top left signifies the notification type. Most notifications can be pinned or dismissed",
+        message: "This is what most of your notifications will look like. The color on the top left signifies the notification type. Hover each to see what they mean.",
         dismissible: true,
         dismissed: false,
         important: false,
         pinnable: true,
         pinned: false,
-        createdDate: -3,
+        createdDate: -4,
     }];
+}
+
+exports.notificationButton = function (onclickString, innerText) {
+    return `<br><span class="notification-button" onclick="${onclickString}"><b><i class=\"fa fa-external-link-square\"></i> ${innerText}</b></span>`
+}
+
+exports.notificationTextField = function (onsubmitString, inputType, placeholderText) {
+    return `<br>
+            <div class="form-group notification-text-field">
+            <input type="${inputType}" placeholder="${placeholderText}" class="form-control">
+            <btn onclick="${onsubmitString}" class="btn btn-sm">Submit</btn>
+            </div>`;
 }

@@ -5,23 +5,21 @@ const _ = require("lodash");
 const SunCalc = require("suncalc");
 const {changelog, latestVersion} = require("./dbHelpers");
 const {Schools, PrettySchools, SchoolAbbr} = require("./enums");
+const url = require("url");
 
 module.exports = function (app, passport) {
 
     // normal routes ===============================================================
 
     // show the home page (will also have our login links)
-    app.get("/", async (req, res) => {
-
+    app.get("/", [checkReturnTo], async (req, res) => {
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
 
         if (req.isAuthenticated()) {
-
-            let returnTo = req.session.returnTo;
-            delete req.session.returnTo;
-            if (returnTo) {
-                res.redirect(returnTo);
-                return;
+            req.session.touch();
+            if (req.session.returnTo) {
+                delete req.session.returnTo;
+                return res.redirect(req.session.returnTo);
             }
 
             let gradeHistoryLetters = {};
@@ -39,7 +37,7 @@ module.exports = function (app, passport) {
                 gradeHistoryLetters[t] = {};
                 for (let j = 0; j < Object.keys(req.user.grades[t]).length; j++) {
                     let s = Object.keys(req.user.grades[t])[j];
-                    if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) > semester.substring(1) && semester !== "_")) {
+                    if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) > semester.substring(1))) {
                         continue;
                     }
                     gradeHistoryLetters[t][s] = [];
@@ -52,7 +50,7 @@ module.exports = function (app, passport) {
             }
 
             if (term && semester) {
-                let filteredGrades = req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length);
+                let filteredGrades = req.user.grades[term][semester].filter(grades => (!(["CR", false]).includes(grades.overall_letter) && grades.overall_percent !== false) || grades.grades.length);
                 let filteredWeights = req.user.weights[term][semester].filter(weights => filteredGrades.map(g => g.class_name).includes(weights.className));
 
                 let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
@@ -236,7 +234,7 @@ module.exports = function (app, passport) {
                 gradeHistoryLetters[t] = {};
                 for (let j = 0; j < Object.keys(user.grades[t]).length; j++) {
                     let s = Object.keys(user.grades[t])[j];
-                    if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) > semester.substring(1) && semester !== "_")) {
+                    if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) > semester.substring(1))) {
                         continue;
                     }
                     gradeHistoryLetters[t][s] = [];
@@ -346,8 +344,7 @@ module.exports = function (app, passport) {
     });
 
     app.get("/logout", [isLoggedIn], (req, res) => {
-        req.logout();
-        res.redirect(req.headers.referer ?? "/");
+        req.logout(() => res.redirect(req.headers.referer ?? "/"));
     });
 
     app.post("/archiveUser", [isAdmin], async (req, res) => {
@@ -751,7 +748,6 @@ module.exports = function (app, passport) {
                 });
             }
         } else {
-            req.session.returnTo = req.originalUrl;
             res.render("viewer/final_grade_calculator_logged_out.ejs", {
                 _appearance: {seasonalEffects: true},
                 page: "logged_out_calc",
@@ -900,6 +896,7 @@ module.exports = function (app, passport) {
                 _activeUsersData: activeUsersData,
                 _schoolData: schoolData,
                 _gradData: gradData,
+                _loggedInData: await dbClient.getLoggedInData(true, req.user.username),
                 sunset: sunset,
                 sunrise: sunrise,
                 plus: plus,
@@ -920,6 +917,7 @@ module.exports = function (app, passport) {
                 _activeUsersData: activeUsersData,
                 _schoolData: schoolData,
                 _gradData: gradData,
+                _loggedInData: await dbClient.getLoggedInData(false, null),
                 sunset: sunset,
                 sunrise: sunrise,
                 lastUpdated: lastUpdated.getTime(),
@@ -1069,119 +1067,7 @@ module.exports = function (app, passport) {
         res.redirect("/forgot_password");
     });
 
-    /** Api stuff (maybe temp) */
-    // app.get("/api/status", [isApiLoggedIn], (req, res) => {
-    //     res.sendStatus(200);
-    // });
-    //
-    // app.get("/api/settings", [isApiLoggedIn], (req, res) => {
-    //     let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
-    //     sunrise = sunrise.getTime();
-    //     sunset = sunset.getTime();
-    //     let settings = {
-    //         username: req.user.username,
-    //         schoolUsername: req.user.schoolUsername,
-    //         isAdmin: req.user.isAdmin,
-    //         personalInfo: JSON.stringify(req.user.personalInfo),
-    //         appearance: JSON.stringify(req.user.appearance),
-    //         alerts: JSON.stringify(req.user.alerts),
-    //         gradeSync: !!req.user.schoolPassword,
-    //         sortingData: JSON.stringify(req.user.sortingData),
-    //         beta: server.beta,
-    //         betaFeatures: JSON.stringify(req.user.betaFeatures),
-    //         sunset: sunset,
-    //         sunrise: sunrise
-    //     };
-    //     res.status(200).send(JSON.stringify(settings));
-    // });
-
-    // app.get("/api/general", [isApiLoggedIn], async (req, res) => {
-    //     let gradeHistoryLetters = {};
-    //     let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data.value;
-    //     for (let i = 0; i < Object.keys(req.user.grades).length; i++) {
-    //         let t = Object.keys(req.user.grades)[i];
-    //         gradeHistoryLetters[t] = {};
-    //         for (let j = 0; j < Object.keys(req.user.grades[t]).length; j++) {
-    //             let s = Object.keys(req.user.grades[t])[j];
-    //             if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) > semester.substring(1))) {
-    //                 continue;
-    //             }
-    //             gradeHistoryLetters[t][s] = [];
-    //             for (let k = 0; k < req.user.grades[t][s].length; k++) {
-    //                 let next = {};
-    //                 next[req.user.grades[t][s][k].class_name] = req.user.grades[t][s][k].overall_letter;
-    //                 gradeHistoryLetters[t][s].push(next);
-    //             }
-    //         }
-    //     }
-    //     let data = {
-    //         termsAndSemesters: JSON.stringify(Object.keys(req.user.grades).map(term => {
-    //             let semesters = Object.keys(req.user.grades[term]).filter(s => req.user.grades[term][s].filter(grades => !(["CR", false]).includes(grades.overall_letter) ||
-    // grades.grades.length).length); let sortedSemesters = semesters.sort((a, b) => { return a.substring(1) < b.substring(1) ? -1 : 1; }); return [term, sortedSemesters]; }).sort((a, b) =>
-    // a[0].substring(3) < b[0].substring(3) ? -1 : 1)), term: term, semester: semester, gradeData: JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR",
-    // false]).includes(grades.overall_letter) || grades.grades.length)), weightData: JSON.stringify(req.user.weights[term][semester]), addedAssignments:
-    // JSON.stringify(req.user.addedAssignments[term][semester]), editedAssignments: JSON.stringify(req.user.editedAssignments[term][semester]), gradeHistory: JSON.stringify(gradeHistoryLetters),
-    // relevantClassData: JSON.stringify((await dbClient.getRelevantClassData(req.user.username, term, semester)).data.value) }; res.status(200).send(JSON.stringify(data)); });
-
-    // app.get("/api/grades", [isApiLoggedIn], async (req, res) => {
-    //     let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data.value;
-    //     res.status(200).send(JSON.stringify(req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)));
-    // });
-
-    // app.get("/api/checkUpdateBackground", [isApiLoggedIn], async (req, res) => {
-    //     let resp = await dbClient.getSyncStatus(req.user.username);
-    //     let user = (await dbClient.getUser(req.user.username)).data.value;
-    //     let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data.value;
-    //     if (term && semester && resp.data.message === "Sync Complete!") {
-    //         res.status(200).send({
-    //                                  message: resp.data.message,
-    //                                  grades: JSON.stringify(user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length)),
-    //                                  weights: JSON.stringify(user.weights[term][semester]),
-    //                                  updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
-    //                              });
-    //     } else if (term && semester && resp.data.message === "Already Synced!") {
-    //         res.status(200).send({
-    //                                  message: resp.data.message,
-    //                                  updateData: JSON.stringify(user.alerts.lastUpdated.slice(-1)[0])
-    //                              });
-    //     } else {
-    //         res.status(200).send({
-    //                                  message: resp.data.message
-    //                              });
-    //     }
-    // });
-
-    // function isApiLoggedIn(req, res, next) {
-    //     if (req.isAuthenticated()) {
-    //         return next();
-    //     }
-    //     res.sendStatus(401);
-    // }
-
-    // app.post("/api/login", (req, res, next) => {
-    //     passport.authenticate("local-login", (err, user) => {
-    //         if (err) {
-    //             return next(err);
-    //         }
-    //         if (!user) {
-    //             return res.sendStatus(401);
-    //         }
-    //         req.logIn(user, (err) => {
-    //             if (err) {
-    //                 return next(err);
-    //             }
-    //             return res.sendStatus(200);
-    //         });
-    //     })(req, res, next);
-    // });
-
-    // app.get("/api/logout", (req, res) => {
-    //     req.logout();
-    //     res.sendStatus(200);
-    // });
-    /** End api stuff */
-
-    // Actual api stuff?
+    // Actual api stuff
     app.post("/api/pair", async (req, res) => {
         let pairingKey = req.body.pairingKey;
         let resp = await dbClient.apiPair(pairingKey);
@@ -1192,19 +1078,19 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.get("/api/info", async (req, res) => {
-        let apiKey = req.headers['x-api-key'];
-        let resp = await dbClient.apiInfo(apiKey);
-        if (!resp.success) {
-            if (resp.data.message === "Authentication failed") {
-                res.status(401).send(resp.data.message);
-            } else {
-                res.status(400).send(resp.data.message);
-            }
-        } else {
-            res.status(200).send(resp.data);
-        }
+    app.get("/api/info", [isApiAuthenticated], async (req, res) => {
+        let resp = await dbClient.apiInfo(req.apiKey);
+        apiRespond(res, resp);
     });
+
+    app.get("/api/grades/slim", [isApiAuthenticated], async (req, res) => {
+        let resp = await dbClient.apiGradesSlim(req.apiKey);
+        apiRespond(res, resp);
+    });
+
+    app.get("/api/internal/initiate-discord-pairing", [isInternalApiAuthenticated], async (req, res) => {
+
+    })
 
     app.get("/api/*", (req, res) => {
         res.sendStatus(404);
@@ -1217,9 +1103,20 @@ module.exports = function (app, passport) {
     // general web app
 
     app.get("/*", (req, res) => {
-        req.session.returnTo = req.originalUrl;
         res.redirect(req.headers.referer ?? "/");
     });
+
+    function apiRespond(res, resp) {
+        if (!resp.success) {
+            if (resp.data.message === "Authentication failed") {
+                res.status(401).send(resp.data.message);
+            } else {
+                res.status(400).send(resp.data.message);
+            }
+        } else {
+            res.status(200).send(resp.data);
+        }
+    }
 
     // route middleware to ensure user is logged in
     function isLoggedIn(req, res, next) {
@@ -1231,6 +1128,26 @@ module.exports = function (app, passport) {
             return next();
         }
         res.redirect("/");
+    }
+
+    async function isApiAuthenticated(req, res, next) {
+        let apiKey = req.headers['x-api-key'];
+        let resp = await dbClient.apiAuthenticate(apiKey);
+        if (resp.success) {
+            req.apiKey = apiKey;
+            return next();
+        }
+        res.sendStatus(401);
+    }
+
+    async function isInternalApiAuthenticated(req, res, next) {
+        let apiKey = req.headers['x-internal-api-key'];
+        let resp = await dbClient.internalApiAuthenticate(apiKey);
+        if (resp.success) {
+            req.internalApiKey = apiKey;
+            return next();
+        }
+        res.sendStatus(401);
     }
 
     // temp middleware to prevent routes from happening if using query to view old semesters
@@ -1260,4 +1177,12 @@ function getSunriseAndSunset() {
     let sunrise = new Date("0/" + times.sunrise.getHours() + ":" + times.sunrise.getMinutes());
     let sunset = new Date("0/" + times.sunset.getHours() + ":" + times.sunset.getMinutes());
     return {sunrise: sunrise, sunset: sunset};
+}
+
+function checkReturnTo(req, res, next) {
+    let returnTo = url.parse(req.headers.referer, true).query.returnTo;
+    if (returnTo && returnTo.startsWith("/")) {
+        req.session.returnTo = returnTo;
+    }
+    next();
 }

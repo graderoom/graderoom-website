@@ -27,7 +27,7 @@
 </head>
 <body>
 
-<% include ../partials/viewer/viewer_navbar.ejs %>
+<%- include('../partials/viewer/viewer_navbar.ejs', {theme: theme, page: page}); %>
 <div class="container h-100 d-flex justify-content-center">
     <div class="col-sm-10 col-md-9 col-lg-8 col-xl-7">
         <div class="card card-signin my-5">
