@@ -46,8 +46,8 @@ const {
     CHARTS_COLLECTION_NAME,
     INTERNAL_API_KEYS_COLLECTION_NAME,
     betaFeatureKeys,
-    isNotToday, dbUserVersion, dbClassVersion, minDonoAmount, minPremiumAmount,
-    latestVersion, buildStarterNotifications, notificationButton
+    isNotToday, dbUserVersion, dbClassVersion,
+    latestVersion, buildStarterNotifications, notificationButton, notificationTextField, donoHelper
 } = require("./dbHelpers");
 
 module.exports = {
@@ -114,6 +114,7 @@ module.exports = {
     setShowFps: (username, value) => safe(_setShowFps, lower(username), value),
     setShowUpdatePopup: (username, value) => safe(_setShowUpdatePopup, lower(username), value),
     updateNotification: (username, id, update) => safe(_updateNotification, lower(username), id, update),
+    deleteNotification: (username, id) => safe(_deleteNotification, lower(username), id),
     changePassword: (username, oldPassword, newPassword) => safe(_changePassword, lower(username), oldPassword, newPassword),
     changeSchoolEmail: (username, schoolUsername) => safe(_changeSchoolEmail, lower(username), lower(schoolUsername)),
     disableGradeSync: (username) => safe(_disableGradeSync, lower(username)),
@@ -171,15 +172,17 @@ module.exports = {
     createPairingKey: (username) => safe(_createPairingKey, lower(username)),
     deletePairingKey: (username) => safe(_deletePairingKey, lower(username)),
     deleteApiKey: (username) => safe(_deleteApiKey, lower(username)),
+    discordVerify: (username, verificationCode) => safe(_discordVerify, lower(username), verificationCode),
 
     // API STUFF
     apiPair: (pairKey) => safe(_apiPair, pairKey),
     apiAuthenticate: (apiKey) => safe(_apiAuth, apiKey),
-    apiInfo: (apiKey) => apiGuard(_apiInfo, apiKey),
-    apiGradesSlim: (apiKey) => apiGuard(_apiGradesSlim, apiKey),
+    apiInfo: (apiKey) => safe(_apiInfo, apiKey),
+    // apiGradesSlim: (apiKey) => safe(_apiGradesSlim, apiKey),
 
     // INTERNAL API STUFF (DANGEROUS)
     internalApiAuthenticate: (apiKey) => safe(_internalApiAuth, apiKey),
+    internalApiDiscord: (username, discordID) => safe(_internalApiDiscord, username, discordID),
 }
 
 /**
@@ -221,19 +224,6 @@ const safe = (func, ...args) => {
             console.log("ERROR");
             console.log(e);
             return resolve({success: false, data: {message: "Something went wrong"}});
-        });
-    });
-};
-
-const apiGuard = (func, apiKey, ...args) => {
-    return new Promise(resolve => {
-        safe(_apiAuth, apiKey).then(data => {
-            if (!data.success) {
-                return resolve({
-                                   success: false, data: {message: data.data.message ?? "Authentication failed"}
-                               });
-            }
-            safe(func, apiKey, ...args).then(_data => resolve(_data));
         });
     });
 };
@@ -739,7 +729,7 @@ const __version11 = async (db, user) => {
 }
 
 const _version12 = async (db, username) => {
-    let res = await _getUser(db, username, {version: 1, school: 1, grades: 1, weights: 1}, {school: Schools.BISV});
+    let res = await _getUser(db, username, {version: 1, school: 1, grades: 1, weights: 1});
     if (!res.success) {
         return res;
     }
@@ -752,33 +742,55 @@ const _version12 = async (db, username) => {
 
 const __version12 = async (db, user) => {
     if (user.version === 11) {
-        let grades = user.grades;
-        let weights = user.weights;
-        let terms = Object.keys(grades);
-        for (let term of terms) {
-            let oldGrades = grades[term]._;
-            let oldWeights = weights[term]._;
-            if (oldGrades) {
-                grades[term].T1 = oldGrades;
-                delete grades[term]._;
-            }
-            if (oldWeights) {
-                weights[term].T1 = oldWeights;
-                delete weights[term]._;
-            }
-            for (let course of grades[term].T1) {
-                if (course.overall_percent === null) {
-                    course.overall_percent = false;
-                } else if (typeof course.overall_percent === "string" && course.overall_percent.slice(-1)[0] === "%") {
-                    course.overall_percent = parseFloat(course.overall_percent.slice(0, -1));
+        if (user.school !== Schools.BISV) {
+            await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {$set: {version: 12}});
+        } else {
+            let grades = user.grades;
+            let weights = user.weights;
+            let terms = Object.keys(grades);
+            for (let term of terms) {
+                let oldGrades = grades[term]._;
+                let oldWeights = weights[term]._;
+                if (oldGrades) {
+                    grades[term].T1 = oldGrades;
+                    delete grades[term]._;
+                }
+                if (oldWeights) {
+                    weights[term].T1 = oldWeights;
+                    delete weights[term]._;
+                }
+                for (let course of grades[term].T1) {
+                    if (course.overall_percent === null) {
+                        course.overall_percent = false;
+                    } else if (typeof course.overall_percent === "string" && course.overall_percent.slice(-1)[0] === "%") {
+                        course.overall_percent = parseFloat(course.overall_percent.slice(0, -1));
+                    }
                 }
             }
+
+            await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {$set: {grades: grades, weights: weights, version: 12}});
+
+            await _initAddedAssignments(db, user.username);
+            await _initEditedAssignments(db, user.username);
         }
+    }
+}
 
-        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {$set: {grades: grades, weights: weights, version: 12}});
+const _version13 = async (db, username) => {
+    let res = await _getUser(db, username, {version: 1});
+    if (!res.success) {
+        return res;
+    }
 
-        await _initAddedAssignments(db, user.username);
-        await _initEditedAssignments(db, user.username);
+    let user = res.data.value;
+    await __version13(db, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 13`}};
+}
+
+const __version13 = async (db, user) => {
+    if (user.version === 12) {
+        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {$set: {discord: {}, version: 13}});
     }
 }
 
@@ -878,6 +890,9 @@ const _updateAllUsers = async (db) => {
             }
             if (user.version < 12) {
                 console.log((await _version12(db, user.username)).data.log);
+            }
+            if (user.version < 13) {
+                console.log((await _version13(db, user.username)).data.log);
             }
         }
         console.log((await _initUser(db, user.username)).data.log);
@@ -1462,14 +1477,128 @@ const _apiInfo = async (db, apiKey) => {
 };
 
 const _internalApiAuth = async (db, apiKey) => {
-    if (typeof apiKey !== "string" && !(apiKey instanceof String) || apiKey.length !== 64) {
+    if (typeof apiKey !== "string" && !(apiKey instanceof String) || apiKey.length !== 25) {
         return {success: false, data: {message: "Invalid API key"}};
     }
-    let user = await db.collection(INTERNAL_API_KEYS_COLLECTION_NAME).findOne({"apiKey": apiKey});
-    if (user) {
+    let key = await db.collection(INTERNAL_API_KEYS_COLLECTION_NAME).findOne({"apiKey": apiKey});
+    if (key) {
         return {success: true};
     }
     return {success: false};
+}
+
+/**
+ * API Function to start a link between a Graderoom account and a Discord ID
+ * Also returns role information for use by Graderoomba
+ * @param db
+ * @param {string} username - Graderoom username to link to
+ * @param {number} discordID - Discord ID to link to
+ */
+const _internalApiDiscord = async (db, username, discordID) => {
+    if (typeof discordID !== "number") {
+        return {success: false, data: {message: "Invalid Discord ID"}};
+    }
+    // Search database for the given Graderoom account
+    let res = await _getUser(db, username, {discord: 1, school: 1, donoData: 1});
+    if (!res.success) {
+        return {success: false, data: {message: "There is no Graderoom account with this username."}};
+    }
+    let user = res.data.value;
+    let currDiscord = user.discord.discordID;
+    // Check if a Discord ID is already linked to the Graderoom account
+    if (currDiscord) {
+        if (currDiscord === discordID) {
+            // If already verified, return user metadata so Graderoomba can give roles
+            return {
+                success: true,
+                data: {
+                    message: `Successfully linked your Discord account to **${username}**.`,
+                    school: user.school,
+                    donations: (await __getDonoAttributes(user.donoData)).data.value,
+                }
+            };
+        } else {
+            return {success: false, data: {message: "You've already linked another Discord account."}}
+        }
+    }
+
+    // Generate a random 2-digit code for pairing using aids
+    const numbers = "0123456789".split("").map(d => parseInt(d));
+    let verificationCode = numbers.slice(1)[Math.floor(Math.random() * 9)] * 10 + numbers[Math.floor(Math.random() * 10)];
+
+    // Create a verification notification to send to clients
+    let now = Date.now();
+    let expires = now + 2 * 60 * 1000; // 2 minutes from now
+    let notification = {
+        id: "discord-verify",
+        type: "discord",
+        title: "Connect Discord",
+        message: `Enter the 2-Digit Code sent by Graderoomba ${notificationTextField('discord-verify', `sendData("discord-verify", {verificationCode: $("#discord-verify")[0].valueAsNumber})`, "number", "2-Digit Code", "10", "99", "1")}`,
+        dismissible: false,
+        dismissed: false,
+        important: true,
+        pinnable: false,
+        pinned: true,
+        createdDate: now,
+    };
+
+    // Delete any existing discord notifications
+    await _deleteNotification(db, username, "discord-verify");
+    await _deleteNotification(db, username, "discord-fail");
+    await _deleteNotification(db, username, "discord-verified");
+
+    // Store the verification code, the notification, and the unverified discord ID in the database
+    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {discord: {verificationCode: verificationCode, expires: expires, unverifiedDiscordID: discordID}}, $push: {'alerts.notifications': notification}});
+
+    socketManager.emitToRoom(username, "notification-new", notification);
+
+    return {success: true, data: {verificationCode: verificationCode, expires: expires}};
+}
+
+/**
+ * Function to link a Discord ID to a Graderoom account if the code is correct
+ * @param db
+ * @param {string} username - Graderoom username to link to
+ * @param {number} verificationCode - Verification code given by user
+ */
+const _discordVerify = async (db, username, verificationCode) => {
+    let res = await _getUser(db, username, {discord: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    // Case where user has not initialized the verification process
+    let user = res.data.value;
+    if (!user.discord) {
+        return {success: false, data: {message: "Why have you done this..."}};
+    }
+
+    // Handle cases where verification should fail
+    let now = Date.now();
+    if (!user.discord.expires || now >= user.discord.expires) {
+        return {success: false, data: {message: "This code is no longer valid. Please restart the verification process."}};
+    }
+
+    if (!user.discord.verificationCode || verificationCode !== user.discord.verificationCode) {
+        return {success: false, data: {message: "Incorrect code. Please restart the verification process."}};
+    }
+
+    // Update account with verified ID and remove verification process data
+    await db.collection(USERS_COLLECTION_NAME).updateOne({
+                                                             username: username
+                                                         }, {
+                                                             $set: {
+                                                                 'discord.discordID': user.discord.unverifiedDiscordID
+                                                             },
+                                                             $unset: {
+                                                                 'discord.unverifiedDiscordID': "",
+                                                                 'discord.verificationCode': "",
+                                                                 'discord.expires': ""
+                                                             }
+                                                         });
+
+
+    return {success: true, data: {message: "Successfully linked Discord account"}}
 }
 
 const _login = async (db, username, password) => {
@@ -1939,6 +2068,19 @@ const _updateNotification = async (db, username, id, update) => {
             }
         }
     }
+}
+
+const _deleteNotification = async (db, username, id) => {
+    let res = await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$pull: {'alerts.notifications': {id: id}}});
+    if (res.matchedCount === 1) {
+        socketManager.emitToRoom(username, "notification-delete", {id: id});
+        return {
+            success: true, data: {
+                id: id,
+            }
+        };
+    }
+    return {success: false};
 }
 
 const _changePassword = async (db, username, oldPassword, newPassword) => {
@@ -3596,6 +3738,6 @@ const _getDonoAttributes = async (db, username) => {
 const __getDonoAttributes = async (donos) => {
     let totalDonos = donos.map(d => d.receivedValue).reduce((a, b) => a + b, 0);
     return {
-        success: true, data: {value: {plus: totalDonos >= minDonoAmount, premium: totalDonos >= minPremiumAmount}}
+        success: true, data: {value: donoHelper(totalDonos)}
     };
 }

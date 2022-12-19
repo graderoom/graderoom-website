@@ -94,6 +94,40 @@ module.exports = {
                         socketManager.emitToRoom(socket.request.user.username, "fail-notification-update", resp.data);
                     }
                 });
+        socket.on("discord-verify", async (data) => {
+            let verificationCode = data.verificationCode;
+            let resp = await dbClient.discordVerify(socket.request.user.username, verificationCode);
+            await dbClient.deleteNotification(socket.request.user.username, "discord-verify");
+            if (resp.success) {
+                let notification = {
+                    id: "discord-verified",
+                    type: "discord",
+                    title: "Discord Verified!",
+                    message: "Your Discord account was successfully connected to your Graderoom account",
+                    dismissible: true,
+                    dismissed: false,
+                    important: true,
+                    pinnable: false,
+                    pinned: true,
+                    createdDate: Date.now(),
+                };
+                socketManager.emitToRoom(socket.request.user.username, "notification-new", notification);
+            } else {
+                let notification = {
+                    id: "discord-fail",
+                    type: "error",
+                    title: "Verification Failed",
+                    message: resp.data.message,
+                    dismissible: true,
+                    dismissed: false,
+                    important: true,
+                    pinnable: false,
+                    pinned: true,
+                    createdDate: Date.now(),
+                };
+                socketManager.emitToRoom(socket.request.user.username, "notification-new", notification);
+            }
+        });
     },
 }
 
