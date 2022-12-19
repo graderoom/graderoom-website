@@ -1424,6 +1424,10 @@ tr:hover .toolTab {
     background-color: purple;
 }
 
+#notificationPanel.discord::after {
+    background-color: #5865F2;
+}
+
 #notificationPanel.active::before {
     overflow: visible;
     top: 3rem;
@@ -1755,6 +1759,15 @@ div:not(#dismissed-notifications) > .notification-card.important.error {
 div:not(#dismissed-notifications) > .notification-card.important.donation {
     box-shadow: 0 0 10px 1px purple;
     outline: 1px solid purple;
+}
+
+.notification-card.discord span.notification-badge {
+    background-color: #5865F2;
+}
+
+div:not(#dismissed-notifications) > .notification-card.important.discord {
+    box-shadow: 0 0 10px 1px #5865F2;
+    outline: 1px solid #5865F2;
 }
 
 .notification-card:hover .notification-header, #pinned-notifications .notification-card .notification-header {
@@ -2876,6 +2889,7 @@ input:disabled {
 #classInfoAverage {
     text-align: center;
     display: flex;
+    flex-flow: column;
     flex-flow: column;
     justify-content: center;
     align-items: center;

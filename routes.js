@@ -1088,8 +1088,14 @@ module.exports = function (app, passport) {
         apiRespond(res, resp);
     });
 
-    app.get("/api/internal/initiate-discord-pairing", [isInternalApiAuthenticated], async (req, res) => {
-
+    app.post("/api/internal/discord", [isInternalApiAuthenticated], async (req, res) => {
+        let {username, discordID} = req.body;
+        let resp = await dbClient.internalApiDiscord(username, discordID);
+        if (!resp.success) {
+            res.status(400).send(resp.data.message);
+        } else {
+            res.status(200).send(resp.data);
+        }
     })
 
     app.get("/api/*", (req, res) => {
@@ -1180,7 +1186,7 @@ function getSunriseAndSunset() {
 }
 
 function checkReturnTo(req, res, next) {
-    let returnTo = url.parse(req.headers.referer, true).query.returnTo;
+    let returnTo = url.parse(req.headers.referer || "/", true).query.returnTo;
     if (returnTo && returnTo.startsWith("/")) {
         req.session.returnTo = returnTo;
     }

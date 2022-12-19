@@ -46,11 +46,12 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Beta 5.7.0] - 2022-12-18
+## [Beta 5.7.0] - 2022-12-19
 ### Added
 - Support for Trimester separation for BISV students
 - Support for empty courses for BISV students
 - Analytics now show number of users/sessions currently active
+- Graderoomba Backend
 - <em>[Experiment]</em> Notification Panel<ul>
 - Pinned notifications are now actually pinned
 - Notifications have more animations when pinning/unpinning/dismissing/undismissing

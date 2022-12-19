@@ -21,11 +21,11 @@ exports.TEST_DATABASE_NAME = "test";
 exports.COMMON_DATABASE_NAME = "common";
 
 // Change this when updateDB changes
-exports.dbUserVersion = 12;
+exports.dbUserVersion = 13;
 exports.dbClassVersion = 2;
 
-exports.minDonoAmount = 3;
-exports.minPremiumAmount = 5;
+const minDonoAmount = 3;
+const minPremiumAmount = 5;
 
 let _changelogArray = [];
 let _betaChangelogArray = [];
@@ -154,9 +154,6 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
 
         // Hash password
         bcrypt.hash(password, this.ROUNDS_TO_GENERATE_SALT, (err, hash) => {
-            // Get current timestamp for user creation timestamp
-            let now = Date.now();
-
             // Create the user json
             let user = {
                 version: this.dbUserVersion,
@@ -632,10 +629,14 @@ exports.notificationButton = function (onclickString, innerText) {
     return `<br><span class="notification-button" onclick="${onclickString}"><b><i class=\"fa fa-external-link-square\"></i> ${innerText}</b></span>`
 }
 
-exports.notificationTextField = function (onsubmitString, inputType, placeholderText) {
+exports.notificationTextField = function (id, onsubmitString, inputType, placeholderText, min="", max="", step="") {
     return `<br>
             <div class="form-group notification-text-field">
-            <input type="${inputType}" placeholder="${placeholderText}" class="form-control">
-            <btn onclick="${onsubmitString}" class="btn btn-sm">Submit</btn>
+            <input id='${id}' type='${inputType}' placeholder='${placeholderText}' min='${min}' max='${max}' step='${step}' class="form-control">
+            <btn onclick='${onsubmitString}' class="btn btn-sm">Submit</btn>
             </div>`;
+}
+
+exports.donoHelper = function (totalDonos) {
+    return {donor: totalDonos > 0, plus: totalDonos >= minDonoAmount, premium: totalDonos >= minPremiumAmount}
 }
