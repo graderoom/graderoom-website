@@ -270,7 +270,7 @@ table thead tr th:last-child {
     background-color: rgba(255, 0, 0, 0.2) !important;
 }
 
-.changelog-mono {
+.mono {
     font-family: monospace;
     padding: 0 0.2rem;
     border-radius: 0.2rem;

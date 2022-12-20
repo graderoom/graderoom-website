@@ -103,7 +103,7 @@ module.exports = {
                     id: "discord-verified",
                     type: "discord",
                     title: "Discord Verified!",
-                    message: "Your Discord account was successfully connected to your Graderoom account",
+                    message: `Your Discord account was successfully connected to your Graderoom account. Run <span class="mono">/roles</span> in Discord to get your roles!`,
                     dismissible: true,
                     dismissed: false,
                     important: true,

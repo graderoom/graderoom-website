@@ -178,11 +178,12 @@ module.exports = {
     apiPair: (pairKey) => safe(_apiPair, pairKey),
     apiAuthenticate: (apiKey) => safe(_apiAuth, apiKey),
     apiInfo: (apiKey) => safe(_apiInfo, apiKey),
-    // apiGradesSlim: (apiKey) => safe(_apiGradesSlim, apiKey),
+    apiGradesSlim: (apiKey) => safe(_apiGradesSlim, apiKey),
 
     // INTERNAL API STUFF (DANGEROUS)
     internalApiAuthenticate: (apiKey) => safe(_internalApiAuth, apiKey),
-    internalApiDiscord: (username, discordID) => safe(_internalApiDiscord, username, discordID),
+    internalApiDiscordConnect: (username, discordID) => safe(_internalApiDiscordConnect, username, discordID),
+    internalApiDiscordUserInfo: (discordID) => safe(_internalApiDiscordUserInfo, discordID),
 }
 
 /**
@@ -252,6 +253,10 @@ const _init = async (db) => {
     // Create the charts collection if it doesn't exist
     if (!collectionNames.includes(CHARTS_COLLECTION_NAME)) {
         await db.createCollection(CHARTS_COLLECTION_NAME);
+    }
+    // Create the internal collection if it doesn't exist
+    if (!collectionNames.includes(INTERNAL_API_KEYS_COLLECTION_NAME)) {
+        await db.createCollection(INTERNAL_API_KEYS_COLLECTION_NAME);
     }
 
     for (let school of Object.values(Schools)) {
@@ -1476,6 +1481,10 @@ const _apiInfo = async (db, apiKey) => {
     return {success: true, data: {username: user.username, school: user.school, premium: premium}};
 };
 
+const _apiGradesSlim = async (db, apiKey) => {
+
+}
+
 const _internalApiAuth = async (db, apiKey) => {
     if (typeof apiKey !== "string" && !(apiKey instanceof String) || apiKey.length !== 25) {
         return {success: false, data: {message: "Invalid API key"}};
@@ -1494,14 +1503,14 @@ const _internalApiAuth = async (db, apiKey) => {
  * @param {string} username - Graderoom username to link to
  * @param {number} discordID - Discord ID to link to
  */
-const _internalApiDiscord = async (db, username, discordID) => {
+const _internalApiDiscordConnect = async (db, username, discordID) => {
     if (typeof discordID !== "number") {
-        return {success: false, data: {message: "Invalid Discord ID"}};
+        return {success: false, data: {message: "Invalid Discord ID", errorCode: 1}};
     }
     // Search database for the given Graderoom account
     let res = await _getUser(db, username, {discord: 1, school: 1, donoData: 1});
     if (!res.success) {
-        return {success: false, data: {message: "There is no Graderoom account with this username."}};
+        return {success: false, data: {message: "There is no Graderoom account with this username.", errorCode: 2}};
     }
     let user = res.data.value;
     let currDiscord = user.discord.discordID;
@@ -1510,15 +1519,11 @@ const _internalApiDiscord = async (db, username, discordID) => {
         if (currDiscord === discordID) {
             // If already verified, return user metadata so Graderoomba can give roles
             return {
-                success: true,
-                data: {
-                    message: `Successfully linked your Discord account to **${username}**.`,
-                    school: user.school,
-                    donations: (await __getDonoAttributes(user.donoData)).data.value,
-                }
+                success: false,
+                data: {message: `You've already linked this Discord account. Use \`/roles\` to get your roles.`, errorCode: 3}
             };
         } else {
-            return {success: false, data: {message: "You've already linked another Discord account."}}
+            return {success: false, data: {message: "You've already linked another Discord account.", errorCode: 4}}
         }
     }
 
@@ -1553,6 +1558,18 @@ const _internalApiDiscord = async (db, username, discordID) => {
     socketManager.emitToRoom(username, "notification-new", notification);
 
     return {success: true, data: {verificationCode: verificationCode, expires: expires}};
+}
+
+const _internalApiDiscordUserInfo = async (db, discordID) => {
+    if (typeof discordID !== "number") {
+        return {success: false, data: {message: "Invalid Discord ID", errorCode: 1}};
+    }
+    let user = await db.collection(USERS_COLLECTION_NAME).findOne({'discord.discordID': discordID}, {school: 1, donoData: 1});
+    if (!user) {
+        return {success: false, data: {message: "You must connect your Discord account before you can get roles.", errorCode: 5}};
+    }
+
+    return {success: true, data: {school: user.school, donoData: await __getDonoAttributes(user.donoData)}};
 }
 
 /**

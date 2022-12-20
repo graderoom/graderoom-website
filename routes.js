@@ -1088,15 +1088,25 @@ module.exports = function (app, passport) {
         apiRespond(res, resp);
     });
 
-    app.post("/api/internal/discord", [isInternalApiAuthenticated], async (req, res) => {
+    app.post("/api/internal/discord/connect", [isInternalApiAuthenticated], async (req, res) => {
         let {username, discordID} = req.body;
-        let resp = await dbClient.internalApiDiscord(username, discordID);
+        let resp = await dbClient.internalApiDiscordConnect(username, discordID);
         if (!resp.success) {
-            res.status(400).send(resp.data.message);
+            res.status(400).send(resp.data);
         } else {
             res.status(200).send(resp.data);
         }
-    })
+    });
+
+    app.get("/api/internal/discord/user-info", [isInternalApiAuthenticated], async (req, res) => {
+        let {discordID} = req.body;
+        let resp = await dbClient.internalApiDiscordUserInfo(discordID);
+        if (!resp.success) {
+            res.status(400).send(resp.data);
+        } else {
+            res.status(200).send(resp.data);
+        }
+    });
 
     app.get("/api/*", (req, res) => {
         res.sendStatus(404);

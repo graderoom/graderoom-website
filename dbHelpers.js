@@ -364,7 +364,7 @@ exports.readChangelog = (filename) => {
                     let open = true;
                     for (let i = 0; i < _line.length; i++) {
                         if (_line[i] === "`") {
-                            _line = _line.slice(0, i) + `${open ? "<span class='changelog-mono'>" : "</span>"}` + _line.slice(i + 1);
+                            _line = _line.slice(0, i) + `${open ? "<span class='mono'>" : "</span>"}` + _line.slice(i + 1);
                             open = !open;
                         }
                     }
