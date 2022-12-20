@@ -1519,16 +1519,12 @@ tr:hover .toolTab {
     margin: 0.5rem 0;
 }
 
-.notification-button {
-    cursor: pointer;
-}
-
-.notification-button input {
+.notification-text-field input {
     width: 8rem;
     margin: 0;
 }
 
-.notification-button .form-control {
+.notification-text-field .form-control {
     margin: 0 0 0 0.5rem;
 }
 
@@ -1544,7 +1540,8 @@ tr:hover .toolTab {
     margin: 1rem;
 }
 
-.notification-message span {
+.notification-message span.notification-button {
+    cursor: pointer;
     border-radius: 0.5rem;
     padding: 0.5rem;
     margin: 0.5rem 0;
