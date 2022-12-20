@@ -1498,32 +1498,34 @@ const _internalApiAuth = async (db, apiKey) => {
 
 /**
  * API Function to start a link between a Graderoom account and a Discord ID
- * Also returns role information for use by Graderoomba
  * @param db
  * @param {string} username - Graderoom username to link to
  * @param {number} discordID - Discord ID to link to
  */
 const _internalApiDiscordConnect = async (db, username, discordID) => {
     if (typeof discordID !== "number") {
-        return {success: false, data: {message: "Invalid Discord ID", errorCode: 1}};
+        // Case where the Discord ID is invalid
+        return {success: false, data: {errorCode: 1}};
     }
     // Search database for the given Graderoom account
     let res = await _getUser(db, username, {discord: 1, school: 1, donoData: 1});
     if (!res.success) {
-        return {success: false, data: {message: "There is no Graderoom account with this username.", errorCode: 2}};
+        // Case where Graderoom account does not exist
+        return {success: false, data: {errorCode: 2}};
     }
     let user = res.data.value;
     let currDiscord = user.discord.discordID;
     // Check if a Discord ID is already linked to the Graderoom account
     if (currDiscord) {
         if (currDiscord === discordID) {
-            // If already verified, return user metadata so Graderoomba can give roles
+            // Case where user is already connected
             return {
                 success: false,
-                data: {message: `You've already linked this Discord account. Use \`/roles\` to get your roles.`, errorCode: 3}
+                data: {errorCode: 3}
             };
         } else {
-            return {success: false, data: {message: "You've already linked another Discord account.", errorCode: 4}}
+            // Case where Graderoom account has a link to a different Discord
+            return {success: false, data: {errorCode: 4}}
         }
     }
 
@@ -1557,16 +1559,23 @@ const _internalApiDiscordConnect = async (db, username, discordID) => {
 
     socketManager.emitToRoom(username, "notification-new", notification);
 
-    return {success: true, data: {verificationCode: verificationCode, expires: expires}};
+    return {success: true, data: {verificationCode: verificationCode}};
 }
 
+/**
+ * API Function that searches the database for the given Discord ID and returns data for setting roles
+ * @param db
+ * @param {number} discordID - Discord ID to search for
+ */
 const _internalApiDiscordUserInfo = async (db, discordID) => {
     if (typeof discordID !== "number") {
+        // Case where the Discord ID is invalid
         return {success: false, data: {message: "Invalid Discord ID", errorCode: 1}};
     }
     let user = await db.collection(USERS_COLLECTION_NAME).findOne({'discord.discordID': discordID}, {school: 1, donoData: 1});
     if (!user) {
-        return {success: false, data: {message: "You must connect your Discord account before you can get roles.", errorCode: 5}};
+        // Case where the user has not connected their account yet
+        return {success: false, data: {errorCode: 5}};
     }
 
     return {success: true, data: {school: user.school, donoData: await __getDonoAttributes(user.donoData)}};
