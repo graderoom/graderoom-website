@@ -413,13 +413,13 @@ input:checked + .slider:before {
     color: #333333;
 }
 
-.notification-message span {
+.notification-message span.notification-button {
     background-color: black;
     color: white;
     box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.3);
 }
 
-.notification-message span:hover {
+.notification-message span.notification-button:hover {
     outline: 1px solid black;
     background-color: #ddd;
     color: black;

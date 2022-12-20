@@ -28,7 +28,7 @@
 
 <script>
     $("#notificationPanel").on("click", function (e) {
-        if ($(e.target).is("#notificationPanel:not(.active)") || (!$(e.target).is(".notification-btns span, .notification-message span, .notification-message span b") && $(e.target).parents("#notificationPanel:not(.active) #pinned-notifications .notification-card").length)) {
+        if ($(e.target).is("#notificationPanel:not(.active)") || (!$(e.target).is(".notification-btns span, .notification-message *") && $(e.target).parents("#notificationPanel:not(.active) #pinned-notifications .notification-card").length)) {
             $("#notifications").animate({scrollTop: 0}, 0);
             $("#notificationPanel").addClass("active");
         }

@@ -697,12 +697,12 @@ tr:hover .toolTab {
     color: #888888;
 }
 
-.notification-message span {
+.notification-message span.notification-button {
     background-color: #bbb;
     color: #333;
 }
 
-.notification-message span:hover {
+.notification-message span.notification-button:hover {
     outline: 1px solid #bbb;
     background-color: #333;
     color: #bbb;
