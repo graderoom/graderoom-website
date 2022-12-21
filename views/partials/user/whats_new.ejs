@@ -29,11 +29,9 @@
     let latestContainer = $("#latest-container");
 
     function showLatest(force) {
-        <% if (_betaFeatures.showNotificationPanel) { %>
-            if (!force && !alerts.notificationSettings.showUpdatePopup) {
-                return;
-            }
-        <% } %>
+        if (!force && !alerts.notificationSettings.showUpdatePopup) {
+            return;
+        }
         $.ajax({
                    url: "/whatsNew", type: "GET", async: true
                }).done(function (response) {

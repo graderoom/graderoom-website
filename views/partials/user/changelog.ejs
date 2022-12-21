@@ -69,14 +69,11 @@
             changelogContainer.animate({scrollTop: 0}, async () => {
                 versionNames = [];
                 versionOffsets = {};
-                <% if (_betaFeatures.showNotificationPanel) { %>
                 let dismissNotifications = true;
-                <% } %>
                 for (let i = 0; i < versionDivs.length; i++) {
                     let version = versionDivs[i];
                     let name = $(version).find(".title")[0].innerText;
                     versionNames.push(name);
-                    <% if (_betaFeatures.showNotificationPanel) { %>
                     if (!callback) {
                         if (dismissNotifications && i >= 1) {
                             dismissById(name, false);
@@ -84,7 +81,6 @@
                         if (name.endsWith(alerts.latestSeen)) {
                             dismissNotifications = false;
                             updateNotifications();
-                            <% if (_betaFeatures.showNotificationPanel) { %>
                             if (!callback) {
                                 $.ajax({
                                            url: "/latestVersionSeen", type: "POST", async: true
@@ -97,10 +93,8 @@
                                     alerts.latestSeen = versionNames[1].substring(versionNames[1].indexOf(" ") + 1);
                                 });
                             }
-                            <% } %>
                         }
                     }
-                    <% } %>
                     let date = $(version).find(".date")[0].innerText;
                     // Add offset so versions on the same day are ordered correctly in notifications
                     versionDates.push(new Date(`${date.slice(0, 10)}/0:`).getTime() + versionDivs.length - i);
