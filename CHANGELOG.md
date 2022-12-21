@@ -46,6 +46,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 5.7.1] - 2022-12-20
+### Fixed
+- Issue with overall grade calculation when empty category
+
 ## [Beta 5.7.0] - 2022-12-19
 ### Added
 - Support for Trimester separation for BISV students
