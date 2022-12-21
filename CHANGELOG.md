@@ -46,9 +46,85 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 5.8.0] - 2022-12-21 - You did great this semester!
+### Added
+- <span class="changelog-inline-setoff">Notification Panel</span><ul>
+- No longer an experiment
+- Added keyboard shortcut 'N' for Notification Panel
+- Added Notification Panel settings<ul>
+- Added option for how to show new versions. More coming soon.</ul>
+- Added notification panel tutorial
+- Notifications sync between devices
+- Added notifications for Donation Thank You messages</ul>
+- Navbar 'More' menu now shows when hovering on the 'More' text
+- New animations throughout the site<ul>
+- Added a 'Reduce Motion' toggle in 'Appearance' settings for those that might not want them</ul>
+- All PowerSchool courses now sync to Graderoom, even if they have no grades<ul>
+- Added a setting to enable viewing empty courses, enabled by default</ul>
+- Added keyboard shortcuts for more than 9 classes using the '0', '-', and '=' keys
+- <span class="changelog-inline-setoff">Discord Verificaton</span><ul>
+- Join the Discord and type <span class="mono">/verify</span> to get started</ul>
+
+### Improved
+- Interacting with charts has gotten better! Guidelines no longer get in the way when an assignment is near your cursor.
+- Updated language of 'General' settings to 'Appearance' settings since that's all they were
+- Updated language of 'Beta Features' to 'Experiments' to differentiate from the beta site
+- Those with inactive accounts no longer see errors with their grades
+- Made Christmas Lights more efficient
+- When taking an action that requires refreshing the page, Graderoom will now remain on the term/semester that you were on before making the request.
+- Improved refresh-rate display and renamed it to 'Stats for Nerds'
+- No longer hide Christmas lights when unfocus
+- All pages should load slightly faster now
+- Overview chart<ul>
+- Tooltip moved below points for better visibility
+- Now detects when the mouse is moved out and returns all chart lines to normal thickness
+- Animates faster and fps should drop less if you decide to continuously move your mouse around inside it
+- Thickness changes are more drastic to help see the whole line
+- Clicks now only open assignment pages if your cursor intersects a point
+- Supports when assignments from different classes have the same date and score and highlights both lines on hover</ul>
+- Changelog doesn't load more times than it needs to
+- Changelog legend now scrolls along with the changelog
+- Tweaked snow color slightly and improved fps. You probably won't notice.
+- Christmas Lights now have a top row on login/signup pages
+- Changed default analytics chart zoom to 6 months and sped up some animations
+- Analytics chart now allows panning the graph instead of drawing a box for zoom
+- Older semesters that only have overall grades have better-looking overview charts now.
+- Add assignment button is disabled when a class has no weights
+- Class info button now always functions properly
+- Point-based toggle has a normal hitbox now
+- Added assignment animation
+- Users now have only one socket per session for efficiency
+- Your session should stay alive for longer if you load the page again
+- Background page can no longer be scrolled while a card is displayed
+- Choosing login/signup from charts or final grade calc and then logging in now returns you to the page you were previously on
+
+### Fixed
+- Several issues with adding/editing/removing/saving assignments
+- Issue where some users' pages would not load
+- Issue with analytics not refreshing daily
+- Issue with snow and Christmas Lights not disabling when they should
+- Blur Effects should work on Safari now
+- Issue where blur color was wrong if a user had blur effects enabled while in light theme, turned them off, switched to dark system/sun/custom theme and then enabled blur effects
+- Issue with a tutorial popup not showing up
+- Issues with infinite redirects
+- Issue where 'GradeSync Enabled' message would show when incorrect login details were entered
+- Issue with calculation if a weighted category had 0/0 points.
+- Credit/Empty classes no longer show in the overview chart
+- Issue with CMD+# shortcuts being overridden by Graderoom on Mac
+- Issue with overall grade calculation when empty category
+- <em>[Mobile]</em> Issue with Donate shiny text in mobile site
+
+### Removed
+- Changelog Legend
+
 ## [Beta 5.7.1] - 2022-12-20
+### Added
+- <span class="changelog-inline-setoff">Notification Panel</span><ul>
+- No longer an experiment</ul>
+
 ### Fixed
 - Issue with overall grade calculation when empty category
+- Issue with adding assignment wizard categories when empty course existed
 
 ## [Beta 5.7.0] - 2022-12-19
 ### Added
@@ -91,8 +167,8 @@
 - <em>[Experiment]</em> Notification Panel<ul>
 - Added keyboard shortcut 'N' for Notification Panel
 - Added Notification Panel settings<ul>
-- Added option for how to show new versions. More coming soon.
-- Added notification panel tutorial</ul>
+- Added option for how to show new versions. More coming soon.</ul>
+- Added notification panel tutorial
 - Notifications now sync between devices</ul>
 - Added keyboard shortcuts for more than 9 classes using the '0', '-', and '=' keys
 

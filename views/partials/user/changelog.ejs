@@ -33,6 +33,7 @@
     let versionNames = [];
     let versionClasses = []
     let versionDates = [];
+    let versionMessages = [];
     let stableVersionNames = [];
     let versionDisplayed;
     let changelogArray;
@@ -98,6 +99,7 @@
                     let date = $(version).find(".date")[0].innerText;
                     // Add offset so versions on the same day are ordered correctly in notifications
                     versionDates.push(new Date(`${date.slice(0, 10)}/0:`).getTime() + versionDivs.length - i);
+                    versionMessages.push(date.slice(13));
                     let class_ = $.makeArray(version.classList).filter((c) => c !== "changelog-item")[0] ?? "";
                     versionClasses.push(class_);
                     versionOffsets[name] = $(version).offset().top - changelogContainer.offset().top;
