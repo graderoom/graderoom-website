@@ -555,8 +555,8 @@
                                             </span>
                                         </i>
                                     </span>
-                                    <% if (Object.keys(_weightData[i + offset].weights).length) { %>
                                     <span class="popup addAssignment"
+                                    <% if (!Object.keys(_weightData[i + offset].weights).length) { %>style="display: none"<% } %>
                                           onclick="{$('#add-assignment-container<%= i + offset %>').addClass('active').find('.addAssignmentDate input').trigger('focus').trigger('blur');$('#add-assignment-container<%= i + offset %>').find('.addAssignmentName input').trigger('focus')}">
                                         <i style="cursor: pointer; margin: 1rem 0"
                                            class="fa fa-plus">
@@ -626,7 +626,6 @@
                                             </div>
                                         </form>
                                     </div>
-                                    <% } %>
                                     <span class="popup"
                                           onclick="showClassInfo(<%= i + offset %>)">
                                         <i style="cursor: pointer; margin: 1rem 0"
