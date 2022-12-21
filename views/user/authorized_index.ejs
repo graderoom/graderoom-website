@@ -1831,17 +1831,6 @@
                 return 0;
             }
 
-            function getTotalWeight(classIndex) {
-                let className = _data[classIndex].class_name;
-                let classWeights = Object.values(weights[classIndex]["weights"]);
-                let totalWeight = 0;
-                let classCategories = Object.keys(weights[classIndex]["weights"]);
-                for (let i = 0; i < classWeights.length; i++) {
-                    totalWeight += Number(classWeights[i]);
-                }
-                return totalWeight;
-            }
-
             function setPointBasedWeights(classIndex) {
                 for (let i = 0; i < _data.length; i++) {
                     if (classIndex === undefined || classIndex === i) {
@@ -1884,10 +1873,17 @@
                 } else {
                     let classCategories = Object.keys(weights[classIndex]["weights"]);
                     let classWeights = Object.values(weights[classIndex]["weights"]);
+                    let totalWeight = 0;
                     for (let i = 0; i < classCategories.length; i++) {
-                        overallGrade += (getCategoryGrade(classIndex, classCategories[i]) ?? 100) * classWeights[i];
+                        let categoryGrade = getCategoryGrade(classIndex, classCategories[i]);
+                        if (categoryGrade === null) continue;
+                        overallGrade += categoryGrade * classWeights[i];
+                        totalWeight += classWeights[i];
                     }
-                    overallGrade /= getTotalWeight(classIndex);
+                    if (totalWeight === 0) {
+                        return null;
+                    }
+                    overallGrade /= totalWeight;
                 }
                 return overallGrade;
             }
