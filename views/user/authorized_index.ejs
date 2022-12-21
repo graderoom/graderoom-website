@@ -124,9 +124,7 @@
                 <span></span>
             </div>
             <%- include('../partials/user/term_switcher.ejs', {theme: theme}); %>
-            <% if (_betaFeatures.showNotificationPanel) { %>
-                <%- include('../partials/user/notification_panel.ejs', {theme: theme}); %>
-            <% } %>
+            <%- include('../partials/user/notification_panel.ejs', {theme: theme}); %>
             <!-- Overview Section -->
             <% if (_gradeData.length) { %>
                 <div id="section-1" class="section">
@@ -1329,9 +1327,7 @@
                 setupGpaDetails(true, false);
             }
 
-            <% if (_betaFeatures.showNotificationPanel) { %>
             setupNotificationPanel();
-            <% } %>
 
             $("#termSwitcher").addClass("hover");
             setTimeout(() => $("#termSwitcher").removeClass("hover"), 2000);
