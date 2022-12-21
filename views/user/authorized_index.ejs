@@ -4096,7 +4096,7 @@
                         showCard("#shortcutsDisplay");
                     }
                 } else if (["a", "A"].includes(e.key)) {
-                    if (currentPage === -1 || cardsDisplayed.length != 0) {
+                    if (currentPage === -1 || cardsDisplayed.length != 0 || !Object.keys(weights[currentPage].weights).length) {
                         return;
                     }
                     if ($($(".add-assignment-container")[currentPage]).hasClass("active")) {
