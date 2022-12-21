@@ -987,28 +987,7 @@
                         <br>
                         <form id="betaFeatures" action="/betaFeatures" method="post">
                             <div class="card-footer">
-                                <label class="slider-container">
-                                    <label style="margin-left: 0;" for="showNotificationPanel">
-                                        Enable Notification Panel
-                                    </label>
-                                    <label class="switch">
-                                        <input id="showNotificationPanel" type="checkbox"
-                                               name="showNotificationPanel"
-                                        <% if (_betaFeatures.showNotificationPanel) { %>
-                                               checked="checked"
-                                                <% } %>
-                                               onchange="$($(this)[0].form).trigger('submit')"
-                                        >
-                                        <span class="slider"></span>
-                                    </label>
-                                </label>
-                                <small>
-                                    Enabled: Adds a notification panel
-                                </small>
-                                <br>
-                                <small>
-                                    Disabled: Default
-                                </small>
+                                <h5><small style="opacity: 0.5">No Experiments at the moment. Check back later!</small></h5>
                             </div>
                         </form>
                         <form action="/leavebeta" method="post">

@@ -39,7 +39,7 @@ exports.versionNameArray = () => _versionNameArray;
 exports.tutorialKeys = ["homeSeen", "navinfoSeen", "moreSeen", "settingsSeen", "legendSeen"];
 
 // Update this list with new beta features
-exports.betaFeatureKeys = ["showNotificationPanel"];
+exports.betaFeatureKeys = [];
 
 exports.classesCollection = (school) => {
     return school + "_" + this.CLASSES_COLLECTION_NAME;
