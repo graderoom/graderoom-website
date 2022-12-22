@@ -46,6 +46,13 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 5.8.1] - 2022-12-22 - You can clear these notifications by clicking the 'Open Changelog' button
+### Improved
+- Beta versions no longer show as notifications on stable site
+
+### Fixed
+- PowerSchool sync works again :)
+
 ## [Stable 5.8.0] - 2022-12-21 - You did great this semester!
 ### Added
 - <span class="changelog-inline-setoff">Notification Panel</span><ul>

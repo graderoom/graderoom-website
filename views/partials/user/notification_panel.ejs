@@ -84,7 +84,7 @@
             if (version.startsWith("Stable")) {
                 createPinned(version, "Stable", version, changelogMessage(version, versionMessages[i]), false, false, true, versionDates[i], false);
             } else if (version.startsWith("Beta")) {
-                <% if (beta) { %>createPinned<% } else { %>createUnread<% } %>(version, "Beta", version, changelogMessage(version, versionMessages[i]), false, false, <%= beta; %>, versionDates[i], false);
+                <% if (beta) { %>createPinned(version, "Beta", version, changelogMessage(version, versionMessages[i]), false, false, <%= beta; %>, versionDates[i], false);<% } %>
             } else if (version.startsWith("Announcement")) {
                 createPinned(version, "Announcement", version, changelogMessage(version, versionMessages[i]), false, false, true, versionDates[i], false);
             }
