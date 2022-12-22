@@ -96,7 +96,7 @@
                             }
                         }
                     }
-                    let date = $(version).find(".date")[0].innerText;
+                    let date = $(version).find(".date")[0].innerHTML;
                     // Add offset so versions on the same day are ordered correctly in notifications
                     versionDates.push(new Date(`${date.slice(0, 10)}/0:`).getTime() + versionDivs.length - i);
                     versionMessages.push(date.slice(13));
