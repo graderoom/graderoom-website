@@ -417,12 +417,18 @@ class PowerschoolScraper(Scraper):
 
         if table is not None:
             self.message = "Logged in!"
+            url = 'https://' + self.base_url + '/guardian/termgrades.html'
+            resp = self.session.get(url, timeout=10)
+            soup_resp = bS(resp.text, "html.parser")
+
             self.message = "Checking if PowerSchool is locked..."
             self.progress = 30
-            rows = list(filter(lambda l: len(l) > 0, list(map(lambda row: list(
-                filter(lambda link: link['href'][:5] == 'score' and link['href'][link['href'].index('&fg') + 4] == 'S',
-                       row.find_all("a"))), table.find_all("tr", class_='center')))))
-            if len(rows) == 0:
+
+            locked_msg = soup_resp.find('div', class_='feedback-note')
+            if locked_msg:
+                locked = locked_msg.text == "Display of final grades has been disabled by your school."
+
+            if locked:
                 self.message = "PowerSchool is locked."
                 if (len(list(filter(lambda d: "student_id" in d and "section_id" in d, data_if_locked))) == len(
                         data_if_locked)
@@ -1092,4 +1098,4 @@ if __name__ == "__main__":
             # Error when something in PowerSchool breaks scraper
             print(json_format(False, "An Unknown Error occurred. Contact support."))
             # Uncomment below to print error
-#             print(e)
+            # print(e)
