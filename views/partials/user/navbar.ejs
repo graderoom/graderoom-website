@@ -102,7 +102,7 @@
                         <% if (page === "home") { %>
                             <li class="nav-item dropdown-item">
                                 <btn class="btn btn-med"
-                                     onclick="showCard('#settingsCardDisplay'); openTab(3);">
+                                     onclick="showCard('#settingsCardDisplay'); openTab(4);">
                                     <i class="fa fa-info-circle" aria-hidden="true"></i> Help
                                 </btn>
                             </li>
@@ -444,6 +444,9 @@
             feedbackForm.remove();
             oldFrame.append(`<iframe id="feedbackForm" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>`);
             setupFeedbackForm();
+        }
+        if (id === "changelogDisplay") {
+            $(".changelog-parent, .changelog-parent > div").removeClass("show");
         }
 
         // Manage theme selection, if it exists

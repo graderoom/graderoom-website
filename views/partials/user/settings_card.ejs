@@ -1266,6 +1266,7 @@
             $(".updateGradesMessage").removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text("GradeSync is not enabled");
         } else {
             $("#savePasswordToggle:not(:checked)").trigger("click");
+            $("#syncGradesDiv").show();
             showCard("#updateGradesDisplay");
         }
     }

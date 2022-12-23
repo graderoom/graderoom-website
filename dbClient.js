@@ -46,8 +46,14 @@ const {
     CHARTS_COLLECTION_NAME,
     INTERNAL_API_KEYS_COLLECTION_NAME,
     betaFeatureKeys,
-    isNotToday, dbUserVersion, dbClassVersion,
-    latestVersion, buildStarterNotifications, notificationButton, notificationTextField, donoHelper
+    isNotToday,
+    dbUserVersion,
+    dbClassVersion,
+    latestVersion,
+    buildStarterNotifications,
+    notificationButton,
+    notificationTextField,
+    donoHelper
 } = require("./dbHelpers");
 
 module.exports = {
@@ -183,8 +189,8 @@ module.exports = {
     // INTERNAL API STUFF (DANGEROUS)
     internalApiAuthenticate: (apiKey) => safe(_internalApiAuth, apiKey),
     internalApiDiscordConnect: (username, discordID) => safe(_internalApiDiscordConnect, username, discordID),
-    internalApiDiscordUserInfo: (discordID) => safe(_internalApiDiscordUserInfo, discordID),
-}
+    internalApiDiscordUserInfo: (discordID) => safe(_internalApiDiscordUserInfo, discordID)
+};
 
 /**
  * Executes the given function.
@@ -650,13 +656,17 @@ const _version7 = async (db, username) => {
     await __version7(db, user);
 
     return {success: true, data: {log: `Updated ${username} to version 7`}};
-}
+};
 
 const __version7 = async (db, user) => {
     if (user.version === 6) {
-        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {$set: {'appearance.showPlusMinusLines': false, version: 7}});
+        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {
+            $set: {
+                "appearance.showPlusMinusLines": false, version: 7
+            }
+        });
     }
-}
+};
 
 const _version8 = async (db, username) => {
     let res = await _getUser(db, username, {version: 1});
@@ -668,7 +678,7 @@ const _version8 = async (db, username) => {
     await __version8(db, user);
 
     return {success: true, data: {log: `Updated ${username} to version 8`}};
-}
+};
 
 const __version8 = async (db, user) => {
     if (user.version === 7) {
@@ -677,7 +687,7 @@ const __version8 = async (db, user) => {
 
         await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {$set: {version: 8}});
     }
-}
+};
 
 const _version9 = async (db, username) => {
     let res = await _getUser(db, username, {version: 1});
@@ -689,13 +699,17 @@ const _version9 = async (db, username) => {
     await __version9(db, user);
 
     return {success: true, data: {log: `Updated ${username} to version 9`}};
-}
+};
 
 const __version9 = async (db, user) => {
     if (user.version === 8) {
-        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {$set: {"appearance.reduceMotion": false, "appearance.showEmpty": true, version: 9}})
+        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {
+            $set: {
+                "appearance.reduceMotion": false, "appearance.showEmpty": true, version: 9
+            }
+        });
     }
-}
+};
 
 const _version10 = async (db, username) => {
     let res = await _getUser(db, username, {version: 1});
@@ -707,13 +721,19 @@ const _version10 = async (db, username) => {
     await __version10(db, user);
 
     return {success: true, data: {log: `Updated ${username} to version 10`}};
-}
+};
 
 const __version10 = async (db, user) => {
     if (user.version === 9) {
-        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {$unset: {"notifications": ""}, $set: {"alerts.notificationSettings": {showUpdatePopup: false}, "alerts.notifications": buildStarterNotifications(), version: 10}});
+        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {
+            $unset: {"notifications": ""}, $set: {
+                "alerts.notificationSettings": {showUpdatePopup: false},
+                "alerts.notifications": buildStarterNotifications(),
+                version: 10
+            }
+        });
     }
-}
+};
 
 const _version11 = async (db, username) => {
     let res = await _getUser(db, username, {version: 1});
@@ -725,13 +745,15 @@ const _version11 = async (db, username) => {
     await __version11(db, user);
 
     return {success: true, data: {log: `Updated ${username} to version 11`}};
-}
+};
 
 const __version11 = async (db, user) => {
     if (user.version === 10) {
-        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {$unset: {"notifications": ""}, $set: {"alerts.notifications": buildStarterNotifications(), version: 11}});
+        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {
+            $unset: {"notifications": ""}, $set: {"alerts.notifications": buildStarterNotifications(), version: 11}
+        });
     }
-}
+};
 
 const _version12 = async (db, username) => {
     let res = await _getUser(db, username, {version: 1, school: 1, grades: 1, weights: 1});
@@ -743,7 +765,7 @@ const _version12 = async (db, username) => {
     await __version12(db, user);
 
     return {success: true, data: {log: `Updated ${username} to version 12`}};
-}
+};
 
 const __version12 = async (db, user) => {
     if (user.version === 11) {
@@ -773,13 +795,17 @@ const __version12 = async (db, user) => {
                 }
             }
 
-            await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {$set: {grades: grades, weights: weights, version: 12}});
+            await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {
+                $set: {
+                    grades: grades, weights: weights, version: 12
+                }
+            });
 
             await _initAddedAssignments(db, user.username);
             await _initEditedAssignments(db, user.username);
         }
     }
-}
+};
 
 const _version13 = async (db, username) => {
     let res = await _getUser(db, username, {version: 1});
@@ -791,11 +817,58 @@ const _version13 = async (db, username) => {
     await __version13(db, user);
 
     return {success: true, data: {log: `Updated ${username} to version 13`}};
-}
+};
 
 const __version13 = async (db, user) => {
     if (user.version === 12) {
-        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {$set: {discord: {}, version: 13}});
+        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {
+            $set: {
+                discord: {}, version: 13
+            }
+        });
+    }
+};
+
+const _version14 = async (db, username) => {
+    let res = await _getUser(db, username, {version: 1, grades: 1, weights: 1, editedAssignments: 1, addedAssignments: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await __version14(db, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 14`}};
+}
+
+const __version14 = async (db, user) => {
+    if (user.version === 13) {
+        let addedAssignments = _.clone(user.addedAssignments);
+        let editedAssignments = _.clone(user.editedAssignments);
+        let terms = Object.keys(user.grades);
+        for (let term of terms) {
+            let semesters = Object.keys(user.grades[term]);
+            for (let semester of semesters) {
+                for (let i = 0; i < user.grades[term][semester].length; i++) {
+                    for (let psaid of Object.keys(user.editedAssignments[term][semester][i].data)) {
+                        if (user.grades[term][semester][i].grades.findIndex(a => `${a.psaid}` === psaid) === -1) {
+                            delete editedAssignments[term][semester][i].data[psaid];
+                        }
+                    }
+                    for (let assignment of user.addedAssignments[term][semester][i].data) {
+                        if (!Object.keys(user.weights[term][semester][i].weights).includes(assignment.category)) {
+                            _.remove(addedAssignments[term][semester][i].data, assignment);
+                        }
+                    }
+                }
+            }
+        }
+
+        await db.collection(USERS_COLLECTION_NAME).updateOne({username: user.username}, {
+            $set: {
+                addedAssignments: addedAssignments, editedAssignments, version: 14
+            }
+        });
     }
 }
 
@@ -898,6 +971,9 @@ const _updateAllUsers = async (db) => {
             }
             if (user.version < 13) {
                 console.log((await _version13(db, user.username)).data.log);
+            }
+            if (user.version < 14) {
+                console.log((await _version14(db, user.username)).data.log);
             }
         }
         console.log((await _initUser(db, user.username)).data.log);
@@ -1028,12 +1104,11 @@ const _apiGetUser = async (db, apiKey, projection) => {
     let user = await db.collection(USERS_COLLECTION_NAME).findOne(query, projection);
     if (!user) {
         return {
-            success: false,
-            data: {log: `No user found with given parameters: apiKey=${apiKey}`}
-        }
+            success: false, data: {log: `No user found with given parameters: apiKey=${apiKey}`}
+        };
     }
     return {success: true, data: {value: user}};
-}
+};
 
 const _getUser = async (db, username, projection, additionalQuery) => {
     let query = {username: username};
@@ -1078,7 +1153,10 @@ const _getClass = async (db, school, className, term, semester, projection, addi
 
 const _getAllUsers = async (db, projection, query) => {
     query = query ?? {};
-    return {success: true, data: {value: await db.collection(USERS_COLLECTION_NAME).find(query, {projection: projection}).toArray()}};
+    return {
+        success: true,
+        data: {value: await db.collection(USERS_COLLECTION_NAME).find(query, {projection: projection}).toArray()}
+    };
 };
 
 const _getAllClasses = async (db, school, projection) => {
@@ -1100,12 +1178,19 @@ const _getChartData = async (db) => {
     }
 
     return new Promise(resolve => resolve({
-        success: true, data: data}));
+                                              success: true, data: data
+                                          }));
 };
 
 const _getLoggedInData = async (db, isLoggedIn, username) => {
-    return {success: true, data: {value: {count: socketManager.count() + (isLoggedIn ? 1 : 0), uniqueCount: socketManager.uniqueCount(username)}}};
-}
+    return {
+        success: true, data: {
+            value: {
+                count: socketManager.count() + (isLoggedIn ? 1 : 0), uniqueCount: socketManager.uniqueCount(username)
+            }
+        }
+    };
+};
 
 const _processChartData = async (db) => {
     let data = await db.collection(CHARTS_COLLECTION_NAME).findOne();
@@ -1118,8 +1203,8 @@ const _processChartData = async (db) => {
             activeUsersData: [],
             gradData: [],
             schoolData: [],
-            lastUpdated: new Date(0),
-        }
+            lastUpdated: new Date(0)
+        };
     }
     if (!data.updating) {
         await db.collection(CHARTS_COLLECTION_NAME).updateOne({}, {$set: {updating: true}}, {upsert: true});
@@ -1132,11 +1217,10 @@ const _processChartData = async (db) => {
     };
     let query = {
         $or: [{
-            'alerts.lastUpdated.timestamp': {
-                $gte: lastUpdatedCharts.getTime(),
-                $lt: Date.parse(new Date().toDateString())
+            "alerts.lastUpdated.timestamp": {
+                $gte: lastUpdatedCharts.getTime(), $lt: Date.parse(new Date().toDateString())
             }
-        }, {'loggedIn': {$gt: lastUpdatedCharts.getTime(), $lt: Date.parse(new Date().toDateString())}}]
+        }, {"loggedIn": {$gt: lastUpdatedCharts.getTime(), $lt: Date.parse(new Date().toDateString())}}]
     };
     // All users with new data since lastUpdatedCharts but before today
     let allUsers = (await _getAllUsers(db, projection, query)).data.value;
@@ -1188,7 +1272,7 @@ const _processChartData = async (db) => {
         }
     }
 
-    let actualAllUsers = (await _getAllUsers(db, {'loggedIn': 1})).data.value;
+    let actualAllUsers = (await _getAllUsers(db, {"loggedIn": 1})).data.value;
 
     // Might be workaround for this, but I can't figure it out at the moment
     let userData = loginData.map(t => ({
@@ -1272,7 +1356,7 @@ const _processChartData = async (db) => {
         activeUsersData: activeUsersData,
         gradData: gradData,
         schoolData: schoolData,
-        lastUpdated: lastUpdatedCharts,
+        lastUpdated: lastUpdatedCharts
     };
 
     await db.collection(CHARTS_COLLECTION_NAME).updateOne({}, {$set: value, $unset: {updating: ""}}, {upsert: true});
@@ -1483,7 +1567,7 @@ const _apiInfo = async (db, apiKey) => {
 
 const _apiGradesSlim = async (db, apiKey) => {
 
-}
+};
 
 const _internalApiAuth = async (db, apiKey) => {
     if (typeof apiKey !== "string" && !(apiKey instanceof String) || apiKey.length !== 25) {
@@ -1494,7 +1578,7 @@ const _internalApiAuth = async (db, apiKey) => {
         return {success: true};
     }
     return {success: false};
-}
+};
 
 /**
  * API Function to start a link between a Graderoom account and a Discord ID
@@ -1520,12 +1604,11 @@ const _internalApiDiscordConnect = async (db, username, discordID) => {
         if (currDiscord === discordID) {
             // Case where user is already connected
             return {
-                success: false,
-                data: {errorCode: 3}
+                success: false, data: {errorCode: 3}
             };
         } else {
             // Case where Graderoom account has a link to a different Discord
-            return {success: false, data: {errorCode: 4}}
+            return {success: false, data: {errorCode: 4}};
         }
     }
 
@@ -1540,13 +1623,13 @@ const _internalApiDiscordConnect = async (db, username, discordID) => {
         id: "discord-verify",
         type: "discord",
         title: "Connect Discord",
-        message: `Enter the 2-Digit Code sent by Graderoomba ${notificationTextField('discord-verify', `sendData("discord-verify", {verificationCode: $("#discord-verify")[0].valueAsNumber})`, "number", "2-Digit Code", "10", "99", "1")}`,
+        message: `Enter the 2-Digit Code sent by Graderoomba ${notificationTextField("discord-verify", `sendData("discord-verify", {verificationCode: $("#discord-verify")[0].valueAsNumber})`, "number", "2-Digit Code", "10", "99", "1")}`,
         dismissible: false,
         dismissed: false,
         important: true,
         pinnable: false,
         pinned: true,
-        createdDate: now,
+        createdDate: now
     };
 
     // Delete any existing discord notifications
@@ -1555,12 +1638,18 @@ const _internalApiDiscordConnect = async (db, username, discordID) => {
     await _deleteNotification(db, username, "discord-verified");
 
     // Store the verification code, the notification, and the unverified discord ID in the database
-    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {discord: {verificationCode: verificationCode, expires: expires, unverifiedDiscordID: discordID}}, $push: {'alerts.notifications': notification}});
+    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {
+        $set: {
+            discord: {
+                verificationCode: verificationCode, expires: expires, unverifiedDiscordID: discordID
+            }
+        }, $push: {"alerts.notifications": notification}
+    });
 
     socketManager.emitToRoom(username, "notification-new", notification);
 
     return {success: true, data: {verificationCode: verificationCode}};
-}
+};
 
 /**
  * API Function that searches the database for the given Discord ID and returns data for setting roles
@@ -1572,14 +1661,16 @@ const _internalApiDiscordUserInfo = async (db, discordID) => {
         // Case where the Discord ID is invalid
         return {success: false, data: {message: "Invalid Discord ID", errorCode: 1}};
     }
-    let user = await db.collection(USERS_COLLECTION_NAME).findOne({'discord.discordID': discordID}, {school: 1, donoData: 1});
+    let user = await db.collection(USERS_COLLECTION_NAME).findOne({"discord.discordID": discordID}, {
+        school: 1, donoData: 1
+    });
     if (!user) {
         // Case where the user has not connected their account yet
         return {success: false, data: {errorCode: 5}};
     }
 
     return {success: true, data: {school: user.school, donoData: await __getDonoAttributes(user.donoData)}};
-}
+};
 
 /**
  * Function to link a Discord ID to a Graderoom account if the code is correct
@@ -1602,7 +1693,9 @@ const _discordVerify = async (db, username, verificationCode) => {
     // Handle cases where verification should fail
     let now = Date.now();
     if (!user.discord.expires || now >= user.discord.expires) {
-        return {success: false, data: {message: "This code is no longer valid. Please restart the verification process."}};
+        return {
+            success: false, data: {message: "This code is no longer valid. Please restart the verification process."}
+        };
     }
 
     if (!user.discord.verificationCode || verificationCode !== user.discord.verificationCode) {
@@ -1614,18 +1707,15 @@ const _discordVerify = async (db, username, verificationCode) => {
                                                              username: username
                                                          }, {
                                                              $set: {
-                                                                 'discord.discordID': user.discord.unverifiedDiscordID
-                                                             },
-                                                             $unset: {
-                                                                 'discord.unverifiedDiscordID': "",
-                                                                 'discord.verificationCode': "",
-                                                                 'discord.expires': ""
-                                                             }
+                                                                 "discord.discordID": user.discord.unverifiedDiscordID
+                                                             }, $unset: {
+            "discord.unverifiedDiscordID": "", "discord.verificationCode": "", "discord.expires": ""
+        }
                                                          });
 
 
-    return {success: true, data: {message: "Successfully linked Discord account"}}
-}
+    return {success: true, data: {message: "Successfully linked Discord account"}};
+};
 
 const _login = async (db, username, password) => {
     return new Promise(async resolve => {
@@ -1813,7 +1903,11 @@ const _setRegularizeClassGraphs = async (db, username, value) => {
     }
     let res = await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {"appearance.regularizeClassGraphs": value}});
     if (res.matchedCount === 1) {
-        return {success: true, data: {settings: {regularizeClassGraphs: value}, log: `Set regularizeClassGraphs to ${value} for ${username}`}};
+        return {
+            success: true, data: {
+                settings: {regularizeClassGraphs: value}, log: `Set regularizeClassGraphs to ${value} for ${username}`
+            }
+        };
     }
     return {success: false, data: {log: `Error setting regularizeClassGraphs to ${value} for ${username}`}};
 };
@@ -1821,30 +1915,33 @@ const _setRegularizeClassGraphs = async (db, username, value) => {
 const _setShowPlusMinusLines = async (db, username, value) => {
     if (typeof value !== "boolean") {
         return {
-            success: false,
-            data: {message: "Something went wrong", log: `Invalid showPlusMinusLines value: ${value}`}
+            success: false, data: {message: "Something went wrong", log: `Invalid showPlusMinusLines value: ${value}`}
         };
     }
     let res = await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {"appearance.showPlusMinusLines": value}});
     if (res.matchedCount === 1) {
-        return {success: true, data: {settings: {showPlusMinusLines: value}, log: `Set showPlusMinusLines to ${value} for ${username}`}};
+        return {
+            success: true,
+            data: {settings: {showPlusMinusLines: value}, log: `Set showPlusMinusLines to ${value} for ${username}`}
+        };
     }
     return {success: false, data: {log: `Error settings showPlusMinusLines to ${value} for ${username}`}};
-}
+};
 
 const _setReduceMotion = async (db, username, value) => {
     if (typeof value !== "boolean") {
         return {
-            success: false,
-            data: {message: "Something went wrong", log: `Invalid reduceMotion value: ${value}`}
+            success: false, data: {message: "Something went wrong", log: `Invalid reduceMotion value: ${value}`}
         };
     }
     let res = await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {"appearance.reduceMotion": value}});
     if (res.matchedCount === 1) {
-        return {success: true, data: {settings: {reduceMotion: value}, log: `Set reduceMotion to ${value} for ${username}`}};
+        return {
+            success: true, data: {settings: {reduceMotion: value}, log: `Set reduceMotion to ${value} for ${username}`}
+        };
     }
     return {success: false, data: {log: `Error settings reduceMotion to ${value} for ${username}`}};
-}
+};
 
 const _setWeightedGPA = async (db, username, value) => {
     if (typeof value !== "boolean") {
@@ -2050,7 +2147,9 @@ const _setShowUpdatePopup = async (db, username, value) => {
     if (typeof value !== "boolean") {
         return {
             success: false, data: {
-                message: "Invalid value", log: `Invalid showUpdatePopup value: ${value}`, settings: {showUpdatePopup: value}
+                message: "Invalid value",
+                log: `Invalid showUpdatePopup value: ${value}`,
+                settings: {showUpdatePopup: value}
             }
         };
     }
@@ -2058,24 +2157,31 @@ const _setShowUpdatePopup = async (db, username, value) => {
     if (res.matchedCount === 1) {
         return {
             success: true, data: {
-                settings: {showUpdatePopup: value},
+                settings: {showUpdatePopup: value}
             }
-        }
+        };
     }
-}
+};
 
 const _updateNotification = async (db, username, id, update) => {
     if (typeof id !== "string" || Object.keys(update).filter(k => !(["pinned", "dismissed"]).includes(k)).length) {
-        return {success: false, data: {message: "Invalid value", log: `Invalid updateNotification parameters id=${id}, update=${update}`}};
+        return {
+            success: false,
+            data: {message: "Invalid value", log: `Invalid updateNotification parameters id=${id}, update=${update}`}
+        };
     }
-    let trimmed = (await db.collection(USERS_COLLECTION_NAME).findOne({username: username}, {projection: {"alerts.notifications.id": 1, "alerts.notifications.pinned": 1, "alerts.notifications.dismissed": 1}})).alerts.notifications;
+    let trimmed = (await db.collection(USERS_COLLECTION_NAME).findOne({username: username}, {
+        projection: {
+            "alerts.notifications.id": 1, "alerts.notifications.pinned": 1, "alerts.notifications.dismissed": 1
+        }
+    })).alerts.notifications;
     let index = trimmed.findIndex(i => i.id === id);
     if (index === -1) {
         return {success: false, data: {message: "Invalid ID", log: `Invalid updateNotification id=${id}`}};
     }
 
     let realUpdate = {};
-    let set = {}
+    let set = {};
     if ("pinned" in update && update.pinned !== trimmed[index].pinned) {
         set[`alerts.notifications.${index}.pinned`] = update.pinned;
         realUpdate.pinned = update.pinned;
@@ -2089,25 +2195,24 @@ const _updateNotification = async (db, username, id, update) => {
     if (res.matchedCount === 1) {
         return {
             success: true, data: {
-                id: id,
-                update: realUpdate,
+                id: id, update: realUpdate
             }
-        }
+        };
     }
-}
+};
 
 const _deleteNotification = async (db, username, id) => {
-    let res = await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$pull: {'alerts.notifications': {id: id}}});
+    let res = await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$pull: {"alerts.notifications": {id: id}}});
     if (res.matchedCount === 1) {
         socketManager.emitToRoom(username, "notification-delete", {id: id});
         return {
             success: true, data: {
-                id: id,
+                id: id
             }
         };
     }
     return {success: false};
-}
+};
 
 const _changePassword = async (db, username, oldPassword, newPassword) => {
     return new Promise(async resolve => {
@@ -2311,7 +2416,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                 };
                 if (user.school === Schools.BISV) {
                     newGrades = data.new_grades[newTerm];
-                    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {[`grades.${newTerm}`]: newGrades}})
+                    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {[`grades.${newTerm}`]: newGrades}});
                     let newWeights = data.new_weights[newTerm];
                     await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {[`weights.${newTerm}`]: newWeights}});
                 } else {
@@ -2788,10 +2893,6 @@ const _updateAddedAssignments = async (db, username, addedAssignments, term, sem
         };
     }
 
-    if (addedAssignments.length !== grades[term][semester].length) {
-        return {success: false, data: {prodLog: `addedAssignments has invalid length username=${username}`}};
-    }
-
     let allowedKeys = ["assignment_name", "date", "category", "grade_percent", "points_gotten", "points_possible", "exclude"];
     let allowedTypes = {
         "assignment_name": ["string"],
@@ -2804,6 +2905,14 @@ const _updateAddedAssignments = async (db, username, addedAssignments, term, sem
     };
 
     for (let i = 0; i < addedAssignments.length; i++) {
+        let className = addedAssignments[i].className;
+        let index = grades[term][semester].findIndex(c => c.class_name === className);
+        if (index === -1) {
+            return {
+                success: false,
+                data: {prodLog: `Invalid class ${className} for updateAddedAssignments: username=${username}`}
+            };
+        }
         for (let j = 0; j < addedAssignments[i].data.length; j++) {
             let assignment = addedAssignments[i].data[j];
             if (Object.keys(assignment).length !== allowedKeys.length) {
@@ -2816,9 +2925,9 @@ const _updateAddedAssignments = async (db, username, addedAssignments, term, sem
                 return {success: false, data: {prodLog: `addedAssignments has invalid values`}};
             }
         }
+        await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {[`addedAssignments.${term}.${semester}.${index}`]: addedAssignments[i]}});
     }
 
-    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {[`addedAssignments.${term}.${semester}`]: addedAssignments}});
     return {success: true};
 };
 
@@ -2845,8 +2954,12 @@ const _updateEditedAssignments = async (db, username, editedAssignments, term, s
         };
     }
 
-    if (editedAssignments.length !== grades[term][semester].length) {
-        return {success: false, data: {prodLog: `editedAssignments has invalid length username=${username}`}};
+    let oldEditedAssignments = user.editedAssignments;
+    if (!(term in oldEditedAssignments) || !(semester in oldEditedAssignments[term])) {
+        return {
+            success: false,
+            data: {log: `Invalid parameters for updateEditedAssignments: username=${username}, term=${term}, semester=${semester}`}
+        };
     }
 
     let allowedKeys = ["assignment_name", "date", "category", "grade_percent", "points_gotten", "points_possible", "exclude"];
@@ -2860,6 +2973,20 @@ const _updateEditedAssignments = async (db, username, editedAssignments, term, s
     };
 
     for (let i = 0; i < editedAssignments.length; i++) {
+        let className = editedAssignments[i].className;
+        let index = grades[term][semester].findIndex(c => c.class_name === className);
+        if (index === -1) {
+            return {
+                success: false,
+                data: {prodLog: `Invalid class ${className} for updateEditedAssignments: username=${username}`}
+            };
+        }
+        let psaids = Object.keys(editedAssignments[i].data);
+        for (let j = 0; j < psaids.length; j++) {
+            if (grades[term][semester][index].grades.findIndex(g => `${g.psaid}` === psaids[j]) === -1) {
+                return {success: false, data: {prodLog: `editedAssignments has invalid psaid`}};
+            }
+        }
         let assignments = Object.values(editedAssignments[i].data);
         for (let j = 0; j < assignments.length; j++) {
             let assignment = assignments[j];
@@ -2870,17 +2997,9 @@ const _updateEditedAssignments = async (db, username, editedAssignments, term, s
                 return {success: false, data: {prodLog: `editedAssignments has invalid values`}};
             }
         }
+        await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {[`editedAssignments.${term}.${semester}.${index}`]: editedAssignments[i]}});
     }
 
-    let oldEditedAssignments = user.editedAssignments;
-    if (!(term in oldEditedAssignments) || !(semester in oldEditedAssignments[term])) {
-        return {
-            success: false,
-            data: {log: `Invalid parameters for updateEditedAssignments: username=${username}, term=${term}, semester=${semester}`}
-        };
-    }
-
-    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {[`editedAssignments.${term}.${semester}`]: editedAssignments}});
     return {success: true};
 };
 
@@ -2908,7 +3027,10 @@ const _getSyncStatus = async (db, username) => {
     } else if (syncStatus === SyncStatus.HISTORY) {
         return {success: false, data: {message: "Syncing History..."}};
     } else if (syncStatus === SyncStatus.ACCOUNT_INACTIVE) {
-        return {success: false, data: {message: `Your ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"} account is no longer active.`}};
+        return {
+            success: false,
+            data: {message: `Your ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"} account is no longer active.`}
+        };
     } else if (syncStatus === SyncStatus.NOT_SYNCING) {
         return {success: false, data: {message: "Not syncing"}};
     }
@@ -3684,7 +3806,7 @@ const _addDonation = async (db, username, platform, paidValue, receivedValue, da
         important: true,
         pinnable: true,
         pinned: true,
-        createdDate: dateDonated,
+        createdDate: dateDonated
     };
 
     let res = await db.collection(USERS_COLLECTION_NAME).updateOne({
@@ -3697,8 +3819,7 @@ const _addDonation = async (db, username, platform, paidValue, receivedValue, da
                                                                                paidValue: paidValue,
                                                                                receivedValue: receivedValue,
                                                                                dateDonated: dateDonated
-                                                                           },
-                                                                           'alerts.notifications': notification
+                                                                           }, "alerts.notifications": notification
                                                                        }
                                                                    });
 
@@ -3733,7 +3854,9 @@ const _removeDonation = async (db, username, index) => {
     }
 
     let id = `${donation.platform}-${donation.dateDonated}-${donation.paidValue}-${donation.receivedValue}`;
-    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {$set: {donoData: donoData}, $pull: {'alerts.notifications': {id: id}}});
+    await db.collection(USERS_COLLECTION_NAME).updateOne({username: username}, {
+        $set: {donoData: donoData}, $pull: {"alerts.notifications": {id: id}}
+    });
 
     socketManager.emitToRoom(username, "notification-delete", {id: id});
 
@@ -3766,4 +3889,4 @@ const __getDonoAttributes = async (donos) => {
     return {
         success: true, data: {value: donoHelper(totalDonos)}
     };
-}
+};
