@@ -1168,6 +1168,7 @@
                 }
             });
 
+
             let refreshing;
             let shortcutsEnabled = true;
             let recentlyAddedAssignment;
@@ -1316,6 +1317,7 @@
             }
 
             setupDonos();
+            setupNotificationPanel();
 
             if (data.length) {
                 setupGradeChanges(false);
@@ -1326,8 +1328,6 @@
                 setupAddAssignments();
                 setupGpaDetails(true, false);
             }
-
-            setupNotificationPanel();
 
             $("#termSwitcher").addClass("hover");
             setTimeout(() => $("#termSwitcher").removeClass("hover"), 2000);
@@ -3148,7 +3148,7 @@
                 for (let i = 0; i < parsedData.length; i++) {
                     if (changedClassIndex === undefined || changedClassIndex === i) {
                         let grade = getOverallGrade(i);
-                        let [overallGrade, overallLetter] = (correctCalc(i)) ? [grade, _data[i].overall_letter ?? getLetterGrade(grade)] : [_data[i].overall_percent, _data[i].overall_letter ?? getLetterGrade(_data[i].overall_percent)];
+                        let [overallGrade, overallLetter] = (correctCalc(i) || _data[i].ps_locked) ? [grade, _data[i].ps_locked ? getLetterGrade(grade) : (_data[i].overall_letter ?? getLetterGrade(grade))] : [_data[i].overall_percent, _data[i].overall_letter ?? getLetterGrade(_data[i].overall_percent)];
                         let assignmentData = parsedData[i].rawData;
                         let lastIndex = assignmentData.length - 1;
                         let delta = Math.round(assignmentData[lastIndex] - assignmentData[lastIndex - 1] * 100) / 100;
@@ -4590,7 +4590,7 @@
 
                     // Reset changelog
                     if (cardsDisplayed.includes("changelogDisplay")) {
-                        showChangelog();
+                        showChangelog(false, true);
                     }
                 }, 1000);
             };

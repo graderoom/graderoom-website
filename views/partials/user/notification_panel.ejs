@@ -74,7 +74,7 @@
         updateCounts();
     }
 
-    function createChangelogNotifications(_versionNames) {
+    function createChangelogNotifications(_versionNames, _versionDates, _versionMessages) {
         let latestSeenIndex = _versionNames.findIndex(v => v.endsWith(alerts.latestSeen));
         if (latestSeenIndex === -1) {
             latestSeenIndex = 2;
@@ -82,21 +82,21 @@
         for (let i = 1; i < latestSeenIndex; i++) {
             let version = _versionNames[i];
             if (version.startsWith("Stable")) {
-                createPinned(version, "Stable", version, changelogMessage(version, versionMessages[i]), false, false, true, versionDates[i], false);
+                createPinned(version, "Stable", version, changelogMessage(version, _versionMessages[i]), false, false, true, _versionDates[i], false);
             } else if (version.startsWith("Beta")) {
-                <% if (beta) { %>createPinned(version, "Beta", version, changelogMessage(version, versionMessages[i]), false, false, <%= beta; %>, versionDates[i], false);<% } %>
+                <% if (beta) { %>createPinned(version, "Beta", version, changelogMessage(version, _versionMessages[i]), false, false, <%= beta; %>, _versionDates[i], false);<% } %>
             } else if (version.startsWith("Announcement")) {
-                createPinned(version, "Announcement", version, changelogMessage(version, versionMessages[i]), false, false, true, versionDates[i], false);
+                createPinned(version, "Announcement", version, changelogMessage(version, _versionMessages[i]), false, false, true, _versionDates[i], false);
             }
         }
         for (let i = latestSeenIndex; i < _versionNames.length; i++) {
             let version = _versionNames[i];
             if (version.startsWith("Stable")) {
-                createDismissed(version, "Stable", version, changelogMessage(version, versionMessages[i]), false, false, true, versionDates[i], versionDates[latestSeenIndex], false);
+                createDismissed(version, "Stable", version, changelogMessage(version, _versionMessages[i]), false, false, true, _versionDates[i], _versionDates[latestSeenIndex], false);
             } else if (version.startsWith("Beta")) {
-                createDismissed(version, "Beta", version, changelogMessage(version, versionMessages[i]), false, false, <%= beta; %>, versionDates[i], versionDates[latestSeenIndex], false);
+                createDismissed(version, "Beta", version, changelogMessage(version, _versionMessages[i]), false, false, <%= beta; %>, _versionDates[i], _versionDates[latestSeenIndex], false);
             } else if (version.startsWith("Announcement")) {
-                createDismissed(version, "Announcement", version, changelogMessage(version, versionMessages[i]), false, false, true, versionDates[i], versionDates[latestSeenIndex], false);
+                createDismissed(version, "Announcement", version, changelogMessage(version, _versionMessages[i]), false, false, true, _versionDates[i], _versionDates[latestSeenIndex], false);
             }
         }
     }

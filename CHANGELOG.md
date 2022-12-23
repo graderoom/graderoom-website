@@ -46,6 +46,20 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 5.8.2] - 2022-12-23
+### Added
+- Loading animation to changelog
+
+### Improved
+- Analytics chart points enlarge without cursor intersect
+- Changelog loads faster after first load
+
+### Fixed
+- Help button in 'More' menu now links to the correct place
+- Letter grade in overview chart is now the calculated letter grade when PowerSchool is locked
+- Issues with added/edited assignments not saving if hiding any classes
+- Issue where editing an assignment and then unhiding classes caused the page to not load
+
 ## [Stable 5.8.1] - 2022-12-22 - You can clear these notifications by clicking the 'Open Changelog' button
 ### Improved
 - Beta versions no longer show as notifications on stable site

@@ -362,7 +362,8 @@ table thead tr th:last-child {
 
 .changelog-legend-column {
     border: none;
-    width: 100%;
+    max-width: 40%;
+    min-width: 250px;
     overflow-y: scroll;
     max-height: 70vh;
     scrollbar-width: none;
@@ -389,15 +390,43 @@ table thead tr th:last-child {
 .changelog-legend-column div p {
     margin: 0;
     opacity: 0.4;
+    font-weight: normal !important;
 }
 
 .changelog-legend-column div.active,
 .changelog-legend-column div:hover {
     opacity: 1;
+    font-weight: bold;
 }
 
-.changelog-legend-column div.active {
-    font-weight: bolder;
+.changelog-legend-column div.active p {
+    opacity: 0.8;
+}
+
+.changelog-legend-column, .changelog {
+    opacity: 0;
+}
+
+.changelog-legend-column.show, .changelog.show {
+    animation: centerScaleUp 200ms;
+    opacity: 1;
+}
+
+.changelog-parent::after {
+    right: 2rem;
+    width: calc(100% - 4rem);
+}
+
+.changelog-parent:not(.show)::after {
+    content: "";
+    position: absolute;
+    height: 70vh;
+    border-radius: 0.5rem;
+    background-image: linear-gradient(to right, #444444, transparent, #444444);
+    background-size: 1000px;
+    background-repeat: repeat-x;
+    z-index: 99;
+    animation: loadSwipe 2s infinite linear both;
 }
 
 .changelog {
@@ -3653,6 +3682,10 @@ input:disabled {
 /* Mobile Stuff */
 @media only screen and (max-width: 991px) {
     .toolTab {
+        display: none;
+    }
+
+    .changelog-legend-column {
         display: none;
     }
 
