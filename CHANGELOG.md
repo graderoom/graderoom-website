@@ -46,6 +46,13 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Announcement 5.8.3] - 2022-12-25 - IF YOUR ACCOUNT ISN'T SYNCING, PLEASE READ. Also, Merry Christmas!
+- You may see an error message that says 'Sync Failed' or 'Incorrect PowerSchool password'
+- If you've successfully synced in the past, this is because Graderoom is unable to log in to PowerSchool using your password, but it's not your fault
+- Students have reported that their PowerSchool logins have temporarily stopped working several times today.
+- When PowerSchool stops working, Graderoom will not be able to sync either.
+- Enjoy the rest of your break!
+
 ## [Stable 5.8.2] - 2022-12-23
 ### Added
 - Loading animation to changelog
