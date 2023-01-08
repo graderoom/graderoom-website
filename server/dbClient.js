@@ -3668,6 +3668,7 @@ const _getRelevantClassData = async (db, username, term, semester) => {
             nonAcademicOverride ||= userClass.className.endsWith("Water Polo");
             nonAcademicOverride ||= userClass.className.endsWith("Football");
             nonAcademicOverride ||= userClass.className === "Study Hall";
+            nonAcademicOverride ||= userClass.className === "Free Period";
             nonAcademicOverride ||= userClass.className.startsWith("Study Center");
 
             relClasses[userClass.className] = {
