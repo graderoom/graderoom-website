@@ -46,7 +46,38 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Announcement 5.8.3] - 2022-12-25 - IF YOUR ACCOUNT ISN'T SYNCING, PLEASE READ. Also, Merry Christmas!
+## [Beta 5.9.0] - 2023-01-07 - Happy New Year!
+### Added
+- Locked PowerSchool sync now works for users that have never synced before
+- Implemented task queues to prevent race cases for live sync statuses. I hate JavaScript.
+- All GPAs should now use calculated grades if PowerSchool is locked. They'll have a warning just so you know it's not necessarily accurate
+
+### Improved
+- If any errors ever occur, there are now unique error codes that you can provide to the developers to help with debugging
+- In charts, tooltips on lines with unverified weights now include the data point value
+- Locked scraper now also fetches empty courses
+- Sync log will no longer show all assignments as new/removed when the number of courses changes
+- Class colors now stay the same after hiding/unhiding non-academic classes
+- Cura has been set as a non-academic class by default, as well as several Sports and Study hHalls
+- If a Bellarmine course has no grades and no set class type in the catalog, and a user has non-academic course display disabled, a message now appears asking them to send feedback about whether the class is non-academic or not
+
+### Fixed
+- Graderoom no longer refreshes unnecessarily when empty classes are hidden
+- Errors related to it no longer being December<ul>
+- Page wouldn't load if 'Show non-academic classes' was disabled
+- Analytics wouldn't load</ul>
+- Seasonal Effects can be disabled without refresh again
+- Issue where 'Overview' button in class navbar had a smaller hitbox than it should have
+- Issue where PowerSchool grades continued to show in incorrect grade messages if sync failed
+- Grammar errors everywhere
+- Sync issue caused by Bellarmine's misconfiguration of SSL certificates
+- Sync Failure sync status is now the correct color
+- Issue where clicking links in a certain order would prevent you from accessing the homepage without clearing cookies
+
+### Removed
+- Setting for showing empty classes
+
+## [Announcement 5.8.3] - 2022-12-25 - Merry Christmas!
 - You may see an error message that says 'Sync Failed' or 'Incorrect PowerSchool password'
 - If you've successfully synced in the past, this is because Graderoom is unable to log in to PowerSchool using your password, but it's not your fault
 - Students have reported that their PowerSchool logins have temporarily stopped working several times today.
@@ -603,7 +634,7 @@
 - Due to the huge influx of users, my server crashed at some point before 5:54 PM today, and the database decided to delete itself
 - <b>Luckily, I do have a backup system in place so all data created before 12/14/21 at 9:48:35 PM will still be here</b>
 - <b>If you know anyone whose account may have been lost, please inform them that this happened</b>
-- The server and database library I use for this app were not designed to handle this large of a userbase, which is what caused this
+- The server and database library I use for this app were not designed to handle this large of a user-base, which is what caused this
 - Over break, I will make changes to the software to prevent this from happening again
 - Hardware-wise, better servers cost money, and I do not yet know if I plan to monetize Graderoom to support a more high-end server. Let me know if you have any feedback on this.
 - -Joel
@@ -667,7 +698,7 @@
 - Added 'Performance' settings<ul>
 - Option to keep all effects and animations running even if the window is not in focus
 - Option to show current framerate<ul>
-- This option enables an overlay on the bottom left corner of the screen with metrics and a 10 second history of your framerate in the form of a chart</ul></ul>
+- This option enables an overlay in the bottom left corner of the screen with metrics and a 10-second history of your framerate in the form of a chart</ul></ul>
 - Added 'Performance Issues Log' that logs framerate drops (This does not persist through a refresh)
 - Added disclaimers that certain settings immediately refresh the page</ul>
 - <span class="changelog-inline-setoff">Term Switcher</span><ul>
@@ -1053,7 +1084,7 @@
 - When PowerSchool is locked:<ul>
 - Graderoom CAN sync new, modified, and removed assignments with PowerSchool
 - Graderoom CANNOT yet sync overall grades with PowerSchool
-- Therefore, after the addition of new assignments, messages signifying incorrect grades may popup
+- Therefore, after the addition of new assignments, messages signifying incorrect grades may pop up
 - Please ignore these for now</ul>
 
 ## [Stable 4.0.13] - 2020-12-18
@@ -1540,7 +1571,7 @@
 - Your name and graduation year show up under your username
 - Added a help button
 - Added syncing status in center navbar cluster
-- Class navbar now remains on the top of the screen when scrolling down
+- Class navbar now remains at the top of the screen when scrolling down
 - Clicking on your username now opens Account settings
 - Clicking on the logo in the navbar now goes to the overview page if you are on a class page. If you are already on the overview page, the site will refresh. You can always use the logo to go to the homepage.
 - Added new animation to sync button while syncing grades
@@ -1553,7 +1584,7 @@
 - See contributors to Graderoom in the 'About' tab of settings
 - Updated 'About' tab with history and description
 - Updated help messages on various settings
-- Brand new color scheme presets in appearance settings
+- Brand-new color scheme presets in appearance settings
 - Added advanced appearance settings<ul>
 - Added setting for regularizing class graphs (enabled by default)
 - Added setting for showing non-academic classes (enabled by default)
@@ -1597,7 +1628,7 @@
 - Smoother, faster transition between themes
 - Better spacing and styling on main navigation bar
 - Improved Placement of popups
-- Spacing in account settings has been improved so that content does not flow off screen
+- Spacing in account settings has been improved so that content does not flow off-screen
 - Improved revert grade button placement
 - Better display of excluded assignments
 - Smoother animation on showing cards
@@ -1622,9 +1653,9 @@
 - Popups with correct grade from PowerSchool now always show when calculated grade is incorrect
 - Charts rerender when page is resized
 - More informative sync status messages
-- Whats New display now shows announcements
-- Whats New display can display multiple missed versions
-- Gradesync is more clear when enabled
+- What's New display now shows announcements
+- What's New display can display multiple missed versions
+- GradeSync is more clear when enabled
 - Class colors can be changed without refreshing the page
 - Overview page now always shows on login, even if last page viewed before logout was different
 - Incorrect grades no longer show in overview table
@@ -1641,7 +1672,7 @@
 - Decreased load time when refreshing page while on first class page
 - Charts change their x-axis to days if data fits within one month
 - <em>[Mobile]</em> Homepage is much more useful and less cluttered. Click on a class to view its page
-- <em>[Mobile]</em> Navbar now has important information such as sync status and user name easily visible
+- <em>[Mobile]</em> Navbar now has important information such as sync status and username easily visible
 - <em>[Mobile]</em> Signup experience
 - <em>[Mobile]</em> Weights and point-based toggle can now be edited on mobile
 - <em>[Mobile]</em> Typing into inputs within cards has improved</ul>
@@ -1706,7 +1737,7 @@
 - Decreased load time when refreshing page while on first class page
 - Changed default date sort to Newest to Oldest
 - Charts change their x-axis to days if data fits within one month
-- Grades can by synced without refreshing the page in most cases
+- Grades can be synced without refreshing the page in most cases
 
 ### Fixed
 - Issue where assignments could not be edited
@@ -1744,7 +1775,7 @@
 
 ## [Beta 2.7.3] - 2020-08-04
 ### Added
-- Brand new color scheme presets you can choose from
+- Brand-new color scheme presets you can choose from
 
 ### Improved
 - Distinctness of generated colors
@@ -1848,7 +1879,7 @@
 ### Improved
 - Incorrect grades no longer show in overview table
 - <em>[Mobile]</em> Homepage is much more useful and less cluttered. Click on a class to view its page
-- <em>[Mobile]</em> Navbar now has important information such as sync status and user name easily visible
+- <em>[Mobile]</em> Navbar now has important information such as sync status and username easily visible
 
 ### Removed
 - <em>[Mobile]</em> Removed all charts
@@ -1925,8 +1956,8 @@
 
 ## [Beta 2.3.8] - 2020-05-30
 ### Improved
-- Whats New display now shows announcements
-- Whats New display can display multiple missed versions
+- What's New display now shows announcements
+- What's New display can display multiple missed versions
 
 ### Fixed
 - Issue where card animations would last very long if keyboard shortcuts were spammed
@@ -2052,7 +2083,7 @@
 - Smoother, faster transition between themes
 - Better spacing and styling on main navbar
 - Placement of popups
-- Spacing in account settings has been improved so that content does not flow off screen
+- Spacing in account settings has been improved so that content does not flow off-screen
 - Decreased time before giving incorrect password feedback while attempting to sync grades
 
 ### Fixed
@@ -2092,7 +2123,7 @@
 - Support for non-academic classes
 - Support for decimal weights
 - Ability to pan and zoom all charts
-- Crowd-sourced weight population
+- Crowdsourced weight population
 - Weights can be edited from main page
 - Help tab in settings
 - Quick Links
@@ -2302,7 +2333,7 @@
 
 ### Improved
 - Appearance fixes that improve screen usage on taller screen sizes (Mobile not supported)
-- Crowd-sourced weights are now prioritized by when the user last synced grades to improve reliability
+- Crowdsourced weights are now prioritized by when the user last synced grades to improve reliability
 - Tooltip has been optimized for all possibilities to show only the most relevant information
 
 ### Fixed
@@ -2370,7 +2401,7 @@
 ## [Announcement 1.3.3] - 2020-03-12
 - Auto-population of weights is now in beta
 - To prepare for the wide release, if you know the category weights for your classes, please enter them in the edit weights tab to improve the user experience for other users
-- If you find an issue with the auto-populated weights, send feedback in Settings > About > Feedback Form
+- If you find an issue with the autopopulated weights, send feedback in Settings > About > Feedback Form
 
 ## [Beta 1.3.2] - 2020-03-12
 ### Added
@@ -2390,7 +2421,7 @@
 
 ## [Stable 1.3.0] - 2020-03-02
 ### Added
-- Brand new changelog display that, by default, displays once every 24 hours. This can be changed in settings
+- Brand-new changelog display that, by default, displays once every 24 hours. This can be changed in settings
 - The changelog will be updated anytime a new version (beta or stable) is released
 - The version you are on will be highlighted green, and any announcements will be highlighted red
 - The changelog can be accessed by going to Settings > Advanced > Changelog or with the keyboard shortcut 'Q'
@@ -2411,8 +2442,8 @@
 - GradeSync loading screen now always shows correctly
 
 ## [Announcement 1.2.3] - 2020-03-02
-- On March 2, 2020 at about 8 AM PST, Graderoom encountered a server error
-- Unfortunately, all user accounts created after January 7, 2020 were deleted
+- On March 2, 2020, at about 8 AM PST, Graderoom encountered a server error
+- Unfortunately, all user accounts created after January 7, 2020, were deleted
 - Passwords and personal user data were not compromised
 - If your account still exists, you will be asked to sync your grades with PowerSchool to recover your data
 - Please inform anyone affected by this issue to create a new account
@@ -2990,7 +3021,7 @@
 - Activate by using the path /switch-mode</ul>
 
 ### Improved
-- Settings is now a card popup instead of a separate page
+- Settings are now a card popup instead of a separate page
 - Logo changes based on theme
 
 ## [Beta 0.1.2] - 2019-10-16
