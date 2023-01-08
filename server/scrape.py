@@ -158,7 +158,6 @@ def parse_ps_class(local_class: PowerSchoolClassGrade, raw_data: requests.Respon
                                 reverse=True)
     local_class.grades = [{key: value for key, value in assignment.items() if key != 'sort_date'} for assignment in
                           local_class.grades]  # Remove sorting date
-    local_class.grades = sorted(local_class.grades, key=lambda j: j['date'])
 
     return local_class.as_dict()
 
