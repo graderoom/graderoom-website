@@ -208,8 +208,8 @@ module.exports = function (app, passport) {
 
             if (term && semester) {
                 let {plus, premium} = (await dbClient.getDonoAttributes(user.username)).data.value;
-                let relevantClassData = (await dbClient.getRelevantClassData(req.query.usernameToRender, term, semester)).data.value;
-                let gradeHistoryLetters = (await dbClient.getGradeHistoryLetters(username, term, semester)).data.value;
+                let relevantClassData = (await dbClient.getRelevantClassData(user.username, term, semester)).data.value;
+                let gradeHistoryLetters = (await dbClient.getGradeHistoryLetters(user.username, term, semester)).data.value;
 
                 let termsAndSemesters = Object.keys(user.grades).map(term => {
                     let semesters = Object.keys(user.grades[term]);
