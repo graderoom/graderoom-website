@@ -31,12 +31,10 @@ module.exports = {
         let school_username = credentials.get("school_username").value();
         let password = credentials.get("password").value();
 
-        let _stream = new stream.Readable({objectMode: true, read: () => {}});
-
-        _stream.on('data', (data) => console.log(JSON.stringify(data)));
+        const processor = async (data) => console.log(JSON.stringify(data));
         if (school === "basis") {
             if ([school_username, password].includes("")) throw new Error("Configure credentials.json");
-            await scraper.loginAndScrapeGrades(_stream, school, school_username, password);
+            await scraper.loginAndScrapeGrades(processor, school, school_username, password);
             return;
         }
         let graderoom_username = credentials.get("graderoom_username").value();
@@ -55,7 +53,7 @@ module.exports = {
 
         let get_history = credentials.get("get_history").value();
 
-        await scraper.loginAndScrapeGrades(_stream, school, school_username, password, data_if_locked, term_data_if_locked, get_history);
+        await scraper.loginAndScrapeGrades(processor, school, school_username, password, data_if_locked, term_data_if_locked, get_history);
 
     },
 

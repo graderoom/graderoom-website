@@ -1,8 +1,9 @@
 let {PythonShell} = require("python-shell");
+const {AutoQueue} = require("./data_structures/queue/auto_queue");
 
 module.exports = {
 
-    loginAndScrapeGrades: function (readableStream, school, email, password, data_if_locked = {}, term_data_if_locked = {}, get_history = false) {
+    loginAndScrapeGrades: function (processor, school, email, password, data_if_locked = {}, term_data_if_locked = {}, get_history = 'false') {
 
         let pythonPath;
 
@@ -15,8 +16,7 @@ module.exports = {
         let options = {
             mode: "json", // pythonPath: 'path/to/python',
             pythonOptions: ['-u'], // get print results in real-time
-            // // scriptPath: 'path/to/my/scripts',
-            // // scriptPath: 'path/to/my/scripts',
+            scriptPath: './server',
             pythonPath: pythonPath,
             args: [school, email, password, JSON.stringify(data_if_locked), JSON.stringify(term_data_if_locked), get_history]
         };
@@ -24,18 +24,13 @@ module.exports = {
         try {
             const pyshell = new PythonShell("./scrape.py", options);
 
-            pyshell.on("message", (message) => {
-                readableStream.push(message);
-            });
-
-            pyshell.on("close", () => {
-                readableStream.destroy();
-                console.log('Destroyed stream');
+            let queue = new AutoQueue();
+            pyshell.on("message", (data) => {
+                queue.enqueue(async () => await processor(data), data.message);
             });
         } catch (e) {
             console.log("Server ran out of memory probably");
-            readableStream.push({success: false, message: 'Something went wrong'});
-            readableStream.destroy();
+            processor({success: false, message: 'Something went wrong'});
         }
 
     }

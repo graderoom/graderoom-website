@@ -22,7 +22,7 @@ function getUniqueCount(requestingUsername) {
     let time = Date.now();
     let unique = Object.entries(Object.fromEntries(io.sockets.adapter.rooms)).filter(([k, v]) => !v.has(k) && !(!!requestingUsername && k === requestingUsername));
     console.log(`Unique Count took ${Date.now() - time}ms`);
-    return unique.length + (!!requestingUsername ? 1 : 0);
+    return unique.length + (requestingUsername ? 1 : 0);
 }
 
 function getRoom(username) {

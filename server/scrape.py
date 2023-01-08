@@ -2,7 +2,9 @@ import json
 import requests
 import sys
 from bs4 import BeautifulSoup as bS
+from bs4 import Comment
 from datetime import datetime
+from pymongo import MongoClient
 
 ndsj_url = "ps.ndsj.org"
 bcp_url = "powerschool.bcp.org"
@@ -194,8 +196,10 @@ class PowerschoolScraper(Scraper):
         self.school = _school
         if _school == "ndsj":
             self.base_url = ndsj_url
+            self.verify = True
         elif _school == "bellarmine":
             self.base_url = bcp_url
+            self.verify = 'server/CA-Certificates/_.bcp.org.crt'
 
     def __login_bcp(self, email: str, _password: str) -> None:
         """Logs into PowerSchool with credentials
@@ -285,7 +289,7 @@ class PowerschoolScraper(Scraper):
         # First request
         self.message = "Logging in"
         url = "https://powerschool.bcp.org/guardian/home.html"
-        resp = self.session.get(url, headers=headers_1, timeout=10)
+        resp = self.session.get(url, headers=headers_1, timeout=10, verify=self.verify)
         soup = bS(resp.text, "html.parser")
         samlr = soup.find("input", {'name': 'SAMLRequest'}).get('value')
         self.progress = 5
@@ -343,7 +347,7 @@ class PowerschoolScraper(Scraper):
         # Manually add cookie
         jsession = self.session.cookies.get_dict()['JSESSIONID']
         headers_4['Cookie'] = "JSESSIONID=" + jsession
-        self.session.post(url, data=data, headers=headers_4, timeout=10)
+        self.session.post(url, data=data, headers=headers_4, timeout=10, verify=self.verify)
         self.progress = 20
 
     def __login_ndsj(self, email: str, _password: str) -> None:
@@ -410,7 +414,7 @@ class PowerschoolScraper(Scraper):
         # If we get to this point the session is logged in
         # Check if PowerSchool is locked
         url = 'https://' + self.base_url + '/guardian/home.html'
-        resp = self.session.get(url, timeout=10)
+        resp = self.session.get(url, timeout=10, verify=self.verify)
         soup_resp = bS(resp.text, "html.parser")
         table = soup_resp.find("table")
         self.progress = 25
@@ -418,28 +422,21 @@ class PowerschoolScraper(Scraper):
         if table is not None:
             self.message = "Logged in!"
             url = 'https://' + self.base_url + '/guardian/termgrades.html'
-            resp = self.session.get(url, timeout=10)
+            resp = self.session.get(url, timeout=10, verify=self.verify)
             soup_resp = bS(resp.text, "html.parser")
 
             self.message = "Checking if PowerSchool is locked..."
             self.progress = 30
 
             locked_msg = soup_resp.find('div', class_='feedback-note')
-            if locked_msg:
+            locked = False
+            if locked_msg and locked_msg.text:
                 locked = locked_msg.text == "Display of final grades has been disabled by your school."
 
             if locked:
                 self.message = "PowerSchool is locked."
-                if (len(list(filter(lambda d: "student_id" in d and "section_id" in d, data_if_locked))) == len(
-                        data_if_locked)
-                        and "term" in term_data_if_locked and "semester" in term_data_if_locked):
-                    # Scrape locked powerschool with given data
-                    self.message = "Getting data from locked PowerSchool..."
-                    return False
-                else:
-                    self.progress = 0
-                    print(json_format(False, 'PowerSchool is locked.'))
-                    sys.exit()
+                self.message = "Getting data from locked PowerSchool..."
+                return False
         else:
             self.progress = 0
             print(json_format(False, 'Your PowerSchool account is no longer active.'))
@@ -450,7 +447,7 @@ class PowerschoolScraper(Scraper):
     def get_history(self):
         """Uses a session to grab all available grade data on powerschool"""
         url = 'https://' + self.base_url + '/guardian/termgrades.html'
-        resp = self.session.get(url, timeout=10)
+        resp = self.session.get(url, timeout=10, verify=self.verify)
         self.progress = 35
         self.message = 'Searching for courses...'
         soup_resp = bS(resp.text, "html.parser")
@@ -491,7 +488,7 @@ class PowerschoolScraper(Scraper):
                     1 if total_term_count == 0 else total_term_count)
                 continue
             url = 'https://' + self.base_url + '/guardian/'
-            resp = self.session.get(url + link['href'], timeout=10)
+            resp = self.session.get(url + link['href'], timeout=10, verify=self.verify)
             soup_resp = bS(resp.text, "html.parser")
 
             # Begin parsing data
@@ -553,7 +550,7 @@ class PowerschoolScraper(Scraper):
     def get_present(self):
         """Uses a session to grab current semester grade data"""
         url = 'https://' + self.base_url + '/guardian/home.html'
-        resp = self.session.get(url, timeout=10)
+        resp = self.session.get(url, timeout=10, verify=self.verify)
         self.progress = 35
         self.message = 'Searching for courses...'
         soup_resp = bS(resp.text, "html.parser")
@@ -636,22 +633,8 @@ class PowerschoolScraper(Scraper):
                 1 if total_course_count == 0 else total_course_count)
 
         # Fetch the current term and semester
-        url = 'https://' + self.base_url + '/guardian/myschedulematrix.html'
-        resp = self.session.get(url, timeout=10)
-        soup_resp = bS(resp.text, "html.parser")
         self.progress = 95
-        self.message = 'Fetching term and semester data...'
-
-        main_table = soup_resp.find("table")
-        table_cells = main_table.find_all("td")
-        term = table_cells[0].text
-        semester = table_cells[1].text
-        if term.startswith("SS"):
-            semester = "S0"
-            start_year = int(term[4:]) - 1
-            end_year = start_year + 1
-            term = str(start_year) + "-" + str(end_year)
-        semester = "S3" if semester == "S0" else semester
+        term, semester = self.get_term_and_semester_data()
 
         if term is None or semester is None:
             raise Exception("Error getting term and semester data")
@@ -676,7 +659,7 @@ class PowerschoolScraper(Scraper):
             overall_percent: Float
             overall_letter: Float
         """
-        grades_resp = self.session.get(url, timeout=10)
+        grades_resp = self.session.get(url, timeout=10, verify=self.verify)
         grades_soup = bS(grades_resp.text, 'html.parser')
 
         # The two tables in the page. info is top, grades is bottom
@@ -745,11 +728,75 @@ class PowerschoolScraper(Scraper):
                '],"start_date":' + start_date + ',"end_date":' + end_date + '} '
 
         url = 'https://' + self.base_url + '/ws/xte/assignment/lookup'
-        response = self.session.post(url, headers=headers, params=params, data=data)
+        response = self.session.post(url, headers=headers, params=params, data=data, verify=self.verify)
 
         return response
 
     def get_locked(self, class_data: dict, term_data: dict) -> None:
+        self.message = 'Fetching course data...'
+        url = 'https://' + self.base_url + '/guardian/teachercomments.html'
+        response = self.session.get(url, verify=self.verify)
+        soup = bS(response.text, 'html.parser')
+        table = soup.find('table', class_='grid linkDescList')
+        courses = table.findChildren('tr')
+        class_names = [course.findChildren('td')[2].text for course in courses[1:]]
+
+        data_we_have = list(filter(lambda d: "student_id" in d and "section_id" in d, class_data))
+        class_names_we_have = [d["class_name"] for d in data_we_have]
+
+        new_class_data = []
+
+        if len(data_we_have) == 0:
+            self.message = 'Fetching student id...'
+            url = 'https://' + self.base_url + '/guardian/forms.html'
+            response = self.session.get(url, verify=self.verify)
+            soup = bS(response.text, 'html.parser')
+            student_id = str(soup.find('div', id='content-main').encode('utf-8')) \
+                .split('studentid')[1].split(',')[0].split('\\\'')[1].split('\\\'')[0]
+        else:
+            student_id = data_we_have[0]["student_id"]
+
+        self.message = 'Checking for new course data...'
+        existing_count = 0
+        for i in range(len(class_names)):
+            try:
+                self.message = str(class_names_we_have)
+                index = class_names_we_have.index(class_names[i])
+                existing_count += 1
+                self.message = f"Found {existing_count} existing course(s)"
+                new_class_data.append(data_we_have[index])
+                continue
+            except ValueError:
+                # Intentionally empty
+                pass
+
+            self.message = f"Found new course {class_names[i]}"
+            course = courses[1:][i]
+            self.message = '1'
+            teacher_name = course.findChildren('td')[3].findChildren('a')[1].text.split('Email ')[1]
+            self.message = '2'
+            section_id_div = course.findChildren('td', align='center')[0]
+            self.message = '3'
+            section_id = section_id_div.find_all(text=lambda text: isinstance(text, Comment))[0].extract().split(' ')[2]
+            self.message = '4'
+
+            new_class_data.append({'class_name': class_names[i],
+                                   'teacher_name': teacher_name,
+                                   'overall_percent': False,
+                                   'overall_letter': False,
+                                   'student_id': student_id,
+                                   'section_id': section_id
+                                   })
+
+        if "term" not in term_data or "semester" not in term_data:
+            term, semester = self.get_term_and_semester_data()
+            term_data = {
+                'term': term,
+                'semester': semester,
+            }
+
+        class_data = new_class_data
+
         # Begin organizing response data
         all_classes = []
         total_course_count = len(class_data)
@@ -771,17 +818,11 @@ class PowerschoolScraper(Scraper):
                                                 section_id, True)
 
             local_class = parse_ps_class(local_class, self.get_class('https://powerschool.bcp.org/', local_class))
-            if len(local_class['grades']) > 0:
-                all_classes.append(local_class)
-                scraped_course_count += 1
-                self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
-                self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / (
-                    1 if total_course_count == 0 else total_course_count)
-            else:
-                total_course_count -= 1
-                self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
-                self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / (
-                    1 if total_course_count == 0 else total_course_count)
+            all_classes.append(local_class)
+            scraped_course_count += 1
+            self.message = 'Synced ' + str(scraped_course_count) + ' of ' + str(total_course_count) + ' courses...'
+            self.progress = initial_progress + (max_progress - initial_progress) * scraped_course_count / (
+                1 if total_course_count == 0 else total_course_count)
 
         # Add term and semester data
         self.progress = 95
@@ -797,6 +838,25 @@ class PowerschoolScraper(Scraper):
             self.progress = 0
             self.message = 'No class data.'
             print(json_format(False, "No class data."))
+
+    def get_term_and_semester_data(self):
+        self.message = 'Fetching term and semester data...'
+        url = 'https://' + self.base_url + '/guardian/myschedulematrix.html'
+        resp = self.session.get(url, timeout=10, verify=self.verify)
+        soup = bS(resp.text, "html.parser")
+
+        table = soup.find("table")
+        table_cells = table.find_all("td")
+        term = table_cells[0].text
+        semester = table_cells[1].text
+        if term.startswith("SS"):
+            semester = "S0"
+            start_year = int(term[4:]) - 1
+            end_year = start_year + 1
+            term = str(start_year) + "-" + str(end_year)
+        semester = "S3" if semester == "S0" else semester
+
+        return term, semester
 
 
 def clean(_soup) -> None:
@@ -1025,8 +1085,8 @@ class BasisScraper(Scraper):
             [grades.insert(0, item) for item in no_due_date]
 
             t1_grades = [{key: value for key, value in assignment.items() if key != 'sort_date'} for assignment in
-                               grades if
-                               (assignment['sort_date'] is None or assignment['sort_date'] < t2_start_dict[term])]
+                         grades if
+                         (assignment['sort_date'] is None or assignment['sort_date'] < t2_start_dict[term])]
             t2_grades = [{key: value for key, value in assignment.items() if key != 'sort_date'} for assignment in
                          grades if (assignment['sort_date'] is not None and t2_start_dict[term] <= assignment[
                     'sort_date'] < t3_start_dict[term])]
@@ -1075,10 +1135,9 @@ if __name__ == "__main__":
         except requests.Timeout:
             print(json_format(False, "Could not connect to Schoology."))
         except Exception as e:
-            # Error when something in PowerSchool breaks scraper
-            print(json_format(False, "An Unknown Error occurred. Contact support."))
-            # Uncomment below to print error
-            print(e)
+            # Error when something in Schoology breaks scraper
+            print(json_format(False, f"Error: {str(e)}"))
+            sys.exit()
     else:
         data_if_locked: dict = json.loads(sys.argv[4])  # arg must be stringified json
         term_data_if_locked: dict = json.loads(sys.argv[5])  # arg must be stringified json
@@ -1096,6 +1155,5 @@ if __name__ == "__main__":
             print(json_format(False, "Could not connect to PowerSchool."))
         except Exception as e:
             # Error when something in PowerSchool breaks scraper
-            print(json_format(False, "An Unknown Error occurred. Contact support."))
-            # Uncomment below to print error
-            # print(e)
+            print(json_format(False, f"Error: {str(e)}"))
+            sys.exit()
