@@ -1595,7 +1595,7 @@
                 if (!alerts.lastUpdated.slice(-1)[0]) {
                     return false;
                 }
-                return alerts.lastUpdated.slice(-1)[0].ps_locked && (relClassData[data[classIndex].class_name].hasWeights === false || Object.values(relClassData[data[classIndex].class_name].weights).filter(w => w !== null).length !== 0);
+                return alerts.lastUpdated.slice(-1)[0].ps_locked;
             }
 
             function countDecimals(value) {
