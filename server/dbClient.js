@@ -4105,7 +4105,7 @@ const internalApiDiscordUserInfo = (discordID) => safe(_internalApiDiscordUserIn
 const _internalApiDiscordUserInfo = async (db, discordID) => {
     if (typeof discordID !== "number") {
         // Case where the Discord ID is invalid
-        return {success: false, data: {message: "Invalid Discord ID", errorCode: 1}};
+        return {success: false, data: {errorCode: 1}};
     }
     let user = await _users(db).findOne({"discord.discordID": discordID}, {
         school: 1, donoData: 1
