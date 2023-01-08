@@ -79,8 +79,31 @@
 
     let lowFps;
 
+    function enableSnow() {
+        init = performance.now();
+        snow.forEach((flake, index) => delete snow[index]);
+        snow = [];
+        if (!started) {
+            Snowy(true);
+        } else {
+            started = false;
+            Snowy();
+        }
+        $("#snow-fall-bg").show();
+        if (typeof setupLights !== "undefined") {
+            setupLights();
+        }
+        $(".lightrope").show();
+    }
+
     function disableSnow() {
-        $("#snow-fall").hide();
+        snow.forEach((flake, index) => delete snow[index]);
+        snow = [];
+        if (typeof numLights !== "undefined") {
+            numLights = undefined;
+        }
+        $("#snow-fall-bg").hide();
+        $(".lightrope").hide();
     }
 
     function Snowy(start = false) {
@@ -134,7 +157,7 @@
                     fpsDisplay += `FRAMETIME: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${(Math.round(1000 / fps) < 1000 ? `&nbsp;` : ``) + (Math.round(1000 / fps) < 100 ? `&nbsp;` : ``) + (Math.round(1000 / fps) < 10 ? `&nbsp;` : ``) + Math.round(1000 / fps)}MS<br>`;
                     fpsDisplay += `&nbsp;VIEWPORT: ${screenWidth < 100000 ? `&nbsp;` : ``}${screenWidth < 10000 ? `&nbsp;` : ``}${screenWidth < 1000 ? `&nbsp;` : ``}${screenHeight < 100000 ? `&nbsp;` : ``}${screenHeight < 10000 ? `&nbsp;` : ``}${screenHeight < 1000 ? `&nbsp;` : ``}${screenWidth}x${screenHeight}<br>`;
                     fpsDisplay += `&nbsp;&nbsp;&nbsp;FLAKES: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${snow.length === 0 ? `&nbsp;N/A` : `${snow.length < 1000 ? `&nbsp;` : ``}${snow.length < 100 ? `&nbsp;` : ``}${snow.length}`}<br>`;
-                    fpsDisplay += `&nbsp;&nbsp;&nbsp;LIGHTS: ${numLights === undefined ? "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;N/A" : `&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${numLights < 1000 ? `&nbsp;` : ``}${numLights < 100 ? `&nbsp;` : ``}${numLights}`}`;
+                    fpsDisplay += `&nbsp;&nbsp;&nbsp;LIGHTS: ${typeof numLights === "undefined" ? "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;N/A" : `&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${numLights < 1000 ? `&nbsp;` : ``}${numLights < 100 ? `&nbsp;` : ``}${numLights}`}`;
                     $("#fps").html(fpsDisplay);
                 }
             }, 1);
@@ -224,7 +247,7 @@
 
             function stop() {
                 if (today.getMonth() >= winterStart || today.getMonth() < winterEnd) {
-                    disableSnow();
+                    $("#snow-fall").hide();
                     $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-info font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Effects disabled by window unfocus</small>`));
                 }
                 renderNextFrame = false;
@@ -233,7 +256,6 @@
             function play() {
                 renderNextFrame = true;
                 if (today.getMonth() >= winterStart || today.getMonth() < winterEnd) {
-                    Snowy();
                     $("#snow-fall").show();
                     $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-info font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Effects enabled by window focus</small>`));
                 }

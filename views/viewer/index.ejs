@@ -90,10 +90,7 @@
                 input.trigger("input");
             }
         });
-        Snowy(true);
-        if (setupLights) {
-            setupLights();
-        }
+        enableSnow();
     }, 250);
 
     function checkLabel(input) {
@@ -114,7 +111,7 @@
 
     function setAutoTheme() {
         let date = new Date();
-let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes());
+        let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes());
         if (zeroTime >= sunset || zeroTime <= sunrise) {
             let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css";
             darkMode = true;

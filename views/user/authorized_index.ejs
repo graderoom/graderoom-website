@@ -170,9 +170,13 @@
                                                         class="popup-right-top">This metric is based on your grades from
                                                     this semester.</span></i></span>
                                     </h5>
-                                    <h5 id="GPA-display">----
+                                    <h5 id="GPA-display"><span>----
                                         <% if (_appearance.showMaxGPA) { %>/----
-                                        <% } %>
+                                            <% } %></span><span class="popup incorrectGPAMessage"><i
+                                                        class="fa fa-exclamation-triangle"
+                                                        style="margin-left: 0.4rem"><span
+                                                        class="popup-right">PowerSchool is locked. Calculated GPA may be inaccurate</span></i>
+                                            </span>
                                     </h5>
                                 </div>
                                 <div style="display: none">
@@ -183,9 +187,13 @@
                                                     all
                                                     your courses taken so far. However, it does not include pe or
                                                     summer classes.</span></i></span></h5>
-                                    <h5 id="GPA-display-cumulative">----
+                                    <h5 id="GPA-display-cumulative"><span>----
                                         <% if (_appearance.showMaxGPA) { %>/----
-                                        <% } %>
+                                            <% } %></span><span class="popup incorrectGPAMessage"><i
+                                                    class="fa fa-exclamation-triangle"
+                                                    style="margin-left: 0.4rem"><span
+                                                        class="popup-right">PowerSchool is locked. Calculated GPA may be inaccurate</span></i>
+                                        </span>
                                     </h5>
                                 </div>
                                 <div style="display: none">
@@ -199,9 +207,13 @@
                                                             style="color: <%= accentColor; %>">California State
                                                         University System</span>.<br> This metric is not affected by the
                                                     weighted GPA setting.</span></i></span></h5>
-                                    <h5 id="GPA-display-uc">----
+                                    <h5 id="GPA-display-uc"><span>----
                                         <% if (_appearance.showMaxGPA) { %>/----
-                                        <% } %>
+                                            <% } %></span><span class="popup incorrectGPAMessage"><i
+                                                class="fa fa-exclamation-triangle"
+                                                style="margin-left: 0.4rem"><span
+                                                        class="popup-right">PowerSchool is locked. Calculated GPA may be inaccurate</span></i>
+                                        </span>
                                     </h5>
                                 </div>
                                 <button class="btn btn-med" id="gpaDetailsBtn" onclick="setupGpaDetails()"><i
@@ -363,7 +375,10 @@
                                 default:
                                     break;
                             } %>
-                            <span id="verified<%= i %>" class="popup">Weights
+                            <% if (school === "bellarmine" && _gradeData[i].grades.length === 0 && !_relevantClassData[_gradeData[i].class_name].classType) { %>
+                                <span class="shouldBeNonAcademic alert alert-info">Should this course be non-academic? Let us know through More > Send Feedback</span>
+                            <% } %>
+                            <span id="verified<%= i + offset %>" class="popup">Weights
                                 <% let weightDict = _relevantClassData[_gradeData[i].class_name]; %>
                                 <% let unverified = weightDict.hasWeights === null || (weightDict.hasWeights === true && Object.values(weightDict.weights).filter(w => w === null).length !== 0); %>
                                 <% if (unverified) { %>Unverified
@@ -380,10 +395,10 @@
                                             <% if (weightDict.hasWeights === true) { %>
                                                 <table class="class-table">
                                                     <% let weights = Object.entries(weightDict.weights); %>
-                                                    <% for (let i = 0; i < weights.length; i++) { %>
+                                                    <% for (let j = 0; j < weights.length; j++) { %>
                                                         <tr>
-                                                            <td title="<%= weights[i][0] %>"><%= weights[i][0] %></td>
-                                                            <td><%= weights[i][1] %></td>
+                                                            <td title="<%= weights[j][0] %>"><%= weights[j][0] %></td>
+                                                            <td><%= weights[j][1] %></td>
                                                         </tr>
                                                     <% } %>
                                                 </table>
@@ -395,7 +410,7 @@
                                 </i>
                             </span>
                         <% } %>
-                        <% let classWeights = _weightData[i + offset]; %>
+                        <% let classWeights = _weightData[i]; %>
                         <div class="chartAndWeights">
                             <div id="chart-container<%= i + offset; %>" class="chart chart-container">
                                 <button id="reset-zoom<%= i + offset %>" style="position: absolute; top: 0; right: 0; height: fit-content; display:none"
@@ -423,7 +438,7 @@
                                                                     <% } %>
                                                                    onchange="disableInput('check<%= i + offset; %>','weightsTable<%= i + offset; %>'); resetInputs('#weights<%= i + offset; %>'); $('#weights<%= i + offset; %>').trigger('submit');"
                                                             >
-                                                            <span style="color: <%= _appearance.classColors[i + offset]; %>"
+                                                            <span style="color: <%= _appearance.classColors[i]; %>"
                                                                   class="classSlider slider"></span>
                                                         </label>
                                                     </label>
@@ -904,30 +919,8 @@
                                     $("#seasonalEffectsToggle").prop("checked", settings[key]);
                                     appearance.seasonalEffects = settings[key];
                                     if (settings[key]) {
-                                        init = performance.now();
-                                        snow.forEach((flake, index) => delete snow[index]);
-                                        snow = [];
-                                        if (!started) {
-                                            Snowy(true);
-                                        } else {
-                                            started = false;
-                                            Snowy();
-                                        }
-                                        Snowy(true);
-                                        $("#snow-fall").show();
-                                        setupLights();
-                                        $(".lightrope").show();
-                                        if (darkMode === false) {
-                                            $("#light_snowfall").attr("media", "");
-                                        } else if (darkMode) {
-                                            $("#light_snowfall").attr("media", "not all");
-                                        }
+                                        enableSnow();
                                     } else {
-                                        snow.forEach((flake, index) => delete snow[index]);
-                                        snow = [];
-                                        if (numLights) {
-                                            numLights = undefined;
-                                        }
                                         disableSnow();
                                     }
                                     break;
@@ -963,7 +956,7 @@
                                     break;
                             }
                             if (appearance.seasonalEffects) {
-                                $("#snow-fall").show();
+                                $("#snow-fall-bg").show();
                                 $(".lightrope").show();
                                 if (darkMode === false) {
                                     $("#light_snowfall").attr("media", "");
@@ -991,11 +984,15 @@
                     case "info-initialstatus":
                         let status = data.message;
                         switch (status) {
-                            case "Sync Failed.":
                             case `Your ${school === "basis" ? "Schoology" : "PowerSchool"} account is no longer active.`:
                                 messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(status);
-                                showLatest(false);
                                 accountInactive = true;
+                                showLatest(false);
+                                setupIncorrectGradeMessages();
+                                break;
+                            case "Sync Failed.":
+                                messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(status);
+                                showLatest(false);
                                 setupIncorrectGradeMessages();
                                 break;
                             case `No ${school === "basis" ? "Schoology" : "PowerSchool"} grades found for this term.`:
@@ -1019,6 +1016,11 @@
                                     sessionStorage.removeItem("showSyncLog");
                                 }
                                 break;
+                        }
+                        if (status.startsWith("Sync Failed.")) {
+                            messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(status);
+                            showLatest(false);
+                            setupIncorrectGradeMessages();
                         }
                         break;
                     case "sync-progress":
@@ -1063,7 +1065,6 @@
                             } else {
                                 alerts.lastUpdated.push(JSON.parse(data.updateData));
                                 setupGradeChanges();
-                                setupGPADisplays();
                                 showLatest(false);
                                 refreshWithoutReload(undefined, true);
                                 setupLastUpdated();
@@ -1232,6 +1233,7 @@
                 setupIncorrectGradeMessages(changedClassIndex);
                 setPointBasedWeights(changedClassIndex);
                 renderAllCharts(changedClassIndex);
+                setupGPADisplays();
             }
 
             function refreshWithoutReload(changedClassIndex, doItNow = false) {
@@ -1295,9 +1297,20 @@
                 addedAssignments = addedAssignments.filter(a => relClassData[a.className].classType !== "non-academic");
                 editedAssignments = editedAssignments.filter(e => relClassData[e.className].classType !== "non-academic");
             }
-            let _editedAssignments = JSON.parse(JSON.stringify(editedAssignments)); // Copy to apply edits to edits to
+            let _editedAssignments = JSON.parse(JSON.stringify(editedAssignments)); // Copy to apply edits to
             let _addedAssignments = JSON.parse(JSON.stringify(addedAssignments)); // Copy to apply edits to added assignments to
             let _data = JSON.parse(JSON.stringify(data)); // Copy to apply edits to assignments to
+
+            if (!(term in gradeHistoryLetters)) gradeHistoryLetters[term] = {};
+            if (!(semester in gradeHistoryLetters[term])) gradeHistoryLetters[term][semester] = [];
+
+            for (let i = 0; i < _data.length; i++) {
+                if (data[i].ps_locked) {
+                    _data[i].overall_letter = false;
+                    _data[i].overall_percent = false;
+                }
+                gradeHistoryLetters[term][semester][i] = {[_data[i].class_name]: _data[i].overall_letter};
+            };
 
             let changeTransition;
             let theme = appearance.theme;
@@ -1322,11 +1335,9 @@
             if (data.length) {
                 setupGradeChanges(false);
                 refreshWithoutReload(undefined, true);
-                setupGPADisplays();
                 setupWeightsTableListeners();
                 setupInputListeners();
                 setupAddAssignments();
-                setupGpaDetails(true, false);
             }
 
             $("#termSwitcher").addClass("hover");
@@ -1491,7 +1502,7 @@
                 if (document.location.href.includes("term") && document.location.href.includes("semester")) {
                     return {updated: true};
                 }
-                if (_.isEqual(_data.map(c => c.class_name), newData.grades.map(c => c.class_name)) && _.isEqual(weights, newData.weights)) {
+                if (_.isEqual(data.map(c => c.class_name), newData.grades.map(c => c.class_name)) && _.isEqual(weights, newData.weights)) {
                     data = newData.grades;
                     return {updated: true};
                 }
@@ -1537,6 +1548,11 @@
             }
 
             function setupIncorrectGradeMessages(classIndex) {
+                if (alerts.lastUpdated.slice(-1)[0] && alerts.lastUpdated.slice(-1)[0].ps_locked && !accountInactive) {
+                    $(".incorrectGPAMessage").show();
+                } else {
+                    $(".incorrectGPAMessage").hide();
+                }
                 for (let i = 0; i < _data.length; i++) {
                     if (classIndex === undefined || classIndex === i) {
                         if (alerts.lastUpdated.slice(-1)[0] && alerts.lastUpdated.slice(-1)[0].ps_locked && !accountInactive) {
@@ -1562,7 +1578,7 @@
             }
 
             function correctCalc(classIndex) {
-                if (data[classIndex].grades.length == 0) {
+                if (data[classIndex].grades.length === 0) {
                     return false;
                 }
                 let realOverallGrade = data[classIndex].overall_percent;
@@ -1627,6 +1643,8 @@
 
                 let numClasses = 0;
 
+                if (!(ninth in gradeHistoryLetters) || !("S1" in gradeHistoryLetters[ninth])) return false;
+
                 // Ninth Summer
                 if (ninth in gradeHistoryLetters && "S3" in gradeHistoryLetters[ninth]) {
                     let classes = gradeHistoryLetters[ninth]["S3"];
@@ -1635,9 +1653,10 @@
                         let classType = relClassData[classData[0]].uc_csuClassType;
                         let uc;
                         [uc, classType] = classType.split("_");
-                        if (uc === "uc" && !([false, "CR", "W"]).includes(classData[1])) {
+                        let letterGrade = classData[1] || (term === ninth && semester === "S3" ? getLetterGrade(getOverallGrade(c)) : false);
+                        if (uc === "uc" && !([false, "CR", "W"]).includes(letterGrade)) {
                             numClasses++;
-                            let points = getGPA(classData[1]);
+                            let points = getGPA(letterGrade);
                             basePoints += points;
                             maxPoints += 4;
                             if ((["hon", "ap"]).includes(classType)) {
@@ -1663,9 +1682,10 @@
                             let classType = relClassData[classData[0]].uc_csuClassType;
                             let uc;
                             [uc, classType] = classType.split("_");
-                            if (uc === "uc" && !([false, "CR", "W"]).includes(classData[1])) {
+                            let letterGrade = classData[1] || (term === tenth && semester === semesters[s] ? getLetterGrade(getOverallGrade(c)) : false);
+                            if (uc === "uc" && !([false, "CR", "W"]).includes(letterGrade)) {
                                 classesCounted.push(classData[0]);
-                                let points = getGPA(classData[1]);
+                                let points = getGPA(letterGrade);
                                 basePoints += points;
                                 maxPoints += 4;
                                 if ((["hon", "ap"]).includes(classType)) {
@@ -1693,9 +1713,10 @@
                             let classType = relClassData[classData[0]].uc_csuClassType;
                             let uc;
                             [uc, classType] = classType.split("_");
-                            if (uc === "uc" && !([false, "CR", "W"]).includes(classData[1])) {
+                            let letterGrade = classData[1] || (term === eleventh && semester === semesters[s] ? getLetterGrade(getOverallGrade(c)) : false);
+                            if (uc === "uc" && !([false, "CR", "W"]).includes(letterGrade)) {
                                 classesCounted.push(classData[0]);
-                                let points = getGPA(classData[1]);
+                                let points = getGPA(letterGrade);
                                 basePoints += points;
                                 maxPoints += 4;
                                 if ((["hon", "ap"]).includes(classType)) {
@@ -1722,7 +1743,8 @@
                 max /= numClasses;
 
                 if (GPA && max) {
-                    out.text((Math.round(GPA * 1000) / 1000).toFixed(3) + (showMaxGPA ? "/" + (Math.round(max * 1000) / 1000).toFixed(3) : "")).parent().show();
+                    out.children("span:not(.popup)").text((Math.round(GPA * 1000) / 1000).toFixed(3) + (showMaxGPA ? "/" + (Math.round(max * 1000) / 1000).toFixed(3) : ""));
+                    out.parent().show();
                     return true;
                 }
                 out.parent().hide();
@@ -1731,31 +1753,38 @@
 
             function setupCumulativeGPA() {
                 if (school === "basis") {
-                    return;
+                    return false;
                 }
+
+                let gradYear = personalInfo.graduationYear;
+                let ninth = gradYear - 3;
+                ninth = (ninth - 2001) + "-" + (ninth - 2000);
+                if (!(ninth in gradeHistoryLetters) || !("S1" in gradeHistoryLetters[ninth])) return false;
+
                 let out = $("#GPA-display-cumulative");
                 let GPA = 0.0;
                 let max = 0.0;
                 let numClasses = 0;
                 let terms = Object.keys(gradeHistoryLetters);
                 for (let t = 0; t < terms.length; t++) {
-                    let term = terms[t];
-                    let semesters = Object.keys(gradeHistoryLetters[term]);
+                    let _term = terms[t];
+                    let semesters = Object.keys(gradeHistoryLetters[_term]);
                     for (let s = 0; s < semesters.length; s++) {
-                        let semester = semesters[s];
-                        if (semester === "S3") {
+                        let _semester = semesters[s];
+                        if (_semester === "S3") {
                             continue;
                         } // Ignore summer
-                        let classes = gradeHistoryLetters[term][semester];
+                        let classes = gradeHistoryLetters[_term][_semester];
                         for (let c = 0; c < classes.length; c++) {
                             let classData = Object.entries(classes[c])[0];
                             let classType = relClassData[classData[0]].classType;
-                            if (classType !== "non-academic" && !([false, "CR", "W"]).includes(classData[1])) {
+                            let letterGrade = classData[1] || (term === _term && semester === _semester ? getLetterGrade(getOverallGrade(c)) : false);
+                            if (classType !== "non-academic" && !([false, "CR", "W"]).includes(letterGrade)) {
                                 if (appearance.weightedGPA && (classType === "ap" || classType === "honors")) {
                                     GPA += 1;
                                     max += 1;
                                 }
-                                GPA += getGPA(classData[1]);
+                                GPA += getGPA(letterGrade);
                                 max += 4;
                                 numClasses++;
                             }
@@ -1766,7 +1795,8 @@
                 max /= numClasses;
 
                 if (GPA && max) {
-                    out.text((Math.round(GPA * 1000) / 1000).toFixed(3) + (showMaxGPA ? "/" + (Math.round(max * 1000) / 1000).toFixed(3) : "")).parent().show();
+                    out.children("span:not(.popup)").text((Math.round(GPA * 1000) / 1000).toFixed(3) + (showMaxGPA ? "/" + (Math.round(max * 1000) / 1000).toFixed(3) : ""));
+                    out.parent().show();
                     return true;
                 }
                 out.parent().hide();
@@ -1784,8 +1814,9 @@
                 for (let i = 0; i < _data.length; i++) {
                     let className = _data[i].class_name;
                     let classType = relClassData[className]["classType"];
-                    if (!([false, "CR", "W"]).includes(_data[i].overall_letter)) {
-                        GPA += getGPA(_data[i].overall_letter);
+                    let letterGrade = _data[i].overall_letter || getLetterGrade(getOverallGrade(i));
+                    if (!([false, "CR", "W"]).includes(letterGrade)) {
+                        GPA += getGPA(letterGrade);
                         max += 4;
                         if (appearance.weightedGPA && (classType === "ap" || classType === "honors")) {
                             GPA += 1;
@@ -1799,7 +1830,8 @@
                 max /= numClasses;
 
                 if (GPA && max) {
-                    out.text((Math.round(GPA * 1000) / 1000).toFixed(3) + (showMaxGPA ? "/" + (Math.round(max * 1000) / 1000).toFixed(3) : "")).parent().show();
+                    out.children("span:not(.popup)").text((Math.round(GPA * 1000) / 1000).toFixed(3) + (showMaxGPA ? "/" + (Math.round(max * 1000) / 1000).toFixed(3) : ""));
+                    out.parent().show();
                     return true;
                 }
                 out.parent().hide();
@@ -1909,8 +1941,10 @@
                     letter = "D";
                 } else if (grade >= 59.5) {
                     letter = "D-";
-                } else {
+                } else if (grade >= 0 && grade !== null) {
                     letter = "F";
+                } else {
+                    return false;
                 }
                 return school === "ndsj" ? letter[0] : letter;
             }
@@ -1928,7 +1962,6 @@
                                 $("#weightTableWeight" + i + j).parents("form").trigger("submit");
                             }, 100);
                         }).on("keyup", (e) => {
-                            e = e || window.event;
                             let keyCode = e.code;
                             if (keyCode === "Enter") {
                                 $("#weightTableWeight" + i + j + " input").trigger("blur");
@@ -2593,14 +2626,12 @@
                     for (let j = 0; j < parsedData[i].assignmentNames.length; j++) {
                         let inputs = $(classScores[j]).find(".dynamic-input");
                         $(inputs[0]).on("keyup", (e) => {
-                            e = e || window.event;
                             let keyCode = e.code;
                             if (keyCode === "Enter") {
                                 $(inputs[0]).trigger("blur");
                             }
                         });
                         $(inputs[1]).on("keyup", (e) => {
-                            e = e || window.event;
                             let keyCode = e.code;
                             if (keyCode === "Enter") {
                                 $(inputs[1]).trigger("blur");
@@ -2611,14 +2642,12 @@
                     for (let j = 0; j < categorySortedData[i].assignmentNames.length; j++) {
                         let inputs = $(classScores[j]).find(".dynamic-input");
                         $(inputs[0]).on("keyup", (e) => {
-                            e = e || window.event;
                             let keyCode = e.code;
                             if (keyCode === "Enter") {
                                 $(inputs[0]).trigger("blur");
                             }
                         });
                         $(inputs[1]).on("keyup", (e) => {
-                            e = e || window.event;
                             let keyCode = e.code;
                             if (keyCode === "Enter") {
                                 $(inputs[1]).trigger("blur");
@@ -3222,9 +3251,19 @@
                 // Reset local data copies
                 if (classIndex === undefined) {
                     _data = JSON.parse(JSON.stringify(data));
+                    for (let i = 0; i < _data.length; i++) {
+                        if (data[i].ps_locked) {
+                            _data[i].overall_letter = false;
+                            _data[i].overall_percent = false;
+                        }
+                    };
                     aData = data.map(c => Array(c.grades.length).fill(undefined));
                 } else {
                     _data[classIndex] = JSON.parse(JSON.stringify(data[classIndex]));
+                    if (data[classIndex].ps_locked) {
+                        _data[classIndex].overall_letter = false;
+                        _data[classIndex].overall_percent = false;
+                    }
                     aData[classIndex] = Array(data[classIndex].grades.length).fill(undefined);
                 }
 
@@ -3294,7 +3333,7 @@
                         let categoryGradeSteps = [];
                         let categoryGrades = {}; // If category is default
                         let totalPossiblesAndGottens = {}; //by category
-                        let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of of 100
+                        let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of 100
                         // VERY JANK CHANGE LATER
                         let doesntHaveWeights = (className in unobtainedWeights) || (classWeights.hasWeights === false);
                         for (let grade of classData) {
@@ -3362,7 +3401,7 @@
                                 // console.log("bad weight input");
                             }
                         }
-                        if (!(["CR", false]).includes(_data[i].overall_letter) && _data[i].grades.length !== 0) {
+                        if (_data[i].grades.length !== 0) {
                             let assignmentNames = classData.filter(x => !x.exclude).map(x => x.assignment_name);
                             let assignmentDates = classData.filter(x => !x.exclude).map(x => x.date);
                             let assignmentTimestamps = classData.filter(x => !x.exclude).map((x, i, arr) => new Date(Date.parse(x.date) + ((24 * 60 * 60 * 1000 / arr.filter(y => x.date === y.date).length + 1) * arr.filter((y, j) => j < i && x.date === y.date).length)));
@@ -3524,11 +3563,11 @@
                     if (!correctCalc(i)) {
                         if (endDate === 0) {
                             _mixedData.push({
-                                                x: new Date(Date.now() - aDay), y: _data[i].overall_percent
+                                                x: new Date(Date.now() - aDay), y: data[i].overall_percent
                                             });
-                            _mixedData.push({x: new Date(Date.now()), y: _data[i].overall_percent});
+                            _mixedData.push({x: new Date(Date.now()), y: data[i].overall_percent});
                         } else {
-                            _mixedData.push({x: new Date(endDate + aDay), y: _data[i].overall_percent});
+                            _mixedData.push({x: new Date(endDate + aDay), y: data[i].overall_percent});
                         }
                     }
                     dataset.push({
@@ -3685,11 +3724,11 @@
                                                 return _data[tooltipItems[0].datasetIndex].class_name + " - " + _data[tooltipItems[0].datasetIndex].overall_percent + "% (" + _data[tooltipItems[0].datasetIndex].overall_letter + ")";
                                             }
                                             if (tooltipItems[0].dataIndex >= chartData[tooltipItems[0].datasetIndex].mixedData.length) {
-                                                return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + _data[tooltipItems[0].datasetIndex].overall_percent + "% (" + _data[tooltipItems[0].datasetIndex].overall_letter + ")";
+                                                return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + data[tooltipItems[0].datasetIndex].overall_percent + "% (" + data[tooltipItems[0].datasetIndex].overall_letter + ")";
                                             }
-                                            return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " N/A [Unverified weights]";
+                                            return `${moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY")} ${tooltipItems[0].formattedValue}% (${getLetterGrade(tooltipItems[0].formattedValue)}) [Unverified weights]`;
                                         }
-                                        return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + tooltipItems[0].formattedValue + "% (" + getLetterGrade(tooltipItems[0].formattedValue) + ")";
+                                        return `${moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY")} ${tooltipItems[0].formattedValue}% (${getLetterGrade(tooltipItems[0].formattedValue)})`;
                                     }, label: function (tooltipItem) {
                                         if (tooltipItem.datasetIndex >= chartData.length) {
                                             return;
@@ -3698,7 +3737,7 @@
                                             return;
                                         }
                                         if (tooltipItem.dataIndex >= chartData[tooltipItem.datasetIndex].mixedData.length) {
-                                            let delta = Math.round((_data[tooltipItem.datasetIndex].overall_percent - chartData[tooltipItem.datasetIndex].mixedData.slice(-1)[0].y) * 100) / 100;
+                                            let delta = Math.round((data[tooltipItem.datasetIndex].overall_percent - chartData[tooltipItem.datasetIndex].mixedData.slice(-1)[0].y) * 100) / 100;
                                             if (delta > 0) {
                                                 delta = "+" + delta;
                                             }
@@ -3800,11 +3839,11 @@
                     if (!correctCalc(id)) {
                         if (endDate === 0) {
                             _mixedData.push({
-                                                x: new Date(Date.now() - aDay), y: _data[id].overall_percent
+                                                x: new Date(Date.now() - aDay), y: data[id].overall_percent
                                             });
-                            _mixedData.push({x: new Date(Date.now()), y: _data[id].overall_percent});
+                            _mixedData.push({x: new Date(Date.now()), y: data[id].overall_percent});
                         } else {
-                            _mixedData.push({x: new Date(endDate + aDay), y: _data[id].overall_percent});
+                            _mixedData.push({x: new Date(endDate + aDay), y: data[id].overall_percent});
                         }
                     }
                     dataset.push({
@@ -3908,8 +3947,8 @@
                                                 if (!chartData[id].mixedData.length) {
                                                     return "Unknown Date " + _data[id].overall_percent + "% (" + _data[id].overall_letter + ")";
                                                 }
-                                                if (tooltipItems[0].index >= chartData[id].mixedData.length) {
-                                                    return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + _data[id].overall_percent + "% (" + _data[id].overall_letter + ")";
+                                                if (tooltipItems[0].dataIndex >= chartData[id].mixedData.length) {
+                                                    return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + data[id].overall_percent + "% (" + data[id].overall_letter + ")";
                                                 }
                                                 return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " N/A [Unverified weights]";
                                             }
@@ -3922,7 +3961,7 @@
                                                 return;
                                             }
                                             if (tooltipItem.dataIndex >= chartData[id].mixedData.length) {
-                                                let delta = Math.round((_data[id].overall_percent - chartData[id].mixedData.slice(-1)[0].y) * 100) / 100;
+                                                let delta = Math.round((data[id].overall_percent - chartData[id].mixedData.slice(-1)[0].y) * 100) / 100;
                                                 if (delta > 0) {
                                                     delta = "+" + delta;
                                                 }

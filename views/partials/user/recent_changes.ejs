@@ -5,7 +5,7 @@
         <div id="gradeChangesCard" class="card card-signin my-5" style="padding-bottom: 1rem">
             <btn class="btn btn-md"
                  onclick="closeForm('gradeChangesCardDisplay')"
-                 style="display: table; width: fit-content; width: -moz-fit-content; width: -moz-fit-content; margin-bottom:0">
+                 style="display: table; width: fit-content; width: -moz-fit-content; margin-bottom:0">
                 <i class="fa fa-close" aria-hidden="true"></i> Close
             </btn>
             <btn class="btn btn-med" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').trigger('focus')"
@@ -158,13 +158,13 @@
 
             let classNames = data.map(d => d.class_name);
             let rawDiff = Date.now() - alerts.lastUpdated[i].timestamp;
-            let days = parseInt(rawDiff / (24 * 3600 * 1000));
+            let days = Math.floor(rawDiff / (24 * 3600 * 1000));
             rawDiff %= 24 * 3600 * 1000;
-            let hours = parseInt(rawDiff / (3600 * 1000));
+            let hours = Math.floor(rawDiff / (3600 * 1000));
             rawDiff %= 3600 * 1000;
-            let minutes = parseInt(rawDiff / (60 * 1000));
+            let minutes = Math.floor(rawDiff / (60 * 1000));
             rawDiff %= 60 * 1000;
-            let seconds = parseInt(rawDiff / 1000);
+            let seconds = Math.floor(rawDiff / 1000);
             let deltaTime = `<i style="margin-left: 0.5rem;" class="fa fa-info-circle"><span style="padding: 0.5rem" class="popup-right">` + (days ? days + "d " : hours ? hours + "h " : minutes ? minutes + "m " : seconds + "s") + " ago" + `</span></i>`;
             let actualTime = new Date(alerts.lastUpdated[i].timestamp).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
 

@@ -2,15 +2,15 @@
   "name": "graderoom",
   "version": "1.0.0",
   "description": "Advanced Grade Visualizer",
-  "main": "graderoom.js",
+  "main": "server/graderoom.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "test_stable": "echo \"Running Graderoom server locally in stable mode\" && port=5996 SECRET=\"secret\" node graderoom.js",
-    "test_beta": "echo \"Running Graderoom server locally in beta mode\" && port=5998 SECRET=\"secret\" node graderoom.js",
-    "start": "echo \"Running HTTP Server in production mode\" && sudo node graderoom.js true",
-    "scrape_test": "node -e \"require('./npm_commands').external_scrape()\"",
-    "purge_db": "node -e \"require('./npm_commands').purge_db()\"",
-    "backup_db": "node -e \"require('./npm_commands').backup_db()\""
+    "test_stable": "echo \\\"Running Graderoom server locally in stable mode\\\" && port=5996 SECRET=\\\"secret\\\" node server/graderoom.js",
+    "test_beta": "echo \\\"Running Graderoom server locally in beta mode\\\" && port=5998 SECRET=\\\"secret\\\" node server/graderoom.js",
+    "start": "echo \\\"Running HTTP Server in production mode\\\" && sudo node server/graderoom.js true",
+    "scrape_test": "node -e \"require('./server/npm_commands').external_scrape()\"",
+    "purge_db": "node -e \"require('./server/npm_commands').purge_db()\"",
+    "backup_db": "node -e \"require('./server/npm_commands').backup_db()\""
   },
   "author": "",
   "license": "ISC",

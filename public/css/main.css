@@ -1143,6 +1143,16 @@ label.label-active {
     border-radius: 0.5rem;
 }
 
+#classLinks li.nav-item .nav-link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#classLinks li.nav-item:not(:first-child) .nav-link {
+    display: block;
+}
+
 .nav-item {
     cursor: pointer;
     width: inherit;
@@ -1251,6 +1261,13 @@ label.label-active {
     right: 0;
     top: 0;
     width: 1rem;
+}
+
+.shouldBeNonAcademic {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
 }
 
 .tab {

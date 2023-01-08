@@ -44,8 +44,17 @@ module.exports.Constants = {
     donoPlatforms: ["paypal", "venmo", "zelle"]
 }
 
+module.exports.ColorPresets = {
+    pale: "pale",
+    pastel: "pastel",
+    clear: "clear",
+    bright: "bright",
+    dull: "dull"
+}
+
 Object.freeze(module.exports.SyncStatus);
 Object.freeze(module.exports.Schools);
 Object.freeze(module.exports.SchoolAbbr);
 Object.freeze(module.exports.PrettySchools);
 Object.freeze(module.exports.Constants);
+Object.freeze(module.exports.ColorPresets);

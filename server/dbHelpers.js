@@ -15,14 +15,16 @@ exports.USERS_COLLECTION_NAME = "users";
 exports.ARCHIVED_USERS_COLLECTION_NAME = "archived_users";
 exports.CATALOG_COLLECTION_NAME = "catalog";
 exports.BETAKEYS_COLLECTION_NAME = "betakeys";
+exports.ERRORS_COLLECTION_NAME = "errors";
+exports.GENERAL_ERRORS_COLLECTION_NAME = "general_errors";
 exports.STABLE_DATABASE_NAME = "stable";
 exports.BETA_DATABASE_NAME = "beta";
 exports.TEST_DATABASE_NAME = "test";
 exports.COMMON_DATABASE_NAME = "common";
 
 // Change this when updateDB changes
-exports.dbUserVersion = 14;
-exports.dbClassVersion = 2;
+exports.dbUserVersion = 17;
+exports.dbClassVersion = 3;
 
 const minDonoAmount = 3;
 const minPremiumAmount = 5;
@@ -174,8 +176,7 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
                     colorPalette: "clear",
                     shuffleColors: false,
                     seasonalEffects: true,
-                    showNonAcademic: true,
-                    showEmpty: true,
+                    showNonAcademic: false,
                     darkModeStart: 946778400000,
                     darkModeFinish: 946738800000,
                     weightedGPA: true,

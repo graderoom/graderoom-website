@@ -5,7 +5,7 @@
         <div id="settingsCard" class="card card-signin my-5" style="padding-bottom: 1rem">
             <btn class="btn btn-md"
                  onclick="closeForm('settingsCardDisplay')"
-                 style="display: table; width: fit-content; width: -moz-fit-content; width: -moz-fit-content; margin-bottom:0">
+                 style="display: table; width: fit-content; width: -moz-fit-content; margin-bottom:0">
                 <i class="fa fa-close" aria-hidden="true"></i> Close
             </btn>
             <div class="card-body">
@@ -388,8 +388,7 @@
                                 <label for="showPlusMinusLinesToggle">
                                     Show horizontal lines at + and - letter grades <span class="popup"><i
                                                 class="fa fa-question-circle"><span
-                                                    class="popup-right-bottom">When enabled, adds additional guide
-                                                lines at the +/- letter grades</span></i></span>
+                                                    class="popup-right-bottom">When enabled, adds additional guidelines at the +/- letter grades</span></i></span>
                                 </label>
                             </label>
                         </div>
@@ -760,21 +759,6 @@
                                 </label>
                                 <label for="showNonAcademicCheckbox">
                                     Show Non-Academic Classes (<%= nonAcademicCount %> this semester)
-                                </label>
-                            </label>
-                        </form>
-                        <form action="/setShowEmpty" method="post">
-                            <label class="slider-container">
-                                <label class="switch">
-                                    <input id="showEmptyCheckbox" type="checkbox" name="showEmpty"
-                                    <% if (_appearance.showEmpty) { %> checked="checked"
-                                            <% } %>
-                                        onchange="$(this).closest('form').trigger('submit')"
-                                    >
-                                    <span class="slider"></span>
-                                </label>
-                                <label for="showEmptyCheckbox">
-                                    Show Credit and Empty Classes (<%= emptyCount %> this semester)
                                 </label>
                             </label>
                         </form>

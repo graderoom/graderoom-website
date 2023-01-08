@@ -51,7 +51,7 @@ module.exports = {
                 if (gradeSync) {
                     let resp = await dbClient.login(username, userPass);
                     if (!resp?.success) {
-                        socketManager.emitToRoom(username, "fail-general", {message: resp.data.message});
+                        socketManager.emitToRoom(username, "sync-fail-general", {message: resp.data.message});
                         return;
                     }
                 } else {
@@ -59,7 +59,7 @@ module.exports = {
                     if (resp?.success) {
                         schoolPass = resp.data.value;
                     } else {
-                        socketManager.emitToRoom(username, "fail-general", {message: resp.data.message});
+                        socketManager.emitToRoom(username, "sync-fail-general", {message: resp.data.message});
                         return;
                     }
                 }

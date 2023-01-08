@@ -18,11 +18,11 @@ module.exports = function (app, passport) {
         if (req.isAuthenticated()) {
             req.session.touch();
             if (req.session.returnTo) {
+                res.redirect(req.session.returnTo);
                 delete req.session.returnTo;
-                return res.redirect(req.session.returnTo);
+                return;
             }
 
-            let gradeHistoryLetters = {};
             let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data.value;
             if (req.query.term && req.query.semester) {
                 if ((term === req.query.term && semester === req.query.semester) || !(await dbClient.userHasSemester(req.user.username, req.query.term, req.query.semester)).data.value) {
@@ -32,29 +32,11 @@ module.exports = function (app, passport) {
                 term = req.query.term;
                 semester = req.query.semester;
             }
-            for (let i = 0; i < Object.keys(req.user.grades).length; i++) {
-                let t = Object.keys(req.user.grades)[i];
-                gradeHistoryLetters[t] = {};
-                for (let j = 0; j < Object.keys(req.user.grades[t]).length; j++) {
-                    let s = Object.keys(req.user.grades[t])[j];
-                    if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) > semester.substring(1))) {
-                        continue;
-                    }
-                    gradeHistoryLetters[t][s] = [];
-                    for (let k = 0; k < req.user.grades[t][s].length; k++) {
-                        let next = {};
-                        next[req.user.grades[t][s][k].class_name] = req.user.grades[t][s][k].overall_letter;
-                        gradeHistoryLetters[t][s].push(next);
-                    }
-                }
-            }
 
             if (term && semester) {
-                let filteredGrades = req.user.grades[term][semester].filter(grades => (!(["CR", false]).includes(grades.overall_letter) && grades.overall_percent !== false) || grades.grades.length);
-                let filteredWeights = req.user.weights[term][semester].filter(weights => filteredGrades.map(g => g.class_name).includes(weights.className));
-
                 let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
-                let relevantClassData = (await dbClient.getRelevantClassData(req.user.username, term, semester)).data.value
+                let relevantClassData = (await dbClient.getRelevantClassData(req.user.username, term, semester)).data.value;
+                let gradeHistoryLetters = (await dbClient.getGradeHistoryLetters(req.user.username, term, semester)).data.value;
 
                 let termsAndSemesters = Object.keys(req.user.grades).map(term => {
                     let semesters = Object.keys(req.user.grades[term]).filter(s => req.user.grades[term][s].filter(grades => !(["CR", false]).includes(grades.overall_letter) ||
@@ -74,12 +56,11 @@ module.exports = function (app, passport) {
                     _appearance: req.user.appearance,
                     _alerts: req.user.alerts,
                     gradeSync: !!req.user.schoolPassword,
-                    _gradeData: req.user.appearance.showEmpty ? req.user.grades[term][semester] : filteredGrades,
-                    _weightData: req.user.appearance.showEmpty ? req.user.weights[term][semester] : filteredWeights,
-                    emptyCount: req.user.grades[term][semester].length - filteredGrades.length,
+                    _gradeData: req.user.grades[term][semester],
+                    _weightData: req.user.weights[term][semester],
                     nonAcademicCount: Object.entries(relevantClassData).filter(([k, v]) => req.user.grades[term][semester].find(c => c.class_name === k) && v.classType === "non-academic").length,
-                    _addedAssignments: req.user.appearance.showEmpty ? req.user.addedAssignments[term][semester] : filteredGrades.map(g => req.user.addedAssignments[term][semester].find(h => h.className === g.class_name)),
-                    _editedAssignments: req.user.appearance.showEmpty ? req.user.editedAssignments[term][semester] : filteredGrades.map(g => req.user.editedAssignments[term][semester].find(h => h.className === g.class_name)),
+                    _addedAssignments: req.user.addedAssignments[term][semester],
+                    _editedAssignments: req.user.editedAssignments[term][semester],
                     _gradeHistory: gradeHistoryLetters,
                     _relevantClassData: relevantClassData,
                     _donoData: req.user.donoData,
@@ -114,7 +95,6 @@ module.exports = function (app, passport) {
                     gradeSync: !!req.user.schoolPassword,
                     _gradeData: [],
                     _weightData: {},
-                    emptyCount: 0,
                     nonAcademicCount: 0,
                     _addedAssignments: {},
                     _editedAssignments: {},
@@ -184,12 +164,6 @@ module.exports = function (app, passport) {
         res.redirect(req.headers.referer ?? "/");
     });
 
-    app.post("/setShowEmpty", [isLoggedIn], async (req, res) => {
-        let show = req.body.showEmpty === "on";
-        await dbClient.setShowEmpty(req.user.username, show);
-        res.redirect(req.headers.referer ?? "/");
-    })
-
     app.post("/weightedGPA", [isLoggedIn], async (req, res) => {
         let weightedGPA = JSON.parse(req.body.weightedGPA);
         await dbClient.setWeightedGPA(req.user.username, weightedGPA);
@@ -198,7 +172,7 @@ module.exports = function (app, passport) {
 
     app.get("/viewuser", [isAdmin], async (req, res) => {
         if (req.query.usernameToRender) {
-            let gradeHistoryLetters = {};
+
             let {term, semester} = (await dbClient.getMostRecentTermData(req.query.usernameToRender)).data.value;
             if (req.query.term && req.query.semester) {
                 if ((term === req.query.term && semester === req.query.semester) || !(await dbClient.userHasSemester(req.query.usernameToRender, req.query.term, req.query.semester)).data.value) {
@@ -229,35 +203,16 @@ module.exports = function (app, passport) {
                 res.redirect(req.headers.referer ?? "/");
                 return;
             }
-            for (let i = 0; i < Object.keys(user.grades).length; i++) {
-                let t = Object.keys(user.grades)[i];
-                gradeHistoryLetters[t] = {};
-                for (let j = 0; j < Object.keys(user.grades[t]).length; j++) {
-                    let s = Object.keys(user.grades[t])[j];
-                    if (t.substring(0, 2) > term.substring(0, 2) || (t.substring(0, 2) === term.substring(0, 2) && s.substring(1) > semester.substring(1))) {
-                        continue;
-                    }
-                    gradeHistoryLetters[t][s] = [];
-                    for (let k = 0; k < user.grades[t][s].length; k++) {
-                        let next = {};
-                        next[user.grades[t][s][k].class_name] = user.grades[t][s][k].overall_letter;
-                        gradeHistoryLetters[t][s].push(next);
-                    }
-                }
-            }
 
             let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
 
             if (term && semester) {
-                let filteredGrades = user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length);
-                let filteredWeights = user.weights[term][semester].filter(weights => !weights.className ? true : filteredGrades.map(g => g.class_name).includes(weights.className));
-
                 let {plus, premium} = (await dbClient.getDonoAttributes(user.username)).data.value;
                 let relevantClassData = (await dbClient.getRelevantClassData(req.query.usernameToRender, term, semester)).data.value;
+                let gradeHistoryLetters = (await dbClient.getGradeHistoryLetters(username, term, semester)).data.value;
 
                 let termsAndSemesters = Object.keys(user.grades).map(term => {
-                    let semesters = Object.keys(user.grades[term]).filter(s => user.grades[term][s].filter(grades => !(["CR", false]).includes(grades.overall_letter) ||
-                                                                                                                     grades.grades.length).length);
+                    let semesters = Object.keys(user.grades[term]);
                     let sortedSemesters = semesters.sort((a, b) => {
                         return a.substring(1) < b.substring(1) ? -1 : 1;
                     });
@@ -273,12 +228,11 @@ module.exports = function (app, passport) {
                     _appearance: user.appearance,
                     _alerts: user.alerts,
                     gradeSync: !!user.schoolPassword,
-                    _gradeData: user.appearance.showEmpty ? user.grades[term][semester] : filteredGrades,
-                    _weightData: user.appearance.showEmpty ? user.weights[term][semester] : filteredWeights,
-                    emptyCount: user.grades[term][semester].length - filteredGrades.length,
+                    _gradeData: user.grades[term][semester],
+                    _weightData: user.weights[term][semester],
                     nonAcademicCount: Object.entries(relevantClassData).filter(([k, v]) => user.grades[term][semester].find(c => c.class_name === k) && v.classType === "non-academic").length,
-                    _addedAssignments: user.appearance.showEmpty ? user.addedAssignments[term][semester] : filteredGrades.map(g => user.addedAssignments[term][semester].find(h => h.className === g.class_name)),
-                    _editedAssignments: user.appearance.showEmpty ? user.editedAssignments[term][semester] : filteredGrades.map(g => user.editedAssignments[term][semester].find(h => h.className === g.class_name)),
+                    _addedAssignments: user.addedAssignments[term][semester],
+                    _editedAssignments: user.editedAssignments[term][semester] ,
                     _gradeHistory: gradeHistoryLetters,
                     _relevantClassData: relevantClassData,
                     _donoData: user.donoData,
@@ -313,7 +267,6 @@ module.exports = function (app, passport) {
                     gradeSync: !!user.schoolPassword,
                     _gradeData: [],
                     _weightData: {},
-                    emptyCount: 0,
                     nonAcademicCount: 0,
                     _addedAssignments: {},
                     _editedAssignments: {},
@@ -973,6 +926,10 @@ module.exports = function (app, passport) {
     // password reset
 
     app.get("/reset_password", async (req, res) => {
+        if (req.user) {
+            res.redirect(req.headers.referer ?? "/");
+            return;
+        }
 
         let resetToken = req.query.token;
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
@@ -1037,7 +994,7 @@ module.exports = function (app, passport) {
     });
 
     app.get("/forgot_password", (req, res) => {
-        // dont allow while logged in
+        // don't allow while logged in
         if (req.user) {
             res.redirect(req.headers.referer ?? "/");
             return;
@@ -1199,6 +1156,8 @@ function checkReturnTo(req, res, next) {
     let returnTo = url.parse(req.headers.referer || "/", true).query.returnTo;
     if (returnTo && returnTo.startsWith("/")) {
         req.session.returnTo = returnTo;
+    } else if (req.session.returnTo) {
+        delete req.session.returnTo;
     }
     next();
 }
