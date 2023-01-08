@@ -46,6 +46,11 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 5.9.1] - 2023-01-08
+### Fixed
+- Discord verification now works for new users (since 12/21/2022)
+- Grades are now sorted properly when they carry into the next year
+
 ## [Beta 5.9.0] - 2023-01-07 - Happy New Year!
 ### Added
 - Locked PowerSchool sync now works for users that have never synced before

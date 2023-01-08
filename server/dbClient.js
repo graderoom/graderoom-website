@@ -829,6 +829,33 @@ const __version17 = async (db, user) => {
     }
 }
 
+const _version18 = async (db, username) => {
+    let res = await getUser(username, {version: 1, discord: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version18, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 13`}};
+};
+
+const __version18 = async (db, user) => {
+    if (user.version === 17) {
+        if (!user.discord) {
+            await _users(db).updateOne({username: user.username}, {
+                $set: {
+                    discord: {}
+                }
+            });
+        }
+        await _users(db).updateOne({username: user.username}, {
+            $set: {version: 18}
+        });
+    }
+};
+
 const initUser = (username) => safe(_initUser, lower(username));
 const _initUser = async (db, username) => {
     let res = await getUser(username, {"alerts.tutorialStatus": 1, betaFeatures: 1});
@@ -942,6 +969,9 @@ const _updateAllUsers = async () => {
             }
             if (user.version < 17) {
                 await safe(_version17, user.username);
+            }
+            if (user.version < 18) {
+                await safe(_version18, user.username);
             }
         }
         await safe(_initUser, user.username);
@@ -4085,7 +4115,7 @@ const _internalApiDiscordUserInfo = async (db, discordID) => {
         return {success: false, data: {errorCode: 5}};
     }
 
-    return {success: true, data: {school: user.school, donoData: await __getDonoAttributes(user.donoData)}};
+    return {success: true, data: {school: user.school, donoData: (await __getDonoAttributes(user.donoData)).data.value}};
 };
 
 module.exports = {
