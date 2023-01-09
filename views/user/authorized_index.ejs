@@ -1271,6 +1271,7 @@
             let term = "<%= term %>";
             let semester = "<%= semester %>";
             let betaFeatures = <%- JSON.stringify(_betaFeatures); %>;
+            let SchoolAbbr = <%- JSON.stringify(_SchoolAbbr); %>;
             let chartData = [];
             let parsedData = [];
             let categorySortedData = [];
@@ -1595,7 +1596,7 @@
                 if (!alerts.lastUpdated.slice(-1)[0]) {
                     return false;
                 }
-                return alerts.lastUpdated.slice(-1)[0].ps_locked;
+                return alerts.lastUpdated.slice(-1)[0].ps_locked && (relClassData[data[classIndex].class_name].hasWeights === false || Object.values(relClassData[data[classIndex].class_name].weights).filter(w => w !== null).length !== 0);
             }
 
             function countDecimals(value) {
@@ -4364,7 +4365,7 @@
                         ucClassType = "Unknown UC";
                         break;
                 }
-                classInfoClassType.text(`BCP ${classType} course`);
+                classInfoClassType.text(`${SchoolAbbr[school]} ${classType} course`);
                 classInfoUCClassType.text(`${ucClassType} course`);
 
                 if (teachers.length > 1) {

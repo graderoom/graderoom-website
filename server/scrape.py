@@ -117,8 +117,8 @@ def parse_ps_class(local_class: PowerSchoolClassGrade, raw_data: requests.Respon
             points_possible = False
         if len(_data["_assignmentscores"]) > 0:
             exclude = exclude or _data["_assignmentscores"][0]["isexempt"]
-            sort_date = _data["_assignmentscores"][0]["scoreentrydate"]
-            sort_date = datetime.strptime(sort_date, "%Y-%m-%d %H:%M:%S").timestamp()
+            # sort_date = _data["_assignmentscores"][0]["scoreentrydate"]
+            # sort_date = datetime.strptime(sort_date, "%Y-%m-%d %H:%M:%S").timestamp()
             if "scorepoints" in _data["_assignmentscores"][0]:
                 points_gotten = _data["_assignmentscores"][0]["scorepoints"]
                 if "weight" in _data:
