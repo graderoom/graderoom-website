@@ -50,7 +50,7 @@
             if (changelogArray !== undefined) {
                 latestVersion = await $.ajax({
                                                  url: "/latestVersion", type: "GET", async: true
-                                             });
+                                             }).catch(() => {});
             }
             if (changelogArray === undefined || !versionNames[1]?.endsWith(latestVersion)) {
                 await $.ajax({

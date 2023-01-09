@@ -1079,7 +1079,7 @@ class BasisScraper(Scraper):
             no_due_date = list(filter(lambda j: j['sort_date'] is None, grades))
             no_due_date.reverse()
             due_date = list(filter(lambda j: j['sort_date'] is not None, grades))
-            grades = sorted(due_date, key=lambda j: j['sort_date'], reverse=False)
+            grades = sorted(due_date, key=lambda j: j['sort_date'])
             [grades.insert(0, item) for item in no_due_date]
 
             t1_grades = [{key: value for key, value in assignment.items() if key != 'sort_date'} for assignment in

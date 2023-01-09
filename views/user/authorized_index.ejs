@@ -1291,13 +1291,17 @@
             let darkModeFinish = appearance.darkModeFinish;
             let mobile = window.innerWidth <= 991;
 
+            let academicIndices = data.map((d, i) => relClassData[d.class_name].classType !== "non-academic" ? i : null).filter(c => c !== null);
+            let nonAcademicCount = data.length - academicIndices.length;
+
             if (!appearance.showNonAcademic && Object.keys(Object.fromEntries(Object.entries(relClassData).filter(([k, v]) => data.find(c => c.class_name === k) && v.classType === "non-academic"))).length > 0) {
-                colors = colors.slice(0, data.length).filter(color => relClassData[data[colors.indexOf(color)].class_name].classType !== "non-academic");
-                data = data.filter(grade => relClassData[grade.class_name].classType !== "non-academic");
-                weights = weights.filter(weight => relClassData[weight.className].classType !== "non-academic");
-                addedAssignments = addedAssignments.filter(a => relClassData[a.className].classType !== "non-academic");
-                editedAssignments = editedAssignments.filter(e => relClassData[e.className].classType !== "non-academic");
+                colors = academicIndices.map(n => colors[n]);
+                data = academicIndices.map(n => data[n]);
+                weights = academicIndices.map(n => weights[n]);
+                addedAssignments = academicIndices.map(n => addedAssignments[n]);
+                editedAssignments = academicIndices.map(n => editedAssignments[n]);
             }
+
             let _editedAssignments = JSON.parse(JSON.stringify(editedAssignments)); // Copy to apply edits to
             let _addedAssignments = JSON.parse(JSON.stringify(addedAssignments)); // Copy to apply edits to added assignments to
             let _data = JSON.parse(JSON.stringify(data)); // Copy to apply edits to assignments to
@@ -1503,8 +1507,14 @@
                 if (document.location.href.includes("term") && document.location.href.includes("semester")) {
                     return {updated: true};
                 }
-                if (_.isEqual(data.map(c => c.class_name), newData.grades.map(c => c.class_name)) && _.isEqual(weights, newData.weights)) {
-                    data = newData.grades;
+                if (!appearance.showNonAcademic && data.length + nonAcademicCount !== newData.grades.length) {
+                    return {updated: false};
+                }
+                if (appearance.showNonAcademic && data.length !== newData.grades.length) {
+                    return {updated: false};
+                }
+                if (_.isEqual(data.map(c => c.class_name), newData.grades.filter((c, i) => appearance.showNonAcademic || academicIndices.includes(i)).map(c => c.class_name)) && _.isEqual(weights, newData.weights)) {
+                    data = newData.grades.filter((c, i) => appearance.showNonAcademic || academicIndices.includes(i));
                     return {updated: true};
                 }
                 clearTimeout(checkLastUpdated);
@@ -1559,12 +1569,12 @@
                         if (alerts.lastUpdated.slice(-1)[0] && alerts.lastUpdated.slice(-1)[0].ps_locked && !accountInactive) {
                             $("#incorrectOverallGrade" + i + " span").html(`PowerSchool is locked. Calculated grade may be inaccurate.`);
                             $("#incorrectOverviewGrade" + i + " span").html(`PowerSchool is locked. Calculated grade may be inaccurate.`);
-                        } else {
+                        } else if (!accountInactive) {
                             $("#incorrectOverallGrade" + i + " span").html(`Grade in ${school === "basis" ? "Schoology" : "PowerSchool"}: <nobr>` + (Math.round(_data[i].overall_percent * 100) / 100) + `% (` + (_data[i].overall_letter ?? getLetterGrade(_data[i].overall_percent)) + `)</nobr>`);
                             $("#incorrectOverviewGrade" + i).hide();
                             $("#verified" + i + " span").addClass("always-show");
                         }
-                        if ((!correctCalc(i) && data[i].overall_percent) || (alerts.lastUpdated.slice(-1)[0] && alerts.lastUpdated.slice(-1)[0].ps_locked && !accountInactive)) {
+                        if (!accountInactive && ((!correctCalc(i) && data[i].overall_percent) || (alerts.lastUpdated.slice(-1)[0] && alerts.lastUpdated.slice(-1)[0].ps_locked && !accountInactive))) {
                             $("#incorrectOverallGrade" + i).css("display", "inline-block");
                             if (alerts.lastUpdated.slice(-1)[0] && alerts.lastUpdated.slice(-1)[0].ps_locked) {
                                 $("#incorrectOverviewGrade" + i).css("display", "inline-block");

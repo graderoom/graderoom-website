@@ -1097,7 +1097,7 @@ module.exports = function (app, passport) {
 
     // route middleware to ensure user is logged in
     function isLoggedIn(req, res, next) {
-        if (!(["/", "/admin", "/logout"]).includes(req._parsedOriginalUrl.path) && req.headers.referer && req.headers.referer.includes("viewuser")) {
+        if (!(["/", "/admin", "/logout", "/changelog", "/whatsNew"]).includes(req._parsedOriginalUrl.path) && req.headers.referer && req.headers.referer.includes("viewuser")) {
             res.sendStatus(405);
             return;
         }
