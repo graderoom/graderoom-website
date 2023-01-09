@@ -1552,25 +1552,25 @@
             if (totalReceived <= 1) {
                 let width = 12.5 * totalReceived;
                 $(progressBars[1]).css("width", `${width}%`);
-                $(progressBars[5]).css("width", `${100 - width}%`);
+                $(progressBars[5]).css("width", `${100 - 12.5 - width}%`);
             } else if (totalReceived <= 3) {
                 $(progressBars[1]).css("width", "12.5%");
                 let width = 25 * (totalReceived - 1) / 2;
                 $(progressBars[2]).css("width", `${width}%`);
-                $(progressBars[5]).css("width", `${100 - 12.5 - width}%`);
+                $(progressBars[5]).css("width", `${100 - 12.5 - 12.5 - width}%`);
             } else if (totalReceived <= 5) {
                 $(progressBars[1]).css("width", "12.5%");
                 $(progressBars[2]).css("width", `25%`);
                 let width = 25 * (totalReceived - 3) / 2;
                 $(progressBars[3]).css("width", `${width}%`);
-                $(progressBars[5]).css("width", `${100 - 12.5 - 25 - width}%`);
+                $(progressBars[5]).css("width", `${100 - 12.5 - 12.5 - 25 - width}%`);
             } else {
                 $(progressBars[1]).css("width", "12.5%");
                 $(progressBars[2]).css("width", "25%");
                 $(progressBars[3]).css("width", `25%`);
-                let width = 37.5 * Math.min(totalReceived - 5, 3) / 3;
+                let width = 25 * Math.min(totalReceived - 5, 3) / 3;
                 $(progressBars[4]).css("width", `${width}%`);
-                $(progressBars[5]).css("width", `${100 - 37.5 - 25 - width}%`);
+                $(progressBars[5]).css("width", `${100 - 12.5 - 12.5 - 25 - 25 - width}%`);
             }
         }
     }
