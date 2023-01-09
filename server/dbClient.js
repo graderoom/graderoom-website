@@ -3,7 +3,6 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const chroma = require("chroma-js");
 const _ = require("lodash");
-const stream = require("stream");
 const socketManager = require("./socketManager");
 const scraper = require("./scrape");
 const {SyncStatus, Schools, Constants, ColorPresets} = require("./enums");
@@ -1878,7 +1877,7 @@ const _setColorPalette = async (db, username, preset, shuffle) => {
     if (typeof shuffle !== "boolean") {
         shuffle = user.appearance.shuffleColors;
     }
-    if (!(preset in Object.values(ColorPresets))) {
+    if (!(Object.values(ColorPresets).includes(preset))) {
         preset = user.appearance.colorPalette;
     }
     let light, saturation, hues = [0, 30, 60, 120, 180, 240, 270, 300, 330, 15, 45, 90, 150, 210, 255, 285, 315, 345];
@@ -2349,6 +2348,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                 [`grades.${newTerm}.${newSemester}`]: 1,
                 [`weights.${newTerm}.${newSemester}`]: 1,
                 "alerts.lastUpdated": {$slice: -1},
+                "appearance.showNonAcademic": 1,
             });
             let _user = _res.data.value;
 

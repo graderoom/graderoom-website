@@ -46,6 +46,46 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 5.10.0] - 2023-01-09 - Here we go again!
+### Added
+- Locked PowerSchool sync now works for users that have never synced before
+- Implemented task queues to prevent race cases for live sync statuses. I hate JavaScript.
+- All GPAs should now use calculated grades if PowerSchool is locked. They'll have a warning just so you know it's not necessarily accurate
+
+### Improved
+- If any errors ever occur, there are now unique error codes that you can provide to the developers to help with debugging
+- In charts, tooltips on lines with unverified weights now include the data point value
+- Locked scraper now also fetches empty courses
+- Sync log will no longer show all assignments as new/removed when the number of courses changes
+- Class colors now stay the same after hiding/unhiding non-academic classes
+- Cura has been set as a non-academic class by default, as well as several Sports and Study hHalls
+- If a Bellarmine course has no grades and no set class type in the catalog, and a user has non-academic course display disabled, a message now appears asking them to send feedback about whether the class is non-academic or not
+
+### Fixed
+- Graderoom should no longer unnecessarily refresh when 'show non-academic courses' is disabled
+- Issues with class colors when non-academic courses were hidden
+- Errors related to it no longer being December<ul>
+- Page wouldn't load if 'Show non-academic classes' was disabled
+- Analytics wouldn't load</ul>
+- Seasonal Effects can be disabled without refresh again
+- Issue where 'Overview' button in class navbar had a smaller hitbox than it should have
+- Issue where PowerSchool grades continued to show in incorrect grade messages if sync failed
+- Grammar errors everywhere
+- Sync issue caused by Bellarmine's misconfiguration of SSL certificates
+- Sync Failure sync status is now the correct color
+- Issue where clicking links in a certain order would prevent you from accessing the homepage without clearing cookies
+- Discord verification now works for new users (since 12/21/2022)
+- Grades are now sorted properly when they carry into the next year
+- Class type text in Class Info no longer says BCP for schools that aren't BCP
+
+### Removed
+- Setting for showing empty classes
+
+## [Beta 5.9.2] - 2023-01-09
+### Fixed
+- Graderoom should no longer unnecessarily refresh when 'show non-academic courses' is disabled
+- Issues with class colors when non-academic courses were hidden
+
 ## [Beta 5.9.1] - 2023-01-08
 ### Fixed
 - Discord verification now works for new users (since 12/21/2022)

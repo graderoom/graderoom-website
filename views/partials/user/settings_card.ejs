@@ -14,7 +14,8 @@
                 </h1>
             </div>
             <div class="tab">
-                <btn id="btn-0" class="tablinks donate-nav-item" onclick="openTab(0)"><span class="donate"><span class="inner-donate">Donate</span></span>
+                <btn id="btn-0" class="tablinks donate-nav-item" onclick="openTab(0)"><span class="donate"><span
+                                class="inner-donate">Donate</span></span>
                 </btn>
                 <btn id="btn-1" class="tablinks active" onclick="openTab(1)">Appearance</btn>
                 <btn id="btn-2" class="tablinks" onclick="openTab(2)">Account</btn>
@@ -157,11 +158,16 @@
                                     </div>
                                 </div>
                                 <div class="text-center" id="classColors">
+                                    <% let _offset = 0; %>
                                     <% for (var i = 0; i < _gradeData.length; i++) { %>
-                                        <label id="classColor<%= i; %>"
-                                               style="color: <%= _appearance.classColors[i]; %>;">
-                                            <%= _gradeData[i].class_name; %>
-                                        </label>
+                                        <% if (_appearance.showNonAcademic || _relevantClassData[_gradeData[i].class_name]["classType"] !== "non-academic") { %>
+                                            <label id="classColor<%= i + _offset; %>"
+                                                   style="color: <%= _appearance.classColors[i]; %>;">
+                                                <%= _gradeData[i].class_name; %>
+                                            </label>
+                                        <% } else {
+                                            _offset--;
+                                        } %>
                                     <% } %>
                                 </div>
                             </div>
@@ -388,36 +394,38 @@
                                 <label for="showPlusMinusLinesToggle">
                                     Show horizontal lines at + and - letter grades <span class="popup"><i
                                                 class="fa fa-question-circle"><span
-                                                    class="popup-right-bottom">When enabled, adds additional guidelines at the +/- letter grades</span></i></span>
+                                                    class="popup-right-bottom">When enabled, adds additional guidelines
+                                                at the +/- letter grades</span></i></span>
                                 </label>
                             </label>
                         </div>
                     </div>
                     <div class="card-footer">
-                            <h5>Accessibility</h5>
-                            <div>
-                                <label class="slider-container">
-                                    <label class="switch">
-                                        <input
-                                                id="reduceMotionToggle"
-                                                style="margin: 0; display: flex"
-                                                type="checkbox"
-                                                name="reduceMotion"
-                                        <% if (_appearance.reduceMotion) { %>
-                                                checked="checked"
-                                                <% } %>
-                                                onchange="changeSetting('reduceMotion', !appearance.reduceMotion)"
-                                        >
-                                        <span class="slider"></span>
-                                    </label>
-                                    <label for="reduceMotionToggle">
-                                        Reduce Motion <span class="popup"><i
-                                                    class="fa fa-question-circle"><span
-                                                        class="popup-right-bottom">When enabled, animations will be reduced and disabled where possible.</span></i></span>
-                                    </label>
+                        <h5>Accessibility</h5>
+                        <div>
+                            <label class="slider-container">
+                                <label class="switch">
+                                    <input
+                                            id="reduceMotionToggle"
+                                            style="margin: 0; display: flex"
+                                            type="checkbox"
+                                            name="reduceMotion"
+                                    <% if (_appearance.reduceMotion) { %>
+                                            checked="checked"
+                                            <% } %>
+                                            onchange="changeSetting('reduceMotion', !appearance.reduceMotion)"
+                                    >
+                                    <span class="slider"></span>
                                 </label>
-                            </div>
+                                <label for="reduceMotionToggle">
+                                    Reduce Motion <span class="popup"><i
+                                                class="fa fa-question-circle"><span
+                                                    class="popup-right-bottom">When enabled, animations will be reduced
+                                                and disabled where possible.</span></i></span>
+                                </label>
+                            </label>
                         </div>
+                    </div>
                 </div>
             </div>
             <div id="settings-2" class="tabcontent">
@@ -462,7 +470,8 @@
                                     <div class="progress-bar popup-holder" role="progressbar">
                                         <span class="popup">
                                             <span class="popup-top">
-                                                $1: Get a donor role on discord and create high-priority feature requests
+                                                $1: Get a donor role on discord and create high-priority feature
+                                                requests
                                             </span>
                                         </span>
                                     </div>
@@ -476,7 +485,9 @@
                                     <div class="progress-bar popup-holder" role="progressbar">
                                         <span class="popup">
                                             <span class="popup-top">
-                                                $5: Get a shiny <div class="premium-label premium-inline">PREMIUM</div> badge and a more feature-rich API
+                                                $5: Get a shiny
+                                                <div class="premium-label premium-inline">PREMIUM</div>
+                                                badge and a more feature-rich API
                                             </span>
                                         </span>
                                     </div>
@@ -753,7 +764,7 @@
                                     <input id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
                                     <% if (_appearance.showNonAcademic) { %> checked="checked"
                                             <% } %>
-                                        onchange="$(this).closest('form').trigger('submit')"
+                                           onchange="$(this).closest('form').trigger('submit')"
                                     >
                                     <span class="slider"></span>
                                 </label>
@@ -805,7 +816,8 @@
                             <label for="showFps">
                                 Stats for Nerds <span class="popup"><i
                                             class="fa fa-question-circle"><span
-                                                class="popup-right-bottom">When enabled, displays performance info in the bottom
+                                                class="popup-right-bottom">When enabled, displays performance info in
+                                            the bottom
                                             left
                                             corner of the screen
                                         </span></i></span>
@@ -971,7 +983,8 @@
                         <br>
                         <form id="betaFeatures" action="/betaFeatures" method="post">
                             <div class="card-footer">
-                                <h5><small style="opacity: 0.5">No Experiments at the moment. Check back later!</small></h5>
+                                <h5><small style="opacity: 0.5">No Experiments at the moment. Check back later!</small>
+                                </h5>
                             </div>
                         </form>
                         <form action="/leavebeta" method="post">
@@ -1284,7 +1297,7 @@
                 }
             });
             appearance.colorPalette = palette;
-            updateClassColors(response);
+            updateClassColors(!appearance.showNonAcademic ? academicIndices.map(n => response[n]) : response);
             setTimeout(() => {
                 buttons.prop("disabled", false);
             }, 1000);
@@ -1514,7 +1527,7 @@
         let donoDiv = $("#donations");
         let donoProgressDiv = $("#donationProgress");
         let progressBars = donoProgressDiv.find("div.progress-bar");
-        $(progressBars).css("width", '0');
+        $(progressBars).css("width", "0");
         $(progressBars[0]).css("width", "12.5%");
         if (donoData.length === 0) {
             donoDiv.html(`<div style="text-align: center">Nothing yet</div>`);

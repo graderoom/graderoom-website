@@ -1,6 +1,7 @@
 const dbClient = require("./dbClient");
 const socketManager = require("./socketManager");
 module.exports = {
+    socketUsernameHelper: _socketUsernameHelper,
     setupSocket: function (socket) {
         if (process.env.NODE_ENV !== "production") {
             logSocket(socket);
@@ -12,37 +13,37 @@ module.exports = {
                 let resp;
                 switch (key) {
                     case "enableLogging":
-                        resp = await dbClient.setEnableLogging(socket.request.user.username, value);
+                        resp = await dbClient.setEnableLogging(_socketUsernameHelper(socket), value);
                         break;
                     case "animateWhenUnfocused":
-                        resp = await dbClient.setAnimateWhenUnfocused(socket.request.user.username, value);
+                        resp = await dbClient.setAnimateWhenUnfocused(_socketUsernameHelper(socket), value);
                         break;
                     case "showFps":
-                        resp = await dbClient.setShowFps(socket.request.user.username, value);
+                        resp = await dbClient.setShowFps(_socketUsernameHelper(socket), value);
                         break;
                     case "theme":
                         let {theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects} = value;
-                        resp = await dbClient.setTheme(socket.request.user.username, theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects);
+                        resp = await dbClient.setTheme(_socketUsernameHelper(socket), theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects);
                         break;
                     case "regularizeClassGraphs":
-                        resp = await dbClient.setRegularizeClassGraphs(socket.request.user.username, value);
+                        resp = await dbClient.setRegularizeClassGraphs(_socketUsernameHelper(socket), value);
                         break;
                     case "showPlusMinusLines":
-                        resp = await dbClient.setShowPlusMinusLines(socket.request.user.username, value);
+                        resp = await dbClient.setShowPlusMinusLines(_socketUsernameHelper(socket), value);
                         break;
                     case "reduceMotion":
-                        resp = await dbClient.setReduceMotion(socket.request.user.username, value);
+                        resp = await dbClient.setReduceMotion(_socketUsernameHelper(socket), value);
                         break;
                 }
                 if (resp?.success) {
-                    socketManager.emitToRoom(socket.request.user.username, "success-settings-change", resp.data);
+                    socketManager.emitToRoom(_socketUsernameHelper(socket), "success-settings-change", resp.data);
                 } else {
-                    socketManager.emitToRoom(socket.request.user.username, "fail-settings-change", resp.data);
+                    socketManager.emitToRoom(_socketUsernameHelper(socket), "fail-settings-change", resp.data);
                 }
             }
         });
         socket.on("start-update", async (data) => {
-            let username = socket.request.user.username;
+            let username = _socketUsernameHelper(socket);
             let gradeSync = data.gradeSync;
             let schoolPass = data.schoolPassword;
             let userPass = data.userPassword;
@@ -74,30 +75,30 @@ module.exports = {
                 let resp;
                 switch (key) {
                     case "showUpdatePopup":
-                        resp = await dbClient.setShowUpdatePopup(socket.request.user.username, value);
+                        resp = await dbClient.setShowUpdatePopup(_socketUsernameHelper(socket), value);
                         break;
                 }
                 if (resp?.success) {
-                    socketManager.emitToRoom(socket.request.user.username, "success-notification-settings-change", resp.data);
+                    socketManager.emitToRoom(_socketUsernameHelper(socket), "success-notification-settings-change", resp.data);
                 } else {
-                    socketManager.emitToRoom(socket.request.user.username, "fail-notification-settings-change", resp.data);
+                    socketManager.emitToRoom(_socketUsernameHelper(socket), "fail-notification-settings-change", resp.data);
                 }
             }
         });
         socket.on("notification-update", async (data) => {
                     let id = data.id;
                     let update = data.data;
-                    let resp = await dbClient.updateNotification(socket.request.user.username, id, update);
+                    let resp = await dbClient.updateNotification(_socketUsernameHelper(socket), id, update);
                     if (resp?.success) {
-                        socketManager.emitToRoom(socket.request.user.username, "success-notification-update", resp.data);
+                        socketManager.emitToRoom(_socketUsernameHelper(socket), "success-notification-update", resp.data);
                     } else {
-                        socketManager.emitToRoom(socket.request.user.username, "fail-notification-update", resp.data);
+                        socketManager.emitToRoom(_socketUsernameHelper(socket), "fail-notification-update", resp.data);
                     }
                 });
         socket.on("discord-verify", async (data) => {
             let verificationCode = data.verificationCode;
-            let resp = await dbClient.discordVerify(socket.request.user.username, verificationCode);
-            await dbClient.deleteNotification(socket.request.user.username, "discord-verify");
+            let resp = await dbClient.discordVerify(_socketUsernameHelper(socket), verificationCode);
+            await dbClient.deleteNotification(_socketUsernameHelper(socket), "discord-verify");
             if (resp.success) {
                 let notification = {
                     id: "discord-verified",
@@ -111,7 +112,7 @@ module.exports = {
                     pinned: true,
                     createdDate: Date.now(),
                 };
-                socketManager.emitToRoom(socket.request.user.username, "notification-new", notification);
+                socketManager.emitToRoom(_socketUsernameHelper(socket), "notification-new", notification);
             } else {
                 let notification = {
                     id: "discord-fail",
@@ -125,7 +126,7 @@ module.exports = {
                     pinned: true,
                     createdDate: Date.now(),
                 };
-                socketManager.emitToRoom(socket.request.user.username, "notification-new", notification);
+                socketManager.emitToRoom(_socketUsernameHelper(socket), "notification-new", notification);
             }
         });
     },
@@ -150,4 +151,8 @@ function logSocket(socket) {
             console.log(event + " | " + displayNicely(...args).join(" | "));
         }
     });
+}
+
+function _socketUsernameHelper(socket) {
+    return (socket.request.user.isAdmin ? socket.request.headers.referer.split('usernameToRender=')[1]?.split('&')[0] : undefined) ?? socket.request.user.username;
 }
