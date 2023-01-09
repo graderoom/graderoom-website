@@ -129,7 +129,7 @@
                         versionOffsets[`${name}-legend`] = $(v).offset().top - changelogLegendColumn.offset().top;
                     }
                 }
-                if (!versionNames.includes(alerts.latestSeen)) {
+                if (!versionNames.find(v => v.endsWith(alerts.latestSeen))) {
                     updateNotifications();
                     if (!callback) {
                         $.ajax({
