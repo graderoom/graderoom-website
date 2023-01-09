@@ -154,8 +154,7 @@ def parse_ps_class(local_class: PowerSchoolClassGrade, raw_data: requests.Respon
     raw = json.loads(raw_data.text)
 
     # output
-    local_class.grades = sorted(list(filter(remove_empty, map(stripper, raw))), key=lambda j: j['sort_date'],
-                                reverse=True)
+    local_class.grades = sorted(list(filter(remove_empty, map(stripper, raw))), key=lambda j: j['sort_date'])
     local_class.grades = [{key: value for key, value in assignment.items() if key != 'sort_date'} for assignment in
                           local_class.grades]  # Remove sorting date
 
