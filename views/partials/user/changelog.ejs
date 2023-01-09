@@ -129,6 +129,21 @@
                         versionOffsets[`${name}-legend`] = $(v).offset().top - changelogLegendColumn.offset().top;
                     }
                 }
+                if (dismissNotifications) {
+                    updateNotifications();
+                    if (!callback) {
+                        $.ajax({
+                                   url: "/latestVersionSeen", type: "POST", async: true
+                               }).done((response) => {
+                            if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
+                                $(".session-timeout").show();
+                                $("body").find("*").not(".session-timeout").remove();
+                                return;
+                            }
+                            alerts.latestSeen = versionNames[1].substring(versionNames[1].indexOf(" ") + 1);
+                        });
+                    }
+                }
                 if (callback) {
                     // noinspection JSValidateTypes
                     callback(versionNames, versionDates, versionMessages);
