@@ -1481,11 +1481,11 @@ const _getAllArchivedUsers = async (db) => {
 
 const unArchiveUser = (username) => safe(_unArchiveUser, lower(username));
 const _unArchiveUser = async (db, username) => {
-    let res = await safe(_userArchived, username, true); // Internal call because special param
+    let res = await safe(_userArchived, {username: username}, true); // Internal call because special param
     if (!res.success) {
         return res;
     }
-    let res2 = await safe(__addUser(res.data.value));
+    let res2 = await safe(__addUser, res.data.value);
     if (!res2.success) {
         return res2;
     }
