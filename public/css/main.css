@@ -3582,26 +3582,27 @@ input:disabled {
     width: 100%;
 }
 
+#donoTable td:first-child {
+    width: 20%;
+}
+
 #donoTable .dono-platform-venmo {
     color: #008CFF;
     font-weight: bold;
-    text-transform: capitalize;
 }
 
 #donoTable .dono-platform-zelle {
     color: #671cca;
     font-weight: bold;
-    text-transform: capitalize;
 }
 
 #donoTable .dono-platform-paypal {
-    color: transparent;
-    width: 0;
+    color: #169BD7;
+    font-weight: bold;
 }
 
-#donoTable .dono-platform-paypal::before {
-    content: "PayPal";
-    color: #169BD7;
+#donoTable .dono-platform-cash {
+    color: #00A603;
     font-weight: bold;
 }
 
