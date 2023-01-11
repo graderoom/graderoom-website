@@ -154,6 +154,7 @@
                                                 <option value="venmo">Venmo</option>
                                                 <option value="zelle">Zelle</option>
                                                 <option value="paypal">PayPal</option>
+                                                <option value="cash">Cash</option>
                                             </select>
                                         </div>
                                         <div class="addDonationPaid form-weights form-signin input-group form-group">
@@ -289,9 +290,14 @@
                     let received = donoData[i].receivedValue;
                     totalPaid += paid;
                     totalReceived += received;
-                    let date = donoData[i].dateDonated;i
+                    let date = donoData[i].dateDonated;
 
-                    donoTable += `<tr><td class="dono-platform-${platform}">${platform}</td><td>$${paid.toFixed(2)}</td><td>$${received.toFixed(2)}</td><td>${new Date(date).toLocaleDateString()}</td><td><button class="btn btn-sm admin" onclick="removeDonation(${h}, ${i})">Delete</button></td></tr>`;
+                    if (platform === "paypal") platform = "PayPal";
+                    else if (platform === "zelle") platform = "Zelle";
+                    else if (platform === "venmo") platform = "Venmo";
+                    else if (platform === "cash") platform = "Cash";
+
+                    donoTable += `<tr><td class="dono-platform-${platform.toLowerCase()}">${platform}</td><td>$${paid.toFixed(2)}</td><td>$${received.toFixed(2)}</td><td>${new Date(date).toLocaleDateString()}</td><td><button class="btn btn-sm admin" onclick="removeDonation(${h}, ${i})">Delete</button></td></tr>`;
                 }
                 donoTable += `<tfoot><tr><td style="text-align: right">Total:</td><td>$${totalPaid.toFixed(2)}</td><td>$${totalReceived.toFixed(2)}</td><td></td></tr></tfoot></tbody></table>`;
                 donoDiv.html(donoTable);

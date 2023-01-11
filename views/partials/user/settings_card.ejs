@@ -1032,7 +1032,7 @@
 
         checkingFirstName = setTimeout(() => {
             if (!firstNameRegex.test(firstName)) {
-                $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("First name must contain only letters...You're name isn't X Æ A-12, is it?");
+                $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("First name must contain only letters...Your name isn't X Æ A-12, is it?");
                 icon.attr("class", "fa fa-exclamation-circle");
                 $(inputID).css("border-bottom-color", "red");
                 return;
@@ -1091,7 +1091,7 @@
 
         checkingLastName = setTimeout(() => {
             if (!lastNameRegex.test(lastName)) {
-                $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Last name must contain only letters...You're name isn't X Æ A-12, is it?");
+                $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Last name must contain only letters...Your name isn't X Æ A-12, is it?");
                 icon.attr("class", "fa fa-exclamation-circle");
                 $(inputID).css("border-bottom-color", "red");
                 return;
@@ -1544,7 +1544,12 @@
                 totalReceived += received;
                 let date = donoData[i].dateDonated;
 
-                donoTable += `<tr><td class="dono-platform-${platform}">${platform}</td><td>$${paid.toFixed(2)}</td><td>$${received.toFixed(2)}</td><td>${new Date(date).toLocaleDateString()}</td></tr>`;
+                if (platform === "paypal") platform = "PayPal";
+                else if (platform === "zelle") platform = "Zelle";
+                else if (platform === "venmo") platform = "Venmo";
+                else if (platform === "cash") platform = "Cash";
+
+                donoTable += `<tr><td class="dono-platform-${platform.toLowerCase()}">${platform}</td><td>$${paid.toFixed(2)}</td><td>$${received.toFixed(2)}</td><td>${new Date(date).toLocaleDateString()}</td></tr>`;
             }
             donoTable += `<tfoot><tr><td style="text-align: right">Total:</td><td>$${totalPaid.toFixed(2)}</td><td>$${totalReceived.toFixed(2)}</td><td></td></tr></tfoot></tbody></table>`;
             donoDiv.html(donoTable);
