@@ -1972,10 +1972,21 @@
                                 resetInputs("#weights" + i);
                                 $("#weightTableWeight" + i + j).parents("form").trigger("submit");
                             }, 100);
+                        }).on("keydown", (e) => {
+                            let keyCode = e.code;
+                            if (keyCode === "ArrowDown" || keyCode === "ArrowUp") {
+                                e.preventDefault();
+                            }
                         }).on("keyup", (e) => {
                             let keyCode = e.code;
                             if (keyCode === "Enter") {
                                 $("#weightTableWeight" + i + j + " input").trigger("blur");
+                            }
+                            if (j > 0 && keyCode === "ArrowUp") {
+                                $("#weightTableWeight" + i + (j - 1) + " input").trigger("focus");
+                            }
+                            if (j < tableCategories.length - 1 && keyCode === "ArrowDown") {
+                                $("#weightTableWeight" + i + (j + 1) + " input").trigger("focus");
                             }
                         });
                     }
