@@ -327,10 +327,10 @@
                 </div>
             <% } %>
             <!-- Class Sections -->
-            <% offset = 0; %>
+            <% displayedStuffIndexOffset = 0; %>
             <% for (let i = 0; i < _gradeData.length; i++) { %>
                 <% if (_appearance.showNonAcademic || _relevantClassData[_gradeData[i].class_name]["classType"] !== "non-academic") { %>
-                    <span id="section<%= i + offset; %>" class="section">
+                    <span id="section<%= i + displayedStuffIndexOffset; %>" class="section">
                         <% if (school !== "basis") { %>
                             <% let classType = _relevantClassData[_gradeData[i].class_name].classType %>
                             <% switch (classType) {
@@ -378,7 +378,7 @@
                             <% if (school === "bellarmine" && _gradeData[i].grades.length === 0 && !_relevantClassData[_gradeData[i].class_name].classType) { %>
                                 <span class="shouldBeNonAcademic alert alert-info">Should this course be non-academic? Let us know through More > Send Feedback</span>
                             <% } %>
-                            <span id="verified<%= i + offset %>" class="popup">Weights
+                            <span id="verified<%= i + displayedStuffIndexOffset %>" class="popup">Weights
                                 <% let weightDict = _relevantClassData[_gradeData[i].class_name]; %>
                                 <% let unverified = weightDict.hasWeights === null || (weightDict.hasWeights === true && Object.values(weightDict.weights).filter(w => w === null).length !== 0); %>
                                 <% if (unverified) { %>Unverified
@@ -412,16 +412,16 @@
                         <% } %>
                         <% let classWeights = _weightData[i]; %>
                         <div class="chartAndWeights">
-                            <div id="chart-container<%= i + offset; %>" class="chart chart-container">
-                                <button id="reset-zoom<%= i + offset %>" style="position: absolute; top: 0; right: 0; height: fit-content; display:none"
-                                        class="btn btn-sm" onclick="resetZoom(<%= i + offset %>); $(this).hide()">Reset</button>
+                            <div id="chart-container<%= i + displayedStuffIndexOffset; %>" class="chart chart-container">
+                                <button id="reset-zoom<%= i + displayedStuffIndexOffset %>" style="position: absolute; top: 0; right: 0; height: fit-content; display:none"
+                                        class="btn btn-sm" onclick="resetZoom(<%= i + displayedStuffIndexOffset %>); $(this).hide()">Reset</button>
                                 <div class="chart-placeholder"></div>
                             </div>
                             <div class="weights-container">
-                                <form id="weights<%= i + offset; %>" class="form-ajax form-weights form-signin">
+                                <form id="weights<%= i + displayedStuffIndexOffset; %>" class="form-ajax form-weights form-signin">
                                     <table class="table text-center weights rounded-table"
                                            style="white-space: nowrap"
-                                           id="weightsTable<%= i + offset; %>">
+                                           id="weightsTable<%= i + displayedStuffIndexOffset; %>">
                                         <thead>
                                             <tr>
                                                 <th colspan="4" style="padding: 0.3rem 0;">
@@ -429,14 +429,14 @@
                                                         Based&nbsp;
                                                         <label class="switch">
                                                             <input disabled
-                                                                   id="check<%= i + offset; %>"
+                                                                   id="check<%= i + displayedStuffIndexOffset; %>"
                                                                    style="margin: 0; display: flex"
                                                                    type="checkbox"
                                                                    name="hasWeights"
                                                             <% if (classWeights.hasWeights === false) { %>
                                                                    checked
                                                                     <% } %>
-                                                                   onchange="disableInput('check<%= i + offset; %>','weightsTable<%= i + offset; %>'); resetInputs('#weights<%= i + offset; %>'); $('#weights<%= i + offset; %>').trigger('submit');"
+                                                                   onchange="disableInput('check<%= i + displayedStuffIndexOffset; %>','weightsTable<%= i + displayedStuffIndexOffset; %>'); resetInputs('#weights<%= i + displayedStuffIndexOffset; %>'); $('#weights<%= i + displayedStuffIndexOffset; %>').trigger('submit');"
                                                             >
                                                             <span style="color: <%= _appearance.classColors[i]; %>"
                                                                   class="classSlider slider"></span>
@@ -446,21 +446,21 @@
                                             </tr>
                                             <tr>
                                                 <th>Category</th>
-                                                <th id="weight-header<%= i + offset; %>">
+                                                <th id="weight-header<%= i + displayedStuffIndexOffset; %>">
                                                     Weights
                                                     <span class="popup">
                                                         <i
-                                                                id="reset<%= i + offset; %>"
+                                                                id="reset<%= i + displayedStuffIndexOffset; %>"
                                                                 style="margin: 0; cursor: pointer; display:inline-block"
                                                                 class="fa fa-undo"
-                                                                onclick="resetWeights(<%= i + offset; %>); $('#weights<%= i + offset; %>').trigger('submit');">
+                                                                onclick="resetWeights(<%= i + displayedStuffIndexOffset; %>); $('#weights<%= i + displayedStuffIndexOffset; %>').trigger('submit');">
                                                             <span class="popup-top">Revert
                                                                 to Verified Weights</span>
                                                         </i>
                                                     </span>
                                                     <span class="popup">
                                                         <i style="display: inline-block"
-                                                           id="ignoringWeights<%= i + offset; %>"
+                                                           id="ignoringWeights<%= i + displayedStuffIndexOffset; %>"
                                                            class="fa fa-exclamation-triangle">
                                                             <span class="popup-top">
                                                                 Enter all weights to enable weighted overall grade
@@ -478,11 +478,11 @@
 
                                             <% for (let j = 0; j < Object.keys(classWeights.weights).length; j++) { %>
                                                 <tr>
-                                                    <td id="weightTableCategory<%= i + offset; %><%= j; %>"></td>
+                                                    <td id="weightTableCategory<%= i + displayedStuffIndexOffset; %><%= j; %>"></td>
                                                     <% let weights = classWeights.weights; %>
                                                     <% let category = Object.keys(weights)[j]; %>
                                                     <% let value = weights[category]; %>
-                                                    <td id="weightTableWeight<%= i + offset; %><%= j; %>"
+                                                    <td id="weightTableWeight<%= i + displayedStuffIndexOffset; %><%= j; %>"
                                                         class="form-group">
                                                         <input style="<% if (!value && value !== 0) { %> border-color: lightcoral !important; <% } %>"
                                                                value="<%= value; %>"
@@ -494,8 +494,8 @@
                                                                disabled
                                                         >
                                                     </td>
-                                                    <td id="weightTablePoints<%= i + offset; %><%= j; %>"></td>
-                                                    <td id="weightTableGrade<%= i + offset; %><%= j; %>"></td>
+                                                    <td id="weightTablePoints<%= i + displayedStuffIndexOffset; %><%= j; %>"></td>
+                                                    <td id="weightTableGrade<%= i + displayedStuffIndexOffset; %><%= j; %>"></td>
                                                 </tr>
                                             <% } %>
                                             <script>
@@ -512,21 +512,21 @@
                                                     });
                                                 }
 
-                                                disableInput('check<%= i + offset; %>', 'weightsTable<%= i + offset; %>');
+                                                disableInput('check<%= i + displayedStuffIndexOffset; %>', 'weightsTable<%= i + displayedStuffIndexOffset; %>');
                                             </script>
                                         <tfoot>
                                             <tr>
                                                 <th colspan="4">
                                                     <span class="popup">
-                                                        <i id="incorrectOverallGrade<%= i + offset; %>"
+                                                        <i id="incorrectOverallGrade<%= i + displayedStuffIndexOffset; %>"
                                                            class="fa fa-exclamation-triangle"
                                                            style="margin-left: 0.2rem; vertical-align: middle">
                                                             <span class="popup-left-bottom always-show">
                                                             </span>
                                                         </i>
                                                     </span>
-                                                    <div style="display:none; color: <%= _appearance.classColors[i + offset]; %>"
-                                                         id="weightTableOverallGrade<%= i + offset; %>"
+                                                    <div style="display:none; color: <%= _appearance.classColors[i]; %>"
+                                                         id="weightTableOverallGrade<%= i + displayedStuffIndexOffset; %>"
                                                          class="weightOverall">
                                                     </div>
                                                 </th>
@@ -541,26 +541,26 @@
                             <div class="tableOptionsContainer">
                                 <div class="tableOptions">
                                     <div>Sort By</div>
-                                    <select id="sortBy<%= i + offset; %>" class="classic"
+                                    <select id="sortBy<%= i + displayedStuffIndexOffset; %>" class="classic"
                                             onchange="setSortMethod(this)">
                                         <option value="date"
-                                                <% if (!_sortingData.categorySort[i + offset]) { %>selected
+                                                <% if (!_sortingData.categorySort[i]) { %>selected
                                                 <% } %>
                                         >Date
                                         </option>
                                         <option value="category"
-                                                <% if (_sortingData.categorySort[i + offset]) { %>selected
+                                                <% if (_sortingData.categorySort[i]) { %>selected
                                                 <% } %>
                                         >Category
                                         </option>
                                     </select>
                                 </div>
                                 <div class="tableOptions">
-                                    <span class="popup" onclick="toggleSortDirection(<%= i + offset; %>)">
-                                        <i id="sort<%= i + offset %>" style="cursor: pointer; margin: 1rem 0"
-                                           class="fa <% if (_sortingData.dateSort[i + offset]) { %>fa-sort-amount-asc <% } else { %>fa-sort-amount-desc<% } %>">
+                                    <span class="popup" onclick="toggleSortDirection(<%= i + displayedStuffIndexOffset; %>)">
+                                        <i id="sort<%= i + displayedStuffIndexOffset %>" style="cursor: pointer; margin: 1rem 0"
+                                           class="fa <% if (_sortingData.dateSort[i]) { %>fa-sort-amount-asc <% } else { %>fa-sort-amount-desc<% } %>">
                                             <span class="popup-top">
-                                                <% if (_sortingData.dateSort[i + offset]) { %>
+                                                <% if (_sortingData.dateSort[i]) { %>
                                                     Oldest to Newest
                                                 <% } else { %>
                                                     Newest to Oldest
@@ -569,8 +569,8 @@
                                         </i>
                                     </span>
                                     <span class="popup addAssignment"
-                                    <% if (!Object.keys(_weightData[i + offset].weights).length) { %>style="display: none"<% } %>
-                                          onclick="{$('#add-assignment-container<%= i + offset %>').addClass('active').find('.addAssignmentDate input').trigger('focus').trigger('blur');$('#add-assignment-container<%= i + offset %>').find('.addAssignmentName input').trigger('focus')}">
+                                    <% if (!Object.keys(_weightData[i].weights).length) { %>style="display: none"<% } %>
+                                          onclick="{$('#add-assignment-container<%= i + displayedStuffIndexOffset %>').addClass('active').find('.addAssignmentDate input').trigger('focus').trigger('blur');$('#add-assignment-container<%= i + displayedStuffIndexOffset %>').find('.addAssignmentName input').trigger('focus')}">
                                         <i style="cursor: pointer; margin: 1rem 0"
                                            class="fa fa-plus">
                                             <span class="popup-top">
@@ -579,8 +579,8 @@
                                         </i>
                                     </span>
                                     <div class="add-assignment-container"
-                                         id="add-assignment-container<%= i + offset %>">
-                                        <form id="addAssignmentForm<%= i + offset; %>">
+                                         id="add-assignment-container<%= i + displayedStuffIndexOffset %>">
+                                        <form id="addAssignmentForm<%= i + displayedStuffIndexOffset; %>">
                                             <div class="addAssignmentDate form-weights form-signin input-group form-group">
                                                 <label>Date</label>
                                                 <input class="form-control dynamic-input"
@@ -596,21 +596,21 @@
                                             <div class="addAssignmentCategory input-group form-group">
                                                 <label class="label-active">Category</label>
                                                 <select class="minimal addCategory"
-                                                        onchange="checkAddCategory(<%= i + offset %>)"></select>
+                                                        onchange="checkAddCategory(<%= i + displayedStuffIndexOffset %>)"></select>
                                             </div>
-                                            <div id="addNewCategory<%= i + offset %>"
+                                            <div id="addNewCategory<%= i + displayedStuffIndexOffset %>"
                                                  style="display: none"
                                             >
                                                 <div class="form-group input-group addNewCategory">
                                                     <label>Category Name</label>
-                                                    <input oninput="checkLabel(this); checkNewCategory(this, '#newCategoryMessage<%= i + offset %>', <%= i + offset %>)"
+                                                    <input oninput="checkLabel(this); checkNewCategory(this, '#newCategoryMessage<%= i + displayedStuffIndexOffset %>', <%= i + displayedStuffIndexOffset %>)"
                                                            type="text"
                                                            class="form-control"
-                                                           id="newCategory<%= i + offset %>">
+                                                           id="newCategory<%= i + displayedStuffIndexOffset %>">
                                                     <span class="popup">
                                                         <i>
                                                             <span class="popup-left-bottom dont-show"
-                                                                  id="newCategoryMessage<%= i + offset %>"></span></i>
+                                                                  id="newCategoryMessage<%= i + displayedStuffIndexOffset %>"></span></i>
                                                     </span>
                                                 </div>
                                             </div>
@@ -629,8 +629,8 @@
                                                     </div>
                                                 </div>
                                                 <div class="addAssignmentExcludeToggle">
-                                                    <input id="addAssignmentExclude<%= i + offset %>" type="checkbox">
-                                                    <label for="addAssignmentExclude<%= i + offset %>"
+                                                    <input id="addAssignmentExclude<%= i + displayedStuffIndexOffset %>" type="checkbox">
+                                                    <label for="addAssignmentExclude<%= i + displayedStuffIndexOffset %>"
                                                            style="cursor: pointer !important; margin: 0; display: block; font-weight: bolder; font-size: 0.5rem">Exclude</label>
                                                 </div>
                                             </div>
@@ -640,7 +640,7 @@
                                         </form>
                                     </div>
                                     <span class="popup"
-                                          onclick="showClassInfo(<%= i + offset %>)">
+                                          onclick="showClassInfo(<%= i + displayedStuffIndexOffset %>)">
                                         <i style="cursor: pointer; margin: 1rem 0"
                                            class="fa fa-info">
                                             <span class="popup-top">
@@ -652,7 +652,7 @@
                             </div>
                         </div>
                         <div class="table-container">
-                            <table class="table rounded-table class-table text-center" id="table<%= i + offset; %>">
+                            <table class="table rounded-table class-table text-center" id="table<%= i + displayedStuffIndexOffset; %>">
                                 <thead>
                                     <tr>
                                         <th class="compact">Date</th>
@@ -661,26 +661,26 @@
                                         <th>Score</th>
                                         <th class="compact">Assignment Percent</th>
                                         <th>Overall Grade</th>
-                                        <th id="modAllTab<%= i + offset %>" class="toolTab">
+                                        <th id="modAllTab<%= i + displayedStuffIndexOffset %>" class="toolTab">
                                             <span class="popup">
-                                                <i id="resetAll<%= i + offset %>" class="fa fa-undo disabled"
-                                                   onclick="{resetAll(<%= i + offset %>)}">
+                                                <i id="resetAll<%= i + displayedStuffIndexOffset %>" class="fa fa-undo disabled"
+                                                   onclick="{resetAll(<%= i + displayedStuffIndexOffset %>)}">
                                                     <span class="popup-top-left">
                                                         Revert ALL changes
                                                     </span>
                                                 </i>
                                             </span>
                                             <span class="popup">
-                                                <i id="trashAll<%= i + offset %>" class="fa fa-trash disabled"
-                                                   onclick="{trashAll(<%= i + offset %>);}">
+                                                <i id="trashAll<%= i + displayedStuffIndexOffset %>" class="fa fa-trash disabled"
+                                                   onclick="{trashAll(<%= i + displayedStuffIndexOffset %>);}">
                                                     <span class="popup-top-left">
                                                         Delete ALL added assignments
                                                     </span>
                                                 </i>
                                             </span>
                                             <span class="popup">
-                                                <i id="saveAll<%= i + offset %>" class="fa fa-check disabled"
-                                                   onclick="{saveAll(<%= i + offset %>);}">
+                                                <i id="saveAll<%= i + displayedStuffIndexOffset %>" class="fa fa-check disabled"
+                                                   onclick="{saveAll(<%= i + displayedStuffIndexOffset %>);}">
                                                     <span class="popup-top-left">
                                                         Save ALL changes
                                                     </span>
@@ -692,7 +692,7 @@
                                 <tbody></tbody>
                             </table>
                         </div>
-                        <table class="table rounded-table class-table text-center categoryTable<%= i + offset; %>">
+                        <table class="table rounded-table class-table text-center categoryTable<%= i + displayedStuffIndexOffset; %>">
                             <% for (let j = 0; j < Object.keys(classWeights.weights).length; j++) { %>
                                 <% let category = Object.keys(classWeights.weights)[j]; %>
                                 <thead class="categoryStart">
@@ -703,11 +703,11 @@
                                     <% } %>
                                     <tr>
                                         <th colspan="6"><%= category; %></th>
-                                        <th class="toolTab categoryModAllTab<%= i + offset %>">
+                                        <th class="toolTab categoryModAllTab<%= i + displayedStuffIndexOffset %>">
                                             <span class="popup">
                                                 <i
-                                                        class="fa fa-undo resetCategory<%= i + offset %> disabled"
-                                                        onclick="{resetCategory(<%= i + offset %>, <%= j %>)}">
+                                                        class="fa fa-undo resetCategory<%= i + displayedStuffIndexOffset %> disabled"
+                                                        onclick="{resetCategory(<%= i + displayedStuffIndexOffset %>, <%= j %>)}">
                                                     <span class="popup-top-left">
                                                         Revert ALL changes in <span
                                                                 class="tutorial-popup"><%= category; %></span>
@@ -716,8 +716,8 @@
                                             </span>
                                             <span class="popup">
                                                 <i
-                                                        class="fa fa-trash trashCategory<%= i + offset %> disabled"
-                                                        onclick="{trashCategory(<%= i + offset %>, <%= j %>);}"><span
+                                                        class="fa fa-trash trashCategory<%= i + displayedStuffIndexOffset %> disabled"
+                                                        onclick="{trashCategory(<%= i + displayedStuffIndexOffset %>, <%= j %>);}"><span
                                                             class="popup-top-left">
                                                         Delete ALL added assignments in <span
                                                                 class="tutorial-popup"><%= category; %></span>
@@ -726,8 +726,8 @@
                                             </span>
                                             <span class="popup">
                                                 <i
-                                                        class="fa fa-check saveCategory<%= i + offset %> disabled"
-                                                        onclick="{saveCategory(<%= i + offset %>, <%= j %>);}"><span
+                                                        class="fa fa-check saveCategory<%= i + displayedStuffIndexOffset %> disabled"
+                                                        onclick="{saveCategory(<%= i + displayedStuffIndexOffset %>, <%= j %>);}"><span
                                                             class="popup-top-left">
                                                         Save ALL changes in <span
                                                                 class="tutorial-popup"><%= category; %></span>
@@ -751,7 +751,7 @@
                         </table>
                     </span>
                 <% } else {
-                    offset--;
+                    displayedStuffIndexOffset--;
                 } %>
             <% } %>
         </div>
