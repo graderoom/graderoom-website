@@ -242,7 +242,7 @@ const _userExists = async (db, {username, schoolUsername}, includeFullUser = fal
     let query = {$or: [{username: username}, {schoolUsername: schoolUsername}]};
     let projection = includeFullUser ? {} : {username: 1};
     let userExists = await _users(db).findOne(query, projection);
-    if (!!userExists) {
+    if (userExists) {
         return {
             success: true,
             data: {log: `User with username=${username}, schoolUsername=${schoolUsername} found`, value: userExists}
@@ -1446,7 +1446,7 @@ const userArchived = ({username, schoolUsername}) => safe(_userArchived, {
 const _userArchived = async (db, {username, schoolUsername}, includeFullUser = false) => {
     let projection = includeFullUser ? {} : {username: 1};
     let userExists = await db.collection(ARCHIVED_USERS_COLLECTION_NAME).findOne({$or: [{username: username}, {schoolUsername: schoolUsername}]}, projection);
-    if (!!userExists) {
+    if (userExists) {
         return {
             success: true, data: {
                 log: `Archived user with username=${username}, schoolUsername=${schoolUsername} found`,
