@@ -1668,7 +1668,7 @@ const _setPersonalInfo = async (db, username, firstName, lastName, graduationYea
     if (([!!firstName, !!lastName || (school === Schools.BISV && lastName === ""), !!graduationYear || graduationYear === 0]).filter(a => a).length !== 1) {
         return {success: false, data: {log: `Invalid personal info for ${username}`, message: "Something went wrong"}};
     }
-    let nameRegex = new RegExp("^[a-zA-Z]*$");
+    let nameRegex = new RegExp(/^[a-z]+(?:-[a-z]+)*$/i);
     if (!!firstName) {
         if (nameRegex.test(firstName)) {
             let res = await _users(db).updateOne({username: username}, {$set: {"personalInfo.firstName": firstName}});
@@ -1680,7 +1680,7 @@ const _setPersonalInfo = async (db, username, firstName, lastName, graduationYea
                 data: {log: `Failed to set ${firstName} as first name for ${username}`, message: "Something went wrong"}
             };
         }
-        return {success: false, data: {message: "First name must contain only letters"}};
+        return {success: false, data: {message: "First name can only contain letters and/or hyphens."}};
     } else if (!!lastName || (school === Schools.BISV && lastName === "")) {
         if (nameRegex.test(lastName)) {
             let res = await _users(db).updateOne({username: username}, {$set: {"personalInfo.lastName": lastName}});
@@ -1692,6 +1692,7 @@ const _setPersonalInfo = async (db, username, firstName, lastName, graduationYea
                 data: {log: `Failed to set ${lastName} as last name for ${username}`, message: "Something went wrong"}
             };
         }
+        return {success: false, data: {message: "Last name can only contain letters and/or hyphens."}};
     } else if (!!graduationYear || graduationYear === 0) {
         if (school !== Schools.BISV) {
             return {success: false, data: {message: "Changing graduation year is not supported"}};
