@@ -103,35 +103,58 @@ def parse_ps_class(local_class: PowerSchoolClassGrade, raw_data: requests.Respon
     def stripper(info: dict) -> dict or None:
         if "_assignmentsections" not in info:
             return
+
         psaid = info["assignmentid"]  # PowerSchool Assignment ID
+
         _data = info["_assignmentsections"][0]
+
+        if "description" in _data:
+            description = _data["description"]
+        else:
+            description = False
+
         date = _data["duedate"].replace("-", "/")
         date = date[5:] + "/" + date[:4]
+
         sort_date = datetime.strptime(date, "%m/%d/%Y").timestamp()
+
         category = _data["_assignmentcategoryassociations"][0]["_teachercategory"]["name"]
+
         assignment_name = _data["name"]
+
         exclude = not _data["iscountedinfinalgrade"]
+
         if "totalpointvalue" in _data and isinstance(_data["totalpointvalue"], (float, int)):
             points_possible = _data["totalpointvalue"]
         else:
             points_possible = False
+
         if len(_data["_assignmentscores"]) > 0:
-            exclude = exclude or _data["_assignmentscores"][0]["isexempt"]
-            # sort_date = _data["_assignmentscores"][0]["scoreentrydate"]
-            # sort_date = datetime.strptime(sort_date, "%Y-%m-%d %H:%M:%S").timestamp()
-            if "scorepoints" in _data["_assignmentscores"][0]:
-                points_gotten = _data["_assignmentscores"][0]["scorepoints"]
+            score_data = _data["assignmentscores"][0]
+            exclude = exclude or score_data["isexempt"]
+
+            if "scorepoints" in score_data:
+                points_gotten = score_data["scorepoints"]
                 if "weight" in _data:
                     points_gotten = points_gotten * _data["weight"]
             else:
                 points_gotten = False
-            if "scorepercent" in _data["_assignmentscores"][0]:
-                grade_percent = round(_data["_assignmentscores"][0]["scorepercent"], 2)
+
+            if "scorepercent" in score_data:
+                grade_percent = round(score_data["scorepercent"], 2)
             else:
                 grade_percent = False
+
+            if "_assignmentscorecomment" in score_data:
+                comment = score_data["_assignmentscorecomment"]["commentvalue"]
+            else:
+                comment = False
+
         else:
             points_gotten = False
             grade_percent = False
+            comment = False
+
         return {
             "date": date,
             "sort_date": sort_date,
@@ -141,7 +164,9 @@ def parse_ps_class(local_class: PowerSchoolClassGrade, raw_data: requests.Respon
             "points_possible": points_possible,
             "points_gotten": points_gotten,
             "grade_percent": grade_percent,
-            "psaid": psaid
+            "psaid": psaid,
+            "description": description,
+            "comment": comment
         }
 
     # function that removes nonexistence objects
