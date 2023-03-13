@@ -1006,7 +1006,7 @@
     let settingsBtns = $("#settingsCardDisplay .tablinks");
 
     function checkFirstName(inputID, messageDivID) {
-        const firstNameRegex = new RegExp("^[a-zA-Z]*$");
+        const firstNameRegex = new RegExp(/^[a-z]+(?:-[a-z]+)*$/i);
 
         let firstName = $(inputID)[0].value;
         let icon = $($($(inputID)[0].nextElementSibling)[0].firstElementChild);
@@ -1032,7 +1032,7 @@
 
         checkingFirstName = setTimeout(() => {
             if (!firstNameRegex.test(firstName)) {
-                $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("First name must contain only letters...Your name isn't X Æ A-12, is it?");
+                $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("First name can only contain letters and/or hyphens.");
                 icon.attr("class", "fa fa-exclamation-circle");
                 $(inputID).css("border-bottom-color", "red");
                 return;
@@ -1065,7 +1065,7 @@
     }
 
     function checkLastName(inputID, messageDivID) {
-        const lastNameRegex = new RegExp("^[a-zA-Z]*$");
+        const lastNameRegex = new RegExp(/^[a-z]+(?:-[a-z]+)*$/i);
 
         let lastName = $(inputID)[0].value;
         let icon = $($($(inputID)[0].nextElementSibling)[0].firstElementChild);
@@ -1091,7 +1091,7 @@
 
         checkingLastName = setTimeout(() => {
             if (!lastNameRegex.test(lastName)) {
-                $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Last name must contain only letters...Your name isn't X Æ A-12, is it?");
+                $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Last name can only contain letters and/or hyphens.");
                 icon.attr("class", "fa fa-exclamation-circle");
                 $(inputID).css("border-bottom-color", "red");
                 return;

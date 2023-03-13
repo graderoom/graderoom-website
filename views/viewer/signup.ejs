@@ -385,9 +385,9 @@
     let checkingEmail;
 
     function checkEmail(inputID, messageDivID) {
-        const bcpEmailRegex = /^[a-z]+\.[a-z]+[0-9]{2}@bcp\.org$/i;
-        const basisEmailRegex = /^[a-z]+_[0-9]{5}@basisindependent\.com$/i;
-        const ndsjEmailRegex = /^[a-z]{2,}[0-9]{2}@ndsj\.org$/i;
+        const bcpEmailRegex = /^[a-z]+(?:-[a-z]+)*\.[a-z]+(?:-[a-z]+)*[0-9]{2}@bcp\.org$/i;
+        const basisEmailRegex = /^[a-z]+(?:-[a-z]+)*_[0-9]{5}@basisindependent\.com$/i;
+        const ndsjEmailRegex = /^(?:[a-z]{2,}|[a-z]+(?:-[a-z]+)+)[0-9]{2}@ndsj\.org$/i;
 
         let email = $(inputID)[0].value;
         let icon = $($($(inputID)[0].nextElementSibling)[0].firstElementChild);
