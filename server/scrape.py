@@ -997,7 +997,7 @@ class BasisScraper(Scraper):
         term = None
         t1_start_dict = {"22-23": datetime.strptime("08/17/2022 12:00AM", "%m/%d/%Y %I:%M%p").timestamp()}
         t2_start_dict = {"22-23": datetime.strptime("12/02/2022 12:00AM", "%m/%d/%Y %I:%M%p").timestamp()}
-        t3_start_dict = {"22-23": datetime.strptime("12/02/2023 12:00AM", "%m/%d/%Y %I:%M%p").timestamp()}  # TODO
+        t3_start_dict = {"22-23": datetime.strptime("03/05/2023 12:00AM", "%m/%d/%Y %I:%M%p").timestamp()}
 
         has_t2 = False
         has_t3 = False
