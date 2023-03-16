@@ -1,11 +1,13 @@
 #!/bin/bash
 
-DATE=$(date +"%Y-%m-%d_%H-%M-%S")
-DUMP_DIR="../mongodumps"
+# Get the current date and time in YYYY-MM-DD-HH-MM-SS-MS format
+DATE=$(date +%Y-%m-%d-%H-%M-%S-%3N)
 
-if [ -d "$DUMP_DIR" ]; then
-  mongodump --gzip --archive="$DUMP_DIR/mongodump_$DATE.gz"
-else
-  echo "Error: $DUMP_DIR directory does not exist" >&2
-  exit 1
-fi
+# Set the backup directory name
+BACKUP_DIR="../mongodumps"
+
+# Create the backup directory if it doesn't exist
+mkdir -p $BACKUP_DIR
+
+# Use mongodump to create backups of all databases
+mongodump --out "$BACKUP_DIR/$DATE" --gzip
