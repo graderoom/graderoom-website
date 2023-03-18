@@ -130,7 +130,7 @@ def parse_ps_class(local_class: PowerSchoolClassGrade, raw_data: requests.Respon
             points_possible = False
 
         if len(_data["_assignmentscores"]) > 0:
-            score_data = _data["assignmentscores"][0]
+            score_data = _data["_assignmentscores"][0]
             exclude = exclude or score_data["isexempt"]
 
             if "scorepoints" in score_data:
