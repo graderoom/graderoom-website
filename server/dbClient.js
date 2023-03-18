@@ -837,7 +837,7 @@ const _version18 = async (db, username) => {
     let user = res.data.value;
     await safe(__version18, user);
 
-    return {success: true, data: {log: `Updated ${username} to version 13`}};
+    return {success: true, data: {log: `Updated ${username} to version 18`}};
 };
 
 const __version18 = async (db, user) => {
