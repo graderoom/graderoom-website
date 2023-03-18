@@ -855,6 +855,131 @@ const __version18 = async (db, user) => {
     }
 };
 
+const _version19 = async (db, username) => {
+    let res = await getUser(username, {version: 1, grades: 1, "alerts.lastUpdated": 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version19, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 19`}};
+}
+
+const __version19 = async (db, user) => {
+    if (user.version === 18) {
+        let years = Object.keys(user.grades);
+        if (years.length === 0) return;
+
+        years.sort();
+        let yearIndex = 0;
+        let currentYear = years[yearIndex]
+
+        let semesters = Object.keys(user.grades[currentYear]);
+        if (semesters.length === 0) return; // I don't think this is possible but whatever
+
+        semesters.sort();
+        let semesterIndex = 0;
+        let currentSemester = semesters[semesterIndex];
+
+        let classNames = user.grades[currentYear][currentSemester].map(c => c.class_name);
+        let nextPSAIDs = user.grades[currentYear][semesters[Math.min(semesterIndex + 1, semesters.length - 1)]].map(c => c.grades.map(g => g.psaid).filter(g => g)).flat();
+
+        let updateStartTimestamps = {[currentYear]: {[currentSemester]: 0}};
+
+        // We are going in order and flagging the lastUpdated data with semester changes
+        // the updateGrades function should be modified to automatically add this information when applicable
+        // I am writing comments wow!
+        let lastUpdated = user.alerts.lastUpdated.filter(c => Object.keys(c.changeData).length !== 0);
+
+        for (let i = 0; i < lastUpdated.length; i++) {
+            let obj = lastUpdated[i];
+            /**
+             * Alright I'm exhausted so writing stuff out is probably a good idea
+             * There are a few formats for these objects. The goal is to make it easy to
+             * query only the updateData for a single semester.
+             * mongo lets me do this with a filter, so I *could* add a semester tag to every single
+             * update entry but that seems inefficient space-wise. Another option is to
+             * save the start timestamps of each semester for each user. I think I'll do that.
+             * Then, we can use that to set bounds for the timestamps in the aggregate filter
+             * when we query
+             *
+             * We'll add this map to the user object with the structure:
+             * updateStartTimestamps: { "21-22": { "S1": <timestamp>, "S2": <timestamp> }, "20-21": <obj>, ...}
+             */
+
+            let changeData = obj.changeData;
+
+            /**
+             * Ok now there are a few ways we can detect a semester change. If we get to a class that's not
+             * in the current semester, then we should go to the next semester until we find one that has this class.
+             * All four subdictionaries have keys that are class names, so we can check these first.
+             */
+            let classes = Object.keys(Object.assign({}, changeData.added, changeData.modified, changeData.removed, changeData.overall));
+
+            // We can also track what assignments get added/modified
+            // We need to get rid of assignments that have been removed or we'll have bugs
+            let PSAIDs = [
+                ...Object.values(changeData.added).flat(),
+                ...Object.values(changeData.modified).map(a => a.psaid).filter(g => g).flat(),
+            ];
+
+            while (classes.filter(n => !classNames.includes(n)).length > 0 || PSAIDs.filter(p => nextPSAIDs.includes(p)).length > 0) {
+                if (semesterIndex < semesters.length - 1) {
+                    if (!(currentSemester in updateStartTimestamps[currentYear])) {
+                        updateStartTimestamps[currentYear][currentSemester] = 0;
+                    }
+                    semesterIndex++;
+                } else {
+                    if (yearIndex < years.length - 1) {
+                        if (!(currentSemester in updateStartTimestamps[currentYear])) {
+                            updateStartTimestamps[currentYear][currentSemester] = 0;
+                        }
+                        semesterIndex = 0;
+                        yearIndex++;
+                        currentYear = years[yearIndex];
+                        semesters = Object.keys(user.grades[currentYear]);
+
+                        updateStartTimestamps[currentYear] = {};
+                    } else {
+                        // This shouldn't be possible
+                        break;
+                    }
+                }
+                currentSemester = semesters[semesterIndex];
+                classNames = user.grades[currentYear][currentSemester].map(c => c.class_name);
+                if (semesterIndex < semesters.length - 1) {
+                    nextPSAIDs = user.grades[currentYear][semesters[semesterIndex + 1]].map(c => c.grades.map(g => g.psaid).filter(g => g)).flat();
+                }
+            }
+            if (!(currentSemester in updateStartTimestamps[currentYear])) {
+                updateStartTimestamps[currentYear][currentSemester] = obj.timestamp;
+            }
+        }
+
+        // Make sure the map has all the years/semesters
+        for (let year of years) {
+            if (!(year in updateStartTimestamps)) {
+                updateStartTimestamps[year] = {};
+            }
+            for (let semester of semesters) {
+                if (!(semester in updateStartTimestamps[year])) {
+                    updateStartTimestamps[year][semester] = 0;
+                }
+            }
+        }
+
+
+        await _users(db).updateOne({username: user.username}, {
+            $set: {
+                updateStartTimestamps: updateStartTimestamps,
+                version: 19
+            }
+        });
+    }
+}
+
 const initUser = (username) => safe(_initUser, lower(username));
 const _initUser = async (db, username) => {
     let res = await getUser(username, {"alerts.tutorialStatus": 1, betaFeatures: 1});
@@ -971,6 +1096,9 @@ const _updateAllUsers = async () => {
             }
             if (user.version < 18) {
                 await safe(_version18, user.username);
+            }
+            if (user.version < 19) {
+                await safe(_version19, user.username);
             }
         }
         await safe(_initUser, user.username);
@@ -2325,13 +2453,14 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
             await initEditedAssignments(username);
             await updateClassesForUser(username, newTerm, newSemester);
 
+            let time = Date.now();
             let updateHistory = false;
             if (!ps_locked && ((newTerm !== oldTerm || newSemester !== oldSemester) || !user.updatedGradeHistory.length)) {
                 await resetSortData(username);
+                await _users(db).updateOne({username: username}, {$set: {[`updateStartTimestamps.${newTerm}.${newSemester}`]: time}})
                 updateHistory = true;
             }
 
-            let time = Date.now();
             await _users(db).updateOne({username: username}, {
                 $set: {updatedInBackground: SyncStatus.ALREADY_DONE},
                 $push: {"alerts.lastUpdated": {timestamp: time, changeData: changeData, ps_locked: ps_locked}}
@@ -2471,6 +2600,7 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                 });
                 await initAddedAssignments(username);
                 await initEditedAssignments(username);
+                await initUpdateStartTimestamps(username);
                 await updateClassesForUser(username);
 
                 socketManager.emitToRoom(username, "sync-success-history", {});
@@ -2618,6 +2748,30 @@ const _initEditedAssignments = async (db, username) => {
     await _users(db).updateOne({username: username}, {$set: {editedAssignments: temp}});
     return {success: true};
 };
+
+const initUpdateStartTimestamps = (username) => safe(_initUpdateStartTimestamps, lower(username));
+const _initUpdateStartTimestamps = async (db, username) => {
+    let res = await getUser(username, {updateStartTimestamps: 1, grades: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    let current = user.updateStartTimestamps;
+    let years = Object.keys(user.grades);
+    for (let year of years) {
+        let semesters = Object.keys(user.grades[year]);
+        if (!(year in current)) {
+            current[year] = {};
+        }
+        for (let semester of semesters) {
+            current[year][semester] = 0;
+        }
+    }
+
+    await _users(db).updateOne({username: username}, {$set: {updateStartTimestamps: current}});
+    return {success: true};
+}
 
 const initWeights = (username) => safe(_initWeights, lower(username));
 const _initWeights = async (db, username) => {
@@ -3842,6 +3996,51 @@ const __getDonoAttributes = async (donos) => {
     };
 };
 
+const getTrimmedAlerts = (username, term, semester) => safe(_getTrimmedAlerts, lower(username), term, semester);
+const _getTrimmedAlerts = async (db, username, term, semester) => {
+    let res = await getUser(username, {updateStartTimestamps: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let timestamps = res.data.value.updateStartTimestamps;
+    let start = timestamps[term][semester];
+
+    let flatTimestamps = Object.values(timestamps).map(s => Object.values(s)).flat().sort((a, b) => a - b);
+    let end = flatTimestamps.find(t => t > start);
+
+    let cond = {$gte: ["$$updateObj.timestamp", start]};
+    if (end !== undefined) cond = {$and: [cond, {$lt: ["$$updateObj.timestamp", end]}]};
+
+    let aggregation = [
+        {
+            $match: {
+                username: username
+            },
+        },
+        {
+            $project: {
+                alerts: 1
+            }
+        },
+        {
+            $addFields: {
+                "alerts.lastUpdated": {
+                    $filter: {
+                        input: "$alerts.lastUpdated",
+                        as: "updateObj",
+                        cond: cond
+                    }
+                }
+            }
+        }
+    ];
+
+    res = (await db.collection(USERS_COLLECTION_NAME).aggregate(aggregation).toArray())[0].alerts;
+
+    return {success: true, data: {value: res}};
+}
+
 const createPairingKey = (username) => safe(_createPairingKey, lower(username));
 const _createPairingKey = async (db, username) => {
     let res = await getUser(username, {"alerts.lastUpdated": {$slice: -1}});
@@ -4226,6 +4425,7 @@ module.exports = {
     removeDonation: removeDonation,
     getDonoData: getDonoData,
     getDonoAttributes: getDonoAttributes,
+    getTrimmedAlerts: getTrimmedAlerts,
 
     // Sorta API stuff
     createPairingKey: createPairingKey,

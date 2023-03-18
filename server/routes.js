@@ -37,6 +37,7 @@ module.exports = function (app, passport) {
                 let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
                 let relevantClassData = (await dbClient.getRelevantClassData(req.user.username, term, semester)).data.value;
                 let gradeHistoryLetters = (await dbClient.getGradeHistoryLetters(req.user.username, term, semester)).data.value;
+                let trimmedAlerts = (await dbClient.getTrimmedAlerts(req.user.username, term, semester)).data.value;
 
                 let termsAndSemesters = Object.keys(req.user.grades).map(term => {
                     let semesters = Object.keys(req.user.grades[term]).filter(s => req.user.grades[term][s].filter(grades => !(["CR", false]).includes(grades.overall_letter) ||
@@ -54,7 +55,7 @@ module.exports = function (app, passport) {
                     isAdmin: req.user.isAdmin,
                     _personalInfo: req.user.personalInfo,
                     _appearance: req.user.appearance,
-                    _alerts: req.user.alerts,
+                    _alerts: trimmedAlerts,
                     gradeSync: !!req.user.schoolPassword,
                     _gradeData: req.user.grades[term][semester],
                     _weightData: req.user.weights[term][semester],
@@ -212,6 +213,7 @@ module.exports = function (app, passport) {
                 let {plus, premium} = (await dbClient.getDonoAttributes(user.username)).data.value;
                 let relevantClassData = (await dbClient.getRelevantClassData(user.username, term, semester)).data.value;
                 let gradeHistoryLetters = (await dbClient.getGradeHistoryLetters(user.username, term, semester)).data.value;
+                let trimmedAlerts = (await dbClient.getTrimmedAlerts(user.username, term, semester)).data.value;
 
                 let termsAndSemesters = Object.keys(user.grades).map(term => {
                     let semesters = Object.keys(user.grades[term]);
@@ -228,7 +230,7 @@ module.exports = function (app, passport) {
                     isAdmin: user.isAdmin,
                     _personalInfo: user.personalInfo,
                     _appearance: user.appearance,
-                    _alerts: user.alerts,
+                    _alerts: trimmedAlerts,
                     gradeSync: !!user.schoolPassword,
                     _gradeData: user.grades[term][semester],
                     _weightData: user.weights[term][semester],
