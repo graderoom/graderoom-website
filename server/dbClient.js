@@ -2426,6 +2426,17 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                 }).filter(data => Object.keys(data[1]).length));
             }
 
+            // Make sure any removed items don't get to have edits
+            if (Object.keys(removed).length > 0) {
+                let editedAssignments = await getUser(username, {[`editedAssignments.${newTerm}.${newSemester}`]: 1});
+                for (let class_name in removed) {
+                    let assignments = removed[class_name]
+                    for (let assignment of assignments) {
+                        delete editedAssignments.find(e => e.className === class_name).data[assignment.psaid];
+                    }
+                }
+            }
+
             let ps_locked = newGrades.filter(o => o.ps_locked === true).length !== 0;
             if (ps_locked) {
                 overall = {}; // It's not possible to get this data when PowerSchool is locked
