@@ -78,7 +78,7 @@
 - Locked scraper now also fetches empty courses
 - Sync log will no longer show all assignments as new/removed when the number of courses changes
 - Class colors now stay the same after hiding/unhiding non-academic classes
-- Cura has been set as a non-academic class by default, as well as several Sports and Study hHalls
+- Cura has been set as a non-academic class by default, as well as several Sports and Study Halls
 - If a Bellarmine course has no grades and no set class type in the catalog, and a user has non-academic course display disabled, a message now appears asking them to send feedback about whether the class is non-academic or not
 
 ### Fixed
