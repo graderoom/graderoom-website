@@ -3088,7 +3088,7 @@ const _getSyncStatus = async (db, username) => {
         };
     } else if (syncStatus === SyncStatus.FAILED) {
         return {success: false, data: {message: "Sync Failed."}};
-    } else if (syncStatus === SyncStatus.UPDATING) {
+    } else if (syncStatus === undefined || syncStatus === SyncStatus.UPDATING) {
         return {success: false, data: {message: "Did not sync"}};
     } else if (syncStatus === SyncStatus.HISTORY) {
         return {success: false, data: {message: "Syncing History..."}};
