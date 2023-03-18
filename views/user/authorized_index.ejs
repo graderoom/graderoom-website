@@ -2750,6 +2750,8 @@
                         let assignmentPercents;
                         let assignmentExcludes;
                         let assignmentAdds;
+                        let assignmentDescriptions;
+                        let assignmentComments;
                         let assignmentPSAIDs;
                         let rowDivs;
                         let row;
@@ -2781,6 +2783,8 @@
                                 assignmentPercents = categorySortedData[i].assignmentPercents;
                                 assignmentExcludes = categorySortedData[i].assignmentExcludes;
                                 assignmentAdds = categorySortedData[i].assignmentAdds;
+                                assignmentDescriptions = categorySortedData[i].assignmentDescriptions;
+                                assignmentComments = categorySortedData[i].assignmentComments;
                                 assignmentPSAIDs = categorySortedData[i].assignmentPSAIDs;
                             }
 
@@ -2903,6 +2907,8 @@
                                 assignmentPercents = parsedData[i].assignmentPercents;
                                 assignmentExcludes = parsedData[i].assignmentExcludes;
                                 assignmentAdds = parsedData[i].assignmentAdds;
+                                assignmentDescriptions = parsedData[i].assignmentDescriptions;
+                                assignmentComments = parsedData[i].assignmentComments;
                                 assignmentPSAIDs = parsedData[i].assignmentPSAIDs;
                             }
 
@@ -3453,6 +3459,8 @@
                         let assignmentExcludes = classData.map(x => x.exclude);
                         let assignmentPSAIDs = classData.map(x => x.psaid);
                         let assignmentAdds = classData.map((grade, index) => aData[i][index] !== undefined);
+                        let assignmentDescriptions = classData.map(x => x.description);
+                        let assignmentComments = classData.map(x => x.comment);
                         let rawData = overallGradeSteps.map((grade, index) => grade === false ? (index >= 0 ? excludedGradeSteps.shift() : 100) : grade);
                         parsedData[i] = {
                             assignmentNames: assignmentNames,
@@ -3463,6 +3471,8 @@
                             assignmentExcludes: assignmentExcludes,
                             assignmentPSAIDs: assignmentPSAIDs,
                             assignmentAdds: assignmentAdds,
+                            assignmentDescriptions: assignmentDescriptions,
+                            assignmentComments: assignmentComments,
                             rawData: rawData
                         };
 
@@ -3477,6 +3487,8 @@
                             assignmentExcludes: assignmentExcludes.map((x, index, arr) => arr[sortHelper[index]]),
                             assignmentPSAIDs: assignmentPSAIDs.map((x, index, arr) => arr[sortHelper[index]]),
                             assignmentAdds: assignmentAdds.map((x, index, arr) => arr[sortHelper[index]]),
+                            assignmentDescriptions: assignmentDescriptions.map((x, index, arr) => arr[sortHelper[index]]),
+                            assignmentComments: assignmentComments.map((x, index, arr) => arr[sortHelper[index]]),
                             rawData: categoryGradeSteps.map((x, index, arr) => arr[sortHelper[index]]),
                             originalIndices: sortHelper
                         };

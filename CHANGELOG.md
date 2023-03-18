@@ -50,7 +50,8 @@
 ### Added
 - You can now use the up/down arrow keys to move between weight table fields
 - Support for hyphenated names/emails
-- Support for displaying teacher comments and assignment descriptions
+- Sync now includes teacher comments and assignment descriptions<ul>
+- They aren't displayed yet</ul>
 - Grades for BISV now split correctly for T3
 
 ### Improved
