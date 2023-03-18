@@ -870,14 +870,21 @@ const _version19 = async (db, username) => {
 const __version19 = async (db, user) => {
     if (user.version === 18) {
         let years = Object.keys(user.grades);
-        if (years.length === 0) return;
+        if (years.length === 0) {
+            await _users(db).updateOne({username: user.username}, {
+                $set: {
+                    updateStartTimestamps: {},
+                    version: 19
+                }
+            });
+            return;
+        }
 
         years.sort();
         let yearIndex = 0;
         let currentYear = years[yearIndex]
 
         let semesters = Object.keys(user.grades[currentYear]);
-        if (semesters.length === 0) return; // I don't think this is possible but whatever
 
         semesters.sort();
         let semesterIndex = 0;
