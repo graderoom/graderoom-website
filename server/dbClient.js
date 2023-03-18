@@ -3852,11 +3852,14 @@ const _getRelevantClassData = async (db, username, term, semester) => {
 
                 let minUsersForAverageCalc = 9;
                 userCounts[teacher] = users.length;
-                if (users.length < minUsersForAverageCalc) {
+
+                let validScores = users.map(u => u.grades[userClass.term][userClass.semester][0].overall_percent).filter(g => g !== false);
+
+                if (validScores.length < minUsersForAverageCalc) {
                     classAverages[teacher] = null;
                     continue;
                 }
-                classAverages[teacher] = users.map(u => u.grades[userClass.term][userClass.semester][0].overall_percent).reduce((a, b) => a + b, 0) / users.length;
+                classAverages[teacher] = validScores.reduce((a, b) => a + b, 0) / validScores.length;
             }
 
             let nonAcademicOverride = userClass.className.startsWith("Cura");
