@@ -64,9 +64,7 @@
 - Inability to add assignments to classes that you should be able to add assignments to</ul>
 - Issue where clicking the open changelog buttons the second time wouldn't scroll to the correct version
 - Issue where a teacher removing an assignment that you made edits to would cause the site to not load
-- Changelog Issues<ul>
-- If more than one changelog notification was activated without a refresh, the changelog wouldn't scroll to the second version
-- After resize, the changelog did not behave as expected</ul>
+- After resize, the changelog did not behave as expected
 
 ## [Stable 5.10.0] - 2023-01-09 - Here we go again!
 ### Added
