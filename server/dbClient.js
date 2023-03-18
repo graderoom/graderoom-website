@@ -2376,7 +2376,8 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
             });
         } else {
             let newTerm = Object.keys(data['new_grades'])[0];
-            let newSemester = Object.keys(data['new_grades'][newTerm])[0];
+            let newSemester = Object.keys(data['new_grades'][newTerm]);
+            newSemester = newSemester[newSemester.length - 1]; // this should prob be another variable
             if (!(newTerm in user.grades)) {
                 await _users(db).updateOne({username: username}, {$set: {[`grades.${newTerm}`]: {}}});
             }

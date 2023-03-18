@@ -175,7 +175,6 @@ module.exports = function (app, passport) {
 
     app.get("/viewuser", [isAdmin], async (req, res) => {
         if (req.query.usernameToRender) {
-
             let {term, semester} = (await dbClient.getMostRecentTermData(req.query.usernameToRender)).data.value;
             if (req.query.term && req.query.semester) {
                 if ((term === req.query.term && semester === req.query.semester) || !(await dbClient.userHasSemester(req.query.usernameToRender, req.query.term, req.query.semester)).data.value) {
@@ -186,14 +185,30 @@ module.exports = function (app, passport) {
                 semester = req.query.semester;
             }
             let projection = {
+                "alerts.remoteAccess": 1,
+            };
+            let user = (await dbClient.getUser(req.query.usernameToRender, projection)).data.value;
+            if (user.alerts.remoteAccess === "denied") {
+                res.redirect(req.headers.referer ?? "/");
+                return;
+            }
+
+            projection = {
                 school: 1,
                 schoolUsername: 1,
                 isAdmin: 1,
                 personalInfo: 1,
                 appearance: 1,
-                alerts: 1,
                 schoolPassword: 1,
                 grades: 1,
+                "alerts.updateGradesReminder": 1,
+                "alerts.latestSeen": 1,
+                "alerts.policyLastSeen": 1,
+                "alerts.termsLastSeen": 1,
+                "alerts.remoteAccess": 1,
+                "alerts.tutorialStatus": 1,
+                "alerts.notifications": 1,
+                "alerts.notificationSettings": 1,
                 [`weights.${term}.${semester}`]: 1,
                 [`addedAssignments.${term}.${semester}`]: 1,
                 [`editedAssignments.${term}.${semester}`]: 1,
@@ -201,11 +216,7 @@ module.exports = function (app, passport) {
                 betaFeatures: 1,
                 donoData: 1,
             };
-            let user = (await dbClient.getUser(req.query.usernameToRender, projection)).data.value;
-            if (user.alerts.remoteAccess === "denied") {
-                res.redirect(req.headers.referer ?? "/");
-                return;
-            }
+            user = (await dbClient.getUser(req.query.usernameToRender, projection)).data.value;
 
             let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
 
