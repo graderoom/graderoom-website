@@ -891,7 +891,7 @@ const __version19 = async (db, user) => {
         let currentSemester = semesters[semesterIndex];
 
         let classNames = user.grades[currentYear][currentSemester].map(c => c.class_name);
-        let nextPSAIDs = user.grades[currentYear][semesters[Math.min(semesterIndex + 1, semesters.length - 1)]].map(c => c.grades.map(g => g.psaid).filter(g => g)).flat();
+        let nextPSAIDs = user.grades[semesterIndex + 1 > semesters.length - 1 ? years[yearIndex + 1] : currentYear][semesters[semesterIndex + 1 > semesters.length - 1 ? 0 : semesterIndex + 1]].map(c => c.grades.map(g => g.psaid).filter(g => g)).flat();
 
         let updateStartTimestamps = {[currentYear]: {[currentSemester]: 0}};
 
@@ -958,11 +958,21 @@ const __version19 = async (db, user) => {
                 classNames = user.grades[currentYear][currentSemester].map(c => c.class_name);
                 if (semesterIndex < semesters.length - 1) {
                     nextPSAIDs = user.grades[currentYear][semesters[semesterIndex + 1]].map(c => c.grades.map(g => g.psaid).filter(g => g)).flat();
+                } else if (yearIndex < years.length - 1) {
+                    nextPSAIDs = user.grades[years[yearIndex + 1]][0].map(c => c.grades.map(g => g.psaid).filter(g => g)).flat();
                 }
             }
             if (!(currentSemester in updateStartTimestamps[currentYear])) {
                 updateStartTimestamps[currentYear][currentSemester] = obj.timestamp;
             }
+        }
+
+        for (let j = yearIndex; j < years.length; j++) {
+            semesters = Object.keys(user.grades[currentYear]);
+            for (let k = semesterIndex + 1; k < semesters.length; k++) {
+                updateStartTimestamps[years[j]][semesters[k]] = lastUpdated.slice(-1)[0].timestamp;
+            }
+            semesterIndex = 0;
         }
 
         // Make sure the map has all the years/semesters
@@ -976,7 +986,6 @@ const __version19 = async (db, user) => {
                 }
             }
         }
-
 
         await _users(db).updateOne({username: user.username}, {
             $set: {
