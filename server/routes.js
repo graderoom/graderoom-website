@@ -37,6 +37,7 @@ module.exports = function (app, passport) {
                 let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
                 let relevantClassData = (await dbClient.getRelevantClassData(req.user.username, term, semester)).data.value;
                 let gradeHistoryLetters = (await dbClient.getGradeHistoryLetters(req.user.username, term, semester)).data.value;
+                let trimmedAlerts = (await dbClient.getTrimmedAlerts(req.user.username, term, semester)).data.value;
 
                 let termsAndSemesters = Object.keys(req.user.grades).map(term => {
                     let semesters = Object.keys(req.user.grades[term]).filter(s => req.user.grades[term][s].filter(grades => !(["CR", false]).includes(grades.overall_letter) ||
@@ -54,7 +55,7 @@ module.exports = function (app, passport) {
                     isAdmin: req.user.isAdmin,
                     _personalInfo: req.user.personalInfo,
                     _appearance: req.user.appearance,
-                    _alerts: req.user.alerts,
+                    _alerts: trimmedAlerts,
                     gradeSync: !!req.user.schoolPassword,
                     _gradeData: req.user.grades[term][semester],
                     _weightData: req.user.weights[term][semester],
@@ -174,7 +175,6 @@ module.exports = function (app, passport) {
 
     app.get("/viewuser", [isAdmin], async (req, res) => {
         if (req.query.usernameToRender) {
-
             let {term, semester} = (await dbClient.getMostRecentTermData(req.query.usernameToRender)).data.value;
             if (req.query.term && req.query.semester) {
                 if ((term === req.query.term && semester === req.query.semester) || !(await dbClient.userHasSemester(req.query.usernameToRender, req.query.term, req.query.semester)).data.value) {
@@ -185,20 +185,7 @@ module.exports = function (app, passport) {
                 semester = req.query.semester;
             }
             let projection = {
-                school: 1,
-                schoolUsername: 1,
-                isAdmin: 1,
-                personalInfo: 1,
-                appearance: 1,
-                alerts: 1,
-                schoolPassword: 1,
-                grades: 1,
-                [`weights.${term}.${semester}`]: 1,
-                [`addedAssignments.${term}.${semester}`]: 1,
-                [`editedAssignments.${term}.${semester}`]: 1,
-                sortingData: 1,
-                betaFeatures: 1,
-                donoData: 1,
+                "alerts.remoteAccess": 1,
             };
             let user = (await dbClient.getUser(req.query.usernameToRender, projection)).data.value;
             if (user.alerts.remoteAccess === "denied") {
@@ -206,12 +193,38 @@ module.exports = function (app, passport) {
                 return;
             }
 
+            projection = {
+                school: 1,
+                schoolUsername: 1,
+                isAdmin: 1,
+                personalInfo: 1,
+                appearance: 1,
+                schoolPassword: 1,
+                grades: 1,
+                "alerts.updateGradesReminder": 1,
+                "alerts.latestSeen": 1,
+                "alerts.policyLastSeen": 1,
+                "alerts.termsLastSeen": 1,
+                "alerts.remoteAccess": 1,
+                "alerts.tutorialStatus": 1,
+                "alerts.notifications": 1,
+                "alerts.notificationSettings": 1,
+                [`weights.${term}.${semester}`]: 1,
+                [`addedAssignments.${term}.${semester}`]: 1,
+                [`editedAssignments.${term}.${semester}`]: 1,
+                sortingData: 1,
+                betaFeatures: 1,
+                donoData: 1,
+            };
+            user = (await dbClient.getUser(req.query.usernameToRender, projection)).data.value;
+
             let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
 
             if (term && semester) {
                 let {plus, premium} = (await dbClient.getDonoAttributes(user.username)).data.value;
                 let relevantClassData = (await dbClient.getRelevantClassData(user.username, term, semester)).data.value;
                 let gradeHistoryLetters = (await dbClient.getGradeHistoryLetters(user.username, term, semester)).data.value;
+                let trimmedAlerts = (await dbClient.getTrimmedAlerts(user.username, term, semester)).data.value;
 
                 let termsAndSemesters = Object.keys(user.grades).map(term => {
                     let semesters = Object.keys(user.grades[term]);
@@ -228,7 +241,7 @@ module.exports = function (app, passport) {
                     isAdmin: user.isAdmin,
                     _personalInfo: user.personalInfo,
                     _appearance: user.appearance,
-                    _alerts: user.alerts,
+                    _alerts: trimmedAlerts,
                     gradeSync: !!user.schoolPassword,
                     _gradeData: user.grades[term][semester],
                     _weightData: user.weights[term][semester],

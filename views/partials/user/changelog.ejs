@@ -42,7 +42,8 @@
     let onScreenVersion = "Known Issues";
 
     function showChangelog(callback = false, resized = false) {
-        if (!callback) {
+        if (!callback && !resized) {
+            scrollToVersion(onScreenVersion);
             showCard("#changelogDisplay");
         }
         return new Promise(async resolve => {
@@ -77,114 +78,114 @@
             changelogContainer.html(changelogReferences);
             changelogContainer.append(`<div style="height: 100%"></div>`);
             versionDivs = $("#changelogDisplay .changelog-item");
-            changelogContainer.animate({scrollTop: 0}, async () => {
-                versionNames = [];
-                versionOffsets = {};
-                let dismissNotifications = true;
-                for (let i = 0; i < versionDivs.length; i++) {
-                    let version = versionDivs[i];
-                    let name = $(version).find(".title")[0].innerText;
-                    versionNames.push(name);
-                    if (!callback) {
-                        if (dismissNotifications && i >= 1) {
-                            dismissById(name, false);
-                        }
-                        if (name.endsWith(alerts.latestSeen)) {
-                            dismissNotifications = false;
-                            updateNotifications();
-                            if (!callback) {
-                                $.ajax({
-                                           url: "/latestVersionSeen", type: "POST", async: true
-                                       }).done((response) => {
-                                    if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
-                                        $(".session-timeout").show();
-                                        $("body").find("*").not(".session-timeout").remove();
-                                        return;
-                                    }
-                                    alerts.latestSeen = versionNames[1].substring(versionNames[1].indexOf(" ") + 1);
-                                });
-                            }
+            changelogContainer.scrollTop(0);
+            changelogLegendColumn.scrollTop(0);
+            versionNames = [];
+            versionOffsets = {};
+            let dismissNotifications = true;
+            for (let i = 0; i < versionDivs.length; i++) {
+                let version = versionDivs[i];
+                let name = $(version).find(".title")[0].innerText;
+                versionNames.push(name);
+                if (!callback) {
+                    if (dismissNotifications && i >= 1) {
+                        dismissById(name, false);
+                    }
+                    if (name.endsWith(alerts.latestSeen)) {
+                        dismissNotifications = false;
+                        updateNotifications();
+                        if (!callback) {
+                            $.ajax({
+                                       url: "/latestVersionSeen", type: "POST", async: true
+                                   }).done((response) => {
+                                if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
+                                    $(".session-timeout").show();
+                                    $("body").find("*").not(".session-timeout").remove();
+                                    return;
+                                }
+                                alerts.latestSeen = versionNames[1].substring(versionNames[1].indexOf(" ") + 1);
+                            });
                         }
                     }
-                    let date = $(version).find(".date")[0].innerHTML;
-                    // Add offset so versions on the same day are ordered correctly in notifications
-                    versionDates.push(new Date(`${date.slice(0, 10)}/0:`).getTime() + versionDivs.length - i);
-                    versionMessages.push(date.slice(13));
-                    if (!callback) {
-                        let class_ = $.makeArray(version.classList).filter((c) => c !== "changelog-item")[0] ?? "";
-                        versionClasses.push(class_);
-                        versionOffsets[name] = $(version).offset().top - changelogContainer.offset().top;
-                        changelogContent[name] = $(version).find(".content")[0].innerHTML;
-                        let v;
-                        if (changelogLegendColumn.children("div").length < versionDivs.length) {
-                            v = $(`<div class="${class_}">${name}<p class="date">${date}</p></div>`);
-                            if (name === onScreenVersion) {
-                                v.addClass("active");
-                            }
-                            v.click(() => scrollToVersion(name));
-                            changelogLegendColumn.append(v);
-                        } else {
-                            v = $(changelogLegendColumn.children("div")[i])
+                }
+                let date = $(version).find(".date")[0].innerHTML;
+                // Add offset so versions on the same day are ordered correctly in notifications
+                versionDates.push(new Date(`${date.slice(0, 10)}/0:`).getTime() + versionDivs.length - i);
+                versionMessages.push(date.slice(13));
+                if (!callback) {
+                    let class_ = $.makeArray(version.classList).filter((c) => c !== "changelog-item")[0] ?? "";
+                    versionClasses.push(class_);
+                    versionOffsets[name] = $(version).offset().top - changelogContainer.offset().top;
+                    changelogContent[name] = $(version).find(".content")[0].innerHTML;
+                    let v;
+                    if (changelogLegendColumn.children("div").length < versionDivs.length) {
+                        v = $(`<div class="${class_}">${name}<p class="date">${date}</p></div>`);
+                        if (name === onScreenVersion) {
+                            v.addClass("active");
                         }
-                        versionOffsets[`${name}-legend`] = $(v).offset().top - changelogLegendColumn.offset().top;
-                    }
-                }
-                if (!versionNames.find(v => v.endsWith(alerts.latestSeen))) {
-                    updateNotifications();
-                    if (!callback) {
-                        $.ajax({
-                                   url: "/latestVersionSeen", type: "POST", async: true
-                               }).done((response) => {
-                            if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
-                                $(".session-timeout").show();
-                                $("body").find("*").not(".session-timeout").remove();
-                                return;
-                            }
-                            alerts.latestSeen = versionNames[1].substring(versionNames[1].indexOf(" ") + 1);
-                        });
-                    }
-                }
-                if (callback) {
-                    // noinspection JSValidateTypes
-                    callback(versionNames, versionDates, versionMessages);
-                    return resolve();
-                }
-
-                changelogContainer.unbind("scroll");
-                changelogContainer.on("scroll", function () {
-                    let versionIndex = getOnScreenVersionIndex();
-                    onScreenVersion = versionNames[versionIndex];
-                    if (versionIndex > 0) {
-                        let previousVersionHeight = versionOffsets[onScreenVersion] - versionOffsets[versionNames[versionIndex - 1]];
-                        let previousVersionInvisibleHeight = changelogContainer.offset().top - $(versionDivs[versionIndex - 1]).offset().top;
-                        let previousFractionInvisible = previousVersionInvisibleHeight / previousVersionHeight;
-                        let previousLegendItemHeight = versionOffsets[`${onScreenVersion}-legend`] - versionOffsets[`${versionNames[versionIndex - 1]}-legend`];
-                        let offset = versionOffsets[`${versionNames[versionIndex - 1]}-legend`] + (previousFractionInvisible * previousLegendItemHeight)
-                        changelogLegendColumn.animate({scrollTop: offset}, 0);
-                        if (previousFractionInvisible < 0.5) return;
+                        v.click(() => scrollToVersion(name));
+                        changelogLegendColumn.append(v);
                     } else {
-                        changelogLegendColumn.animate({scrollTop: 0}, 0);
+                        v = $(changelogLegendColumn.children("div")[i])
                     }
-                    let legendItem = $(changelogLegendColumn.children("div")[versionIndex]);
-                    if (!legendItem.hasClass("active")) {
-                        changelogLegendColumn.children("div").removeClass("active");
-                        legendItem.addClass("active");
-                    }
-                    scrolling = true;
-                });
-
-                stableVersionNames = versionNames.filter(n => n.substring(0, 6) === "Stable" || n === "Known Issues");
-                scrollToVersion(onScreenBeforeSetup, 500);
-                let fixedIn = versionDivs.find(".content").children(".body").children("strong");
-                for (let i = 0; i < fixedIn.length; i++) {
-                    let link = $(fixedIn[i]);
-                    link.click(() => {
-                        scrollToVersion(link[0].innerText.substring(10, link[0].innerText.length - 1));
+                    versionOffsets[`${name}-legend`] = $(v).offset().top - changelogLegendColumn.offset().top;
+                }
+            }
+            if (!versionNames.find(v => v.endsWith(alerts.latestSeen))) {
+                updateNotifications();
+                if (!callback) {
+                    $.ajax({
+                               url: "/latestVersionSeen", type: "POST", async: true
+                           }).done((response) => {
+                        if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
+                            $(".session-timeout").show();
+                            $("body").find("*").not(".session-timeout").remove();
+                            return;
+                        }
+                        alerts.latestSeen = versionNames[1].substring(versionNames[1].indexOf(" ") + 1);
                     });
                 }
-                $(".changelog-parent, .changelog-parent > div").addClass("show");
-                resolve();
+            }
+            if (callback) {
+                // noinspection JSValidateTypes
+                callback(versionNames, versionDates, versionMessages);
+                return resolve();
+            }
+
+            changelogContainer.unbind("scroll");
+            changelogContainer.on("scroll", async function () {
+                let versionIndex = getOnScreenVersionIndex();
+                onScreenVersion = versionNames[versionIndex];
+                if (versionIndex > 0) {
+                    let previousVersionHeight = versionOffsets[onScreenVersion] - versionOffsets[versionNames[versionIndex - 1]];
+                    let previousVersionInvisibleHeight = changelogContainer.offset().top - $(versionDivs[versionIndex - 1]).offset().top;
+                    let previousFractionInvisible = previousVersionInvisibleHeight / previousVersionHeight;
+                    let previousLegendItemHeight = versionOffsets[`${onScreenVersion}-legend`] - versionOffsets[`${versionNames[versionIndex - 1]}-legend`];
+                    let offset = versionOffsets[`${versionNames[versionIndex - 1]}-legend`] + (previousFractionInvisible * previousLegendItemHeight)
+                    changelogLegendColumn.animate({scrollTop: offset}, 0);
+                    if (previousFractionInvisible < 0.5) return;
+                } else {
+                    changelogLegendColumn.animate({scrollTop: 0}, 0);
+                }
+                let legendItem = $(changelogLegendColumn.children("div")[versionIndex]);
+                if (!legendItem.hasClass("active")) {
+                    changelogLegendColumn.children("div").removeClass("active");
+                    legendItem.addClass("active");
+                }
+                scrolling = true;
             });
+
+            stableVersionNames = versionNames.filter(n => n.substring(0, 6) === "Stable" || n === "Known Issues");
+            scrollToVersion(onScreenBeforeSetup, 500);
+            let fixedIn = versionDivs.find(".content").children(".body").children("strong");
+            for (let i = 0; i < fixedIn.length; i++) {
+                let link = $(fixedIn[i]);
+                link.click(() => {
+                    scrollToVersion(link[0].innerText.substring(10, link[0].innerText.length - 1));
+                });
+            }
+            $(".changelog-parent, .changelog-parent > div").addClass("show");
+            resolve();
         });
     }
 

@@ -515,6 +515,12 @@ table thead tr th:last-child {
 
 .changelog-container a {
     color: currentColor !Important;
+    white-space: nowrap;
+}
+
+.changelog-container a::after {
+    content: " \f14c";
+    font-family: FontAwesome;
 }
 
 .changelog-container .known-issues *, .changelog-container .known-issues *::after, .changelog-container .known-issues *::before  {

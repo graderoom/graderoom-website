@@ -1,4 +1,4 @@
-# GradeRoom
+# Graderoom
 Grade visualization with automatic web scraping from Powerschool for students.
 
 ## setup  

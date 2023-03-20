@@ -46,6 +46,46 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 6.0.0] - 2023-03-19 - We're open-source :)
+### Added
+- <span class="changelog-inline-setoff"><a href="https://github.com/graderoom/graderoom-website" target="_blank">Graderoom is now open-source</a></span>
+- You can now use the up/down arrow keys to move between weight table fields
+- Support for hyphenated names/emails
+- Grades for BISV now split correctly for T3
+
+### Improved
+- Links in changelog display are more obviously links
+- Class averages no longer take ungraded users into account
+- Sync data only displays items from the current semester
+
+### Fixed
+- Issues related to hiding non-academic classes<ul>
+- Colors mismatch
+- Inability to add assignments to classes that you should be able to add assignments to</ul>
+- Issue where clicking the open changelog buttons the second time wouldn't scroll to the correct version
+- Issue where a teacher removing an assignment that you made edits to would cause the site to not load
+- After resize, the changelog did not behave as expected
+
+## [Beta 5.11.0] - 2023-03-18 - HI I'M BACK
+### Added
+- You can now use the up/down arrow keys to move between weight table fields
+- Support for hyphenated names/emails
+- Sync now includes teacher comments and assignment descriptions<ul>
+- They aren't displayed yet</ul>
+- Grades for BISV now split correctly for T3
+
+### Improved
+- Class averages no longer take ungraded users into account
+- Sync data only displays items from the current semester
+
+### Fixed
+- Issues related to hiding non-academic classes<ul>
+- Colors mismatch
+- Inability to add assignments to classes that you should be able to add assignments to</ul>
+- Issue where clicking the open changelog buttons the second time wouldn't scroll to the correct version
+- Issue where a teacher removing an assignment that you made edits to would cause the site to not load
+- After resize, the changelog did not behave as expected
+
 ## [Stable 5.10.0] - 2023-01-09 - Here we go again!
 ### Added
 - Locked PowerSchool sync now works for users that have never synced before
@@ -58,7 +98,7 @@
 - Locked scraper now also fetches empty courses
 - Sync log will no longer show all assignments as new/removed when the number of courses changes
 - Class colors now stay the same after hiding/unhiding non-academic classes
-- Cura has been set as a non-academic class by default, as well as several Sports and Study hHalls
+- Cura has been set as a non-academic class by default, as well as several Sports and Study Halls
 - If a Bellarmine course has no grades and no set class type in the catalog, and a user has non-academic course display disabled, a message now appears asking them to send feedback about whether the class is non-academic or not
 
 ### Fixed

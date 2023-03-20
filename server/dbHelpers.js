@@ -23,7 +23,7 @@ exports.TEST_DATABASE_NAME = "test";
 exports.COMMON_DATABASE_NAME = "common";
 
 // Change this when updateDB changes
-exports.dbUserVersion = 18;
+exports.dbUserVersion = 19;
 exports.dbClassVersion = 3;
 
 const minDonoAmount = 3;
@@ -110,13 +110,13 @@ exports.validateEmail = (email, school) => {
     let re;
     switch (school) {
         case Schools.BISV:
-            re = /^[a-z]+_[0-9]{5}@basisindependent\.com$/i;
+            re = /^[a-z]+(?:-[a-z]+)*_[0-9]{5}@basisindependent\.com$/i;
             break;
         case Schools.BELL:
-            re = /^[a-z]+\.[a-z]+[0-9]{2}@bcp\.org$/i;
+            re = /^[a-z]+(?:-[a-z]+)*\.[a-z]+(?:-[a-z]+)*[0-9]{2}@bcp\.org$/i;
             break;
         case Schools.NDSJ:
-            re = /^[a-z]{2,}[0-9]{2}@ndsj\.org$/i;
+            re = /^(?:[a-z]{2,}|[a-z]+(?:-[a-z]+)+)[0-9]{2}@ndsj\.org$/i;
             break;
         default:
             return false;
@@ -213,6 +213,7 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
                 donoData: [],
                 api: {},
                 discord: {},
+                updateStartTimestamps: {}
             };
 
             return resolve({success: true, data: {value: user}});
