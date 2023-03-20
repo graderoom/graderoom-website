@@ -959,7 +959,7 @@ const __version19 = async (db, user) => {
                 if (semesterIndex < semesters.length - 1) {
                     nextPSAIDs = user.grades[currentYear][semesters[semesterIndex + 1]].map(c => c.grades.map(g => g.psaid).filter(g => g)).flat();
                 } else if (yearIndex < years.length - 1) {
-                    nextPSAIDs = user.grades[years[yearIndex + 1]][0].map(c => c.grades.map(g => g.psaid).filter(g => g)).flat();
+                    nextPSAIDs = user.grades[years[yearIndex + 1]][Object.keys(user.grades[years[yearIndex + 1]])[0]].map(c => c.grades.map(g => g.psaid).filter(g => g)).flat();
                 }
             }
             if (!(currentSemester in updateStartTimestamps[currentYear])) {
