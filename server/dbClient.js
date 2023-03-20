@@ -891,7 +891,9 @@ const __version19 = async (db, user) => {
         let currentSemester = semesters[semesterIndex];
 
         let classNames = user.grades[currentYear][currentSemester].map(c => c.class_name);
-        let nextPSAIDs = user.grades[semesterIndex + 1 > semesters.length - 1 ? years[yearIndex + 1] : currentYear][semesterIndex + 1 > semesters.length - 1 ? Object.keys(user.grades[years[yearIndex + 1]])[0] : semesters[semesterIndex + 1]].map(c => c.grades.map(g => g.psaid).filter(g => g)).flat();
+        let nextYear = semesterIndex + 1 > semesters.length - 1 && yearIndex + 1 < years.length ? years[yearIndex + 1] : currentYear;
+        let nextSemester = semesterIndex + 1 > semesters.length - 1 && yearIndex + 1 < years.length ? Object.keys(user.grades[nextYear])[0] : semesters[semesterIndex + 1];
+        let nextPSAIDs = user.grades[nextYear][nextSemester].map(c => c.grades.map(g => g.psaid).filter(g => g)).flat();
 
         let updateStartTimestamps = {[currentYear]: {[currentSemester]: 0}};
 
