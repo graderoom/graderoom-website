@@ -10,4 +10,4 @@ install node.js
 in root directory: npm install  
 to start server: node graderoom.js
 
-
+# Todo: add documentation
