@@ -893,7 +893,7 @@ const __version19 = async (db, user) => {
         let classNames = user.grades[currentYear][currentSemester].map(c => c.class_name);
         let nextYear = semesterIndex + 1 > semesters.length - 1 && yearIndex + 1 < years.length ? years[yearIndex + 1] : currentYear;
         let nextSemester = nextYear === currentYear ?
-                            semesterIndex + 1 > semesters.length - 1 ?
+                            semesterIndex + 1 < semesters.length ?
                                 semesters[semesterIndex + 1]
                                 : currentSemester
                             : Object.keys(user.grades[nextYear])[0];
