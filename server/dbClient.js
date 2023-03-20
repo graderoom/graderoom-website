@@ -891,7 +891,13 @@ const __version19 = async (db, user) => {
         let currentSemester = semesters[semesterIndex];
 
         let classNames = user.grades[currentYear][currentSemester].map(c => c.class_name);
-        let nextPSAIDs = user.grades[semesterIndex + 1 > semesters.length - 1 ? years[yearIndex + 1] : currentYear][semesters[semesterIndex + 1 > semesters.length - 1 ? 0 : semesterIndex + 1]].map(c => c.grades.map(g => g.psaid).filter(g => g)).flat();
+        let nextYear = semesterIndex + 1 > semesters.length - 1 && yearIndex + 1 < years.length ? years[yearIndex + 1] : currentYear;
+        let nextSemester = nextYear === currentYear ?
+                            semesterIndex + 1 < semesters.length ?
+                                semesters[semesterIndex + 1]
+                                : currentSemester
+                            : Object.keys(user.grades[nextYear])[0];
+        let nextPSAIDs = user.grades[nextYear][nextSemester].map(c => c.grades.map(g => g.psaid).filter(g => g)).flat();
 
         let updateStartTimestamps = {[currentYear]: {[currentSemester]: 0}};
 
@@ -959,7 +965,7 @@ const __version19 = async (db, user) => {
                 if (semesterIndex < semesters.length - 1) {
                     nextPSAIDs = user.grades[currentYear][semesters[semesterIndex + 1]].map(c => c.grades.map(g => g.psaid).filter(g => g)).flat();
                 } else if (yearIndex < years.length - 1) {
-                    nextPSAIDs = user.grades[years[yearIndex + 1]][0].map(c => c.grades.map(g => g.psaid).filter(g => g)).flat();
+                    nextPSAIDs = user.grades[years[yearIndex + 1]][Object.keys(user.grades[years[yearIndex + 1]])[0]].map(c => c.grades.map(g => g.psaid).filter(g => g)).flat();
                 }
             }
             if (!(currentSemester in updateStartTimestamps[currentYear])) {
@@ -967,12 +973,14 @@ const __version19 = async (db, user) => {
             }
         }
 
-        for (let j = yearIndex; j < years.length; j++) {
-            semesters = Object.keys(user.grades[currentYear]);
-            for (let k = semesterIndex + 1; k < semesters.length; k++) {
-                updateStartTimestamps[years[j]][semesters[k]] = lastUpdated.slice(-1)[0].timestamp;
+        if (lastUpdated.length) {
+            for (let j = yearIndex; j < years.length; j++) {
+                semesters = Object.keys(user.grades[currentYear]);
+                for (let k = semesterIndex + 1; k < semesters.length; k++) {
+                    updateStartTimestamps[years[j]][semesters[k]] = lastUpdated.slice(-1)[0].timestamp;
+                }
+                semesterIndex = 0;
             }
-            semesterIndex = 0;
         }
 
         // Make sure the map has all the years/semesters
