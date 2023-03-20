@@ -892,7 +892,11 @@ const __version19 = async (db, user) => {
 
         let classNames = user.grades[currentYear][currentSemester].map(c => c.class_name);
         let nextYear = semesterIndex + 1 > semesters.length - 1 && yearIndex + 1 < years.length ? years[yearIndex + 1] : currentYear;
-        let nextSemester = semesterIndex + 1 > semesters.length - 1 && yearIndex + 1 < years.length ? Object.keys(user.grades[nextYear])[0] : semesters[semesterIndex + 1];
+        let nextSemester = nextYear === currentYear ?
+                            semesterIndex + 1 > semesters.length - 1 ?
+                                semesters[semesterIndex + 1]
+                                : currentSemester
+                            : Object.keys(user.grades[nextYear])[0];
         let nextPSAIDs = user.grades[nextYear][nextSemester].map(c => c.grades.map(g => g.psaid).filter(g => g)).flat();
 
         let updateStartTimestamps = {[currentYear]: {[currentSemester]: 0}};
