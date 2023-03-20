@@ -973,12 +973,14 @@ const __version19 = async (db, user) => {
             }
         }
 
-        for (let j = yearIndex; j < years.length; j++) {
-            semesters = Object.keys(user.grades[currentYear]);
-            for (let k = semesterIndex + 1; k < semesters.length; k++) {
-                updateStartTimestamps[years[j]][semesters[k]] = lastUpdated.slice(-1)[0].timestamp;
+        if (lastUpdated.length) {
+            for (let j = yearIndex; j < years.length; j++) {
+                semesters = Object.keys(user.grades[currentYear]);
+                for (let k = semesterIndex + 1; k < semesters.length; k++) {
+                    updateStartTimestamps[years[j]][semesters[k]] = lastUpdated.slice(-1)[0].timestamp;
+                }
+                semesterIndex = 0;
             }
-            semesterIndex = 0;
         }
 
         // Make sure the map has all the years/semesters
