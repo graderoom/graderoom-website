@@ -46,6 +46,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 6.0.1] - 2023-03-22
+### Fixed
+- Sync failing when an assignment is removed
+
 ## [Stable 6.0.0] - 2023-03-19 - We're open-source :)
 ### Added
 - <span class="changelog-inline-setoff"><a href="https://github.com/graderoom/graderoom-website" target="_blank">Graderoom is now open-source</a></span>
