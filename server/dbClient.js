@@ -2453,7 +2453,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
 
             // Make sure any removed items don't get to have edits
             if (Object.keys(removed).length > 0) {
-                let editedAssignments = await getUser(username, {[`editedAssignments.${newTerm}.${newSemester}`]: 1});
+                let editedAssignments = (await getUser(username, {[`editedAssignments.${newTerm}.${newSemester}`]: 1})).data.value.editedAssignments[newTerm][newSemester];
                 for (let class_name in removed) {
                     let assignments = removed[class_name]
                     for (let assignment of assignments) {
