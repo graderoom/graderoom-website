@@ -2460,7 +2460,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                         delete editedAssignments.find(e => e.className === class_name).data[assignment.psaid];
                     }
                 }
-                await _users(db).updateOne({username: username}, {[`editedAssignments.${newTerm}.${newSemester}`]: editedAssignments})
+                await _users(db).updateOne({username: username}, {$set: {[`editedAssignments.${newTerm}.${newSemester}`]: editedAssignments}});
             }
 
             let ps_locked = newGrades.filter(o => o.ps_locked === true).length !== 0;
