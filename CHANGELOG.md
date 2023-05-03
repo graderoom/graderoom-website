@@ -40,11 +40,23 @@
 
 <!-- Use `` around text to make it monospace -->
 
+<!-- Use <github issue="[num]">[description]</github> to link a github issue -->
+
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
+
+## [Announcement 6.0.4] - 2023-05-03 - Graderoom Dev Meetup
+- Fri, May 12th, lunch and after school, in front of Sobrato
+- Come if you are interested in developing for Graderoom, have a feature request, want your weights verified, or just want to say hello.
+- I will be bringing Krispy Kreme.
+- -Bryce
+
+## [Beta 6.0.3] - 2023-05-03
+### Fixed
+- <github issue="122">Top gets cut off in account making page</github>
 
 ## [Stable 6.0.2] - 2023-03-26
 ### Fixed
