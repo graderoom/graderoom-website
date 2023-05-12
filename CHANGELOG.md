@@ -48,6 +48,12 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Announcement 6.0.5] - 2023-05-12 - <span class="changelog-inline-setoff" style="color:red">CLICK ON THIS. READ IT.</span>
+- <span class="changelog-inline-setoff">TODAY, MAY 12, 2023</span>
+- <span class="changelog-inline-setoff">The Developers are in front of Sobrato</span>
+- <span class="changelog-inline-setoff">There will be Krispy Kreme</span>
+- <span class="changelog-inline-setoff">Come talk to us</span>
+
 ## [Announcement 6.0.4] - 2023-05-03 - Graderoom Dev Meetup
 - Fri, May 12th, lunch and after school, in front of Sobrato
 - Come if you are interested in developing for Graderoom, have a feature request, want your weights verified, or just want to say hello.
