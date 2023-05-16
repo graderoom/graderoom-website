@@ -1,6 +1,10 @@
 const express = require("express");
 const app = express();
 const http = require("http");
+const productionEnv = process.env.NODE_ENV === "production";
+if (!productionEnv) {
+    require("dotenv").config();
+}
 const httpPort = parseInt(process.env.port);
 const isBetaServer = httpPort !== 5996;
 const flash = require("connect-flash");
@@ -10,7 +14,6 @@ const bodyParser = require("body-parser");
 const redis = require("redis");
 const session = require("express-session");
 const passport = require("passport");
-const productionEnv = process.env.NODE_ENV === "production";
 const fs = require("fs");
 const {watchChangelog, readChangelog} = require("./dbHelpers");
 

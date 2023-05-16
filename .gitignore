@@ -17,3 +17,4 @@ user_db*.json
 config/
 *.rdb
 catalog_old_*.html
+.env
