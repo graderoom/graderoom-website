@@ -49,6 +49,7 @@
 - None
 
 ## [Stable 6.0.6] - 2023-05-23
+### Fixed
 - Fix locked PowerSchool sync
 
 ## [Announcement 6.0.5] - 2023-05-12 - <span class="changelog-inline-setoff" style="color:red">CLICK ON THIS. READ IT.</span>
