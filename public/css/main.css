@@ -3183,13 +3183,7 @@ input:disabled {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translateX(-50%) translateY(-60%);
-}
-
-#signup-container .card {
-    top: 50%;
-    transform: translateY(-60%);
-    margin: 0 !important;
+    transform: translateX(-50%) translateY(-50%);
 }
 
 .recent-changes-date-holder {

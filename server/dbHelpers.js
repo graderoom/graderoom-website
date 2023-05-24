@@ -371,6 +371,11 @@ exports.readChangelog = (filename) => {
                             open = !open;
                         }
                     }
+                    _line = _line.replaceAll(/<github\s*issue\s*=\s*"\d*"\s*>(?:|(?:.(?!<\/github>))*.)<\/github>/g, (str) => {
+                        let num = str.substring(str.indexOf('"') + 1, str.indexOf('"', str.indexOf('"') + 1));
+                        let val = str.substring(str.indexOf(">") + 1, str.indexOf("<", str.indexOf(">") + 1));
+                        return `${val} <span class="changelog-fixes"><i class="fa fa-github"></i> <a href="https://github.com/graderoom/graderoom-website/issues/${num}/" target="_blank">#${num}</a></span>`;
+                    });
                     if (item.title === "Known Issues" || item.title.substring(0, 12) === "Announcement") {
                         if (!item.content["Default"]) {
                             item.content["Default"] = [];

@@ -460,6 +460,12 @@ class PowerschoolScraper(Scraper):
                 self.message = "PowerSchool is locked."
                 self.message = "Getting data from locked PowerSchool..."
                 return False
+
+            _, semester = self.get_term_and_semester_data()
+            table_header = soup_resp.find_all('th', colspan='5')
+
+            return semester in list(map(lambda h: h.text, table_header))
+
         else:
             self.progress = 0
             print(json_format(False, 'Your PowerSchool account is no longer active.'))
