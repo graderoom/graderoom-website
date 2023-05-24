@@ -2211,6 +2211,7 @@
                 }
 
                 if (aData[classIndex][assignmentIndex] !== undefined) {
+                    console.log("1");
                     let assignment = _addedAssignments[classIndex].data[aData[classIndex][assignmentIndex]];
 
                     assignment.exclude = !assignment.exclude;
@@ -2220,6 +2221,8 @@
                     if (!assignment) {
                         _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid] = {};
                         assignment = _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid];
+                        assignment.exclude = _data[classIndex].grades[assignmentIndex].exclude;
+                    } else if (!("exclude" in assignment)) {
                         assignment.exclude = _data[classIndex].grades[assignmentIndex].exclude;
                     }
 

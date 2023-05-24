@@ -52,6 +52,7 @@
 ### Fixed
 - Fix locked PowerSchool sync
 - <github issue="122">Top gets cut off in account making page</github>
+- <github issue="123">Assignment Excluded by Teacher Cannot be Unexcluded if Score is Changed</github>
 
 ## [Announcement 6.0.5] - 2023-05-12 - <span class="changelog-inline-setoff" style="color:red">CLICK ON THIS. READ IT.</span>
 - <span class="changelog-inline-setoff">TODAY, MAY 12, 2023</span>
