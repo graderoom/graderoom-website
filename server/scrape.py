@@ -1,6 +1,8 @@
 import json
+from urllib.parse import urlparse, parse_qs
 import requests
 import sys
+import traceback
 from bs4 import BeautifulSoup as bS
 from bs4 import Comment
 from datetime import datetime
@@ -222,7 +224,8 @@ class PowerschoolScraper(Scraper):
             self.verify = True
         elif _school == "bellarmine":
             self.base_url = bcp_url
-            self.verify = 'server/CA-Certificates/_.bcp.org.crt'
+            self.verify = True
+#             self.verify = 'server/CA-Certificates/_.bcp.org.crt'
 
     def __login_bcp(self, email: str, _password: str) -> None:
         """Logs into PowerSchool with credentials
@@ -233,37 +236,29 @@ class PowerschoolScraper(Scraper):
         """
         # Various headers required for logging in
         headers_1 = {
-            'Content-Type': 'application/x-www-form-urlencoded',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,'
-                      'application/signed-exchange;v=b3',
-            'Accept-Encoding': 'gzip, deflate, br',
+                      'application/signed-exchange;v=b3;q=0.7',
             'Accept-Language': 'en-US,en;q=0.9',
-            'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
-            'Host': 'federation.bcp.org',
-            'Origin': 'https://federation.bcp.org',
-            'Referer': 'https://federation.bcp.org/idp/SSO.saml2',
+            'DNT': '1',
+            'Sec-Fetch-Dest': 'document',
             'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-Site': 'same-origin',
+            'Sec-Fetch-Site': 'none',
             'Sec-Fetch-User': '?1',
             'Upgrade-Insecure-Requests': '1',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) '
-                          'Chrome/76.0.3809.132 Safari/537.36 '
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                          'Chrome/115.0.0.0 Safari/537.36 '
         }
 
         headers_2 = {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authority': 'adfs.bcp.org',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,'
-                      'application/signed-exchange;v=b3',
-            'Accept-Encoding': 'gzip, deflate, br',
+                      'application/signed-exchange;v=b3;q=0.7',
             'Accept-Language': 'en-US,en;q=0.9',
-            'Cache-Control': 'max-age=0',
-            'Connection': 'keep-alive',
-            'Host': 'federation.bcp.org',
-            'Origin': 'https://powerschool.bcp.org',
-            'Referer': 'https://powerschool.bcp.org/guardian/home.html',
+            'DNT': '1',
+            'Sec-Fetch-Dest': 'document',
             'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-Site': 'same-origin',
+            'Sec-Fetch-Site': 'none',
             'Sec-Fetch-User': '?1',
             'Upgrade-Insecure-Requests': '1',
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -272,41 +267,20 @@ class PowerschoolScraper(Scraper):
 
         headers_3 = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,'
-                      'application/signed-exchange;v=b3',
-            'Accept-Encoding': 'gzip, deflate, br',
+                      'application/signed-exchange;v=b3;q=0.7',
             'Accept-Language': 'en-US,en;q=0.9',
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
             'Content-Type': 'application/x-www-form-urlencoded',
-            'Host': 'federation.bcp.org',
-            'Origin': 'https://federation.bcp.org',
-            'Referer': 'https://federation.bcp.org/idp/SSO.saml2',
-            'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-Site': 'same-origin',
-            'Sec-Fetch-User': '?1',
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) '
-                          'Chrome/76.0.3809.132 Safari/537.36 '
-        }
-
-        headers_4 = {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,'
-                      'application/signed-exchange;v=b3',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Cache-Control': 'max-age=0',
-            'Connection': 'keep-alive',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Host': 'powerschool.bcp.org',
-            'Origin': 'https://federation.bcp.org',
-            # Below will be changed to the dynamic URL
-            'Referer': 'CHANGE_THIS',
+            'DNT': '1',
+            'Origin': 'https://adfs.bcp.org',
+            'Referer': 'https://adfs.bcp.org/',
+            'Sec-Fetch-Dest': 'document',
             'Sec-Fetch-Mode': 'navigate',
             'Sec-Fetch-Site': 'same-site',
-            'Sec-Fetch-User': '?1',
             'Upgrade-Insecure-Requests': '1',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) '
-                          'Chrome/76.0.3809.132 Safari/537.36 '
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                          'Chrome/115.0.0.0 Safari/537.36 ',
         }
 
         # First request
@@ -314,36 +288,25 @@ class PowerschoolScraper(Scraper):
         url = "https://powerschool.bcp.org/guardian/home.html"
         resp = self.session.get(url, headers=headers_1, timeout=10, verify=self.verify)
         soup = bS(resp.text, "html.parser")
-        samlr = soup.find("input", {'name': 'SAMLRequest'}).get('value')
+        query = parse_qs(urlparse(resp.url).query)
+        dynamic_url = soup.find("form", id="loginForm").get("action")
         self.progress = 5
 
         # Second request
-        self.message = "Logging in."
-        url = "https://federation.bcp.org/idp/SSO.saml2"
-        data = {
-            'RelayState': "/guardian/home.html",
-            'SAMLRequest': samlr,
-        }
-        resp = self.session.post(url, data=data, headers=headers_2, timeout=10)
-        soup = bS(resp.text, "html.parser")
-        dynamic_url = soup.find("form", id='ping-login-form').get('action')
-        self.progress = 10
-
-        # Third request
         self.message = "Logging in.."
-        dynamic_url = "https://federation.bcp.org" + dynamic_url
+        dynamic_url = "https://adfs.bcp.org" + dynamic_url
         data = {
-            'pf.ok': '',
-            'pf.cancel': '',
-            'pf.username': email,
-            'pf.pass': _password,
+            'UserName': email,
+            'Password': _password,
+            'AuthMethod': 'FormsAuthentication'
         }
-        resp = self.session.post(dynamic_url, data=data, headers=headers_3,
+        resp = self.session.post(dynamic_url, data=data, headers=headers_2,
                                  timeout=10)
         soup = bS(resp.text, "html.parser")
         self.progress = 15
 
         # check error msg
+        # TODO not sure if this still happens
         error = soup.find("div", class_='grid-alert error')
         if error is not None and "Your account is disabled. Please contact your system administrator." in error.text:
             self.progress = 0
@@ -352,6 +315,7 @@ class PowerschoolScraper(Scraper):
 
         # If no response, authentication failed (incorrect login)
         samlr = soup.find("input", {'name': 'SAMLResponse'})
+        relay_state = soup.find("input", {'name': 'RelayState'})
         if samlr is None:
             self.progress = 0
             print(json_format(False, "Incorrect login details."))
@@ -361,16 +325,16 @@ class PowerschoolScraper(Scraper):
         self.message = "Logging in..."
         url = 'https://powerschool.bcp.org:443/saml/SSO/alias/pslive'
         samlr = samlr.get('value')
-        headers_4['Referer'] = dynamic_url
+        relay_state = relay_state.get('value')
         data = {
             'SAMLResponse': samlr,
             # Below does not affect where the site redirects
-            'RelayState': "/guardian/home.html",
+            'RelayState': relay_state
         }
         # Manually add cookie
         jsession = self.session.cookies.get_dict()['JSESSIONID']
-        headers_4['Cookie'] = "JSESSIONID=" + jsession
-        self.session.post(url, data=data, headers=headers_4, timeout=10, verify=self.verify)
+        headers_3['Cookie'] = "JSESSIONID=" + jsession
+        self.session.post(url, data=data, headers=headers_3, timeout=10, verify=self.verify)
         self.progress = 20
 
     def __login_ndsj(self, email: str, _password: str) -> None:
@@ -463,6 +427,9 @@ class PowerschoolScraper(Scraper):
 
             _, semester = self.get_term_and_semester_data()
             table_header = soup_resp.find_all('th', colspan='5')
+
+            if table_header[0].text == "There are no term grade records for the selected term.":
+                return True
 
             return semester in list(map(lambda h: h.text, table_header))
 
@@ -789,7 +756,6 @@ class PowerschoolScraper(Scraper):
         existing_count = 0
         for i in range(len(class_names)):
             try:
-                self.message = str(class_names_we_have)
                 index = class_names_we_have.index(class_names[i])
                 existing_count += 1
                 self.message = f"Found {existing_count} existing course(s)"
@@ -801,13 +767,9 @@ class PowerschoolScraper(Scraper):
 
             self.message = f"Found new course {class_names[i]}"
             course = courses[1:][i]
-            self.message = '1'
             teacher_name = course.findChildren('td')[3].findChildren('a')[1].text.split('Email ')[1]
-            self.message = '2'
             section_id_div = course.findChildren('td', align='center')[0]
-            self.message = '3'
             section_id = section_id_div.find_all(text=lambda text: isinstance(text, Comment))[0].extract().split(' ')[2]
-            self.message = '4'
 
             new_class_data.append({'class_name': class_names[i],
                                    'teacher_name': teacher_name,
@@ -1001,9 +963,9 @@ class BasisScraper(Scraper):
         all_classes = {"T1": [], "T2": [], "T3": []}
         weights = BasisWeights()
         term = None
-        t1_start_dict = {"22-23": datetime.strptime("08/17/2022 12:00AM", "%m/%d/%Y %I:%M%p").timestamp()}
-        t2_start_dict = {"22-23": datetime.strptime("12/02/2022 12:00AM", "%m/%d/%Y %I:%M%p").timestamp()}
-        t3_start_dict = {"22-23": datetime.strptime("03/05/2023 12:00AM", "%m/%d/%Y %I:%M%p").timestamp()}
+        t1_start_dict = {"23-24": datetime.strptime("08/16/2023 12:00AM", "%m/%d/%Y %I:%M%p").timestamp()}
+        t2_start_dict = {"23-24": datetime.strptime("12/01/2023 12:00AM", "%m/%d/%Y %I:%M%p").timestamp()}
+        t3_start_dict = {"23-24": datetime.strptime("03/04/2024 12:00AM", "%m/%d/%Y %I:%M%p").timestamp()}
 
         has_t2 = False
         has_t3 = False
@@ -1184,5 +1146,5 @@ if __name__ == "__main__":
             print(json_format(False, "Could not connect to PowerSchool."))
         except Exception as e:
             # Error when something in PowerSchool breaks scraper
-            print(json_format(False, f"Error: {str(e)}"))
+            print(json_format(False, f"Error: {str(traceback.format_exc())}"))
             sys.exit()
