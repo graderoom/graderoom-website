@@ -110,7 +110,7 @@ exports.validateEmail = (email, school) => {
     let re;
     switch (school) {
         case Schools.BISV:
-            re = /^[a-z]+(?:-[a-z]+)*_[0-9]{5}@basisindependent\.com$/i;
+            re = /^[a-z][a-z][0-9]{5}@basisindependent\.com$/i;
             break;
         case Schools.BELL:
             re = /^[a-z]+(?:-[a-z]+)*\.[a-z]+(?:-[a-z]+)*[0-9]{2}@bcp\.org$/i;
