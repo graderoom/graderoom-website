@@ -284,7 +284,7 @@ class PowerschoolScraper(Scraper):
         }
 
         # First request
-        self.message = "Logging in"
+        self.message = "Logging in."
         url = "https://powerschool.bcp.org/guardian/home.html"
         resp = self.session.get(url, headers=headers_1, timeout=10, verify=self.verify)
         soup = bS(resp.text, "html.parser")
