@@ -1090,22 +1090,6 @@ i span {
     pointer-events: none;
 }
 
-.fa-check-circle {
-    color: green;
-}
-
-.fa-exclamation-circle {
-    color: red !important;
-}
-
-.fa-exclamation-triangle {
-    color: orange !important;
-}
-
-.fa-spinner {
-    color: blue;
-}
-
 .fa-pulse, .fa-spin {
     top: 25% !important; /* Vertically centers spinning icons */
 }
@@ -2327,7 +2311,7 @@ tr:hover .excludeToggle .fa-ban {
     height: 5rem;
 }
 
-.tableOptions .popup {
+.tableOptions > .popup {
     width: 3rem;
     height: 3rem;
     border-radius: 0.5rem;
@@ -2384,7 +2368,7 @@ tr:hover .excludeToggle .fa-ban {
     pointer-events: none;
     position: absolute;
     border-radius: 0.5rem;
-    padding: 1rem;
+    padding: 1rem 1rem 1rem 1rem;
     transition: all 150ms ease;
     transform: scale(0.1);
     width: 20rem;
@@ -2408,15 +2392,15 @@ tr:hover .excludeToggle .fa-ban {
     transform: translateY(-50%) translateX(-50%) !important;
 }
 
-.addAssignmentName, .addAssignmentDate, .addAssignmentCategory, .addDonationDate, .addDonationPaid, .addDonationReceived, .addDonationPlatform {
+.addAssignmentName, .addAssignmentDate, .addAssignmentCategory, .addNewCategory, .addDonationDate, .addDonationPaid, .addDonationReceived, .addDonationPlatform {
     top: 1rem;
 }
 
-.addAssignmentName label, .addAssignmentDate label, .addAssignmentCategory label, .addDonationPlatform label, .addDonationDate label, .addDonationPaid label, .addDonationReceived label {
+.addAssignmentName label, .addAssignmentDate label, .addAssignmentCategory label, .addNewCategory label, .addDonationPlatform label, .addDonationDate label, .addDonationPaid label, .addDonationReceived label {
     left: 0.3rem;
 }
 
-.addAssignmentName input, .addAssignmentDate input, .addDonationDate input, .addDonationPaid input, .addDonationReceived input {
+.addAssignmentName input, .addAssignmentDate input, .addNewCategory input, .addDonationDate input, .addDonationPaid input, .addDonationReceived input {
     text-align: left !important;
 }
 
@@ -3202,6 +3186,26 @@ input:disabled {
     border-radius: 0.5rem;
     padding: 0 0.5rem;
     margin: 0 0.1rem;
+}
+
+.changelog-fixes {
+    font-weight: bold;
+    background-color: black;
+    display: inline-block;
+    border-radius: 1rem;
+    padding: 0 0.4rem 0 0.3rem;
+    transition: all 150ms ease;
+    color: #EEEEEE;
+    opacity: 0.8;
+    margin-right: 0.5rem;
+}
+
+.changelog-fixes:hover {
+    opacity: 1;
+}
+
+.changelog-fixes:hover a {
+    text-decoration: none !important;
 }
 
 .changelog-panel {

@@ -269,6 +269,30 @@ tr.excluded:hover .excludeToggle .fa-ban {
     color: #DDDDDD;
 }
 
+.fa-check-circle {
+    color: lime;
+}
+
+.fa-exclamation-circle {
+    color: orangered !important;
+}
+
+input.invalid {
+    border-bottom-color: orangered !important;
+}
+
+.fa-exclamation-triangle {
+    color: orange !important;
+}
+
+.fa-spinner {
+    color: deepskyblue;
+}
+
+input.loading {
+    border-bottom-color: deepskyblue !important;
+}
+
 .popup span.popup-top-left,
 .popup span.popup-top,
 .popup span.popup-top-right,

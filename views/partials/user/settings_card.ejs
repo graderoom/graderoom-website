@@ -1013,16 +1013,16 @@
 
         $(messageDivID).addClass("dont-show").removeClass("always-show");
         icon.attr("class", "fa fa-pulse fa-spinner");
-        $(inputID).css("border-bottom-color", "blue");
+        $(inputID).removeClass("invalid").addClass("loading");
         if (checkingFirstName) {
             clearTimeout(checkingFirstName);
         }
 
         if (firstName.length === 0) {
             firstName = getPersonalInfo(schoolUsername).firstName;
-            $(messageDivID).addClass("always-show").removeClass("dont-show").css("color", "red").text("Your name will be set back to " + firstName + " when you click outside of the input field");
+            $(messageDivID).addClass("always-show").removeClass("dont-show").text("Your name will be set back to " + firstName + " when you click outside of the input field");
             icon.attr("class", "fa fa-exclamation-circle");
-            $(inputID).css("border-bottom-color", "red").blur(() => {
+            $(inputID).removeClass("loading").addClass("invalid").blur(() => {
                 $(inputID).val(firstName);
                 $(inputID).trigger("input");
                 $(inputID).unbind("blur");
@@ -1032,9 +1032,9 @@
 
         checkingFirstName = setTimeout(() => {
             if (!firstNameRegex.test(firstName)) {
-                $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("First name can only contain letters and/or hyphens.");
+                $(messageDivID).removeClass("dont-show").addClass("always-show").text("First name can only contain letters and/or hyphens.");
                 icon.attr("class", "fa fa-exclamation-circle");
-                $(inputID).css("border-bottom-color", "red");
+                $(inputID).removeClass("loading").addClass("invalid");
                 return;
             }
             $.ajax({
@@ -1047,18 +1047,18 @@
                 }
                 // Make sure value is still the same
                 if (firstName === $(inputID)[0].value) {
-                    $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text(response);
+                    $(messageDivID).removeClass("dont-show").removeClass("always-show").text(response);
                     icon.attr("class", "fa fa-check-circle");
-                    $(inputID).css("border-bottom-color", "");
+                    $(inputID).removeClass("loading").removeClass("invalid");
                     personalInfo.firstName = firstName;
                     updateNameDisplay();
                 }
             }).fail((data) => {
                 // Make sure value is still the same
                 if (firstName === $(inputID)[0].value) {
-                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").html(data.responseText);
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").html(data.responseText);
                     icon.attr("class", "fa fa-exclamation-circle");
-                    $(inputID).css("border-bottom-color", "red");
+                    $(inputID).removeClass("loading").addClass("invalid");
                 }
             });
         }, 400);
@@ -1072,16 +1072,16 @@
 
         $(messageDivID).addClass("dont-show").removeClass("always-show");
         icon.attr("class", "fa fa-pulse fa-spinner");
-        $(inputID).css("border-bottom-color", "blue");
+        $(inputID).removeClass("loading").removeClass("invalid");
         if (checkingLastName) {
             clearTimeout(checkingLastName);
         }
 
         if (school !== "basis" && lastName.length === 0) {
             lastName = getPersonalInfo(schoolUsername).lastName;
-            $(messageDivID).addClass("always-show").removeClass("dont-show").css("color", "red").text(`Your name will be set back to ${lastName} when you click outside of the input field`);
+            $(messageDivID).addClass("always-show").removeClass("dont-show").text(`Your name will be set back to ${lastName} when you click outside of the input field`);
             icon.attr("class", "fa fa-exclamation-circle");
-            $(inputID).css("border-bottom-color", "red").blur(() => {
+            $(inputID).removeClass("loading").addClass("invalid").blur(() => {
                 $(inputID).val(lastName);
                 $(inputID).trigger("input");
                 $(inputID).off("blur");
@@ -1091,9 +1091,9 @@
 
         checkingLastName = setTimeout(() => {
             if (!lastNameRegex.test(lastName)) {
-                $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Last name can only contain letters and/or hyphens.");
+                $(messageDivID).removeClass("dont-show").addClass("always-show").text("Last name can only contain letters and/or hyphens.");
                 icon.attr("class", "fa fa-exclamation-circle");
-                $(inputID).css("border-bottom-color", "red");
+                $(inputID).removeClass("loading").addClass("invalid");
                 return;
             }
             $.ajax({
@@ -1106,18 +1106,18 @@
                 }
                 // Make sure value is still the same
                 if (lastName === $(inputID)[0].value) {
-                    $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text(response);
+                    $(messageDivID).removeClass("dont-show").removeClass("always-show").text(response);
                     icon.attr("class", "fa fa-check-circle");
-                    $(inputID).css("border-bottom-color", "");
+                    $(inputID).removeClass("loading").removeClass("invalid");
                     personalInfo.lastName = lastName;
                     updateNameDisplay();
                 }
             }).fail((data) => {
                 // Make sure value is still the same
                 if (lastName === $(inputID)[0].value) {
-                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").html(data.responseText);
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").html(data.responseText);
                     icon.attr("class", "fa fa-exclamation-circle");
-                    $(inputID).css("border-bottom-color", "red");
+                    $(inputID).removeClass("loading").addClass("invalid");
                 }
             });
         }, 400);
@@ -1131,16 +1131,16 @@
 
         $(messageDivID).addClass("dont-show").removeClass("always-show");
         icon.attr("class", "fa fa-pulse fa-spinner");
-        $(inputID).css("border-bottom-color", "blue");
+        $(inputID).removeClass("invalid").addClass("loading");
         if (checkingGradYear) {
             clearTimeout(checkingGradYear);
         }
 
         checkingGradYear = setTimeout(() => {
             if (gradYear.length !== 0 && !gradYearRegex.test(gradYear)) {
-                $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("That doesn't look like a valid graduation year");
+                $(messageDivID).removeClass("dont-show").addClass("always-show").text("That doesn't look like a valid graduation year");
                 icon.attr("class", "fa fa-exclamation-circle");
-                $(inputID).css("border-bottom-color", "red");
+                $(inputID).removeClass("loading").addClass("invalid");
                 return;
             }
             $.ajax({
@@ -1153,18 +1153,18 @@
                 }
                 // Make sure value is still the same
                 if (gradYear === $(inputID)[0].valueAsNumber) {
-                    $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text(response);
+                    $(messageDivID).removeClass("dont-show").removeClass("always-show").text(response);
                     icon.attr("class", "fa fa-check-circle");
-                    $(inputID).css("border-bottom-color", "");
+                    $(inputID).removeClass("loading").removeClass("invalid");
                     personalInfo.graduationYear = gradYear;
                     updateNameDisplay();
                 }
             }).fail((data) => {
                 // Make sure value is still the same
                 if (gradYear === $(inputID)[0].valueAsNumber) {
-                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").html(data.responseText);
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").html(data.responseText);
                     icon.attr("class", "fa fa-exclamation-circle");
-                    $(inputID).css("border-bottom-color", "red");
+                    $(inputID).removeClass("loading").addClass("invalid");
                 }
             });
         }, 400);
@@ -1358,7 +1358,7 @@
         if (messageDivID) {
             $(messageDivID).addClass("dont-show").removeClass("always-show");
             icon.attr("class", "fa fa-pulse fa-spinner");
-            $(inputID).css("border-bottom-color", "blue");
+            $(inputID).removeClass("invalid").addClass("loading");
             if (checkingPassword) {
                 clearTimeout(checkingPassword);
             }
@@ -1366,22 +1366,22 @@
             if (password === "") {
                 $(messageDivID).addClass("dont-show").removeClass("always-show");
                 icon.attr("class", "");
-                $(inputID).css("border-bottom-color", "");
+                $(inputID).removeClass("loading").removeClass("invalid");
                 invalidate();
                 return;
             }
             checkingPassword = setTimeout(() => {
                 if (oldPassword === "") {
-                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Enter your old password first");
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").text("Enter your old password first");
                     icon.attr("class", "fa fa-exclamation-circle");
-                    $(inputID).css("border-bottom-color", "red");
+                    $(inputID).removeClass("loading").addClass("invalid");
                     invalidate();
                     return;
                 }
                 if (password === oldPassword) {
-                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Your new password should be different from your old password");
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").text("Your new password should be different from your old password");
                     icon.attr("class", "fa fa-exclamation-circle");
-                    $(inputID).css("border-bottom-color", "red");
+                    $(inputID).removeClass("loading").addClass("invalid");
                     invalidate();
                     return;
                 }
@@ -1398,9 +1398,9 @@
                     message = "Your password must include at least one number";
                 } else {
                     message = "Strong password";
-                    $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text(message);
+                    $(messageDivID).removeClass("dont-show").removeClass("always-show").text(message);
                     icon.attr("class", "fa fa-check-circle");
-                    $(inputID).css("border-bottom-color", "");
+                    $(inputID).removeClass("loading").removeClass("invalid");
                     validate();
                     return;
                 }
@@ -1412,7 +1412,7 @@
                 } else {
                     $(messageDivID).addClass("dont-show").removeClass("always-show");
                     icon.attr("class", "");
-                    $(inputID).css("border-bottom-color", "");
+                    $(inputID).removeClass("loading").removeClass("invalid");
                 }
             }, 400);
         } else {
@@ -1429,7 +1429,7 @@
         if (messageDivID) {
             $(messageDivID).addClass("dont-show").removeClass("always-show");
             icon.attr("class", "fa fa-pulse fa-spinner");
-            $(confirmID).css("border-bottom-color", "blue");
+            $(confirmID).removeClass("invalid").addClass("loading");
             if (checkingPasswordConfirm) {
                 clearTimeout(checkingPasswordConfirm);
             }
@@ -1437,27 +1437,27 @@
             if (confirm === "") {
                 $(messageDivID).addClass("dont-show").removeClass("always-show");
                 icon.attr("class", "");
-                $(confirmID).css("border-bottom-color", "");
+                $(confirmID).removeClass("loading").removeClass("invalid");
                 invalidate();
                 return;
             }
             checkingPasswordConfirm = setTimeout(() => {
                 if (checkPassword(inputID, oldID)) {
                     if (password === confirm) {
-                        $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text("Passwords match");
+                        $(messageDivID).removeClass("dont-show").removeClass("always-show").text("Passwords match");
                         icon.attr("class", "fa fa-check-circle");
-                        $(confirmID).css("color", "").css("border-bottom-color", "");
+                        $(confirmID).removeClass("loading").removeClass("invalid");
                         validate();
                     } else {
-                        $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Passwords do not match");
+                        $(messageDivID).removeClass("dont-show").addClass("always-show").text("Passwords do not match");
                         icon.attr("class", "fa fa-exclamation-circle");
-                        $(confirmID).css("border-bottom-color", "red");
+                        $(confirmID).removeClass("loading").addClass("invalid");
                         invalidate();
                     }
                 } else {
-                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Enter a valid password first");
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").text("Enter a valid password first");
                     icon.attr("class", "fa fa-exclamation-circle");
-                    $(confirmID).css("border-bottom-color", "red");
+                    $(confirmID).removeClass("loading").addClass("invalid");
                     invalidate();
                 }
             }, 400);

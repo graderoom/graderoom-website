@@ -76,10 +76,6 @@
 </div>
 
 <script>
-    setTimeout(() => {
-        enableSnow();
-    }, 250);
-
     // Set up input divs
     let currentGradeDiv = $("#currentGrade");
     let goalDiv = $("#goal");
@@ -245,6 +241,8 @@
     let sunrise = <%= sunrise.getTime() ;%>;
     let sunset = <%= sunset.getTime() ;%>;
     let darkMode;
+
+    checkTime();
 
     function setAutoTheme() {
         let date = new Date();
