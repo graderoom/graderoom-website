@@ -40,13 +40,13 @@ module.exports = function (app, passport) {
                 let trimmedAlerts = (await dbClient.getTrimmedAlerts(req.user.username, term, semester)).data.value;
 
                 let termsAndSemesters = Object.keys(req.user.grades).map(term => {
-                    let semesters = Object.keys(req.user.grades[term]).filter(s => req.user.grades[term][s].filter(grades => !(["CR", false]).includes(grades.overall_letter) ||
-                                                                                                                             grades.grades.length).length);
+                    let semesters = Object.keys(req.user.grades[term]);
                     let sortedSemesters = semesters.sort((a, b) => {
                         return a.substring(1) < b.substring(1) ? -1 : 1;
                     });
                     return [term, sortedSemesters];
                 }).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1);
+
                 res.render("user/authorized_index.ejs", {
                     page: "home",
                     school: req.user.school,
