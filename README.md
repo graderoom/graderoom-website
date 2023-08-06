@@ -15,7 +15,7 @@ Grade visualization with automatic web scraping from Powerschool for students.
 ## Starting the server
 ### Stable
 - Run `redis-server &` in terminal
-- Set the port in `.env` to 5996
+- Set the port in `.env` to `5996`
 - From project root, `node server/graderoom.js`
 
 ### Beta

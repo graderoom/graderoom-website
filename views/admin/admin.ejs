@@ -34,8 +34,11 @@
           <% if (!_appearance.blurEffects) { %>disabled
             <% } %>
     >
-    <link id="blur_overrides" rel="stylesheet" type="text/css" <% if (theme === true) { %>
-          href="/public/css/dark_blur.css"<% } else if (theme === false) { %> href="/public/css/light_blur.css"<% } %>
+    <link id="blur_overrides" rel="stylesheet" type="text/css"
+    <% if (theme === true) { %>
+          href="/public/css/dark_blur.css"
+    <% } else if (theme === false) { %> href="/public/css/light_blur.css"
+            <% } %>
           <% if (!_appearance.blurEffects) { %>disabled
             <% } %>
     >
@@ -72,14 +75,21 @@
 
     <div id="table-container">
         <% let users = _userList %>
-        <h6><%= users.length %> Total Users,
-            <%= users.filter(u => (u.loggedIn.length !== 0 && u.loggedIn.slice(-1)[0] > Date.parse(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())))).length %>
-            Logged In Today,
-            <%= users.filter(u => (u.loggedIn.length !== 0 && u.loggedIn.slice(-1)[0] > Date.parse(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())) - 7 * 24 * 60 * 60 * 1000)).length %>
-            Logged In This Week
-        </h6>
+        <h6><%= userCount %> Total Users, <select class="minimal" id="showNPerPageSelect">
+                <% for (let i = 1; i <= 20; i++) { %>
+                    <option <% if (i === queryCount) { %>selected
+                            <% } %>
+                    ><%= i %></option>
+                <% } %>
+            </select> on this page (<select class="minimal" id="goToPageSelect">
+                <% for (let i = 1; i <= maxPage; i++) { %>
+                    <option <% if (i === _page) { %>selected
+                            <% } %>
+                    ><%= i %></option>
+                <% } %>
+            </select> of <%= maxPage %>)</h6>
         <hr>
-        <h1>Users</h1>
+        <h1><%= count %> Users</h1>
         <div style="max-height: 100vh; overflow: auto">
             <table class="table rounded-table" style="width: 100% !important;">
                 <thead>
@@ -94,162 +104,168 @@
                     </tr>
                 </thead>
                 <% for (let i = 0; i < users.length; i++) {
-                let u = users[i]; %>
-                    <tr>
-                        <td class="admin"><%= u.username %> </td>
-                        <td class="admin"><%= u.personalInfo.firstName + " " + u.personalInfo.lastName + " '" + (u.personalInfo.graduationYear - 2000) %></td>
-                        <td class="admin">
-                            <%= new Date(u.loggedIn[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) ;%>
-                        </td>
-                        <td class="admin">
-                            <% if (new Date(u.loggedIn.slice(-1)[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
-                                Never Logged In
-                            <% } else { %>
-                                <%= new Date(u.loggedIn.slice(-1)[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) %>
-                            <% } %>
-                        </td>
-                        <td class="admin">
-                            <% if ("schoolPassword" in u) { %> GradeSync<br>
-                            <% } %>
-                            <% if (u.isAdmin) { %> Admin<br>
-                            <% } %>
-                            <% if (new Date(u.alerts.termsLastSeen).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
-                                Terms not Seen<br>
-                            <% } %>
-                            <% if (new Date(u.alerts.policyLastSeen).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
-                                Policy not Seen<br>
-                            <% } %>
-                            <% if (u.betaFeatures.active) { %>
-                                Beta<br>
-                            <% } %>
-                            <%= u.loggedIn.length; %> logins<br>
-                            <%= u.alerts.lastUpdated.length; %> syncs
-                        </td>
-                        <td class="admin">
-                            <% if (u.alerts.remoteAccess === "allowed") { %>
-                                <form action="/viewuser" method="get" style="display: inline-block;">
-                                    <button type="submit" name="usernameToRender" class="btn btn-sm admin"
-                                            value="<%= u.username; %>">
-                                        Render User Site
+                    let u = users[i]; %>
+                <tr>
+                    <td class="admin"><%= u.username %> </td>
+                    <td class="admin"><%= u.personalInfo.firstName + " " + u.personalInfo.lastName + " '" + (u.personalInfo.graduationYear - 2000) %></td>
+                    <td class="admin">
+                        <%= new Date(u.loggedIn[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}); %>
+                    </td>
+                    <td class="admin">
+                        <% if (new Date(u.loggedIn.slice(-1)[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
+                            Never Logged In
+                        <% } else { %>
+                            <%= new Date(u.loggedIn.slice(-1)[0]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) %>
+                        <% } %>
+                    </td>
+                    <td class="admin">
+                        <% if ("schoolPassword" in u) { %> GradeSync<br>
+                        <% } %>
+                        <% if (u.isAdmin) { %> Admin<br>
+                        <% } %>
+                        <% if (new Date(u.alerts.termsLastSeen).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
+                            Terms not Seen<br>
+                        <% } %>
+                        <% if (new Date(u.alerts.policyLastSeen).toLocaleString("en-US", {timeZone: "America/Los_Angeles"}) === "Invalid Date") { %>
+                            Policy not Seen<br>
+                        <% } %>
+                        <% if (u.betaFeatures.active) { %>
+                            Beta<br>
+                        <% } %>
+                        <%= u.loggedIn.length; %> logins<br>
+                        <%= u.alerts.lastUpdated.length; %> syncs
+                    </td>
+                    <td class="admin">
+                        <% if (u.alerts.remoteAccess === "allowed") { %>
+                            <form action="/viewuser" method="get" style="display: inline-block;">
+                                <button type="submit" name="usernameToRender" class="btn btn-sm admin"
+                                        value="<%= u.username; %>">
+                                    Render User Site
+                                </button>
+                            </form>
+                            <br><br>
+                        <% } %>
+                        <button class="btn btn-sm admin" type="button"
+                                onclick="{$('#add-donation-container<%= i %>').addClass('active').find('.addDonationDate input').trigger('focus').trigger('blur');}">
+                            Add Donation
+                        </button>
+                        <div class="add-donation-container"
+                             id="add-donation-container<%= i %>">
+                            <form id="addDonationForm<%= i; %>">
+                                <h5>Adding Donation for <%= u.username %></h5>
+                                <div class="addDonationDate form-weights form-signin input-group form-group">
+                                    <label>Date</label>
+                                    <input class="form-control dynamic-input"
+                                           type="text"
+                                           onfocus="this.type='date'; this.valueAsDate = new Date(); checkLabel(this)"
+                                           onblur="this.type='text'; checkLabel(this)" required>
+                                </div>
+                                <div class="addDonationPlatform input-group form-group">
+                                    <label class="label-active">Platform</label>
+                                    <select class="minimal addPlatform">
+                                        <option value="venmo">Venmo</option>
+                                        <option value="zelle">Zelle</option>
+                                        <option value="paypal">PayPal</option>
+                                        <option value="cash">Cash</option>
+                                    </select>
+                                </div>
+                                <div class="addDonationPaid form-weights form-signin input-group form-group">
+                                    <label>Paid Amount</label>
+                                    <input class="form-control dynamic-input"
+                                           type="number"
+                                           step="0.01"
+                                           onfocus="checkLabel(this)"
+                                           oninput="checkLabel(this)"
+                                           onblur="checkLabel(this)" required>
+                                </div>
+                                <div class="addDonationReceived form-weights form-signin input-group form-group">
+                                    <label>Received Amount</label>
+                                    <input class="form-control dynamic-input"
+                                           type="number"
+                                           step="0.01"
+                                           onfocus="checkLabel(this)"
+                                           oninput="checkLabel(this)"
+                                           onblur="checkLabel(this)" required>
+                                </div>
+                                <div>
+                                    <button type="submit" style="margin: 0" class="btn btn-med">Add</button>
+                                </div>
+                            </form>
+                        </div>
+                        <br><br>
+                        <% if (!u.isAdmin) { %>
+                            <form action="/archiveUser" method="post">
+                                <button type="submit" name="deleteUser" class="btn btn-sm admin"
+                                        value="<%= u.username %>">Archive User
+                                </button>
+                            </form>
+                            <br>
+                        <% } %>
+                        <% if (u.username !== username) { %>
+                            <% if (u.isAdmin) { %>
+                                <form action="/removeadmin" method="post">
+                                    <button type="submit" name="removeAdminUser" class="btn btn-sm admin"
+                                            value="<%= u.username %>">Remove Admin Privileges
                                     </button>
                                 </form>
-                                <br><br>
+                            <% } else { %>
+                                <form action="/makeadmin" method="post">
+                                    <button type="submit" name="newAdminUser" class="btn btn-sm admin"
+                                            value="<%= u.username %>">Make User Admin
+                                    </button>
+                                </form>
                             <% } %>
-                                <button class="btn btn-sm admin" type="button"
-                                      onclick="{$('#add-donation-container<%= i %>').addClass('active').find('.addDonationDate input').trigger('focus').trigger('blur');}">Add Donation</button>
-                                <div class="add-donation-container"
-                                     id="add-donation-container<%= i %>">
-                                    <form id="addDonationForm<%= i; %>">
-                                        <h5>Adding Donation for <%= u.username %></h5>
-                                        <div class="addDonationDate form-weights form-signin input-group form-group">
-                                            <label>Date</label>
-                                            <input class="form-control dynamic-input"
-                                                   type="text"
-                                                   onfocus="this.type='date'; this.valueAsDate = new Date(); checkLabel(this)"
-                                                   onblur="this.type='text'; checkLabel(this)" required>
-                                        </div>
-                                        <div class="addDonationPlatform input-group form-group">
-                                            <label class="label-active">Platform</label>
-                                            <select class="minimal addPlatform">
-                                                <option value="venmo">Venmo</option>
-                                                <option value="zelle">Zelle</option>
-                                                <option value="paypal">PayPal</option>
-                                                <option value="cash">Cash</option>
-                                            </select>
-                                        </div>
-                                        <div class="addDonationPaid form-weights form-signin input-group form-group">
-                                            <label>Paid Amount</label>
-                                            <input class="form-control dynamic-input"
-                                                   type="number"
-                                                   step="0.01"
-                                                   onfocus="checkLabel(this)"
-                                                   oninput="checkLabel(this)"
-                                                   onblur="checkLabel(this)" required>
-                                        </div>
-                                        <div class="addDonationReceived form-weights form-signin input-group form-group">
-                                            <label>Received Amount</label>
-                                            <input class="form-control dynamic-input"
-                                                   type="number"
-                                                   step="0.01"
-                                                   onfocus="checkLabel(this)"
-                                                   oninput="checkLabel(this)"
-                                                   onblur="checkLabel(this)" required>
-                                        </div>
-                                        <div>
-                                            <button type="submit" style="margin: 0" class="btn btn-med">Add</button>
-                                        </div>
-                                    </form>
-                                </div>
-                                <br><br>
-                                <% if (!u.isAdmin) { %>
-                                    <form action="/archiveUser" method="post">
-                                        <button type="submit" name="deleteUser" class="btn btn-sm admin"
-                                                value="<%= u.username %>">Archive User
-                                        </button>
-                                    </form>
-                                    <br>
-                                <% } %>
-                                <% if (u.username !== username) { %>
-                                    <% if (u.isAdmin) { %>
-                                        <form action="/removeadmin" method="post">
-                                            <button type="submit" name="removeAdminUser" class="btn btn-sm admin"
-                                                    value="<%= u.username %>">Remove Admin Privileges
-                                            </button>
-                                        </form>
-                                    <% } else { %>
-                                        <form action="/makeadmin" method="post">
-                                            <button type="submit" name="newAdminUser" class="btn btn-sm admin"
-                                                    value="<%= u.username %>">Make User Admin
-                                            </button>
-                                        </form>
-                                    <% } %>
-                                <% } %>
-                        </td>
-                        <td class="donations"></td>
-                    </tr>
+                        <% } %>
+                    </td>
+                    <td class="donations"></td>
+                </tr>
                 <% } %>
             </table>
         </div>
         <hr>
         <h1>Archived Users</h1>
         <div style="max-height: 100vh; overflow: auto"></div>
-            <table class="table rounded-table" style="width: 100% !important;">
-                <thead>
-                    <tr>
-                        <th class="admin">Username</th>
-                        <th class="admin">School Username</th>
-                        <th class="admin">Restore User</th>
-                        <th class="admin">Delete Forever</th>
-                    </tr>
-                </thead>
+        <table class="table rounded-table" style="width: 100% !important;">
+            <thead>
+                <tr>
+                    <th class="admin">Username</th>
+                    <th class="admin">School Username</th>
+                    <th class="admin">Restore User</th>
+                    <th class="admin">Delete Forever</th>
+                </tr>
+            </thead>
 
-                <% for (let u of _deletedUserList) { %>
-                    <tr>
-                        <td class="admin"><%= u.username %> </td>
-                        <td class="admin"><%= u.schoolUsername %></td>
-                        <td class="admin">
-                            <form action="/restoreUser" method="post">
-                                <button type="submit" name="restoreUser" class="btn btn-sm admin"
-                                        value="<%= u.username %>">Restore User
-                                </button>
-                            </form>
-                        </td>
-                        <td class="admin">
-                            <form action="/deleteuser" method="post">
-                                <button type="submit" name="deleteUser" class="btn btn-sm admin"
-                                        value="<%= u.username %>">Delete Forever
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                <% } %>
-            </table>
+            <% for (let u of _deletedUserList) { %>
+                <tr>
+                    <td class="admin"><%= u.username %> </td>
+                    <td class="admin"><%= u.schoolUsername %></td>
+                    <td class="admin">
+                        <form action="/restoreUser" method="post">
+                            <button type="submit" name="restoreUser" class="btn btn-sm admin"
+                                    value="<%= u.username %>">Restore User
+                            </button>
+                        </form>
+                    </td>
+                    <td class="admin">
+                        <form action="/deleteuser" method="post">
+                            <button type="submit" name="deleteUser" class="btn btn-sm admin"
+                                    value="<%= u.username %>">Delete Forever
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            <% } %>
+        </table>
         <div style="max-height: 100px; overflow: auto"></div>
 
     </div>
 </div>
 <script>
+    let userCount = <%= userCount; %>;
+    let count = <%= count; %>;
+    let page = <%= _page; %>;
     let users = <%- JSON.stringify(_userList); %>;
+
     function checkLabel(input) {
         let label = $($(input)[0].previousElementSibling);
         input = $(input);
@@ -278,7 +294,7 @@
             if (userIndex === undefined || userIndex === h) {
                 let donoData = users[h].donoData;
                 if (donoData.length === 0) {
-                    donoDiv.html('');
+                    donoDiv.html("");
                     continue;
                 }
                 let donoTable = `<table id="donoTable"><thead><tr><th>Platform</th><th>Amount Paid</th><th>Actual Value</th><th>Date Donated</th><th></th></tr></thead><tbody>`;
@@ -292,10 +308,15 @@
                     totalReceived += received;
                     let date = donoData[i].dateDonated;
 
-                    if (platform === "paypal") platform = "PayPal";
-                    else if (platform === "zelle") platform = "Zelle";
-                    else if (platform === "venmo") platform = "Venmo";
-                    else if (platform === "cash") platform = "Cash";
+                    if (platform === "paypal") {
+                        platform = "PayPal";
+                    } else if (platform === "zelle") {
+                        platform = "Zelle";
+                    } else if (platform === "venmo") {
+                        platform = "Venmo";
+                    } else if (platform === "cash") {
+                        platform = "Cash";
+                    }
 
                     donoTable += `<tr><td class="dono-platform-${platform.toLowerCase()}">${platform}</td><td>$${paid.toFixed(2)}</td><td>$${received.toFixed(2)}</td><td>${new Date(date).toLocaleDateString()}</td><td><button class="btn btn-sm admin" onclick="removeDonation(${h}, ${i})">Delete</button></td></tr>`;
                 }
@@ -317,31 +338,27 @@
             platform: donoPlatform,
             paidValue: donoPaid,
             receivedValue: donoReceived,
-            dateDonated: donoDate,
-        }
+            dateDonated: donoDate
+        };
         $.ajax({
-            type: "POST",
-            url: "/addDonation",
-            data: {data: JSON.stringify(donationObject)}
+                   type: "POST", url: "/addDonation", data: {data: JSON.stringify(donationObject)}
                }).done(function (response) {
-                   if (typeof response === "string" && response.startsWith("<!")) {
-                       $(".session-timeout").show();
-                       $("body").find("*").not(".session-timeout").remove();
-                   } else {
-                       let donation = $($(".add-donation-container")[userIndex]);
-                       donation.removeClass("active");
-                       users[userIndex].donoData.push(donationObject);
-                       setupDonations(userIndex);
-                   }
+            if (typeof response === "string" && response.startsWith("<!")) {
+                $(".session-timeout").show();
+                $("body").find("*").not(".session-timeout").remove();
+            } else {
+                let donation = $($(".add-donation-container")[userIndex]);
+                donation.removeClass("active");
+                users[userIndex].donoData.push(donationObject);
+                setupDonations(userIndex);
+            }
         });
     }
 
     function removeDonation(userIndex, donoIndex) {
         let username = users[userIndex].username;
         $.ajax({
-                   type: "POST",
-                   url: "/removeDonation",
-                   data: {username: username, index: donoIndex}
+                   type: "POST", url: "/removeDonation", data: {username: username, index: donoIndex}
                }).done(function (response) {
             if (typeof response === "string" && response.startsWith("<!")) {
                 $(".session-timeout").show();
@@ -357,6 +374,20 @@
         if (!$(e.target).is(".addDonation, .add-donation-container") && !$(e.target).parents(".add-donation-container, .addDonation").length) {
             $($(".add-donation-container")).removeClass("active");
         }
+    });
+
+    $("#showNPerPageSelect").on("change", (event) => {
+        let search = new URLSearchParams(window.location.search);
+        let count = event.target.selectedIndex + 1;
+        search.set("count", count);
+        window.location.search = search;
+    });
+
+    $("#goToPageSelect").on("change", (event) => {
+        let search = new URLSearchParams(window.location.search);
+        let page = event.target.selectedIndex + 1;
+        search.set("page", page);
+        window.location.search = search;
     });
 
     let checkingTheme;

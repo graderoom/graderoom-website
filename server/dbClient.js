@@ -136,6 +136,11 @@ const _init = async (db) => {
     if (!collectionNames.includes(USERS_COLLECTION_NAME)) {
         await db.createCollection(USERS_COLLECTION_NAME);
     }
+
+    if (!await _users(db).indexExists("username_1")) {
+        await _users(db).createIndex({username: 1}, {unique: true, name: "username_1"});
+    }
+
     // Create the deleted user collection if it doesn't exist
     if (!collectionNames.includes(ARCHIVED_USERS_COLLECTION_NAME)) {
         await db.createCollection(ARCHIVED_USERS_COLLECTION_NAME);

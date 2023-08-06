@@ -40,13 +40,13 @@ module.exports = function (app, passport) {
                 let trimmedAlerts = (await dbClient.getTrimmedAlerts(req.user.username, term, semester)).data.value;
 
                 let termsAndSemesters = Object.keys(req.user.grades).map(term => {
-                    let semesters = Object.keys(req.user.grades[term]).filter(s => req.user.grades[term][s].filter(grades => !(["CR", false]).includes(grades.overall_letter) ||
-                                                                                                                             grades.grades.length).length);
+                    let semesters = Object.keys(req.user.grades[term]);
                     let sortedSemesters = semesters.sort((a, b) => {
                         return a.substring(1) < b.substring(1) ? -1 : 1;
                     });
                     return [term, sortedSemesters];
                 }).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1);
+
                 res.render("user/authorized_index.ejs", {
                     page: "home",
                     school: req.user.school,
@@ -403,12 +403,43 @@ module.exports = function (app, passport) {
             'betaFeatures.active': 1,
             donoData: 1
         };
-        let allUsers = (await dbClient.getAllUsers(projection)).data.value;
+        let page = parseInt(req.query.page);
+        let count = parseInt(req.query.count);
+        let redirect = !page || !count;
+        if (page < 0) {
+            redirect = true;
+            page = 1;
+        }
+        if (count < 0) {
+            redirect = true;
+            count = 10;
+        }
+        page ||= 1;
+        count ||= 10;
+        if (!redirect && count > 20) {
+            count = 20;
+            redirect = true;
+        }
+        if (redirect) {
+            return res.redirect(url.format({pathname: "/admin", query: {page: 1, count: count}}));
+        }
+        let query = queryHelper(req.query.query);
+        let sort = sortHelper(req.query.sort);
+        let {value: allUsers, actualCount, total: userCount} = (await dbClient.getAllUsers(projection, query, sort, page, count)).data;
+        let maxPage = Math.ceil(userCount / count);
+        if (page > maxPage) {
+            return res.redirect(url.format({pathname: "/admin", query: {page: maxPage, count: count}}));
+        }
         let deletedUsers = (await dbClient.getAllArchivedUsers(projection)).data.value;
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
         res.render("admin/admin.ejs", {
             page: "admin",
             username: req.user.username,
+            _page: page,
+            maxPage: maxPage,
+            count: actualCount,
+            queryCount: count,
+            userCount: userCount,
             _userList: allUsers,
             _deletedUserList: deletedUsers,
             adminSuccessMessage: req.flash("adminSuccessMessage"),
@@ -418,7 +449,6 @@ module.exports = function (app, passport) {
             beta: server.beta,
             sunset: sunset,
             sunrise: sunrise
-
         });
     });
 
@@ -1177,4 +1207,42 @@ function checkReturnTo(req, res, next) {
         delete req.session.returnTo;
     }
     next();
+}
+
+function sortHelper(sortQuery) {
+    let _sort = {};
+    try {
+        let sort = JSON.parse(sortQuery);
+        for (let key in sort) {
+            switch (key) {
+                case "username":
+                    if (([1, -1]).includes(sort[key])) {
+                        _sort[key] = sort[key];
+                    }
+                    break;
+            }
+        }
+    } catch {}
+    return _sort;
+}
+
+function queryHelper(queryQuery) {
+    let _query = {};
+    try {
+        let query = JSON.parse(queryQuery);
+        for (let key in query) {
+            switch (key) {
+                case "username":
+                    if (typeof query[key] === "string") {
+                        _query[key] = query[key];
+                    }
+                    break;
+                case "donoData":
+                    // Queries those that have donations of any amount
+                    _query[key] = {$ne: []};
+                    break;
+            }
+        }
+    } catch {}
+    return _query;
 }
