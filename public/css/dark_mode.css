@@ -336,7 +336,15 @@ input.loading {
 }
 
 .changelog-container .body {
+    color: black;
+}
+
+.changelog-container .known-issues .body, .changelog-container .announcement .body, .changelog-inline-setoff {
     color: #EEEEEE;
+}
+
+.changelog-container.placeholder::before {
+    color: rgba(255, 255, 255, 0.1);
 }
 
 .changelog-container .changelog-item, .changelog-legend-column div {
@@ -356,7 +364,7 @@ input.loading {
 }
 
 .changelog-container .type {
-    color: #FFFFFF;
+    color: black;
 }
 
 .weightsTable input {

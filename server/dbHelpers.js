@@ -23,7 +23,7 @@ exports.TEST_DATABASE_NAME = "test";
 exports.COMMON_DATABASE_NAME = "common";
 
 // Change this when updateDB changes
-exports.dbUserVersion = 19;
+exports.dbUserVersion = 21;
 exports.dbClassVersion = 3;
 
 const minDonoAmount = 3;
@@ -32,8 +32,10 @@ const minPremiumAmount = 5;
 let _changelogArray = [];
 let _betaChangelogArray = [];
 let _versionNameArray = [];
+let _changelogLegend = [];
+let _betaChangelogLegend = [];
 
-exports.changelogArray = () =>_changelogArray;
+exports.changelogArray = () => _changelogArray;
 exports.betaChangelogArray = () => _betaChangelogArray;
 exports.versionNameArray = () => _versionNameArray;
 
@@ -205,6 +207,7 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
                 updatedGradeHistory: [],
                 addedAssignments: {},
                 editedAssignments: {},
+                addedWeights: {},
                 sortingData: {
                     dateSort: [], categorySort: []
                 },
@@ -213,7 +216,8 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
                 donoData: [],
                 api: {},
                 discord: {},
-                updateStartTimestamps: {}
+                updateStartTimestamps: {},
+                nextAvailableFakePSAID: 1,
             };
 
             return resolve({success: true, data: {value: user}});
@@ -314,20 +318,30 @@ exports.watchChangelog = () => {
     });
 };
 
-exports.changelog = (beta) => {
+exports.changelog = (beta, versionName) => {
+    let idx = _versionNameArray.findIndex(v => v.join(" ").trimEnd() === versionName);
+    if (idx === -1) return null;
     if (beta) {
-        return _betaChangelogArray;
+        return _betaChangelogArray[idx];
     } else {
-        return _changelogArray;
+        return _changelogArray[idx];
     }
 };
+
+exports.changelogLegend = (beta) => {
+    if (beta) {
+        return _betaChangelogLegend;
+    } else {
+        return _changelogLegend;
+    }
+}
 
 exports.latestVersion = (beta) => {
     let version;
     if (beta) {
-        version = _versionNameArray[1][1];
+        version = _versionNameArray[1].join(" ");
     } else {
-        version = _versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1];
+        version = _versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues").join(" ");
     }
     return version;
 }
@@ -337,6 +351,8 @@ exports.readChangelog = (filename) => {
         return new Promise(resolve => {
             let resultHTML = "";
             let betaResultHTML = "";
+            let legendHTML = "";
+            let betaLegendHTML = "";
             let items = [];
             let bodyCount = -1;
             let item = {title: "", date: "", content: {}};
@@ -400,35 +416,50 @@ exports.readChangelog = (filename) => {
                 for (let i = 0; i < items.length; i++) {
                     resultHTML += "<div class=\"changelog-item";
                     betaResultHTML += "<div class=\"changelog-item";
+                    legendHTML += "<div class=\"";
+                    betaLegendHTML += "<div class=\"";
                     if (items[i].title.substring(0, 4) === "Beta") {
                         if (!betaCurrentVersionFound) {
                             betaResultHTML += " current";
+                            betaLegendHTML += " current";
                             betaCurrentVersionFound = true;
                         }
                         resultHTML += "\">";
                         betaResultHTML += "\">";
+                        legendHTML += "\">";
+                        betaLegendHTML += "\">";
                     } else if (items[i].title.substring(0, 6) === "Stable") {
                         if (!currentVersionFound) {
                             resultHTML += " current\">";
+                            legendHTML += " current\">";
                             currentVersionFound = true;
                         } else {
                             resultHTML += " stable\">";
+                            legendHTML += " stable\">";
                         }
                         if (!betaCurrentVersionFound) {
                             betaResultHTML += " current\">";
+                            betaLegendHTML += " current\">";
                             betaCurrentVersionFound = true;
                         } else {
                             betaResultHTML += " stable\">";
+                            betaLegendHTML += " stable\">";
                         }
                     } else if (items[i].title.substring(0, 12) === "Announcement") {
                         betaResultHTML += " announcement\">";
                         resultHTML += " announcement\">";
+                        betaLegendHTML += " announcement\">";
+                        legendHTML += " announcement\">";
                     } else if (items[i].title.substring(0, 12) === "Known Issues") {
                         betaResultHTML += " known-issues\">";
                         resultHTML += " known-issues\">";
+                        betaLegendHTML += " known-issues\">";
+                        legendHTML += " known-issues\">";
                     } else {
                         betaResultHTML += "\">";
                         resultHTML += "\">";
+                        betaLegendHTML += "\">";
+                        legendHTML += "\">";
                     }
                     resultHTML += "<div class=\"header\">";
                     resultHTML += "<div class=\"title\">" + items[i].title + "</div>";
@@ -440,6 +471,10 @@ exports.readChangelog = (filename) => {
                     betaResultHTML += "<div class=\"date\">" + items[i].date + "</div>";
                     betaResultHTML += "</div>";
                     betaResultHTML += "<div class=\"content\">";
+                    legendHTML += items[i].title;
+                    legendHTML += "<p class=\"date\">" + items[i].date + "</p>";
+                    betaLegendHTML += items[i].title;
+                    betaLegendHTML += "<p class=\"date\">" + items[i].date + "</p>";
                     if (items[i].title !== "Known Issues" && items[i].title.substring(0, 12) !== "Announcement") {
                         for (let j = 0; j < Object.keys(items[i].content).length; j++) {
                             resultHTML += "<div class=\"type " + Object.keys(items[i].content)[j].toLowerCase() + "\">" + Object.keys(items[i].content)[j];
@@ -464,9 +499,13 @@ exports.readChangelog = (filename) => {
                     resultHTML += "</div>|";
                     betaResultHTML += "</div>";
                     betaResultHTML += "</div>|";
+                    legendHTML += "</div>|";
+                    betaLegendHTML += "</div>|";
                 }
                 _changelogArray = resultHTML.split("|");
                 _betaChangelogArray = betaResultHTML.split("|");
+                _changelogLegend = legendHTML.split("|");
+                _betaChangelogLegend = betaLegendHTML.split("|");
                 return resolve();
             });
         });

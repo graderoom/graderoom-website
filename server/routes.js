@@ -3,7 +3,7 @@ const dbClient = require("./dbClient.js");
 const emailSender = require("./emailSender.js");
 const _ = require("lodash");
 const SunCalc = require("suncalc");
-const {changelog, latestVersion} = require("./dbHelpers");
+const {changelog, changelogLegend, latestVersion} = require("./dbHelpers");
 const {Schools, PrettySchools, SchoolAbbr} = require("./enums");
 const url = require("url");
 
@@ -59,6 +59,7 @@ module.exports = function (app, passport) {
                     gradeSync: !!req.user.schoolPassword,
                     _gradeData: req.user.grades[term][semester],
                     _weightData: req.user.weights[term][semester],
+                    _addedWeights: req.user.addedWeights[term][semester],
                     nonAcademicCount: Object.entries(relevantClassData).filter(([k, v]) => req.user.grades[term][semester].find(c => c.class_name === k) && v.classType === "non-academic").length,
                     _addedAssignments: req.user.addedAssignments[term][semester],
                     _editedAssignments: req.user.editedAssignments[term][semester],
@@ -97,6 +98,7 @@ module.exports = function (app, passport) {
                     gradeSync: !!req.user.schoolPassword,
                     _gradeData: [],
                     _weightData: {},
+                    _addedWeights: {},
                     nonAcademicCount: 0,
                     _addedAssignments: {},
                     _editedAssignments: {},
@@ -245,6 +247,7 @@ module.exports = function (app, passport) {
                     gradeSync: !!user.schoolPassword,
                     _gradeData: user.grades[term][semester],
                     _weightData: user.weights[term][semester],
+                    _addedWeights: user.addedWeights[term][semester],
                     nonAcademicCount: Object.entries(relevantClassData).filter(([k, v]) => user.grades[term][semester].find(c => c.class_name === k) && v.classType === "non-academic").length,
                     _addedAssignments: user.addedAssignments[term][semester],
                     _editedAssignments: user.editedAssignments[term][semester] ,
@@ -283,6 +286,7 @@ module.exports = function (app, passport) {
                     gradeSync: !!user.schoolPassword,
                     _gradeData: [],
                     _weightData: {},
+                    _addedWeights: {},
                     nonAcademicCount: 0,
                     _addedAssignments: {},
                     _editedAssignments: {},
@@ -453,7 +457,13 @@ module.exports = function (app, passport) {
     });
 
     app.get("/changelog", [isLoggedIn], async (req, res) => {
-        let result = changelog(server.beta);
+        let result = changelog(server.beta, req.query.versionName);
+        if (result === null) return res.sendStatus(400);
+        res.status(200).send(result);
+    });
+
+    app.get("/changelogLegend", [isLoggedIn], async (req, res) => {
+        let result = changelogLegend(server.beta);
         res.status(200).send(result);
     });
 
@@ -553,7 +563,7 @@ module.exports = function (app, passport) {
         let semester = req.body.semester;
         let resp = await dbClient.updateAddedAssignments(req.user.username, JSON.parse(data), term, semester);
         if (resp.success) {
-            res.sendStatus(200);
+            res.status(200).send(resp.data.addedWeights);
         } else {
             res.sendStatus(400);
         }
@@ -630,9 +640,10 @@ module.exports = function (app, passport) {
         let className = req.body.className;
         let hasWeights = JSON.parse(req.body.hasWeights);
         let newWeights = JSON.parse(req.body.newWeights);
+        let addedWeights = JSON.parse(req.body.addedWeights);
         let term = req.body.term;
         let semester = req.body.semester;
-        let resp = await dbClient.updateWeightsForClass(req.user.username, term, semester, className, hasWeights, newWeights);
+        let resp = await dbClient.updateWeightsForClass(req.user.username, term, semester, className, hasWeights, newWeights, addedWeights);
         if (resp.success) {
             res.status(200).send(resp.data.message);
             await dbClient.updateClassesForUser(req.user.username, term, semester, className);
@@ -787,10 +798,6 @@ module.exports = function (app, passport) {
             username: req.user.username
         });
 
-    });
-
-    app.get("/whatsNew", [isLoggedIn], async (req, res) => {
-        res.status(200).send((await dbClient.getWhatsNew(req.user.username)).data.value);
     });
 
     app.get("/latestVersion", [isLoggedIn], async (req, res) => {
@@ -983,8 +990,6 @@ module.exports = function (app, passport) {
 
         let {user, valid: validToken, gradeSync: gradeSync} = (await dbClient.checkPasswordResetToken(resetToken)).data;
         if (!validToken) {
-
-            // req.flash('forgotPasswordMsg', 'Invalid token.')
             res.status(404).render("password_reset/reset_password_404.ejs", {
                 sunset: sunset,
                 _appearance: {seasonalEffects: true},
@@ -1140,7 +1145,7 @@ module.exports = function (app, passport) {
 
     // route middleware to ensure user is logged in
     function isLoggedIn(req, res, next) {
-        if (!(["/", "/admin", "/logout", "/changelog", "/whatsNew"]).includes(req._parsedOriginalUrl.path) && req.headers.referer && req.headers.referer.includes("viewuser")) {
+        if (!(["/", "/admin", "/logout", "/changelog", "/changelogLegend"]).includes(req._parsedOriginalUrl.path) && req.headers.referer && req.headers.referer.includes("viewuser")) {
             res.sendStatus(405);
             return;
         }

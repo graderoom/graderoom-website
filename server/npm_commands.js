@@ -51,7 +51,7 @@ module.exports = {
             term_data_if_locked = {};
         }
 
-        let get_history = credentials.get("get_history").value();
+        let get_history = credentials.get("get_history").value() ? "True" : false;
 
         await scraper.loginAndScrapeGrades(processor, school, school_username, password, data_if_locked, term_data_if_locked, get_history);
 

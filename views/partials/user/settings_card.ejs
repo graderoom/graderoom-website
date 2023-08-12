@@ -1025,7 +1025,7 @@
             $(inputID).removeClass("loading").addClass("invalid").blur(() => {
                 $(inputID).val(firstName);
                 $(inputID).trigger("input");
-                $(inputID).unbind("blur");
+                $(inputID).off("blur");
             });
             return;
         }

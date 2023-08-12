@@ -147,6 +147,10 @@ table tfoot tr td {
     color: #222222;
 }
 
+.changelog-container.placeholder::before {
+    color: rgba(100, 100, 100, 0.1);
+}
+
 .changelog-container .changelog-item, .changelog-legend-column div {
     background-color: rgba(100, 100, 100, 0.1);
 }
