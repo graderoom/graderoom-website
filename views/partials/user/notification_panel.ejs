@@ -78,11 +78,11 @@
         let version = _versionNames[1];
         if (!version.endsWith(alerts.latestSeen)) {
             if (version.startsWith("Stable")) {
-                createPinned(version, "Stable", version, changelogMessage(version, _versionMessages[i]), false, false, true, _versionDates[i], false);
+                createPinned(version, "Stable", version, changelogMessage(version, _versionMessages[1]), false, false, true, _versionDates[1], false);
             } else if (version.startsWith("Beta")) {
-                <% if (beta) { %>createPinned(version, "Beta", version, changelogMessage(version, _versionMessages[i]), false, false, <%= beta; %>, _versionDates[i], false);<% } %>
+                <% if (beta) { %>createPinned(version, "Beta", version, changelogMessage(version, _versionMessages[1]), false, false, <%= beta; %>, _versionDates[1], false);<% } %>
             } else if (version.startsWith("Announcement")) {
-                createPinned(version, "Announcement", version, changelogMessage(version, _versionMessages[i]), false, false, true, _versionDates[i], false);
+                createPinned(version, "Announcement", version, changelogMessage(version, _versionMessages[1]), false, false, true, _versionDates[1], false);
             }
         }
         for (let i = 2; i < _versionNames.length; i++) {
