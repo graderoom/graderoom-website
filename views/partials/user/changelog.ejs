@@ -38,10 +38,12 @@
     let changelogLegendArray;
     let changelogLegendReferences;
 
-    function showChangelog(callback=false, whatsNew=false) {
+    function showChangelog(callback=false, whatsNew=false, version=false) {
         if (!callback && !whatsNew) {
-            showVersion(false);
+            showVersion(version);
             showCard("#changelogDisplay");
+            $(".changelog-parent, .changelog-parent > div").addClass("show");
+            return;
         }
         return new Promise(async resolve => {
             if (changelogLegendArray !== undefined) {
