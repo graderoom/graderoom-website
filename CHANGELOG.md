@@ -62,6 +62,7 @@
 - Text field validation is now themed differently in light and dark mode
 
 ### Fixed
+- Graduation chart not updating
 - Latest change deltas in weights tables now work properly when PowerSchool is locked
 - Issue where coral underlines wouldn't show under missing weights when point-based disabled
 - <github issue="129">Overall grade displays as (False) when adding an assignment and no graded assignments exist</github>
