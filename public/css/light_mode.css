@@ -147,6 +147,10 @@ table tfoot tr td {
     color: #222222;
 }
 
+.changelog-container.placeholder::before {
+    color: rgba(100, 100, 100, 0.1);
+}
+
 .changelog-container .changelog-item, .changelog-legend-column div {
     background-color: rgba(100, 100, 100, 0.1);
 }
@@ -258,6 +262,30 @@ tr.excluded:hover .excludeToggle .fa-ban {
 
 .fa-undo {
     color: black;
+}
+
+.fa-check-circle {
+    color: green;
+}
+
+.fa-exclamation-circle {
+    color: red !important;
+}
+
+input.invalid {
+    border-bottom-color: red !important;
+}
+
+.fa-exclamation-triangle {
+    color: darkorange !important;
+}
+
+.fa-spinner {
+    color: blue;
+}
+
+input.loading {
+    border-bottom-color: blue !important;
 }
 
 .popup span.popup-top-left,

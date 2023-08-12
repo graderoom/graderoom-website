@@ -267,7 +267,7 @@ table thead tr th:last-child {
 }
 
 .changelog-container .announcement, .changelog-legend-column div.announcement {
-    background-color: rgba(255, 0, 0, 0.2) !important;
+    background-color: rgba(255, 75, 75, 0.2) !important;
 }
 
 .mono {
@@ -362,8 +362,8 @@ table thead tr th:last-child {
 
 .changelog-legend-column {
     border: none;
-    max-width: 40%;
-    min-width: 250px;
+    max-width: 30%;
+    min-width: 200px;
     overflow-y: scroll;
     max-height: 70vh;
     scrollbar-width: none;
@@ -379,28 +379,32 @@ table thead tr th:last-child {
     padding: 0.3rem 0.7rem;
     margin: 0 0.4rem 0.4rem 0;
     cursor: pointer !important;
-    transition: opacity 250ms ease;
+    transition: all 250ms ease;
+    transform: scale(0.9);
     opacity: 0.5;
-}
-
-.changelog-legend-column div.known-issues p {
-    display: none;
+    font-weight: 500;
 }
 
 .changelog-legend-column div p {
     margin: 0;
-    opacity: 0.4;
+    opacity: 1;
     font-weight: normal !important;
+    transition: all 250ms ease;
 }
 
 .changelog-legend-column div.active,
 .changelog-legend-column div:hover {
+    transform: scale(1);
     opacity: 1;
-    font-weight: bold;
 }
 
-.changelog-legend-column div.active p {
-    opacity: 0.8;
+.changelog-legend-column div.active p,
+.changelog-legend-column div:hover p {
+    opacity: 0.4;
+}
+
+.changelog-legend-column div.spacer {
+    min-height: 100%;
 }
 
 .changelog-legend-column, .changelog {
@@ -410,6 +414,20 @@ table thead tr th:last-child {
 .changelog-legend-column.show, .changelog.show {
     animation: centerScaleUp 200ms;
     opacity: 1;
+}
+
+.changelog-container.placeholder::before {
+    content: "Select a version to view";
+    font-size: 4rem;
+    font-weight: bold;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 0;
 }
 
 .changelog-parent::after {
@@ -433,6 +451,7 @@ table thead tr th:last-child {
     border: none;
     padding: 0;
     margin-left: 0;
+    width: 100%;
 }
 
 .changelog-container {
@@ -452,7 +471,7 @@ table thead tr th:last-child {
 }
 
 .changelog-container .added {
-    background-color: rgba(28, 155, 221, 0.5);
+    background-color: rgb(28, 155, 221);
 }
 
 .changelog-container .announcement .content {
@@ -510,7 +529,7 @@ table thead tr th:last-child {
 }
 
 .changelog-container .fixed {
-    background-color: rgba(255, 180, 0, 0.5);
+    background-color: rgb(255, 190, 43);
 }
 
 .changelog-container a {
@@ -521,10 +540,6 @@ table thead tr th:last-child {
 .changelog-container a::after {
     content: " \f14c";
     font-family: FontAwesome;
-}
-
-.changelog-container .known-issues *, .changelog-container .known-issues *::after, .changelog-container .known-issues *::before  {
-    font-size: 0.6rem;
 }
 
 .changelog-container em {
@@ -551,22 +566,20 @@ table thead tr th:last-child {
 }
 
 .changelog-container .improved {
-    background-color: rgba(44, 185, 103, 0.5);
+    background-color: rgb(44, 185, 103);
 }
 
 .changelog-container .removed {
-    background-color: rgba(221, 103, 28, 0.5);
+    background-color: rgb(255, 132, 60);
 }
 
 .changelog-container .title {
-    font-size: 80%;
     font-style: oblique;
     width: fit-content;
     margin: 0;
 }
 
 .changelog-container .type {
-    font-size: 80%;
     font-weight: bold;
     margin: 0.9rem 0 0.9rem 1rem;
     padding: 0.5rem 1rem 1rem 1rem;
@@ -1088,22 +1101,6 @@ i span {
 
 .fa.disabled:active {
     pointer-events: none;
-}
-
-.fa-check-circle {
-    color: green;
-}
-
-.fa-exclamation-circle {
-    color: red !important;
-}
-
-.fa-exclamation-triangle {
-    color: orange !important;
-}
-
-.fa-spinner {
-    color: blue;
 }
 
 .fa-pulse, .fa-spin {
@@ -2218,6 +2215,7 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .ignored, .ignored *, .ignored *::after, .ignore *::before {
     opacity: 0.5;
+    text-decoration: line-through;
 }
 
 select {
@@ -2327,7 +2325,7 @@ tr:hover .excludeToggle .fa-ban {
     height: 5rem;
 }
 
-.tableOptions .popup {
+.tableOptions > .popup {
     width: 3rem;
     height: 3rem;
     border-radius: 0.5rem;
@@ -2384,7 +2382,7 @@ tr:hover .excludeToggle .fa-ban {
     pointer-events: none;
     position: absolute;
     border-radius: 0.5rem;
-    padding: 1rem;
+    padding: 1rem 1rem 1rem 1rem;
     transition: all 150ms ease;
     transform: scale(0.1);
     width: 20rem;
@@ -2408,15 +2406,15 @@ tr:hover .excludeToggle .fa-ban {
     transform: translateY(-50%) translateX(-50%) !important;
 }
 
-.addAssignmentName, .addAssignmentDate, .addAssignmentCategory, .addDonationDate, .addDonationPaid, .addDonationReceived, .addDonationPlatform {
+.addAssignmentName, .addAssignmentDate, .addAssignmentCategory, .addNewCategory, .addDonationDate, .addDonationPaid, .addDonationReceived, .addDonationPlatform {
     top: 1rem;
 }
 
-.addAssignmentName label, .addAssignmentDate label, .addAssignmentCategory label, .addDonationPlatform label, .addDonationDate label, .addDonationPaid label, .addDonationReceived label {
+.addAssignmentName label, .addAssignmentDate label, .addAssignmentCategory label, .addNewCategory label, .addDonationPlatform label, .addDonationDate label, .addDonationPaid label, .addDonationReceived label {
     left: 0.3rem;
 }
 
-.addAssignmentName input, .addAssignmentDate input, .addDonationDate input, .addDonationPaid input, .addDonationReceived input {
+.addAssignmentName input, .addAssignmentDate input, .addNewCategory input, .addDonationDate input, .addDonationPaid input, .addDonationReceived input {
     text-align: left !important;
 }
 
@@ -3197,11 +3195,32 @@ input:disabled {
 }
 
 .changelog-inline-setoff {
+    font-size: 80%;
     font-weight: bold;
     display: inline-block;
     border-radius: 0.5rem;
     padding: 0 0.5rem;
     margin: 0 0.1rem;
+}
+
+.changelog-fixes {
+    font-weight: bold;
+    background-color: black;
+    display: inline-block;
+    border-radius: 1rem;
+    padding: 0 0.4rem 0 0.3rem;
+    transition: all 150ms ease;
+    color: #EEEEEE;
+    opacity: 0.8;
+    margin-right: 0.5rem;
+}
+
+.changelog-fixes:hover {
+    opacity: 1;
+}
+
+.changelog-fixes:hover a {
+    text-decoration: none !important;
 }
 
 .changelog-panel {
@@ -3703,10 +3722,6 @@ input:disabled {
         display: none;
     }
 
-    .changelog-legend-column {
-        display: none;
-    }
-
     #color-scheme-picker button {
         font-size: 0.7rem;
         width: 70%;
@@ -3744,10 +3759,6 @@ input:disabled {
         display: grid;
     }
 
-    #termSwitcher {
-        display: none;
-    }
-
     html.no-scroll {
         overflow: hidden;
         width: 100%;
@@ -3765,10 +3776,6 @@ input:disabled {
         display: none;
     }
 
-    .addAssignment, .add-assignment-container {
-        display: none !important;
-    }
-
     #fps {
         display: none !Important;
     }
@@ -3779,7 +3786,6 @@ input:disabled {
 
     .table:not(.weights) td, .table:not(.weights) th {
         padding: 0.5rem !important;
-        pointer-events: none;
     }
 
     .excludeToggle {
