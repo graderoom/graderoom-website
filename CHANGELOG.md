@@ -52,7 +52,7 @@
 
 ## [Beta 6.1.0] - 2023-08-12
 ### Added
-- You can now add new categories when adding assignments
+- <github issue="128">Allow adding new categories when adding assignments</github>
 
 ### Improved
 - <github issue="133">Improve mobile site</github>
