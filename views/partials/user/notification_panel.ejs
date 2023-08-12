@@ -76,6 +76,7 @@
 
     function createChangelogNotifications(_versionNames, _versionDates, _versionMessages) {
         let version = _versionNames[1];
+        let i = 2;
         if (!version.endsWith(alerts.latestSeen)) {
             if (version.startsWith("Stable")) {
                 createPinned(version, "Stable", version, changelogMessage(version, _versionMessages[1]), false, false, true, _versionDates[1], false);
@@ -84,8 +85,10 @@
             } else if (version.startsWith("Announcement")) {
                 createPinned(version, "Announcement", version, changelogMessage(version, _versionMessages[1]), false, false, true, _versionDates[1], false);
             }
+        } else {
+            i = 1;
         }
-        for (let i = 2; i < _versionNames.length; i++) {
+        for (; i < _versionNames.length; i++) {
             let version = _versionNames[i];
             if (version.startsWith("Stable")) {
                 createDismissed(version, "Stable", version, changelogMessage(version, _versionMessages[i]), false, false, true, _versionDates[i], false);
@@ -102,8 +105,7 @@
     }
 
     function openAndScroll(version) {
-        showChangelog();
-        showVersion(version);
+        showChangelog(false, false, version);
     }
 
     function createPinned(id, type, title, message, dismissible, pinnable, important, timestamp, repaint) {
