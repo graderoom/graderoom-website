@@ -1430,12 +1430,15 @@ const getChartData = () => safe(_getChartData);
 const _getChartData = async (db) => {
     let data = await db.collection(CHARTS_COLLECTION_NAME).findOne();
     if (!data) {
+        let startTime = Date.now();
         data = (await processChartData()).data.value;
+        console.log(`Chart processing took ${Date.now() - startTime}ms`);
     } else if (isNotToday(data.lastUpdated)) {
         // Don't wait for this one because we already have old data we can show
-        processChartData().then();
+        let startTime = Date.now();
+        processChartData().then(() => console.log(`Chart processing took ${Date.now() - startTime}ms`));
     }
-
+    console.log(`Chart processing took 0ms`);
     return new Promise(resolve => resolve({
                                               success: true, data: data
                                           }));
@@ -1587,8 +1590,8 @@ const _processChartData = async (db) => {
     }));
     let today = new Date();
     let seniorYear = today.getFullYear() + (today.getMonth() > 4 ? 1 : 0);
-    let gradYears = allUsers.filter(u => u.loggedIn[0] >= lastUpdatedCharts.getTime() && u.loggedIn[0] < Date.parse(new Date().toDateString())).map(u => u.personalInfo.graduationYear ?? null);
-    gradData = gradData ?? [];
+    let gradYears = allUsers.map(u => u.personalInfo.graduationYear ?? null);
+    gradData = [];
     for (let j = 0; j < gradYears.length; j++) {
         let year = gradYears[j];
         if (year) {
