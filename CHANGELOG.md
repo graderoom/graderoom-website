@@ -76,7 +76,7 @@
 - Ancient assignments (like back in my day) can now be edited
 
 ### Removed
-- "What's New" Popup 
+- "What's New" Popup
 
 ## [Stable 6.0.6] - 2023-05-23
 ### Fixed
