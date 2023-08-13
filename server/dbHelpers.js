@@ -576,8 +576,6 @@ exports.shuffleArray = (array) => {
 exports.compareWeights = (weight1, weight2) => {
     if (weight1.hasWeights !== weight2.hasWeights) {
         return false;
-    } else if (weight1.hasWeights === false) {
-        return true;
     }
     return _.isEqual(weight1.weights, weight2.weights);
 }

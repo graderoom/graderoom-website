@@ -4443,7 +4443,6 @@
             let className = _data[index].class_name;
             let classWeights = weights[index];
             $("#check" + index).prop("checked", relClassData[className]["hasWeights"] === false);
-            disableInput("check" + index, "weightsTable" + index);
             let keys = Object.keys(classWeights.weights);
             for (let i = 0; i < keys.length; i++) {
                 if (keys[i] in relClassData[className]["weights"]) {
@@ -4699,6 +4698,9 @@
                                 addedURI[n.name] = isNaN(parseFloat(n.value)) ? null : parseFloat(n.value);
                             }
                         });
+                        if (!hasWeights) {
+                            weightURI = Object.fromEntries(Object.entries(weights[classIndex].weights).map(([h,]) => [h, null]));
+                        }
                         if (_.isEqual(weights[classIndex]["weights"], weightURI) && (weights[classIndex]["hasWeights"] === hasWeights)
                         && _.isEqual(addedWeights[classIndex]["weights"], addedURI)) {
                             return;

@@ -3080,10 +3080,9 @@ const _updateClassesForUser = async (db, username, term, semester, className) =>
                     let dbClass = res2.data.value;
                     let dbTeacher = dbClass.teachers.find(teacher => teacher.teacherName === teacherName);
                     // Update weights from classes db if not custom
-                    if (!custom && (dbTeacher.hasWeights === false || Object.keys(dbTeacher.weights).length > 0)) {
+                    if (!custom && _.isEqual(neededWeights, Object.keys(dbTeacher.weights))) {
                         newWeights = dbTeacher.weights;
                         hasWeights = dbTeacher.hasWeights;
-                        ``;
                     } else {
                         newWeights = Object.fromEntries(neededWeights.map((neededWeight) => [neededWeight, currentWeights.weights[neededWeight] ?? null]));
 
