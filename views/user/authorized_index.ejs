@@ -4252,18 +4252,29 @@
             currentPage = id;
         }
 
+        let currKey = null;
         document.onkeyup = function (e) {
+            if (e.key.toLowerCase() === currKey) currKey = null;
+        }
+        document.onkeydown = function (e) {
             if (e.ctrlKey || e.altKey || e.metaKey) {
                 // Do nothing
                 return;
-            } else if (e.key !== "Escape" && $("input:focus").length) {
+            }
+            if (e.key !== "Escape" && $("input:focus").length) {
                 // Do nothing
                 return;
-            } else if (!shortcutsEnabled) {
+            }
+            if (!shortcutsEnabled) {
+                // Do nothing
+                return;
+            }
+            if (currKey !== null) {
                 // Do nothing
                 return;
             }
             e.preventDefault();
+            currKey = e.key.toLowerCase();
             if (e.key === "Escape" && $("input:focus").length > 0) {
                 $("input:focus").blur();
                 return;
