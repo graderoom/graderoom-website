@@ -4695,7 +4695,7 @@
                         jQuery.map(weightData, function (n) {
                             if (n.name in weights[classIndex].weights) {
                                 weightURI[n.name] = isNaN(parseFloat(n.value)) ? null : parseFloat(n.value);
-                            } else {
+                            } else if (n.name !== "hasWeights") {
                                 addedURI[n.name] = isNaN(parseFloat(n.value)) ? null : parseFloat(n.value);
                             }
                         });
