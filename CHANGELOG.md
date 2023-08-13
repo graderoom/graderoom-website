@@ -50,6 +50,15 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 6.1.1] - 2023-08-13
+### Improved
+- Loosen criteria for weights being considered custom
+
+### Fixed
+- Old semesters with no graded courses can now be accessed
+- Issue where using the revert button added a category with the name "hasWeights"
+- Issue where reset buttons would show for no reason
+
 ## [Beta 6.1.0] - 2023-08-12
 ### Added
 - <github issue="128">Allow adding new categories when adding assignments</github>
