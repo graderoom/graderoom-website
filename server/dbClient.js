@@ -2817,8 +2817,8 @@ const _userHasSemester = async (db, username, term, semester) => {
     let user = res.data.value;
     return {
         success: true,
-        data: {value: term in user.grades && semester in user.grades[term] && user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length).length}
-    };
+        data: {value: term in user.grades && semester in user.grades[term]}
+    }
 };
 
 const initAddedAssignments = (username) => safe(_initAddedAssignments, lower(username));
@@ -4096,7 +4096,7 @@ const _getRelevantClassData = async (db, username, term, semester) => {
                 "department": classData?.department ?? rawData?.department ?? "",
                 "classType": nonAcademicOverride ? "non-academic" : (classData?.classType ?? rawData?.classType ?? ""),
                 "uc_csuClassType": classData?.uc_csuClassType ?? rawData?.uc_csuClassType ?? "",
-                "weights": userClass.teacherName ? classData?.teachers[0]?.weights ?? false : false,
+                "weights": userClass.teacherName ? classData?.teachers[0]?.weights ?? {} : false,
                 "hasWeights": userClass.teacherName ? classData?.teachers[0]?.hasWeights ?? null : false,
                 "credits": classData?.credits ?? rawData?.credits,
                 "terms": classData?.terms ?? rawData?.terms,

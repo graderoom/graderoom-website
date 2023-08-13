@@ -594,7 +594,8 @@ exports.isCustom = (weight, verifiedWeight) => {
         return false;
     }
     for (let key in weight.weights) {
-        if (!(key in verifiedWeight.weights) || weight.weights[key] !== verifiedWeight.weights[key]) {
+        if (!(key in verifiedWeight.weights)) continue;
+        if (weight.weights[key] !== verifiedWeight.weights[key]) {
             return true;
         }
     }
