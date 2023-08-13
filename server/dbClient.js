@@ -2817,8 +2817,8 @@ const _userHasSemester = async (db, username, term, semester) => {
     let user = res.data.value;
     return {
         success: true,
-        data: {value: term in user.grades && semester in user.grades[term] && user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length).length}
-    };
+        data: {value: term in user.grades && semester in user.grades[term]}
+    }
 };
 
 const initAddedAssignments = (username) => safe(_initAddedAssignments, lower(username));
