@@ -2716,6 +2716,9 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                                             if (oldClass && !newClasses[k].grades.length) {
                                                 newClasses[k].grades = oldClass.grades;
                                             }
+                                            if (oldClass && oldClass.teacher_name && !newClasses[k].teacher_name) {
+                                                newClasses[k].teacher_name = oldClass.teacher_name;
+                                            }
                                         }
                                         await _users(db).updateOne({username: username}, {$set: {[`grades.${newYears[i]}.${newSemesters[j]}`]: newClasses}});
 
