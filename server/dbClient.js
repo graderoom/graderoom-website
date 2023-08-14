@@ -1590,6 +1590,20 @@ const _processChartData = async (db) => {
     }));
     let today = new Date();
     let seniorYear = today.getFullYear() + (today.getMonth() > 4 ? 1 : 0);
+
+    let schools = allUsers.filter(u => u.loggedIn[0] >= lastUpdatedCharts.getTime() && u.loggedIn[0] < Date.parse(new Date().toDateString())).map(u => u.school);
+    schoolData = schoolData ?? [];
+    for (let j = 0; j < schools.length; j++) {
+        let school = schools[j];
+        let index = schoolData.findIndex(d => d.x === `${school}`);
+        if (index === -1) {
+            index = schoolData.length;
+            schoolData.push({x: `${school}`, y: 0});
+        }
+        schoolData[index].y++;
+    }
+
+    allUsers = (await getAllUsers({"personalInfo.graduationYear": 1})).data.value;
     let gradYears = allUsers.map(u => u.personalInfo.graduationYear ?? null);
     gradData = [];
     for (let j = 0; j < gradYears.length; j++) {
@@ -1633,18 +1647,6 @@ const _processChartData = async (db) => {
         "Unknown": seniorYear + 2
     };
     gradData.sort((a, b) => sortMap[a.x] - sortMap[b.x]);
-
-    let schools = allUsers.filter(u => u.loggedIn[0] >= lastUpdatedCharts.getTime() && u.loggedIn[0] < Date.parse(new Date().toDateString())).map(u => u.school);
-    schoolData = schoolData ?? [];
-    for (let j = 0; j < schools.length; j++) {
-        let school = schools[j];
-        let index = schoolData.findIndex(d => d.x === `${school}`);
-        if (index === -1) {
-            index = schoolData.length;
-            schoolData.push({x: `${school}`, y: 0});
-        }
-        schoolData[index].y++;
-    }
 
     lastUpdatedCharts = new Date(Date.parse(new Date().toDateString()));
 
