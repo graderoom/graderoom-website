@@ -127,8 +127,8 @@
     # Verify the user's input
     if [[ $USER_CODE -eq $CODE ]]; then
       echo "Verification successful"
-      for i in "${!COLLECTION_ARRAY[@]}"; do
-        COLLECTION_NAME="${COLLECTION_NAMES[$i]}"
+      for i in "${COLLECTION_ARRAY[@]}"; do
+        COLLECTION_NAME="${COLLECTION_NAMES["$(($i-1))"]}"
         echo "Restoring $DB_NAME.${COLLECTION_NAME//./\\\.} from $SELECTED_BACKUP_DIR/$DB_NAME/$COLLECTION_NAME.bson.gz"
         mongorestore --gzip --nsInclude "$DB_NAME.${COLLECTION_NAME//./\\\\\\\\.}" "$SELECTED_BACKUP_DIR/$DB_NAME/$COLLECTION_NAME.bson.gz" --drop
       done
