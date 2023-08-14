@@ -131,11 +131,6 @@
                             </li>
                             <div class="dropdown-divider"></div>
                             <li class="nav-item dropdown-item">
-                                <btn class="btn btn-med" onclick="showLatest(true)"><i
-                                            class="fa fa-lightbulb-o" aria-hidden="true"></i> What's New
-                                </btn>
-                            </li>
-                            <li class="nav-item dropdown-item">
                                 <btn class="btn btn-med" onclick="showChangelog()"><i
                                             class="fa fa-book" aria-hidden="true"></i> Changelog
                                 </btn>
@@ -215,9 +210,6 @@
 <% } %>
 <% if (page === "home") { %>
     <%- include('feedback_card.ejs', {theme: theme}); %>
-<% } %>
-<% if (page === "home") { %>
-    <%- include('whats_new.ejs', {theme: theme}); %>
 <% } %>
 <% if (page === "home") { %>
     <%- include('keyboard_shortcuts.ejs', {theme: theme}); %>

@@ -42,11 +42,84 @@
 
 <!-- Use <github issue="[num]">[description]</github> to link a github issue -->
 
+<!-- DO NOT USE THE "|" CHARACTER ANYWHERE -->
+
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
+
+## [Stable 6.2.0] - 2023-08-13 - New school year, new you!
+### Added
+- <github issue="128">Allow adding new categories when adding assignments</github>
+
+### Improved
+- Loosen criteria for weights being considered custom
+- <github issue="133">Improve mobile site</github>
+- Only the latest update becomes a notification
+- Better contrast in Changelog
+- Changelog loads much faster now
+- Text field validation is now themed differently in light and dark mode
+
+### Fixed
+- Old semesters with no graded courses can now be accessed
+- Issue where using the revert button added a category with the name "hasWeights"
+- Issue where reset buttons would show for no reason
+- Graduation chart not updating
+- Latest change deltas in weights tables now work properly when PowerSchool is locked
+- Issue where coral underlines wouldn't show under missing weights when point-based disabled
+- <github issue="129">Overall grade displays as (False) when adding an assignment and no graded assignments exist</github>
+- Issue where some inputs would not respond to 'Enter' keypress immediately after an assignment was added
+- Issue where adding an assignment to an empty class would not clear the "No Data" text
+- Fixed an issue where page would refresh unnecessarily after sync when showing non-academic classes was disabled
+- Entered scores that result in negative assignment percentages no longer cause "false" assignment letter grades
+- <github issue="124">Fix bcp scraper</github>
+- Auto theme change not triggering correctly on all pages
+- Auto theme change not updating all logos
+- BISV email validation
+- Ancient assignments (like back in my day) can now be edited
+
+### Removed
+- "What's New" Popup
+
+## [Beta 6.1.1] - 2023-08-13
+### Improved
+- Loosen criteria for weights being considered custom
+
+### Fixed
+- Old semesters with no graded courses can now be accessed
+- Issue where using the revert button added a category with the name "hasWeights"
+- Issue where reset buttons would show for no reason
+
+## [Beta 6.1.0] - 2023-08-12
+### Added
+- <github issue="128">Allow adding new categories when adding assignments</github>
+
+### Improved
+- <github issue="133">Improve mobile site</github>
+- Only the latest update becomes a notification
+- Better contrast in Changelog
+- Changelog loads much faster now
+- Text field validation is now themed differently in light and dark mode
+
+### Fixed
+- Graduation chart not updating
+- Latest change deltas in weights tables now work properly when PowerSchool is locked
+- Issue where coral underlines wouldn't show under missing weights when point-based disabled
+- <github issue="129">Overall grade displays as (False) when adding an assignment and no graded assignments exist</github>
+- Issue where some inputs would not respond to 'Enter' keypress immediately after an assignment was added
+- Issue where adding an assignment to an empty class would not clear the "No Data" text
+- Fixed an issue where page would refresh unnecessarily after sync when showing non-academic classes was disabled
+- Entered scores that result in negative assignment percentages no longer cause "false" assignment letter grades
+- <github issue="124">Fix bcp scraper</github>
+- Auto theme change not triggering correctly on all pages
+- Auto theme change not updating all logos
+- BISV email validation
+- Ancient assignments (like back in my day) can now be edited
+
+### Removed
+- "What's New" Popup
 
 ## [Stable 6.0.6] - 2023-05-23
 ### Fixed

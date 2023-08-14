@@ -90,7 +90,6 @@
                 input.trigger("input");
             }
         });
-        enableSnow();
     }, 250);
 
     function checkLabel(input) {
@@ -109,6 +108,8 @@
     let sunset = <%= sunset.getTime() ;%>;
     let darkMode;
 
+    checkTime();
+
     function setAutoTheme() {
         let date = new Date();
         let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes());
@@ -118,7 +119,7 @@
             if (darkMode !== oldDarkMode) {
                 document.getElementById("fade").disabled = false;
                 document.getElementById("pageStyle").setAttribute("href", "/public/css/dark_mode.css");
-                $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
+                $("img").attr("src", "/public/resources/dark_mode/logo.png");
                 $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;
@@ -130,7 +131,7 @@
             if (darkMode !== oldDarkMode) {
                 document.getElementById("fade").disabled = false;
                 document.getElementById("pageStyle").setAttribute("href", "/public/css/light_mode.css");
-                $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
+                $("img").attr("src", "/public/resources/light_mode/logo.png");
                 $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
                 setTimeout(() => {
                     document.getElementById("fade").disabled = true;

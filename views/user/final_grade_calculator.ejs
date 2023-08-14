@@ -599,6 +599,10 @@
     let darkModeStart = appearance.darkModeStart;
     let darkModeFinish = appearance.darkModeFinish;
 
+    if (theme === "auto" || theme === "sun") {
+        checkTime();
+    }
+
     function setAutoTheme() {
         let date = new Date();
         let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes());

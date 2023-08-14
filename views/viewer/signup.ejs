@@ -169,7 +169,6 @@
                 input.trigger("input");
             }
         });
-        enableSnow();
     }, 250);
 
     function checkLabel(input) {
@@ -195,7 +194,7 @@
         if (messageDivID) {
             $(messageDivID).addClass("dont-show").removeClass("always-show");
             icon.attr("class", "fa fa-pulse fa-spinner");
-            $(inputID).css("border-bottom-color", "blue");
+            $(inputID).removeClass("invalid").addClass("loading");
             if (checkingUsername) {
                 clearTimeout(checkingUsername);
             }
@@ -204,7 +203,7 @@
                 if (messageDivID) {
                     $(messageDivID).addClass("dont-show").removeClass("always-show");
                     icon.attr("class", "");
-                    $(inputID).css("border-bottom-color", "");
+                    $(inputID).removeClass("invalid").removeClass("loading");
                     invalidateSignup();
                 }
                 return;
@@ -213,18 +212,18 @@
             checkingUsername = setTimeout(() => {
                 if (!usernameRegex.test(username)) {
                     if (messageDivID) {
-                        $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Username must contain only letters and numbers");
+                        $(messageDivID).removeClass("dont-show").addClass("always-show").text("Username must contain only letters and numbers");
                         icon.attr("class", "fa fa-exclamation-circle");
-                        $(inputID).css("border-bottom-color", "red");
+                        $(inputID).removeClass("loading").addClass("invalid");
                         invalidateSignup();
                     }
                     return;
                 }
                 if (username.length > 16) {
                     if (messageDivID) {
-                        $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Username must contain 16 or fewer characters");
+                        $(messageDivID).removeClass("dont-show").addClass("always-show").text("Username must contain 16 or fewer characters");
                         icon.attr("class", "fa fa-exclamation-circle");
-                        $(inputID).css("border-bottom-color", "red");
+                        $(inputID).removeClass("loading").addClass("invalid");
                         invalidateSignup();
                     }
                     return;
@@ -235,9 +234,9 @@
                     if (messageDivID) {
                         // Make sure value is still the same
                         if (username === $(inputID)[0].value) {
-                            $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").html(response);
+                            $(messageDivID).removeClass("dont-show").removeClass("always-show").html(response);
                             icon.attr("class", "fa fa-check-circle");
-                            $(inputID).css("border-bottom-color", "");
+                            $(inputID).removeClass("invalid").removeClass("loading");
                             validateSignup();
                         }
                     }
@@ -245,9 +244,9 @@
                     if (messageDivID) {
                         // Make sure value is still the same
                         if (username === $(inputID)[0].value) {
-                            $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").html(data.responseText);
+                            $(messageDivID).removeClass("dont-show").addClass("always-show").html(data.responseText);
                             icon.attr("class", "fa fa-exclamation-circle");
-                            $(inputID).css("border-bottom-color", "red");
+                            $(inputID).removeClass("loading").addClass("invalid");
                             invalidateSignup();
                         }
                     }
@@ -270,7 +269,7 @@
         if (messageDivID) {
             $(messageDivID).addClass("dont-show").removeClass("always-show");
             icon.attr("class", "fa fa-pulse fa-spinner");
-            $(inputID).css("border-bottom-color", "blue");
+            $(inputID).removeClass("invalid").addClass("loading");
             if (checkingPassword) {
                 clearTimeout(checkingPassword);
             }
@@ -278,7 +277,7 @@
             if (password === "") {
                 $(messageDivID).addClass("dont-show").removeClass("always-show");
                 icon.attr("class", "");
-                $(inputID).css("border-bottom-color", "");
+                $(inputID).removeClass("invalid").removeClass("loading");
                 invalidateSignup();
                 return;
             }
@@ -296,21 +295,21 @@
                     message = "Your password must include at least one number";
                 } else {
                     message = "Strong password";
-                    $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text(message);
+                    $(messageDivID).removeClass("dont-show").removeClass("always-show").text(message);
                     icon.attr("class", "fa fa-check-circle");
-                    $(inputID).css("border-bottom-color", "");
+                    $(inputID).removeClass("invalid").removeClass("loading");
                     validateSignup();
                     return;
                 }
                 if (message) {
-                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text(message);
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").text(message);
                     icon.attr("class", "fa fa-exclamation-circle");
-                    $(inputID).css("border-bottom-color", "red");
+                    $(inputID).removeClass("loading").addClass("invalid");
                     invalidateSignup();
                 } else {
                     $(messageDivID).addClass("dont-show").removeClass("always-show");
                     icon.attr("class", "");
-                    $(inputID).css("border-bottom-color", "");
+                    $(inputID).removeClass("invalid").removeClass("loading");
                     invalidateSignup();
                 }
             }, 400);
@@ -328,7 +327,7 @@
         if (messageDivID) {
             $(messageDivID).addClass("dont-show").removeClass("always-show");
             icon.attr("class", "fa fa-pulse fa-spinner");
-            $(confirmID).css("border-bottom-color", "blue");
+            $(confirmID).removeClass("invalid").addClass("loading");
             if (checkingPasswordConfirm) {
                 clearTimeout(checkingPasswordConfirm);
             }
@@ -336,27 +335,27 @@
             if (confirm === "") {
                 $(messageDivID).addClass("dont-show").removeClass("always-show");
                 icon.attr("class", "");
-                $(confirmID).css("border-bottom-color", "");
+                $(confirmID).removeClass("invalid").removeClass("loading");
                 invalidateSignup();
                 return;
             }
             checkingPasswordConfirm = setTimeout(() => {
                 if (checkPassword(inputID)) {
                     if (password === confirm) {
-                        $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text("Passwords match");
+                        $(messageDivID).removeClass("dont-show").removeClass("always-show").text("Passwords match");
                         icon.attr("class", "fa fa-check-circle");
-                        $(confirmID).css("color", "").css("border-bottom-color", "");
+                        $(confirmID).removeClass("invalid").removeClass("loading");
                         validateSignup();
                     } else {
-                        $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Passwords do not match");
+                        $(messageDivID).removeClass("dont-show").addClass("always-show").text("Passwords do not match");
                         icon.attr("class", "fa fa-exclamation-circle");
-                        $(confirmID).css("border-bottom-color", "red");
+                        $(confirmID).removeClass("loading").addClass("invalid");
                         invalidateSignup();
                     }
                 } else {
-                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Enter a valid password first");
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").text("Enter a valid password first");
                     icon.attr("class", "fa fa-exclamation-circle");
-                    $(confirmID).css("border-bottom-color", "red");
+                    $(confirmID).removeClass("loading").addClass("invalid");
                     invalidateSignup();
                 }
             }, 400);
@@ -386,7 +385,7 @@
 
     function checkEmail(inputID, messageDivID) {
         const bcpEmailRegex = /^[a-z]+(?:-[a-z]+)*\.[a-z]+(?:-[a-z]+)*[0-9]{2}@bcp\.org$/i;
-        const basisEmailRegex = /^[a-z]+(?:-[a-z]+)*_[0-9]{5}@basisindependent\.com$/i;
+        const basisEmailRegex = /^[a-z][a-z][0-9]{5}@basisindependent\.com$/i;
         const ndsjEmailRegex = /^(?:[a-z]{2,}|[a-z]+(?:-[a-z]+)+)[0-9]{2}@ndsj\.org$/i;
 
         let email = $(inputID)[0].value;
@@ -446,7 +445,7 @@
         if (messageDivID) {
             $(messageDivID).addClass("dont-show").removeClass("always-show");
             icon.attr("class", "fa fa-pulse fa-spinner");
-            $(inputID).css("border-bottom-color", "blue");
+            $(inputID).removeClass("invalid").addClass("loading");
             if (checkingEmail) {
                 clearTimeout(checkingEmail);
             }
@@ -454,7 +453,7 @@
             if (email === "") {
                 $(messageDivID).addClass("dont-show").removeClass("always-show");
                 icon.attr("class", "");
-                $(inputID).css("border-bottom-color", "");
+                $(inputID).removeClass("invalid").removeClass("loading");
                 invalidateSignup();
                 personalInfo.hide();
                 return false;
@@ -464,15 +463,15 @@
             }
             checkingEmail = setTimeout(() => {
                 if (school === "bellarmine" && !bcpEmailRegex.test(email) || school === "basis" && !basisEmailRegex.test(email) || school === "ndsj" && !ndsjEmailRegex.test(email)) {
-                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text(`This must be your ${school === "ndsj" ? "Notre Dame" : school[0].toUpperCase() + school.substring(1)} school email`);
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").text(`This must be your ${school === "ndsj" ? "Notre Dame" : school[0].toUpperCase() + school.substring(1)} school email`);
                     icon.attr("class", "fa fa-exclamation-circle");
-                    $(inputID).css("border-bottom-color", "red");
+                    $(inputID).removeClass("loading").addClass("invalid");
                     invalidateSignup();
                     return false;
                 }
-                $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text("Valid email");
+                $(messageDivID).removeClass("dont-show").removeClass("always-show").text("Valid email");
                 icon.attr("class", "fa fa-check-circle");
-                $(inputID).css("border-bottom-color", "");
+                $(inputID).removeClass("loading").removeClass("invalid");
                 $.ajax({
                     url: "/emailAvailable", type: "POST", async: false, data: {schoolUsername: email}
                 }).done((response) => {
@@ -484,9 +483,9 @@
                     if (messageDivID) {
                         // Make sure value is still the same
                         if (email === $(inputID)[0].value) {
-                            $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text(response);
+                            $(messageDivID).removeClass("dont-show").removeClass("always-show").text(response);
                             icon.attr("class", "fa fa-check-circle");
-                            $(inputID).css("border-bottom-color", "");
+                            $(inputID).removeClass("loading").removeClass("invalid");
                             validateSignup();
                             return true;
                         }
@@ -495,9 +494,9 @@
                     if (messageDivID) {
                         // Make sure value is still the same
                         if (email === $(inputID)[0].value) {
-                            $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text(data.responseText);
+                            $(messageDivID).removeClass("dont-show").addClass("always-show").text(data.responseText);
                             icon.attr("class", "fa fa-exclamation-circle");
-                            $(inputID).css("border-bottom-color", "red");
+                            $(inputID).removeClass("loading").addClass("invalid");
                             invalidateSignup();
                         }
                     }
@@ -522,7 +521,7 @@
         if (messageDivID) {
             $(messageDivID).addClass("dont-show").removeClass("always-show");
             icon.attr("class", "fa fa-pulse fa-spinner");
-            $(inputID).css("border-bottom-color", "blue");
+            $(inputID).removeClass("invalid").addClass("loading");
             if (checkingBetaKey) {
                 clearTimeout(checkingBetaKey);
             }
@@ -530,15 +529,15 @@
             if (betakey === "") {
                 $(messageDivID).addClass("dont-show").removeClass("always-show");
                 icon.attr("class", "");
-                $(inputID).css("border-bottom-color", "");
+                $(inputID).removeClass("invalid").removeClass("loading");
                 invalidateSignup();
                 return;
             }
             checkingBetaKey = setTimeout(() => {
                 if (!betakeyRegex.test(betakey) || betakey.length !== 7) {
-                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text("Invalid beta key");
+                    $(messageDivID).removeClass("dont-show").addClass("always-show").text("Invalid beta key");
                     icon.attr("class", "fa fa-exclamation-circle");
-                    $(inputID).css("border-bottom-color", "red");
+                    $(inputID).removeClass("loading").addClass("invalid");
                     invalidateSignup();
                     return;
                 }
@@ -554,9 +553,9 @@
                     if (messageDivID) {
                         // Make sure value is still the same
                         if (betakey === $(inputID)[0].value) {
-                            $(messageDivID).removeClass("dont-show").removeClass("always-show").css("color", "green").text(response);
+                            $(messageDivID).removeClass("dont-show").removeClass("always-show").text(response);
                             icon.attr("class", "fa fa-check-circle");
-                            $(inputID).css("border-bottom-color", "");
+                            $(inputID).removeClass("loading").removeClass("invalid");
                             validateSignup();
                         }
                     }
@@ -564,9 +563,9 @@
                     if (messageDivID) {
                         // Make sure value is still the same
                         if (betakey === $(inputID)[0].value) {
-                            $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text(data.responseText);
+                            $(messageDivID).removeClass("dont-show").addClass("always-show").text(data.responseText);
                             icon.attr("class", "fa fa-exclamation-circle");
-                            $(inputID).css("border-bottom-color", "red");
+                            $(inputID).removeClass("loading").addClass("invalid");
                             invalidateSignup();
                         }
                     }
@@ -618,6 +617,8 @@
     let sunrise = <%= sunrise.getTime() %>;
     let sunset = <%= sunset.getTime() %>;
     let darkMode;
+
+    checkTime();
 
     function setAutoTheme() {
         let date = new Date();

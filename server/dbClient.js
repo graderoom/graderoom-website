@@ -23,9 +23,6 @@ const {
     ROUNDS_TO_GENERATE_SALT,
     validateEmail,
     getPersonalInfo,
-    versionNameArray,
-    betaChangelogArray,
-    changelogArray,
     tutorialKeys,
     shuffleArray,
     betaFeatures,
@@ -53,7 +50,8 @@ const {
     notificationButton,
     notificationTextField,
     donoHelper,
-    ERRORS_COLLECTION_NAME, GENERAL_ERRORS_COLLECTION_NAME
+    ERRORS_COLLECTION_NAME,
+    GENERAL_ERRORS_COLLECTION_NAME
 } = require("./dbHelpers");
 
 const config = async (url, prod, beta, testing = false) => {
@@ -136,6 +134,11 @@ const _init = async (db) => {
     if (!collectionNames.includes(USERS_COLLECTION_NAME)) {
         await db.createCollection(USERS_COLLECTION_NAME);
     }
+
+    if (!await _users(db).indexExists("username_1")) {
+        await _users(db).createIndex({username: 1}, {unique: true, name: "username_1"});
+    }
+
     // Create the deleted user collection if it doesn't exist
     if (!collectionNames.includes(ARCHIVED_USERS_COLLECTION_NAME)) {
         await db.createCollection(ARCHIVED_USERS_COLLECTION_NAME);
@@ -333,6 +336,7 @@ const __version1 = async (db, user) => {
         });
 
         // Run init weights to clean up bad weights (dots causing stuff)
+        await initAddedWeights(user.username);
         await initWeights(user.username);
         await initAddedAssignments(user.username);
         await initEditedAssignments(user.username);
@@ -745,7 +749,7 @@ const __version14 = async (db, user) => {
             for (let semester of semesters) {
                 for (let i = 0; i < user.grades[term][semester].length; i++) {
                     for (let psaid of Object.keys(user.editedAssignments[term][semester][i].data)) {
-                        if (user.grades[term][semester][i].grades.findIndex(a => `${a['psaid']}` === psaid) === -1) {
+                        if (user.grades[term][semester][i].grades.findIndex(a => `${a["psaid"]}` === psaid) === -1) {
                             delete editedAssignments[term][semester][i].data[psaid];
                         }
                     }
@@ -794,19 +798,18 @@ const _version16 = async (db, username) => {
     await safe(__version16, user);
 
     return {success: true, data: {log: `Updated ${username} to version 16`}};
-}
+};
 
 const __version16 = async (db, user) => {
     if (user.version === 15) {
         await _users(db).updateOne({username: user.username}, {
-            $unset: {'appearance.showEmpty': ""},
-            $set: {version: 16}
+            $unset: {"appearance.showEmpty": ""}, $set: {version: 16}
         });
     }
-}
+};
 
 const _version17 = async (db, username) => {
-    let res = await getUser(username, {version: 1, 'appearance.classColors': 1});
+    let res = await getUser(username, {version: 1, "appearance.classColors": 1});
     if (!res.success) {
         return res;
     }
@@ -815,7 +818,7 @@ const _version17 = async (db, username) => {
     await safe(__version17, user);
 
     return {success: true, data: {log: `Updated ${username} to version 17`}};
-}
+};
 
 const __version17 = async (db, user) => {
     if (user.version === 16) {
@@ -826,7 +829,7 @@ const __version17 = async (db, user) => {
             $set: {version: 17}
         });
     }
-}
+};
 
 const _version18 = async (db, username) => {
     let res = await getUser(username, {version: 1, discord: 1});
@@ -865,7 +868,7 @@ const _version19 = async (db, username) => {
     await safe(__version19, user);
 
     return {success: true, data: {log: `Updated ${username} to version 19`}};
-}
+};
 
 const __version19 = async (db, user) => {
     if (user.version === 18) {
@@ -873,8 +876,7 @@ const __version19 = async (db, user) => {
         if (years.length === 0) {
             await _users(db).updateOne({username: user.username}, {
                 $set: {
-                    updateStartTimestamps: {},
-                    version: 19
+                    updateStartTimestamps: {}, version: 19
                 }
             });
             return;
@@ -882,7 +884,7 @@ const __version19 = async (db, user) => {
 
         years.sort();
         let yearIndex = 0;
-        let currentYear = years[yearIndex]
+        let currentYear = years[yearIndex];
 
         let semesters = Object.keys(user.grades[currentYear]);
 
@@ -892,11 +894,7 @@ const __version19 = async (db, user) => {
 
         let classNames = user.grades[currentYear][currentSemester].map(c => c.class_name);
         let nextYear = semesterIndex + 1 > semesters.length - 1 && yearIndex + 1 < years.length ? years[yearIndex + 1] : currentYear;
-        let nextSemester = nextYear === currentYear ?
-                            semesterIndex + 1 < semesters.length ?
-                                semesters[semesterIndex + 1]
-                                : currentSemester
-                            : Object.keys(user.grades[nextYear])[0];
+        let nextSemester = nextYear === currentYear ? semesterIndex + 1 < semesters.length ? semesters[semesterIndex + 1] : currentSemester : Object.keys(user.grades[nextYear])[0];
         let nextPSAIDs = user.grades[nextYear][nextSemester].map(c => c.grades.map(g => g.psaid).filter(g => g)).flat();
 
         let updateStartTimestamps = {[currentYear]: {[currentSemester]: 0}};
@@ -933,10 +931,7 @@ const __version19 = async (db, user) => {
 
             // We can also track what assignments get added/modified
             // We need to get rid of assignments that have been removed or we'll have bugs
-            let PSAIDs = [
-                ...Object.values(changeData.added).flat(),
-                ...Object.values(changeData.modified).map(a => a.psaid).filter(g => g).flat(),
-            ];
+            let PSAIDs = [...Object.values(changeData.added).flat(), ...Object.values(changeData.modified).map(a => a.psaid).filter(g => g).flat()];
 
             while (classes.filter(n => !classNames.includes(n)).length > 0 || PSAIDs.filter(p => nextPSAIDs.includes(p)).length > 0) {
                 if (semesterIndex < semesters.length - 1) {
@@ -997,12 +992,72 @@ const __version19 = async (db, user) => {
 
         await _users(db).updateOne({username: user.username}, {
             $set: {
-                updateStartTimestamps: updateStartTimestamps,
-                version: 19
+                updateStartTimestamps: updateStartTimestamps, version: 19
             }
         });
     }
-}
+};
+
+const _version20 = async (db, username) => {
+    let res = await getUser(username, {version: 1, grades: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version20, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 20`}};
+};
+
+const __version20 = async (db, user) => {
+    if (user.version === 19) {
+        let fakePSAID = 1;
+        let years = Object.keys(user.grades);
+        for (let i = 0; i < years.length; i++) {
+            let year = years[i];
+            let semesters = Object.keys(user.grades[year]);
+            for (let j = 0; j < semesters.length; j++) {
+                let semester = semesters[j];
+                let classes = user.grades[year][semester];
+                for (let _class of classes) {
+                    let grades = _class.grades;
+                    for (let assignment of grades) {
+                        if ("psaid" in assignment) {
+                            continue;
+                        } // Could optimize but whatever
+                        assignment["psaid"] = `F-${fakePSAID++}`;
+                    }
+                }
+            }
+        }
+
+        await _users(db).updateOne({username: user.username}, {
+            $set: {
+                grades: user.grades, nextAvailableFakePSAID: fakePSAID, version: 20
+            }
+        });
+    }
+};
+
+const _version21 = async (db, username) => {
+    let res = await getUser(username, {version: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version21, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 21`}};
+};
+
+const __version21 = async (db, user) => {
+    if (user.version === 20) {
+        await initAddedWeights(user.username);
+        await _users(db).updateOne({username: user.username}, {$set: {version: 21}});
+    }
+};
 
 const initUser = (username) => safe(_initUser, lower(username));
 const _initUser = async (db, username) => {
@@ -1123,6 +1178,12 @@ const _updateAllUsers = async () => {
             }
             if (user.version < 19) {
                 await safe(_version19, user.username);
+            }
+            if (user.version < 20) {
+                await safe(_version20, user.username);
+            }
+            if (user.version < 21) {
+                await safe(_version21, user.username);
             }
         }
         await safe(_initUser, user.username);
@@ -1339,11 +1400,19 @@ const _getClass = async (db, school, className, term, semester, projection, addi
     return {success: true, data: {value: class_}};
 };
 
-const getAllUsers = (projection) => safe(_getAllUsers, projection);
-const _getAllUsers = async (db, projection, query) => {
+const getAllUsers = (projection, query, sort, page, count) => safe(_getAllUsers, projection, query, sort, page, count);
+const _getAllUsers = async (db, projection, query, sort, page, count) => {
     query = query ?? {};
+    let value = _users(db).find(query, {projection: projection});
+    if (sort) {
+        value = value.sort(sort);
+    }
+    if (page && count) {
+        value = value.skip((page - 1) * count).limit(count);
+    }
+    value = await value.toArray(); // js kinda cool I can just await the promise at the very end??
     return {
-        success: true, data: {value: await _users(db).find(query, {projection: projection}).toArray()}
+        success: true, data: {value: value, actualCount: value.length, total: await _users(db).estimatedDocumentCount()}
     };
 };
 
@@ -1361,12 +1430,15 @@ const getChartData = () => safe(_getChartData);
 const _getChartData = async (db) => {
     let data = await db.collection(CHARTS_COLLECTION_NAME).findOne();
     if (!data) {
+        let startTime = Date.now();
         data = (await processChartData()).data.value;
+        console.log(`Chart processing took ${Date.now() - startTime}ms`);
     } else if (isNotToday(data.lastUpdated)) {
         // Don't wait for this one because we already have old data we can show
-        processChartData().then();
+        let startTime = Date.now();
+        processChartData().then(() => console.log(`Chart processing took ${Date.now() - startTime}ms`));
     }
-
+    console.log(`Chart processing took 0ms`);
     return new Promise(resolve => resolve({
                                               success: true, data: data
                                           }));
@@ -1394,7 +1466,7 @@ const _getGradeHistoryLetters = async (db, username, term, semester) => {
     let grades = user.grades;
 
     if (!(term in user.grades) || !(semester in user.grades[term])) {
-        return {success: false, log: `Invalid term=${term} or semester=${semester}`}
+        return {success: false, log: `Invalid term=${term} or semester=${semester}`};
     }
 
     let gradeHistoryLetters = {};
@@ -1417,7 +1489,7 @@ const _getGradeHistoryLetters = async (db, username, term, semester) => {
     }
 
     return {success: true, data: {value: gradeHistoryLetters}};
-}
+};
 
 const processChartData = () => safe(_processChartData);
 const _processChartData = async (db) => {
@@ -1518,8 +1590,8 @@ const _processChartData = async (db) => {
     }));
     let today = new Date();
     let seniorYear = today.getFullYear() + (today.getMonth() > 4 ? 1 : 0);
-    let gradYears = allUsers.filter(u => u.loggedIn[0] >= lastUpdatedCharts.getTime() && u.loggedIn[0] < Date.parse(new Date().toDateString())).map(u => u.personalInfo.graduationYear ?? null);
-    gradData = gradData ?? [];
+    let gradYears = allUsers.map(u => u.personalInfo.graduationYear ?? null);
+    gradData = [];
     for (let j = 0; j < gradYears.length; j++) {
         let year = gradYears[j];
         if (year) {
@@ -2026,7 +2098,7 @@ const _setShowMaxGPA = async (db, username, value) => {
 
 const setColorPalette = (username, preset, shuffle) => safe(_setColorPalette, lower(username), lower(preset), shuffle);
 const _setColorPalette = async (db, username, preset, shuffle) => {
-    let user = (await getUser(username, {'appearance.colorPalette': 1, 'appearance.shuffleColors': 1})).data.value;
+    let user = (await getUser(username, {"appearance.colorPalette": 1, "appearance.shuffleColors": 1})).data.value;
     if (typeof shuffle !== "boolean") {
         shuffle = user.appearance.shuffleColors;
     }
@@ -2162,6 +2234,48 @@ const _setShowUpdatePopup = async (db, username, value) => {
     }
 };
 
+const createNotification = (username, id, type, title, message, dismissible = true, dismissed = false, pinnable = false, pinned = false, important = false, timestamp) => safe(_createNotification, lower(username), id, type, title, message, dismissible, pinnable, pinned, important, timestamp);
+
+const _createNotification = async (db, username, id, type, title, message, dismissible, dismissed, pinnable, pinned, important, timestamp) => {
+    let notification = {
+        id: id,
+        type: type,
+        title: title,
+        message: message,
+        dismissible: dismissible,
+        dismissed: dismissed,
+        important: important,
+        pinnable: pinnable,
+        pinned: pinned,
+        createdDate: timestamp
+    };
+    let res = await getUser(username, {
+            "alerts.notifications.id": 1
+    });
+    if (!res.success) {
+        return res;
+    }
+    let trimmed = res.alerts.notifications;
+    let index = trimmed.findIndex(i => i.id === id);
+    if (index !== -1) {
+        return {success: false, data: {message: "Invalid ID", log: `Invalid createNotification id=${id}`}};
+    }
+    res = await _users(db).updateOne({
+                                             username: username
+                                         }, {
+                                             $push: {
+                                                 "alerts.notifications": notification
+                                             }
+                                         });
+
+    if (res.matchedCount === 1) {
+        socketManager.emitToRoom(username, "notification-new", notification);
+        return {success: true, data: {value: notification}};
+    }
+
+    return {success: false};
+};
+
 const updateNotification = (username, id, update) => safe(_updateNotification, lower(username), id, update);
 const _updateNotification = async (db, username, id, update) => {
     if (typeof id !== "string" || Object.keys(update).filter(k => !(["pinned", "dismissed"]).includes(k)).length) {
@@ -2170,11 +2284,13 @@ const _updateNotification = async (db, username, id, update) => {
             data: {message: "Invalid value", log: `Invalid updateNotification parameters id=${id}, update=${update}`}
         };
     }
-    let trimmed = (await _users(db).findOne({username: username}, {
-        projection: {
-            "alerts.notifications.id": 1, "alerts.notifications.pinned": 1, "alerts.notifications.dismissed": 1
-        }
-    })).alerts.notifications;
+    let res = await getUser(username, {
+        "alerts.notifications.id": 1, "alerts.notifications.pinned": 1, "alerts.notifications.dismissed": 1
+    });
+    if (!res.success) {
+        return res;
+    }
+    let trimmed = res.alerts.notifications;
     let index = trimmed.findIndex(i => i.id === id);
     if (index === -1) {
         return {success: false, data: {message: "Invalid ID", log: `Invalid updateNotification id=${id}`}};
@@ -2191,7 +2307,7 @@ const _updateNotification = async (db, username, id, update) => {
         realUpdate.dismissed = update.dismissed;
     }
 
-    let res = await _users(db).updateOne({username: username}, {$set: set});
+    res = await _users(db).updateOne({username: username}, {$set: set});
     if (res.matchedCount === 1) {
         return {
             success: true, data: {
@@ -2350,7 +2466,7 @@ const _logGeneralError = async (db, errorString) => {
         await _generalErrors().insertOne({errorCode: errorCode, error: errorString});
     }
     return {success: true, data: {value: errorCode}};
-}
+};
 
 const updateGrades = (username, schoolPassword, userPassword, gradeSync) => safe(_updateGrades, lower(username), schoolPassword, userPassword, gradeSync);
 const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSync) => {
@@ -2395,17 +2511,18 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                 });
                 return;
             }
+            await setSyncStatus(username, SyncStatus.FAILED);
             socketManager.emitToRoom(username, "sync-fail", {
                 gradeSyncEnabled: data.message !== "Incorrect login details." && gradeSync, message: data.message
             });
         } else {
-            let newTerm = Object.keys(data['new_grades'])[0];
-            let newSemester = Object.keys(data['new_grades'][newTerm]);
+            let newTerm = Object.keys(data["new_grades"])[0];
+            let newSemester = Object.keys(data["new_grades"][newTerm]);
             newSemester = newSemester[newSemester.length - 1]; // this should prob be another variable
             if (!(newTerm in user.grades)) {
                 await _users(db).updateOne({username: username}, {$set: {[`grades.${newTerm}`]: {}}});
             }
-            let newGrades = data['new_grades'][newTerm][newSemester];
+            let newGrades = data["new_grades"][newTerm][newSemester];
             let newClasses = newGrades.map(c => c.class_name);
             let oldPSAIDs = [];
             let oldGrades;
@@ -2417,9 +2534,9 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
 
                 // filtering id => !!id removes undefined psaids (before we scraped them)
                 // Idk if this is relevant but I'm keeping it for now TODO
-                oldPSAIDs = oldGrades.map(c => c.grades.map(g => g['psaid'])).filter(id => !!id);
+                oldPSAIDs = oldGrades.map(c => c.grades.map(g => g["psaid"])).filter(id => !!id);
             }
-            let newPSAIDs = newGrades.map(c => c.grades.map(g => g['psaid']));
+            let newPSAIDs = newGrades.map(c => c.grades.map(g => g["psaid"]));
 
             // Make the two arrays the same length
             oldPSAIDs.push(...Array(newPSAIDs.length - oldPSAIDs.length).fill([]));
@@ -2434,11 +2551,11 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                 let newToOldIndex = newGrades.map(n => oldGrades.findIndex(o => o.class_name === n.class_name));
                 let oldToNewIndex = oldGrades.map(o => newGrades.findIndex(n => n.class_name === o.class_name));
                 added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [newGrades[index].class_name, newPSAIDs[index].filter(psaid => newToOldIndex[index] === -1 ? false : !oldPSAIDs[newToOldIndex[index]].includes(psaid))]).filter(data => data[1].length));
-                modified = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => oldToNewIndex[index] === -1 ? false : newPSAIDs[oldToNewIndex[index]].includes(assignmentData['psaid']) && oldToNewIndex[index] !== -1 && !_.isEqual(assignmentData, newGrades[oldToNewIndex[index]].grades.find(assignment => assignment['psaid'] === assignmentData['psaid'])))]).filter(data => data[1].length));
-                removed = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => assignmentData['psaid'] && oldToNewIndex[index] === -1 ? false : !newPSAIDs[oldToNewIndex[index]].includes(assignmentData['psaid']))]).filter(data => data[1].length));
+                modified = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => oldToNewIndex[index] === -1 ? false : newPSAIDs[oldToNewIndex[index]].includes(assignmentData["psaid"]) && oldToNewIndex[index] !== -1 && !_.isEqual(assignmentData, newGrades[oldToNewIndex[index]].grades.find(assignment => assignment["psaid"] === assignmentData["psaid"])))]).filter(data => data[1].length));
+                removed = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => assignmentData["psaid"] && oldToNewIndex[index] === -1 ? false : !newPSAIDs[oldToNewIndex[index]].includes(assignmentData["psaid"]))]).filter(data => data[1].length));
                 overall = Object.fromEntries(oldGrades.map((classData, index) => {
                     if (oldToNewIndex[index] === -1) {
-                        return [[], []]
+                        return [[], []];
                     }
                     let clone = Object.assign({}, classData);
                     delete clone.grades;
@@ -2455,7 +2572,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
             if (Object.keys(removed).length > 0) {
                 let editedAssignments = (await getUser(username, {[`editedAssignments.${newTerm}.${newSemester}`]: 1})).data.value.editedAssignments[newTerm][newSemester];
                 for (let class_name in removed) {
-                    let assignments = removed[class_name]
+                    let assignments = removed[class_name];
                     for (let assignment of assignments) {
                         delete editedAssignments.find(e => e.className === class_name).data[assignment.psaid];
                     }
@@ -2478,14 +2595,15 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                 added: added, modified: modified, removed: removed, overall: overall
             };
             if (user.school === Schools.BISV) {
-                newGrades = data['new_grades'][newTerm];
+                newGrades = data["new_grades"][newTerm];
                 await _users(db).updateOne({username: username}, {$set: {[`grades.${newTerm}`]: newGrades}});
-                let newWeights = data['new_weights'][newTerm];
+                let newWeights = data["new_weights"][newTerm];
                 await _users(db).updateOne({username: username}, {$set: {[`weights.${newTerm}`]: newWeights}});
             } else {
                 await _users(db).updateOne({username: username}, {$set: {[`grades.${newTerm}.${newSemester}`]: newGrades}});
             }
             await initAddedAssignments(username);
+            await initAddedWeights(username);
             await initWeights(username);
             await initEditedAssignments(username);
             await updateClassesForUser(username, newTerm, newSemester);
@@ -2494,7 +2612,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
             let updateHistory = false;
             if (!ps_locked && ((newTerm !== oldTerm || newSemester !== oldSemester) || !user.updatedGradeHistory.length)) {
                 await resetSortData(username);
-                await _users(db).updateOne({username: username}, {$set: {[`updateStartTimestamps.${newTerm}.${newSemester}`]: time}})
+                await _users(db).updateOne({username: username}, {$set: {[`updateStartTimestamps.${newTerm}.${newSemester}`]: time}});
                 updateHistory = true;
             }
 
@@ -2515,14 +2633,14 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                 [`grades.${newTerm}.${newSemester}`]: 1,
                 [`weights.${newTerm}.${newSemester}`]: 1,
                 "alerts.lastUpdated": {$slice: -1},
-                "appearance.showNonAcademic": 1,
+                "appearance.showNonAcademic": 1
             });
             let _user = _res.data.value;
 
             if (gradeSync) {
                 let encryptResp = await encryptAndStoreSchoolPassword(username, schoolPassword, userPassword);
                 if (!encryptResp.success) {
-                    socketManager.emitToRoom(username, "sync-fail-general", {gradeSyncEnabled: false})
+                    socketManager.emitToRoom(username, "sync-fail-general", {gradeSyncEnabled: false});
                     return {success: false};
                 }
             }
@@ -2554,11 +2672,11 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
         if ("success" in data) {
             if (data.success) {
                 let currentYears = Object.keys(user.grades);
-                let newYears = Object.keys(data['new_grades']);
+                let newYears = Object.keys(data["new_grades"]);
                 let school = user.school;
                 switch (school) {
                     case Schools.BISV:
-                        let newWeights = data['new_weights'];
+                        let newWeights = data["new_weights"];
                         let term = Object.keys(newWeights)[0];
                         await _users(db).updateOne({username: username}, {$set: {[`weights.${term}._`]: newWeights[term]._}});
                         break;
@@ -2568,13 +2686,13 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                         for (let i = 0; i < newYears.length; i++) {
                             if (!(newYears[i] in currentWeights)) {
                                 currentWeights[newYears[i]] = {};
-                                let newSemesters = Object.keys(data['new_grades'][newYears[i]]);
+                                let newSemesters = Object.keys(data["new_grades"][newYears[i]]);
                                 for (let j = 0; j < newSemesters.length; j++) {
                                     currentWeights[newYears[i]][newSemesters[j]] = [];
                                 }
                             } else {
                                 let currentSemesters = Object.keys(currentWeights[newYears[i]]);
-                                let newSemesters = Object.keys(data['new_grades'][newYears[i]]);
+                                let newSemesters = Object.keys(data["new_grades"][newYears[i]]);
                                 for (let j = 0; j < newSemesters.length; j++) {
                                     if (!currentSemesters.includes(newSemesters[j])) {
                                         currentWeights[newYears[i]][newSemesters[j]] = [];
@@ -2582,21 +2700,24 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                                 }
                             }
                             if (!currentYears.includes(newYears[i])) {
-                                await _users(db).updateOne({username: username}, {$set: {[`grades.${newYears[i]}`]: data['new_grades'][newYears[i]]}});
+                                await _users(db).updateOne({username: username}, {$set: {[`grades.${newYears[i]}`]: data["new_grades"][newYears[i]]}});
                             } else {
                                 let currentSemesters = Object.keys(user.grades[newYears[i]]);
-                                let newSemesters = Object.keys(data['new_grades'][newYears[i]]);
+                                let newSemesters = Object.keys(data["new_grades"][newYears[i]]);
                                 for (let j = 0; j < newSemesters.length; j++) {
                                     if (!currentSemesters.includes(newSemesters[j])) {
-                                        await _users(db).updateOne({username: username}, {$set: {[`grades.${newYears[i]}.${newSemesters[j]}`]: data['new_grades'][newYears[i]][newSemesters[j]]}});
+                                        await _users(db).updateOne({username: username}, {$set: {[`grades.${newYears[i]}.${newSemesters[j]}`]: data["new_grades"][newYears[i]][newSemesters[j]]}});
                                     } else {
-                                        let newClasses = data['new_grades'][newYears[i]][newSemesters[j]];
+                                        let newClasses = data["new_grades"][newYears[i]][newSemesters[j]];
                                         let oldClasses = user.grades[newYears[i]][newSemesters[j]];
                                         for (let k = 0; k < newClasses.length; k++) {
                                             let className = newClasses[k].class_name;
                                             let oldClass = oldClasses?.find(c => c.class_name === className);
                                             if (oldClass && !newClasses[k].grades.length) {
                                                 newClasses[k].grades = oldClass.grades;
+                                            }
+                                            if (oldClass && oldClass.teacher_name && !newClasses[k].teacher_name) {
+                                                newClasses[k].teacher_name = oldClass.teacher_name;
                                             }
                                         }
                                         await _users(db).updateOne({username: username}, {$set: {[`grades.${newYears[i]}.${newSemesters[j]}`]: newClasses}});
@@ -2608,8 +2729,8 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                                                 delete clone.grades;
                                                 delete clone.class_name;
                                                 delete clone.ps_locked;
-                                                delete clone['student_id'];
-                                                delete clone['section_id'];
+                                                delete clone["student_id"];
+                                                delete clone["section_id"];
                                                 delete clone.teacher_name;
                                                 let newClone = Object.assign({}, newClasses.find(g => g.class_name === classData.class_name));
                                                 delete newClone.grades;
@@ -2626,6 +2747,7 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                                 }
                             }
                         }
+                        await initAddedWeights(username);
                         await initWeights(username);
                 }
                 let time = Date.now();
@@ -2698,8 +2820,8 @@ const _userHasSemester = async (db, username, term, semester) => {
     let user = res.data.value;
     return {
         success: true,
-        data: {value: term in user.grades && semester in user.grades[term] && user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length).length}
-    };
+        data: {value: term in user.grades && semester in user.grades[term]}
+    }
 };
 
 const initAddedAssignments = (username) => safe(_initAddedAssignments, lower(username));
@@ -2808,7 +2930,7 @@ const _initUpdateStartTimestamps = async (db, username) => {
 
     await _users(db).updateOne({username: username}, {$set: {updateStartTimestamps: current}});
     return {success: true};
-}
+};
 
 const initWeights = (username) => safe(_initWeights, lower(username));
 const _initWeights = async (db, username) => {
@@ -2867,9 +2989,45 @@ const _initWeights = async (db, username) => {
     return {success: true};
 };
 
+const initAddedWeights = (username) => safe(_initAddedWeights, lower(username));
+const _initAddedWeights = async (db, username) => {
+    let res = await getUser(username, {addedWeights: 1, grades: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    let current = user.addedWeights ?? {};
+
+    let temp = {};
+    let years = Object.keys(user.grades);
+    for (let i = 0; i < years.length; i++) {
+        let semesters = Object.keys(user.grades[years[i]]);
+        temp[years[i]] = {};
+        for (let j = 0; j < semesters.length; j++) {
+            temp[years[i]][semesters[j]] = current[years[i]]?.[semesters[j]] ?? [];
+            let classes = user.grades[years[i]][semesters[j]].map(c => c.class_name);
+            for (let k = 0; k < classes.length; k++) {
+                if (k >= temp[years[i]][semesters[j]].length) {
+                    temp[years[i]][semesters[j]].push({});
+                }
+                let existing = current[years[i]]?.[semesters[j]]?.findIndex((c) => c.className === classes[k]) ?? -1;
+                if (existing === -1) {
+                    temp[years[i]][semesters[j]][k] = {className: classes[k], weights: {}};
+                } else {
+                    temp[years[i]][semesters[j]][k] = current[years[i]][semesters[j]][existing];
+                }
+            }
+        }
+    }
+
+    await _users(db).updateOne({username: username}, {$set: {addedWeights: temp}});
+    return {success: true};
+};
+
 const updateClassesForUser = (username, term, semester, className) => safe(_updateClassesForUser, lower(username), term, semester, className);
 const _updateClassesForUser = async (db, username, term, semester, className) => {
-    let res = await getUser(username, {grades: 1, school: 1, weights: 1});
+    let res = await getUser(username, {grades: 1, school: 1, weights: 1, addedWeights: 1});
     if (!res.success) {
         return res;
     }
@@ -2925,10 +3083,9 @@ const _updateClassesForUser = async (db, username, term, semester, className) =>
                     let dbClass = res2.data.value;
                     let dbTeacher = dbClass.teachers.find(teacher => teacher.teacherName === teacherName);
                     // Update weights from classes db if not custom
-                    if (!custom && (dbTeacher.hasWeights === false || Object.keys(dbTeacher.weights).length > 0)) {
+                    if (!custom && _.isEqual(neededWeights, Object.keys(dbTeacher.weights))) {
                         newWeights = dbTeacher.weights;
                         hasWeights = dbTeacher.hasWeights;
-                        ``;
                     } else {
                         newWeights = Object.fromEntries(neededWeights.map((neededWeight) => [neededWeight, currentWeights.weights[neededWeight] ?? null]));
 
@@ -2951,7 +3108,15 @@ const _updateClassesForUser = async (db, username, term, semester, className) =>
                         }
                     }
                 }
-                await updateWeightsForClass(username, _term, _semester, _className, hasWeights, newWeights, custom, false);
+
+                let addedWeights = user.addedWeights[_term][_semester][i].weights;
+                for (let weight in addedWeights) {
+                    if (weight in newWeights) {
+                        delete addedWeights[weight];
+                    }
+                }
+
+                await updateWeightsForClass(username, _term, _semester, _className, hasWeights, newWeights, addedWeights, custom, false);
             }
         }
     }
@@ -2961,7 +3126,9 @@ const _updateClassesForUser = async (db, username, term, semester, className) =>
 
 const updateAddedAssignments = (username, addedAssignments, term, semester) => safe(_updateAddedAssignments, lower(username), addedAssignments, term, semester);
 const _updateAddedAssignments = async (db, username, addedAssignments, term, semester) => {
-    let res = await getUser(username, {addedAssignments: 1, [`grades.${term}.${semester}`]: 1});
+    let res = await getUser(username, {
+        [`addedWeights.${term}.${semester}`]: 1, [`weights.${term}.${semester}`]: 1, [`grades.${term}.${semester}`]: 1
+    });
     if (!res.success) {
         return res;
     }
@@ -2994,6 +3161,7 @@ const _updateAddedAssignments = async (db, username, addedAssignments, term, sem
         "exclude": ["boolean"]
     };
 
+    let returnAddedWeights = false;
     for (let i = 0; i < addedAssignments.length; i++) {
         let className = addedAssignments[i].className;
         let index = grades[term][semester].findIndex(c => c.class_name === className);
@@ -3003,6 +3171,9 @@ const _updateAddedAssignments = async (db, username, addedAssignments, term, sem
                 data: {prodLog: `Invalid class ${className} for updateAddedAssignments: username=${username}`}
             };
         }
+        let weights = user.weights[term][semester][index].weights;
+        let addedWeights = user.addedWeights[term][semester][index].weights;
+        let actualAddedWeights = new Set();
         for (let j = 0; j < addedAssignments[i].data.length; j++) {
             let assignment = addedAssignments[i].data[j];
             if (Object.keys(assignment).length !== allowedKeys.length) {
@@ -3014,11 +3185,32 @@ const _updateAddedAssignments = async (db, username, addedAssignments, term, sem
             if (!Object.entries(assignment).every(([h, k]) => allowedTypes[h].includes(typeof k))) {
                 return {success: false, data: {prodLog: `addedAssignments has invalid values`}};
             }
+            if (assignment.category in weights) {
+                continue;
+            }
+            actualAddedWeights.add(assignment.category);
+            if (assignment.category in addedWeights) {
+                continue;
+            }
+            user.addedWeights[term][semester][index].weights[assignment.category] = null;
         }
-        await _users(db).updateOne({username: username}, {$set: {[`addedAssignments.${term}.${semester}.${index}`]: addedAssignments[i]}});
+        let updateAddedWeights = actualAddedWeights.size !== Object.keys(addedWeights).length;
+        for (let w of Object.keys(addedWeights)) {
+            if (!actualAddedWeights.has(w)) {
+                delete addedWeights[w];
+            }
+            updateAddedWeights = true;
+        }
+        let set = {$set: {[`addedAssignments.${term}.${semester}.${index}`]: addedAssignments[i]}};
+        if (updateAddedWeights) {
+            returnAddedWeights = true;
+            set["$set"][`addedWeights.${term}.${semester}.${index}.weights`] = addedWeights;
+            user.addedWeights[term][semester][index].weights = addedWeights;
+        }
+        await _users(db).updateOne({username: username}, set);
     }
 
-    return {success: true};
+    return {success: true, data: !returnAddedWeights ? {} : {addedWeights: user.addedWeights[term][semester]}};
 };
 
 const updateEditedAssignments = (username, editedAssignments, term, semester) => safe(_updateEditedAssignments, lower(username), editedAssignments, term, semester);
@@ -3126,7 +3318,7 @@ const _getSyncStatus = async (db, username) => {
     } else if (syncStatus === SyncStatus.NOT_SYNCING) {
         return {success: false, data: {message: "Not syncing"}};
     } else if (syncStatus.startsWith(`${SyncStatus.FAILED}-`)) {
-        let errorCode = parseInt(syncStatus.substring(SyncStatus.FAILED.length + 1))
+        let errorCode = parseInt(syncStatus.substring(SyncStatus.FAILED.length + 1));
         return {success: false, data: {message: `Sync Failed. Error ${errorCode}.`}};
     }
 };
@@ -3141,34 +3333,6 @@ const _setSyncStatus = async (db, username, value) => {
         return {success: true, data: {log: `Set sync status for ${username} to ${value}`}};
     }
     return {success: false, data: {log: `Error setting sync status for ${username} to ${value}`}};
-};
-
-const getWhatsNew = (username) => safe(_getWhatsNew, lower(username));
-const _getWhatsNew = async (db, username) => {
-    let res = await getUser(username, {"alerts.latestSeen": 1});
-    if (!res.success) {
-        return res;
-    }
-    let user = res.data.value;
-    let end = versionNameArray().indexOf(versionNameArray().find(v => v[1] === user.alerts.latestSeen));
-    if (end < 2) {
-        end = 2;
-    }
-    let result;
-    if (_beta) {
-        result = betaChangelogArray().slice(1, end).join("");
-    } else {
-        result = "";
-        for (let i = 1; i < versionNameArray().length; i++) {
-            if (versionNameArray()[i][0] !== "Beta") {
-                if (i >= end && result) {
-                    break;
-                }
-                result += changelogArray()[i];
-            }
-        }
-    }
-    return {success: true, data: {value: result}};
 };
 
 const latestVersionSeen = (username) => safe(_latestVersionSeen, lower(username));
@@ -3709,8 +3873,8 @@ const _getTermsAndSemestersInClassDb = async (db, school) => {
     return {success: true, data: {value: termsAndSemesters}};
 };
 
-const updateWeightsForClass = (username, term, semester, className, hasWeights, weights) => safe(_updateWeightsForClass, lower(username), term, semester, className, hasWeights, weights);
-const _updateWeightsForClass = async (db, username, term, semester, className, hasWeights, weights, custom = null, addSuggestion = true) => {
+const updateWeightsForClass = (username, term, semester, className, hasWeights, weights, addedWeights) => safe(_updateWeightsForClass, lower(username), term, semester, className, hasWeights, weights, addedWeights);
+const _updateWeightsForClass = async (db, username, term, semester, className, hasWeights, weights, addedWeights, custom = null, addSuggestion = true) => {
     //Get user
     let query = {[`grades.${term}.${semester}.class_name`]: className};
     let projection = {school: 1, [`grades.${term}.${semester}`]: 1, [`weights.${term}.${semester}`]: 1};
@@ -3727,14 +3891,14 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
     if (!term in user.grades || !semester in user.grades[term]) {
         return {
             success: false,
-            data: {message: "Something went wrong", log: `Failed to update weights for ${username}. (1)`}
+            data: {message: "Something went wrong", prodLog: `Failed to update weights for ${username}. (1)`}
         };
     }
     let classIndex = user.grades[term][semester].findIndex(g => g.class_name === className);
     if (classIndex === -1) { //className in grades?
         return {
             success: false,
-            data: {message: "Something went wrong", log: `Failed to update weights for ${username}. (2)`}
+            data: {message: "Something went wrong", prodLog: `Failed to update weights for ${username}. (2)`}
         };
     }
     teacherName = user.grades[term][semester][classIndex].teacher_name;
@@ -3743,10 +3907,40 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
     if (!term in user.weights || !semester in user.weights[term] || user.weights[term][semester].length <= classIndex || user.weights[term][semester][classIndex].className !== className) { //term, semester, className in weights?
         return {
             success: false,
-            data: {message: "Something went wrong", log: `Failed to update weights for ${username}. (3)`}
+            data: {message: "Something went wrong", prodLog: `Failed to update weights for ${username}. (3)`}
         };
     }
     currentWeights = user.weights[term][semester][classIndex].weights;
+
+    // Verify all weight keys already exist
+    for (let weight in weights) {
+        if (!(weight in currentWeights)) {
+            return {
+                success: false,
+                data: {message: "Something went wrong", prodLog: `Failed to update weights for ${username}. (4) ${weight}`}
+            }
+        }
+    }
+
+    // Verify no weights missing
+    for (let weight in currentWeights) {
+        if (!(weight in weights)) {
+            return {
+                success: false,
+                data: {message: "Something went wrong", prodLog: `Failed to update weights for ${username}. (5) ${weight}`}
+            }
+        }
+    }
+
+    // Verify no added weights in real weights
+    for (let weight in addedWeights) {
+        if (weight in weights) {
+            return {
+                success: false,
+                data: {message: "Something went wrong", prodLog: `Failed to update weights for ${username}. (6) ${weight}`}
+            }
+        }
+    }
 
     //Verify classesDB contains class
     let res2 = await dbContainsClass(school, term, semester, className, teacherName);
@@ -3757,7 +3951,7 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
         if (!res3.success) {
             return {
                 success: false,
-                data: {message: "Something went wrong", prodLog: `Failed to update weights for ${username}. (4)`}
+                data: {message: "Something went wrong", prodLog: `Failed to update weights for ${username}. (7)`}
             };
         }
     }
@@ -3780,7 +3974,7 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
         [hasWeights, modWeights] = fixWeights(hasWeights, Object.assign({}, currentWeights, weights));
     } catch (e) {
         return {
-            success: false, data: {message: "Something went wrong", log: e}
+            success: false, data: {message: "Something went wrong", prodLog: `Failed to update weights for ${username}. (8) ${e}`}
         };
     }
 
@@ -3793,11 +3987,15 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
 
     //Update weights
     let temp = {className: className, weights: modWeights, hasWeights: hasWeights, custom: custom};
+    let temp2 = {className: className, weights: addedWeights};
     await _users(db).updateOne({
                                    username: username, [`weights.${term}.${semester}.className`]: className
                                }, {
-                                   $set: {[`weights.${term}.${semester}.$`]: temp}
-                               });
+                                   $set: {
+                                       [`weights.${term}.${semester}.$`]: temp,
+                                       [`addedWeights.${term}.${semester}.$`]: temp2
+                                   }
+                               })
 
     if (custom) {
         return {
@@ -3900,8 +4098,8 @@ const _getRelevantClassData = async (db, username, term, semester) => {
                 "department": classData?.department ?? rawData?.department ?? "",
                 "classType": nonAcademicOverride ? "non-academic" : (classData?.classType ?? rawData?.classType ?? ""),
                 "uc_csuClassType": classData?.uc_csuClassType ?? rawData?.uc_csuClassType ?? "",
-                "weights": userClass.teacherName ? classData?.teachers[0]?.weights ?? false : false,
-                "hasWeights": userClass.teacherName ? classData?.teachers[0]?.hasWeights ?? null : false,
+                "weights": userClass.teacherName ? classData?.teachers[0]?.weights ?? {} : {},
+                "hasWeights": userClass.teacherName ? classData?.teachers[0]?.hasWeights ?? null : null,
                 "credits": classData?.credits ?? rawData?.credits,
                 "terms": classData?.terms ?? rawData?.terms,
                 "description": rawData?.description,
@@ -3938,22 +4136,12 @@ const _addDonation = async (db, username, platform, paidValue, receivedValue, da
         };
     }
 
-    let notification = {
-        id: `${platform}-${dateDonated}-${paidValue}-${receivedValue}`,
-        type: "donation",
-        title: "Thank You!",
-        message: `We received your donation of $${receivedValue.toFixed(2)}! ${notificationButton(`showCard('#settingsCardDisplay'); openTab(2)`, `View in your Account`)}`,
-        dismissible: true,
-        dismissed: false,
-        important: true,
-        pinnable: true,
-        pinned: true,
-        createdDate: dateDonated
-    };
-
-    let res = await _users(db).updateOne({
+    let res = await createNotification(username, `${platform}-${dateDonated}-${paidValue}-${receivedValue}`, "donation", "Thank You!", `We received your donation of $${receivedValue.toFixed(2)}! ${notificationButton(`showCard('#settingsCardDisplay'); openTab(2)`, `View in your Account`)}`, true, false, true, true, true, dateDonated);
+    if (!res.success) {
+        return res;
+    }
+    res = await _users(db).updateOne({
                                              username: username
-
                                          }, {
                                              $push: {
                                                  donoData: {
@@ -3961,12 +4149,11 @@ const _addDonation = async (db, username, platform, paidValue, receivedValue, da
                                                      paidValue: paidValue,
                                                      receivedValue: receivedValue,
                                                      dateDonated: dateDonated
-                                                 }, "alerts.notifications": notification
+                                                 }
                                              }
                                          });
 
-    if (res.matchedCount === 1) {
-        socketManager.emitToRoom(username, "notification-new", notification);
+    if (res.success) {
         return {success: true, data: {message: `Added donation for ${username}`}};
     }
 
@@ -4050,36 +4237,32 @@ const _getTrimmedAlerts = async (db, username, term, semester) => {
     let end = flatTimestamps.find(t => t > start);
 
     let cond = {$gte: ["$$updateObj.timestamp", start]};
-    if (end !== undefined) cond = {$and: [cond, {$lt: ["$$updateObj.timestamp", end]}]};
+    if (end !== undefined) {
+        cond = {$and: [cond, {$lt: ["$$updateObj.timestamp", end]}]};
+    }
 
-    let aggregation = [
-        {
-            $match: {
-                username: username
-            },
-        },
-        {
-            $project: {
-                alerts: 1
-            }
-        },
-        {
-            $addFields: {
-                "alerts.lastUpdated": {
-                    $filter: {
-                        input: "$alerts.lastUpdated",
-                        as: "updateObj",
-                        cond: cond
-                    }
+    let aggregation = [{
+        $match: {
+            username: username
+        }
+    }, {
+        $project: {
+            alerts: 1
+        }
+    }, {
+        $addFields: {
+            "alerts.lastUpdated": {
+                $filter: {
+                    input: "$alerts.lastUpdated", as: "updateObj", cond: cond
                 }
             }
         }
-    ];
+    }];
 
     res = (await db.collection(USERS_COLLECTION_NAME).aggregate(aggregation).toArray())[0].alerts;
 
     return {success: true, data: {value: res}};
-}
+};
 
 const createPairingKey = (username) => safe(_createPairingKey, lower(username));
 const _createPairingKey = async (db, username) => {
@@ -4355,7 +4538,9 @@ const _internalApiDiscordUserInfo = async (db, discordID) => {
         return {success: false, data: {errorCode: 5}};
     }
 
-    return {success: true, data: {school: user.school, donoData: (await __getDonoAttributes(user.donoData)).data.value}};
+    return {
+        success: true, data: {school: user.school, donoData: (await __getDonoAttributes(user.donoData)).data.value}
+    };
 };
 
 module.exports = {
@@ -4410,6 +4595,7 @@ module.exports = {
     setAnimateWhenUnfocused: setAnimateWhenUnfocused,
     setShowFps: setShowFps,
     setShowUpdatePopup: setShowUpdatePopup,
+    createNotification: createNotification,
     updateNotification: updateNotification,
     deleteNotification: deleteNotification,
     changePassword: changePassword,
@@ -4426,12 +4612,12 @@ module.exports = {
     initAddedAssignments: initAddedAssignments,
     initEditedAssignments: initEditedAssignments,
     initWeights: initWeights,
+    initAddedWeights: initAddedWeights,
     updateClassesForUser: updateClassesForUser,
     updateAddedAssignments: updateAddedAssignments,
     updateEditedAssignments: updateEditedAssignments,
     getSyncStatus: getSyncStatus,
     setSyncStatus: setSyncStatus,
-    getWhatsNew: getWhatsNew,
     latestVersionSeen: latestVersionSeen,
     updateTutorial: updateTutorial,
     resetTutorial: resetTutorial,

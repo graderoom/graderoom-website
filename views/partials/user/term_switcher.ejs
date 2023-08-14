@@ -8,7 +8,7 @@
             >
                 <%= _termsAndSemesters[i][0]; %>
                 <% for (let j = 0; j < _termsAndSemesters[i][1].length; j++) { %>
-                    <div onclick="window.location.href='/' + (window.location.href.indexOf('usernameToRender') === -1 ? '?' : 'viewuser?' + window.location.href.slice(window.location.href.indexOf('usernameToRender'),window.location.href.indexOf('&') === -1 ? undefined : window.location.href.indexOf('&')) + '&') + 'term=<%= _termsAndSemesters[i][0]; %>&semester=<%= _termsAndSemesters[i][1][j]; %>'"
+                    <div onclick="goToSemester('<%= _termsAndSemesters[i][0]; %>', '<%= _termsAndSemesters[i][1][j]; %>')"
                          id="<%= _termsAndSemesters[i][0]; %><%= _termsAndSemesters[i][1][j]; %>"
                     <% if (term === _termsAndSemesters[i][0] && semester === _termsAndSemesters[i][1][j]) { %> class="active"
                             <% } %>
@@ -19,4 +19,15 @@
             </div>
         <% } %>
     </div>
+
+    <script>
+        function goToSemester(term, semester) {
+            let search = new URLSearchParams(window.location.search);
+            if (search.get("term") !== term || search.get("semester") !== semester) {
+                search.set("term", term);
+                search.set("semester", semester);
+                window.location.search = search;
+            }
+        }
+    </script>
 <% } %>

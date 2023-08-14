@@ -75,46 +75,49 @@
     }
 
     function createChangelogNotifications(_versionNames, _versionDates, _versionMessages) {
-        let latestSeenIndex = _versionNames.findIndex(v => v.endsWith(alerts.latestSeen));
-        if (latestSeenIndex === -1) {
-            latestSeenIndex = 2;
-        }
-        for (let i = 1; i < latestSeenIndex; i++) {
-            let version = _versionNames[i];
+        let version = _versionNames[1];
+        let i = 2;
+        if (!version.endsWith(alerts.latestSeen)) {
             if (version.startsWith("Stable")) {
-                createPinned(version, "Stable", version, changelogMessage(version, _versionMessages[i]), false, false, true, _versionDates[i], false);
+                createPinned(version, "Stable", version, changelogMessage(version, _versionMessages[1]), false, false, true, _versionDates[1], false);
             } else if (version.startsWith("Beta")) {
-                <% if (beta) { %>createPinned(version, "Beta", version, changelogMessage(version, _versionMessages[i]), false, false, <%= beta; %>, _versionDates[i], false);<% } %>
+                <% if (beta) { %>createPinned(version, "Beta", version, changelogMessage(version, _versionMessages[1]), false, false, <%= beta; %>, _versionDates[1], false);<% } %>
             } else if (version.startsWith("Announcement")) {
-                createPinned(version, "Announcement", version, changelogMessage(version, _versionMessages[i]), false, false, true, _versionDates[i], false);
+                createPinned(version, "Announcement", version, changelogMessage(version, _versionMessages[1]), false, false, true, _versionDates[1], false);
             }
+        } else {
+            i = 1;
         }
-        for (let i = latestSeenIndex; i < _versionNames.length; i++) {
+        for (; i < _versionNames.length; i++) {
             let version = _versionNames[i];
             if (version.startsWith("Stable")) {
-                createDismissed(version, "Stable", version, changelogMessage(version, _versionMessages[i]), false, false, true, _versionDates[i], _versionDates[latestSeenIndex], false);
+                createDismissed(version, "Stable", version, changelogMessage(version, _versionMessages[i]), false, false, true, _versionDates[i], false);
             } else if (version.startsWith("Beta")) {
-                createDismissed(version, "Beta", version, changelogMessage(version, _versionMessages[i]), false, false, <%= beta; %>, _versionDates[i], _versionDates[latestSeenIndex], false);
+                createDismissed(version, "Beta", version, changelogMessage(version, _versionMessages[i]), false, false, <%= beta; %>, _versionDates[i], false);
             } else if (version.startsWith("Announcement")) {
-                createDismissed(version, "Announcement", version, changelogMessage(version, _versionMessages[i]), false, false, true, _versionDates[i], _versionDates[latestSeenIndex], false);
+                createDismissed(version, "Announcement", version, changelogMessage(version, _versionMessages[i]), false, false, true, _versionDates[i], false);
             }
         }
     }
 
     function changelogMessage(version, message) {
-        return `${message}<span class="notification-button" style="cursor: pointer" onclick="onScreenVersion = '${version}'; showChangelog()"><b><i class="fa fa-external-link-square"></i> Open Changelog</b></span>`;
+        return `${message}<span class="notification-button" style="cursor: pointer" onclick="openAndScroll('${version}')"><b><i class="fa fa-external-link-square"></i> Open Changelog</b></span>`;
+    }
+
+    function openAndScroll(version) {
+        showChangelog(false, false, version);
     }
 
     function createPinned(id, type, title, message, dismissible, pinnable, important, timestamp, repaint) {
-        createNotification(id, type, title, message, dismissible, false, pinnable, true, important, timestamp, null, repaint);
+        createNotification(id, type, title, message, dismissible, false, pinnable, true, important, timestamp, repaint);
     }
 
     function createUnread(id, type, title, message, dismissible, pinnable, important, timestamp, repaint) {
-        createNotification(id, type, title, message, dismissible, false, pinnable, false, important, timestamp, null, repaint);
+        createNotification(id, type, title, message, dismissible, false, pinnable, false, important, timestamp, repaint);
     }
 
-    function createDismissed(id, type, title, message, dismissible, pinnable, important, timestamp, dismissedTimestamp, repaint) {
-        createNotification(id, type, title, message, dismissible, true, pinnable, false, important, timestamp, dismissedTimestamp, repaint);
+    function createDismissed(id, type, title, message, dismissible, pinnable, important, timestamp, repaint) {
+        createNotification(id, type, title, message, dismissible, true, pinnable, false, important, timestamp, repaint);
     }
 
     function updateCounts() {
@@ -138,7 +141,7 @@
         }
     }
 
-    function createNotification(id, type, title, message, dismissible = true, dismissed = false, pinnable = false, pinned = false, important = false, timestamp, dismissedTimestamp, repaint = true, animateIn = false) {
+    function createNotification(id, type, title, message, dismissible = true, dismissed = false, pinnable = false, pinned = false, important = false, timestamp, repaint = true, animateIn = false) {
         let _type = type.toLowerCase();
         let notification = document.createElement("div");
         notification.classList.add("notification-card", _type);
@@ -216,7 +219,6 @@
                 pinned: pinned,
                 important: important,
                 timestamp: timestamp,
-                dismissedTimestamp: dismissedTimestamp,
                 ref: notification,
                 closeRef: closeBtn,
                 pinRef: pinBtn
@@ -241,7 +243,6 @@
                 pinned: pinned,
                 important: important,
                 timestamp: timestamp,
-                dismissedTimestamp: dismissedTimestamp,
                 ref: notification,
                 closeRef: closeBtn,
                 pinRef: pinBtn
@@ -266,7 +267,6 @@
                 pinned: pinned,
                 important: important,
                 timestamp: timestamp,
-                dismissedTimestamp: dismissedTimestamp,
                 ref: notification,
                 closeRef: closeBtn,
                 pinRef: pinBtn
