@@ -1313,7 +1313,9 @@
         let academicIndices = data.map((d, i) => relClassData[d.class_name].classType !== "non-academic" ? i : null).filter(c => c !== null);
         let nonAcademicCount = data.length - academicIndices.length;
 
+        let mapToOnlyAcademic = false;
         if (!appearance.showNonAcademic && Object.keys(Object.fromEntries(Object.entries(relClassData).filter(([k, v]) => data.find(c => c.class_name === k) && v.classType === "non-academic"))).length > 0) {
+            mapToOnlyAcademic = true;
             colors = academicIndices.map(n => colors[n]);
             data = academicIndices.map(n => data[n]);
             weights = academicIndices.map(n => weights[n]);
@@ -2317,6 +2319,9 @@
                 } else {
                     if (response) {
                         addedWeights = response;
+                        if (mapToOnlyAcademic) {
+                            addedWeights = academicIndices.map(n => addedWeights[n]);
+                        }
                     }
                     let addAssignment = $($(".add-assignment-container")[currentPage]);
                     addAssignment.removeClass("active");
@@ -2640,6 +2645,9 @@
                    }).done((response) => {
                 if (response) {
                     addedWeights = response;
+                    if (mapToOnlyAcademic) {
+                        addedWeights = academicIndices.map(n => addedWeights[n]);
+                    }
                 }
                 refreshWithoutReload(classIndex);
             });
@@ -2663,6 +2671,9 @@
                    }).done((response) => {
                 if (response) {
                     addedWeights = response;
+                    if (mapToOnlyAcademic) {
+                        addedWeights = academicIndices.map(n => addedWeights[n]);
+                    }
                 }
                 refreshWithoutReload(classIndex);
             });
@@ -2694,6 +2705,9 @@
                        }).done((response) => {
                     if (response) {
                         addedWeights = response;
+                        if (mapToOnlyAcademic) {
+                            addedWeights = academicIndices.map(n => addedWeights[n]);
+                        }
                     }
                     refreshWithoutReload(classIndex);
                 });
@@ -2720,6 +2734,9 @@
                    }).done((response) => {
                 if (response) {
                     addedWeights = response;
+                    if (mapToOnlyAcademic) {
+                        addedWeights = academicIndices.map(n => addedWeights[n]);
+                    }
                 }
                 refreshWithoutReload(classIndex);
             });
@@ -2750,6 +2767,9 @@
                    }).done((response) => {
                 if (response) {
                     addedWeights = response;
+                    if (mapToOnlyAcademic) {
+                        addedWeights = academicIndices.map(n => addedWeights[n]);
+                    }
                 }
                 refreshWithoutReload(classIndex);
             });
@@ -2781,6 +2801,9 @@
                            }).done((response) => {
                         if (response) {
                             addedWeights = response;
+                            if (mapToOnlyAcademic) {
+                                addedWeights = academicIndices.map(n => addedWeights[n]);
+                            }
                         }
                         refreshWithoutReload(classIndex);
                     });
