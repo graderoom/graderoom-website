@@ -1437,8 +1437,9 @@ const _getChartData = async (db) => {
         // Don't wait for this one because we already have old data we can show
         let startTime = Date.now();
         processChartData().then(() => console.log(`Chart processing took ${Date.now() - startTime}ms`));
+    } else {
+        console.log(`Chart processing took 0ms`);
     }
-    console.log(`Chart processing took 0ms`);
     return new Promise(resolve => resolve({
                                               success: true, data: data
                                           }));
@@ -3087,7 +3088,7 @@ const _updateClassesForUser = async (db, username, term, semester, className) =>
                     // Update weights from classes db if not custom
                     if (!custom && _.isEqual(neededWeights, Object.keys(dbTeacher.weights))) {
                         newWeights = dbTeacher.weights;
-                        hasWeights = dbTeacher.hasWeights;
+                        hasWeights = dbTeacher.hasWeights ?? false;
                     } else {
                         newWeights = Object.fromEntries(neededWeights.map((neededWeight) => [neededWeight, currentWeights.weights[neededWeight] ?? null]));
 
