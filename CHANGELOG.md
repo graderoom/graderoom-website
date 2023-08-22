@@ -50,6 +50,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 6.2.1] - 2023-08-21
+### Fixed
+- Issue with adding weights when non-academic classes were hidden
+
 ## [Stable 6.2.0] - 2023-08-13 - New school year, new you!
 ### Added
 - <github issue="128">Allow adding new categories when adding assignments</github>
