@@ -50,7 +50,11 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Stable 6.2.1] - 2023-08-21
+## [Stable 6.2.2] - 2023-08-23
+### Fixed
+- Issue with adding weights when non-academic classes were hidden
+
+## [Beta 6.2.1] - 2023-08-21
 ### Fixed
 - Issue with adding weights when non-academic classes were hidden
 
