@@ -2506,6 +2506,8 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
             } else if (data.message === "No class data.") {
                 await setSyncStatus(username, SyncStatus.NO_DATA);
                 data.message = `No ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"} grades found for this term.`;
+            } else if (data.message === `Could not connect to ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"}.`) {
+                await setSyncStatus(username, SyncStatus.FAILED);
             } else if (data.message.startsWith("Error: ")) {
                 let code = (await logError(username, data.message.substring(7))).data.value;
                 await setSyncStatus(username, `${SyncStatus.FAILED}-${code}`);
@@ -2513,8 +2515,9 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                     gradeSyncEnabled: gradeSync, message: `Sync Error (${code}). Contact Support.`
                 });
                 return;
+            } else {
+                await setSyncStatus(username, SyncStatus.LOGIN_FAILED);
             }
-            await setSyncStatus(username, SyncStatus.FAILED);
             socketManager.emitToRoom(username, "sync-fail", {
                 gradeSyncEnabled: data.message !== "Incorrect login details." && gradeSync, message: data.message
             });
@@ -3307,8 +3310,10 @@ const _getSyncStatus = async (db, username) => {
             success: false,
             data: {message: `No ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"} grades found for this term.`}
         };
+    } else if (syncStatus === SyncStatus.LOGIN_FAILED) {
+        return {success: false, data: {message: `Invalid ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"} credentials.`}}
     } else if (syncStatus === SyncStatus.FAILED) {
-        return {success: false, data: {message: "Sync Failed."}};
+        return {success: false, data: {message: `Could not connect to ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"}.`}};
     } else if (syncStatus === undefined || syncStatus === SyncStatus.UPDATING) {
         return {success: false, data: {message: "Did not sync"}};
     } else if (syncStatus === SyncStatus.HISTORY) {
