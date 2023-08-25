@@ -50,6 +50,16 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Announcement 6.2.4] - 2023-08-25 - Sync Error? ⬇️ Click here ⬇️
+- Graderoom depends on PowerSchool functioning
+- Since PowerSchool doesn't work, Graderoom cannot work
+- Please check if PowerSchool works before reporting anymore issues to me
+- <img src="/public/resources/PowerSchool-Down-08-25-23.png" style="width: 100%">
+
+## [Stable 6.2.3] - 2023-08-25
+### Improved
+- More descriptive sync errors
+
 ## [Stable 6.2.2] - 2023-08-23
 ### Fixed
 - Issue with adding weights when non-academic classes were hidden

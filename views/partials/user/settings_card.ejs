@@ -1257,8 +1257,6 @@
             gradeSyncDiv.hide();
             $("#syncGradesDiv").show();
             $(".gradeSyncEnabled").hide();
-            $(".syncFailure").hide();
-            $(".syncNoData").hide();
             clearTimeout(checkLastUpdated);
             $(".updateGradesMessage").removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text("GradeSync is not enabled");
         } else {

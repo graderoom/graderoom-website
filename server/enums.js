@@ -2,6 +2,7 @@ module.exports.SyncStatus = {
     COMPLETE: "complete",
     ALREADY_DONE: "already done",
     NO_DATA: "no data",
+    LOGIN_FAILED: "login failed",
     FAILED: "failed",
     UPDATING: "updating",
     HISTORY: "history",
