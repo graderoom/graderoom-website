@@ -274,9 +274,6 @@
 
         $("#loadingDisplay").show();
 
-        $(".syncFailure").hide();
-        $(".syncNoData").hide();
-
         $(`${_gradeSync ? "#syncGradesForm" : "#gradeSyncForm"}`).find("button").prop("disabled", true).find("div").addClass("loading");
 
         sendData("start-update", {

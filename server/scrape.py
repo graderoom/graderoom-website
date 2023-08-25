@@ -289,7 +289,14 @@ class PowerschoolScraper(Scraper):
         resp = self.session.get(url, headers=headers_1, timeout=10, verify=self.verify)
         soup = bS(resp.text, "html.parser")
         query = parse_qs(urlparse(resp.url).query)
-        dynamic_url = soup.find("form", id="loginForm").get("action")
+
+        login_form = soup.find("form", id="loginForm")
+        if login_form is None:
+            self.progress = 0
+            print(json_format(False, 'Could not connect to PowerSchool.'))
+            sys.exit()
+
+        dynamic_url = login_form.get("action")
         self.progress = 5
 
         # Second request

@@ -1005,12 +1005,13 @@
                             showChangelog(false, true);
                             setupIncorrectGradeMessages();
                             break;
-                        case "Sync Failed.":
+                        case `Could not connect to ${school === "basis" ? "Schoology" : "PowerSchool"}.`:
                             messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(status);
                             showChangelog(false, true);
                             setupIncorrectGradeMessages();
                             break;
                         case `No ${school === "basis" ? "Schoology" : "PowerSchool"} grades found for this term.`:
+                            break;
                         case "Syncing history...":
                             messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(status);
                             break;
@@ -1058,12 +1059,10 @@
                         setupTutorialPopups();
                     }
                     if (data.message && (data.message === "No class data." || data.message === "Powerschool is locked.")) {
-                        $(".syncNoData").show();
                         $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
                         $(formMessagesDiv).find(".sk-chase-mini").hide();
                         setupLastUpdated();
-                    } else if (data.message && data.message === "Error scraping grades.") {
-                        $(".syncFailure").show();
+                    } else if (data.message && data.message === `Could not connect to ${(school === "basis") ? "Schoology" : "PowerSchool"}.`) {
                         $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
                         $(formMessagesDiv).find(".sk-chase-mini").hide();
                         setupLastUpdated();
