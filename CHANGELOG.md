@@ -53,6 +53,7 @@
 ## [Stable 6.2.5] - 2023-10-08
 ### Fixed
 - <github issue="164">Grade is calculated wrong if the weight for a category is zero</github>
+- Changelog notifications not clearing properly
 
 ## [Announcement 6.2.4] - 2023-08-25 - Had a Sync Error? ⬇️ Click here ⬇️
 - Graderoom depends on PowerSchool functioning

@@ -46,7 +46,7 @@
             return;
         }
         return new Promise(async resolve => {
-            if (changelogLegendArray !== undefined) {
+            if (latestVersion === undefined) {
                 latestVersion = await $.ajax({
                                                      url: "/latestVersion", type: "GET", async: true
                                              }).catch(() => {});
