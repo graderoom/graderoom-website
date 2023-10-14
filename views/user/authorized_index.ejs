@@ -878,7 +878,7 @@
                                             renderAllCharts();
                                             $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
                                             $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
-                                            $(".discord-iframe").attr("src", "https://discord.com/widget?id=897624313136578590&theme=dark");
+                                            setupDiscord();
                                             setupClassTables(undefined, true);
                                             setTimeout(() => {
                                                 document.getElementById("fade").disabled = true;
@@ -901,7 +901,7 @@
                                             renderAllCharts();
                                             $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
                                             $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
-                                            $(".discord-iframe").attr("src", "https://discord.com/widget?id=897624313136578590&theme=light");
+                                            setupDiscord();
                                             setupClassTables(undefined, true);
                                             setTimeout(() => {
                                                 document.getElementById("fade").disabled = true;
@@ -1408,6 +1408,14 @@
             }
         }
 
+        let discordLoaded = false;
+        function setupDiscord(initial = false) {
+            if (discordLoaded || !initial) return;
+
+            $(".discord-iframe").attr("src", `https://discord.com/widget?id=897624313136578590&theme=${darkMode ? "dark" : "light"}`);
+            discordLoaded = true;
+        }
+
         function setAutoTheme() {
             let date = new Date();
             let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes());
@@ -1439,7 +1447,7 @@
                     renderAllCharts();
                     $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
                     $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
-                    $(".discord-iframe").attr("src", "https://discord.com/widget?id=897624313136578590&theme=dark");
+                    setupDiscord();
                     setTimeout(() => {
                         document.getElementById("fade").disabled = true;
                         setupClassTables(undefined, true);
@@ -1467,7 +1475,7 @@
                     setTimeout(() => {
                         document.getElementById("fade").disabled = true;
                         setupClassTables(undefined, true);
-                        $(".discord-iframe").attr("src", "https://discord.com/widget?id=897624313136578590&theme=light");
+                        setupDiscord();
                     }, 500);
                     if (appearance.seasonalEffects) {
                         init = performance.now();

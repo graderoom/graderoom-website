@@ -50,7 +50,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Stable 6.2.5] - 2023-10-08
+## [Stable 6.2.5] - 2023-10-15
+### Improved
+- No longer load Discord widget on page load
+
 ### Fixed
 - <github issue="164">Grade is calculated wrong if the weight for a category is zero</github>
 - Changelog notifications not clearing properly
