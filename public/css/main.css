@@ -3446,6 +3446,44 @@ input:disabled {
 .discord-iframe {
     width: 100%;
     height: 300px;
+    border: 0;
+    z-index: 1;
+    position: relative;
+}
+
+.discord-iframe ~ span {
+    display: block;
+    position: relative;
+    height: 0;
+    top: -300px;
+    width: 100%;
+}
+
+.discord-iframe ~ span::before {
+    content: "Loading Discord...";
+    animation: pulse-discord 1s ease-out infinite;
+    font-weight: bold;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    overflow: visible;
+    width: 100%;
+    height: 294px;
+}
+
+@keyframes pulse-discord {
+    0%, 100% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+#feedbackForm {
+    border: 0;
 }
 
 .premium-label {

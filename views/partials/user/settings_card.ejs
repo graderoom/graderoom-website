@@ -887,13 +887,11 @@
                     </div>
                     <div class="card-footer">
                         <h5 style="padding-bottom: 12px">Join Our Discord Server</h5>
-                        <iframe src="https://discord.com/widget?id=897624313136578590&theme=<%= theme ? "dark" : "light" %>"
-                                class="discord-iframe"
+                        <iframe class="discord-iframe"
                                 allowtransparency="true"
-                                sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
-                                style="border: 0">
-                            Loading...
+                                sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts">
                         </iframe>
+                        <span></span>
                         <br><br>
                         <p>You can also <a href="https://discord.gg/p9kyZxuAmC">click here</a> to join.</p>
                     </div>
@@ -1329,6 +1327,10 @@
         $(tabName).addClass("show");
         $(settingsBtns[tabIndex]).addClass("active");
         currentSettingsTab = tabIndex;
+
+        if (currentSettingsTab === 4) {
+            setupDiscord(true);
+        }
     }
 
     function checkLabel(input) {

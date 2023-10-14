@@ -13,13 +13,11 @@
                     <i class="fa fa-send"></i> Feedback
                 </h1>
                 <div class="card-footer" id="discordContainer">
-                    <iframe src="https://discord.com/widget?id=897624313136578590&theme=<%= theme ? "dark" : "light" ;%>"
-                            class="discord-iframe"
+                    <iframe class="discord-iframe"
                             allowtransparency="true"
-                            frameborder="0"
                             sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts">
-                        Loading...
                     </iframe>
+                    <span></span>
                     <br><br>
                     <p>You can also <a target="_blank" href="https://discord.gg/p9kyZxuAmC">click here</a> to join.</p>
                     <p>If you are unable to use Discord, <a href="#" style="cursor: pointer"
@@ -28,9 +26,7 @@
                 </div>
                 <div class="card-footer" id="feedbackContainer" style="display:none">
                     <p>Or <a target="_blank" href="https://discord.gg/p9kyZxuAmC">click here</a> to join the discord</p>
-                    <iframe id="feedbackForm"
-                            frameborder="0" marginheight="0" marginwidth="0">Loading…
-                    </iframe>
+                    <iframe id="feedbackForm"></iframe>
                 </div>
             </div>
         </div>

@@ -740,6 +740,11 @@ tr:hover .toolTab {
     color: #bbb;
 }
 
+.discord-iframe ~ span::before {
+    background: #5865F2;
+    color: white;
+}
+
 /* Mobile Stuff */
 @media only screen and (max-width: 991px) {
     .block {
