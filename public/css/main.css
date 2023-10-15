@@ -208,6 +208,7 @@ table thead tr th {
 
 table thead tr th:last-child {
     border-right: none;
+    border-left: none;
 }
 
 .class-table select {
@@ -2720,6 +2721,10 @@ tr.beforeSeparator td:nth-last-child(2) {
     border-radius: 0 0 0.5rem 0;
 }
 
+thead.unround-top-right:first-child tr:first-child th:nth-last-child(2), thead.unround-top-right:not(:first-child) tr:nth-child(2) th:nth-last-child(2) {
+    border-top-right-radius: 0 !important;
+}
+
 .toolTab > span {
     cursor: context-menu;
 }
@@ -2737,8 +2742,8 @@ tr.beforeSeparator td:nth-last-child(2) {
 }
 
 .delta {
-    font-size: 0.7rem;
-    margin-left: 0.5rem;
+    font-size: 0.9rem;
+    margin-left: 0.7rem;
     white-space: nowrap;
 }
 
@@ -2981,6 +2986,31 @@ input:disabled {
 
 .classInfo-description-header {
     font-weight: bold;
+}
+
+#assignmentInfoBody {
+    display: flex;
+    flex-flow: column;
+}
+
+#assignmentInfoBody > div {
+    padding: 1rem;
+    border-radius: 1rem;
+    width: 100%;
+}
+
+#assignmentInfoBody > div:not(:last-child) {
+    margin-bottom: 1rem;
+}
+
+#assignmentInfoBody > div > span {
+    display: inline-block;
+    width: 100%;
+    font-weight: bold;
+}
+
+#assignmentInfoBody > div:first-child > span > span, #assignmentInfoBody > div:not(:first-child) > span:nth-child(2) {
+    font-weight: normal;
 }
 
 #syncPopup {
@@ -3691,6 +3721,29 @@ input:disabled {
     animation: centerScaleUp 150ms;
 }
 
+.assignment-colspan-1 {
+    display: none;
+}
+
+td.assignment-info {
+    padding: 0.5rem;
+}
+
+div.assignment-info {
+    cursor: pointer;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    margin-top: 0;
+    transition: 250ms all;
+    outline: transparent solid 1px;
+}
+
+div.assignment-info > span {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 @keyframes centerScaleUp {
     from {
         opacity: 0;
@@ -3747,6 +3800,10 @@ input:disabled {
 
 /* Mobile Stuff */
 @media only screen and (max-width: 991px) {
+    .assignment-colspan-1 {
+        display: table-cell;
+    }
+
     .toolTab {
         display: none;
     }

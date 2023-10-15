@@ -253,7 +253,7 @@ table tfoot tr td {
 }
 
 .excluded {
-    color: #D3D3D3 !important;
+    color: #BBBBBB !important;
 }
 
 tr.excluded:hover .excludeToggle .fa-ban {
@@ -365,8 +365,8 @@ input:checked + .slider:before {
     background-color: transparent;
 }
 
-.table tr {
-    background-color: #FFFFFF;
+.table th, .table tr:not(.separator) td {
+     background-color: #FFFFFF;
 }
 
 .weightsTable input {
@@ -614,6 +614,10 @@ select.minimal:focus {
     color: rgba(200, 50, 50, 1);
 }
 
+tr.no-change {
+    color: rgba(0, 0, 0, 0.5) !important;
+}
+
 tr:hover .toolTab {
     filter: brightness(90%);
 }
@@ -717,6 +721,14 @@ tr:hover .toolTab {
 .discord-iframe ~ span::before {
     background: #5865F2;
     color: black;
+}
+
+div.assignment-info {
+    background-color: #EEEEEE;
+}
+
+div.assignment-info:hover {
+    background-color: #AAAAAA;
 }
 
 /* Mobile Stuff */
