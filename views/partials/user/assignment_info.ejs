@@ -1,0 +1,30 @@
+<!-- Assignment Info Card -->
+<div class="blurred-login" id="assignmentInfoCardDisplay">
+    <div class="blurred-background"></div>
+    <div class="col-sm-9 col-md-7 col-lg-6 col-xl-5 mx-auto">
+        <div id="classInfoCard" class="card card-signin my-5">
+            <btn class="btn btn-md"
+                 onclick="closeForm('assignmentInfoCardDisplay')"
+                 style="width: fit-content; width: -moz-fit-content; margin-bottom:0">
+                <i class="fa fa-close" aria-hidden="true"></i> Close
+            </btn>
+            <div class="card-body" style="padding: 2rem">
+                <h1 class="card-title text-center">
+                    <span class="fa fa-info-circle"></span> Assignment Info
+                </h1>
+                <div id="assignmentInfoBody" class="card-footer">
+                    <div>
+                        <span>Date: <span id="assignmentInfoDate"></span></span>
+                        <span>Name: <span id="assignmentInfoName"></span></span>
+                        <span>Category: <span id="assignmentInfoCategory"></span></span>
+                        <span>Score: <span id="assignmentInfoScore"></span></span>
+                    </div>
+                    <div><span>Description</span><span id="assignmentInfoDescription"></span></div>
+                    <div><span>Comments</span><span id="assignmentInfoComments"></span></div>
+                </div>
+<!--                <div id="assignmentInfoGraderoomUsers"></div>-->
+<!--                <div id="assignmentInfoAverage"></div>-->
+            </div>
+        </div>
+    </div>
+</div>

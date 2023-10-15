@@ -602,7 +602,7 @@
                                                    onblur="this.type='text'; checkLabel(this)" required>
                                         </div>
                                         <div class="addAssignmentName form-weights form-signin input-group form-group">
-                                            <label>Assignment Name</label>
+                                            <label>Assignment</label>
                                             <input class="form-control dynamic-input"
                                                    type="text" required oninput="checkLabel(this);">
                                         </div>
@@ -668,7 +668,8 @@
                             <thead>
                                 <tr>
                                     <th class="compact">Date</th>
-                                    <th>Assignment Name</th>
+                                    <th class="compact" colspan="2">Assignment</th>
+                                    <th class="assignment-colspan-1" colspan="1">Assignment Name</th>
                                     <th class="compact">Category</th>
                                     <th>Score</th>
                                     <th class="compact">Assignment Percent</th>
@@ -707,62 +708,7 @@
                             <tbody></tbody>
                         </table>
                     </div>
-                    <table class="table rounded-table class-table text-center categoryTable<%= i + displayedStuffIndexOffset; %>">
-                        <% for (let j = 0; j < Object.keys(classWeights.weights).length; j++) { %>
-                            <% let category = Object.keys(classWeights.weights)[j]; %>
-                            <thead class="categoryStart">
-                                <% if (j > 0) { %>
-                                    <tr class="separator">
-                                        <td colspan="6"></td>
-                                    </tr>
-                                <% } %>
-                                <tr>
-                                    <th colspan="6"><%= category; %></th>
-                                    <th class="toolTab categoryModAllTab<%= i + displayedStuffIndexOffset %>">
-                                        <span class="popup">
-                                            <i
-                                                    class="fa fa-undo resetCategory<%= i + displayedStuffIndexOffset %> disabled"
-                                                    onclick="{resetCategory(<%= i + displayedStuffIndexOffset %>, <%= j %>)}">
-                                                <span class="popup-top-left">
-                                                    Revert ALL changes in <span
-                                                            class="tutorial-popup"><%= category; %></span>
-                                                </span>
-                                            </i>
-                                        </span>
-                                        <span class="popup">
-                                            <i
-                                                    class="fa fa-trash trashCategory<%= i + displayedStuffIndexOffset %> disabled"
-                                                    onclick="{trashCategory(<%= i + displayedStuffIndexOffset %>, <%= j %>);}"><span
-                                                        class="popup-top-left">
-                                                    Delete ALL added assignments in <span
-                                                            class="tutorial-popup"><%= category; %></span>
-                                                </span>
-                                            </i>
-                                        </span>
-                                        <span class="popup">
-                                            <i
-                                                    class="fa fa-check saveCategory<%= i + displayedStuffIndexOffset %> disabled"
-                                                    onclick="{saveCategory(<%= i + displayedStuffIndexOffset %>, <%= j %>);}"><span
-                                                        class="popup-top-left">
-                                                    Save ALL changes in <span
-                                                            class="tutorial-popup"><%= category; %></span>
-                                                </span>
-                                            </i>
-                                        </span>
-                                    </th>
-                                </tr>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Assignment Name</th>
-                                    <th>Category</th>
-                                    <th>Score</th>
-                                    <th>Assignment Percent</th>
-                                    <th>Category Grade</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        <% } %>
+                    <table class="table rounded-table class-table text-center" id="categoryTable<%= i + displayedStuffIndexOffset; %>">
                     </table>
                 </span>
             <% } else {
@@ -1217,10 +1163,10 @@
         function deltaColorFunction(delta, improve) {
             // Calculate alpha
             let abs = Math.abs(delta);
-            let max = 0.4;
+            let max = darkMode ? 0.3 : 0.5;
             let maxInput = 10;
             let cutoff = Math.min(abs, maxInput);
-            let alpha = max * Math.pow(cutoff / maxInput, 1 / 2.5);
+            let alpha = max * Math.pow(cutoff / maxInput, 0.5);
 
             // Get initial improve/deprove color
             let initColor = (improve ? {r: 0, g: 255, b: 0, a: alpha} : {r: 255, g: 0, b: 0, a: alpha});
@@ -1229,7 +1175,7 @@
             }
 
             // Get background color
-            let bgColor = {r: 238, g: 238, b: 238};
+            let bgColor = {r: 255, g: 255, b: 255};
 
             // Calculate final color
             let finalColor = {r: 0, g: 0, b: 0};
@@ -1244,6 +1190,7 @@
         function refresh(changedClassIndex) {
             // Trying to be efficient and only change affected data
             parseData(changedClassIndex);
+            setupAddAssignments(changedClassIndex);
             setupAddedWeights(changedClassIndex);
             setupWeightsTables(changedClassIndex);
             setupWeightsTableListeners();
@@ -1344,7 +1291,6 @@
             }
             gradeHistoryLetters[term][semester][i] = {[_data[i].class_name]: _data[i].overall_letter};
         }
-        ;
 
         let changeTransition;
         let theme = appearance.theme;
@@ -1369,7 +1315,7 @@
         if (data.length) {
             setupGradeChanges(false);
             refreshWithoutReload(undefined, true);
-            setupAddAssignments();
+            setupAddAssignments(undefined, true);
         }
 
         $("#termSwitcher").addClass("hover");
@@ -2282,7 +2228,7 @@
             addDate = addDate[1] + "/" + addDate[2] + "/" + addDate[0];
             let addName = $(".addAssignmentName input")[classIndex].value;
             let addCategory = $(".addAssignmentCategory select")[classIndex].selectedOptions[0];
-            if (addCategory.index === Object.keys(weights[classIndex].weights).length) {
+            if (addCategory.index === Object.keys(weights[classIndex].weights).length + Object.keys(addedWeights[classIndex].weights).length) {
                 addCategory = $(`#newCategory${classIndex}`)[0].value;
             } else {
                 addCategory = addCategory.value;
@@ -2580,8 +2526,10 @@
 
         function resetCategory(classIndex, categoryIndex) {
             let categories = Object.keys(weights[classIndex]["weights"]);
-            $($(".categoryTable" + classIndex)[categoryIndex]).removeClass("unround-top-right");
-            let category = categories[categoryIndex];
+            let addedCategories = Object.keys(addedWeights[classIndex]["weights"]);
+            let allCategories = addedCategories.concat(categories);
+            $($(`#categoryTable${classIndex} thead.categoryStart`)[categoryIndex]).removeClass("unround-top-right");
+            let category = allCategories[categoryIndex];
             let startIndex = categorySortedData[classIndex].assignmentCategories.indexOf(category);
             let numOfCategory = categorySortedData[classIndex].assignmentCategories.filter(x => x === category).length;
             for (let i = startIndex; i < startIndex + numOfCategory; i++) {
@@ -2665,8 +2613,10 @@
 
         function trashCategory(classIndex, categoryIndex) {
             let categories = Object.keys(weights[classIndex]["weights"]);
-            $($(".categoryTable" + classIndex)[categoryIndex]).removeClass("unround-top-right");
-            let category = categories[categoryIndex];
+            let addedCategories = Object.keys(addedWeights[classIndex]["weights"]);
+            let allCategories = addedCategories.concat(categories);
+            $($(`#categoryTable${classIndex} thead.categoryStart`)[categoryIndex]).removeClass("unround-top-right");
+            let category = allCategories[categoryIndex];
             let startIndex = categorySortedData[classIndex].assignmentCategories.indexOf(category);
             let numOfCategory = categorySortedData[classIndex].assignmentCategories.filter(x => x === category).length;
             for (let i = startIndex; i < startIndex + numOfCategory; i++) {
@@ -2754,8 +2704,10 @@
 
         function saveCategory(classIndex, categoryIndex) {
             let categories = Object.keys(weights[classIndex]["weights"]);
-            $($(".categoryTable" + classIndex)[categoryIndex]).removeClass("unround-top-right");
-            let category = categories[categoryIndex];
+            let addedCategories = Object.keys(addedWeights[classIndex]["weights"]);
+            let allCategories = addedCategories.concat(categories);
+            $($(`#categoryTable${classIndex} thead.categoryStart`)[categoryIndex]).removeClass("unround-top-right");
+            let category = allCategories[categoryIndex];
             let startIndex = categorySortedData[classIndex].assignmentCategories.indexOf(category);
             let numOfCategory = categorySortedData[classIndex].assignmentCategories.filter(x => x === category).length;
             for (let i = startIndex; i < startIndex + numOfCategory; i++) {
@@ -2907,28 +2859,36 @@
                    });
         }
 
-        function setupAddAssignments() {
+        function setupAddAssignments(classIndex, initial=false) {
             let categorySelectReferences = $(".addCategory");
             for (let i = 0; i < parsedData.length; i++) {
+                if (classIndex !== undefined && classIndex !== i) continue;
                 let dropdown = $(categorySelectReferences[i]);
                 let categories = Object.keys(weights[i]["weights"]);
+                let addedCategories = Object.keys(addedWeights[i]["weights"]);
+                let allCategories = addedCategories.concat(categories);
 
                 // Set up categories
-                if (!$(dropdown).find("option").length) {
-                    for (let j = 0; j < categories.length; j++) {
-                        dropdown.append($("<option>").text(categories[j]));
-                    }
-                    dropdown.append($("<option>").text("+ New Category"));
-                    if (categories.length === 0) {
-                        $(`#addNewCategory${i}`).show();
-                        $(`#newCategory${i}`).prop('required', true);
-                    }
+                $(dropdown).find("option").remove();
+                for (let j = 0; j < allCategories.length; j++) {
+                    dropdown.append($("<option>").html(allCategories[j] + `${j < addedCategories.length ? ` - (Added)` : ``}`));
                 }
-                $("#addAssignmentForm" + i).submit(function (e) {
-                    e.preventDefault();
-                    addAssignment(i);
-                    $("#addAssignmentForm" + i + " input").val("").trigger("input").trigger("blur");
-                });
+                dropdown.append($("<option>").text("+ New Category"));
+                if (categories.length === 0) {
+                    $(`#addNewCategory${i}`).show();
+                    $(`#newCategory${i}`).prop('required', true);
+                } else {
+                    $(`#addNewCategory${i}`).hide();
+                    $(`#newCategory${i}`).prop('required', false);
+                }
+                if (initial) {
+                    $("#addAssignmentForm" + i).submit(function (e) {
+                                                           e.preventDefault();
+                                                           addAssignment(i);
+                                                           $("#addAssignmentForm" + i + " input").val("").trigger("input").trigger("blur");
+                                                       }
+                    );
+                }
             }
 
             //Adjust widths
@@ -2954,6 +2914,7 @@
                 }
                 let categories = Object.keys(weights[i]["weights"]);
                 let addedCategories = Object.keys(addedWeights[i].weights);
+                let allCategories = addedCategories.concat(categories);
                 let assignmentData;
                 let assignmentDates;
                 let assignmentNames;
@@ -2968,6 +2929,8 @@
                 let rowDivs;
                 let row;
                 let assignmentDateDivs;
+                let assignmentInfoButtons;
+                let assignmentInfoDivs;
                 let assignmentNameDivs;
                 let assignmentCategoryDivs;
                 let excludeDivs;
@@ -3003,11 +2966,12 @@
                     rowDivs = $(`.categoryClassTableRow${i}`);
                     if (!justChangeColors) {
                         row = `<tr class="categoryClassTableRow${i}">
-                                       <td class="categoryAssignmentDate${i}"></td>
+                                       <td class="compact categoryAssignmentDate${i}"></td>
+                                       <td class="compact assignment-info"><div class="assignment-info categoryAssignmentButton${i}"><span class="categoryAssignmentInfo${i}"></span></div></td>
                                        <td>
                                            <div class="excludeToggle"
                                                 style="display: flex; justify-content: space-between; align-items: center;">
-                                               <div class="categoryAssignmentName${i}"></div>
+                                               <div class="compact categoryAssignmentName${i}"></div>
                                                <div style="display: flex; justify-content: center; flex-flow: column; align-items: center">
                                                    <i class="fa fa-ban categoryExclude${i}"
                                                       style="cursor: pointer">
@@ -3016,7 +2980,7 @@
                                                </div>
                                            </div>
                                        </td>
-                                       <td class="categoryAssignmentCategory${i}">
+                                       <td class="compact categoryAssignmentCategory${i}">
                                            <select class="minimal categoryCategory${i}"
                                                    style="margin: 0"></select>
                                        </td>
@@ -3032,7 +2996,7 @@
                                                            placeholder="--">
                                            </div>
                                        </td>
-                                       <td class="categoryAssignmentPercent${i}"></td>
+                                       <td class="compact categoryAssignmentPercent${i}"></td>
                                        <td class="categoryAssignment${i}"></td>
                                        <td class="toolTab categoryModTab${i}">
                                            <span class="popup">
@@ -3063,9 +3027,69 @@
                             rowDivs.push(row);
                         }
 
+                        let categorySections = $(`#categoryTable${i} .categoryStart, #categoryTable${i} .categoryStart + tbody`);
+                        categorySections.remove();
+
+                        for (let j = 0; j < allCategories.length; j++) {
+                            let category = allCategories[j];
+
+                            let newSection = `<thead class="categoryStart">
+                                ${j > 0 ? '<tr class="separator"> <td colspan="7"></td> </tr>' : ''}
+                                <tr>
+                                    <th colspan="7">${category}</th>
+                                    <th class="toolTab categoryModAllTab${i}">
+                                        <span class="popup">
+                                            <i
+                                                    class="fa fa-undo resetCategory${i} disabled"
+                                                    onclick="{resetCategory(${i}, ${j})}">
+                                                <span class="popup-top-left">
+                                                    Revert ALL changes in <span
+                                                            class="tutorial-popup">${category}</span>
+                                                </span>
+                                            </i>
+                                        </span>
+                                        <span class="popup">
+                                            <i
+                                                    class="fa fa-trash trashCategory${i} disabled"
+                                                    onclick="{trashCategory(${i}, ${j});}"><span
+                                                        class="popup-top-left">
+                                                    Delete ALL added assignments in <span
+                                                            class="tutorial-popup">${category}</span>
+                                                </span>
+                                            </i>
+                                        </span>
+                                        <span class="popup">
+                                            <i
+                                                    class="fa fa-check saveCategory${i} disabled"
+                                                    onclick="{saveCategory(${i}, ${j});}"><span
+                                                        class="popup-top-left">
+                                                    Save ALL changes in <span
+                                                            class="tutorial-popup">${category}</span>
+                                                </span>
+                                            </i>
+                                        </span>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th class="compact">Date</th>
+                                    <th class="compact" colspan="2">Assignment</th>
+                                    <th class="assignment-colspan-1" colspan="1">Assignment Name</th>
+                                    <th class="compact">Category</th>
+                                    <th>Score</th>
+                                    <th class="compact">Assignment Percent</th>
+                                    <th>Category Grade</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>`;
+                            $(`#categoryTable${i}`).append(newSection);
+                        }
+
+                        categorySections = $(`#categoryTable${i} .categoryStart + tbody`)
+
                         // Move rows
                         for (let j = 0; j < assignmentData.length; j++) {
-                            $($(`.categoryTable${i} .categoryStart + tbody`)[categories.indexOf(assignmentCategories[j])]).append(rowDivs[j]);
+                            $(categorySections[allCategories.indexOf(assignmentCategories[j])]).append(rowDivs[j]);
                         }
 
                         //Bind listeners
@@ -3089,6 +3113,8 @@
 
                         // Div References
                         assignmentDateDivs = $(`.categoryAssignmentDate${i}`);
+                        assignmentInfoButtons = $(`.categoryAssignmentButton${i}`);
+                        assignmentInfoDivs = $(`.categoryAssignmentInfo${i}`);
                         assignmentNameDivs = $(`.categoryAssignmentName${i}`);
                         assignmentCategoryDivs = $(`.categoryAssignmentCategory${i}`);
                         excludeDivs = $(`.categoryExclude${i}`);
@@ -3106,7 +3132,8 @@
                         saveCategoryDivs = $(`.saveCategory${i}`);
                         $(`#table${i}`).hide();
                         $(`.categoryModAllTab${i}`).css("visibility", "hidden").children("span").children("i").addClass("disabled");
-                        $(`.categoryTable${i}`).show();
+                        $(`#categoryTable${i} thead.categoryStart`).removeClass("unround-top-right");
+                        $(`#categoryTable${i}`).show();
                     }
                 } else {
                     // Data
@@ -3128,6 +3155,7 @@
                     if (!justChangeColors) {
                         row = `<tr class="classTableRow${i}">
                                        <td class="compact assignmentDate${i}"></td>
+                                       <td class="compact assignment-info"><div class="assignment-info assignmentInfoButton${i}"><span class="assignmentInfo${i}"></span></div></td>
                                        <td>
                                            <div class="excludeToggle">
                                                <div class="assignmentName${i}"></div>
@@ -3200,6 +3228,8 @@
 
                         // Div References
                         assignmentDateDivs = $(`.assignmentDate${i}`);
+                        assignmentInfoButtons = $(`.assignmentInfoButton${i}`);
+                        assignmentInfoDivs = $(`.assignmentInfo${i}`);
                         assignmentNameDivs = $(`.assignmentName${i}`);
                         assignmentCategoryDivs = $(`.assignmentCategory${i}`);
                         excludeDivs = $(`.exclude${i}`);
@@ -3212,7 +3242,7 @@
                         assignmentOverallDivs = $(`.assignment${i}`);
 
                         // Set up visuals
-                        $(`.categoryTable${i}`).hide();
+                        $(`#categoryTable${i}`).hide();
                         $(`#modAllTab${i}`).css("visibility", "hidden").children("span").children("i").addClass("disabled");
                         $(`#table${i}`).removeClass("unround-top-right").show();
                     }
@@ -3234,24 +3264,18 @@
                         // Set up dates
                         $(assignmentDateDivs[assignmentIndex]).text(assignmentDates[j]);
 
-                        // Color names based on grade changes
-                        let textColor;
-                        // if (latestChange) {
-                        //     if (_data[i].class_name in latestChange.added && Object.values(latestChange.added[_data[i].class_name]).includes(assignmentPSAIDs[j])) {
-                        //         textColor = "green";
-                        //     }
-                        //     if (_data[i].class_name in latestChange.modified && latestChange.modified[_data[i].class_name].filter(m => m.psaid === assignmentPSAIDs[j]).length) {
-                        //         textColor = "deepskyblue";
-                        //     }
-                        // }
+                        // Set up info
+                        let infoItems = [`<span><i class="fa fa-info-circle"></i></span>`];
+                        if (assignmentDescriptions[j]) {
+                            infoItems.push(`<span class="popup"><i class="fa fa-file-text-o"><span class="popup-top">This assignment has a description</span></i></span>`);
+                        }
+                        if (assignmentComments[j]) {
+                            infoItems.push(`<span class="popup"><i class="fa fa-commenting-o"><span class="popup-top">Your instructor left a comment</span></i></span>`);
+                        }
+                        $(assignmentInfoDivs[assignmentIndex]).html(infoItems.join("&nbsp;"));
 
                         // Set up names
                         $(assignmentNameDivs[assignmentIndex]).text(assignmentNames[j]);
-                        if (textColor) {
-                            $(assignmentNameDivs[assignmentIndex]).css("color", textColor).css("font-weight", "bold");
-                        } else {
-                            $(assignmentNameDivs[assignmentIndex]).css("color", "").css("font-weight", "");
-                        }
 
                         // Set up categories
                         let dropdown = $(assignmentCategoryDivs[assignmentIndex]).children("select");
@@ -3319,6 +3343,15 @@
                         modTab.css("visibility", "hidden");
                         let realIndex = categorySort[i] ? categorySortedData[i].originalIndices[j] : j;
 
+                        // Set up info buttons
+                        if (assignmentAdds[j]) {
+                            $(assignmentInfoButtons[assignmentIndex]).hide();
+                        } else {
+                            $(assignmentInfoButtons[assignmentIndex]).show().attr("onclick", `showAssignmentInfo(${i}, ${realIndex})`);
+                        }
+
+                        let categoryIndex = allCategories.indexOf(assignmentCategories[j]);
+
                         // Set up trash button
                         if (assignmentAdds[j]) {
                             if (recentlyAddedAssignment && _.isEqual(_data[i].grades[realIndex], recentlyAddedAssignment)) {
@@ -3329,9 +3362,10 @@
                             modTab.css("visibility", "visible");
                             $(`#modAllTab${i}`).css("visibility", "visible");
                             $(`#trashAll${i}`).removeClass("disabled");
-                            $($(`.categoryModAllTab${i}`)[categories.indexOf(assignmentCategories[j])]).css("visibility", "visible");
-                            $($(`.trashCategory${i}`)[categories.indexOf(assignmentCategories[j])]).removeClass("disabled");
+                            $($(`.categoryModAllTab${i}`)[categoryIndex]).css("visibility", "visible");
+                            $($(`.trashCategory${i}`)[categoryIndex]).removeClass("disabled");
                             $(`#table${i}`).addClass("unround-top-right");
+                            $($(`#categoryTable${i} thead.categoryStart`)[categoryIndex]).addClass("unround-top-right");
                         } else {
                             trashButton.addClass("disabled");
                         }
@@ -3343,9 +3377,10 @@
                             modTab.css("visibility", "visible");
                             $(`#modAllTab${i}`).css("visibility", "visible");
                             $(`#resetAll${i}`).removeClass("disabled");
-                            $($(`.categoryModAllTab${i}`)[categories.indexOf(assignmentCategories[j])]).css("visibility", "visible");
-                            $($(`.resetCategory${i}`)[categories.indexOf(assignmentCategories[j])]).removeClass("disabled");
+                            $($(`.categoryModAllTab${i}`)[categoryIndex]).css("visibility", "visible");
+                            $($(`.resetCategory${i}`)[categoryIndex]).removeClass("disabled");
                             $(`#table${i}`).addClass("unround-top-right");
+                            $($(`#categoryTable${i} thead.categoryStart`)[categoryIndex]).addClass("unround-top-right");
                         } else {
                             resetButton.addClass("disabled");
                         }
@@ -3357,9 +3392,10 @@
                             modTab.css("visibility", "visible");
                             $(`#modAllTab${i}`).css("visibility", "visible");
                             $(`#saveAll${i}`).removeClass("disabled");
-                            $($(`.categoryModAllTab${i}`)[categories.indexOf(assignmentCategories[j])]).css("visibility", "visible");
-                            $($(`.saveCategory${i}`)[categories.indexOf(assignmentCategories[j])]).removeClass("disabled");
+                            $($(`.categoryModAllTab${i}`)[categoryIndex]).css("visibility", "visible");
+                            $($(`.saveCategory${i}`)[categoryIndex]).removeClass("disabled");
                             $(`#table${i}`).addClass("unround-top-right");
+                            $($(`#categoryTable${i} thead.categoryStart`)[categoryIndex]).addClass("unround-top-right");
                         } else {
                             saveButton.addClass("disabled");
                         }
@@ -3407,7 +3443,7 @@
                         display = "<div class=\"" + colorClass + "\" style=\"display: flex; justify-content: space-around; align-items: flex-end;\"><div style=\"display: flex; flex-flow: row; justify-content: center; align-items: center\"><div>" + display + "%" + "</div><div style=\"margin-left: 0.4rem\">(" + getLetterGrade(display) + ")</div></div><div class=\"delta\" style=\"font-family: 'Maison Mono',monospace\">" + delta + "</div></div>";
                         $(assignmentOverallDivs[assignmentIndex]).html(display).css("font-weight", "bold");
                     }
-                    $(rowDivs[assignmentIndex]).css("background-color", bgColor);
+                    $(rowDivs[assignmentIndex]).children("td").css("background-color", bgColor);
 
                     // Set up exclusion
                     if (!justChangeColors) {
@@ -3415,6 +3451,11 @@
                             $(rowDivs[assignmentIndex]).addClass("excluded").find(".dynamic-input").addClass("excluded");
                         } else {
                             $(rowDivs[assignmentIndex]).removeClass("excluded").find(".dynamic-input").removeClass("excluded");
+                            if (colorClass == "") {
+                                $(rowDivs[assignmentIndex]).addClass("no-change");
+                            } else {
+                                $(rowDivs[assignmentIndex]).removeClass("no-change");
+                            }
                         }
                     }
                 }
@@ -3571,7 +3612,7 @@
             //Add array to each object in parsedData: one for weights (not needed?), one for missing weights
             //Get data for one class
             for (let i = 0; i < _data.length; i++) {
-                let classWeights = Object.assign({}, weights[i].weights, addedWeights[i].weights);
+                let classWeights = Object.assign({}, addedWeights[i].weights, weights[i].weights);
                 let categories = Object.keys(classWeights);
                 if (classIndex === undefined || classIndex === i) {
                     //Add sorting vars
@@ -4698,6 +4739,33 @@
             $("#classInfoTopHalf > div, #classInfoBody > .card-footer, #classInfoBody > ul").css("background-color", withAlpha(colors[index], 10));
 
             showCard("#classInfoCardDisplay");
+        }
+
+        function showAssignmentInfo(classIndex, assignmentIndex) {
+            let assignmentDate = parsedData[classIndex].assignmentDates[assignmentIndex];
+            let assignmentName = parsedData[classIndex].assignmentNames[assignmentIndex];
+            let assignmentCategory = parsedData[classIndex].assignmentCategories[assignmentIndex];
+            let assignmentScore = parsedData[classIndex].assignmentScoresParsed[assignmentIndex];
+            let assignmentDescription = parsedData[classIndex].assignmentDescriptions[assignmentIndex];
+            let assignmentComments = parsedData[classIndex].assignmentComments[assignmentIndex];
+            $("#assignmentInfoDate").text(assignmentDate);
+            $("#assignmentInfoName").text(assignmentName);
+            $("#assignmentInfoCategory").text(assignmentCategory);
+            $("#assignmentInfoScore").text(assignmentScore);
+            if (assignmentDescription) {
+                $("#assignmentInfoDescription").text(assignmentDescription).parent("div").show();
+            } else {
+                $("#assignmentInfoDescription").parent("div").hide();
+            }
+            if (assignmentComments) {
+                $("#assignmentInfoComments").text(assignmentComments ?? "").parent("div").show();
+            } else {
+                $("#assignmentInfoComments").parent("div").hide();
+            }
+
+            $("#assignmentInfoBody > div").css("background-color", withAlpha(colors[classIndex], 10));
+
+            showCard("#assignmentInfoCardDisplay");
         }
 
         function withAlpha(hexString, alpha) {

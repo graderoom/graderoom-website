@@ -528,6 +528,10 @@ select.minimal:focus {
     color: rgba(255, 100, 100, 1);
 }
 
+tr.no-change {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
 tr:hover .toolTab {
     filter: brightness(140%);
 }
@@ -743,6 +747,15 @@ tr:hover .toolTab {
 .discord-iframe ~ span::before {
     background: #5865F2;
     color: white;
+}
+
+div.assignment-info {
+    background-color: #444444;
+}
+
+div.assignment-info:hover {
+    background-color: #222222;
+    outline: #444444 1px solid;
 }
 
 /* Mobile Stuff */
