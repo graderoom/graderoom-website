@@ -2237,7 +2237,7 @@ const _setShowUpdatePopup = async (db, username, value) => {
     }
 };
 
-const createNotification = (username, id, type, title, message, dismissible = true, dismissed = false, pinnable = false, pinned = false, important = false, timestamp) => safe(_createNotification, lower(username), id, type, title, message, dismissible, pinnable, pinned, important, timestamp);
+const createNotification = (username, id, type, title, message, dismissible = true, dismissed = false, pinnable = false, pinned = false, important = false, timestamp) => safe(_createNotification, lower(username), id, type, title, message, dismissible, dismissed, pinnable, pinned, important, timestamp);
 
 const _createNotification = async (db, username, id, type, title, message, dismissible, dismissed, pinnable, pinned, important, timestamp) => {
     let notification = {
@@ -2258,7 +2258,8 @@ const _createNotification = async (db, username, id, type, title, message, dismi
     if (!res.success) {
         return res;
     }
-    let trimmed = res.alerts.notifications;
+    let user = res.data.value;
+    let trimmed = user.alerts.notifications;
     let index = trimmed.findIndex(i => i.id === id);
     if (index !== -1) {
         return {success: false, data: {message: "Invalid ID", log: `Invalid createNotification id=${id}`}};
@@ -4162,7 +4163,7 @@ const _addDonation = async (db, username, platform, paidValue, receivedValue, da
                                              }
                                          });
 
-    if (res.success) {
+    if (res.matchedCount === 1) {
         return {success: true, data: {message: `Added donation for ${username}`}};
     }
 
