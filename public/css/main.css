@@ -3516,12 +3516,13 @@ input:disabled {
     border: 0;
 }
 
-.premium-label {
+.premium-label, .plus-label {
     font-size: 0.6rem;
     left: 0.9rem;
     top: 4.1rem;
     position: absolute;
-    width: 60px;
+    width: 48px;
+    text-align: center;
 }
 
 .premium-label::before {
