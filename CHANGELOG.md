@@ -53,7 +53,7 @@
 ## [Beta 6.3.0] - 2023-10-15
 ### Added
 - New assignment info popup<ul>
-- Ability to view teacher comments
+- <github issue="125">Add ability to see teacher comments</github>
 - Ability to view assignment descriptions</ul>
 
 ### Improved
