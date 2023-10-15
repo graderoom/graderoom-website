@@ -59,10 +59,10 @@
 ### Improved
 - Made grade deltas more readable
 - Made assignment rows that don't change your grade dimmer (requested on Discord)
-- Category sort mode properly supports added categories
 - "Add Assignment" popup now shows existing added categories as options
 
 ### Fixed
+- <github issue="159">Category sort mode doesn't show added categories</github>
 - Various visual bugs in category sorted tables
 - <em>[Mobile]</em> Category sorted data now displays correctly on mobile
 
