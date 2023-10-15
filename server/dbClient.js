@@ -4096,6 +4096,7 @@ const _getRelevantClassData = async (db, username, term, semester) => {
 
             let nonAcademicOverride = userClass.className.startsWith("Cura");
             nonAcademicOverride ||= userClass.className.endsWith("Cross Country");
+            nonAcademicOverride ||= userClass.className.endsWith("Track");
             nonAcademicOverride ||= userClass.className.endsWith("Water Polo");
             nonAcademicOverride ||= userClass.className.endsWith("Football");
             nonAcademicOverride ||= userClass.className === "Study Hall";
