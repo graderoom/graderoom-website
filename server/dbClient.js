@@ -1059,6 +1059,41 @@ const __version21 = async (db, user) => {
     }
 };
 
+const _version22 = async (db, username) => {
+    let res = await getUser(username, {version: 1, grades: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version22, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 22`}};
+}
+
+const __version22 = async (db, user) => {
+    if (user.version === 21) {
+        let grades = user.grades;
+        let years = Object.keys(grades);
+        for (let year of years) {
+            let semesters = Object.keys(grades[year]);
+            for (let semester of semesters) {
+                let classes = grades[year][semester];
+                for (let i = 0; i < classes.length; i++) {
+                    let assignments = classes[i].grades;
+                    for (let assignment of assignments) {
+                        if (assignment.grade_percent === -1) {
+                            assignment.grade_percent = false;
+                        }
+                    }
+                }
+            }
+        }
+
+        await _users(db).updateOne({username: user.username}, {$set: {grades: grades, version: 22}});
+    }
+}
+
 const initUser = (username) => safe(_initUser, lower(username));
 const _initUser = async (db, username) => {
     let res = await getUser(username, {"alerts.tutorialStatus": 1, betaFeatures: 1});
@@ -1184,6 +1219,9 @@ const _updateAllUsers = async () => {
             }
             if (user.version < 21) {
                 await safe(_version21, user.username);
+            }
+            if (user.version < 22) {
+                await safe(_version22, user.username);
             }
         }
         await safe(_initUser, user.username);

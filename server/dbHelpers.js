@@ -23,7 +23,7 @@ exports.TEST_DATABASE_NAME = "test";
 exports.COMMON_DATABASE_NAME = "common";
 
 // Change this when updateDB changes
-exports.dbUserVersion = 21;
+exports.dbUserVersion = 22;
 exports.dbClassVersion = 3;
 
 const minDonoAmount = 3;
