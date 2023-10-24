@@ -50,6 +50,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 6.2.6] - 2023-10-24
+### Fixed
+- PowerSchool lock detection
+
 ## [Stable 6.2.5] - 2023-10-14
 ### Improved
 - No longer load Discord widget on page load
