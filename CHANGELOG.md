@@ -50,9 +50,25 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Stable 6.2.6] - 2023-10-24
+## [Stable 6.3.1] - 2023-10-24
 ### Fixed
 - PowerSchool lock detection
+
+## [Beta 6.3.0] - 2023-10-15
+### Added
+- New assignment info popup<ul>
+- <github issue="125">Add ability to see teacher comments</github>
+- Ability to view assignment descriptions</ul>
+
+### Improved
+- Made grade deltas more readable
+- Made assignment rows that don't change your grade dimmer (requested on Discord)
+- "Add Assignment" popup now shows existing added categories as options
+
+### Fixed
+- <github issue="159">Category sort mode doesn't show added categories</github>
+- Various visual bugs in category sorted tables
+- <em>[Mobile]</em> Category sorted data now displays correctly on mobile
 
 ## [Stable 6.2.5] - 2023-10-14
 ### Improved
