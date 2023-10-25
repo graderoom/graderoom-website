@@ -430,22 +430,13 @@ class PowerschoolScraper(Scraper):
             if locked:
                 self.message = "PowerSchool is locked."
                 self.message = "Getting data from locked PowerSchool..."
-                return False
 
-            _, semester = self.get_term_and_semester_data()
-            table_header = soup_resp.find_all('th', colspan='5')
-
-            if table_header[0].text == "There are no term grade records for the selected term.":
-                return True
-
-            return semester in list(map(lambda h: h.text, table_header))
+            return not locked
 
         else:
             self.progress = 0
             print(json_format(False, 'Your PowerSchool account is no longer active.'))
             sys.exit()
-
-        return True
 
     def get_history(self):
         """Uses a session to grab all available grade data on powerschool"""
