@@ -426,9 +426,10 @@ const __version3 = async (db, user) => {
                     }
                 }
                 // Sort them
-                weights[year][semester] = user.grades[year][semester].map(g => weights[year][semester].find(w => w.className === g.class_name) ?? {
-                    className: g.class_name, weights: {}, hasWeights: false, custom: false
-                });
+                weights[year][semester] =
+                    user.grades[year][semester].map(g => weights[year][semester].find(w => w.className === g.class_name) ?? {
+                        className: g.class_name, weights: {}, hasWeights: false, custom: false
+                    });
             }
         }
 
@@ -931,7 +932,10 @@ const __version19 = async (db, user) => {
 
             // We can also track what assignments get added/modified
             // We need to get rid of assignments that have been removed or we'll have bugs
-            let PSAIDs = [...Object.values(changeData.added).flat(), ...Object.values(changeData.modified).map(a => a.psaid).filter(g => g).flat()];
+            let PSAIDs = [
+                ...Object.values(changeData.added).flat(),
+                ...Object.values(changeData.modified).map(a => a.psaid).filter(g => g).flat()
+            ];
 
             while (classes.filter(n => !classNames.includes(n)).length > 0 || PSAIDs.filter(p => nextPSAIDs.includes(p)).length > 0) {
                 if (semesterIndex < semesters.length - 1) {
@@ -958,9 +962,11 @@ const __version19 = async (db, user) => {
                 currentSemester = semesters[semesterIndex];
                 classNames = user.grades[currentYear][currentSemester].map(c => c.class_name);
                 if (semesterIndex < semesters.length - 1) {
-                    nextPSAIDs = user.grades[currentYear][semesters[semesterIndex + 1]].map(c => c.grades.map(g => g.psaid).filter(g => g)).flat();
+                    nextPSAIDs =
+                        user.grades[currentYear][semesters[semesterIndex + 1]].map(c => c.grades.map(g => g.psaid).filter(g => g)).flat();
                 } else if (yearIndex < years.length - 1) {
-                    nextPSAIDs = user.grades[years[yearIndex + 1]][Object.keys(user.grades[years[yearIndex + 1]])[0]].map(c => c.grades.map(g => g.psaid).filter(g => g)).flat();
+                    nextPSAIDs =
+                        user.grades[years[yearIndex + 1]][Object.keys(user.grades[years[yearIndex + 1]])[0]].map(c => c.grades.map(g => g.psaid).filter(g => g)).flat();
                 }
             }
             if (!(currentSemester in updateStartTimestamps[currentYear])) {
@@ -1122,73 +1128,77 @@ const _updateAllUsers = async () => {
         let user = users[i];
         if (user.version < dbUserVersion) {
             console.log(`Updating ${user.username} (${i + 1} of ${users.length})`);
-            if (user.version < 1) {
-                await safe(_version1, user.username);
-            }
-            if (user.version < 2) {
-                await safe(_version2, user.username);
-            }
-            if (user.version < 3) {
-                await safe(_version3, user.username);
-            }
-            if (user.version < 4) {
-                await safe(_version4, user.username);
-            }
-            if (user.version < 5) {
-                await safe(_version5, user.username);
-            }
-            if (user.version < 6) {
-                await safe(_version6, user.username);
-            }
-            if (user.version < 7) {
-                await safe(_version7, user.username);
-            }
-            if (user.version < 8) {
-                await safe(_version8, user.username);
-            }
-            if (user.version < 9) {
-                await safe(_version9, user.username);
-            }
-            if (user.version < 10) {
-                await safe(_version10, user.username);
-            }
-            if (user.version < 11) {
-                await safe(_version11, user.username);
-            }
-            if (user.version < 12) {
-                await safe(_version12, user.username);
-            }
-            if (user.version < 13) {
-                await safe(_version13, user.username);
-            }
-            if (user.version < 14) {
-                await safe(_version14, user.username);
-            }
-            if (user.version < 15) {
-                await safe(_version15, user.username);
-            }
-            if (user.version < 16) {
-                await safe(_version16, user.username);
-            }
-            if (user.version < 17) {
-                await safe(_version17, user.username);
-            }
-            if (user.version < 18) {
-                await safe(_version18, user.username);
-            }
-            if (user.version < 19) {
-                await safe(_version19, user.username);
-            }
-            if (user.version < 20) {
-                await safe(_version20, user.username);
-            }
-            if (user.version < 21) {
-                await safe(_version21, user.username);
-            }
+            await updateUser(user);
         }
-        await safe(_initUser, user.username);
+        await initUser(user.username);
     }
     return {success: true};
+};
+
+const updateUser = async (user) => {
+    if (user.version < 1) {
+        await safe(_version1, user.username);
+    }
+    if (user.version < 2) {
+        await safe(_version2, user.username);
+    }
+    if (user.version < 3) {
+        await safe(_version3, user.username);
+    }
+    if (user.version < 4) {
+        await safe(_version4, user.username);
+    }
+    if (user.version < 5) {
+        await safe(_version5, user.username);
+    }
+    if (user.version < 6) {
+        await safe(_version6, user.username);
+    }
+    if (user.version < 7) {
+        await safe(_version7, user.username);
+    }
+    if (user.version < 8) {
+        await safe(_version8, user.username);
+    }
+    if (user.version < 9) {
+        await safe(_version9, user.username);
+    }
+    if (user.version < 10) {
+        await safe(_version10, user.username);
+    }
+    if (user.version < 11) {
+        await safe(_version11, user.username);
+    }
+    if (user.version < 12) {
+        await safe(_version12, user.username);
+    }
+    if (user.version < 13) {
+        await safe(_version13, user.username);
+    }
+    if (user.version < 14) {
+        await safe(_version14, user.username);
+    }
+    if (user.version < 15) {
+        await safe(_version15, user.username);
+    }
+    if (user.version < 16) {
+        await safe(_version16, user.username);
+    }
+    if (user.version < 17) {
+        await safe(_version17, user.username);
+    }
+    if (user.version < 18) {
+        await safe(_version18, user.username);
+    }
+    if (user.version < 19) {
+        await safe(_version19, user.username);
+    }
+    if (user.version < 20) {
+        await safe(_version20, user.username);
+    }
+    if (user.version < 21) {
+        await safe(_version21, user.username);
+    }
 };
 
 const _classVersion1 = async (db, school, className, term, semester) => {
@@ -1517,11 +1527,13 @@ const _processChartData = async (db) => {
         loggedIn: 1, "alerts.lastUpdated": 1, "personalInfo.graduationYear": 1, school: 1
     };
     let query = {
-        $or: [{
-            "alerts.lastUpdated.timestamp": {
-                $gte: lastUpdatedCharts.getTime(), $lt: Date.parse(new Date().toDateString())
-            }
-        }, {"loggedIn": {$gt: lastUpdatedCharts.getTime(), $lt: Date.parse(new Date().toDateString())}}]
+        $or: [
+            {
+                "alerts.lastUpdated.timestamp": {
+                    $gte: lastUpdatedCharts.getTime(), $lt: Date.parse(new Date().toDateString())
+                }
+            }, {"loggedIn": {$gt: lastUpdatedCharts.getTime(), $lt: Date.parse(new Date().toDateString())}}
+        ]
     };
     // All users with new data since lastUpdatedCharts but before today
     let allUsers = (await getAllUsers(projection, query)).data.value;
@@ -1536,8 +1548,10 @@ const _processChartData = async (db) => {
         return new Date(date.getFullYear(), date.getMonth(), date.getDate());
     })).reduce((a, b) => a.concat(b)).filter(d => d.getTime() >= lastUpdatedCharts.getTime() && isNotToday(d));
     // Add days that don't exist in loginDates that are in sync dates and vice versa and sort them
-    loginDates = loginDates.concat(syncDates.filter(t => !loginDates.find(u => u.getTime() === t.getTime()))).sort((a, b) => a.getTime() - b.getTime());
-    syncDates = syncDates.concat(loginDates.filter(t => !syncDates.find(u => u.getTime() === t.getTime()))).sort((a, b) => a.getTime() - b.getTime());
+    loginDates =
+        loginDates.concat(syncDates.filter(t => !loginDates.find(u => u.getTime() === t.getTime()))).sort((a, b) => a.getTime() - b.getTime());
+    syncDates =
+        syncDates.concat(loginDates.filter(t => !syncDates.find(u => u.getTime() === t.getTime()))).sort((a, b) => a.getTime() - b.getTime());
     loginData = loginData ?? [];
     for (let j = 0; j < loginDates.length; j++) {
         let r = loginData.find(d => d.x.getTime() === loginDates[j].getTime());
@@ -1548,11 +1562,14 @@ const _processChartData = async (db) => {
         }
     }
 
-    let uniqueLoginDates = allUsers.map(user => [...new Set(user.loggedIn.filter(d => d >= lastUpdatedCharts.getTime() && d < Date.parse(new Date().toDateString())).map(loggedIn => {
-        let date = new Date(loggedIn);
-        return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-    }))].map(loggedIn => new Date(loggedIn))).reduce((a, b) => a.concat(b));
-    uniqueLoginDates = uniqueLoginDates.concat(loginDates.filter(time => !uniqueLoginDates.find(anotherTime => anotherTime.getTime() === time.getTime())));
+    let uniqueLoginDates = allUsers.map(user => [
+        ...new Set(user.loggedIn.filter(d => d >= lastUpdatedCharts.getTime() && d < Date.parse(new Date().toDateString())).map(loggedIn => {
+            let date = new Date(loggedIn);
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+        }))
+    ].map(loggedIn => new Date(loggedIn))).reduce((a, b) => a.concat(b));
+    uniqueLoginDates =
+        uniqueLoginDates.concat(loginDates.filter(time => !uniqueLoginDates.find(anotherTime => anotherTime.getTime() === time.getTime())));
     uniqueLoginDates.sort((a, b) => a.getTime() - b.getTime());
     uniqueLoginData = uniqueLoginData ?? [];
     for (let j = 0; j < uniqueLoginDates.length; j++) {
@@ -1672,7 +1689,12 @@ const userArchived = ({username, schoolUsername}) => safe(_userArchived, {
 });
 const _userArchived = async (db, {username, schoolUsername}, includeFullUser = false) => {
     let projection = includeFullUser ? {} : {username: 1};
-    let userExists = await db.collection(ARCHIVED_USERS_COLLECTION_NAME).findOne({$or: [{username: username}, {schoolUsername: schoolUsername}]}, projection);
+    let userExists = await db.collection(ARCHIVED_USERS_COLLECTION_NAME).findOne({
+                                                                                     $or: [
+                                                                                         {username: username},
+                                                                                         {schoolUsername: schoolUsername}
+                                                                                     ]
+                                                                                 }, projection);
     if (userExists) {
         return {
             success: true, data: {
@@ -1684,6 +1706,22 @@ const _userArchived = async (db, {username, schoolUsername}, includeFullUser = f
     return {
         success: false,
         data: {log: `No archived user found with given parameters: username=${username}, schoolUsername=${schoolUsername}`}
+    };
+};
+
+const archiveOldUsers = (beforeDate) => safe(_archiveOldUsers, beforeDate);
+const _archiveOldUsers = async (db, beforeDate) => {
+    let oldUsers = await _users(db).find({loggedIn: {$not: {$gt: beforeDate.getTime()}}}, {projection: {username: 1}}).toArray();
+    for (let user of oldUsers) {
+        await archiveUser(user.username);
+    }
+
+    return {
+        success: true,
+        data: {
+            log: `Archived ${oldUsers.length} users that haven't logged in since ${beforeDate.toDateString()}`,
+            message: `Archived ${oldUsers.length} users that haven't logged in since ${beforeDate.toDateString()}`
+        }
     };
 };
 
@@ -1701,9 +1739,14 @@ const _archiveUser = async (db, username) => {
     return {success: true, data: {log: `Archived user ${username}.`, message: "Archived user."}};
 };
 
-const getAllArchivedUsers = (projection) => safe(_getAllArchivedUsers, projection);
-const _getAllArchivedUsers = async (db) => {
-    return {success: true, data: {value: await db.collection(ARCHIVED_USERS_COLLECTION_NAME).find({}).toArray()}};
+const getAllArchivedUsers = (projection, page, count) => safe(_getAllArchivedUsers, projection, page, count);
+const _getAllArchivedUsers = async (db, projection, page, count) => {
+    let value = db.collection(ARCHIVED_USERS_COLLECTION_NAME).find({}, {projection: projection});
+    if (page && count) {
+        value = value.skip((page - 1) * count).limit(count);
+    }
+    value = await value.toArray();
+    return {success: true, data: {value: value}};
 };
 
 const unArchiveUser = (username) => safe(_unArchiveUser, lower(username));
@@ -1716,6 +1759,8 @@ const _unArchiveUser = async (db, username) => {
     if (!res2.success) {
         return res2;
     }
+    await updateUser(res.data.value);
+    await initUser(username);
     let res3 = await removeUserFromArchive(username);
     if (!res3.success) {
         return res3;
@@ -1745,7 +1790,10 @@ const _removeUserFromArchive = async (db, username) => {
                                                                                 username: username
                                                                             });
     if (res.deletedCount === 1) {
-        return {success: true, data: {log: `Deleted archived user ${username}.`, message: "Deleted archived user."}};
+        return {
+            success: true,
+            data: {log: `Deleted archived user ${username}.`, message: "Deleted archived user."}
+        };
     }
     return {
         success: false, data: {
@@ -1770,7 +1818,8 @@ const __getMostRecentTermData = (user) => {
     let terms = Object.keys(grades);
     if (terms.length === 0) {
         return {
-            success: false, data: {value: {term: false, semester: false}, log: `User ${user.username} has no grades!`}
+            success: false,
+            data: {value: {term: false, semester: false}, log: `User ${user.username} has no grades!`}
         };
     }
     let term = Math.max(...terms.map(t => parseInt(t.substring(0, 2))));
@@ -1786,6 +1835,15 @@ const _login = async (db, username, password) => {
     return new Promise(async resolve => {
         let res = await userExists({username: username});
         if (!res.success) {
+            let res2 = await userArchived({username: username});
+            if (res2.success) {
+                return resolve({
+                                   success: false, data: {
+                        log: `${username} is archived`,
+                        message: "This account has been archived! Email <a href='mailto:support@graderoom.me'>support@graderoom.me</a> to recover your account."
+                    }
+                               });
+            }
             return resolve({success: false, data: {message: "Invalid credentials."}});
         }
         let user = res.data.value;
@@ -1796,12 +1854,19 @@ const _login = async (db, username, password) => {
             if (!success) {
                 return resolve({
                                    success: false,
-                                   data: {log: `Login failed for ${username}`, message: "Incorrect Graderoom password."}
+                                   data: {
+                                       log: `Login failed for ${username}`,
+                                       message: "Incorrect Graderoom password."
+                                   }
                                });
             }
             return resolve({
                                success: true,
-                               data: {log: `Login success for ${username}`, message: "Login Successful", value: user}
+                               data: {
+                                   log: `Login success for ${username}`,
+                                   message: "Login Successful",
+                                   value: user
+                               }
                            });
         });
     });
@@ -1880,7 +1945,10 @@ const setRemoteAccess = (username, value) => safe(_setRemoteAccess, lower(userna
 const _setRemoteAccess = async (db, username, value) => {
     let allowedValues = ["allowed", "denied"];
     if (!allowedValues.includes(value)) {
-        return {success: false, data: {message: "Something went wrong", log: `Invalid remote access value: ${value}`}};
+        return {
+            success: false,
+            data: {message: "Something went wrong", log: `Invalid remote access value: ${value}`}
+        };
     }
     let res = await _users(db).updateOne({username: username}, {$set: {"alerts.remoteAccess": value}});
     if (res.matchedCount === 1) {
@@ -1892,8 +1960,14 @@ const _setRemoteAccess = async (db, username, value) => {
 const setPersonalInfo = (username, firstName, lastName, graduationYear) => safe(_setPersonalInfo, lower(username), firstName, lastName, graduationYear);
 const _setPersonalInfo = async (db, username, firstName, lastName, graduationYear) => {
     let school = (await getUser(username)).data.value.school;
-    if (([!!firstName, !!lastName || (school === Schools.BISV && lastName === ""), !!graduationYear || graduationYear === 0]).filter(a => a).length !== 1) {
-        return {success: false, data: {log: `Invalid personal info for ${username}`, message: "Something went wrong"}};
+    if (([
+        !!firstName, !!lastName || (school === Schools.BISV && lastName === ""),
+        !!graduationYear || graduationYear === 0
+    ]).filter(a => a).length !== 1) {
+        return {
+            success: false,
+            data: {log: `Invalid personal info for ${username}`, message: "Something went wrong"}
+        };
     }
     let nameRegex = new RegExp(/^[a-z]+(?:-[a-z]+)*$/i);
     if (!!firstName) {
@@ -1904,7 +1978,10 @@ const _setPersonalInfo = async (db, username, firstName, lastName, graduationYea
             }
             return {
                 success: false,
-                data: {log: `Failed to set ${firstName} as first name for ${username}`, message: "Something went wrong"}
+                data: {
+                    log: `Failed to set ${firstName} as first name for ${username}`,
+                    message: "Something went wrong"
+                }
             };
         }
         return {success: false, data: {message: "First name can only contain letters and/or hyphens."}};
@@ -1916,7 +1993,10 @@ const _setPersonalInfo = async (db, username, firstName, lastName, graduationYea
             }
             return {
                 success: false,
-                data: {log: `Failed to set ${lastName} as last name for ${username}`, message: "Something went wrong"}
+                data: {
+                    log: `Failed to set ${lastName} as last name for ${username}`,
+                    message: "Something went wrong"
+                }
             };
         }
         return {success: false, data: {message: "Last name can only contain letters and/or hyphens."}};
@@ -1967,7 +2047,8 @@ const _setRegularizeClassGraphs = async (db, username, value) => {
     if (res.matchedCount === 1) {
         return {
             success: true, data: {
-                settings: {regularizeClassGraphs: value}, log: `Set regularizeClassGraphs to ${value} for ${username}`
+                settings: {regularizeClassGraphs: value},
+                log: `Set regularizeClassGraphs to ${value} for ${username}`
             }
         };
     }
@@ -1978,7 +2059,8 @@ const setShowPlusMinusLines = (username, value) => safe(_setShowPlusMinusLines, 
 const _setShowPlusMinusLines = async (db, username, value) => {
     if (typeof value !== "boolean") {
         return {
-            success: false, data: {message: "Something went wrong", log: `Invalid showPlusMinusLines value: ${value}`}
+            success: false,
+            data: {message: "Something went wrong", log: `Invalid showPlusMinusLines value: ${value}`}
         };
     }
     let res = await _users(db).updateOne({username: username}, {$set: {"appearance.showPlusMinusLines": value}});
@@ -2001,7 +2083,8 @@ const _setReduceMotion = async (db, username, value) => {
     let res = await _users(db).updateOne({username: username}, {$set: {"appearance.reduceMotion": value}});
     if (res.matchedCount === 1) {
         return {
-            success: true, data: {settings: {reduceMotion: value}, log: `Set reduceMotion to ${value} for ${username}`}
+            success: true,
+            data: {settings: {reduceMotion: value}, log: `Set reduceMotion to ${value} for ${username}`}
         };
     }
     return {success: false, data: {log: `Error settings reduceMotion to ${value} for ${username}`}};
@@ -2010,7 +2093,10 @@ const _setReduceMotion = async (db, username, value) => {
 const setWeightedGPA = (username, value) => safe(_setWeightedGPA, lower(username), value);
 const _setWeightedGPA = async (db, username, value) => {
     if (typeof value !== "boolean") {
-        return {success: false, data: {message: "Something went wrong", log: `Invalid weightedGPA value: ${value}`}};
+        return {
+            success: false,
+            data: {message: "Something went wrong", log: `Invalid weightedGPA value: ${value}`}
+        };
     }
     let res = await _users(db).updateOne({username: username}, {$set: {"appearance.weightedGPA": value}});
     if (res.matchedCount === 1) {
@@ -2048,7 +2134,8 @@ const _setTheme = async (db, username, theme, darkModeStart, darkModeFinish, sea
     if (theme === "auto") {
         darkModeStart = new Date(darkModeStart);
         darkModeFinish = new Date(darkModeFinish);
-        message = "Dark theme enabled from " + darkModeStart.toLocaleTimeString() + " to " + darkModeFinish.toLocaleTimeString() + ".";
+        message =
+            "Dark theme enabled from " + darkModeStart.toLocaleTimeString() + " to " + darkModeFinish.toLocaleTimeString() + ".";
         darkModeStart = darkModeStart.getTime();
         darkModeFinish = darkModeFinish.getTime();
         data.darkModeStart = darkModeStart;
@@ -2108,7 +2195,8 @@ const _setColorPalette = async (db, username, preset, shuffle) => {
     if (!(Object.values(ColorPresets).includes(preset))) {
         preset = user.appearance.colorPalette;
     }
-    let light, saturation, hues = [0, 30, 60, 120, 180, 240, 270, 300, 330, 15, 45, 90, 150, 210, 255, 285, 315, 345];
+    let light, saturation,
+        hues = [0, 30, 60, 120, 180, 240, 270, 300, 330, 15, 45, 90, 150, 210, 255, 285, 315, 345];
     switch (preset) {
         case "pale":
             light = 0.8;
@@ -2156,7 +2244,9 @@ const _setEnableLogging = async (db, username, value) => {
     if (typeof value !== "boolean") {
         return {
             success: false, data: {
-                message: "Invalid value", log: `Invalid enableLogging value: ${value}`, settings: {enableLogging: value}
+                message: "Invalid value",
+                log: `Invalid enableLogging value: ${value}`,
+                settings: {enableLogging: value}
             }
         };
     }
@@ -2253,7 +2343,7 @@ const _createNotification = async (db, username, id, type, title, message, dismi
         createdDate: timestamp
     };
     let res = await getUser(username, {
-            "alerts.notifications.id": 1
+        "alerts.notifications.id": 1
     });
     if (!res.success) {
         return res;
@@ -2264,12 +2354,12 @@ const _createNotification = async (db, username, id, type, title, message, dismi
         return {success: false, data: {message: "Invalid ID", log: `Invalid createNotification id=${id}`}};
     }
     res = await _users(db).updateOne({
-                                             username: username
-                                         }, {
-                                             $push: {
-                                                 "alerts.notifications": notification
-                                             }
-                                         });
+                                         username: username
+                                     }, {
+                                         $push: {
+                                             "alerts.notifications": notification
+                                         }
+                                     });
 
     if (res.matchedCount === 1) {
         socketManager.emitToRoom(username, "notification-new", notification);
@@ -2284,7 +2374,10 @@ const _updateNotification = async (db, username, id, update) => {
     if (typeof id !== "string" || Object.keys(update).filter(k => !(["pinned", "dismissed"]).includes(k)).length) {
         return {
             success: false,
-            data: {message: "Invalid value", log: `Invalid updateNotification parameters id=${id}, update=${update}`}
+            data: {
+                message: "Invalid value",
+                log: `Invalid updateNotification parameters id=${id}, update=${update}`
+            }
         };
     }
     let res = await getUser(username, {
@@ -2427,7 +2520,8 @@ const removeAdmin = (username, requester) => safe(_removeAdmin, lower(username),
 const _removeAdmin = async (db, username, requester) => {
     if (username === requester) {
         return {
-            success: false, data: {log: `Cannot remove own admin for ${username}`, message: "Cannot remove own admin"}
+            success: false,
+            data: {log: `Cannot remove own admin for ${username}`, message: "Cannot remove own admin"}
         };
     }
     let res = await _users(db).updateOne({username: username}, {$set: {isAdmin: false}});
@@ -2505,7 +2599,8 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                 await setSyncStatus(username, SyncStatus.ACCOUNT_INACTIVE);
             } else if (data.message === "No class data.") {
                 await setSyncStatus(username, SyncStatus.NO_DATA);
-                data.message = `No ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"} grades found for this term.`;
+                data.message =
+                    `No ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"} grades found for this term.`;
             } else if (data.message === `Could not connect to ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"}.`) {
                 await setSyncStatus(username, SyncStatus.FAILED);
             } else if (data.message.startsWith("Error: ")) {
@@ -2548,7 +2643,9 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
             oldPSAIDs.push(...Array(newPSAIDs.length - oldPSAIDs.length).fill([]));
 
             // Calculate changes
-            let added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [newGrades[index].class_name, newPSAIDs[index]]).filter(data => data[1].length));
+            let added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [
+                newGrades[index].class_name, newPSAIDs[index]
+            ]).filter(data => data[1].length));
             let modified = {};
             let removed = {};
             let overall = {};
@@ -2556,9 +2653,18 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
             if (oldGrades) {
                 let newToOldIndex = newGrades.map(n => oldGrades.findIndex(o => o.class_name === n.class_name));
                 let oldToNewIndex = oldGrades.map(o => newGrades.findIndex(n => n.class_name === o.class_name));
-                added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [newGrades[index].class_name, newPSAIDs[index].filter(psaid => newToOldIndex[index] === -1 ? false : !oldPSAIDs[newToOldIndex[index]].includes(psaid))]).filter(data => data[1].length));
-                modified = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => oldToNewIndex[index] === -1 ? false : newPSAIDs[oldToNewIndex[index]].includes(assignmentData["psaid"]) && oldToNewIndex[index] !== -1 && !_.isEqual(assignmentData, newGrades[oldToNewIndex[index]].grades.find(assignment => assignment["psaid"] === assignmentData["psaid"])))]).filter(data => data[1].length));
-                removed = Object.fromEntries(oldGrades.map((classData, index) => [classData.class_name, classData.grades.filter(assignmentData => assignmentData["psaid"] && oldToNewIndex[index] === -1 ? false : !newPSAIDs[oldToNewIndex[index]].includes(assignmentData["psaid"]))]).filter(data => data[1].length));
+                added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [
+                    newGrades[index].class_name,
+                    newPSAIDs[index].filter(psaid => newToOldIndex[index] === -1 ? false : !oldPSAIDs[newToOldIndex[index]].includes(psaid))
+                ]).filter(data => data[1].length));
+                modified = Object.fromEntries(oldGrades.map((classData, index) => [
+                    classData.class_name,
+                    classData.grades.filter(assignmentData => oldToNewIndex[index] === -1 ? false : newPSAIDs[oldToNewIndex[index]].includes(assignmentData["psaid"]) && oldToNewIndex[index] !== -1 && !_.isEqual(assignmentData, newGrades[oldToNewIndex[index]].grades.find(assignment => assignment["psaid"] === assignmentData["psaid"])))
+                ]).filter(data => data[1].length));
+                removed = Object.fromEntries(oldGrades.map((classData, index) => [
+                    classData.class_name,
+                    classData.grades.filter(assignmentData => assignmentData["psaid"] && oldToNewIndex[index] === -1 ? false : !newPSAIDs[oldToNewIndex[index]].includes(assignmentData["psaid"]))
+                ]).filter(data => data[1].length));
                 overall = Object.fromEntries(oldGrades.map((classData, index) => {
                     if (oldToNewIndex[index] === -1) {
                         return [[], []];
@@ -2570,7 +2676,10 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                     delete newClone.grades;
                     delete newClone.class_name;
                     clone.ps_locked = newClone.ps_locked;
-                    return [classData.class_name, Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v || k === "ps_locked"))];
+                    return [
+                        classData.class_name,
+                        Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v || k === "ps_locked"))
+                    ];
                 }).filter(data => Object.keys(data[1]).length));
             }
 
@@ -2743,7 +2852,10 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                                                 delete newClone.class_name;
                                                 delete newClone.ps_locked;
                                                 delete newClone.teacher_name;
-                                                return [classData.class_name, Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v))];
+                                                return [
+                                                    classData.class_name,
+                                                    Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v))
+                                                ];
                                             }).filter(data => Object.keys(data[1]).length));
                                         }
                                         changeData = {
@@ -2827,7 +2939,7 @@ const _userHasSemester = async (db, username, term, semester) => {
     return {
         success: true,
         data: {value: term in user.grades && semester in user.grades[term]}
-    }
+    };
 };
 
 const initAddedAssignments = (username) => safe(_initAddedAssignments, lower(username));
@@ -2965,8 +3077,10 @@ const _initWeights = async (db, username) => {
                     temp[years[i]][semesters[j]][k] = {className: classes[k], weights: {}, hasWeights: false};
                 } else {
                     temp[years[i]][semesters[j]][k].className = classes[k];
-                    temp[years[i]][semesters[j]][k].weights = _.clone(current[years[i]][semesters[j]][existing].weights);
-                    temp[years[i]][semesters[j]][k].hasWeights = current[years[i]][semesters[j]][existing].hasWeights;
+                    temp[years[i]][semesters[j]][k].weights =
+                        _.clone(current[years[i]][semesters[j]][existing].weights);
+                    temp[years[i]][semesters[j]][k].hasWeights =
+                        current[years[i]][semesters[j]][existing].hasWeights;
                 }
 
                 let categories = user.grades[years[i]][semesters[j]][k].grades.map(g => g.category);
@@ -3093,7 +3207,9 @@ const _updateClassesForUser = async (db, username, term, semester, className) =>
                         newWeights = dbTeacher.weights;
                         hasWeights = dbTeacher.hasWeights ?? false;
                     } else {
-                        newWeights = Object.fromEntries(neededWeights.map((neededWeight) => [neededWeight, currentWeights.weights[neededWeight] ?? null]));
+                        newWeights = Object.fromEntries(neededWeights.map((neededWeight) => [
+                            neededWeight, currentWeights.weights[neededWeight] ?? null
+                        ]));
 
                         //Set to point-based if only one category exists (& category is null)
                         let values = Object.values(newWeights);
@@ -3133,7 +3249,9 @@ const _updateClassesForUser = async (db, username, term, semester, className) =>
 const updateAddedAssignments = (username, addedAssignments, term, semester) => safe(_updateAddedAssignments, lower(username), addedAssignments, term, semester);
 const _updateAddedAssignments = async (db, username, addedAssignments, term, semester) => {
     let res = await getUser(username, {
-        [`addedWeights.${term}.${semester}`]: 1, [`weights.${term}.${semester}`]: 1, [`grades.${term}.${semester}`]: 1
+        [`addedWeights.${term}.${semester}`]: 1,
+        [`weights.${term}.${semester}`]: 1,
+        [`grades.${term}.${semester}`]: 1
     });
     if (!res.success) {
         return res;
@@ -3156,7 +3274,9 @@ const _updateAddedAssignments = async (db, username, addedAssignments, term, sem
         };
     }
 
-    let allowedKeys = ["assignment_name", "date", "category", "grade_percent", "points_gotten", "points_possible", "exclude"];
+    let allowedKeys = [
+        "assignment_name", "date", "category", "grade_percent", "points_gotten", "points_possible", "exclude"
+    ];
     let allowedTypes = {
         "assignment_name": ["string"],
         "date": ["string"],
@@ -3251,7 +3371,9 @@ const _updateEditedAssignments = async (db, username, editedAssignments, term, s
         };
     }
 
-    let allowedKeys = ["assignment_name", "date", "category", "grade_percent", "points_gotten", "points_possible", "exclude"];
+    let allowedKeys = [
+        "assignment_name", "date", "category", "grade_percent", "points_gotten", "points_possible", "exclude"
+    ];
     let allowedTypes = {
         "assignment_name": ["string"],
         "category": ["string"],
@@ -3311,9 +3433,15 @@ const _getSyncStatus = async (db, username) => {
             data: {message: `No ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"} grades found for this term.`}
         };
     } else if (syncStatus === SyncStatus.LOGIN_FAILED) {
-        return {success: false, data: {message: `Invalid ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"} credentials.`}}
+        return {
+            success: false,
+            data: {message: `Invalid ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"} credentials.`}
+        };
     } else if (syncStatus === SyncStatus.FAILED) {
-        return {success: false, data: {message: `Could not connect to ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"}.`}};
+        return {
+            success: false,
+            data: {message: `Could not connect to ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"}.`}
+        };
     } else if (syncStatus === undefined || syncStatus === SyncStatus.UPDATING) {
         return {success: false, data: {message: "Did not sync"}};
     } else if (syncStatus === SyncStatus.HISTORY) {
@@ -3386,7 +3514,8 @@ const _addBetaKey = async (db) => {
     };
     await db.collection(BETAKEYS_COLLECTION_NAME).insertOne(document);
     return {
-        success: true, data: {log: `Added betaKey ${betaKey}`, message: `Beta Key ${betaKey} Added`, value: document}
+        success: true,
+        data: {log: `Added betaKey ${betaKey}`, message: `Beta Key ${betaKey} Added`, value: document}
     };
 };
 
@@ -3435,14 +3564,19 @@ const _claimBetaKey = async (db, betaKey, username) => {
     }
     if (res.data.value.claimed) {
         return {
-            success: false, data: {log: `Beta key ${betaKey} already claimed.`, message: "Beta key already claimed."}
+            success: false,
+            data: {log: `Beta key ${betaKey} already claimed.`, message: "Beta key already claimed."}
         };
     }
-    let res2 = await db.collection(BETAKEYS_COLLECTION_NAME).updateOne({$and: [{betaKey: betaKey}, {claimed: false}]}, {
-        $set: {
-            claimed: true, claimedBy: username
-        }
-    });
+    let res2 = await db.collection(BETAKEYS_COLLECTION_NAME).updateOne({
+                                                                           $and: [
+                                                                               {betaKey: betaKey}, {claimed: false}
+                                                                           ]
+                                                                       }, {
+                                                                           $set: {
+                                                                               claimed: true, claimedBy: username
+                                                                           }
+                                                                       });
     if (res2.matchedCount === 1) {
         return {success: true, data: {log: `${betaKey} successfully claimed by ${username}`}};
     }
@@ -3578,7 +3712,12 @@ const _addDbClass = async (db, school, term, semester, className, teacherName) =
                                                                                term: term,
                                                                                semester: semester,
                                                                                className: className
-                                                                           }, {projection: {"teachers": 1, "_id": 1}});
+                                                                           }, {
+                                                                               projection: {
+                                                                                   "teachers": 1,
+                                                                                   "_id": 1
+                                                                               }
+                                                                           });
     if (classData) { // class already exists
         if (classData.teachers.every(x => x.teacherName !== teacherName)) {
             await db.collection(classesCollection(school)).updateOne({_id: classData._id}, {$push: {"teachers": makeTeacher(teacherName)}});
@@ -3661,7 +3800,8 @@ const _addWeightsSuggestion = async (db, username, term, semester, className, te
     }
 
     await db.collection(classesCollection(school)).updateOne({
-                                                                 _id: classData._id, "teachers.teacherName": teacherName
+                                                                 _id: classData._id,
+                                                                 "teachers.teacherName": teacherName
                                                              }, {
                                                                  $set: {"teachers.$.suggestions": suggestions}
                                                              });
@@ -3710,7 +3850,8 @@ const _updateWeightsInClassDb = async (db, school, term, semester, className, te
                                                                                          }
                                                                                      }, {
                                                                                          projection: {
-                                                                                             "teachers.$": 1, "_id": 1
+                                                                                             "teachers.$": 1,
+                                                                                             "_id": 1
                                                                                          }
                                                                                      })).value;
 
@@ -3726,7 +3867,8 @@ const _updateWeightsInClassDb = async (db, school, term, semester, className, te
         }
     }
     await db.collection(classesCollection(school)).updateOne({
-                                                                 _id: classData._id, "teachers.teacherName": teacherName
+                                                                 _id: classData._id,
+                                                                 "teachers.teacherName": teacherName
                                                              }, {
                                                                  $set: {"teachers.$.suggestions": suggestions}
                                                              });
@@ -3787,7 +3929,8 @@ const _updateUCCSUClassTypeInClassDb = async (db, school, term, semester, classN
     if (res.matchedCount === 0) {
         return {
             success: false, data: {
-                message: "Something went wrong", log: `Failed to set UC/CSU class type of ${className} to ${classType}`
+                message: "Something went wrong",
+                log: `Failed to set UC/CSU class type of ${className} to ${classType}`
             }
         };
     }
@@ -3872,11 +4015,14 @@ const _getTermsAndSemestersInClassDb = async (db, school) => {
     if (!Object.values(Schools).includes(school)) {
         return {success: false, data: {log: `Invalid school ${school}`}};
     }
-    let termsAndSemesters = await db.collection(classesCollection(school)).aggregate([{
-        $group: {
-            _id: "$term", semesters: {$addToSet: "$semester"}
-        }
-    }, {$sort: {_id: 1}}]).toArray();
+    let termsAndSemesters = await db.collection(classesCollection(school)).aggregate([
+                                                                                         {
+                                                                                             $group: {
+                                                                                                 _id: "$term",
+                                                                                                 semesters: {$addToSet: "$semester"}
+                                                                                             }
+                                                                                         }, {$sort: {_id: 1}}
+                                                                                     ]).toArray();
     termsAndSemesters = termsAndSemesters.map(x => [x._id, x.semesters.sort()]);
     return {success: true, data: {value: termsAndSemesters}};
 };
@@ -3925,8 +4071,11 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
         if (!(weight in currentWeights)) {
             return {
                 success: false,
-                data: {message: "Something went wrong", prodLog: `Failed to update weights for ${username}. (4) ${weight}`}
-            }
+                data: {
+                    message: "Something went wrong",
+                    prodLog: `Failed to update weights for ${username}. (4) ${weight}`
+                }
+            };
         }
     }
 
@@ -3935,8 +4084,11 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
         if (!(weight in weights)) {
             return {
                 success: false,
-                data: {message: "Something went wrong", prodLog: `Failed to update weights for ${username}. (5) ${weight}`}
-            }
+                data: {
+                    message: "Something went wrong",
+                    prodLog: `Failed to update weights for ${username}. (5) ${weight}`
+                }
+            };
         }
     }
 
@@ -3945,8 +4097,11 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
         if (weight in weights) {
             return {
                 success: false,
-                data: {message: "Something went wrong", prodLog: `Failed to update weights for ${username}. (6) ${weight}`}
-            }
+                data: {
+                    message: "Something went wrong",
+                    prodLog: `Failed to update weights for ${username}. (6) ${weight}`
+                }
+            };
         }
     }
 
@@ -3982,7 +4137,8 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
         [hasWeights, modWeights] = fixWeights(hasWeights, Object.assign({}, currentWeights, weights));
     } catch (e) {
         return {
-            success: false, data: {message: "Something went wrong", prodLog: `Failed to update weights for ${username}. (8) ${e}`}
+            success: false,
+            data: {message: "Something went wrong", prodLog: `Failed to update weights for ${username}. (8) ${e}`}
         };
     }
 
@@ -4003,7 +4159,7 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
                                        [`weights.${term}.${semester}.$`]: temp,
                                        [`addedWeights.${term}.${semester}.$`]: temp2
                                    }
-                               })
+                               });
 
     if (custom) {
         return {
@@ -4011,7 +4167,10 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
             data: {message: `Custom weight set for ${className}.`, log: `Custom weight set for ${className}.`}
         };
     }
-    return {success: true, data: {message: `Reset weight for ${className}.`, log: `Reset weight for ${className}.`}};
+    return {
+        success: true,
+        data: {message: `Reset weight for ${className}.`, log: `Reset weight for ${className}.`}
+    };
     //Important: Do not change first word of message. It is used in frontend to determine if it is custom.
 };
 
@@ -4149,17 +4308,17 @@ const _addDonation = async (db, username, platform, paidValue, receivedValue, da
         return res;
     }
     res = await _users(db).updateOne({
-                                             username: username
-                                         }, {
-                                             $push: {
-                                                 donoData: {
-                                                     platform: platform,
-                                                     paidValue: paidValue,
-                                                     receivedValue: receivedValue,
-                                                     dateDonated: dateDonated
-                                                 }
+                                         username: username
+                                     }, {
+                                         $push: {
+                                             donoData: {
+                                                 platform: platform,
+                                                 paidValue: paidValue,
+                                                 receivedValue: receivedValue,
+                                                 dateDonated: dateDonated
                                              }
-                                         });
+                                         }
+                                     });
 
     if (res.success) {
         return {success: true, data: {message: `Added donation for ${username}`}};
@@ -4249,23 +4408,25 @@ const _getTrimmedAlerts = async (db, username, term, semester) => {
         cond = {$and: [cond, {$lt: ["$$updateObj.timestamp", end]}]};
     }
 
-    let aggregation = [{
-        $match: {
-            username: username
-        }
-    }, {
-        $project: {
-            alerts: 1
-        }
-    }, {
-        $addFields: {
-            "alerts.lastUpdated": {
-                $filter: {
-                    input: "$alerts.lastUpdated", as: "updateObj", cond: cond
+    let aggregation = [
+        {
+            $match: {
+                username: username
+            }
+        }, {
+            $project: {
+                alerts: 1
+            }
+        }, {
+            $addFields: {
+                "alerts.lastUpdated": {
+                    $filter: {
+                        input: "$alerts.lastUpdated", as: "updateObj", cond: cond
+                    }
                 }
             }
         }
-    }];
+    ];
 
     res = (await db.collection(USERS_COLLECTION_NAME).aggregate(aggregation).toArray())[0].alerts;
 
@@ -4348,7 +4509,8 @@ const _discordVerify = async (db, username, verificationCode) => {
     let now = Date.now();
     if (!user.discord.expires || now >= user.discord.expires) {
         return {
-            success: false, data: {message: "This code is no longer valid. Please restart the verification process."}
+            success: false,
+            data: {message: "This code is no longer valid. Please restart the verification process."}
         };
     }
 
@@ -4577,6 +4739,7 @@ module.exports = {
     getGradeHistoryLetters: getGradeHistoryLetters,
     processChartData: processChartData,
     userArchived: userArchived,
+    archiveOldUsers: archiveOldUsers,
     archiveUser: archiveUser,
     getAllArchivedUsers: getAllArchivedUsers,
     unArchiveUser: unArchiveUser,

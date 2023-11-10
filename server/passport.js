@@ -46,6 +46,12 @@ module.exports = function (passport) {
             // if no user is found, return the message
             let res = await dbClient.userExists({username: username, schoolUsername: username}, true);
             if (!res.success) {
+                let res2 = await dbClient.userArchived({username: username, schoolUsername: username});
+                if (res2.success) {
+                    return done(null, false, req.flash("loginMessage",
+                            "This account has been archived! Email <a href='mailto:support@graderoom.me'>support@graderoom.me</a> to recover your account."
+                    ));
+                }
                 return done(null, false, req.flash("loginMessage", "Invalid Credentials"));
             }
 
