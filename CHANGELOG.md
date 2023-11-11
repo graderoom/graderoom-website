@@ -50,6 +50,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 6.3.2] - 2023-11-10
+### Improved
+- Lowered website load times by archiving old and unused accounts
+
 ## [Stable 6.3.1] - 2023-10-24
 ### Fixed
 - PowerSchool lock detection
