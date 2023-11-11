@@ -323,7 +323,11 @@ module.exports = function (app, passport) {
 
     app.post("/archiveOldUsers", [isAdmin], async (req, res) => {
         let beforeDate = new Date();
-        beforeDate.setFullYear(beforeDate.getFullYear() - 1);
+        if (beforeDate.getMonth() < 6) {
+            beforeDate.setFullYear(beforeDate.getFullYear() - 1);
+        }
+        beforeDate.setMonth(6); // July
+        beforeDate.setDate(1); // 1st
         let resp = await dbClient.archiveOldUsers(beforeDate);
 
         if (resp.success) {
