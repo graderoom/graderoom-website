@@ -323,7 +323,7 @@ module.exports = function (app, passport) {
 
     app.post("/archiveOldUsers", [isAdmin], async (req, res) => {
         let beforeDate = new Date();
-        if (beforeDate.getMonth() < 6) {
+        if (beforeDate.getMonth() < 9) { // Wait until October so people who don't log in over Summer don't get purged
             beforeDate.setFullYear(beforeDate.getFullYear() - 1);
         }
         beforeDate.setMonth(6); // July
