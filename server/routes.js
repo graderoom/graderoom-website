@@ -321,6 +321,24 @@ module.exports = function (app, passport) {
         req.logout(() => res.redirect(req.headers.referer ?? "/"));
     });
 
+    app.post("/archiveOldUsers", [isAdmin], async (req, res) => {
+        let beforeDate = new Date();
+        if (beforeDate.getMonth() < 6) {
+            beforeDate.setFullYear(beforeDate.getFullYear() - 1);
+        }
+        beforeDate.setMonth(6); // July
+        beforeDate.setDate(1); // 1st
+        let resp = await dbClient.archiveOldUsers(beforeDate);
+
+        if (resp.success) {
+            req.flash("adminSuccessMessage", resp.data.message);
+        } else {
+            req.flash("adminFailMessage", resp.data.message);
+        }
+
+        res.redirect("/admin");
+    });
+
     app.post("/archiveUser", [isAdmin], async (req, res) => {
         let username = req.body.deleteUser;
         console.log("Got request to archive: " + username);
@@ -434,7 +452,7 @@ module.exports = function (app, passport) {
         if (page > maxPage) {
             return res.redirect(url.format({pathname: "/admin", query: {page: maxPage, count: count}}));
         }
-        let deletedUsers = (await dbClient.getAllArchivedUsers(projection)).data.value;
+        let deletedUsers = (await dbClient.getAllArchivedUsers(projection, 1, count)).data.value; // TODO
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
         res.render("admin/admin.ejs", {
             page: "admin",

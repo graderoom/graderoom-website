@@ -90,6 +90,11 @@
             </select> of <%= maxPage %>)</h6>
         <hr>
         <h1><%= count %> Users</h1>
+        <form action="/archiveOldUsers" method="post">
+            <button type="submit" class="btn btn-sm admin">
+                Archive Old Users
+            </button>
+        </form>
         <div style="max-height: 100vh; overflow: auto">
             <table class="table rounded-table" style="width: 100% !important;">
                 <thead>
