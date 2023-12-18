@@ -55,7 +55,7 @@
 - I noticed several emails in my Spam folder today about wanting access to Graderoom
 - I apologize for not seeing them sooner
 - If you have friends that were having trouble accessing Graderoom, please let them know that their accounts should be accessible again
-- Joel
+- - Joel
 
 ## [Stable 6.3.3] - 2023-12-18
 ### Improved
