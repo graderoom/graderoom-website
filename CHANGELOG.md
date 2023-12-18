@@ -50,6 +50,17 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Announcement 6.3.4] - 2023-12-18
+- I have un-archived accounts for users that have not yet graduated
+- I noticed several emails in my Spam folder today about wanting access to Graderoom
+- I apologize for not seeing them sooner
+- If you have friends that were having trouble accessing Graderoom, please let them know that their accounts should be accessible again
+- Joel
+
+## [Stable 6.3.3] - 2023-12-18
+### Improved
+- Modified archive logic to prevent archiving of accounts that have not yet graduated
+
 ## [Stable 6.3.2] - 2023-11-10
 ### Improved
 - Lowered website load times by archiving old and unused accounts

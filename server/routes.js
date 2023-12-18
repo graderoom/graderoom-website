@@ -322,13 +322,19 @@ module.exports = function (app, passport) {
     });
 
     app.post("/archiveOldUsers", [isAdmin], async (req, res) => {
-        let beforeDate = new Date();
-        if (beforeDate.getMonth() < 6) {
-            beforeDate.setFullYear(beforeDate.getFullYear() - 1);
+        let resp = await dbClient.archiveOldUsers();
+
+        if (resp.success) {
+            req.flash("adminSuccessMessage", resp.data.message);
+        } else {
+            req.flash("adminFailMessage", resp.data.message);
         }
-        beforeDate.setMonth(6); // July
-        beforeDate.setDate(1); // 1st
-        let resp = await dbClient.archiveOldUsers(beforeDate);
+
+        res.redirect("/admin");
+    });
+
+    app.post("/unArchiveNonGraduatedUsers", [isAdmin], async (req, res) => {
+        let resp = await dbClient.unArchiveNonGraduatedUsers();
 
         if (resp.success) {
             req.flash("adminSuccessMessage", resp.data.message);
