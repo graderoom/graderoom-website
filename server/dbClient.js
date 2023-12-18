@@ -1712,9 +1712,13 @@ const _userArchived = async (db, {username, schoolUsername}, includeFullUser = f
 const unArchiveNonGraduatedUsers = () => safe(_unArchiveNonGraduatedUsers);
 const _unArchiveNonGraduatedUsers = async (db) => {
     // One-time use function for when archiveOldUsers didn't check for grad year
-    let year = new Date().getFullYear();
+    let date = new Date();
+    let year = date.getFullYear();
+    if (date.getMonth() < 6) {
+        year -= 1;
+    }
     let users = await db.collection(ARCHIVED_USERS_COLLECTION_NAME).find({
-                                                                             "personalInfo.graduationYear": {$gte: year}
+                                                                             "personalInfo.graduationYear": {$gt: year}
                                                                          }).toArray();
     for (let user of users) {
         await unArchiveUser(user.username);
@@ -1731,10 +1735,11 @@ const _archiveOldUsers = async (db) => {
     let year = beforeDate.getFullYear();
     if (beforeDate.getMonth() < 6) {
         beforeDate.setFullYear(year - 1);
+        year -= 1;
     }
     beforeDate.setMonth(6); // July
     beforeDate.setDate(1); // 1st
-    let oldUsers = await _users(db).find({loggedIn: {$not: {$gt: beforeDate.getTime()}}, "personalInfo.graduationYear": {$lt: year}}, {projection: {username: 1}}).toArray();
+    let oldUsers = await _users(db).find({loggedIn: {$not: {$gt: beforeDate.getTime()}}, "personalInfo.graduationYear": {$lte: year}}, {projection: {username: 1}}).toArray();
     for (let user of oldUsers) {
         await archiveUser(user.username);
     }
