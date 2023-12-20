@@ -50,6 +50,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 6.3.5] - 2023-12-19
+### Fixed
+- Certain notifications not clearing
+
 ## [Announcement 6.3.4] - 2023-12-18
 - I have un-archived accounts for users that have not yet graduated
 - I noticed several emails in my Spam folder today about wanting access to Graderoom
