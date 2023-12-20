@@ -1747,9 +1747,37 @@ const _userArchived = async (db, {username, schoolUsername}, includeFullUser = f
     };
 };
 
-const archiveOldUsers = (beforeDate) => safe(_archiveOldUsers, beforeDate);
-const _archiveOldUsers = async (db, beforeDate) => {
-    let oldUsers = await _users(db).find({loggedIn: {$not: {$gt: beforeDate.getTime()}}}, {projection: {username: 1}}).toArray();
+const unArchiveNonGraduatedUsers = () => safe(_unArchiveNonGraduatedUsers);
+const _unArchiveNonGraduatedUsers = async (db) => {
+    // One-time use function for when archiveOldUsers didn't check for grad year
+    let date = new Date();
+    let year = date.getFullYear();
+    if (date.getMonth() < 6) {
+        year -= 1;
+    }
+    let users = await db.collection(ARCHIVED_USERS_COLLECTION_NAME).find({
+                                                                             "personalInfo.graduationYear": {$gt: year}
+                                                                         }).toArray();
+    for (let user of users) {
+        await unArchiveUser(user.username);
+    }
+    return {
+        success: true,
+        data: {log: `Unarchived ${users.length} users that have not graduated yet`, message: `Unarchived ${users.length} users`}
+    };
+}
+
+const archiveOldUsers = () => safe(_archiveOldUsers);
+const _archiveOldUsers = async (db) => {
+    let beforeDate = new Date();
+    let year = beforeDate.getFullYear();
+    if (beforeDate.getMonth() < 6) {
+        beforeDate.setFullYear(year - 1);
+        year -= 1;
+    }
+    beforeDate.setMonth(6); // July
+    beforeDate.setDate(1); // 1st
+    let oldUsers = await _users(db).find({loggedIn: {$not: {$gt: beforeDate.getTime()}}, "personalInfo.graduationYear": {$lte: year}}, {projection: {username: 1}}).toArray();
     for (let user of oldUsers) {
         await archiveUser(user.username);
     }
@@ -4780,6 +4808,7 @@ module.exports = {
     getGradeHistoryLetters: getGradeHistoryLetters,
     processChartData: processChartData,
     userArchived: userArchived,
+    unArchiveNonGraduatedUsers: unArchiveNonGraduatedUsers,
     archiveOldUsers: archiveOldUsers,
     archiveUser: archiveUser,
     getAllArchivedUsers: getAllArchivedUsers,
