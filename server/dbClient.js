@@ -2414,7 +2414,7 @@ const _updateNotification = async (db, username, id, update) => {
     if (!res.success) {
         return res;
     }
-    let trimmed = res.alerts.notifications;
+    let trimmed = res.data.value.alerts.notifications;
     let index = trimmed.findIndex(i => i.id === id);
     if (index === -1) {
         return {success: false, data: {message: "Invalid ID", log: `Invalid updateNotification id=${id}`}};
