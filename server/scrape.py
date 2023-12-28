@@ -777,8 +777,11 @@ class PowerschoolScraper(Scraper):
                                    'section_id': section_id
                                    })
 
-        if "term" not in term_data or "semester" not in term_data:
-            term, semester = self.get_term_and_semester_data()
+        term, semester = self.get_term_and_semester_data()
+        if term is None or semester is None:
+            if term_data is None:
+                raise Exception("Error getting term and semester data")
+        else:
             term_data = {
                 'term': term,
                 'semester': semester,
@@ -835,6 +838,9 @@ class PowerschoolScraper(Scraper):
         soup = bS(resp.text, "html.parser")
 
         table = soup.find("table")
+        if table is None:
+            return None, None
+
         table_cells = table.find_all("td")
         term = table_cells[0].text
         semester = table_cells[1].text
