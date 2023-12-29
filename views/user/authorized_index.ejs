@@ -3451,7 +3451,7 @@
                             $(rowDivs[assignmentIndex]).addClass("excluded").find(".dynamic-input").addClass("excluded");
                         } else {
                             $(rowDivs[assignmentIndex]).removeClass("excluded").find(".dynamic-input").removeClass("excluded");
-                            if (colorClass == "") {
+                            if (colorClass == "" && assignmentScoresParsed[j].includes("--")) {
                                 $(rowDivs[assignmentIndex]).addClass("no-change");
                             } else {
                                 $(rowDivs[assignmentIndex]).removeClass("no-change");

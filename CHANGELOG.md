@@ -51,6 +51,9 @@
 - None
 
 ## [Beta 6.3.6] - 2023-12-28
+### Improved
+- Added a visual difference between an assignment with no grade and a graded assignment that does not impact your grade
+
 ### Fixed
 - Issue with locked PowerSchool sync overwriting S1 courses with S2 courses
 
