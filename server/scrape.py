@@ -751,8 +751,19 @@ class PowerschoolScraper(Scraper):
             student_id = str(soup.find('div', id='content-main').encode('utf-8')) \
                 .split('studentid')[1].split(',')[0].split('\\\'')[1].split('\\\'')[0]
 
+        use_new_data = False
         if len(data_we_have) == 0:
             self.message = 'No existing course data. Syncing all courses...'
+            use_new_data = True
+
+        if term_data is not None:
+            _term, _semester = self.get_term_and_semester_data()
+            if term_data["term"] != _term: # Probably fine to assume that new term means should sync new stuff
+                use_new_data = True
+                term = _term
+                semester = _semester
+
+        if use_new_data:
             self.message = 'Checking for new course data...'
             for i in range(len(class_names)):
 
@@ -770,7 +781,8 @@ class PowerschoolScraper(Scraper):
                                        'section_id': section_id
                                        })
 
-            term, semester = self.get_term_and_semester_data()
+            if term is None or semester is None:
+                term, semester = self.get_term_and_semester_data()
             if term is None or semester is None:
                 if term_data is None:
                     raise Exception("Error getting term and semester data")
