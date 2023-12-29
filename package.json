@@ -9,13 +9,11 @@
     "test_beta": "echo \\\"Running Graderoom server locally in beta mode\\\" && port=5998 SECRET=\\\"secret\\\" node server/graderoom.js",
     "start": "echo \\\"Running HTTP Server in production mode\\\" && sudo node server/graderoom.js true",
     "scrape_test": "node -e \"require('./server/npm_commands').external_scrape()\"",
-    "purge_db": "node -e \"require('./server/npm_commands').purge_db()\"",
-    "backup_db": "node -e \"require('./server/npm_commands').backup_db()\""
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@sendgrid/mail": "^7.7.0",
+    "@sendgrid/mail": "^8.1.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.1",
     "chroma-js": "^2.4.2",

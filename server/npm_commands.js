@@ -5,7 +5,6 @@ const adapter = new FileSync("credentials.json");
 const credentials = low(adapter);
 const dbClient = require("./dbClient");
 const _ = require("lodash");
-const stream = require("stream");
 
 
 credentials.defaults({"school": "", "graderoom_username": "", "school_username": "", "password": "", "get_history": false}).write();
@@ -55,45 +54,5 @@ module.exports = {
 
         await scraper.loginAndScrapeGrades(processor, school, school_username, password, data_if_locked, term_data_if_locked, get_history);
 
-    },
-
-    /**
-     * Backs up and then deletes all non-admin users in the database
-     *
-     * *For testing purposes only.*
-     * *This will not do anything in a production environment.*
-     */
-    purge_db: function () {
-        if (process.env.NODE_ENV === 'production') {
-            console.log("THIS IS PROD DON'T DO IT");
-            return;
-        }
-        // Backup
-        authenticator.backupdb();
-
-        // Delete all non-admins
-        let users = authenticator.db.get("users").value();
-        let usersRef = authenticator.db.get("users");
-        let remainingUsers = [];
-        for (let i = 0; i < users.length; i++) {
-            console.log('checking ' + users[i].username);
-            if (users[i].isAdmin) {
-                remainingUsers.push(users[i].username);
-                continue;
-            }
-            console.log('deleted ' + users[i].username);
-            usersRef.splice(i--, 1).write();
-        }
-        console.log("\nRemaining Users: " + remainingUsers.length);
-        for (let i = 0; i < remainingUsers.length; i++) {
-            console.log(remainingUsers[i]);
-        }
-    },
-
-    /**
-     * Backs up the database
-     */
-    backup_db: function () {
-        authenticator.backupdb();
     }
 }

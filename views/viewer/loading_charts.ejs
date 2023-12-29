@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+    <title>Graderoom</title>
+    <link rel="icon" href="/public/resources/common/icon.png">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
+    <% let theme; %>
+    <% let date = new Date(); %>
+    <% let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes()); %>
+    <% zeroTime = zeroTime.getTime(); %>
+    <% if (_appearance.theme === "dark") { %>
+        <% theme = true; %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
+    <% } else if (_appearance.theme === "light") { %>
+        <% theme = false; %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/light_mode.css">
+    <% } else if (_appearance.theme === "auto" && (((_appearance.darkModeStart < _appearance.darkModeFinish) && ((zeroTime >= _appearance.darkModeStart) && (zeroTime < _appearance.darkModeFinish))) || ((_appearance.darkModeStart > _appearance.darkModeFinish) && ((zeroTime >= _appearance.darkModeStart) || (zeroTime < _appearance.darkModeFinish))))) { %>
+        <% theme = true; %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
+    <% } else if (_appearance.theme === "system") { %>
+        <% theme = true; %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
+    <% } else if (_appearance.theme === "sun" && ((zeroTime >= sunset.getTime()) || (zeroTime <= sunrise.getTime()))) { %>
+        <% theme = true; %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
+    <% } else { %>
+        <% theme = false; %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/light_mode.css">
+    <% } %>
+    <link rel="stylesheet" type="text/css" href="/public/css/main.css">
+    <link id="blur_base" rel="stylesheet" type="text/css" href="/public/css/blur.css"
+          <% if (!_appearance.blurEffects) { %>disabled
+            <% } %>
+    >
+    <link id="blur_overrides" rel="stylesheet" type="text/css"
+    <% if (theme === true) { %>
+          href="/public/css/dark_blur.css"
+    <% } else if (theme === false) { %> href="/public/css/light_blur.css"
+            <% } %>
+          <% if (!_appearance.blurEffects) { %>disabled
+            <% } %>
+    >
+    <link id="reduceMotion" rel="stylesheet" type="text/css" href="/public/css/reduce_motion.css"
+          <% if (!_appearance.reduceMotion) { %>disabled
+            <% } %>
+    >
+    <link id="fade" rel="stylesheet" type="text/css" href="/public/css/fade.css" disabled>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.24.0/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/1.1.1/chartjs-plugin-zoom.min.js"
+            integrity="sha512-NxlWEbNbTV6acWnTsWRLIiwzOw0IwHQOYUCKBiu/NqZ+5jSy7gjMbpYI+/4KvaNuZ1qolbw+Vnd76pbIUYEG8g=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<% if (page === "charts") { %>
+    <%- include('../partials/user/navbar.ejs', {theme: theme, page: page}); %>
+    <script>
+        let alerts = <%- JSON.stringify(_alerts); %>;
+        setupTutorialPopups();
+        function setupTutorialPopups() {
+            $(Object.entries(alerts.tutorialStatus).filter(([, k]) => !k).map(([t]) => "#" + t.substring(0, t.length - 4)).join("Popup, ") + "Popup").addClass("always-show");
+        }
+
+        function updateTutorial(action) {
+            if (window.innerWidth <= 991) {
+                return;
+            }
+            $.ajax({
+                url: "/UpdateTutorialStatus", type: "POST", async: true, data: {action: action}
+            }).done((response) => {
+                if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
+                    $(".session-timeout").show();
+                    $("body").find("*").not(".session-timeout").remove();
+                    return;
+                }
+                alerts.tutorialStatus = JSON.parse(response);
+                $("#" + action + "Popup").animate({opacity: 0}, 400, function () {
+                    $(this).removeClass("always-show").css("opacity", "");
+                });
+                setupTutorialPopups();
+            });
+        }
+
+        $(".gotIt").on("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            let id = $(this).parents("span.tutorial-popup")[0].id;
+            updateTutorial(id.substring(0, id.length - 5));
+        });
+    </script>
+<% } else { %>
+    <%- include('../partials/viewer/viewer_navbar.ejs', {theme: theme, page: page}); %>
+<% } %>
+<div class="container" style="position: absolute; bottom: 0; height: 100%; width: 100%; right: 0; left: 0; display: flex; align-items: center; justify-content: center">
+    <h2>Usage Data is still processing. Check back later!</h1>
+</div>
+</body>

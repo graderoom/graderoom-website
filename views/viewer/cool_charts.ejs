@@ -247,7 +247,6 @@
     let uniqueLoginData = <%- JSON.stringify(_uniqueLoginData); %>;
     let syncData = <%- JSON.stringify(_syncData); %>;
     let userData = <%- JSON.stringify(_userData); %>;
-    let activeUsersData = <%- JSON.stringify(_activeUsersData); %>;
 
     let weekdayLoginData = Array(7).fill(0);
     let weekdayUniqueLoginData = Array(7).fill(0);
@@ -286,10 +285,6 @@
             userData.splice(i + j - 1, 0, {
                 x: new Date(prevDate.getTime() + j * 24 * 60 * 60 * 1000).toISOString(), y: userData[i - 1].y
             });
-            activeUsersData.splice(i + j - 1, 0, {
-                x: new Date(prevDate.getTime() + j * 24 * 60 * 60 * 1000).toISOString(),
-                y: j <= 14 ? activeUsersData[i - 1].y : 0
-            });
             length++;
         }
 
@@ -297,7 +292,7 @@
     }
     let updated = new Date(<%= lastUpdated - 24 * 60 * 60 * 1000 %>);
     let count = <%- JSON.stringify(_loggedInData.data.value) %>;
-    $("#user-desc").text(`${userData.slice(-1)[0].y} total user(s), ${activeUsersData.slice(-1)[0].y} recently active user(s), as of ${updated.toDateString()}.`);
+    $("#user-desc").text(`${userData.slice(-1)[0].y} total user(s) as of ${updated.toDateString()}.`);
     $("#curr-logins").text(`${count.count} active session(s). ${count.uniqueCount} currently active user(s).`);
     $("#weekday-desc").text(`${weekdayLoginData.reduce((a, b) => a + b, 0)} logins, ${weekdaySyncData.reduce((a, b) => a + b, 0)} syncs all time`)
 
@@ -375,27 +370,10 @@
         pointHoverBorderColor: "blue",
         pointHoverBorderWidth: 2
     };
-    let activeUsersDataset = {
-        label: "Active Users",
-        backgroundColor: "transparent",
-        pointBackgroundColor: "purple",
-        pointBorderColor: "transparent",
-        borderColor: "purple",
-        data: activeUsersData,
-        cubicInterpolationMode: "monotone",
-        spanGaps: false,
-        pointRadius: 1,
-        borderWidth: 1,
-        pointHoverRadius: 3,
-        pointHoverBackgroundColor: "purple",
-        pointHoverBorderColor: "purple",
-        pointHoverBorderWidth: 2
-    };
     dataset.push(loginsDataset);
     dataset.push(uniqueLoginDataset);
     dataset.push(syncsDataset);
     dataset.push(numUsersDataset);
-    dataset.push(activeUsersDataset);
 
     function setupAllCharts() {
         setupChart();

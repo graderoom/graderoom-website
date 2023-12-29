@@ -910,7 +910,16 @@ module.exports = function (app, passport) {
 
     app.get("/charts", async (req, res) => {
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
-        let {data: {loginData, uniqueLoginData, syncData, userData, activeUsersData, gradData, schoolData, lastUpdated}} = await dbClient.getChartData();
+        let {success, data: {loginData, uniqueLoginData, syncData, userData, activeUsersData, gradData, schoolData, lastUpdated}} = await dbClient.getChartData();
+        if (!success) {
+            return res.render("viewer/loading_charts.ejs", {page: "charts-logged-out",
+                _appearance: {seasonalEffects: true, theme: 'sun'},
+                sunset: sunset,
+                sunrise: sunrise,
+                premium: false,
+                _: _
+            });
+        }
         if (req.isAuthenticated()) {
             let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
             res.render("viewer/cool_charts.ejs", {
