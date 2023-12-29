@@ -2753,7 +2753,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
 
             let time = Date.now();
             let updateHistory = false;
-            if (!ps_locked && ((newTerm !== oldTerm || newSemester !== oldSemester) || !user.updatedGradeHistory.length)) {
+            if ((!ps_locked && (newTerm !== oldTerm || newSemester !== oldSemester)) || !user.updatedGradeHistory.length) {
                 await resetSortData(username);
                 await _users(db).updateOne({username: username}, {$set: {[`updateStartTimestamps.${newTerm}.${newSemester}`]: time}});
                 updateHistory = true;

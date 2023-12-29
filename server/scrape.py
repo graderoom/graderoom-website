@@ -740,9 +740,10 @@ class PowerschoolScraper(Scraper):
 
         new_class_data = []
 
-        if len(data_we_have) > 0 and "student_id" in data_we_have[0]:
+        if len(data_we_have) > 0 and "student_id" in data_we_have[0] and data_we_have[0]["student_id"] != False:
             student_id = data_we_have[0]["student_id"]
         else:
+            data_we_have = []
             self.message = 'Fetching student id...'
             url = 'https://' + self.base_url + '/guardian/forms.html'
             response = self.session.get(url, verify=self.verify)
