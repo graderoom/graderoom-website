@@ -50,6 +50,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 6.3.6] - 2023-12-28
+### Fixed
+- Issue with locked PowerSchool sync overwriting S1 courses with S2 courses
+
 ## [Stable 6.3.5] - 2023-12-19
 ### Fixed
 - Certain notifications not clearing

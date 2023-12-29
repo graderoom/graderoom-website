@@ -740,52 +740,48 @@ class PowerschoolScraper(Scraper):
 
         new_class_data = []
 
-        if len(data_we_have) == 0:
+        if len(data_we_have) > 0 and "student_id" in data_we_have[0]:
+            student_id = data_we_have[0]["student_id"]
+        else:
             self.message = 'Fetching student id...'
             url = 'https://' + self.base_url + '/guardian/forms.html'
             response = self.session.get(url, verify=self.verify)
             soup = bS(response.text, 'html.parser')
             student_id = str(soup.find('div', id='content-main').encode('utf-8')) \
                 .split('studentid')[1].split(',')[0].split('\\\'')[1].split('\\\'')[0]
+
+        if len(data_we_have) == 0:
+            self.message = 'No existing course data. Syncing all courses...'
+            self.message = 'Checking for new course data...'
+            for i in range(len(class_names)):
+
+                self.message = f"Found new course {class_names[i]}"
+                course = courses[1:][i]
+                teacher_name = course.findChildren('td')[3].findChildren('a')[1].text.split('Email ')[1]
+                section_id_div = course.findChildren('td', align='center')[0]
+                section_id = section_id_div.find_all(text=lambda text: isinstance(text, Comment))[0].extract().split(' ')[2]
+
+                new_class_data.append({'class_name': class_names[i],
+                                       'teacher_name': teacher_name,
+                                       'overall_percent': False,
+                                       'overall_letter': False,
+                                       'student_id': student_id,
+                                       'section_id': section_id
+                                       })
+
+            term, semester = self.get_term_and_semester_data()
+            if term is None or semester is None:
+                if term_data is None:
+                    raise Exception("Error getting term and semester data")
+            else:
+                term_data = {
+                    'term': term,
+                    'semester': semester,
+                }
         else:
-            student_id = data_we_have[0]["student_id"]
-
-        self.message = 'Checking for new course data...'
-        existing_count = 0
-        for i in range(len(class_names)):
-            try:
-                index = class_names_we_have.index(class_names[i])
-                existing_count += 1
-                self.message = f"Found {existing_count} existing course(s)"
-                new_class_data.append(data_we_have[index])
-                continue
-            except ValueError:
-                # Intentionally empty
-                pass
-
-            self.message = f"Found new course {class_names[i]}"
-            course = courses[1:][i]
-            teacher_name = course.findChildren('td')[3].findChildren('a')[1].text.split('Email ')[1]
-            section_id_div = course.findChildren('td', align='center')[0]
-            section_id = section_id_div.find_all(text=lambda text: isinstance(text, Comment))[0].extract().split(' ')[2]
-
-            new_class_data.append({'class_name': class_names[i],
-                                   'teacher_name': teacher_name,
-                                   'overall_percent': False,
-                                   'overall_letter': False,
-                                   'student_id': student_id,
-                                   'section_id': section_id
-                                   })
-
-        term, semester = self.get_term_and_semester_data()
-        if term is None or semester is None:
+            new_class_data = data_we_have[:]
             if term_data is None:
                 raise Exception("Error getting term and semester data")
-        else:
-            term_data = {
-                'term': term,
-                'semester': semester,
-            }
 
         class_data = new_class_data
 
