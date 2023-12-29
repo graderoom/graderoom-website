@@ -1457,6 +1457,11 @@
             } else {
                 $("#syncPopup").removeClass("always-show");
                 $(Object.entries(alerts.tutorialStatus).filter(([, k]) => !k).map(([t]) => "#" + t.substring(0, t.length - 4)).join("Popup, ") + "Popup").addClass("always-show");
+                if (!alerts.tutorialStatus["legend"] && chartData.filter(c => c).length) {
+                    $("#legendPopup").addClass("always-show");
+                } else {
+                    $("#legendPopup").removeClass("always-show");
+                }
             }
         }
 
@@ -3451,7 +3456,7 @@
                             $(rowDivs[assignmentIndex]).addClass("excluded").find(".dynamic-input").addClass("excluded");
                         } else {
                             $(rowDivs[assignmentIndex]).removeClass("excluded").find(".dynamic-input").removeClass("excluded");
-                            if (colorClass == "") {
+                            if (colorClass == "" && assignmentScoresParsed[j].includes("--")) {
                                 $(rowDivs[assignmentIndex]).addClass("no-change");
                             } else {
                                 $(rowDivs[assignmentIndex]).removeClass("no-change");
