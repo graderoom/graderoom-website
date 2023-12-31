@@ -1823,7 +1823,7 @@ div:not(#dismissed-notifications) > .notification-card.important.discord {
 }
 
 .notification-card:hover div.notification-body, #pinned-notifications .notification-card div.notification-body {
-    max-height: 10rem;
+    max-height: 12rem;
 }
 
 .notification-card .notification-btns {

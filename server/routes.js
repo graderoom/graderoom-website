@@ -480,7 +480,7 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.get("/changelog", [isLoggedIn], async (req, res) => {
+    app.get("/changelog", async (req, res) => {
         let result = changelog(server.beta, req.query.versionName);
         if (result === null) return res.sendStatus(400);
         res.status(200).send(result);

@@ -101,7 +101,7 @@
     }
 
     function changelogMessage(version, message) {
-        return `${message}<span class="notification-button" style="cursor: pointer" onclick="openAndScroll('${version}')"><b><i class="fa fa-external-link-square"></i> Open Changelog</b></span>`;
+        return `${message}<span class="notification-button" onclick="openAndScroll('${version}')"><b><i class="fa fa-external-link-square"></i> Open Changelog</b></span>`;
     }
 
     function openAndScroll(version) {

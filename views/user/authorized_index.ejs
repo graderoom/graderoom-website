@@ -1457,7 +1457,7 @@
             } else {
                 $("#syncPopup").removeClass("always-show");
                 $(Object.entries(alerts.tutorialStatus).filter(([, k]) => !k).map(([t]) => "#" + t.substring(0, t.length - 4)).join("Popup, ") + "Popup").addClass("always-show");
-                if (!alerts.tutorialStatus["legend"] && chartData.filter(c => c).length) {
+                if (!alerts.tutorialStatus["legendSeen"] && chartData.filter(c => c).length) {
                     $("#legendPopup").addClass("always-show");
                 } else {
                     $("#legendPopup").removeClass("always-show");
