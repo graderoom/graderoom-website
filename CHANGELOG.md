@@ -50,6 +50,18 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Announcement 6.3.7] - 2023-12-31 - Notification of Data Loss
+- At some point before Dec 21, 2023, but after Dec 18, 2023, PowerSchool changed from displaying 23-24 S1 classes to 23-24 S2 classes.
+- Unfortunately, the server was not prepared for this change, and this resulted in data loss for ~30% of users.
+- If you are affected, you will see a notification in the Notification Panel.
+- In summary, users fell into 3 categories:<ul>
+- <b>1093</b> Users who created their account BEFORE the last backup, and did NOT sync AFTER the PowerSchool change<ul>
+- These users will not be impacted</ul>
+- <b>460</b> Users who created their account BEFORE the last backup, but synced AFTER the PowerSchool change<ul>
+- These users will have their first semester 23-24 data rolled back to what it was when the data was backed up</ul>
+- <b>3</b> Users who created their account AFTER the last backup, AND synced AFTER the PowerSchool change<ul>
+- These users will have no data for the first semester of the 23-24 school year until PowerSchool unlocks again</ul></ul>
+
 ## [Beta 6.3.6] - 2023-12-28
 ### Fixed
 - Issue with locked PowerSchool sync overwriting S1 courses with S2 courses
