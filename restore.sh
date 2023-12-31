@@ -92,7 +92,7 @@
       printf "%-4s %-25s\n" "$((i+1))" "$COLLECTION_NAME"
     done
 
-    # Prompt the user to choose which database(s) to restore
+    # Prompt the user to choose which collection(s) to restore
     read -r -p "Enter the numbers(s) of the collection(s) to restore (comma-separated, no spaces) or 'a' for all: " COLLECTION_INDICES
 
     COLLECTION_ARRAY=()
@@ -116,11 +116,16 @@
       done
     fi
 
+    read -r -p "Enter the name of the database to restore to (or '0' to restore to the same database): " RESTORE_DB_NAME
+    if [[ "$RESTORE_DB_NAME" == "0" ]]; then
+      RESTORE_DB_NAME="$DB_NAME"
+    fi
+
     # Generate a random 4-digit code
     CODE=$((1000 + RANDOM % 9000))
 
     # Prompt the user to enter the code for verification
-    echo "You are about to restore ${#COLLECTION_ARRAY[@]} collections in $DB_NAME from $SELECTED_BACKUP_DIR"
+    echo "You are about to restore ${#COLLECTION_ARRAY[@]} collections from $DB_NAME in $SELECTED_BACKUP_DIR to $RESTORE_DB_NAME"
     echo "Please enter the following code to verify: $CODE"
     read -r USER_CODE
 
@@ -129,8 +134,8 @@
       echo "Verification successful"
       for i in "${COLLECTION_ARRAY[@]}"; do
         COLLECTION_NAME="${COLLECTION_NAMES["$(($i-1))"]}"
-        echo "Restoring $DB_NAME.${COLLECTION_NAME//./\\\.} from $SELECTED_BACKUP_DIR/$DB_NAME/$COLLECTION_NAME.bson.gz"
-        mongorestore --gzip --nsInclude "$DB_NAME.${COLLECTION_NAME//./\\\\\\\\.}" "$SELECTED_BACKUP_DIR/$DB_NAME/$COLLECTION_NAME.bson.gz" --drop
+        echo "Restoring $DB_NAME.${COLLECTION_NAME//./\\\.} from $SELECTED_BACKUP_DIR/$DB_NAME/$COLLECTION_NAME.bson.gz into $RESTORE_DB_NAME.${COLLECTION_NAME//./\\\.}"
+        mongorestore --gzip --db "$RESTORE_DB_NAME" --nsInclude "$DB_NAME.${COLLECTION_NAME//./\\\\\\\\.}" "$SELECTED_BACKUP_DIR/$DB_NAME/$COLLECTION_NAME.bson.gz" --drop
       done
     else
       echo "Verification failed"
