@@ -77,7 +77,6 @@
 - <github issue="159">Category sort mode doesn't show added categories</github>
 - Various visual bugs in category sorted tables
 - <em>[Mobile]</em> Category sorted data now displays correctly on mobile
-- Issue with locked PowerSchool sync overwriting S1 courses with S2 courses
 - Issue with donation notifications not updating
 - Issues with very old grade percentages for extra credit displaying as -1%
 
