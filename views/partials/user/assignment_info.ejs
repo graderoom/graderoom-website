@@ -13,17 +13,27 @@
                     <span class="fa fa-info-circle"></span> Assignment Info
                 </h1>
                 <div id="assignmentInfoBody" class="card-footer">
+                    <div id="infoAverage" class="unlock-with-parent">
+                        <div><span id="assignmentInfoGraderoomUsers"></span><span><span></span><span class="popup"><i class="fa fa-info-circle"><span class="popup-right-bottom">This is the number of Graderoom users that have synced a <b>valid</b> score for this assignment</span></i></span></span></div>
+                        <div><span>Graderoom User Assignment Average:</span><span id="assignmentInfoAverage"></span></div>
+                        <div class="unlock-with premium"><span>Unlock more assignment averages with <span class="premium label-background"><span class="premium-label">PREMIUM</span></span></span></div>
+                    </div>
                     <div>
-                        <span>Date: <span id="assignmentInfoDate"></span></span>
-                        <span>Name: <span id="assignmentInfoName"></span></span>
-                        <span>Category: <span id="assignmentInfoCategory"></span></span>
-                        <span>Score: <span id="assignmentInfoScore"></span></span>
+                        <span><span>Date: </span><span id="assignmentInfoDate"></span></span>
+                        <span><span>Date: </span><span id="assignmentInfoDateEditable" class="form-group">
+                            <input id="assignmentInfoDateEditableInput"
+                                   class="form-control dont-clear"
+                                   type="text"
+                                   onfocus="if (this.value !== '') { this.value = moment(this.value, 'MM/DD/YYYY').format('YYYY-MM-DD'); this.type='date'; } else { this.type='date'; this.valueAsDate = new Date(); } checkLabel(this)"
+                                   onblur="this.type='text'; if (this.value !== moment(this.value, 'MM/DD/YYYY').format('MM/DD/YYYY')) {this.value = moment(this.value, 'YYYY-MM-DD').format('MM/DD/YYYY');} checkLabel(this)" required>
+                            </span></span>
+                        <span><span>Name: </span><span id="assignmentInfoName"></span></span>
+                        <span><span>Category: </span><span id="assignmentInfoCategory"></span></span>
+                        <span><span>Score: </span><span id="assignmentInfoScore"></span></span>
                     </div>
                     <div><span>Description</span><span id="assignmentInfoDescription"></span></div>
                     <div><span>Comments</span><span id="assignmentInfoComments"></span></div>
                 </div>
-<!--                <div id="assignmentInfoGraderoomUsers"></div>-->
-<!--                <div id="assignmentInfoAverage"></div>-->
             </div>
         </div>
     </div>

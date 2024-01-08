@@ -4,18 +4,12 @@
   "description": "Advanced Grade Visualizer",
   "main": "server/graderoom.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "test_stable": "echo \\\"Running Graderoom server locally in stable mode\\\" && port=5996 SECRET=\\\"secret\\\" node server/graderoom.js",
-    "test_beta": "echo \\\"Running Graderoom server locally in beta mode\\\" && port=5998 SECRET=\\\"secret\\\" node server/graderoom.js",
-    "start": "echo \\\"Running HTTP Server in production mode\\\" && sudo node server/graderoom.js true",
-    "scrape_test": "node -e \"require('./server/npm_commands').external_scrape()\"",
-    "purge_db": "node -e \"require('./server/npm_commands').purge_db()\"",
-    "backup_db": "node -e \"require('./server/npm_commands').backup_db()\""
+    "scrape_test": "node -e \"require('./server/npm_commands').external_scrape()\""
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@sendgrid/mail": "^7.7.0",
+    "@sendgrid/mail": "^8.1.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.1",
     "chroma-js": "^2.4.2",
@@ -34,7 +28,6 @@
     "morgan": "^1.10.0",
     "passport": "^0.6.0",
     "passport-local": "^1.0.0",
-    "passport.socketio": "^3.7.0",
     "python-shell": "^2.0.3",
     "redis": "^3.1.2",
     "socket.io": "^4.5.4",

@@ -18,9 +18,13 @@
                         Graderoom
                     </div>
                     <% if (premium ?? false) { %>
-                    <div class="premium-label">
+                    <div class="premium label-background"><div class="premium-label">
                         PREMIUM
-                    </div>
+                    </div></div>
+                    <% } else if (plus ?? false) { %>
+                    <div class="plus label-background"><div class="plus-label">
+                        PLUS
+                    </div></div>
                     <% } %>
                 </h1>
             </a>
@@ -48,11 +52,11 @@
                 <label id="nameDisplay"
                        style="white-space: nowrap;<% if (page === "home") { %> cursor: pointer; <% } %> margin: 0; display: block" onclick="<% if (page === "home") { %>showCard('#settingsCardDisplay'); openTab(2) <% } %>"><%= name.join(" "); %></label>
                 <% if (page === "home") { %>
-                    <label style="white-space: nowrap; cursor: pointer; border-radius: 0.5rem; padding: 0.1rem 0.5rem; font-family: Arial, Helvetica, sans-serif"
-                           onclick="<% if (_alerts.lastUpdated.length) { %>showCard('#gradeChangesCardDisplay');<% } %>"
+                    <label style="white-space: nowrap; <% if (_alerts.lastUpdated.length && !history) { %>cursor: pointer;<% } %> border-radius: 0.5rem; padding: 0.1rem 0.5rem; font-family: Arial, Helvetica, sans-serif"
+                           onclick="<% if (_alerts.lastUpdated.length && !history) { %>showCard('#gradeChangesCardDisplay');<% } %>"
                            class="updateGradesMessage alert-info">
                         <span></span>
-                        <div style="cursor: pointer" class="messageTxt">Loading Sync Status...</div>
+                        <div <% if (_alerts.lastUpdated.length && !history) { %>style="cursor: pointer"<% } %> class="messageTxt">Loading Sync Status...</div>
                     </label>
                     <span class="popup popup-holder">
                         <span id="navinfoPopup"
@@ -142,8 +146,7 @@
                             </li>
                             <div class="dropdown-divider"></div>
                             <li class="nav-item dropdown-item">
-                                <btn class="btn btn-med donate-nav-item" onclick="showCard('#settingsCardDisplay'); openTab(0)"><span class="donate-dollar"><span class="inner-donate-dollar"><i
-                                                    class="fa fa-dollar" aria-hidden="true"></i></span></span> <span class="donate"><span class="inner-donate">Donate</span></span>
+                                <btn class="btn btn-med donate-nav-item" onclick="showCard('#settingsCardDisplay'); openTab(0)"><span class="donate"><span class="inner-donate">Donate</span></span>
                                 </btn>
                             </li>
                         <% } %>
@@ -379,6 +382,7 @@
     }
 
     function showCard(id) {
+        if (id === "#gradeChangesCardDisplay" && window.location.search !== "") return;
         disableScrolling();
         if (cardsDisplayed.includes(id.substring(1))) {
             cardsDisplayed.splice(cardsDisplayed.indexOf(id.substring(1)), 1);

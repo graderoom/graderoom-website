@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const chroma = require("chroma-js");
 const _ = require("lodash");
+const {fork} = require("node:child_process");
 const socketManager = require("./socketManager");
 const scraper = require("./scrape");
 const {SyncStatus, Schools, Constants, ColorPresets} = require("./enums");
@@ -147,6 +148,10 @@ const _init = async (db) => {
     if (!collectionNames.includes(CHARTS_COLLECTION_NAME)) {
         await db.createCollection(CHARTS_COLLECTION_NAME);
     }
+    let data = await db.collection(CHARTS_COLLECTION_NAME).findOne();
+    if (data && data.updating) {
+        await db.collection(CHARTS_COLLECTION_NAME).updateOne({}, {$unset: {updating: ""}})
+    }
     // Create the internal collection if it doesn't exist
     if (!collectionNames.includes(INTERNAL_API_KEYS_COLLECTION_NAME)) {
         await db.createCollection(INTERNAL_API_KEYS_COLLECTION_NAME);
@@ -284,10 +289,10 @@ const __version1 = async (db, user) => {
                 for (let k = 0; k < orderedClasses.length; k++) {
                     let className = orderedClasses[k];
                     temp.push({
-                                  className: className,
-                                  weights: weights?.[year]?.[semester]?.[className]?.weights ?? {},
-                                  hasWeights: weights?.[year]?.[semester]?.[className]?.hasWeights ?? false
-                              });
+                        className: className,
+                        weights: weights?.[year]?.[semester]?.[className]?.weights ?? {},
+                        hasWeights: weights?.[year]?.[semester]?.[className]?.hasWeights ?? false
+                    });
                 }
                 weights[year][semester] = temp;
             }
@@ -1065,6 +1070,104 @@ const __version21 = async (db, user) => {
     }
 };
 
+const _version22 = async (db, username) => {
+    let res = await getUser(username, {version: 1, grades: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version22, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 22`}};
+};
+
+const __version22 = async (db, user) => {
+    if (user.version === 21) {
+        let grades = user.grades;
+        let years = Object.keys(grades);
+        for (let year of years) {
+            let semesters = Object.keys(grades[year]);
+            for (let semester of semesters) {
+                let classes = grades[year][semester];
+                for (let i = 0; i < classes.length; i++) {
+                    let assignments = classes[i].grades;
+                    for (let assignment of assignments) {
+                        if (assignment.grade_percent === -1) {
+                            assignment.grade_percent = false;
+                        }
+                    }
+                }
+            }
+        }
+
+        await _users(db).updateOne({username: user.username}, {$set: {grades: grades, version: 22}});
+    }
+};
+
+const _version23 = async (db, username) => {
+    let res = await getUser(username, {donoData: 1, "alerts.notifications": 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version23, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 23`}};
+}
+
+const __version23 = async (db, user) => {
+    if (user.version === 22) {
+        let donoData = user.donoData;
+        let notifications = user.alerts.notifications;
+
+        for (let dono of donoData) {
+            let notifId = `${dono.platform}-${dono.dateDonated}-${dono.paidValue}-${dono.receivedValue}`;
+            if (!("dateEntered" in dono)) {
+                dono["dateEntered"] = dono["dateDonated"];
+            }
+            let idx = notifications.findIndex(n => n.id === notifId);
+            if (idx !== -1) {
+                notifications[idx].id = `${notifId}-${dono.dateDonated}`;
+            }
+        }
+
+        await _users(db).updateOne({username: user.username}, {
+            $set: {
+                donoData: donoData,
+                "alerts.notifications": notifications,
+                version: 23
+            }
+        });
+    }
+}
+
+const _version24 = async (db, username) => {
+    let res = await getUser(username, {version: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version24, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 24`}};
+};
+
+const __version24 = async (db, user) => {
+    if (user.version === 23) {
+        await _users(db).updateOne({username: user.username}, {
+            $unset: {
+                updateStartTimestamps: ""
+            },
+            $set: {
+                // version: 24
+            }
+        })
+    }
+};
+
 const initUser = (username) => safe(_initUser, lower(username));
 const _initUser = async (db, username) => {
     let res = await getUser(username, {"alerts.tutorialStatus": 1, betaFeatures: 1});
@@ -1199,6 +1302,15 @@ const updateUser = async (user) => {
     if (user.version < 21) {
         await safe(_version21, user.username);
     }
+    if (user.version < 22) {
+        await safe(_version22, user.username);
+    }
+    if (user.version < 23) {
+        await safe(_version23, user.username);
+    }
+    if (user.version < 24) {
+        await safe(_version24, user.username);
+    }
 };
 
 const _classVersion1 = async (db, school, className, term, semester) => {
@@ -1237,19 +1349,19 @@ const __classVersion1 = async (db, school, class_) => {
             }
         }
         await db.collection(classesCollection(school)).updateOne({
-                                                                     className: class_.className,
-                                                                     term: class_.term,
-                                                                     semester: class_.semester
-                                                                 }, {
-                                                                     $set: update,
-                                                                     $unset: {grade_levels: "", description: ""}
-                                                                 });
+            className: class_.className,
+            term: class_.term,
+            semester: class_.semester
+        }, {
+            $set: update,
+            $unset: {grade_levels: "", description: ""}
+        });
 
         await db.collection(classesCollection(school)).updateOne({
-                                                                     className: class_.className,
-                                                                     term: class_.term,
-                                                                     semester: class_.semester
-                                                                 }, {$set: {version: 1}});
+            className: class_.className,
+            term: class_.term,
+            semester: class_.semester
+        }, {$set: {version: 1}});
     }
 };
 
@@ -1279,18 +1391,18 @@ const __classVersion2 = async (db, school, class_) => {
                 let filteredUsernames = [...new Set(usernames)];
 
                 await db.collection(classesCollection(school)).updateOne({
-                                                                             className: class_.className,
-                                                                             term: class_.term,
-                                                                             semester: class_.semester
-                                                                         }, {$set: {[`teachers.${i}.suggestions.${j}.usernames`]: filteredUsernames}});
+                    className: class_.className,
+                    term: class_.term,
+                    semester: class_.semester
+                }, {$set: {[`teachers.${i}.suggestions.${j}.usernames`]: filteredUsernames}});
             }
         }
 
         await db.collection(classesCollection(school)).updateOne({
-                                                                     className: class_.className,
-                                                                     term: class_.term,
-                                                                     semester: class_.semester
-                                                                 }, {$set: {version: 2}});
+            className: class_.className,
+            term: class_.term,
+            semester: class_.semester
+        }, {$set: {version: 2}});
     }
 };
 
@@ -1331,13 +1443,13 @@ const __classVersion3 = async (db, school, class_) => {
         }
         update.version = 3;
         await db.collection(classesCollection(school)).updateOne({
-                                                                     className: class_.className,
-                                                                     term: class_.term,
-                                                                     semester: class_.semester
-                                                                 }, {
-                                                                     $set: update,
-                                                                     $unset: {grade_levels: "", description: ""}
-                                                                 });
+            className: class_.className,
+            term: class_.term,
+            semester: class_.semester
+        }, {
+            $set: update,
+            $unset: {grade_levels: "", description: ""}
+        });
     }
 };
 
@@ -1439,20 +1551,15 @@ const _getAllClasses = async (db, school, projection) => {
 const getChartData = () => safe(_getChartData);
 const _getChartData = async (db) => {
     let data = await db.collection(CHARTS_COLLECTION_NAME).findOne();
-    if (!data) {
-        let startTime = Date.now();
-        data = (await processChartData()).data.value;
-        console.log(`Chart processing took ${Date.now() - startTime}ms`);
+    if (!data || !("lastUpdated" in data)) {
+        fork("process_chart_data.js", [_url, _beta ? "true" : "false"], {cwd: "server"});
+        return new Promise(resolve => resolve({success: false}));
     } else if (isNotToday(data.lastUpdated)) {
-        // Don't wait for this one because we already have old data we can show
-        let startTime = Date.now();
-        processChartData().then(() => console.log(`Chart processing took ${Date.now() - startTime}ms`));
-    } else {
-        console.log(`Chart processing took 0ms`);
+        fork("process_chart_data.js", [_url, _beta ? "true" : "false"], {cwd: "server"});
     }
     return new Promise(resolve => resolve({
-                                              success: true, data: data
-                                          }));
+        success: true, data: data
+    }));
 };
 
 const getLoggedInData = (isLoggedIn, username) => safe(_getLoggedInData, isLoggedIn, lower(username));
@@ -1502,199 +1609,17 @@ const _getGradeHistoryLetters = async (db, username, term, semester) => {
     return {success: true, data: {value: gradeHistoryLetters}};
 };
 
-const processChartData = () => safe(_processChartData);
-const _processChartData = async (db) => {
-    let data = await db.collection(CHARTS_COLLECTION_NAME).findOne();
-    if (!data) {
-        data = {
-            loginData: [],
-            uniqueLoginData: [],
-            syncData: [],
-            userData: [],
-            activeUsersData: [],
-            gradData: [],
-            schoolData: [],
-            lastUpdated: new Date(0)
-        };
-    }
-    if (!data.updating) {
-        await db.collection(CHARTS_COLLECTION_NAME).updateOne({}, {$set: {updating: true}}, {upsert: true});
-    } else {
-        return {success: true, data: {value: data}};
-    }
-    let {loginData, uniqueLoginData, syncData, gradData, schoolData, lastUpdated: lastUpdatedCharts} = data;
-    let projection = {
-        loggedIn: 1, "alerts.lastUpdated": 1, "personalInfo.graduationYear": 1, school: 1
-    };
-    let query = {
-        $or: [
-            {
-                "alerts.lastUpdated.timestamp": {
-                    $gte: lastUpdatedCharts.getTime(), $lt: Date.parse(new Date().toDateString())
-                }
-            }, {"loggedIn": {$gt: lastUpdatedCharts.getTime(), $lt: Date.parse(new Date().toDateString())}}
-        ]
-    };
-    // All users with new data since lastUpdatedCharts but before today
-    let allUsers = (await getAllUsers(projection, query)).data.value;
-    // List of new loginDates after lastUpdatedCharts but not today
-    let loginDates = allUsers.map(u => u.loggedIn.map(d => {
-        let date = new Date(d);
-        return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    })).reduce((a, b) => a.concat(b)).filter(d => d.getTime() >= lastUpdatedCharts.getTime() && isNotToday(d));
-    // List of new syncDates after lastUpdatedCharts but not today
-    let syncDates = allUsers.map(u => u.alerts.lastUpdated.map(d => {
-        let date = new Date(d.timestamp);
-        return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    })).reduce((a, b) => a.concat(b)).filter(d => d.getTime() >= lastUpdatedCharts.getTime() && isNotToday(d));
-    // Add days that don't exist in loginDates that are in sync dates and vice versa and sort them
-    loginDates =
-        loginDates.concat(syncDates.filter(t => !loginDates.find(u => u.getTime() === t.getTime()))).sort((a, b) => a.getTime() - b.getTime());
-    syncDates =
-        syncDates.concat(loginDates.filter(t => !syncDates.find(u => u.getTime() === t.getTime()))).sort((a, b) => a.getTime() - b.getTime());
-    loginData = loginData ?? [];
-    for (let j = 0; j < loginDates.length; j++) {
-        let r = loginData.find(d => d.x.getTime() === loginDates[j].getTime());
-        if (r) {
-            r.y++;
-        } else {
-            loginData.push({x: loginDates[j], y: 1});
-        }
-    }
-
-    let uniqueLoginDates = allUsers.map(user => [
-        ...new Set(user.loggedIn.filter(d => d >= lastUpdatedCharts.getTime() && d < Date.parse(new Date().toDateString())).map(loggedIn => {
-            let date = new Date(loggedIn);
-            return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-        }))
-    ].map(loggedIn => new Date(loggedIn))).reduce((a, b) => a.concat(b));
-    uniqueLoginDates =
-        uniqueLoginDates.concat(loginDates.filter(time => !uniqueLoginDates.find(anotherTime => anotherTime.getTime() === time.getTime())));
-    uniqueLoginDates.sort((a, b) => a.getTime() - b.getTime());
-    uniqueLoginData = uniqueLoginData ?? [];
-    for (let j = 0; j < uniqueLoginDates.length; j++) {
-        let r = uniqueLoginData.find(d => d.x.getTime() === uniqueLoginDates[j].getTime());
-        if (r) {
-            r.y++;
-        } else {
-            uniqueLoginData.push({x: uniqueLoginDates[j], y: 1});
-        }
-    }
-    syncData = syncData ?? [];
-    for (let j = 0; j < syncDates.length; j++) {
-        let r = syncData.find(d => d.x.getTime() === syncDates[j].getTime());
-        if (r) {
-            r.y++;
-        } else {
-            syncData.push({x: syncDates[j], y: 1});
-        }
-    }
-
-    let actualAllUsers = (await getAllUsers({"loggedIn": 1})).data.value;
-
-    // Might be workaround for this, but I can't figure it out at the moment
-    let userData = loginData.map(t => ({
-        x: t.x, y: actualAllUsers.filter(u => {
-            return Date.parse(new Date(u.loggedIn[0]).toDateString()) <= t.x.getTime();
-        }).length
-    }));
-
-    // No workaround for this. Need all users as far as I can tell
-    let activeUsersData = loginData.map(t => ({
-        x: t.x, y: actualAllUsers.filter(u => u.loggedIn.some(v => {
-            let vTime = Date.parse(new Date(v).toDateString());
-            return (vTime <= t.x.getTime()) && (vTime >= (t.x.getTime() - (14 * 24 * 60 * 60 * 1000)));
-        })).length
-    }));
-    let today = new Date();
-    let seniorYear = today.getFullYear() + (today.getMonth() > 4 ? 1 : 0);
-
-    let schools = allUsers.filter(u => u.loggedIn[0] >= lastUpdatedCharts.getTime() && u.loggedIn[0] < Date.parse(new Date().toDateString())).map(u => u.school);
-    schoolData = schoolData ?? [];
-    for (let j = 0; j < schools.length; j++) {
-        let school = schools[j];
-        let index = schoolData.findIndex(d => d.x === `${school}`);
-        if (index === -1) {
-            index = schoolData.length;
-            schoolData.push({x: `${school}`, y: 0});
-        }
-        schoolData[index].y++;
-    }
-
-    allUsers = (await getAllUsers({"personalInfo.graduationYear": 1})).data.value;
-    let gradYears = allUsers.map(u => u.personalInfo.graduationYear ?? null);
-    gradData = [];
-    for (let j = 0; j < gradYears.length; j++) {
-        let year = gradYears[j];
-        if (year) {
-            let hsYear = seniorYear - year + 4;
-            if (hsYear === 1) {
-                year = "Freshman";
-            } else if (hsYear === 2) {
-                year = "Sophomore";
-            } else if (hsYear === 3) {
-                year = "Junior";
-            } else if (hsYear === 4) {
-                year = "Senior";
-            } else if (hsYear > 4) {
-                year = "Graduate";
-            } else {
-                year = "Other";
-            }
-            let index = gradData.findIndex(d => d.x === `${year}`);
-            if (index === -1) {
-                index = gradData.length;
-                gradData.push({x: `${year}`, y: 0});
-            }
-            gradData[index].y++;
-        } else {
-            let unknownIndex = gradData.findIndex(d => d.x === "Unknown");
-            if (unknownIndex === -1) {
-                unknownIndex = gradData.length;
-                gradData.push({x: "Unknown", y: 0});
-            }
-            gradData[unknownIndex].y++;
-        }
-    }
-    let sortMap = {
-        "Freshman": seniorYear - 3,
-        "Sophomore": seniorYear - 2,
-        "Junior": seniorYear - 1,
-        "Senior": seniorYear,
-        "Graduate": seniorYear + 1,
-        "Unknown": seniorYear + 2
-    };
-    gradData.sort((a, b) => sortMap[a.x] - sortMap[b.x]);
-
-    lastUpdatedCharts = new Date(Date.parse(new Date().toDateString()));
-
-    let value = {
-        loginData: loginData,
-        uniqueLoginData: uniqueLoginData,
-        syncData: syncData,
-        userData: userData,
-        activeUsersData: activeUsersData,
-        gradData: gradData,
-        schoolData: schoolData,
-        lastUpdated: lastUpdatedCharts
-    };
-
-    await db.collection(CHARTS_COLLECTION_NAME).updateOne({}, {$set: value, $unset: {updating: ""}}, {upsert: true});
-
-    return {success: true, data: {value: value}};
-};
-
 const userArchived = ({username, schoolUsername}) => safe(_userArchived, {
     username: lower(username), schoolUsername: lower(schoolUsername)
 });
 const _userArchived = async (db, {username, schoolUsername}, includeFullUser = false) => {
     let projection = includeFullUser ? {} : {username: 1};
     let userExists = await db.collection(ARCHIVED_USERS_COLLECTION_NAME).findOne({
-                                                                                     $or: [
-                                                                                         {username: username},
-                                                                                         {schoolUsername: schoolUsername}
-                                                                                     ]
-                                                                                 }, projection);
+        $or: [
+            {username: username},
+            {schoolUsername: schoolUsername}
+        ]
+    }, projection);
     if (userExists) {
         return {
             success: true, data: {
@@ -1718,14 +1643,17 @@ const _unArchiveNonGraduatedUsers = async (db) => {
         year -= 1;
     }
     let users = await db.collection(ARCHIVED_USERS_COLLECTION_NAME).find({
-                                                                             "personalInfo.graduationYear": {$gt: year}
-                                                                         }).toArray();
+        "personalInfo.graduationYear": {$gt: year}
+    }).toArray();
     for (let user of users) {
         await unArchiveUser(user.username);
     }
     return {
         success: true,
-        data: {log: `Unarchived ${users.length} users that have not graduated yet`, message: `Unarchived ${users.length} users`}
+        data: {
+            log: `Unarchived ${users.length} users that have not graduated yet`,
+            message: `Unarchived ${users.length} users`
+        }
     };
 }
 
@@ -1739,7 +1667,10 @@ const _archiveOldUsers = async (db) => {
     }
     beforeDate.setMonth(6); // July
     beforeDate.setDate(1); // 1st
-    let oldUsers = await _users(db).find({loggedIn: {$not: {$gt: beforeDate.getTime()}}, "personalInfo.graduationYear": {$lte: year}}, {projection: {username: 1}}).toArray();
+    let oldUsers = await _users(db).find({
+        loggedIn: {$not: {$gt: beforeDate.getTime()}},
+        "personalInfo.graduationYear": {$lte: year}
+    }, {projection: {username: 1}}).toArray();
     for (let user of oldUsers) {
         await archiveUser(user.username);
     }
@@ -1767,14 +1698,25 @@ const _archiveUser = async (db, username) => {
     return {success: true, data: {log: `Archived user ${username}.`, message: "Archived user."}};
 };
 
-const getAllArchivedUsers = (projection, page, count) => safe(_getAllArchivedUsers, projection, page, count);
-const _getAllArchivedUsers = async (db, projection, page, count) => {
-    let value = db.collection(ARCHIVED_USERS_COLLECTION_NAME).find({}, {projection: projection});
+const getAllArchivedUsers = (projection, query, sort, page, count) => safe(_getAllArchivedUsers, projection, query, sort, page, count);
+const _getAllArchivedUsers = async (db, projection, query, sort, page, count) => {
+    query = query ?? {};
+    let value = db.collection(ARCHIVED_USERS_COLLECTION_NAME).find(query, {projection: projection});
+    if (sort) {
+        value = value.sort(sort);
+    }
     if (page && count) {
         value = value.skip((page - 1) * count).limit(count);
     }
     value = await value.toArray();
-    return {success: true, data: {value: value}};
+    return {
+        success: true,
+        data: {
+            value: value,
+            actualCount: value.length,
+            total: await db.collection(ARCHIVED_USERS_COLLECTION_NAME).estimatedDocumentCount()
+        }
+    };
 };
 
 const unArchiveUser = (username) => safe(_unArchiveUser, lower(username));
@@ -1799,8 +1741,8 @@ const _unArchiveUser = async (db, username) => {
 const removeUser = (username) => safe(_removeUser, lower(username));
 const _removeUser = async (db, username) => {
     let res = await _users(db).deleteOne({
-                                             username: username
-                                         });
+        username: username
+    });
     if (res.deletedCount === 1) {
         return {success: true, data: {log: `Deleted user ${username}.`, message: "Deleted user."}};
     }
@@ -1815,8 +1757,8 @@ const _removeUser = async (db, username) => {
 const removeUserFromArchive = (username) => safe(_removeUserFromArchive, lower(username));
 const _removeUserFromArchive = async (db, username) => {
     let res = await db.collection(ARCHIVED_USERS_COLLECTION_NAME).deleteOne({
-                                                                                username: username
-                                                                            });
+        username: username
+    });
     if (res.deletedCount === 1) {
         return {
             success: true,
@@ -1866,11 +1808,11 @@ const _login = async (db, username, password) => {
             let res2 = await userArchived({username: username});
             if (res2.success) {
                 return resolve({
-                                   success: false, data: {
+                    success: false, data: {
                         log: `${username} is archived`,
                         message: "This account has been archived! Email <a href='mailto:support@graderoom.me'>support@graderoom.me</a> to recover your account."
                     }
-                               });
+                });
             }
             return resolve({success: false, data: {message: "Invalid credentials."}});
         }
@@ -1881,21 +1823,21 @@ const _login = async (db, username, password) => {
             }
             if (!success) {
                 return resolve({
-                                   success: false,
-                                   data: {
-                                       log: `Login failed for ${username}`,
-                                       message: "Incorrect Graderoom password."
-                                   }
-                               });
+                    success: false,
+                    data: {
+                        log: `Login failed for ${username}`,
+                        message: "Incorrect Graderoom password."
+                    }
+                });
             }
             return resolve({
-                               success: true,
-                               data: {
-                                   log: `Login success for ${username}`,
-                                   message: "Login Successful",
-                                   value: user
-                               }
-                           });
+                success: true,
+                data: {
+                    log: `Login success for ${username}`,
+                    message: "Login Successful",
+                    value: user
+                }
+            });
         });
     });
 };
@@ -1992,10 +1934,7 @@ const _setPersonalInfo = async (db, username, firstName, lastName, graduationYea
         !!firstName, !!lastName || (school === Schools.BISV && lastName === ""),
         !!graduationYear || graduationYear === 0
     ]).filter(a => a).length !== 1) {
-        return {
-            success: false,
-            data: {log: `Invalid personal info for ${username}`, message: "Something went wrong"}
-        };
+        return {success: false, data: {log: `Invalid personal info for ${username}`, message: "Something went wrong"}};
     }
     let nameRegex = new RegExp(/^[a-z]+(?:-[a-z]+)*$/i);
     if (!!firstName) {
@@ -2246,6 +2185,20 @@ const _setColorPalette = async (db, username, preset, shuffle) => {
             light = 0.4;
             saturation = 0.7;
             break;
+        case "custom":
+            if ((await getDonoAttributes(username)).data.value.plus) {
+                let res = await _users(db).updateOne({username: username}, {
+                    $set: {
+                        "appearance.colorPalette": preset,
+                    }
+                });
+                if (res.matchedCount === 1) {
+                    return {success: true, data: {log: `Updated color palette for ${username}`}};
+                }
+            } else {
+                return {success: false};
+            }
+            break;
     }
     let classColors = hues.map(h => chroma({h: h, s: saturation, l: light}).hex());
     if (shuffle) {
@@ -2266,6 +2219,28 @@ const _setColorPalette = async (db, username, preset, shuffle) => {
         data: {log: `Error updating color palette for ${username} with parameters username=${username}, preset=${preset}, shuffle=${shuffle}`}
     };
 };
+
+const updateCustomColor = (username, index, color) => safe(_updateCustomColor, lower(username), index, lower(color));
+const _updateCustomColor = async (db, username, index, color) => {
+    if (!(await getDonoAttributes(username)).data.value.plus) {
+        return {success: false};
+    }
+    if (typeof index !== "number" || index < 0 || index > 17) {
+        return {success: false, data: {log: `Invalid index: ${index}`}};
+    }
+    if (!color.startsWith("#")) color = `#${color}`;
+    if (!chroma.valid(color)) {
+        return {success: false, data: {log: `Invalid color: ${color}`}};
+    }
+    let res = await _users(db).findOneAndUpdate({username: username}, {$set: {[`appearance.classColors.${index}`]: color}}, {projection: {"appearance.classColors": 1}, returnDocument: "after"});
+    if (res.ok) {
+        return {success: true, data: {log: `Updated color for ${username}`, colors: res.value.appearance.classColors}};
+    }
+    return {
+        success: false,
+        data: {log: `Error updating color for ${username} with parameters username=${username}, index=${index}, color=${color}`}
+    };
+}
 
 const setEnableLogging = (username, value) => safe(_setEnableLogging, lower(username), value);
 const _setEnableLogging = async (db, username, value) => {
@@ -2355,7 +2330,7 @@ const _setShowUpdatePopup = async (db, username, value) => {
     }
 };
 
-const createNotification = (username, id, type, title, message, dismissible = true, dismissed = false, pinnable = false, pinned = false, important = false, timestamp) => safe(_createNotification, lower(username), id, type, title, message, dismissible, pinnable, pinned, important, timestamp);
+const createNotification = (username, id, type, title, message, dismissible = true, dismissed = false, pinnable = false, pinned = false, important = false, timestamp) => safe(_createNotification, lower(username), id, type, title, message, dismissible, dismissed, pinnable, pinned, important, timestamp);
 
 const _createNotification = async (db, username, id, type, title, message, dismissible, dismissed, pinnable, pinned, important, timestamp) => {
     let notification = {
@@ -2376,18 +2351,19 @@ const _createNotification = async (db, username, id, type, title, message, dismi
     if (!res.success) {
         return res;
     }
-    let trimmed = res.alerts.notifications;
+    let user = res.data.value;
+    let trimmed = user.alerts.notifications;
     let index = trimmed.findIndex(i => i.id === id);
     if (index !== -1) {
         return {success: false, data: {message: "Invalid ID", log: `Invalid createNotification id=${id}`}};
     }
     res = await _users(db).updateOne({
-                                         username: username
-                                     }, {
-                                         $push: {
-                                             "alerts.notifications": notification
-                                         }
-                                     });
+        username: username
+    }, {
+        $push: {
+            "alerts.notifications": notification
+        }
+    });
 
     if (res.matchedCount === 1) {
         socketManager.emitToRoom(username, "notification-new", notification);
@@ -2414,7 +2390,8 @@ const _updateNotification = async (db, username, id, update) => {
     if (!res.success) {
         return res;
     }
-    let trimmed = res.data.value.alerts.notifications;
+    let user = res.data.value;
+    let trimmed = user.alerts.notifications;
     let index = trimmed.findIndex(i => i.id === id);
     if (index === -1) {
         return {success: false, data: {message: "Invalid ID", log: `Invalid updateNotification id=${id}`}};
@@ -2482,9 +2459,9 @@ const _changePassword = async (db, username, oldPassword, newPassword) => {
             let res3 = await _users(db).updateOne({username: username}, {$set: {password: hash}});
             if (res3.matchedCount === 0) {
                 return resolve({
-                                   success: false,
-                                   data: {log: `Error updating password`, message: "Something went wrong"}
-                               });
+                    success: false,
+                    data: {log: `Error updating password`, message: "Something went wrong"}
+                });
             }
             if (schoolPassword) {
                 let res4 = await encryptAndStoreSchoolPassword(username, schoolPassword, newPassword);
@@ -2493,9 +2470,9 @@ const _changePassword = async (db, username, oldPassword, newPassword) => {
                 }
             }
             return resolve({
-                               success: true,
-                               data: {log: `Changed password for ${username}`, message: "Password Updated"}
-                           });
+                success: true,
+                data: {log: `Changed password for ${username}`, message: "Password Updated"}
+            });
         });
     });
 };
@@ -2755,7 +2732,6 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
             let updateHistory = false;
             if (newTerm !== oldTerm || newSemester !== oldSemester) {
                 await resetSortData(username);
-                await _users(db).updateOne({username: username}, {$set: {[`updateStartTimestamps.${newTerm}.${newSemester}`]: time}});
                 if (!ps_locked) {
                     updateHistory = true;
                 }
@@ -2907,7 +2883,6 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                 });
                 await initAddedAssignments(username);
                 await initEditedAssignments(username);
-                await initUpdateStartTimestamps(username);
                 await updateClassesForUser(username);
 
                 socketManager.emitToRoom(username, "sync-success-history", {});
@@ -3056,30 +3031,6 @@ const _initEditedAssignments = async (db, username) => {
     return {success: true};
 };
 
-const initUpdateStartTimestamps = (username) => safe(_initUpdateStartTimestamps, lower(username));
-const _initUpdateStartTimestamps = async (db, username) => {
-    let res = await getUser(username, {updateStartTimestamps: 1, grades: 1});
-    if (!res.success) {
-        return res;
-    }
-
-    let user = res.data.value;
-    let current = user.updateStartTimestamps;
-    let years = Object.keys(user.grades);
-    for (let year of years) {
-        let semesters = Object.keys(user.grades[year]);
-        if (!(year in current)) {
-            current[year] = {};
-        }
-        for (let semester of semesters) {
-            current[year][semester] = 0;
-        }
-    }
-
-    await _users(db).updateOne({username: username}, {$set: {updateStartTimestamps: current}});
-    return {success: true};
-};
-
 const initWeights = (username) => safe(_initWeights, lower(username));
 const _initWeights = async (db, username) => {
     let res = await getUser(username, {weights: 1, grades: 1});
@@ -3109,8 +3060,7 @@ const _initWeights = async (db, username) => {
                     temp[years[i]][semesters[j]][k].className = classes[k];
                     temp[years[i]][semesters[j]][k].weights =
                         _.clone(current[years[i]][semesters[j]][existing].weights);
-                    temp[years[i]][semesters[j]][k].hasWeights =
-                        current[years[i]][semesters[j]][existing].hasWeights;
+                    temp[years[i]][semesters[j]][k].hasWeights = current[years[i]][semesters[j]][existing].hasWeights;
                 }
 
                 let categories = user.grades[years[i]][semesters[j]][k].grades.map(g => g.category);
@@ -3253,10 +3203,10 @@ const _updateClassesForUser = async (db, username, term, semester, className) =>
                         //Set custom to not custom if it is same as classes db
                         if (custom) {
                             custom = isCustom({
-                                                  "weights": newWeights, "hasWeights": hasWeights
-                                              }, {
-                                                  "weights": dbTeacher.weights, "hasWeights": dbTeacher.hasWeights
-                                              });
+                                "weights": newWeights, "hasWeights": hasWeights
+                            }, {
+                                "weights": dbTeacher.weights, "hasWeights": dbTeacher.hasWeights
+                            });
                         }
                     }
                 }
@@ -3599,14 +3549,14 @@ const _claimBetaKey = async (db, betaKey, username) => {
         };
     }
     let res2 = await db.collection(BETAKEYS_COLLECTION_NAME).updateOne({
-                                                                           $and: [
-                                                                               {betaKey: betaKey}, {claimed: false}
-                                                                           ]
-                                                                       }, {
-                                                                           $set: {
-                                                                               claimed: true, claimedBy: username
-                                                                           }
-                                                                       });
+        $and: [
+            {betaKey: betaKey}, {claimed: false}
+        ]
+    }, {
+        $set: {
+            claimed: true, claimedBy: username
+        }
+    });
     if (res2.matchedCount === 1) {
         return {success: true, data: {log: `${betaKey} successfully claimed by ${username}`}};
     }
@@ -3713,14 +3663,14 @@ const _resetPassword = async (db, token, newPassword) => {
             });
             if (res3.matchedCount === 0) {
                 return resolve({
-                                   success: false,
-                                   data: {log: `Error resetting password`, message: "Something went wrong"}
-                               });
+                    success: false,
+                    data: {log: `Error resetting password`, message: "Something went wrong"}
+                });
             }
             return resolve({
-                               success: true,
-                               data: {log: `Reset password for ${username}`, message: "Password updated."}
-                           });
+                success: true,
+                data: {log: `Reset password for ${username}`, message: "Password updated."}
+            });
         });
     });
 };
@@ -3739,15 +3689,15 @@ const _addDbClass = async (db, school, term, semester, className, teacherName) =
         return {success: false, data: {log: `Invalid school ${school}`}};
     }
     let classData = await db.collection(classesCollection(school)).findOne({
-                                                                               term: term,
-                                                                               semester: semester,
-                                                                               className: className
-                                                                           }, {
-                                                                               projection: {
-                                                                                   "teachers": 1,
-                                                                                   "_id": 1
-                                                                               }
-                                                                           });
+        term: term,
+        semester: semester,
+        className: className
+    }, {
+        projection: {
+            "teachers": 1,
+            "_id": 1
+        }
+    });
     if (classData) { // class already exists
         if (classData.teachers.every(x => x.teacherName !== teacherName)) {
             await db.collection(classesCollection(school)).updateOne({_id: classData._id}, {$push: {"teachers": makeTeacher(teacherName)}});
@@ -3789,22 +3739,22 @@ const _addWeightsSuggestion = async (db, username, term, semester, className, te
 
     //Remove & add username from existing suggestions
     let classData = await db.collection(classesCollection(school)).findOne({
-                                                                               term: term,
-                                                                               semester: semester,
-                                                                               className: className,
-                                                                               "teachers.teacherName": teacherName
-                                                                           }, {
-                                                                               projection: {
-                                                                                   "teachers.$": 1, "_id": 1
-                                                                               }
-                                                                           });
+        term: term,
+        semester: semester,
+        className: className,
+        "teachers.teacherName": teacherName
+    }, {
+        projection: {
+            "teachers.$": 1, "_id": 1
+        }
+    });
     let teacherData = classData.teachers[0];
     let suggestions = teacherData.suggestions;
     let suggestionAdded = false;
     for (let i = 0; i < suggestions.length; i++) {
         if (compareWeights({
-                               "weights": suggestions[i].weights, "hasWeights": suggestions[i].hasWeights
-                           }, {"weights": modWeights, "hasWeights": hasWeights})) {
+            "weights": suggestions[i].weights, "hasWeights": suggestions[i].hasWeights
+        }, {"weights": modWeights, "hasWeights": hasWeights})) {
             if (!suggestions[i].usernames.includes(username)) {
                 suggestions[i].usernames.push(username);
             }
@@ -3821,20 +3771,20 @@ const _addWeightsSuggestion = async (db, username, term, semester, className, te
     //Add new suggestion if not already added & different from verified weights
     if (!suggestionAdded) {
         if (!compareWeights({
-                                "weights": teacherData.weights, "hasWeights": teacherData.hasWeights
-                            }, {"weights": modWeights, "hasWeights": hasWeights})) {
+            "weights": teacherData.weights, "hasWeights": teacherData.hasWeights
+        }, {"weights": modWeights, "hasWeights": hasWeights})) {
             suggestions.push({
-                                 "usernames": [username], "weights": modWeights, "hasWeights": hasWeights
-                             });
+                "usernames": [username], "weights": modWeights, "hasWeights": hasWeights
+            });
         }
     }
 
     await db.collection(classesCollection(school)).updateOne({
-                                                                 _id: classData._id,
-                                                                 "teachers.teacherName": teacherName
-                                                             }, {
-                                                                 $set: {"teachers.$.suggestions": suggestions}
-                                                             });
+        _id: classData._id,
+        "teachers.teacherName": teacherName
+    }, {
+        $set: {"teachers.$.suggestions": suggestions}
+    });
 
     return {
         success: true,
@@ -3869,39 +3819,39 @@ const _updateWeightsInClassDb = async (db, school, term, semester, className, te
 
     //Update weights for teacher
     let classData = (await db.collection(classesCollection(school)).findOneAndUpdate({
-                                                                                         term: term,
-                                                                                         semester: semester,
-                                                                                         className: className,
-                                                                                         "teachers.teacherName": teacherName
-                                                                                     }, {
-                                                                                         $set: {
-                                                                                             "teachers.$.hasWeights": hasWeights,
-                                                                                             "teachers.$.weights": modWeights
-                                                                                         }
-                                                                                     }, {
-                                                                                         projection: {
-                                                                                             "teachers.$": 1,
-                                                                                             "_id": 1
-                                                                                         }
-                                                                                     })).value;
+        term: term,
+        semester: semester,
+        className: className,
+        "teachers.teacherName": teacherName
+    }, {
+        $set: {
+            "teachers.$.hasWeights": hasWeights,
+            "teachers.$.weights": modWeights
+        }
+    }, {
+        projection: {
+            "teachers.$": 1,
+            "_id": 1
+        }
+    })).value;
 
     //Delete any suggestion with same weights
     let suggestionIndex = null;
     let suggestions = classData.teachers[0].suggestions;
     for (let i = 0; i < suggestions.length; i++) {
         if (compareWeights({
-                               "weights": suggestions[i].weights, "hasWeights": suggestions[i].hasWeights
-                           }, {"weights": modWeights, "hasWeights": hasWeights})) {
+            "weights": suggestions[i].weights, "hasWeights": suggestions[i].hasWeights
+        }, {"weights": modWeights, "hasWeights": hasWeights})) {
             suggestions.splice(i, 1);
             suggestionIndex = i;
         }
     }
     await db.collection(classesCollection(school)).updateOne({
-                                                                 _id: classData._id,
-                                                                 "teachers.teacherName": teacherName
-                                                             }, {
-                                                                 $set: {"teachers.$.suggestions": suggestions}
-                                                             });
+        _id: classData._id,
+        "teachers.teacherName": teacherName
+    }, {
+        $set: {"teachers.$.suggestions": suggestions}
+    });
 
     return {
         success: true, data: {
@@ -3923,10 +3873,10 @@ const _updateClassTypeInClassDb = async (db, school, term, semester, className, 
         classType = null;
     }
     let res = await db.collection(classesCollection(school)).updateOne({
-                                                                           term: term,
-                                                                           semester: semester,
-                                                                           className: className
-                                                                       }, {$set: {"classType": classType}});
+        term: term,
+        semester: semester,
+        className: className
+    }, {$set: {"classType": classType}});
     if (res.matchedCount === 0) {
         return {
             success: false,
@@ -3952,10 +3902,10 @@ const _updateUCCSUClassTypeInClassDb = async (db, school, term, semester, classN
         classType = null;
     }
     let res = await db.collection(classesCollection(school)).updateOne({
-                                                                           term: term,
-                                                                           semester: semester,
-                                                                           className: className
-                                                                       }, {$set: {"uc_csuClassType": classType}});
+        term: term,
+        semester: semester,
+        className: className
+    }, {$set: {"uc_csuClassType": classType}});
     if (res.matchedCount === 0) {
         return {
             success: false, data: {
@@ -3978,8 +3928,8 @@ const _getMostRecentTermDataInClassDb = async (db, school) => {
         return {success: false, data: {log: `Invalid school ${school}`}};
     }
     let res = (await db.collection(classesCollection(school)).find().sort({
-                                                                              term: -1, semester: -1
-                                                                          }).limit(1).toArray())[0];
+        term: -1, semester: -1
+    }).limit(1).toArray())[0];
     if (!res) {
         return {success: false, data: {message: "No class data"}};
     }
@@ -4001,11 +3951,11 @@ const _dbContainsClass = async (db, school, term, semester, className, teacherNa
         return {success: false, data: {log: `Invalid school ${school}`}};
     }
     let res = await db.collection(classesCollection(school)).findOne({
-                                                                         term: term,
-                                                                         semester: semester,
-                                                                         className: className,
-                                                                         "teachers.teacherName": teacherName
-                                                                     });
+        term: term,
+        semester: semester,
+        className: className,
+        "teachers.teacherName": teacherName
+    });
     return {success: res !== null, data: {value: res}};
 };
 
@@ -4046,13 +3996,13 @@ const _getTermsAndSemestersInClassDb = async (db, school) => {
         return {success: false, data: {log: `Invalid school ${school}`}};
     }
     let termsAndSemesters = await db.collection(classesCollection(school)).aggregate([
-                                                                                         {
-                                                                                             $group: {
-                                                                                                 _id: "$term",
-                                                                                                 semesters: {$addToSet: "$semester"}
-                                                                                             }
-                                                                                         }, {$sort: {_id: 1}}
-                                                                                     ]).toArray();
+        {
+            $group: {
+                _id: "$term",
+                semesters: {$addToSet: "$semester"}
+            }
+        }, {$sort: {_id: 1}}
+    ]).toArray();
     termsAndSemesters = termsAndSemesters.map(x => [x._id, x.semesters.sort()]);
     return {success: true, data: {value: termsAndSemesters}};
 };
@@ -4149,11 +4099,11 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
         }
     }
     let classData = await db.collection(classesCollection(school)).findOne({
-                                                                               term: term,
-                                                                               semester: semester,
-                                                                               className: className,
-                                                                               "teachers.teacherName": teacherName
-                                                                           }, {projection: {"teachers.$": 1}});
+        term: term,
+        semester: semester,
+        className: className,
+        "teachers.teacherName": teacherName
+    }, {projection: {"teachers.$": 1}});
     teacherData = classData.teachers[0];
 
     //Add Suggestion
@@ -4183,13 +4133,13 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
     let temp = {className: className, weights: modWeights, hasWeights: hasWeights, custom: custom};
     let temp2 = {className: className, weights: addedWeights};
     await _users(db).updateOne({
-                                   username: username, [`weights.${term}.${semester}.className`]: className
-                               }, {
-                                   $set: {
-                                       [`weights.${term}.${semester}.$`]: temp,
-                                       [`addedWeights.${term}.${semester}.$`]: temp2
-                                   }
-                               });
+        username: username, [`weights.${term}.${semester}.className`]: className
+    }, {
+        $set: {
+            [`weights.${term}.${semester}.$`]: temp,
+            [`addedWeights.${term}.${semester}.$`]: temp2
+        }
+    });
 
     if (custom) {
         return {
@@ -4216,12 +4166,13 @@ const _getRelevantClassData = async (db, username, term, semester) => {
     for (let _term in user.grades) {
         for (let _semester in user.grades[_term]) {
             user.grades[_term][_semester].forEach(c => userClasses.push({
-                                                                            term: _term,
-                                                                            semester: _semester,
-                                                                            className: c.class_name,
-                                                                            teacherName: c.teacher_name,
-                                                                            overallPercent: c.overall_percent
-                                                                        }));
+                term: _term,
+                semester: _semester,
+                className: c.class_name,
+                teacherName: c.teacher_name,
+                overallPercent: c.overall_percent,
+                grades: c.grades,
+            }));
         }
     }
 
@@ -4256,6 +4207,8 @@ const _getRelevantClassData = async (db, username, term, semester) => {
                 projection: {teachers: {teacherName: 1}}
             }))?.teachers.map(t => t.teacherName).filter(t => t) ?? [];
 
+            let minUsersForAverageCalc = 9;
+
             let classAverages = {};
             let userCounts = {};
             for (let teacher of teachers) {
@@ -4271,7 +4224,6 @@ const _getRelevantClassData = async (db, username, term, semester) => {
                 };
                 let users = await _users(db).find(userCountQuery, {projection: userCountProjection}).toArray();
 
-                let minUsersForAverageCalc = 9;
                 userCounts[teacher] = users.length;
 
                 let validScores = users.map(u => u.grades[userClass.term][userClass.semester][0].overall_percent).filter(g => g !== false);
@@ -4283,8 +4235,54 @@ const _getRelevantClassData = async (db, username, term, semester) => {
                 classAverages[teacher] = validScores.reduce((a, b) => a + b, 0) / validScores.length;
             }
 
+            let assignmentAverages = {};
+
+            if (userClass.term === term && userClass.semester === semester) {
+                let donoAttr = (await getDonoAttributes(username)).data.value;
+                let filteredGrades = donoAttr.premium ? userClass.grades : userClass.grades.filter(g => g.grade_percent !== false);
+                let start = donoAttr.premium ? 0 : filteredGrades.length - 1;
+                if (start < 0) start = 0;
+                for (let i = start; i < filteredGrades.length; i++) {
+                    let assignment = filteredGrades[i];
+
+                    if (assignment.psaid !== false) {
+                        let assignmentAverageQuery = {
+                            [`grades.${userClass.term}.${userClass.semester}`]: {
+                                $elemMatch: {
+                                    class_name: userClass.className,
+                                    teacher_name: userClass.teacherName,
+                                    grades: {
+                                        $elemMatch: {
+                                            psaid: assignment.psaid
+                                        }
+                                    }
+                                }
+                            }
+                        };
+
+                        let users = await _users(db).find(assignmentAverageQuery, {projection: {[`grades.${userClass.term}.${userClass.semester}.$`]: 1}}).toArray();
+
+                        let validScores = users.map(u => {
+                            let grade = u.grades[userClass.term][userClass.semester][0].grades.filter(g => g.psaid === assignment.psaid && g.grade_percent !== false);
+                            if (grade.length) {
+                                return grade[0].grade_percent;
+                            } else {
+                                return false;
+                            }
+                        }).filter(s => s !== false);
+
+                        assignmentAverages[`${assignment.psaid}`] = {};
+                        if (validScores.length >= minUsersForAverageCalc) {
+                            assignmentAverages[`${assignment.psaid}`].average = validScores.reduce((a, b) => a + b, 0) / validScores.length;
+                        }
+                        assignmentAverages[`${assignment.psaid}`].numUsers = validScores.length;
+                    }
+                }
+            }
+
             let nonAcademicOverride = userClass.className.startsWith("Cura");
             nonAcademicOverride ||= userClass.className.endsWith("Cross Country");
+            nonAcademicOverride ||= userClass.className.endsWith("Track");
             nonAcademicOverride ||= userClass.className.endsWith("Water Polo");
             nonAcademicOverride ||= userClass.className.endsWith("Football");
             nonAcademicOverride ||= userClass.className === "Study Hall";
@@ -4304,6 +4302,7 @@ const _getRelevantClassData = async (db, username, term, semester) => {
                 "review": rawData?.review,
                 "userCounts": userCounts,
                 "classAverages": classAverages,
+                "assignmentAverages": assignmentAverages,
                 "gradeLevels": rawData?.grade_levels
             };
         }
@@ -4311,6 +4310,8 @@ const _getRelevantClassData = async (db, username, term, semester) => {
 
     return {success: true, data: {value: relClasses}};
 };
+
+// const getAssignmentAverage = (username, term, semester, className, assignmentPSAID)
 
 const addDonation = (username, platform, paidValue, receivedValue, dateDonated) => safe(_addDonation, lower(username), lower(platform), paidValue, receivedValue, dateDonated);
 const _addDonation = async (db, username, platform, paidValue, receivedValue, dateDonated) => {
@@ -4333,24 +4334,32 @@ const _addDonation = async (db, username, platform, paidValue, receivedValue, da
         };
     }
 
-    let res = await createNotification(username, `${platform}-${dateDonated}-${paidValue}-${receivedValue}`, "donation", "Thank You!", `We received your donation of $${receivedValue.toFixed(2)}! ${notificationButton(`showCard('#settingsCardDisplay'); openTab(2)`, `View in your Account`)}`, true, false, true, true, true, dateDonated);
+    let now = Date.now();
+    let res = await createNotification(username, `${platform}-${dateDonated}-${paidValue}-${receivedValue}-${now}`, "donation", "Thank You!", `We received your donation of $${receivedValue.toFixed(2)}! ${notificationButton(`showCard('#settingsCardDisplay'); openTab(2)`, `View in your Account`)}`, true, false, true, true, true, dateDonated);
     if (!res.success) {
         return res;
     }
     res = await _users(db).updateOne({
-                                         username: username
-                                     }, {
-                                         $push: {
-                                             donoData: {
-                                                 platform: platform,
-                                                 paidValue: paidValue,
-                                                 receivedValue: receivedValue,
-                                                 dateDonated: dateDonated
-                                             }
-                                         }
-                                     });
+        username: username
+    }, {
+        $push: {
+            donoData: {
+                platform: platform,
+                paidValue: paidValue,
+                receivedValue: receivedValue,
+                dateDonated: dateDonated,
+                dateEntered: now,
+            }
+        }
+    });
 
-    if (res.success) {
+    if (res.matchedCount === 1) {
+        socketManager.emitToRoom(username, "donation-new", {
+            platform: platform,
+            paidValue: paidValue,
+            receivedValue: receivedValue,
+            dateDonated: dateDonated,
+        });
         return {success: true, data: {message: `Added donation for ${username}`}};
     }
 
@@ -4362,7 +4371,7 @@ const _addDonation = async (db, username, platform, paidValue, receivedValue, da
 
 const removeDonation = (username, index) => safe(_removeDonation, lower(username), index);
 const _removeDonation = async (db, username, index) => {
-    let res = await getUser(username, {donoData: 1});
+    let res = await getUser(username, {donoData: 1, "appearance.colorPalette": 1});
     if (!res.success) {
         return res;
     }
@@ -4380,12 +4389,19 @@ const _removeDonation = async (db, username, index) => {
         };
     }
 
-    let id = `${donation.platform}-${donation.dateDonated}-${donation.paidValue}-${donation.receivedValue}`;
+    let id = `${donation.platform}-${donation.dateDonated}-${donation.paidValue}-${donation.receivedValue}-${donation.dateEntered}`;
     await _users(db).updateOne({username: username}, {
         $set: {donoData: donoData}, $pull: {"alerts.notifications": {id: id}}
     });
 
+    if (res.data.value.appearance.colorPalette === "custom") {
+        if (!(await getDonoAttributes(username)).data.plus) {
+            await setColorPalette(username, "clear", false);
+        }
+    }
+
     socketManager.emitToRoom(username, "notification-delete", {id: id});
+    socketManager.emitToRoom(username, "donation-delete", donation);
 
     return {
         success: true, data: {message: `Removed donation for ${username}`, log: `Removed donation for ${username}`}
@@ -4422,41 +4438,58 @@ const __getDonoAttributes = async (donos) => {
 
 const getTrimmedAlerts = (username, term, semester) => safe(_getTrimmedAlerts, lower(username), term, semester);
 const _getTrimmedAlerts = async (db, username, term, semester) => {
-    let res = await getUser(username, {updateStartTimestamps: 1});
+    let res = await getUser(username, {projection: {"alerts.lastUpdated": 1}});
     if (!res.success) {
         return res;
     }
 
-    let timestamps = res.data.value.updateStartTimestamps;
-    let start = timestamps[term][semester];
+    let {term: latestTerm, semester: latestSemester} = (await _getMostRecentTermData(db, username)).data.value;
 
-    let flatTimestamps = Object.values(timestamps).map(s => Object.values(s)).flat().sort((a, b) => a - b);
-    let end = flatTimestamps.find(t => t > start);
-
-    let cond = {$gte: ["$$updateObj.timestamp", start]};
-    if (end !== undefined) {
-        cond = {$and: [cond, {$lt: ["$$updateObj.timestamp", end]}]};
-    }
-
-    let aggregation = [
-        {
-            $match: {
-                username: username
+    let latest = res.data.value.alerts.lastUpdated.length > 0 ? res.data.value.alerts.lastUpdated.slice(-1)[0] : null;
+    let aggregation;
+    if (term !== latestTerm || semester !== latestSemester || latest === null) {
+        aggregation = [
+            {
+                $project: {
+                    alerts: 1
+                }
+            }, {
+                $unset: 'alerts.lastUpdated'
+            }, {
+                $addFields: {
+                    'alerts.lastUpdated': latest !== null ? [latest] : []
+                }
             }
-        }, {
-            $project: {
-                alerts: 1
-            }
-        }, {
-            $addFields: {
-                "alerts.lastUpdated": {
-                    $filter: {
-                        input: "$alerts.lastUpdated", as: "updateObj", cond: cond
+        ]
+    } else {
+        let end = res.data.value.alerts.lastUpdated.slice(-1)[0].timestamp;
+        let start = end - 1000 * 60 * 60 * 24 * 14; // 14 days
+
+        let cond = {$gte: ["$$updateObj.timestamp", start]};
+        if (end !== undefined) {
+            cond = {$and: [cond, {$lte: ["$$updateObj.timestamp", end]}]};
+        }
+
+        aggregation = [
+            {
+                $match: {
+                    username: username
+                }
+            }, {
+                $project: {
+                    alerts: 1
+                }
+            }, {
+                $addFields: {
+                    "alerts.lastUpdated": {
+                        $filter: {
+                            input: "$alerts.lastUpdated", as: "updateObj", cond: cond
+                        }
                     }
                 }
             }
-        }
-    ];
+        ];
+    }
 
     res = (await db.collection(USERS_COLLECTION_NAME).aggregate(aggregation).toArray())[0].alerts;
 
@@ -4550,14 +4583,14 @@ const _discordVerify = async (db, username, verificationCode) => {
 
     // Update account with verified ID and remove verification process data
     await _users(db).updateOne({
-                                   username: username
-                               }, {
-                                   $set: {
-                                       "discord.discordID": user.discord.unverifiedDiscordID
-                                   }, $unset: {
+        username: username
+    }, {
+        $set: {
+            "discord.discordID": user.discord.unverifiedDiscordID
+        }, $unset: {
             "discord.unverifiedDiscordID": "", "discord.verificationCode": "", "discord.expires": ""
         }
-                               });
+    });
 
 
     return {success: true, data: {message: "Successfully linked Discord account"}};
@@ -4767,7 +4800,6 @@ module.exports = {
     getChartData: getChartData,
     getLoggedInData: getLoggedInData,
     getGradeHistoryLetters: getGradeHistoryLetters,
-    processChartData: processChartData,
     userArchived: userArchived,
     unArchiveNonGraduatedUsers: unArchiveNonGraduatedUsers,
     archiveOldUsers: archiveOldUsers,
@@ -4793,6 +4825,7 @@ module.exports = {
     setTheme: setTheme,
     setShowMaxGPA: setShowMaxGPA,
     setColorPalette: setColorPalette,
+    updateCustomColor: updateCustomColor,
     setEnableLogging: setEnableLogging,
     setAnimateWhenUnfocused: setAnimateWhenUnfocused,
     setShowFps: setShowFps,

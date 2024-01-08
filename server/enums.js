@@ -50,7 +50,8 @@ module.exports.ColorPresets = {
     pastel: "pastel",
     clear: "clear",
     bright: "bright",
-    dull: "dull"
+    dull: "dull",
+    custom: "custom"
 }
 
 Object.freeze(module.exports.SyncStatus);

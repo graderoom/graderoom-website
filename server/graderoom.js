@@ -66,10 +66,11 @@ mongo.config(mongoUrl, productionEnv, isBetaServer).then(() => {
         let redisPort = httpPort + 383; // 6379 for stable, 6381 for beta
         let redisClient = redis.createClient({port: redisPort});
         let store = new RedisStore({client: redisClient});
-        app.use(session({
-                            store: store, secret: process.env.SECRET, // session secret
-                            resave: true, saveUninitialized: true, cookie: {maxAge: 4 * 60 * 60 * 1000} //4 hours
-                        }));
+        let sessionMiddleware = session({
+                                            store: store, secret: process.env.SECRET, // session secret
+                                            resave: true, saveUninitialized: true, cookie: {maxAge: 4 * 60 * 60 * 1000} //4 hours
+                                        });
+        app.use(sessionMiddleware);
         app.use(passport.initialize());
         app.use(passport.session()); // persistent login sessions
         app.use(flash()); // use connect-flash for flash messages stored in session
@@ -82,14 +83,17 @@ mongo.config(mongoUrl, productionEnv, isBetaServer).then(() => {
 
         const httpServer = http.createServer(app);
         const io = require("socket.io")(httpServer);
-        const passportSocketIo = require("passport.socketio");
-        io.use(passportSocketIo.authorize({
-                                              key: "connect.sid",
-                                              passport: passport,
-                                              cookieParser: cookieParser,
-                                              secret: process.env.SECRET,
-                                              store: store
-                                          }));
+        const wrap = middleware => (socket, next) => middleware(socket.request, {}, next);
+        io.use(wrap(sessionMiddleware));
+        io.use(wrap(passport.initialize()));
+        io.use(wrap(passport.session()));
+        io.use((socket, next) => {
+            if (socket.request.user) {
+                next();
+            } else {
+                next(new Error('unauthorized'))
+            }
+        });
         require("./sockets").sockets(io);
         require("./socketManager").setIo(io);
         httpServer.listen(httpPort, () => {
