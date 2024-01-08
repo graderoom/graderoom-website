@@ -528,6 +528,10 @@ select.minimal:focus {
     color: rgba(255, 100, 100, 1);
 }
 
+tr.no-change {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
 tr:hover .toolTab {
     filter: brightness(140%);
 }
@@ -579,30 +583,8 @@ tr:hover .toolTab {
     border-color: #222222 !important;
 }
 
-.donate, .donate-dollar, .premium-label {
+.donate, .premium-label {
     color: #F5C21B;
-    background: -webkit-gradient(linear, left top, left bottom, from(#F5C21B), to(#D17000));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    display: inline-block;
-    position: relative;
-    font-weight: bold !important;
-}
-
-#donationProgress .progress-bar {
-    background-color: mediumseagreen;
-}
-
-#donationProgress .progress-bar:nth-child(2) {
-    background-color: #005252;
-}
-
-#donationProgress .progress-bar:nth-child(3) {
-    background-color: midnightblue;
-}
-
-#donationProgress .progress-bar:nth-child(4) {
-    background-color: #303;
 }
 
 #donationProgress .progress-bar:last-child {
@@ -613,60 +595,12 @@ tr:hover .toolTab {
     border-color: #333;
 }
 
-#donationProgressOverlay .progress-bar:first-child {
-    color: #555;
-}
-
-#donationProgressOverlay .progress-bar:nth-child(2) {
-    color: #ff8a8a;
-}
-
-.donate-dollar {
-    font-family: FontAwesome;
-    background: none;
-    -webkit-text-fill-color: #E3990E;
-}
-
-.donate::before, .donate-dollar::before, .premium-label::before {
-    -webkit-animation: flare 5s infinite;
-    -webkit-animation-timing-function: linear;
+.donate::before, .premium-label::before {
     background-image: linear-gradient(65deg, transparent 20%, rgba(255, 255, 255, 0.2) 20%, rgba(255, 255, 255, 0.3) 27%, transparent 27%, transparent 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    content: "Donate";
-    color: #FFFFFF;
-    display: block;
-    position: absolute;
-}
-
-.donate-dollar::before {
-    content: "\f155";
-}
-
-.premium-label::before {
-    content: "PREMIUM";
-}
-
-.donate::after, .donate-dollar::after, .premium-label::after {
-    content: "Donate";
-    color: #FFFFFF;
-    display: block;
-    position: absolute;
-    text-shadow: 0 1px #6E4414, 0 2px #6E4414;
-    top: 0;
-    z-index: -1;
 }
 
 .premium-label::after {
     text-shadow: 0 1px #6E4414;
-}
-
-.donate-dollar::after {
-    content: "\f155";
-}
-
-.premium-label::after {
-    content: "PREMIUM";
 }
 
 .navbar .nav-item btn:hover, .navbar .nav-item a:not(.dropdown-toggle):hover {
@@ -743,6 +677,19 @@ tr:hover .toolTab {
 .discord-iframe ~ span::before {
     background: #5865F2;
     color: white;
+}
+
+div.assignment-info {
+    background-color: #444444;
+}
+
+div.assignment-info:hover {
+    background-color: #222222;
+    outline: #444444 1px solid;
+}
+
+.form-group input[name=searchByNameOrUsername] {
+    background-color: #444444 !important;
 }
 
 /* Mobile Stuff */

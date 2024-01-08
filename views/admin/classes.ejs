@@ -132,7 +132,7 @@
                     </div>
                     <i class="fa" aria-hidden="true"></i>
                 </h5>
-                <% if (!Object.entries(classData[className]).find(([c, t]) => _.isObject(t) && !Array.isArray(t) && Object.keys(classData[className][c]["weights"]).length)) { %>
+                <% if (!Object.entries(classData[className]).find(([c, t]) => _.isObject(t) && !Array.isArray(t) && classData[className][c]["weights"] && Object.keys(classData[className][c]["weights"]).length)) { %>
                     <i class="fa fa-exclamation-circle"
                        style="padding-top: 8px; margin-bottom: 0.5rem; margin-left: 0.5rem; margin-right: 0.5rem; font-size: 1.1rem; line-height: 1.2rem"></i>
                 <% } %>

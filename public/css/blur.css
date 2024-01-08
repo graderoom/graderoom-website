@@ -33,4 +33,8 @@
         backdrop-filter: blur(0.2rem);
         -webkit-backdrop-filter: blur(3rem);
     }
+
+    div.unlock-with {
+        backdrop-filter: blur(2px);
+    }
 }
