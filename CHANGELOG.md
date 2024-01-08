@@ -76,6 +76,7 @@
 - Ability to view more than 14 days worth of recent grade changes<ul>
 - The data is not gone. It's just not displayed anymore.
 - There will likely be "scroll to load more" functionality in the future</ul>
+- Active users from analytics chart
 
 ## [Announcement 6.3.7] - 2023-12-31 - Notification of Data Loss
 - At some point before Dec 21, 2023, but after Dec 18, 2023, PowerSchool changed from displaying 23-24 S1 classes to 23-24 S2 classes.
