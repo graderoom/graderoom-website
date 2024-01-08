@@ -23,7 +23,7 @@ exports.TEST_DATABASE_NAME = "test";
 exports.COMMON_DATABASE_NAME = "common";
 
 // Change this when updateDB changes
-exports.dbUserVersion = 22;
+exports.dbUserVersion = 24;
 exports.dbClassVersion = 3;
 
 const minDonoAmount = 3;
@@ -216,7 +216,6 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
                 donoData: [],
                 api: {},
                 discord: {},
-                updateStartTimestamps: {},
                 nextAvailableFakePSAID: 1,
             };
 

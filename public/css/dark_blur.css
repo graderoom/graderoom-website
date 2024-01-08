@@ -30,6 +30,10 @@
         box-shadow: black 2px 2px 10px 1px;
     }
 
+    div.unlock-with {
+        color: #FFF;
+    }
+
     /* Mobile Stuff */
     @media only screen and (max-width: 991px) {
         .dropdown-menu {

@@ -49,6 +49,7 @@ module.exports = function (app, passport) {
 
                 res.render("user/authorized_index.ejs", {
                     page: "home",
+                    history: req.query.term || req.query.semester,
                     school: req.user.school,
                     username: req.user.username,
                     schoolUsername: req.user.schoolUsername,
@@ -88,6 +89,7 @@ module.exports = function (app, passport) {
                 let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
                 res.render("user/authorized_index.ejs", {
                     page: "home",
+                    history: false,
                     school: req.user.school,
                     username: req.user.username,
                     schoolUsername: req.user.schoolUsername,
@@ -418,7 +420,22 @@ module.exports = function (app, passport) {
     });
 
     app.get("/admin", [isAdmin], async (req, res) => {
-        // admin panel TODO
+        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
+        res.render("admin/admin.ejs", {
+            page: "admin",
+            username: req.user.username,
+            adminSuccessMessage: req.flash("adminSuccessMessage"),
+            adminFailMessage: req.flash("adminFailMessage"),
+            sessionTimeout: Date.parse(req.session.cookie._expires),
+            _appearance: req.user.appearance,
+            beta: server.beta,
+            sunset: sunset,
+            sunrise: sunrise
+        });
+    });
+
+    app.post("/users", [isAdmin], async (req, res) => {
+        console.log(req.body);
         let projection = {
             username: 1,
             schoolUsername: 1,
@@ -431,53 +448,44 @@ module.exports = function (app, passport) {
             'betaFeatures.active': 1,
             donoData: 1
         };
-        let page = parseInt(req.query.page);
-        let count = parseInt(req.query.count);
+        let page = parseInt(req.body.page);
+        let count = parseInt(req.body.count);
         let redirect = !page || !count;
         if (page < 0) {
-            redirect = true;
             page = 1;
         }
         if (count < 0) {
-            redirect = true;
             count = 10;
         }
         page ||= 1;
         count ||= 10;
         if (!redirect && count > 20) {
             count = 20;
-            redirect = true;
         }
-        if (redirect) {
-            return res.redirect(url.format({pathname: "/admin", query: {page: 1, count: count}}));
+        let query = queryHelper(req.body.query);
+        let sort = sortHelper(req.body.sort);
+        console.log(query);
+        if (req.body.archived === 'false') {
+            let {
+                value: allUsers,
+                actualCount,
+                total
+            } = (await dbClient.getAllUsers(projection, query, sort, page, count)).data;
+            let maxPage = Math.ceil(total / count);
+            let deletedUsers = [];
+
+            return res.status(200).send({success: page <= maxPage, userList: allUsers, deletedUserList: deletedUsers, total: total, actualCount: actualCount, maxPage: maxPage});
+        } else {
+            let {
+                value: deletedUsers,
+                actualCount,
+                total
+            } = (await dbClient.getAllArchivedUsers(projection, query, sort,page, count)).data;
+            let maxPage = Math.ceil(total / count);
+            let allUsers = [];
+
+            return res.status(200).send({success: page <= maxPage, userList: allUsers, deletedUserList: deletedUsers, total: total, actualCount: actualCount, maxPage: maxPage});
         }
-        let query = queryHelper(req.query.query);
-        let sort = sortHelper(req.query.sort);
-        let {value: allUsers, actualCount, total: userCount} = (await dbClient.getAllUsers(projection, query, sort, page, count)).data;
-        let maxPage = Math.ceil(userCount / count);
-        if (page > maxPage) {
-            return res.redirect(url.format({pathname: "/admin", query: {page: maxPage, count: count}}));
-        }
-        let deletedUsers = (await dbClient.getAllArchivedUsers(projection, 1, count)).data.value; // TODO
-        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
-        res.render("admin/admin.ejs", {
-            page: "admin",
-            username: req.user.username,
-            _page: page,
-            maxPage: maxPage,
-            count: actualCount,
-            queryCount: count,
-            userCount: userCount,
-            _userList: allUsers,
-            _deletedUserList: deletedUsers,
-            adminSuccessMessage: req.flash("adminSuccessMessage"),
-            adminFailMessage: req.flash("adminFailMessage"),
-            sessionTimeout: Date.parse(req.session.cookie._expires),
-            _appearance: req.user.appearance,
-            beta: server.beta,
-            sunset: sunset,
-            sunrise: sunrise
-        });
     });
 
     app.get("/changelog", async (req, res) => {
@@ -728,6 +736,15 @@ module.exports = function (app, passport) {
 
     app.post("/setColorPalette", [isLoggedIn], async (req, res) => {
         let resp = await dbClient.setColorPalette(req.user.username, req.body.preset, JSON.parse(req.body.shuffleColors));
+        if (resp.success) {
+            res.status(200).send(resp.data.colors);
+        } else {
+            res.sendStatus(400);
+        }
+    });
+
+    app.post("/updateCustomColor", [isLoggedIn], async (req, res) => {
+        let resp = await dbClient.updateCustomColor(req.user.username, JSON.parse(req.body.index), req.body.color);
         if (resp.success) {
             res.status(200).send(resp.data.colors);
         } else {
@@ -1258,6 +1275,21 @@ function sortHelper(sortQuery) {
                         _sort[key] = sort[key];
                     }
                     break;
+                case "schoolUsername":
+                    if (([1, -1]).includes(sort[key])) {
+                        _sort[key] = sort[key];
+                    }
+                    break;
+                case "personalInfo.firstName":
+                    if (([1, -1]).includes(sort[key])) {
+                        _sort[key] = sort[key];
+                    }
+                    break;
+                case "loggedIn.0":
+                    if (([1, -1]).includes(sort[key])) {
+                        _sort[key] = sort[key];
+                    }
+                    break;
             }
         }
     } catch {}
@@ -1272,6 +1304,8 @@ function queryHelper(queryQuery) {
             switch (key) {
                 case "username":
                     if (typeof query[key] === "string") {
+                        _query[key] = query[key];
+                    } else if ("$regex" in query[key] && typeof query[key]["$regex"] === "string") {
                         _query[key] = query[key];
                     }
                     break;
