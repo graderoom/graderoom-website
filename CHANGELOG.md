@@ -1017,7 +1017,7 @@
 
 ## [Announcement 4.9.3] - 2021-10-12
 - <span style="cursor: pointer" onclick="showCard('#settingsCardDisplay'); openTab(4)" class="changelog-inline-setoff">Click here to join the Graderoom support Discord server!</span>
-- You can also use this invite link: <a href="https://discord.gg/p9kyZxuAmC">https://discord.gg/p9kyZxuAmC</a>
+- You can also use this invite link: <a href="https://discord.gg/qqbmUWvTwZ">https://discord.gg/p9kyZxuAmC</a>
 
 ## [Stable 4.9.2] - 2021-10-08
 ### Added
