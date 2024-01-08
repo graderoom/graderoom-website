@@ -2776,7 +2776,8 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
         }
     };
 
-    scraper.loginAndScrapeGrades(processor, user.school, user.schoolUsername, schoolPassword, dataIfLocked, termDataIfLocked);
+    let ignoreQueue = (await getDonoAttributes(username)).data.value.plus;
+    scraper.loginAndScrapeGrades(processor, user.school, user.schoolUsername, schoolPassword, dataIfLocked, termDataIfLocked, ignoreQueue);
 
     return {success: true};
 };

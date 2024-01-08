@@ -65,6 +65,7 @@
 - <span class="plus label-background"><span class="plus-label">PLUS</span></span> users can now set custom colors for classes
 - Preliminary table of donation-unlocked features
 - Prevent page from refreshing or closing if you have unsaved edits
+- Sync queue to possibly prevent server overload
 
 ### Improved
 - Made grade deltas more readable
