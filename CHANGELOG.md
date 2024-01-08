@@ -64,6 +64,7 @@
 - Just like all other average calculations, there must be at least 9 users with a valid score before an average is displayed</ul>
 - <span class="plus label-background"><span class="plus-label">PLUS</span></span> users can now set custom colors for classes
 - Preliminary table of donation-unlocked features
+- Prevent page from refreshing or closing if you have unsaved edits
 
 ### Improved
 - Made grade deltas more readable
@@ -98,6 +99,7 @@
 - Just like all other average calculations, there must be at least 9 users with a valid score before an average is displayed</ul>
 - <span class="plus label-background"><span class="plus-label">PLUS</span></span> users can now set custom colors for classes
 - Preliminary table of donation-unlocked features
+- Prevent page from refreshing or closing if you have unsaved edits
 
 ### Improved
 - Better badges for <span class="plus label-background"><span class="plus-label">PLUS</span></span> and <span class="premium label-background"><span class="premium-label">PREMIUM</span></span> users.
