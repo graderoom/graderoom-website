@@ -239,6 +239,7 @@ module.exports = function (app, passport) {
                 }).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1);
                 res.render("user/authorized_index.ejs", {
                     page: "home",
+                    history: req.query.term || req.query.semester,
                     school: user.school,
                     username: user.username,
                     schoolUsername: user.schoolUsername,
@@ -278,6 +279,7 @@ module.exports = function (app, passport) {
                 let {plus, premium} = (await dbClient.getDonoAttributes(user.username)).data.value;
                 res.render("user/authorized_index.ejs", {
                     page: "home",
+                    history: false,
                     school: user.school,
                     username: user.username,
                     schoolUsername: user.schoolUsername,
