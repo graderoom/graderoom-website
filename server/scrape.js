@@ -6,6 +6,7 @@ const scraperQueue = new AutoQueue();
 module.exports = {
 
     loginAndScrapeGrades: function (processor, school, email, password, data_if_locked = {}, term_data_if_locked = {}, get_history = 'false', ignoreQueue = false) {
+        console.log(`Queue is ${scraperQueue.size} long`);
         if (!ignoreQueue) {
             scraperQueue.enqueue(async () => await this._loginAndScrapeGrades(processor, school, email, password, data_if_locked, term_data_if_locked, get_history));
             processor({progress: 0, message: "Queued"});
