@@ -50,6 +50,44 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 6.5.0] - 2024-01-08 - Happy New Year!
+### Added
+- New assignment info popup<ul>
+- <github issue="125">Add ability to see teacher comments</github>
+- Ability to view assignment descriptions</ul>
+- Track courses are now non-academic by default
+- <span class="plus label-background"><span class="plus-label">PLUS</span></span> label
+- <github issue="138">Allow editing dates on added assignments</github>
+- Ability to view the assignment average for the most recent, graded assignment that has a valid score<ul>
+- A calculator <i class="fa fa-calculator"></i> icon will appear next to assignments you can view the average for
+- <span class="premium label-background"><span class="premium-label">PREMIUM</span></span> users can view the average for all assignments
+- Just like all other average calculations, there must be at least 9 users with a valid score before an average is displayed</ul>
+- <span class="plus label-background"><span class="plus-label">PLUS</span></span> users can now set custom colors for classes
+- Preliminary table of donation-unlocked features
+
+### Improved
+- Made grade deltas more readable
+- "Add Assignment" popup now shows existing added categories as options
+- Added a visual difference between an assignment with no grade and a graded assignment that does not impact your grade
+- Better badges for <span class="plus label-background"><span class="plus-label">PLUS</span></span> and <span class="premium label-background"><span class="premium-label">PREMIUM</span></span> users.
+- <github issue="169">Make analytics chart update a separate process so it doesn't hang the entire server once a day</github>
+- Better UI for class and assignment info cards
+
+### Fixed
+- <github issue="159">Category sort mode doesn't show added categories</github>
+- Various visual bugs in category sorted tables
+- <em>[Mobile]</em> Category sorted data now displays correctly on mobile
+- Issue with locked PowerSchool sync overwriting S1 courses with S2 courses
+- Issue with donation notifications not updating
+- Issues with very old grade percentages for extra credit displaying as -1%
+
+### Removed
+- Ability to view change data in old semesters
+- Ability to view more than 14 days worth of recent grade changes<ul>
+- The data is not gone. It's just not displayed anymore.
+- There will likely be "scroll to load more" functionality in the future</ul>
+- Active users from analytics chart
+
 ## [Beta 6.4.0] - 2024-01-08 - Happy New Year!
 ### Added
 - Track courses are now non-academic by default
