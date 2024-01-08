@@ -50,6 +50,33 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 6.4.0] - 2024-01-08 - Happy New Year!
+### Added
+- Track courses are now non-academic by default
+- <span class="plus label-background"><span class="plus-label">PLUS</span></span> label
+- <github issue="138">Allow editing dates on added assignments</github>
+- Ability to view the assignment average for the most recent, graded assignment that has a valid score<ul>
+- A calculator <i class="fa fa-calculator"></i> icon will appear next to assignments you can view the average for
+- <span class="premium label-background"><span class="premium-label">PREMIUM</span></span> users can view the average for all assignments
+- Just like all other average calculations, there must be at least 9 users with a valid score before an average is displayed</ul>
+- <span class="plus label-background"><span class="plus-label">PLUS</span></span> users can now set custom colors for classes
+- Preliminary table of donation-unlocked features
+
+### Improved
+- Better badges for <span class="plus label-background"><span class="plus-label">PLUS</span></span> and <span class="premium label-background"><span class="premium-label">PREMIUM</span></span> users.
+- <github issue="169">Make analytics chart update a separate process so it doesn't hang the entire server once a day</github>
+- Better UI for class and assignment info cards
+
+### Fixed
+- Issue with donation notifications not updating
+- Issues with very old grade percentages for extra credit displaying as -1%
+
+### Removed
+- Ability to view change data in old semesters
+- Ability to view more than 14 days worth of recent grade changes<ul>
+- The data is not gone. It's just not displayed anymore.
+- There will likely be "scroll to load more" functionality in the future</ul>
+
 ## [Announcement 6.3.7] - 2023-12-31 - Notification of Data Loss
 - At some point before Dec 21, 2023, but after Dec 18, 2023, PowerSchool changed from displaying 23-24 S1 classes to 23-24 S2 classes.
 - Unfortunately, the server was not prepared for this change, and this resulted in data loss for ~30% of users.
