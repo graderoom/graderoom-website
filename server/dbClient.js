@@ -1162,7 +1162,7 @@ const __version24 = async (db, user) => {
                 updateStartTimestamps: ""
             },
             $set: {
-                // version: 24
+                version: 24
             }
         })
     }
