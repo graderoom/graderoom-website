@@ -4451,6 +4451,10 @@ const _getTrimmedAlerts = async (db, username, term, semester) => {
     if (term !== latestTerm || semester !== latestSemester || latest === null) {
         aggregation = [
             {
+                $match: {
+                    username: username
+                },
+            }, {
                 $project: {
                     alerts: 1
                 }
