@@ -54,7 +54,7 @@
 ### Added
 - Priority queue for syncs<ul>
 - In case you haven't noticed yet, there is now a queue for syncing grades to prevent server overload during peak times
-- Syncs for <span class="plus label-background"><span class="plus-label">PLUS</span></span> and <span class="premium label-background"><span class="premium-label">PREMIUM</span></span> will now be processed first
+- Syncs for <span class="plus label-background"><span class="plus-label">PLUS</span></span> and <span class="premium label-background"><span class="premium-label">PREMIUM</span></span> users will now be processed first
 - This won't make a difference for regular users except during peak times.</ul>
 
 ### Improved
