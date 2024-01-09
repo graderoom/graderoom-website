@@ -26,6 +26,22 @@ module.exports.AutoQueue = class extends Queue {
     }
 
     /**
+     * Add element to the priority queue
+     * Runtime: O(1)
+     * @param {function(): Promise<any>} action
+     * @param {string?} name
+     * @returns {Queue} instance to allow chaining.
+     */
+    priorityEnqueue(action, name) {
+        name ??= "";
+
+        return new Promise((resolve, reject) => {
+            super.priorityEnqueue({ action, resolve, reject, name });
+            this.dequeue();
+        });
+    }
+
+    /**
      * Remove element from the queue by either resolving its Promise or running its fn async
      * Runtime: O(1)
      * @returns {boolean} true if queue is empty

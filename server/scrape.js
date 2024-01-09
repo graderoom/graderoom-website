@@ -6,12 +6,12 @@ const scraperQueue = new AutoQueue();
 module.exports = {
 
     loginAndScrapeGrades: function (processor, school, email, password, data_if_locked = {}, term_data_if_locked = {}, get_history = 'false', ignoreQueue = false) {
-        console.log(`Queue is ${scraperQueue.size} long`);
         if (!ignoreQueue) {
             scraperQueue.enqueue(async () => await this._loginAndScrapeGrades(processor, school, email, password, data_if_locked, term_data_if_locked, get_history));
-            processor({progress: 0, message: "Queued"});
+            processor({progress: 0, message: "Waiting in queue"});
         } else {
-            this._loginAndScrapeGrades(processor, school, email, password, data_if_locked, term_data_if_locked, get_history);
+            scraperQueue.priorityEnqueue(async () => await this._loginAndScrapeGrades(processor, school, email, password, data_if_locked, term_data_if_locked, get_history));
+            processor({progress: 0, message: "Waiting in priority queue"});
         }
     },
     _loginAndScrapeGrades: async function (processor, school, email, password, data_if_locked = {}, term_data_if_locked = {}, get_history='false') {
@@ -40,7 +40,7 @@ module.exports = {
                 pyshell.on("message", (data) => {
                     queue.enqueue(async () => await processor(data), data.message);
                     if ('success' in data) {
-                        resolve();
+                        queue.enqueue(async () => resolve());
                     }
                 });
             } catch (e) {
