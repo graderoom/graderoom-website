@@ -2291,6 +2291,9 @@
             if (addPercent === Infinity || isNaN(addPercent)) {
                 addPercent = false;
             }
+            // Remove HTML tags (client side)
+            addName = addName.replace(/(<([^>]+)>)/gi, "");
+            addCategory = addCategory.replace(/(<([^>]+)>)/gi, "");
             let assignmentObject = {
                 assignment_name: addName,
                 date: addDate,
