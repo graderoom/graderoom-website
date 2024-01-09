@@ -4043,6 +4043,11 @@ span.previous {
     color: white;
 }
 
+#donationWhatYouGet td.text {
+    font-weight: bold;
+    text-align: center;
+}
+
 .section {
     display: none;
 }
