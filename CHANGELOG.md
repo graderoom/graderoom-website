@@ -53,6 +53,7 @@
 ## [Beta 6.5.3] - 2024-01-09
 ### Fixed
 - <github issue="173">HTML injection with Add Assignment</github>
+- Issue with queue bypass not actually working
 
 ## [Announcement 6.5.2] - 2024-01-09 - Rate Limits
 - Due to apparently intentional spamming, there is now a limit to the number of requests you can send in a given time period.
