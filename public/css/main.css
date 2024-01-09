@@ -4020,7 +4020,7 @@ span.previous {
     background-color: green;
 }
 
-#donationWhatYouGet td::after {
+#donationWhatYouGet td:not(.text)::after {
     width: 100%;
     display: inline-block;
     text-align: center;
@@ -4031,13 +4031,13 @@ span.previous {
     opacity: 0.2;
 }
 
-#donationWhatYouGet td.supported::after {
+#donationWhatYouGet td.supported:not(.text)::after {
     content: "\f00c";
     opacity: 1;
     color: white;
 }
 
-#donationWhatYouGet td.previous::after {
+#donationWhatYouGet td.previous:not(.text)::after {
     content: "\f00c";
     opacity: 0.5;
     color: white;

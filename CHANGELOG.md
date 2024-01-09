@@ -50,6 +50,15 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 6.5.3] - 2024-01-09
+### Fixed
+- Issue with slow loading of <span class="premium label-background"><span class="premium-label">PREMIUM</span></span> users' pages<ul>
+- Turns out assignment averages are expensive to calculate!
+- Don't worry, though!
+- You will still be able to access assignment averages on demand by clicking on the assignment info buttons.
+- The downside to this is you will no longer see <i class="fa fa-calculator"></i> icons by assignments that have a viewable average, since the number of users that have synced an assignment is not calculated in advance anymore.</ul>
+- This change does not affect non-premium users
+
 ## [Announcement 6.5.2] - 2024-01-09 - Rate Limits
 - Due to apparently intentional spamming, there is now a limit to the number of requests you can send in a given time period.
 - "Requests" include any action that requires the server to do something, such as syncing, adding assignments, editing assignments, etc.

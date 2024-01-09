@@ -138,6 +138,15 @@ module.exports = function (app, passport) {
         });
     });
 
+    app.post("/assignmentAverage", [isLoggedIn], async (req, res) => {
+        let resp = await dbClient.getAssignmentAverage(req.user.username, req.body.term, req.body.semester, req.body.className, req.body.assignmentPSAID);
+        if (!resp.success) {
+            return res.sendStatus(400);
+        }
+
+        res.status(200).send(resp.data.value);
+    });
+
     app.get("/about", async (req, res) => {
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
 
