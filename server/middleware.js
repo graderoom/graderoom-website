@@ -24,7 +24,7 @@ const onLimitReached = async function (req) {
 
 const keyGenerator = async function (req) {
     if (req.user) return req.user.username;
-    return req.ip;
+    return req.clientIp;
 }
 
 const regularRateLimit = setRateLimit({
