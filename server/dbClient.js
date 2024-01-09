@@ -2777,7 +2777,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
     };
 
     let ignoreQueue = (await getDonoAttributes(username)).data.value.plus;
-    scraper.loginAndScrapeGrades(processor, user.school, user.schoolUsername, schoolPassword, dataIfLocked, termDataIfLocked, ignoreQueue);
+    scraper.loginAndScrapeGrades(processor, user.school, user.schoolUsername, schoolPassword, dataIfLocked, termDataIfLocked, 'false', ignoreQueue);
 
     return {success: true};
 };
@@ -3269,6 +3269,7 @@ const _updateAddedAssignments = async (db, username, addedAssignments, term, sem
     };
 
     let returnAddedWeights = false;
+    // Iterate each school class
     for (let i = 0; i < addedAssignments.length; i++) {
         let className = addedAssignments[i].className;
         let index = grades[term][semester].findIndex(c => c.class_name === className);
@@ -3281,8 +3282,13 @@ const _updateAddedAssignments = async (db, username, addedAssignments, term, sem
         let weights = user.weights[term][semester][index].weights;
         let addedWeights = user.addedWeights[term][semester][index].weights;
         let actualAddedWeights = new Set();
+        // Iterate each assignment in the school class
         for (let j = 0; j < addedAssignments[i].data.length; j++) {
             let assignment = addedAssignments[i].data[j];
+            // Discard HTML tags
+            assignment.category = assignment.category.replace(/(<([^>]+)>)/gi, "");
+            assignment.assignment_name = assignment.assignment_name.replace(/(<([^>]+)>)/gi, "");
+            // Validate the data
             if (Object.keys(assignment).length !== allowedKeys.length) {
                 return {success: false, data: {prodLog: `addedAssignments has the wrong number of keys`}};
             }
@@ -3301,6 +3307,7 @@ const _updateAddedAssignments = async (db, username, addedAssignments, term, sem
             }
             user.addedWeights[term][semester][index].weights[assignment.category] = null;
         }
+        // Remove weights by ???
         let updateAddedWeights = actualAddedWeights.size !== Object.keys(addedWeights).length;
         for (let w of Object.keys(addedWeights)) {
             if (!actualAddedWeights.has(w)) {
@@ -3308,6 +3315,7 @@ const _updateAddedAssignments = async (db, username, addedAssignments, term, sem
             }
             updateAddedWeights = true;
         }
+        // Update Database
         let set = {$set: {[`addedAssignments.${term}.${semester}.${index}`]: addedAssignments[i]}};
         if (updateAddedWeights) {
             returnAddedWeights = true;

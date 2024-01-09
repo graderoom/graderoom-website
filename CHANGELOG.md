@@ -50,6 +50,17 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 6.5.3] - 2024-01-09
+### Fixed
+- <github issue="173">HTML injection with Add Assignment</github>
+- Issue with queue bypass not actually working
+
+## [Announcement 6.5.2] - 2024-01-09 - Rate Limits
+- Due to apparently intentional spamming, there is now a limit to the number of requests you can send in a given time period.
+- "Requests" include any action that requires the server to do something, such as syncing, adding assignments, editing assignments, etc.
+- The rate limits are detailed in the following table<br><br><table class="table table-bordered"><thead><tr><th>Account Type</th><th>Requests per Minute</th></tr></thead><tbody><tr><td>Regular</td><td>15</td></tr><tr><td>Donor</td><td>30</td></tr><tr><td><span class="plus label-background"><span class="plus-label">PLUS</span></span></td><td>60</td></tr><tr><td><span class="premium label-background"><span class="premium-label">PREMIUM</span></span></td><td>120</td></tr></tbody></table>
+- These numbers are subject to change based on feedback and server load.
+
 ## [Stable 6.5.1] - 2024-01-09
 ### Added
 - Priority queue for syncs<ul>

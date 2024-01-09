@@ -24,6 +24,8 @@ watchChangelog();
 
 // MONGO TIME
 const mongo = require("./dbClient");
+const {rateLimit, regularRateLimit} = require("./middleware");
+const setRateLimit = require("express-rate-limit");
 let mongoUrl;
 if (productionEnv) {
     mongoUrl = process.env.DB_URL;
@@ -76,6 +78,7 @@ mongo.config(mongoUrl, productionEnv, isBetaServer).then(() => {
         app.use(flash()); // use connect-flash for flash messages stored in session
 
         // routes ======================================================================
+        app.use(rateLimit);
         require("./routes.js")(app, passport); // load our routes and pass in our app and fully configured
                                                // passport
 
