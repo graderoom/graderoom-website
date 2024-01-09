@@ -22,12 +22,18 @@ const onLimitReached = async function (req) {
     }
 };
 
+const keyGenerator = async function (req) {
+    if (req.user) return req.user.username;
+    return req.ip;
+}
+
 const regularRateLimit = setRateLimit({
     windowMs: 60 * 1000,
     max: 15,
     message: "Too many requests. Please try again later.",
     headers: true,
-    onLimitReached: onLimitReached
+    onLimitReached: onLimitReached,
+    keyGenerator: keyGenerator,
 });
 
 const donorRateLimit = setRateLimit({
@@ -35,7 +41,8 @@ const donorRateLimit = setRateLimit({
     max: 30,
     message: "Too many requests. Please try again later.",
     headers: true,
-    onLimitReached: onLimitReached
+    onLimitReached: onLimitReached,
+    keyGenerator: keyGenerator,
 });
 
 const plusRateLimit = setRateLimit({
@@ -43,7 +50,8 @@ const plusRateLimit = setRateLimit({
     max: 60,
     message: "Too many requests. Please try again later.",
     headers: true,
-    onLimitReached: onLimitReached
+    onLimitReached: onLimitReached,
+    keyGenerator: keyGenerator,
 });
 
 const premiumRateLimit = setRateLimit({
@@ -51,7 +59,8 @@ const premiumRateLimit = setRateLimit({
     max: 120,
     message: "Too many requests. Please try again later.",
     headers: true,
-    onLimitReached: onLimitReached
+    onLimitReached: onLimitReached,
+    keyGenerator: keyGenerator,
 });
 
 module.exports = {
