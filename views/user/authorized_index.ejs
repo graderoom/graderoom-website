@@ -3319,7 +3319,7 @@
                             if (assignmentComments[j]) {
                                 infoItems.push(`<span class="popup"><i class="fa fa-commenting-o"><span class="popup-top">Your instructor left a comment</span></i></span>`);
                             }
-                            if (assignmentPSAIDs[j] in relClassData[_data[i].class_name].assignmentAverages && 'average' in relClassData[_data[i].class_name].assignmentAverages[assignmentPSAIDs[j]]) {
+                            if (!premium && (assignmentPSAIDs[j] in relClassData[_data[i].class_name].assignmentAverages && 'average' in relClassData[_data[i].class_name].assignmentAverages[assignmentPSAIDs[j]])) {
                                 infoItems.push(`<span class="popup"><i class="fa fa-calculator assignment-average"><span class="popup-top">You can view the assignment average</span></i></span>`);
                             }
                             $(assignmentInfoDivs[assignmentIndex]).html(infoItems.join("&nbsp;"));
@@ -4822,6 +4822,24 @@
             }
             if (`${assignmentPSAID}` in relClassData[_data[classIndex].class_name].assignmentAverages) {
                 let avgData = relClassData[_data[classIndex].class_name].assignmentAverages[`${assignmentPSAID}`];
+                setupAssignmentAverage(avgData, assignmentPSAID, classIndex);
+            } else if (premium) {
+                $.ajax({method: "POST", url: "/assignmentAverage", data: {"assignmentPSAID": assignmentPSAID, "className": _data[classIndex].class_name, "term": term, "semester": semester}}).done(function (response) {
+                    relClassData[_data[classIndex].class_name].assignmentAverages[`${assignmentPSAID}`] = response;
+                    setupAssignmentAverage(response, assignmentPSAID, classIndex);
+                }).fail(function () {
+                    setupAssignmentAverage(null, assignmentPSAID, classIndex);
+                });
+            }
+        }
+
+        function setupAssignmentAverage(avgData, assignmentPSAID, classIndex) {
+            if (avgData === null) {
+                $("#assignmentInfoGraderoomUsers").addClass("locked").text("");
+                $("#assignmentInfoGraderoomUsers ~ span > span:first-child").text("Graderoom Users this semester");
+                $("#assignmentInfoAverage").addClass("locked").text("");
+                $("#infoAverage .unlock-with").show();
+            } else {
                 $("#assignmentInfoGraderoomUsers").removeClass("locked").text(avgData.numUsers).parent("div").show();
                 $("#assignmentInfoGraderoomUsers ~ span > span:first-child").text("Graderoom User" + (avgData.numUsers !== 1 ? "s" : "") + " this semester");
 
@@ -4831,11 +4849,6 @@
                     $("#assignmentInfoAverage").addClass("locked").html(`<span class="text-muted">Not Enough Data</span>`);
                 }
                 $("#infoAverage .unlock-with").hide();
-            } else {
-                $("#assignmentInfoGraderoomUsers").addClass("locked").text("");
-                $("#assignmentInfoGraderoomUsers ~ span > span:first-child").text("Graderoom Users this semester");
-                $("#assignmentInfoAverage").addClass("locked").text("");
-                $("#infoAverage .unlock-with").show();
             }
 
             $("#assignmentInfoBody div:not(#infoAverage)").css("background-color", withAlpha(colors[classIndex], 10));

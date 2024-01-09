@@ -52,7 +52,7 @@ const {
     notificationTextField,
     donoHelper,
     ERRORS_COLLECTION_NAME,
-    GENERAL_ERRORS_COLLECTION_NAME
+    GENERAL_ERRORS_COLLECTION_NAME, minUsersForAverageCalc
 } = require("./dbHelpers");
 
 const config = async (url, prod, beta, testing = false) => {
@@ -4216,8 +4216,6 @@ const _getRelevantClassData = async (db, username, term, semester) => {
                 projection: {teachers: {teacherName: 1}}
             }))?.teachers.map(t => t.teacherName).filter(t => t) ?? [];
 
-            let minUsersForAverageCalc = 9;
-
             let classAverages = {};
             let userCounts = {};
             for (let teacher of teachers) {
@@ -4247,12 +4245,9 @@ const _getRelevantClassData = async (db, username, term, semester) => {
             let assignmentAverages = {};
 
             if (userClass.term === term && userClass.semester === semester) {
-                let donoAttr = (await getDonoAttributes(username)).data.value;
-                let filteredGrades = donoAttr.premium ? userClass.grades : userClass.grades.filter(g => g.grade_percent !== false);
-                let start = donoAttr.premium ? 0 : filteredGrades.length - 1;
-                if (start < 0) start = 0;
-                for (let i = start; i < filteredGrades.length; i++) {
-                    let assignment = filteredGrades[i];
+                let filteredGrades = userClass.grades.filter(g => g.grade_percent !== false);
+                if (filteredGrades.length > 0) {
+                    let assignment = filteredGrades[filteredGrades.length - 1];
 
                     if (assignment.psaid !== false) {
                         let assignmentAverageQuery = {
@@ -4320,7 +4315,80 @@ const _getRelevantClassData = async (db, username, term, semester) => {
     return {success: true, data: {value: relClasses}};
 };
 
-// const getAssignmentAverage = (username, term, semester, className, assignmentPSAID)
+const getAssignmentAverage = (username, term, semester, className, assignmentPSAID) => safe(_getAssignmentAverage, lower(username), term, semester, className, assignmentPSAID);
+const _getAssignmentAverage = async (db, username, term, semester, className, assignmentPSAID) => {
+    let donoAttr = (await getDonoAttributes(username)).data.value;
+    if (!donoAttr.premium) return {success: false}; // The included assignment average will already be in relClassData
+
+    let res = await getUser(username, {grades: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let grades = res.data.value.grades;
+    if (!(term in grades) || !(semester in grades[term])) {
+        return {success: false};
+    }
+
+    grades = grades[term][semester];
+
+    let classIndex = grades.findIndex(g => g.class_name === className);
+    if (classIndex === -1) {
+        return {success: false};
+    }
+
+    let teacherName = grades[classIndex].teacher_name;
+    if (teacherName === false) {
+        return {success: false};
+    }
+    grades = grades[classIndex].grades;
+
+    if (grades.length === 0) {
+        return {success: false};
+    }
+
+    if (typeof assignmentPSAID === "string") {
+        assignmentPSAID = JSON.parse(assignmentPSAID);
+    }
+
+    let assignmentIndex = grades.findIndex(g => g.psaid === assignmentPSAID);
+    if (assignmentIndex === -1) {
+        return {success: false};
+    }
+
+    let assignmentAverageQuery = {
+        [`grades.${term}.${semester}`]: {
+            $elemMatch: {
+                class_name: className,
+                teacher_name: teacherName,
+                grades: {
+                    $elemMatch: {
+                        psaid: assignmentPSAID
+                    }
+                }
+            }
+        }
+    };
+
+    let users = await _users(db).find(assignmentAverageQuery, {projection: {[`grades.${term}.${semester}.$`]: 1}}).toArray();
+
+    let validScores = users.map(u => {
+        let grade = u.grades[term][semester][0].grades.filter(g => g.psaid === assignmentPSAID && g.grade_percent !== false);
+        if (grade.length) {
+            return grade[0].grade_percent;
+        } else {
+            return false;
+        }
+    }).filter(s => s !== false);
+
+    let assignmentAverage = {};
+    if (validScores.length >= minUsersForAverageCalc) {
+        assignmentAverage.average = validScores.reduce((a, b) => a + b, 0) / validScores.length;
+    }
+    assignmentAverage.numUsers = validScores.length;
+
+    return {success: true, data: {value: assignmentAverage}};
+}
 
 const addDonation = (username, platform, paidValue, receivedValue, dateDonated) => safe(_addDonation, lower(username), lower(platform), paidValue, receivedValue, dateDonated);
 const _addDonation = async (db, username, platform, paidValue, receivedValue, dateDonated) => {
@@ -4895,6 +4963,7 @@ module.exports = {
     getTermsAndSemestersInClassDb: getTermsAndSemestersInClassDb,
     updateWeightsForClass: updateWeightsForClass,
     getRelevantClassData: getRelevantClassData,
+    getAssignmentAverage: getAssignmentAverage,
     addDonation: addDonation,
     removeDonation: removeDonation,
     getDonoData: getDonoData,

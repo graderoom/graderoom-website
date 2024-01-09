@@ -26,6 +26,8 @@ exports.COMMON_DATABASE_NAME = "common";
 exports.dbUserVersion = 24;
 exports.dbClassVersion = 3;
 
+exports.minUsersForAverageCalc = 9;
+
 const minDonoAmount = 3;
 const minPremiumAmount = 5;
 
