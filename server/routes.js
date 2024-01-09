@@ -5,7 +5,7 @@ const _ = require("lodash");
 const SunCalc = require("suncalc");
 const {changelog, changelogLegend, latestVersion} = require("./dbHelpers");
 const {Schools, PrettySchools, SchoolAbbr} = require("./enums");
-const url = require("url");
+const {checkReturnTo, isLoggedIn, isAdmin, isApiAuthenticated, isInternalApiAuthenticated, inRecentTerm} = require("./middleware");
 
 module.exports = function (app, passport) {
 
@@ -437,7 +437,6 @@ module.exports = function (app, passport) {
     });
 
     app.post("/users", [isAdmin], async (req, res) => {
-        console.log(req.body);
         let projection = {
             username: 1,
             schoolUsername: 1,
@@ -466,7 +465,6 @@ module.exports = function (app, passport) {
         }
         let query = queryHelper(req.body.query);
         let sort = sortHelper(req.body.sort);
-        console.log(query);
         if (req.body.archived === 'false') {
             let {
                 value: allUsers,
@@ -1194,58 +1192,6 @@ module.exports = function (app, passport) {
             res.status(200).send(resp.data);
         }
     }
-
-    // route middleware to ensure user is logged in
-    function isLoggedIn(req, res, next) {
-        if (!(["/", "/admin", "/logout", "/changelog", "/changelogLegend"]).includes(req._parsedOriginalUrl.path) && req.headers.referer && req.headers.referer.includes("viewuser")) {
-            res.sendStatus(405);
-            return;
-        }
-        if (req.isAuthenticated()) {
-            return next();
-        }
-        res.redirect("/");
-    }
-
-    async function isApiAuthenticated(req, res, next) {
-        let apiKey = req.headers['x-api-key'];
-        let resp = await dbClient.apiAuthenticate(apiKey);
-        if (resp.success) {
-            req.apiKey = apiKey;
-            return next();
-        }
-        res.sendStatus(401);
-    }
-
-    async function isInternalApiAuthenticated(req, res, next) {
-        let apiKey = req.headers['x-internal-api-key'];
-        let resp = await dbClient.internalApiAuthenticate(apiKey);
-        if (resp.success) {
-            req.internalApiKey = apiKey;
-            return next();
-        }
-        res.sendStatus(401);
-    }
-
-    // temp middleware to prevent routes from happening if using query to view old semesters
-    async function inRecentTerm(req, res, next) {
-        let url = req.headers.referer;
-        let props = Object.fromEntries(url.includes("?") ? url.split("?")[1].split("&").map(prop => prop.split("=")) : []);
-        if (props.term && props.semester && !(await dbClient.userHasSemester(req.user.username, props.term, props.semester)).data.value) {
-            delete props.term;
-            delete props.semester;
-        }
-        if (!props.term && !props.semester) {
-            return next();
-        }
-    }
-
-    function isAdmin(req, res, next) {
-        if (req.isAuthenticated() && req.user.isAdmin) {
-            return next();
-        }
-        res.redirect("/");
-    }
 };
 
 function getSunriseAndSunset() {
@@ -1254,16 +1200,6 @@ function getSunriseAndSunset() {
     let sunrise = new Date("0/" + times.sunrise.getHours() + ":" + times.sunrise.getMinutes());
     let sunset = new Date("0/" + times.sunset.getHours() + ":" + times.sunset.getMinutes());
     return {sunrise: sunrise, sunset: sunset};
-}
-
-function checkReturnTo(req, res, next) {
-    let returnTo = url.parse(req.headers.referer || "/", true).query.returnTo;
-    if (returnTo && returnTo.startsWith("/")) {
-        req.session.returnTo = returnTo;
-    } else if (req.session.returnTo) {
-        delete req.session.returnTo;
-    }
-    next();
 }
 
 function sortHelper(sortQuery) {
