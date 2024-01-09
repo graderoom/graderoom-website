@@ -14,7 +14,6 @@ const bodyParser = require("body-parser");
 const redis = require("redis");
 const session = require("express-session");
 const passport = require("passport");
-const requestIp = require('request-ip');
 const fs = require("fs");
 const {watchChangelog, readChangelog} = require("./dbHelpers");
 
@@ -79,7 +78,6 @@ mongo.config(mongoUrl, productionEnv, isBetaServer).then(() => {
         app.use(flash()); // use connect-flash for flash messages stored in session
 
         // routes ======================================================================
-        app.use(requestIp.mw());
         app.use(rateLimit);
         require("./routes.js")(app, passport); // load our routes and pass in our app and fully configured
                                                // passport
