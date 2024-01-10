@@ -53,6 +53,7 @@
 ## [Stable 6.5.4] - 2024-01-10
 ### Improved
 - Older semesters should load faster now
+- You can now see what position you are in the sync queue
 
 ### Fixed
 - Issue with charts page not updating correctly
