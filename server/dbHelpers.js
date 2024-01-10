@@ -620,7 +620,7 @@ exports.fixWeights = (hasWeights, weights) => {
 }
 
 exports.isNotToday = (date) => {
-    return (new Date().toDateString()) !== date.toDateString();
+    return date.getTime() < (Date.parse(new Date().toDateString()));
 }
 
 exports.buildStarterNotifications = () => {
