@@ -50,6 +50,13 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 6.5.4] - 2024-01-10
+### Improved
+- Older semesters should load faster now
+
+### Fixed
+- Issue with charts page not updating correctly
+
 ## [Stable 6.5.3] - 2024-01-09
 ### Fixed
 - Issue with slow loading of <span class="premium label-background"><span class="premium-label">PREMIUM</span></span> users' pages<ul>
