@@ -14,15 +14,19 @@ module.exports.AutoQueue = class extends Queue {
      * Runtime: O(1)
      * @param {function(): Promise<any>} action
      * @param {string?} name
-     * @returns {Queue} instance to allow chaining.
+     * @returns {number} index of the queued element
      */
     enqueue(action, name) {
         name ??= "";
 
-        return new Promise((resolve, reject) => {
+        let ret = this.size;
+
+        new Promise((resolve, reject) => {
             super.enqueue({ action, resolve, reject, name });
             this.dequeue();
         });
+
+        return ret;
     }
 
     /**
@@ -30,15 +34,19 @@ module.exports.AutoQueue = class extends Queue {
      * Runtime: O(1)
      * @param {function(): Promise<any>} action
      * @param {string?} name
-     * @returns {Queue} instance to allow chaining.
+     * @returns {number} index of the queued element
      */
     priorityEnqueue(action, name) {
         name ??= "";
 
-        return new Promise((resolve, reject) => {
+        let ret = this._priorityPosition + 1;
+
+        new Promise((resolve, reject) => {
             super.priorityEnqueue({ action, resolve, reject, name });
             this.dequeue();
         });
+
+        return ret;
     }
 
     /**

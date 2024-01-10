@@ -6,7 +6,7 @@ const { LinkedList } = require('../linked_list/linked_list');
 module.exports.Queue = class {
     constructor() {
         this.items = new LinkedList();
-        this.priorityPosition = -1;
+        this._priorityPosition = -1;
     }
 
     /**
@@ -20,17 +20,23 @@ module.exports.Queue = class {
      * Add element to the queue
      * Runtime: O(1)
      * @param {any} item
-     * @returns {Queue} instance to allow chaining.
+     * @returns {number} index of the item
      */
     enqueue(item) {
         this.items.addLast(item);
-        return this;
+        return this.size - 1;
     }
 
+    /**
+     * Add element to the priority queue
+     * Runtime: O(1)
+     * @param {any} item
+     * @return {number} index of the item
+     */
     priorityEnqueue(item) {
-        this.priorityPosition++;
-        this.items.add(item, this.priorityPosition);
-        return this;
+        this._priorityPosition++;
+        this.items.add(item, this._priorityPosition);
+        return this._priorityPosition;
     }
 
     /**
@@ -40,8 +46,8 @@ module.exports.Queue = class {
      */
     dequeue() {
         let ret = this.items.removeFirst();
-        if (this.priorityPosition >= 0) {
-            this.priorityPosition--;
+        if (this._priorityPosition >= 0) {
+            this._priorityPosition--;
         }
         return ret;
     }

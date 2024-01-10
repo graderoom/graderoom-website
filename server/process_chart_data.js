@@ -1,5 +1,12 @@
 const {MongoClient} = require("mongodb");
-const {BETA_DATABASE_NAME, STABLE_DATABASE_NAME, USERS_COLLECTION_NAME, ARCHIVED_USERS_COLLECTION_NAME, CHARTS_COLLECTION_NAME, isNotToday} = require("./dbHelpers");
+const {
+    BETA_DATABASE_NAME,
+    STABLE_DATABASE_NAME,
+    USERS_COLLECTION_NAME,
+    ARCHIVED_USERS_COLLECTION_NAME,
+    CHARTS_COLLECTION_NAME,
+    isNotToday
+} = require("./dbHelpers");
 
 let url = process.argv[2];
 let beta = process.argv[3] === "true";
@@ -14,7 +21,7 @@ async function run() {
     let db = client.db(beta ? BETA_DATABASE_NAME : STABLE_DATABASE_NAME);
 
     let data = await db.collection(CHARTS_COLLECTION_NAME).findOne();
-    if (!data || !("lastUpdated" in data)) {
+    if (!data) {
         data = {
             loginData: [],
             uniqueLoginData: [],
@@ -36,13 +43,14 @@ async function run() {
     let projection = {
         loggedIn: 1, "alerts.lastUpdated": 1, "personalInfo.graduationYear": 1, school: 1, username: 1
     };
+    let dayStart = Date.parse(new Date().toDateString());
     let query = {
         $or: [
             {
                 "alerts.lastUpdated.timestamp": {
-                    $gte: lastUpdatedCharts.getTime(), $lt: Date.parse(new Date().toDateString())
+                    $gte: lastUpdatedCharts.getTime(), $lt: dayStart
                 }
-            }, {"loggedIn": {$gt: lastUpdatedCharts.getTime(), $lt: Date.parse(new Date().toDateString())}}
+            }, {"loggedIn": {$gt: lastUpdatedCharts.getTime(), $lt: dayStart}}
         ]
     };
 // All users with new data since lastUpdatedCharts but before today
@@ -86,7 +94,7 @@ async function run() {
 
         time = Date.now();
         let uniqueLoginDates = allUsers.map(user => [
-            ...new Set(user.loggedIn.filter(d => d >= lastUpdatedCharts.getTime() && d < Date.parse(new Date().toDateString())).map(loggedIn => {
+            ...new Set(user.loggedIn.filter(d => d >= lastUpdatedCharts.getTime() && d < dayStart).map(loggedIn => {
                 let date = new Date(loggedIn);
                 return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
             }))
@@ -143,7 +151,7 @@ async function run() {
     time = Date.now();
     let today = new Date();
     let seniorYear = today.getFullYear() + (today.getMonth() > 4 ? 1 : 0);
-    let schools = allUsers.filter(u => u.loggedIn[0] >= lastUpdatedCharts.getTime() && u.loggedIn[0] < Date.parse(new Date().toDateString())).map(u => u.school);
+    let schools = allUsers.filter(u => u.loggedIn[0] >= lastUpdatedCharts.getTime() && u.loggedIn[0] < dayStart).map(u => u.school);
     schoolData = schoolData ?? [];
     for (let j = 0; j < schools.length; j++) {
         let school = schools[j];
@@ -204,7 +212,7 @@ async function run() {
     gradData.sort((a, b) => sortMap[a.x] - sortMap[b.x]);
     console.log(`Calculated grad data in ${Date.now() - time}ms!`);
 
-    lastUpdatedCharts = new Date();
+    lastUpdatedCharts = new Date(dayStart);
 
     let value = {
         loginData: loginData,

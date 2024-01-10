@@ -1,18 +1,13 @@
 let {PythonShell} = require("python-shell");
 const {AutoQueue} = require("./data_structures/queue/auto_queue");
+const {ScraperAutoQueue} = require("./data_structures/queue/scraper_auto_queue");
 
-const scraperQueue = new AutoQueue();
+const scraperQueue = new ScraperAutoQueue();
 
 module.exports = {
 
     loginAndScrapeGrades: function (processor, school, email, password, data_if_locked = {}, term_data_if_locked = {}, get_history = 'false', ignoreQueue = false) {
-        if (!ignoreQueue) {
-            scraperQueue.enqueue(async () => await this._loginAndScrapeGrades(processor, school, email, password, data_if_locked, term_data_if_locked, get_history));
-            processor({progress: 0, message: "Waiting in queue"});
-        } else {
-            scraperQueue.priorityEnqueue(async () => await this._loginAndScrapeGrades(processor, school, email, password, data_if_locked, term_data_if_locked, get_history));
-            processor({progress: 0, message: "Waiting in priority queue"});
-        }
+        scraperQueue.enqueue(async () => await this._loginAndScrapeGrades(processor, school, email, password, data_if_locked, term_data_if_locked, get_history), processor, ignoreQueue);
     },
     _loginAndScrapeGrades: async function (processor, school, email, password, data_if_locked = {}, term_data_if_locked = {}, get_history='false') {
         return new Promise(resolve => {
