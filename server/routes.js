@@ -181,8 +181,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/weightedGPA", [isLoggedIn], async (req, res) => {
-        let weightedGPA = JSON.parse(req.body.weightedGPA);
-        await dbClient.setWeightedGPA(req.user.username, weightedGPA);
+        await dbClient.setWeightedGPA(req.user.username, req.body.weightedGPA);
         res.sendStatus(200);
     });
 
@@ -536,7 +535,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/updateShowMaxGPA", [isLoggedIn], async (req, res) => {
-        let resp = await dbClient.setShowMaxGPA(req.user.username, JSON.parse(req.body.showMaxGPA));
+        let resp = await dbClient.setShowMaxGPA(req.user.username, req.body.showMaxGPA);
         if (resp.success) {
             res.sendStatus(200);
         } else {
@@ -602,7 +601,7 @@ module.exports = function (app, passport) {
         let data = req.body.data;
         let term = req.body.term;
         let semester = req.body.semester;
-        let resp = await dbClient.updateAddedAssignments(req.user.username, JSON.parse(data), term, semester);
+        let resp = await dbClient.updateAddedAssignments(req.user.username, data, term, semester);
         if (resp.success) {
             res.status(200).send(resp.data.addedWeights);
         } else {
@@ -614,7 +613,7 @@ module.exports = function (app, passport) {
         let data = req.body.data;
         let term = req.body.term;
         let semester = req.body.semester;
-        let resp = await dbClient.updateEditedAssignments(req.user.username, JSON.parse(data), term, semester);
+        let resp = await dbClient.updateEditedAssignments(req.user.username, data, term, semester);
         if (resp.success) {
             res.sendStatus(200);
         } else {
@@ -679,12 +678,9 @@ module.exports = function (app, passport) {
 
     app.post("/updateweights", [isLoggedIn], async (req, res) => {
         let className = req.body.className;
-        let hasWeights = JSON.parse(req.body.hasWeights);
-        let newWeights = JSON.parse(req.body.newWeights);
-        let addedWeights = JSON.parse(req.body.addedWeights);
         let term = req.body.term;
         let semester = req.body.semester;
-        let resp = await dbClient.updateWeightsForClass(req.user.username, term, semester, className, hasWeights, newWeights, addedWeights);
+        let resp = await dbClient.updateWeightsForClass(req.user.username, term, semester, className, req.body.hasWeights, req.body.newWeights, req.body.addedWeights);
         if (resp.success) {
             res.status(200).send(resp.data.message);
             await dbClient.updateClassesForUser(req.user.username, term, semester, className);
@@ -695,7 +691,7 @@ module.exports = function (app, passport) {
 
     app.post("/updateclassweights", [isAdmin], async (req, res) => {
         let school = req.query.school ?? "bellarmine";
-        let resp = await dbClient.updateWeightsInClassDb(school, req.body.term, req.body.semester, req.body.className, req.body.teacherName, JSON.parse(req.body.hasWeights), req.body.weights);
+        let resp = await dbClient.updateWeightsInClassDb(school, req.body.term, req.body.semester, req.body.className, req.body.teacherName, req.body.hasWeights, req.body.weights);
         if (resp.success) {
             res.status(200).send(resp.data);
         } else {
@@ -724,8 +720,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/addDonation", [isAdmin], async (req, res) => {
-        let data = JSON.parse(req.body.data);
-        let resp = await dbClient.addDonation(data.username, data.platform, data.paidValue, data.receivedValue, data.dateDonated);
+        let resp = await dbClient.addDonation(req.body.data);
         if (resp.success) {
             res.status(200).send(resp.data);
         } else {
@@ -744,7 +739,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/setColorPalette", [isLoggedIn], async (req, res) => {
-        let resp = await dbClient.setColorPalette(req.user.username, req.body.preset, JSON.parse(req.body.shuffleColors));
+        let resp = await dbClient.setColorPalette(req.user.username, req.body.preset, req.body.shuffleColors);
         if (resp.success) {
             res.status(200).send(resp.data.colors);
         } else {
@@ -753,7 +748,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/updateCustomColor", [isLoggedIn], async (req, res) => {
-        let resp = await dbClient.updateCustomColor(req.user.username, JSON.parse(req.body.index), req.body.color);
+        let resp = await dbClient.updateCustomColor(req.user.username, req.body.index, req.body.color);
         if (resp.success) {
             res.status(200).send(resp.data.colors);
         } else {
@@ -997,8 +992,7 @@ module.exports = function (app, passport) {
 
     app.post("/updateSortData", [isLoggedIn, inRecentTerm], async (req, res) => {
         let username = req.user.username;
-        let sortData = JSON.parse(req.body.sortingData);
-        await dbClient.updateSortData(username, sortData);
+        await dbClient.updateSortData(username, req.body.sortingData);
         res.sendStatus(200);
     });
 

@@ -1485,10 +1485,10 @@ const _getUser = async (db, username, projection, additionalQuery) => {
     if (additionalQuery) {
         Object.assign(query, additionalQuery);
     }
-    if (projection) {
+    if (Object.keys(projection).length !== 0) {
         projection.username = 1;
     }
-    let user = await _users(db).findOne(query, projection);
+    let user = await _users(db).findOne(query, {projection: projection});
     if (!user) {
         return {
             success: false,
@@ -2059,6 +2059,11 @@ const _setReduceMotion = async (db, username, value) => {
 
 const setWeightedGPA = (username, value) => safe(_setWeightedGPA, lower(username), value);
 const _setWeightedGPA = async (db, username, value) => {
+    if (typeof value === "string") {
+        try {
+            value = JSON.parse(value);
+        } catch (e) {}
+    }
     if (typeof value !== "boolean") {
         return {
             success: false,
@@ -2143,6 +2148,9 @@ const _setTheme = async (db, username, theme, darkModeStart, darkModeFinish, sea
 
 const setShowMaxGPA = (username, value) => safe(_setShowMaxGPA, lower(username), value);
 const _setShowMaxGPA = async (db, username, value) => {
+    if (typeof value === "string") {
+        value = JSON.parse(value);
+    }
     if (typeof value !== "boolean") {
         return {success: false, data: {message: "Something went wrong", log: `Invalid showMaxGPA value: ${value}`}};
     }
@@ -2156,6 +2164,9 @@ const _setShowMaxGPA = async (db, username, value) => {
 const setColorPalette = (username, preset, shuffle) => safe(_setColorPalette, lower(username), lower(preset), shuffle);
 const _setColorPalette = async (db, username, preset, shuffle) => {
     let user = (await getUser(username, {"appearance.colorPalette": 1, "appearance.shuffleColors": 1})).data.value;
+    if (typeof shuffle === "string") {
+        shuffle = JSON.parse(shuffle);
+    }
     if (typeof shuffle !== "boolean") {
         shuffle = user.appearance.shuffleColors;
     }
@@ -2224,6 +2235,9 @@ const updateCustomColor = (username, index, color) => safe(_updateCustomColor, l
 const _updateCustomColor = async (db, username, index, color) => {
     if (!(await getDonoAttributes(username)).data.value.plus) {
         return {success: false};
+    }
+    if (typeof index === "string") {
+        index = JSON.parse(index);
     }
     if (typeof index !== "number" || index < 0 || index > 17) {
         return {success: false, data: {log: `Invalid index: ${index}`}};
@@ -2900,6 +2914,7 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
 
 const updateSortData = (username, sortData) => safe(_updateSortData, lower(username), sortData);
 const _updateSortData = async (db, username, sortData) => {
+    sortData = JSON.parse(sortData);
     let {dateSort, categorySort} = sortData;
     if (!dateSort || !categorySort) {
         return {success: false, data: {log: `Invalid sortData`}};
@@ -2936,15 +2951,11 @@ const _resetSortData = async (db, username) => {
 
 const userHasSemester = (username, term, semester) => safe(_userHasSemester, lower(username), term, semester);
 const _userHasSemester = async (db, username, term, semester) => {
-    let res = await getUser(username, {grades: 1});
-    if (!res.success) {
-        return res;
-    }
+    let res = await getUser(username, {username: 1}, {[`grades.${term}.${semester}`]: {$exists: true}});
 
-    let user = res.data.value;
     return {
         success: true,
-        data: {value: term in user.grades && semester in user.grades[term]}
+        data: {value: res.success}
     };
 };
 
@@ -3238,6 +3249,9 @@ const _updateAddedAssignments = async (db, username, addedAssignments, term, sem
         return res;
     }
 
+    if (typeof addedAssignments === "string") {
+        addedAssignments = JSON.parse(addedAssignments);
+    }
     if (!Array.isArray(addedAssignments)) {
         return {
             success: false,
@@ -3335,6 +3349,9 @@ const _updateEditedAssignments = async (db, username, editedAssignments, term, s
         return res;
     }
 
+    if (typeof editedAssignments === "string") {
+        editedAssignments = JSON.parse(editedAssignments);
+    }
     if (!Array.isArray(editedAssignments)) {
         return {
             success: false,
@@ -3808,6 +3825,11 @@ const _updateWeightsInClassDb = async (db, school, term, semester, className, te
             success: false, data: {message: "Something went wrong", log: `Invalid school ${school}`}
         };
     }
+
+    if (typeof hasWeights === "string") {
+        hasWeights = JSON.parse(hasWeights);
+    }
+
     let modWeights;
     try {
         [hasWeights, modWeights] = fixWeights(hasWeights, weights);
@@ -4054,6 +4076,16 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
         };
     }
     currentWeights = user.weights[term][semester][classIndex].weights;
+
+    if (typeof hasWeights === "string") {
+        hasWeights = JSON.parse(hasWeights);
+    }
+    if (typeof weights === "string") {
+        weights = JSON.parse(weights);
+    }
+    if (typeof addedWeights === "string") {
+        addedWeights = JSON.parse(addedWeights);
+    }
 
     // Verify all weight keys already exist
     for (let weight in weights) {
@@ -4348,7 +4380,9 @@ const _getAssignmentAverage = async (db, username, term, semester, className, as
     }
 
     if (typeof assignmentPSAID === "string") {
-        assignmentPSAID = JSON.parse(assignmentPSAID);
+        try {
+            assignmentPSAID = JSON.parse(assignmentPSAID);
+        } catch (e) {}
     }
 
     let assignmentIndex = grades.findIndex(g => g.psaid === assignmentPSAID);
@@ -4390,8 +4424,11 @@ const _getAssignmentAverage = async (db, username, term, semester, className, as
     return {success: true, data: {value: assignmentAverage}};
 }
 
-const addDonation = (username, platform, paidValue, receivedValue, dateDonated) => safe(_addDonation, lower(username), lower(platform), paidValue, receivedValue, dateDonated);
-const _addDonation = async (db, username, platform, paidValue, receivedValue, dateDonated) => {
+const addDonation = (data) => safe(_addDonation, data);
+const _addDonation = async (db, data) => {
+    data = JSON.parse(data);
+    let {username, platform, paidValue, receivedValue, dateDonated} = data;
+
     if (!Constants.donoPlatforms.includes(platform)) {
         return {
             success: false, data: {message: "Invalid Platform", log: `Invalid platform ${platform}`}
@@ -4515,7 +4552,7 @@ const __getDonoAttributes = async (donos) => {
 
 const getTrimmedAlerts = (username, term, semester) => safe(_getTrimmedAlerts, lower(username), term, semester);
 const _getTrimmedAlerts = async (db, username, term, semester) => {
-    let res = await getUser(username, {projection: {"alerts.lastUpdated": 1}});
+    let res = await getUser(username, {"alerts.lastUpdated": 1});
     if (!res.success) {
         return res;
     }
