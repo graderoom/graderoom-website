@@ -56,12 +56,13 @@
 
 ### Improved
 - <github issue="175">make the announcements/notifs less intrusive</github><ul>
-- Notifications for new minor versions will no longer glow. Announcements will continue to glow.
-- Pinned notifications will no longer overlay on mobile. They will still appear in the notification panel.</ul>
+- Notifications for new minor versions will no longer glow
+- Announcements will continue to glow.
+- Pinned notifications will no longer overlay on mobile
+- They will still appear in the notification panel.</ul>
 
 ### Fixed
-- Possibly fixed an issue some new users appeared to be having where their pages would not load<ul>
-- Please contact me if you are still having this issue</ul>
+- Possibly fixed an issue some new users appeared to be having where their pages would not load
 
 ## [Stable 6.5.4] - 2024-01-10
 ### Improved
