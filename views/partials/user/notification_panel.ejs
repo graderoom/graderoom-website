@@ -79,9 +79,9 @@
         let i = 2;
         if (!version.endsWith(alerts.latestSeen)) {
             if (version.startsWith("Stable")) {
-                createPinned(version, "Stable", version, changelogMessage(version, _versionMessages[1]), false, false, true, _versionDates[1], false);
+                createPinned(version, "Stable", version, changelogMessage(version, _versionMessages[1]), false, false, version.endsWith(".0"), _versionDates[1], false);
             } else if (version.startsWith("Beta")) {
-                <% if (beta) { %>createPinned(version, "Beta", version, changelogMessage(version, _versionMessages[1]), false, false, <%= beta; %>, _versionDates[1], false);<% } %>
+                <% if (beta) { %>createPinned(version, "Beta", version, changelogMessage(version, _versionMessages[1]), false, false, version.endsWith(".0"), _versionDates[1], false);<% } %>
             } else if (version.startsWith("Announcement")) {
                 createPinned(version, "Announcement", version, changelogMessage(version, _versionMessages[1]), false, false, true, _versionDates[1], false);
             }
