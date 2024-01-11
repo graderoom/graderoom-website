@@ -224,9 +224,13 @@ module.exports = function (app, passport) {
                 [`weights.${term}.${semester}`]: 1,
                 [`addedAssignments.${term}.${semester}`]: 1,
                 [`editedAssignments.${term}.${semester}`]: 1,
+                [`addedWeights.${term}.${semester}`]: 1,
                 sortingData: 1,
                 betaFeatures: 1,
                 donoData: 1,
+                "api.pairKey": 1,
+                "api.pairKeyExpire": 1,
+                "api.apiKey": 1,
             };
             user = (await dbClient.getUser(req.query.usernameToRender, projection)).data.value;
 
