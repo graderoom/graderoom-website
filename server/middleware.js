@@ -78,9 +78,9 @@ module.exports = {
         if (req.user.isAdmin) return next();
         let totalDonos = req.user.donoData.map(d => d.receivedValue).reduce((a, b) => a + b, 0);
         let dono = donoHelper(totalDonos);
-        if (dono.donor) return donorRateLimit(req, res, next);
-        if (dono.plus) return plusRateLimit(req, res, next);
         if (dono.premium) return premiumRateLimit(req, res, next);
+        if (dono.plus) return plusRateLimit(req, res, next);
+        if (dono.donor) return donorRateLimit(req, res, next);
         return regularRateLimit(req, res, next);
     }, isLoggedIn: function (req, res, next) {
         if (!(["/", "/admin", "/logout", "/changelog", "/changelogLegend"]).includes(req._parsedOriginalUrl.path) && req.headers.referer && req.headers.referer.includes("viewuser")) {
