@@ -935,7 +935,7 @@ module.exports = function (app, passport) {
 
     app.get("/charts", async (req, res) => {
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
-        let {success, data: {loginData, uniqueLoginData, syncData, userData, activeUsersData, gradData, schoolData, lastUpdated}} = await dbClient.getChartData();
+        let {success, data: {loginData, uniqueLoginData, syncData, userData, activeUsersData, schoolData, lastUpdated}} = await dbClient.getChartData();
         if (!success) {
             return res.render("viewer/loading_charts.ejs", {page: "charts-logged-out",
                 _appearance: {seasonalEffects: true, theme: 'sun'},
@@ -960,7 +960,6 @@ module.exports = function (app, passport) {
                 _userData: userData,
                 _activeUsersData: activeUsersData,
                 _schoolData: schoolData,
-                _gradData: gradData,
                 _loggedInData: await dbClient.getLoggedInData(true, req.user.username),
                 sunset: sunset,
                 sunrise: sunrise,
@@ -981,7 +980,6 @@ module.exports = function (app, passport) {
                 _userData: userData,
                 _activeUsersData: activeUsersData,
                 _schoolData: schoolData,
-                _gradData: gradData,
                 _loggedInData: await dbClient.getLoggedInData(false, null),
                 sunset: sunset,
                 sunrise: sunrise,

@@ -4575,7 +4575,7 @@ const _getTrimmedAlerts = async (db, username, term, semester) => {
                 $unset: 'alerts.lastUpdated'
             }, {
                 $addFields: {
-                    'alerts.lastUpdated': latest !== null ? [latest] : []
+                    alerts: {lastUpdated: latest !== null ? [latest] : []}
                 }
             }
         ]

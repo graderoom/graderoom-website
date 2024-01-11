@@ -4179,6 +4179,15 @@ input[name=searchByNameOrUsername] {
 
 /* Mobile Stuff */
 @media only screen and (max-width: 991px) {
+    #pinned-notifications {
+        transform: none;
+        opacity: 0;
+    }
+
+    #notificationPanel.active #pinned-notifications {
+        opacity: 1;
+    }
+
     .assignment-colspan-1 {
         display: table-cell;
     }
