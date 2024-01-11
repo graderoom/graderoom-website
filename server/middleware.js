@@ -76,7 +76,7 @@ module.exports = {
     rateLimit: function (req, res, next) {
         if (!req.user) return regularRateLimit(req, res, next);
         if (req.user.isAdmin) return next();
-        let dono = donoHelper(req.user);
+        let dono = donoHelper(req.user.donoData);
         if (dono.donor) return donorRateLimit(req, res, next);
         if (dono.plus) return plusRateLimit(req, res, next);
         if (dono.premium) return premiumRateLimit(req, res, next);
