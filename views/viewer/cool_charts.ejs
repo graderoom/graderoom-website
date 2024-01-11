@@ -114,7 +114,8 @@
             <btn id="btn-2" class="tablinks active" onclick="setBounds(2, chart)">6M</btn>
             <btn id="btn-3" class="tablinks" onclick="setBounds(3, chart)">YTD</btn>
             <btn id="btn-4" class="tablinks" onclick="setBounds(4, chart)">1Y</btn>
-            <btn id="btn-4" class="tablinks" onclick="setBounds(5, chart)">MAX</btn>
+            <btn id="btn-4" class="tablinks" onclick="setBounds(5, chart)">2Y</btn>
+            <btn id="btn-4" class="tablinks" onclick="setBounds(6, chart)">MAX</btn>
         </div>
         <button id="reset-zoom-1" style="display:none; position: absolute; right: 0"
                 class="btn btn-sm" onclick="resetZoom(chart); $(this).hide()">Reset
@@ -133,8 +134,9 @@
             <btn id="btn-1" class="tablinks" onclick="setBounds(1, gradYearChart)">1M</btn>
             <btn id="btn-2" class="tablinks" onclick="setBounds(2, gradYearChart)">6M</btn>
             <btn id="btn-3" class="tablinks" onclick="setBounds(3, gradYearChart)">YTD</btn>
-            <btn id="btn-4" class="tablinks active" onclick="setBounds(4, gradYearChart)">1Y</btn>
-            <btn id="btn-4" class="tablinks" onclick="setBounds(5, gradYearChart)">MAX</btn>
+            <btn id="btn-4" class="tablinks" onclick="setBounds(4, gradYearChart)">1Y</btn>
+            <btn id="btn-4" class="tablinks active" onclick="setBounds(5, gradYearChart)">2Y</btn>
+            <btn id="btn-4" class="tablinks" onclick="setBounds(6, gradYearChart)">MAX</btn>
         </div>
         <button id="reset-zoom0" style="display:none; position: absolute; right: 0"
                 class="btn btn-sm" onclick="resetZoom(gradYearChart); $(this).hide()">Reset
@@ -488,7 +490,7 @@
                 label: g,
                 pointBackgroundColor: borders[i],
                 pointBorderColor: "transparent",
-                cubicInterpolationMode: "monotone",
+                cubicInterpolationMode: "cubic",
                 spanGaps: false,
                 pointRadius: 1,
                 pointHoverRadius: 0,
@@ -526,7 +528,7 @@
                             color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
                         },
                         max: now,
-                        min: now - 366 * dayLength,
+                        min: now - 732 * dayLength,
                     }, yAxis: {
                         stacked: true,
                         ticks: {
@@ -608,10 +610,12 @@
         // 2 is 6 months
         // 3 is year to date
         // 4 is 1 year
-        // 5 is max
+        // 5 is 2 years
+        // 6 is max
 
         // First activate the right buttons
-        let btns = $(".chart-container .tablinks");
+        let numBtns = 7;
+        let btns = $(".chart-container .tablinks").slice(_chart === chart ? 0 : numBtns, _chart === chart ? numBtns : 2 * numBtns);
         btns.removeClass("active");
         $(btns[index]).addClass("active");
 
@@ -647,6 +651,10 @@
                 unit = "month";
                 break;
             case 5:
+                min = now - 732 * dayLength;
+                unit = "month";
+                break;
+            case 6:
                 unit = "year";
                 break;
         }
