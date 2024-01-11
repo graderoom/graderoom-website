@@ -28,7 +28,6 @@ async function run() {
             syncData: [],
             userData: [],
             activeUsersData: [],
-            gradData: [],
             schoolData: [],
             lastUpdated: new Date(0)
         };
@@ -39,7 +38,7 @@ async function run() {
         console.log("Already updating!");
         return;
     }
-    let {loginData, uniqueLoginData, syncData, gradData, schoolData, lastUpdated: lastUpdatedCharts} = data;
+    let {loginData, uniqueLoginData, syncData, schoolData, lastUpdated: lastUpdatedCharts} = data;
     let projection = {
         loggedIn: 1, "alerts.lastUpdated": 1, "personalInfo.graduationYear": 1, school: 1, username: 1
     };
@@ -53,26 +52,28 @@ async function run() {
             }, {"loggedIn": {$gt: lastUpdatedCharts.getTime(), $lt: dayStart}}
         ]
     };
-// All users with new data since lastUpdatedCharts but before today
+    // All users with new data since lastUpdatedCharts but before today
     let allUsers = (await db.collection(USERS_COLLECTION_NAME).find(query, {projection: projection}).toArray())
         .concat(await db.collection(ARCHIVED_USERS_COLLECTION_NAME).find(query, {projection: projection}).toArray());
     console.log(`${allUsers.length} users!`);
     if (allUsers.length > 0) {
-// List of new loginDates after lastUpdatedCharts but not today
+        // List of new loginDates after lastUpdatedCharts but not today
         time = Date.now();
         let loginDates = allUsers.map(u => u.loggedIn.map(d => {
             let date = new Date(d);
             return new Date(date.getFullYear(), date.getMonth(), date.getDate());
         })).reduce((a, b) => a.concat(b)).filter(d => d.getTime() >= lastUpdatedCharts.getTime() && isNotToday(d));
         console.log(`Calculated login dates in ${Date.now() - time}ms!`);
-// List of new syncDates after lastUpdatedCharts but not today
+
+        // List of new syncDates after lastUpdatedCharts but not today
         time = Date.now();
         let syncDates = allUsers.map(u => u.alerts.lastUpdated.map(d => {
             let date = new Date(d.timestamp);
             return new Date(date.getFullYear(), date.getMonth(), date.getDate());
         })).reduce((a, b) => a.concat(b)).filter(d => d.getTime() >= lastUpdatedCharts.getTime() && isNotToday(d));
         console.log(`Calculated sync dates in ${Date.now() - time}ms!`);
-// Add days that don't exist in loginDates that are in sync dates and vice versa and sort them
+
+        // Add days that don't exist in loginDates that are in sync dates and vice versa and sort them
         time = Date.now();
         loginDates =
             loginDates.concat(syncDates.filter(t => !loginDates.find(u => u.getTime() === t.getTime()))).sort((a, b) => a.getTime() - b.getTime());
@@ -127,30 +128,33 @@ async function run() {
     }
 
     time = Date.now();
-    let actualAllUsers = (await db.collection(USERS_COLLECTION_NAME).find({}, {projection: {"loggedIn": 1}}).toArray())
-        .concat(await db.collection(ARCHIVED_USERS_COLLECTION_NAME).find({}, {projection: {"loggedIn": 1}}).toArray());
+    let actualAllUsers = (await db.collection(USERS_COLLECTION_NAME).find({}, {projection: {"loggedIn": 1, 'personalInfo.graduationYear': 1}}).toArray())
+        .concat(await db.collection(ARCHIVED_USERS_COLLECTION_NAME).find({}, {projection: {"loggedIn": 1, 'personalInfo.graduationYear': 1}}).toArray());
 
-// Might be workaround for this, but I can't figure it out at the moment
+    // Might be workaround for this, but I can't figure it out at the moment
     let userData = loginData.map(t => ({
         x: t.x, y: actualAllUsers.filter(u => {
             return Date.parse(new Date(u.loggedIn[0]).toDateString()) <= t.x.getTime();
-        }).length
+        }).map(u => getGradYear(u.personalInfo?.graduationYear ?? null, t.x)).reduce((a, b) => {
+            if (a[b]) {
+                a[b]++;
+            } else {
+                a[b] = 1;
+            }
+            return a;
+        }, {
+            "Freshman": 0,
+            "Sophomore": 0,
+            "Junior": 0,
+            "Senior": 0,
+            "Graduate": 0,
+            "Other": 0,
+            "Unknown": 0
+        })
     }));
     console.log(`Calculated user data in ${Date.now() - time}ms!`);
 
-// No workaround for this. Need all users as far as I can tell
-//     time = Date.now();
-//     let activeUsersData = loginData.map(t => ({
-//         x: t.x, y: actualAllUsers.filter(u => u.loggedIn.some(v => {
-//             let vTime = Date.parse(new Date(v).toDateString());
-//             return (vTime <= t.x.getTime()) && (vTime >= (t.x.getTime() - (14 * 24 * 60 * 60 * 1000)));
-//         })).length
-//     }));
-//     console.log(`Calculated active user data in ${Date.now() - time}ms!`);
-
     time = Date.now();
-    let today = new Date();
-    let seniorYear = today.getFullYear() + (today.getMonth() > 4 ? 1 : 0);
     let schools = allUsers.filter(u => u.loggedIn[0] >= lastUpdatedCharts.getTime() && u.loggedIn[0] < dayStart).map(u => u.school);
     schoolData = schoolData ?? [];
     for (let j = 0; j < schools.length; j++) {
@@ -164,54 +168,6 @@ async function run() {
     }
     console.log(`Calculated school data in ${Date.now() - time}ms!`);
 
-    time = Date.now();
-    allUsers = (await db.collection(USERS_COLLECTION_NAME).find({}, {projection: {"personalInfo.graduationYear": 1}}).toArray())
-        .concat(await db.collection(ARCHIVED_USERS_COLLECTION_NAME).find({}, {projection: {"personalInfo.graduationYear": 1}}).toArray());
-    let gradYears = allUsers.map(u => u.personalInfo.graduationYear ?? null);
-    gradData = [];
-    for (let j = 0; j < gradYears.length; j++) {
-        let year = gradYears[j];
-        if (year) {
-            let hsYear = seniorYear - year + 4;
-            if (hsYear === 1) {
-                year = "Freshman";
-            } else if (hsYear === 2) {
-                year = "Sophomore";
-            } else if (hsYear === 3) {
-                year = "Junior";
-            } else if (hsYear === 4) {
-                year = "Senior";
-            } else if (hsYear > 4) {
-                year = "Graduate";
-            } else {
-                year = "Other";
-            }
-            let index = gradData.findIndex(d => d.x === `${year}`);
-            if (index === -1) {
-                index = gradData.length;
-                gradData.push({x: `${year}`, y: 0});
-            }
-            gradData[index].y++;
-        } else {
-            let unknownIndex = gradData.findIndex(d => d.x === "Unknown");
-            if (unknownIndex === -1) {
-                unknownIndex = gradData.length;
-                gradData.push({x: "Unknown", y: 0});
-            }
-            gradData[unknownIndex].y++;
-        }
-    }
-    let sortMap = {
-        "Freshman": seniorYear - 3,
-        "Sophomore": seniorYear - 2,
-        "Junior": seniorYear - 1,
-        "Senior": seniorYear,
-        "Graduate": seniorYear + 1,
-        "Unknown": seniorYear + 2
-    };
-    gradData.sort((a, b) => sortMap[a.x] - sortMap[b.x]);
-    console.log(`Calculated grad data in ${Date.now() - time}ms!`);
-
     lastUpdatedCharts = new Date(dayStart);
 
     let value = {
@@ -219,11 +175,34 @@ async function run() {
         uniqueLoginData: uniqueLoginData,
         syncData: syncData,
         userData: userData,
-        gradData: gradData,
         schoolData: schoolData,
         lastUpdated: lastUpdatedCharts
     };
 
     await db.collection(CHARTS_COLLECTION_NAME).updateOne({}, {$set: value, $unset: {updating: ""}}, {upsert: true});
     console.log(`Finished in ${Date.now() - start}ms!`);
+}
+
+function getGradYear(year, today = null) {
+    if (year === null) {
+        return "Unknown";
+    }
+    if (today === null) {
+        today = new Date();
+    }
+    let seniorYear = today.getFullYear() + (today.getMonth() > 4 ? 1 : 0);
+    let hsYear = seniorYear - year + 4;
+    if (hsYear === 1) {
+        return "Freshman";
+    } else if (hsYear === 2) {
+        return "Sophomore";
+    } else if (hsYear === 3) {
+        return "Junior";
+    } else if (hsYear === 4) {
+        return "Senior";
+    } else if (hsYear > 4) {
+        return "Graduate";
+    } else {
+        return "Other";
+    }
 }

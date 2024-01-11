@@ -102,26 +102,47 @@
 <% } %>
 <div class="container">
     <br>
-    <div id="big-container" class="chart-container chart" style="height: unset; width: unset; display: block">
+    <div class="chart-container chart" style="height: unset; width: unset; display: block">
         <h1>
             Usage
         </h1>
         <h6 id="user-desc"></h6>
         <h6 id="curr-logins"></h6>
         <div class="chart-tab tab" style="border-radius: 0.5rem">
-            <btn id="btn-0" class="tablinks" onclick="setBounds(0)">5D</btn>
-            <btn id="btn-1" class="tablinks" onclick="setBounds(1)">1M</btn>
-            <btn id="btn-2" class="tablinks active" onclick="setBounds(2)">6M</btn>
-            <btn id="btn-3" class="tablinks" onclick="setBounds(3)">YTD</btn>
-            <btn id="btn-4" class="tablinks" onclick="setBounds(4)">1Y</btn>
-            <btn id="btn-4" class="tablinks" onclick="setBounds(5)">MAX</btn>
+            <btn id="btn-0" class="tablinks" onclick="setBounds(0, chart)">5D</btn>
+            <btn id="btn-1" class="tablinks" onclick="setBounds(1, chart)">1M</btn>
+            <btn id="btn-2" class="tablinks active" onclick="setBounds(2, chart)">6M</btn>
+            <btn id="btn-3" class="tablinks" onclick="setBounds(3, chart)">YTD</btn>
+            <btn id="btn-4" class="tablinks" onclick="setBounds(4, chart)">1Y</btn>
+            <btn id="btn-4" class="tablinks" onclick="setBounds(5, chart)">MAX</btn>
         </div>
         <button id="reset-zoom-1" style="display:none; position: absolute; right: 0"
-                class="btn btn-sm" onclick="resetZoom(); $(this).hide()">Reset
+                class="btn btn-sm" onclick="resetZoom(chart); $(this).hide()">Reset
         </button>
         <canvas id="chart">
         </canvas>
     </div>
+    <br>
+    <div class="chart-container chart" style="height: unset; width: unset; display: block">
+        <h1>
+            Users by graduation year
+        </h1>
+        <h3>Users are graduated in June of each year</h3>
+        <div class="chart-tab tab" style="border-radius: 0.5rem">
+            <btn id="btn-0" class="tablinks" onclick="setBounds(0, gradYearChart)">5D</btn>
+            <btn id="btn-1" class="tablinks" onclick="setBounds(1, gradYearChart)">1M</btn>
+            <btn id="btn-2" class="tablinks" onclick="setBounds(2, gradYearChart)">6M</btn>
+            <btn id="btn-3" class="tablinks" onclick="setBounds(3, gradYearChart)">YTD</btn>
+            <btn id="btn-4" class="tablinks active" onclick="setBounds(4, gradYearChart)">1Y</btn>
+            <btn id="btn-4" class="tablinks" onclick="setBounds(5, gradYearChart)">MAX</btn>
+        </div>
+        <button id="reset-zoom0" style="display:none; position: absolute; right: 0"
+                class="btn btn-sm" onclick="resetZoom(gradYearChart); $(this).hide()">Reset
+        </button>
+        <canvas id="users">
+        </canvas>
+    </div>
+    <br>
     <br>
     <div style="display: flex; justify-content: space-between; flex-wrap: wrap; padding-bottom: 20px">
         <div class="chart-container chart" style="display: block; width: max(400px, calc(50% - 1rem))">
@@ -131,11 +152,6 @@
             <h6 id="weekday-desc"></h6>
             <canvas id="chart-weekdays">
             </canvas>
-        </div>
-        <div class="chart-container chart" style="display: block; width: max(400px, calc(50% - 1rem))">
-            <h4>Users breakdown by graduation year</h4>
-            <h6>Graduation Years update in June of each year</h6>
-            <canvas id="users"></canvas>
         </div>
         <div class="chart-container chart" style="display: block; width: max(400px, calc(50% - 1rem))">
             <h4>Users breakdown by school</h4>
@@ -251,7 +267,6 @@
     let weekdayUniqueLoginData = Array(7).fill(0);
     let weekdaySyncData = Array(7).fill(0);
 
-    let gradData = <%- JSON.stringify(_gradData); %>;
     let schoolData = <%- JSON.stringify(_schoolData); %>;
 
     // Fill in holes in loginData
@@ -291,7 +306,7 @@
     }
     let updated = new Date(<%= lastUpdated - 24 * 60 * 60 * 1000 %>);
     let count = <%- JSON.stringify(_loggedInData.data.value) %>;
-    $("#user-desc").text(`${userData.slice(-1)[0].y} total user(s) as of ${updated.toDateString()}.`);
+    $("#user-desc").text(`${Object.values(userData.slice(-1)[0].y).reduce((a, b) => a + b, 0)} total user(s) as of ${updated.toDateString()}.`);
     $("#curr-logins").text(`${count.count} active session(s). ${count.uniqueCount} currently active user(s).`);
     $("#weekday-desc").text(`${weekdayLoginData.reduce((a, b) => a + b, 0)} logins, ${weekdaySyncData.reduce((a, b) => a + b, 0)} syncs all time`)
 
@@ -300,8 +315,8 @@
     let gradYearChart;
     let schoolChart;
 
-    function resetZoom() {
-        chart.resetZoom();
+    function resetZoom(_chart) {
+        _chart.resetZoom();
     }
 
     let dataset = [];
@@ -353,26 +368,9 @@
         pointHoverBorderColor: "orange",
         pointHoverBorderWidth: 2
     };
-    let numUsersDataset = {
-        label: "Num Users",
-        backgroundColor: "transparent",
-        pointBackgroundColor: "blue",
-        pointBorderColor: "transparent",
-        borderColor: "blue",
-        data: userData,
-        cubicInterpolationMode: "monotone",
-        spanGaps: false,
-        pointRadius: 1,
-        borderWidth: 1,
-        pointHoverRadius: 3,
-        pointHoverBackgroundColor: "blue",
-        pointHoverBorderColor: "blue",
-        pointHoverBorderWidth: 2
-    };
     dataset.push(loginsDataset);
     dataset.push(uniqueLoginDataset);
     dataset.push(syncsDataset);
-    dataset.push(numUsersDataset);
 
     function setupAllCharts() {
         setupChart();
@@ -476,7 +474,135 @@
         });
     }
 
-    function setBounds(index) {
+    setupGradYearChart();
+    function setupGradYearChart() {
+        let ctx = document.getElementById("users");
+        if (gradYearChart) {
+            gradYearChart.destroy();
+        }
+        let now = Date.now();
+        const dayLength = 24 * 60 * 60 * 1000;
+        now = (now - (now % dayLength));
+        let gradData = (["Freshman", "Sophomore", "Junior", "Senior", "Graduate", "Other", "Unknown"]).map((g, i) => {
+            return {
+                label: g,
+                pointBackgroundColor: borders[i],
+                pointBorderColor: "transparent",
+                cubicInterpolationMode: "monotone",
+                spanGaps: false,
+                pointRadius: 1,
+                pointHoverRadius: 0,
+                pointHoverBackgroundColor: borders[i],
+                pointHoverBorderColor: borders[i],
+                pointHoverBorderWidth: 0,
+                backgroundColor: borders[i],
+                borderColor: borders[i],
+                borderWidth: 1,
+                hidden: i > 3,
+                data: userData.map(u => {
+                    return {
+                        x: u.x,
+                        y: u.y[g]
+                    }
+                }),
+                fill: true,
+            };
+        });
+        gradYearChart = new Chart(ctx, {
+            type: "line", data: {
+                datasets: gradData
+            }, options: {
+                hover: {
+                    mode: "index", intersect: false
+                }, scales: {
+                    xAxis: {
+                        type: "time", time: {
+                            unit: "month"
+                        }, ticks: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            fontFamily: "Verdana",
+                            fontSize: "13"
+                        }, grid: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
+                        },
+                        max: now,
+                        min: now - 366 * dayLength,
+                    }, yAxis: {
+                        stacked: true,
+                        ticks: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            fontFamily: "Verdana",
+                            fontSize: "12"
+                        }, grid: {
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC"),
+                            drawBorder: false
+                        }
+                    }
+                }, animation: {
+                    easing: "easeOutCubic",
+                    duration: 250,
+                }, responsive: true, maintainAspectRatio: true, plugins: {
+                    legend: {
+                        display: true, position: "top", labels: {
+                            usePointStyle: true,
+                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            fontFamily: "Verdana",
+                            boxWidth: 20,
+                            fontSize: 13,
+                            filter: function (item) {
+                                return !item.text.includes("undefined");
+                            }
+                        }
+                    }, tooltip: {
+                        enabled: true, mode: "index", intersect: false, position: "nearest", displayColors: true, caretSize: 10, callbacks: {
+                            title: function (tooltipItems) {
+                                return new Date(tooltipItems[0].label).toDateString();
+                            },
+                            footer: function (tooltipItems) {
+                                return `${tooltipItems.reduce((a, b) => a + b.parsed.y, 0)} total users`;
+                            },
+                            label: function (tooltipItem) {
+                                if (!tooltipItem.parsed.y) return null;
+                                return `${tooltipItem.dataset.label}: ${tooltipItem.parsed.y}`;
+                            }
+                        }
+                    }, zoom: {
+                        zoom: {
+                            wheel: {
+                                enabled: true, speed: 0.05
+                            }, pinch: {
+                                enabled: true, threshold: 100
+                            }, mode: "xy", onZoom: ({chart}) => {
+                                $("#reset-zoom0").show();
+
+                                // Disable hovering and tooltips to make animation smoother
+                                chart.options.hover.mode = null;
+                                chart.options.plugins.tooltip.enabled = false;
+                            }, onZoomComplete: ({chart}) => {
+                                chart.options.hover.mode = "index";
+                                chart.options.plugins.tooltip.enabled = true;
+                            }
+                        },
+                        pan: {
+                            enabled: true,
+                            onPan: ({chart}) => {
+                                $("#reset-zoom0").show();
+
+                                // Disable hovering and tooltips to make animation smoother
+                                chart.options.hover.mode = null;
+                                chart.options.plugins.tooltip.enabled = false;
+                            }, onPanComplete: ({chart}) => {
+                                chart.options.hover.mode = "index";
+                                chart.options.plugins.tooltip.enabled = true;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function setBounds(index, _chart) {
         // 0 is 5 days
         // 1 is 1 month
         // 2 is 6 months
@@ -490,7 +616,7 @@
         $(btns[index]).addClass("active");
 
         // Then, update the chart
-        chart.resetZoom();
+        resetZoom(_chart);
 
         let now = Date.now();
         const dayLength = 24 * 60 * 60 * 1000;
@@ -524,14 +650,18 @@
                 unit = "year";
                 break;
         }
-        chart.options.scales.xAxis.min = min;
-        chart.options.scales.xAxis.max = max;
-        chart.options.scales.xAxis.time.unit = unit;
-        chart.options.hover.mode = "index";
-        chart.update(0);
+        _chart.options.scales.xAxis.min = min;
+        _chart.options.scales.xAxis.max = max;
+        _chart.options.scales.xAxis.time.unit = unit;
+        _chart.options.hover.mode = "index";
+        _chart.update(0);
 
         // Also hide the reset button
-        $("#reset-zoom-1").hide();
+        if (_chart === chart) {
+            $("#reset-zoom-1").hide();
+        } else if (_chart === gradYearChart) {
+            $("#reset-zoom0").hide();
+        }
     }
 
     setupWeekdayChart();
@@ -583,58 +713,6 @@
                 }, plugins: {
                     legend: {
                         display: true, position: "top", labels: {
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
-                            fontFamily: "Verdana",
-                            boxWidth: 20,
-                            fontSize: 13,
-                            filter: function (item) {
-                                return !item.text.includes("undefined");
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    setupGradYearChart();
-    function setupGradYearChart() {
-        let ctx = document.getElementById("users");
-        let realGradData = gradData.map((g, i) => {
-            return {
-                label: g.x,
-                backgroundColor: colors[i],
-                borderColor: borders[i],
-                borderWidth: 1,
-                data: [g.y],
-                stack: "users"
-            };
-        });
-        gradYearChart = new Chart(ctx, {
-            type: "bar", data: {
-                labels: [""], datasets: realGradData
-            }, options: {
-                indexAxis: "y", scales: {
-                    y: {
-                        beginAtZero: true, ticks: {
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
-                            fontFamily: "Verdana",
-                            fontSize: "13"
-                        }, grid: {
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
-                        }
-                    }, x: {
-                        ticks: {
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
-                            fontFamily: "Verdana",
-                            fontSize: "12"
-                        }, grid: {
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
-                        }
-                    }
-                }, plugins: {
-                    legend: {
-                        display: true, position: "left", labels: {
                             color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
                             fontFamily: "Verdana",
                             boxWidth: 20,
