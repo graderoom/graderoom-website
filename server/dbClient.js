@@ -3299,9 +3299,6 @@ const _updateAddedAssignments = async (db, username, addedAssignments, term, sem
         // Iterate each assignment in the school class
         for (let j = 0; j < addedAssignments[i].data.length; j++) {
             let assignment = addedAssignments[i].data[j];
-            // Discard HTML tags
-            assignment.category = assignment.category.replace(/(<([^>]+)>)/gi, "");
-            assignment.assignment_name = assignment.assignment_name.replace(/(<([^>]+)>)/gi, "");
             // Validate the data
             if (Object.keys(assignment).length !== allowedKeys.length) {
                 return {success: false, data: {prodLog: `addedAssignments has the wrong number of keys`}};
@@ -3312,6 +3309,10 @@ const _updateAddedAssignments = async (db, username, addedAssignments, term, sem
             if (!Object.entries(assignment).every(([h, k]) => allowedTypes[h].includes(typeof k))) {
                 return {success: false, data: {prodLog: `addedAssignments has invalid values`}};
             }
+            // Discard HTML tags
+            assignment.category = assignment.category.replace(/(<([^>]+)>)/gi, "");
+            assignment.assignment_name = assignment.assignment_name.replace(/(<([^>]+)>)/gi, "");
+            // Add new categories
             if (assignment.category in weights) {
                 continue;
             }
