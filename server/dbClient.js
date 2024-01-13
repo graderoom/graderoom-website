@@ -2623,8 +2623,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                 // Check if we were previously locked
                 let _user = (await getUser(username, {'alerts.lastUpdated': {$slice: -1}})).data.value;
                 if (_user.alerts.lastUpdated.length && 'ps_locked' in _user.alerts.lastUpdated[0]) {
-                    let ps_locked = user.alerts.lastUpdated[0].ps_locked;
-                    if (ps_locked) {
+                    if (_user.alerts.lastUpdated[0].ps_locked) {
                         await updateGradeHistory(username, schoolPassword);
                     }
                 }
