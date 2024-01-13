@@ -2621,8 +2621,8 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                 data.message =
                     `No ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"} grades found for this term.`;
                 // Check if we were previously locked
-                let user = (await getUser(username, {'alerts.lastUpdated': {$slice: -1}})).data.value;
-                if (user.alerts.lastUpdated.length && 'ps_locked' in user.alerts.lastUpdated[0]) {
+                let _user = (await getUser(username, {'alerts.lastUpdated': {$slice: -1}})).data.value;
+                if (_user.alerts.lastUpdated.length && 'ps_locked' in _user.alerts.lastUpdated[0]) {
                     let ps_locked = user.alerts.lastUpdated[0].ps_locked;
                     if (ps_locked) {
                         await updateGradeHistory(username, schoolPassword);
