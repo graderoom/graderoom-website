@@ -50,6 +50,13 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 6.5.6] - 2024-01-12
+### Improved
+- Graderoom now sync grades from grade history when PowerSchool is unlocked, even if there are no grades for the new term yet.
+
+### Fixed
+- Issue with initial status not working when no data found for this term
+
 ## [Stable 6.5.5] - 2024-01-11
 ### Added
 - <github issue="155">Add user grad year breakdown over time in a stacked line chart</github>

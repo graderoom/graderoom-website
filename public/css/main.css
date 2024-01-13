@@ -3713,10 +3713,6 @@ div.plus.label-background {
     margin-left: 0.3rem;
 }
 
-div.premium-label::before, div.premium-label::after {
-    width: 3rem;
-}
-
 .donate::after, .premium-label::after {
     content: "Donate";
     color: #FFFFFF;
