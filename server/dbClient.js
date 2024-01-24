@@ -4607,9 +4607,11 @@ const _getTrimmedAlerts = async (db, username, term, semester) => {
                 }
             }, {
                 $addFields: {
-                    "alerts.lastUpdated": {
-                        $filter: {
-                            input: "$alerts.lastUpdated", as: "updateObj", cond: cond
+                    alerts: {
+                        lastUpdated: {
+                            $filter: {
+                                input: "$alerts.lastUpdated", as: "updateObj", cond: cond
+                            }
                         }
                     }
                 }

@@ -50,6 +50,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 6.5.7] - 2024-01-24
+### Fixed
+- Possibly fixed (again) an issue some users appeared to be having where their pages would not load
+
 ## [Stable 6.5.6] - 2024-01-12
 ### Improved
 - Graderoom now sync grades from grade history when PowerSchool is unlocked, even if there are no grades for the new term yet.
