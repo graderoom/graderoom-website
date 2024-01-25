@@ -4155,6 +4155,19 @@
                     }
                 }]
             });
+            //new variables calculated to account for the spacing on the side of the graph
+            maxDate = charts[0].scales.xAxis.max;
+            minDate = charts[0].scales.xAxis.min;
+            //sets the zoom and pan limits for the main graph
+            charts[0].options.plugins.zoom.limits = {
+                xAxis: {min: minDate, max: maxDate},
+                yAxis: {
+                    min: charts[0].scales.yAxis._suggestedMin,
+                    max: charts[0].scales.yAxis._suggestedMax
+                }
+            };
+            console.log(endDate);
+            console.log(charts[0].scales.xAxis.max);
         }
 
         function renderChart(id) {
@@ -4364,6 +4377,14 @@
                         }
                     }
                 });
+                //sets the zoom and pan limits for the individual class graphs
+                charts[id+1].options.plugins.zoom.limits = {
+                    xAxis: {min: minDate, max: maxDate},
+                    yAxis: {
+                        min: charts[id+1].scales.yAxis._suggestedMin,
+                        max: charts[id+1].scales.yAxis._suggestedMax
+                    }
+                };
             } else {
                 $("#chart-container" + id).html("<div class=\"chart-no-data\">No Data</div>");
             }
