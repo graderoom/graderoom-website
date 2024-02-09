@@ -2027,7 +2027,7 @@ const _setRemoteAccess = async (db, username, value) => {
 
 const setPersonalInfo = (username, firstName, lastName, graduationYear) => safe(_setPersonalInfo, lower(username), firstName, lastName, graduationYear);
 const _setPersonalInfo = async (db, username, firstName, lastName, graduationYear) => {
-    let school = (await getUser(username)).data.value.school;
+    let school = (await getUser(username, {school: 1})).data.value.school;
     if (([
         !!firstName, !!lastName || (school === Schools.BISV && lastName === ""),
         !!graduationYear || graduationYear === 0
