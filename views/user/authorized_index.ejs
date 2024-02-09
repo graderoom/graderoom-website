@@ -1309,6 +1309,8 @@
         let _editedAssignments = JSON.parse(JSON.stringify(editedAssignments)); // Copy to apply edits to
         let _addedAssignments = JSON.parse(JSON.stringify(addedAssignments)); // Copy to apply edits to added assignments to
         let _data = JSON.parse(JSON.stringify(data)); // Copy to apply edits to assignments to
+        let assignmentAverages = Array(data.length).fill({});
+        let userCounts = Array(data.length).fill({});
 
         let unsaved = Array(data.length).fill(false);
 
@@ -3327,9 +3329,6 @@
                             if (assignmentComments[j]) {
                                 infoItems.push(`<span class="popup"><i class="fa fa-commenting-o"><span class="popup-top">Your instructor left a comment</span></i></span>`);
                             }
-                            if (!premium && (assignmentPSAIDs[j] in relClassData[_data[i].class_name].assignmentAverages && 'average' in relClassData[_data[i].class_name].assignmentAverages[assignmentPSAIDs[j]])) {
-                                infoItems.push(`<span class="popup"><i class="fa fa-calculator assignment-average"><span class="popup-top">You can view the assignment average</span></i></span>`);
-                            }
                             $(assignmentInfoDivs[assignmentIndex]).html(infoItems.join("&nbsp;"));
                         } else {
                             $(assignmentInfoDivs[assignmentIndex]).html(`<span class="popup fill-parent"><i class="fa fa-pencil"><span class="popup-top">Edit Date</span></i></span>`);
@@ -4614,18 +4613,33 @@
             }
         }
 
-        function showClassInfo(index) {
+        async function showClassInfo(index) {
             let className = _data[index].class_name;
             let teacherName = _data[index].teacher_name;
             let relData = relClassData[className];
             let description = relData.description;
             let prereq = relData.prereq;
             let review = relData.review;
-            let classAverages = relData.classAverages;
-            let classAverage = classAverages[teacherName];
-            let userCounts = relData.userCounts;
-            let userCount = userCounts[teacherName];
-            let teachers = Object.keys(classAverages);
+
+            let userCount, teachers;
+            if (teacherName in userCounts[index]) {
+                userCount = userCounts[index][teacherName];
+                teachers = Object.keys(userCounts[index])
+            } else {
+                await $.ajax({
+                    method: "POST",
+                    url: "/userCounts",
+                    data: {
+                        "term": term,
+                        "semester": semester,
+                        "className": _data[index].class_name,
+                    }
+                }).done(function (response) {
+                    userCounts[index] = response;
+                    userCount = userCounts[index][teacherName];
+                    teachers = Object.keys(response)
+                });
+            }
             let classType = relData.classType;
             let ucClassType = relData.uc_csuClassType;
             let gradeLevels = relData.gradeLevels;
@@ -4662,9 +4676,8 @@
                 if (teachers[i] === teacherName) {
                     continue;
                 }
-                let count = userCounts[teachers[i]];
-                let average = classAverages[teachers[i]];
-                _teachers += `<li>${teachers[i]} - ${count} Graderoom user${count !== 1 ? "s" : ""}${average === null ? "" : ` - ${Math.round(average * 100) / 100}% Average`}</li>`;
+                let count = userCounts[index][teachers[i]];
+                _teachers += `<li>${teachers[i]} - ${count} Graderoom user${count !== 1 ? "s" : ""}</li>`;
             }
 
             let classInfoClassName = $("#classInfoName");
@@ -4674,7 +4687,6 @@
             let classInfoTeachersHeader = $("#classInfoOtherTeachersHeader");
             let classInfoTeachers = $("#classInfoOtherTeachers");
             let classInfoUserCount = $("#classInfoGraderoomUsers");
-            let classInfoClassAverage = $("#classInfoAverage");
             let classInfoDescription = $("#classInfoDescription");
             let classInfoYears = $("#classInfoYears");
             let classInfoCredits = $("#classInfoCredits");
@@ -4740,12 +4752,7 @@
             } else {
                 classInfoTeachers.hide();
             }
-            classInfoUserCount.html(`<span>${userCount ?? 1}</span><span>Graderoom User${(userCount ?? 1) !== 1 ? "s" : ""}<br>this semester</span>`);
-            if (classAverages[teacherName] != null) {
-                classInfoClassAverage.html(`<span>${Math.round(classAverage * 100) / 100}% (${getLetterGrade(classAverage)})</span>`);
-            } else {
-                classInfoClassAverage.html(`<span class="locked"></span><span class="text-muted">Not Enough Data</span>`);
-            }
+            classInfoUserCount.text(`${userCount ?? 1} Graderoom User${(userCount ?? 1) !== 1 ? "s" : ""} this semester`);
             classInfoDescription.html(_description);
             if (_thereIsData) {
                 $("#classInfoBody .card-footer").show();
@@ -4799,7 +4806,7 @@
             }
 
             // Styling
-            $("#classInfoTopTop, #classInfoTopBottom > div, #classInfoBody > .card-footer, #classInfoBody > ul").css("background-color", withAlpha(colors[index], 10));
+            $("#classInfoTopHalf, #classInfoBody > .card-footer, #classInfoBody > ul").css("background-color", withAlpha(colors[index], 10));
 
             showCard("#classInfoCardDisplay");
         }
@@ -4828,12 +4835,12 @@
             } else {
                 $("#assignmentInfoComments").parent("div").hide();
             }
-            if (`${assignmentPSAID}` in relClassData[_data[classIndex].class_name].assignmentAverages) {
-                let avgData = relClassData[_data[classIndex].class_name].assignmentAverages[`${assignmentPSAID}`];
+            if (`${assignmentPSAID}` in assignmentAverages[classIndex]) {
+                let avgData = assignmentAverages[classIndex][`${assignmentPSAID}`];
                 setupAssignmentAverage(avgData, assignmentPSAID, classIndex);
-            } else if (premium) {
+            } else if (premium || assignmentIndex === data[classIndex].grades.length - 1) {
                 $.ajax({method: "POST", url: "/assignmentAverage", data: {"assignmentPSAID": assignmentPSAID, "className": _data[classIndex].class_name, "term": term, "semester": semester}}).done(function (response) {
-                    relClassData[_data[classIndex].class_name].assignmentAverages[`${assignmentPSAID}`] = response;
+                    assignmentAverages[classIndex][`${assignmentPSAID}`] = response;
                     setupAssignmentAverage(response, assignmentPSAID, classIndex);
                 }).fail(function () {
                     setupAssignmentAverage(null, assignmentPSAID, classIndex);

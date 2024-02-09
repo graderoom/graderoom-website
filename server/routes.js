@@ -147,6 +147,23 @@ module.exports = function (app, passport) {
         res.status(200).send(resp.data.value);
     });
 
+    app.post("/userCounts", [isLoggedIn], async (req, res) => {
+        let resp = await dbClient.getUserCounts(req.user.username, req.body.term, req.body.semester, req.body.className);
+        if (!resp.success) {
+            return res.sendStatus(400);
+        }
+
+        res.status(200).send(resp.data.value);
+    });
+
+    app.get("/terms", async (req, res) => {
+        res.render("viewer/terms_and_conditions.ejs");
+    });
+
+    app.get("/privacy", async (req, res) => {
+        res.render("viewer/privacy_policy.ejs");
+    });
+
     app.get("/about", async (req, res) => {
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
 
@@ -492,7 +509,7 @@ module.exports = function (app, passport) {
                 value: deletedUsers,
                 actualCount,
                 total
-            } = (await dbClient.getAllArchivedUsers(projection, query, sort,page, count)).data;
+            } = (await dbClient.getAllArchivedUsers(projection, query, sort, page, count)).data;
             let maxPage = Math.ceil(total / count);
             let allUsers = [];
 

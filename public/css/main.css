@@ -139,10 +139,6 @@ html {
     -ms-overflow-style: none;
 }
 
-html *, html {
-    scrollbar-width: thin; /*hide scrollbar in firefox */
-}
-
 nav {
     box-shadow: 0 1px 2px;
     z-index: 19;
@@ -2880,19 +2876,11 @@ input:disabled {
     overflow: scroll;
 }
 
-#classInfoTopTop, #classInfoTopBottom > div {
+#classInfoTopHalf {
     border-radius: 1rem;
     padding: 1.5rem 2rem;
     margin-bottom: 0.5rem;
     margin-top: 0.5rem;
-}
-
-#classInfoTopBottom > div:first-child {
-    margin-right: 0.5rem;
-}
-
-#classInfoTopBottom > div:last-child {
-    margin-left: 0.5rem;
 }
 
 #classInfoCredits {
@@ -2906,50 +2894,13 @@ input:disabled {
 #classInfoTopHalf {
     display: flex;
     flex-flow: column;
-}
-
-#classInfoTopTop {
-    display: flex;
-    flex-flow: column;
     justify-content: center;
     align-items: flex-start;
 }
 
-#classInfoTopBottom {
-    padding: 0;
-    display: flex;
-    align-items: stretch;
-    justify-content: center;
-    flex-flow: row;
-}
-
-#classInfoTopBottom > div {
-    width: 50%;
-}
-
 #classInfoGraderoomUsers {
     font-weight: bold;
-    text-align: center;
-    display: flex;
-    flex-flow: column;
-}
-
-#classInfoGraderoomUsers span:first-child {
-    font-size: 3rem;
-}
-
-#classInfoTopBottom > div:nth-child(2) {
-    text-align: center;
-    display: flex;
-    flex-flow: column;
-    flex-flow: column;
-    justify-content: center;
-    align-items: center;
-}
-
-#classInfoTopBottom > div:nth-child(2) > span:nth-child(2) > span:first-child {
-    font-weight: bold;
-    font-size: 2rem;
+    margin-bottom: 0.5rem;
 }
 
 #classColors input[type=color] {
@@ -4163,6 +4114,10 @@ input[name=searchByNameOrUsername] {
 
     .hide-in-firefox {
         display: none;
+    }
+
+    html *, html {
+        scrollbar-width: thin; /*hide scrollbar in firefox */
     }
 }
 

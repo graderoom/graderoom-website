@@ -50,6 +50,23 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 6.5.8] - 2024-02-09
+### Improved
+- The maintenance page is no longer the default timeout/error page
+- Things might be faster now
+- Visibility of disabled buttons
+
+### Fixed
+- Privacy Policy and Terms and Conditions were not viewable after the first time you viewed them
+
+### Removed
+- Removed overall class averages<ul>
+- They were not accurate</ul>
+- Removed ability for regular users to view other teachers of a class<ul>
+- This feature is now <span class="plus label-background"><span class="plus-label">PLUS</span></span> or <span class="premium label-background"><span class="premium-label">PREMIUM</span></span> exclusive to reduce server load.</ul>
+- Regular users will no longer see a calculator icon next to assignments that have a viewable average<ul>
+- You can still view the average by clicking on the assignment info button</ul>
+
 ## [Stable 6.5.7] - 2024-01-24
 ### Fixed
 - Possibly fixed (again) an issue some users appeared to be having where their pages would not load

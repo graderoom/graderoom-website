@@ -21,9 +21,10 @@ exports.STABLE_DATABASE_NAME = "stable";
 exports.BETA_DATABASE_NAME = "beta";
 exports.TEST_DATABASE_NAME = "test";
 exports.COMMON_DATABASE_NAME = "common";
+exports.SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME = "school_username_lookup";
 
 // Change this when updateDB changes
-exports.dbUserVersion = 24;
+exports.dbUserVersion = 25;
 exports.dbClassVersion = 3;
 
 exports.minUsersForAverageCalc = 9;
@@ -253,6 +254,14 @@ exports.makeTeacher = (teacherName) => {
 };
 
 exports.lower = (str) => (str ?? "").toLowerCase();
+
+exports.hash = (username) => {
+    let hash = 5381;
+    for (let i = 0; i < username.length; i++) {
+        hash = ((hash << 5) + hash) + username.charCodeAt(i); /* hash * 33 + c */
+    }
+    return Math.abs(hash % 10);
+}
 
 exports.watchChangelog = () => {
     let md5Previous = null;
