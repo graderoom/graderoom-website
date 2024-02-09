@@ -1901,7 +1901,7 @@ const __getMostRecentTermData = (user) => {
 const login = (username, password) => safe(_login, lower(username), password);
 const _login = async (db, username, password) => {
     return new Promise(async resolve => {
-        let res = await getUser(username, {password: 1});
+        let res = await getUser(username, {password: 1, schoolPassword: 1});
         if (!res.success) {
             let res2 = await userArchived({username: username});
             if (res2.success) {
