@@ -4691,7 +4691,7 @@ const _getTrimmedAlerts = async (db, username, term, semester) => {
         ];
     }
 
-    res = (await db.collection(USERS_COLLECTION_NAME).aggregate(aggregation).toArray())[0].alerts;
+    res = (await _users(db, username).aggregate(aggregation).toArray())[0].alerts;
 
     return {success: true, data: {value: res}};
 };
