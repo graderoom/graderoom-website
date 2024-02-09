@@ -52,7 +52,7 @@ const {
     notificationTextField,
     donoHelper,
     ERRORS_COLLECTION_NAME,
-    GENERAL_ERRORS_COLLECTION_NAME, minUsersForAverageCalc
+    GENERAL_ERRORS_COLLECTION_NAME, minUsersForAverageCalc, SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME, hash
 } = require("./dbHelpers");
 
 const config = async (url, prod, beta, testing = false) => {
@@ -103,6 +103,7 @@ const safe = (func, ...args) => {
         }).catch(e => {
             console.log("ERROR");
             console.log(e);
+            console.log(e.stack);
             logGeneralError(e.toString()).then(({data}) => {
                 resolve({success: false, data: {message: `Something went wrong. Error ${data.value}.`}});
             });
@@ -112,7 +113,9 @@ const safe = (func, ...args) => {
 
 const db = client => client.db(_testing ? TEST_DATABASE_NAME : _beta ? BETA_DATABASE_NAME : STABLE_DATABASE_NAME);
 
-const _users = (db) => db.collection(USERS_COLLECTION_NAME);
+const _users = (db, username) => db.collection(`${USERS_COLLECTION_NAME}_${hash(username)}`);
+
+const _usernames = (db) => db.collection(SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME);
 
 const _catalog = () => _client.db(COMMON_DATABASE_NAME).collection(CATALOG_COLLECTION_NAME);
 
@@ -136,8 +139,22 @@ const _init = async (db) => {
         await db.createCollection(USERS_COLLECTION_NAME);
     }
 
-    if (!await _users(db).indexExists("username_1")) {
-        await _users(db).createIndex({username: 1}, {unique: true, name: "username_1"});
+    // Split users into multiple collections based on username
+    if (!collectionNames.includes(`${USERS_COLLECTION_NAME}_0`)) {
+        await db.createCollection(SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME);
+        await db.collection(SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME).createIndex({schoolUsername: 1}, {unique: true, name: "schoolUsername_1"})
+
+        for (let i = 0; i < 10; i++) {
+            let collectionName = `${USERS_COLLECTION_NAME}_${i}`;
+            await db.createCollection(collectionName);
+            await db.collection(collectionName).createIndex({username: 1}, {unique: true, name: "username_1"});
+        }
+
+        let users = await db.collection(USERS_COLLECTION_NAME).find().toArray();
+        for (let user of users) {
+            await db.collection(SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME).insertOne({username: user.username, schoolUsername: user.schoolUsername, hash: hash(user.username)});
+            await _users(db, user.username).insertOne(user);
+        }
     }
 
     // Create the deleted user collection if it doesn't exist
@@ -229,7 +246,8 @@ const _addUser = async (db, school, username, password, schoolUsername, isAdmin,
 
 const __addUser = async (db, user) => {
     if (!(await userExists({username: user.username, schoolUsername: user.schoolUsername})).success) {
-        await _users(db).insertOne(user);
+        await _usernames(db).insertOne({username: user.username, schoolUsername: user.schoolUsername, api: user.api, discord: user.discord});
+        await _users(db, user.username).insertOne(user);
         return {success: true, data: {log: `Created user ${user.username}`, message: "User Created"}};
     } else {
         return {
@@ -248,9 +266,11 @@ const userExists = ({
 }, includeFullUser);
 const _userExists = async (db, {username, schoolUsername}, includeFullUser = false) => {
     let query = {$or: [{username: username}, {schoolUsername: schoolUsername}]};
-    let projection = includeFullUser ? {} : {username: 1};
-    let userExists = await _users(db).findOne(query, projection);
+    let userExists = await _usernames(db).findOne(query);
     if (userExists) {
+        if (includeFullUser) {
+            userExists = await _users(db, userExists.username).findOne({username: userExists.username});
+        }
         return {
             success: true,
             data: {log: `User with username=${username}, schoolUsername=${schoolUsername} found`, value: userExists}
@@ -334,7 +354,7 @@ const __version1 = async (db, user) => {
             }
         }
 
-        await _users(db).updateOne({username: user.username}, {
+        await _users(db, user.username).updateOne({username: user.username}, {
             $set: {
                 "weights": weights, "addedAssignments": addedAssignments, "editedAssignments": editedAssignments
             }
@@ -346,7 +366,7 @@ const __version1 = async (db, user) => {
         await initAddedAssignments(user.username);
         await initEditedAssignments(user.username);
 
-        await _users(db).updateOne({username: user.username}, {$set: {version: 1}});
+        await _users(db, user.username).updateOne({username: user.username}, {$set: {version: 1}});
     }
 };
 
@@ -386,9 +406,9 @@ const __version2 = async (db, user) => {
             }
         }
 
-        await _users(db).updateOne({username: user.username}, {$set: {addedAssignments: addedAssignments}});
+        await _users(db, user.username).updateOne({username: user.username}, {$set: {addedAssignments: addedAssignments}});
 
-        await _users(db).updateOne({username: user.username}, {$set: {version: 2}});
+        await _users(db, user.username).updateOne({username: user.username}, {$set: {version: 2}});
     }
 };
 
@@ -477,13 +497,13 @@ const __version3 = async (db, user) => {
             }
         }
 
-        await _users(db).updateOne({username: user.username}, {
+        await _users(db, user.username).updateOne({username: user.username}, {
             $set: {
                 weights: weights, editedAssignments: editedAssignments, addedAssignments: addedAssignments
             }
         });
 
-        await _users(db).updateOne({username: user.username}, {$set: {version: 3}});
+        await _users(db, user.username).updateOne({username: user.username}, {$set: {version: 3}});
     }
 };
 
@@ -504,7 +524,7 @@ const __version4 = async (db, user) => {
         await initAddedAssignments(user.username);
         await initEditedAssignments(user.username);
 
-        await _users(db).updateOne({username: user.username}, {$set: {version: 4}});
+        await _users(db, user.username).updateOne({username: user.username}, {$set: {version: 4}});
     }
 };
 
@@ -522,7 +542,7 @@ const _version5 = async (db, username) => {
 
 const __version5 = async (db, user) => {
     if (user.version === 4) {
-        await _users(db).updateOne({username: user.username}, {
+        await _users(db, user.username).updateOne({username: user.username}, {
             $set: {
                 donoData: [], version: 5
             }
@@ -544,7 +564,7 @@ const _version6 = async (db, username) => {
 
 const __version6 = async (db, user) => {
     if (user.version === 5) {
-        await _users(db).updateOne({username: user.username}, {$set: {api: {}, version: 6}});
+        await _users(db, user.username).updateOne({username: user.username}, {$set: {api: {}, version: 6}});
     }
 };
 
@@ -562,7 +582,7 @@ const _version7 = async (db, username) => {
 
 const __version7 = async (db, user) => {
     if (user.version === 6) {
-        await _users(db).updateOne({username: user.username}, {
+        await _users(db, user.username).updateOne({username: user.username}, {
             $set: {
                 "appearance.showPlusMinusLines": false, version: 7
             }
@@ -587,7 +607,7 @@ const __version8 = async (db, user) => {
         await initEditedAssignments(user.username);
         await initAddedAssignments(user.username);
 
-        await _users(db).updateOne({username: user.username}, {$set: {version: 8}});
+        await _users(db, user.username).updateOne({username: user.username}, {$set: {version: 8}});
     }
 };
 
@@ -605,7 +625,7 @@ const _version9 = async (db, username) => {
 
 const __version9 = async (db, user) => {
     if (user.version === 8) {
-        await _users(db).updateOne({username: user.username}, {
+        await _users(db, user.username).updateOne({username: user.username}, {
             $set: {
                 "appearance.reduceMotion": false, "appearance.showEmpty": true, version: 9
             }
@@ -627,7 +647,7 @@ const _version10 = async (db, username) => {
 
 const __version10 = async (db, user) => {
     if (user.version === 9) {
-        await _users(db).updateOne({username: user.username}, {
+        await _users(db, user.username).updateOne({username: user.username}, {
             $unset: {"notifications": ""}, $set: {
                 "alerts.notificationSettings": {showUpdatePopup: false},
                 "alerts.notifications": buildStarterNotifications(),
@@ -651,7 +671,7 @@ const _version11 = async (db, username) => {
 
 const __version11 = async (db, user) => {
     if (user.version === 10) {
-        await _users(db).updateOne({username: user.username}, {
+        await _users(db, user.username).updateOne({username: user.username}, {
             $unset: {"notifications": ""}, $set: {"alerts.notifications": buildStarterNotifications(), version: 11}
         });
     }
@@ -672,7 +692,7 @@ const _version12 = async (db, username) => {
 const __version12 = async (db, user) => {
     if (user.version === 11) {
         if (user.school !== Schools.BISV) {
-            await _users(db).updateOne({username: user.username}, {$set: {version: 12}});
+            await _users(db, user.username).updateOne({username: user.username}, {$set: {version: 12}});
         } else {
             let grades = user.grades;
             let weights = user.weights;
@@ -697,7 +717,7 @@ const __version12 = async (db, user) => {
                 }
             }
 
-            await _users(db).updateOne({username: user.username}, {
+            await _users(db, user.username).updateOne({username: user.username}, {
                 $set: {
                     grades: grades, weights: weights, version: 12
                 }
@@ -723,7 +743,7 @@ const _version13 = async (db, username) => {
 
 const __version13 = async (db, user) => {
     if (user.version === 12) {
-        await _users(db).updateOne({username: user.username}, {
+        await _users(db, user.username).updateOne({username: user.username}, {
             $set: {
                 discord: {}, version: 13
             }
@@ -768,7 +788,7 @@ const __version14 = async (db, user) => {
             }
         }
 
-        await _users(db).updateOne({username: user.username}, {
+        await _users(db, user.username).updateOne({username: user.username}, {
             $set: {
                 addedAssignments: addedAssignments, editedAssignments, version: 14
             }
@@ -790,7 +810,7 @@ const _version15 = async (db, username) => {
 
 const __version15 = async (db, user) => {
     if (user.version === 14) {
-        await _users(db).updateOne({username: user.username}, {$set: {errors: [], version: 15}});
+        await _users(db, user.username).updateOne({username: user.username}, {$set: {errors: [], version: 15}});
     }
 };
 
@@ -808,7 +828,7 @@ const _version16 = async (db, username) => {
 
 const __version16 = async (db, user) => {
     if (user.version === 15) {
-        await _users(db).updateOne({username: user.username}, {
+        await _users(db, user.username).updateOne({username: user.username}, {
             $unset: {"appearance.showEmpty": ""}, $set: {version: 16}
         });
     }
@@ -831,7 +851,7 @@ const __version17 = async (db, user) => {
         if (user.appearance.classColors.length !== 18) {
             await setColorPalette(user.username);
         }
-        await _users(db).updateOne({username: user.username}, {
+        await _users(db, user.username).updateOne({username: user.username}, {
             $set: {version: 17}
         });
     }
@@ -852,13 +872,13 @@ const _version18 = async (db, username) => {
 const __version18 = async (db, user) => {
     if (user.version === 17) {
         if (!user.discord) {
-            await _users(db).updateOne({username: user.username}, {
+            await _users(db, user.username).updateOne({username: user.username}, {
                 $set: {
                     discord: {}
                 }
             });
         }
-        await _users(db).updateOne({username: user.username}, {
+        await _users(db, user.username).updateOne({username: user.username}, {
             $set: {version: 18}
         });
     }
@@ -880,7 +900,7 @@ const __version19 = async (db, user) => {
     if (user.version === 18) {
         let years = Object.keys(user.grades);
         if (years.length === 0) {
-            await _users(db).updateOne({username: user.username}, {
+            await _users(db, user.username).updateOne({username: user.username}, {
                 $set: {
                     updateStartTimestamps: {}, version: 19
                 }
@@ -1001,7 +1021,7 @@ const __version19 = async (db, user) => {
             }
         }
 
-        await _users(db).updateOne({username: user.username}, {
+        await _users(db, user.username).updateOne({username: user.username}, {
             $set: {
                 updateStartTimestamps: updateStartTimestamps, version: 19
             }
@@ -1043,7 +1063,7 @@ const __version20 = async (db, user) => {
             }
         }
 
-        await _users(db).updateOne({username: user.username}, {
+        await _users(db, user.username).updateOne({username: user.username}, {
             $set: {
                 grades: user.grades, nextAvailableFakePSAID: fakePSAID, version: 20
             }
@@ -1066,7 +1086,7 @@ const _version21 = async (db, username) => {
 const __version21 = async (db, user) => {
     if (user.version === 20) {
         await initAddedWeights(user.username);
-        await _users(db).updateOne({username: user.username}, {$set: {version: 21}});
+        await _users(db, user.username).updateOne({username: user.username}, {$set: {version: 21}});
     }
 };
 
@@ -1101,12 +1121,12 @@ const __version22 = async (db, user) => {
             }
         }
 
-        await _users(db).updateOne({username: user.username}, {$set: {grades: grades, version: 22}});
+        await _users(db, user.username).updateOne({username: user.username}, {$set: {grades: grades, version: 22}});
     }
 };
 
 const _version23 = async (db, username) => {
-    let res = await getUser(username, {donoData: 1, "alerts.notifications": 1});
+    let res = await getUser(username, {version: 1, donoData: 1, "alerts.notifications": 1});
     if (!res.success) {
         return res;
     }
@@ -1133,7 +1153,7 @@ const __version23 = async (db, user) => {
             }
         }
 
-        await _users(db).updateOne({username: user.username}, {
+        await _users(db, user.username).updateOne({username: user.username}, {
             $set: {
                 donoData: donoData,
                 "alerts.notifications": notifications,
@@ -1157,7 +1177,7 @@ const _version24 = async (db, username) => {
 
 const __version24 = async (db, user) => {
     if (user.version === 23) {
-        await _users(db).updateOne({username: user.username}, {
+        await _users(db, user.username).updateOne({username: user.username}, {
             $unset: {
                 updateStartTimestamps: ""
             },
@@ -1167,6 +1187,43 @@ const __version24 = async (db, user) => {
         })
     }
 };
+const _version25 = async (db, username) => {
+    let res = await getUser(username, {version: 1, donoData: 1, "alerts.notifications": 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version25, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 25`}};
+}
+
+const __version25 = async (db, user) => {
+    if (user.version === 24) {
+        let donoData = user.donoData;
+        let notifications = user.alerts.notifications;
+
+        for (let dono of donoData) {
+            let notifId = `${dono.platform}-${dono.dateDonated}-${dono.paidValue}-${dono.receivedValue}`;
+            if (!("dateEntered" in dono)) {
+                dono["dateEntered"] = dono["dateDonated"];
+            }
+            let idx = notifications.findIndex(n => n.id === notifId);
+            if (idx !== -1) {
+                notifications[idx].id = `${notifId}-${dono.dateDonated}`;
+            }
+        }
+
+        await _users(db, user.username).updateOne({username: user.username}, {
+            $set: {
+                donoData: donoData,
+                "alerts.notifications": notifications,
+                version: 25
+            }
+        });
+    }
+}
 
 const initUser = (username) => safe(_initUser, lower(username));
 const _initUser = async (db, username) => {
@@ -1216,7 +1273,7 @@ const __initUser = async (db, user) => {
     }
 
     if (!_.isEqual(temp, user.alerts.tutorialStatus) || !_.isEqual(temp2, user.betaFeatures)) {
-        await _users(db).updateOne({username: user.username}, {
+        await _users(db, user.username).updateOne({username: user.username}, {
             $set: {
                 "alerts.tutorialStatus": temp, "betaFeatures": temp2
             }
@@ -1310,6 +1367,9 @@ const updateUser = async (user) => {
     }
     if (user.version < 24) {
         await safe(_version24, user.username);
+    }
+    if (user.version < 25) {
+        await safe(_version25, user.username);
     }
 };
 
@@ -1488,7 +1548,7 @@ const _getUser = async (db, username, projection, additionalQuery) => {
     if (Object.keys(projection).length !== 0) {
         projection.username = 1;
     }
-    let user = await _users(db).findOne(query, {projection: projection});
+    let user = await _users(db, username).findOne(query, {projection: projection});
     if (!user) {
         return {
             success: false,
@@ -1525,16 +1585,53 @@ const _getClass = async (db, school, className, term, semester, projection, addi
 const getAllUsers = (projection, query, sort, page, count) => safe(_getAllUsers, projection, query, sort, page, count);
 const _getAllUsers = async (db, projection, query, sort, page, count) => {
     query = query ?? {};
-    let value = _users(db).find(query, {projection: projection});
-    if (sort) {
-        value = value.sort(sort);
+    if ('username' in query && query.username.length) {
+        let section = query.username[0];
+        let value = _users(db, section).find(query, {projection: projection});
+        if (sort) {
+            value = value.sort(sort);
+        }
+        if (page && count) {
+            value = value.skip((page - 1) * count).limit(count);
+        }
+        value = await value.toArray(); // js kinda cool I can just await the promise at the very end??
+        return {
+            success: true,
+            data: {value: value, actualCount: value.length, total: await _usernames(db).estimatedDocumentCount()}
+        };
+    }
+
+    let aggregation = [{
+        $match: query,
+    }, {
+        $project: projection
+    }];
+    let sections = "123456789";
+    for (let section of sections) {
+        let union = {
+            $unionWith: {
+                coll: `${USERS_COLLECTION_NAME}_${section}`,
+                pipeline: [{
+                    $match: query
+                }, {
+                    $project: projection
+                }]
+            }
+        };
+        aggregation.push(union);
+    }
+    if (sort && Object.keys(sort).length > 0) {
+        aggregation.push({$sort: sort});
     }
     if (page && count) {
-        value = value.skip((page - 1) * count).limit(count);
+        aggregation.push({$skip: (page - 1) * count});
+        aggregation.push({$limit: count});
     }
-    value = await value.toArray(); // js kinda cool I can just await the promise at the very end??
+
+    let value = await db.collection(`${USERS_COLLECTION_NAME}_0`).aggregate(aggregation).toArray();
     return {
-        success: true, data: {value: value, actualCount: value.length, total: await _users(db).estimatedDocumentCount()}
+        success: true,
+        data: {value: value, actualCount: value.length, total: await _usernames(db).estimatedDocumentCount()}
     };
 };
 
@@ -1619,7 +1716,7 @@ const _userArchived = async (db, {username, schoolUsername}, includeFullUser = f
             {username: username},
             {schoolUsername: schoolUsername}
         ]
-    }, projection);
+    }, {projection: projection});
     if (userExists) {
         return {
             success: true, data: {
@@ -1667,10 +1764,11 @@ const _archiveOldUsers = async (db) => {
     }
     beforeDate.setMonth(6); // July
     beforeDate.setDate(1); // 1st
-    let oldUsers = await _users(db).find({
-        loggedIn: {$not: {$gt: beforeDate.getTime()}},
-        "personalInfo.graduationYear": {$lte: year}
-    }, {projection: {username: 1}}).toArray();
+    let oldUsers = (await getAllUsers({username: 1},
+        {
+            loggedIn: {$not: {$gt: beforeDate.getTime()}},
+            "personalInfo.graduationYear": {$lte: year}
+        },)).data.value;
     for (let user of oldUsers) {
         await archiveUser(user.username);
     }
@@ -1740,7 +1838,7 @@ const _unArchiveUser = async (db, username) => {
 
 const removeUser = (username) => safe(_removeUser, lower(username));
 const _removeUser = async (db, username) => {
-    let res = await _users(db).deleteOne({
+    let res = await _users(db, username).deleteOne({
         username: username
     });
     if (res.deletedCount === 1) {
@@ -1803,7 +1901,7 @@ const __getMostRecentTermData = (user) => {
 const login = (username, password) => safe(_login, lower(username), password);
 const _login = async (db, username, password) => {
     return new Promise(async resolve => {
-        let res = await userExists({username: username});
+        let res = await getUser(username, {password: 1, schoolPassword: 1});
         if (!res.success) {
             let res2 = await userArchived({username: username});
             if (res2.success) {
@@ -1844,7 +1942,7 @@ const _login = async (db, username, password) => {
 
 const setLoggedIn = (username) => safe(_setLoggedIn, lower(username));
 const _setLoggedIn = async (db, username) => {
-    let res = await _users(db).updateOne({username: username}, {$push: {loggedIn: Date.now()}});
+    let res = await _users(db, username).updateOne({username: username}, {$push: {loggedIn: Date.now()}});
     if (res.matchedCount === 1) {
         return {success: true};
     }
@@ -1866,7 +1964,7 @@ const _encryptAndStoreSchoolPassword = async (db, username, schoolPassword, pass
     let encryptedPass = cipher.update(schoolPassword, "utf8", "hex");
     encryptedPass += cipher.final("hex");
 
-    await _users(db).updateOne({username: username}, {$set: {schoolPassword: encryptedPass}});
+    await _users(db, username).updateOne({username: username}, {$set: {schoolPassword: encryptedPass}});
     return {success: true, data: {log: `Stored school password for ${username}`}};
 };
 
@@ -1895,7 +1993,7 @@ const _decryptAndGetSchoolPassword = async (db, username, password) => {
 
 const acceptTerms = (username) => safe(_acceptTerms, lower(username));
 const _acceptTerms = async (db, username) => {
-    let res = await _users(db).updateOne({username: username}, {$set: {"alerts.termsLastSeen": Date.now()}});
+    let res = await _users(db, username).updateOne({username: username}, {$set: {"alerts.termsLastSeen": Date.now()}});
     if (res.matchedCount === 1) {
         return {success: true, data: {log: `Accepted terms for ${username}`}};
     }
@@ -1904,7 +2002,7 @@ const _acceptTerms = async (db, username) => {
 
 const acceptPrivacyPolicy = (username) => safe(_acceptPrivacyPolicy, lower(username));
 const _acceptPrivacyPolicy = async (db, username) => {
-    let res = await _users(db).updateOne({username: username}, {$set: {"alerts.policyLastSeen": Date.now()}});
+    let res = await _users(db, username).updateOne({username: username}, {$set: {"alerts.policyLastSeen": Date.now()}});
     if (res.matchedCount === 1) {
         return {success: true, data: {log: `Accepted policy for ${username}`}};
     }
@@ -1920,7 +2018,7 @@ const _setRemoteAccess = async (db, username, value) => {
             data: {message: "Something went wrong", log: `Invalid remote access value: ${value}`}
         };
     }
-    let res = await _users(db).updateOne({username: username}, {$set: {"alerts.remoteAccess": value}});
+    let res = await _users(db, username).updateOne({username: username}, {$set: {"alerts.remoteAccess": value}});
     if (res.matchedCount === 1) {
         return {success: true, data: {log: `Set remote access for ${username} to ${value}`}};
     }
@@ -1939,7 +2037,7 @@ const _setPersonalInfo = async (db, username, firstName, lastName, graduationYea
     let nameRegex = new RegExp(/^[a-z]+(?:-[a-z]+)*$/i);
     if (!!firstName) {
         if (nameRegex.test(firstName)) {
-            let res = await _users(db).updateOne({username: username}, {$set: {"personalInfo.firstName": firstName}});
+            let res = await _users(db, username).updateOne({username: username}, {$set: {"personalInfo.firstName": firstName}});
             if (res.matchedCount === 1) {
                 return {success: true, data: {message: "Updated first name"}};
             }
@@ -1954,7 +2052,7 @@ const _setPersonalInfo = async (db, username, firstName, lastName, graduationYea
         return {success: false, data: {message: "First name can only contain letters and/or hyphens."}};
     } else if (!!lastName || (school === Schools.BISV && lastName === "")) {
         if (nameRegex.test(lastName)) {
-            let res = await _users(db).updateOne({username: username}, {$set: {"personalInfo.lastName": lastName}});
+            let res = await _users(db, username).updateOne({username: username}, {$set: {"personalInfo.lastName": lastName}});
             if (res.matchedCount === 1) {
                 return {success: true, data: {message: "Updated last name"}};
             }
@@ -1975,7 +2073,7 @@ const _setPersonalInfo = async (db, username, firstName, lastName, graduationYea
         if (typeof graduationYear !== "number") {
             return {success: false, data: {message: "Graduation year must be a number"}};
         }
-        let res = await _users(db).updateOne({username: username}, {$set: {"personalInfo.graduationYear": graduationYear}});
+        let res = await _users(db, username).updateOne({username: username}, {$set: {"personalInfo.graduationYear": graduationYear}});
         if (res.matchedCount === 1) {
             return {success: true, data: {message: "Updated graduation year"}};
         }
@@ -1995,7 +2093,7 @@ const _setShowNonAcademic = async (db, username, value) => {
             success: false, data: {message: "Something went wrong", log: `Invalid showNonAcademic value: ${value}`}
         };
     }
-    let res = await _users(db).updateOne({username: username}, {$set: {"appearance.showNonAcademic": value}});
+    let res = await _users(db, username).updateOne({username: username}, {$set: {"appearance.showNonAcademic": value}});
     if (res.matchedCount === 1) {
         return {success: true, data: {log: `Set showNonAcademic to ${value} for ${username}`}};
     }
@@ -2010,7 +2108,7 @@ const _setRegularizeClassGraphs = async (db, username, value) => {
             data: {message: "Something went wrong", log: `Invalid regularizeClassGraphs value: ${value}`}
         };
     }
-    let res = await _users(db).updateOne({username: username}, {$set: {"appearance.regularizeClassGraphs": value}});
+    let res = await _users(db, username).updateOne({username: username}, {$set: {"appearance.regularizeClassGraphs": value}});
     if (res.matchedCount === 1) {
         return {
             success: true, data: {
@@ -2030,7 +2128,7 @@ const _setShowPlusMinusLines = async (db, username, value) => {
             data: {message: "Something went wrong", log: `Invalid showPlusMinusLines value: ${value}`}
         };
     }
-    let res = await _users(db).updateOne({username: username}, {$set: {"appearance.showPlusMinusLines": value}});
+    let res = await _users(db, username).updateOne({username: username}, {$set: {"appearance.showPlusMinusLines": value}});
     if (res.matchedCount === 1) {
         return {
             success: true,
@@ -2047,7 +2145,7 @@ const _setReduceMotion = async (db, username, value) => {
             success: false, data: {message: "Something went wrong", log: `Invalid reduceMotion value: ${value}`}
         };
     }
-    let res = await _users(db).updateOne({username: username}, {$set: {"appearance.reduceMotion": value}});
+    let res = await _users(db, username).updateOne({username: username}, {$set: {"appearance.reduceMotion": value}});
     if (res.matchedCount === 1) {
         return {
             success: true,
@@ -2070,7 +2168,7 @@ const _setWeightedGPA = async (db, username, value) => {
             data: {message: "Something went wrong", log: `Invalid weightedGPA value: ${value}`}
         };
     }
-    let res = await _users(db).updateOne({username: username}, {$set: {"appearance.weightedGPA": value}});
+    let res = await _users(db, username).updateOne({username: username}, {$set: {"appearance.weightedGPA": value}});
     if (res.matchedCount === 1) {
         return {success: true, data: {log: `Set weightedGPA to ${value} for ${username}`}};
     }
@@ -2079,7 +2177,7 @@ const _setWeightedGPA = async (db, username, value) => {
 
 const setTheme = (username, theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects) => safe(_setTheme, lower(username), lower(theme), darkModeStart, darkModeFinish, seasonalEffects, blurEffects);
 const _setTheme = async (db, username, theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects) => {
-    let res = await userExists({username: username});
+    let res = await getUser(username, {appearance: 1});
     if (!res.success) {
         return res;
     }
@@ -2128,7 +2226,7 @@ const _setTheme = async (db, username, theme, darkModeStart, darkModeFinish, sea
         setMap = {"appearance.blurEffects": blurEffects};
         message = "Blur effects " + (blurEffects ? "enabled" : "disabled") + "!";
     }
-    let res2 = await _users(db).updateOne({username: username}, {
+    let res2 = await _users(db, username).updateOne({username: username}, {
         $set: setMap
     });
     if (res2.matchedCount === 1) {
@@ -2154,7 +2252,7 @@ const _setShowMaxGPA = async (db, username, value) => {
     if (typeof value !== "boolean") {
         return {success: false, data: {message: "Something went wrong", log: `Invalid showMaxGPA value: ${value}`}};
     }
-    let res = await _users(db).updateOne({username: username}, {$set: {"appearance.showMaxGPA": value}});
+    let res = await _users(db, username).updateOne({username: username}, {$set: {"appearance.showMaxGPA": value}});
     if (res.matchedCount === 1) {
         return {success: true, data: {log: `Set showMaxGPA to ${value} for ${username}`}};
     }
@@ -2198,7 +2296,7 @@ const _setColorPalette = async (db, username, preset, shuffle) => {
             break;
         case "custom":
             if ((await getDonoAttributes(username)).data.value.plus) {
-                let res = await _users(db).updateOne({username: username}, {
+                let res = await _users(db, username).updateOne({username: username}, {
                     $set: {
                         "appearance.colorPalette": preset,
                     }
@@ -2215,7 +2313,7 @@ const _setColorPalette = async (db, username, preset, shuffle) => {
     if (shuffle) {
         shuffleArray(classColors);
     }
-    let res = await _users(db).updateOne({username: username}, {
+    let res = await _users(db, username).updateOne({username: username}, {
         $set: {
             "appearance.classColors": classColors,
             "appearance.colorPalette": preset,
@@ -2246,7 +2344,7 @@ const _updateCustomColor = async (db, username, index, color) => {
     if (!chroma.valid(color)) {
         return {success: false, data: {log: `Invalid color: ${color}`}};
     }
-    let res = await _users(db).findOneAndUpdate({username: username}, {$set: {[`appearance.classColors.${index}`]: color}}, {projection: {"appearance.classColors": 1}, returnDocument: "after"});
+    let res = await _users(db, username).findOneAndUpdate({username: username}, {$set: {[`appearance.classColors.${index}`]: color}}, {projection: {"appearance.classColors": 1}, returnDocument: "after"});
     if (res.ok) {
         return {success: true, data: {log: `Updated color for ${username}`, colors: res.value.appearance.classColors}};
     }
@@ -2267,7 +2365,7 @@ const _setEnableLogging = async (db, username, value) => {
             }
         };
     }
-    let res = await _users(db).updateOne({username: username}, {$set: {enableLogging: value}});
+    let res = await _users(db, username).updateOne({username: username}, {$set: {enableLogging: value}});
     if (res.matchedCount === 1) {
         return {
             success: true,
@@ -2288,7 +2386,7 @@ const _setAnimateWhenUnfocused = async (db, username, value) => {
             }
         };
     }
-    let res = await _users(db).updateOne({username: username}, {$set: {"appearance.animateWhenUnfocused": value}});
+    let res = await _users(db, username).updateOne({username: username}, {$set: {"appearance.animateWhenUnfocused": value}});
     if (res.matchedCount === 1) {
         return {
             success: true, data: {
@@ -2310,7 +2408,7 @@ const _setShowFps = async (db, username, value) => {
             }
         };
     }
-    let res = await _users(db).updateOne({username: username}, {$set: {"appearance.showFps": value}});
+    let res = await _users(db, username).updateOne({username: username}, {$set: {"appearance.showFps": value}});
     if (res.matchedCount === 1) {
         return {
             success: true, data: {
@@ -2334,7 +2432,7 @@ const _setShowUpdatePopup = async (db, username, value) => {
             }
         };
     }
-    let res = await _users(db).updateOne({username: username}, {$set: {"alerts.notificationSettings.showUpdatePopup": value}});
+    let res = await _users(db, username).updateOne({username: username}, {$set: {"alerts.notificationSettings.showUpdatePopup": value}});
     if (res.matchedCount === 1) {
         return {
             success: true, data: {
@@ -2371,7 +2469,7 @@ const _createNotification = async (db, username, id, type, title, message, dismi
     if (index !== -1) {
         return {success: false, data: {message: "Invalid ID", log: `Invalid createNotification id=${id}`}};
     }
-    res = await _users(db).updateOne({
+    res = await _users(db, username).updateOne({
         username: username
     }, {
         $push: {
@@ -2422,7 +2520,7 @@ const _updateNotification = async (db, username, id, update) => {
         realUpdate.dismissed = update.dismissed;
     }
 
-    res = await _users(db).updateOne({username: username}, {$set: set});
+    res = await _users(db, username).updateOne({username: username}, {$set: set});
     if (res.matchedCount === 1) {
         return {
             success: true, data: {
@@ -2434,7 +2532,7 @@ const _updateNotification = async (db, username, id, update) => {
 
 const deleteNotification = (username, id) => safe(_deleteNotification, lower(username), id);
 const _deleteNotification = async (db, username, id) => {
-    let res = await _users(db).updateOne({username: username}, {$pull: {"alerts.notifications": {id: id}}});
+    let res = await _users(db, username).updateOne({username: username}, {$pull: {"alerts.notifications": {id: id}}});
     if (res.matchedCount === 1) {
         socketManager.emitToRoom(username, "notification-delete", {id: id});
         return {
@@ -2470,7 +2568,7 @@ const _changePassword = async (db, username, oldPassword, newPassword) => {
             if (err) {
                 return resolve({success: false, data: {log: err, message: "Something went wrong"}});
             }
-            let res3 = await _users(db).updateOne({username: username}, {$set: {password: hash}});
+            let res3 = await _users(db, username).updateOne({username: username}, {$set: {password: hash}});
             if (res3.matchedCount === 0) {
                 return resolve({
                     success: false,
@@ -2505,7 +2603,7 @@ const _changeSchoolEmail = async (db, username, schoolUsername) => {
         return {success: false, data: {message: "This email is already associated with an account."}};
     }
     let {firstName, lastName, graduationYear} = getPersonalInfo(schoolUsername, user.school);
-    let res2 = await _users(db).updateOne({username: username}, {
+    let res2 = await _users(db, username).updateOne({username: username}, {
         $set: {
             schoolUsername: schoolUsername,
             personalInfo: {firstName: firstName, lastName: lastName, graduationYear: graduationYear}
@@ -2514,12 +2612,13 @@ const _changeSchoolEmail = async (db, username, schoolUsername) => {
     if (res2.matchedCount === 0) {
         return {success: false, data: {log: `Error updating school email`, message: "Something went wrong"}};
     }
+    await _usernames(db).updateOne({username: username}, {$set: {schoolUsername: schoolUsername}});
     return {success: true, data: {log: `Changed school username for ${username}`, message: "School Email Updated"}};
 };
 
 const disableGradeSync = (username) => safe(_disableGradeSync, lower(username));
 const _disableGradeSync = async (db, username) => {
-    let res = await _users(db).updateOne({username: username}, {$unset: {schoolPassword: ""}});
+    let res = await _users(db, username).updateOne({username: username}, {$unset: {schoolPassword: ""}});
     if (res.matchedCount === 1) {
         return {success: true, data: {log: `Disabled GradeSync for ${username}`}};
     }
@@ -2528,7 +2627,7 @@ const _disableGradeSync = async (db, username) => {
 
 const makeAdmin = (username) => safe(_makeAdmin, lower(username));
 const _makeAdmin = async (db, username) => {
-    let res = await _users(db).updateOne({username: username}, {$set: {isAdmin: true}});
+    let res = await _users(db, username).updateOne({username: username}, {$set: {isAdmin: true}});
     if (res.matchedCount === 1) {
         return {success: true, data: {log: `Made ${username} admin`, message: "Made user admin"}};
     }
@@ -2543,7 +2642,7 @@ const _removeAdmin = async (db, username, requester) => {
             data: {log: `Cannot remove own admin for ${username}`, message: "Cannot remove own admin"}
         };
     }
-    let res = await _users(db).updateOne({username: username}, {$set: {isAdmin: false}});
+    let res = await _users(db, username).updateOne({username: username}, {$set: {isAdmin: false}});
     if (res) {
         return {success: true, data: {log: `Made ${username} not admin`, message: "Made user not admin"}};
     }
@@ -2562,7 +2661,7 @@ const _logError = async (db, username, errorString) => {
             exists = await _errors().findOne({username: username, errorCode: errorCode});
         } while (exists);
         await _errors().insertOne({username: username, errorCode: errorCode, error: errorString});
-        await _users(db).updateOne({username: username}, {$push: {errors: errorCode}});
+        await _users(db, username).updateOne({username: username}, {$push: {errors: errorCode}});
     }
     return {success: true, data: {value: errorCode}};
 };
@@ -2647,7 +2746,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
             let newSemester = Object.keys(data["new_grades"][newTerm]);
             newSemester = newSemester[newSemester.length - 1]; // this should prob be another variable
             if (!(newTerm in user.grades)) {
-                await _users(db).updateOne({username: username}, {$set: {[`grades.${newTerm}`]: {}}});
+                await _users(db, username).updateOne({username: username}, {$set: {[`grades.${newTerm}`]: {}}});
             }
             let newGrades = data["new_grades"][newTerm][newSemester];
             let newClasses = newGrades.map(c => c.class_name);
@@ -2718,7 +2817,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                         delete editedAssignments.find(e => e.className === class_name).data[assignment.psaid];
                     }
                 }
-                await _users(db).updateOne({username: username}, {$set: {[`editedAssignments.${newTerm}.${newSemester}`]: editedAssignments}});
+                await _users(db, username).updateOne({username: username}, {$set: {[`editedAssignments.${newTerm}.${newSemester}`]: editedAssignments}});
             }
 
             let ps_locked = newGrades.filter(o => o.ps_locked === true).length !== 0;
@@ -2737,11 +2836,11 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
             };
             if (user.school === Schools.BISV) {
                 newGrades = data["new_grades"][newTerm];
-                await _users(db).updateOne({username: username}, {$set: {[`grades.${newTerm}`]: newGrades}});
+                await _users(db, username).updateOne({username: username}, {$set: {[`grades.${newTerm}`]: newGrades}});
                 let newWeights = data["new_weights"][newTerm];
-                await _users(db).updateOne({username: username}, {$set: {[`weights.${newTerm}`]: newWeights}});
+                await _users(db, username).updateOne({username: username}, {$set: {[`weights.${newTerm}`]: newWeights}});
             } else {
-                await _users(db).updateOne({username: username}, {$set: {[`grades.${newTerm}.${newSemester}`]: newGrades}});
+                await _users(db, username).updateOne({username: username}, {$set: {[`grades.${newTerm}.${newSemester}`]: newGrades}});
             }
             await initAddedAssignments(username);
             await initAddedWeights(username);
@@ -2758,7 +2857,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                 }
             }
 
-            await _users(db).updateOne({username: username}, {
+            await _users(db, username).updateOne({username: username}, {
                 $set: {updatedInBackground: SyncStatus.ALREADY_DONE},
                 $push: {"alerts.lastUpdated": {timestamp: time, changeData: changeData, ps_locked: ps_locked}}
             });
@@ -2821,7 +2920,7 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                     case Schools.BISV:
                         let newWeights = data["new_weights"];
                         let term = Object.keys(newWeights)[0];
-                        await _users(db).updateOne({username: username}, {$set: {[`weights.${term}._`]: newWeights[term]._}});
+                        await _users(db, username).updateOne({username: username}, {$set: {[`weights.${term}._`]: newWeights[term]._}});
                         break;
                     case Schools.BELL:
                     case Schools.NDSJ:
@@ -2843,13 +2942,13 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                                 }
                             }
                             if (!currentYears.includes(newYears[i])) {
-                                await _users(db).updateOne({username: username}, {$set: {[`grades.${newYears[i]}`]: data["new_grades"][newYears[i]]}});
+                                await _users(db, username).updateOne({username: username}, {$set: {[`grades.${newYears[i]}`]: data["new_grades"][newYears[i]]}});
                             } else {
                                 let currentSemesters = Object.keys(user.grades[newYears[i]]);
                                 let newSemesters = Object.keys(data["new_grades"][newYears[i]]);
                                 for (let j = 0; j < newSemesters.length; j++) {
                                     if (!currentSemesters.includes(newSemesters[j])) {
-                                        await _users(db).updateOne({username: username}, {$set: {[`grades.${newYears[i]}.${newSemesters[j]}`]: data["new_grades"][newYears[i]][newSemesters[j]]}});
+                                        await _users(db, username).updateOne({username: username}, {$set: {[`grades.${newYears[i]}.${newSemesters[j]}`]: data["new_grades"][newYears[i]][newSemesters[j]]}});
                                     } else {
                                         let newClasses = data["new_grades"][newYears[i]][newSemesters[j]];
                                         let oldClasses = user.grades[newYears[i]][newSemesters[j]];
@@ -2863,7 +2962,7 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                                                 newClasses[k].teacher_name = oldClass.teacher_name;
                                             }
                                         }
-                                        await _users(db).updateOne({username: username}, {$set: {[`grades.${newYears[i]}.${newSemesters[j]}`]: newClasses}});
+                                        await _users(db, username).updateOne({username: username}, {$set: {[`grades.${newYears[i]}.${newSemesters[j]}`]: newClasses}});
 
                                         let overall = {};
                                         if (oldClasses) {
@@ -2897,7 +2996,7 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                         await initWeights(username);
                 }
                 let time = Date.now();
-                await _users(db).updateOne({username: username}, {
+                await _users(db, username).updateOne({username: username}, {
                     $push: {
                         updatedGradeHistory: time,
                         "alerts.lastUpdated": {timestamp: time, changeData: changeData, ps_locked: false}
@@ -2932,7 +3031,7 @@ const _updateSortData = async (db, username, sortData) => {
     if (dateSort.filter((e) => typeof e !== "boolean").length !== 0 || categorySort.filter((e) => typeof e !== "boolean").length !== 0) {
         return {success: false, data: {log: `Invalid arrays dateSort or categorySort`}};
     }
-    let res = await _users(db).updateOne({username: username}, {
+    let res = await _users(db, username).updateOne({username: username}, {
         $set: {
             "sortingData": {dateSort: dateSort, categorySort: categorySort}
         }
@@ -2945,7 +3044,7 @@ const _updateSortData = async (db, username, sortData) => {
 
 const resetSortData = (username) => safe(_resetSortData, lower(username));
 const _resetSortData = async (db, username) => {
-    await _users(db).updateOne({username: username}, {
+    await _users(db, username).updateOne({username: username}, {
         $set: {
             sortingData: {
                 dateSort: [], categorySort: []
@@ -3004,7 +3103,7 @@ const _initAddedAssignments = async (db, username) => {
         }
     }
 
-    await _users(db).updateOne({username: username}, {$set: {addedAssignments: temp}});
+    await _users(db, username).updateOne({username: username}, {$set: {addedAssignments: temp}});
     return {success: true};
 };
 
@@ -3046,7 +3145,7 @@ const _initEditedAssignments = async (db, username) => {
         }
     }
 
-    await _users(db).updateOne({username: username}, {$set: {editedAssignments: temp}});
+    await _users(db, username).updateOne({username: username}, {$set: {editedAssignments: temp}});
     return {success: true};
 };
 
@@ -3104,7 +3203,7 @@ const _initWeights = async (db, username) => {
         }
     }
 
-    await _users(db).updateOne({username: username}, {$set: {weights: temp}});
+    await _users(db, username).updateOne({username: username}, {$set: {weights: temp}});
     return {success: true};
 };
 
@@ -3140,7 +3239,7 @@ const _initAddedWeights = async (db, username) => {
         }
     }
 
-    await _users(db).updateOne({username: username}, {$set: {addedWeights: temp}});
+    await _users(db, username).updateOne({username: username}, {$set: {addedWeights: temp}});
     return {success: true};
 };
 
@@ -3344,7 +3443,7 @@ const _updateAddedAssignments = async (db, username, addedAssignments, term, sem
             set["$set"][`addedWeights.${term}.${semester}.${index}.weights`] = addedWeights;
             user.addedWeights[term][semester][index].weights = addedWeights;
         }
-        await _users(db).updateOne({username: username}, set);
+        await _users(db, username).updateOne({username: username}, set);
     }
 
     return {success: true, data: !returnAddedWeights ? {} : {addedWeights: user.addedWeights[term][semester]}};
@@ -3422,7 +3521,7 @@ const _updateEditedAssignments = async (db, username, editedAssignments, term, s
                 return {success: false, data: {prodLog: `editedAssignments has invalid values`}};
             }
         }
-        await _users(db).updateOne({username: username}, {$set: {[`editedAssignments.${term}.${semester}.${index}`]: editedAssignments[i]}});
+        await _users(db, username).updateOne({username: username}, {$set: {[`editedAssignments.${term}.${semester}.${index}`]: editedAssignments[i]}});
     }
 
     return {success: true};
@@ -3437,7 +3536,7 @@ const _getSyncStatus = async (db, username) => {
     let user = res.data.value;
     let syncStatus = user.updatedInBackground;
     if (syncStatus === SyncStatus.COMPLETE) {
-        await _users(db).updateOne({username: username}, {$set: {updatedInBackground: SyncStatus.ALREADY_DONE}});
+        await _users(db, username).updateOne({username: username}, {$set: {updatedInBackground: SyncStatus.ALREADY_DONE}});
         return {success: true, data: {message: "Sync Complete!"}};
     } else if (syncStatus === SyncStatus.ALREADY_DONE) {
         return {success: true, data: {message: "Already Synced!"}};
@@ -3478,7 +3577,7 @@ const _setSyncStatus = async (db, username, value) => {
     if (!Object.values(SyncStatus).includes(value) && !value.startsWith(`${SyncStatus.FAILED}-`)) {
         return {success: false, data: {log: `Invalid sync status: ${value}`}};
     }
-    let res = await _users(db).updateOne({username: username}, {$set: {updatedInBackground: value}});
+    let res = await _users(db, username).updateOne({username: username}, {$set: {updatedInBackground: value}});
     if (res.matchedCount === 1) {
         return {success: true, data: {log: `Set sync status for ${username} to ${value}`}};
     }
@@ -3488,7 +3587,7 @@ const _setSyncStatus = async (db, username, value) => {
 const latestVersionSeen = (username) => safe(_latestVersionSeen, lower(username));
 const _latestVersionSeen = async (db, username) => {
     let version = latestVersion(_beta);
-    let res = await _users(db).updateOne({username: username}, {$set: {"alerts.latestSeen": version}});
+    let res = await _users(db, username).updateOne({username: username}, {$set: {"alerts.latestSeen": version}});
     if (res.matchedCount === 1) {
         return {success: true, data: {log: `Set latest seen for ${username} to ${version}`}};
     }
@@ -3501,13 +3600,13 @@ const _updateTutorial = async (db, username, action) => {
         return {success: false, data: {log: `Invalid action: ${action}`}};
     }
 
-    let res = await _users(db).findOneAndUpdate({username: username}, {$set: {[`alerts.tutorialStatus.${action}`]: true}}, {returnDocument: "after"});
+    let res = await _users(db, username).findOneAndUpdate({username: username}, {$set: {[`alerts.tutorialStatus.${action}`]: true}}, {returnDocument: "after"});
     return {success: true, data: {value: res.value.alerts.tutorialStatus}};
 };
 
 const resetTutorial = (username) => safe(_resetTutorial, lower(username));
 const _resetTutorial = async (db, username) => {
-    let res = await _users(db).findOneAndUpdate({username: username}, {
+    let res = await _users(db, username).findOneAndUpdate({username: username}, {
         $set: {
             "alerts.tutorialStatus": Object.fromEntries(tutorialKeys.map(key => [key, false]))
         }
@@ -3619,7 +3718,7 @@ const _removeBetaKey = async (db, betaKey) => {
 const joinBeta = (username) => safe(_joinBeta, lower(username));
 const _joinBeta = async (db, username) => {
     let featureObject = betaFeatures();
-    let res = await _users(db).updateOne({username: username}, {$set: {betaFeatures: featureObject}});
+    let res = await _users(db, username).updateOne({username: username}, {$set: {betaFeatures: featureObject}});
     if (res.matchedCount === 1) {
         return {success: true, data: {log: `Joined beta for ${username}`}};
     }
@@ -3629,7 +3728,7 @@ const _joinBeta = async (db, username) => {
 const updateBetaFeatures = (username, features) => safe(_updateBetaFeatures, lower(username), features);
 const _updateBetaFeatures = async (db, username, features) => {
     let featureObject = betaFeatures(features);
-    let res = await _users(db).updateOne({username: username}, {$set: {betaFeatures: featureObject}});
+    let res = await _users(db, username).updateOne({username: username}, {$set: {betaFeatures: featureObject}});
     if (res.matchedCount === 1) {
         return {success: true, data: {log: `Updated beta features for ${username}`}};
     }
@@ -3638,7 +3737,7 @@ const _updateBetaFeatures = async (db, username, features) => {
 
 const leaveBeta = (username) => safe(_leaveBeta, lower(username));
 const _leaveBeta = async (db, username) => {
-    let res = await _users(db).updateOne({username: username}, {$set: {betaFeatures: {active: false}}});
+    let res = await _users(db, username).updateOne({username: username}, {$set: {betaFeatures: {active: false}}});
     if (res.matchedCount === 1) {
         return {success: true, data: {log: `Left beta for ${username}`}};
     }
@@ -3647,17 +3746,21 @@ const _leaveBeta = async (db, username) => {
 
 const checkPasswordResetToken = (token) => safe(_checkPasswordResetToken, token);
 const _checkPasswordResetToken = async (db, token) => {
-    let user = await _users(db).findOne({passwordResetToken: token});
+    let user = await getAllUsers({schoolPassword: 1, passwordResetTokenExpire: 1, username: 1, school: 1}, {passwordResetToken: token});
     let valid = user && user.passwordResetTokenExpire > Date.now();
     let gradeSync = !!user.schoolPassword;
-    return {success: true, data: {user: user, valid: valid, gradeSync: gradeSync}};
+    return {success: true, data: {username: user?.username, school: user?.school, valid: valid, gradeSync: gradeSync}};
 };
 
 const resetPasswordRequest = (schoolUsername) => safe(_resetPasswordRequest, lower(schoolUsername));
 const _resetPasswordRequest = async (db, schoolUsername) => {
     let token = makeKey(20);
 
-    let res = await _users(db).findOneAndUpdate({schoolUsername: schoolUsername}, {
+    let username = await _usernames(db).findOne({schoolUsername: schoolUsername});
+    if (!username) {
+        return {success: false}
+    }
+    let res = await _users(db, username.username).findOneAndUpdate({schoolUsername: schoolUsername}, {
         $set: {
             passwordResetToken: token, passwordResetTokenExpire: Date.now() + 1000 * 60 * 60 * 24
         }
@@ -3672,7 +3775,7 @@ const resetPassword = (token, newPassword) => safe(_resetPassword, token, newPas
 const _resetPassword = async (db, token, newPassword) => {
     return new Promise(async resolve => {
         let res = await checkPasswordResetToken(token);
-        let {user, valid, gradeSync} = res.data;
+        let {username, valid, gradeSync} = res.data;
         if (!valid) {
             return resolve({success: false, data: {message: "Invalid token."}});
         }
@@ -3686,13 +3789,11 @@ const _resetPassword = async (db, token, newPassword) => {
             await disableGradeSync(user.username);
         }
 
-        let username = user.username;
-
         bcrypt.hash(newPassword, ROUNDS_TO_GENERATE_SALT, async (err, hash) => {
             if (err) {
                 return resolve({success: false, data: {log: err, message: "Something went wrong"}});
             }
-            let res3 = await _users(db).updateOne({username: username}, {
+            let res3 = await _users(db, username).updateOne({username: username}, {
                 $set: {password: hash}, $unset: {passwordResetTokenExpire: "", passwordResetToken: ""}
             });
             if (res3.matchedCount === 0) {
@@ -4181,7 +4282,7 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
     //Update weights
     let temp = {className: className, weights: modWeights, hasWeights: hasWeights, custom: custom};
     let temp2 = {className: className, weights: addedWeights};
-    await _users(db).updateOne({
+    await _users(db, username).updateOne({
         username: username, [`weights.${term}.${semester}.className`]: className
     }, {
         $set: {
@@ -4252,78 +4353,6 @@ const _getRelevantClassData = async (db, username, term, semester) => {
                 projection: projection
             });
 
-            let teachers = (await db.collection(classesCollection(school)).findOne(query, {
-                projection: {teachers: {teacherName: 1}}
-            }))?.teachers.map(t => t.teacherName).filter(t => t) ?? [];
-
-            let classAverages = {};
-            let userCounts = {};
-            for (let teacher of teachers) {
-                let userCountQuery = {
-                    [`grades.${userClass.term}.${userClass.semester}`]: {
-                        $elemMatch: {
-                            class_name: userClass.className, teacher_name: teacher
-                        }
-                    }
-                };
-                let userCountProjection = {
-                    [`grades.${userClass.term}.${userClass.semester}.$`]: 1
-                };
-                let users = await _users(db).find(userCountQuery, {projection: userCountProjection}).toArray();
-
-                userCounts[teacher] = users.length;
-
-                let validScores = users.map(u => u.grades[userClass.term][userClass.semester][0].overall_percent).filter(g => g !== false);
-
-                if (validScores.length < minUsersForAverageCalc) {
-                    classAverages[teacher] = null;
-                    continue;
-                }
-                classAverages[teacher] = validScores.reduce((a, b) => a + b, 0) / validScores.length;
-            }
-
-            let assignmentAverages = {};
-
-            if (userClass.term === term && userClass.semester === semester) {
-                let filteredGrades = userClass.grades.filter(g => g.grade_percent !== false);
-                if (filteredGrades.length > 0) {
-                    let assignment = filteredGrades[filteredGrades.length - 1];
-
-                    if (assignment.psaid !== false) {
-                        let assignmentAverageQuery = {
-                            [`grades.${userClass.term}.${userClass.semester}`]: {
-                                $elemMatch: {
-                                    class_name: userClass.className,
-                                    teacher_name: userClass.teacherName,
-                                    grades: {
-                                        $elemMatch: {
-                                            psaid: assignment.psaid
-                                        }
-                                    }
-                                }
-                            }
-                        };
-
-                        let users = await _users(db).find(assignmentAverageQuery, {projection: {[`grades.${userClass.term}.${userClass.semester}.$`]: 1}}).toArray();
-
-                        let validScores = users.map(u => {
-                            let grade = u.grades[userClass.term][userClass.semester][0].grades.filter(g => g.psaid === assignment.psaid && g.grade_percent !== false);
-                            if (grade.length) {
-                                return grade[0].grade_percent;
-                            } else {
-                                return false;
-                            }
-                        }).filter(s => s !== false);
-
-                        assignmentAverages[`${assignment.psaid}`] = {};
-                        if (validScores.length >= minUsersForAverageCalc) {
-                            assignmentAverages[`${assignment.psaid}`].average = validScores.reduce((a, b) => a + b, 0) / validScores.length;
-                        }
-                        assignmentAverages[`${assignment.psaid}`].numUsers = validScores.length;
-                    }
-                }
-            }
-
             let nonAcademicOverride = userClass.className.startsWith("Cura");
             nonAcademicOverride ||= userClass.className.endsWith("Cross Country");
             nonAcademicOverride ||= userClass.className.endsWith("Track");
@@ -4344,9 +4373,6 @@ const _getRelevantClassData = async (db, username, term, semester) => {
                 "description": rawData?.description,
                 "prereq": rawData?.prereq,
                 "review": rawData?.review,
-                "userCounts": userCounts,
-                "classAverages": classAverages,
-                "assignmentAverages": assignmentAverages,
                 "gradeLevels": rawData?.grade_levels
             };
         }
@@ -4355,10 +4381,54 @@ const _getRelevantClassData = async (db, username, term, semester) => {
     return {success: true, data: {value: relClasses}};
 };
 
+const getUserCounts = (username, term, semester, className) => safe(_getUserCounts, lower(username), term, semester, className);
+const _getUserCounts = async (db, username, term, semester, className) => {
+    let res = await getUser(username, {school: 1, donoData: 1});
+    if (!res.success) {
+        return res;
+    }
+    let {plus} = (await __getDonoAttributes(res.data.value.donoData)).data.value;
+    let teachers;
+
+    if (plus) {
+        teachers = (await db.collection(classesCollection(res.data.value.school)).findOne({
+            term: term,
+            semester: semester,
+            className: className
+        }, {
+            projection: {teachers: {teacherName: 1}}
+        }))?.teachers.map(t => t.teacherName).filter(t => t) ?? [];
+    } else {
+        let res = (await getUser(username, {[`grades.${term}.${semester}`]: 1}));
+        if (!res.success) {
+            return res;
+        }
+        teachers = res.data.value.grades[term][semester].filter(c => c.class_name === className).map(c => c.teacher_name).filter(t => t !== false);
+        if (!teachers.length) {
+            return {success: true, data: {value: {}}};
+        }
+    }
+
+    let userCounts = {};
+    for (let teacher of teachers) {
+        let userCountQuery = {
+            [`grades.${term}.${semester}`]: {
+                $elemMatch: {
+                    class_name: className, teacher_name: teacher
+                }
+            }
+        };
+        let users = (await getAllUsers({username: 1}, userCountQuery)).data.value;
+
+        userCounts[teacher] = users.length;
+    }
+
+    return {success: true, data: {value: userCounts}};
+}
+
 const getAssignmentAverage = (username, term, semester, className, assignmentPSAID) => safe(_getAssignmentAverage, lower(username), term, semester, className, assignmentPSAID);
 const _getAssignmentAverage = async (db, username, term, semester, className, assignmentPSAID) => {
     let donoAttr = (await getDonoAttributes(username)).data.value;
-    if (!donoAttr.premium) return {success: false}; // The included assignment average will already be in relClassData
 
     let res = await getUser(username, {grades: 1});
     if (!res.success) {
@@ -4398,6 +4468,8 @@ const _getAssignmentAverage = async (db, username, term, semester, className, as
         return {success: false};
     }
 
+    if (assignmentIndex !== grades.length - 1 && !donoAttr.premium) return {success: false}; // Only the first average can be viewed without premium
+
     let assignmentAverageQuery = {
         [`grades.${term}.${semester}`]: {
             $elemMatch: {
@@ -4412,16 +4484,16 @@ const _getAssignmentAverage = async (db, username, term, semester, className, as
         }
     };
 
-    let users = await _users(db).find(assignmentAverageQuery, {projection: {[`grades.${term}.${semester}.$`]: 1}}).toArray();
+    let users = (await getAllUsers({[`grades.${term}.${semester}`]: 1}, assignmentAverageQuery)).data.value;
 
     let validScores = users.map(u => {
-        let grade = u.grades[term][semester][0].grades.filter(g => g.psaid === assignmentPSAID && g.grade_percent !== false);
+        let grade = u.grades[term][semester].find(c => c.class_name === className).grades.filter(g => g.psaid === assignmentPSAID && g.grade_percent !== false);
         if (grade.length) {
             return grade[0].grade_percent;
         } else {
             return false;
         }
-    }).filter(s => s !== false);
+    }).filter(s => s !== false).map(s => parseFloat(s));
 
     let assignmentAverage = {};
     if (validScores.length >= minUsersForAverageCalc) {
@@ -4461,7 +4533,7 @@ const _addDonation = async (db, data) => {
     if (!res.success) {
         return res;
     }
-    res = await _users(db).updateOne({
+    res = await _users(db, username).updateOne({
         username: username
     }, {
         $push: {
@@ -4512,7 +4584,7 @@ const _removeDonation = async (db, username, index) => {
     }
 
     let id = `${donation.platform}-${donation.dateDonated}-${donation.paidValue}-${donation.receivedValue}-${donation.dateEntered}`;
-    await _users(db).updateOne({username: username}, {
+    await _users(db, username).updateOne({username: username}, {
         $set: {donoData: donoData}, $pull: {"alerts.notifications": {id: id}}
     });
 
@@ -4619,7 +4691,7 @@ const _getTrimmedAlerts = async (db, username, term, semester) => {
         ];
     }
 
-    res = (await db.collection(USERS_COLLECTION_NAME).aggregate(aggregation).toArray())[0].alerts;
+    res = (await _users(db, username).aggregate(aggregation).toArray())[0].alerts;
 
     return {success: true, data: {value: res}};
 };
@@ -4639,11 +4711,16 @@ const _createPairingKey = async (db, username) => {
         pairKey = makeKey(6);
     } while ((await apiPairExists(pairKey)).success);
     let pairKeyExpire = Date.now() + 1000 * 60 * 10;
-    await _users(db).updateOne({username: username}, {
+    await _users(db, username).updateOne({username: username}, {
         $unset: {
             "api.apiKey": "", "api.apiKeyCreated": ""
         }, $set: {"api.pairKey": pairKey, "api.pairKeyExpire": pairKeyExpire}
     });
+    await _usernames(db).updateOne({username: username}, {
+        $unset: {
+            "api.apiKey": "",
+        }, $set: {"api.pairKey": pairKey}
+    })
     return {success: true, data: {value: {pairKey: pairKey, pairKeyExpire: pairKeyExpire}}};
 };
 
@@ -4654,9 +4731,14 @@ const _deletePairingKey = async (db, username) => {
         return res;
     }
 
-    await _users(db).updateOne({username: username}, {
+    await _users(db, username).updateOne({username: username}, {
         $unset: {
             "api.pairKey": "", "api.pairKeyExpire": ""
+        }
+    });
+    await _usernames(db).updateOne({username: username}, {
+        $unset: {
+            "api.pairKey": "",
         }
     });
     return {success: true};
@@ -4669,9 +4751,14 @@ const _deleteApiKey = async (db, username) => {
         return res;
     }
 
-    await _users(db).updateOne({username: username}, {
+    await _users(db, username).updateOne({username: username}, {
         $unset: {
             "api.apiKey": "", "api.apiKeyCreated": ""
+        }
+    });
+    await _usernames(db).updateOne({username: username}, {
+        $unset: {
+            "api.apiKey": ""
         }
     });
     return {success: true};
@@ -4710,7 +4797,7 @@ const _discordVerify = async (db, username, verificationCode) => {
     }
 
     // Update account with verified ID and remove verification process data
-    await _users(db).updateOne({
+    await _users(db, username).updateOne({
         username: username
     }, {
         $set: {
@@ -4719,7 +4806,7 @@ const _discordVerify = async (db, username, verificationCode) => {
             "discord.unverifiedDiscordID": "", "discord.verificationCode": "", "discord.expires": ""
         }
     });
-
+    await _usernames(db).updateOne({username: username}, {$set: {"discord.discordID": user.discord.unverifiedDiscordID}});
 
     return {success: true, data: {message: "Successfully linked Discord account"}};
 };
@@ -4729,28 +4816,34 @@ const _apiPair = async (db, pairKey) => {
     if (typeof pairKey !== "string" && !(pairKey instanceof String) || pairKey.length !== 6) {
         return {success: false, data: {message: "Invalid pairing key"}};
     }
-    let user = await _users(db).findOne({"api.pairKey": pairKey});
-    if (user) {
-        if (user.api.pairKeyExpire > Date.now()) {
-            let apiKey;
-            do {
-                apiKey = makeKey(24);
-            } while ((await apiAuthenticate(apiKey)).success);
-            await _users(db).updateOne({"api.pairKey": pairKey}, {
-                $unset: {
-                    "api.pairKey": "", "api.pairKeyExpire": ""
-                }, $set: {"api.apiKey": apiKey, "api.apiKeyCreated": Date.now()}
-            });
-            return {success: true, data: {value: apiKey}};
-        }
-        return {success: false, data: {message: "This pairing key has expired"}};
+    let res = await _usernames(db).findOne({"api.pairKey": pairKey}, {projection: {username: 1}});
+    if (!res) {
+        return {success: false, data: {message: "Invalid pairing key"}};
     }
-    return {success: false, data: {message: "Invalid pairing key"}};
+    let user = await _users(db, res.username).findOne({"api.pairKey": pairKey});
+    if (user.api.pairKeyExpire > Date.now()) {
+        let apiKey;
+        do {
+            apiKey = makeKey(24);
+        } while ((await apiAuthenticate(apiKey)).success);
+        await _users(db, res.username).updateOne({"api.pairKey": pairKey}, {
+            $unset: {
+                "api.pairKey": "", "api.pairKeyExpire": ""
+            }, $set: {"api.apiKey": apiKey, "api.apiKeyCreated": Date.now()}
+        });
+        await _usernames(db).updateOne({username: res.username}, {$set: {"api.apiKey": apiKey}});
+        return {success: true, data: {value: apiKey}};
+    }
+    return {success: false, data: {message: "This pairing key has expired"}};
 };
 
 const apiPairExists = (pairKey) => safe(_apiPairExists, pairKey);
 const _apiPairExists = async (db, pairKey) => {
-    let user = await _users(db).findOne({"api.pairKey": pairKey});
+    let res = await _usernames(db).findOne({"api.pairKey": pairKey}, {projection: {username: 1}});
+    if (!res) {
+        return {success: false, data: {message: "Invalid pairing key"}};
+    }
+    let user = await _users(db, res.username).findOne({"api.pairKey": pairKey});
     if (user) {
         return {success: true};
     }
@@ -4762,7 +4855,11 @@ const _apiAuthenticate = async (db, apiKey) => {
     if (typeof apiKey !== "string" && !(apiKey instanceof String) || apiKey.length !== 24) {
         return {success: false, data: {message: "Invalid API key"}};
     }
-    let user = await _users(db).findOne({"api.apiKey": apiKey});
+    let res = await _usernames(db).findOne({"api.apiKey": apiKey}, {projection: {username: 1}});
+    if (!res) {
+        return {success: false, data: {message: "Invalid pairing key"}};
+    }
+    let user = await _users(db, res.username).findOne({"api.apiKey": apiKey});
     if (user) {
         return {success: true};
     }
@@ -4775,7 +4872,12 @@ const _apiGetUser = async (db, apiKey, projection) => {
     if (!!projection) {
         projection["api.apiKey"] = 1;
     }
-    let user = await _users(db).findOne(query, projection);
+
+    let res = await _usernames(db).findOne(query, {projection: {username: 1}});
+    if (!res) {
+        return {success: false, data: {message: "Invalid api key"}};
+    }
+    let user = await _users(db, res.username).findOne(query, {projection: projection});
     if (!user) {
         return {
             success: false, data: {log: `No user found with given parameters: apiKey=${apiKey}`}
@@ -4867,7 +4969,7 @@ const _internalApiDiscordConnect = async (db, username, discordID) => {
     await deleteNotification(username, "discord-verified");
 
     // Store the verification code, the notification, and the unverified discord ID in the database
-    await _users(db).updateOne({username: username}, {
+    await _users(db, username).updateOne({username: username}, {
         $set: {
             discord: {
                 verificationCode: verificationCode, expires: expires, unverifiedDiscordID: discordID
@@ -4891,9 +4993,14 @@ const _internalApiDiscordUserInfo = async (db, discordID) => {
         // Case where the Discord ID is invalid
         return {success: false, data: {errorCode: 1}};
     }
-    let user = await _users(db).findOne({"discord.discordID": discordID}, {
+    let res = await _usernames(db).findOne({"discord.discordID": discordID}, {projection: {username: 1}});
+    if (!res) {
+        // Case where the user has not connected their account yet
+        return {success: false, data: {errorCode: 5}};
+    }
+    let user = await _users(db, res.username).findOne({"discord.discordID": discordID}, {projection: {
         school: 1, donoData: 1
-    });
+    }});
     if (!user) {
         // Case where the user has not connected their account yet
         return {success: false, data: {errorCode: 5}};
@@ -5011,6 +5118,7 @@ module.exports = {
     updateWeightsForClass: updateWeightsForClass,
     getRelevantClassData: getRelevantClassData,
     getAssignmentAverage: getAssignmentAverage,
+    getUserCounts: getUserCounts,
     addDonation: addDonation,
     removeDonation: removeDonation,
     getDonoData: getDonoData,

@@ -55,7 +55,7 @@ td, th {
 }
 
 :disabled {
-    background-color: #222222 !important;
+    background-color: #555555 !important;
 }
 
 .blurred-background {
