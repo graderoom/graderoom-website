@@ -50,6 +50,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 6.5.9] - 2024-02-12
+### Fixed
+- <github issue="181">Fix analytics page (broken after db restructure)</github>
+
 ## [Stable 6.5.8] - 2024-02-09
 ### Improved
 - The maintenance page is no longer the default timeout/error page
