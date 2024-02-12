@@ -2,11 +2,13 @@ const {MongoClient} = require("mongodb");
 const {
     BETA_DATABASE_NAME,
     STABLE_DATABASE_NAME,
-    USERS_COLLECTION_NAME,
     ARCHIVED_USERS_COLLECTION_NAME,
     CHARTS_COLLECTION_NAME,
     isNotToday
 } = require("./dbHelpers");
+const {
+    _getAllUsers
+} = require("./dbClient");
 
 let url = process.argv[2];
 let beta = process.argv[3] === "true";
@@ -53,7 +55,7 @@ async function run() {
         ]
     };
     // All users with new data since lastUpdatedCharts but before today
-    let allUsers = (await db.collection(USERS_COLLECTION_NAME).find(query, {projection: projection}).toArray())
+    let allUsers = (await _getAllUsers(db, projection, query)).data.value
         .concat(await db.collection(ARCHIVED_USERS_COLLECTION_NAME).find(query, {projection: projection}).toArray());
     console.log(`${allUsers.length} users!`);
     if (allUsers.length > 0) {
@@ -128,7 +130,7 @@ async function run() {
     }
 
     time = Date.now();
-    let actualAllUsers = (await db.collection(USERS_COLLECTION_NAME).find({}, {projection: {"loggedIn": 1, 'personalInfo.graduationYear': 1}}).toArray())
+    let actualAllUsers = (await _getAllUsers(db, {"loggedIn": 1, 'personalInfo.graduationYear': 1})).data.value
         .concat(await db.collection(ARCHIVED_USERS_COLLECTION_NAME).find({}, {projection: {"loggedIn": 1, 'personalInfo.graduationYear': 1}}).toArray());
 
     // Might be workaround for this, but I can't figure it out at the moment

@@ -1225,6 +1225,8 @@ const __version25 = async (db, user) => {
     }
 }
 
+
+
 const initUser = (username) => safe(_initUser, lower(username));
 const _initUser = async (db, username) => {
     let res = await getUser(username, {"alerts.tutorialStatus": 1, betaFeatures: 1});
@@ -1585,21 +1587,6 @@ const _getClass = async (db, school, className, term, semester, projection, addi
 const getAllUsers = (projection, query, sort, page, count) => safe(_getAllUsers, projection, query, sort, page, count);
 const _getAllUsers = async (db, projection, query, sort, page, count) => {
     query = query ?? {};
-    if ('username' in query && query.username.length) {
-        let section = query.username[0];
-        let value = _users(db, section).find(query, {projection: projection});
-        if (sort) {
-            value = value.sort(sort);
-        }
-        if (page && count) {
-            value = value.skip((page - 1) * count).limit(count);
-        }
-        value = await value.toArray(); // js kinda cool I can just await the promise at the very end??
-        return {
-            success: true,
-            data: {value: value, actualCount: value.length, total: await _usernames(db).estimatedDocumentCount()}
-        };
-    }
 
     let aggregation = [{
         $match: query,
@@ -5031,6 +5018,7 @@ module.exports = {
     getUser: getUser,
     getClass: getClass,
     getAllUsers: getAllUsers,
+    _getAllUsers: _getAllUsers,
     getAllClasses: getAllClasses,
     getChartData: getChartData,
     getLoggedInData: getLoggedInData,
