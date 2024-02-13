@@ -1551,7 +1551,7 @@
                 return {updated: true};
             }
             clearTimeout(checkLastUpdated);
-            return {updated: true};
+            return {updated: false};
         }
 
         function disableScrolling() {
@@ -4494,7 +4494,7 @@
                     showCard("#shortcutsDisplay");
                 }
             } else if (["a", "A"].includes(e.key)) {
-                if (currentPage === -1 || cardsDisplayed.length != 0 || !(Object.keys(weights[currentPage].weights).length + Object.keys(addedWeights[currentPage].weights).length)) {
+                if (currentPage === -1 || cardsDisplayed.length != 0) {
                     return;
                 }
                 if ($($(".add-assignment-container")[currentPage]).hasClass("active")) {
