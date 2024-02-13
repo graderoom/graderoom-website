@@ -50,6 +50,12 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 6.5.10] - 2024-02-13
+### Fixed
+- <github issue="183">Fix issue where syncing assignments with new categories breaks editing weights until refresh</github>
+- Fixed issue with sync log showing [Removed] after a sync that brought in new categories.
+- "a" shortcut for adding assignments now works even if a class has no assignments at all.
+
 ## [Stable 6.5.9] - 2024-02-12
 ### Fixed
 - <github issue="181">Fix analytics page (broken after db restructure)</github>
