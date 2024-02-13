@@ -54,6 +54,7 @@
 ### Fixed
 - <github issue="183">Fix issue where syncing assignments with new categories breaks editing weights until refresh</github>
 - Fixed issue with sync log showing [Removed] after a sync that brought in new categories.
+- "a" shortcut for adding assignments now works even if a class has no assignments at all.
 
 ## [Stable 6.5.9] - 2024-02-12
 ### Fixed
