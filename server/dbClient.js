@@ -4626,9 +4626,9 @@ const _getTrimmedAlerts = async (db, username, term, semester) => {
 
     let {term: latestTerm, semester: latestSemester} = (await _getMostRecentTermData(db, username)).data.value;
 
-    let latest = res.data.value.alerts.lastUpdated.length > 0 ? res.data.value.alerts.lastUpdated.slice(-1)[0] : null;
+    let exists = res.data.value.alerts.lastUpdated.length > 0;
     let aggregation;
-    if (term !== latestTerm || semester !== latestSemester || latest === null) {
+    if (term !== latestTerm || semester !== latestSemester || !exists) {
         aggregation = [
             {
                 $match: {
@@ -4639,10 +4639,10 @@ const _getTrimmedAlerts = async (db, username, term, semester) => {
                     alerts: 1
                 }
             }, {
-                $unset: 'alerts.lastUpdated'
-            }, {
                 $addFields: {
-                    alerts: {lastUpdated: latest !== null ? [latest] : []}
+                    "alerts.lastUpdated": {
+                        $slice: ["$alerts.lastUpdated", -1]
+                    }
                 }
             }
         ]
@@ -4666,11 +4666,9 @@ const _getTrimmedAlerts = async (db, username, term, semester) => {
                 }
             }, {
                 $addFields: {
-                    alerts: {
-                        lastUpdated: {
-                            $filter: {
-                                input: "$alerts.lastUpdated", as: "updateObj", cond: cond
-                            }
+                    "alerts.lastUpdated": {
+                        $filter: {
+                            input: "$alerts.lastUpdated", as: "updateObj", cond: cond
                         }
                     }
                 }
