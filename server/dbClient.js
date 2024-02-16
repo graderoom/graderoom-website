@@ -160,7 +160,7 @@ const _init = async (db) => {
                 await _users(db, user.username).insertOne(user);
             }
         }
-    } else {
+    } else if (!collectionNames.includes(`${USERS_COLLECTION_NAME}_0`)) {
         for (let i = 0; i < 10; i++) {
             let collectionName = `${USERS_COLLECTION_NAME}_${i}`;
             await db.createCollection(collectionName);
