@@ -135,26 +135,45 @@ const _init = async (db) => {
         }
     }
     // Create the user collection if it doesn't exist
-    if (!collectionNames.includes(USERS_COLLECTION_NAME)) {
-        await db.createCollection(USERS_COLLECTION_NAME);
-    }
+    if (collectionNames.includes(USERS_COLLECTION_NAME)) {
+        // Split users into multiple collections based on username
+        if (!collectionNames.includes(`${USERS_COLLECTION_NAME}_0`)) {
+            await db.createCollection(SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME);
+            await db.collection(SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME).createIndex({schoolUsername: 1}, {
+                unique: true,
+                name: "schoolUsername_1"
+            });
 
-    // Split users into multiple collections based on username
-    if (!collectionNames.includes(`${USERS_COLLECTION_NAME}_0`)) {
-        await db.createCollection(SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME);
-        await db.collection(SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME).createIndex({schoolUsername: 1}, {unique: true, name: "schoolUsername_1"})
+            for (let i = 0; i < 10; i++) {
+                let collectionName = `${USERS_COLLECTION_NAME}_${i}`;
+                await db.createCollection(collectionName);
+                await db.collection(collectionName).createIndex({username: 1}, {unique: true, name: "username_1"});
+            }
 
+            let users = await db.collection(USERS_COLLECTION_NAME).find().toArray();
+            for (let user of users) {
+                await db.collection(SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME).insertOne({
+                    username: user.username,
+                    schoolUsername: user.schoolUsername,
+                    hash: hash(user.username)
+                });
+                await _users(db, user.username).insertOne(user);
+            }
+        }
+    } else {
         for (let i = 0; i < 10; i++) {
             let collectionName = `${USERS_COLLECTION_NAME}_${i}`;
             await db.createCollection(collectionName);
             await db.collection(collectionName).createIndex({username: 1}, {unique: true, name: "username_1"});
         }
 
-        let users = await db.collection(USERS_COLLECTION_NAME).find().toArray();
-        for (let user of users) {
-            await db.collection(SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME).insertOne({username: user.username, schoolUsername: user.schoolUsername, hash: hash(user.username)});
-            await _users(db, user.username).insertOne(user);
-        }
+        await db.createCollection(SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME);
+        await db.collection(SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME).createIndex({schoolUsername: 1}, {
+            unique: true,
+            name: "schoolUsername_1"
+        });
+
+        await addUser(Schools.BELL, "admin", "Pa5sw0rd", "change.me21@bcp.org", true);
     }
 
     // Create the deleted user collection if it doesn't exist
@@ -246,7 +265,12 @@ const _addUser = async (db, school, username, password, schoolUsername, isAdmin,
 
 const __addUser = async (db, user) => {
     if (!(await userExists({username: user.username, schoolUsername: user.schoolUsername})).success) {
-        await _usernames(db).insertOne({username: user.username, schoolUsername: user.schoolUsername, api: user.api, discord: user.discord});
+        await _usernames(db).insertOne({
+            username: user.username,
+            schoolUsername: user.schoolUsername,
+            api: user.api,
+            discord: user.discord
+        });
         await _users(db, user.username).insertOne(user);
         return {success: true, data: {log: `Created user ${user.username}`, message: "User Created"}};
     } else {
@@ -1225,6 +1249,41 @@ const __version25 = async (db, user) => {
     }
 }
 
+const _version26 = async (db, username) => {
+    let res = await getUser(username, {version: 1, discord: 1, api: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version26, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 26`}};
+};
+
+const __version26 = async (db, user) => {
+    if (user.version === 25) {
+        let set = {};
+        if ("discordID" in user.discord) {
+            set["discord.discordID"] = user.discord.discordID;
+        } else {
+            set["discord"] = {};
+        }
+        if ("apiKey" in user.api) {
+            set["api.apiKey"] = user.api.apiKey;
+        } else if ("pairKey" in user.api) {
+            set["api.pairKey"] = user.api.pairKey;
+        } else {
+            set["api"] = {};
+        }
+        await _usernames(db).updateOne({username: user.username}, {
+            $set: set
+        });
+        await _users(db, user.username).updateOne({username: user.username}, {
+            $set: {version: 26}
+        });
+    }
+};
 
 
 const initUser = (username) => safe(_initUser, lower(username));
@@ -1372,6 +1431,9 @@ const updateUser = async (user) => {
     }
     if (user.version < 25) {
         await safe(_version25, user.username);
+    }
+    if (user.version < 26) {
+        await safe(_version26, user.username);
     }
 };
 
@@ -2147,7 +2209,8 @@ const _setWeightedGPA = async (db, username, value) => {
     if (typeof value === "string") {
         try {
             value = JSON.parse(value);
-        } catch (e) {}
+        } catch (e) {
+        }
     }
     if (typeof value !== "boolean") {
         return {
@@ -2331,7 +2394,10 @@ const _updateCustomColor = async (db, username, index, color) => {
     if (!chroma.valid(color)) {
         return {success: false, data: {log: `Invalid color: ${color}`}};
     }
-    let res = await _users(db, username).findOneAndUpdate({username: username}, {$set: {[`appearance.classColors.${index}`]: color}}, {projection: {"appearance.classColors": 1}, returnDocument: "after"});
+    let res = await _users(db, username).findOneAndUpdate({username: username}, {$set: {[`appearance.classColors.${index}`]: color}}, {
+        projection: {"appearance.classColors": 1},
+        returnDocument: "after"
+    });
     if (res.ok) {
         return {success: true, data: {log: `Updated color for ${username}`, colors: res.value.appearance.classColors}};
     }
@@ -3733,7 +3799,12 @@ const _leaveBeta = async (db, username) => {
 
 const checkPasswordResetToken = (token) => safe(_checkPasswordResetToken, token);
 const _checkPasswordResetToken = async (db, token) => {
-    let user = await getAllUsers({schoolPassword: 1, passwordResetTokenExpire: 1, username: 1, school: 1}, {passwordResetToken: token});
+    let user = await getAllUsers({
+        schoolPassword: 1,
+        passwordResetTokenExpire: 1,
+        username: 1,
+        school: 1
+    }, {passwordResetToken: token});
     let valid = user && user.passwordResetTokenExpire > Date.now();
     let gradeSync = !!user.schoolPassword;
     return {success: true, data: {username: user?.username, school: user?.school, valid: valid, gradeSync: gradeSync}};
@@ -4447,7 +4518,8 @@ const _getAssignmentAverage = async (db, username, term, semester, className, as
     if (typeof assignmentPSAID === "string") {
         try {
             assignmentPSAID = JSON.parse(assignmentPSAID);
-        } catch (e) {}
+        } catch (e) {
+        }
     }
 
     let assignmentIndex = grades.findIndex(g => g.psaid === assignmentPSAID);
@@ -4908,7 +4980,7 @@ const _internalApiDiscordConnect = async (db, username, discordID) => {
         return {success: false, data: {errorCode: 1}};
     }
     // Search database for the given Graderoom account
-    let res = await getUser(username, {discord: 1, school: 1, donoData: 1});
+    let res = await getUser(username, {discord: 1});
     if (!res.success) {
         // Case where Graderoom account does not exist
         return {success: false, data: {errorCode: 2}};
@@ -4983,9 +5055,11 @@ const _internalApiDiscordUserInfo = async (db, discordID) => {
         // Case where the user has not connected their account yet
         return {success: false, data: {errorCode: 5}};
     }
-    let user = await _users(db, res.username).findOne({"discord.discordID": discordID}, {projection: {
-        school: 1, donoData: 1
-    }});
+    let user = await _users(db, res.username).findOne({"discord.discordID": discordID}, {
+        projection: {
+            school: 1, donoData: 1
+        }
+    });
     if (!user) {
         // Case where the user has not connected their account yet
         return {success: false, data: {errorCode: 5}};

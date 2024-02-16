@@ -314,7 +314,7 @@
                                 </form>
                             </div>
                             <br><br>
-                                ${u.isAdmin ? `
+                                ${!u.isAdmin ? `
                                 <form action="/archiveUser" method="post">
                                     <button type="submit" name="deleteUser" class="btn btn-sm admin"
                                             value="${u.username}">Archive User

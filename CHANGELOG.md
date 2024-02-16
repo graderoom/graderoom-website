@@ -50,22 +50,26 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Stable 6.5.11] - 2024-02-15
+## [Stable 6.6.4] - 2024-02-16
+### Fixed
+- Issue linking Discord or using API keys if you began the process before 6.6.0.
+
+## [Stable 6.6.3] - 2024-02-15
 ### Fixed
 - Issue where users whose latest sync contained changes to a course with dots in the name (e.g. U.S. History AP) could not view past semesters
 - Cursor not being a pointer when hovering over the sync status in old semesters
 
-## [Stable 6.5.10] - 2024-02-13
+## [Stable 6.6.2] - 2024-02-13
 ### Fixed
 - <github issue="183">Fix issue where syncing assignments with new categories breaks editing weights until refresh</github>
 - Fixed issue with sync log showing [Removed] after a sync that brought in new categories.
 - "a" shortcut for adding assignments now works even if a class has no assignments at all.
 
-## [Stable 6.5.9] - 2024-02-12
+## [Stable 6.6.1] - 2024-02-12
 ### Fixed
 - <github issue="181">Fix analytics page (broken after db restructure)</github>
 
-## [Stable 6.5.8] - 2024-02-09
+## [Stable 6.6.0] - 2024-02-09
 ### Improved
 - The maintenance page is no longer the default timeout/error page
 - Things might be faster now
