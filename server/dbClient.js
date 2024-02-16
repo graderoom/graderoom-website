@@ -264,7 +264,8 @@ const _addUser = async (db, school, username, password, schoolUsername, isAdmin,
 };
 
 const __addUser = async (db, user) => {
-    if (!(await userExists({username: user.username, schoolUsername: user.schoolUsername})).success) {
+    if (!(await userExists({username: user.username, schoolUsername: user.schoolUsername})).success &&
+        !(await userArchived({username: user.username, schoolUsername: user.schoolUsername})).success) {
         await _usernames(db).insertOne({
             username: user.username,
             schoolUsername: user.schoolUsername,
@@ -1609,6 +1610,7 @@ const _getUser = async (db, username, projection, additionalQuery) => {
     if (additionalQuery) {
         Object.assign(query, additionalQuery);
     }
+    projection ??= {};
     if (Object.keys(projection).length !== 0) {
         projection.username = 1;
     }
@@ -1890,15 +1892,28 @@ const _removeUser = async (db, username) => {
     let res = await _users(db, username).deleteOne({
         username: username
     });
-    if (res.deletedCount === 1) {
-        return {success: true, data: {log: `Deleted user ${username}.`, message: "Deleted user."}};
+    if (res.deletedCount !== 1) {
+        return {
+            success: false, data: {
+                log: `Could not delete user with given parameters: username=${username}`,
+                message: "User could not be deleted"
+            }
+        };
     }
-    return {
-        success: false, data: {
-            log: `Could not delete user with given parameters: username=${username}`,
-            message: "User could not be deleted"
-        }
-    };
+
+    res = await _usernames(db).deleteOne({
+        username: username
+    });
+    if (res.deletedCount !== 1) {
+        return {
+            success: false, data: {
+                log: `Could not delete user with given parameters: username=${username}`,
+                message: "User could not be deleted"
+            }
+        };
+    }
+
+    return {success: true, data: {log: `Deleted user ${username}.`, message: "Deleted user."}};
 };
 
 const removeUserFromArchive = (username) => safe(_removeUserFromArchive, lower(username));
@@ -2652,7 +2667,8 @@ const _changeSchoolEmail = async (db, username, schoolUsername) => {
     if (!validateEmail(schoolUsername, user.school)) {
         return {success: false, data: {message: "This must be your school email."}};
     }
-    if (user.schoolUsername !== schoolUsername && await userExists({schoolUsername: schoolUsername})) {
+    if ((user.schoolUsername !== schoolUsername && await userExists({schoolUsername: schoolUsername})) ||
+        (await userArchived({schoolUsername: schoolUsername})).success) {
         return {success: false, data: {message: "This email is already associated with an account."}};
     }
     let {firstName, lastName, graduationYear} = getPersonalInfo(schoolUsername, user.school);
