@@ -6,7 +6,6 @@ const md5 = require("md5");
 const readline = require("readline");
 const {Schools} = require("./enums");
 
-exports.USERS_COLLECTION_NAME = "users";
 exports.CLASSES_COLLECTION_NAME = "classes";
 exports.CHARTS_COLLECTION_NAME = "charts";
 exports.INTERNAL_API_KEYS_COLLECTION_NAME = "internal"
@@ -24,7 +23,7 @@ exports.COMMON_DATABASE_NAME = "common";
 exports.SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME = "school_username_lookup";
 
 // Change this when updateDB changes
-exports.dbUserVersion = 25;
+exports.dbUserVersion = 26;
 exports.dbClassVersion = 3;
 
 exports.minUsersForAverageCalc = 9;

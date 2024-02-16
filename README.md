@@ -25,3 +25,6 @@ Grade visualization with automatic web scraping from Powerschool for students.
 
 ## Accessing the website
 - Navigate to `localhost:[port]` in your browser, where `port` is `5996` for stable and `5998` for beta
+- A default account will be created with the following credentials:
+  - Username: `admin`
+  - Password: `Pa5sw0rd`
