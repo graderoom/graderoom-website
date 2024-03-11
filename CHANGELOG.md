@@ -50,6 +50,14 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 6.6.5] - 2024-03-11
+### Improved
+- More sports are now recognized as non-academic<ul>
+- Specifically added Swimming, Baseball, Volleyball, Tennis, Lacrosse, Golf, Soccer, and Basketball (in addition to existing Football, Water Polo, Track, and Cross Country)</ul>
+
+### Fixed
+- Some old typos in the changelog
+
 ## [Stable 6.6.4] - 2024-02-16
 ### Fixed
 - Issue linking Discord or using API keys if you began the process before 6.6.0.
@@ -499,7 +507,7 @@
 - Locked scraper now also fetches empty courses
 - Sync log will no longer show all assignments as new/removed when the number of courses changes
 - Class colors now stay the same after hiding/unhiding non-academic classes
-- Cura has been set as a non-academic class by default, as well as several Sports and Study hHalls
+- Cura has been set as a non-academic class by default, as well as several Sports and Study Hall
 - If a Bellarmine course has no grades and no set class type in the catalog, and a user has non-academic course display disabled, a message now appears asking them to send feedback about whether the class is non-academic or not
 
 ### Fixed
@@ -3249,7 +3257,7 @@
 - Choosing a class in update weights now changes the class page behind it
 
 ### Fixed
-- <em>Mobile</em> Issues with mobile navbar
+- <em>[Mobile]</em> Issues with mobile navbar
 
 ## [Beta 0.2.19] - 2019-12-09
 ### Improved
@@ -3471,7 +3479,7 @@
 
 ## [Beta 0.1.1] - 2019-10-14
 ### Improved
-- <em>Mobile</em> Scaling on mobile
+- <em>[Mobile]</em> Scaling on mobile
 
 ## [Beta 0.1.0] - 2019-10-13
 ### Added
