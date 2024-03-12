@@ -2797,6 +2797,8 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                 }
             } else if (data.message === `Could not connect to ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"}.`) {
                 await setSyncStatus(username, SyncStatus.FAILED);
+            } else if (data.message === "Something went wrong.") {
+                await setSyncStatus(username, SyncStatus.FAILED);
             } else if (data.message.startsWith("Error: ")) {
                 let code = (await logError(username, data.message.substring(7))).data.value;
                 await setSyncStatus(username, `${SyncStatus.FAILED}-${code}`);
