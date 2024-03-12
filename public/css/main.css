@@ -1898,49 +1898,54 @@ div:not(#dismissed-notifications) > .notification-card.important.discord {
     position: fixed;
     z-index: 19;
     top: 50%;
-    left: -6rem;
+    right: -8rem;
     width: 8rem;
     min-height: 12rem;
     height: unset;
-    padding: 0.5rem 2.5rem 0.5rem 0.5rem;
+    padding: 0.5rem 0.5rem 0.5rem 2.5rem;
     transition: 250ms all 150ms ease;
     transform: translateY(-50%);
     text-align: center;
-    border-radius: 0 1rem 1rem 0;
+    border-radius: 1rem 0 0 1rem;
 }
 
-#termSwitcher::before {
+#termSwitcher::before, #termSwitcher::after {
     z-index: 2;
     font-weight: 500;
     position: absolute;
     top: 50%;
-    left: 3rem;
+    right: 5rem;
     width: 5rem;
-    min-height: 12rem;
-    height: 100%;
+    height: 12rem;
     padding: 0.1rem;
     content: "Term Switcher";
     transition: all 500ms ease;
     transform: translateY(-50%);
     text-align: center;
     vertical-align: middle;
-    border-radius: 0 1rem 1rem 0;
+    border-radius: 1rem 0 0 1rem;
     background-color: inherit;
     box-shadow: inherit;
-    writing-mode: vertical-rl;
+    writing-mode: vertical-lr;
     text-orientation: sideways;
 }
 
-#termSwitcher:hover, #termSwitcher.hover {
-    min-height: 12rem;
-    padding-right: 0.5rem;
-    height: unset;
-    width: 6rem;
-    left: 0;
+#termSwitcher::after {
+    opacity: 0;
+    transition: 0ms all 500ms ease;
+    /* pointer-events: all; */
 }
 
-#termSwitcher:hover::before, #termSwitcher.hover::before {
-    left: -6rem;
+#termSwitcher:hover, #termSwitcher.hover {
+    padding-left: 0.5rem;
+    width: 6rem;
+    right: 0;
+}
+
+#termSwitcher:hover::before, #termSwitcher.hover::before,
+#termSwitcher:hover::after, #termSwitcher.hover::after {
+    right: -6rem;
+    height: 100%;
 }
 
 #termSwitcher > div {
@@ -4280,7 +4285,7 @@ input[name=searchByNameOrUsername] {
         border-radius: 0.5rem;
     }
 
-    #GPA-container, .chart-container, #classLinks {
+    .chart-container, #classLinks {
         display: none;
     }
 
@@ -4462,6 +4467,99 @@ input[name=searchByNameOrUsername] {
         transform: none;
         opacity: 1;
         pointer-events: all;
+    }
+
+    #clickBarrier {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        z-index: 19;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        background-color: transparent;
+        transition: all 250ms ease;
+    }
+
+    #clickBarrier.blocking {
+        pointer-events: all;
+    }
+
+    #GPA-container {
+        z-index: 20;
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 14rem;
+        height: 30rem;
+        padding: 2rem;
+        left: -15rem;
+        transition: 250ms all 150ms ease;
+        border-radius: 0 1rem 1rem 0;
+    }
+
+    #GPA-container:hover {
+        left: 0;
+    }
+
+    #GPA-container::before, #GPA-container::after {
+        content: "GPA";
+        font-weight: bold;
+        position: absolute;
+        width: 16rem;
+        height: 4rem;
+        padding: 0.5rem;
+        left: 2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        text-align: right;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        vertical-align: middle;
+        transition: all 500ms ease;
+        border-radius: 0 1rem 1rem 0;
+        background-color: inherit;
+    }
+
+    #GPA-container::after {
+        opacity: 0;
+        transition: 0ms all 500ms ease;
+    }
+
+    #GPA-container:hover::before, #GPA-container:hover::after {
+        left: -16.5rem;
+        height: 100%;
+    }
+
+    #gpaDetailsBtn {
+        display: none;
+    }
+
+    #notificationPanel::before {
+        top: -3rem;
+    }
+
+    #notificationPanel::after {
+        top: 8.5rem;
+    }
+
+    .changelog-parent {
+        flex-direction: column-reverse;
+    }
+
+    .changelog {
+        max-height: 40vh;
+        border-radius: 1rem;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+
+    .changelog-legend-column {
+        max-width: 100%;
+        max-height: 20vh;
+        padding: 0 1rem;
+        border-radius: 0.5rem;
     }
 }
 

@@ -190,7 +190,7 @@
                                                 style="margin-left: 0.4rem"><span
                                                     class="popup-right-top">Your cumulative GPA is calculated from
                                                 all
-                                                your courses taken so far. However, it does not include pe or
+                                                your courses taken so far. However, it does not include P.E. or
                                                 summer classes.</span></i></span></h5>
                                 <h5 id="GPA-display-cumulative"><span>----
                                         <% if (_appearance.showMaxGPA) { %>/----
@@ -257,13 +257,12 @@
                                 <% if (i % 2 === 1) {
                                     continue;
                                 } %>
-                                <div class="block">
+                                <div class="block" id="block<%= i + offset; %>">
                                     <table>
                                         <thead>
                                         <tr>
                                             <th id="overview<%= i + offset; %>" class="overview"
-                                                style="cursor: pointer; text-align: center; color: <%= _appearance.classColors[i]; %>"
-                                                onclick="showPage(<%= i + offset; %>)">
+                                                style="cursor: pointer; text-align: center; color: <%= _appearance.classColors[i]; %>">
                                                 <%= _gradeData[i].class_name; %>
                                             </th>
                                         </tr>
@@ -271,8 +270,7 @@
                                         <tbody>
                                         <tr>
                                             <td class="overview"
-                                                style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= _appearance.classColors[i]; %>"
-                                                onclick="showPage(<%= i + offset; %>)">
+                                                style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= _appearance.classColors[i]; %>">
                                                 <div id="overviewChart<%= i + offset; %>"
                                                      style="display:block; font-weight:bolder">
                                                     <div style="color: <%= _appearance.classColors[i]; %> !important">
@@ -297,13 +295,12 @@
                         <% for (let i = 0; i < _gradeData.length; i++) { %>
                             <% if (_appearance.showNonAcademic || _relevantClassData[_gradeData[i].class_name]["classType"] !== "non-academic") { %>
                                 <% if (i % 2 === 0) continue; %>
-                                <div class="block">
+                                <div class="block" id="block<%= i + offset; %>">
                                     <table>
                                         <thead>
                                         <tr>
                                             <th id="overview<%= i + offset; %>" class="overview"
-                                                style="cursor: pointer; text-align: center; color: <%= _appearance.classColors[i]; %>"
-                                                onclick="showPage(<%= i + offset; %>)">
+                                                style="cursor: pointer; text-align: center; color: <%= _appearance.classColors[i]; %>">
                                                 <%= _gradeData[i].class_name; %>
                                             </th>
                                         </tr>
@@ -311,8 +308,7 @@
                                         <tbody>
                                         <tr>
                                             <td class="overview"
-                                                style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= _appearance.classColors[i]; %>"
-                                                onclick="showPage(<%= i + offset; %>)">
+                                                style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= _appearance.classColors[i]; %>">
                                                 <div id="overviewChart<%= i + offset; %>"
                                                      style="display:block; font-weight:bolder">
                                                     <div style="color: <%= _appearance.classColors[i]; %> !important">
@@ -4549,7 +4545,13 @@
                 }
             } else if ((["n", "N"]).includes(e.key)) {
                 if (cardsDisplayed.length === 0) {
-                    $("#notificationPanel").toggleClass("active");
+                    let nPanel = $("#notificationPanel");
+                    nPanel.toggleClass("active");
+                    if (nPanel.hasClass("active")) {
+                        blockClicks();
+                    } else {
+                        unblockClicks();
+                    }
                 }
             } else if (_.inRange(e.key, 1, data.length + 1)) {
                 if (cardsDisplayed.length === 0) {
@@ -5129,7 +5131,37 @@
             }
             if (!$(e.target).is("#notificationPanel") && !$(e.target).parents("#notificationPanel").length && $("#notificationPanel").hasClass("active")) {
                 $("#notificationPanel").removeClass("active");
+                unblockClicks();
             }
+        });
+
+        function blockClicks() {
+            $("#clickBarrier").addClass("blocking");
+        }
+
+        function unblockClicks() {
+            if (!$("#termSwitcher").is(":hover") && !$("#GPA-container").is(":hover") && !$("#notificationPanel").hasClass("active")) {
+                $("#clickBarrier").removeClass("blocking");
+            }
+        }
+
+        $("#clickBarrier").on("click", function (e) {
+            e.stopPropagation();
+        });
+
+        $("#termSwitcher, #GPA-container").hover(function (e) {
+            blockClicks();
+        }, function (e) {
+            setTimeout(unblockClicks, 0); // Forces this to execute after the click is blocked
+        });
+
+        $("#mobile-overview-grid th, #mobile-overview-grid td").on("click", function (e) {
+            let target = $(e.target);
+            if (!target.is(".block")) {
+                target = target.parents(".block");
+            }
+            let index = target[0].id.substring("block".length);
+            showPage(parseInt(index));
         });
 
         function checkNewCategory(inputID, messageDivID, index) {

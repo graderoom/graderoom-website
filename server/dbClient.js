@@ -4432,6 +4432,14 @@ const _getRelevantClassData = async (db, username, term, semester) => {
             nonAcademicOverride ||= userClass.className.endsWith("Track");
             nonAcademicOverride ||= userClass.className.endsWith("Water Polo");
             nonAcademicOverride ||= userClass.className.endsWith("Football");
+            nonAcademicOverride ||= userClass.className.endsWith("Swimming");
+            nonAcademicOverride ||= userClass.className.endsWith("Baseball");
+            nonAcademicOverride ||= userClass.className.endsWith("Volleyball");
+            nonAcademicOverride ||= userClass.className.endsWith("Tennis");
+            nonAcademicOverride ||= userClass.className.endsWith("Lacrosse");
+            nonAcademicOverride ||= userClass.className.endsWith("Golf");
+            nonAcademicOverride ||= userClass.className.endsWith("Soccer");
+            nonAcademicOverride ||= userClass.className.endsWith("Basketball");
             nonAcademicOverride ||= userClass.className === "Study Hall";
             nonAcademicOverride ||= userClass.className === "Free Period";
             nonAcademicOverride ||= userClass.className.startsWith("Study Center");

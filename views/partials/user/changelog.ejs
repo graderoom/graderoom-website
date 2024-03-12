@@ -107,7 +107,8 @@
             changelogContainer.html("");
             changelogContainer.addClass("placeholder");
             return;
-        } else if (!(version in cachedHTML)) {
+        }
+        if (!(version in cachedHTML)) {
             $.ajax({
                        url: "/changelog", type: "GET", async: true, data: {versionName: version}
                    }).done((response) => {
@@ -127,6 +128,10 @@
         changelogContainer.removeClass("placeholder");
         changelogLegendReferences.forEach((v) => v.removeClass("active"));
         changelogLegendReferences[idx].addClass("active");
+        changelogLegendColumn.animate({
+            scrollTop:
+                changelogLegendColumn.scrollTop() + changelogLegendReferences[idx].position().top - changelogLegendColumn.height() / 2 + changelogLegendReferences[idx].height() / 2
+        });
         if (version === latestVersion) {
             $.ajax({
                        url: "/latestVersionSeen", type: "POST", async: true
