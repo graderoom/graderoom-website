@@ -435,7 +435,7 @@ class PowerschoolScraper(Scraper):
 
         else:
             self.progress = 0
-            print(json_format(False, 'Your PowerSchool account is no longer active.'))
+            print(json_format(False, 'Something went wrong.'))
             sys.exit()
 
     def get_history(self):

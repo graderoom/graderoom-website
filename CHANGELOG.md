@@ -61,6 +61,7 @@
 - When the changelog is opened with a specific version, it will now scroll the legend to that version.
 - <em>[Mobile]</em> Improved the appearance of the changelog on mobile
 - <em>[Mobile]</em> Tapping outside the term switcher, GPA popout, or notification panel now just closes them instead of also clicking things.
+- The sync error when something goes wrong with PowerSchool now has a more accurate message.
 
 ### Fixed
 - Some old typos in the changelog
