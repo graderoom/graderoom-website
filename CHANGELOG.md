@@ -53,7 +53,7 @@
 ## [Stable 6.7.0] - 2024-03-12
 ### Added
 - <em>[Mobile]</em> <github issue="190">Add GPA to Mobile Site</github>
-- Term Switcher has been moved to the right side of the screen
+- <em>[Mobile]</em> Term Switcher has been moved to the right side of the screen on mobile
 
 ### Improved
 - More sports are now recognized as non-academic<ul>
@@ -61,9 +61,11 @@
 - When the changelog is opened with a specific version, it will now scroll the legend to that version.
 - <em>[Mobile]</em> Improved the appearance of the changelog on mobile
 - <em>[Mobile]</em> Tapping outside the term switcher, GPA popout, or notification panel now just closes them instead of also clicking things.
+- The sync error when something goes wrong with PowerSchool now has a more accurate message.
 
 ### Fixed
 - Some old typos in the changelog
+- Various changelog display issues
 
 ## [Stable 6.6.4] - 2024-02-16
 ### Fixed
