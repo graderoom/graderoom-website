@@ -29,7 +29,6 @@
     let changelogContainer = $("#changelog-container");
     let changelogLegendColumn = $("#changelog-legend-column");
     let latestVersion;
-    let versionOffsets = {};
     let versionNames = [];
     let versionClasses = []
     let versionDates = [];
@@ -38,23 +37,24 @@
     let changelogLegendArray;
     let changelogLegendReferences;
 
-    function showChangelog(callback=false, whatsNew=false, version=false) {
+    function showChangelog(callback = false, whatsNew = false, version = false) {
         if (!callback && !whatsNew) {
-            showVersion(version);
             showCard("#changelogDisplay");
             $(".changelog-parent, .changelog-parent > div").addClass("show");
+            setTimeout(() => showVersion(version), 250);
             return;
         }
         return new Promise(async resolve => {
             if (latestVersion === undefined) {
                 latestVersion = await $.ajax({
-                                                     url: "/latestVersion", type: "GET", async: true
-                                             }).catch(() => {});
+                    url: "/latestVersion", type: "GET", async: true
+                }).catch(() => {
+                });
             }
             if (changelogLegendArray === undefined || !versionNames[1]?.endsWith(latestVersion)) {
                 await $.ajax({
-                                 url: "/changelogLegend", type: "GET", async: true
-                             }).done(function (response) {
+                    url: "/changelogLegend", type: "GET", async: true
+                }).done(function (response) {
                     if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                         $(".session-timeout").show();
                         $("body").find("*").not(".session-timeout").remove();
@@ -66,9 +66,9 @@
             } else if (!callback && whatsNew && alerts.notificationSettings.showUpdatePopup) {
                 if (!latestVersion.endsWith(alerts.latestSeen)) {
                     showCard("#changelogDisplay");
+                    $(".changelog-parent, .changelog-parent > div").addClass("show");
                     showVersion(latestVersion);
                 }
-                $(".changelog-parent, .changelog-parent > div").addClass("show");
                 return resolve();
             } else if (callback && versionNames) {
                 // noinspection JSValidateTypes
@@ -77,10 +77,7 @@
             }
             changelogLegendReferences = changelogLegendArray.map(x => $(x));
             changelogLegendColumn.html(changelogLegendReferences);
-            changelogContainer.scrollTop(0);
-            changelogLegendColumn.scrollTop(0);
             versionNames = [];
-            versionOffsets = {};
             for (let i = 0; i < changelogLegendReferences.length; i++) {
                 let version = $(changelogLegendReferences[i]);
                 let name = version.contents().filter((i, el) => el.nodeType === 3).text();
@@ -103,15 +100,11 @@
     }
 
     function showVersion(version) {
-        if (version === false) {
-            changelogContainer.html("");
-            changelogContainer.addClass("placeholder");
-            return;
-        }
+        if (!version) return;
         if (!(version in cachedHTML)) {
             $.ajax({
-                       url: "/changelog", type: "GET", async: true, data: {versionName: version}
-                   }).done((response) => {
+                url: "/changelog", type: "GET", async: true, data: {versionName: version}
+            }).done((response) => {
                 if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                     $(".session-timeout").show();
                     $("body").find("*").not(".session-timeout").remove();
@@ -128,14 +121,14 @@
         changelogContainer.removeClass("placeholder");
         changelogLegendReferences.forEach((v) => v.removeClass("active"));
         changelogLegendReferences[idx].addClass("active");
+        let scrollTop = changelogLegendColumn.scrollTop() + changelogLegendReferences[idx].position().top - changelogLegendColumn.height() / 3 + changelogLegendReferences[idx].height() / 2;
         changelogLegendColumn.animate({
-            scrollTop:
-                changelogLegendColumn.scrollTop() + changelogLegendReferences[idx].position().top - changelogLegendColumn.height() / 2 + changelogLegendReferences[idx].height() / 2
+            scrollTop: scrollTop
         });
         if (version === latestVersion) {
             $.ajax({
-                       url: "/latestVersionSeen", type: "POST", async: true
-                   }).done((response) => {
+                url: "/latestVersionSeen", type: "POST", async: true
+            }).done((response) => {
                 if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
                     $(".session-timeout").show();
                     $("body").find("*").not(".session-timeout").remove();
