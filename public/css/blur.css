@@ -14,11 +14,6 @@
         -webkit-backdrop-filter: blur(0.5rem);
     }
 
-    #termSwitcher.blur {
-        backdrop-filter: blur(0.2rem);
-        -webkit-backdrop-filter: blur(0.2rem);
-    }
-
     #termSwitcher > div.blur {
         backdrop-filter: blur(1rem);
         -webkit-backdrop-filter: blur(1rem);
@@ -36,5 +31,24 @@
 
     div.unlock-with {
         backdrop-filter: blur(2px);
+    }
+
+    /* Mobile Stuff */
+    @media only screen and (max-width: 991px) {
+        #termSwitcher {
+            background-color: unset !important;
+        }
+
+        #clickBarrier.blocking {
+            background: transparent !important;
+            backdrop-filter: blur(0.2rem);
+            -webkit-backdrop-filter: blur(0.2rem);
+        }
+
+        #GPA-container {
+            background: transparent !important;
+            backdrop-filter: blur(0.5rem);
+            -webkit-backdrop-filter: blur(0.5rem);
+        }
     }
 }

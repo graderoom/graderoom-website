@@ -708,4 +708,26 @@ div.assignment-info:hover {
         color: rgb(138.5, 138.5, 138.5);
         background-color: #111111;
     }
+
+    #GPA-container {
+        border: 1px solid black;
+        background-color: #191919;
+        box-shadow: black 0 0 10px 1px;
+    }
+
+    #GPA-container::before {
+        border: 1px solid black;
+    }
+
+    #GPA-container:hover, #GPA-container.hover {
+        background-color: #191919;
+    }
+
+    #clickBarrier.blocking {
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    #changelog-legend-column {
+        background-color: #222222;
+    }
 }

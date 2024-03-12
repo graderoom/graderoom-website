@@ -50,6 +50,21 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 6.7.0] - 2024-03-12
+### Added
+- <em>[Mobile]</em> <github issue="190">Add GPA to Mobile Site</github>
+- Term Switcher has been moved to the right side of the screen
+
+### Improved
+- More sports are now recognized as non-academic<ul>
+- Specifically added Swimming, Baseball, Volleyball, Tennis, Lacrosse, Golf, Soccer, and Basketball (in addition to existing Football, Water Polo, Track, and Cross Country)</ul>
+- When the changelog is opened with a specific version, it will now scroll the legend to that version.
+- <em>[Mobile]</em> Improved the appearance of the changelog on mobile
+- <em>[Mobile]</em> Tapping outside the term switcher, GPA popout, or notification panel now just closes them instead of also clicking things.
+
+### Fixed
+- Some old typos in the changelog
+
 ## [Stable 6.6.4] - 2024-02-16
 ### Fixed
 - Issue linking Discord or using API keys if you began the process before 6.6.0.
@@ -499,7 +514,7 @@
 - Locked scraper now also fetches empty courses
 - Sync log will no longer show all assignments as new/removed when the number of courses changes
 - Class colors now stay the same after hiding/unhiding non-academic classes
-- Cura has been set as a non-academic class by default, as well as several Sports and Study hHalls
+- Cura has been set as a non-academic class by default, as well as several Sports and Study Hall
 - If a Bellarmine course has no grades and no set class type in the catalog, and a user has non-academic course display disabled, a message now appears asking them to send feedback about whether the class is non-academic or not
 
 ### Fixed
@@ -3249,7 +3264,7 @@
 - Choosing a class in update weights now changes the class page behind it
 
 ### Fixed
-- <em>Mobile</em> Issues with mobile navbar
+- <em>[Mobile]</em> Issues with mobile navbar
 
 ## [Beta 0.2.19] - 2019-12-09
 ### Improved
@@ -3471,7 +3486,7 @@
 
 ## [Beta 0.1.1] - 2019-10-14
 ### Improved
-- <em>Mobile</em> Scaling on mobile
+- <em>[Mobile]</em> Scaling on mobile
 
 ## [Beta 0.1.0] - 2019-10-13
 ### Added

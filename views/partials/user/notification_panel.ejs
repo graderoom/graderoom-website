@@ -1,6 +1,6 @@
 <div id="notificationPanel" class="blur">
     <btn class="btn btn-md"
-         onclick="$('#notificationPanel').removeClass('active');"
+         onclick="$('#notificationPanel').removeClass('active'); unblockClicks()"
          style="position: absolute; width: fit-content; width: -moz-fit-content; left: 0; top: 0">
         <i class="fa fa-close" aria-hidden="true"></i> Close
     </btn>
@@ -31,6 +31,7 @@
         if ($(e.target).is("#notificationPanel:not(.active)") || (!$(e.target).is(".notification-btns span, .notification-message *") && $(e.target).parents("#notificationPanel:not(.active) #pinned-notifications .notification-card").length)) {
             $("#notifications").animate({scrollTop: 0}, 0);
             $("#notificationPanel").addClass("active");
+            blockClicks();
         }
     });
 

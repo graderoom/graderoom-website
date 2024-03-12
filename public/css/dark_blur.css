@@ -16,7 +16,7 @@
         opacity: 1 !important;
     }
 
-    #termSwitcher:hover, #termSwitcher.hover, #termSwitcher::before, #termSwitcher:hover::before {
+    #termSwitcher:hover, #termSwitcher.hover, #termSwitcher::before, #GPA-container::before {
         box-shadow: black 0 0 10px 1px;
     }
 
