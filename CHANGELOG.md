@@ -53,7 +53,7 @@
 ## [Stable 6.7.0] - 2024-03-12
 ### Added
 - <em>[Mobile]</em> <github issue="190">Add GPA to Mobile Site</github>
-- Term Switcher has been moved to the right side of the screen
+- <em>[Mobile]</em> Term Switcher has been moved to the right side of the screen on mobile
 
 ### Improved
 - More sports are now recognized as non-academic<ul>
@@ -65,6 +65,7 @@
 
 ### Fixed
 - Some old typos in the changelog
+- Various changelog display issues
 
 ## [Stable 6.6.4] - 2024-02-16
 ### Fixed
