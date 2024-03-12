@@ -694,4 +694,29 @@ div.assignment-info:hover {
     .table-container {
         background-color: #FFFFFF;
     }
+
+    #GPA-container {
+        border: 1px solid #CCCCCC;
+        background-color: #FFFFFF;
+    }
+
+    #GPA-container::before {
+        border: 1px solid #CCCCCC;
+    }
+
+    #GPA-container:hover {
+        background-color: #FFFFFF;
+    }
+
+    #GPA-container div {
+        border: 1px solid #CCCCCC;
+    }
+
+    #clickBarrier.blocking {
+        background-color: rgba(255,255,255,0.5);
+    }
+
+    #changelog-legend-column {
+        border: 2px solid #CCCCCC;
+    }
 }

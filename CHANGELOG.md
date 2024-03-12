@@ -50,10 +50,17 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Stable 6.6.5] - 2024-03-11
+## [Stable 6.7.0] - 2024-03-12
+### Added
+- <em>[Mobile]</em> <github issue="190">Add GPA to Mobile Site</github>
+- Term Switcher has been moved to the right side of the screen
+
 ### Improved
 - More sports are now recognized as non-academic<ul>
 - Specifically added Swimming, Baseball, Volleyball, Tennis, Lacrosse, Golf, Soccer, and Basketball (in addition to existing Football, Water Polo, Track, and Cross Country)</ul>
+- When the changelog is opened with a specific version, it will now scroll the legend to that version.
+- <em>[Mobile]</em> Improved the appearance of the changelog on mobile
+- <em>[Mobile]</em> Tapping outside the term switcher, GPA popout, or notification panel now just closes them instead of also clicking things.
 
 ### Fixed
 - Some old typos in the changelog
