@@ -1898,15 +1898,15 @@ div:not(#dismissed-notifications) > .notification-card.important.discord {
     position: fixed;
     z-index: 19;
     top: 50%;
-    right: -8rem;
+    left: -8rem;
     width: 8rem;
     min-height: 12rem;
     height: unset;
-    padding: 0.5rem 0.5rem 0.5rem 2.5rem;
+    padding: 0.5rem 2.5rem 0.5rem 0.5rem;
     transition: 250ms all 150ms ease;
     transform: translateY(-50%);
     text-align: center;
-    border-radius: 1rem 0 0 1rem;
+    border-radius: 0 1rem 1rem 0;
 }
 
 #termSwitcher::before, #termSwitcher::after {
@@ -1914,7 +1914,7 @@ div:not(#dismissed-notifications) > .notification-card.important.discord {
     font-weight: 500;
     position: absolute;
     top: 50%;
-    right: 5rem;
+    left: 5rem;
     width: 5rem;
     height: 12rem;
     padding: 0.1rem;
@@ -1923,28 +1923,27 @@ div:not(#dismissed-notifications) > .notification-card.important.discord {
     transform: translateY(-50%);
     text-align: center;
     vertical-align: middle;
-    border-radius: 1rem 0 0 1rem;
+    border-radius: 0 1rem 1rem 0;
     background-color: inherit;
     box-shadow: inherit;
-    writing-mode: vertical-lr;
+    writing-mode: vertical-rl;
     text-orientation: sideways;
 }
 
 #termSwitcher::after {
     opacity: 0;
     transition: 0ms all 500ms ease;
-    /* pointer-events: all; */
 }
 
 #termSwitcher:hover, #termSwitcher.hover {
-    padding-left: 0.5rem;
+    padding-right: 0.5rem;
     width: 6rem;
-    right: 0;
+    left: 0;
 }
 
 #termSwitcher:hover::before, #termSwitcher.hover::before,
 #termSwitcher:hover::after, #termSwitcher.hover::after {
-    right: -6rem;
+    left: -6rem;
     height: 100%;
 }
 
@@ -4560,6 +4559,32 @@ input[name=searchByNameOrUsername] {
         max-height: 20vh;
         padding: 0 1rem;
         border-radius: 0.5rem;
+    }
+
+    #termSwitcher {
+        left: unset;
+        right: -8rem;
+        padding: 0.5rem 0.5rem 0.5rem 2.5rem;
+        border-radius: 1rem 0 0 1rem;
+    }
+
+    #termSwitcher::before, #termSwitcher::after {
+        left: unset;
+        right: 5rem;
+        border-radius: 1rem 0 0 1rem;
+        writing-mode: vertical-lr;
+    }
+
+    #termSwitcher:hover, #termSwitcher.hover {
+        padding-left: 0.5rem;
+        left: unset;
+        right: 0;
+    }
+
+    #termSwitcher:hover::before, #termSwitcher.hover::before,
+    #termSwitcher:hover::after, #termSwitcher.hover::after {
+        left: unset;
+        right: -6rem;
     }
 }
 
