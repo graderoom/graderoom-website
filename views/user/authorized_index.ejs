@@ -3824,7 +3824,7 @@
                     };
 
                     if (_data[i].grades.length !== 0) {
-                        let unexcludeMask = classData.map(x => !x.exclude);
+                        let unexcludeMask = classData.map(x => !x.exclude && x.points_gotten !== false);
                         let assignmentTimestamps = assignmentDates.filter((x, k) => unexcludeMask[k]).map((x, k, arr) => new Date(Date.parse(x) + ((24 * 60 * 60 * 1000 / arr.filter(y => x === y).length + 1) * arr.filter((y, j) => j < k && x === y).length)));
                         let mixedData = overallGradeSteps.filter(x => x).map((grade, k) => {
                             return {x: assignmentTimestamps[k], y: grade};
@@ -3839,7 +3839,7 @@
                             mixedData: mixedData,
                         };
 
-                        unexcludeMask = categorySortedData[i].assignmentExcludes.map(x => !x);
+                        unexcludeMask = categorySortedData[i].assignmentExcludes.map((x, j) => !x && categorySortedData[i].assignmentPercents[j] !== false);
                         let categoryIndices = categories.map(category => categorySortedData[i].assignmentCategories.filter((x, k) => unexcludeMask[k]).indexOf(category));
                         categoryIndices.push(categorySortedData[i].assignmentCategories.filter((x, k) => unexcludeMask[k]).length);
 
@@ -4151,7 +4151,12 @@
                                         }
                                         return delta + `% (To Match ${school === "basis" ? "Schoology" : "PowerSchool"})`;
                                     }
-                                    return ["[" + chartData[tooltipItem.datasetIndex].assignmentCategories[tooltipItem.dataIndex] + "] " + chartData[tooltipItem.datasetIndex].assignmentNames[tooltipItem.dataIndex] + ((chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.dataIndex] !== null && chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, 2) !== "--") ? (" - " + Math.round(chartData[tooltipItem.datasetIndex].assignmentPercents[tooltipItem.dataIndex] * 100) / 100 + "% ") : (" ")) + ((chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].substring(chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].length - 2)) !== "/0" ? ("(" + chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex] + ")") : ("(" + chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, chartData[tooltipItem.datasetIndex].assignmentScoresParsed[tooltipItem.dataIndex].length - 2) + ")"))];
+                                    let _chartData = chartData[tooltipItem.datasetIndex];
+                                    let category = _chartData.assignmentCategories[tooltipItem.dataIndex];
+                                    let name = _chartData.assignmentNames[tooltipItem.dataIndex];
+                                    let percent = _chartData.assignmentPercents[tooltipItem.dataIndex];
+                                    let score = _chartData.assignmentScoresParsed[tooltipItem.dataIndex];
+                                    return [`[${category}] ${name}${((score.substring(0, 2) !== "--") ? (" - " + Math.round(percent * 100) / 100 + "% ") : (" ")) + ((score.substring(score.length - 2)) !== "/0" ? ("(" + score + ")") : ("(" + score.substring(0, score.length - 2) + ")"))}`];
                                 }
                             }
                         }, zoom: {
@@ -4426,7 +4431,11 @@
                                         }
                                         if (categoryChart[id]) {
                                             let category = Object.keys(categoryChartData[id])[tooltipItem.datasetIndex];
-                                            return ["[" + category + "] " + categoryChartData[id][category].assignmentNames[tooltipItem.dataIndex] + ((categoryChartData[id][category].assignmentPercents[tooltipItem.dataIndex] !== null && categoryChartData[id][category].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, 2) !== "--") ? (" - " + Math.round(categoryChartData[id][category].assignmentPercents[tooltipItem.dataIndex] * 100) / 100 + "% ") : (" ")) + ((categoryChartData[id][category].assignmentScoresParsed[tooltipItem.dataIndex].substring(categoryChartData[id][category].assignmentScoresParsed[tooltipItem.dataIndex].length - 2)) !== "/0" ? ("(" + categoryChartData[id][category].assignmentScoresParsed[tooltipItem.dataIndex] + ")") : ("(" + categoryChartData[id][category].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, categoryChartData[id][category].assignmentScoresParsed[tooltipItem.dataIndex].length - 2) + ")"))];
+                                            let _chartData = categoryChartData[id][category];
+                                            let name = _chartData.assignmentNames[tooltipItem.dataIndex];
+                                            let percent = _chartData.assignmentPercents[tooltipItem.dataIndex];
+                                            let score = _chartData.assignmentScoresParsed[tooltipItem.dataIndex];
+                                            return [`[${category}] ${name}${((score.substring(0, 2) !== "--") ? (" - " + Math.round(percent * 100) / 100 + "% ") : (" ")) + ((score.substring(score.length - 2)) !== "/0" ? ("(" + score + ")") : ("(" + score.substring(0, score.length - 2) + ")"))}`];
                                         }
                                         if (!chartData[tooltipItem.datasetIndex].mixedData.length) {
                                             return;
@@ -4438,7 +4447,13 @@
                                             }
                                             return delta + `% (To Match ${school === "basis" ? "Schoology" : "PowerSchool"})`;
                                         }
-                                        return ["[" + chartData[id].assignmentCategories[tooltipItem.dataIndex] + "] " + chartData[id].assignmentNames[tooltipItem.dataIndex] + ((chartData[id].assignmentPercents[tooltipItem.dataIndex] !== null && chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, 2) !== "--") ? (" - " + Math.round(chartData[id].assignmentPercents[tooltipItem.dataIndex] * 100) / 100 + "% ") : (" ")) + ((chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].length - 2)) !== "/0" ? ("(" + chartData[id].assignmentScoresParsed[tooltipItem.dataIndex] + ")") : ("(" + chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].substring(0, chartData[id].assignmentScoresParsed[tooltipItem.dataIndex].length - 2) + ")"))];
+
+                                        let _chartData = chartData[id];
+                                        let category = _chartData.assignmentCategories[tooltipItem.dataIndex];
+                                        let name = _chartData.assignmentNames[tooltipItem.dataIndex];
+                                        let percent = _chartData.assignmentPercents[tooltipItem.dataIndex];
+                                        let score = _chartData.assignmentScoresParsed[tooltipItem.dataIndex];
+                                        return [`[${category}] ${name}${((score.substring(0, 2) !== "--") ? (" - " + Math.round(percent * 100) / 100 + "% ") : (" ")) + ((score.substring(score.length - 2)) !== "/0" ? ("(" + score + ")") : ("(" + score.substring(0, score.length - 2) + ")"))}`];
                                     }
                                 }
                             }, zoom: {

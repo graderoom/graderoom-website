@@ -50,6 +50,14 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 6.7.2] - 2024-03-14
+### Improved
+- Extra credit assignments no longer show a grade of 0% in chart tooltips
+- <github issue="179">Remove ungraded assignments from charts</github>
+
+### Fixed
+- <em>[Mobile]</em>Class charts were showing on mobile
+
 ## [Beta 6.7.1] - 2024-03-13
 ### Added
 - New "Category Breakdown" charts for each class<ul>
