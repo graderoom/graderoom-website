@@ -59,7 +59,7 @@
 - Consistently remove post-2020 S3 from Bellarmine GPAs
 
 ### Fixed
-- <em>[Mobile]</em>Class charts were showing on mobile
+- <em>[Mobile]</em> Class charts were showing on mobile
 
 ## [Beta 6.7.1] - 2024-03-13
 ### Added
