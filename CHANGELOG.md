@@ -51,6 +51,9 @@
 - None
 
 ## [Beta 6.7.2] - 2024-03-14
+### Added
+- Updated contributor list in <span style="cursor: pointer" onclick="showCard('#settingsCardDisplay'); openTab(5)" class="changelog-inline-setoff">About Tab <i class="fa fa-external-link"></i></span>
+
 ### Improved
 - Extra credit assignments no longer show a grade of 0% in chart tooltips
 - <github issue="179">Remove ungraded assignments from charts</github>
