@@ -50,6 +50,13 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 6.7.1] - 2024-03-13
+### Improved
+- "Verified Weights" UI improvements<ul>
+- Moved to a less awkward location
+- Now always displays weights in the same order that they show in your weights table, with any additional weights at the end</ul>
+- <em>[Mobile]</em> Add Assignment popup now also has a click barrier on mobile to prevent clicking things when trying to dismiss it
+
 ## [Stable 6.7.0] - 2024-03-12
 ### Added
 - <em>[Mobile]</em> <github issue="190">Add GPA to Mobile Site</github>

@@ -384,37 +384,6 @@
                             <span class="shouldBeNonAcademic alert alert-info">Should this course be non-academic? Let
                                 us know through More > Send Feedback</span>
                         <% } %>
-                        <span id="verified<%= i + displayedStuffIndexOffset %>" class="popup">Weights
-                            <% let weightDict = _relevantClassData[_gradeData[i].class_name]; %>
-                            <% let unverified = weightDict.hasWeights === null || (weightDict.hasWeights === true && Object.values(weightDict.weights).filter(w => w === null).length !== 0); %>
-                            <% if (unverified) { %>Unverified
-                            <% } else { %>Verified
-                            <% } %>
-                            <i class="fa fa-<% if (unverified) { %>exclamation-circle<% } else { %>check-circle<% } %>">
-                                <span class="popup-right" <% if (!unverified) { %>style="min-width: unset"
-                                        <% } %>
-                                >
-                                    <% if (unverified) { %>
-                                        Send feedback to verify weights<br><small>More > Send
-                                            Feedback</small>
-                                    <% } else { %>
-                                        <% if (weightDict.hasWeights === true) { %>
-                                            <table class="class-table">
-                                                <% let weights = Object.entries(weightDict.weights); %>
-                                                <% for (let j = 0; j < weights.length; j++) { %>
-                                                    <tr>
-                                                        <td title="<%= weights[j][0] %>"><%= weights[j][0] %></td>
-                                                        <td><%= weights[j][1] %></td>
-                                                    </tr>
-                                                <% } %>
-                                            </table>
-                                        <% } else { %>
-                                            <span style="width: 6rem">This course is point-based</span>
-                                        <% } %>
-                                    <% } %>
-                                </span>
-                            </i>
-                        </span>
                     <% } %>
                     <% let classWeights = _weightData[i]; %>
                     <div class="chartAndWeights">
@@ -433,6 +402,53 @@
                                        style="white-space: nowrap"
                                        id="weightsTable<%= i + displayedStuffIndexOffset; %>">
                                     <thead>
+                                        <tr>
+                                            <th colspan="4" style="padding: 0.3rem 0;">
+                                                <span id="verified<%= i + displayedStuffIndexOffset %>" class="popup">Weights
+                                                    <% let weightDict = _relevantClassData[_gradeData[i].class_name]; %>
+                                                    <% let unverified = weightDict.hasWeights === null || (weightDict.hasWeights === true && Object.values(weightDict.weights).filter(w => w === null).length !== 0); %>
+                                                    <% if (unverified) { %>Unverified
+                                                    <% } else { %>Verified
+                                                    <% } %>
+                                                    <i class="fa fa-<% if (unverified) { %>exclamation-circle<% } else { %>check-circle<% } %>">
+                                                        <span class="popup-right" <% if (!unverified) { %>style="min-width: unset"
+                                                                <% } %>
+                                                        >
+                                                            <% if (unverified) { %>
+                                                                Send feedback to verify weights<br><small>More > Send
+                                                                    Feedback</small>
+                                                            <% } else { %>
+                                                                <% if (weightDict.hasWeights === true) { %>
+                                                                    <table class="class-table verified-weights">
+                                                                        <% let weights = Object.entries(weightDict.weights); %>
+                                                                        <% let userWeights = Object.keys(classWeights.weights); %>
+                                                                        <% for (let j = 0; j < userWeights.length; j++) { %>
+                                                                            <% let idx = weights.findIndex(w => w[0] === userWeights[j]); %>
+                                                                            <% if (idx !== -1) { %>
+                                                                                <tr>
+                                                                                    <td title="<%= weights[idx][0] %>"><%= weights[idx][0] %></td>
+                                                                                    <td><%= weights[idx][1] %></td>
+                                                                                </tr>
+                                                                            <% } %>
+                                                                        <% } %>
+                                                                        <% for (let j = 0; j < weights.length; j++) { %>
+                                                                            <% if (!userWeights.includes(weights[j][0])) { %>
+                                                                                <tr>
+                                                                                    <td title="<%= weights[j][0] %>"><%= weights[j][0] %></td>
+                                                                                    <td><%= weights[j][1] %></td>
+                                                                                </tr>
+                                                                            <% } %>
+                                                                        <% } %>
+                                                                    </table>
+                                                                <% } else { %>
+                                                                    <span style="width: 6rem">This course is point-based</span>
+                                                                <% } %>
+                                                            <% } %>
+                                                        </span>
+                                                    </i>
+                                                </span>
+                                            </th>
+                                        </tr>
                                         <tr>
                                             <th colspan="4" style="padding: 0.3rem 0;">
                                                 <label style="display: inline-flex; font-size: 1rem; justify-content: center; margin: 0; align-items: flex-start">Point
@@ -582,7 +598,7 @@
                                     </i>
                                 </span>
                                 <span class="popup addAssignment"
-                                      onclick="{$('#add-assignment-container<%= i + displayedStuffIndexOffset %>').addClass('active').find('.addAssignmentDate input').trigger('focus').trigger('blur');$('#add-assignment-container<%= i + displayedStuffIndexOffset %>').find('.addAssignmentName input').trigger('focus')}">
+                                      onclick="{blockClicks(); $('#add-assignment-container<%= i + displayedStuffIndexOffset %>').addClass('active').find('.addAssignmentDate input').trigger('focus').trigger('blur');$('#add-assignment-container<%= i + displayedStuffIndexOffset %>').find('.addAssignmentName input').trigger('focus')}">
                                     <i style="cursor: pointer; margin: 1rem 0"
                                        class="fa fa-plus">
                                         <span class="popup-top">
@@ -2216,7 +2232,7 @@
         }
 
         //Requires elements to have same font-family & font-size
-        function adjust(elements, offset, min, max, updateOnBlur=false) {
+        function adjust(elements, offset, min, max, updateOnBlur = false) {
             // Initialize parameters
             offset = offset || 0;
             min = min || 0;
@@ -4495,8 +4511,10 @@
                 }
                 if ($($(".add-assignment-container")[currentPage]).hasClass("active")) {
                     $($(".add-assignment-container")[currentPage]).removeClass("active");
+                    unblockClicks();
                 } else {
                     $($(".addAssignment")[currentPage]).trigger("click");
+                    blockClicks();
                 }
             } else if (["i", "I"].includes(e.key)) {
                 if (currentPage === -1) {
@@ -4841,7 +4859,16 @@
                 let avgData = assignmentAverages[classIndex][`${assignmentPSAID}`];
                 setupAssignmentAverage(avgData, assignmentPSAID, classIndex);
             } else if (premium || assignmentIndex === data[classIndex].grades.length - 1) {
-                $.ajax({method: "POST", url: "/assignmentAverage", data: {"assignmentPSAID": assignmentPSAID, "className": _data[classIndex].class_name, "term": term, "semester": semester}}).done(function (response) {
+                $.ajax({
+                    method: "POST",
+                    url: "/assignmentAverage",
+                    data: {
+                        "assignmentPSAID": assignmentPSAID,
+                        "className": _data[classIndex].class_name,
+                        "term": term,
+                        "semester": semester
+                    }
+                }).done(function (response) {
                     assignmentAverages[classIndex][`${assignmentPSAID}`] = response;
                     setupAssignmentAverage(response, assignmentPSAID, classIndex);
                 }).fail(function () {
@@ -5128,6 +5155,7 @@
             }
             if (!$(e.target).is(".addAssignment, .add-assignment-container") && !$(e.target).parents(".add-assignment-container, .addAssignment").length && currentPage >= 0 && $($(".add-assignment-container")[currentPage]).hasClass("active")) {
                 $($(".add-assignment-container")[currentPage]).removeClass("active");
+                unblockClicks();
             }
             if (!$(e.target).is("#notificationPanel") && !$(e.target).parents("#notificationPanel").length && $("#notificationPanel").hasClass("active")) {
                 $("#notificationPanel").removeClass("active");
@@ -5140,7 +5168,10 @@
         }
 
         function unblockClicks() {
-            if (!$("#termSwitcher").is(":hover") && !$("#GPA-container").is(":hover") && !$("#notificationPanel").hasClass("active")) {
+            if (!$("#termSwitcher").is(":hover") &&
+                !$("#GPA-container").is(":hover") &&
+                !$("#notificationPanel").hasClass("active") &&
+                !$($(".add-assignment-container")[currentPage]).hasClass("active")) {
                 $("#clickBarrier").removeClass("blocking");
             }
         }
