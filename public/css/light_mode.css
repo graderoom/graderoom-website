@@ -143,6 +143,11 @@ table tfoot tr td {
     background-color: #FFFFFF;
 }
 
+.categoryChartToggle {
+    background-color: #FFFFFF;
+    border-color: #CCCCCC;
+}
+
 .changelog-container .body {
     color: #222222;
 }

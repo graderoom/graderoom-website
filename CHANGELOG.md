@@ -50,7 +50,11 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Stable 6.7.1] - 2024-03-13
+## [Beta 6.7.1] - 2024-03-13
+### Added
+- New "Category Breakdown" charts for each class<ul>
+- This feature was requested by a student through the Feedback Form. Thanks for the idea!</ul>
+
 ### Improved
 - "Verified Weights" UI improvements<ul>
 - Moved to a less awkward location

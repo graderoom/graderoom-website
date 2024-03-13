@@ -351,8 +351,13 @@ table thead tr th:last-child {
 }
 
 .chart {
-    padding: 1rem 0.8rem 0 0.8rem;
+    padding: 1rem 0.8rem 1rem 0.8rem;
     border-radius: 0.5rem;
+}
+
+.chart:not(#chart-container-1) {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
 }
 
 .changelog-parent {
@@ -4093,6 +4098,14 @@ input[name=searchByNameOrUsername] {
 
 #filters label {
     margin: 0 0.5rem;
+}
+
+.categoryChartToggle {
+    padding: 0.5rem;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    border-bottom-width: 2px;
+    border-bottom-style: solid;
 }
 
 @keyframes centerScaleUp {
