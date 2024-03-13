@@ -54,6 +54,9 @@
 ### Improved
 - Extra credit assignments no longer show a grade of 0% in chart tooltips
 - <github issue="179">Remove ungraded assignments from charts</github>
+- UC GPA now defaults courses to being UC-Approved if their approval status is unknown
+- <github issue="132">Don't show UC freshman S3 section if the courses don't have an overall grade</github>
+- Consistently remove post-2020 S3 from Bellarmine GPAs
 
 ### Fixed
 - <em>[Mobile]</em>Class charts were showing on mobile

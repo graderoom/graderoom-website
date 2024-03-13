@@ -1200,6 +1200,8 @@
         let totaltime = 0;
         let count = 0;
 
+        let lastYearWithSummerCredit = {"bell": 2020, "ndsj": Infinity, "basis": Infinity};
+
         function setupColorStuff() {
             // Class links
             $.makeArray($("#classLinks a.nav-link")).slice(1).forEach((x, i) => $(x).css("color", colors[i]));
@@ -1712,7 +1714,7 @@
             }
 
             // Ninth Summer
-            if (ninth in gradeHistoryLetters && "S3" in gradeHistoryLetters[ninth]) {
+            if (gradYear - 3 <= lastYearWithSummerCredit[school] && ninth in gradeHistoryLetters && "S3" in gradeHistoryLetters[ninth]) {
                 let classes = gradeHistoryLetters[ninth]["S3"];
                 for (let c = 0; c < classes.length; c++) {
                     let classData = Object.entries(classes[c])[0];
@@ -1720,7 +1722,7 @@
                     let uc;
                     [uc, classType] = classType.split("_");
                     let letterGrade = classData[1] || (term === ninth && semester === "S3" ? getLetterGrade(getOverallGrade(c)) : false);
-                    if (uc === "uc" && !([false, "CR", "W"]).includes(letterGrade)) {
+                    if ((uc === "uc" || uc === "") && !([false, "CR", "W"]).includes(letterGrade)) {
                         numClasses++;
                         let points = getGPA(letterGrade);
                         basePoints += points;
@@ -1741,7 +1743,8 @@
             let classesCounted = [];
             if (tenth in gradeHistoryLetters) {
                 let semesters = Object.keys(gradeHistoryLetters[tenth]);
-                for (let s = 0; s < semesters.length; s++) {
+                    for (let s = 0; s < semesters.length; s++) {
+                    if (gradYear - 2 > lastYearWithSummerCredit[school] && semesters[s] === "S3") continue;
                     let classes = gradeHistoryLetters[tenth][semesters[s]];
                     for (let c = 0; c < classes.length; c++) {
                         let classData = Object.entries(classes[c])[0];
@@ -1749,7 +1752,7 @@
                         let uc;
                         [uc, classType] = classType.split("_");
                         let letterGrade = classData[1] || (term === tenth && semester === semesters[s] ? getLetterGrade(getOverallGrade(c)) : false);
-                        if (uc === "uc" && !([false, "CR", "W"]).includes(letterGrade)) {
+                        if ((uc === "uc" || uc === "") && !([false, "CR", "W"]).includes(letterGrade)) {
                             classesCounted.push(classData[0]);
                             let points = getGPA(letterGrade);
                             basePoints += points;
@@ -1773,6 +1776,7 @@
             if (eleventh in gradeHistoryLetters) {
                 let semesters = Object.keys(gradeHistoryLetters[eleventh]);
                 for (let s = 0; s < semesters.length; s++) {
+                    if (gradYear - 1 > lastYearWithSummerCredit[school] && semesters[s] === "S3") continue;
                     let classes = gradeHistoryLetters[eleventh][semesters[s]];
                     for (let c = 0; c < classes.length; c++) {
                         let classData = Object.entries(classes[c])[0];
@@ -1780,7 +1784,7 @@
                         let uc;
                         [uc, classType] = classType.split("_");
                         let letterGrade = classData[1] || (term === eleventh && semester === semesters[s] ? getLetterGrade(getOverallGrade(c)) : false);
-                        if (uc === "uc" && !([false, "CR", "W"]).includes(letterGrade)) {
+                        if ((uc === "uc" || uc === "") && !([false, "CR", "W"]).includes(letterGrade)) {
                             classesCounted.push(classData[0]);
                             let points = getGPA(letterGrade);
                             basePoints += points;
@@ -1839,7 +1843,7 @@
                 let semesters = Object.keys(gradeHistoryLetters[_term]);
                 for (let s = 0; s < semesters.length; s++) {
                     let _semester = semesters[s];
-                    if (_semester === "S3") {
+                    if (gradYear - 3 + t > lastYearWithSummerCredit[school] && semesters[s] === "S3") {
                         continue;
                     } // Ignore summer
                     let classes = gradeHistoryLetters[_term][_semester];
