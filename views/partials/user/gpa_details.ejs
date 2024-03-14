@@ -287,7 +287,7 @@
             let semesters = Object.keys(gradeHistoryLetters[years[i]]).sort((a, b) => a.slice(-1) - b.slice(-1));
             for (let j = 0; j < semesters.length; j++) {
 
-                if (semesters[j] === "S3") {
+                if (gradYear - 3 + i > lastYearWithSummerCredit[school] && semesters[j] === "S3") {
                     continue;
                 }
 
@@ -441,7 +441,7 @@
                 <th>Total 11<sup>th</sup> Honors Points</th>
                 </tr>`;
 
-        if (ninth in gradeHistoryLetters && "S3" in gradeHistoryLetters[ninth]) {
+        if (gradYear - 3 <= lastYearWithSummerCredit[school] && ninth in gradeHistoryLetters && "S3" in gradeHistoryLetters[ninth]) {
 
             // Add a header row
             let semester_header = $(`<tr><th colspan="10">9th grade S3</th></tr>`);
@@ -475,17 +475,21 @@
                         uc_class_type = "UC Approved Regular";
                         honors_point = "--";
                         break;
-                    default:
+                    case "not_uc":
                         uc_class_type = "Not UC Approved";
                         honors_point = "--";
                         gpaPoints = "0.0";
+                        break;
+                    default:
+                        uc_class_type = "?";
+                        honors_point = "--";
                         break;
                 }
 
                 let uc;
                 [uc, class_type] = class_type.split("_");
 
-                if (uc === "uc" && !([false, "CR", "W"]).includes(letterGrade)) {
+                if ((uc === "uc" || uc === "") && !([false, "CR", "W"]).includes(letterGrade)) {
                     numClasses++;
                     let points = getGPA(letterGrade);
                     basePoints += points;
@@ -507,13 +511,15 @@
         if (tenth in gradeHistoryLetters) {
             let semesters = Object.keys(gradeHistoryLetters[tenth]).sort((a, b) => a.slice(-1) - b.slice(-1));
             for (let s = 0; s < semesters.length; s++) {
+                if (gradYear - 2 > lastYearWithSummerCredit[school] && semesters[s] === "S3") continue;
+                let classes = gradeHistoryLetters[tenth][semesters[s]];
+                if (!classes.filter(c => !([false, "CR", "W"]).includes(Object.values(c)[0])).length) continue;
 
                 // Add a header row
                 let semester_header = $(`<tr><th colspan="10">10th grade ` + semesters[s] + `</th></tr>`);
                 uc_csuGpaDetailsTable.append(semester_header);
                 uc_csuGpaDetailsTable.append(header);
 
-                let classes = gradeHistoryLetters[tenth][semesters[s]];
                 for (let c = 0; c < classes.length; c++) {
                     let classObject = classes[c];
                     let class_name = Object.keys(classObject)[0];
@@ -539,17 +545,21 @@
                             uc_class_type = "UC Approved Regular";
                             honors_point = "--";
                             break;
-                        default:
+                        case "not_uc":
                             uc_class_type = "Not UC Approved";
                             honors_point = "--";
                             gpaPoints = "0.0";
+                            break;
+                        default:
+                            uc_class_type = "?";
+                            honors_point = "--";
                             break;
                     }
 
                     let uc;
                     [uc, class_type] = class_type.split("_");
 
-                    if (uc === "uc" && !([false, "CR", "W"]).includes(letterGrade)) {
+                    if ((uc === "uc" || uc === "") && !([false, "CR", "W"]).includes(letterGrade)) {
                         numClasses++;
                         let points = getGPA(letterGrade);
                         basePoints += points;
@@ -574,13 +584,15 @@
         if (eleventh in gradeHistoryLetters) {
             let semesters = Object.keys(gradeHistoryLetters[eleventh]).sort((a, b) => a.slice(-1) - b.slice(-1));
             for (let s = 0; s < semesters.length; s++) {
+                if (gradYear - 1 > lastYearWithSummerCredit[school] && semesters[s] === "S3") continue;
+                let classes = gradeHistoryLetters[eleventh][semesters[s]];
+                if (!classes.filter(c => !([false, "CR", "W"]).includes(Object.values(c)[0])).length) continue;
 
                 // Add a header row
                 let semester_header = $(`<tr><th colspan="10">11th grade ` + semesters[s] + `</th></tr>`);
                 uc_csuGpaDetailsTable.append(semester_header);
                 uc_csuGpaDetailsTable.append(header);
 
-                let classes = gradeHistoryLetters[eleventh][semesters[s]];
                 for (let c = 0; c < classes.length; c++) {
                     let classObject = classes[c];
                     let class_name = Object.keys(classObject)[0];
@@ -606,17 +618,21 @@
                             uc_class_type = "UC Approved Regular";
                             honors_point = "--";
                             break;
-                        default:
+                        case "not_uc":
                             uc_class_type = "Not UC Approved";
                             honors_point = "--";
                             gpaPoints = "0.0";
+                            break;
+                        default:
+                            uc_class_type = "?";
+                            honors_point = "--";
                             break;
                     }
 
                     let uc;
                     [uc, class_type] = class_type.split("_");
 
-                    if (uc === "uc" && !([false, "CR", "W"]).includes(letterGrade)) {
+                    if ((uc === "uc" || uc === "") && !([false, "CR", "W"]).includes(letterGrade)) {
                         numClasses++;
                         let points = getGPA(letterGrade);
                         basePoints += points;
