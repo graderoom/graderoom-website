@@ -163,6 +163,10 @@ td, th {
     color: #AAA;
 }
 
+.categoryChartToggle {
+    border-color: #333333;
+}
+
 .changelog, .changelog-legend {
     background-color: #333333;
 }
