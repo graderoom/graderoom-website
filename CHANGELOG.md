@@ -50,6 +50,27 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 6.9.0] - 2024-03-15
+### Added
+- Updated contributor list in <span style="cursor: pointer" onclick="showCard('#settingsCardDisplay'); openTab(5)" class="changelog-inline-setoff">About Tab <i class="fa fa-external-link"></i></span>
+- New "Category Breakdown" charts for each class<ul>
+- This feature was requested by a student through the Feedback Form. Thanks for the idea!</ul>
+
+### Improved
+- Extra credit assignments no longer show a grade of 0% in chart tooltips
+- <github issue="179">Remove ungraded assignments from charts</github>
+- UC GPA now defaults courses to being UC-Approved if their approval status is unknown
+- <github issue="132">Don't show UC freshman S3 section if the courses don't have an overall grade</github>
+- Consistently remove post-2020 S3 from Bellarmine GPAs
+- "Verified Weights" UI improvements<ul>
+- Moved to a less awkward location
+- Now always displays weights in the same order that they show in your weights table, with any additional weights at the end</ul>
+- <em>[Mobile]</em> Add Assignment popup now also has a click barrier on mobile to prevent clicking things when trying to dismiss it
+
+### Fixed
+- <github issue="172">Assignment average issue with extra credit</github>
+- <em>[Mobile]</em> Class charts were showing on mobile
+
 ## [Beta 6.8.0] - 2024-03-14
 ### Added
 - Updated contributor list in <span style="cursor: pointer" onclick="showCard('#settingsCardDisplay'); openTab(5)" class="changelog-inline-setoff">About Tab <i class="fa fa-external-link"></i></span>
