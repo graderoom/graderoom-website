@@ -3830,7 +3830,7 @@
                     if (_data[i].grades.length !== 0) {
                         let unexcludeMask = classData.map(x => !x.exclude && x.points_gotten !== false);
                         let assignmentTimestamps = assignmentDates.filter((x, k) => unexcludeMask[k]).map((x, k, arr) => new Date(Date.parse(x) + ((24 * 60 * 60 * 1000 / arr.filter(y => x === y).length + 1) * arr.filter((y, j) => j < k && x === y).length)));
-                        let mixedData = overallGradeSteps.filter(x => x).map((grade, k) => {
+                        let mixedData = overallGradeSteps.filter((x, k) => unexcludeMask[k]).map((grade, k) => {
                             return {x: assignmentTimestamps[k], y: grade};
                         });
                         chartData[i] = {
@@ -3851,7 +3851,7 @@
                             categories.map((category, j) => {
                                 assignmentDates = categorySortedData[i].assignmentDates.filter((x, k) => unexcludeMask[k]).slice(categoryIndices[j], categoryIndices[j + 1]);
                                 assignmentTimestamps = assignmentDates.filter((x, k) => unexcludeMask[k]).map((x, k, arr) => new Date(Date.parse(x) + ((24 * 60 * 60 * 1000 / arr.filter(y => x === y).length + 1) * arr.filter((y, j) => j < k && x === y).length)));
-                                mixedData = categorySortedData[i].rawData.filter(x => x).slice(categoryIndices[j], categoryIndices[j + 1]).map((grade, k) => {
+                                mixedData = categorySortedData[i].rawData.filter((x, k) => unexcludeMask[k]).slice(categoryIndices[j], categoryIndices[j + 1]).map((grade, k) => {
                                     return {x: assignmentTimestamps[k], y: grade};
                                 });
                                 return [
