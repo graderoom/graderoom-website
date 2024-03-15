@@ -4955,6 +4955,7 @@
             let assignmentDescription = parsedData[classIndex].assignmentDescriptions[assignmentIndex];
             let assignmentComments = parsedData[classIndex].assignmentComments[assignmentIndex];
             let assignmentPSAID = parsedData[classIndex].assignmentPSAIDs[assignmentIndex];
+            let isExtraCredit = assignmentScore.endsWith("/0");
             $("#infoAverage").show();
             $("#assignmentInfoDate").text(assignmentDate).parent("span").show();
             $("#assignmentInfoDateEditable").parent("span").hide();
@@ -4973,7 +4974,7 @@
             }
             if (`${assignmentPSAID}` in assignmentAverages[classIndex]) {
                 let avgData = assignmentAverages[classIndex][`${assignmentPSAID}`];
-                setupAssignmentAverage(avgData, assignmentPSAID, classIndex);
+                setupAssignmentAverage(avgData, assignmentPSAID, classIndex, isExtraCredit);
             } else if (premium || assignmentIndex === data[classIndex].grades.length - 1) {
                 $.ajax({
                     method: "POST",
@@ -4986,16 +4987,16 @@
                     }
                 }).done(function (response) {
                     assignmentAverages[classIndex][`${assignmentPSAID}`] = response;
-                    setupAssignmentAverage(response, assignmentPSAID, classIndex);
+                    setupAssignmentAverage(response, assignmentPSAID, classIndex, isExtraCredit);
                 }).fail(function () {
-                    setupAssignmentAverage(null, assignmentPSAID, classIndex);
+                    setupAssignmentAverage(null, assignmentPSAID, classIndex, isExtraCredit);
                 });
             } else {
-                setupAssignmentAverage(null, assignmentPSAID, classIndex);
+                setupAssignmentAverage(null, assignmentPSAID, classIndex, isExtraCredit);
             }
         }
 
-        function setupAssignmentAverage(avgData, assignmentPSAID, classIndex) {
+        function setupAssignmentAverage(avgData, assignmentPSAID, classIndex, isExtraCredit) {
             if (avgData === null) {
                 $("#assignmentInfoGraderoomUsers").addClass("locked").text("");
                 $("#assignmentInfoGraderoomUsers ~ span > span:first-child").text("Graderoom Users this semester");
@@ -5006,7 +5007,7 @@
                 $("#assignmentInfoGraderoomUsers ~ span > span:first-child").text("Graderoom User" + (avgData.numUsers !== 1 ? "s" : "") + " this semester");
 
                 if ('average' in avgData) {
-                    $("#assignmentInfoAverage").removeClass("locked").text(`${Math.round(avgData.average * 100) / 100}% (${getLetterGrade(avgData.average)})`);
+                    $("#assignmentInfoAverage").removeClass("locked").text(`${Math.round(avgData.average * 100) / 100}${isExtraCredit ? "" : `% (${getLetterGrade(avgData.average)})`}`);
                 } else {
                     $("#assignmentInfoAverage").addClass("locked").html(`<span class="text-muted">Not Enough Data</span>`);
                 }
