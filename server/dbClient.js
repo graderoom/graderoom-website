@@ -4572,9 +4572,11 @@ const _getAssignmentAverage = async (db, username, term, semester, className, as
     let users = (await getAllUsers({[`grades.${term}.${semester}`]: 1}, assignmentAverageQuery)).data.value;
 
     let validScores = users.map(u => {
-        let grade = u.grades[term][semester].find(c => c.class_name === className).grades.filter(g => g.psaid === assignmentPSAID && g.grade_percent !== false);
-        if (grade.length) {
-            return grade[0].grade_percent;
+        let grade = u.grades[term][semester].find(c => c.class_name === className).grades.find(g => g.psaid === assignmentPSAID && g.points_gotten !== false);
+        if (grade && grade.grade_percent !== false) {
+            return grade.grade_percent;
+        } else if (grade) {
+            return grade.points_gotten;
         } else {
             return false;
         }

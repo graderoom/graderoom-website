@@ -50,7 +50,7 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Beta 6.7.2] - 2024-03-14
+## [Beta 6.8.0] - 2024-03-14
 ### Added
 - Updated contributor list in <span style="cursor: pointer" onclick="showCard('#settingsCardDisplay'); openTab(5)" class="changelog-inline-setoff">About Tab <i class="fa fa-external-link"></i></span>
 
@@ -62,6 +62,7 @@
 - Consistently remove post-2020 S3 from Bellarmine GPAs
 
 ### Fixed
+- <github issue="172">Assignment average issue with extra credit</github>
 - <em>[Mobile]</em> Class charts were showing on mobile
 
 ## [Beta 6.7.1] - 2024-03-13
