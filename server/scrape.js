@@ -9,7 +9,7 @@ module.exports = {
     loginAndScrapeGrades: function (processor, school, email, password, data_if_locked = {}, term_data_if_locked = {}, get_history = 'false', ignoreQueue = false) {
         scraperQueue.enqueue(async () => await this._loginAndScrapeGrades(processor, school, email, password, data_if_locked, term_data_if_locked, get_history), processor, ignoreQueue);
     },
-    _loginAndScrapeGrades: async function (processor, school, email, password, data_if_locked = {}, term_data_if_locked = {}, get_history='false') {
+    _loginAndScrapeGrades: async function (processor, school, email, password, data_if_locked = [], term_data_if_locked = {}, get_history='false') {
         return new Promise(resolve => {
             let pythonPath;
 
