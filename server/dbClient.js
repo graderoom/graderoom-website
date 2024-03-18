@@ -3086,7 +3086,7 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
         }
     };
 
-    scraper.loginAndScrapeGrades(processor, user.school, user.schoolUsername, schoolPassword, "", "", "true");
+    scraper.loginAndScrapeGrades(processor, user.school, user.schoolUsername, schoolPassword, [],{}, "true");
 };
 
 const updateSortData = (username, sortData) => safe(_updateSortData, lower(username), sortData);
