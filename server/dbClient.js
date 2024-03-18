@@ -2761,11 +2761,11 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
     let user = res.data.value;
     let {term: oldTerm, semester: oldSemester} = __getMostRecentTermData(user).data.value;
     let termDataIfLocked = {term: oldTerm, semester: oldSemester};
-    let dataIfLocked = "";
+    let dataIfLocked = [];
     if (oldTerm && oldSemester) {
         dataIfLocked = user.grades[oldTerm][oldSemester].map(class_data => _.omit(class_data, ["grades"]));
     } else {
-        termDataIfLocked = "";
+        termDataIfLocked = {};
     }
 
     const processor = async (data) => {
