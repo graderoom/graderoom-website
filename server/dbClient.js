@@ -270,7 +270,8 @@ const __addUser = async (db, user) => {
             username: user.username,
             schoolUsername: user.schoolUsername,
             api: user.api,
-            discord: user.discord
+            discord: user.discord,
+            hash: hash(user.username)
         });
         await _users(db, user.username).insertOne(user);
         return {success: true, data: {log: `Created user ${user.username}`, message: "User Created"}};
@@ -1286,6 +1287,31 @@ const __version26 = async (db, user) => {
     }
 };
 
+const _version27 = async (db, username) => {
+    let res = await getUser(username, {version: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version27, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 27`}};
+}
+
+const __version27 = async (db, user) => {
+    if (user.version === 26) {
+        _usernames(db).updateOne({username: user.username}, {
+            $set: {
+                hash: hash(user.username)
+            }
+        });
+        await _users(db, user.username).updateOne({username: user.username}, {
+            $set: {version: 27}
+        });
+    }
+}
+
 
 const initUser = (username) => safe(_initUser, lower(username));
 const _initUser = async (db, username) => {
@@ -1435,6 +1461,9 @@ const updateUser = async (user) => {
     }
     if (user.version < 26) {
         await safe(_version26, user.username);
+    }
+    if (user.version < 27) {
+        await safe(_version27, user.username);
     }
 };
 
