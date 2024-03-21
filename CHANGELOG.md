@@ -50,7 +50,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Stable 6.9.1] - 2024-03-18
+## [Stable 6.9.2] - 2024-03-21
+- Issue with new accounts syncing to locked PowerSchool
+
+## [Beta 6.9.1] - 2024-03-18
 ### Fixed
 - Issue with new accounts syncing to locked PowerSchool
 
