@@ -726,7 +726,7 @@ class PowerschoolScraper(Scraper):
 
         return response
 
-    def get_locked(self, class_data: dict, term_data: dict) -> None:
+    def get_locked(self, class_data: list, term_data: dict) -> None:
         self.message = 'Fetching course data...'
         url = 'https://' + self.base_url + '/guardian/teachercomments.html'
         response = self.session.get(url, verify=self.verify)

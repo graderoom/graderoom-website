@@ -50,6 +50,14 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 6.9.2] - 2024-03-21
+### Fixed
+- Issue with new accounts syncing to locked PowerSchool
+
+## [Beta 6.9.1] - 2024-03-18
+### Fixed
+- Issue with new accounts syncing to locked PowerSchool
+
 ## [Stable 6.9.0] - 2024-03-15
 ### Added
 - Updated contributor list in <span style="cursor: pointer" onclick="showCard('#settingsCardDisplay'); openTab(5)" class="changelog-inline-setoff">About Tab <i class="fa fa-external-link"></i></span>
