@@ -51,6 +51,7 @@
 - None
 
 ## [Stable 6.9.2] - 2024-03-21
+### Fixed
 - Issue with new accounts syncing to locked PowerSchool
 
 ## [Beta 6.9.1] - 2024-03-18
