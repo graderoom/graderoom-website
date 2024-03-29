@@ -262,6 +262,7 @@
                                         <thead>
                                         <tr>
                                             <th id="overview<%= i + offset; %>" class="overview"
+                                                onclick="showPage(parseInt(`<%= i + offset; %>`));"
                                                 style="cursor: pointer; text-align: center; color: <%= _appearance.classColors[i]; %>">
                                                 <%= _gradeData[i].class_name; %>
                                             </th>
@@ -270,6 +271,7 @@
                                         <tbody>
                                         <tr>
                                             <td class="overview"
+                                            onclick="showPage(parseInt(`<%= i + offset; %>`));"
                                                 style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= _appearance.classColors[i]; %>">
                                                 <div id="overviewChart<%= i + offset; %>"
                                                      style="display:block; font-weight:bolder">
@@ -300,6 +302,7 @@
                                         <thead>
                                         <tr>
                                             <th id="overview<%= i + offset; %>" class="overview"
+                                                onclick="showPage(parseInt(`<%= i + offset; %>`));"
                                                 style="cursor: pointer; text-align: center; color: <%= _appearance.classColors[i]; %>">
                                                 <%= _gradeData[i].class_name; %>
                                             </th>
@@ -308,6 +311,7 @@
                                         <tbody>
                                         <tr>
                                             <td class="overview"
+                                            onclick="showPage(parseInt(`<%= i + offset; %>`));"
                                                 style="padding-top: 0.5rem; padding-bottom: 0; cursor: pointer; color: <%= _appearance.classColors[i]; %>">
                                                 <div id="overviewChart<%= i + offset; %>"
                                                      style="display:block; font-weight:bolder">
