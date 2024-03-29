@@ -44,11 +44,22 @@
 
 <!-- DO NOT USE THE "|" CHARACTER ANYWHERE -->
 
+<!-- Start a line with "//" to not include it in the changelog -->
+
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 <!-- --------------------------------------------------------------------------------------------------------------- -->
 
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
+
+## [Stable 6.9.3] - 2024-03-28
+### Added
+- Button to change school password in Account Settings<ul>
+- This was already possible by disabling/reenabling GradeSync, but it is more explicit now</ul>
+
+### Fixed
+- Password Reset works now
+//- <em>[Mobile]</em> Fix class tile not clickable on iOS
 
 ## [Stable 6.9.2] - 2024-03-21
 ### Fixed
