@@ -3856,7 +3856,6 @@ const _checkPasswordResetToken = async (db, token) => {
         return {success: true, data: {username: null, school: null, valid: false, gradeSync: false}};
     }
     let user = res.data.value[0];
-    console.log(user);
     let valid = user && user.passwordResetTokenExpire > Date.now();
     let gradeSync = !!user.schoolPassword;
     return {success: true, data: {username: user?.username, school: user?.school, valid: valid, gradeSync: gradeSync}};
