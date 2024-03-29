@@ -5307,15 +5307,6 @@
             setTimeout(unblockClicks, 0); // Forces this to execute after the click is blocked
         });
 
-        $("#mobile-overview-grid th, #mobile-overview-grid td").on("click", function (e) {
-            let target = $(e.target);
-            if (!target.is(".block")) {
-                target = target.parents(".block");
-            }
-            let index = target[0].id.substring("block".length);
-            showPage(parseInt(index));
-        });
-
         function checkNewCategory(inputID, messageDivID, index) {
             let category = $(inputID)[0].value;
             let icon = $($($(inputID)[0].nextElementSibling)[0].firstElementChild);
