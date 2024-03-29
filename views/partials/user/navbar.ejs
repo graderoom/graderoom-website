@@ -440,6 +440,15 @@
         if (id === "changelogDisplay") {
             $(".changelog-parent, .changelog-parent > div").removeClass("show");
         }
+        if (id === "updateGradesDisplay") {
+            if (gradeSync) {
+                $("#syncGradesDiv").hide();
+                $("#gradeSyncDiv").show();
+            } else {
+                $("#gradeSyncDiv").hide();
+                $("#syncGradesDiv").show();
+            }
+        }
 
         // Manage theme selection, if it exists
         try {

@@ -3846,12 +3846,17 @@ const _leaveBeta = async (db, username) => {
 
 const checkPasswordResetToken = (token) => safe(_checkPasswordResetToken, token);
 const _checkPasswordResetToken = async (db, token) => {
-    let user = await getAllUsers({
+    let res = await getAllUsers({
         schoolPassword: 1,
         passwordResetTokenExpire: 1,
         username: 1,
         school: 1
     }, {passwordResetToken: token});
+    if (!res.success || res.data.actualCount !== 1) {
+        return {success: true, data: {username: null, school: null, valid: false, gradeSync: false}};
+    }
+    let user = res.data.value[0];
+    console.log(user);
     let valid = user && user.passwordResetTokenExpire > Date.now();
     let gradeSync = !!user.schoolPassword;
     return {success: true, data: {username: user?.username, school: user?.school, valid: valid, gradeSync: gradeSync}};
@@ -3891,7 +3896,7 @@ const _resetPassword = async (db, token, newPassword) => {
         }
 
         if (gradeSync) {
-            await disableGradeSync(user.username);
+            await disableGradeSync(username);
         }
 
         bcrypt.hash(newPassword, ROUNDS_TO_GENERATE_SALT, async (err, hash) => {

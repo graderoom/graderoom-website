@@ -1060,7 +1060,7 @@ module.exports = function (app, passport) {
         let resetToken = req.query.token;
         let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
 
-        let {user, valid: validToken, gradeSync: gradeSync} = (await dbClient.checkPasswordResetToken(resetToken)).data;
+        let {school: school, valid: validToken, gradeSync: gradeSync} = (await dbClient.checkPasswordResetToken(resetToken)).data;
         if (!validToken) {
             res.status(404).render("password_reset/reset_password_404.ejs", {
                 sunset: sunset,
@@ -1079,7 +1079,7 @@ module.exports = function (app, passport) {
             sunset: sunset,
             sunrise: sunrise,
             page: "passwordReset",
-            school: user.school,
+            school: school,
         });
     });
 
