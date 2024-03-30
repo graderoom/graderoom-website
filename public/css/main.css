@@ -4227,6 +4227,10 @@ input[name=searchByNameOrUsername] {
         display: grid;
     }
 
+    #mobile-overview-grid th, #mobile-overview-grid td {
+        cursor: pointer;
+    }
+
     html.no-scroll {
         overflow: hidden;
         width: 100%;

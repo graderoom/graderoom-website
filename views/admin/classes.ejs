@@ -277,14 +277,14 @@
                     <% let teacherName = Object.keys(classData[className])[j]; %>
                     <% if (_.isObject(classData[className][teacherName]) && !Array.isArray(classData[className][teacherName])) { %>
                         <div class="break"></div>
-                        <label class="accordion-label" data-toggle="collapse" href="#collapse<%= i %><%= j %>"
+                        <label class="accordion-label" data-toggle="collapse" href="#collapse-<%= i %>-<%= j %>"
                                style="display: flex; margin: 0 0 0 2rem; cursor: pointer">
                             <h5 style="cursor: pointer" class="weightname" id="<%= teacherName %>">
                                 <%= teacherName %>
                                 <i style="text-indent: 0 !important;" class="fa" aria-hidden="true"></i>
                             </h5>
 
-                            <span id="suggestionMessage<%= i %><%= j %>" class="alert alert-success font-weight-bold"
+                            <span id="suggestionMessage-<%= i %>-<%= j %>" class="alert alert-success font-weight-bold"
                                   style="margin: auto 0 auto 0.75rem; width: fit-content; display:none; justify-content: center; padding: 0.1rem;">
                                 <div style="display: none" class="sk-chase-mini">
                                     <div class="sk-chase-dot mini"></div>
@@ -298,7 +298,7 @@
                             </span>
                         </label>
                         <div class="break"></div>
-                        <span class="collapse collapse-underline show" id="collapse<%= i %><%= j %>"
+                        <span class="collapse collapse-underline show" id="collapse-<%= i %>-<%= j %>"
                               data-parent="#accordionForms<%= i %>">
                             <!-- Loops through all suggestions + 1 for the actual weights -->
                             <% for (let z = -1; z < classData[className][teacherName]["suggestions"].length; z++ ) {
@@ -315,11 +315,11 @@
                                     marginLeft = 6;
                                 }
                             if (z === 0) { %>
-                                <h5 id="suggestion-header<%= i %><%= j %>" style="margin: 0 0 0.5rem 4rem;">
+                                <h5 id="suggestion-header-<%= i %>-<%= j %>" style="margin: 0 0 0.5rem 4rem;">
                                     Suggestions:
                                 </h5>
                             <% } %>
-                            <form id="suggestion<%= i %><%= j %><%= z %>" class="form-ajax form-weights form-signin"
+                            <form id="suggestion-<%= i %>-<%= j %>-<%= z %>" class="form-ajax form-weights form-signin"
                                   action="/updateclassweights" method="post"
                                   style="margin: 0 0 0 <%= marginLeft %>rem; width: 100%">
                                 <suggestionIndex style="display: none;"><%= z %></suggestionIndex>
@@ -333,7 +333,7 @@
                                         let name = Object.keys(weights)[k];
                                         let value = weights[name] %>
 
-                                    <div class="form-group" id="category<%= i %><%= j %><%= z %><%= k %>"
+                                    <div class="form-group" id="category-<%= i %>-<%= j %>-<%= z %>-<%= k %>"
                                          style="margin-bottom: 0.5rem; display:inline-flex; align-items: flex-end;">
                                         <input style="font-size: 0.9rem; margin-right: 0 !important; width: auto; white-space: nowrap; margin-bottom: 0;"
                                                value="<%= name %>"
@@ -377,7 +377,7 @@
                                         Point Based?
                                     </label>
                                     <input
-                                            id="check<%= i %><%= j %><%= z %>"
+                                            id="check-<%= i %>-<%= j %>-<%= z %>"
                                             style="margin-top: auto; margin-bottom: auto!important;"
                                             type="checkbox"
                                             class="form-control"
@@ -387,7 +387,7 @@
                                             <% }} catch (e) {
                                             } %>
                                     <% if (z == -1) { %>
-                                            onchange="showSubmitButton(this); disableInput('check<%= i %><%= j %><%= z %>','collapse<%= i %><%= j %><%= z %>');"
+                                            onchange="showSubmitButton(this); disableInput('check-<%= i %>-<%= j %>-<%= z %>','collapse-<%= i %>-<%= j %>-<%= z %>');"
                                             <% } %>
                                     <% if (z != -1) { %> disabled
                                             <% } %>
@@ -405,13 +405,13 @@
                                             });
                                         }
 
-                                        disableInput('check<%= i %><%= j %><%= z %>', 'collapse<%= i %><%= j %><%= z %>');
+                                        disableInput('check-<%= i %>-<%= j %>-<%= z %>', 'collapse-<%= i %>-<%= j %>-<%= z %>');
                                     </script>
                                 </div>
                                 <% if (z == -1) { %>
                                     <div class="formSubmitButton" style="width: 100%; display: none">
                                         <button type="submit" class="btn btn-default btn-med"
-                                                onclick="ajaxPostWeightsDatabaseForm('<%= i %>','<%= j %>','<%= z %>',[],'#suggestionMessage<%= i %><%= j %>',true);">
+                                                onclick="ajaxPostWeightsDatabaseForm('<%= i %>','<%= j %>','<%= z %>',[],'#suggestionMessage-<%= i %>-<%= j %>',true);">
                                             <i class="fa fa-refresh" aria-hidden="true"></i>
                                             Update
                                         </button>
@@ -419,7 +419,7 @@
                                 <% } else { %>
                                     <div class="formSubmitButton" style="width: 100%; display: block;">
                                         <button type="submit" class="btn btn-default btn-med approve_btn"
-                                                onclick="ajaxPostWeightsDatabaseForm('<%= i %>','<%= j %>','<%= z %>',[],'#suggestionMessage<%= i %><%= j %>',true);">
+                                                onclick="ajaxPostWeightsDatabaseForm('<%= i %>','<%= j %>','<%= z %>',[],'#suggestionMessage-<%= i %>-<%= j %>',true);">
                                             <i class="fa fa-check" aria-hidden="true"></i>
                                             Approve
                                         </button>
@@ -463,7 +463,7 @@
         // Get the form.
         let formID;
         if (suggestionIndex) {
-            formID = "#suggestion" + classIndex + teacherIndex + suggestionIndex;
+            formID = `#suggestion-${classIndex}-${teacherIndex}-${suggestionIndex}`;
         } else if (isUCForm) {
             formID = "#ucClassType" + classIndex;
         } else {
@@ -552,16 +552,17 @@
                 $(formID + " .form-group .form-control").css("border-color", "unset").addClass("text-view");
 
                 //Update class weight for approved suggestions
-                if (teacherIndex && parseInt($(formID).find("suggestionindex").html()) != -1) {
-                    $("#suggestion" + classIndex + teacherIndex + "-1").find(".form-group").slice(0, -1).remove(); //Remove all categories
+                if (teacherIndex && parseInt($(formID).find("suggestionindex").html()) !== -1) {
+                    $(`#suggestion-${classIndex}-${teacherIndex}--1`).find(".form-group").slice(0, -1).remove(); //Remove all categories
                     $("#check" + classIndex + teacherIndex + "-1").prop("checked", !hasWeights); //Update hasWeights
                     for (let i = 0; i < Object.keys(weights).length; i++) {
                         addCategory(document.createElement("dummy"), classIndex, teacherIndex, "-1");
-                        $($("#category" + classIndex + teacherIndex + "-1" + i).find("input")[0]).val(Object.keys(weights)[i]); //Add Category names
-                        $($("#category" + classIndex + teacherIndex + "-1" + i).find("input")[1]).val(Object.values(weights)[i]); //Add category weights
+                        let approved = $(`#category-${classIndex}-${teacherIndex}--1-${i}`);
+                        $(approved.find("input")[0]).val(Object.keys(weights)[i]); //Add Category names
+                        $(approved.find("input")[1]).val(Object.values(weights)[i]); //Add category weights
                     }
-                    $("#suggestion" + classIndex + teacherIndex + "-1" + " .form-group .form-control").css("border-color", "unset").addClass("text-view");
-                    $("#suggestion" + classIndex + teacherIndex + "-1" + " .formSubmitButton").hide();
+                    $(`#suggestion-${classIndex}-${teacherIndex}--1 .form-group .form-control`).css("border-color", "unset").addClass("text-view");
+                    $(`#suggestion-${classIndex}-${teacherIndex}--1 .formSubmitButton`).hide();
                 } else {
                     $(formID + " .formSubmitButton").hide();
                 }
@@ -569,10 +570,10 @@
                 //Remove suggestion
                 if (response.suggestion != null) {
                     try {
-                        $("#suggestion" + classIndex + teacherIndex + response.suggestion).remove();
+                        $(`#suggestion-${classIndex}-${teacherIndex}-${response.suggestion}`).remove();
                         //remove Suggestion header if no more suggestions
-                        if ($("#collapse" + classIndex + teacherIndex).find("form").length <= 1) {
-                            $("#suggestion-header" + classIndex + teacherIndex).remove();
+                        if ($(`#collapse-${classIndex}-${teacherIndex}`).find("form").length <= 1) {
+                            $(`#suggestion-header-${classIndex}-${teacherIndex}`).remove();
                         }
                     } catch (error) {
                         console.error(error);
@@ -611,8 +612,15 @@
 
     function addCategory(element, classIndex, teacherIndex, suggestionIndex) {
         if (!(element).hasAttribute("disabled")) {
-            let classDiv = "#suggestion" + classIndex + teacherIndex + suggestionIndex;
-            let newCategory = $("<div class=\"form-group\" id=\"category" + classIndex + teacherIndex + suggestionIndex + ($($(classDiv)[0].children)[1].children.length - 1) + "\"" + "style=\"text-indent: 3rem; display: inline-flex;" + "align-items: flex-end;" + ($($(classDiv)[0].children)[1].children.length > 1 ? "margin-left: " + ($($($(classDiv)[0].children)[1].children)[1].offsetLeft - $(classDiv)[0].offsetLeft) + "px" : "") + "\">" + "<input size=\"2\" style=\"font-size: 0.9rem; margin-right: 0 !important; width: fit-content; white-space: nowrap; margin-bottom: 0;\"" + "class=\" disableable form-control\"" + "oninput=\"this.classList.remove('text-view'); showSubmitButton(this); resizeInput(this);\"" + "required" + ">" + ":&nbsp;</input>" + "<input style=\"margin: 0; border-color: lightcoral!important;\"" + "type=\"number\"" + "min=\"0\"" + "step=\"0.1\"" + "class=\"form-control disableable\"" + "oninput=\"this.classList.remove('text-view'); showSubmitButton(this); \">" + "<span class=\"fa fa-minus disableable\" onclick=\"removeCategory(this)\"" + "style=\"text-indent: 1rem; color: red; cursor: pointer;\"></span>" + "</div>");
+            let classDiv = `#suggestion-${classIndex}-${teacherIndex}-${suggestionIndex}`;
+            let newCategory = $(`
+                <div class="form-group" id="category-${classIndex}-${teacherIndex}-${suggestionIndex}-${($($(classDiv)[0].children)[1].children.length - 1)}"
+                     style="text-indent: 3rem; display: inline-flex; align-items: flex-end; ${($($(classDiv)[0].children)[1].children.length > 1 ? `margin-left: ${($($($(classDiv)[0].children)[1].children)[1].offsetLeft - $(classDiv)[0].offsetLeft)}px` : "")}">
+                    <input size="2" style="font-size: 0.9rem; margin-right: 0 !important; width: fit-content; white-space: nowrap; margin-bottom: 0;" class=" disableable form-control" oninput="this.classList.remove('text-view'); showSubmitButton(this); resizeInput(this);" required>:&nbsp;</input>
+                    <input style="margin: 0; border-color: lightcoral!important;" type="number" min="0" step="0.1" class="form-control disableable" oninput="this.classList.remove('text-view'); showSubmitButton(this); ">
+                    <span class="fa fa-minus disableable" onclick="removeCategory(this)" style="text-indent: 1rem; color: red; cursor: pointer;"></span>
+                </div>
+            `);
             $($($(classDiv)[0].children)[1]).append(newCategory);
             showSubmitButton($(classDiv));
         }
