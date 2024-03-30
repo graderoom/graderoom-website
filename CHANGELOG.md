@@ -54,7 +54,7 @@
 
 ## [Stable 6.9.5] - 2024-03-30
 ### Fixed
-- Issue with class charts when weights unverified
+- Issue with class charts when calculated grade doesn't match PowerSchool grade
 
 ## [Stable 6.9.4] - 2024-03-29
 ### Added
