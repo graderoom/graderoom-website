@@ -130,8 +130,8 @@ async function run() {
     }
 
     time = Date.now();
-    let actualAllUsers = (await _getAllUsers(db, {"loggedIn": 1, 'personalInfo.graduationYear': 1})).data.value
-        .concat(await db.collection(ARCHIVED_USERS_COLLECTION_NAME).find({}, {projection: {"loggedIn": 1, 'personalInfo.graduationYear': 1}}).toArray());
+    let actualAllUsers = (await _getAllUsers(db, {"loggedIn": 1, 'personalInfo.graduationYear': 1}, {"alerts.lastUpdated": {$not: {$size: 0}}})).data.value
+        .concat(await db.collection(ARCHIVED_USERS_COLLECTION_NAME).find({"alerts.lastUpdated": {$not: {$size: 0}}}, {projection: {"loggedIn": 1, 'personalInfo.graduationYear': 1}}).toArray());
 
     // Might be workaround for this, but I can't figure it out at the moment
     let userData = loginData.map(t => ({

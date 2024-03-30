@@ -57,6 +57,9 @@
 - Button to change school password in Account Settings<ul>
 - This was already possible by disabling/reenabling GradeSync, but it is more explicit now</ul>
 
+### Improved
+- User counts on the charts page now only include users that have successfully synced at least once.
+
 ### Fixed
 - Password Reset works now
 
