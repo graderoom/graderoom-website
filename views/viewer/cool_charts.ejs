@@ -308,7 +308,7 @@
     }
     let updated = new Date(<%= lastUpdated - 24 * 60 * 60 * 1000 %>);
     let count = <%- JSON.stringify(_loggedInData.data.value) %>;
-    $("#user-desc").text(`${Object.values(userData.slice(-1)[0].y).reduce((a, b) => a + b, 0)} total user(s) as of ${updated.toDateString()}.`);
+    $("#user-desc").text(`${Object.values(userData.slice(-1)[0].y).reduce((a, b) => a + b, 0)} total real user(s) as of ${updated.toDateString()}.`);
     $("#curr-logins").text(`${count.count} active session(s). ${count.uniqueCount} currently active user(s).`);
     $("#weekday-desc").text(`${weekdayLoginData.reduce((a, b) => a + b, 0)} logins, ${weekdaySyncData.reduce((a, b) => a + b, 0)} syncs all time`)
 
