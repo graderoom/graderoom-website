@@ -4229,16 +4229,6 @@
                 const aWeek = 7 * aDay;
                 let dataset = [];
                 let _mixedData = [];
-                if (!correctCalc(id)) {
-                    if (endDate === 0) {
-                        _mixedData.push({
-                            x: new Date(Date.now() - aDay), y: data[id].overall_percent
-                        });
-                        _mixedData.push({x: new Date(Date.now()), y: data[id].overall_percent});
-                    } else {
-                        _mixedData.push({x: new Date(endDate + aDay), y: data[id].overall_percent});
-                    }
-                }
                 if (!categoryChart[id]) {
                     for (let j = 0; j < chartData[id].mixedData.length; j++) {
                         _mixedData.push(chartData[id].mixedData[j]);
@@ -4261,6 +4251,16 @@
                         }
                         for (let key of keys) {
                             badDates[key].push(3 * aDay * Math.floor(_date / (3 * aDay)));
+                        }
+                    }
+                    if (!correctCalc(id)) {
+                        if (endDate === 0) {
+                            _mixedData.push({
+                                x: new Date(Date.now() - aDay), y: data[id].overall_percent
+                            });
+                            _mixedData.push({x: new Date(Date.now()), y: data[id].overall_percent});
+                        } else {
+                            _mixedData.push({x: new Date(endDate + aDay), y: data[id].overall_percent});
                         }
                     }
                     dataset.push({
