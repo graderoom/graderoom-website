@@ -52,6 +52,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 6.9.5] - 2024-03-30
+### Fixed
+- Issue with class charts when weights unverified
+
 ## [Stable 6.9.4] - 2024-03-29
 ### Added
 - Button to change school password in Account Settings<ul>
