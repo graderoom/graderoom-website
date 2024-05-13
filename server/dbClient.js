@@ -1301,7 +1301,7 @@ const _version27 = async (db, username) => {
 
 const __version27 = async (db, user) => {
     if (user.version === 26) {
-        _usernames(db).updateOne({username: user.username}, {
+        await _usernames(db).updateOne({username: user.username}, {
             $set: {
                 hash: hash(user.username)
             }
@@ -1312,6 +1312,68 @@ const __version27 = async (db, user) => {
     }
 }
 
+const _version28 = async (db, username) => {
+    let res = await getUser(username, {version: 1, discord: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version28, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 28`}};
+}
+
+const __version28 = async (db, user) => {
+    if (user.version === 27) {
+        // Save discordIDs as strings
+        if (user.discord.discordID) {
+            await _usernames(db).updateOne({username: user.username}, {
+                $set: {
+                    'discord.discordID': `${user.discord.discordID}`
+                }
+            });
+            await _users(db, user.username).updateOne({username: user.username}, {
+                $set: {
+                    'discord.discordID': `${user.discord.discordID}`,
+                    version: 28
+                }
+            });
+        } else if (user.discord.unverifiedDiscordID) {
+            await _users(db, user.username).updateOne({username: user.username}, {
+                $set: {
+                    'discord.unverifiedDiscordID': `${user.discord.unverifiedDiscordID}`,
+                    version: 28
+                }
+            });
+        } else {
+            await _users(db, user.username).updateOne({username: user.username}, {
+                $set: {version: 28}
+            });
+        }
+    }
+}
+
+const _version29 = async (db, username) => {
+    let res = await getUser(username, {version: 1, alerts: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version29, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 29`}};
+}
+
+const __version29 = async (db, user) => {
+    if (user.version === 28) {
+        await _users(db, user.username).updateOne({username: user.username}, {
+            $unset: {"alerts.updateGradesReminder": ""},
+            $set: {version: 29}
+        });
+    }
+}
 
 const initUser = (username) => safe(_initUser, lower(username));
 const _initUser = async (db, username) => {
@@ -1464,6 +1526,12 @@ const updateUser = async (user) => {
     }
     if (user.version < 27) {
         await safe(_version27, user.username);
+    }
+    if (user.version < 28) {
+        await safe(_version28, user.username);
+    }
+    if (user.version < 29) {
+        await safe(_version29, user.username);
     }
 };
 
@@ -4750,6 +4818,27 @@ const __getDonoAttributes = async (donos) => {
     };
 };
 
+const getAllAlerts = (username) => safe(_getAllAlerts, lower(username));
+const _getAllAlerts = async (db, username) => {
+    let res = await getUser(username, {alerts: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    return {success: true, data: {value: res.data.value.alerts}}
+}
+
+const getSpecificAlerts = (username, keys) => safe(_getSpecificAlerts, lower(username), keys);
+const _getSpecificAlerts = async (db, username, keys) => {
+    let projection = Object.fromEntries(keys.map(k => [`alerts.${k}`, 1]));
+    let res = await getUser(username, projection);
+    if (!res.success) {
+        return res;
+    }
+
+    return {success: true, data: {value: res.data.value.alerts}};
+}
+
 const getTrimmedAlerts = (username, term, semester) => safe(_getTrimmedAlerts, lower(username), term, semester);
 const _getTrimmedAlerts = async (db, username, term, semester) => {
     let res = await getUser(username, {"alerts.lastUpdated": 1});
@@ -4813,6 +4902,72 @@ const _getTrimmedAlerts = async (db, username, term, semester) => {
 
     return {success: true, data: {value: res}};
 };
+
+const getAllGrades = (username) => safe(_getAllGrades, lower(username));
+const _getAllGrades = async (db, username) => {
+    let res = await getUser(username, {grades: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    return {success: true, data: {value: res.data.value.grades}};
+}
+
+const getSemesterGrades = (username, term, semester) => safe(_getSemesterGrades, lower(username), term, semester);
+const _getSemesterGrades = async (db, username, term, semester) => {
+    let res = await getUser(username, {[`grades.${term}.${semester}`]: 1}, {[`grades.${term}.${semester}`]: {$exists: true}});
+    if (!res.success) {
+        return res;
+    }
+
+    return {success: true, data: {value: res.data.value.grades[term][semester]}};
+}
+
+const getSemesterWeights = (username, term, semester) => safe(_getSemesterWeights, lower(username), term, semester);
+const _getSemesterWeights = async (db, username, term, semester) => {
+    let res = await getUser(username, {[`weights.${term}.${semester}`]: 1}, {[`weights.${term}.${semester}`]: {$exists: true}});
+    if (!res.success) {
+        return res;
+    }
+
+    return {success: true, data: {value: res.data.value.weights[term][semester]}};
+}
+
+const getSemesterAddedAssignments = (username, term, semester) => safe(_getSemesterAddedAssignments, lower(username), term, semester);
+const _getSemesterAddedAssignments = async (db, username, term, semester) => {
+    let res = await getUser(username, {[`addedAssignments.${term}.${semester}`]: 1}, {[`addedAssignments.${term}.${semester}`]: {$exists: true}});
+    if (!res.success) {
+        return res;
+    }
+
+    return {success: true, data: {value: res.data.value.addedAssignments[term][semester]}};
+}
+
+const getSemesterEditedAssignments = (username, term, semester) => safe(_getSemesterEditedAssignments, lower(username), term, semester);
+const _getSemesterEditedAssignments = async (db, username, term, semester) => {
+    let res = await getUser(username, {[`editedAssignments.${term}.${semester}`]: 1}, {[`editedAssignments.${term}.${semester}`]: {$exists: true}});
+    if (!res.success) {
+        return res;
+    }
+
+    return {success: true, data: {value: res.data.value.editedAssignments[term][semester]}};
+}
+
+const getSemesterAddedWeights = (username, term, semester) => safe(_getSemesterAddedWeights, lower(username), term, semester);
+const _getSemesterAddedWeights = async (db, username, term, semester) => {
+    let res = await getUser(username, {[`addedWeights.${term}.${semester}`]: 1}, {[`addedWeights.${term}.${semester}`]: {$exists: true}});
+    if (!res.success) {
+        return res;
+    }
+
+    return {success: true, data: {value: res.data.value.addedWeights[term][semester]}};
+}
+
+const getGradeSync = (username) => safe(_getGradeSync, lower(username));
+const _getGradeSync = async (db, username) => {
+    let res = await getUser(username, {username: 1}, {schoolPassword: {$exists: true}});
+    return {success: true, data: {value: res.success}};
+}
 
 const createPairingKey = (username) => safe(_createPairingKey, lower(username));
 const _createPairingKey = async (db, username) => {
@@ -4929,6 +5084,27 @@ const _discordVerify = async (db, username, verificationCode) => {
     return {success: true, data: {message: "Successfully linked Discord account"}};
 };
 
+const discordUnverify = (username) => safe(_discordUnverify, lower(username));
+const _discordUnverify = async (db, username) => {
+    let res = await getUser(username, {discord: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    if (res.data.value.discord.discordID) {
+        await _users(db, username).updateOne({username: username}, {
+            $unset: {
+                "discord.discordID": ""
+            }
+        });
+        await _usernames(db).updateOne({username: username}, {$unset: {"discord.discordID": ""}});
+
+        return {success: true, data: {message: "Succefully unlinked Discord account"}};
+    }
+
+    return {success: false, data: {message: "No linked Discord account"}};
+}
+
 const apiPair = (pairKey) => safe(_apiPair, pairKey);
 const _apiPair = async (db, pairKey) => {
     if (typeof pairKey !== "string" && !(pairKey instanceof String) || pairKey.length !== 6) {
@@ -5033,10 +5209,10 @@ const internalApiDiscordConnect = (username, discordID) => safe(_internalApiDisc
  * API Function to start a link between a Graderoom account and a Discord ID
  * @param db
  * @param {string} username - Graderoom username to link to
- * @param {number} discordID - Discord ID to link to
+ * @param {string} discordID - Discord ID to link to
  */
 const _internalApiDiscordConnect = async (db, username, discordID) => {
-    if (typeof discordID !== "number") {
+    if (typeof discordID !== "string") {
         // Case where the Discord ID is invalid
         return {success: false, data: {errorCode: 1}};
     }
@@ -5104,10 +5280,10 @@ const internalApiDiscordUserInfo = (discordID) => safe(_internalApiDiscordUserIn
 /**
  * API Function that searches the database for the given Discord ID and returns data for setting roles
  * @param db
- * @param {number} discordID - Discord ID to search for
+ * @param {string} discordID - Discord ID to search for
  */
 const _internalApiDiscordUserInfo = async (db, discordID) => {
-    if (typeof discordID !== "number") {
+    if (typeof discordID !== "string") {
         // Case where the Discord ID is invalid
         return {success: false, data: {errorCode: 1}};
     }
@@ -5244,13 +5420,23 @@ module.exports = {
     removeDonation: removeDonation,
     getDonoData: getDonoData,
     getDonoAttributes: getDonoAttributes,
+    getAllAlerts: getAllAlerts,
+    getSpecificAlerts: getSpecificAlerts,
     getTrimmedAlerts: getTrimmedAlerts,
+    getAllGrades: getAllGrades,
+    getSemesterGrades: getSemesterGrades,
+    getSemesterWeights: getSemesterWeights,
+    getSemesterAddedAssignments: getSemesterAddedAssignments,
+    getSemesterEditedAssignments: getSemesterEditedAssignments,
+    getSemesterAddedWeights: getSemesterAddedWeights,
+    getGradeSync: getGradeSync,
 
     // Sorta API stuff
     createPairingKey: createPairingKey,
     deletePairingKey: deletePairingKey,
     deleteApiKey: deleteApiKey,
     discordVerify: discordVerify,
+    discordUnverify: discordUnverify,
 
     // API STUFF
     apiPair: apiPair,
@@ -5263,5 +5449,5 @@ module.exports = {
     // INTERNAL API STUFF (DANGEROUS)
     internalApiAuthenticate: internalApiAuthenticate,
     internalApiDiscordConnect: internalApiDiscordConnect,
-    internalApiDiscordUserInfo: internalApiDiscordUserInfo
+    internalApiDiscordUserInfo: internalApiDiscordUserInfo,
 };
