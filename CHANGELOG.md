@@ -52,14 +52,14 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Stable 6.9.6] - 2024-05-12
+## [Stable 6.9.6] - 2024-05-12 - Graderoom is back!
 ### Added
 - Discord Panel for users with linked Discord accounts.<ul>
 - Due to an error with the previous implementation, some users may need to relink their Discord accounts.
 - Unlinking functionality is available in this panel.</ul>
 
 ### Improved
-- Resilience to spamming
+- Resilience to spam
 
 ### Fixed
 - Issues with verifying some Discord accounts
