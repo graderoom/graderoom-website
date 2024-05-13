@@ -5084,6 +5084,27 @@ const _discordVerify = async (db, username, verificationCode) => {
     return {success: true, data: {message: "Successfully linked Discord account"}};
 };
 
+const discordUnverify = (username) => safe(_discordUnverify, lower(username));
+const _discordUnverify = async (db, username) => {
+    let res = await getUser(username, {discord: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    if (res.data.value.discord.discordID) {
+        await _users(db, username).updateOne({username: username}, {
+            $unset: {
+                "discord.discordID": ""
+            }
+        });
+        await _usernames(db).updateOne({username: username}, {$unset: {"discord.discordID": ""}});
+
+        return {success: true, data: {message: "Succefully unlinked Discord account"}};
+    }
+
+    return {success: false, data: {message: "No linked Discord account"}};
+}
+
 const apiPair = (pairKey) => safe(_apiPair, pairKey);
 const _apiPair = async (db, pairKey) => {
     if (typeof pairKey !== "string" && !(pairKey instanceof String) || pairKey.length !== 6) {
@@ -5415,6 +5436,7 @@ module.exports = {
     deletePairingKey: deletePairingKey,
     deleteApiKey: deleteApiKey,
     discordVerify: discordVerify,
+    discordUnverify: discordUnverify,
 
     // API STUFF
     apiPair: apiPair,
@@ -5427,5 +5449,5 @@ module.exports = {
     // INTERNAL API STUFF (DANGEROUS)
     internalApiAuthenticate: internalApiAuthenticate,
     internalApiDiscordConnect: internalApiDiscordConnect,
-    internalApiDiscordUserInfo: internalApiDiscordUserInfo
+    internalApiDiscordUserInfo: internalApiDiscordUserInfo,
 };
