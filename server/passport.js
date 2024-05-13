@@ -29,6 +29,7 @@ module.exports = function (passport) {
             betaFeatures: 1,
             enableLogging: 1,
             api: 1,
+            'discord.discordID': 1,
             sortingData: 1,
         };
         let res = await dbClient.getUser(username, projection);

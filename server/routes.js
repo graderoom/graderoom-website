@@ -65,6 +65,7 @@ module.exports = function (app, passport) {
                     _personalInfo: req.user.personalInfo,
                     _appearance: req.user.appearance,
                     _alerts: trimmedAlerts,
+                    discordID: req.user.discord.discordID,
                     gradeSync: gradeSync,
                     _gradeData: grades[term][semester],
                     _weightData: weights,
@@ -106,6 +107,7 @@ module.exports = function (app, passport) {
                     _personalInfo: req.user.personalInfo,
                     _appearance: req.user.appearance,
                     _alerts: alerts,
+                    discordID: req.user.discord.discordID,
                     gradeSync: gradeSync,
                     _gradeData: [],
                     _weightData: {},
@@ -256,6 +258,7 @@ module.exports = function (app, passport) {
                 "api.pairKey": 1,
                 "api.pairKeyExpire": 1,
                 "api.apiKey": 1,
+                "discord.discordID": 1,
             };
             user = (await dbClient.getUser(req.query.usernameToRender, projection)).data.value;
 
@@ -284,6 +287,7 @@ module.exports = function (app, passport) {
                     _personalInfo: user.personalInfo,
                     _appearance: user.appearance,
                     _alerts: trimmedAlerts,
+                    discordID: user.discord.discordID,
                     gradeSync: !!user.schoolPassword,
                     _gradeData: user.grades[term][semester],
                     _weightData: user.weights[term][semester],
@@ -324,6 +328,7 @@ module.exports = function (app, passport) {
                     _personalInfo: user.personalInfo,
                     _appearance: user.appearance,
                     _alerts: user.alerts,
+                    discord: user.discord.discordID,
                     gradeSync: !!user.schoolPassword,
                     _gradeData: [],
                     _weightData: {},
@@ -1157,6 +1162,15 @@ module.exports = function (app, passport) {
         }
         req.flash("forgotPasswordMsg", "If the email address you entered is associated with an account, you should receive an email containing a link to reset your password. Please make sure to check your spam folder. If you run into any issues, contact <b><a href='mailto:support@graderoom.me'>support@graderoom.me</a></b>.");
         res.redirect("/forgot_password");
+    });
+
+    app.post("/discord-disconnect", [isLoggedIn], async (req, res) => {
+        let resp = await dbClient.discordUnverify(req.user.username);
+        if (!resp.success) {
+            res.status(400).send(resp.data.message);
+        } else {
+            res.status(200).send(resp.data.message);
+        }
     });
 
     // Actual api stuff

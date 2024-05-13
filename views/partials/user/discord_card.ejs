@@ -1,0 +1,32 @@
+<div class="blurred-login" id="discordDisplay"
+     style="">
+    <div class="blurred-background"></div>
+    <div class="col-sm-8 col-md-7 col-lg-5 mx-auto">
+        <div id="apiKeyCard" class="card card-signin my-5">
+            <btn class="btn btn-md" onclick="closeForm('discordDisplay')"
+                 style="display:table; width: fit-content; width: -moz-fit-content; margin-bottom:0">
+                <i class="fa fa-close" aria-hidden="true"></i> Close
+            </btn>
+            <div class="card-body">
+                <h1 class="card-title text-center popup" style="margin: 0;"><i class="fa fa-address-book"></i>
+                    API
+                </h1>
+                <br>
+                <div class="card-footer">
+                    <p>Your Graderoom account is currently linked to the following Discord ID: <b><span id="discordID"><%= discordID %></span></b>.</p>
+                    <p>If this is incorrect, or you want to link to a different account, use the button below and restart the verification process in Discord.</p>
+                    <p>This will NOT remove roles from the currently linked account, but the account will no longer be able to add more roles.</p>
+                    <button class="btn btn-med" onclick="unlinkDiscord()">Unlink Discord Account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function unlinkDiscord() {
+        $.post("/discord-disconnect");
+        $("#discordCardBtn").hide();
+        closeForm("discordDisplay");
+    }
+</script>

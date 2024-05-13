@@ -811,6 +811,14 @@
                                     </label>
                                 </button>
                             <% } %>
+                            <% if (discordID) { %>
+                                <button id="discordCardBtn" class="btn btn-sm" style="margin: 0.1rem"
+                                        onclick="showCard('#discordDisplay');">
+                                    <label style="margin: 0; cursor: pointer;">Open Discord Panel
+                                        <span class="fa fa-external-link-square"></span>
+                                    </label>
+                                </button>
+                            <% } %>
                         </div>
                     <% } %>
                 </div>
