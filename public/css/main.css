@@ -3858,10 +3858,12 @@ span.previous {
     width: 12.5%;
 }
 
-#donationProgressOverlay .progress-bar:nth-child(3), #donationHoverOverlay .progress-bar:nth-child(3),
-#donationProgressOverlay .progress-bar:nth-child(4), #donationHoverOverlay .progress-bar:nth-child(4),
-#donationProgressOverlay .progress-bar:nth-child(5), #donationHoverOverlay .progress-bar:nth-child(5) {
+#donationProgressOverlay .progress-bar:nth-child(3), #donationHoverOverlay .progress-bar:nth-child(3) {
     width: 25%;
+}
+
+#donationProgressOverlay .progress-bar:nth-child(4), #donationHoverOverlay .progress-bar:nth-child(4) {
+    width: 50%;
 }
 
 .donation-container {

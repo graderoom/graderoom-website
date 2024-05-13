@@ -69,8 +69,14 @@ mongo.config(mongoUrl, productionEnv, isBetaServer).then(() => {
         let redisClient = redis.createClient({port: redisPort});
         let store = new RedisStore({client: redisClient});
         let sessionMiddleware = session({
-                                            store: store, secret: process.env.SECRET, // session secret
-                                            resave: true, saveUninitialized: true, cookie: {maxAge: 4 * 60 * 60 * 1000} //4 hours
+                                            store: store,
+                                            secret: process.env.SECRET, // session secret
+                                            resave: true,
+                                            saveUninitialized: true,
+                                            cookie: {
+                                                maxAge: 4 * 60 * 60 * 1000, // 4 hours
+                                                sameSite: 'strict'
+                                            }
                                         });
         app.use(sessionMiddleware);
         app.use(passport.initialize());

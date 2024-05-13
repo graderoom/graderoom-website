@@ -52,6 +52,13 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 6.9.7] - 2024-05-13 - New Rate Limits
+### Improved
+- After monitoring the performance and usage of the website over the past few weeks, I am making changes to the rate limits imposed by Graderoom.
+- Free tier users should no longer encounter rate limits under normal usage.
+- The new rate limits are detailed in the following table<br><br><table class="table table-bordered"><thead><tr><th>Account Type</th><th>Requests per Minute</th></tr></thead><tbody><tr><td>Free</td><td>15 → <b>30</b></td></tr><tr><td>Donor</td><td>30 → <b>40</b></td></tr><tr><td><span class="plus label-background"><span class="plus-label">PLUS</span></span></td><td>60 → <b>60</b></td></tr><tr><td><span class="premium label-background"><span class="premium-label">PREMIUM</span></span></td><td>120 → <b>100</b></td></tr></tbody></table>
+- Rate limit notification is now removed when logging in.
+
 ## [Stable 6.9.6] - 2024-05-12 - Graderoom is back!
 ### Added
 - Discord Panel for users with linked Discord accounts.<ul>
@@ -190,9 +197,9 @@
 ### Removed
 - Removed overall class averages<ul>
 - They were not accurate</ul>
-- Removed ability for regular users to view other teachers of a class<ul>
+- Removed ability for free users to view other teachers of a class<ul>
 - This feature is now <span class="plus label-background"><span class="plus-label">PLUS</span></span> or <span class="premium label-background"><span class="premium-label">PREMIUM</span></span> exclusive to reduce server load.</ul>
-- Regular users will no longer see a calculator icon next to assignments that have a viewable average<ul>
+- Free users will no longer see a calculator icon next to assignments that have a viewable average<ul>
 - You can still view the average by clicking on the assignment info button</ul>
 
 ## [Stable 6.5.7] - 2024-01-24
@@ -240,7 +247,7 @@
 ## [Announcement 6.5.2] - 2024-01-09 - Rate Limits
 - Due to apparently intentional spamming, there is now a limit to the number of requests you can send in a given time period.
 - "Requests" include any action that requires the server to do something, such as syncing, adding assignments, editing assignments, etc.
-- The rate limits are detailed in the following table<br><br><table class="table table-bordered"><thead><tr><th>Account Type</th><th>Requests per Minute</th></tr></thead><tbody><tr><td>Regular</td><td>15</td></tr><tr><td>Donor</td><td>30</td></tr><tr><td><span class="plus label-background"><span class="plus-label">PLUS</span></span></td><td>60</td></tr><tr><td><span class="premium label-background"><span class="premium-label">PREMIUM</span></span></td><td>120</td></tr></tbody></table>
+- The rate limits are detailed in the following table<br><br><table class="table table-bordered"><thead><tr><th>Account Type</th><th>Requests per Minute</th></tr></thead><tbody><tr><td>Free</td><td>15</td></tr><tr><td>Donor</td><td>30</td></tr><tr><td><span class="plus label-background"><span class="plus-label">PLUS</span></span></td><td>60</td></tr><tr><td><span class="premium label-background"><span class="premium-label">PREMIUM</span></span></td><td>120</td></tr></tbody></table>
 - These numbers are subject to change based on feedback and server load.
 
 ## [Stable 6.5.1] - 2024-01-09
@@ -248,7 +255,7 @@
 - Priority queue for syncs<ul>
 - In case you haven't noticed yet, there is now a queue for syncing grades to prevent server overload during peak times
 - Syncs for <span class="plus label-background"><span class="plus-label">PLUS</span></span> and <span class="premium label-background"><span class="premium-label">PREMIUM</span></span> users will now be processed first
-- This won't make a difference for regular users except during peak times.</ul>
+- This won't make a difference for free users except during peak times.</ul>
 
 ### Improved
 - Sync queue waits for sync to completely finish processing before starting the next sync
