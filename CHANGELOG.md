@@ -52,6 +52,13 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 6.9.6] - 2024-05-12
+### Improved
+- Defenses against spamming
+
+### Fixed
+- Issues with verifying some Discord accounts
+
 ## [Stable 6.9.5] - 2024-03-30
 ### Fixed
 - Issue with class charts when calculated grade doesn't match PowerSchool grade

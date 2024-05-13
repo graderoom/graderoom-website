@@ -18,7 +18,20 @@ module.exports = function (passport) {
 
     // used to deserialize the user
     passport.deserializeUser(async function (username, done) {
-        let res = await dbClient.getUser(username, {});
+        // Only get some info
+        let projection = {
+            schoolUsername: 1,
+            isAdmin: 1,
+            donoData: 1,
+            school: 1,
+            personalInfo: 1,
+            appearance: 1,
+            betaFeatures: 1,
+            enableLogging: 1,
+            api: 1,
+            sortingData: 1,
+        };
+        let res = await dbClient.getUser(username, projection);
         if (res.success) {
             return done(null, res.data.value);
         }
