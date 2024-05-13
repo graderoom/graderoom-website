@@ -23,7 +23,7 @@ exports.COMMON_DATABASE_NAME = "common";
 exports.SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME = "school_username_lookup";
 
 // Change this when updateDB changes
-exports.dbUserVersion = 27;
+exports.dbUserVersion = 29;
 exports.dbClassVersion = 3;
 
 exports.minUsersForAverageCalc = 9;
@@ -193,7 +193,6 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
                 },
                 alerts: {
                     lastUpdated: [],
-                    updateGradesReminder: "daily",
                     latestSeen: _versionNameArray[1] ? beta ? _versionNameArray[1][1] : _versionNameArray.find(v => v[0] !== "Beta" && v[0] !== "Known Issues")[1] : "1.0.0",
                     policyLastSeen: "never",
                     termsLastSeen: "never",

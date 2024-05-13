@@ -33,14 +33,22 @@ module.exports = function (app, passport) {
                 semester = req.query.semester;
             }
 
+            let gradeSync = (await dbClient.getGradeSync(req.user.username)).data.value;
+
             if (term && semester) {
                 let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
                 let relevantClassData = (await dbClient.getRelevantClassData(req.user.username, term, semester)).data.value;
                 let gradeHistoryLetters = (await dbClient.getGradeHistoryLetters(req.user.username, term, semester)).data.value;
                 let trimmedAlerts = (await dbClient.getTrimmedAlerts(req.user.username, term, semester)).data.value;
 
-                let termsAndSemesters = Object.keys(req.user.grades).map(term => {
-                    let semesters = Object.keys(req.user.grades[term]);
+                let grades = (await dbClient.getAllGrades(req.user.username)).data.value;
+                let weights = (await dbClient.getSemesterWeights(req.user.username, term, semester)).data.value;
+                let addedAssignments = (await dbClient.getSemesterAddedAssignments(req.user.username, term, semester)).data.value;
+                let editedAssignments = (await dbClient.getSemesterEditedAssignments(req.user.username, term, semester)).data.value;
+                let addedWeights = (await dbClient.getSemesterAddedWeights(req.user.username, term, semester)).data.value;
+
+                let termsAndSemesters = Object.keys(grades).map(term => {
+                    let semesters = Object.keys(grades[term]);
                     let sortedSemesters = semesters.sort((a, b) => {
                         return a.substring(1) < b.substring(1) ? -1 : 1;
                     });
@@ -57,13 +65,13 @@ module.exports = function (app, passport) {
                     _personalInfo: req.user.personalInfo,
                     _appearance: req.user.appearance,
                     _alerts: trimmedAlerts,
-                    gradeSync: !!req.user.schoolPassword,
-                    _gradeData: req.user.grades[term][semester],
-                    _weightData: req.user.weights[term][semester],
-                    _addedWeights: req.user.addedWeights[term][semester],
-                    nonAcademicCount: Object.entries(relevantClassData).filter(([k, v]) => req.user.grades[term][semester].find(c => c.class_name === k) && v.classType === "non-academic").length,
-                    _addedAssignments: req.user.addedAssignments[term][semester],
-                    _editedAssignments: req.user.editedAssignments[term][semester],
+                    gradeSync: gradeSync,
+                    _gradeData: grades[term][semester],
+                    _weightData: weights,
+                    _addedWeights: addedWeights,
+                    nonAcademicCount: Object.entries(relevantClassData).filter(([k, v]) => grades[term][semester].find(c => c.class_name === k) && v.classType === "non-academic").length,
+                    _addedAssignments: addedAssignments,
+                    _editedAssignments: editedAssignments,
                     _gradeHistory: gradeHistoryLetters,
                     _relevantClassData: relevantClassData,
                     _donoData: req.user.donoData,
@@ -87,6 +95,7 @@ module.exports = function (app, passport) {
                 });
             } else {
                 let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
+                let alerts = (await dbClient.getAllAlerts(req.user.username)).data.value;
                 res.render("user/authorized_index.ejs", {
                     page: "home",
                     history: false,
@@ -96,8 +105,8 @@ module.exports = function (app, passport) {
                     isAdmin: req.user.isAdmin,
                     _personalInfo: req.user.personalInfo,
                     _appearance: req.user.appearance,
-                    _alerts: req.user.alerts,
-                    gradeSync: !!req.user.schoolPassword,
+                    _alerts: alerts,
+                    gradeSync: gradeSync,
                     _gradeData: [],
                     _weightData: {},
                     _addedWeights: {},
@@ -230,7 +239,6 @@ module.exports = function (app, passport) {
                 appearance: 1,
                 schoolPassword: 1,
                 grades: 1,
-                "alerts.updateGradesReminder": 1,
                 "alerts.latestSeen": 1,
                 "alerts.policyLastSeen": 1,
                 "alerts.termsLastSeen": 1,
@@ -785,7 +793,11 @@ module.exports = function (app, passport) {
 
             let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data.value;
             let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
+            let alerts = (await dbClient.getSpecificAlerts(req.user.username, ["tutorialStatus"])).data.value;
+
             if (term && semester) {
+                let grades = (await dbClient.getSemesterGrades(req.user.username, term, semester)).data.value;
+                let weights = (await dbClient.getSemesterWeights(req.user.username, term, semester)).data.value;
                 res.render("user/final_grade_calculator.ejs", {
                     page: "calc",
                     username: req.user.username,
@@ -793,10 +805,9 @@ module.exports = function (app, passport) {
                     isAdmin: req.user.isAdmin,
                     _personalInfo: req.user.personalInfo,
                     _appearance: req.user.appearance,
-                    _alerts: req.user.alerts,
-                    gradeSync: !!req.user.schoolPassword,
-                    _gradeData: req.user.grades[term][semester].filter(grades => !(["CR", false]).includes(grades.overall_letter) || grades.grades.length),
-                    _weightData: req.user.weights[term][semester],
+                    _alerts: alerts,
+                    _gradeData: grades.filter(grade => !(["CR", false]).includes(grade.overall_letter) || grade.grades.length),
+                    _weightData: weights,
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     beta: server.beta,
                     sunset: sunset,
@@ -812,8 +823,7 @@ module.exports = function (app, passport) {
                     isAdmin: req.user.isAdmin,
                     _personalInfo: req.user.personalInfo,
                     _appearance: req.user.appearance,
-                    _alerts: req.user.alerts,
-                    gradeSync: !!req.user.schoolPassword,
+                    _alerts: alerts,
                     _gradeData: {},
                     _weightData: {},
                     sessionTimeout: Date.parse(req.session.cookie._expires),
@@ -964,13 +974,14 @@ module.exports = function (app, passport) {
         }
         if (req.isAuthenticated()) {
             let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
+            let alerts = (await dbClient.getSpecificAlerts(req.user.username, ["tutorialStatus"])).data.value;
             res.render("viewer/cool_charts.ejs", {
                 username: req.user.username,
                 _personalInfo: req.user.personalInfo,
                 _appearance: req.user.appearance,
                 sessionTimeout: Date.parse(req.session.cookie._expires),
                 page: "charts",
-                _alerts: req.user.alerts,
+                _alerts: alerts,
                 _loginData: loginData,
                 _uniqueLoginData: uniqueLoginData,
                 _syncData: syncData,
