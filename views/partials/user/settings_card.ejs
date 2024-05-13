@@ -40,12 +40,12 @@
                         <div id="donationWhatYouGetContainer">
                             <table id="donationWhatYouGet" style="width: 100%">
                                 <thead>
-                                <tr><th>Feature</th><th>User</th><th>Donor</th><th><span class="plus label-background"><span class="plus-label">PLUS</span></span></th><th><span class="premium label-background"><span class="premium-label">PREMIUM</span></span></th></tr>
+                                <tr><th rowspan="2">Feature</th><th>Free</th><th>Donor<br><b>$0.01+</b></th><th><span class="plus label-background"><span class="plus-label">PLUS</span></span><br><b>$3.00+</b></th><th><span class="premium label-background"><span class="premium-label">PREMIUM</span></span><br><b>$5.00+</b></th></tr>
                                 </thead>
                                 <tbody>
                                 <tr><th><span>Access class average for latest assignment in each course</span></th><td class="supported"></td><td class="previous"></td><td class="previous"></td><td class="previous"></td></tr>
                                 <tr><th><span>Get a Donor role on Discord</span></th><td></td><td class="supported"></td><td class="previous"></td><td class="previous"></td></tr>
-                                <tr><th><span>Maximum Requests per Minute</span></th><td class="supported text">15</td><td class="supported text">30</td><td class="supported text">60</td><td class="supported text">120</td></tr>
+                                <tr><th><span>Maximum Requests per Minute</span></th><td class="supported text">30</td><td class="supported text">40</td><td class="supported text">60</td><td class="supported text">100</td></tr>
                                 <tr><th><span>Ability to set custom class colors</span></th><td></td><td></td><td class="supported"></td><td class="previous"></td></tr>
                                 <tr><th><span>Bypass the sync queue</span></th><td></td><td></td><td class="supported"></td><td class="previous"></td></tr>
                                 <tr><th><span>View what other teachers teach a course and how many Graderoom users are in those classes</span></th><td></td><td></td><td class="supported"></td><td class="supported"></td></tr>
@@ -480,12 +480,10 @@
                                          role="progressbar"></div>
                                     <div class="progress-bar progress-bar-striped progress-bar-animated"
                                          role="progressbar"></div>
-                                    <div class="progress-bar progress-bar-striped progress-bar-animated"
-                                         role="progressbar"></div>
                                     <div class="progress-bar" role="progressbar"></div>
                                 </div>
                                 <div class="progress" id="donationProgressOverlay">
-                                    <div class="progress-bar" role="progressbar">USER</div>
+                                    <div class="progress-bar" role="progressbar">FREE</div>
                                     <div class="progress-bar" role="progressbar">DONOR</div>
                                     <div class="progress-bar" role="progressbar">
                                         <span class="plus-label">PLUS</span>
@@ -493,26 +491,25 @@
                                     <div class="progress-bar" role="progressbar">
                                         <span class="premium-label">PREMIUM</span>
                                     </div>
-                                    <div class="progress-bar" role="progressbar">😍</div>
                                 </div>
                                 <div class="progress" id="donationHoverOverlay">
                                     <div class="progress-bar popup-holder" role="progressbar">
                                         <span class="popup">
                                             <span class="popup-bottom-right">
-                                                <span>$0</span>
+                                                <span>FREE</span>
                                                 <span>Thanks for using Graderoom!</span>
                                                 <span>Access class average for latest assignment in each course</span>
-                                                <span>Make 15 requests per minute to the Graderoom server</span>
+                                                <span>Make 30 requests per minute to the Graderoom server</span>
                                             </span>
                                         </span>
                                     </div>
                                     <div class="progress-bar popup-holder" role="progressbar">
                                         <span class="popup">
                                             <span class="popup-bottom">
-                                                <span>$0.01</span>
+                                                <span>$0.01+</span>
                                                 <span class="previous">Thanks for using Graderoom!</span>
                                                 <span class="previous">Access class average for latest assignment in each class</span>
-                                                <span>Make <span class="strikethrough">15</span>30 requests per minute to the Graderoom server</span>
+                                                <span>Make <span class="strikethrough">30</span>40 requests per minute to the Graderoom server</span>
                                                 <span>Get a Donor role on Discord</span>
                                             </span>
                                         </span>
@@ -520,11 +517,11 @@
                                     <div class="progress-bar popup-holder" role="progressbar">
                                         <span class="popup">
                                             <span class="popup-bottom">
-                                                <span>$3</span>
+                                                <span>$3.00+</span>
                                                 <span class="previous">Thanks for using Graderoom!</span>
                                                 <span class="previous">Access class average for latest assignment in each course</span>
                                                 <span class="previous">Get a Donor role on Discord</span>
-                                                <span>Make <span class="strikethrough">30</span>60 requests per minute to the Graderoom server</span>
+                                                <span>Make <span class="strikethrough">40</span>60 requests per minute to the Graderoom server</span>
                                                 <span><span class="plus-label">PLUS</span> badge</span>
                                                 <span>Ability to set custom class colors</span>
                                                 <span>Bypass the sync queue</span>
@@ -535,33 +532,16 @@
                                     <div class="progress-bar popup-holder" role="progressbar">
                                         <span class="popup">
                                             <span class="popup-bottom">
-                                                <span>$5</span>
+                                                <span>$5.00+</span>
                                                 <span class="previous">Thanks for using Graderoom!</span>
                                                 <span class="previous">Access class average for latest assignment in each course</span>
                                                 <span class="previous">Get a Donor role on Discord</span>
                                                 <span class="previous">Ability to set custom class colors</span>
                                                 <span class="previous">Bypass the sync queue</span>
                                                 <span class="previous">View what other teachers teach a course and how many Graderoom users are in those classes</span>
-                                                <span>Make <span class="strikethrough">60</span>120 requests per minute to the Graderoom server</span>
+                                                <span>Make <span class="strikethrough">60</span>100 requests per minute to the Graderoom server</span>
                                                 <span><span class="strikethrough"><span class="plus-label">PLUS</span></span> <span class="premium-label">PREMIUM</span>&nbsp;&nbsp;badge</span>
                                                 <span>Access class averages for ALL assignments</span>
-                                            </span>
-                                        </span>
-                                    </div>
-                                    <div class="progress-bar popup-holder" role="progressbar">
-                                        <span class="popup">
-                                            <span class="popup-bottom">
-                                                <span>>$5</span>
-                                                <span class="previous">Thanks for using Graderoom!</span>
-                                                <span class="previous">Access class average for latest assignment in each course</span>
-                                                <span class="previous">Get a Donor role on Discord</span>
-                                                <span class="previous">Ability to set custom class colors</span>
-                                                <span class="previous">Bypass the sync queue</span>
-                                                <span class="previous">View what other teachers teach a course and how many Graderoom users are in those classes</span>
-                                                <span class="previous">Make 120 requests per minute to the Graderoom server</span>
-                                                <span class="previous"><span class="premium-label">PREMIUM</span>&nbsp;&nbsp;badge</span>
-                                                <span class="previous">Access class averages for ALL assignments</span>
-                                                <span>My Gratitude</span>
                                             </span>
                                         </span>
                                     </div>
@@ -1637,7 +1617,7 @@
         $(progressBars[0]).css("width", "12.5%");
         if (donoData.length === 0) {
             donoDiv.html(`<div style="text-align: center">No Donations Yet</div>`);
-            $(progressBars[5]).css("width", "87.5%");
+            $(progressBars[4]).css("width", "87.5%");
             donor = false;
             plus = false;
             premium = false;
@@ -1666,30 +1646,22 @@
             let minDonor = 0.01;
             let minPlus = 3;
             let minPremium = 5;
-            let maxDisplay = 8;
 
             if (totalReceived <= minDonor) {
                 let width = 12.5 * totalReceived / minDonor;
                 $(progressBars[1]).css("width", `${width}%`);
-                $(progressBars[5]).css("width", `${100 - 12.5 - width}%`);
+                $(progressBars[4]).css("width", `${100 - 12.5 - width}%`);
             } else if (totalReceived <= minPlus) {
                 $(progressBars[1]).css("width", "12.5%");
                 let width = 25 * (totalReceived - minDonor) / (minPlus - minDonor);
                 $(progressBars[2]).css("width", `${width}%`);
-                $(progressBars[5]).css("width", `${100 - 12.5 - 12.5 - width}%`);
-            } else if (totalReceived <= minPremium) {
-                $(progressBars[1]).css("width", "12.5%");
-                $(progressBars[2]).css("width", `25%`);
-                let width = 25 * (totalReceived - minPlus) / (minPremium - minPlus);
-                $(progressBars[3]).css("width", `${width}%`);
-                $(progressBars[5]).css("width", `${100 - 12.5 - 12.5 - 25 - width}%`);
+                $(progressBars[4]).css("width", `${100 - 12.5 - 12.5 - width}%`);
             } else {
                 $(progressBars[1]).css("width", "12.5%");
-                $(progressBars[2]).css("width", "25%");
-                $(progressBars[3]).css("width", `25%`);
-                let width = 25 * Math.min(totalReceived - minPremium, (maxDisplay - minPremium)) / (maxDisplay - minPremium);
-                $(progressBars[4]).css("width", `${width}%`);
-                $(progressBars[5]).css("width", `${100 - 12.5 - 12.5 - 25 - 25 - width}%`);
+                $(progressBars[2]).css("width", `25%`);
+                let width = Math.min(50, 50 * (totalReceived - minPlus) / (minPremium - minPlus));
+                $(progressBars[3]).css("width", `${width}%`);
+                $(progressBars[4]).css("width", `${100 - 12.5 - 12.5 - 25 - width}%`);
             }
             donor = totalReceived >= minDonor;
             plus = totalReceived >= minPlus;

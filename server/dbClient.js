@@ -2076,7 +2076,7 @@ const _login = async (db, username, password) => {
             return resolve({success: false, data: {message: "Invalid credentials."}});
         }
         let user = res.data.value;
-        bcrypt.compare(password, user.password, (err, success) => {
+        bcrypt.compare(password, user.password, async (err, success) => {
             if (err) {
                 return resolve({success: false, data: {log: err, message: "Something went wrong"}});
             }
@@ -2089,6 +2089,7 @@ const _login = async (db, username, password) => {
                     }
                 });
             }
+            await deleteNotification(username, "rate-limit");
             return resolve({
                 success: true,
                 data: {
