@@ -29,7 +29,7 @@ const keyGenerator = function (req) {
 
 const regularRateLimit = setRateLimit({
     windowMs: 60 * 1000,
-    max: 15,
+    max: 30,
     message: "Too many requests. Please try again later.",
     headers: true,
     onLimitReached: onLimitReached,
@@ -38,7 +38,7 @@ const regularRateLimit = setRateLimit({
 
 const donorRateLimit = setRateLimit({
     windowMs: 60 * 1000,
-    max: 30,
+    max: 40,
     message: "Too many requests. Please try again later.",
     headers: true,
     onLimitReached: onLimitReached,
@@ -56,7 +56,7 @@ const plusRateLimit = setRateLimit({
 
 const premiumRateLimit = setRateLimit({
     windowMs: 60 * 1000,
-    max: 120,
+    max: 100,
     message: "Too many requests. Please try again later.",
     headers: true,
     onLimitReached: onLimitReached,

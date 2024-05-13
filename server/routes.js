@@ -550,7 +550,7 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.get("/deletePairingKey", [isLoggedIn], async (req, res) => {
+    app.post("/deletePairingKey", [isLoggedIn], async (req, res) => {
         let resp = await dbClient.deletePairingKey(req.user.username);
         if (resp.success) {
             res.sendStatus(200);
@@ -559,7 +559,7 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.get("/deleteApiKey", [isLoggedIn], async (req, res) => {
+    app.post("/deleteApiKey", [isLoggedIn], async (req, res) => {
         let resp = await dbClient.deleteApiKey(req.user.username);
         if (resp.success) {
             res.sendStatus(200);

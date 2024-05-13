@@ -36,13 +36,13 @@
         });
     }
     function deletePairingKey() {
-        $.get("/deletePairingKey").done(() => {
+        $.post("/deletePairingKey").done(() => {
             $("#pairKey").text('Key: ');
             $("#pairKeyExpire").text('Expires: ');
         });
     }
     function deleteApiKey() {
-        $.get("/deleteApiKey").done(() => {
+        $.post("/deleteApiKey").done(() => {
             $("#apiKey").text('API Key: ');
         });
     }
