@@ -696,13 +696,17 @@ exports.notificationTextField = function (id, onsubmitString, inputType, placeho
             </div>`;
 }
 
+exports.donoHelper = function (totalDonos) {
+    return {donor: totalDonos > 0, plus: totalDonos >= minDonoAmount, premium: totalDonos >= minPremiumAmount}
+}
+
 exports.donoAttributes = function (donos) {
     let totalDonos = donos.map(d => d.receivedValue).reduce((a, b) => a + b, 0);
-    return donoHelper(totalDonos);
+    return exports.donoHelper(totalDonos);
 }
 
 exports.nextSyncAllowed = function (lastSyncTimestamp, donoData) {
-    let {donor, plus, premium} = donoHelper(donoData);
+    let {donor, plus, premium} = exports.donoHelper(donoData);
     if (premium) {
         return Date.now() > lastSyncTimestamp + premiumSyncPeriod;
     }
@@ -713,8 +717,4 @@ exports.nextSyncAllowed = function (lastSyncTimestamp, donoData) {
         return Date.now() > lastSyncTimestamp + donorSyncPeriod;
     }
     return Date.now() > lastSyncTimestamp + freeSyncPeriod;
-}
-
-const donoHelper = function (totalDonos) {
-    return {donor: totalDonos > 0, plus: totalDonos >= minDonoAmount, premium: totalDonos >= minPremiumAmount}
 }
