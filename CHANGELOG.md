@@ -52,6 +52,9 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Announcement 7.0.0] - 2024-05-15 - A message from Joel
+- <b>This is a long announcement. Please read it completely.</b><br><br><p>Hi everyone,</p><p>You may have noticed that Graderoom has not been able to connect to PowerSchool recently. Today, I was informed by a student that the school administration has intentionally blocked Graderoom from connecting to PowerSchool. I did not receive any communication from the school related to this, and was not given any way to resolve this issue with them. So, for the time being, it seems like syncing with PowerSchool for Bellarmine students will not be possible.</p><p>I am grateful that my website was helpful to all of you over the past few years. When I started this project, I could not have imagined the success and growth that I see today.</p><p>Please spread the word to people who may not see this announcement.</p><br><p><b>Donors</b>, please contact me via email or Discord if you would like a refund.<br><p>Thank you all,<br>Joel Jothiprakasam '21</p>
+
 ## [Stable 6.10.0] - 2024-05-14 - More Rate Limits
 ### Added
 - There is now a cooldown for syncing your grades with PowerSchool.
