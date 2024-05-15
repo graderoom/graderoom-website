@@ -31,6 +31,11 @@ exports.minUsersForAverageCalc = 9;
 const minDonoAmount = 3;
 const minPremiumAmount = 5;
 
+const freeSyncPeriod = 12 * 60 * 60 * 1000; // 12 hours (2x/day)
+const donorSyncPeriod = 8 * 60 * 60 * 1000; // 8 hours (3x/day)
+const plusSyncPeriod = 6 * 60 * 60 * 1000; // 6 hours (4x/day)
+const premiumSyncPeriod = 4 * 60 * 60 * 1000; // 4 hours (6x/day)
+
 let _changelogArray = [];
 let _betaChangelogArray = [];
 let _versionNameArray = [];
@@ -691,6 +696,25 @@ exports.notificationTextField = function (id, onsubmitString, inputType, placeho
             </div>`;
 }
 
-exports.donoHelper = function (totalDonos) {
+exports.donoAttributes = function (donos) {
+    let totalDonos = donos.map(d => d.receivedValue).reduce((a, b) => a + b, 0);
+    return donoHelper(totalDonos);
+}
+
+exports.nextSyncAllowed = function (lastSyncTimestamp, donoData) {
+    let {donor, plus, premium} = donoHelper(donoData);
+    if (premium) {
+        return Date.now() > lastSyncTimestamp + premiumSyncPeriod;
+    }
+    if (plus) {
+        return Date.now() > lastSyncTimestamp + plusSyncPeriod;
+    }
+    if (donor) {
+        return Date.now() > lastSyncTimestamp + donorSyncPeriod;
+    }
+    return Date.now() > lastSyncTimestamp + freeSyncPeriod;
+}
+
+const donoHelper = function (totalDonos) {
     return {donor: totalDonos > 0, plus: totalDonos >= minDonoAmount, premium: totalDonos >= minPremiumAmount}
 }

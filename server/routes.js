@@ -812,7 +812,7 @@ module.exports = function (app, passport) {
                     _appearance: req.user.appearance,
                     _alerts: alerts,
                     _gradeData: grades.filter(grade => !(["CR", false]).includes(grade.overall_letter) || grade.grades.length),
-                    _weightData: weights,
+                    _weightData: weights.filter((_, i) => !(["CR", false]).includes(grades[i].overall_letter) || grades[i].grades.length),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     beta: server.beta,
                     sunset: sunset,

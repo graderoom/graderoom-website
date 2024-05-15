@@ -339,10 +339,6 @@ input.loading {
     border-color: #666666;
 }
 
-.changelog-container .body {
-    color: black;
-}
-
 .changelog-container .known-issues .body, .changelog-container .announcement .body, .changelog-inline-setoff {
     color: #EEEEEE;
 }
@@ -368,7 +364,7 @@ input.loading {
 }
 
 .changelog-container .type {
-    color: black;
+    color: #E5E5E5;
 }
 
 .weightsTable input {

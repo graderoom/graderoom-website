@@ -52,6 +52,23 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 6.10.0] - 2024-05-14 - More Rate Limits
+### Added
+- There is now a cooldown for syncing your grades with PowerSchool.
+- This is mainly to decrease the traffic between Graderoom and PowerSchool.
+- The limits are subject to change based on feedback and other factors.
+- The new cooldowns are detailed in the following table<br><br><table class="table table-bordered"><thead><tr><th>Account Type</th><th>Sync Cooldown (hrs.)</th></tr></thead><tbody><tr><td>Free</td><td>12</td></tr><tr><td>Donor</td><td>8</td></tr><tr><td><span class="plus label-background"><span class="plus-label">PLUS</span></span></td><td>6</td></tr><tr><td><span class="premium label-background"><span class="premium-label">PREMIUM</span></span></td><td>4</td></tr></tbody></table>
+
+### Improved
+- Changelog readability.
+
+### Fixed
+- Issue with some autopopulated final grades in the final grade calculator when a user had non-academic or ungraded classes.
+- Keyboard shortcuts being incorrectly disabled after a failed sync
+
+### Removed
+- Temporarily paused the ability to sync with PowerSchool while we determine the cause of connection issues.
+
 ## [Stable 6.9.7] - 2024-05-13 - New Rate Limits
 ### Improved
 - After monitoring the performance and usage of the website over the past few weeks, I am making changes to the rate limits imposed by Graderoom.
