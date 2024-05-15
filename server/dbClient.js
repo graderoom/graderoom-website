@@ -4586,7 +4586,7 @@ const _getUserCounts = async (db, username, term, semester, className) => {
     if (!res.success) {
         return res;
     }
-    let {plus} = (await __getDonoAttributes(res.data.value.donoData)).data.value;
+    let {plus} = donoAttributes(res.data.value.donoData);
     let teachers;
 
     if (plus) {
@@ -5190,7 +5190,7 @@ const _apiGetUser = async (db, apiKey, projection) => {
 const apiInfo = (apiKey) => safe(_apiInfo, apiKey);
 const _apiInfo = async (db, apiKey) => {
     let user = (await apiGetUser(apiKey, {username: 1, school: 1, donoData: 1})).data.value;
-    let {premium} = (await __getDonoAttributes(user.donoData)).data.value;
+    let {premium} = donoAttributes(user.donoData);
     return {success: true, data: {username: user.username, school: user.school, premium: premium}};
 };
 
@@ -5310,7 +5310,7 @@ const _internalApiDiscordUserInfo = async (db, discordID) => {
     }
 
     return {
-        success: true, data: {school: user.school, donoData: (await __getDonoAttributes(user.donoData)).data.value}
+        success: true, data: {school: user.school, donoData: donoAttributes(user.donoData)}
     };
 };
 
