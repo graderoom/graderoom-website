@@ -148,10 +148,6 @@ table tfoot tr td {
     border-color: #CCCCCC;
 }
 
-.changelog-container .body {
-    color: #222222;
-}
-
 .changelog-container.placeholder::before {
     color: rgba(100, 100, 100, 0.1);
 }

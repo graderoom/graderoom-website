@@ -50,7 +50,8 @@ const {
     buildStarterNotifications,
     notificationButton,
     notificationTextField,
-    donoHelper,
+    donoAttributes,
+    nextSyncAllowed,
     ERRORS_COLLECTION_NAME,
     GENERAL_ERRORS_COLLECTION_NAME, minUsersForAverageCalc, SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME, hash
 } = require("./dbHelpers");
@@ -2852,11 +2853,21 @@ const _logGeneralError = async (db, errorString) => {
 
 const updateGrades = (username, schoolPassword, userPassword, gradeSync) => safe(_updateGrades, lower(username), schoolPassword, userPassword, gradeSync);
 const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSync) => {
-    let res = await getUser(username, {grades: 1, school: 1, updatedGradeHistory: 1, schoolUsername: 1});
+    let res = await getUser(username, {"alerts.lastUpdated": {$slice: -1}, grades: 1, school: 1, updatedGradeHistory: 1, schoolUsername: 1, donoData: 1});
     if (!res.success) {
         return res;
     }
     let user = res.data.value;
+
+    let lastUpdated = user.alerts.lastUpdated;
+    if (lastUpdated.length) {
+        if (!nextSyncAllowed(lastUpdated[0].timestamp, user.donoData)) {
+            await setSyncStatus(username, SyncStatus.LIMIT);
+            socketManager.emitToRoom(username, "sync-limit", {message: "You need to wait before syncing again."})
+            return {success: false}
+        }
+    }
+
     let {term: oldTerm, semester: oldSemester} = __getMostRecentTermData(user).data.value;
     let termDataIfLocked = {term: oldTerm, semester: oldSemester};
     let dataIfLocked = [];
@@ -3735,6 +3746,8 @@ const _getSyncStatus = async (db, username) => {
         };
     } else if (syncStatus === SyncStatus.NOT_SYNCING) {
         return {success: false, data: {message: "Not syncing"}};
+    } else if (syncStatus === SyncStatus.LIMIT) {
+        return {success: false, data: {message: "You need to wait before syncing again."}}
     } else if (syncStatus.startsWith(`${SyncStatus.FAILED}-`)) {
         let errorCode = parseInt(syncStatus.substring(SyncStatus.FAILED.length + 1));
         return {success: false, data: {message: `Sync Failed. Error ${errorCode}.`}};
@@ -4809,14 +4822,7 @@ const _getDonoAttributes = async (db, username) => {
     }
 
     let donos = res.data.value;
-    return __getDonoAttributes(donos);
-};
-
-const __getDonoAttributes = async (donos) => {
-    let totalDonos = donos.map(d => d.receivedValue).reduce((a, b) => a + b, 0);
-    return {
-        success: true, data: {value: donoHelper(totalDonos)}
-    };
+    return {success: true, data: {value: donoAttributes(donos)}};
 };
 
 const getAllAlerts = (username) => safe(_getAllAlerts, lower(username));

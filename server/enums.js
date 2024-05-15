@@ -7,6 +7,7 @@ module.exports.SyncStatus = {
     UPDATING: "updating",
     HISTORY: "history",
     ACCOUNT_INACTIVE: "account-inactive",
+    LIMIT: "limit",
     NOT_SYNCING: "",
 }
 

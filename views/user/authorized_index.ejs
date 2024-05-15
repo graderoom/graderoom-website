@@ -985,6 +985,7 @@
                             showChangelog(false, true);
                             setupIncorrectGradeMessages();
                             break;
+                        case "You need to wait before syncing again.":
                         case `No ${school === "basis" ? "Schoology" : "PowerSchool"} grades found for this term.`:
                             messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(status);
                             showChangelog(false, true);
@@ -1097,6 +1098,15 @@
                         });
                     }
                     break;
+                case "sync-limit":
+                    $(".updateGradesMessage > span").css("opacity", "");
+                    messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(data.message);
+                    $("#gradeSyncForm, #syncGradesForm").find("button").prop("disabled", false).find("div").removeClass("loading");
+                    $("#loadingDisplay").hide();
+                    $(".fa-refresh").removeClass("fa-spin").css("opacity", "");
+                    showChangelog(false, true);
+                    shortcutsEnabled = true;
+                    break;
                 case "sync-fail":
                     if (data.gradeSyncEnabled) {
                         $("#syncGradesDiv").hide();
@@ -1125,6 +1135,7 @@
                         messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(data.message);
                     }
                     showChangelog(false, true);
+                    shortcutsEnabled = true;
                     break;
 
                 case "success-notification-settings-change":
