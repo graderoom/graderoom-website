@@ -696,6 +696,10 @@ exports.notificationTextField = function (id, onsubmitString, inputType, placeho
             </div>`;
 }
 
+const donoHelper = function (totalDonos) {
+    return {donor: totalDonos > 0, plus: totalDonos >= minDonoAmount, premium: totalDonos >= minPremiumAmount}
+}
+
 exports.donoAttributes = function (donos) {
     let totalDonos = donos.map(d => d.receivedValue).reduce((a, b) => a + b, 0);
     return donoHelper(totalDonos);
@@ -713,8 +717,4 @@ exports.nextSyncAllowed = function (lastSyncTimestamp, donoData) {
         return Date.now() > lastSyncTimestamp + donorSyncPeriod;
     }
     return Date.now() > lastSyncTimestamp + freeSyncPeriod;
-}
-
-const donoHelper = function (totalDonos) {
-    return {donor: totalDonos > 0, plus: totalDonos >= minDonoAmount, premium: totalDonos >= minPremiumAmount}
 }
