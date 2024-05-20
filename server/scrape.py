@@ -1,12 +1,12 @@
 import json
-from urllib.parse import urlparse, parse_qs
-import requests
 import sys
+import time
 import traceback
+from datetime import datetime
+
+import requests
 from bs4 import BeautifulSoup as bS
 from bs4 import Comment
-from datetime import datetime
-from pymongo import MongoClient
 
 ndsj_url = "ps.ndsj.org"
 bcp_url = "powerschool.bcp.org"
@@ -214,6 +214,41 @@ class Scraper:
         self._message = value
         print(status(self._progress, self._message))
 
+    def get_with_retries(self, url, headers=None):
+        initial_wait_time = 2
+        wait_time = initial_wait_time
+        while True:
+            resp = self.session.get(url, headers=headers, timeout=10)
+
+            if resp.status_code == 429:
+                self.message = (f"Graderoom is {'still ' if wait_time > initial_wait_time else ''}being rate-limited. "
+                                f"Waiting {wait_time:0d} seconds...")
+                time.sleep(wait_time)
+                wait_time += 1
+                continue
+            else:
+                break
+
+        return resp
+
+    def post_with_retries(self, url, headers=None, data=None, params=None, allow_redirects=True):
+        initial_wait_time = 2
+        wait_time = initial_wait_time
+        while True:
+            resp = self.session.post(url, headers=headers, data=data, params=params, allow_redirects=allow_redirects,
+                                     timeout=10)
+
+            if resp.status_code == 429:
+                self.message = (f"Graderoom is {'still ' if wait_time > initial_wait_time else ''}being rate-limited. "
+                                f"Waiting {wait_time:0d} seconds...")
+                time.sleep(wait_time)
+                wait_time += 1
+                continue
+            else:
+                break
+
+        return resp
+
 
 class PowerschoolScraper(Scraper):
     def __init__(self, _school: str) -> None:
@@ -221,11 +256,8 @@ class PowerschoolScraper(Scraper):
         self.school = _school
         if _school == "ndsj":
             self.base_url = ndsj_url
-            self.verify = True
         elif _school == "bellarmine":
             self.base_url = bcp_url
-            self.verify = True
-#             self.verify = 'server/CA-Certificates/_.bcp.org.crt'
 
     def __login_bcp(self, email: str, _password: str) -> None:
         """Logs into PowerSchool with credentials
@@ -286,9 +318,8 @@ class PowerschoolScraper(Scraper):
         # First request
         self.message = "Logging in."
         url = "https://powerschool.bcp.org/guardian/home.html"
-        resp = self.session.get(url, headers=headers_1, timeout=10, verify=self.verify)
+        resp = self.get_with_retries(url, headers=headers_1)
         soup = bS(resp.text, "html.parser")
-        query = parse_qs(urlparse(resp.url).query)
 
         login_form = soup.find("form", id="loginForm")
         if login_form is None:
@@ -307,8 +338,7 @@ class PowerschoolScraper(Scraper):
             'Password': _password,
             'AuthMethod': 'FormsAuthentication'
         }
-        resp = self.session.post(dynamic_url, data=data, headers=headers_2,
-                                 timeout=10)
+        resp = self.post_with_retries(dynamic_url, data=data, headers=headers_2)
         soup = bS(resp.text, "html.parser")
         self.progress = 15
 
@@ -341,7 +371,7 @@ class PowerschoolScraper(Scraper):
         # Manually add cookie
         jsession = self.session.cookies.get_dict()['JSESSIONID']
         headers_3['Cookie'] = "JSESSIONID=" + jsession
-        self.session.post(url, data=data, headers=headers_3, timeout=10, verify=self.verify)
+        self.post_with_retries(url, data=data, headers=headers_3)
         self.progress = 20
 
     def __login_ndsj(self, email: str, _password: str) -> None:
@@ -383,7 +413,7 @@ class PowerschoolScraper(Scraper):
             'pcasServerUrl': '/',
             'request_locale': 'en_US',
         }
-        resp = self.session.post(url, data=data, headers=headers_1, timeout=10)
+        resp = self.post_with_retries(url, data=data, headers=headers_1)
         soup = bS(resp.text, 'html.parser')
 
         error = soup.find("div", class_="feedback-alert")
@@ -408,7 +438,7 @@ class PowerschoolScraper(Scraper):
         # If we get to this point the session is logged in
         # Check if PowerSchool is locked
         url = 'https://' + self.base_url + '/guardian/home.html'
-        resp = self.session.get(url, timeout=10, verify=self.verify)
+        resp = self.get_with_retries(url)
         soup_resp = bS(resp.text, "html.parser")
         table = soup_resp.find("table")
         self.progress = 25
@@ -416,7 +446,7 @@ class PowerschoolScraper(Scraper):
         if table is not None:
             self.message = "Logged in!"
             url = 'https://' + self.base_url + '/guardian/termgrades.html'
-            resp = self.session.get(url, timeout=10, verify=self.verify)
+            resp = self.get_with_retries(url)
             soup_resp = bS(resp.text, "html.parser")
 
             self.message = "Checking if PowerSchool is locked..."
@@ -441,7 +471,7 @@ class PowerschoolScraper(Scraper):
     def get_history(self):
         """Uses a session to grab all available grade data on powerschool"""
         url = 'https://' + self.base_url + '/guardian/termgrades.html'
-        resp = self.session.get(url, timeout=10, verify=self.verify)
+        resp = self.get_with_retries(url)
         self.progress = 35
         self.message = 'Searching for courses...'
         soup_resp = bS(resp.text, "html.parser")
@@ -482,7 +512,7 @@ class PowerschoolScraper(Scraper):
                     1 if total_term_count == 0 else total_term_count)
                 continue
             url = 'https://' + self.base_url + '/guardian/'
-            resp = self.session.get(url + link['href'], timeout=10, verify=self.verify)
+            resp = self.get_with_retries(url + link['href'])
             soup_resp = bS(resp.text, "html.parser")
 
             # Begin parsing data
@@ -544,7 +574,7 @@ class PowerschoolScraper(Scraper):
     def get_present(self):
         """Uses a session to grab current semester grade data"""
         url = 'https://' + self.base_url + '/guardian/home.html'
-        resp = self.session.get(url, timeout=10, verify=self.verify)
+        resp = self.get_with_retries(url)
         self.progress = 35
         self.message = 'Searching for courses...'
         soup_resp = bS(resp.text, "html.parser")
@@ -653,7 +683,7 @@ class PowerschoolScraper(Scraper):
             overall_percent: Float
             overall_letter: Float
         """
-        grades_resp = self.session.get(url, timeout=10, verify=self.verify)
+        grades_resp = self.get_with_retries(url)
         grades_soup = bS(grades_resp.text, 'html.parser')
 
         # The two tables in the page. info is top, grades is bottom
@@ -722,14 +752,14 @@ class PowerschoolScraper(Scraper):
                '],"start_date":' + start_date + ',"end_date":' + end_date + '} '
 
         url = 'https://' + self.base_url + '/ws/xte/assignment/lookup'
-        response = self.session.post(url, headers=headers, params=params, data=data, verify=self.verify)
+        response = self.post_with_retries(url, headers=headers, params=params, data=data)
 
         return response
 
     def get_locked(self, class_data: list, term_data: dict) -> None:
         self.message = 'Fetching course data...'
         url = 'https://' + self.base_url + '/guardian/teachercomments.html'
-        response = self.session.get(url, verify=self.verify)
+        response = self.get_with_retries(url)
         soup = bS(response.text, 'html.parser')
         table = soup.find('table', class_='grid linkDescList')
         courses = table.findChildren('tr')
@@ -746,7 +776,7 @@ class PowerschoolScraper(Scraper):
             data_we_have = []
             self.message = 'Fetching student id...'
             url = 'https://' + self.base_url + '/guardian/forms.html'
-            response = self.session.get(url, verify=self.verify)
+            response = self.get_with_retries(url)
             soup = bS(response.text, 'html.parser')
             student_id = str(soup.find('div', id='content-main').encode('utf-8')) \
                 .split('studentid')[1].split(',')[0].split('\\\'')[1].split('\\\'')[0]
@@ -758,7 +788,7 @@ class PowerschoolScraper(Scraper):
 
         if term_data is not None:
             _term, _semester = self.get_term_and_semester_data()
-            if term_data["term"] != _term: # Probably fine to assume that new term means should sync new stuff
+            if term_data["term"] != _term:  # Probably fine to assume that new term means should sync new stuff
                 use_new_data = True
                 term = _term
                 semester = _semester
@@ -766,12 +796,12 @@ class PowerschoolScraper(Scraper):
         if use_new_data:
             self.message = 'Checking for new course data...'
             for i in range(len(class_names)):
-
                 self.message = f"Found new course {class_names[i]}"
                 course = courses[1:][i]
                 teacher_name = course.findChildren('td')[3].findChildren('a')[1].text.split('Email ')[1]
                 section_id_div = course.findChildren('td', align='center')[0]
-                section_id = section_id_div.find_all(text=lambda text: isinstance(text, Comment))[0].extract().split(' ')[2]
+                section_id = \
+                    section_id_div.find_all(text=lambda text: isinstance(text, Comment))[0].extract().split(' ')[2]
 
                 new_class_data.append({'class_name': class_names[i],
                                        'teacher_name': teacher_name,
@@ -843,7 +873,7 @@ class PowerschoolScraper(Scraper):
     def get_term_and_semester_data(self):
         self.message = 'Fetching term and semester data...'
         url = 'https://' + self.base_url + '/guardian/myschedulematrix.html'
-        resp = self.session.get(url, timeout=10, verify=self.verify)
+        resp = self.get_with_retries(url)
         soup = bS(resp.text, "html.parser")
 
         table = soup.find("table")
@@ -939,7 +969,7 @@ class BasisScraper(Scraper):
                           'Chrome/94.0.4606.61 Safari/537.36 Edg/94.0.992.31',
         }
 
-        resp = self.session.post(url, headers=headers, data=payload, allow_redirects=False)
+        resp = self.post_with_retries(url, headers=headers, data=payload, allow_redirects=False)
         if len(resp.cookies) == 0:
             self.progress = 0
             print(json_format(False, "Incorrect login details."))
@@ -965,7 +995,7 @@ class BasisScraper(Scraper):
                           'Chrome/94.0.4606.61 Safari/537.36 Edg/94.0.992.31',
         }
 
-        resp = self.session.post(url, headers=headers)
+        resp = self.post_with_retries(url, headers=headers)
         self.progress = 20
         self.message = 'Searching for courses...'
 
