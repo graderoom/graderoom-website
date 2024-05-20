@@ -31,10 +31,10 @@ exports.minUsersForAverageCalc = 9;
 const minDonoAmount = 3;
 const minPremiumAmount = 5;
 
-const freeSyncPeriod = 12 * 60 * 60 * 1000; // 12 hours (2x/day)
-const donorSyncPeriod = 8 * 60 * 60 * 1000; // 8 hours (3x/day)
-const plusSyncPeriod = 6 * 60 * 60 * 1000; // 6 hours (4x/day)
-const premiumSyncPeriod = 4 * 60 * 60 * 1000; // 4 hours (6x/day)
+const freeSyncPeriod = 4 * 60 * 60 * 1000; // 4 hours
+const donorSyncPeriod = 2 * 60 * 60 * 1000; // 2 hours
+const plusSyncPeriod = 60 * 60 * 1000; // 1 hour
+const premiumSyncPeriod = 15 * 60 * 1000; // 15 minutes
 
 let _changelogArray = [];
 let _betaChangelogArray = [];
