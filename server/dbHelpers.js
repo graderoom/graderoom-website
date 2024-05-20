@@ -706,7 +706,7 @@ exports.donoAttributes = function (donos) {
 }
 
 exports.nextSyncAllowed = function (lastSyncTimestamp, donoData) {
-    let {donor, plus, premium} = exports.donoHelper(donoData);
+    let {donor, plus, premium} = exports.donoAttributes(donoData);
     if (premium) {
         return Date.now() > lastSyncTimestamp + premiumSyncPeriod;
     }
