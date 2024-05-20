@@ -52,6 +52,13 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Announcement 7.0.2] - 2024-05-20 - Graderoom is back! (for real this time)
+- I want to clarify a few things about what has happened in the past few days.
+- The decision to block Graderoom was not made by the school administration.
+- They have taken action to unblock Graderoom, as you may have noticed.
+- Thank you to <b>Tate Steven-Schneider '24</b> for reaching out and communicating with the school to reach this resolution.
+- We will continue to adjust rate limits to prevent obsessive usage of the platform.
+
 ## [Stable 7.0.1] - 2024-05-20 - Finish the year strong!
 ### Added
 - Re-enabled PowerSchool sync for Bellarmine students. The connection issues have been resolved.
@@ -59,7 +66,6 @@
 
 ### Improved
 - Updated Sync Cooldowns<br><br><table class="table table-bordered"><thead><tr><th>Account Type</th><th>Sync Cooldown (hrs.)</th></tr></thead><tbody><tr><td>Free</td><td>12 → <b>4</b></td></tr><tr><td>Donor</td><td>8 → <b>2</b></td></tr><tr><td><span class="plus label-background"><span class="plus-label">PLUS</span></span></td><td>6 → <b>1</b></td></tr><tr><td><span class="premium label-background"><span class="premium-label">PREMIUM</span></span></td><td>4 → <b>0.25</b></td></tr></tbody></table>
-
 
 ## [Announcement 7.0.0] - 2024-05-15 - A message from Joel
 - <b>This is a long announcement. Please read it completely.</b><br><br><p>Hi everyone,</p><p>You may have noticed that Graderoom has not been able to connect to PowerSchool recently. Today, I was informed by a student that the school administration has intentionally blocked Graderoom from connecting to PowerSchool. I did not receive any communication from the school related to this, and was not given any way to resolve this issue with them. So, for the time being, it seems like syncing with PowerSchool for Bellarmine students will not be possible.</p><p>I am grateful that my website was helpful to all of you over the past few years. When I started this project, I could not have imagined the success and growth that I see today.</p><p>Please spread the word to people who may not see this announcement.</p><br><p><b>Donors</b>, please contact me via email or Discord if you would like a refund.<br><p>Thank you all,<br>Joel Jothiprakasam '21</p>
