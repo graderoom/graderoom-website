@@ -283,10 +283,6 @@ class PowerschoolScraper(Scraper):
                           'Chrome/115.0.0.0 Safari/537.36 ',
         }
 
-        self.progress = 0
-        print(json_format(False, 'Could not connect to PowerSchool.'))
-        sys.exit()
-
         # First request
         self.message = "Logging in."
         url = "https://powerschool.bcp.org/guardian/home.html"
