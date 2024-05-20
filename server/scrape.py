@@ -222,7 +222,7 @@ class Scraper:
 
             if resp.status_code == 429:
                 self.message = (f"Graderoom is {'still ' if wait_time > initial_wait_time else ''}being rate-limited. "
-                                f"Waiting {wait_time:0d} second(s)...")
+                                f"Waiting {wait_time:0d} seconds...")
                 time.sleep(wait_time)
                 wait_time += 1
                 continue
@@ -240,7 +240,7 @@ class Scraper:
 
             if resp.status_code == 429:
                 self.message = (f"Graderoom is {'still ' if wait_time > initial_wait_time else ''}being rate-limited. "
-                                f"Waiting {wait_time:0d} second(s)...")
+                                f"Waiting {wait_time:0d} seconds...")
                 time.sleep(wait_time)
                 wait_time += 1
                 continue
