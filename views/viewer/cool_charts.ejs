@@ -272,40 +272,22 @@
     let schoolData = <%- JSON.stringify(_schoolData); %>;
 
     // Fill in holes in loginData
-    let length = loginData.length;
-    for (let i = 1; i < length; i++) {
-        let prevDate = new Date(loginData[i - 1].x);
-        let currDate = new Date(loginData[i].x);
+    fillHoles(loginData);
+    fillHoles(uniqueLoginData);
+    fillHoles(syncData);
+    fillHoles(userData, true);
 
-        weekdayLoginData[prevDate.getDay()] += loginData[i - 1].y;
-        weekdayUniqueLoginData[prevDate.getDay()] += uniqueLoginData[i - 1].y;
-        weekdaySyncData[prevDate.getDay()] += syncData[i - 1].y;
-        if (i === length - 1) {
-            weekdayLoginData[currDate.getDay()] += loginData[i].y;
-            weekdayUniqueLoginData[currDate.getDay()] += uniqueLoginData[i].y;
-            weekdaySyncData[currDate.getDay()] += syncData[i].y;
-        }
-
-        let diffInDays = Math.round((currDate.getTime() - prevDate.getTime()) / (24 * 60 * 60 * 1000));
-
-        for (let j = 1; j < diffInDays; j++) {
-            loginData.splice(i + j - 1, 0, {
-                x: new Date(prevDate.getTime() + j * 24 * 60 * 60 * 1000).toISOString(), y: 0
-            });
-            uniqueLoginData.splice(i + j - 1, 0, {
-                x: new Date(prevDate.getTime() + j * 24 * 60 * 60 * 1000).toISOString(), y: 0
-            });
-            syncData.splice(i + j - 1, 0, {
-                x: new Date(prevDate.getTime() + j * 24 * 60 * 60 * 1000).toISOString(), y: 0
-            });
-            userData.splice(i + j - 1, 0, {
-                x: new Date(prevDate.getTime() + j * 24 * 60 * 60 * 1000).toISOString(), y: userData[i - 1].y
-            });
-            length++;
-        }
-
-        i += Math.max(diffInDays - 1, 0);
+    // calculate weekday stats
+    for (let i = 0; i < loginData.length; i++) {
+        weekdayLoginData[new Date(loginData[i].x).getDay()] += loginData[i].y;
     }
+    for (let i = 0; i < uniqueLoginData.length; i++) {
+        weekdayUniqueLoginData[new Date(uniqueLoginData[i].x).getDay()] += uniqueLoginData[i].y;
+    }
+    for (let i = 0; i < syncData.length; i++) {
+        weekdaySyncData[new Date(syncData[i].x).getDay()] += syncData[i].y;
+    }
+
     let updated = new Date(<%= lastUpdated - 24 * 60 * 60 * 1000 %>);
     let count = <%- JSON.stringify(_loggedInData.data.value) %>;
     $("#user-desc").text(`${Object.values(userData.slice(-1)[0].y).reduce((a, b) => a + b, 0)} total real user(s) as of ${updated.toDateString()}.`);
@@ -316,6 +298,25 @@
     let weekdayLoginChart;
     let gradYearChart;
     let schoolChart;
+
+    function fillHoles(data, fillWithPreviousValue=false) {
+        let length = data.length;
+        for (let i = 1; i < length; i++) {
+            let prevDate = new Date(data[i - 1].x);
+            let currDate = new Date(data[i].x);
+
+            let diffInDays = Math.round((currDate.getTime() - prevDate.getTime()) / (24 * 60 * 60 * 1000));
+
+            for (let j = 1; j < diffInDays; j++) {
+                data.splice(i + j - 1, 0, {
+                    x: new Date(prevDate.getTime() + j * 24 * 60 * 60 * 1000).toISOString(), y: fillWithPreviousValue ? data[i - 1].y : 0
+                });
+                length++;
+            }
+
+            i += Math.max(diffInDays - 1, 0);
+        }
+    }
 
     function resetZoom(_chart) {
         _chart.resetZoom();
