@@ -4436,7 +4436,6 @@ input[name=searchByNameOrUsername] {
         min-width: 3rem;
         height: 3rem;
         cursor: pointer;
-        pointer-events: none;
         opacity: 0.5;
         border-radius: 1.5rem;
     }
