@@ -75,13 +75,11 @@ async function run() {
         })).reduce((a, b) => a.concat(b)).filter(d => d.getTime() >= lastUpdatedCharts.getTime() && isNotToday(d));
         console.log(`Calculated sync dates in ${Date.now() - time}ms!`);
 
-        // Add days that don't exist in loginDates that are in sync dates and vice versa and sort them
+        // Sort
         time = Date.now();
-        loginDates =
-            loginDates.concat(syncDates.filter(t => !loginDates.find(u => u.getTime() === t.getTime()))).sort((a, b) => a.getTime() - b.getTime());
-        syncDates =
-            syncDates.concat(loginDates.filter(t => !syncDates.find(u => u.getTime() === t.getTime()))).sort((a, b) => a.getTime() - b.getTime());
-        console.log(`Consolidated login and sync dates in ${Date.now() - time}ms!`);
+        loginDates = loginDates.sort((a, b) => a.getTime() - b.getTime());
+        syncDates = syncDates.sort((a, b) => a.getTime() - b.getTime());
+        console.log(`Sorted login and sync dates in ${Date.now() - time}ms!`);
 
         time = Date.now();
         loginData = loginData ?? [];

@@ -52,6 +52,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 7.0.3] - 2024-06-03
+### Fixed
+- Issue with analytics showing incorrect data when there were 0 syncs in a day.
+
 ## [Announcement 7.0.2] - 2024-05-20 - Graderoom is back! (for real this time)
 - I want to clarify a few things about what has happened in the past few days.
 - The decision to block Graderoom was not made by the school administration.
