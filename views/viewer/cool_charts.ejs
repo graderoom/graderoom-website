@@ -272,6 +272,8 @@
     let schoolData = <%- JSON.stringify(_schoolData); %>;
 
     // Fill in holes in loginData
+    let minDate = Math.min(new Date(loginData[0].x).getTime(), new Date(syncData[0].x).getTime());
+    let maxDate = Math.max(new Date(loginData.slice(-1)[0].x).getTime(), new Date(syncData.slice(-1)[0].x).getTime());
     fillHoles(loginData);
     fillHoles(uniqueLoginData);
     fillHoles(syncData);
@@ -300,8 +302,13 @@
     let schoolChart;
 
     function fillHoles(data, fillWithPreviousValue=false) {
-        let length = data.length;
-        for (let i = 1; i < length; i++) {
+        if (new Date(data[0].x).getTime() !== minDate) {
+            data.unshift({x: minDate, y: 0});
+        }
+        if (new Date(data[data.length - 1].x).getTime() !== maxDate) {
+            data.push({x: maxDate, y: fillWithPreviousValue ? data[data.length - 1].y : 0});
+        }
+        for (let i = 1; i < data.length; i++) {
             let prevDate = new Date(data[i - 1].x);
             let currDate = new Date(data[i].x);
 
@@ -311,7 +318,6 @@
                 data.splice(i + j - 1, 0, {
                     x: new Date(prevDate.getTime() + j * 24 * 60 * 60 * 1000).toISOString(), y: fillWithPreviousValue ? data[i - 1].y : 0
                 });
-                length++;
             }
 
             i += Math.max(diffInDays - 1, 0);
