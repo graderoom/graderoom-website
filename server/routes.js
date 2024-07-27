@@ -1,4 +1,5 @@
 const server = require("./graderoom.js");
+const fs = require("fs")
 const dbClient = require("./dbClient.js");
 const emailSender = require("./emailSender.js");
 const _ = require("lodash");
@@ -148,6 +149,10 @@ module.exports = function (app, passport) {
             sunrise: sunrise,
         });
     });
+
+    app.get("/apple-touch-icon.png", (req, res) => {
+        res.sendFile("/public/resources/common/wpa-icon.png", {root: "./"})
+    })
 
     app.post("/assignmentAverage", [isLoggedIn], async (req, res) => {
         let resp = await dbClient.getAssignmentAverage(req.user.username, req.body.term, req.body.semester, req.body.className, req.body.assignmentPSAID);
