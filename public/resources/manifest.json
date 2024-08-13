@@ -4,15 +4,21 @@
     "display": "standalone",
     "start_url": "/",
     "description": "Grade visualization with automatic web scraping from Powerschool for students.",
+    "theme_color": "#333333",
     "icons": [
       {
-        "src": "public/resources/common/icon.png",
-        "sizes": "1073x1136",
+        "src": "./common/wpa-icon-120.png",
+        "sizes": "120x120",
         "type": "image/png"
       },
       {
-        "src": "public/resources/common/wpa-icon.png",
-        "sizes": "120x120",
+        "src": "./common/wpa-icon-512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      },
+      {
+        "src": "./common/wpa-icon-1024.png",
+        "sizes": "1024x1024",
         "type": "image/png"
       }
     ]
