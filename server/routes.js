@@ -1181,11 +1181,7 @@ module.exports = function (app, passport) {
     app.post("/api/pair", async (req, res) => {
         let pairingKey = req.body.pairingKey;
         let resp = await dbClient.apiPair(pairingKey);
-        if (!resp.success) {
-            res.status(400).send(resp.data.message);
-        } else {
-            res.status(200).send(resp.data.value);
-        }
+        apiRespond(res, resp);
     });
 
     app.get("/api/info", [isApiAuthenticated], async (req, res) => {
@@ -1231,19 +1227,15 @@ module.exports = function (app, passport) {
     app.get("/*", (req, res) => {
         res.redirect(req.headers.referer ?? "/");
     });
-
-    function apiRespond(res, resp) {
-        if (!resp.success) {
-            if (resp.data.message === "Authentication failed") {
-                res.status(401).send(resp.data.message);
-            } else {
-                res.status(400).send(resp.data.message);
-            }
-        } else {
-            res.status(200).send(resp.data);
-        }
-    }
 };
+
+function apiRespond(res, resp) {
+    if (!resp.success) {
+        res.status(400).send(resp.data.message);
+    } else {
+        res.status(200).send(resp.data.value);
+    }
+}
 
 function getSunriseAndSunset() {
     const SAN_JOSE_CA = {lat: 37, lng: -122};
