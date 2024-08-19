@@ -1,5 +1,4 @@
 const server = require("./graderoom.js");
-const fs = require("fs")
 const dbClient = require("./dbClient.js");
 const emailSender = require("./emailSender.js");
 const _ = require("lodash");
