@@ -1,0 +1,25 @@
+{
+  "name": "Graderoom",
+  "short_name": "Graderoom",
+  "display": "standalone",
+  "start_url": "/",
+  "description": "Grade visualization with automatic web scraping from Powerschool for students.",
+  "theme_color": "#333333",
+  "icons": [
+    {
+      "src": "./common/pwa-icon-120.png",
+      "sizes": "120x120",
+      "type": "image/png"
+    },
+    {
+      "src": "./common/pwa-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "./common/pwa-icon-1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png"
+    }
+  ]
+}

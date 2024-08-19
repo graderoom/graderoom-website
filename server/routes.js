@@ -149,6 +149,10 @@ module.exports = function (app, passport) {
         });
     });
 
+    app.get("/apple-touch-icon.png", (req, res) => {
+        res.sendFile("/public/resources/common/pwa-icon-120.png", {root: "./"});
+    });
+
     app.post("/assignmentAverage", [isLoggedIn], async (req, res) => {
         let resp = await dbClient.getAssignmentAverage(req.user.username, req.body.term, req.body.semester, req.body.className, req.body.assignmentPSAID);
         if (!resp.success) {
