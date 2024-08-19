@@ -5191,7 +5191,7 @@ const apiInfo = (apiKey) => safe(_apiInfo, apiKey);
 const _apiInfo = async (db, apiKey) => {
     let user = (await apiGetUser(apiKey, {username: 1, school: 1, donoData: 1})).data.value;
     let {premium} = donoAttributes(user.donoData);
-    return {success: true, data: {username: user.username, school: user.school, premium: premium}};
+    return {success: true, data: {value: {username: user.username, school: user.school, premium: premium}}};
 };
 
 const apiGradesSlim = (apiKey) => safe(_apiGradesSlim, apiKey);
