@@ -317,7 +317,7 @@ class PowerschoolScraper(Scraper):
 
         # First request
         self.message = "Logging in."
-        url = "https://powerschool.bcp.org/guardian/home.html"
+        url = "https://powerschool.bcp.org/student/idp?_userTypeHint=student"
         resp = self.get_with_retries(url, headers=headers_1)
         soup = bS(resp.text, "html.parser")
 
