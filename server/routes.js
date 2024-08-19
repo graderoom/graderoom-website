@@ -150,7 +150,7 @@ module.exports = function (app, passport) {
     });
 
     app.get("/apple-touch-icon.png", (req, res) => {
-        res.sendFile("/public/resources/common/wpa-icon-120.png", {root: "./"})
+        res.sendFile("/public/resources/common/pwa-icon-120.png", {root: "./"})
     })
 
     app.post("/assignmentAverage", [isLoggedIn], async (req, res) => {

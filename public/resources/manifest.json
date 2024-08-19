@@ -7,17 +7,17 @@
     "theme_color": "#333333",
     "icons": [
       {
-        "src": "./common/wpa-icon-120.png",
+        "src": "./common/pwa-icon-120.png",
         "sizes": "120x120",
         "type": "image/png"
       },
       {
-        "src": "./common/wpa-icon-512.png",
+        "src": "./common/pwa-icon-512.png",
         "sizes": "512x512",
         "type": "image/png"
       },
       {
-        "src": "./common/wpa-icon-1024.png",
+        "src": "./common/pwa-icon-1024.png",
         "sizes": "1024x1024",
         "type": "image/png"
       }
