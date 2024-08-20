@@ -23,8 +23,7 @@ module.exports = {
                 mode: "json", // pythonPath: 'path/to/python',
                 pythonOptions: ['-u'], // get print results in real-time
                 scriptPath: './server',
-                pythonPath: pythonPath,
-                args: [school, email, password, JSON.stringify(data_if_locked), JSON.stringify(term_data_if_locked), get_history]
+                pythonPath: pythonPath
             };
 
             try {
@@ -38,6 +37,13 @@ module.exports = {
                         queue.enqueue(async () => resolve());
                     }
                 });
+
+                pyshell.stdin.write(school + "\n");
+                pyshell.stdin.write(email + "\n");
+                pyshell.stdin.write(password + "\n");
+                pyshell.stdin.write(JSON.stringify(data_if_locked) + "\n");
+                pyshell.stdin.write(JSON.stringify(term_data_if_locked) + "\n");
+                pyshell.stdin.write(get_history + "\n");
             } catch (e) {
                 console.log("Server ran out of memory probably");
                 processor({success: false, message: 'Something went wrong'});
