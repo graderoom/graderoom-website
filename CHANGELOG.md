@@ -52,6 +52,20 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 7.0.5] - 2024-08-20
+### Added
+- <github issue="245">Add PWA support (Graderoom Mobile App)</github>
+
+### Fixed
+- <github issue="246">Fixes PowerSchool Sync URL</github>
+
+## [Beta 7.0.4] - 2024-08-19
+### Added
+- <github issue="245">Add PWA support (Graderoom Mobile App)</github>
+
+### Fixed
+- <github issue="246">Fixes PowerSchool Sync URL</github>
+
 ## [Stable 7.0.3] - 2024-06-03
 ### Fixed
 - Issue with analytics showing incorrect data when there were 0 syncs in a day.

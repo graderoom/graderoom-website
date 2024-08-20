@@ -303,10 +303,10 @@
 
     function fillHoles(data, fillWithPreviousValue=false) {
         if (new Date(data[0].x).getTime() !== minDate) {
-            data.unshift({x: minDate, y: 0});
+            data.unshift({x: new Date(minDate).toISOString(), y: 0});
         }
         if (new Date(data[data.length - 1].x).getTime() !== maxDate) {
-            data.push({x: maxDate, y: fillWithPreviousValue ? data[data.length - 1].y : 0});
+            data.push({x: new Date(maxDate).toISOString(), y: fillWithPreviousValue ? data[data.length - 1].y : 0});
         }
         for (let i = 1; i < data.length; i++) {
             let prevDate = new Date(data[i - 1].x);

@@ -317,7 +317,7 @@ class PowerschoolScraper(Scraper):
 
         # First request
         self.message = "Logging in."
-        url = "https://powerschool.bcp.org/guardian/home.html"
+        url = "https://powerschool.bcp.org/student/idp?_userTypeHint=student"
         resp = self.get_with_retries(url, headers=headers_1)
         soup = bS(resp.text, "html.parser")
 
@@ -1158,9 +1158,9 @@ class BasisScraper(Scraper):
 
 
 if __name__ == "__main__":
-    school: str = sys.argv[1]
-    user: str = sys.argv[2]
-    password: str = sys.argv[3]
+    school: str = input()
+    user: str = input()
+    password: str = input()
     if school == "basis":
         bs = BasisScraper()
         try:
@@ -1173,9 +1173,9 @@ if __name__ == "__main__":
             print(json_format(False, f"Error: {str(e)}"))
             sys.exit()
     else:
-        data_if_locked: dict = json.loads(sys.argv[4])  # arg must be stringified json
-        term_data_if_locked: dict = json.loads(sys.argv[5])  # arg must be stringified json
-        get_history: str = sys.argv[6]
+        data_if_locked: dict = json.loads(input())  # arg must be stringified json
+        term_data_if_locked: dict = json.loads(input())  # arg must be stringified json
+        get_history: str = input()
         ps = PowerschoolScraper(school)
         try:
             if ps.login(user, password):
