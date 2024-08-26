@@ -52,6 +52,14 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 7.0.6] - 2024-08-26 - Hi, Graderoom should work again
+### Added
+- <github issue="245">Add PWA support (Graderoom Mobile App)</github>
+
+### Fixed
+- <github issue="246">Fixes PowerSchool Sync URL</github>
+- Issue with some old semesters being overwritten on sync
+
 ## [Beta 7.0.5] - 2024-08-26
 ### Fixed
 - Issue with some old semesters being overwritten on sync
