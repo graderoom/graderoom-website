@@ -535,7 +535,7 @@ class PowerschoolScraper(Scraper):
                     semester_classes = []
 
                 # Check if the current row has class data
-                if title != "" and row.find("td", align="left"):
+                if title != "" and row.find("td", class_="table-element-text-align-start"):
                     data = row.find_all("td")
 
                     class_name = clean_string(data[0].text)
