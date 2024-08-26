@@ -140,6 +140,9 @@ class Catalogger:
                 # Case where <p> stores the review date
                 elif re.search(r"\([\w\s]*20\d\d\)", p_low):
                     review = p
+                # Case where review date doesn't have parentheses
+                elif re.search(r"(?:reviewed|revised|updated)\s\w*\s20\d\d", p_low):
+                    review = p
                 # Case where <p> is the UC/CSU string
                 elif 'uc/csu' in p_low:
                     uc_csu_str = p
@@ -181,6 +184,8 @@ class Catalogger:
             # Regex for "(Reviewed November 2019)" or "(Revised March 2020)" or "(Reviewed Jan 2020)"
             # in the description. Example is Shakespeare 1
             review_re = re.search(r"\([\w\s]*20\d\d\)", desc)
+            if review_re is None:
+                review_re = re.search(r"(?:[R|r]eviewed|[R|r]evised|[U|u]pdated)\s\w*\s20\d\d", desc)
             if review_re is not None:
                 # Set review_str if it does not exist
                 review = review_re.group()
@@ -193,6 +198,7 @@ class Catalogger:
             # Clean review to just Month and Year
             review = review.replace("Reviewed", "")
             review = review.replace("Revised", "")
+            review = review.replace("\n", "")
             review = review.replace("(", "")
             review = review.replace(")", "")
             review = review.replace("reviewed", "")  # Astronomy: Sky and Solar System
