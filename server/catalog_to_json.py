@@ -20,7 +20,7 @@ class Catalogger:
         self.catalog_fname = "catalog.html"
         self.desc_len_min = 50
 
-        self.mango = (len(sys.argv) > 0)
+        self.mango = len(sys.argv) > 1
         if self.mango:
             print("Mango is enabled.")
             url = os.getenv("DB_URL")
