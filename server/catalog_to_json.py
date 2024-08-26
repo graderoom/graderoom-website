@@ -64,7 +64,7 @@ class Catalogger:
             os.rename(self.catalog_fname, filename)
 
         # Save the catalog to file in case Bellarmine stops using it
-        with open(self.catalog_fname, 'w') as f:
+        with open(self.catalog_fname, 'w', encoding='utf8') as f:
             f.write(content)
             print(f"Successfully downloaded a new {self.catalog_fname}")
 
