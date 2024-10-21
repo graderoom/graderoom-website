@@ -230,13 +230,13 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
     });
 };
 
-exports.makeClass = (term, semester, className, teacherName, catalogData) => {
+exports.makeClass = (term, semester, className, teacherName) => {
     return {
-        department: catalogData?.department != null ? null : "",
-        credits: catalogData?.credits != null ? null : "",
-        terms: catalogData?.terms != null ? null : "",
-        uc_csuClassType: catalogData?.uc_csuClassType != null ? null : "",
-        classType: catalogData?.classType != null ? null : "",
+        department: null,
+        credits: null,
+        terms: null,
+        uc_csuClassType: null,
+        classType: null,
         teachers: [this.makeTeacher(teacherName)],
         term: term,
         semester: semester,
