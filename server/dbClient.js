@@ -1657,7 +1657,7 @@ const __classVersion3 = async (db, school, class_) => {
             if (class_.uc_csuClassType === rawData.uc_csuClassType || class_.uc_csuClassType === "") {
                 update.uc_csuClassType = null;
             }
-            if (class_.credits === rawData.credits || !([1, 2, 5, 10]).includes(class_.terms)) {
+            if (class_.credits === rawData.credits || !([1, 2, 5, 10]).includes(class_.credits)) {
                 update.credits = null;
             }
             if (_.isEqual(class_.terms, rawData.terms) || !([1, 2]).includes(class_.terms)) {
@@ -1672,6 +1672,42 @@ const __classVersion3 = async (db, school, class_) => {
         }, {
             $set: update,
             $unset: {grade_levels: "", description: ""}
+        });
+    }
+};
+
+const _classVersion4 = async (db, school, className, term, semester) => {
+    let res = await getClass(school, className, term, semester, {
+        version: 1, department: 1, classType: 1, uc_csuClassType: 1, credits: 1, terms: 1
+    });
+    if (!res.success) {
+        return res;
+    }
+
+    let class_ = res.data.value;
+    await safe(__classVersion4, school, class_);
+
+    return {success: true, data: {log: `Updated ${className} in ${school} ${term} ${semester} to version 4`}};
+};
+
+const __classVersion4 = async (db, school, class_) => {
+    if (class_.version === 3) {
+        let rawData = await _catalog().findOne({class_name: class_.className, school: school});
+        let update = {};
+        if (rawData != null || (class_.classType === "" && class_.uc_csuClassType === "")) {
+            update.department = null;
+            update.classType = null;
+            update.uc_csuClassType = null;
+            update.credits = null;
+            update.terms = null;
+        }
+        update.version = 4;
+        await db.collection(classesCollection(school)).updateOne({
+            className: class_.className,
+            term: class_.term,
+            semester: class_.semester
+        }, {
+            $set: update
         });
     }
 };
@@ -1694,6 +1730,9 @@ const _updateAllClasses = async (db) => {
                 }
                 if (class_.version < 3) {
                     await safe(_classVersion3, school, class_.className, class_.term, class_.semester);
+                }
+                if (class_.version < 4) {
+                    await safe(_classVersion4, school, class_.className, class_.term, class_.semester);
                 }
             }
         }
@@ -4032,8 +4071,7 @@ const _addDbClass = async (db, school, term, semester, className, teacherName) =
             await db.collection(classesCollection(school)).updateOne({_id: classData._id}, {$push: {"teachers": makeTeacher(teacherName)}});
         }
     } else { //class doesn't exist
-        let catalogData = await _catalog().findOne({class_name: className, school: school});
-        await db.collection(classesCollection(school)).insertOne(makeClass(term, semester, className, teacherName, catalogData));
+        await db.collection(classesCollection(school)).insertOne(makeClass(term, semester, className, teacherName));
     }
 
     return {success: true, data: {log: `Added class ${term} / ${semester} / ${className} / ${teacherName}.`}};
@@ -4563,6 +4601,7 @@ const _getRelevantClassData = async (db, username, term, semester) => {
             nonAcademicOverride ||= userClass.className === "Study Hall";
             nonAcademicOverride ||= userClass.className === "Free Period";
             nonAcademicOverride ||= userClass.className.startsWith("Study Center");
+            nonAcademicOverride ||= userClass.className === "Preparedness/Summit";
 
             relClasses[userClass.className] = {
                 "department": classData?.department ?? rawData?.department ?? "",
@@ -5214,7 +5253,7 @@ const _internalApiAuthenticate = async (db, apiKey) => {
     return {success: false};
 };
 
-const internalApiDiscordConnect = (username, discordID) => safe(_internalApiDiscordConnect, username, discordID);
+const internalApiDiscordConnect = (username, discordID) => safe(_internalApiDiscordConnect, lower(username), discordID);
 /**
  * API Function to start a link between a Graderoom account and a Discord ID
  * @param db
