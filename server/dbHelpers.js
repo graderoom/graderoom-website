@@ -24,7 +24,7 @@ exports.SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME = "school_username_lookup";
 
 // Change this when updateDB changes
 exports.dbUserVersion = 29;
-exports.dbClassVersion = 3;
+exports.dbClassVersion = 4;
 
 exports.minUsersForAverageCalc = 9;
 
@@ -230,13 +230,13 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
     });
 };
 
-exports.makeClass = (term, semester, className, teacherName, catalogData) => {
+exports.makeClass = (term, semester, className, teacherName) => {
     return {
-        department: catalogData?.department != null ? null : "",
-        credits: catalogData?.credits != null ? null : "",
-        terms: catalogData?.terms != null ? null : "",
-        uc_csuClassType: catalogData?.uc_csuClassType != null ? null : "",
-        classType: catalogData?.classType != null ? null : "",
+        department: null,
+        credits: null,
+        terms: null,
+        uc_csuClassType: null,
+        classType: null,
         teachers: [this.makeTeacher(teacherName)],
         term: term,
         semester: semester,
