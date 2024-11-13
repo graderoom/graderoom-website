@@ -456,12 +456,10 @@
                             }, mode: "xy", onZoom: ({chart}) => {
                                 $("#reset-zoom-1").show();
 
-                                // Disable hovering and tooltips to make animation smoother
+                                // Disable hovering to make animation smoother
                                 chart.options.hover.mode = null;
-                                chart.options.plugins.tooltip.enabled = false;
                             }, onZoomComplete: ({chart}) => {
                                 chart.options.hover.mode = "index";
-                                chart.options.plugins.tooltip.enabled = true;
                             }
                         },
                         pan: {
@@ -469,12 +467,10 @@
                             onPan: ({chart}) => {
                                 $("#reset-zoom-1").show();
 
-                                // Disable hovering and tooltips to make animation smoother
+                                // Disable hovering to make animation smoother
                                 chart.options.hover.mode = null;
-                                chart.options.plugins.tooltip.enabled = false;
                             }, onPanComplete: ({chart}) => {
                                 chart.options.hover.mode = "index";
-                                chart.options.plugins.tooltip.enabled = true;
                             }
                         }
                     }
@@ -583,12 +579,10 @@
                             }, mode: "xy", onZoom: ({chart}) => {
                                 $("#reset-zoom0").show();
 
-                                // Disable hovering and tooltips to make animation smoother
+                                // Disable hovering to make animation smoother
                                 chart.options.hover.mode = null;
-                                chart.options.plugins.tooltip.enabled = false;
                             }, onZoomComplete: ({chart}) => {
                                 chart.options.hover.mode = "index";
-                                chart.options.plugins.tooltip.enabled = true;
                             }
                         },
                         pan: {
@@ -596,12 +590,10 @@
                             onPan: ({chart}) => {
                                 $("#reset-zoom0").show();
 
-                                // Disable hovering and tooltips to make animation smoother
+                                // Disable hovering to make animation smoother
                                 chart.options.hover.mode = null;
-                                chart.options.plugins.tooltip.enabled = false;
                             }, onPanComplete: ({chart}) => {
                                 chart.options.hover.mode = "index";
-                                chart.options.plugins.tooltip.enabled = true;
                             }
                         }
                     }

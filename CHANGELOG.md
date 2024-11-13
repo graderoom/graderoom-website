@@ -52,6 +52,18 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 7.0.7] - 2024-11-13
+### Added
+- Class info now shows if the UC Approval of a course requires taking another course (e.g. Ceramics)
+
+### Improved
+- Instruction to include username in donation message is now bolded
+
+### Fixed
+- Fixed hitbox of overview button in the class navbar
+- Fixed BCP Catalog parser to get correct UC Class Type more reliably
+- Fixed tooltips not working in analytics charts after moving the chart or zooming
+
 ## [Stable 7.0.6] - 2024-08-26 - Hi, Graderoom should work again
 ### Added
 - <github issue="245">Add PWA support (Graderoom Mobile App)</github>
