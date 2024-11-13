@@ -282,6 +282,8 @@ class Catalogger:
             else:
                 if "if" in uc_csu_str.lower():
                     obj['uc_csuOnlyIf'] = uc_csu_str.split('if')[1].strip()
+                    if obj['uc_csuOnlyIf'][-1] != '.':
+                        obj['uc_csuOnlyIf'] += '.'
                 obj['uc_csuClassType'] = "uc"
 
             '''
