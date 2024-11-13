@@ -83,7 +83,7 @@ module.exports = {
         if (dono.donor) return donorRateLimit(req, res, next);
         return regularRateLimit(req, res, next);
     }, isLoggedIn: function (req, res, next) {
-        if (!(["/", "/admin", "/logout", "/changelog", "/changelogLegend"]).includes(req._parsedOriginalUrl.path) && req.headers.referer && req.headers.referer.includes("viewuser")) {
+        if (!(["/", "/admin", "/logout", "/changelog", "/changelogLegend", "/userCounts"]).includes(req._parsedOriginalUrl.path) && req.headers.referer && req.headers.referer.includes("viewuser")) {
             res.sendStatus(405);
             return;
         }
