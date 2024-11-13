@@ -244,6 +244,7 @@ class Catalogger:
 
             # Set defaults
             obj['uc_csuClassType'] = 'none'
+            obj['uc_csuOnlyIf'] = ''
             obj['classType'] = 'none'
             obj['school'] = 'bellarmine'
 
@@ -279,6 +280,8 @@ class Catalogger:
             elif "pending" in uc_csu_str.lower():
                 obj['uc_csuClassType'] = 'none'
             else:
+                if "if" in uc_csu_str.lower():
+                    obj['uc_csuOnlyIf'] = uc_csu_str.split('if')[1].strip()
                 obj['uc_csuClassType'] = "uc"
 
             '''
