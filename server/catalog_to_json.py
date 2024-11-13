@@ -144,7 +144,7 @@ class Catalogger:
                 elif re.search(r"(?:reviewed|revised|updated)\s\w*\s20\d\d", p_low):
                     review = p
                 # Case where <p> is the UC/CSU string
-                elif 'uc/csu' in p_low:
+                elif 'uc/' in p_low:
                     uc_csu_str = p
                 # Attempt to capture loose description using length
                 elif len(p) > self.desc_len_min and desc == "":
@@ -215,7 +215,7 @@ class Catalogger:
                     uc_csu_str = uc_csu_str.replace(")", "")
 
             # Format uc/csu string
-            uc_csu_str = uc_csu_str.replace("*", "")
+            uc_csu_str = uc_csu_str.replace("*", "").strip()
 
             # Clean prereq by removing the start string
             prereq_comm_split = prereq.split("omments:")
@@ -244,6 +244,7 @@ class Catalogger:
 
             # Set defaults
             obj['uc_csuClassType'] = 'none'
+            obj['uc_csuOnlyIf'] = ''
             obj['classType'] = 'none'
             obj['school'] = 'bellarmine'
 
@@ -264,7 +265,7 @@ class Catalogger:
             # set uc/csu classTypes
             if uc_csu_str == "":
                 pass
-            elif uc_csu_str.startswith("not"):
+            elif uc_csu_str.lower().startswith("not"):
                 obj['uc_csuClassType'] = "not_uc"
             elif "regular-level" in uc_csu_str.lower():
                 obj['uc_csuClassType'] = "uc"
@@ -279,6 +280,10 @@ class Catalogger:
             elif "pending" in uc_csu_str.lower():
                 obj['uc_csuClassType'] = 'none'
             else:
+                if "if" in uc_csu_str.lower():
+                    obj['uc_csuOnlyIf'] = uc_csu_str.split('if')[1].strip()
+                    if obj['uc_csuOnlyIf'][-1] == '.':
+                        obj['uc_csuOnlyIf'] = obj['uc_csuOnlyIf'][:-1]
                 obj['uc_csuClassType'] = "uc"
 
             '''

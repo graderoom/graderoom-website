@@ -4607,6 +4607,7 @@ const _getRelevantClassData = async (db, username, term, semester) => {
                 "department": classData?.department ?? rawData?.department ?? "",
                 "classType": nonAcademicOverride ? "non-academic" : (classData?.classType ?? rawData?.classType ?? ""),
                 "uc_csuClassType": classData?.uc_csuClassType ?? rawData?.uc_csuClassType ?? "",
+                "uc_csuOnlyIf": rawData?.uc_csuOnlyIf ?? "",
                 "weights": userClass.teacherName ? classData?.teachers[0]?.weights ?? {} : {},
                 "hasWeights": userClass.teacherName ? classData?.teachers[0]?.hasWeights ?? null : null,
                 "credits": classData?.credits ?? rawData?.credits,
