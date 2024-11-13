@@ -2898,6 +2898,11 @@ input:disabled {
     margin-bottom: 0.5rem;
 }
 
+#classInfoUCOnlyIf {
+    font-style: italic;
+    font-weight: bold;
+}
+
 #classInfoTopHalf {
     display: flex;
     justify-content: space-between;

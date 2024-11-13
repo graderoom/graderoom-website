@@ -4790,6 +4790,7 @@
             }
             let classType = relData.classType;
             let ucClassType = relData.uc_csuClassType;
+            let ucOnlyIf = relData.uc_csuOnlyIf;
             let gradeLevels = relData.gradeLevels;
             let credits = relData.credits;
 
@@ -4832,6 +4833,7 @@
             let classInfoTeacher = $("#classInfoTeacher");
             let classInfoClassType = $("#classInfoClassType");
             let classInfoUCClassType = $("#classInfoUCClassType");
+            let classInfoUCOnlyIf = $("#classInfoUCOnlyIf");
             let classInfoTeachersHeader = $("#classInfoOtherTeachersHeader");
             let classInfoTeachers = $("#classInfoOtherTeachers");
             let classInfoUserCount = $("#classInfoGraderoomUsers");
@@ -4889,6 +4891,9 @@
             }
             classInfoClassType.text(`${SchoolAbbr[school]} ${classType} course`);
             classInfoUCClassType.text(`${ucClassType} course`);
+            if (ucOnlyIf !== "") {
+                classInfoUCOnlyIf.text(` only if ${ucOnlyIf}`);
+            }
 
             if (teachers.length > 1) {
                 classInfoTeachersHeader.show();
