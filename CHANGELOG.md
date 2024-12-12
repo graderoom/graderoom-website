@@ -52,6 +52,11 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 7.0.8] - 2024-12-13
+### Fixed
+- <github issue="269">Fix adding assignment with an added category</github><ul>
+- Adding assignments to existing added categories resulted in the creation of a category with " - (Added)" appended to the name</ul>
+
 ## [Stable 7.0.7] - 2024-11-13
 ### Added
 - Class info now shows if the UC Approval of a course requires taking another course (e.g. Ceramics)

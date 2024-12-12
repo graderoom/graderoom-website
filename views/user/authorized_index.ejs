@@ -2315,8 +2315,12 @@
             addDate = addDate[1] + "/" + addDate[2] + "/" + addDate[0];
             let addName = $(".addAssignmentName input")[classIndex].value;
             let addCategory = $(".addAssignmentCategory select")[classIndex].selectedOptions[0];
-            if (addCategory.index === Object.keys(weights[classIndex].weights).length + Object.keys(addedWeights[classIndex].weights).length) {
+            let weightCount = Object.keys(weights[classIndex].weights).length;
+            let addedWeightCount = Object.keys(addedWeights[classIndex].weights).length;
+            if (addCategory.index === weightCount + addedWeightCount) {
                 addCategory = $(`#newCategory${classIndex}`)[0].value;
+            } else if (addCategory.index < addedWeightCount) {
+                addCategory = addCategory.value.substring(0, addCategory.value.length - " - (Added)".length);
             } else {
                 addCategory = addCategory.value;
             }
