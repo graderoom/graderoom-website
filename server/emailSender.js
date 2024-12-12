@@ -33,7 +33,7 @@ module.exports = {
 };
 
 function buildEmailHTML(toEmail, pwResetLink, firstName) {
-    return `<html>
+    return `<html lang="en-US">
    <body>
       <h3>${firstName},</h3>
       <p> Someone has requested a new password for the Graderoom account for ${toEmail}. No changes have been made to your account yet.
