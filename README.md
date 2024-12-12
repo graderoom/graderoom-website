@@ -2,8 +2,8 @@
 Grade visualization with automatic web scraping from Powerschool for students.
 
 ## Setup  
-- install Python 3.11
-- install Node.js 16.15.0
+- install Python 3.13.0
+- install Node.js 22.12.0
 - install redis-server
 - install mongodb
 - create a `.env` file with the keys in `.env.example`
