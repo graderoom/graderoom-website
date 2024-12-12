@@ -32,7 +32,11 @@ const regularRateLimit = setRateLimit({
     max: 30,
     message: "Too many requests. Please try again later.",
     headers: true,
-    onLimitReached: onLimitReached,
+    handler: async (req) => {
+        if (req.rateLimit.used === req.rateLimit.limit + 1) {
+            await onLimitReached(req);
+        }
+    },
     keyGenerator: keyGenerator,
 });
 
@@ -41,7 +45,11 @@ const donorRateLimit = setRateLimit({
     max: 40,
     message: "Too many requests. Please try again later.",
     headers: true,
-    onLimitReached: onLimitReached,
+    handler: async (req) => {
+        if (req.rateLimit.used === req.rateLimit.limit + 1) {
+            await onLimitReached(req);
+        }
+    },
     keyGenerator: keyGenerator,
 });
 
@@ -50,7 +58,11 @@ const plusRateLimit = setRateLimit({
     max: 60,
     message: "Too many requests. Please try again later.",
     headers: true,
-    onLimitReached: onLimitReached,
+    handler: async (req) => {
+        if (req.rateLimit.used === req.rateLimit.limit + 1) {
+            await onLimitReached(req);
+        }
+    },
     keyGenerator: keyGenerator,
 });
 
@@ -59,7 +71,11 @@ const premiumRateLimit = setRateLimit({
     max: 100,
     message: "Too many requests. Please try again later.",
     headers: true,
-    onLimitReached: onLimitReached,
+    handler: async (req) => {
+        if (req.rateLimit.used === req.rateLimit.limit + 1) {
+            await onLimitReached(req);
+        }
+    },
     keyGenerator: keyGenerator,
 });
 
