@@ -4766,6 +4766,48 @@
         }
 
         async function showClassInfo(index) {
+            let classInfoClassName = $("#classInfoName");
+            let classInfoTeacher = $("#classInfoTeacher");
+            let classInfoClassType = $("#classInfoClassType");
+            let classInfoUCClassType = $("#classInfoUCClassType");
+            let classInfoUCOnlyIf = $("#classInfoUCOnlyIf");
+            let classInfoTeachersHeader = $("#classInfoOtherTeachersHeader");
+            let classInfoTeachers = $("#classInfoOtherTeachers");
+            let classInfoUserCount = $("#classInfoGraderoomUsers");
+            let classInfoDescription = $("#classInfoDescription");
+            let classInfoYears = $("#classInfoYears");
+            let classInfoCredits = $("#classInfoCredits");
+            let classInfoSections = $("#classInfoBody .card-footer");
+            let classInfoLoading = $("#classInfoLoading");
+
+            // Add placeholders for all text
+            classInfoClassName.text("Loading...");
+            classInfoTeacher.text("Loading...");
+            classInfoClassType.text("Loading...");
+            classInfoUCClassType.text("Loading...");
+            classInfoUCOnlyIf.hide();
+            if (plus) {
+                classInfoTeachers.show();
+            } else {
+                classInfoTeachers.hide();
+            }
+            classInfoUserCount.text("Loading...");
+            classInfoDescription.text("Loading...");
+            classInfoYears.hide();
+            classInfoCredits.hide();
+
+            // Show all sections to make loading consistent
+            classInfoTeachersHeader.show();
+            classInfoSections.show();
+
+            // Show loading animation
+            classInfoLoading.show();
+
+            // Styling
+            $("#classInfoTopHalf, #classInfoBody > .card-footer, #classInfoBody > ul").css("background-color", withAlpha(colors[index], 10));
+
+            showCard("#classInfoCardDisplay");
+
             let className = _data[index].class_name;
             let teacherName = _data[index].teacher_name;
             let relData = relClassData[className];
@@ -4815,7 +4857,7 @@
                 if (parts[i].trim().length > 0) {
                     _thereIsData = true;
                 }
-                if (i % 2 == 0) {
+                if (i % 2 === 0) {
                     // These are the headers
                     _description += `<p class="classInfo-description-header">${parts[i]}</p>`;
                 } else {
@@ -4833,21 +4875,9 @@
                 _teachers += `<li>${teachers[i]} - ${count} Graderoom user${count !== 1 ? "s" : ""}</li>`;
             }
 
-            let classInfoClassName = $("#classInfoName");
-            let classInfoTeacher = $("#classInfoTeacher");
-            let classInfoClassType = $("#classInfoClassType");
-            let classInfoUCClassType = $("#classInfoUCClassType");
-            let classInfoUCOnlyIf = $("#classInfoUCOnlyIf");
-            let classInfoTeachersHeader = $("#classInfoOtherTeachersHeader");
-            let classInfoTeachers = $("#classInfoOtherTeachers");
-            let classInfoUserCount = $("#classInfoGraderoomUsers");
-            let classInfoDescription = $("#classInfoDescription");
-            let classInfoYears = $("#classInfoYears");
-            let classInfoCredits = $("#classInfoCredits");
-
             classInfoClassName.text(className);
             if (teacherName) {
-                classInfoTeacher.show().text(teacherName);
+                classInfoTeacher.text(teacherName).show();
             } else {
                 classInfoTeacher.hide();
             }
@@ -4897,6 +4927,8 @@
             classInfoUCClassType.text(`${ucClassType} course`);
             if (ucOnlyIf !== "") {
                 classInfoUCOnlyIf.text(` only if ${ucOnlyIf}`);
+            } else {
+                classInfoUCOnlyIf.text("");
             }
 
             if (teachers.length > 1) {
@@ -4905,16 +4937,16 @@
                 classInfoTeachersHeader.hide();
             }
             if (teachers.length > 1) {
-                classInfoTeachers.show().html(_teachers);
+                classInfoTeachers.html(_teachers).show();
             } else {
                 classInfoTeachers.hide();
             }
             classInfoUserCount.text(`${userCount ?? 1} Graderoom User${(userCount ?? 1) !== 1 ? "s" : ""} this semester`);
             classInfoDescription.html(_description);
             if (_thereIsData) {
-                $("#classInfoBody .card-footer").show();
+                classInfoSections.show();
             } else {
-                $("#classInfoBody .card-footer").hide();
+                classInfoSections.hide();
             }
 
             let _yearsText = "";
@@ -4944,31 +4976,29 @@
                     if (i < gradeLevels.length - 1) {
                         _yearsText += " ";
                     }
-                    if (i == gradeLevels.length - 2) {
+                    if (i === gradeLevels.length - 2) {
                         _yearsText += "and ";
                     }
                 }
             }
 
             if (gradeLevels && _yearsText) {
-                classInfoYears.show().text(_yearsText + " take this course.");
+                classInfoYears.text(_yearsText + " take this course.").show();
             } else {
-                classInfoYears.hide();
+                classInfoYears.text("").hide();
             }
 
             if (credits) {
-                classInfoCredits.show().text(`${credits} credit ${credits == 10 ? "(Year-long)" : credits == 5 ? "(Semester-long)" : ""} course`);
+                classInfoCredits.text(`${credits} credit ${credits === 10 ? "(Year-long)" : credits === 5 ? "(Semester-long)" : ""} course`).show();
             } else {
-                classInfoCredits.hide();
+                classInfoCredits.text("").hide();
             }
 
-            // Styling
-            $("#classInfoTopHalf, #classInfoBody > .card-footer, #classInfoBody > ul").css("background-color", withAlpha(colors[index], 10));
-
-            showCard("#classInfoCardDisplay");
+            // Hide loading animation
+            classInfoLoading.hide();
         }
 
-        function showAssignmentInfo(classIndex, assignmentIndex) {
+        async function showAssignmentInfo(classIndex, assignmentIndex) {
             let assignmentDate = parsedData[classIndex].assignmentDates[assignmentIndex];
             let assignmentName = parsedData[classIndex].assignmentNames[assignmentIndex];
             let assignmentCategory = parsedData[classIndex].assignmentCategories[assignmentIndex];
@@ -4977,27 +5007,50 @@
             let assignmentComments = parsedData[classIndex].assignmentComments[assignmentIndex];
             let assignmentPSAID = parsedData[classIndex].assignmentPSAIDs[assignmentIndex];
             let isExtraCredit = assignmentScore.endsWith("/0");
-            $("#infoAverage").show();
-            $("#assignmentInfoDate").text(assignmentDate).parent("span").show();
-            $("#assignmentInfoDateEditable").parent("span").hide();
-            $("#assignmentInfoName").text(assignmentName);
-            $("#assignmentInfoCategory").text(assignmentCategory);
-            $("#assignmentInfoScore").text(assignmentScore);
+
+            let infoAverage = $("#infoAverage");
+            let assignmentInfoDate = $("#assignmentInfoDate");
+            let assignmentInfoDateEditable = $("#assignmentInfoDateEditable");
+            let assignmentInfoName = $("#assignmentInfoName");
+            let assignmentInfoCategory = $("#assignmentInfoCategory");
+            let assignmentInfoScore = $("#assignmentInfoScore");
+            let assignmentInfoDescription = $("#assignmentInfoDescription");
+            let assignmentInfoComments = $("#assignmentInfoComments");
+
+            let assignmentInfoLoading = $("#assignmentInfoLoading")
+
+            $("#assignmentInfoBody div:not(#infoAverage)").css("background-color", withAlpha(colors[classIndex], 10));
+            $("#infoAverage .unlock-with").hide();
+            $("#assignmentInfoGraderoomUsers").text("--");
+            $("#assignmentInfoGraderoomUsers ~ span > span:first-child").text("Graderoom Users this semester");
+            $("#assignmentInfoAverage").removeClass("locked").text("--");
+
+            infoAverage.show();
+            assignmentInfoDate.text(assignmentDate).parent("span").show();
+            assignmentInfoDateEditable.parent("span").hide();
+            assignmentInfoName.text(assignmentName);
+            assignmentInfoCategory.text(assignmentCategory);
+            assignmentInfoScore.text(assignmentScore);
             if (assignmentDescription) {
-                $("#assignmentInfoDescription").html(assignmentDescription).parent("div").show();
+                assignmentInfoDescription.html(assignmentDescription).parent("div").show();
             } else {
-                $("#assignmentInfoDescription").parent("div").hide();
+                assignmentInfoDescription.parent("div").hide();
             }
             if (assignmentComments) {
-                $("#assignmentInfoComments").text(assignmentComments ?? "").parent("div").show();
+                assignmentInfoComments.text(assignmentComments ?? "").parent("div").show();
             } else {
-                $("#assignmentInfoComments").parent("div").hide();
+                assignmentInfoComments.parent("div").hide();
             }
+
+            assignmentInfoLoading.show();
+
+            showCard("#assignmentInfoCardDisplay");
+
             if (`${assignmentPSAID}` in assignmentAverages[classIndex]) {
                 let avgData = assignmentAverages[classIndex][`${assignmentPSAID}`];
                 setupAssignmentAverage(avgData, assignmentPSAID, classIndex, isExtraCredit);
             } else if (premium || assignmentIndex === data[classIndex].grades.length - 1) {
-                $.ajax({
+                await $.ajax({
                     method: "POST",
                     url: "/assignmentAverage",
                     data: {
@@ -5015,6 +5068,8 @@
             } else {
                 setupAssignmentAverage(null, assignmentPSAID, classIndex, isExtraCredit);
             }
+
+            assignmentInfoLoading.hide();
         }
 
         function setupAssignmentAverage(avgData, assignmentPSAID, classIndex, isExtraCredit) {
@@ -5034,10 +5089,6 @@
                 }
                 $("#infoAverage .unlock-with").hide();
             }
-
-            $("#assignmentInfoBody div:not(#infoAverage)").css("background-color", withAlpha(colors[classIndex], 10));
-
-            showCard("#assignmentInfoCardDisplay");
         }
 
         function showEditAssignment(classIndex, assignmentIndex) {
@@ -5047,10 +5098,11 @@
             let assignmentScore = parsedData[classIndex].assignmentScoresParsed[assignmentIndex];
             let assignmentDescription = parsedData[classIndex].assignmentDescriptions[assignmentIndex];
             let assignmentComments = parsedData[classIndex].assignmentComments[assignmentIndex];
+            let assignmentInfoDateEditable = $("#assignmentInfoDateEditable");
             $("#infoAverage").hide();
             $("#assignmentInfoDate").parent("span").hide();
-            $("#assignmentInfoDateEditable").parent("span").show();
-            $("#assignmentInfoDateEditable").children("input").val(assignmentDate).off("blur").on("blur", () => {
+            assignmentInfoDateEditable.parent("span").show();
+            assignmentInfoDateEditable.children("input").val(assignmentDate).off("blur").on("blur", () => {
                 let assignment = _addedAssignments[classIndex].data[aData[classIndex][assignmentIndex]];
                 let temp = assignment.date;
                 assignment.date = $("#assignmentInfoDateEditable").children("input").val();
