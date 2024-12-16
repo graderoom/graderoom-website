@@ -43,7 +43,7 @@ module.exports = function (passport) {
     // LOCAL LOGIN =============================================================
     // =========================================================================
     passport.use("local-login", new LocalStrategy({
-        // by default, local strategy uses username and password, ]
+        // by default, local strategy uses username and password,
         usernameField: "username",
         passwordField: "password",
         passReqToCallback: true
