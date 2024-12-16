@@ -2,8 +2,8 @@
 Grade visualization with automatic web scraping from Powerschool for students.
 
 ## Setup  
-- install Python 3.11
-- install Node.js 16.15.0
+- install Python 3.13.0
+- install Node.js 22.12.0
 - install redis-server
 - install mongodb
 - create a `.env` file with the keys in `.env.example`
@@ -24,7 +24,7 @@ Grade visualization with automatic web scraping from Powerschool for students.
 - From project root, `node server/graderoom.js`
 
 ## Accessing the website
-- Navigate to `localhost:[port]` in your browser, where `port` is `5996` for stable and `5998` for beta
+- Navigate to `127.0.0.1:[port]` in your browser, where `port` is `5996` for stable and `5998` for beta
 - A default account will be created with the following credentials:
   - Username: `admin`
   - Password: `Pa5sw0rd`

@@ -24,13 +24,12 @@ watchChangelog();
 
 // MONGO TIME
 const mongo = require("./dbClient");
-const {rateLimit, regularRateLimit} = require("./middleware");
-const setRateLimit = require("express-rate-limit");
+const {rateLimit} = require("./middleware");
 let mongoUrl;
 if (productionEnv) {
     mongoUrl = process.env.DB_URL;
 } else {
-    mongoUrl = "mongodb://localhost:27017";
+    mongoUrl = "mongodb://127.0.0.1:27017";
 }
 mongo.config(mongoUrl, productionEnv, isBetaServer).then(() => {
     mongo.init().then(async () => {
@@ -64,9 +63,10 @@ mongo.config(mongoUrl, productionEnv, isBetaServer).then(() => {
         app.set("view engine", "ejs"); // set up ejs for templating #todo do we want this
 
         // required for passport
-        let RedisStore = require("connect-redis")(session);
+        let {RedisStore} = require("connect-redis");
         let redisPort = httpPort + 383; // 6379 for stable, 6381 for beta
-        let redisClient = redis.createClient({port: redisPort});
+        let redisClient = redis.createClient({url: `redis://127.0.0.1:${redisPort}`});
+        await redisClient.connect();
         let store = new RedisStore({client: redisClient});
         let sessionMiddleware = session({
                                             store: store,
@@ -91,7 +91,8 @@ mongo.config(mongoUrl, productionEnv, isBetaServer).then(() => {
         // launch ======================================================================
 
         const httpServer = http.createServer(app);
-        const io = require("socket.io")(httpServer);
+        const {Server} = require("socket.io");
+        const io = new Server(httpServer);
         const wrap = middleware => (socket, next) => middleware(socket.request, {}, next);
         io.use(wrap(sessionMiddleware));
         io.use(wrap(passport.initialize()));
