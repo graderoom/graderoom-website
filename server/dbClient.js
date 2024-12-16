@@ -2551,13 +2551,8 @@ const _updateCustomColor = async (db, username, index, color) => {
         projection: {"appearance.classColors": 1},
         returnDocument: "after"
     });
-    if (res.ok) {
-        return {success: true, data: {log: `Updated color for ${username}`, colors: res.value.appearance.classColors}};
-    }
-    return {
-        success: false,
-        data: {log: `Error updating color for ${username} with parameters username=${username}, index=${index}, color=${color}`}
-    };
+
+    return {success: true, data: {log: `Updated color for ${username}`, colors: res.appearance.classColors}};
 }
 
 const setEnableLogging = (username, value) => safe(_setEnableLogging, lower(username), value);
@@ -3825,7 +3820,7 @@ const _updateTutorial = async (db, username, action) => {
     }
 
     let res = await _users(db, username).findOneAndUpdate({username: username}, {$set: {[`alerts.tutorialStatus.${action}`]: true}}, {returnDocument: "after"});
-    return {success: true, data: {value: res.value.alerts.tutorialStatus}};
+    return {success: true, data: {value: res.alerts.tutorialStatus}};
 };
 
 const resetTutorial = (username) => safe(_resetTutorial, lower(username));
@@ -3835,7 +3830,7 @@ const _resetTutorial = async (db, username) => {
             "alerts.tutorialStatus": Object.fromEntries(tutorialKeys.map(key => [key, false]))
         }
     }, {returnDocument: "after"});
-    return {success: true, data: {value: res.value.alerts.tutorialStatus}};
+    return {success: true, data: {value: res.alerts.tutorialStatus}};
 };
 
 const addBetaKey = () => safe(_addBetaKey);
@@ -3998,10 +3993,8 @@ const _resetPasswordRequest = async (db, schoolUsername) => {
             passwordResetToken: token, passwordResetTokenExpire: Date.now() + 1000 * 60 * 60 * 24
         }
     }, {returnDocument: "after"});
-    if (res.ok) {
-        return {success: true, data: {user: res.value, token: token}};
-    }
-    return {success: false};
+
+    return {success: true, data: {user: res, token: token}};
 };
 
 const resetPassword = (token, newPassword) => safe(_resetPassword, token, newPassword);
@@ -4205,7 +4198,7 @@ const _updateWeightsInClassDb = async (db, school, term, semester, className, te
             "teachers.$": 1,
             "_id": 1
         }
-    })).value;
+    }));
 
     //Delete any suggestion with same weights
     let suggestionIndex = null;
