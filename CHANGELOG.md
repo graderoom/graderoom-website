@@ -52,6 +52,11 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Announcement 7.0.9] - 2024-12-19
+- Graderoom will not be able to connect to Bellarmine's PowerSchool starting tomorrow, December 20th, 2024.
+- Graderoom will be blocked for the time period that Bellarmine takes grades offline.
+- It will function normally once grades are back online.
+
 ## [Stable 7.0.8] - 2024-12-15
 ### Fixed
 - <github issue="270">Don't wait for server response before showing popups</github><ul>
