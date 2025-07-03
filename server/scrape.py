@@ -390,7 +390,6 @@ class PowerschoolScraper(Scraper):
             url = "https://adfs.bcp.org/challenge"
             data = f"payload={payload}"
 
-            self.message = data
             resp = self.post_with_retries(url, data=data, headers=headers_2)
             if not resp.json()["isValid"]:
                 self.progress = 0
