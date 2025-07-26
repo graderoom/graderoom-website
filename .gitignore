@@ -12,6 +12,7 @@ node_modules/
 venv
 user_db*.json
 /credentials.json
+/email.json
 /graderoom.log
 /_credentials.json
 config/
