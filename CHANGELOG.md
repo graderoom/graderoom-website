@@ -52,6 +52,13 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 7.0.10] - 2025-07-25
+### Added
+- Support for solving ALTCHA challenges when connecting to PowerSchool
+
+### Fixed
+- Switched email-sending service to Plunk because SendGrid isn't free anymore
+
 ## [Announcement 7.0.9] - 2024-12-19
 - Graderoom will not be able to connect to Bellarmine's PowerSchool starting tomorrow, December 20th, 2024.
 - Graderoom will be blocked for the time period that Bellarmine takes grades offline.
