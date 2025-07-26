@@ -42,16 +42,16 @@ nav .navbar-toggler {
     background-color: #FFFFFF;
 }
 
-table tbody tr td {
+table tbody tr td, table thead tr th, table tfoot tr td {
     border-color: #EEEEEE;
 }
 
-table thead tr th {
-    border-color: #EEEEEE;
+.weights tbody+tbody {
+    border-color: #EEEEEE !important;
 }
 
-table tfoot tr td {
-    border-color: #EEEEEE;
+.number-input {
+    outline: 2px solid #DEE2E6 !important;
 }
 
 :disabled {

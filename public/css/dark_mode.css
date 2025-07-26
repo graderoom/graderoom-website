@@ -46,7 +46,7 @@ td, th {
     border-color: #333333;
 }
 
-.weights td, .weights th, th.admin, td.admin, th.overview, td.overview {
+.weights td, .weights th, th.admin, td.admin, th.overview, td.overview, .weights tbody {
     border-color: #333333 !important;
 }
 
@@ -478,6 +478,10 @@ select.minimal:focus {
 
 .progress, .empty-progress {
     background-color: #111111;
+}
+
+.number-input {
+    outline: 2px solid #333 !important;
 }
 
 ::-webkit-scrollbar-thumb {

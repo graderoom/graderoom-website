@@ -1177,6 +1177,7 @@ label.label-active {
 .number-input {
     width: 5rem;
     -moz-appearance: textfield;
+    border-radius: 4px !important;
 }
 
 .number-input::-webkit-inner-spin-button,
@@ -2157,6 +2158,10 @@ input[type="number"]::-webkit-inner-spin-button {
 .weights-container td {
     overflow: hidden;
     max-width: 4rem;
+}
+
+.weights-container tbody+tbody {
+    border-top: 5px solid;
 }
 
 .verified-weights td {
