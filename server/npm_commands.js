@@ -1,9 +1,16 @@
+const productionEnv = process.env.NODE_ENV === "production";
+if (!productionEnv) {
+    require("dotenv").config();
+}
+
 const scraper = require("./scrape");
 const dbClient = require("./dbClient");
 const _ = require("lodash");
 const fs = require('node:fs');
+const emailSender = require("./emailSender");
 
 let credentials = {};
+let emailJson = {}
 
 try {
     fs.writeFileSync("credentials.json", JSON.stringify({
@@ -15,7 +22,14 @@ try {
     }, null, 4), {flag: "wx"});
 } catch (_) {}
 
+try {
+    fs.writeFileSync("email.json", JSON.stringify({
+        "email": "",
+    }, null, 4), {flag: "wx"});
+} catch (_) {}
+
 credentials = require("../credentials.json");
+emailJson = require("../email.json");
 
 if (Object.keys(credentials).length === 0) {
     credentials = {
@@ -24,6 +38,12 @@ if (Object.keys(credentials).length === 0) {
         "school_username": "",
         "password": "",
         "get_history": false
+    };
+}
+
+if (Object.keys(emailJson).length === 0) {
+    emailJson = {
+        "email": ""
     };
 }
 
@@ -75,5 +95,10 @@ module.exports = {
         let get_history = credentials["get_history"] ? "True" : false;
 
         await scraper.loginAndScrapeGrades(processor, school, school_username, password, data_if_locked, term_data_if_locked, get_history);
+    },
+    email_test: async function () {
+        let email = emailJson["email"];
+        if (!email || email === "") throw new Error("Configure email.json");
+        emailSender.sendPasswordResetToAccountOwner(email, "TESTLINK", "TESTNAME")
     }
 }
