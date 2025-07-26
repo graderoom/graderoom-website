@@ -5101,6 +5101,8 @@
             let assignmentDescription = parsedData[classIndex].assignmentDescriptions[assignmentIndex];
             let assignmentComments = parsedData[classIndex].assignmentComments[assignmentIndex];
             let assignmentInfoDateEditable = $("#assignmentInfoDateEditable");
+            let assignmentInfoLoading = $("#assignmentInfoLoading");
+            assignmentInfoLoading.show();
             $("#infoAverage").hide();
             $("#assignmentInfoDate").parent("span").hide();
             assignmentInfoDateEditable.parent("span").show();
@@ -5130,6 +5132,8 @@
             $("#assignmentInfoBody > div:not(#infoAverage)").css("background-color", withAlpha(colors[classIndex], 10));
 
             showCard("#assignmentInfoCardDisplay");
+
+            assignmentInfoLoading.hide();
         }
 
         function withAlpha(hexString, alpha) {
