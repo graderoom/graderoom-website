@@ -522,7 +522,7 @@
                                             <% let value = weights[category]; %>
                                             <td id="weightTableWeight<%= i + displayedStuffIndexOffset; %>_<%= j; %>"
                                                 class="form-group">
-                                                    <input style="<% if (!value && value !== 0) { %> border-color: lightcoral !important; <% } %>"
+                                                    <input style="<% if (!value && value !== 0) { %> border-color: lightcoral !important; outline-color: lightcoral !important; <% } %>"
                                                            value="<%= value; %>"
                                                            type="number"
                                                            min="0"
@@ -2237,7 +2237,7 @@
                             <td id="addedWeightCategory${i}_${count}">${weight}</td>
                             <td id="addedWeightWeight${i}_${count}"
                                 class="form-group">
-                                <input style="${(!value && value !== 0) ? "border-color: lightcoral !important;" : ""}"
+                                <input style="${(!value && value !== 0) ? "border-color: lightcoral !important; outline-color: lightcoral !important;" : ""}"
                                        value="${value || value === 0 ? value : ""}"
                                        type="number"
                                        min="0"
@@ -3139,8 +3139,7 @@
                                                     class="fa fa-undo resetCategory${i} disabled"
                                                     onclick="{resetCategory(${i}, ${j})}">
                                                 <span class="popup-top-left">
-                                                    Revert ALL changes in <span
-                                                            class="tutorial-popup">${category}</span>
+                                                    Revert ALL changes in <strong>${category}</strong>
                                                 </span>
                                             </i>
                                         </span>
@@ -3149,8 +3148,7 @@
                                                     class="fa fa-trash trashCategory${i} disabled"
                                                     onclick="{trashCategory(${i}, ${j});}"><span
                                                         class="popup-top-left">
-                                                    Delete ALL added assignments in <span
-                                                            class="tutorial-popup">${category}</span>
+                                                    Delete ALL added assignments in <strong>${category}</strong>
                                                 </span>
                                             </i>
                                         </span>
@@ -3159,8 +3157,7 @@
                                                     class="fa fa-check saveCategory${i} disabled"
                                                     onclick="{saveCategory(${i}, ${j});}"><span
                                                         class="popup-top-left">
-                                                    Save ALL changes in <span
-                                                            class="tutorial-popup">${category}</span>
+                                                    Save ALL changes in <strong>${category}</strong>
                                                 </span>
                                             </i>
                                         </span>
@@ -3384,16 +3381,15 @@
 
                         // Bind listeners only once
                         let options = $(dropdown).find("option");
-                        if (!options.length) {
-                            for (let k = 0; k < categories.length; k++) {
-                                dropdown.append($("<option>").text(categories[k]));
-                            }
-                            dropdown.on("change", () => {
-                                updateCategory(i, assignmentIndex, dropdown);
-                                refreshWithoutReload(i);
-                                dropdown.trigger("blur");
-                            });
+                        options.remove();
+                        for (let k = 0; k < categories.length; k++) {
+                            dropdown.append($("<option>").text(categories[k]));
                         }
+                        dropdown.on("change", () => {
+                            updateCategory(i, assignmentIndex, dropdown);
+                            refreshWithoutReload(i);
+                            dropdown.trigger("blur");
+                        });
 
                         if (assignmentAdds[j]) {
                             for (let k = options.length - 1; k >= categories.length; k--) {
@@ -3554,7 +3550,7 @@
                             $(rowDivs[assignmentIndex]).addClass("excluded").find(".dynamic-input").addClass("excluded");
                         } else {
                             $(rowDivs[assignmentIndex]).removeClass("excluded").find(".dynamic-input").removeClass("excluded");
-                            if (colorClass == "" && assignmentScoresParsed[j].includes("--")) {
+                            if (colorClass === "" && assignmentScoresParsed[j].includes("--")) {
                                 $(rowDivs[assignmentIndex]).addClass("no-change");
                             } else {
                                 $(rowDivs[assignmentIndex]).removeClass("no-change");
@@ -5197,20 +5193,20 @@
                                 let weight = $(`#weightTableWeight${$(form)[0].id.substring(7)}_${i} input`);
                                 if (weight[0].value || weight[0].value === 0) {
                                     weight.addClass("text-view");
-                                    weight.css("border-color", "unset");
+                                    weight.css("border-color", "unset").css("outline-color", "unset");
                                 } else {
                                     weight.removeClass("text-view");
-                                    weight.css("border-color", "lightcoral");
+                                    weight.css("cssText", "border-color: lightcoral; outline-color: lightcoral !important;");
                                 }
                             }
                             for (let i = 0; i < Object.keys(addedWeights[classIndex]["weights"]).length; i++) {
                                 let weight = $(`#addedWeightWeight${$(form)[0].id.substring(7)}_${i} input`);
                                 if (weight[0].value || weights[0].value === 0) {
                                     weight.addClass("text-view");
-                                    weight.css("border-color", "unset");
+                                    weight.css("border-color", "unset").css("outline-color", "unset");
                                 } else {
                                     weight.removeClass("text-view");
-                                    weight.css("border-color", "lightcoral");
+                                    weight.css("cssText", "border-color: lightcoral; outline-color: lightcoral !important;");
                                 }
                             }
                             for (let weight in addedURI) {
