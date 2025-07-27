@@ -1,3 +1,5 @@
+import base64
+import hashlib
 import json
 import sys
 import time
@@ -284,6 +286,21 @@ class PowerschoolScraper(Scraper):
 
         headers_2 = {
             'Authority': 'adfs.bcp.org',
+            'Accept': '*/*',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'DNT': '1',
+            'Origin': 'https://adfs.bcp.org',
+            'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'same-origin',
+            'Upgrade-Insecure-Requests': '1',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                          'Chrome/115.0.0.0 Safari/537.36 '
+        }
+
+        headers_3 = {
+            'Authority': 'adfs.bcp.org',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,'
                       'application/signed-exchange;v=b3;q=0.7',
             'Accept-Language': 'en-US,en;q=0.9',
@@ -297,7 +314,7 @@ class PowerschoolScraper(Scraper):
                           'Chrome/76.0.3809.132 Safari/537.36 '
         }
 
-        headers_3 = {
+        headers_4 = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,'
                       'application/signed-exchange;v=b3;q=0.7',
             'Accept-Language': 'en-US,en;q=0.9',
@@ -321,24 +338,74 @@ class PowerschoolScraper(Scraper):
         resp = self.get_with_retries(url, headers=headers_1)
         soup = bS(resp.text, "html.parser")
 
-        login_form = soup.find("form", id="loginForm")
-        if login_form is None:
-            self.progress = 0
-            print(json_format(False, 'Could not connect to PowerSchool.'))
-            sys.exit()
+        dynamic_url = resp.url
 
-        dynamic_url = login_form.get("action")
-        self.progress = 5
+        altcha = soup.find("altcha-widget")
+        if altcha is not None:
+            self.progress = 5
+            self.message = "Solving altcha..."
+            challengejson = json.loads(altcha.get('challengejson'))
+
+            algorithm = challengejson['algorithm']
+            challenge = challengejson['challenge']
+            salt = challengejson['salt']
+            signature = challengejson['signature']
+
+            # Algorithm must be one of SHA-1, SHA-256, SHA-384, or SHA-512
+            match algorithm:
+                case 'SHA-1':
+                    hashlib_algorithm = 'sha1'
+                case 'SHA-256':
+                    hashlib_algorithm = 'sha256'
+                case 'SHA-384':
+                    hashlib_algorithm = 'sha384'
+                case 'SHA-512':
+                    hashlib_algorithm = 'sha512'
+                case _:
+                    self.progress = 0
+                    print(json_format(False, 'Unsupported altcha algorithm.'))
+                    sys.exit()
+
+            start_time = round(time.time() * 1000)
+            for i in range(1000000):
+                value = bytearray(salt + str(i), 'utf-8')
+                hasher = hashlib.new(hashlib_algorithm)
+                hasher.update(value)
+                digest = hasher.hexdigest()
+                if digest == challenge:
+                    self.message = "Altcha solved!"
+                    took = round(time.time() * 1000) - start_time
+                    number = i
+                    break
+            else:
+                self.progress = 0
+                print(json_format(False, 'Could not solve altcha.'))
+                sys.exit()
+
+            obj = {"algorithm": algorithm, "challenge": challenge, "number": number, "salt": salt, "signature": signature, "took": took}
+            payload = str(base64.b64encode(json.dumps(obj).encode('utf-8')).decode('utf-8'))
+
+            headers_2['Referer'] = dynamic_url
+
+            url = "https://adfs.bcp.org/challenge"
+            data = f"payload={payload}"
+
+            resp = self.post_with_retries(url, data=data, headers=headers_2)
+            if not resp.json()["isValid"]:
+                self.progress = 0
+                print(json_format(False, 'Altcha was not solved correctly.'))
+                sys.exit()
+
+        self.progress = 10
 
         # Second request
         self.message = "Logging in.."
-        dynamic_url = "https://adfs.bcp.org" + dynamic_url
         data = {
             'UserName': email,
             'Password': _password,
             'AuthMethod': 'FormsAuthentication'
         }
-        resp = self.post_with_retries(dynamic_url, data=data, headers=headers_2)
+        resp = self.post_with_retries(dynamic_url, data=data, headers=headers_3)
         soup = bS(resp.text, "html.parser")
         self.progress = 15
 
@@ -370,8 +437,8 @@ class PowerschoolScraper(Scraper):
         }
         # Manually add cookie
         jsession = self.session.cookies.get_dict()['JSESSIONID']
-        headers_3['Cookie'] = "JSESSIONID=" + jsession
-        self.post_with_retries(url, data=data, headers=headers_3)
+        headers_4['Cookie'] = "JSESSIONID=" + jsession
+        self.post_with_retries(url, data=data, headers=headers_4)
         self.progress = 20
 
     def __login_ndsj(self, email: str, _password: str) -> None:

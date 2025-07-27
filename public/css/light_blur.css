@@ -29,6 +29,19 @@
         color: #222;
     }
 
+    .popup > i > span {
+        box-shadow: inset rgba(255, 255, 255, 0.8) 0 0 200px 5px;
+    }
+
+    .navbar, #classLinks {
+        background-color: rgba(255, 255, 255, 0.95);
+    }
+
+    #classLinks.sticky {
+        background-color: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(1rem);
+    }
+
     /* Mobile Stuff */
     @media only screen and (max-width: 991px) {
         #GPA-container::before {

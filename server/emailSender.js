@@ -1,7 +1,6 @@
-const sgMail = require('@sendgrid/mail');
-sgMail.setApiKey(process.env.SGMAILAPI);
+const Plunk = require('@plunk/node');
+const plunk = new Plunk.default(process.env.PLUNK_API_KEY)
 const fromEmail = "no-reply@graderoom.me"
-
 
 module.exports = {
 
@@ -10,12 +9,13 @@ module.exports = {
             to: toEmail,
             from: fromEmail,
             subject: "Graderoom Password Reset",
-            html: buildEmailHTML(toEmail, pwResetLink, firstName)
+            body: buildEmailHTML(toEmail, pwResetLink, firstName),
+            type: 'html'
         };
 
         (async () => {
             try {
-                await sgMail.send(msg);
+                await plunk.emails.send(msg);
                 console.log(`Sent email to ${toEmail}`);
             } catch (error) {
                 console.error(error);
