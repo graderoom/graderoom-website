@@ -516,13 +516,13 @@
                                     <tbody>
                                     <% for (let j = 0; j < Object.keys(classWeights.weights).length; j++) { %>
                                         <tr>
-                                                <td id="weightTableCategory<%= i + displayedStuffIndexOffset; %><%= j; %>"></td>
+                                                <td id="weightTableCategory<%= i + displayedStuffIndexOffset; %>_<%= j; %>"></td>
                                             <% let weights = classWeights.weights; %>
                                             <% let category = Object.keys(weights)[j]; %>
                                             <% let value = weights[category]; %>
-                                            <td id="weightTableWeight<%= i + displayedStuffIndexOffset; %><%= j; %>"
+                                            <td id="weightTableWeight<%= i + displayedStuffIndexOffset; %>_<%= j; %>"
                                                 class="form-group">
-                                                    <input style="<% if (!value && value !== 0) { %> border-color: lightcoral !important; <% } %>"
+                                                    <input style="<% if (!value && value !== 0) { %> border-color: lightcoral !important; outline-color: lightcoral !important; <% } %>"
                                                            value="<%= value; %>"
                                                            type="number"
                                                            min="0"
@@ -532,8 +532,8 @@
                                                            disabled
                                                     >
                                                 </td>
-                                                <td id="weightTablePoints<%= i + displayedStuffIndexOffset; %><%= j; %>"></td>
-                                                <td id="weightTableGrade<%= i + displayedStuffIndexOffset; %><%= j; %>"></td>
+                                                <td id="weightTablePoints<%= i + displayedStuffIndexOffset; %>_<%= j; %>"></td>
+                                                <td id="weightTableGrade<%= i + displayedStuffIndexOffset; %>_<%= j; %>"></td>
                                             </tr>
                                     <% } %>
                                     <script>
@@ -1960,12 +1960,12 @@
                     for (let j = 0; j < Object.keys(result).length - numAdded; j++) {
                         let weight = Object.keys(result)[j];
                         result[weight] = (Math.round(result[weight] / totalPossible * 100 * 100) / 100) || 0;
-                        $("#weightTableWeight" + i + j + " input").attr("placeholder", result[weight]);
+                        $(`#weightTableWeight${i}_${j} input`).attr("placeholder", result[weight]);
                     }
                     for (let j = 0; j < numAdded; j++) {
                         let weight = Object.keys(result)[j];
                         result[weight] = (Math.round(result[weight] / totalPossible * 100 * 100) / 100) || 0;
-                        $("#addedWeightWeight" + i + j + " input").attr("placeholder", result[weight]);
+                        $(`#addedWeightWeight${i}_${j} input`).attr("placeholder", result[weight]);
                     }
                 }
             }
@@ -2048,12 +2048,13 @@
                 let tableCategories = Object.keys(weights[i]["weights"]);
                 let addedCategories = Object.keys(addedWeights[i]["weights"]);
                 for (let j = 0; j < tableCategories.length; j++) {
-                    $(`#weightTableWeight${i}${j} input`).off();
-                    $(`#weightTableWeight${i}${j} input`).on("blur", (e) => {
+                    let weight = $(`#weightTableWeight${i}_${j} input`);
+                    weight.off();
+                    weight.on("blur", (e) => {
                         clearTimeout(submittingWeights);
                         submittingWeights = setTimeout(() => {
                             resetInputs(`#weights${i}`);
-                            $(`#weightTableWeight${i}${j}`).parents("form").trigger("submit");
+                            $(`#weightTableWeight${i}_${j}`).parents("form").trigger("submit");
                         }, 100);
                     }).on("keydown", (e) => {
                         let keyCode = e.code;
@@ -2063,27 +2064,28 @@
                     }).on("keyup", (e) => {
                         let keyCode = e.code;
                         if (keyCode === "Enter") {
-                            $(`#weightTableWeight${i}${j} input`).trigger("blur");
+                            weight.trigger("blur");
                         }
                         if (j > 0 && keyCode === "ArrowUp") {
-                            $(`#weightTableWeight${i}${j - 1} input`).trigger("focus");
+                            $(`#weightTableWeight${i}_${j - 1} input`).trigger("focus");
                         }
                         if (keyCode === "ArrowDown") {
                             if (j < tableCategories.length - 1) {
-                                $(`#weightTableWeight${i}${j + 1} input`).trigger("focus");
+                                $(`#weightTableWeight${i}_${j + 1} input`).trigger("focus");
                             } else { // j === tableCategories.length - 1
-                                $(`#addedWeightWeight${i}0 input`).trigger("focus");
+                                $(`#addedWeightWeight${i}_0 input`).trigger("focus");
                             }
                         }
                     });
                 }
                 for (let j = 0; j < addedCategories.length; j++) {
-                    $(`#addedWeightWeight${i}${j} input`).off();
-                    $(`#addedWeightWeight${i}${j} input`).on("blur", (e) => {
+                    let weight = $(`#addedWeightWeight${i}_${j} input`);
+                    weight.off();
+                    weight.on("blur", (e) => {
                         clearTimeout(submittingWeights);
                         submittingWeights = setTimeout(() => {
                             resetInputs(`#weights${i}`);
-                            $(`#addedWeightWeight${i}${j}`).parents("form").trigger("submit");
+                            $(`#addedWeightWeight${i}_${j}`).parents("form").trigger("submit");
                         }, 100);
                     }).on("keydown", (e) => {
                         let keyCode = e.code;
@@ -2093,17 +2095,17 @@
                     }).on("keyup", (e) => {
                         let keyCode = e.code;
                         if (keyCode === "Enter") {
-                            $(`#addedWeightWeight${i}${j} input`).trigger("blur");
+                            weight.trigger("blur");
                         }
                         if (keyCode === "ArrowUp") {
                             if (j > 0) {
-                                $(`#addedWeightWeight${i}${j - 1} input`).trigger("focus");
+                                $(`#addedWeightWeight${i}_${j - 1} input`).trigger("focus");
                             } else { // j === 0
-                                $(`#weightTableWeight${i}${tableCategories.length - 1} input`).trigger("focus");
+                                $(`#weightTableWeight${i}_${tableCategories.length - 1} input`).trigger("focus");
                             }
                         }
                         if (j < addedCategories.length - 1 && keyCode === "ArrowDown") {
-                            $(`#addedWeightWeight${i}${j + 1} input`).trigger("focus");
+                            $(`#addedWeightWeight${i}_${j + 1} input`).trigger("focus");
                         }
                     });
                 }
@@ -2152,30 +2154,30 @@
                     for (let j = 0; j < tableCategories.length; j++) {
                         //Set italics of weights
                         if (enableReset) {
-                            $("#weightTableWeight" + i + j).children().css("font-style", "italic");
+                            $(`#weightTableWeight${i}_${j}`).children().css("font-style", "italic");
                         } else {
-                            $("#weightTableWeight" + i + j).children().css("font-style", "normal");
+                            $(`#weightTableWeight${i}_${j}`).children().css("font-style", "normal");
                         }
 
                         //Strikethrough weights if any are missing
-                        let input = $("#weightTableWeight" + i + j + " input");
+                        let input = $(`#weightTableWeight${i}_${j} input`);
                         if (unobtainedWeights[className] && (!isNaN(parseFloat(input[0].valueAsNumber)))) {
                             input.addClass("ignored");
                         } else {
                             input.removeClass("ignored");
                         }
 
-                        document.getElementById("weightTableCategory" + i + j).textContent = tableCategories[j];
-                        document.getElementById("weightTableCategory" + i + j).title = tableCategories[j];
+                        document.getElementById(`weightTableCategory${i}_${j}`).textContent = tableCategories[j];
+                        document.getElementById(`weightTableCategory${i}_${j}`).title = tableCategories[j];
                         let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
                         totalGotten += categoryGottenAndPossible.gotten;
                         totalPossible += categoryGottenAndPossible.possible;
-                        document.getElementById("weightTablePoints" + i + j).textContent = Math.round(categoryGottenAndPossible.gotten * 10000) / 10000 + ((categoryGottenAndPossible.possible !== 0) ? ("/" + Math.round(categoryGottenAndPossible.possible * 10000) / 10000) : "");
+                        document.getElementById(`weightTablePoints${i}_${j}`).textContent = Math.round(categoryGottenAndPossible.gotten * 10000) / 10000 + ((categoryGottenAndPossible.possible !== 0) ? ("/" + Math.round(categoryGottenAndPossible.possible * 10000) / 10000) : "");
                         let categoryGrade = getCategoryGrade(i, tableCategories[j]);
                         if (categoryGottenAndPossible.possible !== 0) {
-                            document.getElementById("weightTableGrade" + i + j).textContent = categoryGrade + "% (" + getLetterGrade(categoryGrade) + ")";
+                            document.getElementById(`weightTableGrade${i}_${j}`).textContent = categoryGrade + "% (" + getLetterGrade(categoryGrade) + ")";
                         } else {
-                            document.getElementById("weightTableGrade" + i + j).textContent = "--";
+                            document.getElementById(`weightTableGrade${i}_${j}`).textContent = "--";
                         }
                     }
                     for (let j = 0; j < addedCategories.length; j++) {
@@ -2232,11 +2234,11 @@
                             categoryGrade = "--";
                         }
                         let row = $(`<tr>
-                            <td id="addedWeightCategory${i}${count}">${weight}</td>
-                            <td id="addedWeightWeight${i}${count}"
+                            <td id="addedWeightCategory${i}_${count}">${weight}</td>
+                            <td id="addedWeightWeight${i}_${count}"
                                 class="form-group">
-                                <input style="${(!value && value !== 0) ? "border-color: lightcoral !important;" : ""}"
-                                       value="${value}"
+                                <input style="${(!value && value !== 0) ? "border-color: lightcoral !important; outline-color: lightcoral !important;" : ""}"
+                                       value="${value || value === 0 ? value : ""}"
                                        type="number"
                                        min="0"
                                        step="0.01"
@@ -2245,8 +2247,8 @@
                                        disabled
                                 >
                             </td>
-                            <td id="addedWeightPoints${i}${count}">${pointDisplay}</td>
-                            <td id="addedWeightGrade${i}${count}">${categoryGrade}</td>
+                            <td id="addedWeightPoints${i}_${count}">${pointDisplay}</td>
+                            <td id="addedWeightGrade${i}_${count}">${categoryGrade}</td>
                         </tr>`);
                         count++;
                         div.append(row);
@@ -3137,8 +3139,7 @@
                                                     class="fa fa-undo resetCategory${i} disabled"
                                                     onclick="{resetCategory(${i}, ${j})}">
                                                 <span class="popup-top-left">
-                                                    Revert ALL changes in <span
-                                                            class="tutorial-popup">${category}</span>
+                                                    Revert ALL changes in <strong>${category}</strong>
                                                 </span>
                                             </i>
                                         </span>
@@ -3147,8 +3148,7 @@
                                                     class="fa fa-trash trashCategory${i} disabled"
                                                     onclick="{trashCategory(${i}, ${j});}"><span
                                                         class="popup-top-left">
-                                                    Delete ALL added assignments in <span
-                                                            class="tutorial-popup">${category}</span>
+                                                    Delete ALL added assignments in <strong>${category}</strong>
                                                 </span>
                                             </i>
                                         </span>
@@ -3157,8 +3157,7 @@
                                                     class="fa fa-check saveCategory${i} disabled"
                                                     onclick="{saveCategory(${i}, ${j});}"><span
                                                         class="popup-top-left">
-                                                    Save ALL changes in <span
-                                                            class="tutorial-popup">${category}</span>
+                                                    Save ALL changes in <strong>${category}</strong>
                                                 </span>
                                             </i>
                                         </span>
@@ -3382,16 +3381,15 @@
 
                         // Bind listeners only once
                         let options = $(dropdown).find("option");
-                        if (!options.length) {
-                            for (let k = 0; k < categories.length; k++) {
-                                dropdown.append($("<option>").text(categories[k]));
-                            }
-                            dropdown.on("change", () => {
-                                updateCategory(i, assignmentIndex, dropdown);
-                                refreshWithoutReload(i);
-                                dropdown.trigger("blur");
-                            });
+                        options.remove();
+                        for (let k = 0; k < categories.length; k++) {
+                            dropdown.append($("<option>").text(categories[k]));
                         }
+                        dropdown.on("change", () => {
+                            updateCategory(i, assignmentIndex, dropdown);
+                            refreshWithoutReload(i);
+                            dropdown.trigger("blur");
+                        });
 
                         if (assignmentAdds[j]) {
                             for (let k = options.length - 1; k >= categories.length; k--) {
@@ -3544,7 +3542,7 @@
                         display = "<div class=\"" + colorClass + "\" style=\"display: flex; justify-content: space-around; align-items: flex-end;\"><div style=\"display: flex; flex-flow: row; justify-content: center; align-items: center\"><div>" + display + "%" + "</div><div style=\"margin-left: 0.4rem\">(" + getLetterGrade(display) + ")</div></div><div class=\"delta\" style=\"font-family: 'Maison Mono',monospace\">" + delta + "</div></div>";
                         $(assignmentOverallDivs[assignmentIndex]).html(display).css("font-weight", "bold");
                     }
-                    $(rowDivs[assignmentIndex]).children("td").css("background-color", bgColor);
+                    $(rowDivs[assignmentIndex]).children("td:not(.toolTab)").css("background-color", bgColor);
 
                     // Set up exclusion
                     if (!justChangeColors) {
@@ -3552,7 +3550,7 @@
                             $(rowDivs[assignmentIndex]).addClass("excluded").find(".dynamic-input").addClass("excluded");
                         } else {
                             $(rowDivs[assignmentIndex]).removeClass("excluded").find(".dynamic-input").removeClass("excluded");
-                            if (colorClass == "" && assignmentScoresParsed[j].includes("--")) {
+                            if (colorClass === "" && assignmentScoresParsed[j].includes("--")) {
                                 $(rowDivs[assignmentIndex]).addClass("no-change");
                             } else {
                                 $(rowDivs[assignmentIndex]).removeClass("no-change");
@@ -4735,9 +4733,9 @@
             let keys = Object.keys(classWeights.weights);
             for (let i = 0; i < keys.length; i++) {
                 if (keys[i] in relClassData[className]["weights"]) {
-                    $("#weightTableWeight" + index + i + " input").val(relClassData[className]["weights"][keys[i]]);
+                    $(`#weightTableWeight${index}_${i} input`).val(relClassData[className]["weights"][keys[i]]);
                 } else if (tempWeights[index]) {
-                    $("#weightTableWeight" + index + i + " input").val(tempWeights[index][keys[i]]);
+                    $(`#weightTableWeight${index}_${i} input`).val(tempWeights[index][keys[i]]);
                 }
             }
 
@@ -4758,7 +4756,7 @@
                     tempWeights[classIndex] = Object.assign({}, weights[classIndex]["weights"]);
                 } else if (tempWeights[classIndex]) {
                     for (let i = 0; i < Object.keys(weights[classIndex]["weights"]).length; i++) {
-                        let weight = $("#weightTableWeight" + $(form)[0].id.substring(7) + i + " input");
+                        let weight = $(`#weightTableWeight${$(form)[0].id.substring(7)}_${i} input`);
                         weight.val(tempWeights[classIndex][Object.keys(tempWeights[classIndex])[i]]);
                     }
                 }
@@ -5099,6 +5097,8 @@
             let assignmentDescription = parsedData[classIndex].assignmentDescriptions[assignmentIndex];
             let assignmentComments = parsedData[classIndex].assignmentComments[assignmentIndex];
             let assignmentInfoDateEditable = $("#assignmentInfoDateEditable");
+            let assignmentInfoLoading = $("#assignmentInfoLoading");
+            assignmentInfoLoading.show();
             $("#infoAverage").hide();
             $("#assignmentInfoDate").parent("span").hide();
             assignmentInfoDateEditable.parent("span").show();
@@ -5128,6 +5128,8 @@
             $("#assignmentInfoBody > div:not(#infoAverage)").css("background-color", withAlpha(colors[classIndex], 10));
 
             showCard("#assignmentInfoCardDisplay");
+
+            assignmentInfoLoading.hide();
         }
 
         function withAlpha(hexString, alpha) {
@@ -5188,23 +5190,23 @@
                             }
                             weights[classIndex]["custom"] = response.includes("Custom");
                             for (let i = 0; i < Object.keys(weights[classIndex]["weights"]).length; i++) {
-                                let weight = $("#weightTableWeight" + $(form)[0].id.substring(7) + i + " input");
+                                let weight = $(`#weightTableWeight${$(form)[0].id.substring(7)}_${i} input`);
                                 if (weight[0].value || weight[0].value === 0) {
                                     weight.addClass("text-view");
-                                    weight.css("border-color", "unset");
+                                    weight.css("border-color", "unset").css("outline-color", "unset");
                                 } else {
                                     weight.removeClass("text-view");
-                                    weight.css("border-color", "lightcoral");
+                                    weight.css("cssText", "border-color: lightcoral; outline-color: lightcoral !important;");
                                 }
                             }
                             for (let i = 0; i < Object.keys(addedWeights[classIndex]["weights"]).length; i++) {
-                                let weight = $("#addedWeightWeight" + $(form)[0].id.substring(7) + i + " input");
+                                let weight = $(`#addedWeightWeight${$(form)[0].id.substring(7)}_${i} input`);
                                 if (weight[0].value || weights[0].value === 0) {
                                     weight.addClass("text-view");
-                                    weight.css("border-color", "unset");
+                                    weight.css("border-color", "unset").css("outline-color", "unset");
                                 } else {
                                     weight.removeClass("text-view");
-                                    weight.css("border-color", "lightcoral");
+                                    weight.css("cssText", "border-color: lightcoral; outline-color: lightcoral !important;");
                                 }
                             }
                             for (let weight in addedURI) {

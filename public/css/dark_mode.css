@@ -46,7 +46,7 @@ td, th {
     border-color: #333333;
 }
 
-.weights td, .weights th, th.admin, td.admin, th.overview, td.overview {
+.weights td, .weights th, th.admin, td.admin, th.overview, td.overview, .weights tbody {
     border-color: #333333 !important;
 }
 
@@ -380,7 +380,7 @@ input.loading {
 }
 
 .toolTab {
-    background-image: linear-gradient(to right, #222222, #333333);
+    background-color: #333333;
 }
 
 .toolTab:not(th) {
@@ -389,6 +389,10 @@ input.loading {
 
 .toolTab:not(td) {
     border-bottom: 2px transparent solid !important;
+}
+
+.toolTab > span:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .slider {
@@ -480,6 +484,10 @@ select.minimal:focus {
     background-color: #111111;
 }
 
+.number-input {
+    outline: 2px solid #333 !important;
+}
+
 ::-webkit-scrollbar-thumb {
     background-color: #2F2F2F;
 }
@@ -533,7 +541,7 @@ tr.no-change {
 }
 
 tr:hover .toolTab {
-    filter: brightness(140%);
+    background-color: #444444;
 }
 
 .grade-changes-card {

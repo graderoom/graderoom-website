@@ -52,6 +52,19 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 7.0.11] - 2025-07-26
+### Added
+- Support for solving ALTCHA challenges when connecting to PowerSchool
+
+### Improved
+- Made it more clear that category weights can be changed
+- Row action buttons are easier to click
+
+### Fixed
+- Switched email-sending service to Plunk because SendGrid isn't free anymore
+- If a user had more than 10 courses, the weights table could behave incorrectly
+- Editing categories sometimes did nothing
+
 ## [Beta 7.0.10] - 2025-07-25
 ### Added
 - Support for solving ALTCHA challenges when connecting to PowerSchool
