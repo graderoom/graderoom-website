@@ -52,6 +52,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 7.0.12] - 2025-08-13
+### Fixed
+- Sync issues caused by accidentally using new Python features
+
 ## [Stable 7.0.11] - 2025-07-26
 ### Added
 - Support for solving ALTCHA challenges when connecting to PowerSchool
