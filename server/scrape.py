@@ -352,19 +352,18 @@ class PowerschoolScraper(Scraper):
             signature = challengejson['signature']
 
             # Algorithm must be one of SHA-1, SHA-256, SHA-384, or SHA-512
-            match algorithm:
-                case 'SHA-1':
-                    hashlib_algorithm = 'sha1'
-                case 'SHA-256':
-                    hashlib_algorithm = 'sha256'
-                case 'SHA-384':
-                    hashlib_algorithm = 'sha384'
-                case 'SHA-512':
-                    hashlib_algorithm = 'sha512'
-                case _:
-                    self.progress = 0
-                    print(json_format(False, 'Unsupported altcha algorithm.'))
-                    sys.exit()
+            if algorithm == 'SHA-1':
+                hashlib_algorithm = 'sha1'
+            elif algorithm == 'SHA-256':
+                hashlib_algorithm = 'sha256'
+            elif algorithm == 'SHA-384':
+                hashlib_algorithm = 'sha384'
+            elif algorithm == 'SHA-512':
+                hashlib_algorithm = 'sha512'
+            else:
+                self.progress = 0
+                print(json_format(False, 'Unsupported altcha algorithm.'))
+                sys.exit()
 
             start_time = round(time.time() * 1000)
             for i in range(1000000):
