@@ -52,6 +52,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 7.0.13] - 2025-08-22
+### Improved
+- Sync fails with the correct error when Graderoom can't connect to PowerSchool
+
 ## [Stable 7.0.12] - 2025-08-13
 ### Fixed
 - Sync issues caused by accidentally using new Python features
