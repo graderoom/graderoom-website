@@ -231,6 +231,10 @@ class Scraper:
             else:
                 break
 
+        if resp.status_code == 403:
+            print(json_format(False, "Graderoom is blocked from accessing PowerSchool. Try again later."))
+            sys.exit()
+
         return resp
 
     def post_with_retries(self, url, headers=None, data=None, params=None, allow_redirects=True):
@@ -248,6 +252,10 @@ class Scraper:
                 continue
             else:
                 break
+
+        if resp.status_code == 403:
+            print(json_format(False, "Graderoom is blocked from accessing PowerSchool. Try again later."))
+            sys.exit()
 
         return resp
 
