@@ -2917,18 +2917,18 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
             await setSyncStatus(username, SyncStatus.UPDATING);
             socketManager.emitToRoom(username, "sync-progress", _data);
         } else if (!data.success) {
-            if (data.message !== "Incorrect login details." && gradeSync) {
-                let encryptResp = await encryptAndStoreSchoolPassword(username, schoolPassword, userPassword);
-                if (!encryptResp.success) {
-                    await setSyncStatus(username, SyncStatus.FAILED);
-                    socketManager.emitToRoom(username, "sync-fail", encryptResp.data.message);
-                    return;
-                }
-            }
             if (data.message === `Your ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"} account is no longer active.`) {
                 await setSyncStatus(username, SyncStatus.ACCOUNT_INACTIVE);
             } else if (data.message === "No class data.") {
                 await setSyncStatus(username, SyncStatus.NO_DATA);
+                if (gradeSync) {
+                    let encryptResp = await encryptAndStoreSchoolPassword(username, schoolPassword, userPassword);
+                    if (!encryptResp.success) {
+                        await setSyncStatus(username, SyncStatus.FAILED);
+                        socketManager.emitToRoom(username, "sync-fail", encryptResp.data.message);
+                        return;
+                    }
+                }
                 data.message =
                     `No ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"} grades found for this term.`;
                 // Check if we were previously locked
@@ -2953,7 +2953,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                 await setSyncStatus(username, SyncStatus.LOGIN_FAILED);
             }
             socketManager.emitToRoom(username, "sync-fail", {
-                gradeSyncEnabled: data.message !== "Incorrect login details." && gradeSync, message: data.message
+                gradeSyncEnabled: data.message === "No class data." && gradeSync, message: data.message
             });
         } else {
             let newTerm = Object.keys(data["new_grades"])[0];
