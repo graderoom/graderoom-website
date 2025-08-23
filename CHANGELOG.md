@@ -55,6 +55,10 @@
 ## [Stable 7.0.13] - 2025-08-22
 ### Improved
 - Sync fails with the correct error when Graderoom can't connect to PowerSchool
+- When in dark mode with transparency effects, the GPA and Term Switcher popouts are no longer completely transparent.
+
+### Fixed
+- Don't enable GradeSync when login fails
 
 ## [Stable 7.0.12] - 2025-08-13
 ### Fixed
