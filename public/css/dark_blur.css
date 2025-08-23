@@ -16,11 +16,12 @@
         opacity: 1 !important;
     }
 
-    #termSwitcher:hover, #termSwitcher.hover, #termSwitcher::before, #GPA-container::before {
+    #termSwitcher:hover, #termSwitcher.hover {
         box-shadow: black 0 0 10px 1px;
     }
 
-    #notificationPanel::before {
+    #notificationPanel::before, #termSwitcher::before, #GPA-container::before {
+        background-color: rgba(0, 0, 0, 0.2);
         box-shadow: inset 0 19px 38px rgba(0, 0, 0, 0.30);
     }
 
