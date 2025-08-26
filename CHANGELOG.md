@@ -52,6 +52,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 7.0.14] - 2025-08-26
+### Improved
+- Made some changes to potentially improve site performance when under load from bots
+
 ## [Stable 7.0.13] - 2025-08-22
 ### Improved
 - Sync fails with the correct error when Graderoom can't connect to PowerSchool
