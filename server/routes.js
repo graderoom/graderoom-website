@@ -1225,7 +1225,7 @@ module.exports = function (app, passport) {
     // general web app
 
     app.get("/*", (req, res) => {
-        res.redirect(req.headers.referer ?? "/");
+        res.sendStatus(404);
     });
 };
 
