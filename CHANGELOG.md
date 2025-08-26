@@ -53,8 +53,8 @@
 - None
 
 ## [Stable 7.0.14] - 2025-08-26
-### Improved
-- Made some changes to potentially improve site performance when under load from bots
+### Fixed
+- Logged-out rate limit is no longer shared across all users 😭
 
 ## [Stable 7.0.13] - 2025-08-22
 ### Improved
