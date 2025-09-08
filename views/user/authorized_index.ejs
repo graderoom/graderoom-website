@@ -5360,9 +5360,7 @@
         }
 
         function unblockClicks() {
-            if (!$("#termSwitcher").is(":hover") &&
-                !$("#GPA-container").is(":hover") &&
-                !$("#notificationPanel").hasClass("active") &&
+            if (!$("#notificationPanel").hasClass("active") &&
                 !$($(".add-assignment-container")[currentPage]).hasClass("active")) {
                 $("#clickBarrier").removeClass("blocking");
             }
