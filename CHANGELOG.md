@@ -52,6 +52,12 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 7.0.15] - 2025-09-08
+### Added
+- Support for Graderoom extension<ul>
+- See <a target="_blank" class="changelog-inline-setoff" href="https://github.com/graderoom/graderoom-extension">this README</a> for instructions to set it up during this testing period
+- This extension will allow Graderoom to work even when Graderoom cannot connect to PowerSchool</ul>
+
 ## [Stable 7.0.14] - 2025-08-26
 ### Fixed
 - Logged-out rate limit is no longer shared across all users 😭
