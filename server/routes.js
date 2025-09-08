@@ -191,13 +191,13 @@ module.exports = function (app, passport) {
     });
 
     app.post("/joinbeta", [isLoggedIn], async (req, res) => {
-        await dbClient.joinBeta(req.user.username);
+        await dbClient.joinBeta(req.user.username, req.user.school);
         await dbClient.setRemoteAccess(req.user.username, req.body.activateWithRemoteAccess === "on" ? "allowed" : "denied");
         res.redirect(req.headers.referer ?? "/");
     });
 
     app.post("/betafeatures", [isLoggedIn], async (req, res) => {
-        await dbClient.updateBetaFeatures(req.user.username, Object.keys(req.body));
+        await dbClient.updateBetaFeatures(req.user.username, req.user.school, Object.keys(req.body));
         res.redirect(req.headers.referer ?? "/");
     });
 
@@ -711,6 +711,16 @@ module.exports = function (app, passport) {
                 failureFlash: false // Don't want to flash messages to login page when using signup
                                     // page
             })(req, res, next); // this was hard :(
+        }
+    });
+
+    app.post("/updategrades", [isLoggedIn], async (req, res) => {
+        let data = req.body.data;
+        let resp = await dbClient.updateGradesFromUser(req.user.username, data);
+        if (resp.success) {
+            res.status(200).send(resp.data.message);
+        } else {
+            res.status(400).send(resp.data.message);
         }
     });
 

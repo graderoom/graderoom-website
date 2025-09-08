@@ -72,7 +72,7 @@ module.exports = function (passport) {
             let user = res.data.value;
             if (user && bcrypt.compareSync(password, user.password)) {
                 await dbClient.setLoggedIn(user.username);
-                if ('schoolPassword' in user) {
+                if (!user.betaFeatures.localScraping && 'schoolPassword' in user) {
                     await dbClient.setSyncStatus(user.username, SyncStatus.UPDATING);
                     let resp = await dbClient.decryptAndGetSchoolPassword(user.username, password);
                     let schoolPass = resp.data.value;
