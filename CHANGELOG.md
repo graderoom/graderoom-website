@@ -62,6 +62,7 @@
 - Enable the 'Local Scraping' experiment
 - Make sure you have installed the extension and it is enabled
 - Finally, click the 'Local Sync' button in the Sync card</ul>
+- NOTE: During the testing period, the database may be arbitrarily rolled back to fix issues. Do not rely on the site to save any data.
 
 ## [Stable 7.0.14] - 2025-08-26
 ### Fixed
