@@ -277,6 +277,12 @@
             return;
         }
 
+        shortcutsEnabled = false;
+
+        $("#loadingDisplay").show();
+
+        $('#localScrapeDiv').find("button").prop("disabled", true).find("div").addClass("loading");
+
         localScrapeToken = randomString(16);
 
         window.postMessage({target: 'content-script', type: 'get-present', token: localScrapeToken});
