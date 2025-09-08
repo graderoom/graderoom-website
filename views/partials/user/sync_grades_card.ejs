@@ -107,6 +107,20 @@
                         </button>
                     </form>
                 </div>
+                <% if (_betaFeatures.localScraping) { %>
+                <div id="localScrapeDiv" style="display: none">
+                    <form class="form-signin">
+                        <button class="btn btn-lg btn-default" type="button" onclick="updateGradesFromUser()">
+                            Local Sync
+                            <div>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </button>
+                    </form>
+                </div>
+                <% } %>
             </div>
         </div>
     </div>

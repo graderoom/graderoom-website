@@ -1033,10 +1033,37 @@
                         </div>
                         <br>
                         <form id="betaFeatures" action="/betaFeatures" method="post">
+                            <% if (school === "bellarmine") { %>
+                            <div class="card-footer">
+                                <label class="slider-container">
+                                    <label style="margin-left: 0;" for="localScraping">
+                                        Enable Local Scraping
+                                    </label>
+                                    <label class="switch">
+                                        <input id="localScraping" type="checkbox"
+                                               name="localScraping"
+                                        <% if (_betaFeatures.localScraping) { %>
+                                               checked="checked"
+                                                <% } %>
+                                               onchange="$($(this)[0].form).trigger('submit')"
+                                        >
+                                        <span class="slider"></span>
+                                    </label>
+                                </label>
+                                <small>
+                                    Enabled: Uses Graderoom browser extension to scrape grades locally on your computer
+                                </small>
+                                <br>
+                                <small>
+                                    Disabled: Default
+                                </small>
+                            </div>
+                            <% } else { %>
                             <div class="card-footer">
                                 <h5><small style="opacity: 0.5">No Experiments at the moment. Check back later!</small>
                                 </h5>
                             </div>
+                            <% } %>
                         </form>
                         <form action="/leavebeta" method="post">
                             <button class="btn btn-sm" type="submit">Disable Experiments</button>

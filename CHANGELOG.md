@@ -52,6 +52,18 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 7.1.0] - 2025-09-08
+### Added
+- <em>[Experiment]</em> Support for Graderoom extension<ul>
+- See <a target="_blank" class="changelog-inline-setoff" href="https://github.com/graderoom/graderoom-extension">this README</a> for instructions to set it up during this testing period
+- This extension will allow Graderoom to work even when Graderoom cannot connect to PowerSchool
+- To enable this, first enable experiments from Settings > Account > Enable Experiments
+- A new tab called 'Experiments' will appear in Settings.
+- Enable the 'Local Scraping' experiment
+- Make sure you have installed the extension and it is enabled
+- Finally, click the 'Local Sync' button in the Sync card</ul>
+- NOTE: During the testing period, the database may be arbitrarily rolled back to fix issues. Do not rely on the site to save any data.
+
 ## [Stable 7.0.14] - 2025-08-26
 ### Fixed
 - Logged-out rate limit is no longer shared across all users 😭

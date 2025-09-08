@@ -1417,11 +1417,22 @@
             } catch (e) {
             }
         }
-        if (gradeSync) {
+        <% if (_betaFeatures.localScraping) { %>
+        if (betaFeatures.localScraping) {
             $("#syncGradesDiv").hide();
+            $("#gradeSyncDiv").hide();
+            $("#localScrapeDiv").show();
+        } else <% } %>if (gradeSync) {
+            $("#syncGradesDiv").hide();
+            <% if (_betaFeatures.localScraping) { %>
+            $("#localScrapeDiv").hide();
+            <% } %>
             $("#gradeSyncDiv").show();
         } else {
             $("#gradeSyncDiv").hide();
+            <% if (_betaFeatures.localScraping) { %>
+            $("#localScrapeDiv").hide();
+            <% } %>
             $("#syncGradesDiv").show();
             $(".updateGradesMessage").find(".messageTxt").text("GradeSync is not enabled");
             if (alerts.lastUpdated.length) {
@@ -1531,7 +1542,7 @@
         setupTutorialPopups();
 
         function setupTutorialPopups() {
-            if (!gradeSync) {
+            if (!gradeSync && !betaFeatures.localScraping) {
                 $("#syncPopup").addClass("always-show");
                 $(Object.entries(alerts.tutorialStatus).filter(([, k]) => !k).map(([t]) => "#" + t.substring(0, t.length - 4)).join("Popup, ") + "Popup").removeClass("always-show");
             } else {
@@ -5360,9 +5371,7 @@
         }
 
         function unblockClicks() {
-            if (!$("#termSwitcher").is(":hover") &&
-                !$("#GPA-container").is(":hover") &&
-                !$("#notificationPanel").hasClass("active") &&
+            if (!$("#notificationPanel").hasClass("active") &&
                 !$($(".add-assignment-container")[currentPage]).hasClass("active")) {
                 $("#clickBarrier").removeClass("blocking");
             }
@@ -5475,6 +5484,50 @@
             return `#${f(0)}${f(8)}${f(4)}`;
         }
 
+        <% if (_betaFeatures.localScraping) { %>
+        let signinWindow;
+        window.onmessage = (message) => {
+            if (message.origin !== window.location.origin) {
+                return;
+            }
+
+            if (message.data.token !== localScrapeToken) {
+                return;
+            }
+
+            let data = message.data.data;
+
+            switch (message.data.type) {
+                case 'get-present-response':
+                    $("#localScrapeDiv").find("button").prop("disabled", false).find("div").removeClass("loading");
+                    $("#loadingDisplay").hide();
+                    shortcutsEnabled = true;
+                    if (!data.success) {
+                        if (data.message === 'Not logged in.') {
+                            if (!signinWindow || signinWindow.closed) {
+                                signinWindow = window.open("https://powerschool.bcp.org/student/idp?_userTypeHint=student", null, 'width=600,height=700');
+                            } else {
+                                signinWindow.focus();
+                            }
+                        } else {
+                            alert(data.message);
+                        }
+                    } else {
+                        let term = Object.keys(data.data)[0];
+                        let semester = Object.keys(data.data[term])[0];
+                        let grades = data.data[term][semester];
+                        sendData('start-update-from-user', {term: term, semester: semester, grades: grades});
+                    }
+                    break;
+                case 'get-history-response':
+                    console.log(message.data.data);
+                    break;
+                case 'get-locked-response':
+                    console.log(message.data.data);
+                    break;
+            }
+        }
+        <% } %>
     </script>
 <% } %>
 <script>

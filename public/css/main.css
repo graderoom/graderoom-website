@@ -1681,12 +1681,12 @@ tr:hover .toolTab {
     pointer-events: all;
 }
 
-#notificationPanel #notifications > div:not(#pinned-notifications) {
+#notificationPanel #notifications > div:not(#pinned-notifications), #notificationPanel #notifications > hr {
     transition: opacity 100ms ease;
     opacity: 0;
 }
 
-#notificationPanel.active #notifications > div:not(#pinned-notifications) {
+#notificationPanel.active #notifications > div:not(#pinned-notifications), #notificationPanel.active #notifications > hr {
     transition-delay: 300ms;
     opacity: 1;
 }

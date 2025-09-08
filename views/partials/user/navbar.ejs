@@ -258,6 +258,37 @@
         sendData("settings-change", {[name]: value});
     }
 
+    <% if (_betaFeatures.localScraping) { %>
+    let localScrapeToken;
+
+    function randomString(length) {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += chars[Math.floor(Math.random() * chars.length)];
+        }
+
+        return result;
+    }
+
+    function updateGradesFromUser() {
+        if (!betaFeatures.localScraping) {
+            return;
+        }
+
+        shortcutsEnabled = false;
+
+        $("#loadingDisplay").show();
+
+        $('#localScrapeDiv').find("button").prop("disabled", true).find("div").addClass("loading");
+
+        localScrapeToken = randomString(16);
+
+        window.postMessage({target: 'content-script', type: 'get-present', token: localScrapeToken});
+    }
+    <% } %>
+
     function updateGrades(password, schoolPassword, gradeSync) {
 
         let _gradeSync = !schoolPassword;
@@ -444,11 +475,22 @@
             $(".changelog-parent, .changelog-parent > div").removeClass("show");
         }
         if (id === "updateGradesDisplay") {
-            if (gradeSync) {
+            <% if (_betaFeatures.localScraping) { %>
+            if (betaFeatures.localScraping) {
                 $("#syncGradesDiv").hide();
+                $("#gradeSyncDiv").hide();
+                $("#localScrapeDiv").show();
+            } else <% } %>if (gradeSync) {
+                $("#syncGradesDiv").hide();
+                <% if (_betaFeatures.localScraping) { %>
+                $("#localScrapeDiv").hide();
+                <% } %>
                 $("#gradeSyncDiv").show();
             } else {
                 $("#gradeSyncDiv").hide();
+                <% if (_betaFeatures.localScraping) { %>
+                $("#localScrapeDiv").hide();
+                <% } %>
                 $("#syncGradesDiv").show();
             }
         }
