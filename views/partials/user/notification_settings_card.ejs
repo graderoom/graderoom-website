@@ -40,5 +40,7 @@
 
 <!-- Custom JavaScript -->
 <script type="text/javascript">
-
+    function changeNotiSetting(name, value) {
+        sendData("notification-settings-change", {[name]: value});
+    }
 </script>
