@@ -200,4 +200,100 @@
             }
         }
     }
+
+    function updateGrades(password, schoolPassword, gradeSync) {
+
+        let _gradeSync = !schoolPassword;
+
+        let messageBox = $(".updateGradesMessage");
+        let message = $(".updateGradesMessage.alert .messageTxt");
+
+        clearTimeout(checkLastUpdated);
+
+        $(".fa-refresh").addClass("fa-spin").css("opacity", 0.5);
+
+        messageBox.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
+
+        $(message).text("");
+
+        $("#updateGradesDisplay input").trigger("blur");
+
+        shortcutsEnabled = false;
+
+        $("#loadingDisplay").show();
+
+        $(`${_gradeSync ? "#syncGradesForm" : "#gradeSyncForm"}`).find("button").prop("disabled", true).find("div").addClass("loading");
+
+        sendData("start-update", {
+            gradeSync: gradeSync, schoolPassword: schoolPassword, userPassword: password
+        });
+
+        return false;
+    }
+
+    <% if (page === "home" && _betaFeatures.localScraping) { %>
+    let signinWindow;
+    function updateGradesCallback(response) {
+        let data = response.data;
+        switch (response.type) {
+            case 'get-present-response':
+                $("#localScrapeDiv").find("button").prop("disabled", false).find("div").removeClass("loading");
+                $("#loadingDisplay").hide();
+                shortcutsEnabled = true;
+                if (!data.success) {
+                    if (data.message === 'Not logged in.') {
+                        if (!signinWindow || signinWindow.closed) {
+                            signinWindow = window.open("https://powerschool.bcp.org/student/idp?_userTypeHint=student", null, 'width=600,height=700');
+                        } else {
+                            signinWindow.focus();
+                        }
+                    } else {
+                        alert(data.message);
+                    }
+                } else {
+                    let term = Object.keys(data.data)[0];
+                    let semester = Object.keys(data.data[term])[0];
+                    let grades = data.data[term][semester];
+                    sendData('start-update-from-user', {term: term, semester: semester, grades: grades});
+                }
+                break;
+            case 'get-history-response':
+                console.log(data);
+                break;
+            case 'get-locked-response':
+                console.log(data);
+                break;
+        }
+    }
+
+    function updateGradesFromUser() {
+        if (!betaFeatures.localScraping) {
+            return;
+        }
+
+        if (window.chrome === undefined) {
+            alert("Local scraping is currently only available when using Graderoom in Google Chrome or Microsoft Edge.");
+            return;
+        }
+
+        const extensionID = "dhidkhdjfikcdmfngbpnbgpnboiodnoo";
+
+        shortcutsEnabled = false;
+
+        $("#loadingDisplay").show();
+
+        $('#localScrapeDiv').find("button").prop("disabled", true).find("div").addClass("loading");
+
+        chrome.runtime.sendMessage(extensionID, {target: 'offscreen', type: 'get-present'}, (response) => {
+            if (chrome.runtime.lastError) {
+                alert("Make sure you have the Graderoom extension installed and enabled.");
+                $("#localScrapeDiv").find("button").prop("disabled", false).find("div").removeClass("loading");
+                $("#loadingDisplay").hide();
+                shortcutsEnabled = true;
+                return;
+            }
+            updateGradesCallback(response);
+        });
+    }
+    <% } %>
 </script>

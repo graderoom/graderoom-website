@@ -5483,51 +5483,6 @@
             };
             return `#${f(0)}${f(8)}${f(4)}`;
         }
-
-        <% if (_betaFeatures.localScraping) { %>
-        let signinWindow;
-        window.onmessage = (message) => {
-            if (message.origin !== window.location.origin) {
-                return;
-            }
-
-            if (message.data.token !== localScrapeToken) {
-                return;
-            }
-
-            let data = message.data.data;
-
-            switch (message.data.type) {
-                case 'get-present-response':
-                    $("#localScrapeDiv").find("button").prop("disabled", false).find("div").removeClass("loading");
-                    $("#loadingDisplay").hide();
-                    shortcutsEnabled = true;
-                    if (!data.success) {
-                        if (data.message === 'Not logged in.') {
-                            if (!signinWindow || signinWindow.closed) {
-                                signinWindow = window.open("https://powerschool.bcp.org/student/idp?_userTypeHint=student", null, 'width=600,height=700');
-                            } else {
-                                signinWindow.focus();
-                            }
-                        } else {
-                            alert(data.message);
-                        }
-                    } else {
-                        let term = Object.keys(data.data)[0];
-                        let semester = Object.keys(data.data[term])[0];
-                        let grades = data.data[term][semester];
-                        sendData('start-update-from-user', {term: term, semester: semester, grades: grades});
-                    }
-                    break;
-                case 'get-history-response':
-                    console.log(message.data.data);
-                    break;
-                case 'get-locked-response':
-                    console.log(message.data.data);
-                    break;
-            }
-        }
-        <% } %>
     </script>
 <% } %>
 <script>

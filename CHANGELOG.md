@@ -52,6 +52,14 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 7.1.1] - 2025-09-12
+### Improved
+- Slightly improve UX for local scraping
+- Support Graderoom extension v1.1+
+
+### Fixed
+- Charts page works again
+
 ## [Beta 7.1.0] - 2025-09-08
 ### Added
 - <em>[Experiment]</em> Support for Graderoom extension<ul>

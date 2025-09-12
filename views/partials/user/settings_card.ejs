@@ -777,7 +777,7 @@
                             </button>
                         </div>
                     </form>
-                    <% if (!_betaFeatures.active || _alerts.lastUpdated.length > 0) { %>
+                    <% if (!_betaFeatures.active || (_alerts.lastUpdated?.length ?? 0) > 0 || discordID) { %>
                         <div class="card-footer">
                             <% if (!_betaFeatures.active) { %>
                                 <button class="btn btn-sm" style="margin: 0.1rem"
@@ -787,7 +787,7 @@
                                     </label>
                                 </button>
                             <% } %>
-                            <% if (_alerts.lastUpdated.length > 0) { %>
+                            <% if ((_alerts.lastUpdated?.length ?? 0) > 0) { %>
                                 <button class="btn btn-sm" style="margin: 0.1rem"
                                         onclick="showCard('#apiKeyDisplay');">
                                     <label style="margin: 0; cursor: pointer;">Open API Key Panel
@@ -1698,6 +1698,108 @@
             plus = totalReceived >= minPlus;
             premium = totalReceived >= minPremium;
         }
+    }
+
+    function changeSetting(name, value) {
+        sendData("settings-change", {[name]: value});
+    }
+
+    function ajaxPostForm(formID, fieldIDsToClear, messagesDivID, _async, doInstantly = false) {
+        // Get the form.
+        let form = $(formID);
+        $(form).on("submit", function (event) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+
+            if (submittingForms[formID]) {
+                clearTimeout(submittingForms[formID]);
+                delete submittingForms[formID];
+            }
+            submittingForms[formID] = setTimeout(() => {
+
+                let formData;
+                let message;
+                let formMessagesDiv;
+
+                // Serialize the form data.
+                formData = $(form).serialize();
+
+                // Get the messages.
+                formMessagesDiv = $(messagesDivID);
+                $(formMessagesDiv).find(".sk-chase-mini").css("display", "inline-block");
+                message = $(formMessagesDiv).find(".messageTxt");
+                $(message).text("");
+                $(formMessagesDiv).removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
+                $(formMessagesDiv).show();
+
+                // Submit the form using AJAX.
+                $.ajax({
+                           type: "POST", url: $(form).attr("action"), data: formData, async: _async
+                       }).done(function (response) {
+                    if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
+                        $(".session-timeout").show();
+                        $("body").find("*").not(".session-timeout").remove();
+                        return;
+                    }
+                    console.log(response);
+                    setTimeout(function () {
+                        $(message).text(response);
+                        $(formMessagesDiv).find(".sk-chase-mini").hide();
+                        $(formMessagesDiv).removeClass("alert-info").removeClass("alert-danger").addClass("alert-success");
+                    }, 500);
+
+                    if (formID === "#changeSchoolEmail") {
+                        schoolUsername = $("#school_email")[0].value;
+                        updateNameDisplay(schoolUsername);
+                        $($("#school_email")[0].form).find("button").prop("disabled", true);
+                    }
+
+                    // Show the div.
+                    $(formMessagesDiv).show();
+
+                    // Clear fields to clear
+                    for (let i = 0; i < fieldIDsToClear.length; i++) {
+                        $(fieldIDsToClear[i]).val("");
+                        $(fieldIDsToClear[i]).trigger("blur");
+                        if (formID === "#changePassword") {
+                            $($(fieldIDsToClear[i])[0].previousElementSibling).removeClass("label-active");
+                            if ($($(fieldIDsToClear[i])[0].previousElementSibling.children[0])) {
+                                $($(fieldIDsToClear[i])[0].previousElementSibling.children[0]).text("");
+                            }
+                        }
+                    }
+
+                }).fail(function (data) {
+                    // Make sure that the formMessages div has the alert-danger class
+                    $($(formMessagesDiv)[1]).removeClass("alert-info");
+                    $($(formMessagesDiv)[1]).addClass("alert-danger");
+
+                    // Set the message text.
+                    if (data.responseText !== "") {
+                        if (data.responseText === "Incorrect login details.") {
+                            $(message).text("Incorrect school password.");
+                            $("#inputPassword").trigger("focus");
+                        } else {
+                            $(message).text(data.responseText);
+                        }
+                    } else {
+                        console.log(formMessagesDiv);
+                        $(message).text("Oops! An error occurred and your message could not be sent.");
+                    }
+
+                    // Show the div.
+                    $(formMessagesDiv).css("display", "block");
+
+                    // Hide loading
+                    $(formMessagesDiv).find(".sk-chase-mini").hide();
+
+                    if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
+                        clearTimeout(checkLastUpdated);
+                    }
+
+                });
+            }, (doInstantly ? 0 : 400));
+        });
     }
 
 </script>
