@@ -68,11 +68,22 @@ module.exports = {
 
             await dbClient.updateGrades(username, schoolPass, userPass, gradeSync);
         });
+        socket.on('can-i-update', async (data) => {
+            let username = _socketUsernameHelper(socket);
+            let resp = await dbClient.canIUpdate(username);
+            if (resp.success) {
+                socketManager.emitToRoom(username, 'you-can-update', {token: data.token});
+            } else {
+                socketManager.emitToRoom(username, 'sync-limit', resp.data);
+            }
+        });
         socket.on('start-update-from-user', async (data) => {
             let username = _socketUsernameHelper(socket);
             let resp = await dbClient.updateGradesFromUser(username, data);
             if (!resp.success) {
-                socketManager.emitToRoom(username, 'sync-fail-general', {message: resp.data.message});
+                if (resp.data.message !== 'You need to wait before syncing again.') {
+                    socketManager.emitToRoom(username, 'sync-fail-general', {message: resp.data.message});
+                }
             }
         });
         socket.on('notification-settings-change', async (data) => {

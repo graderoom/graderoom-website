@@ -8,7 +8,7 @@
                  style="display: table; width: fit-content; width: -moz-fit-content; margin-bottom:0">
                 <i class="fa fa-close" aria-hidden="true"></i> Close
             </btn>
-            <btn class="btn btn-med" onclick="showCard('#updateGradesDisplay'); $('#inputPassword').trigger('focus')"
+            <btn class="btn btn-med" onclick="<% if (school === "bellarmine") { %>showCard('#localScrapeCardDisplay');<% } else { %>showCard('#updateGradesDisplay'); $('#inputPassword').trigger('focus')<% } %>"
                  style="position: absolute; width: fit-content; width: -moz-fit-content; right: 0; margin-bottom: 0">
                 Sync <i class="fa fa-refresh" aria-hidden="true"></i>
             </btn>
@@ -19,7 +19,7 @@
                 </h1>
                 <div class="updateGradesMessage alert alert-info"
                      style="display:block; cursor: pointer;"
-                     onclick="showCard('#updateGradesDisplay'); $('#inputPassword').trigger('focus')">
+                     onclick="<% if (school === "bellarmine") { %>showCard('#localScrapeCardDisplay');<% } else { %>showCard('#updateGradesDisplay'); $('#inputPassword').trigger('focus')<% } %>">
                     <div style="display: flex; justify-content: flex-start; align-items: flex-start; flex-flow: column">
                         <div style="display:none" class="sk-chase-mini">
                             <div class="sk-chase-dot mini"></div>

@@ -23,7 +23,7 @@ exports.COMMON_DATABASE_NAME = 'common';
 exports.SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME = 'school_username_lookup';
 
 // Change this when updateDB changes
-exports.dbUserVersion = 29;
+exports.dbUserVersion = 30;
 exports.dbClassVersion = 4;
 
 exports.minUsersForAverageCalc = 9;
@@ -50,10 +50,8 @@ exports.versionNameArray = () => _versionNameArray;
 exports.tutorialKeys = ['homeSeen', 'navinfoSeen', 'moreSeen', 'settingsSeen', 'legendSeen'];
 
 // Update this list with new beta features
-exports.betaFeatureKeys = ['localScraping'];
-exports.betaFeatureSchoolRestrictions = {
-    localScraping: ['bellarmine']
-};
+exports.betaFeatureKeys = [];
+exports.betaFeatureSchoolRestrictions = {};
 
 exports.classesCollection = (school) => {
     return school + '_' + this.CLASSES_COLLECTION_NAME;
@@ -709,18 +707,135 @@ exports.donoAttributes = function (donos) {
 };
 
 exports.nextSyncAllowed = function (lastSyncTimestamp, donoData) {
+    return Date.now() >= exports.nextSyncWhen(lastSyncTimestamp, donoData);
+};
+
+exports.nextSyncWhen = function (lastSyncTimestamp, donoData) {
     let {donor, plus, premium} = exports.donoAttributes(donoData);
     if (premium) {
-        return Date.now() > lastSyncTimestamp + premiumSyncPeriod;
+        return lastSyncTimestamp + premiumSyncPeriod;
     }
     if (plus) {
-        return Date.now() > lastSyncTimestamp + plusSyncPeriod;
+        return lastSyncTimestamp + plusSyncPeriod;
     }
     if (donor) {
-        return Date.now() > lastSyncTimestamp + donorSyncPeriod;
+        return lastSyncTimestamp + donorSyncPeriod;
     }
-    return Date.now() > lastSyncTimestamp + freeSyncPeriod;
-};
+    return lastSyncTimestamp + freeSyncPeriod;
+}
+
+exports.processClasses = function (classes) {
+    if (!Array.isArray(classes)) {
+        return {success: false, data: {message: 'Invalid data', log: 'Invalid classes'}};
+    }
+
+    if (classes.length > 20) {
+        return {success: false, data: {message: 'Too many classes', log: 'Too many classes'}};
+    }
+
+    let newGrades = [];
+    for (let class_ of classes) {
+        if (typeof class_ !== 'object') {
+            return {success: false, data: {message: 'Invalid classes', log: JSON.stringify(class_)}};
+        }
+
+        let {class_name, teacher_name, overall_percent, overall_letter, student_id, section_id, ps_locked, grades} = class_;
+        if (typeof class_name !== 'string' || typeof teacher_name !== 'string') {
+            return {success: false, data: {message: 'Invalid classes', log: 'Invalid class/teacher name'}};
+        }
+        if (typeof overall_percent !== 'number' && overall_percent !== false) {
+            return {success: false, data: {message: 'Invalid classes', log: 'Invalid overall_percent'}};
+        }
+        if (overall_letter !== false  && (typeof overall_letter !== 'string' || !/^[A-DF][+\-]?$/.test(overall_letter))) {
+            return {success: false, data: {message: 'Invalid classes', log: 'Invalid overall_letter'}};
+        }
+        if (typeof student_id !== 'string' || typeof section_id !== 'string') {
+            return {success: false, data: {message: 'Invalid classes', log: 'Invalid student/section id'}};
+        }
+        if (typeof ps_locked !== 'boolean') {
+            return {success: false, data: {message: 'Invalid classes', log: 'Invalid ps_locked'}};
+        }
+        if (!Array.isArray(grades)) {
+            return {success: false, data: {message: 'Invalid classes', log: 'Invalid grades'}};
+        }
+
+        if (grades.length > 200) {
+            return {success: false, data: {message: 'Too many grades', log: 'Too many grades'}};
+        }
+
+        let cleanGrades = [];
+
+        for (let grade of grades) {
+            let {date, category, assignment_name, exclude, points_possible, points_gotten, grade_percent, psaid} = grade;
+
+            // Make sure date is MM/DD/YYYY
+            if (typeof date !== 'string') {
+                return {success: false, data: {message: 'Invalid grades', log: 'Invalid date'}};
+            }
+            if (!exports.checkValidMMDDYYYY(date)) {
+                return {success: false, data: {message: 'Invalid grades', log: `Invalid date ${date}`}};
+            }
+
+            if (typeof category !== 'string' || typeof assignment_name !== 'string' || typeof exclude !== 'boolean') {
+                return {success: false, data: {message: 'Invalid grades', log: 'Invalid category/assignment name/exclude'}};
+            }
+
+            if (points_possible !== false && typeof points_possible !== 'number') {
+                return {success: false, data: {message: 'Invalid grades', log: 'Invalid points_possible'}};
+            }
+            if (points_gotten !== false && typeof points_possible !== 'number') {
+                return {success: false, data: {message: 'Invalid grades', log: 'Invalid points_gotten'}};
+            }
+            if (points_gotten !== false && points_possible === false) {
+                return {success: false, data: {message: 'Invalid grades', log: 'Points possible cannot be empty if points gotten is not empty'}}
+            }
+
+            if (grade_percent !== false && typeof grade_percent !== 'number') {
+                return {success: false, data: {message: 'Invalid grades', log: 'Invalid grade_percent'}};
+            }
+            if (typeof psaid !== 'number') {
+                return {success: false, data: {message: 'Invalid grades', log: 'Invalid psaid'}};
+            }
+
+            cleanGrades.push({
+                assignment_name: assignment_name,
+                date: date,
+                category: category,
+                grade_percent: grade_percent,
+                points_gotten: points_gotten,
+                points_possible: points_possible,
+                exclude: exclude,
+                psaid: psaid,
+            });
+        }
+
+        newGrades.push({
+            class_name: class_name,
+            teacher_name: teacher_name,
+            overall_percent: overall_percent,
+            overall_letter: overall_letter,
+            student_id: student_id,
+            section_id: section_id,
+            ps_locked: ps_locked,
+            local_scrape: true,
+            grades: cleanGrades,
+        });
+    }
+
+    return {success: true, data: {value: newGrades}};
+}
+
+exports.checkValidTerm = function (term) {
+    if (typeof term !== 'string') return false;
+    if (!/^\d{2}-\d{2}$/.test(term)) return false;
+    let [startYear, endYear] = term.split('-').map(x => parseInt(x, 10));
+    return (endYear === 0 ? 100 : endYear) - startYear === 1;
+}
+
+exports.checkValidSemester = function (semester) {
+    if (typeof semester !== 'string') return false;
+    return (['S0', 'S1', 'S2']).includes(semester);
+}
 
 exports.checkValidMMDDYYYY = function (dateString) {
     if (dateString.length !== 10 || dateString[2] !== '/' || dateString[5] !== '/') {
@@ -728,7 +843,7 @@ exports.checkValidMMDDYYYY = function (dateString) {
     }
     let dateObj = new Date(dateString);
     if (dateObj.toString() === 'Invalid Date') {
-        return {success: false, data: {message: 'Invalid grades', log: 'Invalid date'}};
+        return false;
     }
     const month = dateObj.getMonth() + 1; // getMonth() is 0-indexed
     const day = dateObj.getDate();
