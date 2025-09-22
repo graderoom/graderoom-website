@@ -292,7 +292,7 @@ module.exports = function (app, passport) {
                     _appearance: user.appearance,
                     _alerts: trimmedAlerts,
                     discordID: user.discord.discordID,
-                    gradeSync: !!user.schoolPassword,
+                    gradeSync: user.school === Schools.BELL || user.schoolPassword,
                     _gradeData: user.grades[term][semester],
                     _weightData: user.weights[term][semester],
                     _addedWeights: user.addedWeights[term][semester],
@@ -333,7 +333,7 @@ module.exports = function (app, passport) {
                     _appearance: user.appearance,
                     _alerts: user.alerts,
                     discord: user.discord.discordID,
-                    gradeSync: !!user.schoolPassword,
+                    gradeSync: user.school === Schools.BELL || user.schoolPassword,
                     _gradeData: [],
                     _weightData: {},
                     _addedWeights: {},
@@ -711,16 +711,6 @@ module.exports = function (app, passport) {
                 failureFlash: false // Don't want to flash messages to login page when using signup
                                     // page
             })(req, res, next); // this was hard :(
-        }
-    });
-
-    app.post("/updategrades", [isLoggedIn], async (req, res) => {
-        let data = req.body.data;
-        let resp = await dbClient.updateGradesFromUser(req.user.username, data);
-        if (resp.success) {
-            res.status(200).send(resp.data.message);
-        } else {
-            res.status(400).send(resp.data.message);
         }
     });
 

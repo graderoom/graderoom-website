@@ -598,13 +598,13 @@
                                 </div>
                             </div>
                         </form>
+                        <% if (school !== "bellarmine") { %>
                         <btn style="margin-top: 0; margin-left: 0;" class="btn btn-sm" onclick="$('#syncGradesDiv').show(); $('#gradeSyncDiv').hide(); showCard('#updateGradesDisplay')">Change School Password</btn>
                         <form id="gradeSync" class="form-signin" action="/disableGradeSync" method="post">
-                            <label style="white-space: nowrap; display: flex; font-size: 1rem; justify-content: flex-start; align-items: center">
+                            <label class="slider-container">
                                 <label class="switch">
                                     <input
                                             id="gradeSyncToggle"
-                                            style="margin: 0; display: flex"
                                             type="checkbox"
                                             name="gradeSync"
                                     <% if (gradeSync) { %>
@@ -614,8 +614,7 @@
                                     >
                                     <span class="slider"></span>
                                 </label>
-                                <label style="margin: 0 0 0 1rem; justify-content: center; align-items: center; cursor: pointer"
-                                       onclick="$('#gradeSyncToggle').trigger('click')">GradeSync<span
+                                <label onclick="$('#gradeSyncToggle').trigger('click')">GradeSync<span
                                             class="popup"><i class="fa fa-question-circle"
                                                              style="margin-left: 0.4rem"><span
                                                     class="popup-right-top">When enabled, Graderoom syncs whenever
@@ -623,6 +622,7 @@
                                                 login</span></i></span></label>
                             </label>
                         </form>
+                        <% } %>
                     </div>
                     <form id="changePersonalInfo" class="card-footer form-signin" autocomplete="off">
                         <div class="form-group">
@@ -1033,37 +1033,34 @@
                         </div>
                         <br>
                         <form id="betaFeatures" action="/betaFeatures" method="post">
-                            <% if (school === "bellarmine") { %>
-                            <div class="card-footer">
-                                <label class="slider-container">
-                                    <label style="margin-left: 0;" for="localScraping">
-                                        Enable Local Scraping
-                                    </label>
-                                    <label class="switch">
-                                        <input id="localScraping" type="checkbox"
-                                               name="localScraping"
-                                        <% if (_betaFeatures.localScraping) { %>
-                                               checked="checked"
-                                                <% } %>
-                                               onchange="$($(this)[0].form).trigger('submit')"
-                                        >
-                                        <span class="slider"></span>
-                                    </label>
-                                </label>
-                                <small>
-                                    Enabled: Uses Graderoom browser extension to scrape grades locally on your computer
-                                </small>
-                                <br>
-                                <small>
-                                    Disabled: Default
-                                </small>
-                            </div>
-                            <% } else { %>
+<!--                            <div class="card-footer">-->
+<!--                                <label class="slider-container">-->
+<!--                                    <label style="margin-left: 0;" for="localScraping">-->
+<!--                                        Enable Local Scraping-->
+<!--                                    </label>-->
+<!--                                    <label class="switch">-->
+<!--                                        <input id="localScraping" type="checkbox"-->
+<!--                                               name="localScraping"-->
+<!--                                        <\% if (_betaFeatures.localScraping) { %\>-->
+<!--                                               checked="checked"-->
+<!--                                                <\% } %\>-->
+<!--                                               onchange="$($(this)[0].form).trigger('submit')"-->
+<!--                                        >-->
+<!--                                        <span class="slider"></span>-->
+<!--                                    </label>-->
+<!--                                </label>-->
+<!--                                <small>-->
+<!--                                    Enabled: Uses Graderoom browser extension to scrape grades locally on your computer-->
+<!--                                </small>-->
+<!--                                <br>-->
+<!--                                <small>-->
+<!--                                    Disabled: Default-->
+<!--                                </small>-->
+<!--                            </div>-->
                             <div class="card-footer">
                                 <h5><small style="opacity: 0.5">No Experiments at the moment. Check back later!</small>
                                 </h5>
                             </div>
-                            <% } %>
                         </form>
                         <form action="/leavebeta" method="post">
                             <button class="btn btn-sm" type="submit">Disable Experiments</button>

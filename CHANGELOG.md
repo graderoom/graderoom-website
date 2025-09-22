@@ -52,6 +52,18 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 7.1.2] - 2025-09-21
+### Added
+- Stable support for Graderoom extension (requires Graderoom Extension v1.4+)
+- <a class="changelog-inline-setoff" href="https://chromewebstore.google.com/detail/graderoom/dhidkhdjfikcdmfngbpnbgpnboiodnoo" target="_blank">Install the Extension</a>
+
+### Improved
+- Sync status now shows time until you can sync again
+
+### Removed
+- Usage of school passwords for Bellarmine students
+- Locally scraped grades will not be used to calculate averages (for now)
+
 ## [Beta 7.1.1] - 2025-09-12
 ### Improved
 - Slightly improve UX for local scraping

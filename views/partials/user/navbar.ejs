@@ -154,7 +154,7 @@
                 </li>
                 <li id="syncGrades" class="nav-item popup">
                     <btn class="btn btn-med"
-                         onclick="showCard('#updateGradesDisplay'); $('#inputPassword').trigger('focus')">
+                         onclick="<% if (school === "bellarmine") { %>showCard('#localScrapeCardDisplay');<% } else { %>showCard('#updateGradesDisplay'); $('#inputPassword').trigger('focus')<% } %>">
                         <i class="fa fa-refresh" aria-hidden="true"></i>
                         Sync
                     </btn>
@@ -198,6 +198,9 @@
 <!-- Cards -->
 <% if (page === "home") { %>
     <%- include('sync_grades_card.ejs', {theme: theme}); %>
+<% } %>
+<% if (page === "home") { %>
+    <%- include('local_scrape_card.ejs', {theme: theme}); %>
 <% } %>
 <% if (page === "home") { %>
     <%- include('settings_card.ejs', {theme: theme}); %>
@@ -261,7 +264,6 @@
                 $(this).parent().css("z-index", cardsDisplayed.indexOf($($(this).parent())[0].id) + minCardZIndex);
             }
         });
-        $(id).fadeIn(100);
         if (id === "#settingsCardDisplay") {
             $($("#school_email").val(schoolUsername)[0].form).find("button").prop("disabled", true);
             checkLabel($("#school_email"));
@@ -272,6 +274,19 @@
         if (id === "#feedbackDisplay") {
             setupFeedbackForm();
             setupDiscord(true);
+        }
+        if (id === "#localScrapeCardDisplay") {
+            checkExtensionInstalled().then((installed) => {
+                if (installed) {
+                    document.getElementById("installExtensionInfo").style.display = "none";
+                    document.getElementById("localScrapeDiv").style.display = "block";
+                } else {
+                    document.getElementById("installExtensionInfo").style.display = "block";
+                    document.getElementById("localScrapeDiv").style.display = "none";
+                }
+            }).then(() => $(id).fadeIn(100));
+        } else {
+            $(id).fadeIn(100);
         }
     }
 
@@ -308,24 +323,17 @@
             $(".changelog-parent, .changelog-parent > div").removeClass("show");
         }
         if (id === "updateGradesDisplay") {
-            <% if (page === "home" && _betaFeatures.localScraping) { %>
-            if (betaFeatures.localScraping) {
+            if (gradeSync) {
                 $("#syncGradesDiv").hide();
-                $("#gradeSyncDiv").hide();
-                $("#localScrapeDiv").show();
-            } else <% } %>if (gradeSync) {
-                $("#syncGradesDiv").hide();
-                <% if (page === "home" && _betaFeatures.localScraping) { %>
-                $("#localScrapeDiv").hide();
-                <% } %>
                 $("#gradeSyncDiv").show();
             } else {
                 $("#gradeSyncDiv").hide();
-                <% if (page === "home" && _betaFeatures.localScraping) { %>
-                $("#localScrapeDiv").hide();
-                <% } %>
                 $("#syncGradesDiv").show();
             }
+        }
+        if (id === "localScrapeCardDisplay") {
+            document.getElementById("installExtensionInfo").style.display = "none";
+            document.getElementById("localScrapeDiv").style.display = "none";
         }
 
         // Manage theme selection, if it exists
