@@ -154,7 +154,7 @@
                 </li>
                 <li id="syncGrades" class="nav-item popup">
                     <btn class="btn btn-med"
-                         onclick="showCard('#updateGradesDisplay'); $('#inputPassword').trigger('focus')">
+                         onclick="<% if (school === "bellarmine") { %>showCard('#localScrapeCardDisplay');<% } else { %>showCard('#updateGradesDisplay'); $('#inputPassword').trigger('focus')<% } %>">
                         <i class="fa fa-refresh" aria-hidden="true"></i>
                         Sync
                     </btn>
@@ -198,6 +198,9 @@
 <!-- Cards -->
 <% if (page === "home") { %>
     <%- include('sync_grades_card.ejs', {theme: theme}); %>
+<% } %>
+<% if (page === "home") { %>
+    <%- include('local_scrape_card.ejs', {theme: theme}); %>
 <% } %>
 <% if (page === "home") { %>
     <%- include('settings_card.ejs', {theme: theme}); %>
@@ -250,142 +253,6 @@
         socket.emit(event, data);
     }
 
-    function changeNotiSetting(name, value) {
-        sendData("notification-settings-change", {[name]: value});
-    }
-
-    function changeSetting(name, value) {
-        sendData("settings-change", {[name]: value});
-    }
-
-    function updateGrades(password, schoolPassword, gradeSync) {
-
-        let _gradeSync = !schoolPassword;
-
-        let messageBox = $(".updateGradesMessage");
-        let message = $(".updateGradesMessage.alert .messageTxt");
-
-        clearTimeout(checkLastUpdated);
-
-        $(".fa-refresh").addClass("fa-spin").css("opacity", 0.5);
-
-        messageBox.removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
-
-        $(message).text("");
-
-        $("#updateGradesDisplay input").trigger("blur");
-
-        shortcutsEnabled = false;
-
-        $("#loadingDisplay").show();
-
-        $(`${_gradeSync ? "#syncGradesForm" : "#gradeSyncForm"}`).find("button").prop("disabled", true).find("div").addClass("loading");
-
-        sendData("start-update", {
-            gradeSync: gradeSync, schoolPassword: schoolPassword, userPassword: password
-        });
-
-        return false;
-    }
-
-    function ajaxPostForm(formID, fieldIDsToClear, messagesDivID, _async, doInstantly = false) {
-        // Get the form.
-        let form = $(formID);
-        $(form).on("submit", function (event) {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-
-            if (submittingForms[formID]) {
-                clearTimeout(submittingForms[formID]);
-                delete submittingForms[formID];
-            }
-            submittingForms[formID] = setTimeout(() => {
-
-                let formData;
-                let message;
-                let formMessagesDiv;
-
-                // Serialize the form data.
-                formData = $(form).serialize();
-
-                // Get the messages.
-                formMessagesDiv = $(messagesDivID);
-                $(formMessagesDiv).find(".sk-chase-mini").css("display", "inline-block");
-                message = $(formMessagesDiv).find(".messageTxt");
-                $(message).text("");
-                $(formMessagesDiv).removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
-                $(formMessagesDiv).show();
-
-                // Submit the form using AJAX.
-                $.ajax({
-                           type: "POST", url: $(form).attr("action"), data: formData, async: _async
-                       }).done(function (response) {
-                    if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
-                        $(".session-timeout").show();
-                        $("body").find("*").not(".session-timeout").remove();
-                        return;
-                    }
-                    console.log(response);
-                    setTimeout(function () {
-                        $(message).text(response);
-                        $(formMessagesDiv).find(".sk-chase-mini").hide();
-                        $(formMessagesDiv).removeClass("alert-info").removeClass("alert-danger").addClass("alert-success");
-                    }, 500);
-
-                    if (formID === "#changeSchoolEmail") {
-                        schoolUsername = $("#school_email")[0].value;
-                        updateNameDisplay(schoolUsername);
-                        $($("#school_email")[0].form).find("button").prop("disabled", true);
-                    }
-
-                    // Show the div.
-                    $(formMessagesDiv).show();
-
-                    // Clear fields to clear
-                    for (let i = 0; i < fieldIDsToClear.length; i++) {
-                        $(fieldIDsToClear[i]).val("");
-                        $(fieldIDsToClear[i]).trigger("blur");
-                        if (formID === "#changePassword") {
-                            $($(fieldIDsToClear[i])[0].previousElementSibling).removeClass("label-active");
-                            if ($($(fieldIDsToClear[i])[0].previousElementSibling.children[0])) {
-                                $($(fieldIDsToClear[i])[0].previousElementSibling.children[0]).text("");
-                            }
-                        }
-                    }
-
-                }).fail(function (data) {
-                    // Make sure that the formMessages div has the alert-danger class
-                    $($(formMessagesDiv)[1]).removeClass("alert-info");
-                    $($(formMessagesDiv)[1]).addClass("alert-danger");
-
-                    // Set the message text.
-                    if (data.responseText !== "") {
-                        if (data.responseText === "Incorrect login details.") {
-                            $(message).text("Incorrect school password.");
-                            $("#inputPassword").trigger("focus");
-                        } else {
-                            $(message).text(data.responseText);
-                        }
-                    } else {
-                        console.log(formMessagesDiv);
-                        $(message).text("Oops! An error occurred and your message could not be sent.");
-                    }
-
-                    // Show the div.
-                    $(formMessagesDiv).css("display", "block");
-
-                    // Hide loading
-                    $(formMessagesDiv).find(".sk-chase-mini").hide();
-
-                    if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
-                        clearTimeout(checkLastUpdated);
-                    }
-
-                });
-            }, (doInstantly ? 0 : 400));
-        });
-    }
-
     function showCard(id) {
         disableScrolling();
         if (cardsDisplayed.includes(id.substring(1))) {
@@ -397,7 +264,6 @@
                 $(this).parent().css("z-index", cardsDisplayed.indexOf($($(this).parent())[0].id) + minCardZIndex);
             }
         });
-        $(id).fadeIn(100);
         if (id === "#settingsCardDisplay") {
             $($("#school_email").val(schoolUsername)[0].form).find("button").prop("disabled", true);
             checkLabel($("#school_email"));
@@ -408,6 +274,19 @@
         if (id === "#feedbackDisplay") {
             setupFeedbackForm();
             setupDiscord(true);
+        }
+        if (id === "#localScrapeCardDisplay") {
+            checkExtensionInstalled().then((installed) => {
+                if (installed) {
+                    document.getElementById("installExtensionInfo").style.display = "none";
+                    document.getElementById("localScrapeDiv").style.display = "block";
+                } else {
+                    document.getElementById("installExtensionInfo").style.display = "block";
+                    document.getElementById("localScrapeDiv").style.display = "none";
+                }
+            }).then(() => $(id).fadeIn(100));
+        } else {
+            $(id).fadeIn(100);
         }
     }
 
@@ -451,6 +330,10 @@
                 $("#gradeSyncDiv").hide();
                 $("#syncGradesDiv").show();
             }
+        }
+        if (id === "localScrapeCardDisplay") {
+            document.getElementById("installExtensionInfo").style.display = "none";
+            document.getElementById("localScrapeDiv").style.display = "none";
         }
 
         // Manage theme selection, if it exists

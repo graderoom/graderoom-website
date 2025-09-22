@@ -191,13 +191,13 @@ module.exports = function (app, passport) {
     });
 
     app.post("/joinbeta", [isLoggedIn], async (req, res) => {
-        await dbClient.joinBeta(req.user.username);
+        await dbClient.joinBeta(req.user.username, req.user.school);
         await dbClient.setRemoteAccess(req.user.username, req.body.activateWithRemoteAccess === "on" ? "allowed" : "denied");
         res.redirect(req.headers.referer ?? "/");
     });
 
     app.post("/betafeatures", [isLoggedIn], async (req, res) => {
-        await dbClient.updateBetaFeatures(req.user.username, Object.keys(req.body));
+        await dbClient.updateBetaFeatures(req.user.username, req.user.school, Object.keys(req.body));
         res.redirect(req.headers.referer ?? "/");
     });
 
@@ -292,7 +292,7 @@ module.exports = function (app, passport) {
                     _appearance: user.appearance,
                     _alerts: trimmedAlerts,
                     discordID: user.discord.discordID,
-                    gradeSync: !!user.schoolPassword,
+                    gradeSync: user.school === Schools.BELL || user.schoolPassword,
                     _gradeData: user.grades[term][semester],
                     _weightData: user.weights[term][semester],
                     _addedWeights: user.addedWeights[term][semester],
@@ -333,7 +333,7 @@ module.exports = function (app, passport) {
                     _appearance: user.appearance,
                     _alerts: user.alerts,
                     discord: user.discord.discordID,
-                    gradeSync: !!user.schoolPassword,
+                    gradeSync: user.school === Schools.BELL || user.schoolPassword,
                     _gradeData: [],
                     _weightData: {},
                     _addedWeights: {},

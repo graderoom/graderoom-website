@@ -2,7 +2,9 @@
 const LocalStrategy = require("passport-local").Strategy;
 const dbClient = require("./dbClient");
 const bcrypt = require("bcryptjs");
-const {SyncStatus} = require("./enums");
+const {SyncStatus, Schools} = require("./enums");
+const socketManager = require('./socketManager');
+const {nextSyncAllowed, nextSyncWhen} = require('./dbHelpers');
 module.exports = function (passport) {
 
     // =========================================================================
@@ -72,7 +74,18 @@ module.exports = function (passport) {
             let user = res.data.value;
             if (user && bcrypt.compareSync(password, user.password)) {
                 await dbClient.setLoggedIn(user.username);
-                if ('schoolPassword' in user) {
+                if (user.school === Schools.BELL) {
+                    let lastUpdated = user.alerts.lastUpdated;
+                    if (lastUpdated.length) {
+                        if (!nextSyncAllowed(lastUpdated.slice(-1)[0].timestamp, user.donoData)) {
+                            await dbClient.setSyncStatus(user.username, SyncStatus.LIMIT);
+                            socketManager.emitToRoom(user.username, "sync-limit", {timestamp: nextSyncWhen(lastUpdated.slice(-1)[0].timestamp, user.donoData)})
+                            return done(null, user);
+                        }
+                    }
+                    await dbClient.setSyncStatus(user.username, SyncStatus.LOCAL);
+                    socketManager.emitToRoom(username, "sync-local", {});
+                } else if ('schoolPassword' in user) {
                     await dbClient.setSyncStatus(user.username, SyncStatus.UPDATING);
                     let resp = await dbClient.decryptAndGetSchoolPassword(user.username, password);
                     let schoolPass = resp.data.value;

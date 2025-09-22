@@ -794,6 +794,8 @@
 
         let socket = io();
 
+        let scrapeToken;
+
         function logSocket(socket) {
 
             function displayNicely(...args) {
@@ -986,12 +988,24 @@
                             showChangelog(false, true);
                             setupIncorrectGradeMessages();
                             break;
-                        case "You need to wait before syncing again.":
                         case `No ${school === "basis" ? "Schoology" : "PowerSchool"} grades found for this term.`:
                             messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(status);
                             showChangelog(false, true);
                             setupIncorrectGradeMessages();
                             break;
+                        case "Waiting for local scrape...":
+                            checkExtensionInstalled().then(installed => {
+                                if (!installed) {
+                                    showCard('#localScrapeCardDisplay');
+                                } else {
+                                    ensureLoggedIn(false).then((success) => {
+                                        if (!success) {
+                                            showCard('#localScrapeCardDisplay');
+                                        }
+                                    });
+                                }
+                            });
+                        case "You need to wait before syncing again.":
                         case "Syncing history...":
                             messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(status);
                             break;
@@ -1100,8 +1114,9 @@
                     }
                     break;
                 case "sync-limit":
+                    clearTimeout(checkLastUpdated);
                     $(".updateGradesMessage > span").css("opacity", "");
-                    messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(data.message);
+                    messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(getLimitMessage(data.timestamp));
                     $("#gradeSyncForm, #syncGradesForm").find("button").prop("disabled", false).find("div").removeClass("loading");
                     $("#loadingDisplay").hide();
                     $(".fa-refresh").removeClass("fa-spin").css("opacity", "");
@@ -1137,6 +1152,14 @@
                     }
                     showChangelog(false, true);
                     shortcutsEnabled = true;
+                    break;
+                case 'you-can-update':
+                    if (data.token === scrapeToken) {
+                        clearTimeout(checkLastUpdated);
+                        ensureLoggedIn();
+                    } else {
+                        console.warn("Received scrape token did not match the current token");
+                    }
                     break;
 
                 case "success-notification-settings-change":
@@ -1197,6 +1220,17 @@
                     break;
             }
         });
+
+        function getLimitMessage(timestamp) {
+            let date = new Date(timestamp);
+            let now = new Date();
+
+            let hours = Math.floor((date - now) / 36e5);
+            let minutes = Math.ceil(((date - now) % 36e5) / 6e4);
+            let timeString = (hours > 0 ? hours + "h" + (minutes > 0 ? " " : "") : "") +
+                (minutes > 0 ? minutes + "m" : "");
+            return `You need to wait ${timeString} before syncing again.`;
+        }
 
         let donor = false;
         let plus = false;
@@ -5360,9 +5394,7 @@
         }
 
         function unblockClicks() {
-            if (!$("#termSwitcher").is(":hover") &&
-                !$("#GPA-container").is(":hover") &&
-                !$("#notificationPanel").hasClass("active") &&
+            if (!$("#notificationPanel").hasClass("active") &&
                 !$($(".add-assignment-container")[currentPage]).hasClass("active")) {
                 $("#clickBarrier").removeClass("blocking");
             }
@@ -5474,7 +5506,6 @@
             };
             return `#${f(0)}${f(8)}${f(4)}`;
         }
-
     </script>
 <% } %>
 <script>

@@ -53,7 +53,8 @@ const {
     donoAttributes,
     nextSyncAllowed,
     ERRORS_COLLECTION_NAME,
-    GENERAL_ERRORS_COLLECTION_NAME, minUsersForAverageCalc, SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME, hash
+    GENERAL_ERRORS_COLLECTION_NAME, minUsersForAverageCalc, SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME, hash,
+    checkValidTerm, checkValidSemester, processClasses, nextSyncWhen
 } = require("./dbHelpers");
 
 const config = async (url, prod, beta, testing = false) => {
@@ -1376,9 +1377,32 @@ const __version29 = async (db, user) => {
     }
 }
 
+const _version30 = async (db, username) => {
+    let res = await getUser(username, {version: 1, school: 1, schoolPassword: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version30, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 30`}};
+}
+
+const __version30 = async (db, user) => {
+    if (user.version === 29) {
+        if (user.school === Schools.BELL && user.schoolPassword) {
+            await _users(db, user.username).updateOne({username: user.username}, {
+                $unset: {schoolPassword: ""},
+                $set: {version: 30}
+            });
+        }
+    }
+}
+
 const initUser = (username) => safe(_initUser, lower(username));
 const _initUser = async (db, username) => {
-    let res = await getUser(username, {"alerts.tutorialStatus": 1, betaFeatures: 1});
+    let res = await getUser(username, {school: 1, "alerts.tutorialStatus": 1, betaFeatures: 1});
     if (!res.success) {
         return res;
     }
@@ -1401,35 +1425,31 @@ const __initUser = async (db, user) => {
         }
     }
 
+    if (!_.isEqual(temp, user.alerts.tutorialStatus)) {
+        await _users(db, user.username).updateOne({username: user.username}, {
+            $set: {
+                "alerts.tutorialStatus": temp
+            }
+        });
+    }
+
     // Remove extra beta features
     let betaFeatures = user.betaFeatures;
     let existingFeatures = Object.keys(betaFeatures);
-    let temp2 = _.clone(betaFeatures);
-    for (let i = 0; i < existingFeatures.length; i++) {
-        if (existingFeatures[i] === "active") {
-            continue;
-        }
-        if (!betaFeatureKeys.includes(existingFeatures[i])) {
-            delete temp2[existingFeatures[i]];
-        }
-    }
+    let features = [];
 
     // Set all new beta features to true
     if (betaFeatures.active) {
         for (let i = 0; i < betaFeatureKeys.length; i++) {
-            if (!(betaFeatureKeys[i] in temp2)) {
-                temp2[betaFeatureKeys[i]] = true;
+            if (!existingFeatures.includes(betaFeatureKeys[i])) {
+                features.push(betaFeatureKeys[i]);
+            } else if (betaFeatures[betaFeatureKeys[i]]) {
+                features.push(betaFeatureKeys[i]);
             }
         }
     }
 
-    if (!_.isEqual(temp, user.alerts.tutorialStatus) || !_.isEqual(temp2, user.betaFeatures)) {
-        await _users(db, user.username).updateOne({username: user.username}, {
-            $set: {
-                "alerts.tutorialStatus": temp, "betaFeatures": temp2
-            }
-        });
-    }
+    await updateBetaFeatures(user.username, user.school, features);
 };
 
 const updateAllUsers = () => safe(_updateAllUsers);
@@ -1533,6 +1553,9 @@ const updateUser = async (user) => {
     }
     if (user.version < 29) {
         await safe(_version29, user.username);
+    }
+    if (user.version < 30) {
+        await safe(_version30, user.username);
     }
 };
 
@@ -2885,9 +2908,193 @@ const _logGeneralError = async (db, errorString) => {
     return {success: true, data: {value: errorCode}};
 };
 
+const updateGradesFromUser = (username, data) => safe(_updateGradesFromUser, lower(username), data);
+const _updateGradesFromUser = async (db, username, data) => {
+    let res = await getUser(username, {"alerts.lastUpdated": {$slice: -1}, grades: 1, donoData: 1, school: 1});
+    if (!res.success) {
+        return res;
+    }
+    let user = res.data.value;
+
+    if (user.school !== Schools.BELL) {
+        return {success: false, data: {message: 'Local scraping is not enabled'}};
+    }
+
+    let lastUpdated = user.alerts.lastUpdated;
+    if (lastUpdated.length) {
+        if (!nextSyncAllowed(lastUpdated[0].timestamp, user.donoData)) {
+            await setSyncStatus(username, SyncStatus.LIMIT);
+            socketManager.emitToRoom(username, "sync-limit", {timestamp: nextSyncWhen(lastUpdated[0].timestamp, user.donoData)})
+            return {success: false, data: {message: 'You need to wait before syncing again.'}};
+        }
+    }
+
+    let {term: oldTerm, semester: oldSemester} = __getMostRecentTermData(user).data.value;
+
+    if (!data || typeof data !== "object") {
+        return {success: false, data: {message: 'Invalid data', log: 'Invalid data'}};
+    }
+
+    let {term, semester, grades: classes} = data;
+    if (!checkValidTerm(term)) {
+        return {success: false, data: {message: 'Invalid term', log: `Invalid term: ${term}`}};
+    }
+
+    if (!checkValidSemester(semester)) {
+        return {success: false, data: {message: 'Invalid semester', log: `Invalid semester: ${semester}`}};
+    }
+
+    res = await processClasses(classes);
+    if (!res.success) {
+        return res;
+    }
+
+    let newGrades = res.data.value;
+
+    if (!(term in user.grades)) {
+        await _users(db, username).updateOne({username: username}, {$set: {[`grades.${term}`]: {}}});
+    }
+    let newClasses = newGrades.map(c => c.class_name);
+    let oldPSAIDs = [];
+    let oldGrades;
+    if (term in user.grades && semester in user.grades[term]) {
+        oldGrades = user.grades[term][semester];
+        oldGrades = oldGrades.filter(c => newClasses.includes(c.class_name));
+        oldPSAIDs = oldGrades.map(c => c.grades.map(g => g.psaid)).filter(id => !!id);
+    }
+    let newPSAIDs = newGrades.map(c => c.grades.map(g => g.psaid));
+
+    oldPSAIDs.push(...Array(newPSAIDs.length - oldPSAIDs.length).fill([]));
+
+    let added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [
+        newGrades[index].class_name, newPSAIDs[index]
+    ]).filter(data => data[1].length));
+    let modified = {};
+    let removed = {};
+    let overall = {};
+
+    if (oldGrades) {
+        let newToOldIndex = newGrades.map(n => oldGrades.findIndex(o => o.class_name === n.class_name));
+        let oldToNewIndex = oldGrades.map(o => newGrades.findIndex(n => n.class_name === o.class_name));
+        added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [
+            newGrades[index].class_name,
+            newPSAIDs[index].filter(psaid => newToOldIndex[index] === -1 ? false : !oldPSAIDs[newToOldIndex[index]].includes(psaid))
+        ]).filter(data => data[1].length));
+        modified = Object.fromEntries(oldGrades.map((classData, index) => [
+            classData.class_name,
+            classData.grades.filter(assignmentData => oldToNewIndex[index] === -1 ? false : newPSAIDs[oldToNewIndex[index]].includes(assignmentData['psaid']) && oldToNewIndex[index] !== -1 && !_.isEqual(assignmentData, newGrades[oldToNewIndex[index]].grades.find(assignment => assignment['psaid'] === assignmentData['psaid'])))
+        ]).filter(data => data[1].length));
+        removed = Object.fromEntries(oldGrades.map((classData, index) => [
+            classData.class_name,
+            classData.grades.filter(assignmentData => assignmentData['psaid'] && oldToNewIndex[index] === -1 ? false : !newPSAIDs[oldToNewIndex[index]].includes(assignmentData['psaid']))
+        ]).filter(data => data[1].length));
+        overall = Object.fromEntries(oldGrades.map((classData, index) => {
+            if (oldToNewIndex[index] === -1) {
+                return [[], []];
+            }
+            let clone = Object.assign({}, classData);
+            delete clone.grades;
+            delete clone.class_name;
+            let newClone = Object.assign({}, newGrades[oldToNewIndex[index]]);
+            delete newClone.grades;
+            delete newClone.class_name;
+            clone.ps_locked = newClone.ps_locked;
+            return [
+                classData.class_name,
+                Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v || k === 'ps_locked'))
+            ];
+        }).filter(data => Object.keys(data[1]).length));
+    }
+
+    // Make sure any removed items don't get to have edits
+    if (Object.keys(removed).length > 0) {
+        let editedAssignments = (await getUser(username, {[`editedAssignments.${term}.${semester}`]: 1})).data.value.editedAssignments[term][semester];
+        for (let class_name in removed) {
+            let assignments = removed[class_name];
+            for (let assignment of assignments) {
+                delete editedAssignments.find(e => e.className === class_name).data[assignment.psaid];
+            }
+        }
+        await _users(db, username).updateOne({username: username}, {$set: {[`editedAssignments.${term}.${semester}`]: editedAssignments}});
+    }
+
+    let ps_locked = newGrades.filter(o => o.ps_locked === true).length !== 0;
+    if (ps_locked) {
+        overall = {}; // It's not possible to get this data when PowerSchool is locked
+    } else {
+        for (let i = 0; i < Object.keys(overall).length; i++) {
+            delete overall[Object.keys(overall)[i]].ps_locked;
+            if (!Object.keys(overall[Object.keys(overall)[i]]).length) {
+                delete overall[Object.keys(overall)[i--]];
+            }
+        }
+    }
+    let changeData = {
+        added: added, modified: modified, removed: removed, overall: overall
+    };
+
+    await _users(db, username).updateOne({username: username}, {$set: {[`grades.${term}.${semester}`]: newGrades}});
+
+    await initAddedAssignments(username);
+    await initAddedWeights(username);
+    await initWeights(username);
+    await initEditedAssignments(username);
+    await updateClassesForUser(username, term, semester);
+
+    let time = Date.now();
+    let updateHistory = false;
+    if (term !== oldTerm || semester !== oldSemester) {
+        await resetSortData(username);
+        if (!ps_locked) {
+            updateHistory = true;
+        }
+    }
+
+    await _users(db, username).updateOne({username: username}, {
+        $set: {updatedInBackground: SyncStatus.ALREADY_DONE},
+        $push: {"alerts.lastUpdated": {timestamp: time, changeData: changeData, ps_locked: ps_locked, local_scrape: true}}
+    });
+
+    let _res = await getUser(username, {
+        [`grades.${term}.${semester}`]: 1,
+        [`weights.${term}.${semester}`]: 1,
+        "alerts.lastUpdated": {$slice: -1},
+        "appearance.showNonAcademic": 1
+    });
+    let _user = _res.data.value;
+
+    socketManager.emitToRoom(username, "sync-success", {
+        gradeSyncEnabled: false,
+        updateHistory: updateHistory, // Client can update history if extension has support. Otherwise whatever
+        message: data.message,
+        grades: JSON.stringify(_user.grades[term][semester]),
+        weights: JSON.stringify(_user.weights[term][semester]),
+        updateData: JSON.stringify(_user.alerts.lastUpdated.slice(-1)[0])
+    });
+
+    return {success: true};
+}
+
+const canIUpdate = (username) => safe(_canIUpdate, lower(username));
+const _canIUpdate = async (db, username) => {
+    let res = await getUser(username, {"alerts.lastUpdated": {$slice: -1}, donoData: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    let lastUpdated = user.alerts.lastUpdated;
+    if (lastUpdated.length) {
+        if (!nextSyncAllowed(lastUpdated[0].timestamp, user.donoData)) {
+            return {success: false, data: {timestamp: nextSyncWhen(lastUpdated[0].timestamp, user.donoData)}};
+        }
+    }
+    return {success: true};
+}
+
 const updateGrades = (username, schoolPassword, userPassword, gradeSync) => safe(_updateGrades, lower(username), schoolPassword, userPassword, gradeSync);
 const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSync) => {
-    let res = await getUser(username, {"alerts.lastUpdated": {$slice: -1}, grades: 1, school: 1, updatedGradeHistory: 1, schoolUsername: 1, donoData: 1});
+    let res = await getUser(username, {"alerts.lastUpdated": {$slice: -1}, betaFeatures: 1, grades: 1, school: 1, updatedGradeHistory: 1, schoolUsername: 1, donoData: 1});
     if (!res.success) {
         return res;
     }
@@ -2897,7 +3104,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
     if (lastUpdated.length) {
         if (!nextSyncAllowed(lastUpdated[0].timestamp, user.donoData)) {
             await setSyncStatus(username, SyncStatus.LIMIT);
-            socketManager.emitToRoom(username, "sync-limit", {message: "You need to wait before syncing again."})
+            socketManager.emitToRoom(username, "sync-limit", {timestamp: nextSyncWhen(lastUpdated[0].timestamp, user.donoData)})
             return {success: false}
         }
     }
@@ -2959,9 +3166,6 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
             let newTerm = Object.keys(data["new_grades"])[0];
             let newSemester = Object.keys(data["new_grades"][newTerm]);
             newSemester = newSemester[newSemester.length - 1]; // this should prob be another variable
-            if (!(newTerm in user.grades)) {
-                await _users(db, username).updateOne({username: username}, {$set: {[`grades.${newTerm}`]: {}}});
-            }
             let newGrades = data["new_grades"][newTerm][newSemester];
             let newClasses = newGrades.map(c => c.class_name);
             let oldPSAIDs = [];
@@ -3022,6 +3226,10 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                 }).filter(data => Object.keys(data[1]).length));
             }
 
+            if (!(newTerm in user.grades)) {
+                await _users(db, username).updateOne({username: username}, {$set: {[`grades.${newTerm}`]: {}}});
+            }
+
             // Make sure any removed items don't get to have edits
             if (Object.keys(removed).length > 0) {
                 let editedAssignments = (await getUser(username, {[`editedAssignments.${newTerm}.${newSemester}`]: 1})).data.value.editedAssignments[newTerm][newSemester];
@@ -3073,7 +3281,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
 
             await _users(db, username).updateOne({username: username}, {
                 $set: {updatedInBackground: SyncStatus.ALREADY_DONE},
-                $push: {"alerts.lastUpdated": {timestamp: time, changeData: changeData, ps_locked: ps_locked}}
+                $push: {"alerts.lastUpdated": {timestamp: time, changeData: changeData, ps_locked: ps_locked, local_scrape: false}}
             });
 
             if (user.school !== Schools.BISV && updateHistory) {
@@ -3116,6 +3324,114 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
     return {success: true};
 };
 
+const updateGradeHistoryFromUser = (username, data) => safe(_updateGradeHistoryFromUser, lower(username), data);
+const _updateGradeHistoryFromUser = async (db, username, data) => {
+    let res = await getUser(username, {grades: 1, school: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    let newTerms = Object.keys(data);
+
+    if (!Array.isArray(newTerms)) {
+        return {success: false, data: {message: 'Invalid data', log: 'Invalid terms'}};
+    }
+
+    if (newTerms.length > 10) {
+        return {success: false, data: {message: 'Too many terms', log: 'Too many terms'}};
+    }
+
+    let set = {};
+    let changeData = {};
+
+    for (let i = 0; i < newTerms.length; i++) {
+        if (!checkValidTerm(newTerms[i])) {
+            return {success: false, data: {message: 'Invalid term', log: `Invalid term: ${newTerms[i]}`}};
+        }
+
+        let newSemesters = Object.keys(data[newTerms[i]]);
+
+        if (newSemesters.length > 5) {
+            return {success: false, data: {message: 'Too many semesters', log: 'Too many semesters'}};
+        }
+
+        for (let j = 0; j < newSemesters.length; j++) {
+            if (!checkValidSemester(newSemesters[j])) {
+                return {success: false, data: {message: 'Invalid semester', log: `Invalid semester: ${newSemesters[j]}`}};
+            }
+
+            let classes = data[newTerms[i]][newSemesters[j]];
+            let res = await processClasses(classes);
+            if (!res.success) {
+                return res;
+            }
+
+            let newClasses = res.data.value;
+            if (newClasses.length === 0) {
+                continue;
+            }
+            let oldClasses = user.grades[newTerms[i]]?.[newSemesters[j]] ?? null;
+            for (let k = 0; k < newClasses.length; k++) {
+                let className = newClasses[k].class_name;
+                let oldClass = oldClasses?.find(c => c.class_name === className);
+                if (oldClass && !newClasses[k].grades.length) {
+                    newClasses[k].grades = oldClass.grades;
+                }
+                if (oldClass && oldClass.teacher_name && !newClasses[k].teacher_name) {
+                    newClasses[k].teacher_name = oldClass.teacher_name;
+                }
+            }
+
+            set[newTerms[i]] = set[newTerms[i]] || {};
+            set[newTerms[i]][newSemesters[j]] = newClasses;
+
+            let overall = {};
+            if (oldClasses) {
+                overall = Object.fromEntries(oldClasses.map((classData) => {
+                    let clone = Object.assign({}, classData);
+                    delete clone.grades;
+                    delete clone.class_name;
+                    delete clone.ps_locked;
+                    delete clone["student_id"];
+                    delete clone["section_id"];
+                    delete clone.teacher_name;
+                    let newClone = Object.assign({}, newClasses.find(g => g.class_name === classData.class_name));
+                    delete newClone.grades;
+                    delete newClone.class_name;
+                    delete newClone.ps_locked;
+                    delete newClone.teacher_name;
+                    return [
+                        classData.class_name,
+                        Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v))
+                    ];
+                }).filter(data => Object.keys(data[1]).length));
+            }
+            changeData = {
+                added: {}, modified: {}, removed: {}, overall: overall
+            }
+        }
+    }
+
+    let time = Date.now();
+    await _users(db, username).updateOne({username: username}, {
+        $set: set,
+        $push: {
+            updatedGradeHistory: time,
+            "alerts.lastUpdated": {timestamp: time, changeData: changeData, ps_locked: false, local_scrape: true}
+        }
+    });
+
+    await initAddedWeights(username);
+    await initWeights(username);
+    await initAddedAssignments(username);
+    await initEditedAssignments(username);
+    await updateClassesForUser(username);
+
+    socketManager.emitToRoom(username, "sync-success-history", {});
+    return {success: true};
+}
+
 const updateGradeHistory = (username, schoolPassword) => safe(_updateGradeHistory, lower(username), schoolPassword);
 const _updateGradeHistory = async (db, username, schoolPassword) => {
     let res = await getUser(username, {grades: 1, weights: 1, school: 1, schoolUsername: 1});
@@ -3138,23 +3454,7 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                         break;
                     case Schools.BELL:
                     case Schools.NDSJ:
-                        let currentWeights = user.weights;
                         for (let i = 0; i < newYears.length; i++) {
-                            if (!(newYears[i] in currentWeights)) {
-                                currentWeights[newYears[i]] = {};
-                                let newSemesters = Object.keys(data["new_grades"][newYears[i]]);
-                                for (let j = 0; j < newSemesters.length; j++) {
-                                    currentWeights[newYears[i]][newSemesters[j]] = [];
-                                }
-                            } else {
-                                let currentSemesters = Object.keys(currentWeights[newYears[i]]);
-                                let newSemesters = Object.keys(data["new_grades"][newYears[i]]);
-                                for (let j = 0; j < newSemesters.length; j++) {
-                                    if (!currentSemesters.includes(newSemesters[j])) {
-                                        currentWeights[newYears[i]][newSemesters[j]] = [];
-                                    }
-                                }
-                            }
                             if (!currentYears.includes(newYears[i])) {
                                 await _users(db, username).updateOne({username: username}, {$set: {[`grades.${newYears[i]}`]: data["new_grades"][newYears[i]]}});
                             } else {
@@ -3216,7 +3516,7 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                 await _users(db, username).updateOne({username: username}, {
                     $push: {
                         updatedGradeHistory: time,
-                        "alerts.lastUpdated": {timestamp: time, changeData: changeData, ps_locked: false}
+                        "alerts.lastUpdated": {timestamp: time, changeData: changeData, ps_locked: false, local_scrape: false}
                     }
                 });
                 await initAddedAssignments(username);
@@ -3785,6 +4085,8 @@ const _getSyncStatus = async (db, username) => {
         return {success: false, data: {message: "Not syncing"}};
     } else if (syncStatus === SyncStatus.LIMIT) {
         return {success: false, data: {message: "You need to wait before syncing again."}}
+    } else if (syncStatus === SyncStatus.LOCAL) {
+        return {success: false, data: {message: "Waiting for local scrape..."}};
     } else if (syncStatus.startsWith(`${SyncStatus.FAILED}-`)) {
         let errorCode = parseInt(syncStatus.substring(SyncStatus.FAILED.length + 1));
         return {success: false, data: {message: `Sync Failed. Error ${errorCode}.`}};
@@ -3934,9 +4236,9 @@ const _removeBetaKey = async (db, betaKey) => {
     };
 };
 
-const joinBeta = (username) => safe(_joinBeta, lower(username));
-const _joinBeta = async (db, username) => {
-    let featureObject = betaFeatures();
+const joinBeta = (username, school) => safe(_joinBeta, lower(username), lower(school));
+const _joinBeta = async (db, username, school) => {
+    let featureObject = betaFeatures([], school);
     let res = await _users(db, username).updateOne({username: username}, {$set: {betaFeatures: featureObject}});
     if (res.matchedCount === 1) {
         return {success: true, data: {log: `Joined beta for ${username}`}};
@@ -3944,9 +4246,9 @@ const _joinBeta = async (db, username) => {
     return {success: false, data: {log: `Error joining beta for ${username}`}};
 };
 
-const updateBetaFeatures = (username, features) => safe(_updateBetaFeatures, lower(username), features);
-const _updateBetaFeatures = async (db, username, features) => {
-    let featureObject = betaFeatures(features);
+const updateBetaFeatures = (username, school, features) => safe(_updateBetaFeatures, lower(username), lower(school), features);
+const _updateBetaFeatures = async (db, username, school, features) => {
+    let featureObject = betaFeatures(features, school);
     let res = await _users(db, username).updateOne({username: username}, {$set: {betaFeatures: featureObject}});
     if (res.matchedCount === 1) {
         return {success: true, data: {log: `Updated beta features for ${username}`}};
@@ -4711,6 +5013,7 @@ const _getAssignmentAverage = async (db, username, term, semester, className, as
             $elemMatch: {
                 class_name: className,
                 teacher_name: teacherName,
+                local_scrape: false,
                 grades: {
                     $elemMatch: {
                         psaid: assignmentPSAID
@@ -5008,7 +5311,7 @@ const _getSemesterAddedWeights = async (db, username, term, semester) => {
 
 const getGradeSync = (username) => safe(_getGradeSync, lower(username));
 const _getGradeSync = async (db, username) => {
-    let res = await getUser(username, {username: 1}, {schoolPassword: {$exists: true}});
+    let res = await getUser(username, {username: 1}, {$or: [{schoolPassword: {$exists: true}}, {school: Schools.BELL}]});
     return {success: true, data: {value: res.success}};
 }
 
@@ -5414,7 +5717,10 @@ module.exports = {
     makeAdmin: makeAdmin,
     removeAdmin: removeAdmin,
     logError: logError,
+    updateGradesFromUser: updateGradesFromUser,
+    canIUpdate: canIUpdate,
     updateGrades: updateGrades,
+    updateGradeHistoryFromUser: updateGradeHistoryFromUser,
     updateGradeHistory: updateGradeHistory,
     updateSortData: updateSortData,
     resetSortData: resetSortData,

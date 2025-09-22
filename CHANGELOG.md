@@ -52,6 +52,55 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 7.2.0] - 2025-09-22 - Stable Graderoom Extension Support!
+### Added
+- Stable support for Graderoom extension (requires Graderoom Extension v1.4+)<ul>
+- <a class="changelog-inline-setoff" href="https://chromewebstore.google.com/detail/graderoom/dhidkhdjfikcdmfngbpnbgpnboiodnoo" target="_blank">Install the Extension</a>
+- With the extension, Graderoom now supports syncing grades even when Graderoom cannot connect to PowerSchool
+- Firefox support is coming soon</ul>
+
+### Improved
+- Sync status now shows time until you can sync again if you attempt to sync too soon
+- GradeSync is no longer an option for Bellarmine students (might change later)<ul>
+- If the extension is installed and enabled, Graderoom will use it to sync grades
+- Otherwise, you will be prompted to install the extension</ul>
+
+### Removed
+- Graderoom no longer uses school passwords for Bellarmine students
+- Locally scraped grades will not be used to calculate averages (for now)
+
+## [Beta 7.1.2] - 2025-09-21
+### Added
+- Stable support for Graderoom extension (requires Graderoom Extension v1.4+)
+- <a class="changelog-inline-setoff" href="https://chromewebstore.google.com/detail/graderoom/dhidkhdjfikcdmfngbpnbgpnboiodnoo" target="_blank">Install the Extension</a>
+
+### Improved
+- Sync status now shows time until you can sync again
+
+### Removed
+- Usage of school passwords for Bellarmine students
+- Locally scraped grades will not be used to calculate averages (for now)
+
+## [Beta 7.1.1] - 2025-09-12
+### Improved
+- Slightly improve UX for local scraping
+- Support Graderoom extension v1.1+
+
+### Fixed
+- Charts page works again
+
+## [Beta 7.1.0] - 2025-09-08
+### Added
+- <em>[Experiment]</em> Support for Graderoom extension<ul>
+- See <a target="_blank" class="changelog-inline-setoff" href="https://github.com/graderoom/graderoom-extension">this README</a> for instructions to set it up during this testing period
+- This extension will allow Graderoom to work even when Graderoom cannot connect to PowerSchool
+- To enable this, first enable experiments from Settings > Account > Enable Experiments
+- A new tab called 'Experiments' will appear in Settings.
+- Enable the 'Local Scraping' experiment
+- Make sure you have installed the extension and it is enabled
+- Finally, click the 'Local Sync' button in the Sync card</ul>
+- NOTE: During the testing period, the database may be arbitrarily rolled back to fix issues. Do not rely on the site to save any data.
+
 ## [Stable 7.0.14] - 2025-08-26
 ### Fixed
 - Logged-out rate limit is no longer shared across all users 😭

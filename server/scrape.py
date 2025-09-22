@@ -840,7 +840,6 @@ class PowerschoolScraper(Scraper):
         class_names = [course.findChildren('td')[2].text for course in courses[1:]]
 
         data_we_have = list(filter(lambda d: "student_id" in d and "section_id" in d, class_data))
-        class_names_we_have = [d["class_name"] for d in data_we_have]
 
         new_class_data = []
 

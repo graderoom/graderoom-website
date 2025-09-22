@@ -43,7 +43,7 @@
         border-top: 0.5rem solid rgba(from currentColor r g b / 0.3) !important;
     }
 
-    .popup-bottom-right::after, .popup-bottom::after, .popup-bottom-left::after {        top: calc(100% + 1px) !important;
+    .popup-bottom-right::after, .popup-bottom::after, .popup-bottom-left::after {
         border-bottom: 0.5rem solid rgba(from currentColor r g b / 0.3) !important;
     }
 

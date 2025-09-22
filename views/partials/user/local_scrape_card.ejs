@@ -1,0 +1,180 @@
+<!-- Local Scrape Card -->
+<div class="blurred-login" id="localScrapeCardDisplay">
+    <div class="blurred-background"></div>
+    <div class="col-sm-8 col-md-7 col-lg-5 mx-auto">
+        <div id="localScrapeCard" class="card card-signin my-5">
+            <btn class="btn btn-md" onclick="closeForm('localScrapeCardDisplay')"
+                 style="display:table; width: fit-content; width: -moz-fit-content; margin-bottom:0">
+                <i class="fa fa-close" aria-hidden="true"></i> Close
+            </btn>
+            <div class="card-body" style="max-height: 70vh; overflow-y: scroll; overflow-x: hidden; transition: 500ms">
+                <div class="updateGradesMessage alert alert-info"
+                     style="display:block">
+                    <div style="display: flex; justify-content: flex-start; align-items: flex-start; flex-flow: column">
+                        <div style="display:none" class="sk-chase-mini">
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                            <div class="sk-chase-dot mini"></div>
+                        </div>
+                        <div class="font-weight-bold messageTxt">Loading Sync Status...</div>
+                    </div>
+                </div>
+                <h1 class="card-title text-center">Local Scrape</h1>
+                <div id="installExtensionInfo" class="card-footer" style="display: none">
+                    <p>
+                        <b>To use local scraping, you must install the Graderoom Extension for Google Chrome or Microsoft Edge.</b>
+                    </p>
+                    <p>
+                        <b>This extension allows Graderoom to securely access your grades from PowerSchool without storing your login information on our servers.</b>
+                    </p>
+                    <button id="extensionInstallBtn" class="btn btn-med btn-default" type="button">
+                            Install Graderoom Extension
+                    </button>
+                </div>
+                <div id="localScrapeDiv" class="card-footer" style="display:none">
+                    <p>
+                        <b>Click the button below to sync your grades.</b></p>
+                    <form id="localScrapeForm" onsubmit="event.preventDefault(); initSync()" class="form-signin">
+                        <button id="localScrapeButton" class="btn btn-lg btn-default" type="submit">
+                            Sync
+                            <div>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let loginWindow;
+
+    document.getElementById('extensionInstallBtn').onclick = updateButton;
+
+    let openedStore = false;
+
+    function initSync() {
+        scrapeToken = Math.random().toString(36).substring(2);
+        sendData('can-i-update', {token: scrapeToken});
+    }
+
+    function updateButton() {
+        if (openedStore) {
+            checkExtensionInstalled().then((installed) => {
+                if (installed) {
+                    document.getElementById('installExtensionInfo').style.display = 'none';
+                    document.getElementById('localScrapeDiv').style.display = 'block';
+                } else {
+                    openedStore = false;
+                    document.getElementById('extensionInstallBtn').textContent = 'Install Graderoom Extension';
+
+                    alert("The Graderoom Extension is not installed. Please try again.");
+                }
+            });
+        } else {
+            openedStore = true;
+
+            window.open('https://chrome.google.com/webstore/detail/graderoom/dhidkhdjfikcdmfngbpnbgpnboiodnoo', '_blank');
+            document.getElementById('extensionInstallBtn').textContent = 'I installed it!';
+        }
+    }
+
+    const extensionID = "dhidkhdjfikcdmfngbpnbgpnboiodnoo";
+
+    async function checkExtensionInstalled() {
+        if (window.chrome === undefined) {
+            return false;
+        }
+        if (chrome.runtime === undefined) {
+            return false;
+        }
+        return chrome.runtime.sendMessage(extensionID, {type: 'get-version'}).then((response) => {
+            if (response) {
+                if (response.version !== "1.4") {
+                    alert("Your Graderoom Extension is out of date");
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+            return false;
+        }).catch(() => {
+            return false;
+        }) ?? false;
+    }
+
+    function updateGradesCallback(response) {
+        let data = response.data;
+        switch (response.type) {
+            case 'get-present-response':
+                $("#localScrapeDiv").find("button").prop("disabled", false).find("div").removeClass("loading");
+                $("#loadingDisplay").hide();
+                shortcutsEnabled = true;
+                if (!data.success) {
+                    if (data.message === 'Not logged in.') {
+                        showCard('#localScrapeCardDisplay');
+                    } else {
+                        console.error(data.message);
+                    }
+                } else {
+                    let term = Object.keys(data.data)[0];
+                    let semester = Object.keys(data.data[term])[0];
+                    let grades = data.data[term][semester];
+                    $(".updateGradesMessage .messageTxt").text("Uploading grades...");
+                    sendData('start-update-from-user', {term: term, semester: semester, grades: grades});
+                }
+                break;
+            case 'get-history-response':
+                console.log(data);
+                break;
+            case 'get-locked-response':
+                console.log(data);
+                break;
+        }
+    }
+
+    async function ensureLoggedIn(fromButton=true) {
+        if (!await checkExtensionInstalled()) return false;
+
+        $("#localScrapeDiv").find("button").prop("disabled", true).find("div").addClass("loading");
+        $(".updateGradesMessage").show().removeClass("alert-danger").addClass("alert-info");
+        $(".updateGradesMessage .messageTxt").text("Syncing...");
+
+        let resp = await chrome.runtime.sendMessage(extensionID, {type: 'get-present', target: 'offscreen'});
+        if (!resp.data.success) {
+            if (resp.data.message !== "Not logged in.") {
+                console.error(resp.data.message);
+                $(".updateGradesMessage").removeClass("alert-info").addClass("alert-danger");
+                $(".updateGradesMessage .messageTxt").text("An error occurred: " + resp.data.message);
+                $("#localScrapeDiv").find("button").prop("disabled", false).find("div").removeClass("loading");
+
+                return false;
+            }
+
+            if (!fromButton) {
+                $(".updateGradesMessage").hide();
+                $("#localScrapeDiv").find("button").prop("disabled", false).find("div").removeClass("loading");
+                return false;
+            }
+
+            $(".updateGradesMessage .messageTxt").text("You are not logged in. Please log in to PowerSchool in the opened window.");
+            $("#localScrapeDiv").find("button").prop("disabled", false).find("div").removeClass("loading");
+
+
+            if (!loginWindow || loginWindow.closed) {
+                loginWindow = window.open('https://powerschool.bcp.org/student/idp?_userTypeHint=student', 'Sign In to PowerSchool', 'width=600,height=700');
+            } else {
+                loginWindow.focus();
+            }
+        } else {
+            updateGradesCallback(resp);
+        }
+    }
+</script>
