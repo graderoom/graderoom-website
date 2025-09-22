@@ -995,10 +995,14 @@
                             break;
                         case "Waiting for local scrape...":
                             checkExtensionInstalled().then(installed => {
-                                if (installed) {
-                                    ensureLoggedIn();
-                                } else {
+                                if (!installed) {
                                     showCard('#localScrapeCardDisplay');
+                                } else {
+                                    ensureLoggedIn(false).then((success) => {
+                                        if (!success) {
+                                            showCard('#localScrapeCardDisplay');
+                                        }
+                                    });
                                 }
                             });
                         case "You need to wait before syncing again.":
@@ -1110,6 +1114,7 @@
                     }
                     break;
                 case "sync-limit":
+                    clearTimeout(checkLastUpdated);
                     $(".updateGradesMessage > span").css("opacity", "");
                     messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(getLimitMessage(data.timestamp));
                     $("#gradeSyncForm, #syncGradesForm").find("button").prop("disabled", false).find("div").removeClass("loading");
