@@ -159,6 +159,7 @@
             }
 
             $(".updateGradesMessage .messageTxt").text("You are not logged in. Please log in to PowerSchool in the opened window.");
+            $("#localScrapeDiv").find("button").prop("disabled", false).find("div").removeClass("loading");
 
             if (!loginWindow || loginWindow.closed) {
                 loginWindow = window.open('https://powerschool.bcp.org/student/idp?_userTypeHint=student', 'Sign In to PowerSchool', 'width=600,height=700');
