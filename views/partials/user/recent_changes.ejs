@@ -189,9 +189,6 @@
                 if (modifiedClasses[j] in overallChanges) {
                     if ("overall_percent" in overallChanges[modifiedClasses[j]]) {
                         let oldPercent = overallChanges[modifiedClasses[j]].overall_percent;
-                        if (oldPercent === false) {
-                            oldPercent = 100;
-                        }
                         let newPercent = alerts.lastUpdated.find((d, index) => index > i && "overall" in d.changeData && modifiedClasses[j] in d.changeData.overall && "overall_percent" in d.changeData.overall[modifiedClasses[j]]);
                         if (newPercent) {
                             newPercent = newPercent.changeData.overall[modifiedClasses[j]].overall_percent;
@@ -199,13 +196,12 @@
                         if (!newPercent && newPercent !== 0) {
                             newPercent = data[realIndex].overall_percent;
                         }
-                        if (newPercent === false) {
-                            newPercent = 100;
-                        }
-                        let delta = newPercent - oldPercent;
-                        if (delta) {
-                            delta = (delta > 0 ? "+" : "") + (Math.round(delta * 1000) / 1000) + "%";
-                            card += ` <span>(` + delta + `)</span>`;
+                        if (oldPercent !== false && newPercent !== false) {
+                            let delta = newPercent - oldPercent;
+                            if (delta) {
+                                delta = (delta > 0 ? "+" : "") + (Math.round(delta * 1000) / 1000) + "%";
+                                card += ` <span>(` + delta + `)</span>`;
+                            }
                         }
                     }
                     card += `</span><span>`;
