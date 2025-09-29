@@ -1037,17 +1037,13 @@
                     }
                     break;
                 case "sync-progress":
-                    if (checkLastUpdated) {
-                        clearTimeout(checkLastUpdated);
-                    }
+                    clearTimeout(checkLastUpdated);
                     let {progress, message} = data;
                     progressDiv.css("opacity", "0.5").css("width", `${progress}%`);
                     messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(message);
                     break;
                 case "sync-progress-history":
-                    if (checkLastUpdated) {
-                        clearTimeout(checkLastUpdated);
-                    }
+                    clearTimeout(checkLastUpdated);
                     progressDiv.hide();
                     messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text('Syncing Grade History...');
                     break;
@@ -1084,7 +1080,7 @@
                             showChangelog(false, true);
                             refreshWithoutReload(undefined, true);
                             setupLastUpdated();
-                            setTimeout(() => closeForm("updateGradesDisplay"), 250);
+                            setTimeout(() => closeForm(school === "bellarmine" ? "localScrapeCardDisplay" : "updateGradesDisplay"), 250);
                         }
                     }
 
