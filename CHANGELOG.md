@@ -52,6 +52,19 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 7.2.1] - 2025-09-28
+### Added
+- Sync progress is back (Requires Graderoom Extension v1.5.1+)
+- Firefox add-on support<ul>
+- If you're using Firefox, you will be prompted to install the add-on when you try to sync</ul>
+
+### Improved
+- Sync Log is accessible from the local scrape card
+- Popup window will close automatically after a successful sync if you forget to close it
+
+### Fixed
+- Overall grade change deltas in the Grade Changes card no longer treat missing data as 0%
+
 ## [Stable 7.2.0] - 2025-09-22 - Stable Graderoom Extension Support!
 ### Added
 - Stable support for Graderoom extension (requires Graderoom Extension v1.4+)<ul>
