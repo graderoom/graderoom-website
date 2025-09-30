@@ -52,6 +52,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 7.2.2] - 2025-09-30
+### Fixed
+- Issue with Graderoom Extension (Ensure your extension is updated to v1.5.2+)
+
 ## [Stable 7.2.1] - 2025-09-28
 ### Added
 - Sync progress is back (Requires Graderoom Extension v1.5.1+)
