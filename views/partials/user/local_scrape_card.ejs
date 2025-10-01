@@ -139,6 +139,7 @@
     let port;
     function connectPort() {
         if (window.chrome === undefined) return;
+        if (!checkVersion(actualExtensionVersion, [1, 5, 5])) return;
 
         disconnectPort();
 
@@ -228,14 +229,14 @@
         });
     }
 
-    function checkVersion(version) {
+    function checkVersion(version, requiredVersion = requiredExtensionVersion) {
         if (typeof version !== 'string') return false;
 
         let installedVersion = version.split('.').map(x => parseInt(x));
         if (installedVersion.length === 0 || installedVersion.some(isNaN)) return false;
 
-        for (let i = 1; i < Math.max(requiredExtensionVersion.length, installedVersion.length); i++) {
-            let curr = requiredExtensionVersion[i] || 0;
+        for (let i = 1; i < Math.max(requiredVersion.length, installedVersion.length); i++) {
+            let curr = requiredVersion[i] || 0;
             let inst = installedVersion[i] || 0;
             if (inst > curr) {
                 return true; // Installed version is newer
