@@ -52,6 +52,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 7.2.3] - 2025-10-01
+### Fixed
+- Issue with syncing on Chrome/Edge
+
 ## [Stable 7.2.2] - 2025-09-30
 ### Fixed
 - Issue with Graderoom Extension (Ensure your extension is updated to v1.5.2+)

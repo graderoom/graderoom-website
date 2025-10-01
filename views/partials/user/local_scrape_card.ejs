@@ -72,7 +72,7 @@
     let openedStore = false;
 
     const chromeExtensionID = 'dhidkhdjfikcdmfngbpnbgpnboiodnoo';
-    const requiredExtensionVersion = [1, 5, 2];
+    const requiredExtensionVersion = [1, 5, 4];
     let firefoxExtensionInstalled = false;
     let actualExtensionVersion = null;
 
@@ -109,9 +109,7 @@
         if (!event.data || event.data.direction !== 'from-extension') return;
 
         if (event.data.type === 'status') {
-            if (checkLastUpdated) {
-                clearTimeout(checkLastUpdated);
-            }
+            clearTimeout(checkLastUpdated);
             let {progress, message} = event.data;
             document.querySelectorAll('.updateGradesMessage > span').forEach((elem) => {
                 elem.style.opacity = '0.5';
@@ -137,6 +135,38 @@
             firefoxExtensionInstalled = true;
         }
     });
+
+    let port;
+    function connectPort() {
+        if (window.chrome === undefined) return;
+
+        disconnectPort();
+
+        port = chrome.runtime.connect(chromeExtensionID);
+        port.onMessage.addListener((msg) => {
+            if (msg.type === 'status') {
+                clearTimeout(checkLastUpdated);
+                let {progress, message} = msg;
+                document.querySelectorAll('.updateGradesMessage > span').forEach((elem) => {
+                    elem.style.opacity = '0.5';
+                    elem.style.width = `${progress}%`;
+                });
+                document.querySelectorAll('.updateGradesMessage').forEach((elem) => {
+                    elem.classList.remove('alert-danger');
+                    elem.classList.remove('alert-success');
+                    elem.classList.add('alert-info');
+                    elem.querySelector('.messageTxt').textContent = message;
+                });
+            }
+        });
+    }
+
+    function disconnectPort() {
+        if (port) {
+            port.disconnect();
+            port = null;
+        }
+    }
 
     async function checkExtensionInstalled() {
         if (window.chrome !== undefined) {
@@ -253,6 +283,7 @@
         $('.updateGradesMessage').show().removeClass('alert-danger').addClass('alert-info');
         $('.updateGradesMessage .messageTxt').text('Syncing...');
 
+        connectPort();
         let resp = await sendMessageToExtension({type: 'get-present', target: 'offscreen'});
         if (!resp.data.success) {
             if (resp.data.message !== 'Not logged in.') {

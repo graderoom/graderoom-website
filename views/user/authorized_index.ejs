@@ -1081,6 +1081,9 @@
                             refreshWithoutReload(undefined, true);
                             setupLastUpdated();
                             setTimeout(() => closeForm(school === "bellarmine" ? "localScrapeCardDisplay" : "updateGradesDisplay"), 250);
+                            if (school === "bellarmine") {
+                                disconnectPort();
+                            }
                         }
                     }
 
