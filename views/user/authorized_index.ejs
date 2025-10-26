@@ -815,6 +815,18 @@
                     console.log(event + " | " + displayNicely(...args).join(" | "));
                 }
             });
+
+            socket.onAnyOutgoing((event, ...args) => {
+                if (event.startsWith("info")) {
+                    console.info(event + " | " + displayNicely(...args).join(" | "));
+                } else if (event.startsWith("error")) {
+                    console.error(event + " | " + displayNicely(...args).join(" | "));
+                } else if (event.startsWith("fail")) {
+                    console.warn(event + " | " + displayNicely(...args).join(" | "));
+                } else {
+                    console.log(event + " | " + displayNicely(...args).join(" | "));
+                }
+            });
         }
 
         logSocket(socket);
