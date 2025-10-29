@@ -746,7 +746,7 @@ exports.processClasses = function (classes) {
         if (typeof overall_percent !== 'number' && overall_percent !== false) {
             return {success: false, data: {message: 'Invalid classes', log: 'Invalid overall_percent'}};
         }
-        if (overall_letter !== false  && (typeof overall_letter !== 'string' || !/^[A-DF][+\-]?$/.test(overall_letter))) {
+        if (overall_letter !== false  && (typeof overall_letter !== 'string' || !/^CR$|^F$|^[A-D][+\-]?$/.test(overall_letter))) {
             return {success: false, data: {message: 'Invalid classes', log: 'Invalid overall_letter'}};
         }
         if (typeof student_id !== 'string' || typeof section_id !== 'string') {
