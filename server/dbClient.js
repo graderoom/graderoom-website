@@ -2960,7 +2960,7 @@ const _updateGradesFromUser = async (db, username, data) => {
     if (term in user.grades && semester in user.grades[term]) {
         oldGrades = user.grades[term][semester];
         oldGrades = oldGrades.filter(c => newClasses.includes(c.class_name));
-        oldPSAIDs = oldGrades.map(c => c.grades.map(g => g.psaid)).filter(id => !!id);
+        oldPSAIDs = oldGrades.map(c => c.grades.map(g => g.psaid).filter(id => !!id));
     }
     let newPSAIDs = newGrades.map(c => c.grades.map(g => g.psaid));
 
@@ -3178,7 +3178,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
 
                 // filtering id => !!id removes undefined psaids (before we scraped them)
                 // Idk if this is relevant but I'm keeping it for now TODO
-                oldPSAIDs = oldGrades.map(c => c.grades.map(g => g["psaid"])).filter(id => !!id);
+                oldPSAIDs = oldGrades.map(c => c.grades.map(g => g["psaid"]).filter(id => !!id));
             }
             let newPSAIDs = newGrades.map(c => c.grades.map(g => g["psaid"]));
 
