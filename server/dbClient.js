@@ -5013,7 +5013,7 @@ const _getAssignmentAverage = async (db, username, term, semester, className, as
             $elemMatch: {
                 class_name: className,
                 teacher_name: teacherName,
-                local_scrape: false,
+                // local_scrape: false,
                 grades: {
                     $elemMatch: {
                         psaid: assignmentPSAID

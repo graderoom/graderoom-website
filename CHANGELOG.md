@@ -52,6 +52,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 7.2.5] - 2025-12-16
+### Added
+- By popular demand, data scraped by the extension is now included in assignment averages
+
 ## [Stable 7.2.4] - 2025-10-28
 ### Fixed
 - Issue accepting grade updates when a letter grade was "CR"
