@@ -1396,6 +1396,10 @@ const __version30 = async (db, user) => {
                 $unset: {schoolPassword: ""},
                 $set: {version: 30}
             });
+        } else {
+            await _users(db, user.username).updateOne({username: user.username}, {
+                $set: {version: 30}
+            });
         }
     }
 }
