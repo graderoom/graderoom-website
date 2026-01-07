@@ -23,7 +23,7 @@ exports.COMMON_DATABASE_NAME = 'common';
 exports.SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME = 'school_username_lookup';
 
 // Change this when updateDB changes
-exports.dbUserVersion = 30;
+exports.dbUserVersion = 31;
 exports.dbClassVersion = 4;
 
 exports.minUsersForAverageCalc = 9;

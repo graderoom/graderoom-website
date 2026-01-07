@@ -168,7 +168,7 @@
                     _10sAverage = _10sTempFps.reduce((a, b) => a + b.y, 0) / _10sTempFps.length;
                     _10sTempFps.sort((a, b) => a.x - b.x);
                     _10sTempFps = _10sTempFps.slice(_10sTempFps.findIndex(t => t.x >= performance.now() - 10000));
-                    lowFps = Math.max((lowFps * 999 + _10sAverage / 2) / 1000, lowFps);
+                    lowFps = Math.min(30, Math.max((lowFps * 999 + _10sAverage / 2) / 1000, lowFps));
                 }
             }, 1);
 

@@ -86,6 +86,13 @@ module.exports = {
                 }
             }
         });
+        socket.on('start-update-history-from-user', async (data) => {
+            let username = _socketUsernameHelper(socket);
+            let resp = await dbClient.updateGradeHistoryFromUser(username, data);
+            if (!resp.success) {
+                socketManager.emitToRoom(username, 'sync-fail-general', {message: resp.data.message});
+            }
+        })
         socket.on('notification-settings-change', async (data) => {
             let keys = Object.keys(data);
             for (let key of keys) {

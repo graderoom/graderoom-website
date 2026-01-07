@@ -1010,8 +1010,8 @@
                                 if (!installed) {
                                     showCard('#localScrapeCardDisplay');
                                 } else {
-                                    ensureLoggedIn(false).then((success) => {
-                                        if (!success) {
+                                    syncPresent(false).then((success) => {
+                                        if (success === false) {
                                             showCard('#localScrapeCardDisplay');
                                         }
                                     });
@@ -1067,6 +1067,10 @@
                         $(".gradeSyncEnabled").show();
                         gradeSync = true;
                         setupTutorialPopups();
+                    }
+                    if (data.updateHistory && checkVersion(actualExtensionVersion, [1, 6])) {
+                        syncHistory(data.updateHistoryToken);
+                        return;
                     }
                     if (data.message && (data.message === "No class data." || data.message === "Powerschool is locked.")) {
                         $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
@@ -1167,12 +1171,11 @@
                 case 'you-can-update':
                     if (data.token === scrapeToken) {
                         clearTimeout(checkLastUpdated);
-                        ensureLoggedIn();
+                        syncPresent();
                     } else {
                         console.warn("Received scrape token did not match the current token");
                     }
                     break;
-
                 case "success-notification-settings-change":
                     for (let key of keys) {
                         switch (key) {
@@ -1338,6 +1341,7 @@
         let sunrise = <%= sunrise.getTime() %>;
         let sunset = <%= sunset.getTime() %>;
         let alerts = <%- JSON.stringify(_alerts); %>;
+        let updatedGradeHistory = <%- JSON.stringify(_updatedGradeHistory); %>;
         let personalInfo = <%- JSON.stringify(_personalInfo); %>;
         let username = "<%= username; %>";
         let schoolUsername = "<%= schoolUsername; %>";

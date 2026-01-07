@@ -1404,6 +1404,29 @@ const __version30 = async (db, user) => {
     }
 }
 
+const _version31 = async (db, username) => {
+    let res = await getUser(username, {version: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version31, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 31`}};
+}
+
+const __version31 = async (db, user) => {
+    if (user.version === 30) {
+        await _users(db, user.username).updateOne({username: user.username}, {
+            $set: {
+                updatedGradeHistory: [],
+                version: 31
+            }
+        });
+    }
+}
+
 const initUser = (username) => safe(_initUser, lower(username));
 const _initUser = async (db, username) => {
     let res = await getUser(username, {school: 1, "alerts.tutorialStatus": 1, betaFeatures: 1});
@@ -1560,6 +1583,9 @@ const updateUser = async (user) => {
     }
     if (user.version < 30) {
         await safe(_version30, user.username);
+    }
+    if (user.version < 31) {
+        await safe(_version31, user.username);
     }
 };
 
@@ -2914,7 +2940,7 @@ const _logGeneralError = async (db, errorString) => {
 
 const updateGradesFromUser = (username, data) => safe(_updateGradesFromUser, lower(username), data);
 const _updateGradesFromUser = async (db, username, data) => {
-    let res = await getUser(username, {"alerts.lastUpdated": {$slice: -1}, grades: 1, donoData: 1, school: 1});
+    let res = await getUser(username, {"alerts.lastUpdated": {$slice: -1}, grades: 1, donoData: 1, school: 1, updatedGradeHistory: {$slice: -1}});
     if (!res.success) {
         return res;
     }
@@ -3046,7 +3072,7 @@ const _updateGradesFromUser = async (db, username, data) => {
     await updateClassesForUser(username, term, semester);
 
     let time = Date.now();
-    let updateHistory = false;
+    let updateHistory = user.updatedGradeHistory.length === 0;
     if (term !== oldTerm || semester !== oldSemester) {
         await resetSortData(username);
         if (!ps_locked) {
@@ -3063,13 +3089,24 @@ const _updateGradesFromUser = async (db, username, data) => {
         [`grades.${term}.${semester}`]: 1,
         [`weights.${term}.${semester}`]: 1,
         "alerts.lastUpdated": {$slice: -1},
-        "appearance.showNonAcademic": 1
+        "appearance.showNonAcademic": 1,
+        "updateHistoryToken": 1
     });
     let _user = _res.data.value;
+
+    // Only allow history update if we want it
+    let token = updateHistory ? _user.updateHistoryToken : null;
+    if (updateHistory && !token) {
+        token = makeKey(16);
+        await _users(db, username).updateOne({username: username}, {
+            $set: {updateHistoryToken: token}
+        });
+    }
 
     socketManager.emitToRoom(username, "sync-success", {
         gradeSyncEnabled: false,
         updateHistory: updateHistory, // Client can update history if extension has support. Otherwise whatever
+        updateHistoryToken: token,
         message: data.message,
         grades: JSON.stringify(_user.grades[term][semester]),
         weights: JSON.stringify(_user.weights[term][semester]),
@@ -3098,7 +3135,7 @@ const _canIUpdate = async (db, username) => {
 
 const updateGrades = (username, schoolPassword, userPassword, gradeSync) => safe(_updateGrades, lower(username), schoolPassword, userPassword, gradeSync);
 const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSync) => {
-    let res = await getUser(username, {"alerts.lastUpdated": {$slice: -1}, betaFeatures: 1, grades: 1, school: 1, updatedGradeHistory: 1, schoolUsername: 1, donoData: 1});
+    let res = await getUser(username, {"alerts.lastUpdated": {$slice: -1}, betaFeatures: 1, grades: 1, school: 1, schoolUsername: 1, donoData: 1});
     if (!res.success) {
         return res;
     }
@@ -3330,13 +3367,32 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
 
 const updateGradeHistoryFromUser = (username, data) => safe(_updateGradeHistoryFromUser, lower(username), data);
 const _updateGradeHistoryFromUser = async (db, username, data) => {
-    let res = await getUser(username, {grades: 1, school: 1});
+    let res = await getUser(username, {grades: 1, school: 1, updateHistoryToken: 1});
     if (!res.success) {
         return res;
     }
 
     let user = res.data.value;
-    let newTerms = Object.keys(data);
+
+    if (!data || typeof data !== "object") {
+        return {success: false, data: {message: 'Invalid data', log: 'Invalid data'}};
+    }
+
+    let {token, grades} = data;
+    if (!token || token !== user.updateHistoryToken) {
+        return {success: false, data: {message: 'Invalid token', log: 'Invalid token'}};
+    } else {
+        // Invalidate token
+        await _users(db, username).updateOne({username: username}, {
+            $unset: {updateHistoryToken: ""}
+        });
+    }
+
+    if (!grades || typeof grades !== "object") {
+        return {success: false, data: {message: 'Invalid data', log: 'Invalid grades'}};
+    }
+
+    let newTerms = Object.keys(grades);
 
     if (!Array.isArray(newTerms)) {
         return {success: false, data: {message: 'Invalid data', log: 'Invalid terms'}};
@@ -3347,14 +3403,13 @@ const _updateGradeHistoryFromUser = async (db, username, data) => {
     }
 
     let set = {};
-    let changeData = {};
 
     for (let i = 0; i < newTerms.length; i++) {
         if (!checkValidTerm(newTerms[i])) {
             return {success: false, data: {message: 'Invalid term', log: `Invalid term: ${newTerms[i]}`}};
         }
 
-        let newSemesters = Object.keys(data[newTerms[i]]);
+        let newSemesters = Object.keys(grades[newTerms[i]]);
 
         if (newSemesters.length > 5) {
             return {success: false, data: {message: 'Too many semesters', log: 'Too many semesters'}};
@@ -3365,7 +3420,7 @@ const _updateGradeHistoryFromUser = async (db, username, data) => {
                 return {success: false, data: {message: 'Invalid semester', log: `Invalid semester: ${newSemesters[j]}`}};
             }
 
-            let classes = data[newTerms[i]][newSemesters[j]];
+            let classes = grades[newTerms[i]][newSemesters[j]];
             let res = await processClasses(classes);
             if (!res.success) {
                 return res;
@@ -3389,40 +3444,23 @@ const _updateGradeHistoryFromUser = async (db, username, data) => {
 
             set[newTerms[i]] = set[newTerms[i]] || {};
             set[newTerms[i]][newSemesters[j]] = newClasses;
+        }
+    }
 
-            let overall = {};
-            if (oldClasses) {
-                overall = Object.fromEntries(oldClasses.map((classData) => {
-                    let clone = Object.assign({}, classData);
-                    delete clone.grades;
-                    delete clone.class_name;
-                    delete clone.ps_locked;
-                    delete clone["student_id"];
-                    delete clone["section_id"];
-                    delete clone.teacher_name;
-                    let newClone = Object.assign({}, newClasses.find(g => g.class_name === classData.class_name));
-                    delete newClone.grades;
-                    delete newClone.class_name;
-                    delete newClone.ps_locked;
-                    delete newClone.teacher_name;
-                    return [
-                        classData.class_name,
-                        Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v))
-                    ];
-                }).filter(data => Object.keys(data[1]).length));
-            }
-            changeData = {
-                added: {}, modified: {}, removed: {}, overall: overall
+    for (let year in set) {
+        if (!(year in user.grades)) {
+            await _users(db, username).updateOne({username: username}, {$set: {[`grades.${year}`]: set[year]}});
+        } else {
+            for (let semester in set[year]) {
+                await _users(db, username).updateOne({username: username}, {$set: {[`grades.${year}.${semester}`]: set[year][semester]}});
             }
         }
     }
 
     let time = Date.now();
     await _users(db, username).updateOne({username: username}, {
-        $set: set,
         $push: {
             updatedGradeHistory: time,
-            "alerts.lastUpdated": {timestamp: time, changeData: changeData, ps_locked: false, local_scrape: true}
         }
     });
 
@@ -3444,7 +3482,6 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
     }
     let user = res.data.value;
     const processor = async (data) => {
-        let changeData = {};
         if ("success" in data) {
             if (data.success) {
                 let currentYears = Object.keys(user.grades);
@@ -3484,31 +3521,6 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                                             }
                                         }
                                         await _users(db, username).updateOne({username: username}, {$set: {[`grades.${newYears[i]}.${newSemesters[j]}`]: newClasses}});
-
-                                        let overall = {};
-                                        if (oldClasses) {
-                                            overall = Object.fromEntries(oldClasses.map((classData) => {
-                                                let clone = Object.assign({}, classData);
-                                                delete clone.grades;
-                                                delete clone.class_name;
-                                                delete clone.ps_locked;
-                                                delete clone["student_id"];
-                                                delete clone["section_id"];
-                                                delete clone.teacher_name;
-                                                let newClone = Object.assign({}, newClasses.find(g => g.class_name === classData.class_name));
-                                                delete newClone.grades;
-                                                delete newClone.class_name;
-                                                delete newClone.ps_locked;
-                                                delete newClone.teacher_name;
-                                                return [
-                                                    classData.class_name,
-                                                    Object.fromEntries(Object.entries(clone).filter(([k, v]) => newClone[k] !== v))
-                                                ];
-                                            }).filter(data => Object.keys(data[1]).length));
-                                        }
-                                        changeData = {
-                                            added: {}, modified: {}, removed: {}, overall: overall
-                                        };
                                     }
                                 }
                             }
@@ -3520,7 +3532,6 @@ const _updateGradeHistory = async (db, username, schoolPassword) => {
                 await _users(db, username).updateOne({username: username}, {
                     $push: {
                         updatedGradeHistory: time,
-                        "alerts.lastUpdated": {timestamp: time, changeData: changeData, ps_locked: false, local_scrape: false}
                     }
                 });
                 await initAddedAssignments(username);
