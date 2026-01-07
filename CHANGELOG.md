@@ -52,6 +52,18 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 7.2.6] - 2026-01-07 - Happy New Year!
+### Added
+- Grade history syncing is back (Requires Graderoom Extension v1.6.0+)<ul>
+- The first sync will happen automatically when you sync with the updated extension</ul>
+
+### Improved
+- Sync Log now shows history syncs as separate entries
+
+### Fixed
+- Snow should no longer randomly fade in and out after Graderoom is open for a long time
+- Sync log no longer shows useless data after syncing history (it just shows nothing)
+
 ## [Stable 7.2.5] - 2025-12-16
 ### Added
 - By popular demand, data scraped by the extension is now included in assignment averages

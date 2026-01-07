@@ -63,7 +63,28 @@
         let endDate = "";
         let recentChange = false;
         let firstCardUnCollapsed = false;
+        let gradeHistoryTimestampIndex = updatedGradeHistory.length - 1;
         for (let i = alerts.lastUpdated.length - 1; i >= 0; i--) {
+            let historyStartIdx = gradeHistoryTimestampIndex;
+            while (gradeHistoryTimestampIndex >= 0 && updatedGradeHistory[gradeHistoryTimestampIndex] > alerts.lastUpdated[i].timestamp) {
+                gradeHistoryTimestampIndex--;
+            }
+
+            if (gradeHistoryTimestampIndex !== historyStartIdx) {
+                if (noChangesStreak) {
+                    let ps_locked = alerts.lastUpdated[i - 1].ps_locked;
+                    startDate = new Date(startDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                    endDate = new Date(endDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                    container.append(`<hr><span class="timestamp">` + (ps_locked ? `<span class="popup"><i class="fa fa-exclamation-circle"><span class="popup-right">${school === "basis" ? "Schoology" : "PowerSchool"} was locked during this sync</span></i></span>` : ``) + `<span class="popup">` + startDate + (startDate !== endDate ? ` - <br>` + endDate : ``) + `</span><b>` + (noChangesStreak > 1 ? noChangesStreak + ` Syncs<br>` : ``) + `No Changes</b></span>`);
+                    noChangesStreak = 0;
+                }
+
+                let hStartDate = new Date(updatedGradeHistory[gradeHistoryTimestampIndex + 1]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                let hEndDate = new Date(updatedGradeHistory[historyStartIdx]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                let count = historyStartIdx - gradeHistoryTimestampIndex;
+                container.append(`<hr><span class="timestamp"><span class="popup">` + hStartDate + (hStartDate !== hEndDate ? ` - <br>` + hEndDate : ``) + `</span><b>` + (count > 1 ? count + ` History Syncs<br>` : `History Sync`) + `</b></span>`);
+            }
+
             let changeData = alerts.lastUpdated[i].changeData;
             let ps_locked = alerts.lastUpdated[i].ps_locked;
             if (changeData.added === undefined) {

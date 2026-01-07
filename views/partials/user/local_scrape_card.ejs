@@ -247,37 +247,7 @@
         return true; // Versions are the same
     }
 
-    function updateGradesCallback(response) {
-        let data = response.data;
-        switch (response.type) {
-            case 'get-present-response':
-                $('#localScrapeDiv').find('button').prop('disabled', false).find('div').removeClass('loading');
-                $('#loadingDisplay').hide();
-                shortcutsEnabled = true;
-                if (!data.success) {
-                    if (data.message === 'Not logged in.') {
-                        showCard('#localScrapeCardDisplay');
-                    } else {
-                        console.error(data.message);
-                    }
-                } else {
-                    let term = Object.keys(data.data)[0];
-                    let semester = Object.keys(data.data[term])[0];
-                    let grades = data.data[term][semester];
-                    $('.updateGradesMessage .messageTxt').text('Uploading grades...');
-                    sendData('start-update-from-user', {term: term, semester: semester, grades: grades});
-                }
-                break;
-            case 'get-history-response':
-                console.log(data);
-                break;
-            case 'get-locked-response':
-                console.log(data);
-                break;
-        }
-    }
-
-    async function ensureLoggedIn(fromButton = true) {
+    async function syncPresent(fromButton = true) {
         if (!await checkExtensionInstalled()) return false;
 
         $('#localScrapeDiv').find('button').prop('disabled', true).find('div').addClass('loading');
@@ -312,7 +282,40 @@
             }
         } else {
             loginWindow?.close();
-            updateGradesCallback(resp);
+
+            let data = resp.data;
+
+            $('#localScrapeDiv').find('button').prop('disabled', false).find('div').removeClass('loading');
+                $('#loadingDisplay').hide();
+                shortcutsEnabled = true;
+                if (!data.success) {
+                    if (data.message === 'Not logged in.') {
+                        showCard('#localScrapeCardDisplay');
+                    } else {
+                        console.error(data.message);
+                    }
+                } else {
+                    let term = Object.keys(data.data)[0];
+                    let semester = Object.keys(data.data[term])[0];
+                    let grades = data.data[term][semester];
+                    $('.updateGradesMessage .messageTxt').text('Uploading grades...');
+                    sendData('start-update-from-user', {term: term, semester: semester, grades: grades});
+                }
         }
+    }
+
+    async function syncHistory(token) {
+        if (!await checkExtensionInstalled()) return false;
+        if (!checkVersion(actualExtensionVersion, [1, 6])) return false;
+
+        connectPort();
+        let resp = await sendMessageToExtension({type: 'get-history', target: 'offscreen'});
+
+        if (!resp.data.success) {
+            console.error(resp.data.message);
+            return false;
+        }
+
+        sendData('start-update-history-from-user', {token: token, grades: resp.data.data});
     }
 </script>
