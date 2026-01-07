@@ -33,6 +33,7 @@ module.exports = function (passport) {
             api: 1,
             'discord.discordID': 1,
             sortingData: 1,
+            updatedGradeHistory: 1,
         };
         let res = await dbClient.getUser(username, projection);
         if (res.success) {
@@ -84,7 +85,6 @@ module.exports = function (passport) {
                         }
                     }
                     await dbClient.setSyncStatus(user.username, SyncStatus.LOCAL);
-                    socketManager.emitToRoom(username, "sync-local", {});
                 } else if ('schoolPassword' in user) {
                     await dbClient.setSyncStatus(user.username, SyncStatus.UPDATING);
                     let resp = await dbClient.decryptAndGetSchoolPassword(user.username, password);
