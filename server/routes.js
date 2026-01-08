@@ -265,6 +265,7 @@ module.exports = function (app, passport) {
                 "api.pairKeyExpire": 1,
                 "api.apiKey": 1,
                 "discord.discordID": 1,
+                updatedGradeHistory: 1
             };
             user = (await dbClient.getUser(req.query.usernameToRender, projection)).data.value;
 
