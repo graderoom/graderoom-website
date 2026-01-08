@@ -2271,9 +2271,9 @@
                     let div = $(`#addedWeights${i}`);
                     div.html("");
                     let count = 0;
-                    let weights = addedWeights[i].weights;
-                    for (let weight in weights) {
-                        let value = weights[weight];
+                    let _weights = addedWeights[i].weights;
+                    for (let weight in _weights) {
+                        let value = _weights[weight];
                         let categoryGrade = getCategoryGrade(i, weight);
                         let categoryGottenAndPossible = getCategoryGottenAndPossible(i, weight);
                         let pointDisplay = Math.round(categoryGottenAndPossible.gotten * 10000) / 10000 + ((categoryGottenAndPossible.possible !== 0) ? ("/" + Math.round(categoryGottenAndPossible.possible * 10000) / 10000) : "");
@@ -2286,7 +2286,7 @@
                             <td id="addedWeightCategory${i}_${count}">${weight}</td>
                             <td id="addedWeightWeight${i}_${count}"
                                 class="form-group">
-                                <input style="${(addedWeights[i].hasWeights && !value && value !== 0) ? "border-color: lightcoral !important; outline-color: lightcoral !important;" : ""}"
+                                <input style="${(weights[i].hasWeights && !value && value !== 0) ? "border-color: lightcoral !important; outline-color: lightcoral !important;" : ""}"
                                        value="${value || value === 0 ? value : ""}"
                                        type="number"
                                        min="0"
