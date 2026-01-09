@@ -52,6 +52,12 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 7.2.7] - 2026-01-08
+### Fixed
+- History sync should work properly now (was only working for freshmen)
+- Remove error UI when a class is set to point-based
+- Font of 'Graderoom' text is no longer less bold on main page than every other page
+
 ## [Stable 7.2.6] - 2026-01-07 - Happy New Year!
 ### Added
 - Grade history syncing is back (Requires Graderoom Extension v1.6.0+)<ul>
