@@ -724,7 +724,7 @@ exports.nextSyncWhen = function (lastSyncTimestamp, donoData) {
     return lastSyncTimestamp + freeSyncPeriod;
 }
 
-exports.processClasses = function (classes) {
+exports.processClasses = function (classes, forHistory=false) {
     if (!Array.isArray(classes)) {
         return {success: false, data: {message: 'Invalid data', log: 'Invalid classes'}};
     }
@@ -740,8 +740,11 @@ exports.processClasses = function (classes) {
         }
 
         let {class_name, teacher_name, overall_percent, overall_letter, student_id, section_id, ps_locked, grades} = class_;
-        if (typeof class_name !== 'string' || typeof teacher_name !== 'string') {
-            return {success: false, data: {message: 'Invalid classes', log: 'Invalid class/teacher name'}};
+        if (typeof class_name !== 'string') {
+            return {success: false, data: {message: 'Invalid classes', log: 'Invalid class name'}};
+        }
+        if (typeof teacher_name !== 'string' && !(forHistory && teacher_name === false)) {
+            return {success: false, data: {message: 'Invalid classes', log: 'Invalid teacher name'}};
         }
         if (typeof overall_percent !== 'number' && overall_percent !== false) {
             return {success: false, data: {message: 'Invalid classes', log: 'Invalid overall_percent'}};
@@ -749,8 +752,11 @@ exports.processClasses = function (classes) {
         if (overall_letter !== false  && (typeof overall_letter !== 'string' || !/^CR$|^F$|^[A-D][+\-]?$/.test(overall_letter))) {
             return {success: false, data: {message: 'Invalid classes', log: 'Invalid overall_letter'}};
         }
-        if (typeof student_id !== 'string' || typeof section_id !== 'string') {
-            return {success: false, data: {message: 'Invalid classes', log: 'Invalid student/section id'}};
+        if (typeof student_id !== 'string' && !(forHistory && student_id === false)) {
+            return {success: false, data: {message: 'Invalid classes', log: 'Invalid student id'}};
+        }
+        if (typeof section_id !== 'string' && !(forHistory && section_id === false)) {
+            return {success: false, data: {message: 'Invalid classes', log: 'Invalid section id'}};
         }
         if (typeof ps_locked !== 'boolean') {
             return {success: false, data: {message: 'Invalid classes', log: 'Invalid ps_locked'}};
