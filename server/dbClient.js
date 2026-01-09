@@ -3421,7 +3421,7 @@ const _updateGradeHistoryFromUser = async (db, username, data) => {
             }
 
             let classes = grades[newTerms[i]][newSemesters[j]];
-            let res = await processClasses(classes);
+            let res = await processClasses(classes, true);
             if (!res.success) {
                 return res;
             }
@@ -3439,6 +3439,12 @@ const _updateGradeHistoryFromUser = async (db, username, data) => {
                 }
                 if (oldClass && oldClass.teacher_name && !newClasses[k].teacher_name) {
                     newClasses[k].teacher_name = oldClass.teacher_name;
+                }
+                if (oldClass && oldClass.student_id && !newClasses[k].student_id) {
+                    newClasses[k].student_id = oldClass.student_id;
+                }
+                if (oldClass && oldClass.section_id && !newClasses[k].section_id) {
+                    newClasses[k].section_id = oldClass.section_id;
                 }
             }
 
