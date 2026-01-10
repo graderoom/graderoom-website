@@ -3825,11 +3825,7 @@ const _updateClassesForUser = async (db, username, term, semester, className) =>
                     }
                 }
 
-                // Add hasWeights: false
                 let hasWeights = user.weights[_term][_semester][i].hasWeights;
-                if (neededWeights.length === 1) {
-                    hasWeights = false;
-                }
                 let currentWeights = user.weights[_term][_semester][i];
                 let newWeights = currentWeights;
                 let custom = currentWeights.custom;
