@@ -15,6 +15,7 @@
                 <div id="classInfoBody" class="card-footer">
                     <div id="classInfoTopHalf">
                         <div id="classInfoName"></div>
+                        <a id="classInfoGraderoomStats" href="#">Load Graderoom Stats</a>
                         <div id="classInfoGraderoomUsers"></div>
                         <div id="classInfoTeacher"></div>
                         <div id="classInfoClassType"></div>
@@ -33,3 +34,254 @@
         </div>
     </div>
 </div>
+
+<script>
+        async function showClassInfo(index) {
+            let classInfoClassName = $("#classInfoName");
+            let classInfoTeacher = $("#classInfoTeacher");
+            let classInfoClassType = $("#classInfoClassType");
+            let classInfoUCClassType = $("#classInfoUCClassType");
+            let classInfoUCOnlyIf = $("#classInfoUCOnlyIf");
+            let classInfoTeachersHeader = $("#classInfoOtherTeachersHeader");
+            let classInfoTeachers = $("#classInfoOtherTeachers");
+            let classInfoUserCount = $("#classInfoGraderoomUsers");
+            let classInfoDescription = $("#classInfoDescription");
+            let classInfoYears = $("#classInfoYears");
+            let classInfoCredits = $("#classInfoCredits");
+            let classInfoSections = $("#classInfoBody .card-footer");
+            let classInfoLoading = $("#classInfoLoading");
+            let classInfoGraderoomStats = $("#classInfoGraderoomStats");
+
+            // Add placeholders for all text
+            classInfoClassName.text("Loading...");
+            classInfoTeacher.text("Loading...");
+            classInfoClassType.text("Loading...");
+            classInfoUCClassType.text("Loading...");
+            classInfoUCOnlyIf.hide();
+            if (plus) {
+                classInfoTeachers.show();
+            } else {
+                classInfoTeachers.hide();
+            }
+            classInfoUserCount.text("");
+            classInfoDescription.text("Loading...");
+            classInfoYears.hide();
+            classInfoCredits.hide();
+
+            // Show all sections to make loading consistent
+            classInfoTeachersHeader.show();
+            classInfoSections.show();
+
+            // Show loading animation
+            classInfoLoading.show();
+
+            // Styling
+            $("#classInfoTopHalf, #classInfoBody > .card-footer, #classInfoBody > ul").css("background-color", withAlpha(colors[index], 10));
+
+            showCard("#classInfoCardDisplay");
+
+            let className = _data[index].class_name;
+            let teacherName = _data[index].teacher_name;
+            let relData = relClassData[className];
+            let description = relData.description;
+            let prereq = relData.prereq;
+            let review = relData.review;
+
+            let userCount, teachers;
+            if (teacherName in userCounts[index]) {
+                userCount = userCounts[index][teacherName];
+                teachers = Object.keys(userCounts[index]);
+                classInfoGraderoomStats.off('click');
+                classInfoGraderoomStats.hide();
+            } else {
+                teachers = [];
+                classInfoGraderoomStats.on('click', () => {
+                    loadStats(index, teacherName).then(() => {
+                        showClassInfo(index);
+                    });
+                });
+                classInfoGraderoomStats.show();
+            }
+            let classType = relData.classType;
+            let ucClassType = relData.uc_csuClassType;
+            let ucOnlyIf = relData.uc_csuOnlyIf;
+            let gradeLevels = relData.gradeLevels;
+            let credits = relData.credits;
+
+            let parts = [""];
+            if (description) {
+                parts.push(description);
+            }
+            if (prereq) {
+                parts.push("Prereqs", prereq);
+            }
+            if (review) {
+                parts.push(`Last updated ${review}`, "");
+            }
+
+            let _description = "";
+            let _thereIsData = false;
+            for (let i = 0; i < parts.length; i++) {
+                if (parts[i].trim().length > 0) {
+                    _thereIsData = true;
+                }
+                if (i % 2 === 0) {
+                    // These are the headers
+                    _description += `<p class="classInfo-description-header">${parts[i]}</p>`;
+                } else {
+                    // Descriptions
+                    _description += `<p class="classInfo-description-body">${parts[i]}</p>`;
+                }
+            }
+
+            let _teachers = "";
+            for (let i = 0; i < teachers.length; i++) {
+                if (teachers[i] === teacherName) {
+                    continue;
+                }
+                let count = userCounts[index][teachers[i]];
+                _teachers += `<li>${teachers[i]} - ${count} Graderoom user${count !== 1 ? "s" : ""}</li>`;
+            }
+
+            classInfoClassName.text(className);
+            if (teacherName) {
+                classInfoTeacher.text(teacherName).show();
+            } else {
+                classInfoTeacher.hide();
+            }
+            switch (classType) {
+                case "honors":
+                    classType = "Honors";
+                    break;
+
+                case "ap":
+                    classType = "AP";
+                    break;
+
+                case "none":
+                    classType = "Regular";
+                    break;
+
+                case "non-academic":
+                    classType = "Non-Academic";
+                    break;
+
+                default:
+                    classType = "Unknown";
+                    break;
+            }
+            switch (ucClassType) {
+                case "uc_hon":
+                    ucClassType = "UC Approved Honors";
+                    break;
+
+                case "uc_ap":
+                    ucClassType = "UC Approved AP";
+                    break;
+
+                case "uc":
+                    ucClassType = "UC Approved Regular";
+                    break;
+
+                case "not_uc":
+                    ucClassType = "Not a UC Approved";
+                    break;
+
+                default:
+                    ucClassType = "Unknown UC";
+                    break;
+            }
+            classInfoClassType.text(`${SchoolAbbr[school]} ${classType} course`);
+            classInfoUCClassType.text(`${ucClassType} course`);
+            if (ucOnlyIf !== "") {
+                classInfoUCOnlyIf.text(` only if ${ucOnlyIf}`);
+            } else {
+                classInfoUCOnlyIf.text("");
+            }
+
+            if (teachers.length > 1) {
+                classInfoTeachersHeader.show();
+            } else {
+                classInfoTeachersHeader.hide();
+            }
+            if (teachers.length > 1) {
+                classInfoTeachers.html(_teachers).show();
+            } else {
+                classInfoTeachers.hide();
+            }
+            if (userCount !== undefined) {
+                classInfoUserCount.text(`${userCount ?? 1} Graderoom User${(userCount ?? 1) !== 1 ? "s" : ""} this semester`);
+            }
+            classInfoDescription.html(_description);
+            if (_thereIsData) {
+                classInfoSections.show();
+            } else {
+                classInfoSections.hide();
+            }
+
+            let _yearsText = "";
+            if (gradeLevels) {
+                let count = gradeLevels.length;
+                for (let i = 0; i < gradeLevels.length; i++) {
+                    switch (gradeLevels[i]) {
+                        case 9:
+                            _yearsText += "Freshmen";
+                            break;
+                        case 10:
+                            _yearsText += "Sophomores";
+                            break;
+                        case 11:
+                            _yearsText += "Juniors";
+                            break;
+                        case 12:
+                            _yearsText += "Seniors";
+                            break;
+                        default:
+                            count--;
+                            continue;
+                    }
+                    if (count > 2 && i < gradeLevels.length - 1) {
+                        _yearsText += ",";
+                    }
+                    if (i < gradeLevels.length - 1) {
+                        _yearsText += " ";
+                    }
+                    if (i === gradeLevels.length - 2) {
+                        _yearsText += "and ";
+                    }
+                }
+            }
+
+            if (gradeLevels && _yearsText) {
+                classInfoYears.text(_yearsText + " take this course.").show();
+            } else {
+                classInfoYears.text("").hide();
+            }
+
+            if (credits) {
+                classInfoCredits.text(`${credits} credit ${credits === 10 ? "(Year-long)" : credits === 5 ? "(Semester-long)" : ""} course`).show();
+            } else {
+                classInfoCredits.text("").hide();
+            }
+
+            // Hide loading animation
+            classInfoLoading.hide();
+        }
+
+        async function loadStats(index, teacherName) {
+            let userCount, teachers;
+            await $.ajax({
+                method: "POST",
+                url: "/userCounts",
+                data: {
+                    "term": term,
+                    "semester": semester,
+                    "className": _data[index].class_name,
+                }
+            }).done(function (response) {
+                userCounts[index] = response;
+                userCount = userCounts[index][teacherName];
+                teachers = Object.keys(response)
+            });
+        }
+</script>
