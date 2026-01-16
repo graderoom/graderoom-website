@@ -170,7 +170,7 @@
         for (let i = 0; i < _data.length; i++) {
             let class_name = _data[i].class_name;
             let letterGrade = _data[i].overall_letter || getLetterGrade(getOverallGrade(i));
-            if (([false, "CR", "W"]).includes(letterGrade)) {
+            if (([false, "CR", "P", "W"]).includes(letterGrade)) {
                 continue;
             }
             let class_type = relClassData[class_name].classType;
@@ -313,7 +313,7 @@
                     let classObject = gradeHistoryLetters[years[i]][semesters[j]][k];
                     let class_name = Object.keys(classObject)[0];
                     let letterGrade = Object.values(classObject)[0] || (term === years[i] && semester === semesters[j] ? getLetterGrade(getOverallGrade(k)) : false);
-                    if (([false, "CR", "W"]).includes(letterGrade)) {
+                    if (([false, "CR", "P", "W"]).includes(letterGrade)) {
                         continue;
                     }
                     let class_type = relClassData[class_name].classType;
@@ -453,7 +453,7 @@
                 let classObject = classes[c];
                 let class_name = Object.keys(classObject)[0];
                 let letterGrade = Object.values(classObject)[0] || (term === ninth && semester === "S3" ? getLetterGrade(getOverallGrade(c)) : false);
-                if (([false, "CR", "W"]).includes(letterGrade)) {
+                if (([false, "CR", "P", "W"]).includes(letterGrade)) {
                     continue;
                 }
                 let class_type = relClassData[class_name].uc_csuClassType;
@@ -489,7 +489,7 @@
                 let uc;
                 [uc, class_type] = class_type.split("_");
 
-                if ((uc === "uc" || uc === "") && !([false, "CR", "W"]).includes(letterGrade)) {
+                if ((uc === "uc" || uc === "") && !([false, "CR", "P", "W"]).includes(letterGrade)) {
                     numClasses++;
                     let points = getGPA(letterGrade);
                     basePoints += points;
@@ -513,7 +513,7 @@
             for (let s = 0; s < semesters.length; s++) {
                 if (gradYear - 2 > lastYearWithSummerCredit[school] && semesters[s] === "S3") continue;
                 let classes = gradeHistoryLetters[tenth][semesters[s]];
-                if (!classes.filter(c => !([false, "CR", "W"]).includes(Object.values(c)[0])).length) continue;
+                if (!classes.filter(c => !([false, "CR", "P", "W"]).includes(Object.values(c)[0])).length) continue;
 
                 // Add a header row
                 let semester_header = $(`<tr><th colspan="10">10th grade ` + semesters[s] + `</th></tr>`);
@@ -524,7 +524,7 @@
                     let classObject = classes[c];
                     let class_name = Object.keys(classObject)[0];
                     let letterGrade = Object.values(classObject)[0] || (term === tenth && semester === semesters[s] ? getLetterGrade(getOverallGrade(c)) : false);
-                    if (([false, "CR", "W"]).includes(letterGrade)) {
+                    if (([false, "CR", "P", "W"]).includes(letterGrade)) {
                         continue;
                     }
                     let class_type = relClassData[class_name].uc_csuClassType;
