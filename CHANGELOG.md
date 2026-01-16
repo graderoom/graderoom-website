@@ -52,7 +52,7 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Stable 7.2.8] - 2026-01-15
+## [Stable 7.3.0] - 2026-01-15
 ### Improved
 - Class info now shows information more quickly<ul>
 - The number of Graderoom users taking a course no longer loads as part of class info (that's what was causing the slowness)
