@@ -52,6 +52,19 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 7.3.0] - 2026-01-15
+### Improved
+- Class info now shows information more quickly<ul>
+- The number of Graderoom users taking a course no longer loads as part of class info (that's what was causing the slowness)
+- That info will still be available if you click "Load Graderoom stats"</ul>
+- Assignment info now shows information more quickly<ul>
+- The blurred loading only hides the portions that need to load</ul>
+
+### Fixed
+- Setting a weight when there is a single category saves correctly now
+- Syncs now work when an overall grade is "P" or "W"
+- Tooltips now work correctly even if the first class has no grades
+
 ## [Stable 7.2.7] - 2026-01-08
 ### Fixed
 - History sync should work properly now (was only working for freshmen)
