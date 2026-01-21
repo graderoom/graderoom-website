@@ -3999,6 +3999,8 @@
             }
             let startDate = Infinity;
             let endDate = 0;
+            let maxDate = Infinity;
+            let minDate = Infinity;
             let lowScore = Infinity;
             let lines = [{"A+": 97.5}, {"A": 92.5}, {"A-": 89.5}, {"B+": 87.5}, {"B": 82.5}, {"B-": 79.5}, {"C+": 77.5}, {"C": 72.5}, {"C-": 69.5}, {"D+": 67.5}, {"D": 62.5}, {"D-": 59.5}];
             if (!appearance.showPlusMinusLines) {
@@ -4272,6 +4274,17 @@
                     }
                 }]
             });
+            //new variables calculated to account for the spacing on the side of the graph
+            maxDate = charts[0].scales.xAxis.max;
+            minDate = charts[0].scales.xAxis.min;
+            //sets the zoom and pan limits for the main graph
+            charts[0].options.plugins.zoom.limits = {
+                xAxis: {min: minDate, max: maxDate},
+                yAxis: {
+                    min: charts[0].scales.yAxis._suggestedMin,
+                    max: charts[0].scales.yAxis._suggestedMax
+                }
+            };
         }
 
         function renderChart(id) {
@@ -4556,6 +4569,14 @@
                         }
                     }
                 });
+                //sets the zoom and pan limits for the individual class graphs
+                charts[id+1].options.plugins.zoom.limits = {
+                    xAxis: {min: minDate, max: maxDate},
+                    yAxis: {
+                        min: charts[id+1].scales.yAxis._suggestedMin,
+                        max: charts[id+1].scales.yAxis._suggestedMax
+                    }
+                };
             } else {
                 $("#chart-container" + id).html("<div class=\"chart-no-data\">No Data</div>");
             }
