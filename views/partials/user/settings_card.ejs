@@ -1665,6 +1665,7 @@
                 else if (platform === "zelle") platform = "Zelle";
                 else if (platform === "venmo") platform = "Venmo";
                 else if (platform === "cash") platform = "Cash";
+                else if (platform === "gift") platform = "Gift";
 
                 donoTable += `<tr><td class="dono-platform-${platform.toLowerCase()}">${platform}</td><td>$${paid.toFixed(2)}</td><td>$${received.toFixed(2)}</td><td>${new Date(date).toLocaleDateString()}</td></tr>`;
             }

@@ -23,7 +23,7 @@ exports.COMMON_DATABASE_NAME = 'common';
 exports.SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME = 'school_username_lookup';
 
 // Change this when updateDB changes
-exports.dbUserVersion = 31;
+exports.dbUserVersion = 32;
 exports.dbClassVersion = 4;
 
 exports.minUsersForAverageCalc = 9;
@@ -840,7 +840,7 @@ exports.checkValidTerm = function (term) {
 
 exports.checkValidSemester = function (semester) {
     if (typeof semester !== 'string') return false;
-    return (['S0', 'S1', 'S2']).includes(semester);
+    return (['S1', 'S2', 'S3']).includes(semester);
 }
 
 exports.checkValidMMDDYYYY = function (dateString) {

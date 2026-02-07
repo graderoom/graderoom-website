@@ -52,6 +52,14 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 7.3.1] - 2026-02-07
+### Improved
+- Instructions when requiring PowerSchool login are slightly more clear
+- Gifted premium status is now shown correctly in the Account Settings page
+
+### Fixed
+- Error syncing history if you ever took a summer course
+
 ## [Stable 7.3.0] - 2026-01-15
 ### Improved
 - Class info now shows information more quickly<ul>

@@ -1427,6 +1427,42 @@ const __version31 = async (db, user) => {
     }
 }
 
+const _version32 = async (db, username) => {
+    let res = await getUser(username, {version: 1, donoData: 1, 'alerts.notifications': 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version32, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 32`}};
+}
+
+const __version32 = async (db, user) => {
+    if (user.version === 31) {
+        let donoData = user.donoData;
+        let notifications = user.alerts.notifications;
+        let notifUpdate = {};
+
+        for (let dono of donoData) {
+            if (dono.paidValue === 0) {
+                let notifIdx = notifications.findIndex(n => n.id === `${dono.platform}-${dono.dateDonated}-${dono.paidValue}-${dono.receivedValue}-${dono.dateEntered}`);
+                dono.platform = "gift";
+                notifUpdate[`alerts.notifications.${notifIdx}.id`] = `${dono.platform}-${dono.dateDonated}-${dono.paidValue}-${dono.receivedValue}-${dono.dateEntered}`;
+            }
+        }
+
+        await _users(db, user.username).updateOne({username: user.username}, {
+            $set: {
+                donoData: donoData,
+                ...notifUpdate,
+                version: 32
+            }
+        });
+    }
+}
+
 const initUser = (username) => safe(_initUser, lower(username));
 const _initUser = async (db, username) => {
     let res = await getUser(username, {school: 1, "alerts.tutorialStatus": 1, betaFeatures: 1});
@@ -1586,6 +1622,9 @@ const updateUser = async (user) => {
     }
     if (user.version < 31) {
         await safe(_version31, user.username);
+    }
+    if (user.version < 32) {
+        await safe(_version32, user.username);
     }
 };
 
