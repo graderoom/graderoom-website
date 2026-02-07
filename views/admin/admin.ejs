@@ -288,6 +288,7 @@
                                             <option value="zelle">Zelle</option>
                                             <option value="paypal">PayPal</option>
                                             <option value="cash">Cash</option>
+                                            <option value="gift">Gift</option>
                                         </select>
                                     </div>
                                     <div class="addDonationPaid form-weights form-signin input-group form-group">
@@ -438,6 +439,8 @@
                         platform = "Venmo";
                     } else if (platform === "cash") {
                         platform = "Cash";
+                    } else if (platform === "gift") {
+                        platform = "Gift";
                     }
 
                     donoTable += `<tr><td class="dono-platform-${platform.toLowerCase()}">${platform}</td><td>$${paid.toFixed(2)}</td><td>$${received.toFixed(2)}</td><td>${new Date(date).toLocaleDateString()}</td><td><button class="btn btn-sm admin" onclick="removeDonation(${h}, ${i})">Delete</button></td></tr>`;

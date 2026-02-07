@@ -3986,6 +3986,11 @@ span.previous {
     font-weight: bold;
 }
 
+#donoTable .dono-platform-gift {
+    color: #FF6F00;
+    font-weight: bold;
+}
+
 #donoTable td {
     padding: 10px;
 }

@@ -44,7 +44,7 @@ module.exports.SchoolAbbr = {
 module.exports.Constants = {
     classTypes: ["non-academic", "none", "ap", "honors"],
     uc_csuClassTypes: ["not_uc", "uc", "uc_ap", "uc_hon"],
-    donoPlatforms: ["paypal", "venmo", "zelle", "cash"]
+    donoPlatforms: ["paypal", "venmo", "zelle", "cash", "gift"]
 }
 
 module.exports.ColorPresets = {

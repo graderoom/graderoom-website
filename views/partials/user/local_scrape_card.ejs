@@ -272,7 +272,7 @@
                 return false;
             }
 
-            $('.updateGradesMessage .messageTxt').text('You are not logged in. Please log in to PowerSchool in the opened window.');
+            $('.updateGradesMessage .messageTxt').text('You are not logged in. Please log in to PowerSchool in the opened window. Then, click the button below again.');
             $('#localScrapeDiv').find('button').prop('disabled', false).find('div').removeClass('loading');
 
             if (!loginWindow || loginWindow.closed) {
