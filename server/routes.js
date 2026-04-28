@@ -181,7 +181,6 @@ module.exports = function (app, passport) {
             page: "login",
             sunset: sunset,
             sunrise: sunrise,
-            recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY,
         });
     });
 
@@ -584,6 +583,15 @@ module.exports = function (app, passport) {
         res.status(200).send(result);
     });
 
+    app.get("/donoData", [isLoggedIn], async (req, res) => {
+        let resp = await dbClient.getAllDonoData();
+        if (resp.success) {
+            res.status(200).send(resp.data.value);
+        } else {
+            res.sendStatus(400);
+        }
+    });
+
     app.get("/createPairingKey", [isLoggedIn], async (req, res) => {
         let resp = await dbClient.createPairingKey(req.user.username);
         if (resp.success) {
@@ -699,14 +707,7 @@ module.exports = function (app, passport) {
     });
 
     // process the login form
-    app.post("/login", async (req, res, next) => {
-        const token = req.body["g-recaptcha-response"];
-        if (!token || !(await verifyRecaptcha(token))) {
-            req.flash("loginMessage", "Please complete the reCAPTCHA.");
-            return res.redirect("/");
-        }
-        next();
-    }, passport.authenticate("local-login", {
+    app.post("/login", passport.authenticate("local-login", {
         successRedirect: "/",
         failureRedirect: "/",
         failureFlash: true
