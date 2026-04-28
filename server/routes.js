@@ -3,9 +3,42 @@ const dbClient = require("./dbClient.js");
 const emailSender = require("./emailSender.js");
 const _ = require("lodash");
 const SunCalc = require("suncalc");
+const https = require("https");
 const {changelog, changelogLegend, latestVersion} = require("./dbHelpers");
 const {Schools, PrettySchools, SchoolAbbr} = require("./enums");
 const {checkReturnTo, isLoggedIn, isAdmin, isApiAuthenticated, isInternalApiAuthenticated, inRecentTerm} = require("./middleware");
+
+function verifyRecaptcha(token) {
+    return new Promise((resolve) => {
+        const params = new URLSearchParams({
+            secret: process.env.RECAPTCHA_SECRET_KEY,
+            response: token
+        }).toString();
+        const options = {
+            hostname: "www.google.com",
+            path: "/recaptcha/api/siteverify",
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Content-Length": Buffer.byteLength(params)
+            }
+        };
+        const req = https.request(options, (res) => {
+            let data = "";
+            res.on("data", (chunk) => data += chunk);
+            res.on("end", () => {
+                try {
+                    resolve(JSON.parse(data).success === true);
+                } catch {
+                    resolve(false);
+                }
+            });
+        });
+        req.on("error", () => resolve(false));
+        req.write(params);
+        req.end();
+    });
+}
 
 module.exports = function (app, passport) {
 
@@ -148,6 +181,7 @@ module.exports = function (app, passport) {
             page: "login",
             sunset: sunset,
             sunrise: sunrise,
+            recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY,
         });
     });
 
@@ -665,10 +699,17 @@ module.exports = function (app, passport) {
     });
 
     // process the login form
-    app.post("/login", passport.authenticate("local-login", {
-        successRedirect: "/", // redirect to the secure profile section
-        failureRedirect: "/", // redirect back to the signup page if there is an error
-        failureFlash: true // allow flash messages
+    app.post("/login", async (req, res, next) => {
+        const token = req.body["g-recaptcha-response"];
+        if (!token || !(await verifyRecaptcha(token))) {
+            req.flash("loginMessage", "Please complete the reCAPTCHA.");
+            return res.redirect("/");
+        }
+        next();
+    }, passport.authenticate("local-login", {
+        successRedirect: "/",
+        failureRedirect: "/",
+        failureFlash: true
     }));
 
     // SIGNUP =================================
@@ -682,11 +723,17 @@ module.exports = function (app, passport) {
             _appearance: {seasonalEffects: true},
             page: "signup",
             sunset: sunset,
-            sunrise: sunrise
+            sunrise: sunrise,
+            recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY,
         });
     });
 
     app.post("/signup", async (req, res, next) => {
+        const token = req.body["g-recaptcha-response"];
+        if (!token || !(await verifyRecaptcha(token))) {
+            req.flash("signupMessage", "Please complete the reCAPTCHA.");
+            return res.redirect("/signup");
+        }
 
         let school = req.body.school;
         let username = req.body.username;

@@ -24,6 +24,7 @@
     <meta name="wot-verification" content="5c773c9acca0afa3e00e"/>
     <meta name="google-site-verification" content="V1uOTCUT5-IUFr-emEfyIvawYTz3DklEqorkkO5-nF8"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 
 <body style="min-height: 100vh">
@@ -42,7 +43,7 @@
                 <% } %>
                 <br>
                 <form id="login" class="form-signin" action="/login" method="post"
-                      onsubmit="$(this).find('button').prop('disabled', true).find('div').addClass('loading')">
+                      onsubmit="if(!grecaptcha.getResponse()){$('#recaptcha-error').show(); return false;} $(this).find('button').prop('disabled', true).find('div').addClass('loading')">
                     <div class="input-group form-group">
                         <i class="user-bg"></i>
                         <label>Username or Email Address</label>
@@ -57,6 +58,10 @@
 
                     <a style="color: dimgrey; float: right; margin-top: -25px;" href="/forgot_password">Forgot
                         password?</a>
+                    <div style="clear: both; display: flex; justify-content: center; margin: 2.5rem 0 0.75rem">
+                        <div class="g-recaptcha" data-sitekey="<%= recaptchaSiteKey %>" data-callback="onRecaptchaSuccess"></div>
+                    </div>
+                    <div id="recaptcha-error" class="alert alert-danger text-center" style="display: none; margin-bottom: 1rem">Please complete the reCAPTCHA.</div>
                     <div class="text-center">
                         <button type="submit" class="btn btn-default btn-lg">
                             <i class="fa fa-sign-in" aria-hidden="true"></i> Login
@@ -92,6 +97,10 @@
             }
         });
     }, 250);
+
+    function onRecaptchaSuccess() {
+        $('#recaptcha-error').hide();
+    }
 
     function checkLabel(input) {
         let label = $($(input)[0].previousElementSibling);
