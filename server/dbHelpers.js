@@ -24,7 +24,7 @@ exports.SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME = 'school_username_lookup';
 exports.COSTS_COLLECTION_NAME = 'costs';
 
 // Change this when updateDB changes
-exports.dbUserVersion = 32;
+exports.dbUserVersion = 33;
 exports.dbClassVersion = 4;
 
 exports.minUsersForAverageCalc = 9;

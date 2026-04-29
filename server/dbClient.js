@@ -1467,6 +1467,39 @@ const __version32 = async (db, user) => {
     }
 }
 
+const _version33 = async (db, username) => {
+    let res = await getUser(username, {version: 1, donoData: 1, 'alerts.notifications': 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version33, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 33`}};
+}
+
+const __version33 = async (db, user) => {
+    if (user.version === 32) {
+        let notifications = user.alerts.notifications;
+        let notifUpdate = {};
+
+        for (let dono of user.donoData) {
+            if (dono.platform === "gift") {
+                let notifIdx = notifications.findIndex(n => n.id === `${dono.platform}-${dono.dateDonated}-${dono.paidValue}-${dono.receivedValue}-${dono.dateEntered}`);
+                if (notifIdx !== -1) {
+                    notifUpdate[`alerts.notifications.${notifIdx}.title`] = "Gift";
+                    notifUpdate[`alerts.notifications.${notifIdx}.message`] = `You've been gifted a $${dono.receivedValue.toFixed(2)} donation! This is a courtesy grant with no monetary value that may unlock donor features for your account. ${notificationButton(`showCard('#settingsCardDisplay'); openTab(2)`, `View in your Account`)}`;
+                }
+            }
+        }
+
+        await _users(db, user.username).updateOne({username: user.username}, {
+            $set: {version: 33, ...notifUpdate}
+        });
+    }
+}
+
 const initUser = (username) => safe(_initUser, lower(username));
 const _initUser = async (db, username) => {
     let res = await getUser(username, {school: 1, "alerts.tutorialStatus": 1, betaFeatures: 1});
@@ -1629,6 +1662,9 @@ const updateUser = async (user) => {
     }
     if (user.version < 32) {
         await safe(_version32, user.username);
+    }
+    if (user.version < 33) {
+        await safe(_version33, user.username);
     }
 };
 
@@ -5131,7 +5167,10 @@ const _addDonation = async (db, data) => {
     }
 
     let now = Date.now();
-    let res = await createNotification(username, `${platform}-${dateDonated}-${paidValue}-${receivedValue}-${now}`, "donation", "Thank You!", `We received your donation of $${receivedValue.toFixed(2)}! ${notificationButton(`showCard('#settingsCardDisplay'); openTab(2)`, `View in your Account`)}`, true, false, true, true, true, dateDonated);
+    let donationMessage = platform === "gift"
+        ? `You've been gifted a $${receivedValue.toFixed(2)} donation! This is a courtesy grant with no monetary value that may unlock donor features for your account. ${notificationButton(`showCard('#settingsCardDisplay'); openTab(2)`, `View in your Account`)}`
+        : `We received your donation of $${receivedValue.toFixed(2)}! ${notificationButton(`showCard('#settingsCardDisplay'); openTab(2)`, `View in your Account`)}`;
+    let res = await createNotification(username, `${platform}-${dateDonated}-${paidValue}-${receivedValue}-${now}`, "donation", platform === "gift" ? "Gift" : "Thank You!", donationMessage, true, false, true, true, true, dateDonated);
     if (!res.success) {
         return res;
     }
