@@ -54,6 +54,7 @@
 
 ## [Stable 7.3.2] - 2026-04-28
 ### Added
+- Signup is now protected by reCAPTCHA v2
 - Funding notifications will show up every 3 logins and be slightly more annoying if you've never donated
 
 ## [Stable 7.3.1] - 2026-02-07
