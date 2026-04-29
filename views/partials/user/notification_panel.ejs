@@ -603,8 +603,9 @@
                     `;
                 }
                 let message = supporterLine + progressBar + `<span class="notification-button" onclick="showCard('#settingsCardDisplay'); openTab(0)"><b><i class="fa fa-external-link-square"></i> Donate</b></span>`;
-                let dismissible = !!data.userHasDonated;
-                createNotification("dono-progress", "Announcement", "Support Graderoom", message, dismissible, false, false, true, !dismissible, Date.now(), true, true);
+                let hasActiveGoal = data.effectiveGoal > 0;
+                let dismissible = !hasActiveGoal || !!data.userHasDonated;
+                createNotification("dono-progress", "Announcement", "Support Graderoom", message, dismissible, false, false, true, hasActiveGoal && !dismissible, Date.now(), true, true);
             }
         });
     }
