@@ -3,9 +3,42 @@ const dbClient = require("./dbClient.js");
 const emailSender = require("./emailSender.js");
 const _ = require("lodash");
 const SunCalc = require("suncalc");
+const https = require("https");
 const {changelog, changelogLegend, latestVersion} = require("./dbHelpers");
 const {Schools, PrettySchools, SchoolAbbr} = require("./enums");
 const {checkReturnTo, isLoggedIn, isAdmin, isApiAuthenticated, isInternalApiAuthenticated, inRecentTerm} = require("./middleware");
+
+function verifyRecaptcha(token) {
+    return new Promise((resolve) => {
+        const params = new URLSearchParams({
+            secret: process.env.RECAPTCHA_SECRET_KEY,
+            response: token
+        }).toString();
+        const options = {
+            hostname: "www.google.com",
+            path: "/recaptcha/api/siteverify",
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Content-Length": Buffer.byteLength(params)
+            }
+        };
+        const req = https.request(options, (res) => {
+            let data = "";
+            res.on("data", (chunk) => data += chunk);
+            res.on("end", () => {
+                try {
+                    resolve(JSON.parse(data).success === true);
+                } catch {
+                    resolve(false);
+                }
+            });
+        });
+        req.on("error", () => resolve(false));
+        req.write(params);
+        req.end();
+    });
+}
 
 module.exports = function (app, passport) {
 
@@ -550,6 +583,15 @@ module.exports = function (app, passport) {
         res.status(200).send(result);
     });
 
+    app.get("/donoData", [isLoggedIn], async (req, res) => {
+        let resp = await dbClient.getAllDonoData();
+        if (resp.success) {
+            res.status(200).send(resp.data.value);
+        } else {
+            res.sendStatus(400);
+        }
+    });
+
     app.get("/createPairingKey", [isLoggedIn], async (req, res) => {
         let resp = await dbClient.createPairingKey(req.user.username);
         if (resp.success) {
@@ -666,9 +708,9 @@ module.exports = function (app, passport) {
 
     // process the login form
     app.post("/login", passport.authenticate("local-login", {
-        successRedirect: "/", // redirect to the secure profile section
-        failureRedirect: "/", // redirect back to the signup page if there is an error
-        failureFlash: true // allow flash messages
+        successRedirect: "/",
+        failureRedirect: "/",
+        failureFlash: true
     }));
 
     // SIGNUP =================================
@@ -682,11 +724,17 @@ module.exports = function (app, passport) {
             _appearance: {seasonalEffects: true},
             page: "signup",
             sunset: sunset,
-            sunrise: sunrise
+            sunrise: sunrise,
+            recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY,
         });
     });
 
     app.post("/signup", async (req, res, next) => {
+        const token = req.body["g-recaptcha-response"];
+        if (!token || !(await verifyRecaptcha(token))) {
+            req.flash("signupMessage", "Please complete the reCAPTCHA.");
+            return res.redirect("/signup");
+        }
 
         let school = req.body.school;
         let username = req.body.username;
@@ -774,6 +822,55 @@ module.exports = function (app, passport) {
     app.post("/removeDonation", [isAdmin], async (req, res) => {
         let data = req.body;
         let resp = await dbClient.removeDonation(data.username, data.index);
+        if (resp.success) {
+            res.status(200).send(resp.data);
+        } else {
+            res.status(400).send(resp.data);
+        }
+    });
+
+    app.get("/donationProgress", [isLoggedIn], async (req, res) => {
+        let resp = await dbClient.getDonationProgress();
+        if (resp.success) {
+            let donoResp = await dbClient.getDonoData(req.user.username);
+            let userHasDonated = donoResp.success && donoResp.data.value.some(d => d.platform !== "gift");
+            res.status(200).json({...resp.data.value, userHasDonated});
+        } else {
+            res.sendStatus(400);
+        }
+    });
+
+    app.get("/getCosts", [isAdmin], async (req, res) => {
+        let resp = await dbClient.getCosts();
+        if (resp.success) {
+            res.status(200).json(resp.data.value);
+        } else {
+            res.sendStatus(400);
+        }
+    });
+
+    app.post("/addCost", [isAdmin], async (req, res) => {
+        let {name, type, amount, billingPeriod, date, endDate} = req.body;
+        let resp = await dbClient.addCost(name, type, parseFloat(amount), billingPeriod || null, parseInt(date), endDate ? parseInt(endDate) : null);
+        if (resp.success) {
+            res.status(200).send(resp.data);
+        } else {
+            res.status(400).send(resp.data);
+        }
+    });
+
+    app.post("/removeCost", [isAdmin], async (req, res) => {
+        let resp = await dbClient.removeCost(req.body.id);
+        if (resp.success) {
+            res.status(200).send(resp.data);
+        } else {
+            res.status(400).send(resp.data);
+        }
+    });
+
+    app.post("/editCost", [isAdmin], async (req, res) => {
+        let {id, name, type, amount, billingPeriod, date, endDate} = req.body;
+        let resp = await dbClient.editCost(id, name, type, parseFloat(amount), billingPeriod || null, parseInt(date), endDate ? parseInt(endDate) : null);
         if (resp.success) {
             res.status(200).send(resp.data);
         } else {

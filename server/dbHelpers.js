@@ -21,9 +21,10 @@ exports.BETA_DATABASE_NAME = 'beta';
 exports.TEST_DATABASE_NAME = 'test';
 exports.COMMON_DATABASE_NAME = 'common';
 exports.SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME = 'school_username_lookup';
+exports.COSTS_COLLECTION_NAME = 'costs';
 
 // Change this when updateDB changes
-exports.dbUserVersion = 32;
+exports.dbUserVersion = 33;
 exports.dbClassVersion = 4;
 
 exports.minUsersForAverageCalc = 9;
@@ -739,7 +740,13 @@ exports.processClasses = function (classes, forHistory=false) {
             return {success: false, data: {message: 'Invalid classes', log: JSON.stringify(class_)}};
         }
 
-        let {class_name, teacher_name, overall_percent, overall_letter, student_id, section_id, ps_locked, grades} = class_;
+        let {extension_version, class_name, teacher_name, overall_percent, overall_letter, student_id, section_id, ps_locked, grades} = class_;
+        if (extension_version === undefined) {
+            extension_version = "1.6.0";
+        }
+        if (!exports.checkVersion(extension_version, [1, 6, 0])) {
+            return {success: false, data: {message: 'Invalid classes', log: 'Invalid extension version'}};
+        }
         if (typeof class_name !== 'string') {
             return {success: false, data: {message: 'Invalid classes', log: 'Invalid class name'}};
         }
@@ -770,9 +777,10 @@ exports.processClasses = function (classes, forHistory=false) {
         }
 
         let cleanGrades = [];
+        let expectLateAndMissing = exports.checkVersion(extension_version, [1, 6, 1]);
 
         for (let grade of grades) {
-            let {date, category, assignment_name, exclude, points_possible, points_gotten, grade_percent, psaid} = grade;
+            let {date, category, assignment_name, exclude, points_possible, points_gotten, grade_percent, psaid, late, missing} = grade;
 
             // Make sure date is MM/DD/YYYY
             if (typeof date !== 'string') {
@@ -802,6 +810,16 @@ exports.processClasses = function (classes, forHistory=false) {
             if (typeof psaid !== 'number') {
                 return {success: false, data: {message: 'Invalid grades', log: 'Invalid psaid'}};
             }
+            if (expectLateAndMissing) {
+                if (typeof late !== 'boolean') {
+                    return {success: false, data: {message: 'Invalid grades', log: 'Invalid late'}};
+                }
+                if (typeof missing !== 'boolean') {
+                    return {success: false, data: {message: 'Invalid grades', log: 'Invalid missing'}};
+                }
+            } else if (late !== undefined || missing !== undefined) {
+                return {success: false, data: {message: 'Invalid late', log: 'Unexpected late/missing'}};
+            }
 
             cleanGrades.push({
                 assignment_name: assignment_name,
@@ -811,6 +829,8 @@ exports.processClasses = function (classes, forHistory=false) {
                 points_gotten: points_gotten,
                 points_possible: points_possible,
                 exclude: exclude,
+                missing: missing,
+                late: late,
                 psaid: psaid,
             });
         }
@@ -867,3 +887,21 @@ exports.checkValidMMDDYYYY = function (dateString) {
     // Compare parsed components with input components to ensure no date rollover
     return month === inputMonth && day === inputDay && year === inputYear;
 };
+
+exports.checkVersion = function (version, requiredVersion) {
+    if (typeof version !== 'string') return false;
+
+    let installedVersion = version.split('.').map(x => parseInt(x));
+    if (installedVersion.length === 0 || installedVersion.some(isNaN)) return false;
+
+    for (let i = 1; i < Math.max(requiredVersion.length, installedVersion.length); i++) {
+        let curr = requiredVersion[i] || 0;
+        let inst = installedVersion[i] || 0;
+        if (inst > curr) {
+            return true; // Installed version is newer
+        } else if (inst < curr) {
+            return false; // Installed version is older
+        }
+    }
+    return true; // Versions are the same
+}

@@ -263,7 +263,11 @@
                             if (!newScore) {
                                 newScore = parseScore(data[realIndex].grades[realAssignmentIndex].points_gotten, data[realIndex].grades[realAssignmentIndex].points_possible);
                             }
-                            card += `<div>` + data[realIndex].grades[realAssignmentIndex].assignment_name + ` <span class="score"><span>(` + newScore + `)</span></span></div>`;
+                            let newAssignment = data[realIndex].grades[realAssignmentIndex];
+                            let newStatusIcons = ``;
+                            if (newAssignment.missing) newStatusIcons += ` <span class="popup"><i class="fa fa-exclamation-circle" style="color:#e74c3c"><span class="popup-right">Missing</span></i></span>`;
+                            if (newAssignment.late) newStatusIcons += ` <span class="popup"><i class="fa fa-clock-o" style="color:#e67e22"><span class="popup-right">Late</span></i></span>`;
+                            card += `<div><span>` + newStatusIcons + (newStatusIcons ? ` ` : ``) + newAssignment.assignment_name + `</span> <span class="score"><span>(` + newScore + `)</span></span></div>`;
                         }
                     }
                     card += `</div>`;
@@ -320,7 +324,17 @@
                             if (oldCategory !== newCategory) {
                                 categoryChange = `<br><span class="score">[` + oldCategory + `] → <span>[` + newCategory + `]</span></span>`;
                             }
-                            card += `<div` + (categoryChange ? ` style="margin-bottom: 1rem"` : ``) + `><span>` + nameChange + (categoryChange || ``) + `</span>` + scoreChange + `</div>`;
+                            let statusIcons = ``;
+                            let oldMissing = modifiedAssignments[modifiedClasses[j]][k].missing;
+                            let oldLate = modifiedAssignments[modifiedClasses[j]][k].late;
+                            let curAssignment = data[realIndex].grades[realAssignmentIndex];
+                            if (!!oldMissing !== !!curAssignment.missing) {
+                                statusIcons += `<span class="popup"><i class="fa fa-exclamation-circle" style="color:#e74c3c"><span class="popup-right">` + (curAssignment.missing ? `Marked missing` : `No longer missing`) + `</span></i></span> `;
+                            }
+                            if (!!oldLate !== !!curAssignment.late) {
+                                statusIcons += `<span class="popup"><i class="fa fa-clock-o" style="color:#e67e22"><span class="popup-right">` + (curAssignment.late ? `Marked late` : `No longer late`) + `</span></i></span> `;
+                            }
+                            card += `<div` + (categoryChange ? ` style="margin-bottom: 1rem"` : ``) + `><span>` + statusIcons + nameChange + (categoryChange || ``) + `</span>` + scoreChange + `</div>`;
                         }
                     }
                     card += `</div>`;

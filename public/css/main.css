@@ -1728,6 +1728,7 @@ tr:hover .toolTab {
     font-size: 0.9rem;
     font-weight: 500;
     margin: 0.5rem 0.5rem 0.5rem 1rem;
+    width: 100%;
 }
 
 .notification-card span.notification-header {
@@ -2385,8 +2386,22 @@ tr:hover .excludeToggle .fa-ban {
     margin-right: 1rem;
 }
 
-.tableOptions:first-child {
+.tableOptions:not(:last-child) {
     margin-right: 1rem;
+}
+
+.tableOptions:first-child {
+    font-weight: bold;
+}
+
+.lateAssignmentSummary {
+    color: orange;
+    font-weight: bold;
+}
+
+.missingAssignmentSummary {
+    color: red;
+    font-weight: bold;
 }
 
 .switchDisplayMode {
