@@ -5433,8 +5433,10 @@ const _getDonationProgress = async (db) => {
     let thisMonthReceived = 0;
     let pastReceived = 0;
     let totalReceived = 0;
+    let donorCount = 0;
     if (usersRes.success) {
         for (let user of usersRes.data.value) {
+            let userHasRealDono = false;
             for (let dono of (user.donoData || [])) {
                 if (dono.platform !== "gift") {
                     if (dono.dateDonated >= startOfMonth && dono.dateDonated < startOfNextMonth) {
@@ -5443,8 +5445,10 @@ const _getDonationProgress = async (db) => {
                         pastReceived += dono.receivedValue;
                     }
                     totalReceived += dono.receivedValue;
+                    userHasRealDono = true;
                 }
             }
+            if (userHasRealDono) donorCount++;
         }
     }
 
@@ -5452,7 +5456,7 @@ const _getDonationProgress = async (db) => {
     let pastBalance = pastReceived - pastCosts;
     let effectiveGoal = Math.max(0, thisMonthTarget - pastBalance);
 
-    let result = {effectiveGoal, thisMonthReceived, totalCosts, totalReceived};
+    let result = {effectiveGoal, thisMonthReceived, totalCosts, totalReceived, donorCount};
     _donationProgressCache = {value: result, cachedAt: Date.now()};
     return {success: true, data: {value: result}};
 };
