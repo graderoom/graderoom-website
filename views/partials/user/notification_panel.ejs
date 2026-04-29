@@ -578,7 +578,9 @@
             let count = parseInt(localStorage.getItem("donoNotifCount") ?? "2") + 1;
             localStorage.setItem("donoNotifCount", count);
         }
-        if (parseInt(localStorage.getItem("donoNotifCount")) % 3 !== 0) return;
+        let count = parseInt(localStorage.getItem("donoNotifCount") || "0");
+        let dismissedAt = parseInt(localStorage.getItem("donoNotifDismissedCount") || "-1");
+        let showActive = count % 7 === 0 && dismissedAt !== count;
 
         $.ajax("/donationProgress", {
             method: "GET",
@@ -605,7 +607,16 @@
                 let message = supporterLine + progressBar + `<span class="notification-button" onclick="showCard('#settingsCardDisplay'); openTab(0)"><b><i class="fa fa-external-link-square"></i> Donate</b></span>`;
                 let hasActiveGoal = data.effectiveGoal > 0;
                 let dismissible = !hasActiveGoal || !!data.userHasDonated;
-                createNotification("dono-progress", "Announcement", "Support Graderoom", message, dismissible, false, false, true, hasActiveGoal && !dismissible, Date.now(), true, true);
+                createNotification("dono-progress", "Announcement", "Support Graderoom", message, dismissible, !showActive, false, showActive, hasActiveGoal && !dismissible && showActive, Date.now(), true, true);
+                // Hook dismiss button to persist dismissal until next instance
+                if (showActive) {
+                    let notif = notifications.unread.find(n => n.id === "dono-progress") || notifications.pinned.find(n => n.id === "dono-progress");
+                    if (notif?.ref) {
+                        notif.ref.querySelector(".notification-dismiss")?.addEventListener("click", () => {
+                            localStorage.setItem("donoNotifDismissedCount", count);
+                        });
+                    }
+                }
             }
         });
     }
