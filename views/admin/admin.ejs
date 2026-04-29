@@ -159,6 +159,129 @@
             </button>
         </form>
     </div>
+
+    <div class="bulk-actions" style="margin-top: 2rem">
+        <h3 style="margin-bottom: 1rem">Costs</h3>
+        <table id="costsTable" class="table rounded-table" style="width: 100%">
+            <thead>
+            <tr>
+                <th class="admin">Name</th>
+                <th class="admin">Type</th>
+                <th class="admin">Amount</th>
+                <th class="admin">Billing</th>
+                <th class="admin">Period</th>
+                <th class="admin">Count</th>
+                <th class="admin">Monthly</th>
+                <th class="admin"></th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot>
+            <tr>
+                <td colspan="6" style="text-align: right; padding-right: 1rem"><strong>Monthly Total:</strong></td>
+                <td id="costsMonthlyTotal" class="admin"></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="6" style="text-align: right; padding-right: 1rem">Total Incurred:</td>
+                <td id="costsTotalIncurred" class="admin"></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="6" style="text-align: right; padding-right: 1rem">Total Donated:</td>
+                <td id="costsTotalDonated" class="admin"></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="6" style="text-align: right; padding-right: 1rem">Balance:</td>
+                <td id="costsBalance" class="admin"></td>
+                <td></td>
+            </tr>
+            </tfoot>
+        </table>
+        <button class="btn btn-sm admin" onclick="$('#add-cost-container').toggleClass('active')">Add Cost</button>
+        <div class="add-donation-container" id="add-cost-container">
+            <form id="addCostForm">
+                <h5>Add Cost</h5>
+                <div class="addDonationDate form-weights form-signin input-group form-group">
+                    <label>Name</label>
+                    <input id="costName" class="form-control dynamic-input" type="text" oninput="checkLabel(this)" required>
+                </div>
+                <div class="addDonationPlatform input-group form-group" style="margin-bottom: 1.5rem !important">
+                    <label class="label-active">Type</label>
+                    <select id="costType" class="minimal" onchange="toggleCostBillingPeriod()">
+                        <option value="recurring">Recurring</option>
+                        <option value="flat">Flat (one-time)</option>
+                    </select>
+                </div>
+                <div class="addDonationPaid form-weights form-signin input-group form-group">
+                    <label>Amount ($)</label>
+                    <input id="costAmount" class="form-control dynamic-input" type="number" step="0.01" min="0.01" oninput="checkLabel(this)" required>
+                </div>
+                <div id="costBillingPeriodDiv" class="addDonationPlatform input-group form-group" style="margin-bottom: 1.5rem !important">
+                    <label class="label-active">Billing Period</label>
+                    <select id="costBillingPeriod" class="minimal">
+                        <option value="monthly">Monthly</option>
+                        <option value="annually">Annually</option>
+                    </select>
+                </div>
+                <div class="addDonationDate form-weights form-signin input-group form-group">
+                    <label>Start Date</label>
+                    <input id="costDate" class="form-control dynamic-input" type="text"
+                           onfocus="this.type='date'; this.valueAsDate = new Date(); checkLabel(this)"
+                           onblur="this.type='text'; checkLabel(this)" required>
+                </div>
+                <div id="costEndDateDiv" class="addDonationDate form-weights form-signin input-group form-group">
+                    <label>End Date (optional)</label>
+                    <input id="costEndDate" class="form-control dynamic-input" type="text"
+                           onfocus="this.type='date'; checkLabel(this)"
+                           onblur="this.type='text'; checkLabel(this)">
+                </div>
+                <button type="submit" style="margin: 0" class="btn btn-med">Add</button>
+            </form>
+        </div>
+        <div class="add-donation-container" id="edit-cost-container">
+            <form id="editCostForm">
+                <h5>Edit Cost</h5>
+                <input type="hidden" id="editCostId">
+                <div class="addDonationDate form-weights form-signin input-group form-group">
+                    <label>Name</label>
+                    <input id="editCostName" class="form-control dynamic-input" type="text" oninput="checkLabel(this)" required>
+                </div>
+                <div class="addDonationPlatform input-group form-group" style="margin-bottom: 1.5rem !important">
+                    <label class="label-active">Type</label>
+                    <select id="editCostType" class="minimal" onchange="toggleEditCostBillingPeriod()">
+                        <option value="recurring">Recurring</option>
+                        <option value="flat">Flat (one-time)</option>
+                    </select>
+                </div>
+                <div class="addDonationPaid form-weights form-signin input-group form-group">
+                    <label>Amount ($)</label>
+                    <input id="editCostAmount" class="form-control dynamic-input" type="number" step="0.01" min="0.01" oninput="checkLabel(this)" required>
+                </div>
+                <div id="editCostBillingPeriodDiv" class="addDonationPlatform input-group form-group" style="margin-bottom: 1.5rem !important">
+                    <label class="label-active">Billing Period</label>
+                    <select id="editCostBillingPeriod" class="minimal">
+                        <option value="monthly">Monthly</option>
+                        <option value="annually">Annually</option>
+                    </select>
+                </div>
+                <div class="addDonationDate form-weights form-signin input-group form-group">
+                    <label>Start Date</label>
+                    <input id="editCostDate" class="form-control dynamic-input" type="text"
+                           onfocus="this.type='date'; checkLabel(this)"
+                           onblur="this.type='text'; checkLabel(this)" required>
+                </div>
+                <div id="editCostEndDateDiv" class="addDonationDate form-weights form-signin input-group form-group">
+                    <label>End Date (optional)</label>
+                    <input id="editCostEndDate" class="form-control dynamic-input" type="text"
+                           onfocus="this.type='date'; checkLabel(this)"
+                           onblur="this.type='text'; checkLabel(this)">
+                </div>
+                <button type="submit" style="margin: 0" class="btn btn-med">Save</button>
+            </form>
+        </div>
+    </div>
 </div>
 <script>
     let total = 0;
@@ -600,6 +723,169 @@
             setAutoTheme();
         }, 100);
     }
+
+    loadCosts();
+
+    function loadCosts() {
+        $.ajax({
+            type: "GET",
+            url: "/getCosts",
+            success: function (costs) {
+                let tbody = $("#costsTable tbody");
+                tbody.empty();
+                let monthlyTotal = 0;
+                let now = new Date();
+                let startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+                for (let c of costs) {
+                    let monthly;
+                    let active = !c.endDate || c.endDate >= startOfMonth;
+                    if (c.type === "recurring") {
+                        monthly = active ? (c.billingPeriod === "annually" ? c.amount / 12 : c.amount) : 0;
+                    } else {
+                        let d = new Date(c.date);
+                        monthly = (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) ? c.amount : 0;
+                    }
+                    monthlyTotal += monthly;
+                    let billingLabel = c.billingPeriod ? (c.billingPeriod === "monthly" ? "Monthly" : "Annually") : "N/A";
+                    let endLabel = c.endDate ? new Date(c.endDate).toLocaleDateString() : "ongoing";
+                    let periodLabel = c.type === "recurring"
+                        ? `${new Date(c.date).toLocaleDateString()} – ${endLabel}`
+                        : new Date(c.date).toLocaleDateString();
+                    let count;
+                    if (c.type === "flat") {
+                        count = 1;
+                    } else {
+                        let effectiveEnd = (c.endDate && c.endDate < now.getTime()) ? new Date(c.endDate) : now;
+                        let start = new Date(c.date);
+                        let months = Math.max(0, (effectiveEnd.getFullYear() - start.getFullYear()) * 12 + (effectiveEnd.getMonth() - start.getMonth()) + 1);
+                        count = c.billingPeriod === "annually" ? Math.ceil(months / 12) : months;
+                    }
+                    let row = `<tr>
+                        <td class="admin">${c.name}</td>
+                        <td class="admin">${c.type === "recurring" ? "Recurring" : "Flat"}</td>
+                        <td class="admin">$${c.amount.toFixed(2)}</td>
+                        <td class="admin">${billingLabel}</td>
+                        <td class="admin">${periodLabel}</td>
+                        <td class="admin">${count}</td>
+                        <td class="admin">$${monthly.toFixed(2)}/mo</td>
+                        <td class="admin" style="white-space: nowrap">
+                            <button class="btn btn-sm admin" onclick='openEditCost(${JSON.stringify(c)})'>Edit</button>
+                            <button class="btn btn-sm deny_btn" onclick="removeCost('${c._id}')">Remove</button>
+                        </td>
+                    </tr>`;
+                    tbody.append(row);
+                }
+                $("#costsMonthlyTotal").text(`$${monthlyTotal.toFixed(2)}/mo`);
+                $.ajax({
+                    type: "GET",
+                    url: "/donationProgress",
+                    success: function (data) {
+                        let balance = data.totalReceived - data.totalCosts;
+                        $("#costsTotalIncurred").text(`$${data.totalCosts.toFixed(2)}`);
+                        $("#costsTotalDonated").text(`$${data.totalReceived.toFixed(2)}`);
+                        $("#costsBalance").text(`${balance >= 0 ? "+" : "-"}$${Math.abs(balance).toFixed(2)}`);
+                        $("#costsBalance").css("color", balance >= 0 ? "var(--green)" : "var(--red)");
+                    }
+                });
+            }
+        });
+    }
+
+    function toggleCostBillingPeriod() {
+        let isFlat = $("#costType").val() === "flat";
+        $("#costBillingPeriodDiv, #costEndDateDiv").toggle(!isFlat);
+    }
+
+    $("#addCostForm").on("submit", function (e) {
+        e.preventDefault();
+        let type = $("#costType").val();
+        let endDateVal = $("#costEndDate").val();
+        $.ajax({
+            type: "POST",
+            url: "/addCost",
+            data: {
+                name: $("#costName").val(),
+                type: type,
+                amount: parseFloat($("#costAmount").val()),
+                billingPeriod: type === "recurring" ? $("#costBillingPeriod").val() : null,
+                date: new Date($("#costDate").val() + "T00:00:00").getTime(),
+                endDate: (type === "recurring" && endDateVal) ? new Date(endDateVal + "T00:00:00").getTime() : null
+            },
+            success: function () {
+                loadCosts();
+                $("#add-cost-container").removeClass("active");
+                $("#addCostForm")[0].reset();
+                checkLabel($("#costName")[0]);
+                checkLabel($("#costAmount")[0]);
+                checkLabel($("#costDate")[0]);
+                checkLabel($("#costEndDate")[0]);
+                $("#costBillingPeriodDiv, #costEndDateDiv").show();
+            },
+            error: function () {
+                alert("Failed to add cost.");
+            }
+        });
+    });
+
+    function removeCost(id) {
+        $.ajax({
+            type: "POST",
+            url: "/removeCost",
+            data: {id: id},
+            success: loadCosts,
+            error: function () {
+                alert("Failed to remove cost.");
+            }
+        });
+    }
+
+    function toggleEditCostBillingPeriod() {
+        let isFlat = $("#editCostType").val() === "flat";
+        $("#editCostBillingPeriodDiv, #editCostEndDateDiv").toggle(!isFlat);
+    }
+
+    function toDateInput(ts) {
+        let d = new Date(ts);
+        return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    }
+
+    function openEditCost(c) {
+        $("#editCostId").val(c._id);
+        $("#editCostName").val(c.name).trigger("input");
+        $("#editCostType").val(c.type);
+        $("#editCostAmount").val(c.amount).trigger("input");
+        $("#editCostBillingPeriod").val(c.billingPeriod || "monthly");
+        $("#editCostDate").val(toDateInput(c.date)).trigger("input");
+        $("#editCostEndDate").val(c.endDate ? toDateInput(c.endDate) : "").trigger("input");
+        toggleEditCostBillingPeriod();
+        $("#edit-cost-container").addClass("active");
+    }
+
+    $("#editCostForm").on("submit", function (e) {
+        e.preventDefault();
+        let type = $("#editCostType").val();
+        let endDateVal = $("#editCostEndDate").val();
+        $.ajax({
+            type: "POST",
+            url: "/editCost",
+            data: {
+                id: $("#editCostId").val(),
+                name: $("#editCostName").val(),
+                type: type,
+                amount: parseFloat($("#editCostAmount").val()),
+                billingPeriod: type === "recurring" ? $("#editCostBillingPeriod").val() : null,
+                date: new Date($("#editCostDate").val() + "T00:00:00").getTime(),
+                endDate: (type === "recurring" && endDateVal) ? new Date(endDateVal + "T00:00:00").getTime() : null
+            },
+            success: function () {
+                loadCosts();
+                $("#edit-cost-container").removeClass("active");
+            },
+            error: function () {
+                alert("Failed to save cost.");
+            }
+        });
+    });
 
     $('.sort-btn').on('click', function () {
         let sortState = $(this).attr('data-sort-state');

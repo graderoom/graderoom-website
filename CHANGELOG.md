@@ -52,6 +52,12 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 7.3.2] - 2026-04-28
+### Added
+- You can now see if an assignment has been marked late or missing on PowerSchool
+- Signup is now protected by reCAPTCHA v2
+- Funding notifications will show up every 3 logins and be slightly more annoying if you've never donated
+
 ## [Stable 7.3.1] - 2026-02-07
 ### Improved
 - Instructions when requiring PowerSchool login are slightly more clear

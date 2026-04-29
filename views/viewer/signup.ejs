@@ -21,6 +21,7 @@
     <link id="fade" rel="stylesheet" type="text/css" href="/public/css/fade.css" disabled>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body style="min-height: 100vh">
 <div class="container" id="signup-container">
@@ -135,6 +136,10 @@
                             </span>
                         </div>
                     <% } %>
+                    <hr style="margin: 0.5rem 0 1.5rem; opacity: 0.15">
+                    <div style="display: flex; justify-content: center; margin-bottom: 1.25rem">
+                        <div class="g-recaptcha" data-sitekey="<%= recaptchaSiteKey %>" data-callback="onRecaptchaSuccess" data-expired-callback="onRecaptchaExpired"></div>
+                    </div>
                     <div class="text-center">
                         <button id="signupBtn" type="submit" class="btn btn-default btn-lg" disabled>Signup
                             <div>
@@ -584,6 +589,17 @@
     let betaDiv = $("#betaKey");
     let signupBtn = $("#signupBtn");
     let beta = <%= beta; %>;
+    let recaptchaPassed = false;
+
+    function onRecaptchaSuccess() {
+        recaptchaPassed = true;
+        validateSignup();
+    }
+
+    function onRecaptchaExpired() {
+        recaptchaPassed = false;
+        invalidateSignup();
+    }
 
     function validateSignup() {
         if (!checkUsername(userDiv)) { // Invalid Username
@@ -603,6 +619,10 @@
             return;
         }
         if (beta && !checkBetaKey(betaDiv)) { // Invalid Beta Key
+            invalidateSignup();
+            return;
+        }
+        if (!recaptchaPassed) {
             invalidateSignup();
             return;
         }
