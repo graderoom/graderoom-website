@@ -54,6 +54,7 @@
 
 ## [Stable 7.3.2] - 2026-04-28
 ### Added
+- You can now see if an assignment has been marked late or missing on PowerSchool
 - Signup is now protected by reCAPTCHA v2
 - Funding notifications will show up every 3 logins and be slightly more annoying if you've never donated
 

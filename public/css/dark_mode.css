@@ -461,6 +461,10 @@ select.minimal:focus {
     background-color: #222222;
 }
 
+.tableOptions:first-child {
+    color: #DDDDDD;
+}
+
 .gotIt {
     color: white;
 }

@@ -475,6 +475,10 @@ input:checked + .slider:before {
     border-color: #AAA !important;
 }
 
+.tableOptions:first-child {
+    color: #444444;
+}
+
 .weightsTable input.text-view {
     border-color: white;
 }

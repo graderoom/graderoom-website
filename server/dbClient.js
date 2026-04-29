@@ -3284,9 +3284,10 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                     newGrades[index].class_name,
                     newPSAIDs[index].filter(psaid => newToOldIndex[index] === -1 ? false : !oldPSAIDs[newToOldIndex[index]].includes(psaid))
                 ]).filter(data => data[1].length));
+                const normAssignment = (a) => a ? {...a, missing: !!a.missing, late: !!a.late} : a;
                 modified = Object.fromEntries(oldGrades.map((classData, index) => [
                     classData.class_name,
-                    classData.grades.filter(assignmentData => oldToNewIndex[index] === -1 ? false : newPSAIDs[oldToNewIndex[index]].includes(assignmentData["psaid"]) && oldToNewIndex[index] !== -1 && !_.isEqual(assignmentData, newGrades[oldToNewIndex[index]].grades.find(assignment => assignment["psaid"] === assignmentData["psaid"])))
+                    classData.grades.filter(assignmentData => oldToNewIndex[index] === -1 ? false : newPSAIDs[oldToNewIndex[index]].includes(assignmentData["psaid"]) && oldToNewIndex[index] !== -1 && !_.isEqual(normAssignment(assignmentData), normAssignment(newGrades[oldToNewIndex[index]].grades.find(assignment => assignment["psaid"] === assignmentData["psaid"]))))
                 ]).filter(data => data[1].length));
                 removed = Object.fromEntries(oldGrades.map((classData, index) => [
                     classData.class_name,
