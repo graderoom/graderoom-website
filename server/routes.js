@@ -829,6 +829,55 @@ module.exports = function (app, passport) {
         }
     });
 
+    app.get("/donationProgress", [isLoggedIn], async (req, res) => {
+        let resp = await dbClient.getDonationProgress();
+        if (resp.success) {
+            let donoResp = await dbClient.getDonoData(req.user.username);
+            let userHasDonated = donoResp.success && donoResp.data.value.some(d => d.platform !== "gift");
+            res.status(200).json({...resp.data.value, userHasDonated});
+        } else {
+            res.sendStatus(400);
+        }
+    });
+
+    app.get("/getCosts", [isAdmin], async (req, res) => {
+        let resp = await dbClient.getCosts();
+        if (resp.success) {
+            res.status(200).json(resp.data.value);
+        } else {
+            res.sendStatus(400);
+        }
+    });
+
+    app.post("/addCost", [isAdmin], async (req, res) => {
+        let {name, type, amount, billingPeriod, date, endDate} = req.body;
+        let resp = await dbClient.addCost(name, type, parseFloat(amount), billingPeriod || null, parseInt(date), endDate ? parseInt(endDate) : null);
+        if (resp.success) {
+            res.status(200).send(resp.data);
+        } else {
+            res.status(400).send(resp.data);
+        }
+    });
+
+    app.post("/removeCost", [isAdmin], async (req, res) => {
+        let resp = await dbClient.removeCost(req.body.id);
+        if (resp.success) {
+            res.status(200).send(resp.data);
+        } else {
+            res.status(400).send(resp.data);
+        }
+    });
+
+    app.post("/editCost", [isAdmin], async (req, res) => {
+        let {id, name, type, amount, billingPeriod, date, endDate} = req.body;
+        let resp = await dbClient.editCost(id, name, type, parseFloat(amount), billingPeriod || null, parseInt(date), endDate ? parseInt(endDate) : null);
+        if (resp.success) {
+            res.status(200).send(resp.data);
+        } else {
+            res.status(400).send(resp.data);
+        }
+    });
+
     app.post("/setColorPalette", [isLoggedIn], async (req, res) => {
         let resp = await dbClient.setColorPalette(req.user.username, req.body.preset, req.body.shuffleColors);
         if (resp.success) {

@@ -572,4 +572,39 @@
         pinRef.setAttribute("title", "Move to Unread");
     }
 
+    function createDonationProgressNotification() {
+        if (!sessionStorage.getItem("donoNotifCounted")) {
+            sessionStorage.setItem("donoNotifCounted", "1");
+            let count = parseInt(localStorage.getItem("donoNotifCount") ?? "2") + 1;
+            localStorage.setItem("donoNotifCount", count);
+        }
+        if (parseInt(localStorage.getItem("donoNotifCount")) % 3 !== 0) return;
+
+        $.ajax("/donationProgress", {
+            method: "GET",
+            success: function (data) {
+                if (!data || data.effectiveGoal <= 0) return;
+                let pct = Math.min(100, Math.round((data.thisMonthReceived / data.effectiveGoal) * 100));
+                let raised = data.thisMonthReceived.toFixed(2);
+                let goal = data.effectiveGoal.toFixed(2);
+                let remaining = Math.max(0, data.effectiveGoal - data.thisMonthReceived).toFixed(2);
+                let message = `
+                    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.4rem">
+                        <span style="font-size:1.05rem;font-weight:700">${pct}%<span style="font-size:0.75rem;font-weight:400;opacity:0.55;margin-left:0.25rem">funded</span>&nbsp;</span>
+                        <span style="font-size:0.78rem;opacity:0.6">$${raised} / $${goal}</span>
+                    </div>
+                    <div style="height:5px;background:rgba(128,128,128,0.2);border-radius:3px;overflow:hidden">
+                        <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#f90,#ff5722);border-radius:3px;transition:width 0.6s ease"></div>
+                    </div>
+                    <div style="font-size:0.72rem;opacity:0.5;margin-top:0.3rem;text-align:right">$${remaining} remaining this month</div>
+                    <span class="notification-button" onclick="showCard('#settingsCardDisplay'); openTab(0)"><b><i class="fa fa-external-link-square"></i> Donate</b></span>
+                `;
+                let dismissible = !!data.userHasDonated;
+                createNotification("dono-progress", "Announcement", "Support Graderoom", message, dismissible, false, false, true, !dismissible, Date.now(), true, true);
+            }
+        });
+    }
+
+    createDonationProgressNotification()
+
 </script>

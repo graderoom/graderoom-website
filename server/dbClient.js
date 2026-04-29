@@ -1,4 +1,4 @@
-const {MongoClient} = require("mongodb");
+const {MongoClient, ObjectId} = require("mongodb");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const chroma = require("chroma-js");
@@ -53,7 +53,7 @@ const {
     donoAttributes,
     nextSyncAllowed,
     ERRORS_COLLECTION_NAME,
-    GENERAL_ERRORS_COLLECTION_NAME, minUsersForAverageCalc, SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME, hash,
+    GENERAL_ERRORS_COLLECTION_NAME, minUsersForAverageCalc, SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME, COSTS_COLLECTION_NAME, hash,
     checkValidTerm, checkValidSemester, processClasses, nextSyncWhen
 } = require("./dbHelpers");
 
@@ -124,6 +124,10 @@ const _catalog = () => _client.db(COMMON_DATABASE_NAME).collection(CATALOG_COLLE
 const _errors = () => _client.db(COMMON_DATABASE_NAME).collection(ERRORS_COLLECTION_NAME);
 
 const _generalErrors = () => _client.db(COMMON_DATABASE_NAME).collection(GENERAL_ERRORS_COLLECTION_NAME);
+
+const _costs = (db) => db.collection(COSTS_COLLECTION_NAME);
+
+let _donationProgressCache = {value: null, cachedAt: null};
 
 const init = () => safe(_init);
 const _init = async (db) => {
@@ -5145,6 +5149,7 @@ const _addDonation = async (db, data) => {
     });
 
     if (res.matchedCount === 1) {
+        _donationProgressCache = {value: null, cachedAt: null};
         socketManager.emitToRoom(username, "donation-new", {
             platform: platform,
             paidValue: paidValue,
@@ -5191,6 +5196,7 @@ const _removeDonation = async (db, username, index) => {
         }
     }
 
+    _donationProgressCache = {value: null, cachedAt: null};
     socketManager.emitToRoom(username, "notification-delete", {id: id});
     socketManager.emitToRoom(username, "donation-delete", donation);
 
@@ -5218,6 +5224,197 @@ const _getDonoAttributes = async (db, username) => {
 
     let donos = res.data.value;
     return {success: true, data: {value: donoAttributes(donos)}};
+};
+
+const getAllDonoData = () => safe(_getAllDonoData);
+const _getAllDonoData = async (db) => {
+    let res = await getAllUsers({username: 1, donoData: 1}, {"donoData.0": {$exists: true}});
+    if (!res.success) {
+        return res;
+    }
+
+    let donoData = {};
+    // Get total donos for each year
+    for (let user of res.data.value) {
+        let donos = user.donoData;
+        for (let dono of donos) {
+            let year = new Date(dono.dateDonated).getFullYear();
+            if (!(year in donoData)) {
+                donoData[year] = 0;
+            }
+            donoData[year] += dono.receivedValue;
+        }
+    }
+
+    return {success: true, data: {value: donoData}};
+};
+
+const addCost = (name, type, amount, billingPeriod, date, endDate) => safe(_addCost, name, type, amount, billingPeriod, date, endDate);
+const _addCost = async (db, name, type, amount, billingPeriod, date, endDate) => {
+    if (!["flat", "recurring"].includes(type)) {
+        return {success: false, data: {message: "Invalid type", log: `Invalid cost type: ${type}`}};
+    }
+    if (type === "recurring" && !["monthly", "annually"].includes(billingPeriod)) {
+        return {success: false, data: {message: "Invalid billing period", log: `Invalid billing period: ${billingPeriod}`}};
+    }
+    if (typeof amount !== "number" || amount <= 0) {
+        return {success: false, data: {message: "Invalid amount", log: `Invalid cost amount: ${amount}`}};
+    }
+    if (typeof date !== "number") {
+        return {success: false, data: {message: "Invalid date", log: `Invalid cost date: ${date}`}};
+    }
+    await _costs(db).insertOne({
+        name,
+        type,
+        amount,
+        billingPeriod: type === "recurring" ? billingPeriod : null,
+        date,
+        endDate: (type === "recurring" && typeof endDate === "number") ? endDate : null
+    });
+    _donationProgressCache = {value: null, cachedAt: null};
+    return {success: true, data: {message: "Cost added"}};
+};
+
+const removeCost = (id) => safe(_removeCost, id);
+const _removeCost = async (db, id) => {
+    let result;
+    try {
+        result = await _costs(db).deleteOne({_id: new ObjectId(id)});
+    } catch (e) {
+        return {success: false, data: {message: "Invalid cost ID", log: `Invalid cost ID: ${id}`}};
+    }
+    if (result.deletedCount === 1) {
+        _donationProgressCache = {value: null, cachedAt: null};
+        return {success: true, data: {message: "Cost removed"}};
+    }
+    return {success: false, data: {message: "Cost not found", log: `Cost not found: ${id}`}};
+};
+
+const editCost = (id, name, type, amount, billingPeriod, date, endDate) => safe(_editCost, id, name, type, amount, billingPeriod, date, endDate);
+const _editCost = async (db, id, name, type, amount, billingPeriod, date, endDate) => {
+    if (!["flat", "recurring"].includes(type)) {
+        return {success: false, data: {message: "Invalid type", log: `Invalid cost type: ${type}`}};
+    }
+    if (type === "recurring" && !["monthly", "annually"].includes(billingPeriod)) {
+        return {success: false, data: {message: "Invalid billing period", log: `Invalid billing period: ${billingPeriod}`}};
+    }
+    if (typeof amount !== "number" || amount <= 0) {
+        return {success: false, data: {message: "Invalid amount", log: `Invalid cost amount: ${amount}`}};
+    }
+    if (typeof date !== "number") {
+        return {success: false, data: {message: "Invalid date", log: `Invalid cost date: ${date}`}};
+    }
+    let result;
+    try {
+        result = await _costs(db).updateOne({_id: new ObjectId(id)}, {$set: {
+            name,
+            type,
+            amount,
+            billingPeriod: type === "recurring" ? billingPeriod : null,
+            date,
+            endDate: (type === "recurring" && typeof endDate === "number") ? endDate : null
+        }});
+    } catch (e) {
+        return {success: false, data: {message: "Invalid cost ID", log: `Invalid cost ID: ${id}`}};
+    }
+    if (result.matchedCount === 1) {
+        _donationProgressCache = {value: null, cachedAt: null};
+        return {success: true, data: {message: "Cost updated"}};
+    }
+    return {success: false, data: {message: "Cost not found", log: `Cost not found: ${id}`}};
+};
+
+const getCosts = () => safe(_getCosts);
+const _getCosts = async (db) => {
+    let costs = await _costs(db).find({}).sort({date: 1}).toArray();
+    return {success: true, data: {value: costs.map(c => ({...c, _id: c._id.toString()}))}};
+};
+
+const getDonationProgress = () => safe(_getDonationProgress);
+const _getDonationProgress = async (db) => {
+    if (_donationProgressCache.value && !isNotToday(new Date(_donationProgressCache.cachedAt))) {
+        return {success: true, data: {value: _donationProgressCache.value}};
+    }
+
+    const now = new Date();
+    const nowTime = now.getTime();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+    const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1).getTime();
+
+    let costsArray = await _costs(db).find({}).toArray();
+    if (costsArray.length === 0) {
+        return {success: true, data: {value: {effectiveGoal: 0, thisMonthReceived: 0, totalCosts: 0, totalReceived: 0}}};
+    }
+
+    let thisMonthTarget = 0;
+    let pastCosts = 0;
+    let totalCosts = 0;
+
+    // Returns how many times a recurring cost has been charged from its start date up to toTime
+    const chargeCount = (c, toTime) => {
+        if (c.date > toTime) return 0;
+        let effectiveEnd = (c.endDate && c.endDate < toTime) ? c.endDate : toTime;
+        let start = new Date(c.date);
+        let end = new Date(effectiveEnd);
+        let monthsElapsed = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+        if (monthsElapsed < 0) return 0;
+        return c.billingPeriod === "annually" ? Math.floor(monthsElapsed / 12) + 1 : monthsElapsed + 1;
+    };
+
+    for (let c of costsArray) {
+        if (c.type === "recurring") {
+            const isActiveThisMonth = c.date < startOfNextMonth && (!c.endDate || c.endDate >= startOfMonth);
+
+            if (c.billingPeriod === "annually") {
+                if (isActiveThisMonth && new Date(c.date).getMonth() === now.getMonth()) {
+                    thisMonthTarget += c.amount;
+                }
+                if (c.date < startOfMonth) {
+                    pastCosts += chargeCount(c, startOfMonth - 1) * c.amount;
+                }
+                totalCosts += chargeCount(c, nowTime) * c.amount;
+            } else {
+                if (isActiveThisMonth) {
+                    thisMonthTarget += c.amount;
+                }
+                if (c.date < startOfMonth) {
+                    pastCosts += chargeCount(c, startOfMonth - 1) * c.amount;
+                }
+                totalCosts += chargeCount(c, nowTime) * c.amount;
+            }
+        } else if (c.type === "flat") {
+            if (c.date >= startOfMonth && c.date < startOfNextMonth) thisMonthTarget += c.amount;
+            if (c.date < startOfMonth) pastCosts += c.amount;
+            if (c.date <= nowTime) totalCosts += c.amount;
+        }
+    }
+
+    let usersRes = await getAllUsers({donoData: 1}, {"donoData.0": {$exists: true}});
+    let thisMonthReceived = 0;
+    let pastReceived = 0;
+    let totalReceived = 0;
+    if (usersRes.success) {
+        for (let user of usersRes.data.value) {
+            for (let dono of (user.donoData || [])) {
+                if (dono.platform !== "gift") {
+                    if (dono.dateDonated >= startOfMonth && dono.dateDonated < startOfNextMonth) {
+                        thisMonthReceived += dono.receivedValue;
+                    } else if (dono.dateDonated < startOfMonth) {
+                        pastReceived += dono.receivedValue;
+                    }
+                    totalReceived += dono.receivedValue;
+                }
+            }
+        }
+    }
+
+    // Carry over surplus/deficit from previous months into this month's goal
+    let pastBalance = pastReceived - pastCosts;
+    let effectiveGoal = Math.max(0, thisMonthTarget - pastBalance);
+
+    let result = {effectiveGoal, thisMonthReceived, totalCosts, totalReceived};
+    _donationProgressCache = {value: result, cachedAt: Date.now()};
+    return {success: true, data: {value: result}};
 };
 
 const getAllAlerts = (username) => safe(_getAllAlerts, lower(username));
@@ -5825,6 +6022,12 @@ module.exports = {
     removeDonation: removeDonation,
     getDonoData: getDonoData,
     getDonoAttributes: getDonoAttributes,
+    getAllDonoData: getAllDonoData,
+    addCost: addCost,
+    removeCost: removeCost,
+    editCost: editCost,
+    getCosts: getCosts,
+    getDonationProgress: getDonationProgress,
     getAllAlerts: getAllAlerts,
     getSpecificAlerts: getSpecificAlerts,
     getTrimmedAlerts: getTrimmedAlerts,

@@ -1728,6 +1728,7 @@ tr:hover .toolTab {
     font-size: 0.9rem;
     font-weight: 500;
     margin: 0.5rem 0.5rem 0.5rem 1rem;
+    width: 100%;
 }
 
 .notification-card span.notification-header {

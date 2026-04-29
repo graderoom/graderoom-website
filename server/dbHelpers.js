@@ -21,6 +21,7 @@ exports.BETA_DATABASE_NAME = 'beta';
 exports.TEST_DATABASE_NAME = 'test';
 exports.COMMON_DATABASE_NAME = 'common';
 exports.SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME = 'school_username_lookup';
+exports.COSTS_COLLECTION_NAME = 'costs';
 
 // Change this when updateDB changes
 exports.dbUserVersion = 32;
