@@ -4687,6 +4687,17 @@ input[name=searchByNameOrUsername] {
     }
 }
 
+@media only screen and (max-width: 480px) {
+    .recaptcha-wrapper {
+        height: 66px;
+    }
+
+    .recaptcha-wrapper .g-recaptcha {
+        transform: scale(0.85);
+        transform-origin: 50% 0;
+    }
+}
+
 /* Small window stuff */
 @media only screen and (max-height: 730px) {
     #login-container, #signup-container {
