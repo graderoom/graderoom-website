@@ -5,7 +5,7 @@ const _ = require("lodash");
 const SunCalc = require("suncalc");
 const https = require("https");
 const {changelog, changelogLegend, latestVersion} = require("./dbHelpers");
-const {Schools, PrettySchools, SchoolAbbr} = require("./enums");
+const {Schools, PrettySchools, SchoolAbbr, Constants} = require("./enums");
 const {checkReturnTo, isLoggedIn, isAdmin, isApiAuthenticated, isInternalApiAuthenticated, inRecentTerm} = require("./middleware");
 
 function verifyRecaptcha(token) {
@@ -115,6 +115,7 @@ module.exports = function (app, passport) {
                     beta: server.beta,
                     _betaFeatures: req.user.betaFeatures,
                     _SchoolAbbr: SchoolAbbr,
+                    _noGpaLetters: Constants.noGpaLetters,
                     term: term,
                     semester: semester,
                     _termsAndSemesters: termsAndSemesters,
@@ -158,6 +159,7 @@ module.exports = function (app, passport) {
                     beta: server.beta,
                     _betaFeatures: req.user.betaFeatures,
                     _SchoolAbbr: SchoolAbbr,
+                    _noGpaLetters: Constants.noGpaLetters,
                     term: "",
                     semester: "",
                     _termsAndSemesters: [],
@@ -344,6 +346,7 @@ module.exports = function (app, passport) {
                     beta: server.beta,
                     _betaFeatures: user.betaFeatures,
                     _SchoolAbbr: SchoolAbbr,
+                    _noGpaLetters: Constants.noGpaLetters,
                     term: term,
                     semester: semester,
                     _termsAndSemesters: termsAndSemesters,
@@ -386,6 +389,7 @@ module.exports = function (app, passport) {
                     beta: server.beta,
                     _betaFeatures: user.betaFeatures,
                     _SchoolAbbr: SchoolAbbr,
+                    _noGpaLetters: Constants.noGpaLetters,
                     term: "",
                     semester: "",
                     _termsAndSemesters: [],
@@ -917,8 +921,8 @@ module.exports = function (app, passport) {
                     _personalInfo: req.user.personalInfo,
                     _appearance: req.user.appearance,
                     _alerts: alerts,
-                    _gradeData: grades.filter(grade => !(["CR", "P", "W", false]).includes(grade.overall_letter) || grade.grades.length),
-                    _weightData: weights.filter((_, i) => !(["CR", "P", "W", false]).includes(grades[i].overall_letter) || grades[i].grades.length),
+                    _gradeData: grades.filter(grade => !Constants.noGpaLetters.includes(grade.overall_letter) || grade.grades.length),
+                    _weightData: weights.filter((_, i) => !Constants.noGpaLetters.includes(grades[i].overall_letter) || grades[i].grades.length),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     beta: server.beta,
                     sunset: sunset,

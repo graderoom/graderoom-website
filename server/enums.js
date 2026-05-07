@@ -41,10 +41,15 @@ module.exports.SchoolAbbr = {
     "Notre Dame High School": "NDSJ",
 }
 
+const _noGpaLetters = ["NC", "CR", "P", "W", false];
+const _noGpaLetterStrings = _noGpaLetters.filter(l => typeof l === "string");
+
 module.exports.Constants = {
     classTypes: ["non-academic", "none", "ap", "honors"],
     uc_csuClassTypes: ["not_uc", "uc", "uc_ap", "uc_hon"],
-    donoPlatforms: ["paypal", "venmo", "zelle", "cash", "gift"]
+    donoPlatforms: ["paypal", "venmo", "zelle", "cash", "gift"],
+    noGpaLetters: _noGpaLetters,
+    validLetterGradeRegex: new RegExp(`^(?:${_noGpaLetterStrings.join("|")}|F|[A-D][+\-]?)$`)
 }
 
 module.exports.ColorPresets = {

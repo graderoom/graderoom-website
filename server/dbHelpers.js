@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const md5 = require('md5');
 const readline = require('readline');
-const {Schools} = require('./enums');
+const {Schools, Constants} = require('./enums');
 
 exports.CLASSES_COLLECTION_NAME = 'classes';
 exports.CHARTS_COLLECTION_NAME = 'charts';
@@ -756,7 +756,7 @@ exports.processClasses = function (classes, forHistory=false) {
         if (typeof overall_percent !== 'number' && overall_percent !== false) {
             return {success: false, data: {message: 'Invalid classes', log: 'Invalid overall_percent'}};
         }
-        if (overall_letter !== false && (typeof overall_letter !== 'string' || !/^CR$|^P$|^W$|^F$|^[A-D][+\-]?$/.test(overall_letter))) {
+        if (overall_letter !== false && (typeof overall_letter !== 'string' || !Constants.validLetterGradeRegex.test(overall_letter))) {
             return {success: false, data: {message: 'Invalid classes', log: `Invalid overall_letter`}};
         }
         if (typeof student_id !== 'string' && !(forHistory && student_id === false)) {
