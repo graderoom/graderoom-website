@@ -1365,6 +1365,7 @@
         let semester = "<%= semester %>";
         let betaFeatures = <%- JSON.stringify(_betaFeatures); %>;
         let SchoolAbbr = <%- JSON.stringify(_SchoolAbbr); %>;
+        let noGpaLetters = <%- JSON.stringify(_noGpaLetters); %>;
         let categoryChartData = [];
         let chartData = [];
         let parsedData = [];
@@ -1788,7 +1789,7 @@
                     let uc;
                     [uc, classType] = classType.split("_");
                     let letterGrade = classData[1] || (term === ninth && semester === "S3" ? getLetterGrade(getOverallGrade(c)) : false);
-                    if ((uc === "uc" || uc === "") && !([false, "CR", "W"]).includes(letterGrade)) {
+                    if ((uc === "uc" || uc === "") && !noGpaLetters.includes(letterGrade)) {
                         numClasses++;
                         let points = getGPA(letterGrade);
                         basePoints += points;
@@ -1818,7 +1819,7 @@
                         let uc;
                         [uc, classType] = classType.split("_");
                         let letterGrade = classData[1] || (term === tenth && semester === semesters[s] ? getLetterGrade(getOverallGrade(c)) : false);
-                        if ((uc === "uc" || uc === "") && !([false, "CR", "W"]).includes(letterGrade)) {
+                        if ((uc === "uc" || uc === "") && !noGpaLetters.includes(letterGrade)) {
                             classesCounted.push(classData[0]);
                             let points = getGPA(letterGrade);
                             basePoints += points;
@@ -1850,7 +1851,7 @@
                         let uc;
                         [uc, classType] = classType.split("_");
                         let letterGrade = classData[1] || (term === eleventh && semester === semesters[s] ? getLetterGrade(getOverallGrade(c)) : false);
-                        if ((uc === "uc" || uc === "") && !([false, "CR", "W"]).includes(letterGrade)) {
+                        if ((uc === "uc" || uc === "") && !noGpaLetters.includes(letterGrade)) {
                             classesCounted.push(classData[0]);
                             let points = getGPA(letterGrade);
                             basePoints += points;
@@ -1917,7 +1918,7 @@
                         let classData = Object.entries(classes[c])[0];
                         let classType = relClassData[classData[0]].classType;
                         let letterGrade = classData[1] || (term === _term && semester === _semester ? getLetterGrade(getOverallGrade(c)) : false);
-                        if (classType !== "non-academic" && !([false, "CR", "W"]).includes(letterGrade)) {
+                        if (classType !== "non-academic" && !noGpaLetters.includes(letterGrade)) {
                             if (appearance.weightedGPA && (classType === "ap" || classType === "honors")) {
                                 GPA += 1;
                                 max += 1;
@@ -1953,7 +1954,7 @@
                 let className = _data[i].class_name;
                 let classType = relClassData[className]["classType"];
                 let letterGrade = _data[i].overall_letter || getLetterGrade(getOverallGrade(i));
-                if (!([false, "CR", "W"]).includes(letterGrade)) {
+                if (!noGpaLetters.includes(letterGrade)) {
                     GPA += getGPA(letterGrade);
                     max += 4;
                     if (appearance.weightedGPA && (classType === "ap" || classType === "honors")) {
@@ -1980,7 +1981,7 @@
             if (!letterGrade) {
                 return null;
             }
-            if (([false, "CR", "W"]).includes(letterGrade)) {
+            if (noGpaLetters.includes(letterGrade)) {
                 return null;
             }
             letterGrade = letterGrade[0];

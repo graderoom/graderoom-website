@@ -52,6 +52,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 7.3.3] - 2026-05-07
+### Fixed
+- Allow "NC" letter grades in sync
+
 ## [Stable 7.3.2] - 2026-04-29
 ### Added
 - You can now see if an assignment has been marked late or missing on PowerSchool
