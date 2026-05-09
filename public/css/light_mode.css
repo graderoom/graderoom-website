@@ -2,9 +2,8 @@
     /* Core backgrounds */
     --clr-bg: #EEEEEE;
     --clr-surface: #FFFFFF;
-    --clr-surface-alt: #EEEEEE;
-    --clr-surface-deep: #FFFFFF;
-    --clr-surface-nested: #EEEEEE;
+    --clr-surface-alt: var(--clr-surface);
+    --clr-surface-deep: var(--clr-surface);
     --clr-input: #EEEEEE;
     --clr-disabled: #AAAAAA;
 
@@ -16,162 +15,41 @@
     --clr-placeholder: #AAAAAA;
     --clr-text-excluded: #BBBBBB;
     --clr-text-no-change: rgba(0, 0, 0, 0.5);
-    --clr-loading-dot: #333333;
 
-    /* Borders */
-    --clr-border: #CCCCCC;
+    /* Borders and shadows */
+    --clr-border: #DDDDDD;
     --clr-border-subtle: #EEEEEE;
+    --clr-shadow: rgba(0, 0, 50, 0.3);
+    --clr-shadow-soft: rgba(200, 200, 200, 0.30);
+    --clr-termSwitcher-blur-shadow: var(--clr-shadow-soft) 0 0 2px 1px, inset var(--clr-surface-deep) 0 0 200px 5px;
 
-    /* Shadows */
-    --clr-shadow: #999999;
-    --clr-shadow-soft: rgba(0, 0, 0, 0.1);
-
-    /* Buttons */
+    /* Buttons and links */
     --clr-btn: #444444;
     --clr-btn-text: #DDDDDD;
-    --clr-btn-nav-text: black;
-    --clr-btn-nav-hover-bg: #FFFFFF;
-    --clr-btn-nav-hover-text: #888888;
     --clr-btn-approve: #6CA66C;
     --clr-btn-deny: #F57171;
-    --clr-btn-donate-nav-hover-bg: #3F00B2;
-
-    /* Links */
+    --clr-donate-nav-bg: #3F00B2;
     --clr-card-link: #444444;
     --clr-card-footer-link: currentColor;
     --deco-card-link: underline;
 
-    /* Form inputs */
-    --clr-select-bg: #EEEEEE;
-    --clr-select-text: #000000;
+    /* Inputs */
     --clr-select-arrow: gray;
     --clr-select-track: lightgray;
-    --clr-slider-track: #EEEEEE;
-    --clr-slider-thumb: #DDDDDD;
-    --clr-slider-checked-thumb: #000000;
-    --clr-range-track: #AAAAAA;
-    --clr-range-thumb: #333333;
-    --clr-number-input-outline: #DEE2E6;
-    --clr-form-weights-placeholder: #DDDDDD;
 
-    /* Scrollbar */
-    --clr-scrollbar-body: #CCCCCC;
-    --clr-scrollbar-body-hover: #BBBBBB;
-    --clr-scrollbar-body-active: #999999;
-    --clr-scrollbar-inner: #BBBBBB;
-    --clr-scrollbar-inner-hover: #AAAAAA;
-    --clr-scrollbar-inner-active: #888888;
-
-    /* Semantic status */
+    /* Status colors */
     --clr-success: green;
     --clr-error: red;
     --clr-warning: darkorange;
     --clr-loading: blue;
-    --clr-mini-spinner: darkgreen;
-    --clr-improve: rgba(100, 150, 100, 1);
-    --clr-deprove: rgba(200, 50, 50, 1);
     --clr-donate: #f7ce48;
 
-    /* Overlay */
-    --clr-overlay: rgba(255, 255, 255, 0.5);
-
     /* Components */
-    --clr-mono: #DDDDDD;
-    --clr-progress-track: #DDDDDD;
-    --clr-progress-border: white;
-    --clr-progress-bar-bg: hsl(210, 48%, 48%);
-    --clr-progress-bar-text: #FFFFFF;
-    --clr-empty-progress-text: #FFFFFF;
-    --clr-empty-progress-border: #FFFFFF;
-    --clr-table-row-bg: #FFFFFF;
-    --clr-table-options-text: #444444;
-    --clr-table-options-popup-hover-bg: #AAAAAA;
-    --clr-weights-container-bg: #FFFFFF;
-    --clr-table-container-bg: #FFFFFF;
+    --clr-overlay: rgba(255, 255, 255, 0.5);
     --clr-toolTab-hover: rgba(52, 52, 52, 0.1);
-    --clr-class-table-cell-shadow: inset 0 0 1px rgba(100, 100, 100, 0.5);
-    --clr-school-username: #444444;
-    --clr-class-color-label-bg: linear-gradient(to left, #333333 50%, white 50%);
-    --clr-got-it: black;
-    --clr-tutorial-status-bg: hsl(210, 48%, 48%);
-    --clr-tutorial-status-text: #333333;
-
-    /* GPA & Term Switcher */
-    --clr-gpa-panel-bg: white;
-    --clr-gpa-panel-border: transparent;
-    --clr-gpa-details-border: black;
-    --clr-gpa-mobile-border: #CCCCCC;
-    --clr-gpa-mobile-shadow: none;
-    --clr-weighted-gpa-toggle-bg: white;
-    --clr-termSwitcher-border: #CCCCCC;
-    --clr-termSwitcher-item-bg: #EEEEEE;
-    --clr-termSwitcher-item-hover-bg: #FFFFFF;
-
-    /* Navigation */
-    --clr-classlinks-shadow: 0 0 10px 2px #BBBBBB;
-    --clr-classlinks-hover-shadow: inset 0 0 1px 1px #333333;
-    --clr-classlinks-active-bg: #333333;
-    --clr-classlinks-active-color: white;
-
-    /* Notifications */
-    --clr-notification-bell-bg: rgba(230, 230, 230, 0.9);
-    --clr-notification-bell-border: #CCCCCC;
-    --clr-notification-active-bg: rgba(255, 255, 255, 0.8);
-    --clr-notification-card-bg: white;
-    --clr-notification-card-hover-bg: #CCCCCC;
-    --clr-notification-header-bg: #FFFFFF;
-    --clr-notification-btn-bg: black;
-    --clr-notification-btn-text: white;
-    --clr-notification-btn-outline: black;
-    --clr-notification-btn-hover-bg: #DDDDDD;
-    --clr-notification-btn-hover-text: black;
-    --clr-notification-divider: #333333;
-
-    /* Changelog */
-    --clr-changelog-item-bg: rgba(100, 100, 100, 0.1);
-    --clr-changelog-known-issues-bg: rgba(0, 0, 0, 0.1);
-    --clr-changelog-stable-bg: rgba(0, 0, 255, 0.2);
-    --clr-changelog-current-bg: rgba(0, 255, 0, 0.1);
-    --clr-changelog-type: #000000;
-    --clr-changelog-body: var(--clr-text);
-    --clr-changelog-panel-bg: white;
-    --clr-changelog-panel-shadow: #333333;
-    --clr-changelog-legend-bg: transparent;
-    --clr-changelog-legend-border: #CCCCCC;
-    --clr-changelog-placeholder: rgba(100, 100, 100, 0.1);
-
-    /* Charts */
-    --clr-chart-placeholder: rgba(100, 100, 100, 0.1);
-
-    /* Assignment & Grade info */
-    --clr-assignment-info-bg: #EEEEEE;
-    --clr-assignment-info-hover-bg: #AAAAAA;
-    --clr-assignment-info-outline: transparent;
-    --clr-grade-changes-bg: transparent;
-    --clr-grade-changes-border: #DDDDDD;
-    --clr-grade-changes-class-name-bg: #333333;
-    --clr-grade-changes-hr: #DDDDDD;
-
-    /* Dropdown */
-    --clr-dropdown-bg: transparent;
-    --clr-dropdown-border: #DDDDDD;
-
-    /* Mobile */
-    --clr-backToHome-bg: #FFFFFF;
-    --clr-backToHome-hover-text: rgb(119, 119, 119);
-    --clr-backToHome-hover-bg: rgb(246.5, 246.5, 246.5);
-    --clr-backToHome-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.2);
-    --clr-block-mobile-bg: white;
-
-    /* Tabs */
-    --clr-tab-btn: #666666;
-    --clr-tab-btn-hover: #BBBBBB;
-    --clr-tab-btn-active-bg: #CCCCCC;
-    --clr-tab-btn-active-text: #000000;
-
-    /* Donations */
-    --clr-donation-progress-final-bg: black;
-    --clr-donation-progress-overlay-border: currentColor;
+    --clr-class-link-active-text: white;
+    --clr-class-link-active-bg: #333333;
+    --clr-class-color-label-bg: linear-gradient(to left, var(--clr-class-link-active-bg) 50%, white 50%);
     --clr-donation-flare: linear-gradient(65deg, transparent 20%, rgba(255, 255, 255, 0.6) 20%, rgba(255, 255, 255, 0.8) 27%, transparent 27%, transparent 100%);
 
     /* Form images */
@@ -181,23 +59,4 @@
     --img-key: url(/public/resources/light_mode/key.png);
     --img-graduation: url(/public/resources/light_mode/graduation.png);
     --img-school: url(/public/resources/light_mode/school.png);
-
-    /* Blur overrides */
-    --clr-blur-termSwitcher-shadow: rgba(51, 51, 51, 0.2) 0 0 2px 1px, inset rgba(255, 255, 255, 0.5) 0 0 200px 5px;
-    --clr-blur-termSwitcher-div-shadow: rgba(51, 51, 51, 0.6) 0 0 1px 1px;
-    --clr-blur-termSwitcher-div-hover-shadow: unset;
-    --clr-blur-panel-before-bg: transparent;
-    --clr-blur-notif-before-shadow: rgba(51, 51, 51, 0.2) 0 0 2px 1px, inset rgba(255, 255, 255, 0.5) 0 0 200px 5px;
-    --clr-blur-termSwitcher-before-shadow: inset 0 38px 76px rgba(255, 255, 255, 0.60);
-    --clr-blur-GPA-mobile-before-shadow: rgba(51, 51, 51, 0.2) 0 0 2px 1px, inset rgba(255, 255, 255, 0.5) 0 0 200px 5px;
-    --clr-blur-dropdown-color: unset;
-    --clr-blur-dropdown-shadow: rgba(192, 192, 192, 0.2) 0 0 2px 1px, inset rgba(255, 255, 255, 0.5) 0 0 200px 5px, rgba(192, 192, 192, 0.4) 5px 5px 20px 2px;
-    --clr-blur-dropdown-divider: rgba(51, 51, 51, 0.2);
-    --clr-blur-dropdown-mobile-shadow: unset;
-    --clr-blur-navbar-bg: rgba(255, 255, 255, 0.95);
-    --clr-blur-classLinks-outline: none;
-    --clr-blur-classLinks-shadow: var(--clr-classlinks-shadow);
-    --clr-blur-classLinks-sticky-bg: rgba(255, 255, 255, 0.8);
-    --clr-blur-unlock-color: #222;
-    --clr-blur-popup-span-shadow: inset rgba(255, 255, 255, 0.8) 0 0 200px 5px;
 }

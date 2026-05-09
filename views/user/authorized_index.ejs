@@ -42,7 +42,12 @@
     <link rel="stylesheet" type="text/css" href="/public/css/notifications.css">
     <link rel="stylesheet" type="text/css" href="/public/css/layout.css">
     <link rel="stylesheet" type="text/css" href="/public/css/components.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/responsive.css">
     <link id="blur_base" rel="stylesheet" type="text/css" href="/public/css/blur.css"
+          <% if (!_appearance.blurEffects) { %>disabled
+            <% } %>
+    >
+    <link id="blur_responsive" rel="stylesheet" type="text/css" href="/public/css/responsive_blur.css"
           <% if (!_appearance.blurEffects) { %>disabled
             <% } %>
     >
@@ -934,9 +939,9 @@
                                 $("#blurEffectsToggle").prop("checked", settings[key]);
                                 appearance.blurEffects = settings[key];
                                 if (!appearance.blurEffects) {
-                                    $("#blur_base").prop("disabled", true);
+                                    $("#blur_base, #blur_responsive").prop("disabled", true);
                                 } else {
-                                    $("#blur_base").prop("disabled", false);
+                                    $("#blur_base, #blur_responsive").prop("disabled", false);
                                 }
                                 break;
                             case "regularizeClassGraphs":

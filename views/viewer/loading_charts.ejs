@@ -31,7 +31,12 @@
     <% } %>
     <link rel="stylesheet" type="text/css" href="/public/css/base.css">
     <link rel="stylesheet" type="text/css" href="/public/css/nav.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/responsive.css">
     <link id="blur_base" rel="stylesheet" type="text/css" href="/public/css/blur.css"
+          <% if (!_appearance.blurEffects) { %>disabled
+            <% } %>
+    >
+    <link id="blur_responsive" rel="stylesheet" type="text/css" href="/public/css/responsive_blur.css"
           <% if (!_appearance.blurEffects) { %>disabled
             <% } %>
     >

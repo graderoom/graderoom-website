@@ -214,27 +214,27 @@ body::-webkit-scrollbar-thumb {
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: var(--clr-scrollbar-body);
+    background-color: var(--clr-border);
 }
 
 ::-webkit-scrollbar-thumb:vertical:hover {
-    background-color: var(--clr-scrollbar-body-hover);
+    background-color: var(--clr-input);
 }
 
 ::-webkit-scrollbar-thumb:vertical:active {
-    background-color: var(--clr-scrollbar-body-active);
+    background-color: var(--clr-disabled);
 }
 
 :not(body)::-webkit-scrollbar-thumb:vertical:hover {
-    background-color: var(--clr-scrollbar-inner-hover);
+    background-color: var(--clr-disabled);
 }
 
 :not(body)::-webkit-scrollbar-thumb:vertical:active {
-    background-color: var(--clr-scrollbar-inner-active);
+    background-color: var(--clr-text-4);
 }
 
 :not(body)::-webkit-scrollbar-thumb {
-    background-color: var(--clr-scrollbar-inner);
+    background-color: var(--clr-input);
 }
 
 /* Base elements */
@@ -299,7 +299,7 @@ input:disabled {
     height: 8px;
     border-radius: 50%;
     position: absolute;
-    background-color: var(--clr-loading-dot);
+    background-color: var(--clr-text);
 }
 
 .loading span:nth-child(1) {
@@ -351,7 +351,7 @@ input:disabled {
 }
 
 .mini:before {
-    background-color: var(--clr-mini-spinner) !important;
+    background-color: var(--clr-success) !important;
 }
 
 .sk-chase-dot:nth-child(1) { animation-delay: -1.1s; }

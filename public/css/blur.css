@@ -31,14 +31,14 @@
 
     div.unlock-with {
         backdrop-filter: blur(2px);
-        color: var(--clr-blur-unlock-color);
+        color: var(--clr-text);
     }
 
     .popup > i > span {
         background-color: transparent !important;
         backdrop-filter: blur(1rem);
         border: 2px solid rgba(from currentColor r g b / 0.3) !important;
-        box-shadow: var(--clr-blur-popup-span-shadow);
+        box-shadow: none;
     }
 
     .popup-top-right::after, .popup-top::after, .popup-top-left::after {
@@ -58,15 +58,15 @@
     }
 
     #termSwitcher {
-        box-shadow: var(--clr-blur-termSwitcher-shadow);
+        box-shadow: var(--clr-shadow-soft) 0 0 2px 1px, inset var(--clr-surface-deep) 0 0 200px 5px;
     }
 
     #termSwitcher > div {
-        box-shadow: var(--clr-blur-termSwitcher-div-shadow);
+        box-shadow: inset 0 0 50px var(--clr-border-subtle);
     }
 
     #termSwitcher > div:hover {
-        box-shadow: var(--clr-blur-termSwitcher-div-hover-shadow);
+        box-shadow: inset 0 0 100px var(--clr-border-subtle);
     }
 
     #termSwitcher > div > div:hover, #termSwitcher > div > div.active {
@@ -74,62 +74,35 @@
     }
 
     #notificationPanel::before, #termSwitcher::before, #GPA-container::before {
-        background-color: var(--clr-blur-panel-before-bg);
+        background-color: color-mix(in srgb, var(--clr-border) 90%, transparent);
     }
 
     #notificationPanel::before {
-        box-shadow: var(--clr-blur-notif-before-shadow);
+        box-shadow: inset 0 19px 38px var(--clr-shadow-soft);
     }
 
     #termSwitcher::before {
-        box-shadow: var(--clr-blur-termSwitcher-before-shadow);
+        box-shadow: inset 0 19px 38px var(--clr-shadow-soft);
     }
 
     .dropdown-menu {
         border: none;
-        color: var(--clr-blur-dropdown-color);
-        box-shadow: var(--clr-blur-dropdown-shadow);
+        color: var(--clr-text);
+        box-shadow: 0 0 10px 2px var(--clr-shadow);
     }
 
     .dropdown-divider {
-        border-color: var(--clr-blur-dropdown-divider);
+        border-color: var(--clr-border);
     }
 
     #classLinks {
         transition: all 200ms ease;
-        outline: var(--clr-blur-classLinks-outline);
-        box-shadow: var(--clr-blur-classLinks-shadow);
+        outline: 1px solid color-mix(in srgb, var(--clr-text) 10%, transparent);
+        box-shadow: none;
     }
 
     #classLinks.sticky {
-        background-color: var(--clr-blur-classLinks-sticky-bg);
+        background-color: color-mix(in srgb, var(--clr-surface) 85%, transparent);
         backdrop-filter: blur(1rem);
-    }
-
-    /* Mobile Stuff */
-    @media only screen and (max-width: 991px) {
-        #termSwitcher {
-            background-color: unset !important;
-        }
-
-        #clickBarrier.blocking {
-            background: transparent !important;
-            backdrop-filter: blur(0.2rem);
-            -webkit-backdrop-filter: blur(0.2rem);
-        }
-
-        #GPA-container {
-            background: transparent !important;
-            backdrop-filter: blur(0.5rem);
-            -webkit-backdrop-filter: blur(0.5rem);
-        }
-
-        #GPA-container::before {
-            box-shadow: var(--clr-blur-GPA-mobile-before-shadow);
-        }
-
-        .dropdown-menu {
-            box-shadow: var(--clr-blur-dropdown-mobile-shadow);
-        }
     }
 }

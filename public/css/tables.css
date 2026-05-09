@@ -44,7 +44,7 @@ table tfoot tr td {
 }
 
 .table th, .table tr:not(.separator) td {
-    background-color: var(--clr-table-row-bg);
+    background-color: var(--clr-surface-deep);
 }
 
 th {
@@ -77,7 +77,7 @@ th {
 
 .class-table th, .class-table td {
     border-color: transparent !important;
-    box-shadow: var(--clr-class-table-cell-shadow);
+    box-shadow: inset 0 0 2px 1px var(--clr-shadow-soft);
 }
 
 /* Rounded table */
@@ -141,11 +141,11 @@ tr.no-change {
 }
 
 .improve {
-    color: var(--clr-improve);
+    color: var(--clr-success);
 }
 
 .deprove {
-    color: var(--clr-deprove);
+    color: var(--clr-error);
 }
 
 /* Exclude toggle */
@@ -294,9 +294,10 @@ th.toolTab {
     justify-content: center;
     width: fit-content;
     width: -moz-fit-content;
-    padding: 0 !important;
+    padding: 0.5rem 1rem;
     border-radius: 0.5rem;
-    background-color: var(--clr-weights-container-bg);
+    background-color: var(--clr-surface-deep);
+    border: 1px solid var(--clr-border-subtle);
 }
 
 .weightsTable input {
@@ -405,7 +406,7 @@ th.toolTab {
 /* GPA details table */
 
 .gpa-details-table th, .gpa-details-table td, .gpa-details-table, .gpa-details-table tr {
-    border: 1px solid var(--clr-gpa-details-border);
+    border: 1px solid var(--clr-border);
     padding: 0.5rem;
 }
 

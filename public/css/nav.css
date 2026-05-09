@@ -1,5 +1,5 @@
 nav {
-    box-shadow: var(--clr-bg) 0 1px 2px;
+    box-shadow: var(--clr-border-subtle) 0 1px 2px;
     z-index: 19;
     background-color: var(--clr-surface);
     color: var(--clr-text);
@@ -28,12 +28,12 @@ nav label {
 nav .btn {
     margin: .5rem;
     background-color: transparent;
-    color: var(--clr-btn-nav-text);
+    color: var(--clr-text);
 }
 
 nav .btn:hover {
-    background-color: var(--clr-btn-nav-hover-bg);
-    color: var(--clr-btn-nav-hover-text);
+    background-color: var(--clr-btn);
+    color: var(--clr-btn-text);
 }
 
 nav .navbar-collapse li, nav .navbar-collapse .btn {
@@ -77,12 +77,12 @@ nav .navbar-toggler:hover {
 }
 
 .navbar .nav-item btn:hover, .navbar .nav-item a:not(.dropdown-toggle):hover {
-    background-color: var(--clr-btn-nav-hover-bg) !important;
+    background-color: var(--clr-btn) !important;
     border-color: var(--clr-text) !important;
 }
 
 .navbar btn.donate-nav-item:hover, btn.donate-nav-item.active {
-    background-color: var(--clr-btn-donate-nav-hover-bg) !important;
+    background-color: var(--clr-donate-nav-bg) !important;
     border-color: blue !important;
 }
 
@@ -120,7 +120,7 @@ nav .navbar-toggler:hover {
 
 #classLinks {
     z-index: 19;
-    box-shadow: var(--clr-classlinks-shadow);
+    box-shadow: 0 0 10px 2px var(--clr-shadow-soft);
 }
 
 #classLinks span {
@@ -135,8 +135,8 @@ nav .navbar-toggler:hover {
 
 #classLinks li.nav-item.active {
     font-weight: bolder;
-    color: var(--clr-classlinks-active-color);
-    background-color: var(--clr-classlinks-active-bg);
+    color: var(--clr-class-link-active-text);
+    background-color: var(--clr-class-link-active-bg);
 }
 
 #classLinks li.nav-item:not(.active):hover, #classLinks li.nav-item.active {
@@ -144,7 +144,7 @@ nav .navbar-toggler:hover {
 }
 
 #classLinks li.nav-item:not(.active):hover {
-    box-shadow: var(--clr-classlinks-hover-shadow);
+    box-shadow: inset 0 0 1px 1px var(--clr-class-link-active-bg);
 }
 
 #classLinks li.nav-item .nav-link {
@@ -198,7 +198,7 @@ nav .navbar-toggler:hover {
 }
 
 .school-username {
-    color: var(--clr-school-username);
+    color: var(--clr-text-2);
 }
 
 /* Dropdown */
@@ -212,8 +212,8 @@ nav .navbar-toggler:hover {
     padding: 0.5rem 0;
     cursor: context-menu;
     border-radius: 1rem;
-    background-color: var(--clr-dropdown-bg);
-    border-color: var(--clr-dropdown-border);
+    background-color: var(--clr-surface);
+    border-color: var(--clr-border);
     box-shadow: 0 0 20px 2px var(--clr-shadow-soft);
 }
 

@@ -34,13 +34,8 @@
     border-radius: 1rem 0 0 1rem;
     box-shadow: inherit;
     cursor: pointer;
-    opacity: 0.7;
-    background-color: var(--clr-notification-bell-bg);
-    border: 1px solid var(--clr-notification-bell-border);
-}
-
-#notificationPanel:not(.active):hover::before {
-    opacity: 1;
+    background-color: var(--clr-surface);
+    border: 1px solid var(--clr-border);
 }
 
 #notificationPanel::after {
@@ -178,13 +173,13 @@
     right: 0;
     padding: 2rem 0 0.5rem 0;
     z-index: 19;
-    background-color: var(--clr-notification-active-bg);
+    background-color: color-mix(in srgb, var(--clr-surface) 85%, transparent);
     box-shadow: -8px 0 16px 0 var(--clr-shadow-soft);
 }
 
 #notificationPanel:has(.announcement, .stable, .beta, .sync, .empty-sync, .error)::after,
 #notificationPanel:is(.announcement, .stable, .beta, .sync, .empty-sync, .error)::after {
-    box-shadow: -2px 2px 6px 0 rgba(0, 0, 0, 0.5);
+    box-shadow: -2px 2px 6px 0 var(--clr-shadow);
 }
 
 #notifications {
@@ -224,9 +219,9 @@
     align-items: center;
     justify-content: space-between;
     margin: 1rem;
-    background-color: var(--clr-notification-card-bg);
-    box-shadow: 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22),
-                inset 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22);
+    background-color: var(--clr-surface);
+    box-shadow: 0 19px 38px var(--clr-shadow-soft), 0 15px 12px var(--clr-shadow),
+                inset 0 19px 38px var(--clr-shadow-soft), 0 15px 12px var(--clr-shadow);
 }
 
 .notification-card :is(span.notification-pin, span.notification-unpin, span.notification-dismiss, span.notification-undismiss) {
@@ -251,7 +246,7 @@
     align-items: center;
     transition-property: border-radius;
     transition-delay: 500ms;
-    background-color: var(--clr-notification-header-bg);
+    background-color: var(--clr-surface-alt);
 }
 
 .notification-card:hover :is(span.notification-pin, span.notification-unpin, span.notification-dismiss, span.notification-undismiss):hover {
@@ -263,7 +258,7 @@
 }
 
 .notification-card:hover, #pinned-notifications .notification-card {
-    background-color: var(--clr-notification-card-hover-bg);
+    background-color: var(--clr-surface);
 }
 
 :is(.notification-card:hover, #pinned-notifications .notification-card) span.notification-message {
@@ -462,14 +457,14 @@ div:not(#dismissed-notifications) > .notification-card.important.discord {
     width: 100%;
     transition: all 250ms ease;
     text-align: center;
-    background-color: var(--clr-notification-btn-bg);
-    color: var(--clr-notification-btn-text);
+    background-color: var(--clr-btn);
+    color: var(--clr-btn-text);
 }
 
 .notification-message span.notification-button:hover {
-    outline: 1px solid var(--clr-notification-btn-outline);
-    background-color: var(--clr-notification-btn-hover-bg);
-    color: var(--clr-notification-btn-hover-text);
+    outline: 1px solid var(--clr-btn);
+    background-color: var(--clr-surface);
+    color: var(--clr-btn);
 }
 
 /* Dismissed notifications */
@@ -537,12 +532,12 @@ div:not(#dismissed-notifications) > .notification-card.important.discord {
     font-size: 0.7rem;
     font-weight: bold;
     margin-top: 0;
-    color: var(--clr-notification-divider);
+    color: var(--clr-text-2);
 }
 
 #notifications hr {
     margin: 0 0.5rem 0.5rem 0.5rem;
-    color: var(--clr-notification-divider);
+    background-color: var(--clr-border-subtle);
 }
 
 /* Discord */

@@ -34,7 +34,12 @@
     <link rel="stylesheet" type="text/css" href="/public/css/forms.css">
     <link rel="stylesheet" type="text/css" href="/public/css/tables.css">
     <link rel="stylesheet" type="text/css" href="/public/css/components.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/responsive.css">
     <link id="blur_base" rel="stylesheet" type="text/css" href="/public/css/blur.css"
+          <% if (!_appearance.blurEffects) { %>disabled
+            <% } %>
+    >
+    <link id="blur_responsive" rel="stylesheet" type="text/css" href="/public/css/responsive_blur.css"
           <% if (!_appearance.blurEffects) { %>disabled
             <% } %>
     >

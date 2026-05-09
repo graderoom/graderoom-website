@@ -153,7 +153,7 @@ label.disabled {
     width: 5rem;
     -moz-appearance: textfield;
     border-radius: 4px !important;
-    outline: 2px solid var(--clr-number-input-outline) !important;
+    outline: 2px solid var(--clr-border) !important;
 }
 
 .number-input::-webkit-inner-spin-button,
@@ -188,8 +188,8 @@ select {
     padding: 0.2rem 1.7rem 0.2rem 0.5rem;
     text-align: center;
     text-align-last: center;
-    background-color: var(--clr-select-bg);
-    color: var(--clr-select-text);
+    background-color: var(--clr-input);
+    color: var(--clr-text);
 }
 
 select.classic {
@@ -330,7 +330,7 @@ select:focus {
     vertical-align: middle;
     color: #888888;
     border-radius: 0.6rem;
-    background-color: var(--clr-slider-track);
+    background-color: var(--clr-input);
 }
 
 .slider:before {
@@ -343,7 +343,7 @@ select:focus {
     transform: translateX(0);
     transition: 0.4s;
     width: 0.96rem;
-    background-color: var(--clr-slider-thumb);
+    background-color: var(--clr-surface);
 }
 
 input:checked + .slider {
@@ -352,7 +352,7 @@ input:checked + .slider {
 
 input:checked + .slider:before {
     transform: translateX(1.14rem);
-    background-color: var(--clr-slider-checked-thumb);
+    background-color: var(--clr-surface-alt);
 }
 
 input:disabled + .slider {
@@ -383,7 +383,7 @@ input:disabled + .slider:before {
     outline: none;
     -webkit-appearance: none;
     appearance: none;
-    background-color: var(--clr-range-track);
+    background-color: var(--clr-disabled);
 }
 
 .range-picker:hover {
@@ -397,14 +397,14 @@ input:disabled + .slider:before {
     border-radius: 50%;
     -webkit-appearance: none;
     appearance: none;
-    background-color: var(--clr-range-thumb);
+    background-color: var(--clr-text);
 }
 
 .range-picker::-moz-range-thumb {
     width: 25px;
     height: 25px;
     cursor: pointer;
-    background: var(--clr-range-thumb);
+    background: var(--clr-text);
 }
 
 /* Form signin */
@@ -459,7 +459,7 @@ input:disabled + .slider:before {
 }
 
 .form-weights input::placeholder {
-    color: var(--clr-form-weights-placeholder);
+    color: var(--clr-text-4);
 }
 
 .form-weights > :not(.weights) input:not([type=checkbox]) {
@@ -553,7 +553,7 @@ input:disabled + .slider:before {
     border: none;
     padding: 0 0.4rem;
     margin: 0.1rem;
-    background-color: var(--clr-bg);
+    background-color: var(--clr-class-link-active-bg);
 }
 
 /* Key display */

@@ -1,0 +1,29 @@
+/* Not Firefox */
+@supports (backdrop-filter: blur(0.1rem)) {
+    /* Mobile Stuff */
+    @media only screen and (max-width: 991px) {
+        #termSwitcher {
+            background-color: unset !important;
+        }
+
+        #clickBarrier.blocking {
+            background: transparent !important;
+            backdrop-filter: blur(0.2rem);
+            -webkit-backdrop-filter: blur(0.2rem);
+        }
+
+        #GPA-container {
+            background: transparent !important;
+            backdrop-filter: blur(0.5rem);
+            -webkit-backdrop-filter: blur(0.5rem);
+        }
+
+        #GPA-container::before {
+            box-shadow: inset 0 19px 38px var(--clr-shadow-soft);
+        }
+
+        .dropdown-menu {
+            box-shadow: none;
+        }
+    }
+}
