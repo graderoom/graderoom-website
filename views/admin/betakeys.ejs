@@ -29,16 +29,16 @@
         <% theme = false; %>
         <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/light_mode.css">
     <% } %>
-    <link rel="stylesheet" type="text/css" href="/public/css/main.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/base.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/nav.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/forms.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/tables.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/components.css">
     <link id="blur_base" rel="stylesheet" type="text/css" href="/public/css/blur.css"
           <% if (!_appearance.blurEffects) { %>disabled
             <% } %>
     >
-    <link id="blur_overrides" rel="stylesheet" type="text/css" <% if (theme === true) { %>
-          href="/public/css/dark_blur.css"<% } else if (theme === false) { %> href="/public/css/light_blur.css"<% } %>
-          <% if (!_appearance.blurEffects) { %>disabled
-            <% } %>
-    >
+
     <link id="reduceMotion" rel="stylesheet" type="text/css" href="/public/css/reduce_motion.css"
           <% if (!_appearance.reduceMotion) { %>disabled
             <% } %>
@@ -137,7 +137,7 @@
         }
 
         let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css";
-        let oldDarkBlur = document.getElementById("blur_overrides").getAttribute("href") === "/public/css/dark_blur.css";
+
         if ((theme === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) || (theme === "sun" && (zeroTime >= sunset || zeroTime <= sunrise)) || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((zeroTime >= darkModeStart) && (zeroTime < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((zeroTime >= darkModeStart) || (zeroTime < darkModeFinish))))))) {
             darkMode = true;
             if (darkMode !== oldDarkMode) {
@@ -157,9 +157,7 @@
                     }
                 }
             }
-            if (appearance.blurEffects && !oldDarkBlur) {
-                document.getElementById("blur_overrides").setAttribute("href", "/public/css/dark_blur.css");
-            }
+
         } else {
             darkMode = false;
             if (darkMode !== oldDarkMode) {
@@ -179,9 +177,7 @@
                     }
                 }
             }
-            if (appearance.blurEffects && oldDarkBlur) {
-                document.getElementById("blur_overrides").setAttribute("href", "/public/css/light_blur.css");
-            }
+
         }
     }
 

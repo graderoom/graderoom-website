@@ -1,745 +1,203 @@
-body {
-    background-color: #222222;
-    color: #FFFFFF;
-}
-
-hr {
-    background-color: #333333;
-}
-
-nav {
-    background-color: #333333;
-    color: #222222;
-}
-
-nav h1 {
-    color: #FFFFFF;
-}
-
-nav h5 {
-    color: #CCCCCC;
-}
-
-nav label {
-    color: #666666;
-}
-
-.loading span {
-    background-color: #FFFFFF;
-}
-
-.sticky {
-    box-shadow: 2px 1px 20px #111111;
-}
-
-nav .btn {
-    background-color: transparent;
-    color: white;
-}
-
-nav .btn:hover {
-    background-color: #BBBBBB;
-    color: #333333;
-}
-
-td, th {
-    border-color: #333333;
-}
-
-.weights td, .weights th, th.admin, td.admin, th.overview, td.overview, .weights tbody {
-    border-color: #333333 !important;
-}
-
-::placeholder {
-    color: #999999 !important;
-}
-
-:disabled {
-    background-color: #555555 !important;
-}
-
-.blurred-background {
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.range-picker {
-    background-color: #555555;
-}
-
-.range-picker::-webkit-slider-thumb {
-    background-color: #FFFFFF;
-}
-
-.range-picker::-moz-range-thumb {
-    background: #FFFFFF;
-}
-
-.btn {
-    background-color: #BBBBBB;
-    color: #333333;
-}
-
-.btn:hover {
-    border-color: #BBBBBB;
-    color: #BBBBBB;
-}
-
-.approve_btn {
-    background-color: #95AD95;
-}
-
-.approve_btn:hover {
-    border-color: #95AD95;
-    color: #95AD95;
-}
-
-.deny_btn {
-    background-color: #D6A1A1;
-}
-
-.deny_btn:hover {
-    border-color: #D6A1A1;
-    color: #D6A1A1;
-}
-
-#termSwitcher {
-    border: 1px solid black;
-    background-color: #191919;
-}
-
-#termSwitcher::before {
-    border: 1px solid black;
-}
-
-#termSwitcher > div {
-    border: 1px solid black;
-    background-color: #292929;
-}
-
-#termSwitcher > div:hover {
-    border: 1px solid black;
-    background-color: #222222;
-}
-
-#termSwitcher:hover, #termSwitcher.hover {
-    background-color: #191919;
-}
-
-#GPA-container > div, .weightGPA {
-    border: 1px solid black;
-    background-color: #191919;
-}
-
-.weightedGPAToggle button:not(.active) {
-    background-color: black;
-}
-
-.card {
-    background-color: #333333;
-}
-
-.card a {
-     color: #222222;
-}
-
-#signup-container .popup a {
-    color: unset;
-}
-
-.card-footer a {
-    color: #BBBBBB;
-}
-
-@keyframes loadSwipe {
-    from {
-        background-position-x: 0;
-    }
-    to {
-        background-position-x: 2000px;
-    }
-}
-
-#chart-container-1 .chart-placeholder::after {
-    color: #AAA;
-}
-
-.categoryChartToggle {
-    border-color: #333333;
-}
-
-.changelog, .changelog-legend {
-    background-color: #333333;
-}
-
-.changelog-legend {
-    box-shadow: 0 0 5px 1px black;
-}
-
-.changelog-item, .changelog-legend-column div {
-    background-color: #222222;
-}
-
-.mono {
-    background-color: #444;
-}
-
-.form-group input {
-    color: white;
-}
-
-.form-group input:focus {
-    border-bottom-color: #555555;
-    color: white;
-}
-
-.form-group input {
-    color: white;
-}
-
-.form-group input:focus {
-    border-bottom-color: #555555;
-    color: white;
-}
-
-.tutorial-popup {
-    color: hsl(210, 48%, 48%);
-}
-
-.form-group:focus-within label {
-    color: #BBBBBB;
-}
-
-.add-assignment-container, .add-donation-container {
-    background-color: #333;
-}
-
-.add-assignment-container.active, .add-donation-container.active {
-    box-shadow: 0 2px 30px 1px #111;
-}
-
-/* Input Form Background Images */
-
-.form-group .user-bg {
-    background: url(/public/resources/dark_mode/user.png) no-repeat left/23px 27px !important;
-    padding-left: 35px;
-}
-
-.form-group .email-bg {
-    background: url(/public/resources/dark_mode/email.png) no-repeat left/27px 20px !important;
-}
-
-.form-group .lock-bg {
-    background: url(/public/resources/dark_mode/lock.png) no-repeat left/22px 27px !important;
-}
-
-.form-group .key-bg {
-    background: url(/public/resources/dark_mode/key.png) no-repeat left/26px 22px !important;
-}
-
-.form-group .user-bg {
-    background: url(/public/resources/dark_mode/user.png) no-repeat left/23px 27px !important;
-}
-
-.form-group .graduation-bg {
-    background: url(/public/resources/dark_mode/graduation.png) no-repeat left/27px 23px !important;
-}
-
-.form-group .school-bg {
-    background: url(/public/resources/dark_mode/school.png) no-repeat left/28px 26px !important;
-}
-
-.mini:before {
-    background-color: darkgreen !important;
-}
-
-.nav {
-    background-color: #333333;
-}
-
-.nav .active {
-    background-color: #222222;
-    color: #FFFFFF;
-}
-
-#classColors label {
-    background-color: #222222;
-}
-
-tr.excluded:hover .excludeToggle .fa-ban {
-    color: #AAAAAA;
-}
-
-.fa-undo {
-    color: #DDDDDD;
-}
-
-.fa-check-circle {
-    color: lime;
-}
-
-.fa-exclamation-circle {
-    color: orangered !important;
-}
-
-input.invalid {
-    border-bottom-color: orangered !important;
-}
-
-.fa-exclamation-triangle {
-    color: orange !important;
-}
-
-.fa-spinner {
-    color: deepskyblue;
-}
-
-input.loading {
-    border-bottom-color: deepskyblue !important;
-}
-
-.popup span.popup-top-left,
-.popup span.popup-top,
-.popup span.popup-top-right,
-.popup span.popup-right-top,
-.popup span.popup-right,
-.popup span.popup-right-bottom,
-.popup span.popup-bottom-right,
-.popup span.popup-bottom,
-.popup span.popup-bottom-left,
-.popup span.popup-left-bottom,
-.popup span.popup-left,
-.popup span.popup-left-top {
-    background: #222222;
-}
-
-.school-username {
-    color: #BBBBBB
-}
-
-.tab {
-    background-color: #333333;
-    border-bottom-color: #222222;
-    border-top-color: #222222;
-}
-
-.tab btn {
-    color: #888888;
-}
-
-.tab btn.active {
-    background-color: #444444;
-    color: #DDDDDD;
-}
-
-.tab btn:hover {
-    color: #BBBBBB;
-}
-
-.chart-tab {
-    border-color: #666666;
-}
-
-.changelog-container .known-issues .body, .changelog-container .announcement .body, .changelog-inline-setoff {
-    color: #EEEEEE;
-}
-
-.changelog-container.placeholder::before {
-    color: rgba(255, 255, 255, 0.1);
-}
-
-.changelog-container .changelog-item, .changelog-legend-column div {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-.changelog-container .current, .changelog-legend-column div.current {
-    background-color: rgba(0, 255, 0, 0.1);
-}
-
-.changelog-container .known-issues, .changelog-legend-column div.known-issues {
-    background-color: rgba(255, 255, 255, 0.05);
-}
-
-.changelog-container .stable, .changelog-legend-column div.stable {
-    background-color: rgba(0, 0, 255, 0.1);
-}
-
-.changelog-container .type {
-    color: #E5E5E5;
-}
-
-.weightsTable input {
-    border-color: lightcoral;
-}
-
-.form-weights input::placeholder {
-    color: #666666;
-}
-
-.excluded {
-    color: #4F4F4F !important;
-}
-
-.toolTab {
-    background-color: #333333;
-}
-
-.toolTab:not(th) {
-    border-top: 1px transparent solid !important;
-}
-
-.toolTab:not(td) {
-    border-bottom: 2px transparent solid !important;
-}
-
-.toolTab > span:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-.slider {
-    background-color: #444444;
-}
-
-.slider:before {
-    background-color: #222222;
-}
-
-input:checked + .slider {
-    background-color: currentColor;
-}
-
-input:checked + .slider:before {
-    background-color: #222222;
-}
-
-select {
-    background-color: #444444;
-    color: #FFFFFF;
-}
-
-select.classic {
-    background-image: linear-gradient(45deg, transparent 50%, lightgray 50%), linear-gradient(135deg, lightgray 50%, transparent 50%), linear-gradient(to right, #555555, #555555);
-}
-
-select.classic:focus {
-    background-image: linear-gradient(45deg, lightgray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, lightgray 50%), linear-gradient(to right, #555555, #555555);
-}
-
-select.round {
-    background-image: linear-gradient(45deg, transparent 50%, lightgray 50%), linear-gradient(135deg, lightgray 50%, transparent 50%), radial-gradient(#555555 60%, transparent 60%);
-}
-
-select.round:focus {
-    background-image: linear-gradient(45deg, lightgray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, lightgray 50%), radial-gradient(#555555 60%, transparent 60%);
-}
-
-select.minimal {
-    background-image: linear-gradient(45deg, transparent 50%, lightgray 50%), linear-gradient(135deg, lightgray 50%, transparent 50%), linear-gradient(to right, #555555, #555555);
-}
-
-.excluded select.minimal {
-    background-image: linear-gradient(45deg, transparent 50%, gray 50%), linear-gradient(135deg, gray 50%, transparent 50%), linear-gradient(to right, #555555, #555555);
-}
-
-select.minimal:focus {
-    background-image: linear-gradient(45deg, lightgray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, lightgray 50%), linear-gradient(to right, #555555, #555555);
-}
-
-.excluded select.minimal:focus {
-    background-image: linear-gradient(45deg, gray 50%, transparent 50%), linear-gradient(135deg, transparent 50%, gray 50%), linear-gradient(to right, #555555, #555555);
-}
-
-.excluded select {
-    background-color: #222222;
-    color: #4F4F4F;
-}
-
-.class-table select {
-    box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 0, 0, 0.5);
-}
-
-.switchDisplayMode, .tableOptions {
-    background-color: #222222;
-}
-
-.tableOptions:first-child {
-    color: #DDDDDD;
-}
-
-.gotIt {
-    color: white;
-}
-
-.progress {
-    border: 1px #222222 solid;
-    background-color: #444444;
-}
-
-#tutorialStatus {
-    color: #333333;
-    background-color: hsl(210, 48%, 48%);;
-}
-
-.empty-progress:not(:nth-child(2)) {
-    color: #333333;
-    border-left: 1px solid #333333;
-}
-
-.progress, .empty-progress {
-    background-color: #111111;
-}
-
-.number-input {
-    outline: 2px solid #333 !important;
-}
-
-::-webkit-scrollbar-thumb {
-    background-color: #2F2F2F;
-}
-
-::-webkit-scrollbar-thumb:vertical:hover {
-    background-color: #333333;
-}
-
-::-webkit-scrollbar-thumb:vertical:active {
-    background-color: #444444;
-}
-
-:not(body)::-webkit-scrollbar-thumb:vertical:hover {
-    background-color: #555555;
-}
-
-:not(body)::-webkit-scrollbar-thumb:vertical:active {
-    background-color: #666666;
-}
-
-:not(body)::-webkit-scrollbar-thumb {
-    background-color: #444444;
-}
-
-.tableOptions {
-    background-color: #333333;
-}
-
-.class-table th, .class-table td {
-    border-color: transparent !important;
-}
-
-.class-table td, .class-table th {
-    box-shadow: inset 0 0 2px 1px rgba(50, 50, 50, 0.5);
-}
-
-.separator td {
-    box-shadow: none;
-}
-
-.improve {
-    color: rgba(50, 200, 50, 1);
-}
-
-.deprove {
-    color: rgba(255, 100, 100, 1);
-}
-
-tr.no-change {
-    color: rgba(255, 255, 255, 0.5) !important;
-}
-
-tr:hover .toolTab {
-    background-color: #444444;
-}
-
-.grade-changes-card {
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-#gradeChangesContainer > hr {
-    background-color: #444444;
-}
-
-.dropdown-menu {
-    background-color: #333333;
-    box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.3);
-}
-
-.dropdown-divider {
-    border-color: black;
-}
-
-.changelog-inline-setoff, .changelog-panel {
-    background-color: #333333;
-    box-shadow: black 0 0 2px 1px;
-}
-
-#classLinks {
-    box-shadow: 0 0 10px 2px #333333;
-}
-
-#classLinks li.nav-item:not(.active):hover {
-    box-shadow: inset 0 0 1px 1px black;
-}
-
-.gpa-details-table th, .gpa-details-table td, .gpa-details-table, .gpa-details-table tr {
-    border: 1px solid #888888;
-}
-
-.tableOptions select {
-    cursor: pointer;
-}
-
-.tableOptions .popup {
-    background: #444444;
-}
-
-.tableOptions .popup:hover {
-    background: #222222 !important;
-    border-color: #222222 !important;
-}
-
-.donate, .premium-label {
-    color: #F5C21B;
-}
-
-#donationProgress .progress-bar:last-child {
-    background-color: #222;
-}
-
-#donationProgressOverlay .progress-bar {
-    border-color: #333;
-}
-
-.donate::before, .premium-label::before {
-    background-image: linear-gradient(65deg, transparent 20%, rgba(255, 255, 255, 0.2) 20%, rgba(255, 255, 255, 0.3) 27%, transparent 27%, transparent 100%);
-}
-
-.premium-label::after {
-    text-shadow: 0 1px #6E4414;
-}
-
-.navbar .nav-item btn:hover, .navbar .nav-item a:not(.dropdown-toggle):hover {
-    background-color: #9A9A9A !important;
-    border-color: #FFFFFF !important;
-}
-
-.navbar btn.donate-nav-item:hover, btn.donate-nav-item.active {
-    background-color: #210060 !important;
-    border-color: blue !important;
-}
-
-#notificationPanel {
-    background-color: transparent;
-}
-
-#notificationPanel::before {
-    background-color: rgba(0, 0, 0, 0.2);
-}
-
-#notificationPanel:has(.announcement, .stable, .beta, .sync, .empty-sync, .error)::after {
-    box-shadow: -2px 2px 6px 0 rgba(0, 0, 0, 0.5);
-}
-
-#notificationPanel.active {
-    background-color: rgba(54, 54, 54, 0.9);
-    box-shadow: -8px 0 16px 0 rgba(0, 0, 0, 0.2);
-}
-
-.notification-card {
-    background-color: rgba(51, 51, 51, 0.5);
-    box-shadow: 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22), inset 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22);
-}
-
-.notification-card :is(span.notification-pin, span.notification-unpin, span.notification-dismiss, span.notification-undismiss) {
-    color: transparent;
-}
-
-.notification-card span.notification-header {
-    background-color: #111111;
-}
-
-.notification-card:hover :is(span.notification-pin, span.notification-unpin, span.notification-dismiss, span.notification-undismiss):hover {
-    color: #FFFFFF;
-}
-
-.notification-card:hover :is(span.notification-pin, span.notification-unpin, span.notification-dismiss, span.notification-undismiss) {
-    color: #666666;
-}
-
-.notification-card:hover, #pinned-notifications .notification-card {
-    background-color: #333;
-}
-
-#notifications .divider {
-    color: #888888;
-}
-
-#notifications hr {
-    color: #888888;
-}
-
-.notification-message span.notification-button {
-    background-color: #bbb;
-    color: #333;
-}
-
-.notification-message span.notification-button:hover {
-    outline: 1px solid #bbb;
-    background-color: #333;
-    color: #bbb;
-}
-
-.discord-iframe ~ span::before {
-    background: #5865F2;
-    color: white;
-}
-
-div.assignment-info {
-    background-color: #444444;
-}
-
-div.assignment-info:hover {
-    background-color: #222222;
-    outline: #444444 1px solid;
-}
-
-.form-group input[name=searchByNameOrUsername] {
-    background-color: #444444 !important;
-}
-
-/* Mobile Stuff */
-@media only screen and (max-width: 991px) {
-    .block {
-        border-radius: 0.5rem;
-        background-color: #111111;
-    }
-
-    .backToHome {
-        background-color: #000000;
-        box-shadow: 0 0 10px 1px rgba(0, 0, 0, 1);
-    }
-
-    .backToHome:active, .backToHome:hover {
-        color: rgb(138.5, 138.5, 138.5);
-        background-color: #111111;
-    }
-
-    #GPA-container {
-        border: 1px solid black;
-        background-color: #191919;
-        box-shadow: black 0 0 10px 1px;
-    }
-
-    #GPA-container::before {
-        border: 1px solid black;
-    }
-
-    #GPA-container:hover, #GPA-container.hover {
-        background-color: #191919;
-    }
-
-    #clickBarrier.blocking {
-        background-color: rgba(0, 0, 0, 0.5);
-    }
-
-    #changelog-legend-column {
-        background-color: #222222;
-    }
+:root {
+    /* Core backgrounds */
+    --clr-bg: #222222;
+    --clr-surface: #333333;
+    --clr-surface-alt: #222222;
+    --clr-surface-deep: #191919;
+    --clr-surface-nested: #292929;
+    --clr-input: #444444;
+    --clr-disabled: #555555;
+
+    /* Text */
+    --clr-text: #FFFFFF;
+    --clr-text-2: #CCCCCC;
+    --clr-text-3: #888888;
+    --clr-text-4: #666666;
+    --clr-placeholder: #999999;
+    --clr-text-excluded: #4F4F4F;
+    --clr-text-no-change: rgba(255, 255, 255, 0.5);
+    --clr-loading-dot: #FFFFFF;
+
+    /* Borders */
+    --clr-border: #444444;
+    --clr-border-subtle: #333333;
+
+    /* Shadows */
+    --clr-shadow: #111111;
+    --clr-shadow-soft: rgba(0, 0, 0, 0.3);
+
+    /* Buttons */
+    --clr-btn: #BBBBBB;
+    --clr-btn-text: #333333;
+    --clr-btn-nav-text: white;
+    --clr-btn-nav-hover-bg: #BBBBBB;
+    --clr-btn-nav-hover-text: #333333;
+    --clr-btn-approve: #95AD95;
+    --clr-btn-deny: #D6A1A1;
+    --clr-btn-donate-nav-hover-bg: #210060;
+
+    /* Links */
+    --clr-card-link: #222222;
+    --clr-card-footer-link: #BBBBBB;
+    --deco-card-link: none;
+
+    /* Form inputs */
+    --clr-select-bg: #444444;
+    --clr-select-text: #FFFFFF;
+    --clr-select-arrow: lightgray;
+    --clr-select-track: #555555;
+    --clr-slider-track: #444444;
+    --clr-slider-thumb: #222222;
+    --clr-slider-checked-thumb: #222222;
+    --clr-range-track: #555555;
+    --clr-range-thumb: #FFFFFF;
+    --clr-number-input-outline: #333333;
+    --clr-form-weights-placeholder: #666666;
+
+    /* Scrollbar */
+    --clr-scrollbar-body: #2F2F2F;
+    --clr-scrollbar-body-hover: #333333;
+    --clr-scrollbar-body-active: #444444;
+    --clr-scrollbar-inner: #444444;
+    --clr-scrollbar-inner-hover: #555555;
+    --clr-scrollbar-inner-active: #666666;
+
+    /* Semantic status */
+    --clr-success: lime;
+    --clr-error: orangered;
+    --clr-warning: orange;
+    --clr-loading: deepskyblue;
+    --clr-mini-spinner: darkgreen;
+    --clr-improve: rgba(50, 200, 50, 1);
+    --clr-deprove: rgba(255, 100, 100, 1);
+    --clr-donate: #F5C21B;
+
+    /* Overlay */
+    --clr-overlay: rgba(0, 0, 0, 0.5);
+
+    /* Components */
+    --clr-mono: #444444;
+    --clr-progress-track: #111111;
+    --clr-progress-border: #222222;
+    --clr-progress-bar-bg: hsl(210, 48%, 48%);
+    --clr-progress-bar-text: #FFFFFF;
+    --clr-empty-progress-text: #333333;
+    --clr-empty-progress-border: #333333;
+    --clr-table-row-bg: transparent;
+    --clr-table-options-text: #DDDDDD;
+    --clr-table-options-popup-hover-bg: #222222;
+    --clr-weights-container-bg: transparent;
+    --clr-table-container-bg: transparent;
+    --clr-toolTab-hover: rgba(255, 255, 255, 0.1);
+    --clr-class-table-cell-shadow: inset 0 0 2px 1px rgba(50, 50, 50, 0.5);
+    --clr-school-username: #BBBBBB;
+    --clr-class-color-label-bg: #222222;
+    --clr-got-it: white;
+    --clr-tutorial-status-bg: hsl(210, 48%, 48%);
+    --clr-tutorial-status-text: #333333;
+
+    /* GPA & Term Switcher */
+    --clr-gpa-panel-bg: #191919;
+    --clr-gpa-panel-border: black;
+    --clr-gpa-details-border: #888888;
+    --clr-gpa-mobile-border: black;
+    --clr-gpa-mobile-shadow: 0 0 10px 1px black;
+    --clr-weighted-gpa-toggle-bg: black;
+    --clr-termSwitcher-border: black;
+    --clr-termSwitcher-item-bg: #292929;
+    --clr-termSwitcher-item-hover-bg: #222222;
+
+    /* Navigation */
+    --clr-classlinks-shadow: 0 0 10px 2px #333333;
+    --clr-classlinks-hover-shadow: inset 0 0 1px 1px black;
+    --clr-classlinks-active-bg: #222222;
+    --clr-classlinks-active-color: var(--clr-text);
+
+    /* Notifications */
+    --clr-notification-bell-bg: rgba(0, 0, 0, 0.2);
+    --clr-notification-bell-border: transparent;
+    --clr-notification-active-bg: rgba(54, 54, 54, 0.9);
+    --clr-notification-card-bg: rgba(51, 51, 51, 0.5);
+    --clr-notification-card-hover-bg: #333333;
+    --clr-notification-header-bg: #111111;
+    --clr-notification-btn-bg: #BBBBBB;
+    --clr-notification-btn-text: #333333;
+    --clr-notification-btn-outline: #BBBBBB;
+    --clr-notification-btn-hover-bg: #333333;
+    --clr-notification-btn-hover-text: #BBBBBB;
+    --clr-notification-divider: #888888;
+
+    /* Changelog */
+    --clr-changelog-item-bg: rgba(255, 255, 255, 0.1);
+    --clr-changelog-known-issues-bg: rgba(255, 255, 255, 0.05);
+    --clr-changelog-stable-bg: rgba(0, 0, 255, 0.1);
+    --clr-changelog-current-bg: rgba(0, 255, 0, 0.1);
+    --clr-changelog-type: #E5E5E5;
+    --clr-changelog-body: #EEEEEE;
+    --clr-changelog-panel-bg: #333333;
+    --clr-changelog-panel-shadow: black;
+    --clr-changelog-legend-bg: #222222;
+    --clr-changelog-legend-border: transparent;
+    --clr-changelog-placeholder: rgba(255, 255, 255, 0.1);
+
+    /* Charts */
+    --clr-chart-placeholder: #AAAAAA;
+
+    /* Assignment & Grade info */
+    --clr-assignment-info-bg: #444444;
+    --clr-assignment-info-hover-bg: #222222;
+    --clr-assignment-info-outline: #444444;
+    --clr-grade-changes-bg: rgba(0, 0, 0, 0.5);
+    --clr-grade-changes-border: transparent;
+    --clr-grade-changes-class-name-bg: transparent;
+    --clr-grade-changes-hr: #444444;
+
+    /* Dropdown */
+    --clr-dropdown-bg: #333333;
+    --clr-dropdown-border: black;
+
+    /* Mobile */
+    --clr-backToHome-bg: #000000;
+    --clr-backToHome-hover-text: rgb(138.5, 138.5, 138.5);
+    --clr-backToHome-hover-bg: #111111;
+    --clr-backToHome-shadow: 0 0 10px 1px rgba(0, 0, 0, 1);
+    --clr-block-mobile-bg: #111111;
+
+    /* Tabs */
+    --clr-tab-btn: #888888;
+    --clr-tab-btn-hover: #BBBBBB;
+    --clr-tab-btn-active-bg: #444444;
+    --clr-tab-btn-active-text: #DDDDDD;
+
+    /* Donations */
+    --clr-donation-progress-final-bg: #222222;
+    --clr-donation-progress-overlay-border: #333333;
+    --clr-donation-flare: linear-gradient(65deg, transparent 20%, rgba(255, 255, 255, 0.2) 20%, rgba(255, 255, 255, 0.3) 27%, transparent 27%, transparent 100%);
+
+    /* Form images */
+    --img-user: url(/public/resources/dark_mode/user.png);
+    --img-email: url(/public/resources/dark_mode/email.png);
+    --img-lock: url(/public/resources/dark_mode/lock.png);
+    --img-key: url(/public/resources/dark_mode/key.png);
+    --img-graduation: url(/public/resources/dark_mode/graduation.png);
+    --img-school: url(/public/resources/dark_mode/school.png);
+
+    /* Blur overrides */
+    --clr-blur-termSwitcher-shadow: none;
+    --clr-blur-termSwitcher-div-shadow: inset 0 0 50px black;
+    --clr-blur-termSwitcher-div-hover-shadow: inset 0 0 100px black;
+    --clr-blur-panel-before-bg: rgba(0, 0, 0, 0.2);
+    --clr-blur-notif-before-shadow: inset 0 19px 38px rgba(0, 0, 0, 0.30);
+    --clr-blur-termSwitcher-before-shadow: inset 0 19px 38px rgba(0, 0, 0, 0.30);
+    --clr-blur-GPA-mobile-before-shadow: inset 0 19px 38px rgba(0, 0, 0, 0.30);
+    --clr-blur-dropdown-color: rgba(255, 255, 255, 0.7);
+    --clr-blur-dropdown-shadow: black 2px 2px 10px 1px;
+    --clr-blur-dropdown-divider: #444444;
+    --clr-blur-dropdown-mobile-shadow: none;
+    --clr-blur-navbar-bg: transparent;
+    --clr-blur-classLinks-outline: 1px solid rgba(255, 255, 255, 0.1);
+    --clr-blur-classLinks-shadow: none;
+    --clr-blur-classLinks-sticky-bg: transparent;
+    --clr-blur-unlock-color: #FFF;
+    --clr-blur-popup-span-shadow: none;
 }

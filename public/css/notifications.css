@@ -1,0 +1,580 @@
+/* Notification Panel */
+
+#notificationPanel {
+    position: fixed;
+    z-index: 17;
+    top: 0;
+    right: -20rem;
+    width: 20rem;
+    height: 100%;
+    transition: all 400ms ease;
+    border-radius: 1rem 0 0 1rem;
+    background-color: transparent;
+}
+
+#notificationPanel::before {
+    position: absolute;
+    top: 3rem;
+    transform: translateY(11rem);
+    right: 20rem;
+    width: 4rem;
+    height: 4rem;
+    padding: 0.1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: FontAwesome;
+    font-size: 1.5rem;
+    content: "\f0f3";
+    transition-delay: 0ms;
+    transition-property: all;
+    transition-duration: 300ms;
+    transition-timing-function: ease;
+    text-align: center;
+    border-radius: 1rem 0 0 1rem;
+    box-shadow: inherit;
+    cursor: pointer;
+    opacity: 0.7;
+    background-color: var(--clr-notification-bell-bg);
+    border: 1px solid var(--clr-notification-bell-border);
+}
+
+#notificationPanel:not(.active):hover::before {
+    opacity: 1;
+}
+
+#notificationPanel::after {
+    content: attr(count);
+    transition: all 350ms ease;
+    font-size: 0.85rem;
+    position: absolute;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 0.75rem;
+    top: 14.5rem;
+    right: 22.2rem;
+    transform: translateX(100%);
+    color: white;
+    text-align: center;
+    line-height: 1.4rem;
+    margin: 0;
+    display: block;
+    background-clip: padding-box;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#notificationPanel.announcement::after {
+    background-color: orange;
+    color: black;
+}
+
+#notificationPanel.stable::after {
+    background-color: green;
+}
+
+#notificationPanel.beta::after {
+    background-color: limegreen;
+}
+
+#notificationPanel.sync::after {
+    background-color: blue;
+}
+
+#notificationPanel.empty-sync::after {
+    background-color: lightblue;
+}
+
+#notificationPanel.error::after {
+    background-color: red;
+}
+
+#notificationPanel.donation::after {
+    background-color: purple;
+}
+
+#notificationPanel.discord::after {
+    background-color: #5865F2;
+}
+
+#notificationPanel.active::before {
+    overflow: visible;
+    top: 3rem;
+    transform: none;
+    right: 13.35rem;
+    font-size: 1.75rem;
+    opacity: 0;
+    background: transparent;
+    box-shadow: none;
+    border: none;
+}
+
+#notificationPanel.active::after {
+    transition: 350ms;
+    top: 4.2rem;
+    right: 4.2rem;
+    box-shadow: none;
+    cursor: default;
+}
+
+#notificationPanel.overflowed.active::after {
+    right: 4.5rem;
+}
+
+#notificationPanel.empty::after {
+    opacity: 0;
+}
+
+#notificationPanel.empty h3 {
+    transform: translateX(0);
+}
+
+#notificationPanel h3 {
+    transition: all 250ms ease;
+    transform: translateX(-0.8rem);
+    width: calc(100% - 2rem);
+    height: 4rem;
+    line-height: 4rem;
+    text-align: center;
+    margin: 1rem;
+}
+
+#notificationPanel.overflowed h3 {
+    transform: translateX(-1rem);
+}
+
+#notificationPanel h3 i {
+    transition-duration: 350ms;
+    transition-property: all;
+    transition-timing-function: ease;
+    opacity: 0;
+    font-size: 1.5rem;
+    transform: translateX(-4.9rem) translateY(12.9rem);
+    pointer-events: none;
+}
+
+#notificationPanel.overflowed h3 i {
+    transform: translateX(-4.7rem) translateY(12.9rem);
+}
+
+#notificationPanel.active h3 i {
+    opacity: 1;
+    font-size: unset;
+    transform: none;
+}
+
+#notificationPanel.overflowed::after {
+    content: "99+";
+    width: 2rem;
+}
+
+#notificationPanel.overflowed.active::after {
+    content: attr(count);
+    width: fit-content;
+    width: -moz-fit-content;
+}
+
+#notificationPanel.active {
+    right: 0;
+    padding: 2rem 0 0.5rem 0;
+    z-index: 19;
+    background-color: var(--clr-notification-active-bg);
+    box-shadow: -8px 0 16px 0 var(--clr-shadow-soft);
+}
+
+#notificationPanel:has(.announcement, .stable, .beta, .sync, .empty-sync, .error)::after,
+#notificationPanel:is(.announcement, .stable, .beta, .sync, .empty-sync, .error)::after {
+    box-shadow: -2px 2px 6px 0 rgba(0, 0, 0, 0.5);
+}
+
+#notifications {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: calc(100% - 6rem);
+}
+
+/* Notification text field */
+
+.notification-text-field {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0.5rem 0;
+}
+
+.notification-text-field input {
+    width: 8rem;
+    margin: 0;
+}
+
+.notification-text-field .form-control {
+    margin: 0 0 0 0.5rem;
+}
+
+/* Notification cards */
+
+.notification-card {
+    border-radius: 0.5rem;
+    min-height: 2.5rem;
+    width: 17.5rem;
+    transition: all 250ms ease;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: space-between;
+    margin: 1rem;
+    background-color: var(--clr-notification-card-bg);
+    box-shadow: 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22),
+                inset 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22);
+}
+
+.notification-card :is(span.notification-pin, span.notification-unpin, span.notification-dismiss, span.notification-undismiss) {
+    color: transparent;
+    padding: 0.5rem;
+    margin: 0 auto;
+    margin-right: 0.5rem;
+    line-height: 100%;
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: all 250ms ease;
+}
+
+.notification-card span.notification-header {
+    font-weight: bold;
+    width: 100%;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition-property: border-radius;
+    transition-delay: 500ms;
+    background-color: var(--clr-notification-header-bg);
+}
+
+.notification-card:hover :is(span.notification-pin, span.notification-unpin, span.notification-dismiss, span.notification-undismiss):hover {
+    color: var(--clr-text);
+}
+
+.notification-card:hover :is(span.notification-pin, span.notification-unpin, span.notification-dismiss, span.notification-undismiss) {
+    color: var(--clr-text-4);
+}
+
+.notification-card:hover, #pinned-notifications .notification-card {
+    background-color: var(--clr-notification-card-hover-bg);
+}
+
+:is(.notification-card:hover, #pinned-notifications .notification-card) span.notification-message {
+    color: var(--clr-text);
+}
+
+.notification-card.dismissing {
+    min-height: 0;
+    height: 0;
+    margin: 0;
+    transform: translateX(20rem);
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.notification-card.pinning {
+    min-height: 0;
+    height: 0;
+    margin: 0;
+    transform: translateX(-20rem);
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.notification-card.incoming {
+    min-height: 0;
+    height: 0;
+    margin: 0;
+    transform: translateX(20rem);
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+#notificationPanel:not(.active) .notification-card:is(.pinning, .dismissing) {
+    transform: translateX(20rem);
+}
+
+.notification-card:is(.dismissing, .pinning) span {
+    margin: 0;
+    padding: 0;
+}
+
+/* Notification badge colors */
+
+.notification-card.announcement span.notification-badge {
+    background-color: orange;
+}
+
+div:not(#dismissed-notifications) > .notification-card.important.announcement {
+    box-shadow: 0 0 10px 1px orange;
+    outline: 1px solid orange;
+}
+
+.notification-card.stable span.notification-badge {
+    background-color: green;
+}
+
+div:not(#dismissed-notifications) > .notification-card.important.stable {
+    box-shadow: 0 0 10px 1px green;
+    outline: 1px solid green;
+}
+
+.notification-card.beta span.notification-badge {
+    background-color: limegreen;
+}
+
+div:not(#dismissed-notifications) > .notification-card.important.beta {
+    box-shadow: 0 0 10px 1px limegreen;
+    outline: 1px solid limegreen;
+}
+
+.notification-card.sync span.notification-badge {
+    background-color: blue;
+}
+
+div:not(#dismissed-notifications) > .notification-card.important.sync {
+    box-shadow: 0 0 10px 1px blue;
+    outline: 1px solid blue;
+}
+
+.notification-card.empty-sync span.notification-badge {
+    background-color: lightblue;
+}
+
+div:not(#dismissed-notifications) > .notification-card.important.empty-sync {
+    box-shadow: 0 0 10px 1px lightblue;
+    outline: 1px solid lightblue;
+}
+
+.notification-card.error span.notification-badge {
+    background-color: red;
+}
+
+div:not(#dismissed-notifications) > .notification-card.important.error {
+    box-shadow: 0 0 10px 1px red;
+    outline: 1px solid red;
+}
+
+.notification-card.donation span.notification-badge {
+    background-color: purple;
+}
+
+div:not(#dismissed-notifications) > .notification-card.important.donation {
+    box-shadow: 0 0 10px 1px purple;
+    outline: 1px solid purple;
+}
+
+.notification-card.discord span.notification-badge {
+    background-color: #5865F2;
+}
+
+div:not(#dismissed-notifications) > .notification-card.important.discord {
+    box-shadow: 0 0 10px 1px #5865F2;
+    outline: 1px solid #5865F2;
+}
+
+/* Notification card internals */
+
+.notification-card:hover .notification-header, #pinned-notifications .notification-card .notification-header {
+    border-radius: 0.5rem 0.5rem 0 0;
+    transition-delay: 0s;
+}
+
+.notification-card:hover div.notification-body, #pinned-notifications .notification-card div.notification-body {
+    max-height: 12rem;
+}
+
+.notification-card .notification-btns {
+    width: 2.5rem;
+    display: flex;
+    flex-flow: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.notification-card div.notification-body {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    overflow: hidden;
+    max-height: 0;
+    transition: all 500ms ease;
+    width: 100%;
+}
+
+.notification-card div.notification-body .notification-message {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin: 0.5rem 0.5rem 0.5rem 1rem;
+    width: 100%;
+}
+
+.notification-card span.notification-title {
+    width: calc(100% - 0.5rem);
+    padding-left: 1rem;
+    overflow: clip;
+}
+
+.notification-card span.notification-badge {
+    border-radius: 0.375rem;
+    width: 0.75rem;
+    height: 0.75rem;
+    transition: all 250ms ease;
+    position: relative;
+    top: 0;
+}
+
+.notification-card span.notification-dismiss::after {
+    font-family: FontAwesome;
+    content: "\f00d";
+}
+
+.notification-card span.notification-pin::after {
+    font-family: FontAwesome;
+    content: "\f08d";
+}
+
+.notification-card span.notification-undismiss::after {
+    font-family: FontAwesome;
+    content: "\f148";
+}
+
+.notification-card span.notification-unpin::after {
+    font-family: FontAwesome;
+    content: "\f149";
+}
+
+/* Notification message button */
+
+.notification-message span.notification-button {
+    cursor: pointer;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    display: inline-block;
+    width: 100%;
+    transition: all 250ms ease;
+    text-align: center;
+    background-color: var(--clr-notification-btn-bg);
+    color: var(--clr-notification-btn-text);
+}
+
+.notification-message span.notification-button:hover {
+    outline: 1px solid var(--clr-notification-btn-outline);
+    background-color: var(--clr-notification-btn-hover-bg);
+    color: var(--clr-notification-btn-hover-text);
+}
+
+/* Dismissed notifications */
+
+#dismissed-notifications .notification-card {
+    opacity: 0.5;
+}
+
+#dismissed-notifications .notification-card:hover {
+    opacity: 1;
+}
+
+/* Pinned notifications */
+
+#pinned-notifications {
+    transition: all 250ms ease-in-out;
+    position: absolute;
+    transform: translateX(-19rem);
+    top: 18rem;
+    z-index: 2;
+    padding: 0;
+    margin: 0;
+    pointer-events: none;
+}
+
+#notificationPanel:not(.active) #pinned-notifications .notification-card {
+    margin-left: 0;
+    margin-right: 0;
+    cursor: pointer;
+    pointer-events: all;
+}
+
+#notificationPanel:not(.active) #pinned-notifications .notification-card:not(:is(:first-child, :nth-child(2), :nth-child(3))) {
+    display: none;
+}
+
+#notificationPanel.active #pinned-notifications {
+    position: static;
+    transform: none;
+    top: 8.5rem;
+    right: 0.5rem;
+    animation: pinsIntoPlace 200ms ease;
+    pointer-events: all;
+}
+
+#notificationPanel #notifications > div:not(#pinned-notifications),
+#notificationPanel #notifications > hr {
+    transition: opacity 100ms ease;
+    opacity: 0;
+}
+
+#notificationPanel.active #notifications > div:not(#pinned-notifications),
+#notificationPanel.active #notifications > hr {
+    transition-delay: 300ms;
+    opacity: 1;
+}
+
+/* Dividers */
+
+#notifications .divider {
+    width: calc(100% - 1rem);
+    text-align: center;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: bold;
+    margin-top: 0;
+    color: var(--clr-notification-divider);
+}
+
+#notifications hr {
+    margin: 0 0.5rem 0.5rem 0.5rem;
+    color: var(--clr-notification-divider);
+}
+
+/* Discord */
+
+.discord-iframe {
+    width: 100%;
+    height: 300px;
+    border: 0;
+    z-index: 1;
+    position: relative;
+}
+
+.discord-iframe ~ span {
+    display: block;
+    position: relative;
+    height: 0;
+    top: -300px;
+    width: 100%;
+}
+
+.discord-iframe ~ span::before {
+    content: "Loading Discord...";
+    animation: pulse-discord 1s ease-out infinite;
+    font-weight: bold;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    overflow: visible;
+    width: 100%;
+    height: 294px;
+    background: #5865F2;
+    color: white;
+}

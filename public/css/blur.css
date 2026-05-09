@@ -31,12 +31,14 @@
 
     div.unlock-with {
         backdrop-filter: blur(2px);
+        color: var(--clr-blur-unlock-color);
     }
 
     .popup > i > span {
         background-color: transparent !important;
         backdrop-filter: blur(1rem);
         border: 2px solid rgba(from currentColor r g b / 0.3) !important;
+        box-shadow: var(--clr-blur-popup-span-shadow);
     }
 
     .popup-top-right::after, .popup-top::after, .popup-top-left::after {
@@ -55,8 +57,53 @@
         border-right: 0.5rem solid rgba(from currentColor r g b / 0.3) !important;
     }
 
+    #termSwitcher {
+        box-shadow: var(--clr-blur-termSwitcher-shadow);
+    }
+
+    #termSwitcher > div {
+        box-shadow: var(--clr-blur-termSwitcher-div-shadow);
+    }
+
+    #termSwitcher > div:hover {
+        box-shadow: var(--clr-blur-termSwitcher-div-hover-shadow);
+    }
+
+    #termSwitcher > div > div:hover, #termSwitcher > div > div.active {
+        opacity: 1 !important;
+    }
+
+    #notificationPanel::before, #termSwitcher::before, #GPA-container::before {
+        background-color: var(--clr-blur-panel-before-bg);
+    }
+
+    #notificationPanel::before {
+        box-shadow: var(--clr-blur-notif-before-shadow);
+    }
+
+    #termSwitcher::before {
+        box-shadow: var(--clr-blur-termSwitcher-before-shadow);
+    }
+
+    .dropdown-menu {
+        border: none;
+        color: var(--clr-blur-dropdown-color);
+        box-shadow: var(--clr-blur-dropdown-shadow);
+    }
+
+    .dropdown-divider {
+        border-color: var(--clr-blur-dropdown-divider);
+    }
+
     #classLinks {
         transition: all 200ms ease;
+        outline: var(--clr-blur-classLinks-outline);
+        box-shadow: var(--clr-blur-classLinks-shadow);
+    }
+
+    #classLinks.sticky {
+        background-color: var(--clr-blur-classLinks-sticky-bg);
+        backdrop-filter: blur(1rem);
     }
 
     /* Mobile Stuff */
@@ -75,6 +122,14 @@
             background: transparent !important;
             backdrop-filter: blur(0.5rem);
             -webkit-backdrop-filter: blur(0.5rem);
+        }
+
+        #GPA-container::before {
+            box-shadow: var(--clr-blur-GPA-mobile-before-shadow);
+        }
+
+        .dropdown-menu {
+            box-shadow: var(--clr-blur-dropdown-mobile-shadow);
         }
     }
 }
