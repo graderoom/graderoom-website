@@ -1,17 +1,12 @@
 <%- include('../limited_time/snowfall.ejs', {theme: theme, page: page}); %>
 
 <!-- Nav Bar -->
-<nav class="navbar <% if (theme) { %>navbar-dark<% } else { %>navbar-light<% } %> navbar-expand-lg justify-content-center">
+<nav class="navbar navbar-expand-lg justify-content-center">
     <span class="d-flex w-25 mr-auto">
         <a href="/" class="navbar-brand">
             <h1>
-                <img
-                <% if (theme) { %>
-                    src="/public/resources/dark_mode/logo.png"
-                <% } else { %>
-                    src="/public/resources/light_mode/logo.png"
-                        <% } %>
-                    style="width: 3rem" class="d-inline-block" alt="">
+                <img class="logo-light" src="/public/resources/light_mode/logo.png" style="width: 3rem" alt="">
+                <img class="logo-dark" src="/public/resources/dark_mode/logo.png" style="width: 3rem" alt="">
                 Graderoom
             </h1>
         </a>

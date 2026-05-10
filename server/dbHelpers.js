@@ -24,7 +24,7 @@ exports.SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME = 'school_username_lookup';
 exports.COSTS_COLLECTION_NAME = 'costs';
 
 // Change this when updateDB changes
-exports.dbUserVersion = 33;
+exports.dbUserVersion = 35;
 exports.dbClassVersion = 4;
 
 exports.minUsersForAverageCalc = 9;
@@ -182,11 +182,13 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
                     active: beta
                 },
                 appearance: {
-                    theme: 'sun',
+                    theme: 'system',
                     classColors: [],
                     colorPalette: 'clear',
                     shuffleColors: false,
                     seasonalEffects: true,
+                    lightBackground: 'winter-logo',
+                    darkBackground: 'default',
                     showNonAcademic: false,
                     darkModeStart: 946778400000,
                     darkModeFinish: 946738800000,

@@ -1,50 +1,3 @@
-/* Buttons */
-
-.btn {
-    font-weight: bold;
-    margin: 1em;
-    background-color: var(--clr-btn);
-    color: var(--clr-btn-text);
-}
-
-.btn:hover {
-    background: none;
-    border-color: var(--clr-btn);
-    color: var(--clr-btn);
-}
-
-.btn:focus {
-    box-shadow: none;
-}
-
-.approve_btn, .deny_btn {
-    font-size: 0.9rem;
-    padding: .2rem .2rem !important;
-}
-
-.approve_btn {
-    background-color: var(--clr-btn-approve);
-}
-
-.approve_btn:hover {
-    border-color: var(--clr-btn-approve);
-    color: var(--clr-btn-approve);
-}
-
-.deny_btn {
-    background-color: var(--clr-btn-deny);
-}
-
-.deny_btn:hover {
-    border-color: var(--clr-btn-deny);
-    color: var(--clr-btn-deny);
-}
-
-.admin .btn {
-    margin: 0 !important;
-    width: min-content;
-}
-
 /* Form groups */
 
 .form-group input {
@@ -474,17 +427,6 @@ input:disabled + .slider:before {
     margin: 0 0 1rem;
     padding: .375rem .75rem;
     width: auto;
-}
-
-/* Sun limits */
-
-#sun-limits-container input {
-    border: none;
-    opacity: 0.6;
-}
-
-#sun-limits-container label {
-    margin: 0;
 }
 
 /* Break */

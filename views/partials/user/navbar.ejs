@@ -342,17 +342,12 @@
             if (theme === "auto") {
                 themeRadioButtons[3].checked = true;
                 $("#auto-limits-container").show();
-                $("#sun-limits-container").hide();
-            } else if (theme === "sun") {
-                themeRadioButtons[2].checked = true;
-                $("#auto-limits-container").hide();
-                $("#sun-limits-container").show();
             } else if (theme === "dark") {
                 themeRadioButtons[1].checked = true;
-                $("#auto-limits-container, #sun-limits-container").hide();
+                $("#auto-limits-container").hide();
             } else if (theme === "light") {
                 themeRadioButtons[0].checked = true;
-                $("#auto-limits-container, #sun-limits-container").hide();
+                $("#auto-limits-container").hide();
             }
         } catch (e) {
         }

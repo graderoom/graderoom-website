@@ -1,3 +1,8 @@
+<%
+    const lightBackground = _appearance.lightBackground || (_appearance.seasonalEffects ? "winter-logo" : "default");
+    const darkBackground = _appearance.darkBackground || "default";
+    const activeBackground = theme ? darkBackground : lightBackground;
+%>
 <style>
     #snow-fall-bg {
         z-index: -2;
@@ -21,28 +26,12 @@
         color: white;
     }
 </style>
-<style id="light_snowfall"
-        <% if (!_appearance.seasonalEffects || theme !== false) { %> media="not all"
-        <% } %>
->
-    #snow-fall-bg {
-        background-image: linear-gradient(to top, lightblue 20%, deepskyblue 80%);
-    }
+<% if (activeBackground !== "default") { %>
+<link id="themeBackgroundStyle" rel="stylesheet" type="text/css"
+      href="/theme/background.css?theme=<%= theme ? "dark" : "light" %>&background=<%= activeBackground %>">
+<% } %>
 
-    #snow-fall-bg::after {
-        content: "";
-        width: 100%;
-        height: 100%;
-        display: block;
-        opacity: 0.2;
-        background-repeat: repeat;
-        background-size: 20px;
-        border: 1px;
-        background-image: url("/public/resources/common/icon.png");
-    }
-</style>
-
-<div id="snow-fall-bg">
+<div id="snow-fall-bg" class="theme-<%= theme ? "dark" : "light" %> background-<%= activeBackground %>">
     <canvas id='snow-fall' <% if (!_appearance.seasonalEffects) { %>style="display: none"
             <% } %>
     ></canvas>
@@ -78,6 +67,49 @@
     let started = false;
 
     let lowFps;
+    const themeBackgrounds = {
+        light: "<%= lightBackground %>",
+        dark: "<%= darkBackground %>"
+    };
+
+    function applyThemeBackground(isDark = typeof darkMode !== "undefined" ? darkMode : (typeof __dark !== "undefined" ? __dark : <%= theme ? "true" : "false" %>)) {
+        const themeName = isDark ? "dark" : "light";
+        const background = themeBackgrounds[themeName] || "default";
+        $("#snow-fall-bg")
+            .removeClass("theme-light theme-dark background-default background-winter-logo")
+            .addClass(`theme-${themeName} background-${background}`);
+        setThemeBackgroundStylesheet(themeName, background);
+    }
+
+    function setThemeBackground(themeName, background) {
+        themeBackgrounds[themeName] = background;
+        applyThemeBackground();
+    }
+
+    function setThemeBackgroundStylesheet(themeName, background) {
+        let link = document.getElementById("themeBackgroundStyle");
+        if (background === "default") {
+            if (link) {
+                link.remove();
+            }
+            return;
+        }
+
+        if (!link) {
+            link = document.createElement("link");
+            link.id = "themeBackgroundStyle";
+            link.rel = "stylesheet";
+            link.type = "text/css";
+            document.head.appendChild(link);
+        }
+
+        const href = `/theme/background.css?theme=${themeName}&background=${background}`;
+        if (link.getAttribute("href") !== href) {
+            link.setAttribute("href", href);
+        }
+    }
+
+    applyThemeBackground();
 
     function enableSnow() {
         init = performance.now();
@@ -89,7 +121,7 @@
             started = false;
             Snowy();
         }
-        $("#snow-fall-bg").show();
+        $("#snow-fall").show();
         if (typeof setupLights !== "undefined") {
             setupLights();
         }
@@ -102,7 +134,7 @@
         if (typeof numLights !== "undefined") {
             numLights = undefined;
         }
-        $("#snow-fall-bg").hide();
+        $("#snow-fall").hide();
         $(".lightrope").hide();
     }
 

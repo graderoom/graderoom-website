@@ -30,7 +30,7 @@
     --clr-donate-nav-bg: #210060;
     --clr-card-link: #222222;
     --clr-card-footer-link: #BBBBBB;
-    --deco-card-link: none;
+    --deco-card-link: underline;
 
     /* Inputs */
     --clr-select-arrow: lightgray;
@@ -58,4 +58,10 @@
     --img-key: url(/public/resources/dark_mode/key.png);
     --img-graduation: url(/public/resources/dark_mode/graduation.png);
     --img-school: url(/public/resources/dark_mode/school.png);
+}
+
+.logo-light { display: none !important; }
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.5%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }

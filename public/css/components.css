@@ -1,3 +1,50 @@
+/* Buttons */
+
+.btn {
+    font-weight: bold;
+    margin: 1em;
+    background-color: var(--clr-btn);
+    color: var(--clr-btn-text);
+}
+
+.btn:hover {
+    background: none;
+    border-color: var(--clr-btn);
+    color: var(--clr-btn);
+}
+
+.btn:focus {
+    box-shadow: none;
+}
+
+.approve_btn, .deny_btn {
+    font-size: 0.9rem;
+    padding: .2rem .2rem !important;
+}
+
+.approve_btn {
+    background-color: var(--clr-btn-approve);
+}
+
+.approve_btn:hover {
+    border-color: var(--clr-btn-approve);
+    color: var(--clr-btn-approve);
+}
+
+.deny_btn {
+    background-color: var(--clr-btn-deny);
+}
+
+.deny_btn:hover {
+    border-color: var(--clr-btn-deny);
+    color: var(--clr-btn-deny);
+}
+
+.admin .btn {
+    margin: 0 !important;
+    width: min-content;
+}
+
 /* Cards */
 
 .card {
@@ -14,7 +61,10 @@
 
 .card a {
     color: var(--clr-card-link);
-    text-decoration: var(--deco-card-link) !important;
+}
+
+.card a:hover {
+    text-decoration: var(--deco-card-link);
 }
 
 .card-footer a {
@@ -122,12 +172,13 @@
 /* Charts */
 
 .chart {
+    position: relative;
     padding: 0.8rem 2rem;
     border-radius: 0.5rem;
     background-color: var(--clr-surface-deep);
 }
 
-.chart:not(#chart-container-1) {
+.categoryChartToggle + .chart {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
 }
