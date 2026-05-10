@@ -95,6 +95,18 @@
                                     <td class="supported text"><%= premiumCount %></td>
                                 </tr>
                                 <tr>
+                                    <th><span>Backgrounds</span></th>
+                                    <%
+                                        const freeBackgroundCount = _themeConstants.backgrounds.names.free.length;
+                                        const plusBackgroundCount = freeBackgroundCount + _themeConstants.backgrounds.names.plus.length;
+                                        const premiumBackgroundCount = _themeConstants.backgrounds.names.all.length;
+                                    %>
+                                    <td class="supported text"><%= freeBackgroundCount %></td>
+                                    <td class="previous"></td>
+                                    <td class="supported text"><%= plusBackgroundCount %></td>
+                                    <td class="supported text"><%= premiumBackgroundCount %></td>
+                                </tr>
+                                <tr>
                                     <th><span>Ability to set custom class colors</span></th>
                                     <td></td>
                                     <td></td>
@@ -278,6 +290,8 @@
                             <% const background = _appearance.background || _appearance.lightBackground || (_appearance.seasonalEffects ? "winter-logo" : "default"); %>
                             <% const plusThemeNames = _themeConstants.names.plus; %>
                             <% const premiumThemeNames = _themeConstants.names.premium; %>
+                            <% const plusBackgroundNames = _themeConstants.backgrounds.names.plus; %>
+                            <% const premiumBackgroundNames = _themeConstants.backgrounds.names.premium; %>
                             <% const themeLabels = _themeConstants.labels; %>
                             <% const selectedLightTheme = _appearance.lightTheme || (_themeConstants.names.light.includes(_appearance.mode) ? _appearance.mode : "light"); %>
                             <% const selectedDarkTheme = _appearance.darkTheme || (_themeConstants.names.dark.includes(_appearance.mode) ? _appearance.mode : "dark"); %>
@@ -385,18 +399,33 @@
                                 </div>
                             </div>
                             <div class="theme-section theme-background-section">
-                                <h6>Background</h6>
-                                <select id="backgroundPreset" class="minimal theme-control"
-                                        onchange="changeSetting('theme', {mode: appearance.mode, background: this.value})">
-                                    <option value="default" <% if (background === "default") { %>selected
+                                <h6>Background
+                                    <span id="backgroundBadge"><% if (premiumBackgroundNames.includes(background)) { %><span class="premium label-background"><span class="premium-label">PREMIUM</span></span><% } else if (plusBackgroundNames.includes(background)) { %><span class="plus label-background"><span class="plus-label">PLUS</span></span><% } %></span>
+                                </h6>
+                                <div class="theme-control">
+                                    <select id="backgroundPreset" class="minimal"
+                                            onchange="changeSetting('theme', {mode: appearance.mode, background: this.value})">
+                                        <% for (const backgroundValue of _themeConstants.backgrounds.names.all) { %>
+                                            <% const isLocked = (premiumBackgroundNames.includes(backgroundValue) && !premium) || (plusBackgroundNames.includes(backgroundValue) && !plus); %>
+                                            <% if (!isLocked) { %>
+                                            <option value="<%= backgroundValue %>" <% if (background === backgroundValue) { %>selected
+                                                    <% } %>>
+                                                <%= _themeConstants.backgrounds.labels[backgroundValue] %>
+                                            </option>
                                             <% } %>
-                                    >Default Background
-                                    </option>
-                                    <option value="winter-logo" <% if (background === "winter-logo") { %>selected
-                                            <% } %>
-                                    >Winter Logo Gradient
-                                    </option>
-                                </select>
+                                        <% } %>
+                                    </select>
+                                    <% if (!premium) { %>
+                                        <%
+                                            const backgroundPlusCount = !plus ? plusBackgroundNames.length : 0;
+                                            const backgroundPremiumCount = (!plus ? backgroundPlusCount : 0) + premiumBackgroundNames.length;
+                                        %>
+                                        <div class="unlock-hint">
+                                            <% if (!plus && backgroundPlusCount) { %>Unlock <%= backgroundPlusCount %> more with <span class="plus label-background"><span class="plus-label">PLUS</span></span><% if (backgroundPremiumCount) { %><br><% } %><% } %>
+                                            <% if (backgroundPremiumCount) { %>Unlock <%= backgroundPremiumCount %> more with <span class="premium label-background"><span class="premium-label">PREMIUM</span></span><% } %>
+                                        </div>
+                                    <% } %>
+                                </div>
                             </div>
                             <div id="light-theme-options" class="theme-section" style="<% if (_appearance.mode !== "light" && !isAutoMode) { %>display: none;<% } %>">
                                 <h6>Light Theme

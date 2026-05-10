@@ -5,7 +5,7 @@
     const activeThemeName = theme ? selectedDarkTheme : selectedLightTheme;
 %>
 <style>
-    #snow-fall-bg {
+    #theme-background {
         z-index: -2;
         position: fixed;
         top: 0;
@@ -28,11 +28,12 @@
     }
 </style>
 <% if (background !== "default") { %>
+<link id="themeBackgroundBaseStyle" rel="stylesheet" type="text/css" href="/public/css/theme_backgrounds.css">
 <link id="themeBackgroundStyle" rel="stylesheet" type="text/css"
       href="/theme/background.css?theme=<%= activeThemeName %>&background=<%= background %>">
 <% } %>
 
-<div id="snow-fall-bg" class="theme-<%= activeThemeName %> background-<%= background %>">
+<div id="theme-background" class="theme-<%= activeThemeName %> background-<%= background %>">
     <canvas id='snow-fall' <% if (!_appearance.seasonalEffects) { %>style="display: none"
             <% } %>
     ></canvas>
@@ -86,24 +87,37 @@
 
     function applyThemeBackground(isDark = typeof darkMode !== "undefined" ? darkMode : (typeof __dark !== "undefined" ? __dark : <%= theme ? "true" : "false" %>)) {
         const themeName = activeThemeNameFor(isDark);
-        const background = appearance.background;
-        $("#snow-fall-bg")
-            .removeClass("theme-light theme-dark theme-oled-dark background-default background-winter-logo")
+        const background = typeof appearance !== "undefined" ? appearance.background : "<%= background %>";
+        const themeClasses = <%- JSON.stringify(_themeConstants.names.fixed.map(themeName => `theme-${themeName}`)) %>;
+        const backgroundClasses = <%- JSON.stringify(_themeConstants.backgrounds.names.all.map(backgroundName => `background-${backgroundName}`)) %>;
+        $("#theme-background")
+            .removeClass(themeClasses.join(" "))
+            .removeClass(backgroundClasses.join(" "))
             .addClass(`theme-${themeName} background-${background}`);
         setThemeBackgroundStylesheet(themeName, background);
-    }
-
-    function setThemeBackground(background) {
-        applyThemeBackground();
+        setupThemeBackgroundDetails(background);
     }
 
     function setThemeBackgroundStylesheet(themeName, background) {
+        let baseLink = document.getElementById("themeBackgroundBaseStyle");
         let link = document.getElementById("themeBackgroundStyle");
         if (background === "default") {
+            if (baseLink) {
+                baseLink.remove();
+            }
             if (link) {
                 link.remove();
             }
             return;
+        }
+
+        if (!baseLink) {
+            baseLink = document.createElement("link");
+            baseLink.id = "themeBackgroundBaseStyle";
+            baseLink.rel = "stylesheet";
+            baseLink.type = "text/css";
+            baseLink.href = "/public/css/theme_backgrounds.css";
+            document.head.appendChild(baseLink);
         }
 
         if (!link) {
@@ -118,6 +132,113 @@
         if (link.getAttribute("href") !== href) {
             link.setAttribute("href", href);
         }
+    }
+
+    function setupThemeBackgroundDetails(background) {
+        const layerClass = "theme-background-details";
+        const paidBackgrounds = <%- JSON.stringify([..._themeConstants.backgrounds.names.plus, ..._themeConstants.backgrounds.names.premium]) %>;
+        const bg = $("#theme-background");
+        bg.find(`.${layerClass}`).remove();
+
+        if (!paidBackgrounds.includes(background)) {
+            return;
+        }
+        if (background === "aurora" || background === "nebula" || background === "hologlass") {
+            if (background === "nebula") {
+                setupNebulaBackgroundVariation(bg[0]);
+            } else if (background === "hologlass") {
+                setupHologlassBackgroundVariation(bg[0]);
+            }
+            return;
+        }
+
+        const layer = $(`<div class="${layerClass}" aria-hidden="true"></div>`);
+        const area = screenWidth * screenHeight;
+        const density = background === "nebula" ? 17500 : 18500;
+        const count = Math.max(18, Math.min(140, Math.round(area / density)));
+        const randomExtra = Math.floor(Math.random() * 12);
+
+        for (let i = 0; i < randomExtra; i++) {
+            layer.append(`<span style="display: none"></span>`);
+        }
+
+        for (let i = 0; i < count; i++) {
+            const x = Math.random() * (screenWidth + 180) - 90;
+            const y = Math.random() * (screenHeight + 180) - 90;
+            layer.append(`<span style="left: ${x}px; top: ${y}px"></span>`);
+        }
+
+        bg.append(layer);
+    }
+
+    function setupNebulaBackgroundVariation(element) {
+        const randomBetween = (min, max) => min + Math.random() * (max - min);
+        const percent = (value) => `${Math.round(value * 10) / 10}%`;
+        const seconds = (value) => `${Math.round(value * 10) / 10}s`;
+        const degrees = (value) => `${Math.round(value)}deg`;
+        const decimal = (value) => `${Math.round(value * 100) / 100}`;
+        const positionSet = (basePositions) => basePositions.map(([x, y]) => {
+            return `${percent(x + randomBetween(-5, 5))} ${percent(y + randomBetween(-5, 5))}`;
+        }).join(", ") + ", center";
+
+        element.style.setProperty("--bg-nebula-field-duration", seconds(randomBetween(28, 44)));
+        element.style.setProperty("--bg-nebula-drift-duration", seconds(randomBetween(24, 38)));
+        element.style.setProperty("--bg-nebula-color-duration", seconds(randomBetween(14, 26)));
+        element.style.setProperty("--bg-nebula-field-delay", seconds(-randomBetween(0, 34)));
+        element.style.setProperty("--bg-nebula-drift-delay", seconds(-randomBetween(0, 30)));
+        element.style.setProperty("--bg-nebula-color-delay", seconds(-randomBetween(0, 18)));
+
+        element.style.setProperty("--bg-nebula-pos-start", positionSet([[0, 0], [100, 0], [50, 100], [45, 42], [60, 54], [50, 50]]));
+        element.style.setProperty("--bg-nebula-pos-end", positionSet([[8, 5], [92, 7], [45, 92], [52, 46], [54, 58], [56, 48]]));
+
+        element.style.setProperty("--bg-nebula-field-hue-start", degrees(randomBetween(-16, 4)));
+        element.style.setProperty("--bg-nebula-field-hue-end", degrees(randomBetween(8, 28)));
+        element.style.setProperty("--bg-nebula-color-hue-start", degrees(randomBetween(-36, -10)));
+        element.style.setProperty("--bg-nebula-color-hue-mid", degrees(randomBetween(8, 30)));
+        element.style.setProperty("--bg-nebula-color-hue-end", degrees(randomBetween(30, 62)));
+
+        element.style.setProperty("--bg-nebula-field-saturation-start", decimal(randomBetween(0.95, 1.08)));
+        element.style.setProperty("--bg-nebula-field-saturation-end", decimal(randomBetween(1.12, 1.28)));
+        element.style.setProperty("--bg-nebula-color-saturation-start", decimal(randomBetween(1.08, 1.34)));
+        element.style.setProperty("--bg-nebula-color-saturation-mid", decimal(randomBetween(1.62, 2.05)));
+        element.style.setProperty("--bg-nebula-color-saturation-end", decimal(randomBetween(1.28, 1.58)));
+    }
+
+    function setupHologlassBackgroundVariation(element) {
+        const randomBetween = (min, max) => min + Math.random() * (max - min);
+        const percent = (value) => `${Math.round(value * 10) / 10}%`;
+        const seconds = (value) => `${Math.round(value * 10) / 10}s`;
+        const degrees = (value) => `${Math.round(value)}deg`;
+        const decimal = (value) => `${Math.round(value * 100) / 100}`;
+        const positionSet = (basePositions) => basePositions.map(([x, y]) => {
+            return `${percent(x + randomBetween(-6, 6))} ${percent(y + randomBetween(-6, 6))}`;
+        }).join(", ") + ", center";
+
+        element.style.setProperty("--bg-hologlass-field-duration", seconds(randomBetween(34, 54)));
+        element.style.setProperty("--bg-hologlass-sheen-duration", seconds(randomBetween(28, 44)));
+        element.style.setProperty("--bg-hologlass-color-duration", seconds(randomBetween(18, 32)));
+        element.style.setProperty("--bg-hologlass-field-delay", seconds(-randomBetween(0, 38)));
+        element.style.setProperty("--bg-hologlass-sheen-delay", seconds(-randomBetween(0, 32)));
+        element.style.setProperty("--bg-hologlass-color-delay", seconds(-randomBetween(0, 24)));
+
+        element.style.setProperty("--bg-hologlass-angle-1", degrees(randomBetween(112, 138)));
+        element.style.setProperty("--bg-hologlass-angle-2", degrees(randomBetween(46, 74)));
+        element.style.setProperty("--bg-hologlass-angle-3", degrees(randomBetween(144, 168)));
+        element.style.setProperty("--bg-hologlass-sheen-angle-1", degrees(randomBetween(102, 126)));
+        element.style.setProperty("--bg-hologlass-sheen-angle-2", degrees(randomBetween(54, 82)));
+        element.style.setProperty("--bg-hologlass-sheen-angle-3", degrees(randomBetween(136, 162)));
+
+        element.style.setProperty("--bg-hologlass-pos-start", positionSet([[0, 0], [100, 0], [55, 100], [46, 48], [52, 50], [50, 50]]));
+        element.style.setProperty("--bg-hologlass-pos-end", positionSet([[8, 5], [92, 6], [48, 94], [54, 44], [46, 58], [56, 48]]));
+
+        element.style.setProperty("--bg-hologlass-field-hue-start", degrees(randomBetween(-10, 2)));
+        element.style.setProperty("--bg-hologlass-field-hue-end", degrees(randomBetween(10, 30)));
+        element.style.setProperty("--bg-hologlass-color-hue-start", degrees(randomBetween(-22, -4)));
+        element.style.setProperty("--bg-hologlass-color-hue-end", degrees(randomBetween(12, 38)));
+        element.style.setProperty("--bg-hologlass-field-saturation-start", decimal(randomBetween(0.98, 1.08)));
+        element.style.setProperty("--bg-hologlass-field-saturation-end", decimal(randomBetween(1.14, 1.34)));
+        element.style.setProperty("--bg-hologlass-color-saturation-start", decimal(randomBetween(1.02, 1.16)));
+        element.style.setProperty("--bg-hologlass-color-saturation-end", decimal(randomBetween(1.20, 1.46)));
     }
 
     applyThemeBackground();
@@ -328,6 +449,7 @@
             snow.forEach((flake, index) => delete snow[index]);
             snow = [];
             started = false;
+            setupThemeBackgroundDetails(typeof appearance !== "undefined" ? appearance.background : "<%= background %>");
             Snowy();
             <% if (new Date().getMonth() === lightsMonth) { %>
             setupLights();
@@ -338,5 +460,5 @@
 </script>
 
 <% if (new Date().getMonth() === lightsMonth) { %>
-<%- include('christmas_lights.ejs', {theme: theme, page: page}); %>
+<%- include('limited_time/christmas_lights.ejs', {theme: theme, page: page}); %>
 <% } %>

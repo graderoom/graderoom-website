@@ -1,0 +1,322 @@
+#theme-background {
+    overflow: hidden;
+    background-color: var(--clr-bg, #111111);
+}
+
+#theme-background::before,
+#theme-background::after {
+    pointer-events: none;
+}
+
+#theme-background .theme-background-details {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+#theme-background .theme-background-details span {
+    position: absolute;
+    display: block;
+}
+
+#theme-background.background-aurora .theme-background-details {
+    display: none;
+}
+
+#theme-background.background-blueprint .theme-background-details span {
+    width: 12px;
+    height: 12px;
+    opacity: 0.28;
+    border: 1px solid var(--bg-blueprint-line, rgba(255, 255, 255, 0.2));
+    transform: translate(-6px, -6px) rotate(45deg);
+}
+
+#theme-background.background-blueprint .theme-background-details span:nth-child(2n+1) {
+    width: 18px;
+    height: 1px;
+    border: 0;
+    background: var(--bg-blueprint-line, rgba(255, 255, 255, 0.2));
+    transform: translate(-9px, -1px) rotate(0deg);
+}
+
+#theme-background.background-blueprint .theme-background-details span:nth-child(3n+2) {
+    width: 1px;
+    height: 18px;
+    border: 0;
+    background: var(--bg-blueprint-line, rgba(255, 255, 255, 0.2));
+    transform: translate(-1px, -9px);
+}
+
+#theme-background.background-blueprint .theme-background-details span:nth-child(5n+3) {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    opacity: 0.16;
+    transform: translate(-12px, -12px);
+}
+
+#theme-background.background-blueprint .theme-background-details span:nth-child(7n+5) {
+    opacity: 0.38;
+    transform: translate(10px, -18px) rotate(45deg);
+}
+
+#theme-background.background-nebula .theme-background-details {
+    display: none;
+}
+
+#theme-background.background-hologlass .theme-background-details {
+    display: none;
+}
+
+#theme-background.background-winter-logo {
+    background-image: var(--bg-winter-gradient, linear-gradient(to top, #111827 20%, #1D4ED8 80%));
+}
+
+#theme-background.background-winter-logo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    display: block;
+    opacity: var(--bg-winter-logo-opacity, 0.2);
+    background-repeat: repeat;
+    background-size: 20px;
+    background-image: url("/public/resources/common/icon.png");
+}
+
+#theme-background.background-aurora {
+    background:
+            radial-gradient(ellipse at 15% 8%, var(--bg-aurora-glow-1, rgba(125, 211, 252, 0.45)), transparent 42%),
+            radial-gradient(ellipse at 88% 20%, var(--bg-aurora-glow-2, rgba(167, 139, 250, 0.36)), transparent 38%),
+            linear-gradient(160deg, var(--bg-aurora-base-1, #08111F), var(--bg-aurora-base-2, #111827) 48%, var(--bg-aurora-base-3, #172033));
+}
+
+#theme-background.background-aurora::before {
+    content: "";
+    position: absolute;
+    inset: -18%;
+    opacity: var(--bg-aurora-ribbon-opacity, 0.58);
+    filter: blur(24px);
+    background:
+            linear-gradient(115deg, transparent 16%, var(--bg-aurora-ribbon-1, rgba(34, 211, 238, 0.0)) 27%, var(--bg-aurora-ribbon-2, rgba(34, 211, 238, 0.46)) 39%, transparent 56%),
+            linear-gradient(75deg, transparent 24%, var(--bg-aurora-ribbon-3, rgba(168, 85, 247, 0.35)) 45%, transparent 64%);
+}
+
+#theme-background.background-aurora::after {
+    content: none;
+}
+
+#theme-background.background-blueprint {
+    background-color: var(--bg-blueprint-base, #0F172A);
+    background-image:
+            linear-gradient(var(--bg-blueprint-major, rgba(125, 211, 252, 0.18)) 2px, transparent 2px),
+            linear-gradient(90deg, var(--bg-blueprint-major, rgba(125, 211, 252, 0.18)) 2px, transparent 2px),
+            linear-gradient(var(--bg-blueprint-minor, rgba(125, 211, 252, 0.10)) 1px, transparent 1px),
+            linear-gradient(90deg, var(--bg-blueprint-minor, rgba(125, 211, 252, 0.10)) 1px, transparent 1px),
+            radial-gradient(circle at 18% 18%, var(--bg-blueprint-glow, rgba(14, 165, 233, 0.24)), transparent 34%),
+            linear-gradient(145deg, var(--bg-blueprint-base, #0F172A), var(--bg-blueprint-base-2, #111827));
+    background-size: 96px 96px, 96px 96px, 24px 24px, 24px 24px, auto, auto;
+}
+
+#theme-background.background-blueprint::after {
+    content: none;
+}
+
+#theme-background.background-hologlass {
+    will-change: background-position, filter;
+    animation: hologlass-field-shift var(--bg-hologlass-field-duration, 42s) ease-in-out infinite alternate;
+    animation-delay: var(--bg-hologlass-field-delay, 0s);
+    background:
+            radial-gradient(ellipse 78% 58% at 12% 18%, var(--bg-hologlass-glow-1, rgba(56, 189, 248, 0.34)), transparent 62%),
+            radial-gradient(ellipse 70% 52% at 88% 16%, var(--bg-hologlass-glow-2, rgba(236, 72, 153, 0.28)), transparent 60%),
+            radial-gradient(ellipse 82% 62% at 58% 92%, var(--bg-hologlass-glow-3, rgba(250, 204, 21, 0.20)), transparent 64%),
+            linear-gradient(var(--bg-hologlass-angle-1, 124deg), transparent 3%, var(--bg-hologlass-pane-1, rgba(255, 255, 255, 0.12)) 20%, transparent 37%, var(--bg-hologlass-pane-2, rgba(125, 211, 252, 0.12)) 62%, transparent 82%),
+            linear-gradient(var(--bg-hologlass-angle-2, 58deg), transparent 8%, var(--bg-hologlass-pane-3, rgba(244, 114, 182, 0.12)) 38%, transparent 66%),
+            linear-gradient(var(--bg-hologlass-angle-3, 158deg), transparent 12%, var(--bg-hologlass-edge, rgba(255, 255, 255, 0.16)) 50%, transparent 54%),
+            linear-gradient(145deg, var(--bg-hologlass-base, #0F172A), var(--bg-hologlass-base-2, #111827));
+    background-size: 118% 118%, 116% 116%, 120% 120%, 130% 130%, 125% 125%, 118% 118%, auto;
+    background-position: var(--bg-hologlass-pos-start, 0% 0%, 100% 0%, 55% 100%, 46% 48%, 52% 50%, 50% 50%, center);
+}
+
+#theme-background.background-hologlass::before {
+    content: "";
+    position: absolute;
+    inset: -16%;
+    opacity: var(--bg-hologlass-sheen-opacity, 0.42);
+    filter: blur(18px) saturate(1.2);
+    will-change: transform, opacity, filter;
+    animation:
+            hologlass-sheen var(--bg-hologlass-sheen-duration, 36s) ease-in-out infinite alternate,
+            hologlass-color-shift var(--bg-hologlass-color-duration, 24s) ease-in-out infinite alternate;
+    animation-delay: var(--bg-hologlass-sheen-delay, 0s), var(--bg-hologlass-color-delay, 0s);
+    background:
+            linear-gradient(var(--bg-hologlass-sheen-angle-1, 112deg), transparent 10%, var(--bg-hologlass-sheen-1, rgba(255, 255, 255, 0.20)) 28%, transparent 44%),
+            linear-gradient(var(--bg-hologlass-sheen-angle-2, 68deg), transparent 24%, var(--bg-hologlass-sheen-2, rgba(56, 189, 248, 0.18)) 52%, transparent 76%),
+            linear-gradient(var(--bg-hologlass-sheen-angle-3, 150deg), transparent 18%, var(--bg-hologlass-sheen-3, rgba(236, 72, 153, 0.16)) 58%, transparent 86%);
+}
+
+#theme-background.background-hologlass::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: var(--bg-hologlass-vignette-opacity, 0.34);
+    will-change: transform, opacity;
+    animation: hologlass-vignette 52s ease-in-out infinite alternate;
+    background:
+            radial-gradient(ellipse 96% 80% at -24% 116%, var(--bg-hologlass-wash-1, rgba(255, 255, 255, 0.10)), transparent 74%),
+            radial-gradient(ellipse 86% 72% at 124% -20%, var(--bg-hologlass-wash-2, rgba(125, 211, 252, 0.10)), transparent 72%),
+            linear-gradient(150deg, transparent 24%, var(--bg-hologlass-vignette-soft, rgba(0, 0, 0, 0.14)) 100%);
+}
+
+#theme-background.background-nebula {
+    will-change: background-position, filter;
+    animation: nebula-field-shift var(--bg-nebula-field-duration, 34s) ease-in-out infinite alternate;
+    animation-delay: var(--bg-nebula-field-delay, 0s);
+    background:
+            radial-gradient(ellipse 90% 55% at 18% 24%, var(--bg-nebula-core-1, rgba(244, 114, 182, 0.52)), transparent 58%),
+            radial-gradient(ellipse 72% 48% at 82% 18%, var(--bg-nebula-core-2, rgba(45, 212, 191, 0.45)), transparent 56%),
+            radial-gradient(ellipse 82% 62% at 54% 86%, var(--bg-nebula-core-3, rgba(250, 204, 21, 0.28)), transparent 60%),
+            linear-gradient(118deg, transparent 8%, var(--bg-nebula-cloud-1, rgba(244, 114, 182, 0.46)) 38%, transparent 70%),
+            linear-gradient(62deg, transparent 14%, var(--bg-nebula-cloud-2, rgba(45, 212, 191, 0.42)) 52%, transparent 84%),
+            linear-gradient(150deg, var(--bg-nebula-veil-1, rgba(244, 114, 182, 0.22)), transparent 28%, var(--bg-nebula-veil-2, rgba(45, 212, 191, 0.2)) 62%, var(--bg-nebula-veil-3, rgba(250, 204, 21, 0.12))),
+            linear-gradient(155deg, var(--bg-nebula-base, #111827), var(--bg-nebula-base-2, #1F2937));
+    background-size: 115% 115%, 112% 112%, 118% 118%, 125% 125%, 120% 120%, 110% 110%, auto;
+    background-position: var(--bg-nebula-pos-start, 0% 0%, 100% 0%, 50% 100%, 45% 42%, 60% 54%, 50% 50%, center);
+}
+
+#theme-background.background-nebula::before {
+    content: "";
+    position: absolute;
+    inset: -12%;
+    opacity: var(--bg-nebula-cloud-opacity, 0.52);
+    filter: blur(46px) saturate(1.45) contrast(1.08) hue-rotate(-8deg);
+    will-change: transform, opacity, filter;
+    animation:
+            nebula-drift var(--bg-nebula-drift-duration, 30s) ease-in-out infinite alternate,
+            nebula-color-shift var(--bg-nebula-color-duration, 18s) ease-in-out infinite alternate;
+    animation-delay: var(--bg-nebula-drift-delay, 0s), var(--bg-nebula-color-delay, 0s);
+    background:
+            radial-gradient(ellipse 68% 36% at 18% 54%, var(--bg-nebula-core-1, rgba(244, 114, 182, 0.52)), transparent 62%),
+            radial-gradient(ellipse 74% 42% at 82% 42%, var(--bg-nebula-core-2, rgba(45, 212, 191, 0.45)), transparent 64%),
+            radial-gradient(ellipse 52% 32% at 50% 70%, var(--bg-nebula-core-3, rgba(250, 204, 21, 0.28)), transparent 62%),
+            linear-gradient(112deg, transparent 12%, var(--bg-nebula-veil-1, rgba(244, 114, 182, 0.22)) 34%, transparent 62%),
+            linear-gradient(72deg, transparent 18%, var(--bg-nebula-veil-2, rgba(45, 212, 191, 0.2)) 48%, transparent 76%);
+}
+
+#theme-background.background-nebula::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: var(--bg-nebula-vignette-opacity, 0.36);
+    will-change: transform, opacity;
+    animation: nebula-pulse 46s ease-in-out infinite alternate;
+    background:
+            radial-gradient(ellipse 110% 88% at -32% 126%, var(--bg-nebula-vignette-wash, rgba(255, 255, 255, 0.12)), transparent 72%),
+            radial-gradient(ellipse 94% 76% at 132% -30%, var(--bg-nebula-vignette-wash-2, rgba(255, 255, 255, 0.08)), transparent 70%),
+            radial-gradient(ellipse 105% 82% at 126% 120%, transparent 42%, var(--bg-nebula-vignette-soft, rgba(0, 0, 0, 0.14)) 82%, var(--bg-nebula-vignette, rgba(0, 0, 0, 0.34)) 100%),
+            linear-gradient(155deg, transparent 26%, var(--bg-nebula-vignette-soft, rgba(0, 0, 0, 0.14)) 100%);
+}
+
+@keyframes nebula-drift {
+    from {
+        transform: translate3d(-1.5%, -1%, 0) scale(1.02) rotate(-1deg);
+        opacity: calc(var(--bg-nebula-cloud-opacity, 0.52) * 0.86);
+    }
+    to {
+        transform: translate3d(1.5%, 1%, 0) scale(1.06) rotate(1deg);
+        opacity: var(--bg-nebula-cloud-opacity, 0.52);
+    }
+}
+
+@keyframes nebula-field-shift {
+    from {
+        background-position: var(--bg-nebula-pos-start, 0% 0%, 100% 0%, 50% 100%, 45% 42%, 60% 54%, 50% 50%, center);
+        filter: saturate(var(--bg-nebula-field-saturation-start, 1)) hue-rotate(var(--bg-nebula-field-hue-start, -6deg));
+    }
+    to {
+        background-position: var(--bg-nebula-pos-end, 8% 5%, 92% 7%, 45% 92%, 52% 46%, 54% 58%, 56% 48%, center);
+        filter: saturate(var(--bg-nebula-field-saturation-end, 1.18)) hue-rotate(var(--bg-nebula-field-hue-end, 14deg));
+    }
+}
+
+@keyframes nebula-pulse {
+    from {
+        transform: scale(1);
+        opacity: var(--bg-nebula-vignette-opacity, 0.36);
+    }
+    to {
+        transform: scale(1.04);
+        opacity: calc(var(--bg-nebula-vignette-opacity, 0.36) * 0.78);
+    }
+}
+
+@keyframes nebula-color-shift {
+    from {
+        filter: blur(46px) saturate(var(--bg-nebula-color-saturation-start, 1.18)) contrast(1.05) hue-rotate(var(--bg-nebula-color-hue-start, -22deg));
+    }
+    50% {
+        filter: blur(46px) saturate(var(--bg-nebula-color-saturation-mid, 1.85)) contrast(1.14) hue-rotate(var(--bg-nebula-color-hue-mid, 18deg));
+    }
+    to {
+        filter: blur(46px) saturate(var(--bg-nebula-color-saturation-end, 1.42)) contrast(1.08) hue-rotate(var(--bg-nebula-color-hue-end, 42deg));
+    }
+}
+
+@keyframes hologlass-field-shift {
+    from {
+        background-position: var(--bg-hologlass-pos-start, 0% 0%, 100% 0%, 55% 100%, 46% 48%, 52% 50%, 50% 50%, center);
+        filter: saturate(var(--bg-hologlass-field-saturation-start, 1.02)) hue-rotate(var(--bg-hologlass-field-hue-start, -4deg));
+    }
+    to {
+        background-position: var(--bg-hologlass-pos-end, 8% 5%, 92% 6%, 48% 94%, 54% 44%, 46% 58%, 56% 48%, center);
+        filter: saturate(var(--bg-hologlass-field-saturation-end, 1.22)) hue-rotate(var(--bg-hologlass-field-hue-end, 18deg));
+    }
+}
+
+@keyframes hologlass-sheen {
+    from {
+        transform: translate3d(-2%, -1%, 0) scale(1.03);
+        opacity: calc(var(--bg-hologlass-sheen-opacity, 0.42) * 0.82);
+    }
+    to {
+        transform: translate3d(2%, 1%, 0) scale(1.08);
+        opacity: var(--bg-hologlass-sheen-opacity, 0.42);
+    }
+}
+
+@keyframes hologlass-color-shift {
+    from {
+        filter: blur(18px) saturate(var(--bg-hologlass-color-saturation-start, 1.05)) hue-rotate(var(--bg-hologlass-color-hue-start, -12deg));
+    }
+    to {
+        filter: blur(18px) saturate(var(--bg-hologlass-color-saturation-end, 1.32)) hue-rotate(var(--bg-hologlass-color-hue-end, 24deg));
+    }
+}
+
+@keyframes hologlass-vignette {
+    from {
+        transform: scale(1);
+        opacity: var(--bg-hologlass-vignette-opacity, 0.34);
+    }
+    to {
+        transform: scale(1.03);
+        opacity: calc(var(--bg-hologlass-vignette-opacity, 0.34) * 0.78);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #theme-background.background-hologlass,
+    #theme-background.background-hologlass::before,
+    #theme-background.background-hologlass::after,
+    #theme-background.background-nebula::before,
+    #theme-background.background-nebula::after {
+        animation: none;
+        will-change: auto;
+    }
+
+    #theme-background.background-nebula {
+        animation: none;
+        will-change: auto;
+    }
+}
+

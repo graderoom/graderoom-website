@@ -40,23 +40,26 @@ function verifyRecaptcha(token) {
     });
 }
 
-const allowedBackgrounds = ["default", "winter-logo"];
+const allowedBackgrounds = Constants.themes.backgrounds.names.all;
 
-function getDailyBackground() {
-    const nonDefault = allowedBackgrounds.filter(b => b !== "default");
+function getDailyLoggedOutBackground() {
+    const backgrounds = allowedBackgrounds.filter(b => b !== "default");
     const today = new Date();
     const dayIndex = Math.floor(today.getTime() / (24 * 60 * 60 * 1000));
-    return nonDefault[dayIndex % nonDefault.length];
+    return backgrounds[dayIndex % backgrounds.length] ?? "default";
 }
 
 function loggedOutAppearance(extra) {
-    const bg = getDailyBackground();
-    return Object.assign({seasonalEffects: true, background: bg}, extra);
+    const bg = getDailyLoggedOutBackground();
+    return Object.assign({seasonalEffects: true, background: bg, allowPaidBackgrounds: true}, extra);
 }
 
 function appearanceForRender(appearance, attrs = {}) {
     const copy = Object.assign({}, appearance);
     const {plus: plusThemes, premium: premiumThemes} = Constants.themes.names;
+    const {plus: plusBackgrounds, premium: premiumBackgrounds} = Constants.themes.backgrounds.names;
+    const allowPaidBackgrounds = copy.allowPaidBackgrounds === true;
+    delete copy.allowPaidBackgrounds;
 
     if (!attrs.premium) {
         if (premiumThemes.includes(copy.lightTheme)) {
@@ -73,6 +76,12 @@ function appearanceForRender(appearance, attrs = {}) {
         if (plusThemes.includes(copy.darkTheme)) {
             copy.darkTheme = "dark";
         }
+        if (!allowPaidBackgrounds && plusBackgrounds.includes(copy.background)) {
+            copy.background = "default";
+        }
+    }
+    if (!allowPaidBackgrounds && !attrs.premium && premiumBackgrounds.includes(copy.background)) {
+        copy.background = attrs.plus ? "aurora" : "default";
     }
 
     return copy;
@@ -249,10 +258,21 @@ module.exports = function (app, passport) {
             }
         }
 
-        const appearance = req.user?.appearance ?? loggedOutAppearance();
-        const background = appearance.background;
+        const appearance = req.user?.appearance;
+        const background = req.user ? appearance.background : req.query.background;
         if (!allowedBackgrounds.includes(background)) {
             return res.sendStatus(404);
+        }
+        if (Constants.themes.backgrounds.names.paid.includes(background)) {
+            if (req.user) {
+                const attrs = donoAttributes(req.user.donoData);
+                if (Constants.themes.backgrounds.names.premium.includes(background) && !attrs.premium) {
+                    return res.sendStatus(403);
+                }
+                if (Constants.themes.backgrounds.names.plus.includes(background) && !attrs.plus) {
+                    return res.sendStatus(403);
+                }
+            }
         }
         if (background === "default") {
             return res.type("text/css").send("");
@@ -575,6 +595,7 @@ module.exports = function (app, passport) {
     });
 
     app.get("/admin", [isAdmin], async (req, res) => {
+        let {plus, premium} = donoAttributes(req.user.donoData);
 
         renderWithConstants(res, "admin/admin.ejs", {
             page: "admin",
@@ -584,6 +605,8 @@ module.exports = function (app, passport) {
             sessionTimeout: Date.parse(req.session.cookie._expires),
             _appearance: req.user.appearance,
             beta: server.beta,
+            plus: plus,
+            premium: premium,
         });
     });
 
@@ -1028,6 +1051,7 @@ module.exports = function (app, passport) {
     });
 
     app.get("/betakeys", [isAdmin], async (req, res) => {
+        let {plus, premium} = donoAttributes(req.user.donoData);
 
 
 
@@ -1039,7 +1063,9 @@ module.exports = function (app, passport) {
             sessionTimeout: Date.parse(req.session.cookie._expires),
             _appearance: req.user.appearance,
             beta: server.beta,
-            username: req.user.username
+            username: req.user.username,
+            plus: plus,
+            premium: premium
         });
 
     });
@@ -1082,6 +1108,7 @@ module.exports = function (app, passport) {
     });
 
     app.get("/classes", [isAdmin], async (req, res) => {
+        let {plus, premium} = donoAttributes(req.user.donoData);
 
 
         let school = req.query.school ?? "bellarmine";
@@ -1122,7 +1149,9 @@ module.exports = function (app, passport) {
             term: term,
             semester: semester,
             _termsAndSemesters: (await dbClient.getTermsAndSemestersInClassDb(school)).data.value,
-            _: _
+            _: _,
+            plus: plus,
+            premium: premium
         });
     });
 

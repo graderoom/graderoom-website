@@ -2669,6 +2669,8 @@ const _setTheme = async (db, username, mode, darkModeStart, darkModeFinish, seas
     const premiumThemes = Constants.themes.names.premium;
     const plusThemes = Constants.themes.names.plus;
     const fixedThemes = Constants.themes.names.fixed;
+    const premiumBackgrounds = Constants.themes.backgrounds.names.premium;
+    const plusBackgrounds = Constants.themes.backgrounds.names.plus;
     if (!Constants.themes.names.modes.includes(mode)) {
         return {success: false, data: {message: "Something went wrong", log: `Invalid mode: ${mode}`}};
     }
@@ -2698,9 +2700,15 @@ const _setTheme = async (db, username, mode, darkModeStart, darkModeFinish, seas
     if (typeof darkModeFinish !== "number") {
         darkModeFinish = user.appearance.darkModeFinish;
     }
-    const allowedBackgrounds = ["default", "winter-logo"];
+    const allowedBackgrounds = Constants.themes.backgrounds.names.all;
     if (typeof background !== "undefined" && !allowedBackgrounds.includes(background)) {
         return {success: false, data: {message: "Something went wrong", log: `Invalid background: ${background}`}};
+    }
+    if (typeof background === "string" && premiumBackgrounds.includes(background) && !attrs.premium) {
+        return {success: false, data: {message: "Premium is required for that background.", log: `Premium background denied for ${username}: ${background}`}};
+    }
+    if (typeof background === "string" && plusBackgrounds.includes(background) && !attrs.plus) {
+        return {success: false, data: {message: "Plus is required for that background.", log: `Plus background denied for ${username}: ${background}`}};
     }
     let data = {mode: mode};
     let setMap = {"appearance.mode": mode};

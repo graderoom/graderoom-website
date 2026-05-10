@@ -70,6 +70,19 @@ const _themeLabels = {
     "github-light": "GitHub Light",
     "ayu-light": "Ayu Light"
 };
+const _backgroundNames = {
+    free: ["default", "winter-logo"],
+    plus: ["aurora", "blueprint"],
+    premium: ["nebula", "hologlass"]
+};
+const _backgroundLabels = {
+    "default": "Default Background",
+    "winter-logo": "Winter Logo Gradient",
+    "aurora": "Aurora",
+    "blueprint": "Blueprint",
+    "nebula": "Nebula",
+    "hologlass": "Hologlass"
+};
 
 module.exports.Constants = {
     classTypes: ["non-academic", "none", "ap", "honors"],
@@ -88,7 +101,17 @@ module.exports.Constants = {
             all: ["auto", "system", ..._themeNames.dark, ..._themeNames.light]
         },
         css: _themeCss,
-        labels: _themeLabels
+        labels: _themeLabels,
+        backgrounds: {
+            names: {
+                free: _backgroundNames.free,
+                plus: _backgroundNames.plus,
+                premium: _backgroundNames.premium,
+                paid: [..._backgroundNames.plus, ..._backgroundNames.premium],
+                all: [..._backgroundNames.free, ..._backgroundNames.plus, ..._backgroundNames.premium]
+            },
+            labels: _backgroundLabels
+        }
     },
     validLetterGradeRegex: new RegExp(`^(?:${_noGpaLetterStrings.join("|")}|F|[A-D][+\-]?)$`)
 }

@@ -938,6 +938,7 @@
                             case "background":
                                 appearance.background = settings[key];
                                 $("#backgroundPreset").val(settings[key]);
+                                updateBackgroundBadge("backgroundBadge", settings[key]);
                                 applyThemeBackground();
                                 break;
                             case "blurEffects":
@@ -1501,17 +1502,27 @@
     const LIGHT_THEME_NAMES = <%- JSON.stringify(_themeConstants.names.light) %>;
     const PLUS_THEME_NAMES = <%- JSON.stringify(_themeConstants.names.plus) %>;
     const PREMIUM_THEME_NAMES = <%- JSON.stringify(_themeConstants.names.premium) %>;
+    const PLUS_BACKGROUND_NAMES = <%- JSON.stringify(_themeConstants.backgrounds.names.plus) %>;
+    const PREMIUM_BACKGROUND_NAMES = <%- JSON.stringify(_themeConstants.backgrounds.names.premium) %>;
 
-    function updateThemeBadge(badgeId, themeName) {
+    function updateEntitlementBadge(badgeId, value, plusNames, premiumNames) {
         const el = document.getElementById(badgeId);
         if (!el) return;
-        if (PREMIUM_THEME_NAMES.includes(themeName)) {
+        if (premiumNames.includes(value)) {
             el.innerHTML = '<span class="premium label-background"><span class="premium-label">PREMIUM</span></span>';
-        } else if (PLUS_THEME_NAMES.includes(themeName)) {
+        } else if (plusNames.includes(value)) {
             el.innerHTML = '<span class="plus label-background"><span class="plus-label">PLUS</span></span>';
         } else {
             el.innerHTML = '';
         }
+    }
+    
+    function updateThemeBadge(badgeId, themeName) {
+        updateEntitlementBadge(badgeId, themeName, PLUS_THEME_NAMES, PREMIUM_THEME_NAMES);
+    }
+    
+    function updateBackgroundBadge(badgeId, backgroundName) {
+        updateEntitlementBadge(badgeId, backgroundName, PLUS_BACKGROUND_NAMES, PREMIUM_BACKGROUND_NAMES);
     }
 
     function themeStylesheetFor(themeName) {

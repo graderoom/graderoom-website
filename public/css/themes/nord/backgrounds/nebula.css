@@ -1,0 +1,17 @@
+#theme-background {
+    --bg-nebula-base: #2E3440;
+    --bg-nebula-base-2: #3B4252;
+    --bg-nebula-core-1: rgba(136, 192, 208, 0.46);
+    --bg-nebula-core-2: rgba(180, 142, 173, 0.42);
+    --bg-nebula-core-3: rgba(163, 190, 140, 0.28);
+    --bg-nebula-veil-1: rgba(136, 192, 208, 0.24);
+    --bg-nebula-veil-2: rgba(180, 142, 173, 0.22);
+    --bg-nebula-veil-3: rgba(163, 190, 140, 0.16);
+    --bg-nebula-cloud-1: rgba(136, 192, 208, 0.46);
+    --bg-nebula-cloud-2: rgba(180, 142, 173, 0.42);
+    --bg-nebula-cloud-3: rgba(163, 190, 140, 0.30);
+    --bg-nebula-filament: rgba(236, 239, 244, 0.22);
+    --bg-nebula-dust: rgba(236, 239, 244, 0.70);
+    --bg-nebula-cloud-opacity: 0.58;
+    --bg-nebula-vignette-opacity: 0.40;
+}

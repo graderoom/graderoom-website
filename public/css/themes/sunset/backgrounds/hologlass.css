@@ -1,0 +1,19 @@
+#theme-background {
+    --bg-hologlass-base: #F8FAFC;
+    --bg-hologlass-base-2: #EEF6FF;
+    --bg-hologlass-glow-1: rgba(92, 180, 255, 0.36);
+    --bg-hologlass-glow-2: rgba(236, 112, 190, 0.28);
+    --bg-hologlass-glow-3: rgba(132, 204, 22, 0.18);
+    --bg-hologlass-pane-1: rgba(255, 255, 255, 0.34);
+    --bg-hologlass-pane-2: rgba(92, 180, 255, 0.20);
+    --bg-hologlass-pane-3: rgba(236, 112, 190, 0.18);
+    --bg-hologlass-edge: rgba(255, 255, 255, 0.46);
+    --bg-hologlass-sheen-1: rgba(255, 255, 255, 0.34);
+    --bg-hologlass-sheen-2: rgba(92, 180, 255, 0.20);
+    --bg-hologlass-sheen-3: rgba(236, 112, 190, 0.18);
+    --bg-hologlass-sheen-opacity: 0.46;
+    --bg-hologlass-vignette-opacity: 0.12;
+    --bg-hologlass-vignette-soft: rgba(255, 255, 255, 0.18);
+    --bg-hologlass-wash-1: rgba(255, 255, 255, 0.24);
+    --bg-hologlass-wash-2: rgba(92, 180, 255, 0.14);
+}

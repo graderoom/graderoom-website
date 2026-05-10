@@ -1,15 +1,4 @@
-#snow-fall-bg {
-    background-image: linear-gradient(to top, #0D1510 15%, #14532D 62%, #5B8C5A 100%);
+#theme-background {
+    --bg-winter-gradient: linear-gradient(to top, #0D1510 15%, #14532D 62%, #5B8C5A 100%);
 }
 
-#snow-fall-bg::after {
-    content: "";
-    width: 100%;
-    height: 100%;
-    display: block;
-    opacity: 0.17;
-    background-repeat: repeat;
-    background-size: 20px;
-    border: 1px;
-    background-image: url("/public/resources/common/icon.png");
-}
