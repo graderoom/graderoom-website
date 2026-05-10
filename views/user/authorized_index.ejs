@@ -857,7 +857,9 @@
                                 $(`input[name=theme]`).prop("checked", false);
                                 $(`input[name=theme][value=${mode === "auto" || mode === "system" ? "auto-mode" : mode}]`).prop("checked", true);
                                 $(`input[name=automaticTheme]`).prop("checked", false);
-                                $(`input[name=automaticTheme][value=${mode === "system" ? "system" : "auto"}]`).prop("checked", true);
+                                if (mode === "auto" || mode === "system") {
+                                    $(`input[name=automaticTheme][value=${mode}]`).prop("checked", true);
+                                }
                                 if (mode === "auto" || mode === "system") {
                                     $("#light-theme-options, #dark-theme-options, #automatic-theme-options").show();
                                     if (mode === "auto") {
@@ -892,6 +894,7 @@
                                 lightTheme = settings[key];
                                 appearance.lightTheme = settings[key];
                                 $("#lightThemePreset").val(settings[key]);
+                                updateThemeBadge("lightThemeBadge", settings[key]);
                                 if (mode === "light" || ((mode === "auto" || mode === "system") && !darkMode)) {
                                     document.getElementById("fade").disabled = false;
                                     applyActiveTheme();
@@ -904,6 +907,7 @@
                                 darkTheme = settings[key];
                                 appearance.darkTheme = settings[key];
                                 $("#darkThemePreset").val(settings[key]);
+                                updateThemeBadge("darkThemeBadge", settings[key]);
                                 if (mode === "dark" || ((mode === "auto" || mode === "system") && darkMode)) {
                                     document.getElementById("fade").disabled = false;
                                     applyActiveTheme();
@@ -934,7 +938,7 @@
                             case "background":
                                 appearance.background = settings[key];
                                 $("#backgroundPreset").val(settings[key]);
-                                setThemeBackground("all", settings[key]);
+                                applyThemeBackground();
                                 break;
                             case "blurEffects":
                                 $("#blurEffectsToggle").prop("checked", settings[key]);
@@ -1495,6 +1499,20 @@
 
     const THEME_CSS = <%- JSON.stringify(_themeConstants.css) %>;
     const LIGHT_THEME_NAMES = <%- JSON.stringify(_themeConstants.names.light) %>;
+    const PLUS_THEME_NAMES = <%- JSON.stringify(_themeConstants.names.plus) %>;
+    const PREMIUM_THEME_NAMES = <%- JSON.stringify(_themeConstants.names.premium) %>;
+
+    function updateThemeBadge(badgeId, themeName) {
+        const el = document.getElementById(badgeId);
+        if (!el) return;
+        if (PREMIUM_THEME_NAMES.includes(themeName)) {
+            el.innerHTML = '<span class="premium label-background"><span class="premium-label">PREMIUM</span></span>';
+        } else if (PLUS_THEME_NAMES.includes(themeName)) {
+            el.innerHTML = '<span class="plus label-background"><span class="plus-label">PLUS</span></span>';
+        } else {
+            el.innerHTML = '';
+        }
+    }
 
     function themeStylesheetFor(themeName) {
         return THEME_CSS[themeName] ?? THEME_CSS.dark;

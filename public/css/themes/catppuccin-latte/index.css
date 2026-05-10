@@ -1,54 +1,54 @@
 :root {
     /* Core backgrounds */
-    --clr-bg: #F8ECF2;
-    --clr-surface: #FDF3F8;
+    --clr-bg: #ECEDF8;
+    --clr-surface: #F4F3FD;
     --clr-surface-alt: var(--clr-surface);
     --clr-surface-deep: var(--clr-surface);
-    --clr-input: #F2DDE5;
-    --clr-disabled: #C9B3BA;
+    --clr-input: #D8DBEC;
+    --clr-disabled: #ACB0BE;
 
     /* Text */
-    --clr-text: #2A1D22;
-    --clr-text-2: #624C55;
-    --clr-text-3: #947B84;
-    --clr-text-4: #B9A4AB;
-    --clr-placeholder: #A88F98;
-    --clr-text-excluded: #B9A4AB;
-    --clr-text-no-change: rgba(42, 29, 34, 0.5);
+    --clr-text: #4C4F69;
+    --clr-text-2: #5C5F77;
+    --clr-text-3: #8C8FA1;
+    --clr-text-4: #ACB0BE;
+    --clr-placeholder: #9CA0B0;
+    --clr-text-excluded: #BCC0CC;
+    --clr-text-no-change: rgba(76, 79, 105, 0.5);
 
     /* Borders and shadows */
-    --clr-border: #E7D4DA;
-    --clr-border-subtle: #F0E2E7;
-    --clr-shadow: rgba(72, 38, 50, 0.22);
-    --clr-shadow-soft: rgba(151, 99, 118, 0.22);
+    --clr-border: #DCE0E8;
+    --clr-border-subtle: #E6E9EF;
+    --clr-shadow: rgba(76, 79, 105, 0.18);
+    --clr-shadow-soft: rgba(108, 111, 133, 0.18);
     --clr-termSwitcher-blur-shadow: var(--clr-shadow-soft) 0 0 2px 1px, inset var(--clr-surface-deep) 0 0 200px 5px;
 
     /* Buttons and links */
-    --clr-btn: #614051;
-    --clr-btn-text: #F8EEF2;
-    --clr-btn-approve: #6FA36D;
-    --clr-btn-deny: #D86F80;
-    --clr-donate-nav-bg: #8A2F62;
-    --clr-card-link: #5A3547;
+    --clr-btn: #7287FD;
+    --clr-btn-text: #FFFFFF;
+    --clr-btn-approve: #40A02B;
+    --clr-btn-deny: #D20F39;
+    --clr-donate-nav-bg: #8839EF;
+    --clr-card-link: #5C5F77;
     --clr-card-footer-link: currentColor;
     --deco-card-link: underline;
 
     /* Inputs */
-    --clr-select-arrow: #8A6D78;
-    --clr-select-track: #E4D0D7;
+    --clr-select-arrow: #6C6F85;
+    --clr-select-track: #CCD0DA;
 
     /* Status colors */
-    --clr-success: #278B48;
-    --clr-error: #CF3F4F;
-    --clr-warning: #B7791F;
-    --clr-loading: #287CA8;
-    --clr-donate: #D69B13;
+    --clr-success: #40A02B;
+    --clr-error: #D20F39;
+    --clr-warning: #DF8E1D;
+    --clr-loading: #1E66F5;
+    --clr-donate: #DF8E1D;
 
     /* Components */
-    --clr-overlay: rgba(42, 29, 34, 0.5);
-    --clr-toolTab-hover: rgba(97, 64, 81, 0.08);
-    --clr-class-link-active-text: white;
-    --clr-class-link-active-bg: #614051;
+    --clr-overlay: rgba(76, 79, 105, 0.42);
+    --clr-toolTab-hover: rgba(114, 135, 253, 0.08);
+    --clr-class-link-active-text: #FFFFFF;
+    --clr-class-link-active-bg: #7287FD;
     --clr-class-color-label-bg: linear-gradient(to left, var(--clr-class-link-active-bg) 50%, var(--clr-surface) 50%);
     --clr-donation-flare: linear-gradient(65deg, transparent 20%, rgba(255, 255, 255, 0.35) 20%, rgba(255, 255, 255, 0.5) 27%, transparent 27%, transparent 100%);
 

@@ -1,6 +1,5 @@
 <%
     const background = _appearance.background;
-    const activeBackground = background;
     const selectedLightTheme = _appearance.lightTheme || "light";
     const selectedDarkTheme = _appearance.darkTheme || "dark";
     const activeThemeName = theme ? selectedDarkTheme : selectedLightTheme;
@@ -28,12 +27,12 @@
         color: white;
     }
 </style>
-<% if (activeBackground !== "default") { %>
+<% if (background !== "default") { %>
 <link id="themeBackgroundStyle" rel="stylesheet" type="text/css"
-      href="/theme/background.css?theme=<%= activeThemeName %>&background=<%= activeBackground %>">
+      href="/theme/background.css?theme=<%= activeThemeName %>&background=<%= background %>">
 <% } %>
 
-<div id="snow-fall-bg" class="theme-<%= activeThemeName %> background-<%= activeBackground %>">
+<div id="snow-fall-bg" class="theme-<%= activeThemeName %> background-<%= background %>">
     <canvas id='snow-fall' <% if (!_appearance.seasonalEffects) { %>style="display: none"
             <% } %>
     ></canvas>
@@ -69,16 +68,6 @@
     let started = false;
 
     let lowFps;
-    const themeBackgrounds = {
-        light: "<%= background %>",
-        dark: "<%= background %>",
-        "oled-dark": "<%= background %>",
-        "midnight-blue": "<%= background %>",
-        "forest": "<%= background %>",
-        "terminal": "<%= background %>",
-        "rose": "<%= background %>",
-        "solarized-light": "<%= background %>"
-    };
 
     function activeThemeNameFor(isDark) {
         const pageStyle = document.getElementById("pageStyle");
@@ -97,22 +86,14 @@
 
     function applyThemeBackground(isDark = typeof darkMode !== "undefined" ? darkMode : (typeof __dark !== "undefined" ? __dark : <%= theme ? "true" : "false" %>)) {
         const themeName = activeThemeNameFor(isDark);
-        const background = themeBackgrounds[themeName] || "default";
+        const background = appearance.background;
         $("#snow-fall-bg")
             .removeClass("theme-light theme-dark theme-oled-dark background-default background-winter-logo")
             .addClass(`theme-${themeName} background-${background}`);
         setThemeBackgroundStylesheet(themeName, background);
     }
 
-    function setThemeBackground(themeName, background) {
-        themeBackgrounds.light = background;
-        themeBackgrounds.dark = background;
-        themeBackgrounds["oled-dark"] = background;
-        themeBackgrounds["midnight-blue"] = background;
-        themeBackgrounds.forest = background;
-        themeBackgrounds.terminal = background;
-        themeBackgrounds.rose = background;
-        themeBackgrounds["solarized-light"] = background;
+    function setThemeBackground(background) {
         applyThemeBackground();
     }
 

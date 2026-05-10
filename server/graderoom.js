@@ -82,8 +82,12 @@ mongo.config(mongoUrl, productionEnv, isBetaServer).then(() => {
         app.use(passport.initialize());
         app.use(passport.session()); // persistent login sessions
         app.use(flash()); // use connect-flash for flash messages stored in session
-        app.use("/public/css/themes/:theme/index.css", (req, res, next) => {
-            if (Constants.themes.names.premium.includes(req.params.theme) && !donoAttributes(req.user?.donoData || []).premium) {
+        app.use("/public/css/themes/:theme/index.css$", (req, res, next) => {
+            const attrs = donoAttributes(req.user?.donoData || []);
+            if (Constants.themes.names.premium.includes(req.params.theme) && !attrs.premium) {
+                return res.sendStatus(403);
+            }
+            if (Constants.themes.names.plus.includes(req.params.theme) && !attrs.plus) {
                 return res.sendStatus(403);
             }
             next();

@@ -4,7 +4,7 @@ const emailSender = require("./emailSender.js");
 const _ = require("lodash");
 
 const https = require("https");
-const {changelog, changelogLegend, latestVersion} = require("./dbHelpers");
+const {changelog, changelogLegend, latestVersion, donoAttributes} = require("./dbHelpers");
 const {Schools, PrettySchools, SchoolAbbr, Constants} = require("./enums");
 const {checkReturnTo, isLoggedIn, isAdmin, isApiAuthenticated, isInternalApiAuthenticated, inRecentTerm} = require("./middleware");
 
@@ -54,15 +54,23 @@ function loggedOutAppearance(extra) {
     return Object.assign({seasonalEffects: true, background: bg}, extra);
 }
 
-function appearanceForRender(appearance, premium = false) {
+function appearanceForRender(appearance, attrs = {}) {
     const copy = Object.assign({}, appearance);
-    const {premium: premiumThemes} = Constants.themes.names;
+    const {plus: plusThemes, premium: premiumThemes} = Constants.themes.names;
 
-    if (!premium) {
+    if (!attrs.premium) {
         if (premiumThemes.includes(copy.lightTheme)) {
             copy.lightTheme = "light";
         }
         if (premiumThemes.includes(copy.darkTheme)) {
+            copy.darkTheme = "dark";
+        }
+    }
+    if (!attrs.plus) {
+        if (plusThemes.includes(copy.lightTheme)) {
+            copy.lightTheme = "light";
+        }
+        if (plusThemes.includes(copy.darkTheme)) {
             copy.darkTheme = "dark";
         }
     }
@@ -73,7 +81,7 @@ function appearanceForRender(appearance, premium = false) {
 function renderWithConstants(res, view, data = {}) {
     const renderData = Object.assign({_themeConstants: Constants.themes}, data);
     if (renderData._appearance) {
-        renderData._appearance = appearanceForRender(renderData._appearance, renderData.premium === true);
+        renderData._appearance = appearanceForRender(renderData._appearance, {plus: renderData.plus === true, premium: renderData.premium === true});
     }
     res.render(view, renderData);
 }
@@ -107,7 +115,7 @@ module.exports = function (app, passport) {
             let gradeSync = (await dbClient.getGradeSync(req.user.username)).data.value;
 
             if (term && semester) {
-                let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
+                let {plus, premium} = donoAttributes(req.user.donoData);
                 let relevantClassData = (await dbClient.getRelevantClassData(req.user.username, term, semester)).data.value;
                 let gradeHistoryLetters = (await dbClient.getGradeHistoryLetters(req.user.username, term, semester)).data.value;
                 let trimmedAlerts = (await dbClient.getTrimmedAlerts(req.user.username, term, semester)).data.value;
@@ -166,7 +174,7 @@ module.exports = function (app, passport) {
                     plus: plus
                 });
             } else {
-                let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
+                let {plus, premium} = donoAttributes(req.user.donoData);
                 let alerts = (await dbClient.getAllAlerts(req.user.username)).data.value;
                 renderWithConstants(res, "user/authorized_index.ejs", {
                     page: "home",
@@ -228,12 +236,15 @@ module.exports = function (app, passport) {
         if (!theme) {
             return res.sendStatus(404);
         }
-        if (Constants.themes.names.premium.includes(theme)) {
+        if (Constants.themes.names.paid.includes(theme)) {
             if (!req.user) {
                 return res.sendStatus(403);
             }
-            const {premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
-            if (!premium) {
+            const attrs = donoAttributes(req.user.donoData);
+            if (Constants.themes.names.premium.includes(theme) && !attrs.premium) {
+                return res.sendStatus(403);
+            }
+            if (Constants.themes.names.plus.includes(theme) && !attrs.plus) {
                 return res.sendStatus(403);
             }
         }
@@ -365,7 +376,7 @@ module.exports = function (app, passport) {
     
 
             if (term && semester) {
-                let {plus, premium} = (await dbClient.getDonoAttributes(user.username)).data.value;
+                let {plus, premium} = donoAttributes(user.donoData);
                 let relevantClassData = (await dbClient.getRelevantClassData(user.username, term, semester)).data.value;
                 let gradeHistoryLetters = (await dbClient.getGradeHistoryLetters(user.username, term, semester)).data.value;
                 let trimmedAlerts = (await dbClient.getTrimmedAlerts(user.username, term, semester)).data.value;
@@ -417,7 +428,7 @@ module.exports = function (app, passport) {
                     apiKey: user.api.apiKey ?? "",
                 });
             } else {
-                let {plus, premium} = (await dbClient.getDonoAttributes(user.username)).data.value;
+                let {plus, premium} = donoAttributes(user.donoData);
                 renderWithConstants(res, "user/authorized_index.ejs", {
                     page: "home",
                     history: false,
@@ -957,7 +968,7 @@ module.exports = function (app, passport) {
         if (req.isAuthenticated()) {
 
             let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data.value;
-            let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
+            let {plus, premium} = donoAttributes(req.user.donoData);
             let alerts = (await dbClient.getSpecificAlerts(req.user.username, ["tutorialStatus"])).data.value;
 
             if (term && semester) {
@@ -1121,12 +1132,11 @@ module.exports = function (app, passport) {
         if (!success) {
             return renderWithConstants(res, "viewer/loading_charts.ejs", {page: "charts-logged-out",
                 _appearance: loggedOutAppearance(),
-                premium: false,
                 _: _
             });
         }
         if (req.isAuthenticated()) {
-            let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
+            let {plus, premium} = donoAttributes(req.user.donoData);
             let alerts = (await dbClient.getSpecificAlerts(req.user.username, ["tutorialStatus"])).data.value;
             renderWithConstants(res, "viewer/cool_charts.ejs", {
                 username: req.user.username,
@@ -1163,7 +1173,6 @@ module.exports = function (app, passport) {
                 lastUpdated: lastUpdated.getTime(),
                 _SchoolAbbr: SchoolAbbr,
                 _PrettySchools: PrettySchools,
-                premium: false,
                 _: _
             });
         }

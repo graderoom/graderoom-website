@@ -81,6 +81,20 @@
                                     <td class="supported text">15 min</td>
                                 </tr>
                                 <tr>
+                                    <th><span>Themes</span></th>
+                                    <%
+                                        const allLight = _themeConstants.names.light;
+                                        const allDark = _themeConstants.names.dark;
+                                        const freeCount = allLight.filter(t => !_themeConstants.names.paid.includes(t)).length + allDark.filter(t => !_themeConstants.names.paid.includes(t)).length;
+                                        const plusCount = freeCount + allLight.filter(t => _themeConstants.names.plus.includes(t)).length + allDark.filter(t => _themeConstants.names.plus.includes(t)).length;
+                                        const premiumCount = allLight.length + allDark.length;
+                                    %>
+                                    <td class="supported text"><%= freeCount %></td>
+                                    <td class="previous"></td>
+                                    <td class="supported text"><%= plusCount %></td>
+                                    <td class="supported text"><%= premiumCount %></td>
+                                </tr>
+                                <tr>
                                     <th><span>Ability to set custom class colors</span></th>
                                     <td></td>
                                     <td></td>
@@ -262,6 +276,7 @@
                                 <a class="close" onclick="closeMessage('themeMessage')" aria-label="close">X</a>
                             </div>
                             <% const background = _appearance.background || _appearance.lightBackground || (_appearance.seasonalEffects ? "winter-logo" : "default"); %>
+                            <% const plusThemeNames = _themeConstants.names.plus; %>
                             <% const premiumThemeNames = _themeConstants.names.premium; %>
                             <% const themeLabels = _themeConstants.labels; %>
                             <% const selectedLightTheme = _appearance.lightTheme || (_themeConstants.names.light.includes(_appearance.mode) ? _appearance.mode : "light"); %>
@@ -292,7 +307,7 @@
                                                   value="auto-mode"
                                                   name="theme"
                                                   onchange="$('#light-theme-options, #dark-theme-options, #automatic-theme-options').show();
-                                                          const automaticTheme = $('input[name=automaticTheme]:checked').val() || 'auto';
+                                                          const automaticTheme = $('input[name=automaticTheme]:checked').val() || 'system';
                                                           if (automaticTheme === 'auto') {
                                                               $('#auto-limits-container').show().css('display','flex');
                                                               $('#prefers-color-scheme').hide();
@@ -384,35 +399,61 @@
                                 </select>
                             </div>
                             <div id="light-theme-options" class="theme-section" style="<% if (_appearance.mode !== "light" && !isAutoMode) { %>display: none;<% } %>">
-                                <h6>Light Theme</h6>
+                                <h6>Light Theme
+                                    <span id="lightThemeBadge"><% if (premiumThemeNames.includes(selectedLightTheme)) { %><span class="premium label-background"><span class="premium-label">PREMIUM</span></span><% } else if (plusThemeNames.includes(selectedLightTheme)) { %><span class="plus label-background"><span class="plus-label">PLUS</span></span><% } %></span>
+                                </h6>
                                 <div class="theme-control">
                                     <select id="lightThemePreset" class="minimal"
                                             onchange="changeSetting('theme', {mode: appearance.mode, lightTheme: this.value})">
                                         <% for (const themeValue of _themeConstants.names.light) { %>
-                                            <% const isPremiumTheme = premiumThemeNames.includes(themeValue); %>
+                                            <% const isLocked = (premiumThemeNames.includes(themeValue) && !premium) || (plusThemeNames.includes(themeValue) && !plus); %>
+                                            <% if (!isLocked) { %>
                                             <option value="<%= themeValue %>"
-                                                    <% if (selectedLightTheme === themeValue) { %>selected<% } %>
-                                                    <% if (isPremiumTheme && !premium) { %>disabled<% } %>>
-                                                <%= themeLabels[themeValue] %><% if (isPremiumTheme && !premium) { %> (requires Premium)<% } %>
+                                                    <% if (selectedLightTheme === themeValue) { %>selected<% } %>>
+                                                <%= themeLabels[themeValue] %>
                                             </option>
+                                            <% } %>
                                         <% } %>
                                     </select>
+                                    <% if (!premium) { %>
+                                        <%
+                                            const lightPlusCount = !plus ? _themeConstants.names.light.filter(t => plusThemeNames.includes(t)).length : 0;
+                                            const lightPremiumCount = (!plus ? lightPlusCount : 0) + _themeConstants.names.light.filter(t => premiumThemeNames.includes(t)).length;
+                                        %>
+                                        <div class="unlock-hint">
+                                            <% if (!plus && lightPlusCount) { %>Unlock <%= lightPlusCount %> more with <span class="plus label-background"><span class="plus-label">PLUS</span></span><% if (lightPremiumCount) { %><br><% } %><% } %>
+                                            <% if (lightPremiumCount) { %>Unlock <%= lightPremiumCount %> more with <span class="premium label-background"><span class="premium-label">PREMIUM</span></span><% } %>
+                                        </div>
+                                    <% } %>
                                 </div>
                             </div>
                             <div id="dark-theme-options" class="theme-section" style="<% if (_appearance.mode !== "dark" && !isAutoMode) { %>display: none;<% } %>">
-                                <h6>Dark Theme</h6>
+                                <h6>Dark Theme
+                                    <span id="darkThemeBadge"><% if (premiumThemeNames.includes(selectedDarkTheme)) { %><span class="premium label-background"><span class="premium-label">PREMIUM</span></span><% } else if (plusThemeNames.includes(selectedDarkTheme)) { %><span class="plus label-background"><span class="plus-label">PLUS</span></span><% } %></span>
+                                </h6>
                                 <div class="theme-control">
                                     <select id="darkThemePreset" class="minimal"
                                             onchange="changeSetting('theme', {mode: appearance.mode, darkTheme: this.value})">
                                         <% for (const themeValue of _themeConstants.names.dark) { %>
-                                            <% const isPremiumTheme = premiumThemeNames.includes(themeValue); %>
+                                            <% const isLocked = (premiumThemeNames.includes(themeValue) && !premium) || (plusThemeNames.includes(themeValue) && !plus); %>
+                                            <% if (!isLocked) { %>
                                             <option value="<%= themeValue %>"
-                                                    <% if (selectedDarkTheme === themeValue) { %>selected<% } %>
-                                                    <% if (isPremiumTheme && !premium) { %>disabled<% } %>>
-                                                <%= themeLabels[themeValue] %><% if (isPremiumTheme && !premium) { %> (requires Premium)<% } %>
+                                                    <% if (selectedDarkTheme === themeValue) { %>selected<% } %>>
+                                                <%= themeLabels[themeValue] %>
                                             </option>
+                                            <% } %>
                                         <% } %>
                                     </select>
+                                    <% if (!premium) { %>
+                                        <%
+                                            const darkPlusCount = !plus ? _themeConstants.names.dark.filter(t => plusThemeNames.includes(t)).length : 0;
+                                            const darkPremiumCount = (!plus ? darkPlusCount : 0) +  _themeConstants.names.dark.filter(t => premiumThemeNames.includes(t)).length;
+                                        %>
+                                        <div class="unlock-hint">
+                                            <% if (!plus && darkPlusCount) { %>Unlock <%= darkPlusCount %> more with <span class="plus label-background"><span class="plus-label">PLUS</span></span><% if (darkPremiumCount) { %><br><% } %><% } %>
+                                            <% if (darkPremiumCount) { %>Unlock <%= darkPremiumCount %> more with <span class="premium label-background"><span class="premium-label">PREMIUM</span></span><% } %>
+                                        </div>
+                                    <% } %>
                                 </div>
                             </div>
                         </div>

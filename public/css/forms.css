@@ -217,6 +217,12 @@ select:focus {
     outline: none;
 }
 
+.unlock-hint {
+    font-size: 0.8rem;
+    color: var(--clr-text-3);
+    margin-top: 0.3rem;
+}
+
 .excluded select {
     outline: none;
     background-color: var(--clr-surface-alt);

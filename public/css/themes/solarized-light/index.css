@@ -2,8 +2,8 @@
     /* Core backgrounds */
     --clr-bg: #FDF6E3;
     --clr-surface: #FFFDF2;
-    --clr-surface-alt: #F7EFCF;
-    --clr-surface-deep: #EEE8D5;
+    --clr-surface-alt: var(--clr-surface);
+    --clr-surface-deep: var(--clr-surface);
     --clr-input: #EEE8D5;
     --clr-disabled: #B8AE8B;
 
@@ -49,7 +49,7 @@
     --clr-toolTab-hover: rgba(88, 110, 117, 0.08);
     --clr-class-link-active-text: #FDF6E3;
     --clr-class-link-active-bg: #586E75;
-    --clr-class-color-label-bg: var(--clr-class-link-active-bg);
+    --clr-class-color-label-bg: linear-gradient(to left, var(--clr-class-link-active-bg) 50%, var(--clr-surface) 50%);
     --clr-donation-flare: linear-gradient(65deg, transparent 20%, rgba(255, 255, 255, 0.35) 20%, rgba(255, 255, 255, 0.5) 27%, transparent 27%, transparent 100%);
 
     /* Form images */

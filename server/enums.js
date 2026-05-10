@@ -44,9 +44,10 @@ module.exports.SchoolAbbr = {
 const _noGpaLetters = ["NC", "CR", "P", "W", false];
 const _noGpaLetterStrings = _noGpaLetters.filter(l => typeof l === "string");
 const _themeNames = {
-    dark: ["dark", "oled-dark", "midnight-blue", "forest", "terminal"],
-    light: ["light", "rose", "solarized-light"],
-    premium: ["midnight-blue", "forest", "rose", "solarized-light", "terminal"]
+    dark: ["dark", "oled-dark", "midnight-blue", "forest", "terminal", "nord", "dracula", "monokai", "gruvbox", "cyberpunk"],
+    light: ["light", "rose", "solarized-light", "catppuccin-latte", "sunset", "one-light", "github-light", "ayu-light"],
+    plus: ["midnight-blue", "forest", "rose", "solarized-light", "terminal"],
+    premium: ["nord", "dracula", "monokai", "gruvbox", "cyberpunk", "catppuccin-latte", "sunset", "one-light", "github-light", "ayu-light"]
 };
 const _themeCss = Object.fromEntries([..._themeNames.dark, ..._themeNames.light].map(theme => [theme, `/public/css/themes/${theme}/index.css`]));
 const _themeLabels = {
@@ -57,7 +58,17 @@ const _themeLabels = {
     "forest": "Forest",
     "rose": "Rose",
     "solarized-light": "Solarized Light",
-    "terminal": "Terminal"
+    "terminal": "Terminal",
+    "nord": "Nord",
+    "dracula": "Dracula",
+    "monokai": "Monokai",
+    "gruvbox": "Gruvbox",
+    "cyberpunk": "Cyberpunk",
+    "catppuccin-latte": "Catppuccin Latte",
+    "sunset": "Sunset",
+    "one-light": "One Light",
+    "github-light": "GitHub Light",
+    "ayu-light": "Ayu Light"
 };
 
 module.exports.Constants = {
@@ -69,7 +80,9 @@ module.exports.Constants = {
         names: {
             dark: _themeNames.dark,
             light: _themeNames.light,
+            plus: _themeNames.plus,
             premium: _themeNames.premium,
+            paid: [..._themeNames.plus, ..._themeNames.premium],
             fixed: [..._themeNames.dark, ..._themeNames.light],
             modes: ["light", "dark", "auto", "system"],
             all: ["auto", "system", ..._themeNames.dark, ..._themeNames.light]

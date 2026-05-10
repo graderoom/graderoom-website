@@ -2667,6 +2667,7 @@ const _setTheme = async (db, username, mode, darkModeStart, darkModeFinish, seas
     }
     let user = res.data.value;
     const premiumThemes = Constants.themes.names.premium;
+    const plusThemes = Constants.themes.names.plus;
     const fixedThemes = Constants.themes.names.fixed;
     if (!Constants.themes.names.modes.includes(mode)) {
         return {success: false, data: {message: "Something went wrong", log: `Invalid mode: ${mode}`}};
@@ -2678,8 +2679,12 @@ const _setTheme = async (db, username, mode, darkModeStart, darkModeFinish, seas
         return {success: false, data: {message: "Something went wrong", log: `Invalid dark theme: ${darkTheme}`}};
     }
     const requestedFixedThemes = [lightTheme, darkTheme].filter(themeName => typeof themeName === "string" && fixedThemes.includes(themeName));
-    if (requestedFixedThemes.some(themeName => premiumThemes.includes(themeName)) && !donoAttributes(user.donoData).premium) {
+    const attrs = donoAttributes(user.donoData);
+    if (requestedFixedThemes.some(themeName => premiumThemes.includes(themeName)) && !attrs.premium) {
         return {success: false, data: {message: "Premium is required for that theme.", log: `Premium theme denied for ${username}: ${requestedFixedThemes.join(",")}`}};
+    }
+    if (requestedFixedThemes.some(themeName => plusThemes.includes(themeName)) && !attrs.plus) {
+        return {success: false, data: {message: "Plus is required for that theme.", log: `Plus theme denied for ${username}: ${requestedFixedThemes.join(",")}`}};
     }
     if (typeof seasonalEffects !== "boolean") {
         seasonalEffects = user.appearance.seasonalEffects;
@@ -2726,10 +2731,6 @@ const _setTheme = async (db, username, mode, darkModeStart, darkModeFinish, seas
         data = {seasonalEffects: seasonalEffects};
         setMap = {"appearance.seasonalEffects": seasonalEffects};
         message = "Seasonal effects " + (seasonalEffects ? "enabled" : "disabled") + "!";
-        if (seasonalEffects && typeof user.appearance.background !== "string") {
-            data.background = "winter-logo";
-            setMap["appearance.background"] = "winter-logo";
-        }
     }
     if (blurEffects !== user.appearance.blurEffects) {
         data = {blurEffects: blurEffects};
