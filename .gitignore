@@ -19,3 +19,4 @@ config/
 *.rdb
 catalog_old_*.html
 .env
+.claude
