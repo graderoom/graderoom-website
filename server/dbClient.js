@@ -1548,6 +1548,92 @@ const __version35 = async (db, user) => {
     }
 }
 
+const _version36 = async (db, username) => {
+    let res = await getUser(username, {version: 1, "appearance.lightBackground": 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version36, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 36`}};
+}
+
+const __version36 = async (db, user) => {
+    if (user.version === 35) {
+        await _users(db, user.username).updateOne({username: user.username}, {
+            $set: {
+                "appearance.background": user.appearance?.lightBackground === "winter-logo" ? "winter-logo" : "default",
+                version: 36
+            },
+            $unset: {
+                "appearance.lightBackground": "",
+                "appearance.darkBackground": ""
+            }
+        });
+    }
+}
+
+const _version37 = async (db, username) => {
+    let res = await getUser(username, {version: 1, "appearance.theme": 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version37, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 37`}};
+}
+
+const __version37 = async (db, user) => {
+    if (user.version === 36) {
+        const currentTheme = user.appearance?.theme;
+        const update = {
+            "appearance.lightTheme": Constants.themes.names.light.includes(currentTheme) ? currentTheme : "light",
+            "appearance.darkTheme": Constants.themes.names.dark.includes(currentTheme) ? currentTheme : "dark",
+            version: 37
+        };
+
+        if (Constants.themes.names.light.includes(currentTheme)) {
+            update["appearance.theme"] = "light";
+        } else if (Constants.themes.names.dark.includes(currentTheme)) {
+            update["appearance.theme"] = "dark";
+        }
+
+        await _users(db, user.username).updateOne({username: user.username}, {
+            $set: update
+        });
+    }
+}
+
+const _version38 = async (db, username) => {
+    let res = await getUser(username, {version: 1, "appearance.theme": 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version38, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 38`}};
+}
+
+const __version38 = async (db, user) => {
+    if (user.version === 37) {
+        const currentTheme = user.appearance?.theme;
+        const update = {
+            "appearance.mode": currentTheme,
+            version: 38
+        };
+
+        await _users(db, user.username).updateOne({username: user.username}, {
+            $set: update
+        });
+    }
+}
+
 const initUser = (username) => safe(_initUser, lower(username));
 const _initUser = async (db, username) => {
     let res = await getUser(username, {school: 1, "alerts.tutorialStatus": 1, betaFeatures: 1});
@@ -1719,6 +1805,15 @@ const updateUser = async (user) => {
     }
     if (user.version < 35) {
         await safe(_version35, user.username);
+    }
+    if (user.version < 36) {
+        await safe(_version36, user.username);
+    }
+    if (user.version < 37) {
+        await safe(_version37, user.username);
+    }
+    if (user.version < 38) {
+        await safe(_version38, user.username);
     }
 };
 
@@ -2564,16 +2659,27 @@ const _setWeightedGPA = async (db, username, value) => {
     return {success: false, data: {log: `Error setting weightedGPA to ${value} for ${username}`}};
 };
 
-const setTheme = (username, theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects, lightBackground, darkBackground) => safe(_setTheme, lower(username), lower(theme), darkModeStart, darkModeFinish, seasonalEffects, blurEffects, typeof lightBackground === "string" ? lower(lightBackground) : lightBackground, typeof darkBackground === "string" ? lower(darkBackground) : darkBackground);
-const _setTheme = async (db, username, theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects, lightBackground, darkBackground) => {
-    let res = await getUser(username, {appearance: 1});
+const setTheme = (username, mode, darkModeStart, darkModeFinish, seasonalEffects, blurEffects, background, lightTheme, darkTheme) => safe(_setTheme, lower(username), lower(mode), darkModeStart, darkModeFinish, seasonalEffects, blurEffects, lower(background), lower(lightTheme), lower(darkTheme));
+const _setTheme = async (db, username, mode, darkModeStart, darkModeFinish, seasonalEffects, blurEffects, background, lightTheme, darkTheme) => {
+    let res = await getUser(username, {appearance: 1, donoData: 1});
     if (!res.success) {
         return res;
     }
     let user = res.data.value;
-    let allowedValues = ["auto", "dark", "light", "system"];
-    if (!allowedValues.includes(theme)) {
-        return {success: false, data: {message: "Something went wrong", log: `Invalid theme: ${theme}`}};
+    const premiumThemes = Constants.themes.names.premium;
+    const fixedThemes = Constants.themes.names.fixed;
+    if (!Constants.themes.names.modes.includes(mode)) {
+        return {success: false, data: {message: "Something went wrong", log: `Invalid mode: ${mode}`}};
+    }
+    if (typeof lightTheme === "string" && !Constants.themes.names.light.includes(lightTheme)) {
+        return {success: false, data: {message: "Something went wrong", log: `Invalid light theme: ${lightTheme}`}};
+    }
+    if (typeof darkTheme === "string" && !Constants.themes.names.dark.includes(darkTheme)) {
+        return {success: false, data: {message: "Something went wrong", log: `Invalid dark theme: ${darkTheme}`}};
+    }
+    const requestedFixedThemes = [lightTheme, darkTheme].filter(themeName => typeof themeName === "string" && fixedThemes.includes(themeName));
+    if (requestedFixedThemes.some(themeName => premiumThemes.includes(themeName)) && !donoAttributes(user.donoData).premium) {
+        return {success: false, data: {message: "Premium is required for that theme.", log: `Premium theme denied for ${username}: ${requestedFixedThemes.join(",")}`}};
     }
     if (typeof seasonalEffects !== "boolean") {
         seasonalEffects = user.appearance.seasonalEffects;
@@ -2588,20 +2694,17 @@ const _setTheme = async (db, username, theme, darkModeStart, darkModeFinish, sea
         darkModeFinish = user.appearance.darkModeFinish;
     }
     const allowedBackgrounds = ["default", "winter-logo"];
-    if (typeof lightBackground !== "undefined" && !allowedBackgrounds.includes(lightBackground)) {
-        return {success: false, data: {message: "Something went wrong", log: `Invalid light background: ${lightBackground}`}};
+    if (typeof background !== "undefined" && !allowedBackgrounds.includes(background)) {
+        return {success: false, data: {message: "Something went wrong", log: `Invalid background: ${background}`}};
     }
-    if (typeof darkBackground !== "undefined" && !allowedBackgrounds.includes(darkBackground)) {
-        return {success: false, data: {message: "Something went wrong", log: `Invalid dark background: ${darkBackground}`}};
-    }
-    let data = {theme: theme};
-    let setMap = {"appearance.theme": theme};
-    let message = theme.replace(/^\w/, c => c.toUpperCase()) + " theme enabled!";
-    if (theme === "auto") {
+    let data = {mode: mode};
+    let setMap = {"appearance.mode": mode};
+    let message = mode.replace(/^\w/, c => c.toUpperCase()) + " mode enabled!";
+    if (mode === "auto") {
         darkModeStart = new Date(darkModeStart);
         darkModeFinish = new Date(darkModeFinish);
         message =
-            "Dark theme enabled from " + darkModeStart.toLocaleTimeString() + " to " + darkModeFinish.toLocaleTimeString() + ".";
+            "Dark mode enabled from " + darkModeStart.toLocaleTimeString() + " to " + darkModeFinish.toLocaleTimeString() + ".";
         darkModeStart = darkModeStart.getTime();
         darkModeFinish = darkModeFinish.getTime();
         data.darkModeStart = darkModeStart;
@@ -2609,13 +2712,23 @@ const _setTheme = async (db, username, theme, darkModeStart, darkModeFinish, sea
         setMap["appearance.darkModeStart"] = darkModeStart;
         setMap["appearance.darkModeFinish"] = darkModeFinish;
     }
+    if (typeof lightTheme === "string") {
+        data.lightTheme = lightTheme;
+        setMap["appearance.lightTheme"] = lightTheme;
+        message = `Light theme set to ${Constants.themes.labels[lightTheme] ?? lightTheme}!`;
+    }
+    if (typeof darkTheme === "string") {
+        data.darkTheme = darkTheme;
+        setMap["appearance.darkTheme"] = darkTheme;
+        message = `Dark theme set to ${Constants.themes.labels[darkTheme] ?? darkTheme}!`;
+    }
     if (seasonalEffects !== user.appearance.seasonalEffects) {
         data = {seasonalEffects: seasonalEffects};
         setMap = {"appearance.seasonalEffects": seasonalEffects};
         message = "Seasonal effects " + (seasonalEffects ? "enabled" : "disabled") + "!";
-        if (seasonalEffects && typeof user.appearance.lightBackground !== "string") {
-            data.lightBackground = "winter-logo";
-            setMap["appearance.lightBackground"] = "winter-logo";
+        if (seasonalEffects && typeof user.appearance.background !== "string") {
+            data.background = "winter-logo";
+            setMap["appearance.background"] = "winter-logo";
         }
     }
     if (blurEffects !== user.appearance.blurEffects) {
@@ -2623,15 +2736,10 @@ const _setTheme = async (db, username, theme, darkModeStart, darkModeFinish, sea
         setMap = {"appearance.blurEffects": blurEffects};
         message = "Blur effects " + (blurEffects ? "enabled" : "disabled") + "!";
     }
-    if (typeof lightBackground === "string") {
-        data = {lightBackground: lightBackground};
-        setMap = {"appearance.lightBackground": lightBackground};
-        message = "Light theme background updated!";
-    }
-    if (typeof darkBackground === "string") {
-        data = {darkBackground: darkBackground};
-        setMap = {"appearance.darkBackground": darkBackground};
-        message = "Dark theme background updated!";
+    if (typeof background === "string") {
+        data = {background: background};
+        setMap = {"appearance.background": background};
+        message = "Background updated!";
     }
     let res2 = await _users(db, username).updateOne({username: username}, {
         $set: setMap
@@ -2646,7 +2754,7 @@ const _setTheme = async (db, username, theme, darkModeStart, darkModeFinish, sea
     return {
         success: false, data: {
             message: "Something went wrong",
-            log: `Error updating appearance for ${username} with parameters theme=${theme}, darkModeStart=${darkModeStart}, darkModeFinish=${darkModeFinish}, seasonalEffects=${seasonalEffects}, blurEffects=${blurEffects}`
+            log: `Error updating appearance for ${username} with parameters mode=${mode}, darkModeStart=${darkModeStart}, darkModeFinish=${darkModeFinish}, seasonalEffects=${seasonalEffects}, blurEffects=${blurEffects}`
         }
     };
 };

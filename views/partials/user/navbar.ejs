@@ -338,17 +338,15 @@
 
         // Manage theme selection, if it exists
         try {
-            let themeRadioButtons = document.getElementsByName("theme");
-            if (theme === "auto") {
-                themeRadioButtons[3].checked = true;
-                $("#auto-limits-container").show();
-            } else if (theme === "dark") {
-                themeRadioButtons[1].checked = true;
-                $("#auto-limits-container").hide();
-            } else if (theme === "light") {
-                themeRadioButtons[0].checked = true;
-                $("#auto-limits-container").hide();
-            }
+            $(`input[name=theme]`).prop("checked", false);
+            $(`input[name=theme][value=${mode === "auto" || mode === "system" ? "auto-mode" : mode}]`).prop("checked", true);
+            $(`input[name=automaticTheme]`).prop("checked", false);
+            $(`input[name=automaticTheme][value=${mode === "system" ? "system" : "auto"}]`).prop("checked", true);
+            $("#light-theme-options").toggle(mode === "light" || mode === "auto" || mode === "system");
+            $("#dark-theme-options").toggle(mode === "dark" || mode === "auto" || mode === "system");
+            $("#automatic-theme-options").toggle(mode === "auto" || mode === "system");
+            $("#auto-limits-container").toggle(mode === "auto").css("display", mode === "auto" ? "flex" : "none");
+            $("#prefers-color-scheme").toggle(mode === "system");
         } catch (e) {
         }
 

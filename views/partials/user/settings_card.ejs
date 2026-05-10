@@ -178,6 +178,295 @@
             </div>
             <div id="settings-1" class="tabcontent show">
                 <div class="card-body">
+                    <div class="card-footer">
+                        <h5>Theme</h5>
+                        <div id="theme">
+                            <style>
+                                #theme .theme-section {
+                                    margin-top: 0.55rem;
+                                    padding-top: 0.5rem;
+                                    border-top: 1px solid var(--clr-border-subtle);
+                                }
+
+                                #theme .theme-section:first-of-type {
+                                    margin-top: 0;
+                                    padding-top: 0;
+                                    border-top: 0;
+                                }
+
+                                #theme .theme-section h6 {
+                                    margin-bottom: 0.25rem;
+                                }
+
+                                #theme .theme-control {
+                                    max-width: 18rem;
+                                }
+
+                                #theme .theme-control select {
+                                    width: 100%;
+                                }
+
+                                #theme select.theme-control {
+                                    width: 100%;
+                                    max-width: 18rem;
+                                }
+
+                                #theme .theme-radio-row {
+                                    display: flex;
+                                    flex-wrap: wrap;
+                                    gap: 0.35rem 1rem;
+                                    align-items: center;
+                                }
+
+                                #theme .theme-radio-row label {
+                                    margin-bottom: 0;
+                                    cursor: pointer;
+                                    white-space: nowrap;
+                                }
+
+                                #theme .theme-radio-row input {
+                                    cursor: inherit;
+                                }
+
+                                #theme .theme-radio-option {
+                                    display: grid;
+                                    gap: 0.1rem;
+                                }
+
+                                #theme .theme-radio-hint {
+                                    display: block;
+                                    margin-left: 1.25rem;
+                                    opacity: 0.6;
+                                    font-size: 0.65rem;
+                                    line-height: 1.1;
+                                }
+
+                                #theme .theme-background-section {
+                                    margin-top: 0.85rem;
+                                    padding-top: 0.75rem;
+                                    border-top: 2px solid var(--clr-border-subtle);
+                                }
+                            </style>
+                            <div id="themeMessage"
+                                 class="alert alert-success alert-dismissible font-weight-bold"
+                                 style="display:none">
+                                <div style="display:none" class="sk-chase-mini">
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                </div>
+                                <div class="messageTxt"></div>
+                                <a class="close" onclick="closeMessage('themeMessage')" aria-label="close">X</a>
+                            </div>
+                            <% const background = _appearance.background || _appearance.lightBackground || (_appearance.seasonalEffects ? "winter-logo" : "default"); %>
+                            <% const premiumThemeNames = _themeConstants.names.premium; %>
+                            <% const themeLabels = _themeConstants.labels; %>
+                            <% const selectedLightTheme = _appearance.lightTheme || (_themeConstants.names.light.includes(_appearance.mode) ? _appearance.mode : "light"); %>
+                            <% const selectedDarkTheme = _appearance.darkTheme || (_themeConstants.names.dark.includes(_appearance.mode) ? _appearance.mode : "dark"); %>
+                            <% const isAutoMode = _appearance.mode === "auto" || _appearance.mode === "system"; %>
+                            <div class="theme-section">
+                                <h6>Mode</h6>
+                                <div class="theme-radio-row">
+                                    <label><input type="radio"
+                                                  value="light"
+                                                  name="theme"
+                                                  onchange="$('#light-theme-options').show();
+                                                          $('#dark-theme-options, #automatic-theme-options, #auto-limits-container').hide();
+                                                          changeSetting('theme', {mode: 'light'});"
+                                        <% if (_appearance.mode === "light") { %> checked
+                                                <% } %>
+                                        > Light</label>
+                                    <label><input type="radio"
+                                                  value="dark"
+                                                  name="theme"
+                                                  onchange="$('#dark-theme-options').show();
+                                                          $('#light-theme-options, #automatic-theme-options, #auto-limits-container').hide();
+                                                          changeSetting('theme', {mode: 'dark'});"
+                                        <% if (_appearance.mode === "dark") { %> checked
+                                                <% } %>
+                                        > Dark</label>
+                                    <label><input type="radio"
+                                                  value="auto-mode"
+                                                  name="theme"
+                                                  onchange="$('#light-theme-options, #dark-theme-options, #automatic-theme-options').show();
+                                                          const automaticTheme = $('input[name=automaticTheme]:checked').val() || 'auto';
+                                                          if (automaticTheme === 'auto') {
+                                                              $('#auto-limits-container').show().css('display','flex');
+                                                              $('#prefers-color-scheme').hide();
+                                                          } else {
+                                                              $('#auto-limits-container').hide();
+                                                              $('#prefers-color-scheme').show();
+                                                          }
+                                                          changeSetting('theme', {mode: automaticTheme, darkModeStart: darkModeStart, darkModeFinish: darkModeFinish});"
+                                        <% if (isAutoMode) { %> checked
+                                                <% } %>
+                                        > Automatic</label>
+                                </div>
+                            </div>
+                            <div id="automatic-theme-options" class="theme-section" style="<% if (!isAutoMode) { %>display: none;<% } %>">
+                                <h6>Automatic Behavior</h6>
+                                <div class="theme-radio-row">
+                                    <div class="theme-radio-option">
+                                        <label class="disable-when-system-theme-not-supported"><input
+                                                type="radio"
+                                                value="system"
+                                                name="automaticTheme"
+                                                onchange="$('#auto-limits-container').hide();
+                                                        $('#prefers-color-scheme').show();
+                                                        changeSetting('theme', {mode: 'system'});"
+                                                <% if (_appearance.mode === "system") { %> checked
+                                                <% } %>
+                                            > Match System</label>
+                                        <span id="prefers-color-scheme"
+                                              class="theme-radio-hint"
+                                              style="<% if (_appearance.mode !== "system") { %>display: none;<% } %>"></span>
+                                        <span class="popup show-when-system-theme-not-supported"><i
+                                                    class="fa fa-exclamation-circle"><span
+                                                        class="popup-right always-show"
+                                                        style="width: 10rem;">Your
+                                                    browser does not support this option.</span></i></span>
+                                    </div>
+                                    <label><input id="customScheduleTheme"
+                                                  type="radio"
+                                                  value="auto"
+                                                  name="automaticTheme"
+                                                  onchange="$('#auto-limits-container').show().css('display','flex');
+                                                          $('#prefers-color-scheme').hide();
+                                                          changeSetting('theme', {mode: 'auto', darkModeStart: darkModeStart, darkModeFinish: darkModeFinish});"
+                                            <% if (_appearance.mode === "auto") { %> checked
+                                            <% } %>
+                                        > Custom Schedule</label>
+                                </div>
+                                <div id="auto-limits-container"
+                                     style="<% if (_appearance.mode !== "auto") { %>display: none;<% } else { %>display: flex;<% } %>font-size: 0.9rem; margin: 0.35rem 0 0; align-items: stretch">
+                                    <label class="form-group" id="autoLimits"
+                                           style="display: flex; white-space: nowrap;">
+                                        <label style="vertical-align: center; width: 8rem" for="darkModeStart">
+                                            Dark theme from
+                                        </label>
+                                        <% let _startDate = new Date(_appearance.darkModeStart);
+                                        let _endDate = new Date(_appearance.darkModeFinish); %>
+                                        <input id="darkModeStart"
+                                               style="padding: 0 0.75rem 0 0.75rem"
+                                               type="time"
+                                               class="text-center form-control dont-clear" name="darkModeStart"
+                                               onchange="darkModeStart = new Date('0/' + $(this).val()).getTime(); changeSetting('theme', {mode: 'auto', darkModeStart: darkModeStart, darkModeFinish: darkModeFinish})"
+                                               value="<%= ("0" + _startDate.getHours()).slice(-2) + ":" + ("0" + _startDate.getMinutes()).slice(-2) %>"
+                                        >
+                                        <label style="margin-left: 0.25rem" for="darkModeFinish">
+                                            to
+                                        </label>
+                                        <input id="darkModeFinish"
+                                               style="padding: 0 0.75rem 0 0.75rem;"
+                                               type="time"
+                                               class="text-center form-control dont-clear" name="darkModeFinish"
+                                               onchange="darkModeFinish = new Date('0/' + $(this).val()).getTime(); changeSetting('theme', {mode: 'auto', darkModeStart: darkModeStart, darkModeFinish: darkModeFinish})"
+                                               value="<%= ("0" + _endDate.getHours()).slice(-2) + ":" + ("0" + _endDate.getMinutes()).slice(-2) %>"
+                                        >
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="theme-section theme-background-section">
+                                <h6>Background</h6>
+                                <select id="backgroundPreset" class="minimal theme-control"
+                                        onchange="changeSetting('theme', {mode: appearance.mode, background: this.value})">
+                                    <option value="default" <% if (background === "default") { %>selected
+                                            <% } %>
+                                    >Default Background
+                                    </option>
+                                    <option value="winter-logo" <% if (background === "winter-logo") { %>selected
+                                            <% } %>
+                                    >Winter Logo Gradient
+                                    </option>
+                                </select>
+                            </div>
+                            <div id="light-theme-options" class="theme-section" style="<% if (_appearance.mode !== "light" && !isAutoMode) { %>display: none;<% } %>">
+                                <h6>Light Theme</h6>
+                                <div class="theme-control">
+                                    <select id="lightThemePreset" class="minimal"
+                                            onchange="changeSetting('theme', {mode: appearance.mode, lightTheme: this.value})">
+                                        <% for (const themeValue of _themeConstants.names.light) { %>
+                                            <% const isPremiumTheme = premiumThemeNames.includes(themeValue); %>
+                                            <option value="<%= themeValue %>"
+                                                    <% if (selectedLightTheme === themeValue) { %>selected<% } %>
+                                                    <% if (isPremiumTheme && !premium) { %>disabled<% } %>>
+                                                <%= themeLabels[themeValue] %><% if (isPremiumTheme && !premium) { %> (requires Premium)<% } %>
+                                            </option>
+                                        <% } %>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="dark-theme-options" class="theme-section" style="<% if (_appearance.mode !== "dark" && !isAutoMode) { %>display: none;<% } %>">
+                                <h6>Dark Theme</h6>
+                                <div class="theme-control">
+                                    <select id="darkThemePreset" class="minimal"
+                                            onchange="changeSetting('theme', {mode: appearance.mode, darkTheme: this.value})">
+                                        <% for (const themeValue of _themeConstants.names.dark) { %>
+                                            <% const isPremiumTheme = premiumThemeNames.includes(themeValue); %>
+                                            <option value="<%= themeValue %>"
+                                                    <% if (selectedDarkTheme === themeValue) { %>selected<% } %>
+                                                    <% if (isPremiumTheme && !premium) { %>disabled<% } %>>
+                                                <%= themeLabels[themeValue] %><% if (isPremiumTheme && !premium) { %> (requires Premium)<% } %>
+                                            </option>
+                                        <% } %>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <label class="slider-container disable-in-firefox">
+                            <label class="switch">
+                                <input
+                                        id="blurEffectsToggle"
+                                        style="margin: 0; display: flex"
+                                        type="checkbox"
+                                        name="blurEffects"
+                                <% if (_appearance.blurEffects) { %>
+                                        checked="checked"
+                                        <% } %>
+                                        onchange="changeSetting('theme', {mode: appearance.mode, blurEffects: !appearance.blurEffects})"
+                                >
+                                <span class="slider"></span>
+                            </label>
+                            <label for="blurEffectsToggle">
+                                <span>Enable Blur Effects</span> <span class="popup"><i
+                                            class="fa fa-question-circle"><span
+                                                class="popup-right-bottom">When enabled, adds blur effects across
+                                            the site.
+                                        </span></i></span> <span class="popup hide-in-firefox"><i
+                                            class="fa fa-exclamation-triangle">
+                                        <span class="popup-right-bottom">Causes lag on slower
+                                            devices</span></i></span>
+                            </label>
+                            <span style="margin-left: 0.5rem;" class="popup show-in-firefox"><i
+                                        class="fa fa-exclamation-circle"><span
+                                            class="popup-right always-show"
+                                            style="width: 10rem;">Your
+                                        browser does not support these effects.</span></i></span>
+                        </label>
+                        <label class="slider-container">
+                            <label class="switch">
+                                <input id="seasonalEffectsToggle" type="checkbox"
+                                       name="enableSeasonalEffects"
+                                <% if (_appearance.seasonalEffects) { %>
+                                       checked
+                                        <% } %>
+                                       onchange="changeSetting('theme', {mode: appearance.mode, seasonalEffects: !appearance.seasonalEffects})"
+                                >
+                                <span class="slider"></span>
+                            </label>
+                            <label for="seasonalEffectsToggle">
+                                <span>Enable Seasonal Effects</span> <span class="popup"><i
+                                            class="fa fa-question-circle"><span
+                                                class="popup-right-bottom">When enabled, adds seasonal effects
+                                            across the site.
+                                        </span></i></span>
+                            </label>
+                        </label>
+                    </div>
                     <% if (_gradeData.length > 0) { %>
                         <div class="card-footer">
                             <h5>Color Scheme</h5>
@@ -276,177 +565,6 @@
                             </div>
                         </div>
                     <% } %>
-                    <div class="card-footer">
-                        <h5>Theme</h5>
-                        <div id="theme">
-                            <div id="themeMessage"
-                                 class="alert alert-success alert-dismissible font-weight-bold"
-                                 style="display:none">
-                                <div style="display:none" class="sk-chase-mini">
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                </div>
-                                <div class="messageTxt"></div>
-                                <a class="close" onclick="closeMessage('themeMessage')" aria-label="close">X</a>
-                            </div>
-                            <div style="display: flex; align-items: center; justify-content: space-between">
-                                <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
-                                                                       value="light"
-                                                                       name="theme"
-                                                                       onchange="$('#auto-limits-container').hide();
-                                                                               changeSetting('theme', {theme: 'light'})"
-                                    <% if (_appearance.theme === "light") { %> checked
-                                            <% } %>
-                                    > Always Light
-                                </label>
-                                <% const lightBackground = _appearance.lightBackground; %>
-                                <select id="lightBackgroundPreset" class="minimal"
-                                        onchange="changeSetting('theme', {theme: appearance.theme, lightBackground: this.value})">
-                                    <option value="default" <% if (lightBackground === "default") { %>selected
-                                            <% } %>
-                                    >Default Background
-                                    </option>
-                                    <option value="winter-logo" <% if (lightBackground === "winter-logo") { %>selected
-                                            <% } %>
-                                    >Winter Logo Gradient
-                                    </option>
-                                </select>
-                            </div>
-                            <div style="display: flex; align-items: center; justify-content: space-between">
-                                <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
-                                                                       value="dark"
-                                                                       name="theme"
-                                                                       onchange="$('#auto-limits-container').hide();
-                                                                               changeSetting('theme', {theme: 'dark'})"
-                                    <% if (_appearance.theme === "dark") { %> checked
-                                            <% } %>
-                                    > Always Dark</label>
-                                <% const darkBackground = _appearance.darkBackground || "default"; %>
-                                <select id="darkBackgroundPreset" class="minimal"
-                                        onchange="changeSetting('theme', {theme: appearance.theme, darkBackground: this.value})">
-                                    <option value="default" <% if (darkBackground === "default") { %>selected
-                                            <% } %>
-                                    >Default Background
-                                    </option>
-                                    <option value="winter-logo" <% if (darkBackground === "winter-logo") { %>selected
-                                            <% } %>
-                                    >Winter Logo Gradient
-                                    </option>
-                                </select>
-                            </div>
-                            <label class="disable-when-system-theme-not-supported"
-                                   style="cursor: pointer; align-items: center"><input
-                                        style="cursor: inherit" type="radio"
-                                        value="system"
-                                        name="theme"
-                                        onclick="$('#auto-limits-container').hide();
-                                                                               changeSetting('theme', {theme: 'system'})"
-                                <% if (_appearance.theme === "system") { %> checked
-                                        <% } %>
-                                > Match System
-                                <span id="prefers-color-scheme"
-                                      style="margin-left: 0.5rem; opacity: 0.5; font-size: 0.6rem;"></span>
-                                <span style="margin-left: 0.5rem;"
-                                      class="popup show-when-system-theme-not-supported"><i
-                                            class="fa fa-exclamation-circle"><span
-                                                class="popup-right always-show"
-                                                style="width: 10rem;">Your
-                                            browser does not support this option.</span></i></span>
-                            </label>
-                            <br>
-                            <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
-                                                                   value="auto"
-                                                                   name="theme"
-                                                                   onchange="$('#auto-limits-container').show().css('display','flex');
-                                                                                
-                                                                       changeSetting('theme', {theme: 'auto', darkModeStart: darkModeStart, darkModeFinish: darkModeFinish})"
-                                <% if (_appearance.theme === "auto") { %> checked
-                                        <% } %>
-                                > Dark on Custom Schedule</label>
-                            <div id="auto-limits-container"
-                                 style="<% if (_appearance.theme !== "auto") { %>display: none;<% } else { %>display: flex;<% } %>font-size: 0.9rem; margin-bottom: 0; align-items: stretch">
-                                <label class="form-group" id="autoLimits"
-                                       style="display: flex; white-space: nowrap;">
-                                    <label style="vertical-align: center; width: 8rem" for="darkModeStart">
-                                        Dark theme from
-                                    </label>
-                                    <% let _startDate = new Date(_appearance.darkModeStart);
-                                    let _endDate = new Date(_appearance.darkModeFinish); %>
-                                    <input id="darkModeStart"
-                                           style="padding: 0 0.75rem 0 0.75rem"
-                                           type="time"
-                                           class="text-center form-control dont-clear" name="darkModeStart"
-                                           onchange="darkModeStart = new Date('0/' + $(this).val()).getTime(); changeSetting('theme', {theme: 'auto', darkModeStart: darkModeStart, darkModeFinish: darkModeFinish})"
-                                           value="<%= ("0" + _startDate.getHours()).slice(-2) + ":" + ("0" + _startDate.getMinutes()).slice(-2) %>"
-                                    >
-                                    <label style="margin-left: 0.25rem" for="darkModeFinish">
-                                        to
-                                    </label>
-                                    <input id="darkModeFinish"
-                                           style="padding: 0 0.75rem 0 0.75rem;"
-                                           type="time"
-                                           class="text-center form-control dont-clear" name="darkModeFinish"
-                                           onchange="darkModeFinish = new Date('0/' + $(this).val()).getTime(); changeSetting('theme', {theme: 'auto', darkModeStart: darkModeStart, darkModeFinish: darkModeFinish})"
-                                           value="<%= ("0" + _endDate.getHours()).slice(-2) + ":" + ("0" + _endDate.getMinutes()).slice(-2) %>"
-                                    >
-                                </label>
-                            </div>
-                        </div>
-                        <hr>
-                        <label class="slider-container disable-in-firefox">
-                            <label class="switch">
-                                <input
-                                        id="blurEffectsToggle"
-                                        style="margin: 0; display: flex"
-                                        type="checkbox"
-                                        name="blurEffects"
-                                <% if (_appearance.blurEffects) { %>
-                                        checked="checked"
-                                        <% } %>
-                                        onchange="changeSetting('theme', {theme: appearance.theme, blurEffects: !appearance.blurEffects})"
-                                >
-                                <span class="slider"></span>
-                            </label>
-                            <label for="blurEffectsToggle">
-                                <span>Enable Blur Effects</span> <span class="popup"><i
-                                            class="fa fa-question-circle"><span
-                                                class="popup-right-bottom">When enabled, adds blur effects across
-                                            the site.
-                                        </span></i></span> <span class="popup hide-in-firefox"><i
-                                            class="fa fa-exclamation-triangle">
-                                        <span class="popup-right-bottom">WARNING: Causes lag on slower
-                                            devices</span></i></span>
-                            </label>
-                            <span style="margin-left: 0.5rem;" class="popup show-in-firefox"><i
-                                        class="fa fa-exclamation-circle"><span
-                                            class="popup-right always-show"
-                                            style="width: 10rem;">Your
-                                        browser does not support these effects.</span></i></span>
-                        </label>
-                        <label class="slider-container">
-                            <label class="switch">
-                                <input id="seasonalEffectsToggle" type="checkbox"
-                                       name="enableSeasonalEffects"
-                                <% if (_appearance.seasonalEffects) { %>
-                                       checked
-                                        <% } %>
-                                       onchange="changeSetting('theme', {theme: appearance.theme, seasonalEffects: !appearance.seasonalEffects})"
-                                >
-                                <span class="slider"></span>
-                            </label>
-                            <label for="seasonalEffectsToggle">
-                                <span>Enable Seasonal Effects</span> <span class="popup"><i
-                                            class="fa fa-question-circle"><span
-                                                class="popup-right-bottom">When enabled, adds seasonal effects
-                                            across the site.
-                                        </span></i></span>
-                            </label>
-                        </label>
-                    </div>
                     <div class="card-footer">
                         <h5>Charts</h5>
                         <div>
@@ -917,7 +1035,7 @@
                                             are on a different tab or window.
                                         </span></i></span> <span class="popup hide-in-firefox"><i
                                             class="fa fa-exclamation-triangle">
-                                        <span class="popup-right-bottom">WARNING: This can cause issues such as the
+                                        <span class="popup-right-bottom">This can cause issues such as the
                                             horizontal snow line</span></i></span>
                             </label>
                         </label>

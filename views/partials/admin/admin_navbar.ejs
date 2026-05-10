@@ -1,10 +1,10 @@
 <!-- Admin Nav Bar -->
-<nav class="navbar <% if (theme === true) { %>navbar-dark<% } else if (theme === false) { %>navbar-light<% } %> navbar-expand-lg justify-content-center">
+<nav class="navbar <% if (mode === true) { %>navbar-dark<% } else if (mode === false) { %>navbar-light<% } %> navbar-expand-lg justify-content-center">
     <span class="d-flex w-50 mr-auto">
         <a href="/" class="navbar-brand">
             <h1>
                 <img
-                <% if (theme) { %>
+                <% if (mode) { %>
                     src="/public/resources/dark_mode/logo.png"
                 <% } else { %>
                     src="/public/resources/light_mode/logo.png"
@@ -62,7 +62,7 @@
     </div>
 </nav>
 
-<%- include('../user/logged_out.ejs', {theme: theme}); %>
+<%- include('../user/logged_out.ejs', {mode: mode}); %>
 
 <!-- JavaScript Imports -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>

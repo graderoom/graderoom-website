@@ -43,12 +43,40 @@ module.exports.SchoolAbbr = {
 
 const _noGpaLetters = ["NC", "CR", "P", "W", false];
 const _noGpaLetterStrings = _noGpaLetters.filter(l => typeof l === "string");
+const _themeNames = {
+    dark: ["dark", "oled-dark", "midnight-blue", "forest", "terminal"],
+    light: ["light", "rose", "solarized-light"],
+    premium: ["midnight-blue", "forest", "rose", "solarized-light", "terminal"]
+};
+const _themeCss = Object.fromEntries([..._themeNames.dark, ..._themeNames.light].map(theme => [theme, `/public/css/themes/${theme}/index.css`]));
+const _themeLabels = {
+    "light": "Graderoom Light",
+    "dark": "Graderoom Dark",
+    "oled-dark": "OLED Dark",
+    "midnight-blue": "Midnight Blue",
+    "forest": "Forest",
+    "rose": "Rose",
+    "solarized-light": "Solarized Light",
+    "terminal": "Terminal"
+};
 
 module.exports.Constants = {
     classTypes: ["non-academic", "none", "ap", "honors"],
     uc_csuClassTypes: ["not_uc", "uc", "uc_ap", "uc_hon"],
     donoPlatforms: ["paypal", "venmo", "zelle", "cash", "gift"],
     noGpaLetters: _noGpaLetters,
+    themes: {
+        names: {
+            dark: _themeNames.dark,
+            light: _themeNames.light,
+            premium: _themeNames.premium,
+            fixed: [..._themeNames.dark, ..._themeNames.light],
+            modes: ["light", "dark", "auto", "system"],
+            all: ["auto", "system", ..._themeNames.dark, ..._themeNames.light]
+        },
+        css: _themeCss,
+        labels: _themeLabels
+    },
     validLetterGradeRegex: new RegExp(`^(?:${_noGpaLetterStrings.join("|")}|F|[A-D][+\-]?)$`)
 }
 

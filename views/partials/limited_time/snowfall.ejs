@@ -1,7 +1,9 @@
 <%
-    const lightBackground = _appearance.lightBackground || (_appearance.seasonalEffects ? "winter-logo" : "default");
-    const darkBackground = _appearance.darkBackground || "default";
-    const activeBackground = theme ? darkBackground : lightBackground;
+    const background = _appearance.background;
+    const activeBackground = background;
+    const selectedLightTheme = _appearance.lightTheme || "light";
+    const selectedDarkTheme = _appearance.darkTheme || "dark";
+    const activeThemeName = theme ? selectedDarkTheme : selectedLightTheme;
 %>
 <style>
     #snow-fall-bg {
@@ -28,10 +30,10 @@
 </style>
 <% if (activeBackground !== "default") { %>
 <link id="themeBackgroundStyle" rel="stylesheet" type="text/css"
-      href="/theme/background.css?theme=<%= theme ? "dark" : "light" %>&background=<%= activeBackground %>">
+      href="/theme/background.css?theme=<%= activeThemeName %>&background=<%= activeBackground %>">
 <% } %>
 
-<div id="snow-fall-bg" class="theme-<%= theme ? "dark" : "light" %> background-<%= activeBackground %>">
+<div id="snow-fall-bg" class="theme-<%= activeThemeName %> background-<%= activeBackground %>">
     <canvas id='snow-fall' <% if (!_appearance.seasonalEffects) { %>style="display: none"
             <% } %>
     ></canvas>
@@ -68,21 +70,49 @@
 
     let lowFps;
     const themeBackgrounds = {
-        light: "<%= lightBackground %>",
-        dark: "<%= darkBackground %>"
+        light: "<%= background %>",
+        dark: "<%= background %>",
+        "oled-dark": "<%= background %>",
+        "midnight-blue": "<%= background %>",
+        "forest": "<%= background %>",
+        "terminal": "<%= background %>",
+        "rose": "<%= background %>",
+        "solarized-light": "<%= background %>"
     };
 
+    function activeThemeNameFor(isDark) {
+        const pageStyle = document.getElementById("pageStyle");
+        const href = pageStyle ? pageStyle.getAttribute("href") : "";
+        const themeNames = <%- JSON.stringify(_themeConstants.names.fixed) %>;
+        const activeTheme = themeNames.find(themeName => href.includes(`/themes/${themeName}/`));
+        if (activeTheme) {
+            return activeTheme;
+        }
+        if (!isDark) {
+            return "light";
+        }
+
+        return "dark";
+    }
+
     function applyThemeBackground(isDark = typeof darkMode !== "undefined" ? darkMode : (typeof __dark !== "undefined" ? __dark : <%= theme ? "true" : "false" %>)) {
-        const themeName = isDark ? "dark" : "light";
+        const themeName = activeThemeNameFor(isDark);
         const background = themeBackgrounds[themeName] || "default";
         $("#snow-fall-bg")
-            .removeClass("theme-light theme-dark background-default background-winter-logo")
+            .removeClass("theme-light theme-dark theme-oled-dark background-default background-winter-logo")
             .addClass(`theme-${themeName} background-${background}`);
         setThemeBackgroundStylesheet(themeName, background);
     }
 
     function setThemeBackground(themeName, background) {
-        themeBackgrounds[themeName] = background;
+        themeBackgrounds.light = background;
+        themeBackgrounds.dark = background;
+        themeBackgrounds["oled-dark"] = background;
+        themeBackgrounds["midnight-blue"] = background;
+        themeBackgrounds.forest = background;
+        themeBackgrounds.terminal = background;
+        themeBackgrounds.rose = background;
+        themeBackgrounds["solarized-light"] = background;
         applyThemeBackground();
     }
 

@@ -23,15 +23,16 @@ module.exports = {
                         break;
                     case 'theme':
                         let {
-                            theme,
+                            mode,
                             darkModeStart,
                             darkModeFinish,
                             seasonalEffects,
                             blurEffects,
-                            lightBackground,
-                            darkBackground
+                            background,
+                            lightTheme,
+                            darkTheme,
                         } = value;
-                        resp = await dbClient.setTheme(_socketUsernameHelper(socket), theme, darkModeStart, darkModeFinish, seasonalEffects, blurEffects, lightBackground, darkBackground);
+                        resp = await dbClient.setTheme(_socketUsernameHelper(socket), mode, darkModeStart, darkModeFinish, seasonalEffects, blurEffects, background, lightTheme, darkTheme);
                         break;
                     case 'regularizeClassGraphs':
                         resp = await dbClient.setRegularizeClassGraphs(_socketUsernameHelper(socket), value);

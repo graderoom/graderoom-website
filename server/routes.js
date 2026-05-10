@@ -51,7 +51,31 @@ function getDailyBackground() {
 
 function loggedOutAppearance(extra) {
     const bg = getDailyBackground();
-    return Object.assign({seasonalEffects: true, lightBackground: bg, darkBackground: bg}, extra);
+    return Object.assign({seasonalEffects: true, background: bg}, extra);
+}
+
+function appearanceForRender(appearance, premium = false) {
+    const copy = Object.assign({}, appearance);
+    const {premium: premiumThemes} = Constants.themes.names;
+
+    if (!premium) {
+        if (premiumThemes.includes(copy.lightTheme)) {
+            copy.lightTheme = "light";
+        }
+        if (premiumThemes.includes(copy.darkTheme)) {
+            copy.darkTheme = "dark";
+        }
+    }
+
+    return copy;
+}
+
+function renderWithConstants(res, view, data = {}) {
+    const renderData = Object.assign({_themeConstants: Constants.themes}, data);
+    if (renderData._appearance) {
+        renderData._appearance = appearanceForRender(renderData._appearance, renderData.premium === true);
+    }
+    res.render(view, renderData);
 }
 
 module.exports = function (app, passport) {
@@ -102,7 +126,7 @@ module.exports = function (app, passport) {
                     return [term, sortedSemesters];
                 }).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1);
 
-                res.render("user/authorized_index.ejs", {
+                renderWithConstants(res, "user/authorized_index.ejs", {
                     page: "home",
                     history: req.query.term || req.query.semester,
                     school: req.user.school,
@@ -144,7 +168,7 @@ module.exports = function (app, passport) {
             } else {
                 let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
                 let alerts = (await dbClient.getAllAlerts(req.user.username)).data.value;
-                res.render("user/authorized_index.ejs", {
+                renderWithConstants(res, "user/authorized_index.ejs", {
                     page: "home",
                     history: false,
                     school: req.user.school,
@@ -186,7 +210,7 @@ module.exports = function (app, passport) {
             }
             return;
         }
-        res.render("viewer/index.ejs", {
+        renderWithConstants(res, "viewer/index.ejs", {
             message: req.flash("loginMessage"),
             beta: server.beta,
             _appearance: loggedOutAppearance(),
@@ -199,16 +223,23 @@ module.exports = function (app, passport) {
     });
 
     app.get("/theme/background.css", async (req, res) => {
-        const allowedThemes = ["light", "dark"];
+        const allowedThemes = Constants.themes.names.fixed;
         const theme = allowedThemes.includes(req.query.theme) ? req.query.theme : null;
         if (!theme) {
             return res.sendStatus(404);
         }
+        if (Constants.themes.names.premium.includes(theme)) {
+            if (!req.user) {
+                return res.sendStatus(403);
+            }
+            const {premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
+            if (!premium) {
+                return res.sendStatus(403);
+            }
+        }
 
         const appearance = req.user?.appearance ?? loggedOutAppearance();
-        const lightBackground = appearance.lightBackground || (appearance.seasonalEffects ? "winter-logo" : "default");
-        const darkBackground = appearance.darkBackground || "default";
-        const background = theme === "dark" ? darkBackground : lightBackground;
+        const background = appearance.background;
         if (!allowedBackgrounds.includes(background)) {
             return res.sendStatus(404);
         }
@@ -238,17 +269,17 @@ module.exports = function (app, passport) {
     });
 
     app.get("/terms", async (req, res) => {
-        res.render("viewer/terms_and_conditions.ejs");
+        renderWithConstants(res, "viewer/terms_and_conditions.ejs");
     });
 
     app.get("/privacy", async (req, res) => {
-        res.render("viewer/privacy_policy.ejs");
+        renderWithConstants(res, "viewer/privacy_policy.ejs");
     });
 
     app.get("/about", async (req, res) => {
 
 
-        res.render("viewer/about.ejs", {
+        renderWithConstants(res, "viewer/about.ejs", {
             _appearance: loggedOutAppearance(),
             page: "logged-out-home",
         });
@@ -346,7 +377,7 @@ module.exports = function (app, passport) {
                     });
                     return [term, sortedSemesters];
                 }).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1);
-                res.render("user/authorized_index.ejs", {
+                renderWithConstants(res, "user/authorized_index.ejs", {
                     page: "home",
                     history: req.query.term || req.query.semester,
                     school: user.school,
@@ -387,7 +418,7 @@ module.exports = function (app, passport) {
                 });
             } else {
                 let {plus, premium} = (await dbClient.getDonoAttributes(user.username)).data.value;
-                res.render("user/authorized_index.ejs", {
+                renderWithConstants(res, "user/authorized_index.ejs", {
                     page: "home",
                     history: false,
                     school: user.school,
@@ -534,7 +565,7 @@ module.exports = function (app, passport) {
 
     app.get("/admin", [isAdmin], async (req, res) => {
 
-        res.render("admin/admin.ejs", {
+        renderWithConstants(res, "admin/admin.ejs", {
             page: "admin",
             username: req.user.username,
             adminSuccessMessage: req.flash("adminSuccessMessage"),
@@ -743,7 +774,7 @@ module.exports = function (app, passport) {
     app.get("/signup", (req, res) => {
 
 
-        res.render("viewer/signup.ejs", {
+        renderWithConstants(res, "viewer/signup.ejs", {
             message: req.flash("signupMessage"),
             beta: server.beta,
             _appearance: loggedOutAppearance(),
@@ -932,7 +963,7 @@ module.exports = function (app, passport) {
             if (term && semester) {
                 let grades = (await dbClient.getSemesterGrades(req.user.username, term, semester)).data.value;
                 let weights = (await dbClient.getSemesterWeights(req.user.username, term, semester)).data.value;
-                res.render("user/final_grade_calculator.ejs", {
+                renderWithConstants(res, "user/final_grade_calculator.ejs", {
                     page: "calc",
                     username: req.user.username,
                     schoolUsername: req.user.schoolUsername,
@@ -948,7 +979,7 @@ module.exports = function (app, passport) {
                     premium: premium,
                 });
             } else {
-                res.render("user/final_grade_calculator.ejs", {
+                renderWithConstants(res, "user/final_grade_calculator.ejs", {
                     page: "calc",
                     username: req.user.username,
                     schoolUsername: req.user.schoolUsername,
@@ -965,7 +996,7 @@ module.exports = function (app, passport) {
                 });
             }
         } else {
-            res.render("viewer/final_grade_calculator_logged_out.ejs", {
+            renderWithConstants(res, "viewer/final_grade_calculator_logged_out.ejs", {
                 _appearance: loggedOutAppearance(),
                 page: "logged_out_calc",
                 beta: server.beta,
@@ -989,7 +1020,7 @@ module.exports = function (app, passport) {
 
 
 
-        res.render("admin/betakeys.ejs", {
+        renderWithConstants(res, "admin/betakeys.ejs", {
             betaKeyData: (await dbClient.getAllBetaKeys()).data.value,
             betaKeySuccessMessage: req.flash("betaKeySuccessMessage"),
             betaKeyFailMessage: req.flash("betaKeyFailMessage"),
@@ -1067,7 +1098,7 @@ module.exports = function (app, passport) {
 
         let {classData, catalogData} = (await dbClient.getAllClassData(school, term, semester)).data;
 
-        res.render("admin/classes.ejs", {
+        renderWithConstants(res, "admin/classes.ejs", {
             username: req.user.username,
             page: "classes",
             classData: classData,
@@ -1088,7 +1119,7 @@ module.exports = function (app, passport) {
 
         let {success, data: {loginData, uniqueLoginData, syncData, userData, activeUsersData, schoolData, lastUpdated}} = await dbClient.getChartData();
         if (!success) {
-            return res.render("viewer/loading_charts.ejs", {page: "charts-logged-out",
+            return renderWithConstants(res, "viewer/loading_charts.ejs", {page: "charts-logged-out",
                 _appearance: loggedOutAppearance(),
                 premium: false,
                 _: _
@@ -1097,7 +1128,7 @@ module.exports = function (app, passport) {
         if (req.isAuthenticated()) {
             let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
             let alerts = (await dbClient.getSpecificAlerts(req.user.username, ["tutorialStatus"])).data.value;
-            res.render("viewer/cool_charts.ejs", {
+            renderWithConstants(res, "viewer/cool_charts.ejs", {
                 username: req.user.username,
                 _personalInfo: req.user.personalInfo,
                 _appearance: req.user.appearance,
@@ -1119,7 +1150,7 @@ module.exports = function (app, passport) {
                 _: _
             });
         } else {
-            res.render("viewer/cool_charts.ejs", {
+            renderWithConstants(res, "viewer/cool_charts.ejs", {
                 page: "charts-logged-out",
                 _appearance: loggedOutAppearance(),
                 _loginData: loginData,
@@ -1231,7 +1262,7 @@ module.exports = function (app, passport) {
             res.redirect("/reset_password?token=" + resetToken);
             return;
         }
-        res.render("password_reset/reset_password_success.ejs", {
+        renderWithConstants(res, "password_reset/reset_password_success.ejs", {
             _appearance: loggedOutAppearance(),
             page: "passwordResetSuccess"
         });

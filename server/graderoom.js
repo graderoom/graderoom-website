@@ -15,7 +15,8 @@ const redis = require("redis");
 const session = require("express-session");
 const passport = require("passport");
 const fs = require("fs");
-const {watchChangelog, readChangelog} = require("./dbHelpers");
+const {watchChangelog, readChangelog, donoAttributes} = require("./dbHelpers");
+const {Constants} = require("./enums");
 
 module.exports.beta = isBetaServer;
 
@@ -45,7 +46,6 @@ mongo.config(mongoUrl, productionEnv, isBetaServer).then(() => {
         await mongo.updateAllUsers();
         console.log('Starting node.js server...');
 
-        app.use("/public/", express.static("./public"));
         require("./passport")(passport); // pass passport for configuration
 
         // set up our express application
@@ -82,6 +82,13 @@ mongo.config(mongoUrl, productionEnv, isBetaServer).then(() => {
         app.use(passport.initialize());
         app.use(passport.session()); // persistent login sessions
         app.use(flash()); // use connect-flash for flash messages stored in session
+        app.use("/public/css/themes/:theme/index.css", (req, res, next) => {
+            if (Constants.themes.names.premium.includes(req.params.theme) && !donoAttributes(req.user?.donoData || []).premium) {
+                return res.sendStatus(403);
+            }
+            next();
+        });
+        app.use("/public/", express.static("./public"));
 
         // routes ======================================================================
         app.use(rateLimit);

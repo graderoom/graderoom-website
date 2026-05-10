@@ -52,6 +52,17 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 8.0.0] - 2026-05-12
+### Added
+- Custom backgrounds
+- Custom themes
+
+### Improved
+- Darker dark mode
+
+### Removed
+- Sunrise/sunset theme
+
 ## [Stable 7.3.3] - 2026-05-07
 ### Fixed
 - Allow "NC" letter grades in sync
